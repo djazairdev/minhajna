@@ -36,7 +36,7 @@
 3. اتبع [CONTRIBUTING.md](CONTRIBUTING.md): اذكر مصدر كل تصحيح أو نموذج، وأين ينطبق (المستوى والمادة والسنة الدراسية).
 4. نردّ على طلبات الدمج من المساهمين الجدد في غضون 7 أيام، وقد تستغرق المراجعة أو الدمج وقتًا أطول.
 
-نستقبل الآن الملاحظات والاقتراحات، وتصحيحات التدرجات وغيرها من البيانات المرجعية، ونماذج الطباعة، والترجمات. أما مساهمات الكود فبدعوة فقط إلى غاية إطلاق التطبيق المقرر في سبتمبر 2027.
+نستقبل الآن الملاحظات والاقتراحات، وتصحيحات التدرجات وغيرها من البيانات المرجعية، ونماذج الطباعة، والترجمات، والكود. يمكن للمطوّرين البدء بالمسائل التي عليها وسم [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22).
 
 **لا تنشر أبدًا أسماء التلاميذ أو نقاطهم أو غياباتهم أو صورهم،** في أي مكان في المشروع. استعمل أسماء وهمية. [ملخّص قواعد السلوك](docs/ar/conduct.md).
 
@@ -96,7 +96,7 @@ Ten points protect the teachers whose records are kept in Minhajna: no personnel
 3. Follow [CONTRIBUTING.md](CONTRIBUTING.md): give the source of each correction or template, and where it applies (the level, subject and school year).
 4. We reply to newcomers' pull requests within 7 days. A review or a merge may take longer.
 
-We accept feedback and suggestions, corrections to annual plans and other reference data, print templates, and translations. Code contributions are by invitation until the launch, planned for September 2027.
+We accept feedback and suggestions, corrections to annual plans and other reference data, print templates, translations, and code. Developers can start with the issues labelled [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22).
 
 **Never post pupils' names, marks or absences, or images of them**, anywhere in the project. Use made-up names. The [code of conduct](CODE_OF_CONDUCT.md) applies in every project space.
 

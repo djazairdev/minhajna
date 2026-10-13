@@ -2,7 +2,7 @@
 
 <!-- djazairdev-template: 1.5.2 -->
 
-Minhajna is a free, open-source app for teachers in Algeria: an npm workspace with the shared core in `packages/core` and the Android app in `apps/android`. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [contributor handbook](CONTRIBUTING.md#the-contributor-handbook) before you change anything. These rules bind you as they bind a person.
+Minhajna is a free, open-source app for teachers in Algeria. The shared core in `packages/core` is part of an npm workspace. The Android app in `apps/android` sits outside it, with its own lockfile and dependencies. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [contributor handbook](CONTRIBUTING.md#the-contributor-handbook) before you change anything. These rules bind you as they bind a person.
 
 ## Run the checks
 

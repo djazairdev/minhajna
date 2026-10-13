@@ -8,11 +8,10 @@ The project is at stage 1 of its opening plan ([PRD §1.13](docs/prd/PRD.md#113-
 - feedback and suggestions;
 - corrections to annual plans and other reference data;
 - print templates and layouts;
-- translations.
+- translations;
+- code, from anyone ([0021](docs/decisions/0021-code-contributions-open-to-all.md)).
 
-Code contributions are by invitation until the launch, planned for September 2027. If you'd like to help with code, open an issue and introduce yourself.
-
-**A first contribution** starts with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22): comment on it to say you're working on it, and follow [Content contributions](#content-contributions) below.
+**A first contribution** starts with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for a larger one. Comment on it to say you're working on it, and a maintainer assigns it to you. Then follow [Content contributions](#content-contributions) or [Code contributions](#code-contributions) below.
 
 ## Never post real pupil data
 
@@ -36,9 +35,10 @@ Each correction or template must state:
 
 By contributing content, you agree to publish it under CC BY-SA 4.0. Tell us how you'd like to be credited, or whether you'd rather not be.
 
-## Code contributions (by invitation, for now)
+## Code contributions
 
 Read the [contributor handbook](#the-contributor-handbook) before your first pull request. The essentials:
+- **Agree first.** For anything larger than a small fix, agree the approach in the issue before you write the code. A new dependency is agreed there too ([engineering.md](docs/contributing/engineering.md#dependencies)).
 - **Licence.** Code is licensed under AGPL-3.0-or-later.
 - **Sign-off.** Sign off every commit under the [Developer Certificate of Origin 1.1](https://developercertificate.org/) with `git commit -s`. The sign-off certifies that you have the right to submit the work under the project's licence. A GitHub no-reply email address is fine.
 - **Copyright.** There is no CLA: you keep the copyright in your contribution.
@@ -102,7 +102,7 @@ The maintainers reply to every newcomer's pull request within 7 days, even if on
 | [Releases](docs/contributing/releases.md) | The release calendar, the release checks, signing and the changelog |
 | [Engineering rules](docs/contributing/engineering.md) | The rules every code change follows: privacy, secrets, test data, tests, dependencies and licences |
 
-Some tools the handbook mentions, such as the automated checks, `CHANGELOG.md` and `NETWORK.md`, arrive with the first code. Until then, its rules apply to the documents wherever they can.
+`CHANGELOG.md`, which the handbook mentions, arrives with the first release.
 
 How the project decides, and the teacher council's part in it, are in [GOVERNANCE.md](GOVERNANCE.md).
 
