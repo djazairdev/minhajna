@@ -34,7 +34,7 @@ This guide is for everyone who changes the project's files through Git: develope
 - **Anything larger:** open an issue first, or comment on an existing one. Agree the approach with a maintainer before you write the code, so you don't do work that cannot be merged.
 - **Decisions come before code.** A change that touches a principle, a licence, a data flow, the insights layer, money or a partnership needs an accepted decision record first ([Decision records](#decision-records)).
 - **Claim an issue** by commenting on it, and a maintainer assigns it to you. If an assigned issue has no activity for 30 days, it can go to someone else.
-- **Until the launch in September 2027, code is by invitation** ([PRD §1.13](../prd/PRD.md#113-opening-in-stages)). Introduce yourself in an issue first.
+- **Code is welcome from anyone** ([0021](../decisions/0021-code-contributions-open-to-all.md)). Issues labelled `good first issue` and `help wanted` are ready to take.
 
 ## Setting up
 

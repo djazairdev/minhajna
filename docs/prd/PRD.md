@@ -343,9 +343,9 @@ The insights layer is opt-in and shares lesson-level data only. A later section 
 
 | Stage | When | What becomes public | Contributions accepted |
 |---|---|---|---|
-| 1. From the first line | Now to December 2026 (field check) | The repository, the licences, an Arabic and English README, this PRD, the decision records, and the charter, governance, conduct, privacy and name-policy files (3 Oct). The research only after scrubbing (§1.4) | Feedback, plans, templates and translations; code by invitation |
-| 2. Pilot | January–March 2027 | A public beta group and the changelog | The same, plus invited code contributors |
-| 3. Launch | September 2027 | The teacher council, the F-Droid listing and the first transparency report | Code contributions open to all |
+| 1. From the first line | Now to December 2026 (field check) | The repository, the licences, an Arabic and English README, this PRD, the decision records, and the charter, governance, conduct, privacy and name-policy files (3 Oct). The research only after scrubbing (§1.4) | Feedback, plans, templates, translations and code. Code is open to all since 13 Oct 2026 (0021) |
+| 2. Pilot | January–March 2027 | A public beta group and the changelog | The same |
+| 3. Launch | September 2027 | The teacher council, the F-Droid listing and the first transparency report | The same |
 | 4. Insights | 2027/28 | The insights code, payload and method, at least one month before collection | Comments on the method |
 
 ### 1.14 Algeria first, flexible for other countries
@@ -563,6 +563,12 @@ The code and the reference data live in separate repositories, because they have
 | Decision | Choice |
 |---|---|
 | Code host | The repository is `djazairdev/minhajna`, in djazairdev, the organisation of open-source projects for Algeria, since 10 Oct 2026. GitHub redirects the old addresses. Principles, licences, governance and the opening plan are unchanged |
+
+**Decided on 13 Oct 2026 (decision 0021)**
+
+| Decision | Choice |
+|---|---|
+| Code contributions | Open to all from now, at stage 1, rather than at the launch. Review, the DCO and agreeing larger changes in an issue first are unchanged (§1.7, §1.13) |
 
 **Open**
 - **Protecting the name.** Two steps, since the name is not registered:
@@ -2683,7 +2689,7 @@ Two tracks run side by side: the product for teachers and schools, and the state
 | **Now to December 2026:** the field check | • A prototype: setup, Today and roll call<br>• The five technical checks (§5.13) | • About five plan packs keyed in full (§4.11)<br>• The 2026/27 calendar, as the Ministry publishes it | • The field check (§10.2)<br>• A contact at the IGP<br>• The Tarbya-Up terms read, and the plan-pack format drafted | • Counsel's priority questions, with free help<br>• The association set up, if the pilot's declaration needs it (§9.8)<br>• The project's ANPDP declaration for the pilot (§6.2)<br>• The name protected (§1.17) | The field check's stop condition (§10.4) |
 | **January–March 2027:** the pilot | • The pilot app (§3.11), reader mode and the coordinator's merge (§7.2–7.3)<br>• The national system designed alongside (§5.1) | Fixes from the field. Ramadan 1448 and any exam move as a live test (§4.11) | A director and an inspector in the pilot, in reader mode | • The security design published<br>• Sync only if its gates are met (§6.2) | The pilot's success criteria (§10.3) |
 | **April–August 2027** | The launch scope: every level's flows, the timetable package, handover, and sync, free for teachers | The first full September release prepared (§4.4) | The pilot's results published | • The association in place<br>• The independent security review (§6.5) | Ready for launch |
-| **September 2027:** launch | • Google Play, the website and F-Droid<br>• Code contributions open to all (§1.13, stage 3) | The September release for 2027/28 | • The four formats proposed to the IGP and INRE, with the pilot's results<br>• The first ask to the Ministry (§8.6)<br>• A Tarbya-Up entry | • The first transparency report (§1.11)<br>• The teacher council (§1.8) | — |
+| **September 2027:** launch | Google Play, the website and F-Droid | The September release for 2027/28 | • The four formats proposed to the IGP and INRE, with the pilot's results<br>• The first ask to the Ministry (§8.6)<br>• A Tarbya-Up entry | • The first transparency report (§1.11)<br>• The teacher council (§1.8) | — |
 | **2027/28** | More teachers. The observatory, in teacher mode, with its method published a month before collection (§8.4) | The yearly cycle | No school or directorate deployments before adoption (§1.15) | Counsel confirms that lesson-level data needs no written authorisation (§8.4) | The method published at least a month before collection |
 | **2028/29 onwards** | A second country only if one is decided (§1.14) | — | Teacher mode until the Ministry's system opens (§1.15) | — | — |
 | **Once the Ministry adopts Minhajna** | • The national system built, on a plan worked back from its launch date (§5.1, §8.7)<br>• The Ministry's staff join as maintainers (§1.8)<br>• Teachers move over, and the project's server closes (§5.2) | — | • The ministerial text (§8.7)<br>• Teachers' committees and unions consulted, and the charter presented to every teachers' council (§1.15)<br>• A trial term end, then the mandate from the national launch | What the national system needs, which is the Ministry's to meet (§7.12) | The launch gate (§6.8) |
