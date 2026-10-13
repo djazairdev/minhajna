@@ -6,6 +6,18 @@
 
 من التدرّج إلى الحصّة · From the yearly plan to every lesson
 
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="docs/design/screens/Setup-1-Welcome.png" height="400" alt="The welcome screen: the Minhajna logo, a choice of Arabic, French or English, and the promise of no account, no internet needed and data kept on the phone"><br><sub dir="rtl">الترحيب</sub><br><sub>Welcome</sub></td>
+    <td align="center" valign="top"><img src="docs/design/screens/Main.png" height="400" alt="Today: the day's sessions, with the lesson suggested from the yearly plan and a button to confirm it was taught as suggested"><br><sub dir="rtl">تأكيد الحصة بلمسة</sub><br><sub>Today, one tap</sub></td>
+    <td align="center" valign="top"><img src="docs/design/screens/Roll.png" height="400" alt="Roll call: the class list with absent and late buttons, where only the exceptions are marked"><br><sub dir="rtl">المناداة</sub><br><sub>Roll call</sub></td>
+    <td align="center" valign="top"><img src="docs/design/screens/P10.png" height="400" alt="A page of the texts book, laid out like the paper book, with today's suggested entry ready to confirm"><br><sub dir="rtl">دفتر النصوص</sub><br><sub>The texts book</sub></td>
+  </tr>
+</table>
+
+<p dir="rtl"><sub>تصاميم أولية، والأسماء فيها وهمية. <a href="docs/design/screens.md">كل الشاشات</a></sub></p>
+<p><sub>Draft designs; all names are made up. <a href="docs/design/screens.md">See all the screens</a>.</sub></p>
+
 **العربية** · [English](#english)
 
 **«منهاجنا»** تطبيق مجاني ومفتوح المصدر لأساتذة الجزائر. يجمع في مكان واحد دفتر النصوص والكراس اليومي ودفتر المناداة ودفتر التنقيط، ويربطها كلها بالحصة. في كل حصة، يقترح لكل قسم الدرسَ المقرّر حسب التدرّج الرسمي، فيؤكّد الأستاذ ما أنجزه بلمسة واحدة بدل أن يكتبه، وتُملأ الدفاتر من ذلك. يعمل على الهاتف دون إنترنت، ويطبع ما يطلبه المدير والمفتش.
