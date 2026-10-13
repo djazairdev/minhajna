@@ -12,7 +12,7 @@
 
 **الهدف:** أن تتبنّى وزارة التربية الوطنية تطبيق «منهاجنا» سجلًّا رسميًا رقميًا للتدريس، وتشغّله على خوادمها منظومةً وطنية واحدة، والحماية مبنيّة في تصميمه: لا يملك من يشغّل الخوادم مفتاحًا لأي سجل يحمل اسمًا. وإلى أن تتبنّاه، يبقى أداة في يد الأستاذ وحده.
 
-> **المشروع في مرحلة التخطيط، ولا يوجد تطبيق بعد.** وكان اسمه «طباشير» إلى غاية أكتوبر 2026. أي تطبيق يحمل أحد الاسمين اليوم ليس تطبيقنا.
+> **المشروع قيد التطوير، ولم يُنشر أي تطبيق بعد.** النواة المشتركة ونسخة تجريبية لأندرويد موجودتان في المستودع، وما نبنيه الآن في [خطة التجربة الميدانية](https://github.com/djazairdev/minhajna/issues/49). وكان اسمه «طباشير» إلى غاية أكتوبر 2026. أي تطبيق يحمل أحد الاسمين اليوم ليس تطبيقنا.
 
 ### مبادئنا
 
@@ -55,6 +55,7 @@
 بالإنجليزية:
 - [وثيقة متطلبات المنتج (PRD)](docs/prd/PRD.md): المنتج كاملًا في عشرة أقسام، والقسم الأول يضع قواعد هذا المشروع المفتوح المصدر.
 - [سجل القرارات](docs/decisions/).
+- [خطة التجربة الميدانية](https://github.com/djazairdev/minhajna/issues/49): ما نبنيه الآن، ومعلَمها [Field check](https://github.com/djazairdev/minhajna/milestone/1).
 - [التصميم](docs/design/): الشاشات ونظام التصميم والشعار، وكل شاشة مربوطة بمتطلبات وثيقة المنتج التي تحققها.
 - [الميثاق](CHARTER.md)، و[الحوكمة](GOVERNANCE.md)، و[الخصوصية](PRIVACY.md)، و[الاسم والشعار](TRADEMARKS.md)، و[قواعد السلوك](CODE_OF_CONDUCT.md)، و[الأمن](SECURITY.md).
 
@@ -72,7 +73,7 @@
 
 **The goal:** the Ministry of National Education adopts Minhajna as the official digital record of teaching, and runs it on government servers as one national system, with the protections built into its design: nobody who runs a server holds a key to a named record. Until then, it is the teacher's own tool.
 
-> **The project is in planning; there is no app yet.** It was called Tabachir until October 2026. Any app called "Minhajna" or "Tabachir" today is not ours.
+> **The project is in development, and no app has been released yet.** The shared core and an Android preview are on `main`, and what we are building now is in [the field-check plan](https://github.com/djazairdev/minhajna/issues/49). It was called Tabachir until October 2026. Any app called "Minhajna" or "Tabachir" today is not ours.
 
 ### Principles
 
@@ -114,6 +115,7 @@ Ask in Arabic, Tamazight, French or English. Every important decision is open fo
 
 - [Product requirements (PRD)](docs/prd/PRD.md): the whole product, in ten sections. Section 1 sets the rules of this open-source project.
 - [Decision records](docs/decisions/).
+- [The field-check plan](https://github.com/djazairdev/minhajna/issues/49): what we are building now, and its [Field check](https://github.com/djazairdev/minhajna/milestone/1) milestone.
 - [Design](docs/design/): the screens, the design system and the logo, with each screen linked to the PRD requirements it meets.
 - [The charter](CHARTER.md), [governance](GOVERNANCE.md), [privacy](PRIVACY.md), [the name and the logo](TRADEMARKS.md), [the code of conduct](CODE_OF_CONDUCT.md) and [security](SECURITY.md).
 

@@ -68,6 +68,43 @@ npm test
 
 The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md). Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
 
+### Your first pull request
+
+A checklist that passes every check the first time. Say the issue is #69, a README for the Android app.
+
+1. **Claim the issue** with a comment, and wait until a maintainer assigns it to you.
+2. **Fork the repository, and make a branch** named `<type>/<issue>-<topic>`:
+
+   ```bash
+   git switch -c docs/69-android-readme
+   ```
+
+3. **Give every new file its licence.** Code starts with an SPDX header, like the files next to it:
+
+   ```ts
+   // SPDX-FileCopyrightText: 2026 The Minhajna contributors
+   // SPDX-License-Identifier: AGPL-3.0-or-later
+   ```
+
+   A file that cannot hold a comment, such as JSON or a font, gets an entry in `REUSE.toml` instead. So does a document outside the folders that file already covers: a new `apps/android/README.md` joins the CC BY-SA 4.0 entry. `reuse lint` tells you which files lack a licence. [engineering.md](docs/contributing/engineering.md#licences-in-every-file) has the rules.
+4. **Run the checks** above. For a code change, also format it with `npx prettier --write` on the files you changed.
+5. **Commit with a sign-off** (`-s`). The subject is a [Conventional Commit](docs/contributing/commits.md) with a listed scope, under 72 characters, in the imperative, with no full stop:
+
+   ```bash
+   git commit -s -m "docs(android): explain how to build and run the app" -m "Fixes #69"
+   ```
+
+6. **Open the pull request** with the commit's subject as its title. The description says what changes and why, and how you tested it. If an AI tool wrote a substantial part, say so ([AI-assisted contributions](#ai-assisted-contributions)).
+
+If a check fails:
+
+| Check | What it means | The fix |
+|---|---|---|
+| Sign-off | A commit has no `Signed-off-by` line | `git rebase --signoff upstream/main`, then `git push --force-with-lease` |
+| Commit format | The title does not follow the commit format, or its scope is not in the list | Edit the title on GitHub. The scopes are in [commits.md](docs/contributing/commits.md#scopes) |
+| Licence of every file | A new file has no licence | Add the SPDX header, or an entry in `REUSE.toml` |
+| Node.js 22 | The type check, the linter or a test fails | Run the commands above, and fix what they report |
+
 ## AI-assisted contributions
 
 You're welcome to use AI coding tools, on these terms ([PRD §1.7](docs/prd/PRD.md#17-contributions)):
