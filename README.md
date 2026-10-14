@@ -57,7 +57,7 @@
 - [اطرح سؤالًا](https://github.com/orgs/djazairdev/discussions/categories/q-a)
 - [أبلغ عن خلل](https://github.com/djazairdev/minhajna/issues/new?template=bug.yml)
 - [اقترح تحسينًا](https://github.com/djazairdev/minhajna/issues/new?template=idea.yml)، أو صوّت بـ 👍 على [التحسينات](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc) التي تهمّك أكثر
-- [اقترح مشروعًا جديدًا](https://github.com/djazairdev/djazair.dev/discussions/categories/ideas) للجزائر
+- [اقترح مشروعًا جديدًا](https://github.com/orgs/djazairdev/discussions/categories/ideas) للجزائر
 - تابع djazairdev على [فيسبوك](https://www.facebook.com/djazairdev) و[X](https://x.com/djazairdev)
 
 اكتب بالعربية أو الأمازيغية أو الفرنسية أو الإنجليزية. كل قرار مهمّ يُعرض للنقاش قبل اعتماده، ونجيب علنًا عن كل تعليق. أمّا المشاكل الأمنية فأبلغ عنها [بشكل خاص](https://github.com/djazairdev/minhajna/security/policy)، لا في مسألة علنية.
@@ -118,7 +118,7 @@ We welcome feedback and ideas, corrections to annual plans and other reference d
 - [Ask a question](https://github.com/orgs/djazairdev/discussions/categories/q-a)
 - [Report a bug](https://github.com/djazairdev/minhajna/issues/new?template=bug.yml)
 - [Suggest an improvement](https://github.com/djazairdev/minhajna/issues/new?template=idea.yml), or 👍 the [improvements](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement+sort%3Areactions-%2B1-desc) you want most
-- [Propose a new project](https://github.com/djazairdev/djazair.dev/discussions/categories/ideas) for Algeria
+- [Propose a new project](https://github.com/orgs/djazairdev/discussions/categories/ideas) for Algeria
 - Follow djazairdev on [Facebook](https://www.facebook.com/djazairdev) and [X](https://x.com/djazairdev) for news
 
 Write in Arabic, Tamazight, French or English. Every important decision is open for comment before it is made, and every comment gets a public answer. Report security problems [privately](https://github.com/djazairdev/minhajna/security/policy), never in a public issue.
