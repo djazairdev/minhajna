@@ -31,6 +31,7 @@ describe('Today', () => {
     assert.equal(view.awaitingEarlier, 5);
   });
 
+  // Monday reached only stage 1, so Wednesday finished l1.
   it('confirms a whole week at once, marking only the exceptions', async () => {
     const book = await openBook(cemEvents());
     const context = contextOf(book);
@@ -62,7 +63,6 @@ describe('Today', () => {
     assert.equal(awaitingBetween(after, d('2026-09-20'), d('2026-09-24')).length, 0);
     const thursday = todayView(after, d('2026-09-24')).sessions[0];
     assert.equal(thursday?.status, 'recorded');
-    // Monday reached only stage 1, so Wednesday finished the item.
     const wednesday = todayView(after, d('2026-09-23')).sessions[0];
     assert.deepEqual(wednesday?.record?.coverage, [{ op: 'taught', item: 'l1', from: 1, to: 4 }]);
   });
@@ -82,6 +82,7 @@ describe('Today', () => {
     assert.deepEqual(view.blocks, [{ weekday: 2, half: 'afternoon', label: 'Teacher time' }]);
   });
 
+  // The reason is private: the session's note keeps it, never its record.
   it('corrects a session and keeps both versions', async () => {
     const book = await openBook(cemEvents());
     const [sunday] = awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-20'));
@@ -98,11 +99,12 @@ describe('Today', () => {
     assert.equal(versions?.[0]?.value.outcome, 'done');
     assert.equal(versions?.[1]?.day, '2026-09-22');
     assert.equal(current(versions)?.outcome, 'not-held');
-    // The reason is private: the session's note keeps it, never its record.
     assert.equal(versions?.[1]?.reason, undefined);
     assert.equal(book.state.notes.get(sunday.key)?.reasonText, 'Recorded on the wrong day');
   });
 
+  // A correction's reason goes into the note too, which keeps what it said
+  // before.
   it("keeps a reason in the teacher's own words in the private note, never in the session record", async () => {
     const book = await openBook(cemEvents());
     const [sunday] = awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-20'));
@@ -122,7 +124,6 @@ describe('Today', () => {
     assert.doesNotMatch(JSON.stringify(events[0]), /ill/);
     await book.recordAll(d('2026-09-20'), events);
 
-    // A correction's reason goes into the note too, which keeps what it said before.
     await book.recordAll(
       d('2026-09-22'),
       confirmSessions(contextOf(book), [

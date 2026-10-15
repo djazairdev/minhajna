@@ -80,18 +80,17 @@ describe('sessions from the timetable and the calendar', () => {
     ]);
   });
 
+  // The week of 25 October is the sixth teaching week, a B week. The holiday
+  // week does not count, so the week of 8 November, the seventh, is an A
+  // week. Term 2 starts again on an A week.
   it('alternates A and B weeks over teaching weeks only', async () => {
     const context = contextOf(await openBook(cemEvents()));
-    // The week of 25 October is the sixth teaching week, a B week. The
-    // holiday week does not count, so the week of 8 November, the seventh,
-    // is an A week.
     assert.deepEqual(describeSessions(sessionsBetween(context, d('2026-10-27'), d('2026-10-27'))), [
       '2026-10-27 a1 g-2 td',
     ]);
     assert.deepEqual(describeSessions(sessionsBetween(context, d('2026-11-10'), d('2026-11-10'))), [
       '2026-11-10 a1 g-1 td',
     ]);
-    // Term 2 starts again on an A week.
     assert.deepEqual(describeSessions(sessionsBetween(context, d('2027-01-05'), d('2027-01-05'))), [
       '2027-01-05 a1 g-1 td',
     ]);
@@ -111,6 +110,8 @@ describe('sessions from the timetable and the calendar', () => {
     ]);
   });
 
+  // On 6 October the teacher enters a timetable dated from 4 October, which
+  // applies from 6 October. A version dated ahead applies from its own day.
   it('applies a later timetable from the day it was recorded, so the past never moves', async () => {
     const book = await openBook(cemEvents());
     const context = contextOf(book);
@@ -118,7 +119,6 @@ describe('sessions from the timetable and the calendar', () => {
     await book.recordAll(d('2026-10-05'), confirmSessions(context, done));
     const before = contextOf(book);
 
-    // On 6 October the teacher enters a timetable dated from 4 October.
     await book.record(d('2026-10-06'), timetable('v2', d('2026-10-04'), 4));
     const after = contextOf(book);
     assert.deepEqual(
@@ -136,7 +136,6 @@ describe('sessions from the timetable and the calendar', () => {
       '2026-10-12 m4 g-all lesson',
     ]);
 
-    // A version dated ahead applies from its own day.
     await book.record(d('2026-10-06'), timetable('v3', d('2026-10-18'), 2));
     assert.deepEqual(
       book.state.timetables.map(({ version, recorded, from }) => `${version.id} ${recorded} ${from}`),
@@ -164,6 +163,9 @@ describe('sessions from the timetable and the calendar', () => {
     assert.equal(sessionsBetween(context, d('2026-09-20'), d('2026-09-24')).length, 5);
   });
 
+  // The week of 11 October stays a B week, and so does the week of 13
+  // December. On the teacher's own days the class is still there, so its roll
+  // call stays.
   it("never lets the teacher's own calendar change the A/B weeks, and marks only the teacher's sessions", async () => {
     const book = await openBook(cemEvents());
     await book.recordAll(d('2026-10-01'), [
@@ -171,7 +173,6 @@ describe('sessions from the timetable and the calendar', () => {
       teacherEntry({ id: 'own-reset', from: d('2026-10-11'), to: d('2026-10-11'), effect: 'week-a' }),
     ]);
     const context = contextOf(book);
-    // The week of 11 October stays a B week, and so does the week of 13 December.
     assert.deepEqual(describeSessions(sessionsBetween(context, d('2026-10-13'), d('2026-10-13'))), [
       '2026-10-13 a1 g-2 td',
     ]);
@@ -183,7 +184,6 @@ describe('sessions from the timetable and the calendar', () => {
       '2026-10-05 m2 g-all lesson teacher',
       '2026-10-06 a1 g-1 td teacher',
     ]);
-    // The class is still there, so its roll call stays.
     assert.equal(rollCallUnits(context, 'k-1am2', d('2026-10-04'), d('2026-10-08')).length, 5);
   });
 

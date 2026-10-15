@@ -27,6 +27,10 @@ import {
   readName,
 } from './reference-fields.ts';
 
+/**
+ * Reads the school year. Its terms are numbered from 1, lie within the
+ * year, and each starts after the one before it ends.
+ */
 function readYear(reader: Reader, value: unknown): SchoolYear | undefined {
   const path = 'year';
   if (!isFields(value)) {
@@ -55,7 +59,6 @@ function readYear(reader: Reader, value: unknown): SchoolYear | undefined {
     },
     { nonEmpty: true },
   );
-  // Terms are numbered from 1, lie within the year, and each starts after the one before it ends.
   if (span !== undefined && reader.problems.length === before) {
     terms.forEach((term, index) => {
       const termPath = `${path}.terms[${index}]`;
@@ -70,6 +73,10 @@ function readYear(reader: Reader, value: unknown): SchoolYear | undefined {
   return span === undefined ? undefined : { id, from: span.from, to: span.to, terms, source };
 }
 
+/**
+ * Reads one calendar entry. When it names levels as well as grades, every
+ * grade belongs to one of those levels.
+ */
 function readEntry(
   reader: Reader,
   raw: unknown,
@@ -92,7 +99,6 @@ function readEntry(
   const span = reader.span(raw, path);
   const effect = reader.oneOf(raw, 'effect', path, CALENDAR_EFFECTS);
   const levels = reader.codes(raw, 'levels', path, levelCodes(profile), false);
-  // With levels as well, every grade belongs to one of them.
   const grades = reader.codes(raw, 'grades', path, gradeCodes(profile), false);
   if (grades !== undefined && levels !== undefined) {
     const allowed = gradeCodes({ levels: profile.levels.filter((level) => levels.includes(level.code)) });

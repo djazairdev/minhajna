@@ -63,6 +63,8 @@ describe('the history', () => {
     assert.deepEqual(await verifyHistory(deps.digest, log.entries), []);
   });
 
+  // An app bridge can pass any text as the day, so the day is checked at run
+  // time.
   it('keeps the day of a change, never its time', async () => {
     const log = await sampleLog();
     for (const entry of log.entries) {
@@ -78,7 +80,6 @@ describe('the history', () => {
         'seq',
       ]);
     }
-    // An app bridge can pass any text as the day, so it is checked at run time.
     const clockTime = '2026-10-04T08:15:00Z' as Day;
     await assert.rejects(log.append(clockTime, 'lesson-record', 'teacher.set', {}), /YYYY-MM-DD/);
     await assert.rejects(log.erase('2026-10-04 08:15' as Day, [log.entries[1]?.id ?? '']), /YYYY-MM-DD/);
@@ -107,6 +108,8 @@ describe('the history', () => {
     ]);
   });
 
+  // Swapping two entries' places in the history changes what their hashes
+  // cover, so recomputing their sequence numbers does not hide it.
   it('shows entries reordered without recomputing the chain', async () => {
     const [first, second, third] = (await sampleLog()).entries as Entry[];
     assert.deepEqual(await verifyHistory(deps.digest, [first, third, second] as Entry[]), [
@@ -115,7 +118,6 @@ describe('the history', () => {
       { seq: 1, kind: 'sequence' },
       { seq: 1, kind: 'link' },
     ]);
-    // Swapping their places in the history changes what their hashes cover.
     const swapped = [first, { ...third, seq: 1 }, { ...second, seq: 2 }] as Entry[];
     assert.deepEqual(await verifyHistory(deps.digest, swapped), [
       { seq: 1, kind: 'link' },
@@ -174,6 +176,9 @@ describe('the history', () => {
     assert.deepEqual(await verifyHistory(deps.digest, reopened.entries), []);
   });
 
+  // An erasure names a list of entries, each of which exists, is in the
+  // erasure's own layer, and comes before it. An erasure itself is never
+  // erased. Each forged erasure below breaks one of these rules, in turn.
   it('checks every rule of an erasure', async () => {
     const log = await sampleLog();
     const entries = [...log.entries];
@@ -184,35 +189,31 @@ describe('the history', () => {
     ];
     const refused = [{ seq: 3, kind: 'erasure' }];
 
-    // It names a list of entries,
     assert.deepEqual(
       await verifyHistory(deps.digest, await erasure('pupil-records', { entries: rollCall.id })),
       refused,
     );
-    // each of which exists,
     assert.deepEqual(
       await verifyHistory(deps.digest, await erasure('pupil-records', { entries: ['0'.repeat(32)] })),
       refused,
     );
-    // is in its own layer,
     assert.deepEqual(await verifyHistory(deps.digest, await erasure('private', { entries: [rollCall.id] })), refused);
-    // and comes before it.
     const early = await forge(entries, 'pupil-records', ERASURE, { entries: ['e'.repeat(32)] });
     const later = await forge([...entries, early], 'pupil-records', 'roll-call.taken', { absent: [] }, 'e'.repeat(32));
     assert.deepEqual(await verifyHistory(deps.digest, [...entries, early, later]), refused);
-    // An erasure itself is never erased.
     const real = await log.erase(d('2026-10-01'), [rollCall.id]);
     const again = await forge(log.entries, 'pupil-records', ERASURE, { entries: [real.id] });
     assert.deepEqual(await verifyHistory(deps.digest, [...log.entries, again]), [{ seq: 4, kind: 'erasure' }]);
   });
 
+  // The forged entry is a properly chained erasure from the wrong layer,
+  // naming the roll call. The error names the kind of problem only, never an
+  // entry or a pupil.
   it('refuses to open a history that does not verify, and runs no erasure from it', async () => {
     const store = new MemoryStore();
     const log = await sampleLog(store);
     const rollCall = log.entries[1] as Entry;
-    // A properly chained erasure from the wrong layer, naming the roll call.
     await store.append(await forge(log.entries, 'private', ERASURE, { entries: [rollCall.id] }));
-    // The error names the kind of problem only, never an entry or a pupil.
     await assert.rejects(HistoryLog.open(store, deps), /^HistoryError: The history does not verify: erasure$/);
     const stored = await store.load();
     assert.deepEqual(stored[1]?.content?.body, { absent: ['p01'] });

@@ -82,12 +82,12 @@ export function rollCallUnits(context: Context, classId: string, from: Day, to: 
  * Whether a pupil is on the class list on `day`, from their movements. A
  * pupil who left stays listed until the teacher records the director's
  * confirmation (PRD §3.2).
+ * A pupil whose first movement is an arrival was not on the list before it.
  */
 export function isEnrolled(pupil: Pupil, day: Day): boolean {
   const movements = pupil.movements
     .filter((movement) => movement.kind === 'in' || movement.confirmed === true)
     .sort((a, b) => compareDays(a.day, b.day));
-  // A pupil whose first movement is an arrival was not on the list before it.
   let enrolled = movements[0]?.kind !== 'in';
   for (const movement of movements) {
     if (compareDays(movement.day, day) <= 0) enrolled = movement.kind === 'in';
@@ -115,11 +115,11 @@ export interface Marks {
 /**
  * The event that records a roll call. Everyone not marked is present.
  * Correcting a roll call already taken needs a short reason (PRD §5.5).
+ * Its error messages name no pupil, as the engineering rules ask.
  */
 export function takeRollCall(context: Context, unit: RollCallUnit, marks: Marks, reason?: string): RecordEvent {
   const listed = new Set(pupilsFor(context, unit).map((pupil) => pupil.id));
   const marked = [...marks.absent.map((absence) => absence.pupilId), ...marks.late];
-  // Messages name no pupil: no pupil data in error messages (engineering rules).
   if (!marked.every((id) => listed.has(id))) throw new RangeError('A marked pupil is not on this roll call');
   if (new Set(marked).size !== marked.length) throw new RangeError('A pupil is marked twice');
 

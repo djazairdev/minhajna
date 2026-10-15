@@ -65,11 +65,16 @@ export class CalendarView {
     return this.#entries.filter((entry) => appliesTo(entry, school, schoolClass));
   }
 
+  /**
+   * What `day` holds for a school, and for one of its classes. Whether it is
+   * a school day, a closure or an exam comes from the national, zone and
+   * school layers, which every teacher of the school shares. The teacher's
+   * own layer can only take the teacher's sessions.
+   */
   info(day: Day, school: School, schoolClass?: SchoolClass): DayInfo {
     const entries = this.#entries.filter(
       (entry) => isWithin(day, entry.from, entry.to) && appliesTo(entry, school, schoolClass),
     );
-    // The national, zone and school layers, which every teacher of the school shares.
     const shared = entries.filter((entry) => entry.layer !== 'teacher');
     const inYear = isWithin(day, this.#ref.year.from, this.#ref.year.to);
     const schoolDay = inYear && !shared.some((entry) => entry.effect === 'no-school');

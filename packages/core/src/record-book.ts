@@ -9,7 +9,10 @@ import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './h
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
 import { buildState, type State } from './state.ts';
 
-/** Which record an event sets. Events with the same key are versions of one record. */
+/**
+ * Which record an event sets. Events with the same key are versions of one
+ * record. A pupil's movements are part of the pupil's record.
+ */
 function recordKey(event: RecordEvent): string {
   switch (event.kind) {
     case 'teacher.set':
@@ -21,7 +24,6 @@ function recordKey(event: RecordEvent): string {
     case 'pupil.set':
       return `pupil:${event.pupil.id}`;
     case 'pupil.moved':
-      // A pupil's movements are part of the pupil's record.
       return `pupil:${event.pupilId}`;
     case 'course.set':
       return `course:${event.course.id}`;
@@ -66,11 +68,13 @@ export class RecordBook {
     return this.#log.entries;
   }
 
+  /**
+   * Records one event and rebuilds the state. Rebuilding from the whole
+   * history keeps one path from history to screen. A year's history is a few
+   * thousand entries, which rebuild in milliseconds.
+   */
   async record(day: Day, event: RecordEvent): Promise<Entry> {
     const entry = await this.#log.append(day, layerOf(event), event.kind, event);
-    // Rebuilding from the whole history keeps one path from history to
-    // screen. A year's history is a few thousand entries, which rebuild in
-    // milliseconds.
     this.#state = buildState(this.#log.entries);
     return entry;
   }

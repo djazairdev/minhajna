@@ -66,10 +66,14 @@ export class Progress {
     return copy;
   }
 
+  /**
+   * Counts one session record. A session spent on two merged items counts
+   * half a session for each. Teaching an item again never moves it through
+   * the plan, so it is counted on its own, for plan feedback (PRD §4.9).
+   */
   apply(record: SessionRecord): void {
     const groupId = record.session.groupId;
     const sharing = record.coverage.filter((coverage) => coverage.op !== 'skipped').length;
-    // A session spent on two merged items counts half a session for each.
     const share = sharing > 0 ? 1 / sharing : 0;
     for (const coverage of record.coverage) {
       const item = this.#item(coverage.item);
@@ -84,8 +88,6 @@ export class Progress {
           item.skipped = true;
           break;
         case 'retaught':
-          // Teaching an item again never moves it through the plan, so it is
-          // counted on its own, for plan feedback (PRD §4.9).
           item.retaught += 1;
           break;
       }
@@ -192,6 +194,9 @@ export interface ProposalInput {
  * The next unfinished item and its stages. When a slot names an activity,
  * as primary activity slots do, it takes the next item of that activity, and
  * a slot without one takes the next item that has none (PRD §4.7).
+ *
+ * The stages are spread evenly over the item's budget. Once the budget is
+ * used up, the proposal is to finish the item.
  */
 export function propose(pack: PlanPack, progress: Progress, input: ProposalInput): Proposal | null {
   if (input.queue === 'none') return null;
@@ -208,8 +213,6 @@ export function propose(pack: PlanPack, progress: Progress, input: ProposalInput
   const from = progress.firstOpen(item.id, input.groupId);
   const spent = Math.floor(progress.spent(item.id, input.groupId));
   const session = spent + 1;
-  // The stages are spread evenly over the item's budget. Once the budget is
-  // used up, the proposal is to finish the item.
   const to = session >= budget ? stages : Math.max(from, Math.min(stages, Math.floor((session * stages) / budget)));
   return {
     queue: input.queue,

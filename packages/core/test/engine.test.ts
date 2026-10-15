@@ -109,12 +109,12 @@ describe('the engine', () => {
     ]);
   });
 
+  // By 24 September only the first half-group has had t1.
   it('runs TD in its own queue, done for the class once both half-groups have had it', async () => {
     const book = await openBook(cemEvents());
     const t1 = mathPack.items.find((item) => item.id === 't1');
     assert.ok(t1);
     await confirm(book, d('2026-09-20'), d('2026-09-24'));
-    // Only the first half-group has had it so far.
     const half = walkCourse(contextOf(book), 'c-math', d('2026-09-24')).progress;
     assert.equal(half.isFinished(mathPack, t1, 'g-1'), true);
     assert.equal(half.isFinished(mathPack, t1, 'g-2'), false);
@@ -150,9 +150,10 @@ describe('the engine', () => {
     assert.deepEqual(second, { ...first, homework });
   });
 
+  // Monday covers stages 0-2 of l1, and Wednesday stages 2-4. Once Monday is
+  // corrected, Thursday starts again from the first stage not covered.
   it('uncovers the stages of a session corrected to not held', async () => {
     const book = await openBook(cemEvents());
-    // Monday covers stages 0-2 of l1, and Wednesday stages 2-4.
     await confirm(book, d('2026-09-20'), d('2026-09-23'));
     const [monday] = sessionsBetween(contextOf(book), d('2026-09-21'), d('2026-09-21'));
     assert.ok(monday);
@@ -167,7 +168,6 @@ describe('the engine', () => {
     assert.ok(l1);
     assert.deepEqual(progress.coveredStages('l1', 'g-all'), [2, 3]);
     assert.equal(progress.isFinished(mathPack, l1, 'g-all'), false);
-    // Thursday starts again from the first stage not covered.
     assert.deepEqual(proposalsFor(contextOf(book), 'c-math', d('2026-09-24'), d('2026-09-24')), [
       '2026-09-24 g-all: l1 0-4 continued',
     ]);

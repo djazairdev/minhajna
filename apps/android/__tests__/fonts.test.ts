@@ -14,13 +14,14 @@ const app = join(__dirname, '../android/app/src/main');
 const fonts = join(app, 'res/font');
 const files = manifest.families.flatMap((family) => family.files.map((file) => ({ ...file, family: family.family })));
 
+// Each file's weight is read from the standard sfnt table directory, then
+// OS/2's usWeightClass. This catches a renamed regular face pretending to
+// supply medium or semibold.
 test('ships exactly the documented font files, unchanged from upstream', () => {
   expect(readdirSync(fonts).sort()).toEqual(files.map(({ resource }) => `${resource}.ttf`).sort());
   for (const file of files) {
     const bytes = readFileSync(join(fonts, `${file.resource}.ttf`));
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);
-    // Read the standard sfnt table directory, then OS/2's usWeightClass. This
-    // catches a renamed regular face pretending to supply medium or semibold.
     expect(bytes.readUInt32BE(0)).toBe(0x00010000);
     const tables = Array.from({ length: bytes.readUInt16BE(4) }, (_, i) => 12 + i * 16);
     const os2 = tables.find((offset) => bytes.toString('ascii', offset, offset + 4) === 'OS/2');
