@@ -12,7 +12,9 @@
 
 import type { Context } from './context.ts';
 import { addDays, compareDays, isWithin, type Day } from './day.ts';
-import { courseSetup, walkCourse, type CourseSetup, type Progress } from './engine.ts';
+import { courseSetup, type CourseSetup } from './choices.ts';
+import { walkCourse } from './engine.ts';
+import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findSessionType } from './reference.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
