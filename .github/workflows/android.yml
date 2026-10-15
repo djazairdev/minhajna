@@ -11,11 +11,13 @@ on:
   pull_request:
     paths:
       - apps/android/**
+      - packages/core/**
       - .github/workflows/android.yml
   push:
     branches: [main]
     paths:
       - apps/android/**
+      - packages/core/**
       - .github/workflows/android.yml
 
 permissions: {}

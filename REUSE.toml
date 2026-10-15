@@ -18,10 +18,10 @@ path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/and
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
-# Unchanged from React Native's app template.
+# TypeScript settings based on React Native's app template.
 [[annotations]]
 path = "apps/android/tsconfig.json"
-SPDX-FileCopyrightText = "Meta Platforms, Inc. and affiliates"
+SPDX-FileCopyrightText = ["Meta Platforms, Inc. and affiliates", "2026 The Minhajna contributors"]
 SPDX-License-Identifier = "MIT"
 
 # Gradle's wrapper, as Gradle generates it.

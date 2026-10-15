@@ -9,3 +9,7 @@
 docs/
 # npm writes its own lockfile.
 package-lock.json
+
+# Prettier does not read the Android app's nested .gitignore.
+apps/android/android/**/build/
+apps/android/android/**/.cxx/
