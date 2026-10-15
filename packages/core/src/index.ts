@@ -9,6 +9,7 @@ export * from './canonical.ts';
 export * from './context.ts';
 export * from './day.ts';
 export * from './engine.ts';
+export * from './format.ts';
 export * from './history.ts';
 export * from './id.ts';
 export * from './layers.ts';
