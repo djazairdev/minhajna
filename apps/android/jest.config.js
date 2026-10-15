@@ -4,6 +4,8 @@
 
 module.exports = {
   preset: '@react-native/jest-preset',
+  // Exercise real navigation state in Jest; only the native views are absent.
+  transformIgnorePatterns: ['node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation)/)'],
   moduleNameMapper: {
     '^@minhajna/core$': '<rootDir>/../../packages/core/src/index.ts',
   },

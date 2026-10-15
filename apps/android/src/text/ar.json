@@ -1,5 +1,15 @@
 {
   "name": "منهاجنا",
   "tagline": "من التدرّج إلى الحصّة",
-  "latinName": "Minhajna"
+  "latinName": "Minhajna",
+  "navigation": {
+    "today": "اليوم",
+    "classes": "الأقسام",
+    "documents": "الوثائق",
+    "back": "رجوع",
+    "openPreview": "فتح شاشة داخلية تجريبية",
+    "previewTitle": "معاينة التنقّل",
+    "previewSubtitle": "شاشة تجريبية دون بيانات",
+    "previewDescription": "هذه معاينة للتنقّل فقط. لا تُعرض ألسنة التنقّل في الشاشة الداخلية. زرّ الرجوع يعيدك إلى اللسان الذي فتحته، دون تخزين أيّ بيانات."
+  }
 }

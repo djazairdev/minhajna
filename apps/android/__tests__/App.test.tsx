@@ -4,7 +4,7 @@
 import ReactTestRenderer from 'react-test-renderer';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import type { ScrollViewProps, TextProps } from 'react-native';
-import App from '../App';
+import { Welcome } from '../src/navigation/Welcome';
 import { colors, spacing, typography } from '../src/design/tokens';
 import text from '../src/text/ar.json';
 
@@ -17,7 +17,7 @@ jest.mock(
 test('shows all three bundled families without limiting enlarged text', async () => {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(<App />);
+    tree = ReactTestRenderer.create(<Welcome />);
   });
   const shown = tree!.root.findAllByType(Text).map((node): unknown => node.props.children);
   expect(shown).toEqual([text.name, text.tagline, text.latinName]);
