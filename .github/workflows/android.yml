@@ -12,12 +12,14 @@ on:
     paths:
       - apps/android/**
       - packages/core/**
+      - docs/design/system/tokens.json
       - .github/workflows/android.yml
   push:
     branches: [main]
     paths:
       - apps/android/**
       - packages/core/**
+      - docs/design/system/tokens.json
       - .github/workflows/android.yml
 
 permissions: {}
