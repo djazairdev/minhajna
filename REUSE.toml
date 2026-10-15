@@ -2,7 +2,7 @@ version = 1
 
 # Documents and content are CC BY-SA 4.0; code is AGPL-3.0-or-later (PRD §1.3).
 [[annotations]]
-path = ["*.md", "data/**", "docs/**", "packages/*/README.md", "apps/android/fonts/README.md", "changelog.d/*.md"]
+path = ["*.md", "data/**", "docs/**", "packages/*/README.md", "apps/android/fonts/README.md", "apps/android/android/app/src/main/assets/licenses/data.txt", "changelog.d/*.md"]
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
 
