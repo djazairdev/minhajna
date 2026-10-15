@@ -31,9 +31,15 @@ npm test
 npm run typecheck
 ```
 
-The type check covers `src/`. The tests are run, not type-checked, since that needs Node.js's own type definitions.
+The type check covers both `src/` and `test/`, using Node.js's type definitions for the tests.
 
 The test data is made up ([engineering rules](../../docs/contributing/engineering.md#test-data)). The two plan packs in the tests are invented, with the status `example`, and are never published as reference data. Only `data.test.ts` reads real files: Algeria's reference data in [`data/`](../../data/README.md), which it runs made-up classes against.
+
+### Shared hashing checks
+
+[`test/sha256-vectors.json`](test/sha256-vectors.json) is a portable list for every platform's SHA-256 implementation. Each case gives a `name`, the exact `text`, its `utf8Bytes` length and its lowercase hexadecimal `sha256`. Read the JSON, encode each text as UTF-8 without normalising it or adding a byte-order mark, then compare the byte count and digest. Node's crypto and Web Crypto both run every case here; Android's native tests and future web tests can consume the same file without importing the Node test runner.
+
+The cases cover empty text, Arabic, French, emoji, control characters, 55-, 56- and 64-byte inputs, multiple blocks, and literal Unicode escapes. Inputs are well-formed strings: raw lone UTF-16 surrogates do not belong in this hashing interface. `canonicalJson` escapes those units in both keys and values before the history calls a platform digest. Its regression tests simulate older JSON behaviour, preserve valid surrogate pairs, and check fixed pre-change history hashes.
 
 ## Not here yet
 

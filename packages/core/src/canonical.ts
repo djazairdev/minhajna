@@ -2,16 +2,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The history is chained by hashes, so the same record must always give the
-// same text, whatever order its fields were written in.
+// same text, whatever order its fields were written in. Quoting also escapes
+// lone surrogates on engines predating well-formed JSON.stringify. The Unicode
+// regex leaves valid pairs intact by matching code points, not code units.
 
-/** JSON with object keys sorted. Refuses values that JSON cannot carry exactly. */
+function quoteString(value: string): string {
+  return JSON.stringify(value).replace(
+    /[\ud800-\udfff]/gu,
+    (unit) => `\\u${unit.charCodeAt(0).toString(16).padStart(4, '0')}`,
+  );
+}
+
+/** Sorted-key JSON with lone surrogates escaped; refuses values JSON cannot carry exactly. */
 export function canonicalJson(value: unknown): string {
   if (value === null) return 'null';
   switch (typeof value) {
     case 'boolean':
       return value ? 'true' : 'false';
     case 'string':
-      return JSON.stringify(value);
+      return quoteString(value);
     case 'number':
       if (!Number.isFinite(value)) throw new TypeError('Numbers must be finite');
       return JSON.stringify(value);
@@ -32,7 +41,7 @@ export function canonicalJson(value: unknown): string {
       const fields = Object.keys(record)
         .filter((key) => record[key] !== undefined)
         .sort()
-        .map((key) => `${JSON.stringify(key)}:${canonicalJson(record[key])}`);
+        .map((key) => `${quoteString(key)}:${canonicalJson(record[key])}`);
       return `{${fields.join(',')}}`;
     }
     default:
