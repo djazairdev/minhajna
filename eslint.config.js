@@ -41,6 +41,10 @@ export default defineConfig(
       // A promise returned unawaited from inside try escapes its catch and
       // finally.
       '@typescript-eslint/return-await': ['error', 'error-handling-correctness-only'],
+      // A file a newcomer can read in one sitting. Every line counts, blank
+      // lines and comments included; a longer file is split by what it does
+      // (docs/contributing/engineering.md#code-style).
+      'max-lines': ['error', { max: 300, skipBlankLines: false, skipComments: false }],
     },
   },
 
