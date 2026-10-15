@@ -4,6 +4,7 @@
 
 module.exports = {
   preset: '@react-native/jest-preset',
+  setupFiles: ['<rootDir>/jest/setup.ts'],
   moduleNameMapper: {
     '^@minhajna/core$': '<rootDir>/../../packages/core/src/index.ts',
     '^@minhajna/data/(.*)$': '<rootDir>/../../data/$1',

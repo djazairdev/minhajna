@@ -1,35 +1,72 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from './src/design/tokens';
+import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajnaStorage';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
+import { openRecordBook } from './src/storage/history';
 import text from './src/text/ar.json';
 
 // One screen in Arabic, right to left: enough to prove the build (#18). The
 // interface language and its catalogue come with #21, and the design's
 // components with #20. The three interface fonts are bundled for offline use.
 // It starts from the insets known at launch, so the first frame is drawn at
-// once. Algeria's reference data is read at start (#87); no screen uses it
-// yet. In development every problem in it is logged, for whoever keys the
-// data; teachers see one short message.
-export default function App({ files = bundledReference }: { files?: ReferenceFiles }) {
+// once. Algeria's reference data is read at start (#87), and the teacher's
+// history opened and verified (#19); no screen uses them yet. In development
+// every problem in the reference data is logged, for whoever keys it; teachers
+// see one short message.
+export default function App({
+  files = bundledReference,
+  storage = NativeStorage,
+}: {
+  files?: ReferenceFiles;
+  storage?: Storage;
+}) {
   const reference = useMemo(() => {
     const result = readReference(files);
     if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
     return result;
   }, [files]);
+  const history = useHistory(storage);
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
-      <Welcome referenceRefused={!reference.ok} />
+      <Welcome referenceRefused={!reference.ok} historyRefused={history === 'refused'} />
     </SafeAreaProvider>
   );
 }
 
-function Welcome({ referenceRefused }: { referenceRefused: boolean }) {
+type HistoryStatus = 'opening' | 'open' | 'refused';
+
+/**
+ * Opens the history once, at start. A history that does not verify, or whose
+ * key is gone, is never opened: the teacher sees one short line, which names
+ * no pupil, and nothing from it is used (PRD §5.5).
+ */
+function useHistory(storage: Storage): HistoryStatus {
+  const [status, setStatus] = useState<HistoryStatus>('opening');
+  useEffect(() => {
+    let current = true;
+    openRecordBook(storage).then(
+      () => {
+        if (current) setStatus('open');
+      },
+      (error: unknown) => {
+        if (__DEV__) console.warn('History refused', error);
+        if (current) setStatus('refused');
+      },
+    );
+    return () => {
+      current = false;
+    };
+  }, [storage]);
+  return status;
+}
+
+function Welcome({ referenceRefused, historyRefused }: { referenceRefused: boolean; historyRefused: boolean }) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -42,6 +79,11 @@ function Welcome({ referenceRefused }: { referenceRefused: boolean }) {
         {referenceRefused && (
           <Text style={styles.notice} accessibilityRole="alert">
             {text.referenceRefused}
+          </Text>
+        )}
+        {historyRefused && (
+          <Text style={styles.notice} accessibilityRole="alert">
+            {text.historyRefused}
           </Text>
         )}
       </ScrollView>
