@@ -101,6 +101,7 @@ Gradle downloads the Android libraries, such as React Native's, Hermes's and and
 1. Write the build recipe.
 2. Build with `fdroid build` on F-Droid's build server.
 3. Check that the Hermes compiler built from source gives the same bytecode as the prebuilt one. Only then can F-Droid's build match the project's signed APK.
+4. Build SQLCipher for Android from source, as Tuta's recipe does, rather than taking Zetetic's AAR from Maven Central (#75).
 
 ## Dependencies
 
@@ -119,7 +120,9 @@ Both are in tools that run on the developer's machine, on the project's own file
 **Android libraries.** The dependency review reads only npm's lockfile, so the build's own check and F-Droid's scanner watch these. The libraries in the APK are under three licences:
 - Apache-2.0: androidx, Kotlin, OkHttp, Okio, SoLoader and fbjni.
 - MIT: React Native, Hermes, Fresco and Yoga.
-- A BSD licence: Bolts, which Fresco uses. The Bolts project is under MIT now.
+- A BSD licence: Bolts, which Fresco uses. The Bolts project is under MIT now. SQLCipher for Android, which encrypts the history, is under BSD-3-Clause; its crypto provider, LibTomCrypt, is in the public domain. Their notices travel in the APK, in `assets/licenses/sqlcipher.txt`.
+
+SQLCipher is the one native library the APK takes prebuilt from Maven Central. `gradle/verification-metadata.xml` pins it to the checksums Maven Central publishes, so any other bytes stop the build (#75).
 
 React Native includes OkHttp for its network functions. Without the network permission, they cannot reach the network.
 
