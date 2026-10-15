@@ -46,7 +46,7 @@
 نرحّب بالملاحظات والاقتراحات، وبتصحيح التدرّجات وغيرها من البيانات المرجعية، وبنماذج الطباعة والترجمات والكود.
 
 1. اختر مسألة عليها وسم [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)، أو [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) إن أردت عملًا أكبر.
-2. علّق عليها لتقول إنك ستعمل عليها، وسيُسندها إليك أحد المشرفين على المشروع.
+2. اكتب `/take` في تعليق عليها، فتُسنَد إليك مباشرة وتستطيع أن تبدأ.
 3. اقرأ [CONTRIBUTING.md](CONTRIBUTING.md). إن كانت مساهمتك تصحيحًا أو نموذجًا، فاذكر مصدره وأين ينطبق: المستوى والمادة والسنة الدراسية. وإن كانت كودًا، فاتبع [خطوات أول طلب دمج](CONTRIBUTING.md#your-first-pull-request).
 4. نردّ على كل طلب دمج من مساهم جديد في غضون 7 أيام، حتى لو استغرقت المراجعة الكاملة وقتًا أطول.
 
@@ -107,7 +107,7 @@ Ten points protect the teachers whose records are kept in Minhajna: records are 
 We welcome feedback and ideas, corrections to annual plans and other reference data, print templates, translations and code.
 
 1. Pick an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for something bigger.
-2. Comment to say you'd like to work on it, and a maintainer will assign it to you.
+2. Comment `/take` on it: it's assigned to you, and you can start.
 3. Read [CONTRIBUTING.md](CONTRIBUTING.md). For a correction or a template, give its source and where it applies: the level, subject and school year. For code, follow [the first pull request checklist](CONTRIBUTING.md#your-first-pull-request).
 4. We reply to every newcomer's pull request within 7 days, even if the full review takes longer.
 
