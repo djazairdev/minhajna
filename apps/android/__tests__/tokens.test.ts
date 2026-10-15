@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import design from '../../../docs/design/system/tokens.json';
+import { fontFamilyForWeight } from '../src/design/fonts';
 import { colors, fontFamilies, typography, spacing, radius, shadows, sizes } from '../src/design/tokens';
 
 // Read the export only in tests: the app ships native values, not the canvas's
@@ -38,7 +39,10 @@ test('exports every type style with native sizes, absolute line heights and stri
         return [
           style.name,
           {
-            fontFamily: families[('family' in style ? style.family : undefined) ?? group.family],
+            fontFamily: fontFamilyForWeight(
+              families[('family' in style ? style.family : undefined) ?? group.family],
+              style.fontWeight,
+            ),
             fontSize,
             lineHeight:
               typeof style.lineHeight === 'number'

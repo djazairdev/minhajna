@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import ReactTestRenderer from 'react-test-renderer';
-import { StyleSheet, Text, View } from 'react-native';
-import type { TextProps, ViewProps } from 'react-native';
+import { ScrollView, StyleSheet, Text } from 'react-native';
+import type { ScrollViewProps, TextProps } from 'react-native';
 import App from '../App';
-import { colors, spacing } from '../src/design/tokens';
+import { colors, spacing, typography } from '../src/design/tokens';
 import text from '../src/text/ar.json';
 
 // Jest has no native side: the library's own mock gives fixed insets.
@@ -14,20 +14,32 @@ jest.mock(
   () => jest.requireActual<{ default: unknown }>('react-native-safe-area-context/jest/mock').default,
 );
 
-test('shows the name and the tagline in Arabic', async () => {
+test('shows all three bundled families without limiting enlarged text', async () => {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(<App />);
   });
   const shown = tree!.root.findAllByType(Text).map((node): unknown => node.props.children);
-  expect(shown).toEqual([text.name, text.tagline]);
+  expect(shown).toEqual([text.name, text.tagline, text.latinName]);
 
-  // The token refactor must not change the existing welcome screen's layout.
-  const screen = tree!.root.findByType(View).props as ViewProps;
-  expect(StyleSheet.flatten(screen.style)).toMatchObject({ backgroundColor: colors.board });
+  const scroll = tree!.root.findByType(ScrollView).props as ScrollViewProps;
+  expect(StyleSheet.flatten(scroll.contentContainerStyle)).toMatchObject({ flexGrow: 1 });
   const textStyles = tree!.root.findAllByType(Text).map((node) => StyleSheet.flatten((node.props as TextProps).style));
   expect(textStyles).toEqual([
-    { color: colors.chalk, fontSize: 40, fontWeight: '700' },
-    { color: colors.chalk, fontSize: 18, marginTop: spacing['space-12'] },
+    { ...typography.brand, lineHeight: undefined, color: colors.chalk, textAlign: 'center' },
+    { ...typography.tagline, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-12'] },
+    {
+      ...typography['body-latin'],
+      color: colors.chalk,
+      textAlign: 'center',
+      writingDirection: 'ltr',
+      marginTop: spacing['space-12'],
+    },
   ]);
+  for (const node of tree!.root.findAllByType(Text)) {
+    const props = node.props as TextProps;
+    expect(props.allowFontScaling).not.toBe(false);
+    expect(props.numberOfLines).toBeUndefined();
+    expect(props.maxFontSizeMultiplier).toBeUndefined();
+  }
 });

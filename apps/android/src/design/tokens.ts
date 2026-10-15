@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import type { ColorValue, TextStyle, ViewStyle } from 'react-native';
+import { fontFamilyForWeight } from './fonts';
 
 // Native counterpart of docs/design/system/tokens.json. Keep the canvas's names;
 // __tests__/tokens.test.ts checks every key and value against that export.
@@ -96,8 +97,8 @@ export const colors = {
   'focus-on-board': '#F6F3EA',
 } as const satisfies Record<string, ColorValue>;
 
-// React Native takes one family, not a CSS fallback stack. These names do not
-// load fonts: bundling and checking the font files is the separate task #71.
+// Design family names, not CSS fallback stacks. textStyle selects the bundled
+// face for each weight; native registration happens before React Native starts.
 export const fontFamilies = {
   display: 'Aref Ruqaa',
   arabic: 'Noto Naskh Arabic',
@@ -115,7 +116,7 @@ function textStyle(
   lineHeight: number,
   fontWeight: TypographyStyle['fontWeight'],
 ): TypographyStyle {
-  return { fontFamily, fontSize, lineHeight, fontWeight };
+  return { fontFamily: fontFamilyForWeight(fontFamily, fontWeight), fontSize, lineHeight, fontWeight };
 }
 
 // Native lineHeight is absolute, unlike the canvas's unitless multipliers.
