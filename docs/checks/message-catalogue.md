@@ -89,5 +89,5 @@ For #21, once the checks below are done:
 - [ ] Check `Intl.PluralRules` in the release app on Android 8 and a recent Android, with every count in the table above. Add the polyfill only if it fails.
 - [ ] Measure the APK with the libraries and any polyfill, against `main`, and check that two clean builds still match.
 - [ ] Round-trip one Arabic text with all six forms through Weblate into French and English.
-- [ ] Settle the catalogues' licence. `REUSE.toml` licenses `apps/android/src/text/*.json` under AGPL-3.0-or-later, while translations from teachers come under CC BY-SA 4.0 ([CONTRIBUTING.md](../../CONTRIBUTING.md#content-contributions)).
-- [ ] Decide where Weblate runs and who holds the account. Weblate offers [free hosting to libre projects](https://weblate.org/en/hosting/).
+- [x] Settle the catalogues' licence: AGPL-3.0-or-later, like the code, with translators signing off under the DCO ([0022](../decisions/0022-interface-translations-follow-the-code.md)).
+- [ ] Decide where Weblate runs and who holds the account. Weblate offers [free hosting to libre projects](https://weblate.org/en/hosting/). It must show the licence and the DCO to each translator, and sign off their commits (0022).
