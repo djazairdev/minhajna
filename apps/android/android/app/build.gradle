@@ -10,6 +10,18 @@ react {
     autolinkLibrariesWithApp()
 }
 
+// The bundle task watches only the app's own script files. Metro also bundles
+// the core and the reference data from outside the app, and the JSON texts, so
+// a change there must make the bundle again rather than reuse a stale one.
+def repositoryRoot = rootProject.file("../../..")
+tasks.matching { it.name ==~ /createBundle.*JsAndAssets/ }.configureEach {
+    inputs.files(
+        fileTree("${repositoryRoot}/packages/core/src"),
+        fileTree("${repositoryRoot}/data"),
+        fileTree("${rootProject.projectDir}/../src") { include "**/*.json" },
+    ).withPropertyName("bundledSources").withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
