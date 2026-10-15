@@ -3,11 +3,12 @@
 
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, spacing } from './src/design/tokens';
 import text from './src/text/ar.json';
 
 // One screen in Arabic, right to left: enough to prove the build (#18). The
 // interface language and its catalogue come with #21, and the design's
-// tokens, fonts and components with #20.
+// fonts and components with #20. Shared tokens are in src/design/tokens.ts.
 export default function App() {
   return (
     // The insets known when the app starts, so the first frame is drawn at once.
@@ -36,8 +37,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1F2E29',
+    backgroundColor: colors.board,
   },
-  name: { color: '#F6F3EA', fontSize: 40, fontWeight: '700' },
-  tagline: { color: '#F6F3EA', fontSize: 18, marginTop: 12 },
+  name: { color: colors.chalk, fontSize: 40, fontWeight: '700' },
+  tagline: { color: colors.chalk, fontSize: 18, marginTop: spacing['space-12'] },
 });
