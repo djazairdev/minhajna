@@ -11,7 +11,7 @@ The project is at stage 1 of its opening plan ([PRD §1.13](docs/prd/PRD.md#113-
 - translations;
 - code, from anyone ([0021](docs/decisions/0021-code-contributions-open-to-all.md)).
 
-**A first contribution** starts with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for a larger one. Comment on it to say you're working on it, and a maintainer assigns it to you. Then follow [Content contributions](#content-contributions) or [Code contributions](#code-contributions) below.
+**A first contribution** starts with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for a larger one. Comment `/take` on it to have it assigned to you, and start straight away: if someone already has it, the bot says who. Comment `/drop` if you stop. Then follow [Content contributions](#content-contributions) or [Code contributions](#code-contributions) below.
 
 ## Never post real pupil data
 
@@ -72,7 +72,7 @@ The Android build has its own checks: [docs/checks/android-build.md](docs/checks
 
 A checklist that passes every check the first time. Say the issue is #69, a README for the Android app.
 
-1. **Claim the issue** with a comment, and wait until a maintainer assigns it to you.
+1. **Take the issue** by commenting `/take`: it's assigned to you straight away.
 2. **Fork the repository, and make a branch** named `<type>/<issue>-<topic>`:
 
    ```bash
@@ -121,7 +121,7 @@ You're welcome to use AI coding tools, on these terms ([PRD §1.7](docs/prd/PRD.
 ## Review
 
 - A maintainer reviews every pull request, as [workflow.md](docs/contributing/workflow.md#review) describes; we may ask for changes, which is normal.
-- **CI on a pull request from a fork waits until a maintainer approves the run.** That's a safety setting, not a judgement on your change.
+- **On your first pull request, CI waits until a maintainer approves the run.** That's GitHub's safety setting for first-time contributors, not a judgement on your change. Once a pull request of yours is merged, CI runs on its own.
 - Answer review comments with new commits rather than a force-push, so the conversation stays readable. The squash merge tidies the history.
 - Nothing is closed automatically. If a pull request goes quiet for a long time, we ask before we close it.
 
