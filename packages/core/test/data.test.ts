@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import {
+  formatDayWithMonth,
   isWithin,
   makeContext,
   parseCountryProfile,
@@ -21,6 +22,7 @@ import {
   type SchoolCalendar,
 } from '../src/index.ts';
 import { cemEvents, d, openBook, primaryEvents, reference } from './fixtures.ts';
+import { monthNames } from './month-fixtures.ts';
 
 function readData(path: string): unknown {
   return JSON.parse(readFileSync(new URL(`../../../data/${path}`, import.meta.url), 'utf8'));
@@ -62,6 +64,18 @@ describe("Algeria's reference data", () => {
       [5, 4, 3],
     );
     assert.deepEqual([calendar.year.from, calendar.year.to], ['2026-09-21', '2027-07-08']);
+  });
+
+  it('ships release 2026.2 with all month spellings and written dates unchanged', () => {
+    const { profile } = readAlgeria();
+    assert.equal(profile.release, '2026.2');
+    assert.deepEqual(profile.months, monthNames);
+    for (const [index, names] of monthNames.entries()) {
+      const day = d(`2027-${String(index + 1).padStart(2, '0')}-03`);
+      for (const language of ['ar', 'fr', 'en'] as const) {
+        assert.equal(formatDayWithMonth(day, language, profile), `3 ${names[language]} 2027`);
+      }
+    }
   });
 
   // No text dates Ramadan yet. A lunar date, Ramadan's included, stays
@@ -118,9 +132,10 @@ describe("Algeria's reference data", () => {
     }
   });
 
-  // The autumn holidays start on the evening of Tuesday 27 October. Term 2's
-  // exams fall on 2, 3 and 4 March, then 7 and 8 March, just before Eid
-  // al-Fitr. Ramadan shows on its days and changes no session.
+  // The autumn holidays start on the evening of Tuesday 27 October, so that
+  // day's sessions stay. Term 2's exams fall on 2, 3 and 4 March, then 7 and 8
+  // March, just before Eid al-Fitr. Ramadan shows on its days and changes no
+  // session.
   it('marks the holidays, the exam windows and Ramadan on the right days', async () => {
     const cem = await contextFor(cemEvents());
     assert.deepEqual(marks(cem, '2026-10-27', '2026-10-29'), [null, 'holiday', 'holiday']);

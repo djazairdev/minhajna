@@ -1,9 +1,23 @@
 {
   "format": 1,
   "code": "dz",
-  "release": "2026.1",
+  "release": "2026.2",
   "weekStartsOn": 0,
   "workingDays": [0, 1, 2, 3, 4],
+  "months": [
+    { "ar": "جانفي", "fr": "janvier", "en": "January" },
+    { "ar": "فيفري", "fr": "février", "en": "February" },
+    { "ar": "مارس", "fr": "mars", "en": "March" },
+    { "ar": "أفريل", "fr": "avril", "en": "April" },
+    { "ar": "ماي", "fr": "mai", "en": "May" },
+    { "ar": "جوان", "fr": "juin", "en": "June" },
+    { "ar": "جويلية", "fr": "juillet", "en": "July" },
+    { "ar": "أوت", "fr": "août", "en": "August" },
+    { "ar": "سبتمبر", "fr": "septembre", "en": "September" },
+    { "ar": "أكتوبر", "fr": "octobre", "en": "October" },
+    { "ar": "نوفمبر", "fr": "novembre", "en": "November" },
+    { "ar": "ديسمبر", "fr": "décembre", "en": "December" }
+  ],
   "levels": [
     {
       "code": "primary",

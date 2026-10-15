@@ -1,58 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// PRD §3.8: document dates and numbers use Western digits. The country profile
+// supplies month names (PRD §1.14), never the engine's locale. Missing names
+// are an error, not permission to change the document's date form or language.
+
 import type { Day } from './day.ts';
-
-// PRD §3.8: dates use Western digits, the Algerian month names in Arabic
-// (جانفي … أوت), and the school year as "2026-2027". The texts book keeps its
-// own form (yyyy/mm/dd). Country specifics live as reference data (PRD §1.14),
-// but Algeria is the sole country through 2027/28 and month names follow
-// Algerian usage.
-
-const MONTHS_AR = [
-  'جانفي',
-  'فيفري',
-  'مارس',
-  'أفريل',
-  'ماي',
-  'جوان',
-  'جويلية',
-  'أوت',
-  'سبتمبر',
-  'أكتوبر',
-  'نوفمبر',
-  'ديسمبر',
-] as const;
-
-const MONTHS_FR = [
-  'janvier',
-  'février',
-  'mars',
-  'avril',
-  'mai',
-  'juin',
-  'juillet',
-  'août',
-  'septembre',
-  'octobre',
-  'novembre',
-  'décembre',
-] as const;
-
-const MONTHS_EN = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-] as const;
+import type { CountryProfile, MonthNames } from './reference.ts';
 
 /** Formats a Day as dd/mm/yyyy with Western digits (PRD §3.8). */
 export function formatDay(day: Day): string {
@@ -65,27 +19,25 @@ export function formatTextsBookDay(day: Day): string {
 }
 
 /**
- * Formats a Day with its month name in Arabic (Algerian), French, or English (PRD §3.8).
- * Single-digit narrative day numbers are not zero-padded, and digits are always Western.
+ * Formats a Day with the profile's month name (PRD §3.8, §1.14), with Western digits.
+ * Narrative day numbers are not zero-padded. Missing names throw; there is no fallback form or language.
  */
-export function formatDayWithMonth(day: Day, language: 'ar' | 'fr' | 'en'): string {
+export function formatDayWithMonth(
+  day: Day,
+  language: keyof MonthNames,
+  profile: Pick<CountryProfile, 'months'>,
+): string {
+  if (language !== 'ar' && language !== 'fr' && language !== 'en') {
+    throw new RangeError(`Unsupported language: ${String(language)}`);
+  }
+  if (profile.months === undefined) throw new RangeError('Month names are missing from the country profile');
   const monthIndex = Number(day.slice(5, 7)) - 1;
   const date = Number(day.slice(8, 10));
   const year = day.slice(0, 4);
 
-  let monthName: string | undefined;
-  if (language === 'ar') {
-    monthName = MONTHS_AR[monthIndex];
-  } else if (language === 'fr') {
-    monthName = MONTHS_FR[monthIndex];
-  } else if (language === 'en') {
-    monthName = MONTHS_EN[monthIndex];
-  } else {
-    throw new RangeError(`Unsupported language: ${String(language)}`);
-  }
-
-  if (monthName === undefined) {
-    throw new RangeError(`Not a valid month in day: ${day}`);
+  const monthName = profile.months[monthIndex]?.[language];
+  if (monthName === undefined || monthName.trim() === '') {
+    throw new RangeError(`Month names are incomplete for ${language}`);
   }
 
   return `${date} ${monthName} ${year}`;

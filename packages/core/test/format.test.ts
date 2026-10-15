@@ -11,7 +11,10 @@ import {
   formatTextsBookDay,
   formatWholeNumber,
 } from '../src/index.ts';
-import { d } from './fixtures.ts';
+import { country, d } from './fixtures.ts';
+import { monthNames } from './month-fixtures.ts';
+
+const profile = { ...country, months: monthNames };
 
 describe('format', () => {
   it('formats a Day as dd/mm/yyyy with Western digits', () => {
@@ -28,18 +31,46 @@ describe('format', () => {
   });
 
   it('formats a day with its Algerian Arabic month name', () => {
-    assert.equal(formatDayWithMonth(d('2027-01-03'), 'ar'), '3 جانفي 2027');
-    assert.equal(formatDayWithMonth(d('2026-07-05'), 'ar'), '5 جويلية 2026');
-    assert.equal(formatDayWithMonth(d('2026-08-20'), 'ar'), '20 أوت 2026');
-    assert.equal(formatDayWithMonth(d('2026-09-20'), 'ar'), '20 سبتمبر 2026');
-    assert.doesNotMatch(formatDayWithMonth(d('2027-01-03'), 'ar'), /[٠-٩]/);
+    assert.equal(formatDayWithMonth(d('2027-01-03'), 'ar', profile), '3 جانفي 2027');
+    assert.equal(formatDayWithMonth(d('2026-07-05'), 'ar', profile), '5 جويلية 2026');
+    assert.equal(formatDayWithMonth(d('2026-08-20'), 'ar', profile), '20 أوت 2026');
+    assert.equal(formatDayWithMonth(d('2026-09-20'), 'ar', profile), '20 سبتمبر 2026');
+    assert.doesNotMatch(formatDayWithMonth(d('2027-01-03'), 'ar', profile), /[٠-٩]/);
   });
 
   it('formats a day with its month name in French and English', () => {
-    assert.equal(formatDayWithMonth(d('2027-01-03'), 'fr'), '3 janvier 2027');
-    assert.equal(formatDayWithMonth(d('2026-08-20'), 'fr'), '20 août 2026');
-    assert.equal(formatDayWithMonth(d('2027-01-03'), 'en'), '3 January 2027');
-    assert.equal(formatDayWithMonth(d('2026-08-20'), 'en'), '20 August 2026');
+    assert.equal(formatDayWithMonth(d('2027-01-03'), 'fr', profile), '3 janvier 2027');
+    assert.equal(formatDayWithMonth(d('2026-08-20'), 'fr', profile), '20 août 2026');
+    assert.equal(formatDayWithMonth(d('2027-01-03'), 'en', profile), '3 January 2027');
+    assert.equal(formatDayWithMonth(d('2026-08-20'), 'en', profile), '20 August 2026');
+  });
+
+  it('takes every month and language from the supplied profile, not a country or locale default', () => {
+    const elsewhere = {
+      ...country,
+      code: 'xx',
+      months: monthNames.map((_, index) => ({
+        ar: `شهر ${index + 1}`,
+        fr: `Mois ${index + 1}`,
+        en: `Month ${index + 1}`,
+      })),
+    };
+    for (const [index, names] of elsewhere.months.entries()) {
+      const day = d(`2027-${String(index + 1).padStart(2, '0')}-03`);
+      for (const language of ['ar', 'fr', 'en'] as const) {
+        assert.equal(formatDayWithMonth(day, language, elsewhere), `3 ${names[language]} 2027`);
+      }
+    }
+  });
+
+  it('refuses missing month names without substituting a different date form or language', () => {
+    const day = d('2027-01-03');
+    for (const language of ['ar', 'fr', 'en'] as const) {
+      assert.throws(() => formatDayWithMonth(day, language, country), /[Mm]onth names/);
+      const incomplete = { ...profile, months: monthNames.map((month) => ({ ...month, [language]: '' })) };
+      assert.throws(() => formatDayWithMonth(day, language, incomplete), RangeError);
+    }
+    assert.throws(() => formatDayWithMonth(day, 'de' as 'ar', profile), /Unsupported language/);
   });
 
   it('formats a school year as YYYY-YYYY', () => {
@@ -74,7 +105,7 @@ describe('format', () => {
     assert.equal(whole, '36');
     assert.doesNotMatch(whole, /[٠-٩]/);
 
-    const arabicDate = formatDayWithMonth(d('2027-01-03'), 'ar');
+    const arabicDate = formatDayWithMonth(d('2027-01-03'), 'ar', profile);
     assert.equal(arabicDate, '3 جانفي 2027');
     assert.doesNotMatch(arabicDate, /[٠-٩]/);
   });
