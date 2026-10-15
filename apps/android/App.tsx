@@ -1,26 +1,35 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { useMemo } from 'react';
 import { ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from './src/design/tokens';
+import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
 import text from './src/text/ar.json';
 
 // One screen in Arabic, right to left: enough to prove the build (#18). The
 // interface language and its catalogue come with #21, and the design's
 // components with #20. The three interface fonts are bundled for offline use.
 // It starts from the insets known at launch, so the first frame is drawn at
-// once.
-export default function App() {
+// once. Algeria's reference data is read at start (#87); no screen uses it
+// yet. In development every problem in it is logged, for whoever keys the
+// data; teachers see one short message.
+export default function App({ files = bundledReference }: { files?: ReferenceFiles }) {
+  const reference = useMemo(() => {
+    const result = readReference(files);
+    if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
+    return result;
+  }, [files]);
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
-      <Welcome />
+      <Welcome referenceRefused={!reference.ok} />
     </SafeAreaProvider>
   );
 }
 
-function Welcome() {
+function Welcome({ referenceRefused }: { referenceRefused: boolean }) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -30,6 +39,11 @@ function Welcome() {
         </Text>
         <Text style={styles.tagline}>{text.tagline}</Text>
         <Text style={styles.latinName}>{text.latinName}</Text>
+        {referenceRefused && (
+          <Text style={styles.notice} accessibilityRole="alert">
+            {text.referenceRefused}
+          </Text>
+        )}
       </ScrollView>
     </View>
   );
@@ -60,4 +74,5 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
     marginTop: spacing['space-12'],
   },
+  notice: { ...typography.body, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-20'] },
 });

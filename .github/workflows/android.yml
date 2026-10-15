@@ -12,6 +12,7 @@ on:
     paths:
       - apps/android/**
       - packages/core/**
+      - data/**
       - docs/design/system/tokens.json
       - .github/workflows/android.yml
   push:
@@ -19,6 +20,7 @@ on:
     paths:
       - apps/android/**
       - packages/core/**
+      - data/**
       - docs/design/system/tokens.json
       - .github/workflows/android.yml
 
