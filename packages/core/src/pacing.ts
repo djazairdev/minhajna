@@ -12,7 +12,9 @@
 
 import type { Context } from './context.ts';
 import { addDays, compareDays, isWithin, type Day } from './day.ts';
-import { courseSetup, walkCourse, type CourseSetup, type Progress } from './engine.ts';
+import { courseSetup, type CourseSetup } from './choices.ts';
+import { walkCourse } from './engine.ts';
+import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findSessionType } from './reference.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
@@ -48,12 +50,15 @@ function queueOf(context: Context, session: Session): string {
   return findSessionType(context.ref.country, record?.sessionType ?? session.sessionType).queue;
 }
 
-/** How much of an item's budget the class has used, from 0 to 1. Finished and skipped items count in full. */
+/**
+ * How much of an item's budget the class has used, from 0 to 1. Finished and
+ * skipped items count in full. An item with stages is measured by its
+ * stages. One without runs as "in progress / done", so the sessions spent on
+ * it are all there is.
+ */
 function share(pack: PlanPack, progress: Progress, item: PackItem, groupId: string, budget: number): number {
   if (progress.isFinished(pack, item, groupId)) return 1;
   const stages = stageCount(pack, item);
-  // An item with stages is measured by its stages. One without runs as
-  // "in progress / done", so the sessions spent on it are all there is.
   if (stages > 1) return progress.covered(item.id, groupId) / stages;
   return Math.min(1, progress.spent(item.id, groupId) / budget);
 }
@@ -74,7 +79,12 @@ function nextExamTerm(context: Context, setup: CourseSetup, today: Day): number 
   return exams[0]?.term ?? context.ref.year.terms.find((term) => isWithin(today, term.from, term.to))?.number;
 }
 
-/** Where a course stands against its plan on `today`. Null without a pack. */
+/**
+ * Where a course stands against its plan on `today`. Null without a pack.
+ *
+ * Week packs place the class by the teaching week: the weeks so far in
+ * which the class had a recorded session of this subject.
+ */
 export function pace(context: Context, courseId: string, today: Day): Pace | null {
   const setup = courseSetup(context, courseId);
   const pack = setup.pack;
@@ -97,8 +107,6 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
   let expected = Math.min(total, recorded.length);
   let weeksBehind: number | null = null;
   if (pack.anchor.kind === 'weeks') {
-    // Week packs place the class by the teaching week: the weeks so far in
-    // which the class had a recorded session of this subject.
     const school = state.schools.get(setup.schoolClass.schoolId);
     const weekStarts = new Set<string>();
     for (const session of recorded) {
@@ -157,6 +165,10 @@ export interface TermCheck {
  * The September check: "The plan needs N sessions before the term-1 exams.
  * Your timetable and the calendar give M." (PRD §4.7). Null without a pack,
  * or when the pack does not place its items in terms.
+ *
+ * Every recorded session counts towards the progress, and `gives` counts
+ * only sessions not yet recorded. A fraction of a session still needs a
+ * whole session.
  */
 export function termCheck(context: Context, courseId: string, from: Day, termNumber?: number): TermCheck | null {
   const setup = courseSetup(context, courseId);
@@ -179,7 +191,6 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
   const before = exam?.from ?? addDays(term.to, 1);
 
   const whole = setup.schoolClass.groups.find((group) => group.kind === 'whole')?.id ?? '';
-  // Every recorded session counts, and `gives` counts only sessions not yet recorded.
   const progress = walkCourse(context, courseId, addDays(before, -1)).progress;
   const needs = items
     .filter((item) => item.term !== undefined && item.term <= term.number)
@@ -198,7 +209,6 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
     term: term.number,
     before,
     basis: exam === undefined ? 'term-end' : 'exam-window',
-    // A fraction of a session still needs a session.
     needs: Math.ceil(needs - 1e-9),
     gives,
   };

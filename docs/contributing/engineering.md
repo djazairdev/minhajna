@@ -73,9 +73,21 @@ When real pupil data or a secret reaches a public space:
 ## Code style
 
 - **TypeScript in strict mode.**
+- **At most 300 lines in a file,** counting every line, blank lines and comments included, so that a contributor can read any file in one sitting. ESLint's `max-lines` checks TypeScript and JavaScript; reviews hold Kotlin, Gradle and workflow files to the same limit. A file that grows past it is split by what it does, never cut in the middle of a function or a test, and the core's index keeps its exports unchanged.
 - **The formatter and linter settings in the repository decide style.** Don't argue about style in a review. Propose a change to the settings in its own pull request.
 - **Names and comments in English,** using the PRD's English terms.
-- **Comments explain why,** not what.
+
+## Comments
+
+A reader should meet the code's steps without comments between them, and find what the code can't say in one place: at the head. This follows the [Linux kernel coding style](https://www.kernel.org/doc/html/latest/process/coding-style.html#commenting) (comments say what a function does and why, at its head, not how, inside it), the [Google TypeScript style guide](https://google.github.io/styleguide/tsguide.html#comments-documentation) (document every top-level export with JSDoc) and the [Airbnb JavaScript guide](https://github.com/airbnb/javascript#comments) (no trailing comments).
+
+- **Comments explain why,** not what. Good names say what.
+- **Comments sit at the head:** a file header, and a doc comment (`/** … */`) on each export and on any field whose meaning is not plain from its name. A step that needs explaining goes into its function's head comment, or becomes a function of its own whose name says it.
+- **No comments inside a function's body.** Two exceptions: a tool directive (`eslint-disable`, `@ts-expect-error`, `prettier-ignore`), which a tool reads where it stands, and a comment directly in a `describe` block that heads the test below it.
+- **No comment on the same line as code.** It goes on the line above, at the head.
+- **No commented-out code, and no TODO, FIXME, XXX or HACK.** Git keeps old code. Open an issue for work still to do, and link it from the pull request.
+
+ESLint checks the TypeScript and JavaScript: the repository's own rule `minhajna/no-comments-in-functions` with `no-inline-comments`, `line-comment-position` and `no-warning-comments`. No linter tells commented-out code from prose, so reviews catch it. Reviews hold Kotlin, Gradle and workflow files to the same rules: a comment above a function, a block or a setting, never at the end of a line. The one exception is the version after a pinned action's commit hash (`uses: actions/checkout@<hash> # v7.0.1`), which Dependabot reads and updates where it stands.
 
 ## Dependencies
 

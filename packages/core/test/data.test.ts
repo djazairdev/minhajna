@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import {
+  formatDayWithMonth,
   isWithin,
   makeContext,
   parseCountryProfile,
@@ -21,6 +22,7 @@ import {
   type SchoolCalendar,
 } from '../src/index.ts';
 import { cemEvents, d, openBook, primaryEvents, reference } from './fixtures.ts';
+import { monthNames } from './month-fixtures.ts';
 
 function readData(path: string): unknown {
   return JSON.parse(readFileSync(new URL(`../../../data/${path}`, import.meta.url), 'utf8'));
@@ -64,14 +66,26 @@ describe("Algeria's reference data", () => {
     assert.deepEqual([calendar.year.from, calendar.year.to], ['2026-09-21', '2027-07-08']);
   });
 
+  it('ships release 2026.2 with all month spellings and written dates unchanged', () => {
+    const { profile } = readAlgeria();
+    assert.equal(profile.release, '2026.2');
+    assert.deepEqual(profile.months, monthNames);
+    for (const [index, names] of monthNames.entries()) {
+      const day = d(`2027-${String(index + 1).padStart(2, '0')}-03`);
+      for (const language of ['ar', 'fr', 'en'] as const) {
+        assert.equal(formatDayWithMonth(day, language, profile), `3 ${names[language]} 2027`);
+      }
+    }
+  });
+
+  // No text dates Ramadan yet. A lunar date, Ramadan's included, stays
+  // expected until the moon is sighted.
   it("cites an official text for every date but Ramadan's", () => {
     const { calendar } = readAlgeria();
     const official = /https:\/\/www\.(education|premier-ministre)\.gov\.dz\/|Law 63-278/;
     assert.match(calendar.year.source, official);
     for (const entry of calendar.entries) {
-      // No text dates Ramadan yet.
       if (entry.id !== 'ramadan') assert.match(entry.source, official, entry.id);
-      // A lunar date, Ramadan's included, stays expected until the moon is sighted.
       if (entry.confidence === 'expected') assert.match(entry.source, /moon is sighted/, entry.id);
     }
     for (const source of [calendar.year.source, ...calendar.entries.map((entry) => entry.source)]) {
@@ -97,14 +111,14 @@ describe("Algeria's reference data", () => {
     }
   });
 
+  // A holiday week gives no session, and a holiday within a teaching week,
+  // such as Yennayer on a Tuesday, marks its sessions lost.
   it("dates a made-up class's sessions across the year, and none falls on a holiday", async () => {
     const { calendar } = readAlgeria();
     const holidays = calendar.entries.filter((entry) => entry.effect === 'no-school');
     for (const events of [cemEvents(), primaryEvents()]) {
       const context = await contextFor(events);
       const sessions = sessionsBetween(context, calendar.year.from, calendar.year.to);
-      // A holiday week gives no session, and a holiday within a teaching
-      // week, such as Yennayer on a Tuesday, marks its sessions lost.
       const misplaced = sessions.filter(
         (session) =>
           holidays.some((entry) => isWithin(session.day, entry.from, entry.to)) !== (session.calendar === 'holiday'),
@@ -118,16 +132,17 @@ describe("Algeria's reference data", () => {
     }
   });
 
+  // The autumn holidays start on the evening of Tuesday 27 October, so that
+  // day's sessions stay. Term 2's exams fall on 2, 3 and 4 March, then 7 and 8
+  // March, just before Eid al-Fitr. Ramadan shows on its days and changes no
+  // session.
   it('marks the holidays, the exam windows and Ramadan on the right days', async () => {
     const cem = await contextFor(cemEvents());
-    // The autumn holidays start on the evening of Tuesday 27 October.
     assert.deepEqual(marks(cem, '2026-10-27', '2026-10-29'), [null, 'holiday', 'holiday']);
     assert.deepEqual(marks(cem, '2027-01-12', '2027-01-12'), ['holiday']);
     assert.deepEqual(marks(cem, '2026-12-06', '2026-12-10'), ['exam', 'exam', 'exam', 'exam', 'exam']);
-    // Term 2's exams: 2, 3 and 4 March, then 7 and 8 March, just before Eid al-Fitr.
     assert.deepEqual(marks(cem, '2027-03-02', '2027-03-08'), ['exam', 'exam', 'exam', 'exam', 'exam']);
     assert.deepEqual(marks(cem, '2027-03-09', '2027-03-11'), ['holiday', 'holiday', 'holiday']);
-    // Ramadan shows on its days and changes no session.
     const school = cem.state.schools.get('s-cem');
     assert.ok(school !== undefined);
     assert.ok(cem.calendar.info(d('2027-02-08'), school).entries.some((entry) => entry.id === 'ramadan'));

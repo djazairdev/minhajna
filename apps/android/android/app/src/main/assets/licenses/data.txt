@@ -1,0 +1,7 @@
+Algeria's reference data: the country profile and the 2026/27 school calendar.
+Copyright 2026 The Minhajna contributors (https://github.com/djazairdev/minhajna/tree/main/data)
+
+The data is bundled as published in the repository's data folder, and is
+licensed under the Creative Commons Attribution-ShareAlike 4.0 International
+licence: https://creativecommons.org/licenses/by-sa/4.0/legalcode
+Every date in it names the official text it comes from.

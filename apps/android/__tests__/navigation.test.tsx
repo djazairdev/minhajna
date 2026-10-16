@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// React 19's renderer unwraps memo components: queries use public pressable props.
+
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { BackHandler, Linking, StyleSheet, Text } from 'react-native';
@@ -38,7 +40,6 @@ async function press(match: (props: PressableProps) => boolean) {
 }
 
 function buttons() {
-  // React 19's renderer unwraps memo components; query their public props.
   return tree.root.findAll((node) => typeof (node.props as PressableProps).onPress === 'function');
 }
 

@@ -7,8 +7,8 @@ import { fontFamilyForWeight } from './fonts';
 // Native counterpart of docs/design/system/tokens.json. Keep the canvas's names;
 // __tests__/tokens.test.ts checks every key and value against that export.
 // Dimensions are density-independent numbers, not CSS px or physical pixels.
-// Known contrast and target-size gaps remain documented in the design's
-// accessibility.md: matching a token is not itself an accessibility check.
+// The raw palette preserves the canvas's gaps. Components use colorRoles below
+// for contrast fixes; accessibility.md also documents target-size gaps.
 export const colors = {
   paper: '#FAF7F1',
   sheet: '#FFFEFB',
@@ -95,6 +95,19 @@ export const colors = {
   'desk-edge': '#BDB5A6',
   focus: '#1D2225',
   'focus-on-board': '#F6F3EA',
+} as const satisfies Record<string, ColorValue>;
+
+// Components use these roles for the contrast gaps in the design's
+// accessibility.md. The raw canvas palette above stays exact for parity.
+export const colorRoles = {
+  // Control outlines: rule on sheet is below the 3:1 non-text minimum.
+  controlBorder: colors['book-edge'],
+  // Map connection lines: map-edge on sheet is below 3:1.
+  mapLink: colors['book-edge'],
+  // Map attribution: map-label on map-label-ground is below 4.5:1 for text.
+  mapAttribution: colors.ink2,
+  // Sidebar outline controls: chalk-35 on board is just below 3:1.
+  boardControlBorder: colors['chalk-40'],
 } as const satisfies Record<string, ColorValue>;
 
 // Design family names, not CSS fallback stacks. textStyle selects the bundled
@@ -220,6 +233,7 @@ export const sizes = {
 } as const;
 
 export type ColorToken = keyof typeof colors;
+export type ColorRole = keyof typeof colorRoles;
 export type FontFamilyToken = keyof typeof fontFamilies;
 export type TypographyToken = keyof typeof typography;
 export type SpacingToken = keyof typeof spacing;

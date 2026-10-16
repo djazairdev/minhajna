@@ -7,11 +7,13 @@
 
 import type { Context } from './context.ts';
 import { addDays, compareDays, weekday, type Day } from './day.ts';
-import { confirmCourse, walkCourse, type Confirmation, type Proposal } from './engine.ts';
+import { confirmCourse, walkCourse, type Confirmation } from './engine.ts';
+import type { Proposal } from './progress.ts';
 import type { CalendarEntry } from './reference.ts';
 import { compareSlots, type Course, type Reason, type SessionRecord, type TeacherBlock } from './records.ts';
 import { sessionsBetween, versionOn, type Session } from './sessions.ts';
-import { current, type RecordEvent } from './state.ts';
+import type { RecordEvent } from './events.ts';
+import { current } from './state.ts';
 
 export type SessionStatus =
   /** Awaiting the teacher's confirmation. */
@@ -107,6 +109,8 @@ export interface SessionConfirmation extends Omit<Confirmation, 'sessionKey'> {
  * The session record never carries free text about why: a reason in the
  * teacher's own words goes into the session's private note, with the
  * private reason and note, and never leaves the teacher's devices (PRD §5.4).
+ * A new note keeps what the session's earlier note said and was not given
+ * again.
  */
 export function confirmSessions(context: Context, confirmations: readonly SessionConfirmation[]): RecordEvent[] {
   const byCourse = new Map<string, SessionConfirmation[]>();
@@ -146,7 +150,6 @@ export function confirmSessions(context: Context, confirmations: readonly Sessio
     const { reason, privateReason, privateNote } = confirmation;
     events.push({ kind: 'session.recorded', record });
     if (privateReason !== undefined || privateNote !== undefined || reason !== undefined) {
-      // The new note keeps what the session's earlier note said and was not given again.
       const earlier = context.state.notes.get(record.session.key);
       events.push({
         kind: 'session.noted',

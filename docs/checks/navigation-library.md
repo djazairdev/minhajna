@@ -2,11 +2,11 @@
 
 Status: local validation implemented, not merged. Researched on 2026-10-15 for [#72](https://github.com/djazairdev/minhajna/issues/72), initially against main at `12fc84f9a3be382e605be943c3c57736d68c4c55`. After the user's approval in this chat, the validation change started from updated main at `4d8db4c219d7754715b91852f1d43a62e21b4143` on `feat/72-navigation`.
 
-This records the comparison and the subsequently approved, bounded local integration. It is not an accepted decision record or a claim that all acceptance gates passed. After reviewing the local work, the user authorised its commit and submission as a pull request and confirmed the DCO sign-off. The measured size increase and remaining device checks still need acceptance before merge; #72 is not yet complete. The comparison remains available for the reviewed issue record.
+This records the comparison and the subsequently approved, bounded local integration. The maintainer [agreed to the dependencies on #72](https://github.com/djazairdev/minhajna/issues/72#issuecomment-6196252821), conditional on shrinking and per-processor APKs before the pilot (#93). Source provenance and spoken Arabic TalkBack were gates before the PR leaves draft; the local follow-up now records evidence for both. The historical results below are dated 2026-10-15; the [integration follow-up](#integration-follow-up-2026-10-16) records later changes. This is not a claim that every acceptance gate passed or that #72 is complete.
 
 ## Recommendation
 
-Prefer **React Navigation 7, using its native stack and JavaScript bottom tabs**, subject to the checks below. The local validation was approved, not unconditional acceptance for release. In particular, the measured 6.20 MiB APK increase needs a maintainer's judgement.
+Use **React Navigation 7, with its native stack and JavaScript bottom tabs**, as agreed on #72, subject to the remaining checks and the #93 size condition. The measured 6.20 MiB increase is accepted only with shrinking and per-processor APKs before the pilot.
 
 The proposed direct additions, pinned to the stable versions inspected, are:
 
@@ -141,7 +141,7 @@ For repeating the measurement or evaluating another candidate:
 
 ## Approval and implementation gates
 
-- [ ] A person reviews this proposal, submits the comparison on #72 and obtains maintainer agreement for the validation scope. Do not post it automatically or treat this file as approval.
+- [x] Maintainer agreement for the bounded validation scope is recorded on [#72](https://github.com/djazairdev/minhajna/issues/72#issuecomment-6196252821), conditional on #93 before the pilot. This does not approve later changes or authorize automatic public posts.
 - [ ] Recheck versions, advisories, full npm/Gradle licences, source provenance, repositories and absence of proprietary or data-sending dependencies. Preserve exact direct versions, the app's independent lockfile and script-free installs. Resolve dynamic native versions to pinned project versions.
 - [ ] Demonstrate the root-stack/tab arrangement with the existing design, without changing the product flow or adding unrelated packages. Verify React Native 0.87.1, Fabric, Hermes, API 26 and current Android builds.
 - [ ] Run the RTL/Back, TalkBack, 200% text, inset, keyboard, state-return and process-recreation checks above. Record devices, Android versions and results; do not replace manual accessibility evidence with snapshots alone.
@@ -178,8 +178,14 @@ The preview adds only the three named tabs and one neutral inner test screen. It
 
 The local approval does not replace the reviewed public issue record. Before merge, review the measured size, the predictive-preview limitation, the package source-reference caveat, and the remaining manual checks. This is a validated development scaffold, not completed teacher screens or full accessibility certification.
 
-## Short recommendation for a reviewed issue comment
+## Integration follow-up (2026-10-16)
 
-The side-by-side table above is the comparison to attach to the comment. Its conclusion can be:
+The local follow-up merges main at `58a75d8`, preserving #89's reviewed history. It retains the bundled-reference reader and encrypted-history verification from #95/#99. Navigation opens only after both checks succeed; failed or pending checks keep the standalone welcome/refusal page. Tests cover pending verification, a changed history, a lost key and invalid reference files without exposing the navigator.
 
-> I recommend React Navigation 7 with native-stack, JavaScript bottom tabs and Screens 4.30, reusing our safe-area-context. The bounded local integration builds on RN 0.87.1, matches across two macOS source copies, requests no permissions and passes the F-Droid APK scanner. The universal unshrunk APK grows by 6,504,587 bytes (6.20 MiB / 22.39%); this cost needs explicit review, and alternatives' deltas are not measured. RTL ordinary Back was checked on API 26/35, including both system gesture edges on API 35. Upstream requires predictive preview to be disabled. TalkBack, native LTR/localisation, a budget phone, Linux/cross-OS CI and full F-Droid source builds remain open. The JS-stack alternative adds Gesture Handler; Wix has a larger bootstrap change and weaker verified RN 0.87 evidence. Please review the comparison, measured cost and remaining gates before accepting the implementation; this is not a claim that #72 is complete.
+The transitive `standard-navigation` pin is replaced with `0.0.9`, through the app's npm override. Its JavaScript and declarations are byte-identical to the original `0.0.8`, but its published source commit resolves and its archive includes the licence. The [provenance report](navigation-provenance.md) records the immutable source, rebuild and hashes; the original `0.0.8` source reference is not treated as verified.
+
+The notices now occupy `assets/licenses/navigation-frameworks.txt`, `navigation-helpers.txt` and `navigation-android.txt`, each below 300 lines. Complete upstream notices are preserved. A regression test checks the twenty package notices, standard-navigation's emitted-file hashes and licence, and the full native Apache-2.0 text. Comments are relocated to comply with the current contribution rules.
+
+Current local checks pass: core and Android type checks, lint/formatting, 134 core tests and 67 Android tests. Two independent macOS builds produce byte-identical APKs; native checks pass on API 26/35, including Arabic layout at 200% text. The user confirmed spoken Arabic labels, selected-state announcements and Back/focus return after listening on API 35. The [follow-up verification report](navigation-follow-up.md) distinguishes that human confirmation from automated checks and lists the remaining limits.
+
+The original measurements above do not describe the integrated APK. Source provenance and spoken Arabic now have local evidence. The merge was validated locally before publication; the user confirmed review and DCO certification and authorised committing and pushing it on 2026-10-16. Do not change the remote PR's draft status automatically. #93 remains required before the pilot, and the broader language, budget-phone and source-build checks remain separate.

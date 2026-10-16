@@ -38,5 +38,16 @@
   },
   "engines": {
     "node": ">=22.18.0"
+  },
+  "overrides": {
+    "standard-navigation": "0.0.9"
+  },
+  "codegenConfig": {
+    "name": "MinhajnaSpecs",
+    "type": "modules",
+    "jsSrcsDir": "src/native",
+    "android": {
+      "javaPackageName": "dz.minhajna.preview.storage"
+    }
   }
 }

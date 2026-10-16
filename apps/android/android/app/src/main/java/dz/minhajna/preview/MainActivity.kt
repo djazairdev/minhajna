@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: MIT
 
+// Screens restores its fragments before the activity restores its views.
+
 package dz.minhajna.preview
 
 import android.os.Bundle
@@ -14,7 +16,6 @@ import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 class MainActivity : ReactActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    // Screens restores its fragments before the activity restores its views.
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
   }

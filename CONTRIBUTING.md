@@ -8,7 +8,7 @@ The project is at stage 1 of its opening plan ([PRD §1.13](docs/prd/PRD.md#113-
 - feedback and suggestions;
 - corrections to annual plans and other reference data;
 - print templates and layouts;
-- translations;
+- translations: of the interface, which follow the code's licence, and of documents, which follow the documents' ([0022](docs/decisions/0022-interface-translations-follow-the-code.md));
 - code, from anyone ([0021](docs/decisions/0021-code-contributions-open-to-all.md)).
 
 **A first contribution** starts with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for a larger one. Comment `/take` on it to have it assigned to you, and start straight away: if someone already has it, the bot says who. Comment `/drop` if you stop. Then follow [Content contributions](#content-contributions) or [Code contributions](#code-contributions) below.
@@ -33,7 +33,9 @@ Each correction or template must state:
 - **its source:** an official text, an inspector's distribution, or your own work;
 - **where it applies:** the level, subject and school year.
 
-By contributing content, you agree to publish it under CC BY-SA 4.0. Tell us how you'd like to be credited, or whether you'd rather not be.
+By contributing content, you agree to publish it under CC BY-SA 4.0. That includes translations of documents, such as the privacy policy and the guides. Tell us how you'd like to be credited, or whether you'd rather not be.
+
+Translations of the app's interface are part of the program, so they are under AGPL-3.0-or-later and signed off like code ([0022](docs/decisions/0022-interface-translations-follow-the-code.md)).
 
 ## Code contributions
 

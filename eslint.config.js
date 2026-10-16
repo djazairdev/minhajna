@@ -8,6 +8,7 @@ import js from '@eslint/js';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import reactHooks from 'eslint-plugin-react-hooks';
 import tseslint from 'typescript-eslint';
+import noCommentsInFunctions from './tools/eslint/no-comments-in-functions.js';
 
 export default defineConfig(
   globalIgnores(['**/dist/', '**/coverage/']),
@@ -18,6 +19,7 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
   {
+    plugins: { minhajna: { rules: { 'no-comments-in-functions': noCommentsInFunctions } } },
     linterOptions: {
       // A comment that turns a rule off must still be needed.
       reportUnusedDisableDirectives: 'error',
@@ -41,6 +43,16 @@ export default defineConfig(
       // A promise returned unawaited from inside try escapes its catch and
       // finally.
       '@typescript-eslint/return-await': ['error', 'error-handling-correctness-only'],
+      // A file a newcomer can read in one sitting. Every line counts, blank
+      // lines and comments included; a longer file is split by what it does
+      // (docs/contributing/engineering.md#code-style).
+      'max-lines': ['error', { max: 300, skipBlankLines: false, skipComments: false }],
+      // Comments sit at the head of a file, a function or a declaration,
+      // and say what and why, never how (docs/contributing/engineering.md#comments).
+      'minhajna/no-comments-in-functions': 'error',
+      'no-inline-comments': 'error',
+      'line-comment-position': ['error', { position: 'above' }],
+      'no-warning-comments': ['error', { terms: ['todo', 'fixme', 'xxx', 'hack'], location: 'start' }],
     },
   },
 

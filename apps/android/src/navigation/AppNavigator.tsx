@@ -16,8 +16,9 @@ import text from '../text/ar.json';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
 
-// No record contents in routes, persistence, URL linking or tracking hooks.
+/** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
+/** Inner pages cover the tabs and carry no record contents. */
 export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
@@ -36,12 +37,14 @@ const theme = {
     primary: colors.ink,
   },
 };
+/** Arabic preview labels until the interface catalogue in #21. */
 export const tabLabels: Record<keyof HomeTabParamList, string> = {
   Today: text.navigation.today,
   Classes: text.navigation.classes,
   Documents: text.navigation.documents,
 };
 
+/** Places typed tabs under the native stack so inner screens cover them. */
 export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: { direction?: 'rtl' | 'ltr' }) {
   return (
     <NavigationContainer direction={direction} theme={theme}>

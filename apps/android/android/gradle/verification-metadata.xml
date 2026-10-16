@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 The Minhajna contributors
+  SPDX-License-Identifier: AGPL-3.0-or-later
+
+  SQLCipher is the one prebuilt native library the app takes from Maven, so
+  its files are pinned to the checksums Maven Central publishes: any other
+  bytes stop the build. Every other dependency is built from source or
+  checked by "Same APK twice" (docs/checks/android-build.md), and is trusted
+  here. SQLCipher is built from source before the first F-Droid submission (#75).
+-->
+<verification-metadata xmlns="https://schema.gradle.org/dependency-verification"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.3.xsd">
+   <configuration>
+      <verify-metadata>true</verify-metadata>
+      <verify-signatures>false</verify-signatures>
+      <trusted-artifacts>
+         <trust group="^(?!net[.]zetetic$).*$" regex="true"/>
+      </trusted-artifacts>
+   </configuration>
+   <components>
+      <component group="net.zetetic" name="sqlcipher-android" version="4.19.1">
+         <artifact name="sqlcipher-android-4.19.1.aar">
+            <sha256 value="43fc10cae8f1f1059f0933e8942a1eb328989d13426378597cd4add1b34a34fd" origin="Maven Central"/>
+         </artifact>
+         <artifact name="sqlcipher-android-4.19.1.module">
+            <sha256 value="938380aef99d09bd356855147021e2d4b77778e7e40949b5028300f5bea62608" origin="Maven Central"/>
+         </artifact>
+         <artifact name="sqlcipher-android-4.19.1.pom">
+            <sha256 value="eab40b0e64892aacd3d789f6e93d5818d3f0be1710032202efa65e4860ad46d8" origin="Maven Central"/>
+         </artifact>
+      </component>
+   </components>
+</verification-metadata>

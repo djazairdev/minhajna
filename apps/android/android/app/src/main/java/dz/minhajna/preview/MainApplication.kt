@@ -12,20 +12,31 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.modules.i18nmanager.I18nUtil
+import dz.minhajna.preview.storage.MinhajnaStoragePackage
 
 class MainApplication : Application(), ReactApplication {
 
+  /** The React host, with the app's own module beside the libraries that autolinking finds. */
   override val reactHost: ReactHost by lazy {
     getDefaultReactHost(
       context = applicationContext,
-      packageList = PackageList(this).packages,
+      packageList = PackageList(this).packages + MinhajnaStoragePackage(),
     )
   }
 
   override fun onCreate() {
     super.onCreate()
-    // Local resources, ready for the first frame in airplane mode. Register
-    // each weight separately: React Native folds 500/600 into normal on API 26.
+    registerFonts()
+    forceRightToLeft()
+    loadReactNative(this)
+  }
+
+  /**
+   * Registers the bundled fonts as local resources, ready for the first frame
+   * in airplane mode. Each weight is registered separately: React Native folds
+   * 500/600 into normal on API 26.
+   */
+  private fun registerFonts() {
     val fonts = ReactFontManager.getInstance()
     fonts.addCustomFont(this, "Aref Ruqaa", R.font.aref_ruqaa_bold)
     fonts.addCustomFont(this, "Noto Naskh Arabic", R.font.noto_naskh_arabic_regular)
@@ -36,11 +47,15 @@ class MainApplication : Application(), ReactApplication {
     fonts.addCustomFont(this, "Noto Sans Medium", R.font.noto_sans_medium)
     fonts.addCustomFont(this, "Noto Sans SemiBold", R.font.noto_sans_semibold)
     fonts.addCustomFont(this, "Noto Sans Bold", R.font.noto_sans_bold)
-    // The interface is Arabic, right to left, whatever the phone's language,
-    // and before React Native starts, so the first launch is right to left too.
-    // The direction will follow the language the teacher chooses (#21).
+  }
+
+  /**
+   * The interface is Arabic, right to left, whatever the phone's language, and
+   * before React Native starts, so the first launch is right to left too. The
+   * direction will follow the language the teacher chooses (#21).
+   */
+  private fun forceRightToLeft() {
     I18nUtil.instance.allowRTL(this, true)
     I18nUtil.instance.forceRTL(this, true)
-    loadReactNative(this)
   }
 }

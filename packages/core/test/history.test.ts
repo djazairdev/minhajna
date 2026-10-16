@@ -10,16 +10,13 @@ import {
   MemoryStore,
   RecordBook,
   canonicalJson,
-  eventOf,
-  rollCallUnits,
-  takeRollCall,
   verifyHistory,
   type Day,
   type Entry,
   type HistoryStore,
   type Layer,
 } from '../src/index.ts';
-import { cemEvents, contextOf, d, openBook } from './fixtures.ts';
+import { d } from './fixtures.ts';
 import { deps } from './support.ts';
 
 async function sampleLog(store: HistoryStore = new MemoryStore()): Promise<HistoryLog> {
@@ -55,20 +52,6 @@ async function forge(
   return { ...header, hash: await deps.digest(`minhajna/entry/1\n${canonicalJson(header)}`), content: { salt, body } };
 }
 
-describe('canonical JSON', () => {
-  it('gives the same text whatever the order of fields', () => {
-    assert.equal(canonicalJson({ b: 1, a: [true, null, 'x'] }), canonicalJson({ a: [true, null, 'x'], b: 1 }));
-    assert.equal(canonicalJson({ a: 1, skipped: undefined }), '{"a":1}');
-  });
-
-  it('refuses values that JSON cannot carry exactly', () => {
-    assert.throws(() => canonicalJson(Number.NaN), TypeError);
-    assert.throws(() => canonicalJson([undefined]), TypeError);
-    assert.throws(() => canonicalJson(new Date(0)), TypeError);
-    assert.throws(() => canonicalJson(() => 1), TypeError);
-  });
-});
-
 describe('the history', () => {
   it('chains every entry to the one before it', async () => {
     const log = await sampleLog();
@@ -80,6 +63,8 @@ describe('the history', () => {
     assert.deepEqual(await verifyHistory(deps.digest, log.entries), []);
   });
 
+  // An app bridge can pass any text as the day, so the day is checked at run
+  // time.
   it('keeps the day of a change, never its time', async () => {
     const log = await sampleLog();
     for (const entry of log.entries) {
@@ -95,7 +80,6 @@ describe('the history', () => {
         'seq',
       ]);
     }
-    // An app bridge can pass any text as the day, so it is checked at run time.
     const clockTime = '2026-10-04T08:15:00Z' as Day;
     await assert.rejects(log.append(clockTime, 'lesson-record', 'teacher.set', {}), /YYYY-MM-DD/);
     await assert.rejects(log.erase('2026-10-04 08:15' as Day, [log.entries[1]?.id ?? '']), /YYYY-MM-DD/);
@@ -124,6 +108,8 @@ describe('the history', () => {
     ]);
   });
 
+  // Swapping two entries' places in the history changes what their hashes
+  // cover, so recomputing their sequence numbers does not hide it.
   it('shows entries reordered without recomputing the chain', async () => {
     const [first, second, third] = (await sampleLog()).entries as Entry[];
     assert.deepEqual(await verifyHistory(deps.digest, [first, third, second] as Entry[]), [
@@ -132,7 +118,6 @@ describe('the history', () => {
       { seq: 1, kind: 'sequence' },
       { seq: 1, kind: 'link' },
     ]);
-    // Swapping their places in the history changes what their hashes cover.
     const swapped = [first, { ...third, seq: 1 }, { ...second, seq: 2 }] as Entry[];
     assert.deepEqual(await verifyHistory(deps.digest, swapped), [
       { seq: 1, kind: 'link' },
@@ -191,6 +176,9 @@ describe('the history', () => {
     assert.deepEqual(await verifyHistory(deps.digest, reopened.entries), []);
   });
 
+  // An erasure names a list of entries, each of which exists, is in the
+  // erasure's own layer, and comes before it. An erasure itself is never
+  // erased. Each forged erasure below breaks one of these rules, in turn.
   it('checks every rule of an erasure', async () => {
     const log = await sampleLog();
     const entries = [...log.entries];
@@ -201,35 +189,31 @@ describe('the history', () => {
     ];
     const refused = [{ seq: 3, kind: 'erasure' }];
 
-    // It names a list of entries,
     assert.deepEqual(
       await verifyHistory(deps.digest, await erasure('pupil-records', { entries: rollCall.id })),
       refused,
     );
-    // each of which exists,
     assert.deepEqual(
       await verifyHistory(deps.digest, await erasure('pupil-records', { entries: ['0'.repeat(32)] })),
       refused,
     );
-    // is in its own layer,
     assert.deepEqual(await verifyHistory(deps.digest, await erasure('private', { entries: [rollCall.id] })), refused);
-    // and comes before it.
     const early = await forge(entries, 'pupil-records', ERASURE, { entries: ['e'.repeat(32)] });
     const later = await forge([...entries, early], 'pupil-records', 'roll-call.taken', { absent: [] }, 'e'.repeat(32));
     assert.deepEqual(await verifyHistory(deps.digest, [...entries, early, later]), refused);
-    // An erasure itself is never erased.
     const real = await log.erase(d('2026-10-01'), [rollCall.id]);
     const again = await forge(log.entries, 'pupil-records', ERASURE, { entries: [real.id] });
     assert.deepEqual(await verifyHistory(deps.digest, [...log.entries, again]), [{ seq: 4, kind: 'erasure' }]);
   });
 
+  // The forged entry is a properly chained erasure from the wrong layer,
+  // naming the roll call. The error names the kind of problem only, never an
+  // entry or a pupil.
   it('refuses to open a history that does not verify, and runs no erasure from it', async () => {
     const store = new MemoryStore();
     const log = await sampleLog(store);
     const rollCall = log.entries[1] as Entry;
-    // A properly chained erasure from the wrong layer, naming the roll call.
     await store.append(await forge(log.entries, 'private', ERASURE, { entries: [rollCall.id] }));
-    // The error names the kind of problem only, never an entry or a pupil.
     await assert.rejects(HistoryLog.open(store, deps), /^HistoryError: The history does not verify: erasure$/);
     const stored = await store.load();
     assert.deepEqual(stored[1]?.content?.body, { absent: ['p01'] });
@@ -271,43 +255,5 @@ describe('the history', () => {
       Array.from({ length: 20 }, (_, n) => n),
     );
     assert.deepEqual(await verifyHistory(deps.digest, log.entries), []);
-  });
-});
-
-describe('erasing records', () => {
-  it('erases whole records, never a single version', async () => {
-    const book = await openBook(cemEvents());
-    const [unit] = rollCallUnits(contextOf(book), 'k-1am2', d('2026-09-20'), d('2026-09-20'));
-    assert.ok(unit);
-    const absent = { absent: [{ pupilId: 'p01', justified: false }], late: [] };
-    const taken = await book.record(d('2026-09-20'), takeRollCall(contextOf(book), unit, absent));
-    const fix = await book.record(
-      d('2026-09-23'),
-      takeRollCall(contextOf(book), unit, { absent: [], late: [] }, 'Made-up correction'),
-    );
-    // Erasing the correction alone would bring the first version back, with no reason.
-    await assert.rejects(book.erase(d('2026-09-24'), [fix.id]), /every version/);
-    assert.equal(book.state.rollCalls.get(unit.key)?.length, 2);
-    await book.erase(d('2026-09-24'), [taken.id, fix.id]);
-    assert.equal(book.state.rollCalls.has(unit.key), false);
-
-    // A pupil goes with their movements.
-    const moved = await book.record(d('2026-10-01'), {
-      kind: 'pupil.moved',
-      pupilId: 'p02',
-      movement: { day: d('2026-10-01'), kind: 'out', reason: 'Transfer', confirmed: true },
-    });
-    const pupil = book.entries.find((entry) => {
-      const event = eventOf(entry);
-      return event?.kind === 'pupil.set' && event.pupil.id === 'p02';
-    });
-    assert.ok(pupil);
-    await assert.rejects(book.erase(d('2026-10-02'), [pupil.id]), /every version/);
-    await book.erase(d('2026-10-02'), [pupil.id, moved.id]);
-    assert.equal(book.state.pupils.has('p02'), false);
-    assert.doesNotMatch(JSON.stringify(book.entries), /p02/);
-
-    await assert.rejects(book.erase(d('2026-10-02'), [pupil.id]), /holds no record/);
-    assert.deepEqual(await verifyHistory(deps.digest, book.entries), []);
   });
 });

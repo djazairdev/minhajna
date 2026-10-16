@@ -81,11 +81,11 @@ describe('plan packs', () => {
     assert.deepEqual(problemsOf(source), [{ path: 'items[0].week', problem: 'required' }]);
   });
 
+  // Two hours of 45-minute sessions round to three sessions.
   it('counts stages and budgets in sessions', () => {
     assert.equal(stageCount(mathPack, item('l1')), 4);
     assert.equal(stageCount(mathPack, item('l3')), 1);
     assert.equal(budgetInSessions(mathPack, item('l1'), 60), 2);
-    // Two hours of 45-minute sessions round to three sessions.
     assert.equal(budgetInSessions(mathPack, item('l1'), 45), 3);
     assert.equal(budgetInSessions(mathPack, item('d1'), 90), 1);
   });

@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// The Back arrow is a shape, not a bidi-sensitive glyph: Android mirrors neutral
+// text. Its end border resolves to physical left in RTL before rotation.
+
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useLocale } from '@react-navigation/native';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -10,6 +13,7 @@ import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
 import text from '../text/ar.json';
 
+/** Keeps tab labels and selection accessible without exposing decorative icons. */
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -60,6 +64,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
   );
 }
 
+/** Provides a labelled, RTL-aware Back control and a scalable two-line heading. */
 export function TopBar({ navigation, options }: NativeStackHeaderProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -77,7 +82,6 @@ export function TopBar({ navigation, options }: NativeStackHeaderProps) {
           onPress={() => navigation.goBack()}
           style={styles.back}
         >
-          {/* A shape, not a bidi-sensitive glyph: Android mirrors neutral text. */}
           <View
             testID="back-icon"
             importantForAccessibility="no"
@@ -144,7 +148,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['space-8'],
   },
   back: { width: sizes.target, minHeight: sizes.target, alignItems: 'center', justifyContent: 'center' },
-  // End resolves to the physical left in RTL, before the rotation is applied.
   arrow: { width: 12, height: 12, borderTopWidth: 2, borderEndWidth: 2, borderColor: colors.ink },
   heading: { flex: 1, paddingVertical: spacing['space-8'] },
   title: { ...typography['bar-title'], color: colors.ink, textAlign: 'center' },

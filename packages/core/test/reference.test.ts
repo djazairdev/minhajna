@@ -203,6 +203,7 @@ describe('country profiles', () => {
 });
 
 describe('school calendars', () => {
+  // Fields a national entry does not have stay absent.
   it('reads a valid calendar', () => {
     const result = parseSchoolCalendar(calendarSource, readProfile());
     assert.ok(result.ok);
@@ -211,7 +212,6 @@ describe('school calendars', () => {
     assert.equal(year.source, 'Made-up notice');
     assert.deepEqual(entries[1]?.grades, ['4am']);
     assert.equal(entries[2]?.zone, '16');
-    // Fields a national entry does not have stay absent.
     assert.equal('zone' in (entries[0] ?? {}), false);
   });
 

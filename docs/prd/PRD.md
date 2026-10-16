@@ -102,7 +102,8 @@ These eight principles override everything else in this PRD.
 | What | Licence | Notes |
 |---|---|---|
 | Code: the apps (phone, PC or web), the servers (sync, insights, observatory), build and data tools | **AGPL-3.0-or-later** | "Or later" lets the project adopt a future version of the same licence without asking every contributor |
-| Documents: this PRD, design documents, decision records, the file-format specification, print layouts | CC BY-SA 4.0 | |
+| The apps' interface texts, in every language | **AGPL-3.0-or-later** | Part of the program, so translators sign off like code (15 Oct, decision 0022) |
+| Documents: this PRD, design documents, decision records, the file-format specification, print layouts, and their translations | CC BY-SA 4.0 | |
 | Content teachers make for the data repository: plans, distributions, templates, corrections | CC BY-SA 4.0 | Each item records its source and its contributor |
 | Official texts and plans | Not relicensed | Included only when counsel clears them, otherwise linked. Ord. 03-05 Art. 11 excludes regulations from copyright; the national inspectorate's (IGP) plans are unclear (brief §8) |
 | Fonts | SIL OFL 1.1 | Amiri, Noto Naskh Arabic, Noto Sans Arabic (brief §11) |
@@ -569,6 +570,12 @@ The code and the reference data live in separate repositories, because they have
 | Decision | Choice |
 |---|---|
 | Code contributions | Open to all from now, at stage 1, rather than at the launch. Review, the DCO and agreeing larger changes in an issue first are unchanged (§1.7, §1.13) |
+
+**Decided on 15 Oct 2026 (decision 0022)**
+
+| Decision | Choice |
+|---|---|
+| Interface translations | The apps' interface texts, in every language, are under AGPL-3.0-or-later like the code, and signed off under the DCO. Translations of documents stay under CC BY-SA 4.0 (§1.3) |
 
 **Open**
 - **Protecting the name.** Two steps, since the name is not registered:

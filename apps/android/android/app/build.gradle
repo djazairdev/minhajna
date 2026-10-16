@@ -10,6 +10,18 @@ react {
     autolinkLibrariesWithApp()
 }
 
+// The bundle task watches only the app's own script files. Metro also bundles
+// the core and the reference data from outside the app, and the JSON texts, so
+// a change there must make the bundle again rather than reuse a stale one.
+def repositoryRoot = rootProject.file("../../..")
+tasks.matching { it.name ==~ /createBundle.*JsAndAssets/ }.configureEach {
+    inputs.files(
+        fileTree("${repositoryRoot}/packages/core/src"),
+        fileTree("${repositoryRoot}/data"),
+        fileTree("${rootProject.projectDir}/../src") { include "**/*.json" },
+    ).withPropertyName("bundledSources").withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -24,6 +36,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "0.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         externalNativeBuild {
             cmake {
@@ -90,4 +103,14 @@ android {
 dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:hermes-android")
+    // SQLCipher from Zetetic, its makers: BSD-3, with LibTomCrypt (public
+    // domain) as its crypto provider. The field check uses their AAR from Maven
+    // Central, pinned to this version and checksum (gradle/verification-metadata.xml);
+    // it is built from source before the first F-Droid submission (#75).
+    implementation("net.zetetic:sqlcipher-android") { version { strictly("4.19.1") } }
+    // SQLCipher's classes extend these interfaces, at the version it declares.
+    implementation("androidx.sqlite:sqlite:2.7.0")
+
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }

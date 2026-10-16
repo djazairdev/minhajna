@@ -90,12 +90,13 @@ export function isOwnRoute(route: Route): route is OwnRoute {
  * Keeps the history entries that may travel on one of the teacher's own
  * routes. A route that leaves the teacher takes records instead
  * (`recordsForRoute`), and is refused here.
+ *
+ * Checked at run time too, for callers outside TypeScript, such as an app bridge.
  */
 export function forRoute<T extends { readonly layer: Layer; readonly kind: string }>(
   entries: readonly T[],
   route: OwnRoute,
 ): T[] {
-  // Checked at run time too, for callers outside TypeScript, such as an app bridge.
   if (!isOwnRoute(route)) throw new RangeError("Only the teacher's own routes take history entries");
   return entries.filter((entry) => mayTravelAs(entry.layer, entry.kind, route));
 }
