@@ -41,6 +41,34 @@ The test data is made up ([engineering rules](../../docs/contributing/engineerin
 
 The cases cover empty text, Arabic, French, emoji, control characters, 55-, 56- and 64-byte inputs, multiple blocks, and literal Unicode escapes. Inputs are well-formed strings: raw lone UTF-16 surrogates do not belong in this hashing interface. `canonicalJson` escapes those units in both keys and values before the history calls a platform digest. Its regression tests simulate older JSON behaviour, preserve valid surrogate pairs, and check fixed pre-change history hashes.
 
+### Shared storage checks
+
+`@minhajna/core/test-support` exports `historyStoreTests(register, createFixture, deps)` for [#76](https://github.com/djazairdev/minhajna/issues/76). It registers the same eight checks with Node's `it`, Jest's `test`, or another Node-based runner that awaits each callback. Hashing and randomness come from the caller's `HistoryDeps`. This separate entry imports Node's assertions; the normal `@minhajna/core` entry and the app bundle do not.
+
+For example, from the core's tests:
+
+```ts
+import { describe, it } from 'node:test';
+import { MemoryStore } from '@minhajna/core';
+import { historyStoreTests } from '@minhajna/core/test-support';
+import { deps } from './support.ts';
+
+describe('MemoryStore contract', () => {
+  historyStoreTests(it, () => {
+    const store = new MemoryStore();
+    return { store, readCommitted: () => store.load() };
+  }, deps);
+});
+```
+
+Each callback gets a **fresh, empty fixture**. Its factory may be asynchronous. A fixture supplies `store`, `readCommitted()`, and optionally `dispose()`; after the factory returns, disposal is awaited on success or failure. A factory that fails during setup must clean up its own partial setup. Persistent adapters must use an isolated synthetic database, and disposal must close its handles and remove only that fixture's test data.
+
+`readCommitted()` must read the backing data through an independent reader, not the writer's cache, and must not flush or wait for pending writes. MemoryStore's backing data is its memory, so it can use `load()`. This probe lets the suite detect an append or erasure that acknowledges success while committed data is still missing or unchanged. It is not proof of crash, power-loss or physical erasure safety; those remain platform checks under [#19](https://github.com/djazairdev/minhajna/issues/19).
+
+The checks cover empty loads, append order and exact entry fields (including same-day/backdated changes and Unicode), committed writes, targeted content erasure with headers intact, harmless empty/repeated erasures, reopening, concurrent calls through `HistoryLog`, and a verifiable history after erasure. The former MemoryStore-only reopen/concurrent tests now run through this suite; the existing history-integrity tests remain in `history.test.ts`.
+
+`memory-store.test.ts` runs it with Node. Android's `history-store.test.ts` runs the actual JavaScript adapter with Jest and synthetic native rows; it does **not** certify SQLCipher, the Keystore or device crash recovery. The suite's own tests reject deliberately faulty stores and verify delayed writes and fixture cleanup. No new dependency, runtime behaviour, record format or network call is introduced, and there is no change teachers can see.
+
 ## Not here yet
 
 - Marks, appreciations and the term export.

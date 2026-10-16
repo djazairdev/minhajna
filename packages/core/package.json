@@ -6,7 +6,8 @@
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./test-support": "./test/history-store-suite.ts"
   },
   "engines": {
     "node": ">=22.18.0"

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "paths": {
       "@minhajna/core": ["../../packages/core/src/index.ts"],
+      "@minhajna/core/test-support": ["../../packages/core/test/history-store-suite.ts"],
       "@minhajna/data/*": ["../../data/*"]
     }
   },

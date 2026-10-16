@@ -233,27 +233,4 @@ describe('the history', () => {
     };
     await assert.rejects(RecordBook.open(tampered, deps), /^HistoryError: The history does not verify: content$/);
   });
-
-  it('opens the same history again from its store', async () => {
-    const store = new MemoryStore();
-    const log = await HistoryLog.open(store, deps);
-    await log.append(d('2026-09-20'), 'lesson-record', 'teacher.set', { name: 'Example Teacher' });
-    const reopened = await HistoryLog.open(store, deps);
-    assert.deepEqual(reopened.entries, log.entries);
-    const next = await reopened.append(d('2026-09-21'), 'lesson-record', 'teacher.set', { name: 'Example Teacher' });
-    assert.equal(next.seq, 1);
-    assert.deepEqual(await verifyHistory(deps.digest, reopened.entries), []);
-  });
-
-  it('keeps appends in order when they are not awaited one by one', async () => {
-    const log = await HistoryLog.open(new MemoryStore(), deps);
-    await Promise.all(
-      Array.from({ length: 20 }, (_, n) => log.append(d('2026-09-20'), 'lesson-record', 'note', { n })),
-    );
-    assert.deepEqual(
-      log.entries.map((entry) => entry.seq),
-      Array.from({ length: 20 }, (_, n) => n),
-    );
-    assert.deepEqual(await verifyHistory(deps.digest, log.entries), []);
-  });
 });
