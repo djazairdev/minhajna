@@ -79,6 +79,11 @@ android {
 
     buildTypes {
         release {
+            // Use the libraries' consumer rules for native entry points;
+            // the app adds only the rule needed by its permission guard.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             // Unsigned, so that two builds compare byte for byte. The
             // field-check build signs it with a key kept out of the
             // repository, and F-Droid signs its own build.
@@ -91,6 +96,17 @@ android {
             // React Native's own default, and the APK neither depends on the
             // machine that built it nor gives away its address.
             resValue "string", "react_native_dev_server_ip", "localhost"
+        }
+    }
+
+    // Reuse the native build's ABI list, including a developer's emulator
+    // override. No phone downloads code for the other processor type.
+    splits {
+        abi {
+            enable true
+            reset()
+            include(*providers.gradleProperty("reactNativeArchitectures").get().split(","))
+            universalApk false
         }
     }
 

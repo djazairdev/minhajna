@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "test": "npm test --workspaces",
+    "test": "npm test --workspaces && node --test tools/android/*.test.js",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "eslint --max-warnings 0 . && prettier --check .",
     "format": "prettier --write ."
