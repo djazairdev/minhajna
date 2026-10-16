@@ -12,6 +12,38 @@
     "previewSubtitle": "Sample screen, with no data",
     "previewDescription": "This is only a navigation preview. The tabs are hidden on the inner screen. The Back button takes you back to the tab you opened, and nothing is stored."
   },
+  "help": {
+    "title": "Help and privacy",
+    "about": "About Minhajna",
+    "licences": "Licences and copyright",
+    "offline": "The app licence and notices for fonts, data and libraries, available offline.",
+    "appLicence": "Minhajna is free software under AGPL-3.0-or-later. The full text is included below; component notices keep their original licences.",
+    "version": "Version {{version}}",
+    "source": "App source code",
+    "browserNotice": "GitHub will open in your browser, outside the app. The browser may connect to the internet; Minhajna passes no record or identifier to it.",
+    "cancel": "Cancel",
+    "openBrowser": "Open browser",
+    "browserRefused": "The browser could not be opened. You can read and copy the source code address on this screen.",
+    "loading": "Reading the notices bundled with the app…",
+    "refused": "The notices bundled with the app could not be read. The internet was not used.",
+    "retry": "Try again",
+    "noticeTitles": {
+      "minhajna.txt": "Minhajna licence — AGPL-3.0-or-later",
+      "fonts.txt": "Fonts",
+      "data.txt": "Algeria’s data",
+      "sqlcipher.txt": "SQLCipher",
+      "navigation-helpers.txt": "Navigation helper libraries",
+      "navigation-frameworks.txt": "Navigation frameworks",
+      "navigation-android.txt": "Android navigation libraries",
+      "i18n.txt": "Translation libraries",
+      "react-native.txt": "React and React Native",
+      "react-native-android.txt": "React Native Android libraries",
+      "react-native-helpers.txt": "React Native helper libraries",
+      "react-native-hermes.txt": "Hermes engine",
+      "react-native-jpeg.txt": "JPEG image libraries",
+      "react-native-native.txt": "React Native native libraries"
+    }
+  },
   "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
   "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",
   "count": {

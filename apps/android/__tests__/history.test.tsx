@@ -120,6 +120,7 @@ describe('at start', () => {
       text.language.en,
       text.navigation.today,
       text.navigation.openPreview,
+      text.help.title,
       text.navigation.today,
       text.navigation.classes,
       text.navigation.documents,

@@ -12,6 +12,38 @@
     "previewSubtitle": "شاشة تجريبية دون بيانات",
     "previewDescription": "هذه معاينة للتنقّل فقط. لا تُعرض ألسنة التنقّل في الشاشة الداخلية. زرّ الرجوع يعيدك إلى اللسان الذي فتحته، دون تخزين أيّ بيانات."
   },
+  "help": {
+    "title": "المساعدة والخصوصية",
+    "about": "عن «منهاجنا»",
+    "licences": "التراخيص وحقوق النشر",
+    "offline": "رخصة التطبيق وإشعارات الخطوط والبيانات والمكتبات، دون اتصال بالإنترنت.",
+    "appLicence": "منهاجنا برنامج حرّ برخصة AGPL-3.0-or-later. النص الكامل مرفق أدناه؛ تبقى إشعارات المكوّنات برخصها الأصلية.",
+    "version": "الإصدار {{version}}",
+    "source": "الشيفرة المصدرية للتطبيق",
+    "browserNotice": "سيفتح موقع GitHub في المتصفّح خارج التطبيق. قد يتصل المتصفّح بالإنترنت؛ لا يمرّر منهاجنا إليه أيّ سجلّ أو معرّف.",
+    "cancel": "إلغاء",
+    "openBrowser": "فتح المتصفّح",
+    "browserRefused": "تعذّر فتح المتصفّح. يمكنك قراءة عنوان الشيفرة المصدرية ونسخه من هذه الشاشة.",
+    "loading": "تُقرأ الإشعارات المرفقة بالتطبيق…",
+    "refused": "تعذّرت قراءة الإشعارات المرفقة بالتطبيق. لم يُستعمل الإنترنت.",
+    "retry": "إعادة المحاولة",
+    "noticeTitles": {
+      "minhajna.txt": "رخصة منهاجنا — AGPL-3.0-or-later",
+      "fonts.txt": "الخطوط",
+      "data.txt": "بيانات الجزائر",
+      "sqlcipher.txt": "SQLCipher",
+      "navigation-helpers.txt": "مكتبات مساعدة للتنقّل",
+      "navigation-frameworks.txt": "أطر التنقّل",
+      "navigation-android.txt": "مكتبات التنقّل على أندرويد",
+      "i18n.txt": "مكتبات الترجمة",
+      "react-native.txt": "React وReact Native",
+      "react-native-android.txt": "مكتبات React Native على أندرويد",
+      "react-native-helpers.txt": "مكتبات مساعدة لـ React Native",
+      "react-native-hermes.txt": "محرك Hermes",
+      "react-native-jpeg.txt": "مكتبات صور JPEG",
+      "react-native-native.txt": "المكتبات الأصلية لـ React Native"
+    }
+  },
   "referenceRefused": "تعذّرت قراءة الرزنامة وبيانات الجزائر المرفقة بالتطبيق، فلم يُستعمل منها شيء.",
   "historyRefused": "تعذّر فتح سجلّاتك على هذا الهاتف، فلم يُعرض منها شيء.",
   "count": {

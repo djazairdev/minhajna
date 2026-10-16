@@ -12,6 +12,38 @@
     "previewSubtitle": "Écran d’essai, sans données",
     "previewDescription": "Ceci n’est qu’un aperçu de la navigation. Les onglets ne s’affichent pas sur l’écran intérieur. Le bouton Retour vous ramène à l’onglet que vous aviez ouvert, sans rien enregistrer."
   },
+  "help": {
+    "title": "Aide et confidentialité",
+    "about": "À propos de Minhajna",
+    "licences": "Licences et droits d’auteur",
+    "offline": "La licence de l’application et les notices des polices, des données et des bibliothèques, disponibles hors ligne.",
+    "appLicence": "Minhajna est un logiciel libre sous licence AGPL-3.0-or-later. Le texte intégral figure ci-dessous ; les notices des composants conservent leurs licences d’origine.",
+    "version": "Version {{version}}",
+    "source": "Code source de l’application",
+    "browserNotice": "GitHub s’ouvrira dans votre navigateur, en dehors de l’application. Le navigateur peut se connecter à Internet ; Minhajna ne lui transmet aucun registre ni identifiant.",
+    "cancel": "Annuler",
+    "openBrowser": "Ouvrir le navigateur",
+    "browserRefused": "Le navigateur n’a pas pu être ouvert. Vous pouvez lire et copier l’adresse du code source sur cet écran.",
+    "loading": "Lecture des notices fournies avec l’application…",
+    "refused": "Les notices fournies avec l’application n’ont pas pu être lues. Internet n’a pas été utilisé.",
+    "retry": "Réessayer",
+    "noticeTitles": {
+      "minhajna.txt": "Licence de Minhajna — AGPL-3.0-or-later",
+      "fonts.txt": "Polices",
+      "data.txt": "Données de l’Algérie",
+      "sqlcipher.txt": "SQLCipher",
+      "navigation-helpers.txt": "Bibliothèques d’aide à la navigation",
+      "navigation-frameworks.txt": "Cadres de navigation",
+      "navigation-android.txt": "Bibliothèques de navigation Android",
+      "i18n.txt": "Bibliothèques de traduction",
+      "react-native.txt": "React et React Native",
+      "react-native-android.txt": "Bibliothèques Android de React Native",
+      "react-native-helpers.txt": "Bibliothèques d’aide à React Native",
+      "react-native-hermes.txt": "Moteur Hermes",
+      "react-native-jpeg.txt": "Bibliothèques d’images JPEG",
+      "react-native-native.txt": "Bibliothèques natives de React Native"
+    }
+  },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
   "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
   "count": {

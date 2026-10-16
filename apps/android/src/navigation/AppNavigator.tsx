@@ -19,6 +19,7 @@ import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
+import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
@@ -27,6 +28,9 @@ export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
+  Help: undefined;
+  Licences: undefined;
+  LicenceNotice: { name: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -78,6 +82,17 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
             options={{ title: samples[currentLanguage()].title, statusBarStyle: 'dark' }}
           />
         )}
+        <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen
+          name="Licences"
+          component={LicencesScreen}
+          options={{ title: t('help.licences'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="LicenceNotice"
+          component={LicenceNoticeScreen}
+          options={({ route }) => ({ title: noticeTitle(route.params.name, t), statusBarStyle: 'dark' })}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -116,6 +131,14 @@ function HomePreview({ navigation, route }: HomeProps) {
         style={styles.open}
       >
         <Text style={styles.openLabel}>{t('navigation.openPreview')}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('help.title')}
+        onPress={() => navigation.navigate('Help')}
+        style={styles.open}
+      >
+        <Text style={styles.openLabel}>{t('help.title')}</Text>
       </Pressable>
     </Welcome>
   );

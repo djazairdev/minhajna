@@ -9,8 +9,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import dz.minhajna.preview.language.MinhajnaInterfaceModule
+import dz.minhajna.preview.licences.MinhajnaLicencesModule
 import dz.minhajna.preview.storage.MinhajnaStorageModule
 import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
+import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
 
 /** Registers the app's own TurboModules; libraries come through autolinking. */
@@ -20,6 +22,7 @@ class MinhajnaPackage : BaseReactPackage() {
     when (name) {
       NativeMinhajnaStorageSpec.NAME -> MinhajnaStorageModule(reactContext)
       NativeMinhajnaInterfaceSpec.NAME -> MinhajnaInterfaceModule(reactContext)
+      NativeMinhajnaLicencesSpec.NAME -> MinhajnaLicencesModule(reactContext)
       else -> null
     }
 
@@ -27,6 +30,7 @@ class MinhajnaPackage : BaseReactPackage() {
     mapOf(
       info(NativeMinhajnaStorageSpec.NAME, MinhajnaStorageModule::class.java.name),
       info(NativeMinhajnaInterfaceSpec.NAME, MinhajnaInterfaceModule::class.java.name),
+      info(NativeMinhajnaLicencesSpec.NAME, MinhajnaLicencesModule::class.java.name),
     )
   }
 
