@@ -6,6 +6,7 @@ module.exports = {
   preset: '@react-native/jest-preset',
   moduleNameMapper: {
     '^@minhajna/core$': '<rootDir>/../../packages/core/src/index.ts',
+    '^@minhajna/data/(.*)$': '<rootDir>/../../data/$1',
   },
   // Core files are outside the app, but use the app's Babel runtime helpers.
   modulePaths: ['<rootDir>/node_modules'],

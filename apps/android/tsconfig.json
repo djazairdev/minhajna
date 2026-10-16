@@ -2,7 +2,8 @@
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "paths": {
-      "@minhajna/core": ["../../packages/core/src/index.ts"]
+      "@minhajna/core": ["../../packages/core/src/index.ts"],
+      "@minhajna/data/*": ["../../data/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

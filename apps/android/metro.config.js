@@ -6,6 +6,8 @@ const path = require('node:path');
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 
 const coreRoot = path.resolve(__dirname, '../../packages/core');
+// The reference data ships from the repository's data folder, with no copy.
+const dataRoot = path.resolve(__dirname, '../../data');
 
 /**
  * Metro configuration
@@ -15,9 +17,9 @@ const coreRoot = path.resolve(__dirname, '../../packages/core');
  */
 const config = {
   // The core stays in the root workspace; the app keeps its own install.
-  watchFolders: [coreRoot],
+  watchFolders: [coreRoot, dataRoot],
   resolver: {
-    extraNodeModules: { '@minhajna/core': coreRoot },
+    extraNodeModules: { '@minhajna/core': coreRoot, '@minhajna/data': dataRoot },
     // Babel's helpers for core files come from the app's locked dependencies.
     nodeModulesPaths: [path.resolve(__dirname, 'node_modules')],
   },
