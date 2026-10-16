@@ -109,6 +109,8 @@ export interface SessionConfirmation extends Omit<Confirmation, 'sessionKey'> {
  * The session record never carries free text about why: a reason in the
  * teacher's own words goes into the session's private note, with the
  * private reason and note, and never leaves the teacher's devices (PRD §5.4).
+ * A new note keeps what the session's earlier note said and was not given
+ * again.
  */
 export function confirmSessions(context: Context, confirmations: readonly SessionConfirmation[]): RecordEvent[] {
   const byCourse = new Map<string, SessionConfirmation[]>();
@@ -148,7 +150,6 @@ export function confirmSessions(context: Context, confirmations: readonly Sessio
     const { reason, privateReason, privateNote } = confirmation;
     events.push({ kind: 'session.recorded', record });
     if (privateReason !== undefined || privateNote !== undefined || reason !== undefined) {
-      // The new note keeps what the session's earlier note said and was not given again.
       const earlier = context.state.notes.get(record.session.key);
       events.push({
         kind: 'session.noted',

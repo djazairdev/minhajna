@@ -59,7 +59,12 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'seating.set': true,
 };
 
-/** The layer of every event. Sync, exports and shares check it (PRD §5.4). */
+/**
+ * The layer of every event. Sync, exports and shares check it (PRD §5.4).
+ *
+ * The teacher's own calendar layer holds training days, seminars and duties,
+ * which stay private (PRD §4.5).
+ */
 export function layerOf(event: RecordEvent): Layer {
   switch (event.kind) {
     case 'pupil.set':
@@ -70,8 +75,6 @@ export function layerOf(event: RecordEvent): Layer {
     case 'seating.set':
       return 'private';
     case 'calendar.set':
-      // The teacher's own layer holds training days, seminars and duties,
-      // which stay private (PRD §4.5).
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
     case 'teacher.set':
     case 'school.set':
@@ -83,12 +86,15 @@ export function layerOf(event: RecordEvent): Layer {
   }
 }
 
-/** The event an entry holds, or null once erased. */
+/**
+ * The event an entry holds, or null once erased.
+ *
+ * RecordBook opens a history only once it verifies, and only RecordBook
+ * writes events into one, so `buildState` trusts the entries it is given.
+ */
 export function eventOf(entry: Entry): RecordEvent | null {
   if (entry.kind === ERASURE || entry.content === null || !Object.hasOwn(KINDS, entry.kind)) return null;
   const body = entry.content.body;
   if (typeof body !== 'object' || body === null || !('kind' in body) || body.kind !== entry.kind) return null;
-  // RecordBook opens a history only once it verifies, and only RecordBook
-  // writes events into one. `buildState` trusts the entries it is given.
   return body as RecordEvent;
 }

@@ -86,6 +86,13 @@ function withMovements(pupil: Pupil, order: number, moved: readonly Movement[]):
   return { ...pupil, movements };
 }
 
+/**
+ * Builds the state from the history entries. A timetable's first version
+ * applies from its own day, so setup can fill in the weeks already gone. A
+ * later one never reaches back before the day it was recorded: the past never
+ * moves (PRD §4.6). Of two versions from the same day, the one recorded later
+ * applies, as the sort is stable.
+ */
 export function buildState(entries: readonly Entry[]): State {
   let teacher: TeacherCard | null = null;
   const schools = new Map<string, School>();
@@ -123,9 +130,6 @@ export function buildState(entries: readonly Entry[]): State {
         courses.set(event.course.id, event.course);
         break;
       case 'timetable.set':
-        // The first version applies from its own day, so setup can fill in
-        // the weeks already gone. A later one never reaches back before the
-        // day it was recorded: the past never moves (PRD §4.6).
         timetables.push({
           version: event.version,
           recorded: entry.day,
@@ -163,7 +167,6 @@ export function buildState(entries: readonly Entry[]): State {
     classes,
     pupils,
     courses,
-    // Sorting is stable, so of two versions from the same day the one recorded later applies.
     timetables: timetables.sort((a, b) => compareDays(a.from, b.from)),
     calendar: [...calendar.values()],
     sessions,
@@ -188,6 +191,8 @@ function compareText(a: string, b: string): number {
  * nothing from its history entry: no ID, place in the history, day or hash.
  * Sessions and roll calls come in the order of their own days, so not even
  * the order shows when they were recorded (PRD §7.6).
+ *
+ * A version names the first day it applies, which can be later than the day the teacher gave it.
  */
 function currentRecords(state: State): RecordEvent[] {
   const records: RecordEvent[] = [];
@@ -196,7 +201,6 @@ function currentRecords(state: State): RecordEvent[] {
   for (const schoolClass of state.classes.values()) records.push({ kind: 'class.set', schoolClass });
   for (const pupil of state.pupils.values()) records.push({ kind: 'pupil.set', pupil });
   for (const course of state.courses.values()) records.push({ kind: 'course.set', course });
-  // A version names the first day it applies, which can be later than the day the teacher gave it.
   for (const { version, from } of state.timetables)
     records.push({ kind: 'timetable.set', version: { ...version, from } });
   for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });

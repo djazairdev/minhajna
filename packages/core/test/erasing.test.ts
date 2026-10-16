@@ -9,6 +9,8 @@ import { cemEvents, contextOf, d, openBook } from './fixtures.ts';
 import { deps } from './support.ts';
 
 describe('erasing records', () => {
+  // Erasing a roll call's correction alone would bring the first version
+  // back, with no reason. A pupil goes with their movements.
   it('erases whole records, never a single version', async () => {
     const book = await openBook(cemEvents());
     const [unit] = rollCallUnits(contextOf(book), 'k-1am2', d('2026-09-20'), d('2026-09-20'));
@@ -19,13 +21,11 @@ describe('erasing records', () => {
       d('2026-09-23'),
       takeRollCall(contextOf(book), unit, { absent: [], late: [] }, 'Made-up correction'),
     );
-    // Erasing the correction alone would bring the first version back, with no reason.
     await assert.rejects(book.erase(d('2026-09-24'), [fix.id]), /every version/);
     assert.equal(book.state.rollCalls.get(unit.key)?.length, 2);
     await book.erase(d('2026-09-24'), [taken.id, fix.id]);
     assert.equal(book.state.rollCalls.has(unit.key), false);
 
-    // A pupil goes with their movements.
     const moved = await book.record(d('2026-10-01'), {
       kind: 'pupil.moved',
       pupilId: 'p02',

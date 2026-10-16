@@ -99,6 +99,8 @@ describe('roll call', () => {
     );
   });
 
+  // The pupil's name is fixed later, by a pupil record that holds only a
+  // later return.
   it('keeps movements recorded on their own when the pupil is set again', async () => {
     const book = await openBook(primaryEvents());
     const out = { day: d('2026-10-20'), kind: 'out', reason: 'Transfer', confirmed: true } as const;
@@ -106,7 +108,6 @@ describe('roll call', () => {
     await book.record(d('2026-10-21'), { kind: 'pupil.moved', pupilId: 'q01', movement: out });
     const q01 = book.state.pupils.get('q01');
     assert.ok(q01);
-    // The name is fixed later, by a pupil record that holds only a later return.
     const back = { day: d('2026-10-27'), kind: 'in', reason: 'Back' } as const;
     await book.record(d('2026-10-22'), {
       kind: 'pupil.set',

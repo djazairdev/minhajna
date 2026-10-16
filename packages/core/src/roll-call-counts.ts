@@ -78,7 +78,13 @@ interface Counted {
   readonly conflict: boolean;
 }
 
-/** The roll-call book's totals for each pupil, from `from` to `to` (PRD §3.4). */
+/**
+ * The roll-call book's totals for each pupil, from `from` to `to` (PRD §3.4).
+ *
+ * Roll calls carry legal weight, so one taken is never dropped silently,
+ * even when the timetable or the calendar no longer gives its unit: after a
+ * timetable change, or a closure added later.
+ */
 export function countRollCalls(
   context: Context,
   classId: string,
@@ -105,9 +111,6 @@ export function countRollCalls(
     }
   }
 
-  // Roll calls carry legal weight (PRD §3.4), so one taken is never dropped
-  // silently, even when the timetable or the calendar no longer gives its
-  // unit: after a timetable change, or a closure added later.
   const keys = new Set(generated.map((unit) => unit.key));
   for (const [key, versions] of state.rollCalls) {
     const rollCall = current(versions);

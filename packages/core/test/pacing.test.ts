@@ -80,8 +80,9 @@ describe('pacing', () => {
     assert.equal(result?.delay, 2);
   });
 
+  // The same pack gets a made-up term-2 buffer, which must not absorb a
+  // term-1 delay.
   it('takes buffers only from the term being checked', async () => {
-    // The same pack, with a made-up term-2 buffer that must not absorb a term-1 delay.
     const buffer = {
       id: 'r2',
       kind: 'assessment-remediation',

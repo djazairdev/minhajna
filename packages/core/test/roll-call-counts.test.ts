@@ -90,6 +90,8 @@ describe('roll-call counts', () => {
     assert.equal(counted.untaken, 1);
   });
 
+  // Two pieces of late news: a closure added for a day whose roll call was
+  // taken, and a session recorded as not held after its roll call was taken.
   it('counts every roll call taken, and lists those the rest of the record leaves out', async () => {
     const book = await openBook(cemEvents());
     const count = (): ReturnType<typeof countRollCalls> =>
@@ -97,7 +99,6 @@ describe('roll-call counts', () => {
     const [sunday, monday] = rollCallUnits(contextOf(book), 'k-1am2', d('2026-09-20'), d('2026-09-21'));
     assert.ok(sunday && monday);
 
-    // Late news: a closure is added for a day whose roll call was taken.
     await book.record(
       d('2026-09-21'),
       takeRollCall(contextOf(book), monday, { absent: [{ pupilId: 'p01', justified: false }], late: [] }),
@@ -123,7 +124,6 @@ describe('roll-call counts', () => {
       { day: '2026-09-21', half: 'morning', justified: false },
     ]);
 
-    // A session recorded as not held after its roll call was taken.
     const absent = ['p01', 'p02', 'p03', 'p04', 'p05', 'p06', 'p07', 'p08'].map((pupilId) => ({
       pupilId,
       justified: false,
@@ -161,6 +161,8 @@ describe('roll-call counts', () => {
     assert.equal(counts.untaken, 5);
   });
 
+  // A roll call taken on such a day counts whatever the rules say, and is
+  // listed for the teacher to check.
   it("leaves out units on the teacher's own calendar days, unless the rules count them", async () => {
     const book = await openBook(cemEvents());
     await book.record(d('2026-09-13'), {
@@ -190,7 +192,6 @@ describe('roll-call counts', () => {
     assert.equal(count({ ...DEFAULT_COUNTING, seminars: 'counted' }).untaken, 1);
     assert.equal(count({ ...DEFAULT_COUNTING, seminars: 'counted', untaken: 'present' }).units, 5);
 
-    // A roll call taken that day counts whatever the rules say, and is listed for the teacher to check.
     await book.record(d('2026-09-21'), takeRollCall(contextOf(book), monday, { absent: [], late: ['p03'] }));
     assert.equal(count().units, 5);
     assert.deepEqual(count().conflicts, [monday.key]);

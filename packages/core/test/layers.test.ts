@@ -153,6 +153,9 @@ describe('record layers', () => {
     assert.doesNotMatch(JSON.stringify(printout), /must never leave|private meeting/);
   });
 
+  // Tuesday is confirmed a month late, and nobody it is sent to can tell.
+  // The teacher's own routes keep the whole history, and only they take
+  // entries.
   it('sends records, never history entries, on every route that leaves the teacher', async () => {
     const book = await openBook(cemEvents());
     const [sunday, monday, tuesday, wednesday] = awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-23'));
@@ -163,7 +166,6 @@ describe('record layers', () => {
     );
     await book.recordAll(d('2026-09-21'), confirmSessions(contextOf(book), [{ session: monday }]));
     await book.recordAll(d('2026-09-23'), confirmSessions(contextOf(book), [{ session: wednesday }]));
-    // Tuesday is confirmed a month late. Nobody it is sent to can tell.
     await book.recordAll(d('2026-10-22'), confirmSessions(contextOf(book), [{ session: tuesday }]));
 
     for (const route of OUTBOUND) {
@@ -178,7 +180,6 @@ describe('record layers', () => {
     );
     assert.deepEqual(days, ['2026-09-20', '2026-09-21', '2026-09-22', '2026-09-23']);
 
-    // The teacher's own routes keep the whole history, and only they take entries.
     assert.deepEqual(forRoute(book.entries, 'full-export'), book.entries);
     const outbound: Route = 'school-space';
     assert.throws(() => forRoute(book.entries, outbound as OwnRoute), /own routes/);

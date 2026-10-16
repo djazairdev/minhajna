@@ -118,6 +118,11 @@ interface EntryInput {
   readonly body: unknown;
 }
 
+/**
+ * Hashes a new entry onto `previous`. The stored body is parsed back from
+ * the hashed text, so what is kept is exactly what was hashed, and later
+ * changes to the caller's object cannot reach it.
+ */
 async function makeEntry(deps: HistoryDeps, previous: Entry | null, input: EntryInput): Promise<Entry> {
   const bodyText = canonicalJson(input.body);
   const salt = toHex(deps.random(16));
@@ -130,9 +135,6 @@ async function makeEntry(deps: HistoryDeps, previous: Entry | null, input: Entry
     digest: await deps.digest(contentText(salt, bodyText)),
     previous: previous === null ? '' : previous.hash,
   };
-  // The stored body is parsed back from the hashed text, so what is kept is
-  // exactly what was hashed, and later changes to the caller's object cannot
-  // reach it.
   const body: unknown = JSON.parse(bodyText);
   return { ...header, hash: await deps.digest(headerText(header)), content: { salt, body } };
 }
@@ -234,6 +236,9 @@ export class HistoryLog {
    * and the day. It erases exactly the entries it is given, even one version
    * of a record alone, so only RecordBook calls it: RecordBook erases whole
    * records.
+   *
+   * The erasure is stored before the content is removed. If the app stops
+   * in between, `open` finishes the job.
    */
   erase(day: Day, ids: readonly string[]): Promise<Entry> {
     return this.#serialised(async () => {
@@ -246,8 +251,6 @@ export class HistoryLog {
         if (target.kind === ERASURE) throw new Error('An erasure cannot be erased');
         if (target.layer !== first.layer) throw new Error('Erase one layer at a time');
       }
-      // The erasure is stored before the content is removed. If the app stops
-      // in between, `open` finishes the job.
       const erasure = await makeEntry(this.#deps, this.#entries.at(-1) ?? null, {
         day,
         layer: first.layer,

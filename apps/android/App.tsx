@@ -9,9 +9,10 @@ import text from './src/text/ar.json';
 // One screen in Arabic, right to left: enough to prove the build (#18). The
 // interface language and its catalogue come with #21, and the design's
 // components with #20. The three interface fonts are bundled for offline use.
+// It starts from the insets known at launch, so the first frame is drawn at
+// once.
 export default function App() {
   return (
-    // The insets known when the app starts, so the first frame is drawn at once.
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
       <Welcome />
