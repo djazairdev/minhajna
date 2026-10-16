@@ -15,7 +15,6 @@
   "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
   "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",
   "count": {
-    "sessions_zero": "No session",
     "sessions_one": "{{count}} session",
     "sessions_other": "{{count}} sessions"
   },

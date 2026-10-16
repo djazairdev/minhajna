@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Weblate for the interface's translations (#21, decision 0023): Weblate's own
+# Compose setup (github.com/WeblateOrg/docker-compose), with each image pinned
+# by version and digest. Weblate listens on this machine only; a host puts a
+# proxy or a tunnel in front (README.md). Settings and secrets live in
+# ./environment, made from environment.example and never committed.
+
+name: minhajna-weblate
+
+services:
+  cache:
+    image: valkey/valkey:9.1.2-alpine@sha256:48332870af354a799964c0012ae1194a0bf2bf894eb508f945810596dc2d8d11
+    command: [valkey-server, --save, '60', '1', --loglevel, warning]
+    volumes:
+      - cache-data:/data
+    read_only: true
+    restart: always
+
+  database:
+    image: postgres:18.6-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
+    env_file: ./environment
+    volumes:
+      - database-data:/var/lib/postgresql
+    restart: always
+
+  weblate:
+    image: weblate/weblate:2026.10.1.1@sha256:b0f200f38d70ed0db026ee969898b96dbeee5e9961b8c40ed05433e94354b4a8
+    depends_on:
+      - cache
+      - database
+    env_file: ./environment
+    ports:
+      - 127.0.0.1:8080:8080
+    volumes:
+      - weblate-data:/app/data
+      - weblate-cache:/app/cache
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+    restart: always
+
+volumes:
+  cache-data: {}
+  database-data: {}
+  weblate-data: {}
+  weblate-cache: {}

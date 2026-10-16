@@ -15,7 +15,6 @@
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
   "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
   "count": {
-    "sessions_zero": "Aucune séance",
     "sessions_one": "{{count}} séance",
     "sessions_many": "{{count}} de séances",
     "sessions_other": "{{count}} séances"

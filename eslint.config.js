@@ -70,6 +70,14 @@ export default defineConfig(
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 
+  // The infrastructure's scripts, such as Weblate's set-up, run in Node.js.
+  {
+    files: ['infra/**/*.js'],
+    languageOptions: {
+      globals: { console: 'readonly', fetch: 'readonly', process: 'readonly', setTimeout: 'readonly', URL: 'readonly' },
+    },
+  },
+
   // React's rules of hooks, for the apps' components.
   {
     files: ['apps/**/*.{ts,tsx}'],
