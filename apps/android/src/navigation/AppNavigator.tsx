@@ -12,7 +12,7 @@ import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-
 import { I18nManager, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, sizes, spacing, typography } from '../design/tokens';
-import text from '../text/ar.json';
+import { useText } from '../text/i18n';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
 
@@ -37,15 +37,16 @@ const theme = {
     primary: colors.ink,
   },
 };
-/** Arabic preview labels until the interface catalogue in #21. */
-export const tabLabels: Record<keyof HomeTabParamList, string> = {
-  Today: text.navigation.today,
-  Classes: text.navigation.classes,
-  Documents: text.navigation.documents,
-};
+/** Each tab's label in the catalogue. */
+export const tabLabels = {
+  Today: 'navigation.today',
+  Classes: 'navigation.classes',
+  Documents: 'navigation.documents',
+} as const satisfies Record<keyof HomeTabParamList, string>;
 
 /** Places typed tabs under the native stack so inner screens cover them. */
 export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: { direction?: 'rtl' | 'ltr' }) {
+  const t = useText();
   return (
     <NavigationContainer direction={direction} theme={theme}>
       <Stack.Navigator screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}>
@@ -53,7 +54,7 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
         <Stack.Screen
           name="NavigationPreview"
           component={InnerPreview}
-          options={{ title: text.navigation.previewTitle, statusBarStyle: 'dark' }}
+          options={{ title: t('navigation.previewTitle'), statusBarStyle: 'dark' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
@@ -61,11 +62,12 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
 }
 
 function HomeTabs() {
+  const t = useText();
   return (
     <Tabs.Navigator
       backBehavior="history"
       tabBar={(props) => <BottomNav {...props} />}
-      screenOptions={({ route }) => ({ headerShown: false, title: tabLabels[route.name] })}
+      screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
     >
       <Tabs.Screen name="Today" component={HomePreview} />
       <Tabs.Screen name="Classes" component={HomePreview} />
@@ -80,17 +82,18 @@ type HomeProps = CompositeScreenProps<
 >;
 
 function HomePreview({ navigation, route }: HomeProps) {
+  const t = useText();
   return (
     <Welcome>
       <Text style={styles.tabTitle} accessibilityRole="header">
-        {tabLabels[route.name]}
+        {t(tabLabels[route.name])}
       </Text>
       <Pressable
         accessibilityRole="button"
         onPress={() => navigation.navigate('NavigationPreview')}
         style={styles.open}
       >
-        <Text style={styles.openLabel}>{text.navigation.openPreview}</Text>
+        <Text style={styles.openLabel}>{t('navigation.openPreview')}</Text>
       </Pressable>
     </Welcome>
   );
@@ -98,6 +101,7 @@ function HomePreview({ navigation, route }: HomeProps) {
 
 function InnerPreview() {
   const insets = useSafeAreaInsets();
+  const t = useText();
   return (
     <ScrollView
       contentContainerStyle={[
@@ -109,7 +113,7 @@ function InnerPreview() {
         },
       ]}
     >
-      <Text style={styles.description}>{text.navigation.previewDescription}</Text>
+      <Text style={styles.description}>{t('navigation.previewDescription')}</Text>
     </ScrollView>
   );
 }
