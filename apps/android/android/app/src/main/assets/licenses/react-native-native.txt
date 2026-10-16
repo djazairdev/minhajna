@@ -13,8 +13,9 @@ React Native's native library is built with glog, double-conversion, fmt and
 fast_float, from the versions React Native 0.87.1 names. fast_float is
 offered under Apache-2.0, MIT or BSL-1.0; the app takes it under MIT. Fresco
 uses Bolts. Boost 1.83.0 is used too, for its headers and its context
-switching code, under the Boost Software License 1.0, which asks for no
-notice in compiled code.
+switching code, under the Boost Software License 1.0. So is the Android
+NDK's libc++, which every native library uses, under Apache-2.0 with LLVM
+exceptions. Neither asks for a notice in compiled code.
 
 glog 0.3.5
 https://github.com/google/glog/tree/v0.3.5
