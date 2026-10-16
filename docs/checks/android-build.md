@@ -117,10 +117,13 @@ The licences are MIT (573), ISC (44), BSD-3-Clause (25), Apache-2.0 (11), BSD-2-
 
 Both are in tools that run on the developer's machine, on the project's own files: Metro, React Native's command-line tools and Jest. Neither reaches the APK. The dependency review fails on any known vulnerability, so it will fail on these until a fix ships, or a maintainer allows them.
 
-**Android libraries.** The dependency review reads only npm's lockfile, so the build's own check and F-Droid's scanner watch these. The libraries in the APK are under three licences:
+**Android libraries.** The dependency review reads only npm's lockfile, so the build's own check and F-Droid's scanner watch these. The libraries in the APK are mainly under three licences:
 - Apache-2.0: androidx, Kotlin, OkHttp, Okio, SoLoader and fbjni.
 - MIT: React Native, Hermes, Fresco and Yoga.
 - A BSD licence: Bolts, which Fresco uses. The Bolts project is under MIT now. SQLCipher for Android, which encrypts the history, is under BSD-3-Clause; its crypto provider, LibTomCrypt, is in the public domain. Their notices travel in the APK, in `assets/licenses/sqlcipher.txt`.
+- Inside React Native's and Fresco's native libraries: folly (Apache-2.0); glog, double-conversion, fmt and fast_float (BSD-3-Clause and MIT); Boost (BSL-1.0); libjpeg-turbo (IJG, BSD-3-Clause and Zlib); and, in Hermes, LLVM's support code (Apache-2.0 WITH LLVM-exception and NCSA) and dtoa. IJG, NCSA, LLVM-exception and dtoa are allowed for this code by name ([engineering rules](../contributing/engineering.md#dependencies)).
+
+The notices of all of these, and of every JavaScript package in the bundle, travel in the APK in `assets/licenses/`, and a test checks that each runtime dependency has one.
 
 SQLCipher is the one native library the APK takes prebuilt from Maven Central. `gradle/verification-metadata.xml` pins it to the checksums Maven Central publishes, so any other bytes stop the build (#75).
 

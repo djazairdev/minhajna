@@ -107,6 +107,7 @@ ESLint checks the TypeScript and JavaScript: the repository's own rule `minhajna
 | | Licences |
 |---|---|
 | Allowed | MIT, ISC, 0BSD, Zlib, BSD-2-Clause, BSD-3-Clause, Apache-2.0, MPL-2.0, LGPL-2.1-or-later, LGPL-3.0-or-later, GPL-3.0-or-later, AGPL-3.0-or-later. Also OFL-1.1 for fonts, and CC0-1.0, CC-BY-4.0 and CC-BY-SA-4.0 for data |
+| Allowed by name | Code React Native's Android libraries are built with, already in the APK, and only for that code: libjpeg-turbo in Fresco under IJG, the LLVM support code in Hermes under Apache-2.0 WITH LLVM-exception and NCSA, and dtoa in Hermes under the dtoa licence. These licences are permissive and ask only for a notice, which travels in `assets/licenses/`. Any other code under them needs a decision |
 | A maintainer decides | Licences limited to version 3, such as GPL-3.0-only or AGPL-3.0-only, which would tie the whole app to that version ([PRD §5.9](../prd/PRD.md#59-files-minhajna-reads-and-writes)). Also any licence not listed here |
 | Refused | GPL-2.0-only, which cannot be combined with AGPL-3.0; non-commercial licences; "source-available" licences, such as SSPL or BUSL; anything proprietary |
 
