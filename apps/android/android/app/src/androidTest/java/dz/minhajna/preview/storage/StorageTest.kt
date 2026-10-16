@@ -179,9 +179,9 @@ class StorageTest {
     reopened.close()
   }
 
+  /** The same vectors as Node's crypto and the browsers' WebCrypto. */
   @Test
   fun hashesLikeEveryOtherPlatform() {
-    // The same vectors as Node's crypto and the browsers' WebCrypto.
     assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", Hashing.sha256Hex(""))
     assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", Hashing.sha256Hex("abc"))
     assertEquals("a872255bb241b1ed530a813816deb566569957441a9d97958a693bce703a7213", Hashing.sha256Hex("منهاجنا"))

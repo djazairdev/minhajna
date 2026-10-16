@@ -32,8 +32,8 @@ export class FakeStorage {
     return randomBytes(length).toString('hex');
   }
 
+  /** Refuses text with a lone surrogate, which does not survive UTF-8 and back, as on the device. */
   digest(texts: readonly string[]): Promise<string[]> {
-    // A lone surrogate does not survive UTF-8 and back, as on the device.
     const wellFormed = (text: string) => Buffer.from(text, 'utf8').toString('utf8') === text;
     if (!texts.every(wellFormed)) return Promise.reject(new Error('E_NOT_WELL_FORMED'));
     return Promise.resolve(texts.map((text) => createHash('sha256').update(text, 'utf8').digest('hex')));

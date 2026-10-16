@@ -73,9 +73,11 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
   fun pragma(name: String): String? =
     db.rawQuery("PRAGMA $name", null).use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
 
+  /**
+   * Runs `block` in one transaction. The connection's settings are applied
+   * again first, in case the library reopened it with its own defaults.
+   */
   private fun write(block: () -> Unit) {
-    // The connection's settings are applied again before each write, in case
-    // the library reopened it with its own defaults.
     applySettings(db)
     db.beginTransaction()
     try {
@@ -122,9 +124,11 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
       return HistoryDatabase(db)
     }
 
-    /** SQLCipher reads `x'…'` with 64 hex digits as the key itself. */
+    /**
+     * SQLCipher reads `x'…'` with 64 hex digits as the key itself. It is
+     * written byte by byte, never as a String, so the caller can clear it.
+     */
     internal fun rawKey(key: ByteArray): ByteArray {
-      // Written byte by byte, never as a String, so the caller can clear it.
       val hex = "0123456789abcdef"
       val out = ByteArray(3 + key.size * 2)
       out[0] = 'x'.code.toByte()

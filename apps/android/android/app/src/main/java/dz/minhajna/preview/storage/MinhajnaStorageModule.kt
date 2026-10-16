@@ -38,8 +38,8 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
     return Hashing.hex(bytes)
   }
 
+  /** Hashes each text on the worker, from copies made on the calling thread: the array belongs to the bridge. */
   override fun digest(texts: ReadableArray, promise: Promise) {
-    // Copied on the calling thread: the array belongs to the bridge.
     val copies = List(texts.size()) { texts.getString(it) ?: "" }
     worker.execute {
       try {
@@ -129,6 +129,7 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
 
   private fun opened(): HistoryDatabase = history ?: throw IllegalStateException("The history is not open")
 
+  /** Runs `task` on the worker. A failure's message is SQLite's or the app's own, never a record's content. */
   private fun onWorker(promise: Promise, task: () -> Any?) {
     worker.execute {
       try {
@@ -136,7 +137,6 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
       } catch (e: KeyLostException) {
         promise.reject("E_KEY_LOST", e.message, e)
       } catch (e: Exception) {
-        // The message is SQLite's or the app's own, never a record's content.
         promise.reject("E_HISTORY", e.message ?: e.javaClass.simpleName, e)
       }
     }

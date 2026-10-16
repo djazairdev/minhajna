@@ -22,11 +22,11 @@ async function openLog(storage: FakeStorage): Promise<HistoryLog> {
   return HistoryLog.open(nativeStore(storage.asSpec()), nativeDeps(storage.asSpec()));
 }
 
+/** The texts the app shows once its history has had a turn to open. */
 async function shown(storage: FakeStorage): Promise<unknown[]> {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(<App storage={storage.asSpec()} />);
-    // Lets the history open.
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
   return tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);

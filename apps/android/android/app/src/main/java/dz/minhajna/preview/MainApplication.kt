@@ -16,10 +16,10 @@ import dz.minhajna.preview.storage.MinhajnaStoragePackage
 
 class MainApplication : Application(), ReactApplication {
 
+  /** The React host, with the app's own module beside the libraries that autolinking finds. */
   override val reactHost: ReactHost by lazy {
     getDefaultReactHost(
       context = applicationContext,
-      // The app's own module, beside the libraries that autolinking finds.
       packageList = PackageList(this).packages + MinhajnaStoragePackage(),
     )
   }

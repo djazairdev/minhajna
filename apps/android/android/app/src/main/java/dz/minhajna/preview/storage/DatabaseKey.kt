@@ -36,7 +36,11 @@ class DatabaseKey(private val file: File, private val alias: String = ALIAS) {
 
   fun exists(): Boolean = file.exists()
 
-  /** The key, made on first use. The caller clears it once the database is open. */
+  /**
+   * The key, made on first use. The caller clears it once the database is
+   * open. A new key's wrapped copy is synced to the disk before the database
+   * is made with the key.
+   */
   fun getOrCreate(random: SecureRandom): ByteArray {
     val keyStore = KeyStore.getInstance(KEYSTORE).apply { load(null) }
     if (file.exists()) {
@@ -50,7 +54,6 @@ class DatabaseKey(private val file: File, private val alias: String = ALIAS) {
     val out = atomic.startWrite()
     try {
       out.write(wrap(wrapping, key))
-      // Synced to the disk before the database is made with the key.
       atomic.finishWrite(out)
     } catch (e: Exception) {
       atomic.failWrite(out)
@@ -78,17 +81,18 @@ class DatabaseKey(private val file: File, private val alias: String = ALIAS) {
     }
   }
 
+  /**
+   * A new wrapping key in StrongBox, a separate secure chip, where the phone
+   * has one. Where it has none, the key is generated again without StrongBox,
+   * under the Keystore's own protection, in hardware on most phones.
+   */
   private fun generate(): SecretKey {
     val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE)
-    // StrongBox, a separate secure chip, where the phone has one; otherwise
-    // the Keystore's own protection, in hardware on most phones.
     if (Build.VERSION.SDK_INT >= 28) {
       try {
         generator.init(spec(strongBox = true))
         return generator.generateKey()
-      } catch (_: StrongBoxUnavailableException) {
-        // Generated again below, without StrongBox.
-      }
+      } catch (_: StrongBoxUnavailableException) {}
     }
     generator.init(spec(strongBox = false))
     return generator.generateKey()
