@@ -1,0 +1,74 @@
+[
+  {
+    "name": "empty",
+    "text": "",
+    "utf8Bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "ascii",
+    "text": "abc",
+    "utf8Bytes": 3,
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  {
+    "name": "arabic",
+    "text": "منهاجنا",
+    "utf8Bytes": 14,
+    "sha256": "a872255bb241b1ed530a813816deb566569957441a9d97958a693bce703a7213"
+  },
+  {
+    "name": "french",
+    "text": "école",
+    "utf8Bytes": 6,
+    "sha256": "f0f772e182a4941e6fdef31116540b17be18ab0be3290d2d1df760251f859b24"
+  },
+  {
+    "name": "surrogate-pair",
+    "text": "😀",
+    "utf8Bytes": 4,
+    "sha256": "f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9"
+  },
+  {
+    "name": "french-and-emoji",
+    "text": "Séance 😀",
+    "utf8Bytes": 12,
+    "sha256": "44d964ebff0c92fc72feb16792dfa63b89016bc07cf515b52f2361e228c8252c"
+  },
+  {
+    "name": "control-characters",
+    "text": "a\u0000b\n",
+    "utf8Bytes": 4,
+    "sha256": "3a100994c4e38751871e6e8eef9adad2b20177fdeaf650daacdcd74f4c9421e3"
+  },
+  {
+    "name": "padding-55",
+    "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "utf8Bytes": 55,
+    "sha256": "9f4390f8d30c2dd92ec9f095b65e2b9ae9b0a925a5258e241c9f1e910f734318"
+  },
+  {
+    "name": "padding-56",
+    "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "utf8Bytes": 56,
+    "sha256": "b35439a4ac6f0948b6d6f9e3c6af0f5f590ce20f1bde7090ef7970686ec6738a"
+  },
+  {
+    "name": "block-64",
+    "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "utf8Bytes": 64,
+    "sha256": "ffe054fe7ae0cb6dc65c3af9b61d5209f439851db43d0ba5997337df154668eb"
+  },
+  {
+    "name": "multiple-blocks",
+    "text": "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc",
+    "utf8Bytes": 300,
+    "sha256": "d9f5aeb06abebb3be3f38adec9a2e3b94228d52193be923eb4e24c9b56ee0930"
+  },
+  {
+    "name": "canonical-surrogate-escapes",
+    "text": "{\"\\ud800\":\"\\udfff\"}",
+    "utf8Bytes": 19,
+    "sha256": "9c4477569f491252826b1c48bcf85587f30444b6a75cc41fad9d335865cca129"
+  }
+]
