@@ -75,7 +75,7 @@ These are not what the app would grow by: archives hold extra builds and type fi
 
 For #21, once the checks below are done:
 - **Stable IDs.** Each text has an explicit ID, in one catalogue per language. Wording lives in the catalogues, never in the components.
-- **Every visible text** goes through the catalogue: labels, screen-reader labels, alerts and notifications. A teacher's own words, such as a lesson title, are data, not catalogue entries.
+- **Every visible text** goes through the catalogue: labels, screen-reader labels, alerts and notifications. A teacher's own words, such as a lesson title, are data, not catalogue entries. The component gallery is the one exception: a developer's tool in debug builds only, its own words and made-up samples live in `apps/android/src/gallery/samples.ts`, outside the catalogues and Weblate.
 - **Checked at build time:** every ID present, exactly each language's plural forms, placeholders kept, nothing empty.
 - **Dates and numbers** come from the core's formatter (#73), never from the library, so digits stay Western and month names stay Algerian.
 - **Offline only.** The catalogues are bundled. No download of translations, no sending of missing keys, and no logging of the values put into a text.
