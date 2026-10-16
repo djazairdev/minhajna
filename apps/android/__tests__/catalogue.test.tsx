@@ -127,20 +127,16 @@ test.each(['ar', 'ar-DZ'])('picks the CLDR form for every count in the compariso
   }
 });
 
-test('counts sessions in French and English, with no plural form missing', () => {
-  expect([0, 1, 2, 3, 1_000_000].map((count) => i18n.t('count.sessions', { count, lng: 'fr' }))).toEqual([
-    'Aucune séance',
-    '1 séance',
-    '2 séances',
-    '3 séances',
-    '1000000 de séances',
-  ]);
-  expect([0, 1, 2, 11].map((count) => i18n.t('count.sessions', { count, lng: 'en' }))).toEqual([
-    'No session',
-    '1 session',
-    '2 sessions',
-    '11 sessions',
-  ]);
+/**
+ * Translators change the French and English wording in Weblate, so this checks
+ * that each count gets its CLDR form from the catalogue, not what the form says.
+ */
+test.each(['fr', 'en'] as const)('counts sessions with the CLDR form of each count (%s)', (lng) => {
+  const forms = catalogues[lng].count as Record<string, string>;
+  for (const count of [0, 1, 2, 3, 11, 100, 1_000_000]) {
+    const form = forms[`sessions_${new Intl.PluralRules(lng).select(count)}`];
+    expect(i18n.t('count.sessions', { count, lng })).toBe(form.replace('{{count}}', String(count)));
+  }
 });
 
 test.each(LANGUAGES)('has every text of the Arabic catalogue, with the same placeholders (%s)', (language) => {
@@ -152,7 +148,11 @@ test.each(LANGUAGES)('has every text of the Arabic catalogue, with the same plac
   for (const [key, found] of translated) expect([key, found]).toEqual([key, arabic.get(key)]);
 });
 
-test.each(LANGUAGES)('gives every counted text each plural form of its language (%s)', (language) => {
+/**
+ * Exactly the CLDR forms of each language, as Weblate keeps them: it drops any
+ * other form, such as i18next's "_zero" in French, the next time it writes the file.
+ */
+test.each(LANGUAGES)('gives every counted text exactly the plural forms of its language (%s)', (language) => {
   const forms: string[] = new Intl.PluralRules(language).resolvedOptions().pluralCategories;
   const counted = new Map<string, string[]>();
   for (const [key] of entries(catalogues[language])) {
@@ -162,7 +162,7 @@ test.each(LANGUAGES)('gives every counted text each plural form of its language 
   expect(counted.size).toBeGreaterThan(0);
   for (const [key, found] of counted) {
     expect([key, forms.filter((form) => !found.includes(form))]).toEqual([key, []]);
-    expect([key, found.filter((form) => form !== 'zero' && !forms.includes(form))]).toEqual([key, []]);
+    expect([key, found.filter((form) => !forms.includes(form))]).toEqual([key, []]);
   }
 });
 
