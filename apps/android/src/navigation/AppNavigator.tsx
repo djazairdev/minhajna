@@ -5,23 +5,28 @@ import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navi
 import {
   DefaultTheme,
   NavigationContainer,
+  useNavigationContainerRef,
   type CompositeScreenProps,
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
-import { I18nManager, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { useEffect } from 'react';
+import { DevSettings, I18nManager, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, sizes, spacing, typography } from '../design/tokens';
-import { useText } from '../text/i18n';
+import { Gallery } from '../gallery/Gallery';
+import { samples } from '../gallery/samples';
+import { currentLanguage, useText } from '../text/i18n';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
-/** Inner pages cover the tabs and carry no record contents. */
+/** Inner pages cover the tabs and carry no record contents. The gallery exists in debug builds only. */
 export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
+  Gallery: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -44,11 +49,21 @@ export const tabLabels = {
   Documents: 'navigation.documents',
 } as const satisfies Record<keyof HomeTabParamList, string>;
 
-/** Places typed tabs under the native stack so inner screens cover them. */
+/** The developer menu's item that opens the gallery, in English like the rest of that menu. */
+export const GALLERY_MENU_ITEM = 'Component gallery';
+
+/**
+ * Places typed tabs under the native stack so inner screens cover them. In
+ * debug builds, the developer menu also opens the component gallery.
+ */
 export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: { direction?: 'rtl' | 'ltr' }) {
   const t = useText();
+  const navigation = useNavigationContainerRef<RootStackParamList>();
+  useEffect(() => {
+    if (__DEV__) DevSettings.addMenuItem(GALLERY_MENU_ITEM, () => navigation.navigate('Gallery'));
+  }, [navigation]);
   return (
-    <NavigationContainer direction={direction} theme={theme}>
+    <NavigationContainer ref={navigation} direction={direction} theme={theme}>
       <Stack.Navigator screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}>
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
@@ -56,6 +71,13 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
           component={InnerPreview}
           options={{ title: t('navigation.previewTitle'), statusBarStyle: 'dark' }}
         />
+        {__DEV__ && (
+          <Stack.Screen
+            name="Gallery"
+            component={Gallery}
+            options={{ title: samples[currentLanguage()].title, statusBarStyle: 'dark' }}
+          />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
