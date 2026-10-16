@@ -13,8 +13,7 @@ class MinhajnaInterfaceModule(context: ReactApplicationContext) : NativeMinhajna
 
   override fun language(): String? = InterfaceLanguage.language(reactApplicationContext)
 
-  override fun setLanguage(code: String, rightToLeft: Boolean) =
-    InterfaceLanguage.set(reactApplicationContext, code, rightToLeft)
+  override fun setLanguage(code: String) = InterfaceLanguage.set(reactApplicationContext, code)
 
   /** Reloads React Native, which reads the direction again as it starts. */
   override fun restart() {

@@ -78,7 +78,7 @@ export function currentLanguage(): Language {
 export function chooseLanguage(code: Language, settings: InterfaceSettings = NativeInterface): void {
   const current = currentLanguage();
   if (code === current) return;
-  settings.setLanguage(code, LANGUAGES[code].rightToLeft);
+  settings.setLanguage(code);
   if (LANGUAGES[code].rightToLeft === LANGUAGES[current].rightToLeft) void i18n.changeLanguage(code);
   else settings.restart();
 }

@@ -6,19 +6,18 @@ import type { Spec } from '../src/native/NativeMinhajnaInterface';
 /**
  * The interface-language module for Jest, in memory: what MinhajnaInterface
  * keeps in the phone's preferences, and how many times the interface was asked
- * to start again.
+ * to start again. The direction is the native side's alone, so it is not kept
+ * here.
  */
 export class FakeInterface {
   kept: string | null = null;
-  rightToLeft = true;
   restarts = 0;
 
   asSpec(): Spec {
     return {
       language: () => this.kept,
-      setLanguage: (code, rightToLeft) => {
+      setLanguage: (code) => {
         this.kept = code;
-        this.rightToLeft = rightToLeft;
       },
       restart: () => {
         this.restarts += 1;

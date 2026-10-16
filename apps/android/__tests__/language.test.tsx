@@ -40,7 +40,7 @@ test('opens in the language kept on this phone, and in Arabic for one it does no
 test('keeps a choice that changes the direction, and restarts before showing it', () => {
   const phone = new FakeInterface();
   chooseLanguage('fr', phone.asSpec());
-  expect([phone.kept, phone.rightToLeft, phone.restarts]).toEqual(['fr', false, 1]);
+  expect([phone.kept, phone.restarts]).toEqual(['fr', 1]);
   expect(currentLanguage()).toBe('ar');
 });
 
@@ -48,11 +48,11 @@ test('switches between French and English at once, with no restart', async () =>
   await i18n.changeLanguage('fr');
   const phone = new FakeInterface();
   chooseLanguage('en', phone.asSpec());
-  expect([phone.kept, phone.rightToLeft, phone.restarts]).toEqual(['en', false, 0]);
+  expect([phone.kept, phone.restarts]).toEqual(['en', 0]);
   expect(currentLanguage()).toBe('en');
 
   chooseLanguage('ar', phone.asSpec());
-  expect([phone.kept, phone.rightToLeft, phone.restarts]).toEqual(['ar', true, 1]);
+  expect([phone.kept, phone.restarts]).toEqual(['ar', 1]);
 });
 
 test('does nothing when the current language is chosen again', () => {
@@ -94,7 +94,7 @@ test('keeps the language chosen on the welcome page', async () => {
   await ReactTestRenderer.act(() => {
     (chips(tree)[1].props as PressableProps).onPress?.({} as never);
   });
-  expect(setLanguage).toHaveBeenCalledWith('fr', false);
+  expect(setLanguage).toHaveBeenCalledWith('fr');
   expect(restart).toHaveBeenCalledTimes(1);
   await ReactTestRenderer.act(() => tree.unmount());
 });

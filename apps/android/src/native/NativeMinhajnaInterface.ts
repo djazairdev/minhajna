@@ -6,12 +6,12 @@ import { TurboModuleRegistry } from 'react-native';
 
 // The interface language the teacher chose, kept on the phone (#21). Android
 // sets the layout's direction before React Native starts, so the native side
-// keeps the direction with the language and applies it at every start.
+// works the direction out from the kept language and applies it at every start.
 export interface Spec extends TurboModule {
   /** The language chosen on this phone, or null before any choice. Synchronous. */
   language(): string | null;
-  /** Keeps the language and its direction; the direction applies from the next start. */
-  setLanguage(code: string, rightToLeft: boolean): void;
+  /** Keeps the language; its direction, which the native side derives from the code, applies from the next start. */
+  setLanguage(code: string): void;
   /** Starts the interface again, so that a new direction applies. */
   restart(): void;
 }

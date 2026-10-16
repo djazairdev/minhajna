@@ -48,22 +48,30 @@ class InterfaceLanguageTest {
 
   @Test
   fun keepsALeftToRightLanguageAndItsDirection() {
-    InterfaceLanguage.set(context, "fr", rightToLeft = false)
+    InterfaceLanguage.set(context, "fr")
     assertEquals("fr", InterfaceLanguage.language(context))
     assertFalse(I18nUtil.instance.isRTL(context))
   }
 
   @Test
   fun goesBackToRightToLeftForArabic() {
-    InterfaceLanguage.set(context, "en", rightToLeft = false)
-    InterfaceLanguage.set(context, "ar", rightToLeft = true)
+    InterfaceLanguage.set(context, "en")
+    InterfaceLanguage.set(context, "ar")
     assertEquals("ar", InterfaceLanguage.language(context))
     assertTrue(I18nUtil.instance.isRTL(context))
   }
 
   @Test
+  fun opensRightToLeftForALanguageItDoesNotOffer() {
+    context.getSharedPreferences("dz.minhajna.preview.interface", 0).edit()
+      .putString("language", "de").putBoolean("rightToLeft", false).commit()
+    InterfaceLanguage.applyDirection(context)
+    assertTrue(I18nUtil.instance.isRTL(context))
+  }
+
+  @Test
   fun refusesSomethingThatIsNotALanguageCode() {
-    assertThrows(IllegalArgumentException::class.java) { InterfaceLanguage.set(context, "fr; DROP", false) }
+    assertThrows(IllegalArgumentException::class.java) { InterfaceLanguage.set(context, "fr; DROP") }
     assertNull(InterfaceLanguage.language(context))
   }
 }
