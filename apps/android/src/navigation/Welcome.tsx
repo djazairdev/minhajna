@@ -10,6 +10,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
+import { LanguageChoice } from './LanguageChoice';
 
 /** Shares the offline brand page between navigation previews and safe startup/refusal states. */
 export function Welcome({
@@ -53,6 +54,7 @@ export function Welcome({
             {t('historyRefused')}
           </Text>
         )}
+        <LanguageChoice />
         {children}
       </ScrollView>
     </View>

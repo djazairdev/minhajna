@@ -70,7 +70,16 @@ describe('a refused file', () => {
 
     const tree = await render(files);
     expect(tree.root.findAllByType(AppNavigator)).toHaveLength(0);
-    expect(shown(tree)).toEqual([text.name, text.tagline, text.latinName, text.referenceRefused]);
+    expect(shown(tree)).toEqual([
+      text.name,
+      text.tagline,
+      text.latinName,
+      text.referenceRefused,
+      text.language.label,
+      text.language.ar,
+      text.language.fr,
+      text.language.en,
+    ]);
     const notice = tree.root.findAllByType(Text)[3].props as TextProps;
     expect(notice.accessibilityRole).toBe('alert');
     expect(warn).toHaveBeenCalledWith(

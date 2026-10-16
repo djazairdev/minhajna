@@ -20,11 +20,22 @@ test('shows all three bundled families without limiting enlarged text', async ()
     tree = ReactTestRenderer.create(<Welcome />);
   });
   const shown = tree!.root.findAllByType(Text).map((node): unknown => node.props.children);
-  expect(shown).toEqual([text.name, text.tagline, text.latinName]);
+  expect(shown).toEqual([
+    text.name,
+    text.tagline,
+    text.latinName,
+    text.language.label,
+    text.language.ar,
+    text.language.fr,
+    text.language.en,
+  ]);
 
   const scroll = tree!.root.findByType(ScrollView).props as ScrollViewProps;
   expect(StyleSheet.flatten(scroll.contentContainerStyle)).toMatchObject({ flexGrow: 1 });
-  const textStyles = tree!.root.findAllByType(Text).map((node) => StyleSheet.flatten((node.props as TextProps).style));
+  const textStyles = tree!.root
+    .findAllByType(Text)
+    .slice(0, 3)
+    .map((node) => StyleSheet.flatten((node.props as TextProps).style));
   expect(textStyles).toEqual([
     { ...typography.brand, lineHeight: undefined, color: colors.chalk, textAlign: 'center' },
     { ...typography.tagline, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-12'] },

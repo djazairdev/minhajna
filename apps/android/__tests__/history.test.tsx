@@ -114,6 +114,10 @@ describe('at start', () => {
       text.name,
       text.tagline,
       text.latinName,
+      text.language.label,
+      text.language.ar,
+      text.language.fr,
+      text.language.en,
       text.navigation.today,
       text.navigation.openPreview,
       text.navigation.today,
@@ -130,7 +134,16 @@ describe('at start', () => {
     await log.append(day, 'private', 'note', { text: 'kept' });
     storage.rows[0].hash = '0'.repeat(64);
 
-    expect(await shown(storage)).toEqual([text.name, text.tagline, text.latinName, text.historyRefused]);
+    expect(await shown(storage)).toEqual([
+      text.name,
+      text.tagline,
+      text.latinName,
+      text.historyRefused,
+      text.language.label,
+      text.language.ar,
+      text.language.fr,
+      text.language.en,
+    ]);
     expect(warn).toHaveBeenCalledWith('History refused', expect.any(HistoryError));
   });
 

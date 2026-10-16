@@ -11,23 +11,22 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
-import com.facebook.react.modules.i18nmanager.I18nUtil
-import dz.minhajna.preview.storage.MinhajnaStoragePackage
+import dz.minhajna.preview.language.InterfaceLanguage
 
 class MainApplication : Application(), ReactApplication {
 
-  /** The React host, with the app's own module beside the libraries that autolinking finds. */
+  /** The React host, with the app's own modules beside the libraries that autolinking finds. */
   override val reactHost: ReactHost by lazy {
     getDefaultReactHost(
       context = applicationContext,
-      packageList = PackageList(this).packages + MinhajnaStoragePackage(),
+      packageList = PackageList(this).packages + MinhajnaPackage(),
     )
   }
 
   override fun onCreate() {
     super.onCreate()
     registerFonts()
-    forceRightToLeft()
+    InterfaceLanguage.applyDirection(this)
     loadReactNative(this)
   }
 
@@ -47,15 +46,5 @@ class MainApplication : Application(), ReactApplication {
     fonts.addCustomFont(this, "Noto Sans Medium", R.font.noto_sans_medium)
     fonts.addCustomFont(this, "Noto Sans SemiBold", R.font.noto_sans_semibold)
     fonts.addCustomFont(this, "Noto Sans Bold", R.font.noto_sans_bold)
-  }
-
-  /**
-   * The interface is Arabic, right to left, whatever the phone's language, and
-   * before React Native starts, so the first launch is right to left too. The
-   * direction will follow the language the teacher chooses (#21).
-   */
-  private fun forceRightToLeft() {
-    I18nUtil.instance.allowRTL(this, true)
-    I18nUtil.instance.forceRTL(this, true)
   }
 }
