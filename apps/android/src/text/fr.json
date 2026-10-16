@@ -1,0 +1,29 @@
+{
+  "name": "منهاجنا",
+  "tagline": "Du plan annuel à chaque séance",
+  "latinName": "Minhajna",
+  "navigation": {
+    "today": "Aujourd’hui",
+    "classes": "Classes",
+    "documents": "Documents",
+    "back": "Retour",
+    "openPreview": "Ouvrir un écran intérieur d’essai",
+    "previewTitle": "Aperçu de la navigation",
+    "previewSubtitle": "Écran d’essai, sans données",
+    "previewDescription": "Ceci n’est qu’un aperçu de la navigation. Les onglets ne s’affichent pas sur l’écran intérieur. Le bouton Retour vous ramène à l’onglet que vous aviez ouvert, sans rien enregistrer."
+  },
+  "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
+  "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
+  "count": {
+    "sessions_zero": "Aucune séance",
+    "sessions_one": "{{count}} séance",
+    "sessions_many": "{{count}} de séances",
+    "sessions_other": "{{count}} séances"
+  },
+  "language": {
+    "label": "Langue de l’interface",
+    "ar": "العربية",
+    "fr": "Français",
+    "en": "English"
+  }
+}

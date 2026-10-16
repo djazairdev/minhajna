@@ -21,5 +21,11 @@
     "sessions_few": "{{count}} حصص",
     "sessions_many": "{{count}} حصة",
     "sessions_other": "{{count}} حصة"
+  },
+  "language": {
+    "label": "لغة الواجهة",
+    "ar": "العربية",
+    "fr": "Français",
+    "en": "English"
   }
 }

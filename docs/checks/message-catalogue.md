@@ -79,7 +79,7 @@ For #21, once the checks below are done:
 - **Checked at build time:** every ID present, every plural form present, placeholders kept, nothing empty.
 - **Dates and numbers** come from the core's formatter (#73), never from the library, so digits stay Western and month names stay Algerian.
 - **Offline only.** The catalogues are bundled. No download of translations, no sending of missing keys, and no logging of the values put into a text.
-- **The language and the direction.** Changing the catalogue does not change the layout's direction: React Native applies right to left only after a restart, and the app forces it today ([I18nManager](https://reactnative.dev/docs/i18nmanager)). #21 settles how a language choice switches the direction, with #72.
+- **The language and the direction.** Changing the catalogue does not change the layout's direction: React Native sets it only as it starts ([I18nManager](https://reactnative.dev/docs/i18nmanager)). Settled in #21: the interface opens in Arabic, right to left, until the teacher chooses another language, whatever the phone's own language (answer 157). The app's `MinhajnaInterface` module keeps the choice and its direction on the phone, outside the history, and applies the direction before React Native starts. React Native flips to right to left when it is forced, or when it is allowed and the phone's language is right to left, so a left-to-right choice turns both off. A choice between French and English applies at once; one that changes the direction restarts the interface first, so no screen shows one language in the other's direction.
 
 ## How translators work
 

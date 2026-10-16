@@ -1,0 +1,28 @@
+{
+  "name": "منهاجنا",
+  "tagline": "From the yearly plan to every lesson",
+  "latinName": "Minhajna",
+  "navigation": {
+    "today": "Today",
+    "classes": "Classes",
+    "documents": "Documents",
+    "back": "Back",
+    "openPreview": "Open a sample inner screen",
+    "previewTitle": "Navigation preview",
+    "previewSubtitle": "Sample screen, with no data",
+    "previewDescription": "This is only a navigation preview. The tabs are hidden on the inner screen. The Back button takes you back to the tab you opened, and nothing is stored."
+  },
+  "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
+  "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",
+  "count": {
+    "sessions_zero": "No session",
+    "sessions_one": "{{count}} session",
+    "sessions_other": "{{count}} sessions"
+  },
+  "language": {
+    "label": "Interface language",
+    "ar": "العربية",
+    "fr": "Français",
+    "en": "English"
+  }
+}

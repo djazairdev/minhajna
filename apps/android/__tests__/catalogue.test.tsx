@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Every text a screen shows, or reads out to TalkBack, must come from the
-// catalogue (#21). The screens are rendered in each state the app has, and
-// anything shown that no catalogue entry produces fails the test.
+// catalogue of the interface's language (#21). The screens are rendered in
+// each state the app has and in each language, and anything shown that no
+// entry of that language produces fails the test, an Arabic fallback included.
 
 import i18next from 'i18next';
 import type { ReactElement } from 'react';
@@ -12,7 +13,7 @@ import type { PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { Welcome } from '../src/navigation/Welcome';
-import { catalogues, i18n, missingKeys } from '../src/text/i18n';
+import { catalogues, currentLanguage, i18n, missingKeys, type Language } from '../src/text/i18n';
 import { installPluralRules } from '../src/text/plural-rules';
 
 jest.mock(
@@ -20,6 +21,7 @@ jest.mock(
   () => jest.requireActual<{ default: unknown }>('react-native-safe-area-context/jest/mock').default,
 );
 
+const LANGUAGES = Object.keys(catalogues) as Language[];
 const COUNTS = [0, 1, 2, 3, 11, 100];
 const SESSIONS = ['لا حصة', 'حصة واحدة', 'حصتان', '3 حصص', '11 حصة', '100 حصة'];
 
@@ -30,9 +32,18 @@ function entries(catalogue: object, prefix = ''): [string, string][] {
   );
 }
 
-/** Whether a shown text is one some entry produces, with any {{placeholder}} filled. */
-function inCatalogue(shown: string): boolean {
-  return entries(catalogues.ar).some(([, value]) => {
+/** A key without its plural suffix, so that languages with different plural forms compare. */
+function base(key: string): string {
+  return key.replace(/_(zero|one|two|few|many|other)$/, '');
+}
+
+function placeholders(value: string): string[] {
+  return [...value.matchAll(/\{\{(\w+)\}\}/g)].map((match) => match[1]).sort();
+}
+
+/** Whether a shown text is one some entry of the language produces, with any {{placeholder}} filled. */
+function inCatalogue(shown: string, language: Language): boolean {
+  return entries(catalogues[language]).some(([, value]) => {
     const pattern = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\{\\\{\w+\\\}\\\}/g, '.+');
     return new RegExp(`^${pattern}$`, 'su').test(shown);
   });
@@ -44,7 +55,7 @@ function notInCatalogue(tree: ReactTestRenderer.ReactTestRenderer): string[] {
   const labels = tree.root
     .findAll((node) => typeof (node.props as { accessibilityLabel?: unknown }).accessibilityLabel === 'string')
     .map((node) => (node.props as { accessibilityLabel: string }).accessibilityLabel);
-  return [...new Set([...shown, ...labels])].filter((text) => !inCatalogue(text));
+  return [...new Set([...shown, ...labels])].filter((text) => !inCatalogue(text, currentLanguage()));
 }
 
 const mounted: ReactTestRenderer.ReactTestRenderer[] = [];
@@ -74,7 +85,14 @@ beforeEach(() => {
 
 afterEach(async () => {
   for (const tree of mounted.splice(0)) await ReactTestRenderer.act(() => tree.unmount());
+  await i18n.changeLanguage('ar');
 });
+
+async function speak(language: Language) {
+  await ReactTestRenderer.act(async () => {
+    await i18n.changeLanguage(language);
+  });
+}
 
 test('counts sessions in all six Arabic plural forms, with Western digits', () => {
   expect(COUNTS.map((count) => i18n.t('count.sessions', { count }))).toEqual(SESSIONS);
@@ -109,29 +127,59 @@ test.each(['ar', 'ar-DZ'])('picks the CLDR form for every count in the compariso
   }
 });
 
-test('has no empty text', () => {
-  expect(entries(catalogues.ar).filter(([, value]) => value.trim() === '')).toEqual([]);
+test('counts sessions in French and English, with no plural form missing', () => {
+  expect([0, 1, 2, 3, 1_000_000].map((count) => i18n.t('count.sessions', { count, lng: 'fr' }))).toEqual([
+    'Aucune séance',
+    '1 séance',
+    '2 séances',
+    '3 séances',
+    '1000000 de séances',
+  ]);
+  expect([0, 1, 2, 11].map((count) => i18n.t('count.sessions', { count, lng: 'en' }))).toEqual([
+    'No session',
+    '1 session',
+    '2 sessions',
+    '11 sessions',
+  ]);
 });
 
-test('gives every counted text all six Arabic forms', () => {
-  const forms = ['zero', 'one', 'two', 'few', 'many', 'other'];
+test.each(LANGUAGES)('has every text of the Arabic catalogue, with the same placeholders (%s)', (language) => {
+  const arabic = new Map<string, string[]>();
+  for (const [key, value] of entries(catalogues.ar)) arabic.set(base(key), placeholders(value));
+  const translated = new Map<string, string[]>();
+  for (const [key, value] of entries(catalogues[language])) translated.set(base(key), placeholders(value));
+  expect([...translated.keys()].sort()).toEqual([...arabic.keys()].sort());
+  for (const [key, found] of translated) expect([key, found]).toEqual([key, arabic.get(key)]);
+});
+
+test.each(LANGUAGES)('gives every counted text each plural form of its language (%s)', (language) => {
+  const forms: string[] = new Intl.PluralRules(language).resolvedOptions().pluralCategories;
   const counted = new Map<string, string[]>();
-  for (const [key] of entries(catalogues.ar)) {
+  for (const [key] of entries(catalogues[language])) {
     const match = /^(.+)_(zero|one|two|few|many|other)$/.exec(key);
     if (match) counted.set(match[1], [...(counted.get(match[1]) ?? []), match[2]]);
   }
   expect(counted.size).toBeGreaterThan(0);
-  for (const [key, found] of counted) expect([key, [...found].sort()]).toEqual([key, [...forms].sort()]);
+  for (const [key, found] of counted) {
+    expect([key, forms.filter((form) => !found.includes(form))]).toEqual([key, []]);
+    expect([key, found.filter((form) => form !== 'zero' && !forms.includes(form))]).toEqual([key, []]);
+  }
 });
 
-test('shows only catalogue texts on the welcome page, refusals included', async () => {
+test.each(LANGUAGES)('has no empty text (%s)', (language) => {
+  expect(entries(catalogues[language]).filter(([, value]) => value.trim() === '')).toEqual([]);
+});
+
+test.each(LANGUAGES)('shows only catalogue texts on the welcome page, refusals included (%s)', async (language) => {
+  await speak(language);
   const tree = await render(<Welcome standalone referenceRefused historyRefused />);
   expect(notInCatalogue(tree)).toEqual([]);
   expect(missingKeys).toEqual([]);
 });
 
-test('shows only catalogue texts on every tab and on the inner screen', async () => {
-  const tree = await render(<AppNavigator direction="rtl" />);
+test.each(LANGUAGES)('shows only catalogue texts on every tab and on the inner screen (%s)', async (language) => {
+  await speak(language);
+  const tree = await render(<AppNavigator direction={language === 'ar' ? 'rtl' : 'ltr'} />);
   for (const tab of ['Today', 'Classes', 'Documents']) {
     await press(tree, (props) => props.testID === `tab-${tab}`);
     expect(notInCatalogue(tree)).toEqual([]);
