@@ -1,13 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the screens show is worked out from the history (PRD §5.5). Each
-// event belongs to exactly one layer, so a session's private note is its own
-// event, apart from the session record.
+// What the screens show is worked out from the history (PRD §5.5).
 
 import { compareDays, maxDay, type Day } from './day.ts';
-import { ERASURE, HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './history.ts';
-import { mayTravelAs, type Layer, type OutboundRoute } from './layers.ts';
+import type { Entry } from './history.ts';
+import { mayTravelAs, type OutboundRoute } from './layers.ts';
 import type { CalendarEntry } from './reference.ts';
 import {
   compareHalves,
@@ -24,98 +22,7 @@ import {
   type TeacherCard,
   type TimetableVersion,
 } from './records.ts';
-
-export type RecordEvent =
-  | { readonly kind: 'teacher.set'; readonly card: TeacherCard }
-  | { readonly kind: 'school.set'; readonly school: School }
-  | { readonly kind: 'class.set'; readonly schoolClass: SchoolClass }
-  | { readonly kind: 'pupil.set'; readonly pupil: Pupil }
-  | { readonly kind: 'pupil.moved'; readonly pupilId: string; readonly movement: PupilMovement }
-  | { readonly kind: 'course.set'; readonly course: Course }
-  | { readonly kind: 'timetable.set'; readonly version: TimetableVersion }
-  | { readonly kind: 'calendar.set'; readonly entry: CalendarEntry }
-  // A session record never carries free text about why it changed: that is
-  // private, and goes into the session's note (PRD §5.4).
-  | { readonly kind: 'session.recorded'; readonly record: SessionRecord }
-  | { readonly kind: 'session.noted'; readonly note: PrivateNote }
-  // A roll call's correction carries its short reason, which is part of the
-  // roll-call record (PRD §3.4, §5.5).
-  | { readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string }
-  | { readonly kind: 'seating.set'; readonly plan: SeatingPlan };
-
-export type RecordKind = RecordEvent['kind'];
-
-// Every kind must be listed, or its events would be dropped when the state is
-// built. The compiler checks that none is missing.
-const KINDS: Readonly<Record<RecordKind, true>> = {
-  'teacher.set': true,
-  'school.set': true,
-  'class.set': true,
-  'pupil.set': true,
-  'pupil.moved': true,
-  'course.set': true,
-  'timetable.set': true,
-  'calendar.set': true,
-  'session.recorded': true,
-  'session.noted': true,
-  'roll-call.taken': true,
-  'seating.set': true,
-};
-
-/** The layer of every event. Sync, exports and shares check it (PRD §5.4). */
-export function layerOf(event: RecordEvent): Layer {
-  switch (event.kind) {
-    case 'pupil.set':
-    case 'pupil.moved':
-    case 'roll-call.taken':
-      return 'pupil-records';
-    case 'session.noted':
-    case 'seating.set':
-      return 'private';
-    case 'calendar.set':
-      // The teacher's own layer holds training days, seminars and duties,
-      // which stay private (PRD §4.5).
-      return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
-    case 'teacher.set':
-    case 'school.set':
-    case 'class.set':
-    case 'course.set':
-    case 'timetable.set':
-    case 'session.recorded':
-      return 'lesson-record';
-  }
-}
-
-/** Which record an event sets. Events with the same key are versions of one record. */
-function recordKey(event: RecordEvent): string {
-  switch (event.kind) {
-    case 'teacher.set':
-      return 'teacher';
-    case 'school.set':
-      return `school:${event.school.id}`;
-    case 'class.set':
-      return `class:${event.schoolClass.id}`;
-    case 'pupil.set':
-      return `pupil:${event.pupil.id}`;
-    case 'pupil.moved':
-      // A pupil's movements are part of the pupil's record.
-      return `pupil:${event.pupilId}`;
-    case 'course.set':
-      return `course:${event.course.id}`;
-    case 'timetable.set':
-      return `timetable:${event.version.id}`;
-    case 'calendar.set':
-      return `calendar:${event.entry.id}`;
-    case 'session.recorded':
-      return `session:${event.record.session.key}`;
-    case 'session.noted':
-      return `note:${event.note.sessionKey}`;
-    case 'roll-call.taken':
-      return `roll-call:${event.rollCall.unit}`;
-    case 'seating.set':
-      return `seating:${event.plan.classId}/${event.plan.groupId}`;
-  }
-}
+import { eventOf, layerOf, type RecordEvent } from './events.ts';
 
 /** One version of a record. Corrections add versions, and every version stays (PRD §3.1, rule 4). */
 export interface Version<T> {
@@ -150,16 +57,6 @@ export interface State {
   /** Every version of each roll call, by unit key. The last is the current one. */
   readonly rollCalls: ReadonlyMap<string, readonly Version<RollCall>[]>;
   readonly seating: ReadonlyMap<string, SeatingPlan>;
-}
-
-/** The event an entry holds, or null once erased. */
-export function eventOf(entry: Entry): RecordEvent | null {
-  if (entry.kind === ERASURE || entry.content === null || !Object.hasOwn(KINDS, entry.kind)) return null;
-  const body = entry.content.body;
-  if (typeof body !== 'object' || body === null || !('kind' in body) || body.kind !== entry.kind) return null;
-  // RecordBook opens a history only once it verifies, and only RecordBook
-  // writes events into one. `buildState` trusts the entries it is given.
-  return body as RecordEvent;
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -338,72 +235,4 @@ function currentRecords(state: State): RecordEvent[] {
  */
 export function recordsForRoute(state: State, route: OutboundRoute): RecordEvent[] {
   return currentRecords(state).filter((record) => mayTravelAs(layerOf(record), record.kind, route));
-}
-
-/**
- * The teacher's records and their history. Every change is stored before
- * the promise resolves, so nothing is lost (PRD §6.8).
- */
-export class RecordBook {
-  readonly #log: HistoryLog;
-  #state: State;
-
-  private constructor(log: HistoryLog) {
-    this.#log = log;
-    this.#state = buildState(log.entries);
-  }
-
-  /** Opens a stored history, but only one that verifies (`HistoryLog.open`). */
-  static async open(store: HistoryStore, deps: HistoryDeps): Promise<RecordBook> {
-    return new RecordBook(await HistoryLog.open(store, deps));
-  }
-
-  get state(): State {
-    return this.#state;
-  }
-
-  get entries(): readonly Entry[] {
-    return this.#log.entries;
-  }
-
-  async record(day: Day, event: RecordEvent): Promise<Entry> {
-    const entry = await this.#log.append(day, layerOf(event), event.kind, event);
-    // Rebuilding from the whole history keeps one path from history to
-    // screen. A year's history is a few thousand entries, which rebuild in
-    // milliseconds.
-    this.#state = buildState(this.#log.entries);
-    return entry;
-  }
-
-  async recordAll(day: Day, events: readonly RecordEvent[]): Promise<Entry[]> {
-    const entries: Entry[] = [];
-    for (const event of events) entries.push(await this.record(day, event));
-    return entries;
-  }
-
-  /**
-   * Erases whole records: the entries must hold every version of each record
-   * they touch, such as a session's record and its corrections, a roll call
-   * and its corrections, or a pupil and their movements. Erasing one version
-   * alone would bring the one before it back (PRD §5.5).
-   */
-  async erase(day: Day, ids: readonly string[]): Promise<Entry> {
-    const named = new Set(ids);
-    const touched = new Set<string>();
-    for (const id of named) {
-      const entry = this.#log.entries.find((candidate) => candidate.id === id);
-      const event = entry === undefined ? null : eventOf(entry);
-      if (event === null) throw new RangeError('An erasure names an entry that holds no record');
-      touched.add(recordKey(event));
-    }
-    for (const entry of this.#log.entries) {
-      const event = eventOf(entry);
-      if (event !== null && !named.has(entry.id) && touched.has(recordKey(event))) {
-        throw new RangeError('An erasure must cover every version of each record it touches');
-      }
-    }
-    const erasure = await this.#log.erase(day, [...named]);
-    this.#state = buildState(this.#log.entries);
-    return erasure;
-  }
 }

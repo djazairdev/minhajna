@@ -7,11 +7,13 @@
 
 import type { Context } from './context.ts';
 import { addDays, compareDays, weekday, type Day } from './day.ts';
-import { confirmCourse, walkCourse, type Confirmation, type Proposal } from './engine.ts';
+import { confirmCourse, walkCourse, type Confirmation } from './engine.ts';
+import type { Proposal } from './progress.ts';
 import type { CalendarEntry } from './reference.ts';
 import { compareSlots, type Course, type Reason, type SessionRecord, type TeacherBlock } from './records.ts';
 import { sessionsBetween, versionOn, type Session } from './sessions.ts';
-import { current, type RecordEvent } from './state.ts';
+import type { RecordEvent } from './events.ts';
+import { current } from './state.ts';
 
 export type SessionStatus =
   /** Awaiting the teacher's confirmation. */

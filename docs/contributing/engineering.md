@@ -73,6 +73,7 @@ When real pupil data or a secret reaches a public space:
 ## Code style
 
 - **TypeScript in strict mode.**
+- **At most 300 lines in a file,** counting every line, blank lines and comments included, so that a contributor can read any file in one sitting. ESLint's `max-lines` checks TypeScript and JavaScript; reviews hold Kotlin, Gradle and workflow files to the same limit. A file that grows past it is split by what it does, never cut in the middle of a function or a test, and the core's index keeps its exports unchanged.
 - **The formatter and linter settings in the repository decide style.** Don't argue about style in a review. Propose a change to the settings in its own pull request.
 - **Names and comments in English,** using the PRD's English terms.
 - **Comments explain why,** not what.
