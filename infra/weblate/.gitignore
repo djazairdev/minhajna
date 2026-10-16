@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# The settings copied from environment.example, with their secrets.
+environment

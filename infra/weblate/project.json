@@ -1,0 +1,9 @@
+{
+  "name": "Minhajna",
+  "slug": "minhajna",
+  "web": "https://github.com/djazairdev/minhajna",
+  "instructions": "Translate from Arabic, the source language. Keep every {{placeholder}} as it is, and give each count form its own text. Use made-up examples only: never a real pupil, teacher or school.",
+  "translation_review": true,
+  "source_review": false,
+  "machinery_settings": {}
+}

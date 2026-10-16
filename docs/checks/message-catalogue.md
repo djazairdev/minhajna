@@ -45,7 +45,7 @@ Arabic has six plural forms. "100 and more" is not one of them: 101 and 102 take
 | Many | 11, 99, 111, 199 | `_many` |
 | Other | 100, 101, 102, 200 | `_other` |
 
-Each test checks the form chosen and the reviewed Arabic sentence, for both `ar` and `ar-DZ`. French and English have their own rules: French uses "one" for 0 and 1, and "many" for 1,000,000.
+Each test checks the form chosen and the reviewed Arabic sentence, for both `ar` and `ar-DZ`. French and English have their own rules: French uses "one" for 0 and 1, and "many" for 1,000,000. Each catalogue holds exactly its language's CLDR forms: Weblate drops any other, such as i18next's `_zero` in French, the next time it writes the file, and the catalogue test fails on one.
 
 Node.js 22.23.2 gives all of these with `Intl.PluralRules('ar-DZ')`. That proves nothing about the phone: the app runs on Hermes, and its documentation disagrees about whether Hermes has `Intl.PluralRules` ([Hermes](https://github.com/facebook/hermes/blob/static_h/doc/Features.md), [FormatJS](https://formatjs.github.io/docs/guides/react-native-hermes/)).
 
@@ -76,22 +76,22 @@ These are not what the app would grow by: archives hold extra builds and type fi
 For #21, once the checks below are done:
 - **Stable IDs.** Each text has an explicit ID, in one catalogue per language. Wording lives in the catalogues, never in the components.
 - **Every visible text** goes through the catalogue: labels, screen-reader labels, alerts and notifications. A teacher's own words, such as a lesson title, are data, not catalogue entries.
-- **Checked at build time:** every ID present, every plural form present, placeholders kept, nothing empty.
+- **Checked at build time:** every ID present, exactly each language's plural forms, placeholders kept, nothing empty.
 - **Dates and numbers** come from the core's formatter (#73), never from the library, so digits stay Western and month names stay Algerian.
 - **Offline only.** The catalogues are bundled. No download of translations, no sending of missing keys, and no logging of the values put into a text.
 - **The language and the direction.** Changing the catalogue does not change the layout's direction: React Native sets it only as it starts ([I18nManager](https://reactnative.dev/docs/i18nmanager)). Settled in #21: the interface opens in Arabic, right to left, until the teacher chooses another language, whatever the phone's own language (answer 157). The app's `MinhajnaInterface` module keeps the choice on the phone, outside the history, works the direction out from the language's code, and applies it before React Native starts. A kept language this version doesn't offer opens in Arabic, right to left. React Native flips to right to left when it is forced, or when it is allowed and the phone's language is right to left, so a left-to-right choice turns both off. A choice between French and English applies at once; one that changes the direction restarts the interface first, so no screen shows one language in the other's direction.
 
 ## How translators work
 
-1. A maintainer sets up Weblate with the catalogues, Arabic as the source language and the `i18nextv4` format.
-2. Translators suggest translations in the browser, with a glossary and made-up examples only. A fluent reviewer checks them.
-3. A person brings the reviewed changes into a pull request, checks the plural forms and placeholders, and signs it off. Weblate never writes to `main` on its own.
+1. We run our own Weblate from [`infra/weblate`](../../infra/weblate/README.md) ([0023](../decisions/0023-self-hosted-weblate.md)), with the catalogues, Arabic as the source language and the `i18nextv4` format.
+2. Translators accept the licence and the DCO, then translate in the browser, with made-up examples only. Weblate commits in their name, signed off, and pushes to the `weblate` branch, never to `main`.
+3. A maintainer opens a pull request from that branch. The checks run as on any other, a fluent reviewer reads it, and the maintainer squash-merges it.
 4. Each release ships the catalogues it was tested with. If Weblate is down, the app is not affected, and the teachers' form stays open.
 
 ## Before #21 adds the libraries
 
 - [x] Check `Intl.PluralRules` in the release app on Android 8 and a recent Android. It is missing on both, so the app carries its own rules for Arabic, French and English, tested against Node's ICU and with every count in the table above (#21).
 - [x] Measure the APK with the libraries and any polyfill, against `main`. Release builds on macOS, from clean trees: `main` at 9edc26d gives 38,871,986 bytes, the same as #89's report from another build; with the catalogue, 38,988,352 bytes. The JavaScript bundle grows by 115,336 bytes and the notices take 3,883. CI's Android check builds it twice and compares the two APKs.
-- [ ] Round-trip one Arabic text with all six forms through Weblate into French and English.
+- [x] Round-trip one Arabic text with all six forms through Weblate into French and English. Done on 16 October 2026 with Weblate 2026.10.1.1 on a local copy of the repository: Weblate read the six Arabic forms of `count.sessions` and offered French its three and English its two. A test translator's French and English changes came back on the `weblate` branch as commits in their name with a matching sign-off, changing only the edited lines once Weblate writes two-space indentation. The catalogue tests and Prettier passed on them. It also showed that Weblate drops the `_zero` forms French and English had, so they were removed.
 - [x] Settle the catalogues' licence: AGPL-3.0-or-later, like the code, with translators signing off under the DCO ([0022](../decisions/0022-interface-translations-follow-the-code.md)).
-- [ ] Decide where Weblate runs and who holds the account. Weblate offers [free hosting to libre projects](https://weblate.org/en/hosting/). It must show the licence and the DCO to each translator, and sign off their commits (0022).
+- [x] Decide where Weblate runs: our own instance, from Weblate's Docker Compose setup ([0023](../decisions/0023-self-hosted-weblate.md)). It shows the licence and the DCO to each translator and signs off their commits (0022). The host is chosen before translators are invited.

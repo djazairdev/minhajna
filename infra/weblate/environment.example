@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Copy to ./environment and fill in every <…> before the first start. The
+# copy holds secrets: it is ignored by Git, and readable by its owner only
+# (chmod 600). Settings: docs.weblate.org/en/latest/admin/install/docker.html
+
+WEBLATE_DEBUG=0
+WEBLATE_LOGLEVEL=INFO
+WEBLATE_SITE_TITLE=Minhajna translations
+WEBLATE_SITE_DOMAIN=localhost:8080
+WEBLATE_ALLOWED_HOSTS=localhost,127.0.0.1
+WEBLATE_TIME_ZONE=Africa/Algiers
+
+WEBLATE_ADMIN_NAME=<maintainer's name>
+WEBLATE_ADMIN_EMAIL=<maintainer's email>
+WEBLATE_ADMIN_PASSWORD=<a long random password>
+WEBLATE_SERVER_EMAIL=<sender address>
+WEBLATE_DEFAULT_FROM_EMAIL=<sender address>
+
+# Translators register with an email address and confirm it. Nothing else is
+# asked of them: no phone number, school or wilaya.
+WEBLATE_REGISTRATION_OPEN=1
+WEBLATE_REQUIRE_LOGIN=0
+
+# No machine translation and no outside services: every text is a person's.
+# Weblate's own suggestions from its translation memory stay on.
+
+POSTGRES_USER=weblate
+POSTGRES_PASSWORD=<a long random password>
+POSTGRES_DB=weblate
+POSTGRES_HOST=database
+
+REDIS_HOST=cache
+REDIS_PORT=6379
+
+# Mail for registration and password resets: a server on port 587 with TLS.
+WEBLATE_EMAIL_HOST=<mail server>
+WEBLATE_EMAIL_HOST_USER=<mail user>
+WEBLATE_EMAIL_HOST_PASSWORD=<mail password>
+
+# Behind a proxy or tunnel that ends HTTPS (README.md, "On a host"):
+# WEBLATE_ENABLE_HTTPS=1
+# WEBLATE_IP_PROXY_HEADER=HTTP_X_FORWARDED_FOR
+# WEBLATE_SECURE_PROXY_SSL_HEADER=HTTP_X_FORWARDED_PROTO,https
