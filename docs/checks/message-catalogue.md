@@ -26,7 +26,7 @@ Versions are the published packages on 15 October 2026.
 | Weblate | Dedicated `i18nextv4` format | PO; ICU plurals need a round-trip test | Dedicated `formatjs` format; the plural forms sit inside one message |
 | Build cost | None: the JSON is read as it is | A compile step in Babel and Metro | Optional compile step |
 | Watch out for | If the phone lacks plural rules, it quietly falls back to English-style one/other | 6.9.1 needs Node.js 22.19, above our 22.18 | Its own number and date formatting must not bypass ours (#73) |
-| Added APK size | Not measured | Not measured | Not measured |
+| Added APK size | 116,366 bytes (113.6 KiB, +0.3%), measured with the app's own plural rules | Not measured | Not measured |
 
 Sources: [i18next JSON v4](https://www.i18next.com/misc/json-format), [i18next plurals](https://www.i18next.com/translation-function/plurals), [Lingui catalogue formats](https://lingui.dev/ref/catalog-formats), [React Intl](https://formatjs.github.io/docs/react-intl/), and Weblate's [i18next](https://docs.weblate.org/en/latest/formats/i18next.html), [PO](https://docs.weblate.org/en/latest/formats/gettext.html) and [FormatJS](https://docs.weblate.org/en/latest/formats/formatjs.html) pages.
 
@@ -47,7 +47,11 @@ Arabic has six plural forms. "100 and more" is not one of them: 101 and 102 take
 
 Each test checks the form chosen and the reviewed Arabic sentence, for both `ar` and `ar-DZ`. French and English have their own rules: French uses "one" for 0 and 1, and "many" for 1,000,000.
 
-Node.js 22.23.2 gives all of these with `Intl.PluralRules('ar-DZ')`. That proves nothing about the phone: the app runs on Hermes, and its documentation disagrees about whether Hermes has `Intl.PluralRules` ([Hermes](https://github.com/facebook/hermes/blob/static_h/doc/Features.md), [FormatJS](https://formatjs.github.io/docs/guides/react-native-hermes/)). So the release app must be checked on Android 8 and a recent Android. If the rules are missing, load the maintained FormatJS polyfill with only Arabic, French and English data ([polyfill](https://formatjs.github.io/docs/polyfills/intl-pluralrules/)).
+Node.js 22.23.2 gives all of these with `Intl.PluralRules('ar-DZ')`. That proves nothing about the phone: the app runs on Hermes, and its documentation disagrees about whether Hermes has `Intl.PluralRules` ([Hermes](https://github.com/facebook/hermes/blob/static_h/doc/Features.md), [FormatJS](https://formatjs.github.io/docs/guides/react-native-hermes/)).
+
+**Checked on 16 October 2026: Hermes has no `Intl.PluralRules`.** A release build of the app with i18next 26.4.5 ran on the Android 8 (API 26) and Android 15 (API 35) emulators. On both, `Intl.PluralRules` was missing, and i18next quietly gave 0 "zero", 1 "one", and "other" for 2, 3, 11 and 100, where Arabic needs "two", "few", "many" and "other".
+
+**The app carries its own rules** (`apps/android/src/text/plural-rules.ts`), as the maintainer chose over the FormatJS polyfill and `intl-pluralrules`: the CLDR cardinal rules for Arabic, French and English, about forty lines, put in `Intl.PluralRules` only where the engine has none. They round a count to three decimal places as `Intl.PluralRules` does. A test compares them with Node's ICU (CLDR 48) for every count from 0 to 10,000, both signs, and 5,000 decimals; they agree on all of them. A language added to the interface adds its rule there. Nothing is added to the APK's dependencies for plurals.
 
 ## What the packages weigh
 
@@ -86,8 +90,8 @@ For #21, once the checks below are done:
 
 ## Before #21 adds the libraries
 
-- [ ] Check `Intl.PluralRules` in the release app on Android 8 and a recent Android, with every count in the table above. Add the polyfill only if it fails.
-- [ ] Measure the APK with the libraries and any polyfill, against `main`, and check that two clean builds still match.
+- [x] Check `Intl.PluralRules` in the release app on Android 8 and a recent Android. It is missing on both, so the app carries its own rules for Arabic, French and English, tested against Node's ICU and with every count in the table above (#21).
+- [x] Measure the APK with the libraries and any polyfill, against `main`. Release builds on macOS, from clean trees: `main` at 9edc26d gives 38,871,986 bytes, the same as #89's report from another build; with the catalogue, 38,988,352 bytes. The JavaScript bundle grows by 115,336 bytes and the notices take 3,883. CI's Android check builds it twice and compares the two APKs.
 - [ ] Round-trip one Arabic text with all six forms through Weblate into French and English.
 - [x] Settle the catalogues' licence: AGPL-3.0-or-later, like the code, with translators signing off under the DCO ([0022](../decisions/0022-interface-translations-follow-the-code.md)).
 - [ ] Decide where Weblate runs and who holds the account. Weblate offers [free hosting to libre projects](https://weblate.org/en/hosting/). It must show the licence and the DCO to each translator, and sign off their commits (0022).

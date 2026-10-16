@@ -9,7 +9,7 @@ import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '../design/tokens';
-import text from '../text/ar.json';
+import { useText } from '../text/i18n';
 
 /** Shares the offline brand page between navigation previews and safe startup/refusal states. */
 export function Welcome({
@@ -24,6 +24,7 @@ export function Welcome({
   historyRefused?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const t = useText();
   return (
     <View
       style={[
@@ -38,18 +39,18 @@ export function Welcome({
     >
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.name} accessibilityRole="header">
-          {text.name}
+          {t('name')}
         </Text>
-        <Text style={styles.tagline}>{text.tagline}</Text>
-        <Text style={styles.latinName}>{text.latinName}</Text>
+        <Text style={styles.tagline}>{t('tagline')}</Text>
+        <Text style={styles.latinName}>{t('latinName')}</Text>
         {referenceRefused && (
           <Text style={styles.notice} accessibilityRole="alert">
-            {text.referenceRefused}
+            {t('referenceRefused')}
           </Text>
         )}
         {historyRefused && (
           <Text style={styles.notice} accessibilityRole="alert">
-            {text.historyRefused}
+            {t('historyRefused')}
           </Text>
         )}
         {children}

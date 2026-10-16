@@ -11,7 +11,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
-import text from '../text/ar.json';
+import { useText } from '../text/i18n';
 
 /** Keeps tab labels and selection accessible without exposing decorative icons. */
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -68,6 +68,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 export function TopBar({ navigation, options }: NativeStackHeaderProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
+  const t = useText();
   return (
     <View
       style={[
@@ -78,7 +79,7 @@ export function TopBar({ navigation, options }: NativeStackHeaderProps) {
       <View style={styles.headerRow}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={text.navigation.back}
+          accessibilityLabel={t('navigation.back')}
           onPress={() => navigation.goBack()}
           style={styles.back}
         >
@@ -92,7 +93,7 @@ export function TopBar({ navigation, options }: NativeStackHeaderProps) {
           <Text accessibilityRole="header" style={styles.title}>
             {options.title}
           </Text>
-          <Text style={styles.subtitle}>{text.navigation.previewSubtitle}</Text>
+          <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>
         </View>
         <View style={styles.back} />
       </View>
