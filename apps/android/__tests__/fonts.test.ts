@@ -36,8 +36,18 @@ test('registers every alias from a bundled resource before React Native starts',
   expect(registrations.map(([, alias, resource]) => ({ alias, resource }))).toEqual(
     files.map(({ alias, resource }) => ({ alias, resource })),
   );
-  expect(source.lastIndexOf('fonts.addCustomFont')).toBeLessThan(source.indexOf('    loadReactNative(this)'));
+  const onCreate = body(source, 'override fun onCreate()');
+  expect(onCreate.indexOf('registerFonts()')).toBeGreaterThan(-1);
+  expect(onCreate.indexOf('registerFonts()')).toBeLessThan(onCreate.indexOf('loadReactNative(this)'));
+  expect(body(source, 'private fun registerFonts()').match(/fonts\.addCustomFont/g)).toHaveLength(registrations.length);
 });
+
+// The text of a Kotlin function, from its signature to its closing brace at the class's indent.
+function body(source: string, signature: string): string {
+  const start = source.indexOf(signature);
+  expect(start).toBeGreaterThan(-1);
+  return source.slice(start, source.indexOf('\n  }\n', start));
+}
 
 test('selects the real face for every specified weight, including Android 8 medium and semibold', () => {
   expect(
