@@ -12,13 +12,15 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.modules.i18nmanager.I18nUtil
+import dz.minhajna.preview.storage.MinhajnaStoragePackage
 
 class MainApplication : Application(), ReactApplication {
 
+  /** The React host, with the app's own module beside the libraries that autolinking finds. */
   override val reactHost: ReactHost by lazy {
     getDefaultReactHost(
       context = applicationContext,
-      packageList = PackageList(this).packages,
+      packageList = PackageList(this).packages + MinhajnaStoragePackage(),
     )
   }
 
