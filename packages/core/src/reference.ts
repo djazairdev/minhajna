@@ -57,6 +57,9 @@ export interface Subject {
   readonly levels: readonly string[];
 }
 
+/** A Gregorian month's names in each interface language. */
+export type MonthNames = Readonly<Record<'ar' | 'fr' | 'en', string>>;
+
 export interface CountryProfile {
   /** The country code, such as `dz`. */
   readonly code: string;
@@ -65,6 +68,8 @@ export interface CountryProfile {
   /** The first day of the school week. The working week is a setting, not an assumption (PRD §1.14). */
   readonly weekStartsOn: Weekday;
   readonly workingDays: readonly Weekday[];
+  /** January to December; absent only in older profiles. Named dates require this data. */
+  readonly months?: readonly MonthNames[];
   readonly levels: readonly Level[];
   readonly subjects: readonly Subject[];
   readonly sessionTypes: readonly SessionType[];

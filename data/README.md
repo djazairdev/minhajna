@@ -8,8 +8,14 @@ The data lives here until curators join, then moves to its own data repository (
 
 | File | What it holds |
 |---|---|
-| `dz/profile.json` | Algeria: the working week, the three levels and their grades, the subjects each level teaches, and the session types |
+| `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, and the session types |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
+
+## Month names
+
+Profile release `2026.2` adds `months`, ordered from January to December. Each of the twelve entries contains non-empty `ar`, `fr` and `en` strings. These are the same spellings previously held by the core formatter; moving them here changes no written date. The profile keeps `format: 1`: this is an additive field, and older readers can leave it out.
+
+`parseCountryProfile` still accepts older format-1 profiles without `months`, but does not invent missing names. `formatDayWithMonth(day, language, profile)` requires the names for the requested month and language and reports an error if they are absent. It never substitutes a numeric date, a different language, or a platform-locale default. Callers must supply a profile with month data before producing a named date. The fixed numeric date helpers keep their existing formats.
 
 ## Sources
 
