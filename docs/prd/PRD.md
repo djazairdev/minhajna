@@ -577,6 +577,12 @@ The code and the reference data live in separate repositories, because they have
 |---|---|
 | Interface translations | The apps' interface texts, in every language, are under AGPL-3.0-or-later like the code, and signed off under the DCO. Translations of documents stay under CC BY-SA 4.0 (§1.3) |
 
+**Decided on 16 Oct 2026 (decision 0023)**
+
+| Decision | Choice |
+|---|---|
+| Translation platform | Our own Weblate, from its Docker Compose setup with every setting in `infra/weblate`, so the Ministry can run the same instance. It pushes signed-off commits to a `weblate` branch; a maintainer merges them by pull request. The host is chosen before translators are invited |
+
 **Open**
 - **Protecting the name.** Two steps, since the name is not registered:
   - register `minhajna.dz` and `minhajna.com.dz`, under the registry's conditions;

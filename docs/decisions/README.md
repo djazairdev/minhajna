@@ -28,3 +28,4 @@ To propose one, copy [the template](template.md) and follow the [workflow](../co
 | [0020](0020-code-host-djazairdev.md) | The code lives in the djazairdev organisation | 2026-10-10 | Accepted |
 | [0021](0021-code-contributions-open-to-all.md) | Code contributions are open to all from now | 2026-10-13 | Accepted |
 | [0022](0022-interface-translations-follow-the-code.md) | The interface's texts and their translations follow the code's licence | 2026-10-15 | Accepted |
+| [0023](0023-self-hosted-weblate.md) | Translators work in a Weblate instance we run ourselves | 2026-10-16 | Accepted |
