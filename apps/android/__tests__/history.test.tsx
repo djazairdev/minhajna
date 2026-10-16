@@ -6,6 +6,7 @@ import { Text } from 'react-native';
 import type { TextProps } from 'react-native';
 import { HistoryError, HistoryLog, parseDay } from '@minhajna/core';
 import App from '../App';
+import { AppNavigator } from '../src/navigation/AppNavigator';
 import { FakeStorage } from '../jest/fake-storage';
 import { fromHex, nativeDeps, nativeStore, openRecordBook } from '../src/storage/history';
 import text from '../src/text/ar.json';
@@ -29,7 +30,9 @@ async function shown(storage: FakeStorage): Promise<unknown[]> {
     tree = ReactTestRenderer.create(<App storage={storage.asSpec()} />);
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
-  return tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
+  const shown = tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
+  await ReactTestRenderer.act(() => tree!.unmount());
+  return shown;
 }
 
 test('reads hex from the native random source', () => {
@@ -81,9 +84,42 @@ describe('at start', () => {
   });
   afterEach(() => warn.mockRestore());
 
-  test('opens an empty history with nothing new on screen', async () => {
+  test('keeps navigation unavailable until history verification completes', async () => {
+    const storage = new FakeStorage().asSpec();
+    const originalOpen = storage.openHistory.bind(storage);
+    let complete: (() => void) | undefined;
+    jest.spyOn(storage, 'openHistory').mockImplementation(async () => {
+      await new Promise<void>((resolve) => {
+        complete = resolve;
+      });
+      await originalOpen();
+    });
+    let tree: ReactTestRenderer.ReactTestRenderer | undefined;
+    await ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(<App storage={storage} />);
+    });
+    expect(tree!.root.findAllByType(AppNavigator)).toHaveLength(0);
+    await ReactTestRenderer.act(async () => {
+      if (complete === undefined) throw new Error('History opening did not start');
+      complete();
+      await Promise.resolve();
+    });
+    expect(tree!.root.findAllByType(AppNavigator)).toHaveLength(1);
+    await ReactTestRenderer.act(() => tree!.unmount());
+  });
+
+  test('opens an empty history before showing the navigation preview', async () => {
     const storage = new FakeStorage();
-    expect(await shown(storage)).toEqual([text.name, text.tagline, text.latinName]);
+    expect(await shown(storage)).toEqual([
+      text.name,
+      text.tagline,
+      text.latinName,
+      text.navigation.today,
+      text.navigation.openPreview,
+      text.navigation.today,
+      text.navigation.classes,
+      text.navigation.documents,
+    ]);
     expect(storage.opened).toBe(true);
     expect((await openRecordBook(storage.asSpec())).entries).toEqual([]);
   });

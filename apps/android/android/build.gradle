@@ -51,6 +51,35 @@ def proprietaryGroups = [
 ]
 
 allprojects {
+    // Screens builds its own native library, so the app's CMake flags do not
+    // reach it. Apply the same path/compiler protections as app/build.gradle.
+    if (name == "react-native-screens") {
+        plugins.withId("com.android.library") {
+            android.defaultConfig.externalNativeBuild.cmake {
+                def compileFlags = []
+                [
+                    (rootProject.projectDir.parentFile): "/app",
+                    (gradle.gradleUserHomeDir): "/gradle",
+                    (android.sdkDirectory): "/sdk",
+                ].each { dir, replacement ->
+                    def paths = [dir.absolutePath, dir.canonicalPath]
+                    paths += paths.findAll { it.startsWith("/private/") }*.substring("/private".length())
+                    paths.unique().findAll { !(it =~ /\s/) }.each {
+                        compileFlags << "-ffile-prefix-map=${it}=${replacement}"
+                    }
+                }
+                cFlags(*compileFlags)
+                cppFlags(*compileFlags)
+                def linkFlags = ["-Wl,--build-id=none"]
+                def script = rootProject.file("app/no-comment.ld").absolutePath.replace("\\", "/")
+                if (!(script =~ /\s/)) {
+                    linkFlags << "-Wl,-T,${script}"
+                }
+                arguments "-DCMAKE_SHARED_LINKER_FLAGS=${linkFlags.join(" ")}"
+            }
+        }
+    }
+
     configurations.configureEach {
         resolutionStrategy.eachDependency { details ->
             def group = details.requested.group

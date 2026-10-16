@@ -5,6 +5,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { Text } from 'react-native';
 import type { TextProps } from 'react-native';
 import App from '../App';
+import { AppNavigator } from '../src/navigation/AppNavigator';
 import { bundledReference, readReference } from '../src/reference';
 import text from '../src/text/ar.json';
 
@@ -13,11 +14,21 @@ jest.mock(
   () => jest.requireActual<{ default: unknown }>('react-native-safe-area-context/jest/mock').default,
 );
 
+const trees: ReactTestRenderer.ReactTestRenderer[] = [];
+
+afterEach(async () => {
+  await ReactTestRenderer.act(() => {
+    for (const tree of trees) tree.unmount();
+  });
+  trees.length = 0;
+});
+
 async function render(files = bundledReference): Promise<ReactTestRenderer.ReactTestRenderer> {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(<App files={files} />);
   });
+  trees.push(tree!);
   return tree!;
 }
 
@@ -35,8 +46,10 @@ test("reads Algeria's bundled profile and 2026/27 calendar through the core", ()
   expect(reference.calendar.year.to).toBe('2027-07-08');
 });
 
-test('shows nothing new when the data reads', async () => {
-  expect(shown(await render())).toEqual([text.name, text.tagline, text.latinName]);
+test('shows the navigation preview when the data and history read', async () => {
+  const tree = await render();
+  expect(tree.root.findAllByType(AppNavigator)).toHaveLength(1);
+  expect(shown(tree)).not.toContain(text.referenceRefused);
 });
 
 describe('a refused file', () => {
@@ -56,6 +69,7 @@ describe('a refused file', () => {
     expect(reference).not.toHaveProperty('profile');
 
     const tree = await render(files);
+    expect(tree.root.findAllByType(AppNavigator)).toHaveLength(0);
     expect(shown(tree)).toEqual([text.name, text.tagline, text.latinName, text.referenceRefused]);
     const notice = tree.root.findAllByType(Text)[3].props as TextProps;
     expect(notice.accessibilityRole).toBe('alert');
