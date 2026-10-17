@@ -13,11 +13,11 @@
 // Nothing is sent anywhere: the official absence system stays as it is.
 
 import {
-  ROLL_CALL_REASONS,
   compareDays,
-  formatDay,
   pendingDeparture,
+  planOf,
   pupilsFor,
+  seatedRoll,
   takeRollCall,
   type Day,
   type Pupil,
@@ -30,10 +30,8 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
-import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { RollCallRow } from '../components/RollCallRow';
-import { Stats } from '../components/Stats';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { coreContext } from '../storage/core-context';
@@ -41,8 +39,11 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayAndMonth, dayName } from '../today/DayMark';
 import { unitTime } from './roll-labels';
+import { RollHead, type RollView } from './RollHead';
+import { RollSeats } from './RollSeats';
 import {
   counts,
+  cycleMark,
   keepMarks,
   listNumbers,
   mark,
@@ -134,6 +135,8 @@ function RollList({
   const [recorded] = useState(() => (unit === null ? null : recordedMarks(context, unit)));
   const [marks, setMarks] = useState(() => (unit === null ? noMarks : (startedMarks(unit.key) ?? recorded ?? noMarks)));
   const [reason, setReason] = useState<RollCallReason | null>(null);
+  const plan = unit === null ? null : planOf(context, unit.classId, unit.groupId);
+  const [view, setView] = useState<RollView>(() => (plan === null ? 'list' : 'seats'));
   const onMark = useCallback<OnMark>((pupilId, kind, on) => setMarks((was) => mark(was, pupilId, kind, on)), []);
 
   useEffect(() => {
@@ -174,84 +177,64 @@ function RollList({
         : t('roll.save');
 
   const head = (
-    <View style={styles.head}>
-      <Text style={[styles.note, align]}>
-        {[schoolClass?.name, dayName(t, unit.day, language, profile), timeText].filter(Boolean).join(' · ')}
-      </Text>
-      {past && recorded === null && (
-        <Notice
-          testID="roll-past"
-          variant="notice"
-          badge={t('roll.pastBadge')}
-          title={t('roll.pastTitle')}
-          message={t('roll.pastNote', { day: formatDay(unit.day), today: formatDay(today()) })}
-        />
-      )}
-      {taken !== null && (
-        <>
-          <Notice
-            testID="roll-taken"
-            icon={controlIcon('check')}
-            message={t('roll.taken', { day: formatDay(taken) })}
-          />
-          <ChipGroup
-            testID="roll-reason"
-            label={t('roll.reason')}
-            choices={ROLL_CALL_REASONS.map((value) => ({ value, label: t(`roll.reasons.${value}`) }))}
-            selected={reason}
-            onSelect={setReason}
-          />
-        </>
-      )}
-      <Stats
-        testID="roll-stats"
-        items={[
-          { id: 'present', value: figures.present, label: t('roll.present') },
-          { id: 'absent', value: figures.absent, label: t('roll.absentStat') },
-          { id: 'late', value: figures.late, label: t('roll.lateStat') },
-        ]}
-      />
-      <Notice icon={controlIcon('info')} message={t(past ? 'roll.pastHint' : 'roll.hint')} />
-      <View style={styles.links}>
-        {onMove !== undefined && (
-          <Button testID="roll-move" variant="plain" label={t('move.open')} onPress={() => onMove(unit.classId)} />
-        )}
-        {onSeats !== undefined && (
-          <Button
-            testID="roll-seats"
-            variant="plain"
-            label={t('seats.open')}
-            onPress={() => onSeats(unit.classId, unit.groupId)}
-          />
-        )}
-        {onRules !== undefined && (
-          <Button testID="roll-rules" variant="plain" label={t('rules.open')} onPress={onRules} />
-        )}
-      </View>
-    </View>
+    <RollHead
+      unit={unit}
+      title={[schoolClass?.name, dayName(t, unit.day, language, profile), timeText].filter(Boolean).join(' · ')}
+      past={past}
+      recorded={recorded !== null}
+      taken={taken}
+      today={today()}
+      reason={reason}
+      onReason={setReason}
+      figures={figures}
+      view={plan === null ? 'list' : view}
+      onView={(next) => {
+        if (next === 'seats' && plan === null) onSeats?.(unit.classId, unit.groupId);
+        else setView(next);
+      }}
+      {...(onMove !== undefined && { onMove })}
+      {...(onSeats !== undefined && { onSeats })}
+      {...(onRules !== undefined && { onRules })}
+    />
   );
+  const seated = plan === null ? null : seatedRoll(context, unit);
   return (
     <View style={[styles.screen, { direction }]}>
-      <FlatList
-        testID="roll-list"
-        data={pupils}
-        keyExtractor={(pupil) => pupil.id}
-        renderItem={({ item, index }) => (
-          <PupilRow
-            pupil={item}
-            number={numbers.get(item.id) ?? index + 1}
-            absent={absent.has(item.id)}
-            late={late.has(item.id)}
-            onMark={onMark}
-            onName={onName}
-            note={leaverNote(item)}
-          />
-        )}
-        ListHeaderComponent={head}
-        contentContainerStyle={{ paddingLeft: insets.left, paddingRight: insets.right }}
-        initialNumToRender={12}
-        windowSize={7}
-      />
+      {view === 'seats' && plan !== null && seated !== null ? (
+        <RollSeats
+          head={head}
+          seated={seated}
+          rows={plan.rows}
+          columns={plan.columns}
+          aisleEvery={plan.aisleEvery ?? 0}
+          numbers={numbers}
+          absent={absent}
+          late={late}
+          onSeat={(pupilId) => setMarks((was) => cycleMark(was, pupilId))}
+          onMark={onMark}
+        />
+      ) : (
+        <FlatList
+          testID="roll-list"
+          data={pupils}
+          keyExtractor={(pupil) => pupil.id}
+          renderItem={({ item, index }) => (
+            <PupilRow
+              pupil={item}
+              number={numbers.get(item.id) ?? index + 1}
+              absent={absent.has(item.id)}
+              late={late.has(item.id)}
+              onMark={onMark}
+              onName={onName}
+              note={leaverNote(item)}
+            />
+          )}
+          ListHeaderComponent={head}
+          contentContainerStyle={{ paddingLeft: insets.left, paddingRight: insets.right }}
+          initialNumToRender={12}
+          windowSize={7}
+        />
+      )}
       <View style={[styles.foot, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Notice icon={controlIcon('never')} message={t('roll.official')} />
         <Button
@@ -273,8 +256,6 @@ function RollList({
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   pad: { padding: spacing['space-16'] },
-  links: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-8'] },
-  head: { gap: spacing['space-12'], padding: spacing['space-16'] },
   body: { ...typography.body, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },
   foot: {

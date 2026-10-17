@@ -779,6 +779,9 @@
     "emptied": "The seats are empty.",
     "undo": "Undo",
     "private": "The plan is private: it stays on your devices only, and never goes into a statement, a handover package or the school's space.",
-    "saved": "Each change is saved as it is made. “Arrange the seats” opens this again at any time."
+    "saved": "Each change is saved as it is made. “Arrange the seats” opens this again at any time.",
+    "view": "Roll call by",
+    "list": "List",
+    "rollHint": "Tap a seat: absent. A second tap: late. A third: present again."
   }
 }
