@@ -40,6 +40,7 @@ export function RollScreen({ navigation, route }: NativeStackScreenProps<RootSta
       day={parseDay(route.params.day)}
       onDone={() => navigation.goBack()}
       onCorrect={(unit, pupilId) => navigation.navigate('Correct', { unit: unit.key, day: unit.day, pupilId })}
+      onRules={() => navigation.navigate('RollRules')}
     />
   );
 }
@@ -47,5 +48,13 @@ export function RollScreen({ navigation, route }: NativeStackScreenProps<RootSta
 /** One pupil's correction in a roll call already taken, back to it once saved. */
 export function CorrectScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Correct'>) {
   const { unit, day, pupilId } = route.params;
-  return <Correct unitKey={unit} day={parseDay(day)} pupilId={pupilId} onDone={() => navigation.goBack()} />;
+  return (
+    <Correct
+      unitKey={unit}
+      day={parseDay(day)}
+      pupilId={pupilId}
+      onDone={() => navigation.goBack()}
+      onRules={() => navigation.navigate('RollRules')}
+    />
+  );
 }

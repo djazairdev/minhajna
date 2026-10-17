@@ -87,6 +87,7 @@ type RollProps = {
   day: Day;
   onDone: () => void;
   onCorrect?: (unit: RollCallUnit, pupilId: string) => void;
+  onRules?: () => void;
 };
 
 /**
@@ -105,7 +106,13 @@ export function Roll(props: RollProps) {
   return <RollList key={versions} {...props} context={context} unit={unit} />;
 }
 
-function RollList({ onDone, onCorrect, context, unit }: RollProps & { context: Context; unit: RollCallUnit | null }) {
+function RollList({
+  onDone,
+  onCorrect,
+  onRules,
+  context,
+  unit,
+}: RollProps & { context: Context; unit: RollCallUnit | null }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -189,6 +196,11 @@ function RollList({ onDone, onCorrect, context, unit }: RollProps & { context: C
         ]}
       />
       <Notice icon={controlIcon('info')} message={t(past ? 'roll.pastHint' : 'roll.hint')} />
+      {onRules !== undefined && (
+        <View style={styles.start}>
+          <Button testID="roll-rules" variant="plain" label={t('rules.open')} onPress={onRules} />
+        </View>
+      )}
     </View>
   );
   return (
@@ -233,6 +245,7 @@ function RollList({ onDone, onCorrect, context, unit }: RollProps & { context: C
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   pad: { padding: spacing['space-16'] },
+  start: { alignItems: 'flex-start' },
   head: { gap: spacing['space-12'], padding: spacing['space-16'] },
   body: { ...typography.body, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },

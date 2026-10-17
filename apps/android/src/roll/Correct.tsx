@@ -4,7 +4,8 @@
 // «تصحيح المناداة» (#39, Correct): one pupil in a roll call already taken.
 // The session and what was recorded, the mark it becomes (present, late,
 // absent justified or not, the cause never typed), one of four coded
-// reasons, and what the change log and the month's totals become. Saving
+// reasons, and what the change log and the month's totals become, under
+// the counting rules it links to. Saving
 // records a new version of the roll call; both stay in the history, dated
 // without the time (PRD §3.4, §5.5).
 
@@ -38,10 +39,17 @@ import { unitByKey } from './roll-rules';
 
 const MARKS: readonly PupilMark[] = ['present', 'late', 'justified', 'unjustified'];
 
-const percent = (count: PupilCount | null) => (count?.rate == null ? '–' : `${Math.round(count.rate * 1000) / 10}%`);
+const percent = (count: PupilCount | null) =>
+  count?.rate == null ? '–' : `\u2066${Math.round(count.rate * 1000) / 10}%\u2069`;
 
 /** One pupil's correction in a roll call; `onDone` goes back once it is saved. */
-export function Correct(props: { unitKey: string; day: Day; pupilId: string; onDone: () => void }) {
+export function Correct(props: {
+  unitKey: string;
+  day: Day;
+  pupilId: string;
+  onDone: () => void;
+  onRules?: () => void;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -91,7 +99,12 @@ export function Correct(props: { unitKey: string; day: Day; pupilId: string; onD
           { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] },
         ]}
       >
-        <Text style={[styles.note, align]}>{[pupil.name, schoolClass?.name, year.id].filter(Boolean).join(' · ')}</Text>
+        <Text style={[styles.note, align]}>
+          {[pupil.name, schoolClass?.name, year.id]
+            .filter(Boolean)
+            .map((part) => `\u2068${part}\u2069`)
+            .join(' · ')}
+        </Text>
         <View testID="correct-session" accessible style={styles.card}>
           <Text style={[styles.label, align]}>
             {[dayName(t, unit.day, language, profile), unitTime({ state, bells, calendar }, unit, direction)]
@@ -150,6 +163,11 @@ export function Correct(props: { unitKey: string; day: Day; pupilId: string; onD
                   .join(' · ')}
               </Text>
             )}
+            {props.onRules !== undefined && (
+              <View style={styles.start}>
+                <Button testID="correct-rules" variant="plain" label={t('rules.open')} onPress={props.onRules} />
+              </View>
+            )}
           </View>
         )}
         <Text style={[styles.note, align]}>{t('correct.both')}</Text>
@@ -175,6 +193,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: { gap: spacing['space-16'], padding: spacing['space-16'] },
   pad: { padding: spacing['space-16'] },
+  start: { alignItems: 'flex-start' },
   group: { gap: spacing['space-8'] },
   card: {
     gap: spacing['space-4'],

@@ -140,7 +140,7 @@ test('shows what was recorded and saves the change only with a reason', async ()
     expect.arrayContaining([
       text.correct.logTitle,
       '18/10/2026 · 15 أكتوبر: من غياب غير مبرر إلى تأخر، لا يُحسب غياباً · …',
-      expect.stringMatching(/^أكتوبر: غ 1 ← 0 · النسبة .+ ← 100% · ويُضاف تأخر بتاريخه$/),
+      expect.stringMatching(/^أكتوبر: غ 1 ← 0 · النسبة .+ ← \u2066100%\u2069 · ويُضاف تأخر بتاريخه$/),
     ]),
   );
   await press('correct-reason-arrived-late');

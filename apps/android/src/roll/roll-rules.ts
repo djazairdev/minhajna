@@ -8,15 +8,20 @@
 // saved, so stepping away from the screen loses nothing (PRD §6.8).
 
 import {
+  addDays,
   compareDays,
   compareSessions,
   current,
+  eachDay,
   pupilsFor,
   rollCallUnits,
   type Context,
+  type CountryProfile,
   type Day,
   type Marks,
   type RollCallUnit,
+  type SchoolYear,
+  weekday,
 } from '@minhajna/core';
 
 /** Every class's roll-call units from `from` to `to`, in the order of their first sessions. */
@@ -102,4 +107,25 @@ export function sameMarks(a: Marks, b: Marks): boolean {
 export function counts(context: Context, unit: RollCallUnit, marks: Marks) {
   const pupils = pupilsFor(context, unit).length;
   return { present: pupils - marks.absent.length, absent: marks.absent.length, late: marks.late.length };
+}
+
+/**
+ * The days counting may start from: the school year's first day, then the
+ * first working day of each week until today.
+ */
+export function countingStarts(
+  profile: Pick<CountryProfile, 'workingDays' | 'weekStartsOn'>,
+  year: Pick<SchoolYear, 'from'>,
+  today: Day,
+): Day[] {
+  const starts = [year.from];
+  let waiting = false;
+  for (const day of eachDay(addDays(year.from, 1), today)) {
+    if (weekday(day) === profile.weekStartsOn) waiting = true;
+    if (waiting && profile.workingDays.includes(weekday(day))) {
+      starts.push(day);
+      waiting = false;
+    }
+  }
+  return starts;
 }

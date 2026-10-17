@@ -690,5 +690,27 @@
     "both": "Les deux versions restent dans l'historique, datées sans l'heure.",
     "open": "Corriger l'appel de {{name}}",
     "unavailable": "Aucun appel n'est enregistré pour cet élève à cette séance."
+  },
+  "rules": {
+    "title": "Règles de décompte",
+    "scope": "Registre d'appel · toutes les classes",
+    "intro": "Aucun texte officiel ne fixe ces règles : ce sont des réglages. Les totaux sont recalculés quand elles changent ; les absences enregistrées ne changent pas.",
+    "start": "Début du décompte",
+    "schoolStart": "rentrée scolaire",
+    "change": "Modifier",
+    "startTitle": "Début du décompte",
+    "startContext": "La présence possible est comptée à partir de ce jour",
+    "holidays": "Vacances scolaires et fêtes nationales",
+    "singleShift": "Journée à un seul demi-jour",
+    "never": "Non comptées dans la présence possible",
+    "halfDay": "Compte pour une demi-journée",
+    "unitHalf": "Unité de décompte : la demi-journée",
+    "unitHalfNote": "Une absence le matin ou l'après-midi compte 1, une journée entière 2. Le retard ne compte jamais comme absence.",
+    "unitSession": "Unité de décompte : la séance",
+    "unitSessionNote": "Une absence à une séance compte 1. Le retard ne compte jamais comme absence.",
+    "reset": "Rétablir les valeurs initiales",
+    "open": "Règles de décompte",
+    "countSeminars": "Compter les journées pédagogiques et séminaires dans la présence possible",
+    "countNotHeld": "Compter les séances non tenues dans la présence possible"
   }
 }
