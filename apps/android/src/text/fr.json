@@ -51,6 +51,7 @@
     "sessions_many": "{{count}} de séances",
     "sessions_other": "{{count}} séances"
   },
+  "bottomSheet": { "close": "Fermer" },
   "language": {
     "label": "Langue de l’interface",
     "ar": "العربية",

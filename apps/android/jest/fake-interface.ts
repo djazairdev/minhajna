@@ -24,6 +24,8 @@ export class FakeInterface {
       restart: () => {
         this.restarts += 1;
       },
+      focusView: () => undefined,
+      cancelFocusRequest: () => undefined,
       reportFullyDrawn: () => {
         this.fullyDrawn += 1;
       },

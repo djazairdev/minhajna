@@ -23,6 +23,7 @@ import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
 import type { Language } from '../text/i18n';
+import { BottomSheetSamples } from './sheet-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -114,6 +115,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'WelcomeHero',
     design: 'docs/design/system/components/WelcomeHero/README.md',
     render: () => <WelcomeHeroSamples />,
+  },
+  {
+    name: 'BottomSheet',
+    design: 'docs/design/system/components/BottomSheet/README.md',
+    render: (sample, language) => <BottomSheetSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'TopBar',
