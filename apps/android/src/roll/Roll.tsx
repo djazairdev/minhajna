@@ -93,6 +93,7 @@ type RollProps = {
   onCorrect?: (unit: RollCallUnit, pupilId: string) => void;
   onRules?: () => void;
   onMove?: (classId: string) => void;
+  onSeats?: (classId: string, groupId: string) => void;
 };
 
 /**
@@ -116,6 +117,7 @@ function RollList({
   onCorrect,
   onRules,
   onMove,
+  onSeats,
   context,
   unit,
 }: RollProps & { context: Context; unit: RollCallUnit | null }) {
@@ -213,6 +215,14 @@ function RollList({
       <View style={styles.links}>
         {onMove !== undefined && (
           <Button testID="roll-move" variant="plain" label={t('move.open')} onPress={() => onMove(unit.classId)} />
+        )}
+        {onSeats !== undefined && (
+          <Button
+            testID="roll-seats"
+            variant="plain"
+            label={t('seats.open')}
+            onPress={() => onSeats(unit.classId, unit.groupId)}
+          />
         )}
         {onRules !== undefined && (
           <Button testID="roll-rules" variant="plain" label={t('rules.open')} onPress={onRules} />

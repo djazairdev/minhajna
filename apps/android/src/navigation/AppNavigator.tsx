@@ -20,7 +20,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
-import { CorrectScreen, EntryScreen, PupilMoveScreen, RollScreen, TodayTab } from './RecordScreens';
+import { CorrectScreen, EntryScreen, PupilMoveScreen, RollScreen, SeatsSetupScreen, TodayTab } from './RecordScreens';
 import { Welcome } from './Welcome';
 import {
   CardScreen,
@@ -73,6 +73,7 @@ export type RootStackParamList = {
   Correct: { unit: string; day: string; pupilId: string };
   RollRules: undefined;
   PupilMove: { classId: string };
+  SeatsSetup: { classId: string; groupId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -93,6 +94,9 @@ const theme = {
 export const GALLERY_MENU_ITEM = 'Component gallery';
 /** The developer menu's item that runs the storage check (#19). */
 export const STORAGE_CHECK_MENU_ITEM = 'Storage check';
+
+/** A screen's title over a paper screen, with dark status bar icons. */
+const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
 
 /**
  * Places typed tabs under the native stack so inner screens cover them. In
@@ -191,32 +195,13 @@ export function AppNavigator({
           />
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
-        <Stack.Screen
-          name="Entry"
-          component={EntryScreen}
-          options={{ title: t('entry.title'), statusBarStyle: 'dark' }}
-        />
+        <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
         <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
-        <Stack.Screen
-          name="Correct"
-          component={CorrectScreen}
-          options={{ title: t('correct.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="RollRules"
-          component={RollRules}
-          options={{ title: t('rules.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="PupilMove"
-          component={PupilMoveScreen}
-          options={{ title: t('move.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="ClassPlan"
-          component={ClassPlanScreen}
-          options={{ title: t('classPlan.title'), statusBarStyle: 'dark' }}
-        />
+        <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />
+        <Stack.Screen name="RollRules" component={RollRules} options={dark(t('rules.title'))} />
+        <Stack.Screen name="PupilMove" component={PupilMoveScreen} options={dark(t('move.title'))} />
+        <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
+        <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
         <Stack.Screen
           name="PrivacyNotice"
           component={HelpNotice}
