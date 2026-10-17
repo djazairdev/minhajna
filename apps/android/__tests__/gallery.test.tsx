@@ -235,7 +235,7 @@ test('catches a control TalkBack cannot name, or too small to press', async () =
   ]);
 });
 
-test.each(['button', 'checkbox', 'radio'] as const)(
+test.each(['button', 'checkbox', 'radio', 'switch'] as const)(
   'checks an inactive %s even without an onPress handler',
   async (role) => {
     const { Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
