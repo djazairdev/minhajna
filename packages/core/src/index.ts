@@ -21,6 +21,7 @@ export * from './id.ts';
 export * from './layers.ts';
 export * from './memory-store.ts';
 export * from './pacing.ts';
+export * from './plan-view.ts';
 export * from './pack.ts';
 export * from './pack-catalogue.ts';
 export * from './progress.ts';
