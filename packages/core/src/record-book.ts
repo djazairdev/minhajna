@@ -35,6 +35,8 @@ function recordKey(event: RecordEvent): string {
       return `calendar:${event.entry.id}`;
     case 'session.recorded':
       return `session:${event.record.session.key}`;
+    case 'session.withdrawn':
+      return `session:${event.session.key}`;
     case 'session.noted':
       return `note:${event.note.sessionKey}`;
     case 'roll-call.taken':
