@@ -45,6 +45,8 @@ function recordKey(event: RecordEvent): string {
       return `seating:${event.plan.classId}/${event.plan.groupId}`;
     case 'counting.set':
       return 'counting';
+    case 'setup.finished':
+      return 'setup';
   }
 }
 

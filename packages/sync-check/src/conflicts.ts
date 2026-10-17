@@ -55,6 +55,8 @@ export function recordKey(entry: Entry): string | null {
       return `seating/${event.plan.classId}/${event.plan.groupId}`;
     case 'counting.set':
       return 'counting';
+    case 'setup.finished':
+      return 'setup';
   }
 }
 

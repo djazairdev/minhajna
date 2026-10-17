@@ -12,6 +12,7 @@ import { Plan } from '../setup/Plan';
 import { Teaching } from '../setup/Teaching';
 import { TypeList } from '../setup/TypeList';
 import { Week } from '../setup/Week';
+import { useAppData } from '../storage/AppData';
 import { WeekDraw } from '../week/WeekDraw';
 import type { RootStackParamList } from './AppNavigator';
 
@@ -47,12 +48,19 @@ export function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParam
   );
 }
 
-/** Setup's last step; it leads to Setup-7-Ready. */
+/**
+ * Setup's last step; it leads to Setup-7-Ready. Finishing is recorded once,
+ * so the app opens on Today from then on (#183).
+ */
 export function PlanScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Plan'>) {
+  const data = useAppData();
   return (
     <Plan
       onChange={(group) => navigation.navigate('Packs', { grade: group.grade, subject: group.subject })}
-      onFinish={() => navigation.navigate('Ready')}
+      onFinish={() => {
+        if (!data.state.setupFinished) data.record({ kind: 'setup.finished' });
+        navigation.navigate('Ready');
+      }}
     />
   );
 }

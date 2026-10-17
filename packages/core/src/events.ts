@@ -57,7 +57,9 @@ export type RecordEvent =
   | { readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string }
   | { readonly kind: 'seating.set'; readonly plan: SeatingPlan }
   // The roll-call book's counting rules, one set for every class (PRD §3.4).
-  | { readonly kind: 'counting.set'; readonly rules: CountingRules };
+  | { readonly kind: 'counting.set'; readonly rules: CountingRules }
+  // Setup was finished once, so the app opens on Today from then on (#183).
+  | { readonly kind: 'setup.finished' };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -79,6 +81,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'roll-call.taken': true,
   'seating.set': true,
   'counting.set': true,
+  'setup.finished': true,
 };
 
 /**
@@ -98,6 +101,7 @@ export function layerOf(event: RecordEvent): Layer {
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':
+    case 'setup.finished':
       return 'private';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
