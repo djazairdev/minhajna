@@ -10,13 +10,15 @@
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DevSettings } from 'react-native';
+import { DevSettings, Text } from 'react-native';
 import type { PressableProps, ViewProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { AppNavigator, GALLERY_MENU_ITEM } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { Gallery } from '../src/gallery/Gallery';
 import { Button, type ButtonProps } from '../src/components/Button';
+import { PageHeading, type PageHeadingProps } from '../src/components/PageHeading';
+import { SectionHeader } from '../src/components/SectionHeader';
 import { entries } from '../src/gallery/entries';
 import { samples } from '../src/gallery/samples';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -72,20 +74,25 @@ test('opens from the developer menu, with its title in the interface language', 
   expect(headers[0]).toBe(samples.ar.title);
 });
 
-test.each(LANGUAGES.flatMap((language) => (['rtl', 'ltr'] as const).map((direction) => [language, direction])))(
-  'shows every component, readable and large enough to press (%s, %s)',
-  async (language, direction) => {
-    await i18n.changeLanguage(language);
-    await render(<Gallery />);
-    await press(`gallery-${direction}`);
-    for (const entry of entries)
-      expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
-    expect(accessibilityProblems(tree.root)).toEqual([]);
-    const rotation = direction === 'rtl' ? '135deg' : '225deg';
-    expect(backArrows()).toHaveLength(2);
-    expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
-  },
-);
+test.each(
+  LANGUAGES.flatMap((language) => (['rtl', 'ltr'] as const).map((direction) => [language, direction] as const)),
+)('shows every component, readable and large enough to press (%s, %s)', async (language, direction) => {
+  await i18n.changeLanguage(language);
+  await render(<Gallery />);
+  await press(`gallery-${direction}`);
+  for (const entry of entries)
+    expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
+  expect(accessibilityProblems(tree.root)).toEqual([]);
+  expect(tree.root.findAllByType(PageHeading).map((node) => (node.props as PageHeadingProps).title)).toEqual([
+    samples[language].headings.day,
+    samples[language].longHeading,
+    samples[language].tabs[1],
+  ]);
+  expect(tree.root.findAllByType(SectionHeader)).toHaveLength(5);
+  const rotation = direction === 'rtl' ? '135deg' : '225deg';
+  expect(backArrows()).toHaveLength(2);
+  expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
+});
 
 test('selects a tab in the bottom bar sample as the app does', async () => {
   await render(<Gallery />);
@@ -107,11 +114,28 @@ test.each([
   await i18n.changeLanguage(language);
   await render(<Gallery />);
   const weights = labels.slice(0, 5);
-  expect(tree.root.findAllByType(Button).map((node) => (node.props as ButtonProps).label)).toEqual([
+  const entry = tree.root.findByProps({ testID: 'gallery-entry-Button' });
+  expect(entry.findAllByType(Button).map((node) => (node.props as ButtonProps).label)).toEqual([
     ...weights,
     ...weights,
     labels[5],
   ]);
+});
+
+test('heading actions remain reachable and change only their own synthetic gallery counter', async () => {
+  await render(<Gallery />);
+  const counter = (name: string) =>
+    tree.root
+      .findByProps({ testID: `gallery-entry-${name}` })
+      .findAllByType(Text)
+      .find((node) => node.props.accessibilityLiveRegion === 'polite')?.props.children as string;
+  await press('heading-settings');
+  await press('heading-add');
+  expect(counter('PageHeading')).toBe(samples.ar.activations.replace('{{count}}', '2'));
+  expect(counter('SectionHeader')).toBe(samples.ar.activations.replace('{{count}}', '0'));
+  await press('section-edit');
+  expect(counter('SectionHeader')).toBe(samples.ar.activations.replace('{{count}}', '1'));
+  expect(counter('PageHeading')).toBe(samples.ar.activations.replace('{{count}}', '2'));
 });
 
 test('links each entry to its page in the design system', () => {
