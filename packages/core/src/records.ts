@@ -54,9 +54,11 @@ export interface SchoolBells {
 
 export interface ClassGroup {
   readonly id: string;
-  /** The whole class, a half-group or an option group (PRD §5.3). */
-  readonly kind: 'whole' | 'half' | 'option';
+  /** The whole class, a half-group, an option group, or a joint class's level (PRD §3.2, §5.3). */
+  readonly kind: 'whole' | 'half' | 'option' | 'level';
   readonly name: string;
+  /** A level group's grade; a joint class's own grade is its first level's. */
+  readonly grade?: string;
 }
 
 export interface SchoolClass {
@@ -115,6 +117,8 @@ export interface Course {
   readonly year: string;
   /** The pack release the class stays on, or none for free entry (PRD §3.2). */
   readonly pack: PinnedPack | null;
+  /** In a joint class, the level this course follows, with its own plan (PRD §3.2). */
+  readonly grade?: string;
   /** Overrides the level's usual session length. */
   readonly sessionMinutes?: number;
 }

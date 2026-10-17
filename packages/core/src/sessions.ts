@@ -8,9 +8,13 @@
 // The past never moves: a later timetable applies only from the day it was
 // recorded (state.ts), and a recorded session keeps its place even if a
 // later timetable no longer has its slot (PRD §2.3, rule 4; §4.6).
+//
+// A joint class's slot is one session for each of its levels, each on its
+// own course and with the calendar of its own grade (joint.ts).
 
 import type { Context } from './context.ts';
 import { compareDays, eachDay, isWithin, maxDay, minDay, weekday, type Day } from './day.ts';
+import { courseGrade, entryCourses, forGrade } from './joint.ts';
 import { compareSlots, slotKey, type Slot, type TimetableVersion } from './records.ts';
 import { current, type RecordedTimetable } from './state.ts';
 
@@ -85,7 +89,6 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
     if (version === null) continue;
     for (const entry of version.entries) {
       if (entry.weekday !== weekday(day)) continue;
-      if (courseIds !== undefined && !courseIds.has(entry.courseId)) continue;
       const course = state.courses.get(entry.courseId);
       const schoolClass = course && state.classes.get(course.classId);
       const school = schoolClass && state.schools.get(schoolClass.schoolId);
@@ -93,33 +96,36 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
       const week = calendar.weekOf(day, school);
       if (week === null) continue;
       if (entry.weeks !== 'every' && entry.weeks !== week.parity) continue;
-      const info = calendar.info(day, school, schoolClass);
-      const blocking = !info.schoolDay
-        ? (info.entries.find((e) => e.effect === 'no-school' && e.layer !== 'teacher') ?? null)
-        : (info.closure ?? info.exam ?? info.teacher);
-      const mark: CalendarMark | null = !info.schoolDay
-        ? 'holiday'
-        : info.closure !== null
-          ? 'closure'
-          : info.exam !== null
-            ? 'exam'
-            : info.teacher !== null
-              ? 'teacher'
-              : null;
-      const key = sessionKey(course.id, day, entry.slot, entry.groupId);
-      sessions.set(key, {
-        key,
-        courseId: course.id,
-        classId: schoolClass.id,
-        groupId: entry.groupId,
-        day,
-        slot: entry.slot,
-        sessionType: entry.sessionType,
-        ...(entry.activity !== undefined && { activity: entry.activity }),
-        calendar: mark,
-        calendarEntry: blocking?.id ?? null,
-        scheduled: true,
-      });
+      for (const level of entryCourses(state, course)) {
+        if (courseIds !== undefined && !courseIds.has(level.id)) continue;
+        const info = calendar.info(day, school, forGrade(schoolClass, courseGrade(level, schoolClass)));
+        const blocking = !info.schoolDay
+          ? (info.entries.find((e) => e.effect === 'no-school' && e.layer !== 'teacher') ?? null)
+          : (info.closure ?? info.exam ?? info.teacher);
+        const mark: CalendarMark | null = !info.schoolDay
+          ? 'holiday'
+          : info.closure !== null
+            ? 'closure'
+            : info.exam !== null
+              ? 'exam'
+              : info.teacher !== null
+                ? 'teacher'
+                : null;
+        const key = sessionKey(level.id, day, entry.slot, entry.groupId);
+        sessions.set(key, {
+          key,
+          courseId: level.id,
+          classId: schoolClass.id,
+          groupId: entry.groupId,
+          day,
+          slot: entry.slot,
+          sessionType: entry.sessionType,
+          ...(entry.activity !== undefined && { activity: entry.activity }),
+          calendar: mark,
+          calendarEntry: blocking?.id ?? null,
+          scheduled: true,
+        });
+      }
     }
   }
 

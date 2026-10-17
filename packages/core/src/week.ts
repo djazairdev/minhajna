@@ -21,6 +21,7 @@ import {
   type WeekOptions,
   type Weeks,
 } from './records.ts';
+import { courseGrade } from './joint.ts';
 import type { CountryProfile } from './reference.ts';
 import type { State } from './state.ts';
 
@@ -129,9 +130,14 @@ export function weeklyLoad(version: TimetableVersion): Map<string, number> {
   return load;
 }
 
-/** The course of a class and subject in a school year, if the teacher has it. */
-export function courseOf(state: State, classId: string, subject: string, year: string) {
+/** The course of a class and subject in a school year, if the teacher has it; in a joint class, of one level. */
+export function courseOf(state: State, classId: string, subject: string, year: string, grade?: string) {
+  const schoolClass = state.classes.get(classId);
   return [...state.courses.values()].find(
-    (course) => course.classId === classId && course.subject === subject && course.year === year,
+    (course) =>
+      course.classId === classId &&
+      course.subject === subject &&
+      course.year === year &&
+      (grade === undefined || (schoolClass !== undefined && courseGrade(course, schoolClass) === grade)),
   );
 }

@@ -10,7 +10,15 @@
 import type { Context } from './context.ts';
 import { compareDays, type Day } from './day.ts';
 import { findLevel, type RollCallUnitKind } from './reference.ts';
-import { wholeGroup, type Absence, type Half, type Pupil, type RollCall, type SchoolClass } from './records.ts';
+import {
+  slotKey,
+  wholeGroup,
+  type Absence,
+  type Half,
+  type Pupil,
+  type RollCall,
+  type SchoolClass,
+} from './records.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
 import type { RecordEvent } from './events.ts';
 import { current } from './state.ts';
@@ -40,7 +48,7 @@ export function unitKind(context: Context, schoolClass: SchoolClass): RollCallUn
 /**
  * The roll-call units of a class, in order. They come from the teacher's
  * own sessions with the class, so a specialist counts only their own
- * sessions. Holidays, closures and exams have no roll call. The teacher's
+ * sessions. A joint class's levels share a slot, and so its roll call. Holidays, closures and exams have no roll call. The teacher's
  * own calendar never removes one: the class is still there (PRD §4.5).
  */
 export function rollCallUnits(context: Context, classId: string, from: Day, to: Day): RollCallUnit[] {
@@ -52,26 +60,24 @@ export function rollCallUnits(context: Context, classId: string, from: Day, to: 
     (session) => session.calendar === null || session.calendar === 'teacher',
   );
 
-  if (unitKind(context, schoolClass) === 'session') {
-    return sessions.map((session) => ({
-      key: `session:${session.key}`,
-      classId,
-      groupId: session.groupId,
-      day: session.day,
-      half: session.slot.half,
-      sessions: [session],
-    }));
-  }
-
+  const bySession = unitKind(context, schoolClass) === 'session';
   const whole = wholeGroup(schoolClass).id;
   const units = new Map<string, { readonly unit: Omit<RollCallUnit, 'sessions'>; readonly sessions: Session[] }>();
   for (const session of sessions) {
-    const key = `half-day:${classId}/${session.day}/${session.slot.half}`;
-    const found = units.get(key);
+    const place = bySession
+      ? `${session.day}/${slotKey(session.slot)}/${session.groupId}`
+      : `half-day:${classId}/${session.day}/${session.slot.half}`;
+    const found = units.get(place);
     if (found !== undefined) found.sessions.push(session);
     else
-      units.set(key, {
-        unit: { key, classId, groupId: whole, day: session.day, half: session.slot.half },
+      units.set(place, {
+        unit: {
+          key: bySession ? `session:${session.key}` : place,
+          classId,
+          groupId: bySession ? session.groupId : whole,
+          day: session.day,
+          half: session.slot.half,
+        },
         sessions: [session],
       });
   }
