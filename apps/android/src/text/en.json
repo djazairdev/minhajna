@@ -696,5 +696,48 @@
     "open": "Counting rules",
     "countSeminars": "Count training days and teaching seminars in possible attendance",
     "countNotHeld": "Count sessions not held in possible attendance"
+  },
+  "move": {
+    "title": "Join or leave",
+    "open": "Join or leave",
+    "scope": "{{class}} · {{pupils}}",
+    "join": "Joins",
+    "leave": "Leaves",
+    "mode": "Kind of move",
+    "name": "Full name",
+    "namePlaceholder": "For example: Anis Belhadj",
+    "sex": "Sex",
+    "male": "Male",
+    "female": "Female",
+    "registration": "Registration number",
+    "registrationPlaceholder": "As in the official file",
+    "optional": "Optional",
+    "registrationError": "Digits only",
+    "registrationTaken": "This number is already listed for another pupil in the school.",
+    "from": "From",
+    "otherDay": "Another day",
+    "reason": "Reason",
+    "joinReasons": {
+      "transfer": "Transfer from another school",
+      "class-change": "Class change within the school",
+      "other": "Another reason"
+    },
+    "leaveReasons": {
+      "transfer": "Transfer to another school",
+      "class-change": "Class change within the school",
+      "other": "Another reason"
+    },
+    "joinNote": "Added at the end of the list as number {{number}}, as in the paper roll-call book, and called from this day.",
+    "pupil": "Pupil",
+    "choose": "Choose the pupil",
+    "chooseContext": "From the class list",
+    "leaveNote": "Stays on the list with the reason for leaving until the director's confirmation is recorded.",
+    "save": "Record",
+    "pending": "Awaiting the director's confirmation",
+    "left": "Left on {{day}} · {{reason}}",
+    "confirm": "Director confirmed",
+    "confirmSpoken": "Record the director's confirmation that {{name}} left",
+    "awaiting": "Left on {{day}} · awaiting the director's confirmation",
+    "reassurance": "Nothing is sent: the move is your own record."
   }
 }
