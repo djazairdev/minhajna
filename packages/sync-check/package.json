@@ -1,0 +1,19 @@
+{
+  "name": "@minhajna/sync-check",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The sync check on weak mobile data: fixed encrypted batches over a simulated link that drops, resuming, payload sizes and conflicts",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "@minhajna/core": "0.0.0"
+  },
+  "scripts": {
+    "check": "node src/run.ts",
+    "test": "node --test \"test/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
