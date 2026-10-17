@@ -33,3 +33,13 @@ jest.mock('../src/native/NativeMinhajnaPdf', () => ({
     sharePdf: jest.fn(() => Promise.resolve()),
   },
 }));
+
+// No installed APK exists in Jest; the build is described with made-up checksums.
+jest.mock('../src/native/NativeMinhajnaBuild', () => ({
+  __esModule: true,
+  default: {
+    describe: jest.fn(() =>
+      Promise.resolve({ version: '0.1.0', versionCode: 1, apkSha256: 'ab'.repeat(32), signerSha256: 'cd'.repeat(32) }),
+    ),
+  },
+}));

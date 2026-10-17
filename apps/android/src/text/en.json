@@ -807,5 +807,17 @@
       "justified": "J",
       "late": "L"
     }
+  },
+  "preview": {
+    "badge": "Preview",
+    "short": "A preview, for trying the app with made-up pupils only.",
+    "title": "A preview of Minhajna",
+    "message": "For trying the app with made-up pupils only: the demo class, or names you invent. Real pupils’ records wait for the pilot version.",
+    "version": "Version {{version}} ({{code}})",
+    "apk": "Checksum of this app (SHA-256)",
+    "signer": "Checksum of its signing certificate (SHA-256)",
+    "compare": "Compare them with the checksums published with the preview. If they differ, this is not the project’s preview.",
+    "reading": "Working out the checksums…",
+    "refused": "The checksums could not be worked out on this phone."
   }
 }

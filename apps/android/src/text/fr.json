@@ -824,5 +824,17 @@
       "justified": "J",
       "late": "R"
     }
+  },
+  "preview": {
+    "badge": "Aperçu",
+    "short": "Un aperçu, pour essayer l’application avec des élèves inventés seulement.",
+    "title": "Une version d’aperçu de Minhajna",
+    "message": "Pour essayer l’application avec des élèves inventés seulement : la classe de démonstration, ou des noms que vous inventez. Les dossiers de vrais élèves attendent la version pilote.",
+    "version": "Version {{version}} ({{code}})",
+    "apk": "Empreinte de cette application (SHA-256)",
+    "signer": "Empreinte de son certificat de signature (SHA-256)",
+    "compare": "Comparez-les aux empreintes publiées avec l’aperçu. Si elles diffèrent, ce n’est pas l’aperçu du projet.",
+    "reading": "Calcul des empreintes…",
+    "refused": "Les empreintes n’ont pas pu être calculées sur ce téléphone."
   }
 }

@@ -56,11 +56,22 @@ function inCatalogue(shown: string, language: Language): boolean {
   });
 }
 
-/** The texts on screen and the labels TalkBack reads that no entry produces. */
+const textOf = (node: ReactTestRenderer.ReactTestInstance) => [node.props.children as unknown].flat().join('');
+
+/**
+ * The texts on screen and the labels TalkBack reads that no entry produces.
+ * A label that only joins the texts shown inside it, as a notice's does, is
+ * checked through those texts.
+ */
 function notInCatalogue(tree: ReactTestRenderer.ReactTestRenderer): string[] {
-  const shown = tree.root.findAllByType(Text).map((node) => [node.props.children as unknown].flat().join(''));
+  const shown = tree.root.findAllByType(Text).map(textOf);
   const labels = tree.root
     .findAll((node) => typeof (node.props as { accessibilityLabel?: unknown }).accessibilityLabel === 'string')
+    .filter(
+      (node) =>
+        (node.props as { accessibilityLabel: string }).accessibilityLabel !==
+        node.findAllByType(Text).map(textOf).join('. '),
+    )
     .map((node) => (node.props as { accessibilityLabel: string }).accessibilityLabel);
   return [...new Set([...shown, ...labels])].filter((text) => !inCatalogue(text, currentLanguage()));
 }
@@ -190,12 +201,13 @@ test.each(LANGUAGES)('shows only catalogue texts on every tab and on the inner s
     withData(navData, <AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />),
   );
   const day = formatDayWithMonth(parseDay('2026-10-15'), language, navData.profile);
+  const data = (text: string) => text === day || /^[0-9a-f]{4}( [0-9a-f]{4})+$/.test(text);
   for (const tab of ['Today', 'Classes', 'Documents']) {
     await press(tree, (props) => props.testID === `tab-${tab}`);
-    expect(notInCatalogue(tree).filter((text) => text !== day)).toEqual([]);
+    expect(notInCatalogue(tree).filter((text) => !data(text))).toEqual([]);
   }
   await press(tree, (props) => props.accessibilityRole === 'button');
-  expect(notInCatalogue(tree).filter((text) => text !== day)).toEqual([]);
+  expect(notInCatalogue(tree).filter((text) => !data(text))).toEqual([]);
   expect(missingKeys).toEqual([]);
 });
 

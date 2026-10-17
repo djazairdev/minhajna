@@ -91,6 +91,8 @@ describe('a refused file', () => {
       text.tagline,
       text.welcome.line,
       text.referenceRefused,
+      text.preview.badge,
+      text.preview.short,
       text.language.label,
       text.language.ar,
       text.language.fr,

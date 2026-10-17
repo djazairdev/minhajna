@@ -6,11 +6,12 @@ import type { TFunction } from 'i18next';
 import { Text } from 'react-native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useText } from '../text/i18n';
+import { AboutBuild } from './BuildFacts';
 import { HelpPage, HelpRow, helpStyles } from './HelpPage';
 import { SourceLink } from './SourceLink';
 import { useAppLicences } from './useAppLicences';
 
-/** The privacy notice, connections and licences; reports, settings and privacy controls remain later work. */
+/** The preview and its checksums, the privacy notice, connections and licences; reports, settings and privacy controls remain later work. */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
   const t = useText();
   return (
@@ -18,6 +19,7 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
       <Text accessibilityRole="header" style={helpStyles.heading}>
         {t('help.about')}
       </Text>
+      <AboutBuild />
       <HelpRow label={t('privacy.helpTitle')} onPress={() => navigation.navigate('PrivacyNotice')} />
       <HelpRow label={t('connections.title')} onPress={() => navigation.navigate('Connections')} />
       <HelpRow label={t('help.licences')} detail={t('help.offline')} onPress={() => navigation.navigate('Licences')} />
