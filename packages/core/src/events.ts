@@ -18,6 +18,7 @@ import type {
   SchoolClass,
   SeatingPlan,
   SessionRecord,
+  SessionRef,
   TeacherCard,
   TeacherPersonal,
   TimetableVersion,
@@ -36,6 +37,9 @@ export type RecordEvent =
   // A session record never carries free text about why it changed: that is
   // private, and goes into the session's note (PRD §5.4).
   | { readonly kind: 'session.recorded'; readonly record: SessionRecord }
+  // A confirmation undone: the session awaits confirmation again, and what
+  // was recorded stays in the history (PRD §4.7).
+  | { readonly kind: 'session.withdrawn'; readonly session: SessionRef }
   | { readonly kind: 'session.noted'; readonly note: PrivateNote }
   // A roll call's correction carries its short reason, which is part of the
   // roll-call record (PRD §3.4, §5.5).
@@ -57,6 +61,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'timetable.set': true,
   'calendar.set': true,
   'session.recorded': true,
+  'session.withdrawn': true,
   'session.noted': true,
   'roll-call.taken': true,
   'seating.set': true,
@@ -87,6 +92,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'course.set':
     case 'timetable.set':
     case 'session.recorded':
+    case 'session.withdrawn':
       return 'lesson-record';
   }
 }

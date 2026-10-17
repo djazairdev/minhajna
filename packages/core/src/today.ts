@@ -165,3 +165,19 @@ export function confirmSessions(context: Context, confirmations: readonly Sessio
   }
   return events;
 }
+
+/**
+ * The event that undoes a session's last change, such as the one tap that
+ * confirmed it: the version before comes back, or, after a first
+ * confirmation, the session awaits confirmation again. Nothing is deleted:
+ * the history keeps both changes (PRD §4.7). Null when nothing is recorded.
+ */
+export function undoSession(context: Context, sessionKey: string): RecordEvent | null {
+  const versions = context.state.sessions.get(sessionKey) ?? [];
+  const last = versions.at(-1)?.value ?? null;
+  if (last === null) return null;
+  const before = versions.at(-2)?.value ?? null;
+  return before === null
+    ? { kind: 'session.withdrawn', session: last.session }
+    : { kind: 'session.recorded', record: before };
+}
