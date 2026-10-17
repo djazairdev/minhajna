@@ -11,6 +11,7 @@
     "node": ">=22.18.0"
   },
   "scripts": {
+    "build": "npm run build --workspaces --if-present",
     "test": "npm test --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "eslint --max-warnings 0 . && prettier --check .",
