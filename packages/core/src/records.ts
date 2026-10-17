@@ -271,6 +271,8 @@ export interface SeatingPlan {
   readonly groupId: string;
   readonly rows: number;
   readonly columns: number;
+  /** Seats between two aisles: 2, 3, or 0 for none. Plans without it have no aisles. */
+  readonly aisleEvery?: number;
   readonly seats: readonly Seat[];
 }
 
