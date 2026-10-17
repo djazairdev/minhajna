@@ -7,13 +7,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./test-support": "./test/history-store-suite.ts"
+    "./test-support": "./test/history-store-suite.ts",
+    "./test-support/demo-year": "./test/demo-year.ts"
   },
   "engines": {
     "node": ">=22.18.0"
   },
   "scripts": {
     "test": "node --test \"test/*.test.ts\"",
-    "typecheck": "tsc -p tsconfig.json && tsc -p test/tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json && tsc -p test/tsconfig.json && tsc -p test/portable/tsconfig.json"
   }
 }

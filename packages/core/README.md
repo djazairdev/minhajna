@@ -31,9 +31,13 @@ npm test
 npm run typecheck
 ```
 
-The type check covers both `src/` and `test/`, using Node.js's type definitions for the tests.
+The type check covers both `src/` and `test/`, using Node.js's type definitions for the tests. A separate check compiles the portable full-year fixture with only ES2022 types, without Node or DOM globals.
 
-The test data is made up ([engineering rules](../../docs/contributing/engineering.md#test-data)). The two plan packs in the tests are invented, with the status `example`, and are never published as reference data. Only `data.test.ts` reads real files: Algeria's reference data in [`data/`](../../data/README.md), which it runs made-up classes against.
+The test data is made up ([engineering rules](../../docs/contributing/engineering.md#test-data)). The small plan packs and generated full-year packs are invented, with the status `example`, and are never published as reference data. The reference-data and full-year fixture tests read Algeria's public profile and calendar in [`data/`](../../data/README.md), which they run made-up classes against.
+
+### Full-year load fixture
+
+`@minhajna/core/test-support/demo-year` exports the portable `makeDemoYear(reference, deps, level?)` generator for [#77](https://github.com/djazairdev/minhajna/issues/77). See the [workload, sizes and loading example](../../docs/checks/demo-year.md). It returns a fresh, valid history and a reference containing its invented example plan; it imports neither Node APIs nor platform cryptography. The caller supplies the validated bundled 2026/27 profile/calendar and `HistoryDeps`. It is separate from the production entry and the Node-only shared storage assertions.
 
 ### Shared hashing checks
 
