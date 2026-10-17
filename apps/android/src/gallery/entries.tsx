@@ -23,6 +23,7 @@ import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
 import { DueStripSamples, ProposalSamples } from './proposal-samples';
+import { SessionCardSamples } from './session-card-samples';
 import type { Language } from '../text/i18n';
 import type { Sample } from './samples';
 
@@ -110,6 +111,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'DueStrip',
     design: 'docs/design/system/components/DueStrip/README.md',
     render: (sample, language) => <DueStripSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'SessionCard',
+    design: 'docs/design/system/components/SessionCard/README.md',
+    render: (sample, language) => <SessionCardSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'CheckRow',
