@@ -14,39 +14,21 @@ import {
   courseSetup,
   current,
   findSessionType,
-  makeContext,
-  packKey,
   sessionsBetween,
   termCheck,
   walkCourse,
-  type CalendarEntry,
   type Context,
   type Course,
-  type CountryProfile,
   type Day,
-  type PlanPack,
   type SchoolClass,
   type SchoolYear,
   type Session,
-  type State,
   type TermCheck,
 } from '@minhajna/core';
 import type { PlanGroup } from '../plan/plan-rules';
 
 /** How far ahead the next session is looked for. */
 const LOOK_AHEAD_DAYS = 28;
-
-/** The reference data and the records, as the core reads them. */
-export function readyContext(data: {
-  readonly profile: CountryProfile;
-  readonly year: SchoolYear;
-  readonly calendar: readonly CalendarEntry[];
-  readonly packs: readonly PlanPack[];
-  readonly state: State;
-}): Context {
-  const packs = new Map(data.packs.map((pack) => [packKey(pack.id, pack.release), pack]));
-  return makeContext({ country: data.profile, year: data.year, calendar: data.calendar, packs }, data.state);
-}
 
 /** Today, or the year's first day before the year starts. */
 export function startDay(year: SchoolYear, today: Day): Day {

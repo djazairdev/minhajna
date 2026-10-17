@@ -405,5 +405,40 @@
     "proposed": "Proposed by the plan",
     "typed": "No pack: you type what was done",
     "today": "To today's page"
+  },
+  "today": {
+    "help": "Help and privacy",
+    "allConfirmed": "Every earlier session is confirmed",
+    "earlier_one": "{{count}} earlier session awaits confirmation",
+    "earlier_other": "{{count}} earlier sessions await confirmation",
+    "count": "{{sessions}} today",
+    "confirmed_one": "{{count}} session confirmed",
+    "confirmed_other": "{{count}} sessions confirmed",
+    "confirmedOf": "{{confirmed}} of {{sessions}} today",
+    "total_one": "{{count}} session",
+    "total_other": "{{count}} sessions",
+    "none": "No session in the timetable today.",
+    "tag": "Proposed by the plan",
+    "tagContinued": "Proposed by the plan · continues from last session",
+    "unit": "Unit",
+    "topic": "Topic",
+    "continued": "Continued",
+    "sessionOf": "- Session {{session}} of {{budget}}",
+    "continuedLesson": "Continued: {{title}}",
+    "continuedNote": "Continues from last session: {{stage}}",
+    "noProposal": "No pack: you type what was done",
+    "packMissing": "The pinned pack release is missing, so nothing is proposed.",
+    "confirm": "Done as proposed",
+    "notHeld": "Session not held",
+    "recorded": "Recorded for the texts book",
+    "snack": "Session recorded for the texts book",
+    "undo": "Undo",
+    "undone": "Recording undone: the session awaits confirmation.",
+    "calendar": {
+      "holiday": "Holiday",
+      "closure": "Classes suspended",
+      "exam": "Exam",
+      "teacher": "Your own time"
+    }
   }
 }

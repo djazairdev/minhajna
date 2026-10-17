@@ -412,5 +412,43 @@
     "proposed": "Proposé par le plan",
     "typed": "Sans pack : on saisit ce qui a été fait",
     "today": "Vers la page du jour"
+  },
+  "today": {
+    "help": "Aide et confidentialité",
+    "allConfirmed": "Toutes les séances passées sont confirmées",
+    "earlier_one": "{{count}} séance passée attend la confirmation",
+    "earlier_many": "{{count}} de séances passées attendent la confirmation",
+    "earlier_other": "{{count}} séances passées attendent la confirmation",
+    "count": "{{sessions}} aujourd’hui",
+    "confirmed_one": "{{count}} séance confirmée",
+    "confirmed_many": "{{count}} de séances confirmées",
+    "confirmed_other": "{{count}} séances confirmées",
+    "confirmedOf": "{{confirmed}} sur {{sessions}} aujourd’hui",
+    "total_one": "{{count}} séance",
+    "total_many": "{{count}} de séances",
+    "total_other": "{{count}} séances",
+    "none": "Aucune séance aujourd’hui dans l’emploi du temps.",
+    "tag": "Proposé par le plan",
+    "tagContinued": "Proposé par le plan · suite de la séance précédente",
+    "unit": "Séquence",
+    "topic": "Sujet",
+    "continued": "Suite",
+    "sessionOf": "- Séance {{session}} sur {{budget}}",
+    "continuedLesson": "Suite : {{title}}",
+    "continuedNote": "Suite de la séance précédente : {{stage}}",
+    "noProposal": "Sans pack : on saisit ce qui a été fait",
+    "packMissing": "La version épinglée du pack est absente : rien n’est proposé.",
+    "confirm": "Faite comme proposé",
+    "notHeld": "Séance non tenue",
+    "recorded": "Enregistrée pour le cahier de textes",
+    "snack": "Séance enregistrée pour le cahier de textes",
+    "undo": "Annuler",
+    "undone": "Enregistrement annulé : la séance attend la confirmation.",
+    "calendar": {
+      "holiday": "Vacances",
+      "closure": "Cours suspendus",
+      "exam": "Composition",
+      "teacher": "Votre propre temps"
+    }
   }
 }

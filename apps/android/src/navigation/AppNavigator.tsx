@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import {
   DefaultTheme,
   NavigationContainer,
   useNavigationContainerRef,
+  type CompositeScreenProps,
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -33,6 +34,7 @@ import {
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
+import { Today } from '../today/Today';
 import type { Cell } from '../week/week-rules';
 
 export { tabLabels } from './HomePreview';
@@ -159,7 +161,7 @@ export function AppNavigator({
         />
         <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
-        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false, statusBarStyle: 'dark' }} />
         <Stack.Screen
           name="NavigationPreview"
           component={InnerPreview}
@@ -213,11 +215,18 @@ function HomeTabs() {
       tabBar={(props) => <BottomNav {...props} />}
       screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
     >
-      <Tabs.Screen name="Today" component={HomePreview} />
+      <Tabs.Screen name="Today" component={TodayTab} />
       <Tabs.Screen name="Classes" component={HomePreview} />
       <Tabs.Screen name="Documents" component={HomePreview} />
     </Tabs.Navigator>
   );
+}
+
+/** The day's sessions; the help button opens Help and the privacy notice. */
+function TodayTab({
+  navigation,
+}: CompositeScreenProps<BottomTabScreenProps<HomeTabParamList, 'Today'>, NativeStackScreenProps<RootStackParamList>>) {
+  return <Today onHelp={() => navigation.navigate('Help')} />;
 }
 
 /** The welcome leads to the notice; Back from the notice returns here. */
