@@ -101,6 +101,14 @@ test('chalk text on board reaches 4.5:1', () => {
   expect(contrast(on(colors.chalk, ground), ground)).toBeGreaterThanOrEqual(4.5);
 });
 
+test.each(['paper', 'sheet', 'soft'] as const)('choice marks and selected borders on %s reach 3:1', (background) => {
+  expect(contrast(on(colors.board), on(colors[background]))).toBeGreaterThanOrEqual(3);
+});
+
+test('option explanations on the pressed ground reach 4.5:1', () => {
+  expect(contrast(on(colors.ink2), on(colors.soft))).toBeGreaterThanOrEqual(4.5);
+});
+
 test.each([
   ['notice instruction', colors.ink, colors.notice],
   ['notice badge', colors['notice-ink'], colors['notice-strong']],

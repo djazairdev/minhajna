@@ -67,6 +67,13 @@ export type Sample = {
     readonly numberExample: string;
     readonly numberValue: string;
   };
+  readonly choices: {
+    readonly check: string;
+    readonly stage: string;
+    readonly option: string;
+    readonly other: string;
+    readonly privacy: string;
+  };
 };
 
 /** The gallery's texts and made-up content, by interface language. */
@@ -127,6 +134,13 @@ export const samples: Readonly<Record<Language, Sample>> = {
       numberLabel: 'العدد',
       numberExample: 'مثال: 12',
       numberValue: '12',
+    },
+    choices: {
+      check: 'أُجري فرض في هذه الحصة',
+      stage: 'تصحيح الواجب المنزلي',
+      option: 'لم تُنجز الحصة',
+      other: 'إعادة درس سابق',
+      privacy: 'ذكر السبب اختياري، ويبقى على الهاتف',
     },
   },
   fr: {
@@ -195,6 +209,13 @@ export const samples: Readonly<Record<Language, Sample>> = {
       numberExample: 'Ex. : 12',
       numberValue: '12',
     },
+    choices: {
+      check: 'Un devoir a eu lieu pendant cette séance',
+      stage: 'Correction du travail à la maison',
+      option: 'Séance non tenue',
+      other: 'Reprendre une leçon',
+      privacy: 'Le motif est facultatif et reste sur le téléphone',
+    },
   },
   en: {
     title: 'Component gallery',
@@ -260,6 +281,13 @@ export const samples: Readonly<Record<Language, Sample>> = {
       numberLabel: 'Number',
       numberExample: 'e.g. 12',
       numberValue: '12',
+    },
+    choices: {
+      check: 'A test took place in this session',
+      stage: 'Going over homework',
+      option: 'Session not held',
+      other: 'Re-teach a lesson',
+      privacy: 'A reason is optional and stays on this phone',
     },
   },
 };
