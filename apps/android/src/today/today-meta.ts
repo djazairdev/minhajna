@@ -2,12 +2,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A session card's head on Today: the class, with the group for a half
-// class, the time from the school's bells, or the slot's name without them,
+// class or the year in a joint class (#43), the time from the school's bells, or the slot's name without them,
 // and the subject where it helps.
 
-import type { BellData, CalendarEntry, CountryProfile, State, TodaySession } from '@minhajna/core';
+import {
+  courseGrade,
+  isJoint,
+  type BellData,
+  type CalendarEntry,
+  type CountryProfile,
+  type State,
+  type TodaySession,
+} from '@minhajna/core';
 import type { SessionMeta } from '../components/SessionCard';
-import { localized } from '../setup/names';
+import { localized, yearShort } from '../setup/names';
 import type { useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
@@ -30,7 +38,8 @@ export function sessionMeta(
   const { state, profile, bells, calendar } = data;
   const schoolClass = state.classes.get(item.course.classId);
   const group = schoolClass?.groups.find((candidate) => candidate.id === item.session.groupId);
-  const className = [schoolClass?.name ?? '', group !== undefined && group.kind !== 'whole' ? group.name : null]
+  const year = schoolClass && isJoint(schoolClass) ? yearShort(t, courseGrade(item.course, schoolClass)) : null;
+  const className = [schoolClass?.name ?? '', group !== undefined && group.kind !== 'whole' ? group.name : null, year]
     .filter(Boolean)
     .join(' · ');
   const school = schoolClass && state.schools.get(schoolClass.schoolId);

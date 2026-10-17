@@ -34,7 +34,7 @@ export function Packs({ grade, subject, onDone }: { grade: string; subject: stri
   const group = planGroups(state).find((candidate) => candidate.grade === grade && candidate.subject === subject);
   const classes = group?.classes ?? [];
   const offered = packsFor(packs, grade, subject);
-  const pinned = classes.map((schoolClass) => pinOfClass(state, schoolClass.id, subject, year.id)).find(Boolean);
+  const pinned = classes.map((schoolClass) => pinOfClass(state, schoolClass.id, subject, year.id, grade)).find(Boolean);
   const [chosen, setChosen] = useState(() => {
     const current = pinned && offered.find((pack) => pack.id === pinned.id);
     return current ? current.id : (offered[0]?.id ?? NO_PACK);
@@ -45,7 +45,7 @@ export function Packs({ grade, subject, onDone }: { grade: string; subject: stri
     setTried(true);
     if (forClasses.length === 0) return;
     const pack = offered.find((candidate) => candidate.id === chosen);
-    recordAll(pinEvents(state, forClasses, subject, year.id, pack ? pinOf(pack) : null, newId));
+    recordAll(pinEvents(state, forClasses, subject, year.id, pack ? pinOf(pack) : null, newId, grade));
     onDone();
   };
 

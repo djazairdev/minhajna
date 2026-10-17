@@ -6,6 +6,7 @@
 // the aisles shape it; a pupil is chosen from those without a seat, or by
 // their seat, then placed with a tap. Each change is recorded at once, in
 // the private layer (PRD §3.4, §6.8); emptying every seat can be undone.
+// A joint class's years share the room, so they are not groups to seat.
 
 import {
   AISLES,
@@ -59,6 +60,7 @@ export function SeatsSetup(props: { classId: string; groupId: string }) {
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const schoolClass = state.classes.get(props.classId);
   const group = schoolClass?.groups.find((one) => one.id === groupId);
+  const seatGroups = schoolClass?.groups.filter((one) => one.kind !== 'level') ?? [];
   const pupils = groupPupils(context, props.classId, groupId, today());
   const byId = new Map(pupils.map((pupil) => [pupil.id, pupil]));
   const numbers = listNumbers(context, props.classId);
@@ -115,9 +117,9 @@ export function SeatsSetup(props: { classId: string; groupId: string }) {
           {[schoolClass?.name, recorded === null ? t('seats.firstUse') : null].filter(Boolean).join(' · ')}
         </Text>
         <Text style={[styles.body, align]}>{t('seats.intro')}</Text>
-        {schoolClass !== undefined && schoolClass.groups.length > 1 && (
+        {seatGroups.length > 1 && (
           <GroupChoice
-            groups={schoolClass.groups}
+            groups={seatGroups}
             selected={groupId}
             onSelect={(id) => {
               setGroupId(id);

@@ -66,7 +66,9 @@ export function Ready({ onDone }: { onDone: () => void }) {
         .join(comma),
     }),
     ...groups.map((group) => {
-      const pinned = group.classes.filter((one) => pinOfClass(state, one.id, group.subject, year.id) !== null).length;
+      const pinned = group.classes.filter(
+        (one) => pinOfClass(state, one.id, group.subject, year.id, group.grade) !== null,
+      ).length;
       const key =
         pinned === 0 ? 'ready.pinnedNone' : pinned < group.classes.length ? 'ready.pinnedSome' : 'ready.pinnedAll';
       return t(key, { group: groupName(t, profile, group) });

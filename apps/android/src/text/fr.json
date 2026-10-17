@@ -836,5 +836,17 @@
     "compare": "Comparez-les aux empreintes publiées avec l’aperçu. Si elles diffèrent, ce n’est pas l’aperçu du projet.",
     "reading": "Calcul des empreintes…",
     "refused": "Les empreintes n’ont pas pu être calculées sur ce téléphone."
+  },
+  "joint": {
+    "open": "Classe multiniveau (primaire)",
+    "title": "Classe multiniveau",
+    "sub": "Primaire · deux ou trois niveaux dans une classe",
+    "levels": "Niveaux de la classe",
+    "levelsHint": "Deux ou trois.",
+    "add": "Ajouter la classe multiniveau",
+    "year": "Niveau",
+    "noYear": "Niveau non choisi",
+    "tally": "{{year}} : {{pupils}}",
+    "short": "{{n}}AP"
   }
 }

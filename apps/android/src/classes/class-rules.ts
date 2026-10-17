@@ -8,10 +8,14 @@
 // before the next exams are given. Progress belongs to the class, the
 // subject and the year, not to the teacher, and the words state facts
 // (PRD §2.3, §3.1 rule 8, §4.7). A session awaiting confirmation never
-// reads as a delay.
+// reads as a delay. Each year of a joint class has its own row (#43).
 
 import {
+  classGrades,
+  courseGrade,
   isEnrolled,
+  isJoint,
+  levelGroups,
   pace,
   termCheck,
   todayView,
@@ -30,6 +34,8 @@ type Translate = ReturnType<typeof useText>;
 export interface ClassRow {
   readonly course: Course;
   readonly schoolClass: SchoolClass;
+  /** The course's year, in a joint class. */
+  readonly grade?: string;
   readonly pupils: number;
   /** The class's first session today that the calendar leaves, if any. */
   readonly today: Session | null;
@@ -45,11 +51,18 @@ export function classRows(context: Context, day: Day): ClassRow[] {
   for (const course of state.courses.values()) {
     const schoolClass = state.classes.get(course.classId);
     if (schoolClass === undefined) continue;
+    const grade = isJoint(schoolClass) ? courseGrade(course, schoolClass) : undefined;
+    const year = levelGroups(schoolClass).find((group) => group.grade === grade)?.id;
     rows.push({
       course,
       schoolClass,
-      pupils: [...state.pupils.values()].filter((pupil) => pupil.classId === schoolClass.id && isEnrolled(pupil, day))
-        .length,
+      ...(grade !== undefined && { grade }),
+      pupils: [...state.pupils.values()].filter(
+        (pupil) =>
+          pupil.classId === schoolClass.id &&
+          isEnrolled(pupil, day) &&
+          (year === undefined || pupil.groups.includes(year)),
+      ).length,
       today: sessions.find((item) => item.course.id === course.id)?.session ?? null,
       pace: pace(context, course.id, day),
       check: termCheck(context, course.id, day),
@@ -57,7 +70,9 @@ export function classRows(context: Context, day: Day): ClassRow[] {
   }
   return rows.sort(
     (a, b) =>
-      a.schoolClass.name.localeCompare(b.schoolClass.name, 'ar') || a.course.subject.localeCompare(b.course.subject),
+      a.schoolClass.name.localeCompare(b.schoolClass.name, 'ar') ||
+      classGrades(a.schoolClass).indexOf(a.grade ?? '') - classGrades(b.schoolClass).indexOf(b.grade ?? '') ||
+      a.course.subject.localeCompare(b.course.subject),
   );
 }
 

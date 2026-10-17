@@ -1,6 +1,6 @@
 # Joint primary classes (#43)
 
-Checks of 17 October 2026 for [#43](https://github.com/djazairdev/minhajna/issues/43). Made-up data only. This first pull request, on `feat/43-joint-core`, adds the core; the setup screen (Setup-4d-Joint) and Today's card for several levels (P-Multi) follow.
+Checks of 17 October 2026 for [#43](https://github.com/djazairdev/minhajna/issues/43). Made-up data only. The first pull request, on `feat/43-joint-core`, adds the core; the second, on `feat/43-joint-setup`, adds the class at setup; Today's card for several levels (P-Multi) follows.
 
 ## The model
 
@@ -16,9 +16,24 @@ A joint class is one class with two or three levels of primary, each on its own 
 
 No dependency, permission, network call or stored value changes. A history without joint classes reads exactly as before.
 
-## Checks
+## At setup
+
+- **«قسم مشترك (ابتدائي)»** on Setup-4-Classes, beside «إضافة قسم», shows where a school teaches primary. Its form follows Setup-4d-Joint: «قسم مشترك», «ابتدائي · مستويان أو ثلاثة في قسم واحد», the years («مستويات القسم», hint «مستويان أو ثلاثة.»), the class's name, and «إضافة القسم المشترك». It adds only two or three different years of primary.
+- **The class's card** reads «قسم مشترك», then each year with its pupils.
+- **Typing the list** asks each pupil's year («المستوى») and counts each year's pupils. A pupil cannot be added without one.
+- **The plan step** shows the class under each of its years, so each year gets its own pack or free entry, and Ready checks each. The week stays one slot for all the years.
+- **Today and the Classes tab** name the year of each session, such as «4-5A · 5 ابتدائي», and the Classes tab gives each year its own row and pupils.
+- **The seating plan** does not offer the years as groups: they share the room.
+
+Operator's choices (decision 220):
+
+- Setup-4d-Joint also draws the pupils from the official list and each year's pack. The official list waits for #42, so the year is chosen when typing; packs stay at the plan step, where every class pins its pack, rather than in a second place.
+- The years show by their names in the profile at setup, and as «4 ابتدائي» on Today, as P-Multi writes them.
+
 
 | Check | Result |
 |---|---|
 | Core tests | 262 pass, 7 of them new in `test/joint.test.ts`: levels and pupils' levels, each level's course, one session per level per slot, a proposal from 5AP's pack and none for 4AP on free entry, one roll call by half-day or by session, an exam for one grade, and the class's levels checked |
 | Lint, type check, Prettier | Pass |
+| Android tests | 992 pass, 10 of them new in `joint-class.test.tsx` and `joint-rules.test.ts`. `dependency-notices` fails only locally, where `node_modules` still has react 19.3.0 |
+| Android 15 emulator, debug build | A fresh setup with a primary school: a joint class of 4AP and 5AP, two made-up pupils one in each year, three slots, the 5AP example pack pinned and 4AP on free entry. Ready counts 2.5 hours a week. Today lists each slot twice, «… · 5 ابتدائي» with its proposal and «… · 4 ابتدائي» on free entry |

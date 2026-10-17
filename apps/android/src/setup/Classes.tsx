@@ -4,12 +4,13 @@
 // Getting started, step 3 of 5: classes and their pupils (#27,
 // Setup-4-Classes). Each class shows how many pupils it holds and whether its
 // list is ready; a class without one offers «كتابة القائمة». Importing the
-// official file comes with #42, and joint primary classes later, so neither
-// button shows yet. There is no limit on a class's size (R-3.2-12). Until
+// official file comes with #42, so its button does not show yet. A school
+// that teaches primary offers a joint class, two or three years in one room
+// (#43). There is no limit on a class's size (R-3.2-12). Until
 // there is a demo class, «إضافة القسم التجريبي» offers one: 45 made-up pupils
 // for trying the app (PRD §1.5), which the field check uses (choice F1, #49).
 
-import type { SchoolClass } from '@minhajna/core';
+import { isJoint, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -22,10 +23,23 @@ import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { AddClass } from './AddClass';
+import { AddJoint } from './AddJoint';
+import { jointSchools, yearTally } from './joint-rules';
+import { gradeName } from './names';
 import { SETUP_STEPS } from './Teaching';
 
-/** One class: its name, its size and whether its list is ready. */
-function ClassCard({ schoolClass, count, onType }: { schoolClass: SchoolClass; count: number; onType: () => void }) {
+/** One class: its name, its size, a joint class's years, and whether its list is ready. */
+function ClassCard({
+  schoolClass,
+  count,
+  years,
+  onType,
+}: {
+  schoolClass: SchoolClass;
+  count: number;
+  years?: string;
+  onType: () => void;
+}) {
   const { direction } = useLocale();
   const t = useText();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -43,6 +57,7 @@ function ClassCard({ schoolClass, count, onType }: { schoolClass: SchoolClass; c
           <Text style={styles.badgeText}>{status}</Text>
         </View>
       )}
+      {years !== undefined && <Text style={[styles.sub, styles.years, align]}>{years}</Text>}
     </View>
   );
   if (ready) {
@@ -50,7 +65,7 @@ function ClassCard({ schoolClass, count, onType }: { schoolClass: SchoolClass; c
       <Pressable
         testID={`class-${schoolClass.id}`}
         accessibilityRole="button"
-        accessibilityLabel={[schoolClass.name, t('setup.pupils', { count }), status].join(comma)}
+        accessibilityLabel={[schoolClass.name, t('setup.pupils', { count }), status, years].filter(Boolean).join(comma)}
         accessibilityHint={t('setup.openList')}
         onPress={onType}
         style={({ pressed }) => [styles.card, pressed && { borderColor: colors.ink }]}
@@ -72,13 +87,22 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, unsaved } = useAppData();
-  const [adding, setAdding] = useState<'class' | 'demo' | null>(null);
+  const { state, profile, unsaved } = useAppData();
+  const [adding, setAdding] = useState<'class' | 'demo' | 'joint' | null>(null);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const schools = [...state.schools.values()];
   const classes = [...state.classes.values()].filter((schoolClass) => state.schools.has(schoolClass.schoolId));
   const sizeOf = (id: string) => [...state.pupils.values()].filter((pupil) => pupil.classId === id).length;
+  const yearsOf = (schoolClass: SchoolClass) =>
+    isJoint(schoolClass)
+      ? [
+          t('joint.title'),
+          ...yearTally(state.pupils.values(), schoolClass).map(({ grade, count }) =>
+            t('joint.tally', { year: gradeName(profile, grade), pupils: t('setup.pupils', { count }) }),
+          ),
+        ].join(' · ')
+      : undefined;
   return (
     <View style={[styles.screen, { direction }]}>
       <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={3} />
@@ -94,12 +118,15 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
             key={schoolClass.id}
             schoolClass={schoolClass}
             count={sizeOf(schoolClass.id)}
+            years={yearsOf(schoolClass)}
             onType={() => onType(schoolClass)}
           />
         ))}
-        {adding ? (
+        {adding === 'joint' && <AddJoint schools={schools} onDone={() => setAdding(null)} />}
+        {adding !== null && adding !== 'joint' && (
           <AddClass key={adding} schools={schools} demo={adding === 'demo'} onDone={() => setAdding(null)} />
-        ) : (
+        )}
+        {adding === null && (
           <>
             <Button
               testID="add-class-open"
@@ -107,6 +134,14 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
               label={t('setup.addClass')}
               onPress={() => setAdding('class')}
             />
+            {jointSchools(schools).length > 0 && (
+              <Button
+                testID="add-joint-open"
+                variant="line"
+                label={t('joint.open')}
+                onPress={() => setAdding('joint')}
+              />
+            )}
             {!classes.some((schoolClass) => schoolClass.demo) && (
               <View style={styles.centre}>
                 <Button
@@ -144,6 +179,7 @@ const styles = StyleSheet.create({
   intro: { gap: spacing['space-6'] },
   heading: { ...typography.h2, color: colors.ink },
   sub: { ...typography.caption, color: colors.ink2 },
+  years: { flexBasis: '100%' },
   card: {
     minHeight: sizes.target,
     gap: spacing['space-12'],

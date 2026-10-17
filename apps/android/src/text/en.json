@@ -819,5 +819,17 @@
     "compare": "Compare them with the checksums published with the preview. If they differ, this is not the project’s preview.",
     "reading": "Working out the checksums…",
     "refused": "The checksums could not be worked out on this phone."
+  },
+  "joint": {
+    "open": "Joint class (primary)",
+    "title": "Joint class",
+    "sub": "Primary · two or three years in one class",
+    "levels": "The class's years",
+    "levelsHint": "Two or three.",
+    "add": "Add the joint class",
+    "year": "Year",
+    "noYear": "Year not chosen",
+    "tally": "{{year}}: {{pupils}}",
+    "short": "Year {{n}}"
   }
 }
