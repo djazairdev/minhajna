@@ -24,6 +24,7 @@ import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
 import { DueStripSamples, ProposalSamples } from './proposal-samples';
 import { SessionCardSamples } from './session-card-samples';
+import { RollCallSamples, StatsSamples } from './roll-call-samples';
 import type { Language } from '../text/i18n';
 import { BottomSheetSamples } from './sheet-samples';
 import type { Sample } from './samples';
@@ -117,6 +118,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'SessionCard',
     design: 'docs/design/system/components/SessionCard/README.md',
     render: (sample, language) => <SessionCardSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'RollCallRow',
+    design: 'docs/design/system/components/RollCallRow/README.md',
+    render: (sample, language) => <RollCallSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'Stats',
+    design: 'docs/design/system/components/Stats/README.md',
+    render: (sample, language) => <StatsSamples sample={sample} language={language} />,
   },
   {
     name: 'CheckRow',

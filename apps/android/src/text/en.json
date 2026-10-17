@@ -620,5 +620,10 @@
     "td": "Guided work",
     "taughtSpoken": "Taught {{days}}",
     "aheadSpoken": "Reached {{day}} if nothing changes"
+  },
+  "roll": {
+    "absent": "Absent",
+    "late": "Late",
+    "spoken": "{{state}}: {{name}}"
   }
 }
