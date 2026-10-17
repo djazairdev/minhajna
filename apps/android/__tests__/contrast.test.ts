@@ -102,6 +102,14 @@ test('chalk text on board reaches 4.5:1', () => {
 });
 
 test.each([
+  ['notice instruction', colors.ink, colors.notice],
+  ['notice badge', colors['notice-ink'], colors['notice-strong']],
+  ['snackbar Undo', colors.hi, colors.board],
+] as const)('%s text reaches 4.5:1', (_name, foreground, background) => {
+  expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(4.5);
+});
+
+test.each([
   ['danger button', colors.chalk, colors.danger],
   ['soft button and pressed icon', colors.ink, colors.soft],
 ] as const)('%s text and icons reach 4.5:1', (_name, foreground, background) => {
