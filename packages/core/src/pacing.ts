@@ -16,7 +16,7 @@ import { courseSetup, type CourseSetup } from './choices.ts';
 import { walkCourse } from './engine.ts';
 import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
-import { findSessionType, type Queue } from './reference.ts';
+import { findSessionType, type Confidence, type Queue } from './reference.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
 
@@ -164,6 +164,8 @@ export interface TermCheck {
   /** The first day of the term's exams, or the day after the term when no exam window is known yet. */
   readonly before: Day;
   readonly basis: 'exam-window' | 'term-end';
+  /** How sure the exam window's date is; null when the term's end is used. */
+  readonly confidence: Confidence | null;
   /** Sessions the plan still needs before then. */
   readonly needs: number;
   /** Sessions the timetable and the calendar give from `from` until then. */
@@ -229,6 +231,7 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
     term: term.number,
     before,
     basis: exam === undefined ? 'term-end' : 'exam-window',
+    confidence: exam?.confidence ?? null,
     needs: Math.ceil(needs - 1e-9),
     gives: open('main'),
     td: { gives: open('td'), items: tdItems.length },
