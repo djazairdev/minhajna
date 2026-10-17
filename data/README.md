@@ -1,6 +1,6 @@
 # Reference data
 
-This folder holds the reference data that Minhajna ships with: each country's profile and its school calendars ([PRD §4.8](../docs/prd/PRD.md#48-getting-packs-and-calendars-to-the-app)). The app reads these files as untrusted, through the core's readers. A file that breaks the format is refused, with every problem listed ([PRD §5.9](../docs/prd/PRD.md#59-files-minhajna-reads-and-writes)).
+This folder holds the reference data that Minhajna ships with: each country's profile, its school calendars and its bell times ([PRD §4.8](../docs/prd/PRD.md#48-getting-packs-and-calendars-to-the-app)). The app reads these files as untrusted, through the core's readers. A file that breaks the format is refused, with every problem listed ([PRD §5.9](../docs/prd/PRD.md#59-files-minhajna-reads-and-writes)).
 
 The data lives here until curators join, then moves to its own data repository (choice F6 in [#49](https://github.com/djazairdev/minhajna/issues/49)). It is under [CC BY-SA 4.0](../LICENSES/CC-BY-SA-4.0.txt).
 
@@ -10,6 +10,7 @@ The data lives here until curators join, then moves to its own data repository (
 |---|---|
 | `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
+| `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
 
 ## Month names
 
@@ -28,6 +29,16 @@ Profile release `2026.3` adds `zones`: Algeria's 69 wilayas, in the order of the
   - Presidential decree 26-206 of 25 May 2026 (JORADP n° 40 of 3 June 2026) for `59` to `69`.
 - **The spellings** are those of the recent Journal officiel issues (2019 to 2026), not the older typography of 1984. Code `11` is تامنغست in Arabic and Tamenghasset in French, as JORADP n° 25 of 2026 writes it; its English name is Tamanrasset. English names are the French ones without accents, except Algiers and Tamanrasset.
 - **The eleven new wilayas,** `59` to `69`, are in transition until 31 December 2026 at the latest: their mother wilaya's services, its education directorate included, keep running them (Law 26-06, new Art. 54). A closure that covers a new wilaya is keyed with that wilaya's own code, even when the mother wilaya announces it.
+
+## Bell times
+
+A timetable names slots, never clock times. Each slot's time comes from `dz/bells.json` ([PRD §4.6](../docs/prd/PRD.md#46-how-sessions-are-generated)):
+
+- **Templates,** one for each level and shift. Each lists a half-day's slots in order, each as `["08:00", "09:00"]`. A slot ends after it starts, and the next starts no earlier. A double shift uses its own template when the level has one; otherwise each half-day keeps its times.
+- **Middle and secondary schools** run 08:00 to 13:00 and 13:00 to 17:00 in one-hour sessions, a fifth morning slot included. No published text gives these hours, so their `source` says so. Each school sets its own bell, and the teacher matches it slot by slot, on the phone.
+- **Primary school** has no template yet. Its periods are not one-hour slots, and they come with the primary timetable.
+- **Ramadan's length.** In Ramadan, each session keeps its place and its start time and lasts `minutes`. It still counts as one session. The 45 minutes of middle and secondary schools follow the Ministry's [communiqué of 16 February 2026](https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg), which cut the one-hour session by fifteen minutes. They are `projected` until the year's own notice, which may also give new start times.
+- **Ramadan's days** come from the calendar. Calendar release `2026.2` gives the Ramadan entry `"times": "ramadan"`, so its days take Ramadan's times. The timetable never changes.
 
 ## Sources
 
@@ -53,12 +64,12 @@ Each entry carries one of three confidences ([PRD §4.5](../docs/prd/PRD.md#45-t
 
 - **A fix is a new release.** Raise `release` in the file that changes, for example from `2026.1` to `2026.2`, so that the app can tell the update apart ([PRD §4.10](../docs/prd/PRD.md#410-the-rest-of-the-reference-data)).
 - **Cite the official text** in the entry's `source`, with a link when there is one. A press article or a forum post can point to a text, but is never the source. When the moon is sighted, the lunar entry becomes announced and cites the announcement.
-- **Run the tests.** `npm test` reads both files, checks their sources and exam windows, and runs made-up classes through the whole year.
+- **Run the tests.** `npm test` reads the three files, checks their sources and exam windows, and runs made-up classes through the whole year.
 
 ## Not here yet
 
 - **The pupils' last day.** Their summer holiday starts after the term-3 exams, the make-up exams and their correction, which have no dates yet. Until then, the year runs to 8 July 2027, when teachers' annual leave starts.
-- **Ramadan hours.** They come with the Ministry's Ramadan notice, as do the bell times ([#29](https://github.com/djazairdev/minhajna/issues/29)).
+- **Ramadan 2027's own hours.** They come with the Ministry's Ramadan notice. Until then, sessions keep their start times and last 45 minutes in middle and secondary schools.
 - **The BEM and the baccalaureate,** whose dates are not announced yet.
 - **Wilaya and school entries,** such as weather closures. They come as calendar fixes, keyed with the wilaya codes above, or the teacher adds them ([PRD §4.5](../docs/prd/PRD.md#45-the-calendar)).
 - **Subjects by grade and by stream.** The profile lists the subjects each level teaches, and the teacher picks theirs at setup.

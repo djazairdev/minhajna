@@ -1,0 +1,57 @@
+{
+  "format": 1,
+  "country": "dz",
+  "release": "2026.1",
+  "templates": [
+    {
+      "level": "cem",
+      "shift": "single",
+      "morning": [
+        ["08:00", "09:00"],
+        ["09:00", "10:00"],
+        ["10:00", "11:00"],
+        ["11:00", "12:00"],
+        ["12:00", "13:00"]
+      ],
+      "afternoon": [
+        ["13:00", "14:00"],
+        ["14:00", "15:00"],
+        ["15:00", "16:00"],
+        ["16:00", "17:00"]
+      ],
+      "source": "Usual hours of the school day, not an official text: no published text gives the daily hours of middle and secondary schools. Each school sets its own bell, and the teacher matches it slot by slot (PRD §4.6)."
+    },
+    {
+      "level": "lycee",
+      "shift": "single",
+      "morning": [
+        ["08:00", "09:00"],
+        ["09:00", "10:00"],
+        ["10:00", "11:00"],
+        ["11:00", "12:00"],
+        ["12:00", "13:00"]
+      ],
+      "afternoon": [
+        ["13:00", "14:00"],
+        ["14:00", "15:00"],
+        ["15:00", "16:00"],
+        ["16:00", "17:00"]
+      ],
+      "source": "Usual hours of the school day, not an official text: no published text gives the daily hours of middle and secondary schools. Each school sets its own bell, and the teacher matches it slot by slot (PRD §4.6)."
+    }
+  ],
+  "ramadan": [
+    {
+      "level": "cem",
+      "minutes": 45,
+      "source": "Ministry of National Education, communiqué of 16 February 2026 on working hours in Ramadan 1447: the one-hour session is cut by fifteen minutes. https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg Until the year's own notice, sessions keep their start times (PRD §4.5).",
+      "confidence": "projected"
+    },
+    {
+      "level": "lycee",
+      "minutes": 45,
+      "source": "Ministry of National Education, communiqué of 16 February 2026 on working hours in Ramadan 1447: the one-hour session is cut by fifteen minutes. https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg Until the year's own notice, sessions keep their start times (PRD §4.5).",
+      "confidence": "projected"
+    }
+  ]
+}

@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Algeria's reference data, as the app ships it (data/dz). These tests read
-// the real files; the classes and their timetables are still made up.
+// the real files; the classes, their timetables and schools are still made
+// up.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 
 import {
+  bellTimes,
   formatDayWithMonth,
+  hoursOn,
+  parseBellData,
   isWithin,
   makeContext,
   parseCountryProfile,
@@ -167,5 +171,35 @@ describe("Algeria's reference data", () => {
     assert.deepEqual(marks(fourthYear, '2027-05-09', '2027-05-11'), ['exam', 'exam', 'exam']);
     assert.deepEqual(marks(firstYear, '2027-05-23', '2027-05-27'), ['exam', 'exam', 'exam', 'exam', 'exam']);
     assert.deepEqual(marks(fourthYear, '2027-05-23', '2027-05-27'), [null, null, null, null, null]);
+  });
+
+  // No text gives the daily hours of middle and secondary schools, so their
+  // templates say so, and the teacher matches each slot to the school's bell.
+  // Ramadan's length follows the 2026 communiqué until the year's own notice.
+  it("ships bell templates for middle and secondary schools, with Ramadan's times from the calendar", () => {
+    const { profile, calendar } = readAlgeria();
+    const bells = parseBellData(readData('dz/bells.json'), profile);
+    assert.deepEqual(bells.ok ? [] : bells.problems, []);
+    assert.ok(bells.ok);
+    assert.deepEqual(
+      bells.value.templates.map((template) => [template.level, template.shift]),
+      [
+        ['cem', 'single'],
+        ['lycee', 'single'],
+      ],
+    );
+    for (const template of bells.value.templates) assert.match(template.source, /not an official text/);
+    for (const length of bells.value.ramadan) {
+      assert.match(length.source, /^Ministry of National Education, communiqué of 16 February 2026/);
+      for (const link of length.source.match(/https?:\/\/\S+/g) ?? []) {
+        assert.match(link, /^https:\/\/www\.education\.gov\.dz\//);
+      }
+    }
+    const school = { id: 's-1', name: 'Made up', levels: ['cem'], subjects: ['math'] };
+    const slot = { half: 'morning', index: 1 } as const;
+    const at = (day: string) =>
+      bellTimes(bells.value, school, 'cem', 'single', hoursOn(calendar.entries, d(day)), [slot])[0];
+    assert.deepEqual([at('2027-02-07')?.from, at('2027-02-07')?.to], ['08:00', '09:00']);
+    assert.deepEqual([at('2027-02-08')?.from, at('2027-02-08')?.to], ['08:00', '08:45']);
   });
 });

@@ -34,6 +34,22 @@ export interface School {
   readonly subjects: readonly string[];
   /** The zone or wilaya, which picks the zone layer of the calendar. Until it is set, no zone entry applies. */
   readonly zone?: string;
+  /** The times the teacher set to match the school's bell, over the level's template (PRD §4.6). */
+  readonly bells?: SchoolBells;
+}
+
+/** One slot's time at a school, written HH:MM, such as 08:00 to 09:00. */
+export interface SlotTime {
+  readonly half: Half;
+  readonly index: number;
+  readonly from: string;
+  readonly to: string;
+}
+
+/** A school's own times, slot by slot: the usual ones, and Ramadan's. A slot left out keeps its template's time. */
+export interface SchoolBells {
+  readonly usual?: readonly SlotTime[];
+  readonly ramadan?: readonly SlotTime[];
 }
 
 export interface ClassGroup {
