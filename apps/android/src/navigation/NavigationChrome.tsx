@@ -15,7 +15,7 @@ import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
 
 /** Each setup screen's step, which its bar's subtitle names. */
-const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4 } as const;
+const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4, Plan: 5 } as const;
 
 /** Keeps tab labels and selection accessible without exposing decorative icons. */
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -100,6 +100,7 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           {route.name === 'NavigationPreview' && <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>}
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
           {route.name === 'TypeList' && <Text style={styles.subtitle}>{t('setup.sorted')}</Text>}
+          {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
           {Object.hasOwn(SETUP_ROUTES, route.name) && (
             <Text style={styles.subtitle}>
               {t('setup.step', { step: SETUP_ROUTES[route.name as keyof typeof SETUP_ROUTES], count: SETUP_STEPS })}

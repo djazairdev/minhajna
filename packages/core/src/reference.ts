@@ -121,6 +121,11 @@ export const CALENDAR_EFFECTS = [
 
 export type CalendarEffect = (typeof CALENDAR_EFFECTS)[number];
 
+/** Whose bell times apply on an entry's days, when not the usual ones: Ramadan's (PRD §4.5). */
+export const CALENDAR_TIMES = ['ramadan'] as const;
+
+export type CalendarTimes = (typeof CALENDAR_TIMES)[number];
+
 /** Announced, expected (such as lunar dates, give or take a day) or projected (PRD §4.5). */
 export const CONFIDENCES = ['announced', 'expected', 'projected'] as const;
 
@@ -143,6 +148,8 @@ export interface CalendarEntry {
   readonly grades?: readonly string[];
   /** For an exam window: the term it closes. */
   readonly term?: number;
+  /** Ramadan: its days take Ramadan's bell times, and keep their sessions. */
+  readonly times?: CalendarTimes;
   readonly name: LocalizedText;
   /** The text or notice it comes from. */
   readonly source: string;

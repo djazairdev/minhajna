@@ -19,14 +19,21 @@ import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
+import {
+  CardScreen,
+  ClassesScreen,
+  PacksScreen,
+  PlanScreen,
+  ReadyScreen,
+  TeachingScreen,
+  TypeListScreen,
+  WeekDrawScreen,
+  WeekScreen,
+} from './SetupScreens';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
-import { Card } from '../setup/Card';
-import { Classes } from '../setup/Classes';
-import { TypeList } from '../setup/TypeList';
-import { Week } from '../setup/Week';
-import { WeekDraw } from '../week/WeekDraw';
-import { Teaching } from '../setup/Teaching';
+import { Times } from '../times/Times';
+import type { Cell } from '../week/week-rules';
 
 export { tabLabels } from './HomePreview';
 
@@ -41,7 +48,11 @@ export type RootStackParamList = {
   Classes: undefined;
   TypeList: { classId: string; name: string };
   Week: undefined;
-  WeekDraw: undefined;
+  WeekDraw: { slot?: Cell } | undefined;
+  Times: undefined;
+  Plan: undefined;
+  Packs: { grade: string; subject: string };
+  Ready: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -136,6 +147,18 @@ export function AppNavigator({
           component={WeekDrawScreen}
           options={{ title: t('week.title'), statusBarStyle: 'dark' }}
         />
+        <Stack.Screen
+          name="Plan"
+          component={PlanScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Packs"
+          component={PacksScreen}
+          options={{ title: t('plan.packsTitle'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
           name="NavigationPreview"
@@ -214,46 +237,6 @@ function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 
       onConnections={() => navigation.navigate('Connections')}
     />
   );
-}
-
-/** Setup's first step, which leads to the card. */
-function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Teaching'>) {
-  return <Teaching onNext={() => navigation.navigate('Card')} />;
-}
-
-/** Setup's second step, which leads to the classes. */
-function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
-  return <Card onNext={() => navigation.navigate('Classes')} />;
-}
-
-/** Setup's third step, which leads to the week. */
-function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Classes'>) {
-  return (
-    <Classes
-      onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
-      onNext={() => navigation.navigate('Week')}
-    />
-  );
-}
-
-/** Setup's fourth step; bell times and plans come with #29 and #30, so it leads to the tabs for now. */
-function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Week'>) {
-  return (
-    <Week
-      onDraw={() => navigation.navigate('WeekDraw')}
-      onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
-    />
-  );
-}
-
-/** Drawing the week by hand; «حفظ الأسبوع» returns. */
-function WeekDrawScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
-  return <WeekDraw onDone={() => navigation.goBack()} />;
-}
-
-/** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
-function TypeListScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TypeList'>) {
-  return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
 }
 
 /** The same notice, from Help. */

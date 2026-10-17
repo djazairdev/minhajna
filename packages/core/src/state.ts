@@ -56,8 +56,12 @@ export interface State {
   readonly timetables: readonly RecordedTimetable[];
   /** The entries the teacher added to the calendar. */
   readonly calendar: readonly CalendarEntry[];
-  /** Every version of each session's record, by session key. The last is the current one. */
-  readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord>[]>;
+  /**
+   * Every version of each session's record, by session key. The last is the
+   * current one; null when a confirmation was undone and the session awaits
+   * confirmation again.
+   */
+  readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
   /** Every version of each roll call, by unit key. The last is the current one. */
   readonly rollCalls: ReadonlyMap<string, readonly Version<RollCall>[]>;
@@ -108,7 +112,7 @@ export function buildState(entries: readonly Entry[]): State {
   const courses = new Map<string, Course>();
   const timetables: RecordedTimetable[] = [];
   const calendar = new Map<string, CalendarEntry>();
-  const sessions = new Map<string, Version<SessionRecord>[]>();
+  const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const rollCalls = new Map<string, Version<RollCall>[]>();
   const seating = new Map<string, SeatingPlan>();
@@ -154,6 +158,11 @@ export function buildState(entries: readonly Entry[]): State {
       case 'session.recorded': {
         const key = event.record.session.key;
         sessions.set(key, [...(sessions.get(key) ?? []), versionOf(entry, event.record)]);
+        break;
+      }
+      case 'session.withdrawn': {
+        const key = event.session.key;
+        sessions.set(key, [...(sessions.get(key) ?? []), versionOf<SessionRecord | null>(entry, null)]);
         break;
       }
       case 'session.noted':
@@ -220,7 +229,7 @@ function currentRecords(state: State): RecordEvent[] {
   for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });
   const sessions = [...state.sessions.values()]
     .flatMap((versions) => versions.slice(-1))
-    .map(({ value }) => value)
+    .flatMap(({ value }) => (value === null ? [] : [value]))
     .sort(
       (a, b) =>
         compareDays(a.session.day, b.session.day) ||

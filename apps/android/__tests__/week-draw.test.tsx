@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Drawing the week by hand (#28, Week-draw): pens, taps, Saturday and the
-// fifth morning slot, the totals, saving as one version, and a later week
-// that starts the day it is drawn. Made-up schools and classes only.
+// fifth morning slot, a double shift, a week of two schools, the totals,
+// saving as one version, and a later week that starts the day it is drawn.
+// Made-up schools and classes only.
 
 import { formatDay, parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -184,6 +185,54 @@ test('starts a changed week on the day it is drawn, keeping the first', async ()
   await save();
   expect(data.book.state.timetables.map((timetable) => timetable.from)).toEqual([data.year.from, day]);
   expect(shown()).toContain(text.week.saveNote.replace('{{date}}', '15/10/2026'));
+});
+
+test('draws a double shift: a class in one half-day goes in the other for the other week', async () => {
+  const data = await withClasses();
+  await render(data);
+  expect(exists('shift-morning')).toBe(false);
+  await press('option-doubleShift');
+  await press('shift-afternoon');
+  await press('draw-2-a3');
+  expect(label('draw-2-a3')).toBe(`الثلاثاء، الحصة 3 مساءً: 4م1، ${text.week.weekA}`);
+  expect(label('draw-2-m3')).toBe(`الثلاثاء، الحصة 3 صباحاً: 4م1، ${text.week.weekB}`);
+  await press('draw-2-m3');
+  expect(label('draw-2-a3')).toBe(`الثلاثاء، الحصة 3 مساءً: ${text.week.empty}`);
+  await press('draw-2-m3');
+  await save();
+  const { version } = data.book.state.timetables[0];
+  expect(version.options).toEqual({ doubleShift: 'afternoon' });
+  expect(version.entries.map((entry) => [entry.slot.half, entry.weeks])).toEqual([
+    ['morning', 'B'],
+    ['afternoon', 'A'],
+  ]);
+});
+
+test('tags each class with its school in a week of two schools, and counts by school', async () => {
+  const data = await withClasses();
+  await data.book.record(day, {
+    kind: 'school.set',
+    school: { id: 's-2', name: 'متوسطة الأمل', levels: ['cem'], subjects: ['arabic'], zone: '16' },
+  });
+  await data.book.record(day, {
+    kind: 'class.set',
+    schoolClass: {
+      id: 'k-3',
+      schoolId: 's-2',
+      level: 'cem',
+      grade: '4am',
+      name: '4م1',
+      groups: [{ id: 'k-3-w', kind: 'whole', name: '4م1' }],
+    },
+  });
+  await render(data);
+  expect(shown()).toEqual(expect.arrayContaining(['4م1 · النجاح', '4م1 · الأمل']));
+  await press('draw-0-m1');
+  await press('pen-k-3');
+  await press('draw-0-m2');
+  await press('draw-1-m2');
+  expect(label('draw-0-m2')).toBe('الأحد، الحصة 2 صباحاً: 4م1، متوسطة الأمل');
+  expect(textOf('week-tally')).toBe('\u2068النجاح\u2069: حصة واحدة · \u2068الأمل\u2069: حصتان · المجموع: 3 حصص');
 });
 
 test('keeps no fixed text height or line limit, so text at 200% wraps', async () => {

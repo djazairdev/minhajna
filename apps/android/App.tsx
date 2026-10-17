@@ -39,6 +39,7 @@ export default function App({
   const reference = useMemo(() => {
     const result = readReference(files);
     if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
+    if (result.ok && result.refusedPacks > 0 && __DEV__) console.warn('Plan packs refused', result.refusedPacks);
     return result;
   }, [files]);
   const { status: history, book } = useHistory(storage);
@@ -53,7 +54,15 @@ export default function App({
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
       {reference.ok && book !== null ? (
-        <AppDataProvider book={book} profile={reference.profile} year={reference.calendar.year} random={random}>
+        <AppDataProvider
+          book={book}
+          profile={reference.profile}
+          year={reference.calendar.year}
+          calendar={reference.calendar.entries}
+          bells={reference.bells}
+          packs={reference.packs}
+          random={random}
+        >
           <AppNavigator />
         </AppDataProvider>
       ) : (

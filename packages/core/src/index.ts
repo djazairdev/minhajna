@@ -4,6 +4,8 @@
 // The shared core of Minhajna's apps. It has no platform code, so the
 // Android app and the web app give the same results (PRD §5.2).
 
+export * from './bells.ts';
+export * from './bells-read.ts';
 export * from './calendar.ts';
 export * from './calendar-read.ts';
 export * from './canonical.ts';
@@ -20,6 +22,7 @@ export * from './layers.ts';
 export * from './memory-store.ts';
 export * from './pacing.ts';
 export * from './pack.ts';
+export * from './pack-catalogue.ts';
 export * from './progress.ts';
 export type { ParseProblem, ParseProblemKind, ParseResult } from './read.ts';
 export * from './records.ts';

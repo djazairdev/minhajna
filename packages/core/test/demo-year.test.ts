@@ -121,15 +121,15 @@ for (const level of ['cem', 'primary'] as const) {
     it('keeps lesson details and separate private reasons for later-day corrections', () => {
       const sessions = [...book.state.sessions.values()];
       assert.equal(
-        sessions.filter((versions) => versions[0]?.value.homework !== undefined).length,
+        sessions.filter((versions) => versions[0]?.value?.homework !== undefined).length,
         expected[level].details,
       );
-      assert.equal(sessions.filter((versions) => versions[0]?.value.test !== undefined).length, expected[level].tests);
+      assert.equal(sessions.filter((versions) => versions[0]?.value?.test !== undefined).length, expected[level].tests);
       const corrections = sessions.filter((versions) => versions.length === 2);
       assert.equal(corrections.length, 8);
       for (const versions of corrections) {
         const [original, corrected] = versions;
-        assert.ok(original !== undefined && corrected !== undefined);
+        assert.ok(original?.value && corrected?.value);
         assert.ok(corrected.day > original.day);
         assert.equal(original.day, original.value.session.day);
         assert.deepEqual(corrected.value.coverage, original.value.coverage);

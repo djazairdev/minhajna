@@ -8,7 +8,8 @@
 // grid is laid out column by column, so each day is as wide as its longest
 // label and at least 48dp, and every row has one height that grows with the
 // text. A class name never breaks inside a word, and when the week is wider
-// than the screen, at 200% text or with long names, it scrolls sideways.
+// than the screen, at 200% text or with long names, it scrolls sideways. A
+// clashing cell gets a dashed warning outline.
 
 import { useLocale } from '@react-navigation/native';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -24,8 +25,16 @@ export type WeekGridSlot = {
   readonly first?: boolean;
 };
 
-/** `spoken`, when given, is what a screen reader says for the cell's content instead of its label. */
-export type WeekGridCell = { readonly label: string; readonly spoken?: string; readonly kind: 'class' | 'own' } | null;
+/**
+ * `spoken`, when given, is what a screen reader says for the cell's content instead of its label; `clash` outlines
+ * the cell, dashed, so a clash is seen without relying on colour.
+ */
+export type WeekGridCell = {
+  readonly label: string;
+  readonly spoken?: string;
+  readonly kind: 'class' | 'own';
+  readonly clash?: boolean;
+} | null;
 
 export type WeekGridProps = {
   readonly testID?: string;
@@ -78,6 +87,7 @@ export function WeekGrid({ testID, days, slots, cell, cellName, onPressCell, cel
               content === null && pressable && styles.open,
               content?.kind === 'class' && styles.class,
               content?.kind === 'own' && styles.own,
+              content?.clash === true && styles.clash,
             ];
             const inner = content && (
               <Text style={content.kind === 'class' ? styles.classText : styles.ownText}>{content.label}</Text>
@@ -127,6 +137,7 @@ const styles = StyleSheet.create({
   open: { borderWidth: 1, borderStyle: 'dashed', borderColor: colorRoles.controlBorder },
   class: { backgroundColor: colors.subject },
   own: { backgroundColor: colors.soft, borderWidth: 1, borderColor: colorRoles.controlBorder },
+  clash: { borderWidth: 2, borderStyle: 'dashed', borderColor: colors['notice-line'] },
   pressed: { opacity: 0.8 },
   classText: { ...typography['class-chip'], color: colors['on-subject'], textAlign: 'center' },
   ownText: { ...typography.badge, color: colors.ink, textAlign: 'center' },

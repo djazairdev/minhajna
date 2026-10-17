@@ -5,7 +5,9 @@
 // so far, with the day it starts and its sessions a week, or a line saying it
 // is not drawn yet, and the way to draw it. Receiving the school's timetable
 // by code or file comes later (PRD §2.5), and the screen says so instead of
-// offering it; bell times come with #29.
+// offering it. «المواقيت» opens each slot's time at the school (#29). A
+// week of two schools counts each school's sessions, and a warning lists its
+// clashes, with a button that opens the first on Week-slot.
 
 import { formatDay, weekGrid, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -19,12 +21,25 @@ import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
-import { gridCell, gridLabels } from '../week/grid-labels';
-import { classLoads } from '../week/week-rules';
+import { gridCell, gridLabels, schoolTally, slotName, weekMarks } from '../week/grid-labels';
+import { classLoads, type Cell } from '../week/week-rules';
 import { SETUP_STEPS } from './Teaching';
 
-/** The fourth step of setup; `onDraw` opens the drawing and `onNext` leads on. */
-export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => void }) {
+/**
+ * The fourth step of setup; `onDraw` opens the drawing, `onResolve` opens a clashing slot, `onTimes` the bell times,
+ * and `onNext` leads on.
+ */
+export function Week({
+  onDraw,
+  onResolve,
+  onTimes,
+  onNext,
+}: {
+  onDraw: () => void;
+  onResolve: (cell: Cell) => void;
+  onTimes: () => void;
+  onNext: () => void;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -40,6 +55,14 @@ export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => voi
   };
   const drawn = version !== undefined && (version.entries.length > 0 || version.blocks.length > 0);
   const labels = gridLabels(t, weekGrid(profile, version?.options));
+  const classes = [...state.classes.values()];
+  const marks = version && weekMarks(version, state, classes);
+  const clashes = marks?.clashes ?? [];
+  const clashLine = (cell: Cell) =>
+    t('week.clashAt', {
+      slot: slotName(t, cell),
+      items: (version && gridCell(t, version, lookup, cell, { schools: marks?.schools, shown: true })?.spoken) ?? '',
+    });
   return (
     <View style={[styles.screen, { direction }]}>
       <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={4} />
@@ -56,10 +79,9 @@ export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => voi
             <Text style={[styles.sub, align]}>
               {[
                 t('week.from', { date: formatDay(timetable.from) }),
+                ...(marks?.schools ? schoolTally(t, timetable.version, classOf, classes, state.schools.values()) : []),
                 t('week.perWeek', {
-                  sessions: t('week.sessions', {
-                    count: classLoads(timetable.version, classOf, [...state.classes.values()]).total,
-                  }),
+                  sessions: t('week.sessions', { count: classLoads(timetable.version, classOf, classes).total }),
                 }),
               ].join(' · ')}
             </Text>
@@ -67,7 +89,13 @@ export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => voi
               testID="week-preview"
               days={labels.days}
               slots={labels.slots}
-              cell={(day, slot) => gridCell(t, timetable.version, lookup, labels.cellOf(day, slot))}
+              cell={(day, slot) => {
+                const cell = labels.cellOf(day, slot);
+                return gridCell(t, timetable.version, lookup, cell, {
+                  schools: marks?.schools,
+                  clash: marks?.clashAt(cell),
+                });
+              }}
               cellName={labels.cellName}
             />
           </View>
@@ -76,7 +104,24 @@ export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => voi
             {t('week.noWeek')}
           </Text>
         )}
+        {clashes.length > 0 && (
+          <View style={styles.clash}>
+            <Notice
+              testID="week-clash"
+              variant="notice"
+              badge={t('week.clash')}
+              message={clashes.map(clashLine).join('\n')}
+            />
+            <Button
+              testID="week-resolve"
+              variant="line"
+              label={t('week.resolve')}
+              onPress={() => onResolve(clashes[0])}
+            />
+          </View>
+        )}
         <Button testID="week-draw" variant="line" label={drawn ? t('week.edit') : t('week.draw')} onPress={onDraw} />
+        <Button testID="week-times" variant="line" label={t('week.times')} onPress={onTimes} />
         <Notice testID="package-later" icon={controlIcon('info')} message={t('week.packageLater')} />
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
@@ -95,6 +140,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['space-16'],
   },
   intro: { gap: spacing['space-6'] },
+  clash: { gap: spacing['space-8'] },
   heading: { ...typography.h2, color: colors.ink },
   sub: { ...typography.caption, color: colors.ink2 },
   body: { ...typography.body, color: colors.ink },

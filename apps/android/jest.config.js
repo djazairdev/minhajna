@@ -7,6 +7,10 @@ module.exports = {
   // Exercise real navigation state in Jest; only the native views are absent.
   transformIgnorePatterns: ['node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-navigation)/)'],
   setupFiles: ['<rootDir>/jest/setup.ts'],
+  // The release build's checks start with no transform cache, so a suite's
+  // first test also compiles everything its screen imports. On CI runners that
+  // has taken more than Jest's usual 5 s.
+  testTimeout: 20000,
   moduleNameMapper: {
     '^@minhajna/core$': '<rootDir>/../../packages/core/src/index.ts',
     '^@minhajna/core/test-support$': '<rootDir>/../../packages/core/test/history-store-suite.ts',

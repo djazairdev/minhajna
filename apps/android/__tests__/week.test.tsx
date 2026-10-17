@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Setup's fourth step (#28, Setup-5-Week): the week drawn so far, or a line
-// saying it is not drawn yet, the way to draw it, and the note that the
-// school's timetable comes later. Made-up schools and classes only.
+// saying it is not drawn yet, the way to draw it, the note that the
+// school's timetable comes later, and a week of two schools with its
+// sessions by school and its clashes. Made-up schools and classes only.
 
 import { formatDay, parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -25,6 +26,8 @@ let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const onDraw = jest.fn();
 const onNext = jest.fn();
+const onResolve = jest.fn();
+const onTimes = jest.fn();
 const day = parseDay('2026-10-15');
 
 afterEach(async () => {
@@ -33,6 +36,8 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
   onDraw.mockReset();
   onNext.mockReset();
+  onResolve.mockReset();
+  onTimes.mockReset();
 });
 
 async function withWeek(): Promise<TestData> {
@@ -80,7 +85,7 @@ async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Week onDraw={onDraw} onNext={onNext} />)}
+        {withData(data, <Week onDraw={onDraw} onResolve={onResolve} onTimes={onTimes} onNext={onNext} />)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -114,6 +119,8 @@ test('says the week is not drawn yet, offers to draw it, and leads on either way
   expect(exists('week-card')).toBe(false);
   await press('week-draw');
   expect(onDraw).toHaveBeenCalledTimes(1);
+  await press('week-times');
+  expect(onTimes).toHaveBeenCalledTimes(1);
   await press('week-next');
   expect(onNext).toHaveBeenCalledTimes(1);
 });
@@ -134,6 +141,58 @@ test('shows the week drawn, the day it starts and its sessions a week, read cell
   expect(cells.map((node) => String(node.props.accessibilityLabel))).toEqual(
     expect.arrayContaining(['الأحد، الحصة 1 صباحاً: 4م1', `الأربعاء، الحصة 1 مساءً: ${text.week.ownTime}`]),
   );
+});
+
+test('counts the sessions by school in a week of two schools, and opens a clash on Week-slot', async () => {
+  const data = await withWeek();
+  await data.book.recordAll(day, [
+    {
+      kind: 'school.set',
+      school: { id: 's-2', name: 'متوسطة الأمل', levels: ['cem'], subjects: ['arabic'], zone: '16' },
+    },
+    {
+      kind: 'class.set',
+      schoolClass: {
+        id: 'k-2',
+        schoolId: 's-2',
+        level: 'cem',
+        grade: '4am',
+        name: '4م2',
+        groups: [{ id: 'g-2', kind: 'whole', name: '4م2' }],
+      },
+    },
+    { kind: 'course.set', course: { id: 'c-2', classId: 'k-2', subject: 'arabic', year: '2026-2027', pack: null } },
+    {
+      kind: 'timetable.set',
+      version: {
+        ...data.book.state.timetables[0].version,
+        entries: [
+          ...data.book.state.timetables[0].version.entries,
+          {
+            id: 'e-9',
+            weekday: 1,
+            slot: { half: 'morning', index: 1 },
+            courseId: 'c-2',
+            groupId: 'g-2',
+            weeks: 'every',
+            sessionType: 'lesson',
+          },
+        ],
+      },
+    },
+  ]);
+  await render(data);
+  expect(shown()).toEqual(
+    expect.arrayContaining([
+      `${text.week.from.replace('{{date}}', formatDay(data.year.from))} · \u2068النجاح\u2069: 3 حصص · \u2068الأمل\u2069: حصة واحدة · ${text.week.perWeek.replace('{{sessions}}', '4 حصص')}`,
+    ]),
+  );
+  expect(root().find((node) => node.props.testID === 'week-clash').props.message).toBe(
+    'تعارض في خانة الإثنين، الحصة 1 صباحاً: \u20684م1\u2069، \u2068متوسطة النجاح\u2069، \u20684م2\u2069، \u2068متوسطة الأمل\u2069',
+  );
+  await press('week-resolve');
+  expect(onResolve).toHaveBeenCalledWith({ weekday: 1, slot: { half: 'morning', index: 1 } });
+  expect(accessibilityProblems(root())).toEqual([]);
 });
 
 test('keeps no fixed text height or line limit, so text at 200% wraps', async () => {

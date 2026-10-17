@@ -10,6 +10,7 @@ import {
   current,
   recordsForRoute,
   todayView,
+  undoSession,
   type OutboundRoute,
 } from '../src/index.ts';
 import { cemEvents, contextOf, d, openBook, primaryEvents } from './fixtures.ts';
@@ -83,6 +84,49 @@ describe('Today', () => {
   });
 
   // The reason is private: the session's note keeps it, never its record.
+  it('undoes the one tap that confirmed a session, and keeps both changes in the history', async () => {
+    const book = await openBook(cemEvents());
+    const [sunday] = awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-20'));
+    assert.ok(sunday);
+    const before = todayView(contextOf(book), d('2026-09-20'));
+    const entries = book.entries.length;
+    await book.recordAll(d('2026-09-20'), confirmSessions(contextOf(book), [{ session: sunday }]));
+    assert.equal(todayView(contextOf(book), d('2026-09-20')).sessions[0]?.status, 'recorded');
+    const undo = undoSession(contextOf(book), sunday.key);
+    assert.deepEqual(undo, {
+      kind: 'session.withdrawn',
+      session: { key: sunday.key, courseId: 'c-math', groupId: sunday.groupId, day: sunday.day, slot: sunday.slot },
+    });
+    await book.record(d('2026-09-20'), undo);
+    assert.equal(book.entries.length, entries + 2);
+    assert.deepEqual(todayView(contextOf(book), d('2026-09-20')), before);
+    assert.deepEqual(awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-20')), [sunday]);
+    assert.equal(book.state.sessions.get(sunday.key)?.[0]?.value?.outcome, 'done');
+    assert.equal(current(book.state.sessions.get(sunday.key)), null);
+    assert.deepEqual(
+      recordsForRoute(book.state, 'documents').filter((event) => event.kind.startsWith('session.')),
+      [],
+    );
+    assert.equal(undoSession(contextOf(book), sunday.key), null);
+  });
+
+  it('undoes a correction by bringing back the version before it', async () => {
+    const book = await openBook(cemEvents());
+    const [sunday] = awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-20'));
+    assert.ok(sunday);
+    await book.recordAll(d('2026-09-20'), confirmSessions(contextOf(book), [{ session: sunday }]));
+    const done = current(book.state.sessions.get(sunday.key));
+    await book.recordAll(
+      d('2026-09-21'),
+      confirmSessions(contextOf(book), [{ session: sunday, choice: { outcome: 'not-held' } }]),
+    );
+    const undo = undoSession(contextOf(book), sunday.key);
+    assert.deepEqual(undo, { kind: 'session.recorded', record: done });
+    await book.record(d('2026-09-21'), undo);
+    assert.deepEqual(current(book.state.sessions.get(sunday.key)), done);
+    assert.equal(book.state.sessions.get(sunday.key)?.length, 3);
+  });
+
   it('corrects a session and keeps both versions', async () => {
     const book = await openBook(cemEvents());
     const [sunday] = awaitingBetween(contextOf(book), d('2026-09-20'), d('2026-09-20'));
@@ -96,7 +140,7 @@ describe('Today', () => {
     );
     const versions = book.state.sessions.get(sunday.key);
     assert.equal(versions?.length, 2);
-    assert.equal(versions?.[0]?.value.outcome, 'done');
+    assert.equal(versions?.[0]?.value?.outcome, 'done');
     assert.equal(versions?.[1]?.day, '2026-09-22');
     assert.equal(current(versions)?.outcome, 'not-held');
     assert.equal(versions?.[1]?.reason, undefined);
