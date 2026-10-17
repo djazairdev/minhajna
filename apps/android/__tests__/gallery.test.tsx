@@ -10,13 +10,15 @@
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DevSettings } from 'react-native';
+import { DevSettings, Text, View } from 'react-native';
 import type { PressableProps, ViewProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { AppNavigator, GALLERY_MENU_ITEM } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { Gallery } from '../src/gallery/Gallery';
 import { Button, type ButtonProps } from '../src/components/Button';
+import { Notice } from '../src/components/Notice';
+import { Snackbar, type SnackbarProps } from '../src/components/Snackbar';
 import { entries } from '../src/gallery/entries';
 import { samples } from '../src/gallery/samples';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -41,6 +43,14 @@ afterEach(async () => {
 async function render(element: React.ReactElement) {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(element);
+  });
+  await ReactTestRenderer.act(() => {
+    for (const node of tree.root.findAllByType(View)) {
+      const props = node.props as ViewProps;
+      if (/^snack-(short|long)-nav$/.test(props.testID ?? '')) {
+        props.onLayout?.({ nativeEvent: { layout: { height: 88 } } } as never);
+      }
+    }
   });
 }
 
@@ -72,20 +82,25 @@ test('opens from the developer menu, with its title in the interface language', 
   expect(headers[0]).toBe(samples.ar.title);
 });
 
-test.each(LANGUAGES.flatMap((language) => (['rtl', 'ltr'] as const).map((direction) => [language, direction])))(
-  'shows every component, readable and large enough to press (%s, %s)',
-  async (language, direction) => {
-    await i18n.changeLanguage(language);
-    await render(<Gallery />);
-    await press(`gallery-${direction}`);
-    for (const entry of entries)
-      expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
-    expect(accessibilityProblems(tree.root)).toEqual([]);
-    const rotation = direction === 'rtl' ? '135deg' : '225deg';
-    expect(backArrows()).toHaveLength(2);
-    expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
-  },
-);
+test.each(
+  LANGUAGES.flatMap((language) => (['rtl', 'ltr'] as const).map((direction) => [language, direction] as const)),
+)('shows every component, readable and large enough to press (%s, %s)', async (language, direction) => {
+  await i18n.changeLanguage(language);
+  await render(<Gallery />);
+  await press(`gallery-${direction}`);
+  for (const entry of entries)
+    expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
+  expect(accessibilityProblems(tree.root)).toEqual([]);
+  expect(tree.root.findAllByType(Notice)).toHaveLength(3);
+  expect(tree.root.findAllByType(Snackbar)).toHaveLength(2);
+  expect(tree.root.findAllByType(Snackbar).map((node) => (node.props as SnackbarProps).message)).toEqual([
+    samples[language].feedback.confirmation,
+    samples[language].feedback.longConfirmation,
+  ]);
+  const rotation = direction === 'rtl' ? '135deg' : '225deg';
+  expect(backArrows()).toHaveLength(2);
+  expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
+});
 
 test('selects a tab in the bottom bar sample as the app does', async () => {
   await render(<Gallery />);
@@ -107,11 +122,33 @@ test.each([
   await i18n.changeLanguage(language);
   await render(<Gallery />);
   const weights = labels.slice(0, 5);
-  expect(tree.root.findAllByType(Button).map((node) => (node.props as ButtonProps).label)).toEqual([
+  const entry = tree.root.findByProps({ testID: 'gallery-entry-Button' });
+  expect(entry.findAllByType(Button).map((node) => (node.props as ButtonProps).label)).toEqual([
     ...weights,
     ...weights,
     labels[5],
   ]);
+});
+
+test('Undo changes only the feedback preview and its confirmation can be shown again', async () => {
+  await render(<Gallery />);
+  const short = tree.root.findAllByType(Snackbar).find((node) => node.props.testID === 'snack-short')!;
+  expect(short.props.bottomOffset).toBe(88);
+  const undo = short.findAll((node) => node.props.accessibilityRole === 'button' && !!node.props.onPress)[0];
+  await ReactTestRenderer.act(() => {
+    (undo.props as PressableProps).onPress?.({} as never);
+  });
+  expect(tree.root.findAllByType(Snackbar)).toHaveLength(1);
+  expect(tree.root.findAllByType(Text).some((node) => node.props.children === samples.ar.feedback.undone)).toBe(true);
+  await press('snack-short-show');
+  expect(tree.root.findAllByType(Snackbar)).toHaveLength(2);
+  const nav = tree.root.findAllByType(View).find((node) => node.props.testID === 'snack-short-nav')!;
+  await ReactTestRenderer.act(() => {
+    (nav.props as ViewProps).onLayout?.({ nativeEvent: { layout: { height: 112 } } } as never);
+  });
+  expect(
+    tree.root.findAllByType(Snackbar).find((node) => node.props.testID === 'snack-short')?.props.bottomOffset,
+  ).toBe(112);
 });
 
 test('links each entry to its page in the design system', () => {
