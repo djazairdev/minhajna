@@ -13,6 +13,7 @@ export type ChipTexts = {
   readonly levels: readonly [string, string, string];
   readonly levelHint: string;
   readonly long: string;
+  readonly more: string;
   readonly step: string;
 };
 
@@ -25,6 +26,7 @@ export const chipTexts: Readonly<Record<Language, ChipTexts>> = {
     levels: ['ابتدائي', 'متوسط', 'ثانوي'],
     levelHint: 'يمكن اختيار أكثر من مستوى.',
     long: 'التربية العلمية والتكنولوجية مع الأفواج الصغيرة',
+    more: 'مستويات أخرى',
     step: 'الخطوة {{step}} من {{count}}',
   },
   fr: {
@@ -34,6 +36,7 @@ export const chipTexts: Readonly<Record<Language, ChipTexts>> = {
     levels: ['Primaire', 'Moyen', 'Secondaire'],
     levelHint: 'Vous pouvez choisir plusieurs niveaux.',
     long: 'Éducation scientifique et technologique en petits groupes',
+    more: 'Autres niveaux',
     step: 'Étape {{step}} sur {{count}}',
   },
   en: {
@@ -43,6 +46,7 @@ export const chipTexts: Readonly<Record<Language, ChipTexts>> = {
     levels: ['Primary', 'Middle school', 'Secondary'],
     levelHint: 'You can choose more than one level.',
     long: 'Science and technology with small groups',
+    more: 'Other levels',
     step: 'Step {{step}} of {{count}}',
   },
 };

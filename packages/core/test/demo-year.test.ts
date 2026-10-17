@@ -23,8 +23,8 @@ import { demoReference, reopenDemo } from './demo-year-support.ts';
 import { deps } from './support.ts';
 
 const expected = {
-  cem: { events: 396, bytes: 260598, sessions: 161, units: 161, setup: 50, details: 16, tests: 5 },
-  primary: { events: 554, bytes: 368444, sessions: 256, units: 225, setup: 49, details: 25, tests: 8 },
+  cem: { events: 396, bytes: 260621, sessions: 161, units: 161, setup: 50, details: 16, tests: 5 },
+  primary: { events: 554, bytes: 368469, sessions: 256, units: 225, setup: 49, details: 25, tests: 8 },
 };
 
 for (const level of ['cem', 'primary'] as const) {

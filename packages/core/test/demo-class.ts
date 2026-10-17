@@ -35,7 +35,10 @@ export function cemEvents(): RecordEvent[] {
   });
   return [
     { kind: 'teacher.set', card: { name: 'Example Teacher', subjects: ['math'] } },
-    { kind: 'school.set', school: { id: 's-cem', name: 'Example middle school', level: 'cem', zone: '16' } },
+    {
+      kind: 'school.set',
+      school: { id: 's-cem', name: 'Example middle school', levels: ['cem'], subjects: ['math'], zone: '16' },
+    },
     {
       kind: 'class.set',
       schoolClass: {
@@ -138,7 +141,10 @@ export function primaryEvents(): RecordEvent[] {
     movements: [{ day: d('2026-10-14'), kind: 'out', reason: 'Transfer' }],
   };
   return [
-    { kind: 'school.set', school: { id: 's-pri', name: 'Example primary school', level: 'primary', zone: '16' } },
+    {
+      kind: 'school.set',
+      school: { id: 's-pri', name: 'Example primary school', levels: ['primary'], subjects: ['arabic'], zone: '16' },
+    },
     {
       kind: 'class.set',
       schoolClass: {

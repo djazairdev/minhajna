@@ -91,5 +91,39 @@
     "none": "This version does not connect to the internet: it asks for no permission to, and sends and receives nothing.",
     "source": "The source code link in Licences opens only after you confirm. Your browser opens it outside the app, with no record or identifier.",
     "register": "Any connection the project adds is listed in the NETWORK.md file of the source code, with what is sent and why, before it reaches the app."
+  },
+  "setup": {
+    "title": "Setup",
+    "step": "Step {{step}} of {{count}}",
+    "teachingHeading": "Level and subject",
+    "teachingIntro": "Plans and documents are suggested from this choice.",
+    "schoolsIntro": "Each school has its own levels and subjects, and plans and documents are suggested from them.",
+    "level": "Level",
+    "levelIn": "Level at {{school}}",
+    "levelHint": "You can choose more than one level.",
+    "subject": "Subject",
+    "subjectIn": "Subject at {{school}}",
+    "subjectHint": "You can choose two subjects, such as Arabic with Islamic education.",
+    "twoSubjects": "Two subjects at this school, each with its own plan and book.",
+    "severalSubjects": "Each subject at this school has its own plan and book.",
+    "moreSubjects": "Other subjects",
+    "school": "School",
+    "schoolNumber": "School {{number}}",
+    "schoolPlaceholder": "For example: En-Nadjah middle school",
+    "addSchool": "Add another school",
+    "edit": "Edit",
+    "editSchool": "Edit {{school}}",
+    "deleteSchool": "Delete this school",
+    "unnamed": "Unnamed school",
+    "nothingChosen": "No level or subject chosen yet",
+    "merged": "Each school sends its timetable; they are merged into one week, with a warning at every clash. Each school keeps its own classes and books.",
+    "next": "Next",
+    "nextHint": "Write each school’s name and choose its level and subject.",
+    "notSaved": "The last change could not be saved on this phone.",
+    "levelName": {
+      "primary": "Primary",
+      "cem": "Middle school",
+      "lycee": "Secondary"
+    }
   }
 }

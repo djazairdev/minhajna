@@ -12,18 +12,19 @@ import { fill, type SampleProps } from './samples';
 type Type = 'ordinary' | 'revision' | 'assessment';
 type Level = 'primary' | 'middle' | 'secondary' | 'long';
 
-/** One choice, several with a hint, and a long label that wraps; selections stay in this sample. */
+/** One choice, several with a hint, and a long label behind «more» that wraps; selections stay in this sample. */
 export function ChipSamples({ language }: SampleProps) {
   const text = chipTexts[language];
   const [type, setType] = useState<Type | null>('ordinary');
   const [levels, setLevels] = useState<Level[]>(['middle']);
+  const [all, setAll] = useState(false);
   const types = (['ordinary', 'revision', 'assessment'] as const).map((value, at) => ({
     value,
     label: text.types[at],
   }));
   const levelChoices = [
     ...(['primary', 'middle', 'secondary'] as const).map((value, at) => ({ value, label: text.levels[at] })),
-    { value: 'long' as const, label: text.long },
+    ...(all ? [{ value: 'long' as const, label: text.long }] : []),
   ];
   return (
     <View style={styles.group}>
@@ -36,6 +37,7 @@ export function ChipSamples({ language }: SampleProps) {
         choices={levelChoices}
         selected={levels}
         onSelect={setLevels}
+        more={all ? undefined : { label: text.more, onPress: () => setAll(true) }}
       />
     </View>
   );

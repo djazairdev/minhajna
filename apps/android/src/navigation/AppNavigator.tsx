@@ -21,6 +21,7 @@ import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
+import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
 
@@ -30,6 +31,7 @@ export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents
 export type RootStackParamList = {
   Welcome: undefined;
   Privacy: undefined;
+  Teaching: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -90,6 +92,11 @@ export function AppNavigator({
           name="Privacy"
           component={FirstNotice}
           options={{ title: t('privacy.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Teaching"
+          component={TeachingScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
@@ -158,16 +165,22 @@ function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList
 }
 
 /**
- * The notice before first use. Nothing records that it was read: until setup
- * keeps the teacher's setup, every start shows the welcome and the notice.
+ * The notice before first use, which leads to setup. Nothing records that it
+ * was read: until setup is complete, every start shows the welcome and the
+ * notice, and setup shows what was already chosen.
  */
 function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'Privacy'>) {
   return (
     <PrivacyNotice
-      onAccept={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+      onAccept={() => navigation.navigate('Teaching')}
       onConnections={() => navigation.navigate('Connections')}
     />
   );
+}
+
+/** Setup's first step; its next steps come with #26 and #27, so it leads to the tabs for now. */
+function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Teaching'>) {
+  return <Teaching onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })} />;
 }
 
 /** The same notice, from Help. */

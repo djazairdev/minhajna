@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 The Minhajna contributors
+  SPDX-License-Identifier: CC-BY-SA-4.0
+
+  A school building: one school the teacher teaches in. From the design canvas's 24-unit line icons;
+  the app tints it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M4 20.5h16M6 20.5V9l6 -4.5L18 9v11.5M10 20.5v-5h4v5"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
