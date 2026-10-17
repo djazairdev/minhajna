@@ -13,6 +13,7 @@ import {
   awaitingBetween,
   confirmSessions,
   current,
+  proposalAt,
   recordsForRoute,
   todayView,
   type OutboundRoute,
@@ -119,5 +120,38 @@ describe('a correction', () => {
     for (const route of outbound) {
       assert.doesNotMatch(JSON.stringify(recordsForRoute(book.state, route)), /forgot/, route);
     }
+  });
+});
+
+describe('correcting a session', () => {
+  it('starts from the proposal the session had, its own record set aside', async () => {
+    const { book, sunday, monday } = await week();
+    const before = proposalAt(contextOf(book), monday);
+    await book.recordAll(d('2026-09-21'), confirmSessions(contextOf(book), [{ session: sunday }, { session: monday }]));
+    assert.equal(before?.item.id, 'l1');
+    assert.deepEqual(proposalAt(contextOf(book), monday), before);
+    assert.equal(proposalAt(contextOf(book), sunday)?.item.id, 'd1');
+  });
+
+  it('takes a detail out with null, and the version before keeps it', async () => {
+    const { book, sunday } = await week();
+    await book.recordAll(
+      d('2026-09-20'),
+      confirmSessions(contextOf(book), [
+        {
+          session: sunday,
+          details: { homework: { text: 'Made-up: exercise 5', due: d('2026-09-21') }, factual: 'Kept' },
+        },
+      ]),
+    );
+    await book.recordAll(
+      d('2026-09-22'),
+      confirmSessions(contextOf(book), [{ session: sunday, details: { homework: null }, correction: 'entry-error' }]),
+    );
+    const versions = book.state.sessions.get(sunday.key);
+    assert.equal(versions?.[0]?.value?.homework?.text, 'Made-up: exercise 5');
+    assert.equal(versions?.[1]?.value?.homework, undefined);
+    assert.equal(versions?.[1]?.value?.factual, 'Kept');
+    assert.equal(versions?.[1]?.reason, 'entry-error');
   });
 });

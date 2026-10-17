@@ -37,13 +37,16 @@ export type Choice =
    */
   | { readonly outcome: 'not-held'; readonly makeUp?: boolean };
 
-/** What else a session can record (PRD §3.3). */
+/**
+ * What else a session can record (PRD §3.3). In a correction, null takes a
+ * detail out of the new version; the version before keeps it.
+ */
 export interface Details {
   readonly sessionType?: string;
-  readonly homework?: Homework;
-  readonly test?: string;
-  readonly unplanned?: string;
-  readonly factual?: string;
+  readonly homework?: Homework | null;
+  readonly test?: string | null;
+  readonly unplanned?: string | null;
+  readonly factual?: string | null;
 }
 
 export function findItem(pack: PlanPack | null, id: string): PackItem {
@@ -188,9 +191,9 @@ export function recordOf(
     sessionType,
     coverage,
     ...(choice.outcome === 'not-held' && choice.makeUp === true && { makeUp: true }),
-    ...(details.homework !== undefined && { homework: details.homework }),
-    ...(details.test !== undefined && { test: details.test }),
-    ...(details.unplanned !== undefined && { unplanned: details.unplanned }),
-    ...(details.factual !== undefined && { factual: details.factual }),
+    ...(details.homework != null && { homework: details.homework }),
+    ...(details.test != null && { test: details.test }),
+    ...(details.unplanned != null && { unplanned: details.unplanned }),
+    ...(details.factual != null && { factual: details.factual }),
   };
 }

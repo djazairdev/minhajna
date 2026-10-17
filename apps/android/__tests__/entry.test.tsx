@@ -152,7 +152,7 @@ test('the stages covered, and another session type', async () => {
   });
 });
 
-test('a test session takes no lesson, and a recorded session is not entered again here', async () => {
+test('a test session takes no lesson, and a recorded session opens as a correction', async () => {
   const data = await withDay();
   await show(data);
   await press('entry-type-test');
@@ -160,5 +160,5 @@ test('a test session takes no lesson, and a recorded session is not entered agai
   await press('entry-confirm');
   expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ sessionType: 'test', coverage: [] });
   await show(data);
-  expect(shown()).toContain(text.entry.unavailable);
+  expect(shown()).toEqual(expect.arrayContaining([text.fix.title, text.fix.recorded, text.fix.save]));
 });
