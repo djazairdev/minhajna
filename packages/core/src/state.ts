@@ -9,6 +9,7 @@ import { compareDays, maxDay, type Day } from './day.ts';
 import type { Entry } from './history.ts';
 import { mayTravelAs, type OutboundRoute } from './layers.ts';
 import type { CalendarEntry } from './reference.ts';
+import type { CountingRules } from './roll-call-counts.ts';
 import {
   compareHalves,
   compareSlots,
@@ -66,6 +67,8 @@ export interface State {
   /** Every version of each roll call, by unit key. The last is the current one. */
   readonly rollCalls: ReadonlyMap<string, readonly Version<RollCall>[]>;
   readonly seating: ReadonlyMap<string, SeatingPlan>;
+  /** The counting rules the teacher set, or null for the defaults. */
+  readonly counting: CountingRules | null;
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -116,6 +119,7 @@ export function buildState(entries: readonly Entry[]): State {
   const notes = new Map<string, PrivateNote>();
   const rollCalls = new Map<string, Version<RollCall>[]>();
   const seating = new Map<string, SeatingPlan>();
+  let counting: CountingRules | null = null;
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -176,6 +180,9 @@ export function buildState(entries: readonly Entry[]): State {
       case 'seating.set':
         seating.set(`${event.plan.classId}/${event.plan.groupId}`, event.plan);
         break;
+      case 'counting.set':
+        counting = event.rules;
+        break;
     }
   }
 
@@ -195,6 +202,7 @@ export function buildState(entries: readonly Entry[]): State {
     notes,
     rollCalls,
     seating,
+    counting,
   };
 }
 
@@ -250,6 +258,7 @@ function currentRecords(state: State): RecordEvent[] {
     records.push({ kind: 'roll-call.taken', rollCall: value, ...(reason !== undefined && { reason }) });
   }
   for (const plan of state.seating.values()) records.push({ kind: 'seating.set', plan });
+  if (state.counting !== null) records.push({ kind: 'counting.set', rules: state.counting });
   return records;
 }
 

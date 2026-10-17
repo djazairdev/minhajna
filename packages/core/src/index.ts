@@ -32,6 +32,7 @@ export * from './reference.ts';
 export * from './reference-read.ts';
 export * from './roll-call.ts';
 export * from './roll-call-counts.ts';
+export * from './roll-call-fix.ts';
 export * from './sessions.ts';
 export * from './state.ts';
 export * from './today.ts';

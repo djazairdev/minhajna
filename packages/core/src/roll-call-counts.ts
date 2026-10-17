@@ -79,7 +79,8 @@ interface Counted {
 }
 
 /**
- * The roll-call book's totals for each pupil, from `from` to `to` (PRD §3.4).
+ * The roll-call book's totals for each pupil, from `from` to `to` (PRD §3.4),
+ * under the rules the teacher set unless others are given.
  *
  * Roll calls carry legal weight, so one taken is never dropped silently,
  * even when the timetable or the calendar no longer gives its unit: after a
@@ -90,7 +91,7 @@ export function countRollCalls(
   classId: string,
   from: Day,
   to: Day,
-  rules: CountingRules = DEFAULT_COUNTING,
+  rules: CountingRules = context.state.counting ?? DEFAULT_COUNTING,
 ): RollCallCounts {
   const { state } = context;
   const start = rules.from === undefined ? from : maxDay(from, rules.from);
