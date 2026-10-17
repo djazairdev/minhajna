@@ -143,13 +143,15 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
 
     /**
      * The library sets its own journal and sync modes after its hooks run, so
-     * these are set on the open connection. FULL syncs every commit to the
-     * disk; secure_delete overwrites erased content, so erasing is real (PRD
-     * §5.5).
+     * these are set on the open connection. With a rollback journal, a commit
+     * is final once the journal is deleted: EXTRA also syncs the folder after
+     * that, so a power cut just after a confirmed write cannot bring the
+     * journal back and undo it, as FULL alone allowed (#19). secure_delete
+     * overwrites erased content, so erasing is real (PRD §5.5).
      */
     private fun applySettings(db: SQLiteDatabase) {
       db.rawQuery("PRAGMA journal_mode = DELETE", null).use { it.moveToFirst() }
-      db.execSQL("PRAGMA synchronous = FULL")
+      db.execSQL("PRAGMA synchronous = EXTRA")
       db.rawQuery("PRAGMA secure_delete = ON", null).use { it.moveToFirst() }
     }
 

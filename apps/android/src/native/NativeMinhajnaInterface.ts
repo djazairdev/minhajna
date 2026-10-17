@@ -14,6 +14,12 @@ export interface Spec extends TurboModule {
   setLanguage(code: string): void;
   /** Starts the interface again, so that a new direction applies. */
   restart(): void;
+  /**
+   * Tells Android the first screen with content is drawn. Android then logs
+   * the time since launch ("Fully drawn" in adb logcat), so a start can be
+   * timed on any phone (PRD §6.8). Nothing leaves the phone.
+   */
+  reportFullyDrawn(): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaInterface');

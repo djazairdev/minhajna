@@ -124,6 +124,10 @@ test.each([
   expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(3);
 });
 
+test.each(['paper', 'sheet'] as const)('input error text on %s reaches 4.5:1', (ground) => {
+  expect(contrast(on(colors['error-ink']), on(colors[ground]))).toBeGreaterThanOrEqual(4.5);
+});
+
 // Map attribution has a translucent backing on the sheet and its dot pattern.
 // Include paper too so moving the map onto the page does not weaken the text.
 test.each(['sheet', 'map-dots', 'paper'] as const)(

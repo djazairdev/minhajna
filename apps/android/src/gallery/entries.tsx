@@ -13,6 +13,7 @@ import { TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
+import { TextFieldSamples } from './text-field-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -54,6 +55,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'Snackbar',
     design: 'docs/design/system/components/Snackbar/README.md',
     render: (sample) => <SnackbarSamples key={sample.title} sample={sample} />,
+  },
+  {
+    name: 'TextField',
+    design: 'docs/design/system/components/TextField/README.md',
+    render: (sample) => <TextFieldSamples key={sample.title} sample={sample} />,
   },
   {
     name: 'TopBar',

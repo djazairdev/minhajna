@@ -11,6 +11,9 @@ import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import type { Spec as CheckSpec } from '../native/NativeMinhajnaStorageCheck';
 import { fromRow, nativeDeps, nativeStore } from '../storage/history';
 
+/** The prefix of every line the storage check logs, for scripts that read the results over adb. */
+export const LOG_PREFIX = '[storage-check]';
+
 export interface CheckResult {
   readonly name: string;
   readonly passed: boolean;

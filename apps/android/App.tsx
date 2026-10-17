@@ -6,13 +6,16 @@
 // #21. Algeria's reference data (#87) and the teacher's encrypted history (#19)
 // must both verify before navigation opens. Until then, or on a refusal, the
 // offline welcome page shows, with no record contents. It starts from the
-// insets known at launch, so the first frame is drawn at once. In development
-// every problem in the reference data is logged, for whoever keys it; teachers
-// see one short message.
+// insets known at launch, so the first frame is drawn at once. Once the history
+// is open or refused, the app tells Android its first screen with content is
+// drawn, so a start can be timed on any phone. In development every problem in
+// the reference data is logged, for whoever keys it; teachers see one short
+// message.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
+import NativeInterface from './src/native/NativeMinhajnaInterface';
 import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajnaStorage';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { Welcome } from './src/navigation/Welcome';
@@ -23,9 +26,12 @@ import { openRecordBook } from './src/storage/history';
 export default function App({
   files = bundledReference,
   storage = NativeStorage,
+  reportDrawn = () => NativeInterface.reportFullyDrawn(),
 }: {
   files?: ReferenceFiles;
   storage?: Storage;
+  /** Called once, when the first screen with content is drawn. */
+  reportDrawn?: () => void;
 }) {
   const reference = useMemo(() => {
     const result = readReference(files);
@@ -33,6 +39,12 @@ export default function App({
     return result;
   }, [files]);
   const history = useHistory(storage);
+  const reported = useRef(false);
+  useEffect(() => {
+    if (history === 'opening' || reported.current) return;
+    reported.current = true;
+    reportDrawn();
+  }, [history, reportDrawn]);
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
