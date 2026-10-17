@@ -8,6 +8,7 @@
 // never a real pupil, teacher or school.
 
 import type { Language } from '../text/i18n';
+import type { ButtonVariant } from '../components/Button';
 
 export type Sample = {
   readonly title: string;
@@ -20,6 +21,13 @@ export type Sample = {
   readonly longHeading: string;
   readonly tabs: readonly [string, string, string];
   readonly longTabs: readonly [string, string, string];
+  readonly buttons: Readonly<Record<ButtonVariant, string>>;
+  readonly addButton: string;
+  readonly enabled: string;
+  readonly disabled: string;
+  readonly back: string;
+  readonly add: string;
+  readonly activations: string;
 };
 
 /** The gallery's texts and made-up content, by interface language. */
@@ -35,6 +43,13 @@ export const samples: Readonly<Record<Language, Sample>> = {
     longHeading: 'تصحيح الفرض المحروس الأول في الرياضيات مع القسم الأول متوسط',
     tabs: ['اليوم', 'الأقسام', 'الوثائق'],
     longTabs: ['حصص اليوم كلها', 'أقسامي هذه السنة', 'وثائق المؤسسة'],
+    buttons: { primary: 'حفظ', line: 'تعديل', soft: 'المناداة', plain: 'تراجع', danger: 'حذف' },
+    addButton: 'إضافة',
+    enabled: 'متاح',
+    disabled: 'غير متاح',
+    back: 'رجوع',
+    add: 'إضافة حصة',
+    activations: 'عدد الضغطات المتاحة: {{count}}',
   },
   fr: {
     title: 'Galerie des composants',
@@ -47,6 +62,19 @@ export const samples: Readonly<Record<Language, Sample>> = {
     longHeading: 'Correction du premier devoir surveillé de mathématiques avec la première année moyenne',
     tabs: ['Aujourd’hui', 'Classes', 'Documents'],
     longTabs: ['Toutes les séances du jour', 'Mes classes de l’année', 'Documents de l’établissement'],
+    buttons: {
+      primary: 'Enregistrer',
+      line: 'Modifier',
+      soft: 'Appel',
+      plain: 'Annuler',
+      danger: 'Supprimer',
+    },
+    addButton: 'Ajouter',
+    enabled: 'Disponible',
+    disabled: 'Indisponible',
+    back: 'Retour',
+    add: 'Ajouter une séance',
+    activations: 'Activations disponibles : {{count}}',
   },
   en: {
     title: 'Component gallery',
@@ -59,6 +87,19 @@ export const samples: Readonly<Record<Language, Sample>> = {
     longHeading: 'Going over the first mathematics test with the first year of middle school',
     tabs: ['Today', 'Classes', 'Documents'],
     longTabs: ['All of today’s lessons', 'My classes this year', 'The school’s documents'],
+    buttons: {
+      primary: 'Save',
+      line: 'Edit',
+      soft: 'Roll call',
+      plain: 'Cancel',
+      danger: 'Delete',
+    },
+    addButton: 'Add',
+    enabled: 'Available',
+    disabled: 'Unavailable',
+    back: 'Back',
+    add: 'Add lesson',
+    activations: 'Available activations: {{count}}',
   },
 };
 

@@ -25,14 +25,24 @@ function smallest(style: StyleProp<ViewStyle> | ((state: { pressed: boolean }) =
   return { height: size(flat.height, flat.minHeight), width: size(flat.width, flat.minWidth) };
 }
 
+/** Include inactive buttons too; their native state must not hide a missing name or target. */
+function isControl(node: ReactTestInstance): boolean {
+  const props = node.props as PressableProps;
+  return (
+    typeof props.onPress === 'function' ||
+    (props.accessibilityRole === 'button' && props.accessibilityState?.disabled === true)
+  );
+}
+
 /**
  * Every control under a node that TalkBack or a thumb would miss: one with no
  * role, one with nothing to read out, or one smaller than 48dp either way
  * (PRD §6.8, docs/design/system/accessibility.md). Returns a line per
  * problem, so that a test can expect an empty list and show what is wrong.
+ * Check the innermost control, not component wrappers that forward onPress.
  */
 export function accessibilityProblems(root: ReactTestInstance): string[] {
-  const controls = root.findAll((node) => typeof (node.props as PressableProps).onPress === 'function');
+  const controls = root.findAll(isControl).filter((control) => control.findAll(isControl).length === 1);
   return controls.flatMap((control) => {
     const props = control.props as PressableProps;
     const name = spokenName(control);

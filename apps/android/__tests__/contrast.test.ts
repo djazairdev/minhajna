@@ -101,6 +101,21 @@ test('chalk text on board reaches 4.5:1', () => {
   expect(contrast(on(colors.chalk, ground), ground)).toBeGreaterThanOrEqual(4.5);
 });
 
+test.each([
+  ['danger button', colors.chalk, colors.danger],
+  ['soft button and pressed icon', colors.ink, colors.soft],
+] as const)('%s text and icons reach 4.5:1', (_name, foreground, background) => {
+  expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(4.5);
+});
+
+test.each([
+  ['primary', colors.chalk, colors.board],
+  ['danger', colors.chalk, colors.danger],
+  ['soft', colors.focus, colors.soft],
+] as const)('%s inset focus and pressed border reach 3:1', (_name, foreground, background) => {
+  expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(3);
+});
+
 // Map attribution has a translucent backing on the sheet and its dot pattern.
 // Include paper too so moving the map onto the page does not weaken the text.
 test.each(['sheet', 'map-dots', 'paper'] as const)(
