@@ -830,6 +830,10 @@
     "year": "Year",
     "noYear": "Year not chosen",
     "tally": "{{year}}: {{pupils}}",
-    "short": "Year {{n}}"
+    "short": "Year {{n}}",
+    "confirm_one": "Confirm the session for one year",
+    "confirm_other": "Confirm the session for the {{count}} years",
+    "confirmNote": "Each year is confirmed as proposed. Tapping a proposal confirms it alone.",
+    "alone": "Confirms this year alone"
   }
 }

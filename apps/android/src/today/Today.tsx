@@ -7,32 +7,26 @@
 // and a recorded session shows what it wrote. Nothing is recorded until the
 // teacher taps (PRD §2.3), and the tap can be undone at once: the history
 // keeps both changes (PRD §4.7). «نتيجة أخرى» records any other outcome in
-// a second tap (#33). A reason for a skip or a session not held goes into
-// the session's private note only. A second choice in the same sheet keeps
-// the first one's undo, so «تراجع» brings back what was there before the
-// sheet, note included. The session's details come with their own screen.
+// a second tap (#33); today-actions.ts records the taps and their undo. The
+// session's details come with their own screen.
 // Earlier sessions still awaiting confirmation come first, a week at a
 // time, to confirm at once but for the ones left out (#35).
 // A holiday, a closure or an exam week shows its name, the sessions it
 // took, counted apart, and the next session (#36). Every session card
 // carries its roll call, whatever its kind (#184), and the backlog a past
-// one's from the paper sheet (#38).
+// one's from the paper sheet (#38). A joint class's years share one card for
+// each slot, each on its own plan (#43, P-Multi).
 
 import {
   addDays,
   backlogOf,
   carryTo,
-  confirmSessions,
+  courseGrade,
   courseSetup,
-  current,
   formatDayWithMonth,
   nextSession,
-  refOf,
   todayView,
   weekday,
-  type Choice,
-  type Reason,
-  type RecordEvent,
   type Session,
   type TodaySession,
 } from '@minhajna/core';
@@ -42,11 +36,12 @@ import { ScrollView, StyleSheet, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '../components/IconButton';
 import { PageHeading } from '../components/PageHeading';
+import { JointCard, type JointYear } from './JointCard';
 import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
-import { localized } from '../setup/names';
+import { localized, yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
@@ -57,10 +52,9 @@ import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { rollStrip } from './roll-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
+import { todayEntries } from './joint-today';
+import { useTodayActions } from './today-actions';
 import { sessionMeta } from './today-meta';
-
-/** The session just recorded, and the events that bring back what was there before. */
-type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; readonly message: string };
 
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
@@ -76,7 +70,6 @@ export function Today(props: {
   const { direction } = useLocale();
   const t = useText();
   const { state, profile, year, calendar, packs, bells, today, record, recordAll } = useAppData();
-  const [done, setDone] = useState<Done | null>(null);
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const other = useRef<ViewInstance>(null);
   const backlogOther = useRef<ViewInstance>(null);
@@ -98,59 +91,10 @@ export function Today(props: {
   );
   const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
 
+  const { done, confirm, confirmAll, keepReason, undo } = useTodayActions(context, t, record, recordAll);
+
   const metaOf = (item: TodaySession, withSubject: boolean) =>
     sessionMeta({ state, profile, bells, calendar }, t, direction, item, withSubject);
-
-  const confirm = (item: TodaySession, choice?: Choice) => {
-    const key = item.session.key;
-    const before = current(state.sessions.get(key));
-    const undo: readonly RecordEvent[] =
-      done?.key === key
-        ? done.undo
-        : [
-            before === null
-              ? { kind: 'session.withdrawn', session: refOf(item.session) }
-              : { kind: 'session.recorded', record: before },
-          ];
-    recordAll(confirmSessions(context, [{ session: item.session, ...(choice !== undefined && { choice }) }]));
-    const kind = choice?.outcome;
-    const message = t(
-      kind === 'partial' ? 'outcome.snackPartial' : kind === 'not-held' ? 'outcome.snackNotHeld' : 'today.snack',
-    );
-    setDone({ key, undo, message });
-  };
-
-  const confirmAll = (items: readonly TodaySession[]) => {
-    recordAll(
-      confirmSessions(
-        context,
-        items.map((item) => ({ session: item.session })),
-      ),
-    );
-    setDone({
-      key: 'backlog',
-      undo: items.map((item) => ({ kind: 'session.withdrawn', session: refOf(item.session) })),
-      message: t('backlog.snack', { count: items.length }),
-    });
-  };
-
-  const keepReason = (item: TodaySession, reason: Reason | undefined, text: string | undefined) => {
-    const key = item.session.key;
-    const earlier = state.notes.get(key);
-    if (earlier?.reason === reason && earlier?.reasonText === text) return;
-    record({
-      kind: 'session.noted',
-      note: {
-        sessionKey: key,
-        ...(earlier?.note !== undefined && { note: earlier.note }),
-        ...(reason !== undefined && { reason }),
-        ...(text !== undefined && { reasonText: text }),
-      },
-    });
-    if (done?.key === key && !done.undo.some((event) => event.kind === 'session.noted')) {
-      setDone({ ...done, undo: [...done.undo, { kind: 'session.noted', note: earlier ?? { sessionKey: key } }] });
-    }
-  };
 
   const nextLine = (session: Session) => {
     const course = state.courses.get(session.courseId);
@@ -207,6 +151,45 @@ export function Today(props: {
     return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lesson} due={due} />;
   };
 
+  const jointCard = (key: string, items: readonly TodaySession[]) => {
+    const schoolClass = state.classes.get(items[0]?.course.classId ?? '');
+    const first = items[0];
+    if (schoolClass === undefined || first === undefined) return null;
+    const ready = items.filter((item) => item.status === 'awaiting' && item.proposal !== null);
+    const onFocus = focus !== undefined && items.includes(focus);
+    const years = items.map((item): JointYear => {
+      const grade = courseGrade(item.course, schoolClass);
+      const pack = courseSetup(context, item.course.id).pack;
+      const head = { id: grade, badge: grade.replace(/\D/g, ''), name: yearShort(t, grade) };
+      if (item.status === 'recorded' && item.record !== null) {
+        const show = { id: `fix-${grade}`, label: t('fix.open'), onPress: () => onDetails(item.session) };
+        return { ...head, kind: 'done', written: writtenOf(t, pack, item.record, comma), show };
+      }
+      if (onFocus && item.proposal !== null && ready.includes(item)) {
+        const proposal = proposalOf(t, pack, item.proposal);
+        return { ...head, kind: 'proposal', proposal, onConfirm: () => confirm(item), hint: t('joint.alone') };
+      }
+      const show = { id: `details-${grade}`, label: t('entry.open'), onPress: () => onDetails(item.session) };
+      return { ...head, kind: 'lesson', lesson: lessonOf(t, item).lesson, ...(onFocus && { show }) };
+    });
+    return (
+      <JointCard
+        key={key}
+        testID={`today-${key}`}
+        meta={{ ...metaOf(first, true), className: schoolClass.name }}
+        years={years}
+        due={rollStrip(t, context, first.session, onRoll)}
+        {...(onFocus && {
+          confirm: {
+            label: t('joint.confirm', { count: ready.length }),
+            note: t('joint.confirmNote'),
+            onConfirm: () => confirmAll(ready, key),
+          },
+        })}
+      />
+    );
+  };
+
   return (
     <View style={[styles.screen, { direction, paddingTop: insets.top }]}>
       <ScrollView
@@ -249,7 +232,9 @@ export function Today(props: {
               paper={<PaperRolls context={context} from={backlog.week ?? day} to={addDays(day, -1)} onRoll={onRoll} />}
             />
           )}
-          {shown.map(card)}
+          {todayEntries(state, shown).map((entry) =>
+            entry.kind === 'one' ? card(entry.item) : jointCard(entry.key, entry.items),
+          )}
           {mark !== null && mark.effect !== 'exam' && taken > 0 && (
             <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />
           )}
@@ -283,10 +268,7 @@ export function Today(props: {
           message={done.message}
           undoLabel={t('today.undo')}
           bottomOffset={0}
-          onUndo={() => {
-            recordAll(done.undo);
-            setDone(null);
-          }}
+          onUndo={undo}
         />
       )}
     </View>
