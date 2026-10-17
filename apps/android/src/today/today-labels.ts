@@ -52,7 +52,7 @@ export function lessonOf(t: Translate, item: TodaySession): { lesson: string; no
 
 /** What a recorded session wrote: the items it taught or taught again, the one it skipped, or that it was not held. */
 export function writtenOf(t: Translate, pack: PlanPack | null, record: SessionRecord, comma: string): string {
-  if (record.outcome === 'not-held') return t('today.notHeld');
+  if (record.outcome === 'not-held') return t(record.makeUp === true ? 'today.notHeldMakeUp' : 'today.notHeld');
   const title = (id: string) => pack?.items.find((item) => item.id === id)?.title ?? id;
   const titles = record.coverage.flatMap((cover) => (cover.op === 'skipped' ? [] : [title(cover.item)]));
   if (titles.length > 0) return titles.join(comma);

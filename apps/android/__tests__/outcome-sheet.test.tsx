@@ -78,7 +78,8 @@ test('«نتيجة أخرى» for an item without stages: it goes on, and closin
       '4م1 · ⁧08:00 – 09:00⁩ · تقويم تشخيصي (مثال)',
       text.outcome.noStages,
       text.outcome.goesOn,
-      'ويُقترح بعده «الوضعية المشكلة الانطلاقية 1 (مثال)».',
+      'حصة واحدة حتى الآن. يُكمل في حصة الخميس 15/10 (تابع).',
+      'في حصة واحدة. ويُقترح بعده «الوضعية المشكلة الانطلاقية 1 (مثال)»، الخميس 15/10.',
       text.outcome.merged,
       text.outcome.skip,
       text.outcome.notHeld,
@@ -108,7 +109,14 @@ test('merged with the next item, then the last stage reached on a lesson with st
   expect(current(data.book.state.sessions.get(key(1)))?.outcome).toBe('merged');
   await press(`today-${key(2)}-other`);
   expect(shown()).toEqual(
-    expect.arrayContaining([text.outcome.reached, 'تهيئة', 'بناء', 'تطبيق', 'تقويم', text.outcome.carry]),
+    expect.arrayContaining([
+      text.outcome.reached,
+      'تهيئة',
+      'بناء',
+      'تطبيق',
+      'تقويم',
+      'ما بقي يُكمل في حصة الخميس 22/10 (تابع).',
+    ]),
   );
   expect(shown()).toContain(text.outcome.retaught);
   expect(shown()).toContain('الوضعية المشكلة الانطلاقية 1 (مثال)');
@@ -154,7 +162,7 @@ test('a session not held is recorded on the second tap, and its reason stays in 
   expect(sheetOpen()).toBe(true);
   expect(shown()).toEqual(
     expect.arrayContaining([
-      'سُجّلت «لم تُعقد الحصة». ويبقى «تقويم تشخيصي (مثال)» أول القائمة، فيُقترح في الحصة القادمة.',
+      'سُجّلت «لم تُعقد الحصة». ويبقى «تقويم تشخيصي (مثال)» أول القائمة، فيُقترح الخميس 15/10.',
       text.outcome.private,
       text.outcome.statement,
       text.outcome.snackNotHeld,
@@ -212,4 +220,25 @@ test('a skip closed without a reason stays recorded, with no note', async () => 
   await press('outcome-reason-holiday');
   await press('outcome-done');
   expect(data.book.state.notes.get(key(2))).toEqual({ sessionKey: key(2), reason: 'holiday' });
+});
+
+test('a session not held can be marked to be made up, and a reason is kept as soon as it is chosen', async () => {
+  const data = await withDay();
+  await show(data);
+  await press(`today-${key(1)}-other`);
+  await press('outcome-not-held');
+  expect(shown()).toEqual(expect.arrayContaining([text.outcome.makeUp, text.outcome.makeUpNote]));
+  await press('outcome-make-up');
+  expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'not-held', makeUp: true });
+  await press('outcome-reason-closure');
+  expect(data.book.state.notes.get(key(1))).toEqual({ sessionKey: key(1), reason: 'closure' });
+  expect(JSON.stringify(data.book.state.sessions.get(key(1)))).not.toContain('closure');
+  await press('sheet-close');
+  expect(sheetOpen()).toBe(false);
+  expect(shown()).toContain(text.today.notHeldMakeUp);
+  await press(`today-${key(2)}-other`);
+  await press('outcome-not-held');
+  await press('outcome-make-up');
+  await press('outcome-make-up');
+  expect(current(data.book.state.sessions.get(key(2)))?.makeUp).toBeUndefined();
 });
