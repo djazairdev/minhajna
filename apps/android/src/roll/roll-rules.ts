@@ -8,6 +8,8 @@
 // saved, so stepping away from the screen loses nothing (PRD §6.8).
 
 import {
+  compareDays,
+  compareSessions,
   current,
   pupilsFor,
   rollCallUnits,
@@ -17,13 +19,31 @@ import {
   type RollCallUnit,
 } from '@minhajna/core';
 
+/** Every class's roll-call units from `from` to `to`, in the order of their first sessions. */
+function unitsBetween(context: Context, from: Day, to: Day): RollCallUnit[] {
+  return [...new Set([...context.state.courses.values()].map((course) => course.classId))]
+    .flatMap((classId) => rollCallUnits(context, classId, from, to))
+    .sort((a, b) => compareSessions(a.sessions[0], b.sessions[0]));
+}
+
 /** The unit that covers a session: the session itself, or its half-day. */
 export function unitOf(context: Context, sessionKey: string, day: Day): RollCallUnit | null {
-  const units = [...context.state.courses.values()]
-    .map((course) => course.classId)
-    .filter((classId, index, all) => all.indexOf(classId) === index)
-    .flatMap((classId) => rollCallUnits(context, classId, day, day));
-  return units.find((unit) => unit.sessions.some((one) => one.key === sessionKey)) ?? null;
+  return unitsBetween(context, day, day).find((unit) => unit.sessions.some((one) => one.key === sessionKey)) ?? null;
+}
+
+/**
+ * The roll calls still to enter from the paper sheet between two days: a
+ * class list to call, no roll call recorded, and not every session
+ * recorded as not held.
+ */
+export function rollsToEnter(context: Context, from: Day, to: Day): RollCallUnit[] {
+  if (compareDays(from, to) > 0) return [];
+  return unitsBetween(context, from, to).filter(
+    (unit) =>
+      current(context.state.rollCalls.get(unit.key)) === null &&
+      pupilsFor(context, unit).length > 0 &&
+      !unit.sessions.every((session) => current(context.state.sessions.get(session.key))?.outcome === 'not-held'),
+  );
 }
 
 /** The marks recorded for a unit, or null before its roll call is taken. */

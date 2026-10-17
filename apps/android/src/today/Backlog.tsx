@@ -9,10 +9,11 @@
 // button confirms the rest at once; nothing is recorded before it (PRD
 // §2.6). The list is for the screen only (PRD §3.9). A session without a
 // proposal cannot be confirmed as proposed, so it is left out already.
+// Under the hints, the screen may add «إدخال مناداة من الورقة» (#38).
 
 import type { Session, TodaySession } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState, type Ref } from 'react';
+import { useState, type ReactNode, type Ref } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { Button } from '../components/Button';
 import { CheckRow } from '../components/CheckRow';
@@ -36,6 +37,8 @@ export interface BacklogProps {
   readonly onConfirm: (items: readonly TodaySession[]) => void;
   readonly onOther: (item: TodaySession) => void;
   readonly onDetails: (session: Session) => void;
+  /** «إدخال مناداة من الورقة», under the hints. */
+  readonly paper?: ReactNode;
 }
 
 export function Backlog(props: BacklogProps) {
@@ -105,6 +108,7 @@ export function Backlog(props: BacklogProps) {
       />
       <Text style={[styles.note, align]}>{t('backlog.hint')}</Text>
       {props.later && <Text style={[styles.note, align]}>{t('backlog.later')}</Text>}
+      {props.paper}
     </View>
   );
 }

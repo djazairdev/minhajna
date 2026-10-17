@@ -649,6 +649,9 @@
     "unavailable": "This session has no roll call.",
     "none": "No absence recorded",
     "allPresent": "Roll call saved: everyone present",
-    "marked": "Roll call saved · absent: {{absent}} · late: {{late}}"
+    "marked": "Roll call saved · absent: {{absent}} · late: {{late}}",
+    "paper": "Enter a roll call from the paper sheet",
+    "paperSub": "For an earlier session, recorded on that session's date",
+    "paperNone": "No earlier session in these days is waiting for its roll call."
   }
 }

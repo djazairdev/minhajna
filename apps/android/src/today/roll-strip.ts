@@ -4,9 +4,10 @@
 // The roll call inside a session's card on Today (#38): «لا غياب مسجّل»
 // until it is taken, then what it recorded, and «المناداة», which opens it.
 // Lessons and the register are joined by the session (PRD §2.5). A session
-// recorded as not held has no roll call to take.
+// recorded as not held, or a class with no list yet, has no roll call to
+// take.
 
-import { current, type Context, type Session } from '@minhajna/core';
+import { current, pupilsFor, type Context, type Session } from '@minhajna/core';
 import type { DueStripProps } from '../components/DueStrip';
 import { controlIcon } from '../design/Icon';
 import type { useText } from '../text/i18n';
@@ -20,7 +21,7 @@ export function rollStrip(
   onOpen: (session: Session) => void,
 ): DueStripProps[] {
   const unit = unitOf(context, session.key, session.day);
-  if (unit === null) return [];
+  if (unit === null || pupilsFor(context, unit).length === 0) return [];
   const marks = recordedMarks(context, unit);
   if (marks === null && current(context.state.sessions.get(session.key))?.outcome === 'not-held') return [];
   const fact =
