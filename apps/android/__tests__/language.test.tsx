@@ -64,7 +64,7 @@ test('does nothing when the current language is chosen again', () => {
 async function welcome() {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(<Welcome standalone />);
+    tree = ReactTestRenderer.create(<Welcome />);
   });
   return tree!;
 }

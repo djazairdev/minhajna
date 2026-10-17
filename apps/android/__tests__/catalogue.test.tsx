@@ -172,14 +172,14 @@ test.each(LANGUAGES)('has no empty text (%s)', (language) => {
 
 test.each(LANGUAGES)('shows only catalogue texts on the welcome page, refusals included (%s)', async (language) => {
   await speak(language);
-  const tree = await render(<Welcome standalone referenceRefused historyRefused />);
+  const tree = await render(<Welcome referenceRefused historyRefused />);
   expect(notInCatalogue(tree)).toEqual([]);
   expect(missingKeys).toEqual([]);
 });
 
 test.each(LANGUAGES)('shows only catalogue texts on every tab and on the inner screen (%s)', async (language) => {
   await speak(language);
-  const tree = await render(<AppNavigator direction={language === 'ar' ? 'rtl' : 'ltr'} />);
+  const tree = await render(<AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />);
   for (const tab of ['Today', 'Classes', 'Documents']) {
     await press(tree, (props) => props.testID === `tab-${tab}`);
     expect(notInCatalogue(tree)).toEqual([]);

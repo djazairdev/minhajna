@@ -10,7 +10,7 @@ import { HelpPage, HelpRow, helpStyles } from './HelpPage';
 import { SourceLink } from './SourceLink';
 import { useAppLicences } from './useAppLicences';
 
-/** About/licences only; reports, settings and privacy controls remain later work. */
+/** The privacy notice, connections and licences; reports, settings and privacy controls remain later work. */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
   const t = useText();
   return (
@@ -18,6 +18,8 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
       <Text accessibilityRole="header" style={helpStyles.heading}>
         {t('help.about')}
       </Text>
+      <HelpRow label={t('privacy.helpTitle')} onPress={() => navigation.navigate('PrivacyNotice')} />
+      <HelpRow label={t('connections.title')} onPress={() => navigation.navigate('Connections')} />
       <HelpRow label={t('help.licences')} detail={t('help.offline')} onPress={() => navigation.navigate('Licences')} />
     </HelpPage>
   );

@@ -15,6 +15,7 @@ import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
+import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -58,6 +59,11 @@ export const entries: readonly GalleryEntry[] = [
     render: (sample) => <SectionHeaderSamples key={sample.title} sample={sample} />,
   },
   {
+    name: 'Facts',
+    design: 'docs/design/system/components/Facts/README.md',
+    render: () => <FactsSamples />,
+  },
+  {
     name: 'Notice',
     design: 'docs/design/system/components/Notice/README.md',
     render: (sample) => <NoticeSamples sample={sample} />,
@@ -71,6 +77,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'TextField',
     design: 'docs/design/system/components/TextField/README.md',
     render: (sample) => <TextFieldSamples key={sample.title} sample={sample} />,
+  },
+  {
+    name: 'WelcomeHero',
+    design: 'docs/design/system/components/WelcomeHero/README.md',
+    render: () => <WelcomeHeroSamples />,
   },
   {
     name: 'TopBar',

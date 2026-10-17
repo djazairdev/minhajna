@@ -27,7 +27,7 @@ afterEach(async () => {
 
 async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(<AppNavigator direction={direction} />);
+    tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction={direction} />);
   });
 }
 

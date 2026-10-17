@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 The Minhajna contributors
+  SPDX-License-Identifier: AGPL-3.0-or-later
+
+  The app draws these by name from JavaScript (src/design/Icon.tsx), which
+  no resource shrinker can see, so they are kept.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/icon_*,@drawable/minhajna_mim,@drawable/chalk_line,@drawable/chalk_dust" />
