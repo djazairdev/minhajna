@@ -684,5 +684,10 @@
     "td": "الأعمال الموجهة",
     "taughtSpoken": "دُرّس {{days}}",
     "aheadSpoken": "يُبلغ {{day}} إن بقي كل شيء كما هو"
+  },
+  "roll": {
+    "absent": "غياب",
+    "late": "تأخر",
+    "spoken": "{{state}}: {{name}}"
   }
 }
