@@ -9,7 +9,8 @@ import { PageHeading } from '../components/PageHeading';
 import { SectionHeader } from '../components/SectionHeader';
 import type { ControlIcon } from '../components/control';
 import { colors, spacing, typography } from '../design/tokens';
-import { fill, type Sample } from './samples';
+import { headingTexts } from './heading-texts';
+import { fill, type SampleProps } from './samples';
 
 /** Geometric decorations keep the gallery offline and add no extra spoken names. */
 const information: ControlIcon = ({ size, color }) => (
@@ -64,9 +65,9 @@ const settings: ControlIcon = ({ size, color }) => (
 );
 
 /** Today with real action targets, a long title, and a name/scope-only screen heading. */
-export function PageHeadingSamples({ sample }: { sample: Sample }) {
+export function PageHeadingSamples({ sample, language }: SampleProps) {
   const [count, setCount] = useState(0);
-  const words = sample.headings;
+  const words = headingTexts[language];
   const activate = () => setCount((previous) => previous + 1);
   const actions = (
     <>
@@ -93,9 +94,9 @@ export function PageHeadingSamples({ sample }: { sample: Sample }) {
 }
 
 /** Plain, counted, empty and actionable sections, plus a long label; callbacks change only a synthetic count. */
-export function SectionHeaderSamples({ sample }: { sample: Sample }) {
+export function SectionHeaderSamples({ sample, language }: SampleProps) {
   const [count, setCount] = useState(0);
-  const words = sample.headings;
+  const words = headingTexts[language];
   return (
     <View style={styles.group}>
       <SectionHeader label={words.section} />

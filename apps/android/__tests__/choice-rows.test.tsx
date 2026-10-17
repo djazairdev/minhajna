@@ -11,6 +11,7 @@ import { CheckRow, type CheckRowProps } from '../src/components/CheckRow';
 import { OptionRow, type OptionRowProps } from '../src/components/OptionRow';
 import type { ControlIcon } from '../src/components/control';
 import { colorRoles, colors } from '../src/design/tokens';
+import { choiceTexts } from '../src/gallery/choice-texts';
 import { samples } from '../src/gallery/samples';
 
 const icon: ControlIcon = ({ size, color }) => (
@@ -72,7 +73,7 @@ describe.each(['rtl', 'ltr'] as const)('CheckRow (%s)', (direction) => {
     'checked=%s disabled=%s exposes one checkbox and requests the next value',
     async (checked, disabled) => {
       const onCheckedChange = jest.fn();
-      const label = samples.ar.choices.check;
+      const label = choiceTexts.ar.check;
       await render(
         <CheckRow label={label} checked={checked} disabled={disabled} onCheckedChange={onCheckedChange} />,
         direction,
@@ -129,13 +130,13 @@ describe.each(['rtl', 'ltr'] as const)('CheckRow (%s)', (direction) => {
 describe.each(['rtl', 'ltr'] as const)('OptionRow (%s)', (direction) => {
   test.each(
     [undefined, false, true].flatMap((selected) =>
-      [undefined, samples.ar.choices.privacy].flatMap((sub) =>
+      [undefined, choiceTexts.ar.privacy].flatMap((sub) =>
         [false, true].map((disabled) => [selected, sub, disabled] as const),
       ),
     ),
   )('selected=%s sub=%s disabled=%s keeps words and selection on one action', async (selected, sub, disabled) => {
     const onPress = jest.fn();
-    const label = samples.ar.choices.option;
+    const label = choiceTexts.ar.option;
     await render(
       <OptionRow label={label} sub={sub} icon={icon} selected={selected} disabled={disabled} onPress={onPress} />,
       direction,
@@ -183,7 +184,7 @@ describe.each(['rtl', 'ltr'] as const)('OptionRow (%s)', (direction) => {
     await render(
       <OptionRow
         label={samples.ar.longHeading}
-        sub={samples.ar.choices.privacy}
+        sub={choiceTexts.ar.privacy}
         icon={icon}
         directional={directional}
         onPress={() => undefined}
@@ -206,10 +207,7 @@ describe.each(['rtl', 'ltr'] as const)('OptionRow (%s)', (direction) => {
     });
     await ReactTestRenderer.act(() => control().onBlur?.({} as never));
     expect(rings()).toHaveLength(0);
-    await render(
-      <OptionRow label={samples.ar.choices.option} icon={icon} disabled onPress={() => undefined} />,
-      direction,
-    );
+    await render(<OptionRow label={choiceTexts.ar.option} icon={icon} disabled onPress={() => undefined} />, direction);
     await ReactTestRenderer.act(() => control().onFocus?.({} as never));
     expect(rings()).toHaveLength(0);
   });
@@ -218,9 +216,9 @@ describe.each(['rtl', 'ltr'] as const)('OptionRow (%s)', (direction) => {
 /** The screens must supply both the state and a callback; an option also needs a meaningful label and icon. */
 function propContracts() {
   // @ts-expect-error Checkboxes cannot infer their state.
-  const stateless: CheckRowProps = { label: samples.ar.choices.check, onCheckedChange: () => undefined };
+  const stateless: CheckRowProps = { label: choiceTexts.ar.check, onCheckedChange: () => undefined };
   // @ts-expect-error Checkboxes cannot request a change without a callback.
-  const inactive: CheckRowProps = { label: samples.ar.choices.check, checked: false };
+  const inactive: CheckRowProps = { label: choiceTexts.ar.check, checked: false };
   // @ts-expect-error Options require a visible and spoken label.
   const unnamed: OptionRowProps = { icon, onPress: () => undefined };
   return [stateless, inactive, unnamed];

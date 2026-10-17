@@ -9,7 +9,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { TextField, type TextFieldProps } from '../src/components/TextField';
 import { colorRoles, colors, typography } from '../src/design/tokens';
-import { samples } from '../src/gallery/samples';
+import { fieldTexts } from '../src/gallery/text-field-texts';
 
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
   __esModule: true,
@@ -23,8 +23,8 @@ beforeEach(() => {
 
 let tree: ReactTestRenderer.ReactTestRenderer;
 const base = {
-  label: samples.ar.fields.label,
-  placeholder: samples.ar.fields.example,
+  label: fieldTexts.ar.label,
+  placeholder: fieldTexts.ar.example,
   value: '',
   onChangeText: jest.fn(),
 };
@@ -58,7 +58,7 @@ describe.each(['rtl', 'ltr'] as const)('TextField (%s)', (direction) => {
   test.each(['empty', 'filled', 'area', 'optional', 'error', 'code', 'number'] as const)(
     '%s is named and large enough',
     async (state) => {
-      const text = samples.ar.fields;
+      const text = fieldTexts.ar;
       const states: Record<typeof state, Partial<TextFieldProps>> = {
         empty: {},
         filled: { value: text.value },
@@ -133,14 +133,14 @@ describe.each(['rtl', 'ltr'] as const)('TextField (%s)', (direction) => {
     await ReactTestRenderer.act(() =>
       tree.update(
         <LocaleDirContext.Provider value={direction}>
-          <TextField {...base} error={samples.ar.fields.error} />
+          <TextField {...base} error={fieldTexts.ar.error} />
         </LocaleDirContext.Provider>,
       ),
     );
     expect(input().accessibilityLabelledBy).toBe(id);
-    expect(label().accessibilityLabel).toContain(samples.ar.fields.error);
+    expect(label().accessibilityLabel).toContain(fieldTexts.ar.error);
     const error = tree.root.findAllByType(Text).find((node) => node.props.accessibilityLiveRegion === 'polite');
-    expect(error?.props.children).toBe(samples.ar.fields.error);
+    expect(error?.props.children).toBe(fieldTexts.ar.error);
     expect(StyleSheet.flatten((error?.props as TextProps).style)).toMatchObject({ color: colors['error-ink'] });
     await ReactTestRenderer.act(() =>
       tree.update(

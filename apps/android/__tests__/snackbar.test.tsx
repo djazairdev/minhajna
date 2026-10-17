@@ -9,7 +9,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { Snackbar } from '../src/components/Snackbar';
 import { colors, shadows } from '../src/design/tokens';
-import { samples } from '../src/gallery/samples';
+import { feedbackTexts } from '../src/gallery/feedback-texts';
 
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
   __esModule: true,
@@ -40,12 +40,7 @@ async function render(message: string, onUndo = jest.fn(), direction: 'rtl' | 'l
     tree = ReactTestRenderer.create(
       <SafeAreaInsetsContext.Provider value={insets}>
         <LocaleDirContext.Provider value={direction}>
-          <Snackbar
-            message={message}
-            undoLabel={samples.ar.feedback.undo}
-            onUndo={onUndo}
-            bottomOffset={bottomOffset}
-          />
+          <Snackbar message={message} undoLabel={feedbackTexts.ar.undo} onUndo={onUndo} bottomOffset={bottomOffset} />
         </LocaleDirContext.Provider>
       </SafeAreaInsetsContext.Provider>,
     );
@@ -56,7 +51,7 @@ describe.each(['rtl', 'ltr'] as const)('Snackbar (%s)', (direction) => {
   test.each(['confirmation', 'longConfirmation'] as const)(
     '%s is a polite status with a separate Undo target',
     async (key) => {
-      const message = samples.ar.feedback[key];
+      const message = feedbackTexts.ar[key];
       const onUndo = jest.fn();
       await render(message, onUndo, direction);
       expect(accessibilityProblems(tree.root)).toEqual([]);
@@ -78,7 +73,7 @@ describe.each(['rtl', 'ltr'] as const)('Snackbar (%s)', (direction) => {
         backgroundColor: colors.board,
         boxShadow: shadows['shadow-snack'],
       });
-      expect(control()).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: samples.ar.feedback.undo });
+      expect(control()).toMatchObject({ accessibilityRole: 'button', accessibilityLabel: feedbackTexts.ar.undo });
       expect(actionBox()).toMatchObject({ minHeight: 48, minWidth: 48 });
       expect(actionBox(true).borderColor).toBe(colors.hi);
       await ReactTestRenderer.act(() => {
@@ -97,7 +92,7 @@ describe.each(['rtl', 'ltr'] as const)('Snackbar (%s)', (direction) => {
 
   test('shows a high-contrast inset focus ring without moving focus to the status', async () => {
     const moveFocus = jest.spyOn(AccessibilityInfo, 'setAccessibilityFocus');
-    await render(samples.ar.feedback.confirmation, jest.fn(), direction);
+    await render(feedbackTexts.ar.confirmation, jest.fn(), direction);
     await ReactTestRenderer.act(() => control().onFocus?.({} as never));
     const rings = () => tree.root.findAll((node) => node.props.accessible === false);
     expect(StyleSheet.flatten((rings()[0].props as ViewProps).style)).toMatchObject({
@@ -112,14 +107,14 @@ describe.each(['rtl', 'ltr'] as const)('Snackbar (%s)', (direction) => {
 });
 
 test('a changed message remains a polite status and uses the new callback and actual navigation offset', async () => {
-  await render(samples.ar.feedback.confirmation);
+  await render(feedbackTexts.ar.confirmation);
   const onUndo = jest.fn();
   await ReactTestRenderer.act(() => {
     tree.update(
       <SafeAreaInsetsContext.Provider value={insets}>
         <Snackbar
-          message={samples.ar.feedback.longConfirmation}
-          undoLabel={samples.ar.feedback.undo}
+          message={feedbackTexts.ar.longConfirmation}
+          undoLabel={feedbackTexts.ar.undo}
           onUndo={onUndo}
           bottomOffset={112}
         />
@@ -128,7 +123,7 @@ test('a changed message remains a polite status and uses the new callback and ac
   });
   const status = tree.root.findAllByType(Text).find((node) => node.props.role === 'status')!;
   expect(status.props).toMatchObject({
-    children: samples.ar.feedback.longConfirmation,
+    children: feedbackTexts.ar.longConfirmation,
     accessibilityLiveRegion: 'polite',
   });
   const root = tree.root.findAllByType(View).find((node) => node.props.testID === 'snackbar')!;
@@ -141,7 +136,7 @@ test('a changed message remains a polite status and uses the new callback and ac
 
 test('at 200% the message and Undo stack, with no fixed height or maximum text size', async () => {
   jest.mocked(useWindowDimensions).mockReturnValue({ ...window, fontScale: 2 });
-  await render(samples.ar.feedback.longConfirmation);
+  await render(feedbackTexts.ar.longConfirmation);
   const root = tree.root.findAllByType(View).find((node) => node.props.testID === 'snackbar')!;
   const style = StyleSheet.flatten((root.props as ViewProps).style);
   expect(style).toMatchObject({ flexDirection: 'column', alignItems: 'stretch' });
@@ -154,7 +149,7 @@ test('does not expire Undo or invoke it automatically', async () => {
   jest.useFakeTimers();
   try {
     const onUndo = jest.fn();
-    await render(samples.ar.feedback.confirmation, onUndo);
+    await render(feedbackTexts.ar.confirmation, onUndo);
     await ReactTestRenderer.act(() => {
       jest.advanceTimersByTime(60_000);
     });

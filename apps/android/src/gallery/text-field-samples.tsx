@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { TextField, type TextFieldProps } from '../components/TextField';
 import { spacing } from '../design/tokens';
-import type { Sample } from './samples';
+import type { SampleProps } from './samples';
+import { fieldTexts } from './text-field-texts';
 
 /** Gallery edits are transient, synthetic content, never records or persisted form values. */
 function EditableSample({ value: initial, ...props }: Omit<TextFieldProps, 'onChangeText'>) {
@@ -14,8 +15,8 @@ function EditableSample({ value: initial, ...props }: Omit<TextFieldProps, 'onCh
 }
 
 /** Empty, filled, growing, optional and invalid fields, plus LTR code and number entry. */
-export function TextFieldSamples({ sample }: { sample: Sample }) {
-  const text = sample.fields;
+export function TextFieldSamples({ language }: SampleProps) {
+  const text = fieldTexts[language];
   const base = { label: text.label, placeholder: text.example };
   return (
     <View style={styles.group}>
