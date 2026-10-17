@@ -36,7 +36,7 @@ export function Plan({ onChange, onFinish }: { onChange: (group: PlanGroup) => v
   const card = (group: PlanGroup) => {
     const pins = group.classes.map((schoolClass) => ({
       schoolClass,
-      pin: pinOfClass(state, schoolClass.id, group.subject, year.id),
+      pin: pinOfClass(state, schoolClass.id, group.subject, year.id, group.grade),
     }));
     const pinned = pins.find((entry) => entry.pin !== null)?.pin ?? null;
     const pack = packOfPin(packs, pinned);

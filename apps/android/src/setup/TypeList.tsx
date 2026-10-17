@@ -6,9 +6,10 @@
 // added, the list is sorted alphabetically, and there is no limit on its size.
 // Tapping a pupil loads them back into the form, to correct or remove. Until
 // the pilot, teachers type made-up names only, and the screen says so (choice
-// F1 of the field check, #49).
+// F1 of the field check, #49). In a joint class, each pupil's year is chosen
+// too, and the list counts each year's pupils (#43).
 
-import type { Pupil } from '@minhajna/core';
+import { isJoint, levelGroups, pupilGrade, type Pupil, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -21,31 +22,35 @@ import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { registrationTaken, sortedPupils, typedPupil } from './class-rules';
+import { withYear, yearTally } from './joint-rules';
+import { gradeName } from './names';
 
 type Sex = 'f' | 'm';
 
-/** The form, empty for a new pupil or filled with the one being corrected. */
-function useForm() {
+/** The form, empty for a new pupil or filled with the one being corrected; a joint class's year stays chosen. */
+function useForm(schoolClass: SchoolClass | undefined) {
   const [editing, setEditing] = useState<Pupil | null>(null);
   const [name, setName] = useState('');
   const [sex, setSex] = useState<Sex>('m');
   const [registration, setRegistration] = useState('');
+  const [year, setYear] = useState<string | null>(null);
   const load = (pupil: Pupil | null) => {
     setEditing(pupil);
     setName(pupil?.name ?? '');
     if (pupil) setSex(pupil.sex);
     setRegistration(pupil?.registration ?? '');
+    if (pupil && schoolClass) setYear(pupilGrade(pupil, schoolClass) ?? null);
   };
-  return { editing, name, setName, sex, setSex, registration, setRegistration, load };
+  return { editing, name, setName, sex, setSex, registration, setRegistration, year, setYear, load };
 }
 
 /** One typed pupil, in the list's order. */
-function Row({ pupil, at, onPress }: { pupil: Pupil; at: number; onPress: () => void }) {
+function Row({ pupil, at, year, onPress }: { pupil: Pupil; at: number; year?: string; onPress: () => void }) {
   const { direction } = useLocale();
   const t = useText();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sex = pupil.sex === 'f' ? t('setup.female') : t('setup.male');
-  const second = pupil.registration ?? t('setup.noRegistration');
+  const second = [year, pupil.registration ?? t('setup.noRegistration')].filter(Boolean).join(' · ');
   return (
     <Pressable
       testID={`pupil-${pupil.id}`}
@@ -58,7 +63,9 @@ function Row({ pupil, at, onPress }: { pupil: Pupil; at: number; onPress: () => 
       <Text style={styles.at}>{at}</Text>
       <View style={styles.words}>
         <Text style={[styles.name, align]}>{pupil.name}</Text>
-        <Text style={[styles.second, align, pupil.registration !== undefined && styles.number]}>{second}</Text>
+        <Text style={[styles.second, align, pupil.registration !== undefined && year === undefined && styles.number]}>
+          {second}
+        </Text>
       </View>
       <View style={styles.badge}>
         <Text style={styles.badgeText}>{sex}</Text>
@@ -72,20 +79,31 @@ export function TypeList({ classId, onDone }: { classId: string; onDone: () => v
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, record, erase, newId, unsaved } = useAppData();
-  const form = useForm();
+  const { state, profile, record, erase, newId, unsaved } = useAppData();
+  const schoolClass = state.classes.get(classId);
+  const joint = schoolClass !== undefined && isJoint(schoolClass) ? schoolClass : undefined;
+  const form = useForm(joint);
+  const yearOf = (pupil: Pupil) => {
+    const grade = joint && pupilGrade(pupil, joint);
+    return joint === undefined ? undefined : grade ? gradeName(profile, grade) : t('joint.noYear');
+  };
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const pupils = sortedPupils(state.pupils.values(), classId);
   const taken = registrationTaken(state.pupils.values(), classId, form.registration, form.editing?.id);
-  const ready = form.name.trim() !== '' && !taken;
+  const ready = form.name.trim() !== '' && !taken && (joint === undefined || form.year !== null);
   const keep = () => {
     if (!ready) return;
     const id = form.editing?.id ?? newId();
     const pupil = typedPupil({ id, classId, name: form.name, sex: form.sex }, form.registration);
     record({
       kind: 'pupil.set',
-      pupil: { ...pupil, groups: form.editing?.groups ?? [], movements: form.editing?.movements ?? [] },
+      pupil: {
+        ...pupil,
+        groups:
+          joint && form.year ? withYear(form.editing?.groups ?? [], joint, form.year) : (form.editing?.groups ?? []),
+        movements: form.editing?.movements ?? [],
+      },
     });
     form.load(null);
   };
@@ -118,6 +136,18 @@ export function TypeList({ classId, onDone }: { classId: string; onDone: () => v
             selected={form.sex}
             onSelect={form.setSex}
           />
+          {joint && (
+            <ChipGroup
+              testID="pupil-year"
+              label={t('joint.year')}
+              choices={levelGroups(joint).map((group) => ({
+                value: group.grade,
+                label: gradeName(profile, group.grade),
+              }))}
+              selected={form.year}
+              onSelect={form.setYear}
+            />
+          )}
           <TextField
             testID="pupil-registration"
             label={t('setup.registration')}
@@ -152,10 +182,19 @@ export function TypeList({ classId, onDone }: { classId: string; onDone: () => v
         <View style={styles.tally}>
           <Text style={[styles.count, align]}>{t('setup.typed', { count: pupils.length })}</Text>
           <Text style={[styles.sub, align]}>{t('setup.noLimit')}</Text>
+          {joint && (
+            <Text testID="year-tally" style={[styles.sub, styles.wide, align]}>
+              {yearTally(state.pupils.values(), joint)
+                .map(({ grade, count }) =>
+                  t('joint.tally', { year: gradeName(profile, grade), pupils: t('setup.pupils', { count }) }),
+                )
+                .join(' · ')}
+            </Text>
+          )}
         </View>
         <View>
           {pupils.map((pupil, index) => (
-            <Row key={pupil.id} pupil={pupil} at={index + 1} onPress={() => form.load(pupil)} />
+            <Row key={pupil.id} pupil={pupil} at={index + 1} year={yearOf(pupil)} onPress={() => form.load(pupil)} />
           ))}
         </View>
         {unsaved && (
@@ -191,6 +230,7 @@ const styles = StyleSheet.create({
   centre: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing['space-8'] },
   tally: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: spacing['space-8'] },
   count: { ...typography.label, color: colors.ink },
+  wide: { flexBasis: '100%' },
   row: {
     minHeight: sizes.target,
     minWidth: sizes.target,

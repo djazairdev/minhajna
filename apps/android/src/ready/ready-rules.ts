@@ -77,7 +77,7 @@ export function checkGroups(
     .map((group) => ({
       group,
       rows: group.classes.flatMap((schoolClass): CheckRow[] => {
-        const course = courseOf(context.state, schoolClass.id, group.subject, yearId);
+        const course = courseOf(context.state, schoolClass.id, group.subject, yearId, group.grade);
         if (course === undefined || course.pack === null) return [];
         const check = termCheck(context, course.id, context.ref.year.from, term);
         return check === null ? [] : [{ schoolClass, course, check }];

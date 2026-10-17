@@ -15,6 +15,17 @@ export function localized(name: LocalizedText): string {
   return name[currentLanguage()] ?? name.en ?? Object.values(name)[0] ?? '';
 }
 
+/** A year's name in the interface language, such as «السنة الرابعة ابتدائي». */
+export function gradeName(profile: CountryProfile, code: string): string {
+  const grade = profile.levels.flatMap((level) => level.grades).find((candidate) => candidate.code === code);
+  return grade ? localized(grade.name) : code;
+}
+
+/** A joint class's year as Today writes it, such as «4 ابتدائي». */
+export function yearShort(t: Translate, code: string): string {
+  return t('joint.short', { n: code.replace(/\D/g, '') });
+}
+
 /** The chips' short name for a level, as Setup-2-Teaching draws it. */
 export function levelName(t: Translate, profile: CountryProfile, code: string): string {
   const level = profile.levels.find((candidate) => candidate.code === code);

@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PageHeading } from '../components/PageHeading';
 import { SessionCard } from '../components/SessionCard';
 import { colors, spacing } from '../design/tokens';
-import { localized } from '../setup/names';
+import { localized, yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
@@ -71,7 +71,10 @@ export function ClassesTab({ onPlan }: { onPlan: (courseId: string) => void }) {
                 testID={`classes-${row.course.id}`}
                 kind="mini"
                 meta={{
-                  className: row.schoolClass.name,
+                  className:
+                    row.grade === undefined
+                      ? row.schoolClass.name
+                      : `${row.schoolClass.name} · ${yearShort(t, row.grade)}`,
                   slot: t('setup.pupils', { count: row.pupils }),
                   ...(extra.length > 0 && { subject: extra.join(' · ') }),
                 }}
