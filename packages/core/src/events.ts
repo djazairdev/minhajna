@@ -24,6 +24,15 @@ import type {
   TimetableVersion,
 } from './records.ts';
 
+/**
+ * Why a confirmed session was corrected: added after confirming, an entry
+ * error, or another reason, whose words stay in the private note. The code
+ * shows with the correction (PRD §5.5).
+ */
+export const CORRECTION_REASONS = ['added-later', 'entry-error', 'other'] as const;
+
+export type CorrectionReason = (typeof CORRECTION_REASONS)[number];
+
 export type RecordEvent =
   | { readonly kind: 'teacher.set'; readonly card: TeacherCard }
   | { readonly kind: 'teacher.personal.set'; readonly personal: TeacherPersonal }
@@ -35,8 +44,9 @@ export type RecordEvent =
   | { readonly kind: 'timetable.set'; readonly version: TimetableVersion }
   | { readonly kind: 'calendar.set'; readonly entry: CalendarEntry }
   // A session record never carries free text about why it changed: that is
-  // private, and goes into the session's note (PRD §5.4).
-  | { readonly kind: 'session.recorded'; readonly record: SessionRecord }
+  // private, and goes into the session's note (PRD §5.4). A correction may
+  // carry a coded reason, which shows with it (PRD §5.5).
+  | { readonly kind: 'session.recorded'; readonly record: SessionRecord; readonly correction?: CorrectionReason }
   // A confirmation undone: the session awaits confirmation again, and what
   // was recorded stays in the history (PRD §4.7).
   | { readonly kind: 'session.withdrawn'; readonly session: SessionRef }

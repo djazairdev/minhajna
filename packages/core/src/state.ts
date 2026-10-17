@@ -157,7 +157,7 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'session.recorded': {
         const key = event.record.session.key;
-        sessions.set(key, [...(sessions.get(key) ?? []), versionOf(entry, event.record)]);
+        sessions.set(key, [...(sessions.get(key) ?? []), versionOf(entry, event.record, event.correction)]);
         break;
       }
       case 'session.withdrawn': {
