@@ -587,5 +587,19 @@
     "snack_one": "{{count}} séance enregistrée pour le cahier de textes",
     "snack_many": "{{count}} de séances enregistrées pour le cahier de textes",
     "snack_other": "{{count}} séances enregistrées pour le cahier de textes"
+  },
+  "daymark": {
+    "holiday": "Jour férié, pas de séance aujourd’hui.",
+    "holidayNational": "Fête nationale, pas de séance aujourd’hui.",
+    "closure": "Cours suspendus, pas de séance aujourd’hui.",
+    "exam": "{{from}} – {{to}} · jour {{day}} sur {{days}}",
+    "examOff": "{{from}} – {{to}}",
+    "lost_one": "{{count}} séance non tenue à cause du calendrier",
+    "lost_many": "{{count}} de séances non tenues à cause du calendrier",
+    "lost_other": "{{count}} séances non tenues à cause du calendrier",
+    "lostNote": "Elles sont comptées à part dans le résumé de la semaine : elles ne se lisent jamais comme un retard. Les leçons passent aux séances suivantes, sans qu’aucune ne tombe.",
+    "paused": "Le plan s’arrête pendant les examens",
+    "pausedNote": "Les examens remplacent les séances de la semaine : aucune leçon n’est proposée, et aucune séance ne compte comme non tenue ni comme retard. Chaque classe garde sa position.",
+    "next": "Prochaine séance"
   }
 }

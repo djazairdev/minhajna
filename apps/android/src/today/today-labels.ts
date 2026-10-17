@@ -61,17 +61,21 @@ export function writtenOf(t: Translate, pack: PlanPack | null, record: SessionRe
   return record.factual ?? record.unplanned ?? t('today.recorded');
 }
 
-/** The day's facts: whether earlier sessions await confirmation, and how many of today's are confirmed. */
-export function dayFacts(t: Translate, view: TodayView): string {
+/**
+ * The day's facts: whether earlier sessions await confirmation, and how many
+ * of today's are confirmed. On a day a holiday, a closure or an exam marks,
+ * the sessions it took are not counted, and with none left the mark says it.
+ */
+export function dayFacts(t: Translate, view: TodayView, marked = false): string {
   const earlier =
     view.awaitingEarlier === 0 ? t('today.allConfirmed') : t('today.earlier', { count: view.awaitingEarlier });
-  const count = view.sessions.length;
-  if (count === 0) return `${earlier} · ${t('today.none')}`;
-  const sessions = t('count.sessions', { count });
-  const confirmed = view.sessions.filter((item) => item.status === 'recorded').length;
+  const sessions = marked ? view.sessions.filter((item) => item.status !== 'calendar') : view.sessions;
+  const count = sessions.length;
+  if (count === 0) return marked ? earlier : `${earlier} · ${t('today.none')}`;
+  const confirmed = sessions.filter((item) => item.status === 'recorded').length;
   const today =
     confirmed === 0
-      ? t('today.count', { sessions })
+      ? t('today.count', { sessions: t('count.sessions', { count }) })
       : t('today.confirmedOf', {
           confirmed: t('today.confirmed', { count: confirmed }),
           sessions: t('today.total', { count }),

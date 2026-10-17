@@ -13,6 +13,8 @@
 // sheet, note included. The session's details come with their own screen.
 // Earlier sessions still awaiting confirmation come first, a week at a
 // time, to confirm at once but for the ones left out (#35).
+// A holiday, a closure or an exam week shows its name, the sessions it
+// took, counted apart, and the next session (#36).
 
 import {
   backlogOf,
@@ -21,6 +23,7 @@ import {
   courseSetup,
   current,
   formatDayWithMonth,
+  nextSession,
   refOf,
   todayView,
   weekday,
@@ -48,6 +51,7 @@ import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
 import { slotSpoken } from '../week/grid-labels';
 import { Backlog } from './Backlog';
+import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from './DayMark';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
@@ -77,6 +81,13 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
   );
   const view = useMemo(() => todayView(context, day), [context, day]);
   const backlog = useMemo(() => backlogOf(context, day), [context, day]);
+  const mark = dayMarkOf(view);
+  const shown = mark === null ? view.sessions : view.sessions.filter((item) => item.status !== 'calendar');
+  const taken = view.sessions.length - shown.length;
+  const next = useMemo(
+    () => (mark === null || shown.length > 0 ? null : nextSession(context, day)),
+    [context, day, mark, shown.length],
+  );
   const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
 
   const metaOf = (item: TodaySession, withSubject: boolean): SessionMeta => {
@@ -146,6 +157,14 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
     }
   };
 
+  const nextLine = (session: Session) => {
+    const course = state.courses.get(session.courseId);
+    const meta =
+      course &&
+      metaOf({ session, course, status: 'awaiting', proposal: null, record: null, packMissing: false }, false);
+    return [meta?.className, meta?.slot, dayName(t, session.day, language, profile)].filter(Boolean).join(' · ');
+  };
+
   const card = (item: TodaySession) => {
     const key = item.session.key;
     const testID = `today-${key}`;
@@ -201,7 +220,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
           testID="today-heading"
           title={t(`week.days.${weekday(day)}`)}
           scope={formatDayWithMonth(day, language, profile)}
-          fact={{ text: dayFacts(t, view), icon: controlIcon('check') }}
+          fact={{ text: dayFacts(t, view, mark !== null), icon: controlIcon('check') }}
           actions={
             <IconButton
               testID="today-help"
@@ -212,6 +231,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
           }
         />
         <View style={styles.list}>
+          {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
           {backlog.days.length > 0 && (
             <Backlog
               days={backlog.days.map((one) => ({
@@ -229,7 +249,14 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
               onDetails={onDetails}
             />
           )}
-          {view.sessions.map(card)}
+          {shown.map(card)}
+          {mark !== null && mark.effect !== 'exam' && taken > 0 && (
+            <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />
+          )}
+          {mark?.effect === 'exam' && (
+            <DayNote testID="day-paused" title={t('daymark.paused')} note={t('daymark.pausedNote')} />
+          )}
+          {next !== null && <NextSession line={nextLine(next)} />}
         </View>
       </ScrollView>
       {sheet?.item.proposal != null && (
