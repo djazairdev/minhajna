@@ -796,6 +796,9 @@
     "emptied": "Les places sont vides.",
     "undo": "Annuler",
     "private": "Le plan est privé : il reste sur vos seuls appareils et n’entre dans aucun relevé, aucun dossier de passation ni l’espace de l’établissement.",
-    "saved": "Chaque changement est enregistré aussitôt. « Placer les élèves » rouvre ce réglage à tout moment."
+    "saved": "Chaque changement est enregistré aussitôt. « Placer les élèves » rouvre ce réglage à tout moment.",
+    "view": "Appel par",
+    "list": "Liste",
+    "rollHint": "Un toucher sur la place : absent. Le deuxième : en retard. Le troisième : présent de nouveau."
   }
 }

@@ -101,6 +101,13 @@ export function mark(marks: Marks, pupilId: string, kind: 'absent' | 'late', on:
     : { absent, late: [...late, pupilId] };
 }
 
+/** A seat's next mark on the seating plan: present, then absent, then late, then present again. */
+export function cycleMark(marks: Marks, pupilId: string): Marks {
+  if (marks.absent.some((absence) => absence.pupilId === pupilId)) return mark(marks, pupilId, 'late', true);
+  if (marks.late.includes(pupilId)) return mark(marks, pupilId, 'absent', false);
+  return mark(marks, pupilId, 'absent', true);
+}
+
 /** Whether two sets of marks say the same, in any order. */
 export function sameMarks(a: Marks, b: Marks): boolean {
   const key = (marks: Marks) =>
