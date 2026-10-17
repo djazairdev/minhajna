@@ -37,11 +37,11 @@ The emulator check led to two fixes:
 - the roll call no longer renumbers the class after a departure;
 - the number in the joining note is kept in its own direction, so the Arabic comma after it stays Arabic.
 
-It also found three problems outside this change, filed on their own:
+It also found three problems outside this change, each filed as its own issue:
 
-- the «تاريخ آخر» chip shows only «تاريخ»;
-- a session without a pack offers no roll call on Today;
-- the app opens on the welcome screen again after a restart.
+- the «تاريخ آخر» chip shows only «تاريخ» ([#185](https://github.com/djazairdev/minhajna/issues/185));
+- a session without a pack offers no roll call on Today ([#184](https://github.com/djazairdev/minhajna/issues/184));
+- the app opens on the welcome screen again after a restart ([#183](https://github.com/djazairdev/minhajna/issues/183)).
 
 ## Still to do by a person
 
