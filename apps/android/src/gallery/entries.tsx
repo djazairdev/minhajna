@@ -14,6 +14,7 @@ import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import type { ReactNode } from 'react';
 import { TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
+import { ChipSamples, SetupStepsSamples } from './chip-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
@@ -64,6 +65,11 @@ export const entries: readonly GalleryEntry[] = [
     render: (sample, language) => <SectionHeaderSamples key={language} sample={sample} language={language} />,
   },
   {
+    name: 'Chip',
+    design: 'docs/design/system/components/Chip/README.md',
+    render: (sample, language) => <ChipSamples key={language} sample={sample} language={language} />,
+  },
+  {
     name: 'Facts',
     design: 'docs/design/system/components/Facts/README.md',
     render: () => <FactsSamples />,
@@ -72,6 +78,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'Notice',
     design: 'docs/design/system/components/Notice/README.md',
     render: (sample, language) => <NoticeSamples sample={sample} language={language} />,
+  },
+  {
+    name: 'SetupSteps',
+    design: 'docs/design/system/components/SetupSteps/README.md',
+    render: (sample, language) => <SetupStepsSamples sample={sample} language={language} />,
   },
   {
     name: 'Snackbar',
