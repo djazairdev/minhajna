@@ -14,9 +14,11 @@
 // Earlier sessions still awaiting confirmation come first, a week at a
 // time, to confirm at once but for the ones left out (#35).
 // A holiday, a closure or an exam week shows its name, the sessions it
-// took, counted apart, and the next session (#36).
+// took, counted apart, and the next session (#36). Each session card carries
+// its roll call, and the backlog a past one's from the paper sheet (#38).
 
 import {
+  addDays,
   backlogOf,
   carryTo,
   confirmSessions,
@@ -51,6 +53,7 @@ import { Backlog } from './Backlog';
 import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from './DayMark';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
+import { PaperRolls } from './PaperRolls';
 import { rollStrip } from './roll-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
 import { sessionMeta } from './today-meta';
@@ -240,6 +243,7 @@ export function Today(props: {
               onConfirm={confirmAll}
               onOther={(item) => setSheet({ item, open: true, backlog: true })}
               onDetails={onDetails}
+              paper={<PaperRolls context={context} from={backlog.week ?? day} to={addDays(day, -1)} onRoll={onRoll} />}
             />
           )}
           {shown.map(card)}

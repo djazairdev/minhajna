@@ -665,6 +665,9 @@
     "unavailable": "Cette séance n'a pas d'appel.",
     "none": "Aucune absence enregistrée",
     "allPresent": "Appel enregistré : tous présents",
-    "marked": "Appel enregistré · absents : {{absent}} · retards : {{late}}"
+    "marked": "Appel enregistré · absents : {{absent}} · retards : {{late}}",
+    "paper": "Saisir un appel depuis la feuille papier",
+    "paperSub": "Pour une séance passée, enregistré à la date de cette séance",
+    "paperNone": "Aucune séance passée de ces jours n'attend son appel."
   }
 }

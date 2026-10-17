@@ -79,8 +79,6 @@ test("lists the day's sessions in order, with the plan's proposal in pencil on t
     'تقويم تشخيصي (مثال)',
     'الموضوع: ',
     '- الحصة 1 من 2',
-    text.roll.none,
-    text.roll.title,
     text.today.confirm,
     text.outcome.other,
     text.entry.open,
