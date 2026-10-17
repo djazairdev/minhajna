@@ -23,7 +23,12 @@ export type Choice =
   | { readonly outcome: 'skipped'; readonly instead: boolean }
   /** An item taught again. */
   | { readonly outcome: 'retaught'; readonly item: string }
-  | { readonly outcome: 'not-held' };
+  /**
+   * The session did not take place. `makeUp` is the teacher's mark «تُعوَّض
+   * هذه الحصة»: only it, or the director's request, makes a session owed a
+   * make-up, never the app on its own (PRD §3.3, §7.7).
+   */
+  | { readonly outcome: 'not-held'; readonly makeUp?: boolean };
 
 /** What else a session can record (PRD §3.3). */
 export interface Details {
@@ -163,6 +168,7 @@ export function recordOf(
     outcome: choice.outcome,
     sessionType,
     coverage,
+    ...(choice.outcome === 'not-held' && choice.makeUp === true && { makeUp: true }),
     ...(details.homework !== undefined && { homework: details.homework }),
     ...(details.test !== undefined && { test: details.test }),
     ...(details.unplanned !== undefined && { unplanned: details.unplanned }),

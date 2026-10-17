@@ -17,7 +17,7 @@ import { walkCourse } from './engine.ts';
 import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findSessionType, type Confidence, type Queue } from './reference.ts';
-import { sessionsBetween, type Session } from './sessions.ts';
+import { compareSessions, sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
 
 export interface Pace {
@@ -67,6 +67,29 @@ function queueSessions(context: Context, setup: CourseSetup, from: Day, to: Day,
   return sessionsBetween(context, from, to, new Set([setup.course.id])).filter(
     (session) => queueOf(context, session) === queue,
   );
+}
+
+/** Where what is left of a session's item goes on. */
+export interface CarryTo {
+  /** The next session of the same class, group and subject in the same queue. */
+  readonly next: Session | null;
+  /** The first session of another kind before it, such as a test, which the item passes over. */
+  readonly passed: Session | null;
+}
+
+/**
+ * Where what is left of this session's item goes on (PRD §4.7): the next
+ * session of the same class, group and subject in the same queue, never a
+ * TD, remediation or exam session in between, nor one the calendar takes.
+ * Looks eight weeks ahead.
+ */
+export function carryTo(context: Context, session: Session): CarryTo {
+  const queue = queueOf(context, session);
+  const later = sessionsBetween(context, session.day, addDays(session.day, 56), new Set([session.courseId])).filter(
+    (other) => other.groupId === session.groupId && other.calendar === null && compareSessions(other, session) > 0,
+  );
+  const at = later.findIndex((other) => queueOf(context, other) === queue);
+  return { next: later[at] ?? null, passed: at > 0 ? (later[0] ?? null) : null };
 }
 
 /** A TD item's term: its own, or else the last term its unit's lessons fall in. */

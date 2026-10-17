@@ -209,6 +209,8 @@ export interface SessionRecord {
   readonly outcome: Outcome;
   readonly sessionType: string;
   readonly coverage: readonly Coverage[];
+  /** A session not held that the teacher marked to be made up (PRD §3.3, §7.7). */
+  readonly makeUp?: true;
   readonly homework?: Homework;
   readonly test?: string;
   /** Content that was not in the plan. */
