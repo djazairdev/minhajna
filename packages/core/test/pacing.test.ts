@@ -80,6 +80,17 @@ describe('pacing', () => {
     assert.equal(result?.expected, 8);
     assert.equal(result?.delay, 0);
     assert.equal(result?.ahead, 0);
+    assert.equal(result?.bufferLeft, 2);
+  });
+
+  it('says which buffers are left once some are used', async () => {
+    const book = await openBook(cemEvents());
+    await confirmAll(book, d('2026-09-20'), d('2026-09-30'));
+    await confirmAll(book, d('2026-10-01'), d('2026-10-01'), { outcome: 'not-held' });
+    const result = pace(contextOf(book), 'c-math', d('2026-10-01'));
+    assert.equal(result?.bufferUsed, 1);
+    assert.equal(result?.bufferLeft, 1);
+    assert.equal(result?.delay, 0);
   });
 
   it('lets the buffers absorb a delay before showing one', async () => {
@@ -91,6 +102,7 @@ describe('pacing', () => {
     assert.equal(result?.expected, 8);
     assert.equal(result?.bufferUsed, 2);
     assert.equal(result?.delay, 2);
+    assert.equal(result?.bufferLeft, 0);
   });
 
   // The same pack gets a made-up term-2 buffer, which must not absorb a

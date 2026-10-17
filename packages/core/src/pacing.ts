@@ -35,6 +35,8 @@ export interface Pace {
   readonly expected: number;
   /** Behind the plan, but within the buffers left before the next exams. */
   readonly bufferUsed: number;
+  /** The buffers still left before the next exams, once those used are taken off. */
+  readonly bufferLeft: number;
   /** Behind the plan beyond the buffers, in sessions. */
   readonly delay: number;
   /** Ahead of the plan, in sessions. */
@@ -175,6 +177,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     position,
     expected,
     bufferUsed: Math.min(Math.max(0, behind), bufferLeft),
+    bufferLeft: bufferLeft - Math.min(Math.max(0, behind), bufferLeft),
     delay,
     ahead: Math.max(0, -behind),
     weeksBehind: weeksBehind === null ? null : delay > 0 ? weeksBehind : 0,

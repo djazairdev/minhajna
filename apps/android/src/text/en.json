@@ -586,5 +586,17 @@
     "paused": "The plan pauses during the exams",
     "pausedNote": "The exams take the week’s sessions: no lesson is proposed, and no session counts as not held or as delay. Each class keeps its position.",
     "next": "Next session"
+  },
+  "classes": {
+    "today": "Today {{time}}",
+    "noPack": "No pack: no comparison with the plan",
+    "behind": "{{sessions}} behind the plan, after all the buffers",
+    "bufferUsed": "{{used}} of the buffers used, {{left}} left",
+    "bufferAll": "{{used}} of the buffers used, none left",
+    "onPlan": "No delay",
+    "onPlanSpare": "No delay · {{spare}}",
+    "onPlanShort": "No delay · the plan needs {{sessions}} more than are left before the exams",
+    "spare_one": "{{count}} spare session",
+    "spare_other": "{{count}} spare sessions"
   }
 }
