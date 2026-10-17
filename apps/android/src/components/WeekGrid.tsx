@@ -4,9 +4,11 @@
 // The weekly timetable at a glance (WeekGrid, #133): the caller's days
 // across, in the reading direction, and slots down, never clock times (PRD
 // §4.6). A class sits on its subject colour, the teacher's own time on a soft
-// ground, and an empty slot on the sheet, dashed when it can be pressed.
-// Columns keep a 48dp target and grow with the text, so at 200% the grid
-// scrolls sideways rather than clipping or shrinking its text.
+// ground, and an empty slot on the sheet, dashed when it can be pressed. The
+// grid is laid out column by column, so each day is as wide as its longest
+// label and at least 48dp, and every row has one height that grows with the
+// text. A class name never breaks inside a word, and when the week is wider
+// than the screen, at 200% text or with long names, it scrolls sideways.
 
 import { useLocale } from '@react-navigation/native';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -37,87 +39,90 @@ export type WeekGridProps = {
 
 const SLOT_COLUMN = 44;
 const COLUMN = 52;
+const ROW = 32;
+const LINE = Math.max(typography['class-chip'].lineHeight, typography.badge.lineHeight);
 
 /** The grid; with `onPressCell`, every cell is a 48dp button. */
 export function WeekGrid({ testID, days, slots, cell, cellName, onPressCell, cellHint }: WeekGridProps) {
   const { direction } = useLocale();
   const { fontScale } = useWindowDimensions();
-  const column = { width: Math.max(COLUMN, COLUMN * fontScale) };
-  const slotColumn = { width: Math.max(SLOT_COLUMN, SLOT_COLUMN * fontScale) };
   const pressable = onPressCell !== undefined;
+  const row = { minHeight: Math.max(pressable ? sizes.target : ROW, LINE * fontScale + 2 * spacing['space-6']) };
+  const head = { minHeight: typography['grid-head'].lineHeight * fontScale };
   return (
     <ScrollView testID={testID} horizontal contentContainerStyle={styles.scroll} style={{ direction }}>
-      <View style={styles.grid}>
-        <View style={styles.row} importantForAccessibility="no-hide-descendants">
-          <View style={slotColumn} />
-          {days.map((day) => (
-            <Text key={day.key} style={[styles.head, column]}>
-              {day.label}
-            </Text>
-          ))}
-        </View>
+      <View
+        style={[styles.column, { minWidth: SLOT_COLUMN * fontScale }]}
+        importantForAccessibility="no-hide-descendants"
+      >
+        <View style={head} />
         {slots.map((slot) => (
-          <View key={slot.key} style={[styles.row, slot.first && styles.half]}>
-            <Text importantForAccessibility="no" style={[styles.slot, slotColumn]}>
-              {slot.label}
-            </Text>
-            {days.map((day) => {
-              const content = cell(day, slot);
-              const look = [
-                styles.cell,
-                column,
-                pressable && styles.target,
-                content === null && pressable && styles.open,
-                content?.kind === 'class' && styles.class,
-                content?.kind === 'own' && styles.own,
-              ];
-              const inner = content && (
-                <Text style={content.kind === 'class' ? styles.classText : styles.ownText}>{content.label}</Text>
-              );
-              const name = cellName(day, slot, content);
-              return pressable ? (
-                <Pressable
-                  key={day.key}
-                  testID={testID && `${testID}-${day.key}-${slot.key}`}
-                  accessibilityRole="button"
-                  accessibilityLabel={name}
-                  accessibilityHint={cellHint}
-                  onPress={() => onPressCell(day, slot)}
-                  style={({ pressed }) => [look, pressed && styles.pressed]}
-                >
-                  {inner}
-                </Pressable>
-              ) : (
-                <View key={day.key} accessible accessibilityLabel={name} style={look}>
-                  {inner}
-                </View>
-              );
-            })}
+          <View key={slot.key} style={[styles.slotCell, row, slot.first && styles.half]}>
+            <Text style={styles.slot}>{slot.label}</Text>
           </View>
         ))}
       </View>
+      {days.map((day) => (
+        <View key={day.key} style={[styles.column, styles.day, { minWidth: COLUMN * fontScale }]}>
+          <Text importantForAccessibility="no" style={[styles.head, head]}>
+            {day.label}
+          </Text>
+          {slots.map((slot) => {
+            const content = cell(day, slot);
+            const look = [
+              styles.cell,
+              row,
+              slot.first && styles.half,
+              pressable && styles.target,
+              content === null && pressable && styles.open,
+              content?.kind === 'class' && styles.class,
+              content?.kind === 'own' && styles.own,
+            ];
+            const inner = content && (
+              <Text style={content.kind === 'class' ? styles.classText : styles.ownText}>{content.label}</Text>
+            );
+            const name = cellName(day, slot, content);
+            return pressable ? (
+              <Pressable
+                key={slot.key}
+                testID={testID && `${testID}-${day.key}-${slot.key}`}
+                accessibilityRole="button"
+                accessibilityLabel={name}
+                accessibilityHint={cellHint}
+                onPress={() => onPressCell(day, slot)}
+                style={({ pressed }) => [look, pressed && styles.pressed]}
+              >
+                {inner}
+              </Pressable>
+            ) : (
+              <View key={slot.key} accessible accessibilityLabel={name} style={look}>
+                {inner}
+              </View>
+            );
+          })}
+        </View>
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flexGrow: 1 },
-  grid: { flexGrow: 1, gap: spacing['space-4'] },
-  row: { flexDirection: 'row', alignItems: 'stretch', gap: spacing['space-4'] },
+  scroll: { flexGrow: 1, gap: spacing['space-4'] },
+  column: { gap: spacing['space-4'] },
+  day: { flexGrow: 1 },
   half: { marginTop: spacing['space-8'] },
-  head: { ...typography['grid-head'], color: colors.ink, textAlign: 'center', flexGrow: 1 },
-  slot: { ...typography['grid-head'], color: colors.ink2, textAlign: 'center', alignSelf: 'center' },
+  head: { ...typography['grid-head'], color: colors.ink, textAlign: 'center' },
+  slotCell: { justifyContent: 'center' },
+  slot: { ...typography['grid-head'], color: colors.ink2, textAlign: 'center' },
   cell: {
-    flexGrow: 1,
-    minHeight: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing['space-2'],
+    paddingHorizontal: spacing['space-6'],
     paddingVertical: spacing['space-4'],
     borderRadius: radius['radius-badge'],
     backgroundColor: colors.sheet,
   },
-  target: { minHeight: sizes.target, minWidth: sizes.target },
+  target: { minWidth: sizes.target },
   open: { borderWidth: 1, borderStyle: 'dashed', borderColor: colorRoles.controlBorder },
   class: { backgroundColor: colors.subject },
   own: { backgroundColor: colors.soft, borderWidth: 1, borderColor: colorRoles.controlBorder },

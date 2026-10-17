@@ -103,16 +103,36 @@ test.each(['rtl', 'ltr'] as const)('presses a cell, each a 48dp button with its 
   expect(accessibilityProblems(tree.root)).toEqual([]);
 });
 
-test('grows its columns at 200% text and scrolls sideways, keeping its text size and no line limit', async () => {
+test('grows its columns and rows at 200% text and scrolls sideways, keeping its text size and no line limit', async () => {
   jest.mocked(useWindowDimensions).mockReturnValue({ ...window, fontScale: 2 });
   await render(jest.fn());
   expect(tree.root.findByType(ScrollView).props.horizontal).toBe(true);
   const head = tree.root.findAllByType(Text).find((node) => node.props.children === 'الأحد');
-  expect(flat((head?.props as TextProps).style).width).toBe(104);
+  expect(flat((head?.parent?.props as ViewProps).style).minWidth).toBe(104);
+  const heights = buttons().map(
+    (button) => flat(button.style instanceof Function ? button.style({ pressed: false }) : button.style).minHeight,
+  );
+  expect(new Set(heights).size).toBe(1);
+  expect(heights[0]).toBeGreaterThan(48);
   for (const node of tree.root.findAllByType(Text)) {
     const props = node.props as TextProps;
     expect(props.numberOfLines).toBeUndefined();
     expect(props.adjustsFontSizeToFit).toBeUndefined();
     expect(flat(props.style)).not.toHaveProperty('height');
+  }
+});
+
+test('gives every cell of a row one height, so a long class name widens its day instead of breaking', async () => {
+  week['3:m1'] = { label: 'القسم التجريبي', kind: 'class' };
+  try {
+    await render();
+    const cells = tree.root.findAll((node) => (node.props as ViewProps).accessible === true, { deep: false });
+    const heights = cells.map((node) => flat((node.props as ViewProps).style).minHeight);
+    expect(new Set(heights).size).toBe(1);
+    const day = cells.find((node) => String((node.props as ViewProps).accessibilityLabel).includes('القسم التجريبي'));
+    expect(flat((day?.parent?.props as ViewProps).style)).toMatchObject({ flexGrow: 1, minWidth: 52 });
+    expect(flat((day?.props as ViewProps).style)).not.toHaveProperty('width');
+  } finally {
+    delete week['3:m1'];
   }
 });
