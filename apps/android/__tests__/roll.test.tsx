@@ -6,10 +6,11 @@
 // other, one save that records the exceptions only, the marks kept when the
 // screen is left, a past session entered from the paper sheet on its own
 // date, a roll call already taken corrected with a reason, a session with
-// no roll call, and the strip on Today's cards but for a session not held.
-// Made-up pupils only.
+// no roll call, and the strip on every card of Today, a second session and
+// a class with no pack included, but for a session not held. Made-up pupils
+// only.
 
-import { current } from '@minhajna/core';
+import { current, parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Text, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
@@ -193,6 +194,22 @@ test('leaves the roll call out of a session recorded as not held', async () => {
   await press('outcome-not-held');
   expect(root().findAll((node) => node.props.testID === `today-${key(1)}-roll`)).toHaveLength(0);
   expect(root().findAll((node) => node.props.testID === `today-${key(2)}-roll`).length).toBeGreaterThan(0);
+});
+
+test('offers the roll call on every card, a second session and a class with no pack included', async () => {
+  const data = await withPupils();
+  const noPack = key(3, 'c-2', 'k-2-w');
+  await data.book.record(parseDay('2026-10-15'), {
+    kind: 'pupil.set',
+    pupil: { id: 'q-1', classId: 'k-2', name: 'مختلق سليم', sex: 'm', groups: [], movements: [] },
+  });
+  await mount(data, <Today onHelp={jest.fn()} onDetails={jest.fn()} onRoll={onRoll} />);
+  for (const session of [key(1), key(2), noPack]) {
+    expect(root().findAll((node) => node.props.testID === `today-${session}-roll`).length).toBeGreaterThan(0);
+  }
+  await press(`today-${noPack}-roll-open`);
+  expect(onRoll).toHaveBeenCalledWith(expect.objectContaining({ key: noPack }));
+  expect(accessibilityProblems(root())).toEqual([]);
 });
 
 test.each(['en', 'fr'] satisfies Language[])('has every Roll text in %s', (language) => {

@@ -39,6 +39,8 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
       readonly note?: string;
       /** A soft button under the lesson, such as the class's «المخطط». */
       readonly show?: MoreAction;
+      /** What goes with the session whatever its card, such as its roll call. */
+      readonly due?: readonly DueStripProps[];
     }
   | {
       readonly kind: 'done';
@@ -115,6 +117,13 @@ export function SessionCard(props: SessionCardProps) {
         {props.show !== undefined && (
           <Button testID={sub(props.show.id)} variant="soft" label={props.show.label} onPress={props.show.onPress} />
         )}
+        {props.due !== undefined && props.due.length > 0 && (
+          <View style={styles.due}>
+            {props.due.map((strip, index) => (
+              <DueStrip key={index} {...strip} />
+            ))}
+          </View>
+        )}
       </View>
     );
   }
@@ -152,6 +161,7 @@ const styles = StyleSheet.create({
   },
   focus: { borderColor: colors.rule, boxShadow: shadows['shadow-focus-card'] },
   mini: { gap: spacing['space-4'] },
+  due: { marginTop: spacing['space-6'], gap: spacing['space-6'] },
   meta: { minHeight: 30, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing['space-8'] },
   cls: {
     ...typography.label,

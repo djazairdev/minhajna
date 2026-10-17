@@ -14,8 +14,9 @@
 // Earlier sessions still awaiting confirmation come first, a week at a
 // time, to confirm at once but for the ones left out (#35).
 // A holiday, a closure or an exam week shows its name, the sessions it
-// took, counted apart, and the next session (#36). Each session card carries
-// its roll call, and the backlog a past one's from the paper sheet (#38).
+// took, counted apart, and the next session (#36). Every session card
+// carries its roll call, whatever its kind (#184), and the backlog a past
+// one's from the paper sheet (#38).
 
 import {
   addDays,
@@ -163,6 +164,7 @@ export function Today(props: {
     const key = item.session.key;
     const testID = `today-${key}`;
     const pack = courseSetup(context, item.course.id).pack;
+    const due = rollStrip(t, context, item.session, onRoll);
     if (item.status === 'recorded' && item.record !== null) {
       return (
         <SessionCard
@@ -173,7 +175,7 @@ export function Today(props: {
           written={writtenOf(t, pack, item.record, comma)}
           where={t('today.recorded')}
           show={{ id: 'fix', label: t('fix.open'), onPress: () => onDetails(item.session) }}
-          due={rollStrip(t, context, item.session, onRoll)}
+          due={due}
         />
       );
     }
@@ -191,7 +193,7 @@ export function Today(props: {
           kind="focus"
           meta={metaOf(item, true)}
           proposal={proposalOf(t, pack, item.proposal)}
-          due={rollStrip(t, context, item.session, onRoll)}
+          due={due}
           confirm={t('today.confirm')}
           onConfirm={() => confirm(item)}
           more={[
@@ -201,7 +203,8 @@ export function Today(props: {
         />
       );
     }
-    return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lessonOf(t, item)} />;
+    const lesson = lessonOf(t, item);
+    return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lesson} due={due} />;
   };
 
   return (
