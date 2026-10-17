@@ -8,6 +8,7 @@
 import { ERASURE, type Entry } from './history.ts';
 import type { Layer } from './layers.ts';
 import type { CalendarEntry } from './reference.ts';
+import type { CountingRules } from './roll-call-counts.ts';
 import type {
   Course,
   PrivateNote,
@@ -54,7 +55,9 @@ export type RecordEvent =
   // A roll call's correction carries its short reason, which is part of the
   // roll-call record (PRD §3.4, §5.5).
   | { readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string }
-  | { readonly kind: 'seating.set'; readonly plan: SeatingPlan };
+  | { readonly kind: 'seating.set'; readonly plan: SeatingPlan }
+  // The roll-call book's counting rules, one set for every class (PRD §3.4).
+  | { readonly kind: 'counting.set'; readonly rules: CountingRules };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -75,6 +78,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'session.noted': true,
   'roll-call.taken': true,
   'seating.set': true,
+  'counting.set': true,
 };
 
 /**
@@ -90,6 +94,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'pupil.set':
     case 'pupil.moved':
     case 'roll-call.taken':
+    case 'counting.set':
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':

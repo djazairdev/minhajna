@@ -43,6 +43,8 @@ function recordKey(event: RecordEvent): string {
       return `roll-call:${event.rollCall.unit}`;
     case 'seating.set':
       return `seating:${event.plan.classId}/${event.plan.groupId}`;
+    case 'counting.set':
+      return 'counting';
   }
 }
 
