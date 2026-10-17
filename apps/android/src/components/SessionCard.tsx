@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { useLocale } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import type { Ref } from 'react';
+import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { controlIcon, Icon } from '../design/Icon';
 import { colors, radius, shadows, sizes, spacing, typography } from '../design/tokens';
 import { Button } from './Button';
@@ -13,7 +14,13 @@ import { Proposal, type ProposalProps } from './Proposal';
 export type SessionMeta = { readonly className: string; readonly slot: string; readonly subject?: string };
 
 /** A secondary button: its words, its action and its test ID's suffix. */
-export type MoreAction = { readonly label: string; readonly onPress: () => void; readonly id: string };
+export type MoreAction = {
+  readonly label: string;
+  readonly onPress: () => void;
+  readonly id: string;
+  /** The button's native view, such as where a sheet returns focus. */
+  readonly ref?: Ref<ViewInstance>;
+};
 
 export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: string } & (
   | {
@@ -23,8 +30,8 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
       /** «تمّت كما هو مقترح»: the one tap that records the proposal. */
       readonly confirm: string;
       readonly onConfirm: () => void;
-      /** The row of two line buttons, such as «نتيجة أخرى» and «تفاصيل الحصة», once their screens exist. */
-      readonly more?: readonly [MoreAction, MoreAction];
+      /** A row of line buttons, such as «نتيجة أخرى» and «تفاصيل الحصة», once their screens exist. */
+      readonly more?: readonly MoreAction[];
     }
   | { readonly kind: 'mini'; readonly lesson: string; readonly note?: string }
   | {
@@ -77,7 +84,13 @@ export function SessionCard(props: SessionCardProps) {
           <View style={styles.buttons}>
             {props.more.map((action) => (
               <View key={action.id} style={styles.half}>
-                <Button testID={sub(action.id)} variant="line" label={action.label} onPress={action.onPress} />
+                <Button
+                  ref={action.ref}
+                  testID={sub(action.id)}
+                  variant="line"
+                  label={action.label}
+                  onPress={action.onPress}
+                />
               </View>
             ))}
           </View>

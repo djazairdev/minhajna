@@ -451,5 +451,46 @@
       "exam": "Composition",
       "teacher": "Votre propre temps"
     }
+  },
+  "outcome": {
+    "other": "Autre résultat",
+    "title": "Comment s’est passée la séance ?",
+    "reached": "Dernière étape atteinte",
+    "carry": "Le reste se poursuit à la prochaine séance (suite).",
+    "noStages": "Cet élément n’a pas d’étapes dans le plan. Est-il terminé ?",
+    "goesOn": "En cours",
+    "goesOnSub": "Il se poursuit à la prochaine séance (suite).",
+    "finished": "Terminé",
+    "finishedSub": "Ensuite est proposé « {{next}} ».",
+    "lastItem": "C’est le dernier élément du plan.",
+    "merged": "Fusionné avec l’élément suivant",
+    "skip": "Passer cette leçon",
+    "notHeld": "Séance non tenue",
+    "reasonSub": "La raison est facultative et reste sur vos appareils",
+    "retaught": "Reprendre une leçon précédente",
+    "reassurance": "Chaque séance peut être corrigée plus tard. Chaque modification est conservée.",
+    "keptNotHeld": "« {{item}} » reste en tête de liste et sera proposé à la prochaine séance.",
+    "keptSkip": "« {{item}} » est passé, et « {{next}} » sera proposé à la prochaine séance.",
+    "keptSkipLast": "« {{item}} » est passé ; c’est le dernier élément du plan.",
+    "reasonLabel": "Raison (facultatif)",
+    "reasons": {
+      "none": "Sans raison",
+      "closure": "Fermeture",
+      "exam": "Composition",
+      "holiday": "Vacances",
+      "event": "Événement",
+      "teacher-absent": "Mon absence",
+      "class-absent": "Classe absente",
+      "few-pupils": "Peu d’élèves",
+      "other": "Autre raison"
+    },
+    "reasonText": "La raison, en bref",
+    "reasonPlaceholder": "Avec vos mots",
+    "private": "La raison reste sur vos appareils : elle ne va dans aucun relevé, aucune remise, ni l’espace de l’établissement, ni aucun total.",
+    "statement": "Dans le relevé de progression, cette séance compte parmi « autres », sans sa raison.",
+    "back": "Autre résultat",
+    "done": "Terminé",
+    "snackPartial": "Séance enregistrée ; le reste se poursuit à la prochaine séance",
+    "snackNotHeld": "« Séance non tenue » enregistrée"
   }
 }

@@ -21,8 +21,8 @@ import {
   type TodaySession,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '../components/IconButton';
 import { PageHeading } from '../components/PageHeading';
@@ -37,10 +37,12 @@ import { currentLanguage, useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
 import { slotSpoken } from '../week/grid-labels';
+import { nextItem, previousItem } from './outcome-rules';
+import { OutcomeSheet, type Outcome } from './OutcomeSheet';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
 
 /** The tap just made, and the event that undoes it. */
-type Done = { readonly key: string; readonly undo: RecordEvent };
+type Done = { readonly key: string; readonly undo: RecordEvent; readonly message: string };
 
 /** The Today tab; `onHelp` opens Help and the privacy notice. */
 export function Today({ onHelp }: { onHelp: () => void }) {
@@ -49,6 +51,8 @@ export function Today({ onHelp }: { onHelp: () => void }) {
   const t = useText();
   const { state, profile, year, calendar, packs, bells, today, record, recordAll } = useAppData();
   const [done, setDone] = useState<Done | null>(null);
+  const [sheet, setSheet] = useState(false);
+  const other = useRef<ViewInstance>(null);
   const day = today();
   const language = currentLanguage();
   const comma = language === 'ar' ? '، ' : ', ';
@@ -75,14 +79,18 @@ export function Today({ onHelp }: { onHelp: () => void }) {
     };
   };
 
-  const confirm = (item: TodaySession) => {
+  const confirm = (item: TodaySession, outcome?: Outcome) => {
     const before = current(state.sessions.get(item.session.key));
     const undo: RecordEvent =
       before === null
         ? { kind: 'session.withdrawn', session: refOf(item.session) }
         : { kind: 'session.recorded', record: before };
-    recordAll(confirmSessions(context, [{ session: item.session }]));
-    setDone({ key: item.session.key, undo });
+    recordAll(confirmSessions(context, [{ session: item.session, ...outcome }]));
+    const kind = outcome?.choice.outcome;
+    const message = t(
+      kind === 'partial' ? 'outcome.snackPartial' : kind === 'not-held' ? 'outcome.snackNotHeld' : 'today.snack',
+    );
+    setDone({ key: item.session.key, undo, message });
   };
 
   const card = (item: TodaySession) => {
@@ -117,6 +125,7 @@ export function Today({ onHelp }: { onHelp: () => void }) {
           proposal={proposalOf(t, pack, item.proposal)}
           confirm={t('today.confirm')}
           onConfirm={() => confirm(item)}
+          more={[{ id: 'other', label: t('outcome.other'), onPress: () => setSheet(true), ref: other }]}
         />
       );
     }
@@ -147,10 +156,25 @@ export function Today({ onHelp }: { onHelp: () => void }) {
         />
         <View style={styles.list}>{view.sessions.map(card)}</View>
       </ScrollView>
+      {focus?.proposal != null && (
+        <OutcomeSheet
+          visible={sheet}
+          context={[metaOf(focus, false).className, metaOf(focus, false).slot, focus.proposal.item.title].join(' · ')}
+          proposal={focus.proposal}
+          next={nextItem(courseSetup(context, focus.course.id).pack, focus.proposal.item)}
+          previous={previousItem(state, courseSetup(context, focus.course.id).pack, focus.session)}
+          returnFocusRef={other}
+          onClose={() => setSheet(false)}
+          onChoose={(outcome) => {
+            setSheet(false);
+            confirm(focus, outcome);
+          }}
+        />
+      )}
       {done !== null && (
         <Snackbar
           testID="today-snack"
-          message={t('today.snack')}
+          message={done.message}
           undoLabel={t('today.undo')}
           bottomOffset={0}
           onUndo={() => {
