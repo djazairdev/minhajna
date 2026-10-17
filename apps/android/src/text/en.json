@@ -524,5 +524,21 @@
     "retaught": "Taught again",
     "bookTest": "Test",
     "bookHomework": "{{text}}, due {{day}}"
+  },
+  "lesson": {
+    "change": "Change the lesson",
+    "title": "Another lesson for this session",
+    "context": "Proposed: {{item}}",
+    "proposed": "Proposed today",
+    "taught": "Taught {{day}}",
+    "next": "Next · {{day}}",
+    "search": "Search the plan of {{name}}",
+    "searchPlaceholder": "A title or a domain",
+    "td": "Guided work · its own list",
+    "main": "The main plan, around the class’s position",
+    "position": "The class’s position",
+    "choose": "Choose this lesson",
+    "kept": "What you choose is written in the texts book instead of the proposal. “{{item}}” stays first on its list and is proposed on {{day}}.",
+    "keptNext": "What you choose is written in the texts book instead of the proposal. “{{item}}” stays first on its list and is proposed next session."
   }
 }
