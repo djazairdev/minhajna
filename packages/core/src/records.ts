@@ -55,6 +55,8 @@ export interface SchoolClass {
   readonly groups: readonly ClassGroup[];
   /** Overrides the level's unit, for example for a primary specialist who counts only their own sessions. */
   readonly rollCallUnit?: RollCallUnitKind;
+  /** The demo class, whose pupils are made up (PRD §1.5). */
+  readonly demo?: true;
 }
 
 export interface PupilMovement {

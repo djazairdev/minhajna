@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Setup's third step (#27, Setup-4-Classes): adding classes, and each class's
-// size and whether its list is ready. Made-up schools and pupils only.
+// size and whether its list is ready, and the demo class. Made-up schools and
+// pupils only.
 
 import { parseDay, type School } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -163,6 +164,37 @@ test('shows a class with pupils as ready, with its size, and opens its list', as
   expect(onType).toHaveBeenCalledTimes(1);
 });
 
+test('adds the demo class once: 45 made-up pupils, in the class the teacher names', async () => {
+  const data = await withSchools();
+  await render(data);
+  await press('add-demo-open');
+  expect(shown()).toContain(
+    text.setup.demoNote.replace('{{pupils}}', text.setup.pupils_many.replace('{{count}}', '45')),
+  );
+  await press('class-grade-1am');
+  await press('class-add');
+  await settle();
+  const [demo] = [...data.book.state.classes.values()];
+  expect(demo).toMatchObject({ grade: '1am', name: text.setup.demoName, demo: true });
+  const pupils = [...data.book.state.pupils.values()];
+  expect(pupils).toHaveLength(45);
+  expect(pupils.every((pupil) => pupil.classId === demo.id && pupil.registration?.startsWith('99'))).toBe(true);
+  expect(control(`class-${demo.id}`).props.accessibilityLabel).toBe(
+    `${text.setup.demoName}، ${text.setup.pupils_many.replace('{{count}}', '45')}، ${text.setup.listReady}`,
+  );
+  expect(exists('add-demo-open')).toBe(false);
+  expect(exists('add-class-open')).toBe(true);
+});
+
+test('adds no pupils to a class added the usual way', async () => {
+  const data = await withSchools();
+  await render(data);
+  await addClass('2am', '2م1');
+  expect(data.book.state.pupils.size).toBe(0);
+  expect([...data.book.state.classes.values()][0]).not.toHaveProperty('demo');
+  expect(exists('add-demo-open')).toBe(true);
+});
+
 test('keeps no fixed text height or line limit, so text at 200% wraps', async () => {
   await render(await withSchools(2));
   await press('add-class-open');
@@ -181,7 +213,8 @@ test.each(
   await i18n.changeLanguage(language);
   await render(await withSchools(2), direction);
   await addClass('3am', '3م1');
-  await press('add-class-open');
+  expect(accessibilityProblems(root())).toEqual([]);
+  await press('add-demo-open');
   expect(accessibilityProblems(root())).toEqual([]);
   expect(shown()).toContain(catalogues[language].setup.classesHeading);
 });

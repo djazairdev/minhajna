@@ -1,6 +1,6 @@
 # Classes and typed lists (#27)
 
-Checks of 17 October 2026 for the first pull request of [#27](https://github.com/djazairdev/minhajna/issues/27), on `feat/27-classes`. Made-up schools and pupils only. The demo class comes in the next pull request.
+Checks of 17 October 2026 for the first pull request of [#27](https://github.com/djazairdev/minhajna/issues/27), on `feat/27-classes`. Made-up schools and pupils only. The demo class comes in the next pull request ([demo-class.md](demo-class.md)).
 
 ## What changed
 
