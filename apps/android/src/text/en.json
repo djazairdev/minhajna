@@ -432,6 +432,7 @@
     "confirm": "Done as proposed",
     "notHeld": "Session not held",
     "recorded": "Recorded for the texts book",
+    "skipped": "Skipped: {{title}}",
     "snack": "Session recorded for the texts book",
     "undo": "Undo",
     "undone": "Recording undone: the session awaits confirmation.",

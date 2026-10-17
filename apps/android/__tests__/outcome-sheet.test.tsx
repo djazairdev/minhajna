@@ -118,6 +118,20 @@ test('merged with the next item, then the last stage reached on a lesson with st
   });
 });
 
+test('a lesson taught again shows on its done card', async () => {
+  const data = await withDay();
+  await show(data);
+  await press(`today-${key(1)}-other`);
+  await press('outcome-merged');
+  await press(`today-${key(2)}-other`);
+  await press('outcome-retaught');
+  expect(current(data.book.state.sessions.get(key(2)))).toMatchObject({
+    outcome: 'retaught',
+    coverage: [{ op: 'retaught', item: 'u1-1' }],
+  });
+  expect(shown()).toContain('الوضعية المشكلة الانطلاقية 1 (مثال)');
+});
+
 test('a session not held keeps its reason private, in the note only', async () => {
   const data = await withDay();
   await show(data);
@@ -163,4 +177,5 @@ test('skipping goes back to the other outcomes on «نتيجة أخرى»', asyn
   await press('outcome-done');
   expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'skipped' });
   expect(data.book.state.notes.get(key(1))).toMatchObject({ reason: 'holiday' });
+  expect(shown()).toContain('تُرك: تقويم تشخيصي (مثال)');
 });

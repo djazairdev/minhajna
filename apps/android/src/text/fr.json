@@ -442,6 +442,7 @@
     "confirm": "Faite comme proposé",
     "notHeld": "Séance non tenue",
     "recorded": "Enregistrée pour le cahier de textes",
+    "skipped": "Passée : {{title}}",
     "snack": "Séance enregistrée pour le cahier de textes",
     "undo": "Annuler",
     "undone": "Enregistrement annulé : la séance attend la confirmation.",
