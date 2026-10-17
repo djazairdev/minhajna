@@ -12,6 +12,7 @@ import { PageHeading } from '../src/components/PageHeading';
 import { SectionHeader } from '../src/components/SectionHeader';
 import type { ControlIcon } from '../src/components/control';
 import { colors, typography } from '../src/design/tokens';
+import { headingTexts } from '../src/gallery/heading-texts';
 import { samples } from '../src/gallery/samples';
 
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({ __esModule: true, default: jest.fn() }));
@@ -55,7 +56,7 @@ describe.each(['rtl', 'ltr'] as const)('PageHeading (%s)', (direction) => {
   test.each(['today', 'long', 'scope', 'actions'] as const)(
     '%s keeps the title a header and actions separate',
     async (state) => {
-      const words = samples.ar.headings;
+      const words = headingTexts.ar;
       const title = state === 'long' ? samples.ar.longHeading : words.day;
       const onPress = jest.fn();
       const actions =
@@ -117,7 +118,7 @@ describe.each(['rtl', 'ltr'] as const)('SectionHeader (%s)', (direction) => {
   test.each(['plain', 'count', 'empty', 'action', 'long'] as const)(
     '%s has a heading, including its count when present',
     async (state) => {
-      const words = samples.ar.headings;
+      const words = headingTexts.ar;
       const label = state === 'long' ? samples.ar.longHeading : words.section;
       const count =
         state === 'count' || state === 'long' ? words.count : state === 'empty' ? words.emptyCount : undefined;
@@ -158,16 +159,16 @@ describe.each(['rtl', 'ltr'] as const)('SectionHeader (%s)', (direction) => {
 
 test('uses the caller’s date verbatim, without parsing, generating or falling back to another date', async () => {
   const scope = '2026-10-04';
-  await render(<PageHeading title={samples.en.headings.day} scope={scope} />, 'ltr');
+  await render(<PageHeading title={headingTexts.en.day} scope={scope} />, 'ltr');
   expect(tree.root.findAllByType(Text).map((node) => (node.props as TextProps).children)).toEqual([
-    samples.en.headings.day,
+    headingTexts.en.day,
     scope,
   ]);
 });
 
 test('scales display-font ink space at 200% without a fixed line height or size cap', async () => {
   jest.mocked(useWindowDimensions).mockReturnValue({ ...window, fontScale: 2 });
-  await render(<PageHeading title={samples.ar.longHeading} scope={samples.ar.headings.date} />, 'rtl');
+  await render(<PageHeading title={samples.ar.longHeading} scope={headingTexts.ar.date} />, 'rtl');
   expect(StyleSheet.flatten((header().props as TextProps).style)).toMatchObject({
     paddingVertical: 24,
     paddingHorizontal: 4,

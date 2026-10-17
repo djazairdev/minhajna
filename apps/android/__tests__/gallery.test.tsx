@@ -24,6 +24,9 @@ import { Snackbar, type SnackbarProps } from '../src/components/Snackbar';
 import { CheckRow } from '../src/components/CheckRow';
 import { OptionRow } from '../src/components/OptionRow';
 import { entries } from '../src/gallery/entries';
+import { headingTexts } from '../src/gallery/heading-texts';
+import { feedbackTexts } from '../src/gallery/feedback-texts';
+import { fieldTexts } from '../src/gallery/text-field-texts';
 import { samples } from '../src/gallery/samples';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import { accessibilityProblems } from '../jest/accessibility';
@@ -98,7 +101,7 @@ test.each(
   expect(tree.root.findAllByType(CheckRow)).toHaveLength(5);
   expect(tree.root.findAllByType(OptionRow)).toHaveLength(5);
   expect(tree.root.findAllByType(PageHeading).map((node) => (node.props as PageHeadingProps).title)).toEqual([
-    samples[language].headings.day,
+    headingTexts[language].day,
     samples[language].longHeading,
     samples[language].tabs[1],
   ]);
@@ -106,13 +109,13 @@ test.each(
   expect(tree.root.findAllByType(Notice)).toHaveLength(3);
   expect(tree.root.findAllByType(Snackbar)).toHaveLength(2);
   expect(tree.root.findAllByType(Snackbar).map((node) => (node.props as SnackbarProps).message)).toEqual([
-    samples[language].feedback.confirmation,
-    samples[language].feedback.longConfirmation,
+    feedbackTexts[language].confirmation,
+    feedbackTexts[language].longConfirmation,
   ]);
   const inputs = tree.root.findAllByType(TextInput).map((node) => node.props as TextInputProps);
   expect(inputs).toHaveLength(7);
   expect(new Set(inputs.map((input) => input.accessibilityLabelledBy)).size).toBe(7);
-  expect(inputs.find((input) => input.testID === 'field-code')?.value).toBe(samples[language].fields.codeValue);
+  expect(inputs.find((input) => input.testID === 'field-code')?.value).toBe(fieldTexts[language].codeValue);
   const rotation = direction === 'rtl' ? '135deg' : '225deg';
   expect(backArrows()).toHaveLength(2);
   expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
@@ -171,7 +174,7 @@ test('Undo changes only the feedback preview and its confirmation can be shown a
     (undo.props as PressableProps).onPress?.({} as never);
   });
   expect(tree.root.findAllByType(Snackbar)).toHaveLength(1);
-  expect(tree.root.findAllByType(Text).some((node) => node.props.children === samples.ar.feedback.undone)).toBe(true);
+  expect(tree.root.findAllByType(Text).some((node) => node.props.children === feedbackTexts.ar.undone)).toBe(true);
   await press('snack-short-show');
   expect(tree.root.findAllByType(Snackbar)).toHaveLength(2);
   const nav = tree.root.findAllByType(View).find((node) => node.props.testID === 'snack-short-nav')!;
@@ -188,11 +191,11 @@ test('editing a gallery field changes only its transient value', async () => {
   const field = () =>
     tree.root.findAllByType(TextInput).find((node) => node.props.testID === 'field-empty')!.props as TextInputProps;
   await ReactTestRenderer.act(() => {
-    field().onChangeText?.(samples.ar.fields.value);
+    field().onChangeText?.(fieldTexts.ar.value);
   });
-  expect(field().value).toBe(samples.ar.fields.value);
+  expect(field().value).toBe(fieldTexts.ar.value);
   await press('gallery-ltr');
-  expect(field().value).toBe(samples.ar.fields.value);
+  expect(field().value).toBe(fieldTexts.ar.value);
 });
 
 test('links each entry to its page in the design system', () => {

@@ -7,7 +7,8 @@ import { CheckRow } from '../components/CheckRow';
 import { OptionRow } from '../components/OptionRow';
 import type { ControlIcon } from '../components/control';
 import { colors, spacing, typography } from '../design/tokens';
-import { fill, type Sample } from './samples';
+import { choiceTexts } from './choice-texts';
+import { fill, type SampleProps } from './samples';
 
 /** A neutral geometric decoration, not a second accessible control or a font-dependent glyph. */
 const optionIcon: ControlIcon = ({ size, color }) => (
@@ -15,9 +16,10 @@ const optionIcon: ControlIcon = ({ size, color }) => (
 );
 
 /** Independent toggles demonstrate both values, disabled states and an intentionally long row label. */
-export function CheckRowSamples({ sample }: { sample: Sample }) {
+export function CheckRowSamples({ sample, language }: SampleProps) {
+  const text = choiceTexts[language];
   const [values, setValues] = useState([true, false, false]);
-  const labels = [sample.choices.stage, sample.choices.check, sample.longHeading];
+  const labels = [text.stage, text.check, sample.longHeading];
   return (
     <View style={styles.group}>
       {labels.map((label, index) => (
@@ -36,7 +38,7 @@ export function CheckRowSamples({ sample }: { sample: Sample }) {
         <CheckRow
           key={String(checked)}
           testID={`check-disabled-${checked}`}
-          label={sample.choices.check}
+          label={text.check}
           checked={checked}
           disabled
           onCheckedChange={() => undefined}
@@ -47,7 +49,8 @@ export function CheckRowSamples({ sample }: { sample: Sample }) {
 }
 
 /** One action, a mutually exclusive pair of choice buttons, and disabled previews; no session is recorded. */
-export function OptionRowSamples({ sample }: { sample: Sample }) {
+export function OptionRowSamples({ sample, language }: SampleProps) {
+  const text = choiceTexts[language];
   const [selected, setSelected] = useState(0);
   const [count, setCount] = useState(0);
   return (
@@ -55,15 +58,15 @@ export function OptionRowSamples({ sample }: { sample: Sample }) {
       <OptionRow
         testID="option-action"
         icon={optionIcon}
-        label={sample.choices.other}
+        label={text.other}
         onPress={() => setCount((previous) => previous + 1)}
       />
       <View style={styles.group}>
         <OptionRow
           testID="option-0"
           icon={optionIcon}
-          label={sample.choices.option}
-          sub={sample.choices.privacy}
+          label={text.option}
+          sub={text.privacy}
           selected={selected === 0}
           onPress={() => setSelected(0)}
         />
@@ -71,7 +74,7 @@ export function OptionRowSamples({ sample }: { sample: Sample }) {
           testID="option-1"
           icon={optionIcon}
           label={sample.longHeading}
-          sub={sample.choices.privacy}
+          sub={text.privacy}
           selected={selected === 1}
           onPress={() => setSelected(1)}
         />
@@ -82,8 +85,8 @@ export function OptionRowSamples({ sample }: { sample: Sample }) {
           key={String(chosen)}
           testID={`option-disabled-${chosen}`}
           icon={optionIcon}
-          label={sample.choices.option}
-          sub={sample.choices.privacy}
+          label={text.option}
+          sub={text.privacy}
           selected={chosen}
           disabled
           onPress={() => setCount((previous) => previous + 1)}

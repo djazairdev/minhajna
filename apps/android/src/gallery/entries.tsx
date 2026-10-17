@@ -4,8 +4,11 @@
 // One entry per component, in the order of the design system. To add a
 // component, build it in src/components/<Name>.tsx, then add its entry here:
 // its name as in docs/design/system/components, its design page, and each of
-// its states with made-up content from samples.ts. The gallery's test then
-// renders it both ways and checks its labels and touch targets.
+// its states with made-up content. Put the texts only its samples use in
+// src/gallery/<name>-texts.ts, one record per interface language, beside its
+// <name>-samples.tsx; samples.ts keeps the words every component shares. The
+// gallery's test then renders it both ways and checks its labels and touch
+// targets.
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import type { ReactNode } from 'react';
@@ -17,6 +20,7 @@ import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
 import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
+import type { Language } from '../text/i18n';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -25,7 +29,7 @@ export type GalleryEntry = {
   /** Its design page, from the repository's root. */
   readonly design: string;
   /** Each of its states, with made-up content. */
-  readonly render: (sample: Sample) => ReactNode;
+  readonly render: (sample: Sample, language: Language) => ReactNode;
 };
 
 /** The header's props with a title, as the native stack would give them, and a Back that stays on the gallery. */
@@ -52,12 +56,12 @@ export const entries: readonly GalleryEntry[] = [
   {
     name: 'PageHeading',
     design: 'docs/design/system/components/PageHeading/README.md',
-    render: (sample) => <PageHeadingSamples key={sample.title} sample={sample} />,
+    render: (sample, language) => <PageHeadingSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'SectionHeader',
     design: 'docs/design/system/components/SectionHeader/README.md',
-    render: (sample) => <SectionHeaderSamples key={sample.title} sample={sample} />,
+    render: (sample, language) => <SectionHeaderSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'Facts',
@@ -67,27 +71,27 @@ export const entries: readonly GalleryEntry[] = [
   {
     name: 'Notice',
     design: 'docs/design/system/components/Notice/README.md',
-    render: (sample) => <NoticeSamples sample={sample} />,
+    render: (sample, language) => <NoticeSamples sample={sample} language={language} />,
   },
   {
     name: 'Snackbar',
     design: 'docs/design/system/components/Snackbar/README.md',
-    render: (sample) => <SnackbarSamples key={sample.title} sample={sample} />,
+    render: (sample, language) => <SnackbarSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'TextField',
     design: 'docs/design/system/components/TextField/README.md',
-    render: (sample) => <TextFieldSamples key={sample.title} sample={sample} />,
+    render: (sample, language) => <TextFieldSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'CheckRow',
     design: 'docs/design/system/components/CheckRow/README.md',
-    render: (sample) => <CheckRowSamples key={sample.title} sample={sample} />,
+    render: (sample, language) => <CheckRowSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'OptionRow',
     design: 'docs/design/system/components/OptionRow/README.md',
-    render: (sample) => <OptionRowSamples key={sample.title} sample={sample} />,
+    render: (sample, language) => <OptionRowSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'WelcomeHero',

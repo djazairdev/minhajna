@@ -67,7 +67,7 @@ export function Gallery() {
           </View>
           <SafeAreaInsetsContext.Provider value={NO_INSETS}>
             <LocaleDirContext.Provider value={direction}>
-              <View style={[styles.states, { direction }]}>{entry.render(sample)}</View>
+              <View style={[styles.states, { direction }]}>{entry.render(sample, language)}</View>
             </LocaleDirContext.Provider>
           </SafeAreaInsetsContext.Provider>
         </View>

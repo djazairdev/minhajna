@@ -9,7 +9,8 @@ import { Snackbar } from '../components/Snackbar';
 import type { ControlIcon } from '../components/control';
 import { colors, spacing, typography } from '../design/tokens';
 import { TabsSample } from './navigation-sample';
-import type { Sample } from './samples';
+import { feedbackTexts } from './feedback-texts';
+import type { SampleProps } from './samples';
 
 /** A geometric information mark needs no font download and adds no extra spoken name. */
 const information: ControlIcon = ({ size, color }) => (
@@ -31,8 +32,8 @@ const information: ControlIcon = ({ size, color }) => (
 );
 
 /** Both notice styles, with a longer reassurance that must wrap at enlarged text. */
-export function NoticeSamples({ sample }: { sample: Sample }) {
-  const text = sample.feedback;
+export function NoticeSamples({ language }: SampleProps) {
+  const text = feedbackTexts[language];
   return (
     <View style={styles.group}>
       <Notice icon={information} message={text.reassurance} />
@@ -43,12 +44,12 @@ export function NoticeSamples({ sample }: { sample: Sample }) {
 }
 
 /** Synthetic feedback only; Undo hides the preview, and the real navigation bar supplies its measured height. */
-function SnackbarExample({ sample, message, id }: { sample: Sample; message: string; id: string }) {
+function SnackbarExample({ sample, language, message, id }: SampleProps & { message: string; id: string }) {
   const [visible, setVisible] = useState(true);
   const [undone, setUndone] = useState(false);
   const [barHeight, setBarHeight] = useState<number>();
   const { fontScale } = useWindowDimensions();
-  const text = sample.feedback;
+  const text = feedbackTexts[language];
   return (
     <View style={[styles.frame, { minHeight: 320 * fontScale }]}>
       <View style={styles.content}>
@@ -87,11 +88,12 @@ function SnackbarExample({ sample, message, id }: { sample: Sample; message: str
 }
 
 /** A concise confirmation and a long one, each above the actual bottom bar, with repeatable Undo. */
-export function SnackbarSamples({ sample }: { sample: Sample }) {
+export function SnackbarSamples({ sample, language }: SampleProps) {
+  const text = feedbackTexts[language];
   return (
     <View style={styles.group}>
-      <SnackbarExample sample={sample} message={sample.feedback.confirmation} id="snack-short" />
-      <SnackbarExample sample={sample} message={sample.feedback.longConfirmation} id="snack-long" />
+      <SnackbarExample sample={sample} language={language} message={text.confirmation} id="snack-short" />
+      <SnackbarExample sample={sample} language={language} message={text.longConfirmation} id="snack-long" />
     </View>
   );
 }

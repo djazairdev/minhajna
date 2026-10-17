@@ -9,7 +9,7 @@ import { accessibilityProblems } from '../jest/accessibility';
 import { Notice, type NoticeProps } from '../src/components/Notice';
 import type { ControlIcon } from '../src/components/control';
 import { colors, typography } from '../src/design/tokens';
-import { samples } from '../src/gallery/samples';
+import { feedbackTexts } from '../src/gallery/feedback-texts';
 
 const icon: ControlIcon = ({ size, color }) => (
   <View testID="notice-drawing" style={{ width: size, height: size, backgroundColor: color }} />
@@ -21,7 +21,7 @@ afterEach(async () => {
 
 describe.each(['rtl', 'ltr'] as const)('Notice (%s)', (direction) => {
   test.each(['reassurance', 'notice'] as const)('%s has readable words without relying on colour', async (variant) => {
-    const text = samples.ar.feedback;
+    const text = feedbackTexts.ar;
     const props: NoticeProps =
       variant === 'reassurance'
         ? { message: text.reassurance, icon }
@@ -71,7 +71,7 @@ describe.each(['rtl', 'ltr'] as const)('Notice (%s)', (direction) => {
 });
 
 test('a notice without a heading still has the badge and the instruction as its name', async () => {
-  const text = samples.en.feedback;
+  const text = feedbackTexts.en;
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(<Notice variant="notice" badge={text.badge} message={text.instruction} />);
   });
