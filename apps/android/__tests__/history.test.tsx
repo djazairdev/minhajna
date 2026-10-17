@@ -108,6 +108,17 @@ describe('at start', () => {
     });
     expect(tree!.root.findAllByType(AppNavigator)).toHaveLength(1);
     expect(reportDrawn).toHaveBeenCalledTimes(1);
+    await ReactTestRenderer.act(() => {
+      tree!.update(
+        <App
+          storage={storage}
+          reportDrawn={() => {
+            reportDrawn();
+          }}
+        />,
+      );
+    });
+    expect(reportDrawn).toHaveBeenCalledTimes(1);
     await ReactTestRenderer.act(() => tree!.unmount());
   });
 

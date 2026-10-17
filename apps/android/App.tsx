@@ -12,7 +12,7 @@
 // the reference data is logged, for whoever keys it; teachers see one short
 // message.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import NativeInterface from './src/native/NativeMinhajnaInterface';
@@ -39,8 +39,11 @@ export default function App({
     return result;
   }, [files]);
   const history = useHistory(storage);
+  const reported = useRef(false);
   useEffect(() => {
-    if (history !== 'opening') reportDrawn();
+    if (history === 'opening' || reported.current) return;
+    reported.current = true;
+    reportDrawn();
   }, [history, reportDrawn]);
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
