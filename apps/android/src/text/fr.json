@@ -121,6 +121,13 @@
     "next": "Suivant",
     "nextHint": "Écrivez le nom de chaque établissement et choisissez son niveau et sa matière.",
     "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce téléphone.",
+    "zone": "Wilaya",
+    "zoneChoose": "Choisir la wilaya",
+    "zoneHint": "Elle choisit les dates de la wilaya dans le calendrier, et n’est envoyée à aucun serveur.",
+    "zoneSearch": "Chercher par nom ou par numéro",
+    "zoneSearchExample": "Par exemple : 16 ou Alger",
+    "zoneNone": "Aucune wilaya ne porte ce nom ou ce numéro.",
+    "close": "Fermer",
     "levelName": {
       "primary": "Primaire",
       "cem": "Moyen",

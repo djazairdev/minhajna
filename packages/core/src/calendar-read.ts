@@ -91,6 +91,9 @@ function readEntry(
   const id = reader.requiredText(raw, 'id', path, ENTRY_ID);
   const layer = reader.oneOf(raw, 'layer', path, FILE_LAYERS);
   const zone = reader.text(raw, 'zone', path, PLACE);
+  if (zone !== undefined && profile.zones !== undefined && !profile.zones.some((known) => known.code === zone)) {
+    reader.fail(at(path, 'zone'), 'unknown-reference');
+  }
   const schoolId = reader.text(raw, 'schoolId', path, PLACE);
   if (layer !== undefined) {
     placeFits(reader, raw, 'zone', layer === 'zone', path);

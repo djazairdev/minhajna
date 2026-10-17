@@ -66,9 +66,9 @@ describe("Algeria's reference data", () => {
     assert.deepEqual([calendar.year.from, calendar.year.to], ['2026-09-21', '2027-07-08']);
   });
 
-  it('ships release 2026.2 with all month spellings and written dates unchanged', () => {
+  it('ships release 2026.3 with all month spellings and written dates unchanged', () => {
     const { profile } = readAlgeria();
-    assert.equal(profile.release, '2026.2');
+    assert.equal(profile.release, '2026.3');
     assert.deepEqual(profile.months, monthNames);
     for (const [index, names] of monthNames.entries()) {
       const day = d(`2027-${String(index + 1).padStart(2, '0')}-03`);
@@ -76,6 +76,17 @@ describe("Algeria's reference data", () => {
         assert.equal(formatDayWithMonth(day, language, profile), `3 ${names[language]} 2027`);
       }
     }
+  });
+
+  it('lists the 69 wilayas of Law 26-06 in order, each named in the three languages', () => {
+    const zones = readAlgeria().profile.zones ?? [];
+    assert.deepEqual(
+      zones.map((zone) => zone.code),
+      Array.from({ length: 69 }, (_, index) => String(index + 1).padStart(2, '0')),
+    );
+    for (const zone of zones) assert.deepEqual(Object.keys(zone.name), ['ar', 'fr', 'en']);
+    assert.deepEqual(zones[15]?.name, { ar: 'الجزائر', fr: 'Alger', en: 'Algiers' });
+    assert.deepEqual(zones[68]?.name.fr, 'El Abiodh Sidi Cheikh');
   });
 
   // No text dates Ramadan yet. A lunar date, Ramadan's included, stays

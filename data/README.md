@@ -8,7 +8,7 @@ The data lives here until curators join, then moves to its own data repository (
 
 | File | What it holds |
 |---|---|
-| `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, and the session types |
+| `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 
 ## Month names
@@ -16,6 +16,18 @@ The data lives here until curators join, then moves to its own data repository (
 Profile release `2026.2` adds `months`, ordered from January to December. Each of the twelve entries contains non-empty `ar`, `fr` and `en` strings. These are the same spellings previously held by the core formatter; moving them here changes no written date. The profile keeps `format: 1`: this is an additive field, and older readers can leave it out.
 
 `parseCountryProfile` still accepts older format-1 profiles without `months`, but does not invent missing names. `formatDayWithMonth(day, language, profile)` requires the names for the requested month and language and reports an error if they are absent. It never substitutes a numeric date, a different language, or a platform-locale default. Callers must supply a profile with month data before producing a named date. The fixed numeric date helpers keep their existing formats.
+
+## Wilayas
+
+Profile release `2026.3` adds `zones`: Algeria's 69 wilayas, in the order of their codes, from `01` to `69`. A teacher picks their school's wilaya at setup, and it picks the calendar's zone layer: a zone entry in a calendar names one of these codes, or the calendar is refused. The wilaya never leaves the phone ([PRD §4.5](../docs/prd/PRD.md#45-the-calendar)).
+
+- **Law 26-06 of 4 April 2026** (JORADP n° 25 of 5 April 2026) sets 69 wilayas and 1,541 communes.
+- **The codes and names** come from three decrees:
+  - Decree 84-79 of 3 April 1984 (JORADP n° 14) for `01` to `48`;
+  - Decree 21-117 of 22 March 2021 (JORADP n° 22) for `49` to `58`;
+  - Presidential decree 26-206 of 25 May 2026 (JORADP n° 40 of 3 June 2026) for `59` to `69`.
+- **The spellings** are those of the recent Journal officiel issues (2019 to 2026), not the older typography of 1984. Code `11` is تامنغست in Arabic and Tamenghasset in French, as JORADP n° 25 of 2026 writes it; its English name is Tamanrasset. English names are the French ones without accents, except Algiers and Tamanrasset.
+- **The eleven new wilayas,** `59` to `69`, are in transition until 31 December 2026 at the latest: their mother wilaya's services, its education directorate included, keep running them (Law 26-06, new Art. 54). A closure that covers a new wilaya is keyed with that wilaya's own code, even when the mother wilaya announces it.
 
 ## Sources
 
@@ -48,6 +60,6 @@ Each entry carries one of three confidences ([PRD §4.5](../docs/prd/PRD.md#45-t
 - **The pupils' last day.** Their summer holiday starts after the term-3 exams, the make-up exams and their correction, which have no dates yet. Until then, the year runs to 8 July 2027, when teachers' annual leave starts.
 - **Ramadan hours.** They come with the Ministry's Ramadan notice, as do the bell times ([#29](https://github.com/djazairdev/minhajna/issues/29)).
 - **The BEM and the baccalaureate,** whose dates are not announced yet.
-- **Wilaya and school entries,** such as weather closures. They come as calendar fixes, or the teacher adds them ([PRD §4.5](../docs/prd/PRD.md#45-the-calendar)).
+- **Wilaya and school entries,** such as weather closures. They come as calendar fixes, keyed with the wilaya codes above, or the teacher adds them ([PRD §4.5](../docs/prd/PRD.md#45-the-calendar)).
 - **Subjects by grade and by stream.** The profile lists the subjects each level teaches, and the teacher picks theirs at setup.
 - **Signed releases,** before the pilot (R-4.8-04, R-5.9-10).

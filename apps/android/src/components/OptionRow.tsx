@@ -7,10 +7,10 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { controlStyles, type ControlIcon, type ControlProps } from './control';
 
-/** Omit selected for an action; supply it for choice buttons whose selection the screen owns. */
+/** Omit selected for an action; supply it for choice buttons whose selection the screen owns. Long lists may omit the icon. */
 export type OptionRowProps = ControlProps & {
   readonly label: string;
-  readonly icon: ControlIcon;
+  readonly icon?: ControlIcon;
   readonly sub?: string;
   readonly selected?: boolean;
   readonly directional?: boolean;
@@ -51,14 +51,16 @@ export function OptionRow({
         disabled && controlStyles.disabled,
       ]}
     >
-      <View
-        pointerEvents="none"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        style={[styles.icon, { transform: [{ scaleX: directional && direction === 'rtl' ? -1 : 1 }] }]}
-      >
-        {icon({ size: sizes.icon, color: colors.ink })}
-      </View>
+      {icon && (
+        <View
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={[styles.icon, { transform: [{ scaleX: directional && direction === 'rtl' ? -1 : 1 }] }]}
+        >
+          {icon({ size: sizes.icon, color: colors.ink })}
+        </View>
+      )}
       <View style={styles.words}>
         <Text style={[styles.label, textDirection]}>{label}</Text>
         {sub ? <Text style={[styles.sub, textDirection]}>{sub}</Text> : null}

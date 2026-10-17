@@ -19,9 +19,10 @@ export interface Schools {
   readonly chooseLevels: (id: string, levels: readonly string[]) => void;
   readonly chooseSubjects: (id: string, subjects: readonly string[]) => void;
   readonly rename: (id: string, name: string) => void;
+  readonly chooseZone: (id: string, zone: string) => void;
   /** Saves any name still waiting for a pause. */
   readonly flush: () => void;
-  /** Adds an empty school and returns its ID. */
+  /** Adds an empty school in the last one's wilaya, and returns its ID. */
   readonly add: () => string;
   readonly remove: (id: string) => void;
 }
@@ -81,9 +82,13 @@ export function useSchools(): Schools {
         setTimeout(() => save(id), NAME_PAUSE),
       );
     },
+    chooseZone: (id, zone) => {
+      change(id, (school) => ({ ...school, zone }));
+      save(id);
+    },
     flush,
     add: () => {
-      const school = blankSchool(newId());
+      const school = blankSchool(newId(), latest.current.at(-1)?.zone);
       put([...latest.current, school]);
       return school.id;
     },
