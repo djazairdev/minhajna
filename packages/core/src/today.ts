@@ -6,13 +6,13 @@
 // only that: it is never read as an absence (charter point 3).
 
 import type { Context } from './context.ts';
-import { addDays, compareDays, weekday, type Day } from './day.ts';
+import { addDays, compareDays, minDay, weekday, type Day } from './day.ts';
 import { confirmCourse, walkCourse, type Confirmation } from './engine.ts';
 import type { Proposal } from './progress.ts';
 import type { CalendarEntry } from './reference.ts';
 import { compareSlots, type Course, type Reason, type SessionRecord, type TeacherBlock } from './records.ts';
 import { sessionsBetween, versionOn, type Session } from './sessions.ts';
-import type { RecordEvent } from './events.ts';
+import type { CorrectionReason, RecordEvent } from './events.ts';
 import { current } from './state.ts';
 
 export type SessionStatus =
@@ -36,7 +36,11 @@ export interface TodaySession {
 export interface TodayView {
   readonly day: Day;
   readonly sessions: readonly TodaySession[];
-  /** Holidays, closures, exam weeks, seminars and councils, for the day's marks. */
+  /**
+   * Holidays, closures, exam weeks, seminars and councils, for the day's marks:
+   * the schools' own, and those of the classes the day's sessions are for,
+   * such as an exam window for some grades only.
+   */
   readonly marks: readonly CalendarEntry[];
   readonly blocks: readonly TeacherBlock[];
   /** Earlier sessions still awaiting confirmation: a fact, never a judgement (PRD §3.1, rule 8). */
@@ -50,6 +54,23 @@ function isAwaiting(context: Context, session: Session): boolean {
 /** The ordinary sessions from `from` to `to` still awaiting confirmation, in order. */
 export function awaitingBetween(context: Context, from: Day, to: Day): Session[] {
   return sessionsBetween(context, from, to).filter((session) => isAwaiting(context, session));
+}
+
+/**
+ * The first session after `day` that the calendar leaves to teach: what
+ * Today shows as the next session on a holiday or in an exam week. Null
+ * after the year's last one.
+ */
+export function nextSession(context: Context, day: Day): Session | null {
+  const { ref } = context;
+  let from = addDays(day, 1);
+  while (compareDays(from, ref.year.to) <= 0) {
+    const to = minDay(addDays(from, 13), ref.year.to);
+    const found = sessionsBetween(context, from, to).find((session) => session.calendar === null);
+    if (found !== undefined) return found;
+    from = addDays(to, 1);
+  }
+  return null;
 }
 
 export function todayView(context: Context, day: Day): TodayView {
@@ -79,6 +100,12 @@ export function todayView(context: Context, day: Day): TodayView {
   for (const school of state.schools.values()) {
     for (const entry of calendar.info(day, school).entries) marks.set(entry.id, entry);
   }
+  for (const classId of new Set(sessions.map((session) => session.classId))) {
+    const schoolClass = state.classes.get(classId);
+    const school = schoolClass && state.schools.get(schoolClass.schoolId);
+    if (school === undefined) continue;
+    for (const entry of calendar.info(day, school, schoolClass).entries) marks.set(entry.id, entry);
+  }
 
   const before = addDays(day, -1);
   return {
@@ -99,6 +126,8 @@ export interface SessionConfirmation extends Omit<Confirmation, 'sessionKey'> {
   readonly privateNote?: string;
   /** A reason in the teacher's own words, for a first confirmation or a correction. Private too. */
   readonly reason?: string;
+  /** A correction's coded reason, which shows with it (PRD §5.5). */
+  readonly correction?: CorrectionReason;
 }
 
 /**
@@ -147,8 +176,8 @@ export function confirmSessions(context: Context, confirmations: readonly Sessio
 
   const events: RecordEvent[] = [];
   for (const { record, confirmation } of recorded) {
-    const { reason, privateReason, privateNote } = confirmation;
-    events.push({ kind: 'session.recorded', record });
+    const { reason, privateReason, privateNote, correction } = confirmation;
+    events.push({ kind: 'session.recorded', record, ...(correction !== undefined && { correction }) });
     if (privateReason !== undefined || privateNote !== undefined || reason !== undefined) {
       const earlier = context.state.notes.get(record.session.key);
       events.push({
@@ -164,4 +193,20 @@ export function confirmSessions(context: Context, confirmations: readonly Sessio
     }
   }
   return events;
+}
+
+/**
+ * The event that undoes a session's last change, such as the one tap that
+ * confirmed it: the version before comes back, or, after a first
+ * confirmation, the session awaits confirmation again. Nothing is deleted:
+ * the history keeps both changes (PRD §4.7). Null when nothing is recorded.
+ */
+export function undoSession(context: Context, sessionKey: string): RecordEvent | null {
+  const versions = context.state.sessions.get(sessionKey) ?? [];
+  const last = versions.at(-1)?.value ?? null;
+  if (last === null) return null;
+  const before = versions.at(-2)?.value ?? null;
+  return before === null
+    ? { kind: 'session.withdrawn', session: last.session }
+    : { kind: 'session.recorded', record: before };
 }

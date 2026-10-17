@@ -37,17 +37,30 @@ describe('pacing', () => {
       term: 1,
       before: '2026-12-06',
       basis: 'exam-window',
+      confidence: 'announced',
       needs: 12,
       gives: 38,
+      td: { gives: 10, items: 2 },
     });
     const primary = contextOf(await openBook(primaryEvents()));
     assert.deepEqual(termCheck(primary, 'c-lang', d('2026-09-20')), {
       term: 1,
       before: '2026-12-18',
       basis: 'term-end',
+      confidence: null,
       needs: 11,
       gives: 94,
+      td: { gives: 0, items: 0 },
     });
+  });
+
+  it('counts TD apart in the September check, and drops the TD items done', async () => {
+    const book = await openBook(cemEvents());
+    await confirmAll(book, d('2026-09-20'), d('2026-10-01'));
+    const check = termCheck(contextOf(book), 'c-math', d('2026-10-02'));
+    assert.deepEqual(check?.td, { gives: 8, items: 1 });
+    assert.equal(check?.needs, 4);
+    assert.equal(check?.gives, 30);
   });
 
   it('never reads sessions awaiting confirmation as a delay', async () => {
@@ -67,6 +80,17 @@ describe('pacing', () => {
     assert.equal(result?.expected, 8);
     assert.equal(result?.delay, 0);
     assert.equal(result?.ahead, 0);
+    assert.equal(result?.bufferLeft, 2);
+  });
+
+  it('says which buffers are left once some are used', async () => {
+    const book = await openBook(cemEvents());
+    await confirmAll(book, d('2026-09-20'), d('2026-09-30'));
+    await confirmAll(book, d('2026-10-01'), d('2026-10-01'), { outcome: 'not-held' });
+    const result = pace(contextOf(book), 'c-math', d('2026-10-01'));
+    assert.equal(result?.bufferUsed, 1);
+    assert.equal(result?.bufferLeft, 1);
+    assert.equal(result?.delay, 0);
   });
 
   it('lets the buffers absorb a delay before showing one', async () => {
@@ -78,6 +102,7 @@ describe('pacing', () => {
     assert.equal(result?.expected, 8);
     assert.equal(result?.bufferUsed, 2);
     assert.equal(result?.delay, 2);
+    assert.equal(result?.bufferLeft, 0);
   });
 
   // The same pack gets a made-up term-2 buffer, which must not absorb a

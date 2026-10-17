@@ -90,16 +90,41 @@ export interface Confirmation {
   readonly details?: Details;
 }
 
-/** The details given, over a record's own. */
+/** The details given, over a record's own; null takes one out. */
 function withDetails(record: SessionRecord, details: Details): SessionRecord {
-  return {
-    ...record,
-    ...(details.sessionType !== undefined && { sessionType: details.sessionType }),
-    ...(details.homework !== undefined && { homework: details.homework }),
-    ...(details.test !== undefined && { test: details.test }),
-    ...(details.unplanned !== undefined && { unplanned: details.unplanned }),
-    ...(details.factual !== undefined && { factual: details.factual }),
-  };
+  const merged: Record<string, unknown> = { ...record };
+  for (const [name, value] of Object.entries(details)) {
+    if (value === null) delete merged[name];
+    else if (value !== undefined) merged[name] = value;
+  }
+  return merged as unknown as SessionRecord;
+}
+
+/**
+ * The proposal a session had from the sessions before it, its own record
+ * set aside: what a correction starts from (PRD §3.1, rule 4).
+ */
+export function proposalAt(context: Context, session: Session): Proposal | null {
+  const setup = courseSetup(context, session.courseId);
+  let found: Proposal | null = null;
+  walk(context, setup, session.day, new Set([session.key]), (other, proposal) => {
+    if (other.calendar !== null) return null;
+    const p = proposal();
+    if (other.key === session.key) {
+      found = p;
+      return null;
+    }
+    return p === null
+      ? null
+      : recordOf(
+          other,
+          { outcome: 'done' },
+          [{ op: 'taught', item: p.item.id, from: p.from, to: p.to }],
+          {},
+          other.sessionType,
+        );
+  });
+  return found;
 }
 
 /**

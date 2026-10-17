@@ -30,7 +30,7 @@ function isControl(node: ReactTestInstance): boolean {
   const props = node.props as PressableProps;
   return (
     typeof props.onPress === 'function' ||
-    (['button', 'checkbox', 'radio', 'tab'].includes(props.accessibilityRole ?? '') &&
+    (['button', 'checkbox', 'radio', 'tab', 'switch'].includes(props.accessibilityRole ?? '') &&
       props.accessibilityState?.disabled === true)
   );
 }

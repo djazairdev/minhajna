@@ -15,6 +15,8 @@ import type { ReactNode } from 'react';
 import { TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
 import { ChipSamples, SetupStepsSamples } from './chip-samples';
+import { SwitchSamples } from './switch-samples';
+import { StepperSamples } from './stepper-samples';
 import { SegmentedControlSamples } from './segmented-control-samples';
 import { RadioCardSamples } from './radio-card-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
@@ -24,7 +26,11 @@ import { TextFieldSamples } from './text-field-samples';
 import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
+import { DueStripSamples, ProposalSamples } from './proposal-samples';
+import { SessionCardSamples } from './session-card-samples';
+import { RollCallSamples, StatsSamples } from './roll-call-samples';
 import type { Language } from '../text/i18n';
+import { BottomSheetSamples } from './sheet-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -78,6 +84,16 @@ export const entries: readonly GalleryEntry[] = [
     render: () => <FactsSamples />,
   },
   {
+    name: 'Switch',
+    design: 'docs/design/system/components/Switch/README.md',
+    render: (sample, language) => <SwitchSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'Stepper',
+    design: 'docs/design/system/components/Stepper/README.md',
+    render: (sample, language) => <StepperSamples key={language} sample={sample} language={language} />,
+  },
+  {
     name: 'SegmentedControl',
     design: 'docs/design/system/components/SegmentedControl/README.md',
     render: (sample, language) => <SegmentedControlSamples key={language} sample={sample} language={language} />,
@@ -113,6 +129,31 @@ export const entries: readonly GalleryEntry[] = [
     render: (sample, language) => <WeekGridSamples key={language} sample={sample} language={language} />,
   },
   {
+    name: 'Proposal',
+    design: 'docs/design/system/components/Proposal/README.md',
+    render: (sample, language) => <ProposalSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'DueStrip',
+    design: 'docs/design/system/components/DueStrip/README.md',
+    render: (sample, language) => <DueStripSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'SessionCard',
+    design: 'docs/design/system/components/SessionCard/README.md',
+    render: (sample, language) => <SessionCardSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'RollCallRow',
+    design: 'docs/design/system/components/RollCallRow/README.md',
+    render: (sample, language) => <RollCallSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'Stats',
+    design: 'docs/design/system/components/Stats/README.md',
+    render: (sample, language) => <StatsSamples sample={sample} language={language} />,
+  },
+  {
     name: 'CheckRow',
     design: 'docs/design/system/components/CheckRow/README.md',
     render: (sample, language) => <CheckRowSamples key={language} sample={sample} language={language} />,
@@ -126,6 +167,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'WelcomeHero',
     design: 'docs/design/system/components/WelcomeHero/README.md',
     render: () => <WelcomeHeroSamples />,
+  },
+  {
+    name: 'BottomSheet',
+    design: 'docs/design/system/components/BottomSheet/README.md',
+    render: (sample, language) => <BottomSheetSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'TopBar',

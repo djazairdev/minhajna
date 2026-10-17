@@ -78,7 +78,7 @@ describe('Reusing the full-year load fixture', () => {
       deps,
     );
     const book = await reopenDemo(fixture);
-    assert.ok([...book.state.sessions.values()].every((versions) => versions[0]?.value.session.day !== day));
+    assert.ok([...book.state.sessions.values()].every((versions) => versions[0]?.value?.session.day !== day));
     assert.ok([...book.state.rollCalls.values()].every((versions) => versions[0]?.value.day !== day));
   });
 

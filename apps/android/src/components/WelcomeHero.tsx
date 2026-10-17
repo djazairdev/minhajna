@@ -13,15 +13,18 @@ export type WelcomeHeroProps = {
   readonly line?: string;
   /** The chalk mim above the title, as on the welcome. */
   readonly mark?: boolean;
+  /** A title in the smaller size, such as «كل شيء جاهز» at the end of setup. */
+  readonly small?: boolean;
 };
 
 /**
  * The name in chalk on the board, under the status bar, with the chalk
  * underline and the tagline (docs/design/system/components/WelcomeHero). The
  * title keeps the bundled Ruqaa face's own line box, as the canvas's 1.15
- * clips its lower dots on Android at 200%.
+ * clips its lower dots on Android at 200%. It spans the hero, as Android
+ * measures a Ruqaa phrase narrower than it draws it and clipped the last word.
  */
-export function WelcomeHero({ title, tagline, line, mark = false }: WelcomeHeroProps) {
+export function WelcomeHero({ title, tagline, line, mark = false, small = false }: WelcomeHeroProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   return (
@@ -44,7 +47,7 @@ export function WelcomeHero({ title, tagline, line, mark = false }: WelcomeHeroP
         style={styles.dust}
       />
       {mark && <Image source={{ uri: 'minhajna_mim' }} accessible={false} style={styles.mark} />}
-      <Text accessibilityRole="header" style={styles.title}>
+      <Text accessibilityRole="header" style={[styles.title, small && styles.small]}>
         {title}
       </Text>
       <Image source={{ uri: 'chalk_line' }} accessible={false} style={styles.underline} />
@@ -66,7 +69,8 @@ const styles = StyleSheet.create({
   },
   dust: { ...StyleSheet.absoluteFill, width: '100%', height: '100%', tintColor: colors['chalk-dust'] },
   mark: { width: 36, height: 48, tintColor: colors.chalk },
-  title: { ...typography.brand, lineHeight: undefined, color: colors.chalk, textAlign: 'center' },
+  title: { ...typography.brand, lineHeight: undefined, color: colors.chalk, textAlign: 'center', alignSelf: 'stretch' },
+  small: { fontSize: 40 },
   underline: { width: 170, height: 14, tintColor: colors.chalk, opacity: 0.75 },
   tagline: { ...typography.tagline, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-10'] },
   line: { ...typography.fact, color: colors['chalk-80'], textAlign: 'center' },

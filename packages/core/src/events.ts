@@ -8,6 +8,7 @@
 import { ERASURE, type Entry } from './history.ts';
 import type { Layer } from './layers.ts';
 import type { CalendarEntry } from './reference.ts';
+import type { CountingRules } from './roll-call-counts.ts';
 import type {
   Course,
   PrivateNote,
@@ -18,10 +19,20 @@ import type {
   SchoolClass,
   SeatingPlan,
   SessionRecord,
+  SessionRef,
   TeacherCard,
   TeacherPersonal,
   TimetableVersion,
 } from './records.ts';
+
+/**
+ * Why a confirmed session was corrected: added after confirming, an entry
+ * error, or another reason, whose words stay in the private note. The code
+ * shows with the correction (PRD §5.5).
+ */
+export const CORRECTION_REASONS = ['added-later', 'entry-error', 'other'] as const;
+
+export type CorrectionReason = (typeof CORRECTION_REASONS)[number];
 
 export type RecordEvent =
   | { readonly kind: 'teacher.set'; readonly card: TeacherCard }
@@ -34,13 +45,19 @@ export type RecordEvent =
   | { readonly kind: 'timetable.set'; readonly version: TimetableVersion }
   | { readonly kind: 'calendar.set'; readonly entry: CalendarEntry }
   // A session record never carries free text about why it changed: that is
-  // private, and goes into the session's note (PRD §5.4).
-  | { readonly kind: 'session.recorded'; readonly record: SessionRecord }
+  // private, and goes into the session's note (PRD §5.4). A correction may
+  // carry a coded reason, which shows with it (PRD §5.5).
+  | { readonly kind: 'session.recorded'; readonly record: SessionRecord; readonly correction?: CorrectionReason }
+  // A confirmation undone: the session awaits confirmation again, and what
+  // was recorded stays in the history (PRD §4.7).
+  | { readonly kind: 'session.withdrawn'; readonly session: SessionRef }
   | { readonly kind: 'session.noted'; readonly note: PrivateNote }
   // A roll call's correction carries its short reason, which is part of the
   // roll-call record (PRD §3.4, §5.5).
   | { readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string }
-  | { readonly kind: 'seating.set'; readonly plan: SeatingPlan };
+  | { readonly kind: 'seating.set'; readonly plan: SeatingPlan }
+  // The roll-call book's counting rules, one set for every class (PRD §3.4).
+  | { readonly kind: 'counting.set'; readonly rules: CountingRules };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -57,9 +74,11 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'timetable.set': true,
   'calendar.set': true,
   'session.recorded': true,
+  'session.withdrawn': true,
   'session.noted': true,
   'roll-call.taken': true,
   'seating.set': true,
+  'counting.set': true,
 };
 
 /**
@@ -75,6 +94,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'pupil.set':
     case 'pupil.moved':
     case 'roll-call.taken':
+    case 'counting.set':
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':
@@ -87,6 +107,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'course.set':
     case 'timetable.set':
     case 'session.recorded':
+    case 'session.withdrawn':
       return 'lesson-record';
   }
 }

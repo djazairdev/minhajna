@@ -23,15 +23,30 @@ export type Choice =
   | { readonly outcome: 'skipped'; readonly instead: boolean }
   /** An item taught again. */
   | { readonly outcome: 'retaught'; readonly item: string }
-  | { readonly outcome: 'not-held' };
+  /**
+   * Another lesson than the one proposed: an open plan item, up to the stage
+   * count `reached` (all its stages when absent), or, with no item, content
+   * from outside the plan, written in the details' `unplanned`. The proposed
+   * item stays first in its queue (PRD §2.3, §4.7).
+   */
+  | { readonly outcome: 'changed'; readonly item?: string; readonly reached?: number }
+  /**
+   * The session did not take place. `makeUp` is the teacher's mark «تُعوَّض
+   * هذه الحصة»: only it, or the director's request, makes a session owed a
+   * make-up, never the app on its own (PRD §3.3, §7.7).
+   */
+  | { readonly outcome: 'not-held'; readonly makeUp?: boolean };
 
-/** What else a session can record (PRD §3.3). */
+/**
+ * What else a session can record (PRD §3.3). In a correction, null takes a
+ * detail out of the new version; the version before keeps it.
+ */
 export interface Details {
   readonly sessionType?: string;
-  readonly homework?: Homework;
-  readonly test?: string;
-  readonly unplanned?: string;
-  readonly factual?: string;
+  readonly homework?: Homework | null;
+  readonly test?: string | null;
+  readonly unplanned?: string | null;
+  readonly factual?: string | null;
 }
 
 export function findItem(pack: PlanPack | null, id: string): PackItem {
@@ -136,6 +151,18 @@ export function coverageFor(
     }
     case 'retaught':
       return [{ op: 'retaught', item: findItem(setup.pack, choice.item).id }];
+    case 'changed': {
+      if (choice.item === undefined) return [];
+      const item = findItem(setup.pack, choice.item);
+      const pack = setup.pack as PlanPack;
+      if (progress.isFinished(pack, item, session.groupId)) throw new RangeError('A finished item is taught again');
+      const from = progress.firstOpen(item.id, session.groupId);
+      const to = choice.reached ?? stageCount(pack, item);
+      if (!Number.isInteger(to) || to < from || to > stageCount(pack, item)) {
+        throw new RangeError('The stage reached is outside the chosen item');
+      }
+      return [{ op: 'taught', item: item.id, from, to }];
+    }
     case 'not-held':
       return [];
   }
@@ -163,9 +190,10 @@ export function recordOf(
     outcome: choice.outcome,
     sessionType,
     coverage,
-    ...(details.homework !== undefined && { homework: details.homework }),
-    ...(details.test !== undefined && { test: details.test }),
-    ...(details.unplanned !== undefined && { unplanned: details.unplanned }),
-    ...(details.factual !== undefined && { factual: details.factual }),
+    ...(choice.outcome === 'not-held' && choice.makeUp === true && { makeUp: true }),
+    ...(details.homework != null && { homework: details.homework }),
+    ...(details.test != null && { test: details.test }),
+    ...(details.unplanned != null && { unplanned: details.unplanned }),
+    ...(details.factual != null && { factual: details.factual }),
   };
 }

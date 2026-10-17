@@ -15,7 +15,7 @@ import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
 
 /** Each setup screen's step, which its bar's subtitle names. */
-const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4 } as const;
+const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4, Plan: 5 } as const;
 
 /** Keeps tab labels and selection accessible without exposing decorative icons. */
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {

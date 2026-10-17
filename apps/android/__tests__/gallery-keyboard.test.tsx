@@ -18,6 +18,26 @@ afterEach(async () => {
   jest.restoreAllMocks();
 });
 
+test('ignores keyboard activity from an input outside the gallery scroll area', async () => {
+  jest.spyOn(TextInput.State, 'currentlyFocusedInput').mockReturnValue({} as never);
+  jest.spyOn(Keyboard, 'isVisible').mockReturnValue(true);
+  await ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      <GalleryScroll>
+        <View />
+      </GalleryScroll>,
+    );
+  });
+  const scroll = tree.root.findByType(ScrollView).instance as ScrollViewInstance;
+  const reveal = jest.spyOn(scroll, 'scrollResponderScrollNativeHandleToKeyboard');
+  const avoiding = tree.root.findByType(KeyboardAvoidingView).props as KeyboardAvoidingViewProps;
+  await ReactTestRenderer.act(() => {
+    avoiding.onLayout?.({} as never);
+  });
+  expect(reveal).not.toHaveBeenCalled();
+  expect(avoiding.enabled).toBe(false);
+});
+
 test('measures the header offset and reveals the focused edit box after a keyboard resize', async () => {
   const input = {} as ReturnType<typeof TextInput.State.currentlyFocusedInput>;
   jest.spyOn(TextInput.State, 'currentlyFocusedInput').mockReturnValue(input);
@@ -42,8 +62,11 @@ test('measures the header offset and reveals the focused edit box after a keyboa
   await ReactTestRenderer.act(() => {
     frame.onLayout?.({} as never);
   });
+  await ReactTestRenderer.act(() => {
+    (tree.root.findByType(View).props as ViewProps).onFocus?.({} as never);
+  });
   const avoiding = () => tree.root.findByType(KeyboardAvoidingView).props as KeyboardAvoidingViewProps;
-  expect(avoiding()).toMatchObject({ behavior: 'height', keyboardVerticalOffset: 81 });
+  expect(avoiding()).toMatchObject({ enabled: true, behavior: 'height', keyboardVerticalOffset: 81 });
   await ReactTestRenderer.act(() => {
     avoiding().onLayout?.({} as never);
   });
@@ -66,5 +89,9 @@ test('measures the header offset and reveals the focused edit box after a keyboa
     avoiding().onLayout?.({} as never);
   });
   expect(reveal).not.toHaveBeenCalled();
-  expect(scroll).toMatchObject({ keyboardShouldPersistTaps: 'handled', keyboardDismissMode: 'on-drag' });
+  expect(scroll).toMatchObject({
+    removeClippedSubviews: false,
+    keyboardShouldPersistTaps: 'handled',
+    keyboardDismissMode: 'on-drag',
+  });
 });

@@ -1,0 +1,297 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Today (#32, Main and Today-done): the day's sessions in order. The next
+// session awaiting confirmation is the focus card, with the plan's proposal
+// in pencil and the one tap that records it; the others show their lesson,
+// and a recorded session shows what it wrote. Nothing is recorded until the
+// teacher taps (PRD §2.3), and the tap can be undone at once: the history
+// keeps both changes (PRD §4.7). «نتيجة أخرى» records any other outcome in
+// a second tap (#33). A reason for a skip or a session not held goes into
+// the session's private note only. A second choice in the same sheet keeps
+// the first one's undo, so «تراجع» brings back what was there before the
+// sheet, note included. The session's details come with their own screen.
+// Earlier sessions still awaiting confirmation come first, a week at a
+// time, to confirm at once but for the ones left out (#35).
+// A holiday, a closure or an exam week shows its name, the sessions it
+// took, counted apart, and the next session (#36). Each session card carries
+// its roll call, and the backlog a past one's from the paper sheet (#38).
+
+import {
+  addDays,
+  backlogOf,
+  carryTo,
+  confirmSessions,
+  courseSetup,
+  current,
+  formatDayWithMonth,
+  nextSession,
+  refOf,
+  todayView,
+  weekday,
+  type Choice,
+  type Reason,
+  type RecordEvent,
+  type Session,
+  type TodaySession,
+} from '@minhajna/core';
+import { useLocale } from '@react-navigation/native';
+import { useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, View, type ViewInstance } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { IconButton } from '../components/IconButton';
+import { PageHeading } from '../components/PageHeading';
+import { SessionCard } from '../components/SessionCard';
+import { Snackbar } from '../components/Snackbar';
+import { controlIcon } from '../design/Icon';
+import { colors, spacing } from '../design/tokens';
+import { localized } from '../setup/names';
+import { coreContext } from '../storage/core-context';
+import { useAppData } from '../storage/AppData';
+import { currentLanguage, useText } from '../text/i18n';
+import { Backlog } from './Backlog';
+import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from './DayMark';
+import { carryWords, nextItem, previousItem } from './outcome-rules';
+import { OutcomeSheet } from './OutcomeSheet';
+import { PaperRolls } from './PaperRolls';
+import { rollStrip } from './roll-strip';
+import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
+import { sessionMeta } from './today-meta';
+
+/** The session just recorded, and the events that bring back what was there before. */
+type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; readonly message: string };
+
+/** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
+type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
+
+/** The Today tab; `onHelp` opens Help and the privacy notice, `onDetails` a session's details, `onRoll` its roll call. */
+export function Today(props: {
+  onHelp: () => void;
+  onDetails: (session: Session) => void;
+  onRoll: (session: Session) => void;
+}) {
+  const { onHelp, onDetails, onRoll } = props;
+  const insets = useSafeAreaInsets();
+  const { direction } = useLocale();
+  const t = useText();
+  const { state, profile, year, calendar, packs, bells, today, record, recordAll } = useAppData();
+  const [done, setDone] = useState<Done | null>(null);
+  const [sheet, setSheet] = useState<Sheet | null>(null);
+  const other = useRef<ViewInstance>(null);
+  const backlogOther = useRef<ViewInstance>(null);
+  const day = today();
+  const language = currentLanguage();
+  const comma = language === 'ar' ? '، ' : ', ';
+  const context = useMemo(
+    () => coreContext({ profile, year, calendar, packs, state }),
+    [profile, year, calendar, packs, state],
+  );
+  const view = useMemo(() => todayView(context, day), [context, day]);
+  const backlog = useMemo(() => backlogOf(context, day), [context, day]);
+  const mark = dayMarkOf(view);
+  const shown = mark === null ? view.sessions : view.sessions.filter((item) => item.status !== 'calendar');
+  const taken = view.sessions.length - shown.length;
+  const next = useMemo(
+    () => (mark === null || shown.length > 0 ? null : nextSession(context, day)),
+    [context, day, mark, shown.length],
+  );
+  const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
+
+  const metaOf = (item: TodaySession, withSubject: boolean) =>
+    sessionMeta({ state, profile, bells, calendar }, t, direction, item, withSubject);
+
+  const confirm = (item: TodaySession, choice?: Choice) => {
+    const key = item.session.key;
+    const before = current(state.sessions.get(key));
+    const undo: readonly RecordEvent[] =
+      done?.key === key
+        ? done.undo
+        : [
+            before === null
+              ? { kind: 'session.withdrawn', session: refOf(item.session) }
+              : { kind: 'session.recorded', record: before },
+          ];
+    recordAll(confirmSessions(context, [{ session: item.session, ...(choice !== undefined && { choice }) }]));
+    const kind = choice?.outcome;
+    const message = t(
+      kind === 'partial' ? 'outcome.snackPartial' : kind === 'not-held' ? 'outcome.snackNotHeld' : 'today.snack',
+    );
+    setDone({ key, undo, message });
+  };
+
+  const confirmAll = (items: readonly TodaySession[]) => {
+    recordAll(
+      confirmSessions(
+        context,
+        items.map((item) => ({ session: item.session })),
+      ),
+    );
+    setDone({
+      key: 'backlog',
+      undo: items.map((item) => ({ kind: 'session.withdrawn', session: refOf(item.session) })),
+      message: t('backlog.snack', { count: items.length }),
+    });
+  };
+
+  const keepReason = (item: TodaySession, reason: Reason | undefined, text: string | undefined) => {
+    const key = item.session.key;
+    const earlier = state.notes.get(key);
+    if (earlier?.reason === reason && earlier?.reasonText === text) return;
+    record({
+      kind: 'session.noted',
+      note: {
+        sessionKey: key,
+        ...(earlier?.note !== undefined && { note: earlier.note }),
+        ...(reason !== undefined && { reason }),
+        ...(text !== undefined && { reasonText: text }),
+      },
+    });
+    if (done?.key === key && !done.undo.some((event) => event.kind === 'session.noted')) {
+      setDone({ ...done, undo: [...done.undo, { kind: 'session.noted', note: earlier ?? { sessionKey: key } }] });
+    }
+  };
+
+  const nextLine = (session: Session) => {
+    const course = state.courses.get(session.courseId);
+    const meta =
+      course &&
+      metaOf({ session, course, status: 'awaiting', proposal: null, record: null, packMissing: false }, false);
+    return [meta?.className, meta?.slot, dayName(t, session.day, language, profile)].filter(Boolean).join(' · ');
+  };
+
+  const card = (item: TodaySession) => {
+    const key = item.session.key;
+    const testID = `today-${key}`;
+    const pack = courseSetup(context, item.course.id).pack;
+    if (item.status === 'recorded' && item.record !== null) {
+      return (
+        <SessionCard
+          key={key}
+          testID={testID}
+          kind="done"
+          meta={metaOf(item, true)}
+          written={writtenOf(t, pack, item.record, comma)}
+          where={t('today.recorded')}
+          show={{ id: 'fix', label: t('fix.open'), onPress: () => onDetails(item.session) }}
+          due={rollStrip(t, context, item.session, onRoll)}
+        />
+      );
+    }
+    if (item.status === 'calendar') {
+      const entry = view.marks.find((mark) => mark.id === item.session.calendarEntry);
+      const lesson =
+        entry !== undefined ? localized(entry.name) : t(`today.calendar.${item.session.calendar ?? 'holiday'}`);
+      return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} lesson={lesson} />;
+    }
+    if (item === focus && item.proposal !== null) {
+      return (
+        <SessionCard
+          key={key}
+          testID={testID}
+          kind="focus"
+          meta={metaOf(item, true)}
+          proposal={proposalOf(t, pack, item.proposal)}
+          due={rollStrip(t, context, item.session, onRoll)}
+          confirm={t('today.confirm')}
+          onConfirm={() => confirm(item)}
+          more={[
+            { id: 'other', label: t('outcome.other'), onPress: () => setSheet({ item, open: true }), ref: other },
+            { id: 'details', label: t('entry.open'), onPress: () => onDetails(item.session) },
+          ]}
+        />
+      );
+    }
+    return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lessonOf(t, item)} />;
+  };
+
+  return (
+    <View style={[styles.screen, { direction, paddingTop: insets.top }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingLeft: insets.left, paddingRight: insets.right, paddingBottom: done === null ? 0 : 96 },
+        ]}
+      >
+        <PageHeading
+          testID="today-heading"
+          title={t(`week.days.${weekday(day)}`)}
+          scope={formatDayWithMonth(day, language, profile)}
+          fact={{ text: dayFacts(t, view, mark !== null), icon: controlIcon('check') }}
+          actions={
+            <IconButton
+              testID="today-help"
+              icon={controlIcon('info')}
+              accessibilityLabel={t('today.help')}
+              onPress={onHelp}
+            />
+          }
+        />
+        <View style={styles.list}>
+          {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
+          {backlog.days.length > 0 && (
+            <Backlog
+              days={backlog.days.map((one) => ({
+                title: `${t(`week.days.${weekday(one.day)}`)} ${formatDayWithMonth(one.day, language, profile)}`,
+                rows: one.sessions.map((item) => {
+                  const meta = metaOf(item, false);
+                  return { item, label: [meta.slot, meta.className, lessonOf(t, item).lesson].join(' · ') };
+                }),
+              }))}
+              later={backlog.awaiting > backlog.days.reduce((sum, one) => sum + one.sessions.length, 0)}
+              sheetKey={sheet?.backlog === true ? sheet.item.session.key : null}
+              sheetRef={backlogOther}
+              onConfirm={confirmAll}
+              onOther={(item) => setSheet({ item, open: true, backlog: true })}
+              onDetails={onDetails}
+              paper={<PaperRolls context={context} from={backlog.week ?? day} to={addDays(day, -1)} onRoll={onRoll} />}
+            />
+          )}
+          {shown.map(card)}
+          {mark !== null && mark.effect !== 'exam' && taken > 0 && (
+            <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />
+          )}
+          {mark?.effect === 'exam' && (
+            <DayNote testID="day-paused" title={t('daymark.paused')} note={t('daymark.pausedNote')} />
+          )}
+          {next !== null && <NextSession line={nextLine(next)} />}
+        </View>
+      </ScrollView>
+      {sheet?.item.proposal != null && (
+        <OutcomeSheet
+          visible={sheet.open}
+          context={[
+            metaOf(sheet.item, false).className,
+            metaOf(sheet.item, false).slot,
+            sheet.item.proposal.item.title,
+          ].join(' · ')}
+          proposal={sheet.item.proposal}
+          next={nextItem(courseSetup(context, sheet.item.course.id).pack, sheet.item.proposal.item)}
+          previous={previousItem(state, courseSetup(context, sheet.item.course.id).pack, sheet.item.session)}
+          carry={carryWords(t, profile, language, carryTo(context, sheet.item.session))}
+          returnFocusRef={sheet.backlog === true ? backlogOther : other}
+          onClose={() => setSheet({ ...sheet, open: false })}
+          onChoose={(choice) => confirm(sheet.item, choice)}
+          onReason={(reason, text) => keepReason(sheet.item, reason, text)}
+        />
+      )}
+      {done !== null && (
+        <Snackbar
+          testID="today-snack"
+          message={done.message}
+          undoLabel={t('today.undo')}
+          bottomOffset={0}
+          onUndo={() => {
+            recordAll(done.undo);
+            setDone(null);
+          }}
+        />
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.paper },
+  content: { paddingBottom: spacing['space-16'] },
+  list: { gap: spacing['space-10'], paddingHorizontal: spacing['space-16'], paddingBottom: spacing['space-16'] },
+});

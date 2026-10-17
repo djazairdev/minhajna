@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import {
   DefaultTheme,
   NavigationContainer,
   useNavigationContainerRef,
+  type CompositeScreenProps,
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -18,17 +19,26 @@ import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
+import { RollRules } from '../roll/RollRules';
+import { CorrectScreen, EntryScreen, RollScreen, TodayTab } from './RecordScreens';
 import { Welcome } from './Welcome';
+import {
+  CardScreen,
+  ClassesScreen,
+  PacksScreen,
+  PlanScreen,
+  ReadyScreen,
+  TeachingScreen,
+  TypeListScreen,
+  WeekDrawScreen,
+  WeekScreen,
+} from './SetupScreens';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
-import { Card } from '../setup/Card';
-import { Classes } from '../setup/Classes';
-import { TypeList } from '../setup/TypeList';
-import { Week } from '../setup/Week';
 import { Times } from '../times/Times';
-import { WeekDraw } from '../week/WeekDraw';
+import { ClassPlan } from '../classes/ClassPlan';
+import { ClassesTab } from '../classes/ClassesTab';
 import type { Cell } from '../week/week-rules';
-import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
 
@@ -45,6 +55,9 @@ export type RootStackParamList = {
   Week: undefined;
   WeekDraw: { slot?: Cell } | undefined;
   Times: undefined;
+  Plan: undefined;
+  Packs: { grade: string; subject: string };
+  Ready: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -54,6 +67,11 @@ export type RootStackParamList = {
   Connections: undefined;
   Licences: undefined;
   LicenceNotice: { name: string };
+  Entry: { key: string; day: string };
+  ClassPlan: { courseId: string };
+  Roll: { key: string; day: string };
+  Correct: { unit: string; day: string; pupilId: string };
+  RollRules: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -139,8 +157,19 @@ export function AppNavigator({
           component={WeekDrawScreen}
           options={{ title: t('week.title'), statusBarStyle: 'dark' }}
         />
+        <Stack.Screen
+          name="Plan"
+          component={PlanScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Packs"
+          component={PacksScreen}
+          options={{ title: t('plan.packsTitle'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
-        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false, statusBarStyle: 'dark' }} />
         <Stack.Screen
           name="NavigationPreview"
           component={InnerPreview}
@@ -161,6 +190,27 @@ export function AppNavigator({
           />
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen
+          name="Entry"
+          component={EntryScreen}
+          options={{ title: t('entry.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen
+          name="Correct"
+          component={CorrectScreen}
+          options={{ title: t('correct.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="RollRules"
+          component={RollRules}
+          options={{ title: t('rules.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="ClassPlan"
+          component={ClassPlanScreen}
+          options={{ title: t('classPlan.title'), statusBarStyle: 'dark' }}
+        />
         <Stack.Screen
           name="PrivacyNotice"
           component={HelpNotice}
@@ -194,8 +244,8 @@ function HomeTabs() {
       tabBar={(props) => <BottomNav {...props} />}
       screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
     >
-      <Tabs.Screen name="Today" component={HomePreview} />
-      <Tabs.Screen name="Classes" component={HomePreview} />
+      <Tabs.Screen name="Today" component={TodayTab} />
+      <Tabs.Screen name="Classes" component={ClassesTabScreen} />
       <Tabs.Screen name="Documents" component={HomePreview} />
     </Tabs.Navigator>
   );
@@ -220,49 +270,22 @@ function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 
   );
 }
 
-/** Setup's first step, which leads to the card. */
-function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Teaching'>) {
-  return <Teaching onNext={() => navigation.navigate('Card')} />;
-}
-
-/** Setup's second step, which leads to the classes. */
-function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
-  return <Card onNext={() => navigation.navigate('Classes')} />;
-}
-
-/** Setup's third step, which leads to the week. */
-function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Classes'>) {
-  return (
-    <Classes
-      onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
-      onNext={() => navigation.navigate('Week')}
-    />
-  );
-}
-
-/** Setup's fourth step; bell times and plans come with #29 and #30, so it leads to the tabs for now. */
-function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Week'>) {
-  return (
-    <Week
-      onDraw={() => navigation.navigate('WeekDraw')}
-      onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
-      onTimes={() => navigation.navigate('Times')}
-      onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
-    />
-  );
-}
-
-/** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */
-function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
-  return <WeekDraw openAt={route.params?.slot} onDone={() => navigation.goBack()} />;
-}
-
-/** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
-function TypeListScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TypeList'>) {
-  return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
-}
-
 /** The same notice, from Help. */
 function HelpNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrivacyNotice'>) {
   return <PrivacyNotice onConnections={() => navigation.navigate('Connections')} />;
+}
+
+/** The Classes tab; a class's «المخطط» opens its plan. */
+function ClassesTabScreen({
+  navigation,
+}: CompositeScreenProps<
+  BottomTabScreenProps<HomeTabParamList, 'Classes'>,
+  NativeStackScreenProps<RootStackParamList>
+>) {
+  return <ClassesTab onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })} />;
+}
+
+/** A class's plan. */
+function ClassPlanScreen({ route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
+  return <ClassPlan courseId={route.params.courseId} />;
 }

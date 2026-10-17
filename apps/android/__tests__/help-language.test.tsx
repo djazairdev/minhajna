@@ -10,6 +10,12 @@ import ReactTestRenderer from 'react-test-renderer';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import native from '../src/native/NativeMinhajnaLicences';
 import { catalogues, i18n, missingKeys, type Language } from '../src/text/i18n';
+import { openTestData, withData, type TestData } from '../jest/app-data';
+
+let navData: TestData;
+beforeEach(async () => {
+  navData = await openTestData();
+});
 
 jest.mock(
   'react-native-safe-area-context',
@@ -58,7 +64,7 @@ test.each(Object.keys(catalogues) as Language[])(
     await ReactTestRenderer.act(async () => {
       await i18n.changeLanguage(language);
       tree = ReactTestRenderer.create(
-        <AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />,
+        withData(navData, <AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />),
       );
     });
     await press(text.help.title);
@@ -91,7 +97,7 @@ test('updates Help labels on a same-direction language change', async () => {
   jest.spyOn(native, 'readNotices').mockReset().mockResolvedValue(fixture);
   await ReactTestRenderer.act(async () => {
     await i18n.changeLanguage('en');
-    tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction="ltr" />);
+    tree = ReactTestRenderer.create(withData(navData, <AppNavigator initialRouteName="Home" direction="ltr" />));
   });
   await press(catalogues.en.help.title);
   await press(catalogues.en.help.licences);

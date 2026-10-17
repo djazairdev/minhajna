@@ -16,8 +16,8 @@ import { courseSetup, type CourseSetup } from './choices.ts';
 import { walkCourse } from './engine.ts';
 import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
-import { findSessionType } from './reference.ts';
-import { sessionsBetween, type Session } from './sessions.ts';
+import { findSessionType, type Confidence, type Queue } from './reference.ts';
+import { compareSessions, sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
 
 export interface Pace {
@@ -35,6 +35,8 @@ export interface Pace {
   readonly expected: number;
   /** Behind the plan, but within the buffers left before the next exams. */
   readonly bufferUsed: number;
+  /** The buffers still left before the next exams, once those used are taken off. */
+  readonly bufferLeft: number;
   /** Behind the plan beyond the buffers, in sessions. */
   readonly delay: number;
   /** Ahead of the plan, in sessions. */
@@ -63,10 +65,42 @@ function share(pack: PlanPack, progress: Progress, item: PackItem, groupId: stri
   return Math.min(1, progress.spent(item.id, groupId) / budget);
 }
 
-function mainSessions(context: Context, setup: CourseSetup, from: Day, to: Day): Session[] {
+function queueSessions(context: Context, setup: CourseSetup, from: Day, to: Day, queue: Queue): Session[] {
   return sessionsBetween(context, from, to, new Set([setup.course.id])).filter(
-    (session) => queueOf(context, session) === 'main',
+    (session) => queueOf(context, session) === queue,
   );
+}
+
+/** Where what is left of a session's item goes on. */
+export interface CarryTo {
+  /** The next session of the same class, group and subject in the same queue. */
+  readonly next: Session | null;
+  /** The first session of another kind before it, such as a test, which the item passes over. */
+  readonly passed: Session | null;
+}
+
+/**
+ * Where what is left of this session's item goes on (PRD §4.7): the next
+ * session of the same class, group and subject in the same queue, never a
+ * TD, remediation or exam session in between, nor one the calendar takes.
+ * Looks eight weeks ahead.
+ */
+export function carryTo(context: Context, session: Session): CarryTo {
+  const queue = queueOf(context, session);
+  const later = sessionsBetween(context, session.day, addDays(session.day, 56), new Set([session.courseId])).filter(
+    (other) => other.groupId === session.groupId && other.calendar === null && compareSessions(other, session) > 0,
+  );
+  const at = later.findIndex((other) => queueOf(context, other) === queue);
+  return { next: later[at] ?? null, passed: at > 0 ? (later[0] ?? null) : null };
+}
+
+/** A TD item's term: its own, or else the last term its unit's lessons fall in. */
+function tdTerm(pack: PlanPack, item: PackItem): number | undefined {
+  if (item.term !== undefined || item.unit === undefined) return item.term;
+  const terms = pack.items.flatMap((other) =>
+    other.unit === item.unit && other.kind !== 'td' && other.term !== undefined ? [other.term] : [],
+  );
+  return terms.length === 0 ? undefined : Math.max(...terms);
 }
 
 function nextExamTerm(context: Context, setup: CourseSetup, today: Day): number | undefined {
@@ -92,7 +126,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
   const { calendar, ref, state } = context;
   const whole = setup.schoolClass.groups.find((group) => group.kind === 'whole')?.id ?? '';
   const progress = walkCourse(context, courseId, today).progress;
-  const sessions = mainSessions(context, setup, ref.year.from, today);
+  const sessions = queueSessions(context, setup, ref.year.from, today, 'main');
   const ordinary = sessions.filter((session) => session.calendar === null);
   const recorded = ordinary.filter((session) => current(state.sessions.get(session.key)) !== null);
   const items = queueItems(pack, 'main');
@@ -143,6 +177,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     position,
     expected,
     bufferUsed: Math.min(Math.max(0, behind), bufferLeft),
+    bufferLeft: bufferLeft - Math.min(Math.max(0, behind), bufferLeft),
     delay,
     ahead: Math.max(0, -behind),
     weeksBehind: weeksBehind === null ? null : delay > 0 ? weeksBehind : 0,
@@ -155,10 +190,18 @@ export interface TermCheck {
   /** The first day of the term's exams, or the day after the term when no exam window is known yet. */
   readonly before: Day;
   readonly basis: 'exam-window' | 'term-end';
+  /** How sure the exam window's date is; null when the term's end is used. */
+  readonly confidence: Confidence | null;
   /** Sessions the plan still needs before then. */
   readonly needs: number;
   /** Sessions the timetable and the calendar give from `from` until then. */
   readonly gives: number;
+  /**
+   * TD has its own queue, counted apart: it never adds to the plan's
+   * sessions nor to its spare ones (PRD §4.7). `items` are the TD items
+   * still to do before then, and `gives` the TD sessions left.
+   */
+  readonly td: { readonly gives: number; readonly items: number };
 }
 
 /**
@@ -198,18 +241,25 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
       const budget = budgetInSessions(pack, item, setup.sessionMinutes);
       return sum + budget * (1 - share(pack, progress, item, whole, budget));
     }, 0);
-  const gives =
+  const open = (queue: Queue): number =>
     compareDays(from, before) < 0
-      ? mainSessions(context, setup, from, addDays(before, -1)).filter(
+      ? queueSessions(context, setup, from, addDays(before, -1), queue).filter(
           (session) => session.calendar === null && current(state.sessions.get(session.key)) === null,
         ).length
       : 0;
+  const tdItems = queueItems(pack, 'td').filter((item) => {
+    const itemTerm = tdTerm(pack, item);
+    if (itemTerm === undefined || itemTerm > term.number) return false;
+    return share(pack, progress, item, whole, budgetInSessions(pack, item, setup.sessionMinutes)) < 1;
+  });
 
   return {
     term: term.number,
     before,
     basis: exam === undefined ? 'term-end' : 'exam-window',
+    confidence: exam?.confidence ?? null,
     needs: Math.ceil(needs - 1e-9),
-    gives,
+    gives: open('main'),
+    td: { gives: open('td'), items: tdItems.length },
   };
 }

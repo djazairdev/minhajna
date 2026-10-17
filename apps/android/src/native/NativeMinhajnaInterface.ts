@@ -14,6 +14,10 @@ export interface Spec extends TurboModule {
   setLanguage(code: string): void;
   /** Starts the interface again, so that a new direction applies. */
   restart(): void;
+  /** Focuses a mounted UI target, including in touch mode; no label or contents cross this boundary. */
+  focusView(reactTag: number): void;
+  /** Cancels a queued focus request when its sheet reopens or unmounts. */
+  cancelFocusRequest(): void;
   /**
    * Tells Android the first screen with content is drawn. Android then logs
    * the time since launch ("Fully drawn" in adb logcat), so a start can be

@@ -19,7 +19,7 @@ export const choiceTexts: Readonly<Record<Language, ChoiceTexts>> = {
   ar: {
     check: 'أُجري فرض في هذه الحصة',
     stage: 'تصحيح الواجب المنزلي',
-    option: 'لم تُنجز الحصة',
+    option: 'لم تُعقد الحصة',
     other: 'إعادة درس سابق',
     privacy: 'ذكر السبب اختياري، ويبقى على الهاتف',
   },

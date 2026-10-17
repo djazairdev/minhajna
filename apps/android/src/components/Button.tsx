@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useState, type Ref } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { ViewInstance } from 'react-native';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { controlStyles, type ControlIcon, type ControlProps } from './control';
 
@@ -12,6 +13,7 @@ export type ButtonVariant = 'primary' | 'line' | 'soft' | 'plain' | 'danger';
 
 /** A visible label is also the spoken name; only the primary action accepts a leading icon. */
 export type ButtonProps = ControlProps & {
+  readonly ref?: Ref<ViewInstance>;
   /** A concise action, sized for one line at enlarged text; put lesson details outside the button. */
   readonly label: string;
 } & (
@@ -21,6 +23,7 @@ export type ButtonProps = ControlProps & {
 
 /** A growing 48dp action (56dp, full width for primary), with one accessible name. */
 export function Button({
+  ref,
   label,
   variant = 'primary',
   icon,
@@ -35,6 +38,7 @@ export function Button({
   const color = dark ? colors.chalk : colors.ink;
   return (
     <Pressable
+      ref={ref}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}

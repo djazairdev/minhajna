@@ -9,6 +9,7 @@ import {
   type BellData,
   type CalendarEntry,
   type CountryProfile,
+  type PlanPack,
   type RecordBook,
   type SchoolYear,
 } from '@minhajna/core';
@@ -25,6 +26,7 @@ export interface TestData {
   readonly year: SchoolYear;
   readonly calendar: readonly CalendarEntry[];
   readonly bells: BellData;
+  readonly packs: readonly PlanPack[];
 }
 
 /** Opens an empty history, or the one in `storage`. */
@@ -39,6 +41,7 @@ export async function openTestData(storage = new FakeStorage()): Promise<TestDat
     year: reference.calendar.year,
     calendar: reference.calendar.entries,
     bells: reference.bells,
+    packs: reference.packs,
   };
 }
 
@@ -51,6 +54,7 @@ export function withData(data: TestData, children: ReactNode, day = '2026-10-15'
       year={data.year}
       calendar={data.calendar}
       bells={data.bells}
+      packs={data.packs}
       random={nativeDeps(data.storage.asSpec()).random}
       today={() => parseDay(day)}
     >

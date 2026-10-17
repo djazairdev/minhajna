@@ -12,6 +12,12 @@ import { AppNavigator } from '../src/navigation/AppNavigator';
 import { BottomNav, TopBar } from '../src/navigation/NavigationChrome';
 import { sizes } from '../src/design/tokens';
 import text from '../src/text/ar.json';
+import { openTestData, withData, type TestData } from '../jest/app-data';
+
+let navData: TestData;
+beforeEach(async () => {
+  navData = await openTestData();
+});
 
 jest.mock(
   'react-native-safe-area-context',
@@ -27,7 +33,7 @@ afterEach(async () => {
 
 async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction={direction} />);
+    tree = ReactTestRenderer.create(withData(navData, <AppNavigator initialRouteName="Home" direction={direction} />));
   });
 }
 
@@ -71,9 +77,9 @@ test.each(['rtl', 'ltr'] as const)(
   'stacks an inner screen above the tabs and returns to the chosen tab (%s)',
   async (direction) => {
     await mount(direction);
-    await press((props) => props.testID === 'tab-Classes');
-    expect(bar().state.routes[bar().state.index].name).toBe('Classes');
-    await press((props) => props.accessibilityRole === 'button');
+    await press((props) => props.testID === 'tab-Documents');
+    expect(bar().state.routes[bar().state.index].name).toBe('Documents');
+    await press((props) => props.accessibilityLabel === text.navigation.openPreview);
     const header = tree.root.findByType(TopBar).props as NativeStackHeaderProps;
     expect(header.navigation.getState().routes.map((route) => route.name)).toEqual(['Home', 'NavigationPreview']);
     expect(header.navigation.getState().index).toBe(1);
@@ -84,7 +90,7 @@ test.each(['rtl', 'ltr'] as const)(
     });
     await press((props) => props.accessibilityLabel === text.navigation.back);
     expect(tree.root.findAllByType(TopBar)).toHaveLength(0);
-    expect(bar().state.routes[bar().state.index].name).toBe('Classes');
+    expect(bar().state.routes[bar().state.index].name).toBe('Documents');
   },
 );
 
