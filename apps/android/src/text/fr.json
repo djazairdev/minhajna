@@ -509,5 +509,32 @@
     "keptNotHeldOn": "« Séance non tenue » enregistrée. « {{item}} » reste en tête de liste et sera proposé le {{day}}.",
     "makeUp": "Cette séance sera rattrapée",
     "makeUpNote": "Le résumé de la semaine affiche « séance à rattraper » jusqu’à ce qu’elle soit programmée. L’application ne décide jamais seule qu’une séance est rattrapée."
+  },
+  "entry": {
+    "title": "Détails de la séance",
+    "open": "Détails de la séance",
+    "unavailable": "Cette séance n’attend pas de confirmation. Ce qui a été enregistré se corrige sur sa propre page.",
+    "book": "Ainsi l’écrira le cahier de textes",
+    "type": "Type de séance",
+    "stages": "Étapes réalisées",
+    "addUnplanned": "Ajouter un contenu hors du plan",
+    "unplanned": "Contenu hors du plan",
+    "unplannedPlaceholder": "Écrit tel quel dans le cahier ; le plan n’avance pas",
+    "homework": "Devoir à la maison",
+    "homeworkPlaceholder": "Par exemple : exercice 5, page 22",
+    "due": "À rendre le",
+    "dueOther": "Une autre date",
+    "test": "Un devoir a eu lieu pendant cette séance",
+    "factual": "Une ligne de plus pour le cahier",
+    "optional": "facultatif",
+    "factualPlaceholder": "Figure dans le cahier de textes et les relevés partagés",
+    "note": "Note privée · ne quitte pas vos appareils",
+    "noteLabel": "Note",
+    "notePlaceholder": "Simple rappel",
+    "noteWarning": "Merci de ne pas écrire de détails de santé ou de discipline concernant les élèves, ici ou dans le cahier.",
+    "confirm": "Confirmer la séance",
+    "retaught": "Reprise",
+    "bookTest": "Devoir",
+    "bookHomework": "{{text}}, à rendre le {{day}}"
   }
 }

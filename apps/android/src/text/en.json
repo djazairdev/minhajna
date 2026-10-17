@@ -497,5 +497,32 @@
     "keptNotHeldOn": "“Session not held” recorded. “{{item}}” stays first on the list and is proposed on {{day}}.",
     "makeUp": "This session is to be made up",
     "makeUpNote": "The week’s summary shows “make-up owed” until it is scheduled. The app never decides on its own that a session is made up."
+  },
+  "entry": {
+    "title": "Session details",
+    "open": "Session details",
+    "unavailable": "This session is not awaiting confirmation. What was recorded is corrected on its own page.",
+    "book": "How the texts book will take it",
+    "type": "Session type",
+    "stages": "Stages covered",
+    "addUnplanned": "Add content from outside the plan",
+    "unplanned": "Content from outside the plan",
+    "unplannedPlaceholder": "Written as is in the book; the plan does not move",
+    "homework": "Homework",
+    "homeworkPlaceholder": "For example: exercise 5, page 22",
+    "due": "Due on",
+    "dueOther": "Another day",
+    "test": "A test was given in this session",
+    "factual": "An extra line for the book",
+    "optional": "optional",
+    "factualPlaceholder": "Shows in the texts book and in shared statements",
+    "note": "Private note · never leaves your devices",
+    "noteLabel": "Note",
+    "notePlaceholder": "Just a reminder",
+    "noteWarning": "Please do not write pupils’ health or discipline details, here or in the book.",
+    "confirm": "Confirm the session",
+    "retaught": "Taught again",
+    "bookTest": "Test",
+    "bookHomework": "{{text}}, due {{day}}"
   }
 }
