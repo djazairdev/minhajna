@@ -46,6 +46,11 @@ export function rollsToEnter(context: Context, from: Day, to: Day): RollCallUnit
   );
 }
 
+/** A unit by its key, on its day. */
+export function unitByKey(context: Context, key: string, day: Day): RollCallUnit | null {
+  return unitsBetween(context, day, day).find((unit) => unit.key === key) ?? null;
+}
+
 /** The marks recorded for a unit, or null before its roll call is taken. */
 export function recordedMarks(context: Context, unit: RollCallUnit): Marks | null {
   const record = current(context.state.rollCalls.get(unit.key));
@@ -98,7 +103,3 @@ export function counts(context: Context, unit: RollCallUnit, marks: Marks) {
   const pupils = pupilsFor(context, unit).length;
   return { present: pupils - marks.absent.length, absent: marks.absent.length, late: marks.late.length };
 }
-
-/** Why a roll call already taken is corrected; never a detail about a pupil (PRD §5.5, §5.6). */
-export const fixReasons = ['arrived-late', 'entry-error', 'administration', 'other'] as const;
-export type FixReason = (typeof fixReasons)[number];

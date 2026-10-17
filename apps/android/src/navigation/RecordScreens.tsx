@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The screens that record the day's work, as navigation routes: Today, a
-// session's details and its roll call.
+// session's details, its roll call and a pupil's correction in it.
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
 import { Entry } from '../entry/Entry';
+import { Correct } from '../roll/Correct';
 import { Roll } from '../roll/Roll';
 import { Today } from '../today/Today';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
@@ -33,5 +34,18 @@ export function EntryScreen({ navigation, route }: NativeStackScreenProps<RootSt
 
 /** A session's roll call, back to where it was opened once saved. */
 export function RollScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Roll'>) {
-  return <Roll sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={() => navigation.goBack()} />;
+  return (
+    <Roll
+      sessionKey={route.params.key}
+      day={parseDay(route.params.day)}
+      onDone={() => navigation.goBack()}
+      onCorrect={(unit, pupilId) => navigation.navigate('Correct', { unit: unit.key, day: unit.day, pupilId })}
+    />
+  );
+}
+
+/** One pupil's correction in a roll call already taken, back to it once saved. */
+export function CorrectScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Correct'>) {
+  const { unit, day, pupilId } = route.params;
+  return <Correct unitKey={unit} day={parseDay(day)} pupilId={pupilId} onDone={() => navigation.goBack()} />;
 }

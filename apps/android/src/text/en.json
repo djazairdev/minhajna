@@ -653,5 +653,26 @@
     "paper": "Enter a roll call from the paper sheet",
     "paperSub": "For an earlier session, recorded on that session's date",
     "paperNone": "No earlier session in these days is waiting for its roll call."
+  },
+  "correct": {
+    "title": "Correct the roll call",
+    "recorded": "Recorded: {{mark}} · on {{day}}",
+    "becomes": "Becomes",
+    "asRecorded": "{{mark}}, as recorded",
+    "marks": {
+      "present": "Present",
+      "late": "Late, not counted as absent",
+      "justified": "Absent, justified",
+      "unjustified": "Absent, not justified"
+    },
+    "justifyNote": "Only whether it is justified is recorded; the cause is never written.",
+    "logTitle": "Added to the change log",
+    "logLine": "{{today}} · {{day}}: from {{from}} to {{to}} · {{reason}}",
+    "monthLine": "{{month}}: absences {{before}} → {{after}} · rate {{rateBefore}} → {{rateAfter}}",
+    "lateAdded": "and a late arrival is added on its date",
+    "lateRemoved": "and the late arrival on that date is removed",
+    "both": "Both versions stay in the history, dated without the time.",
+    "open": "Correct the roll call of {{name}}",
+    "unavailable": "No roll call is recorded for this pupil in this session."
   }
 }

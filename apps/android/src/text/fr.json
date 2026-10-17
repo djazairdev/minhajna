@@ -669,5 +669,26 @@
     "paper": "Saisir un appel depuis la feuille papier",
     "paperSub": "Pour une séance passée, enregistré à la date de cette séance",
     "paperNone": "Aucune séance passée de ces jours n'attend son appel."
+  },
+  "correct": {
+    "title": "Corriger l'appel",
+    "recorded": "Enregistré : {{mark}} · le {{day}}",
+    "becomes": "Devient",
+    "asRecorded": "{{mark}}, comme enregistré",
+    "marks": {
+      "present": "Présent",
+      "late": "Retard, non compté comme absence",
+      "justified": "Absence justifiée",
+      "unjustified": "Absence non justifiée"
+    },
+    "justifyNote": "Seule la justification est enregistrée ; le motif n'est jamais écrit.",
+    "logTitle": "Ajouté au journal des modifications",
+    "logLine": "{{today}} · {{day}} : de {{from}} à {{to}} · {{reason}}",
+    "monthLine": "{{month}} : absences {{before}} → {{after}} · taux {{rateBefore}} → {{rateAfter}}",
+    "lateAdded": "et un retard est ajouté à sa date",
+    "lateRemoved": "et le retard de cette date est retiré",
+    "both": "Les deux versions restent dans l'historique, datées sans l'heure.",
+    "open": "Corriger l'appel de {{name}}",
+    "unavailable": "Aucun appel n'est enregistré pour cet élève à cette séance."
   }
 }

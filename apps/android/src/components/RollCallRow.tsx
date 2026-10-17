@@ -7,7 +7,8 @@
 // §3.4). Absent is board with chalk text; late is hi with a late-edge border
 // and a tick besides its fill, so colour is never the only signal. A marked
 // row is shaded alt-day. Each toggle reports its state, and its spoken name
-// includes the pupil's. The caller owns the states and saves them.
+// includes the pupil's. The caller owns the states and saves them. The
+// name may be a button, such as one that opens the pupil's correction.
 
 import { useLocale } from '@react-navigation/native';
 import { memo } from 'react';
@@ -23,6 +24,10 @@ export type RollCallRowProps = {
   readonly late: boolean;
   readonly onAbsent: (absent: boolean) => void;
   readonly onLate: (late: boolean) => void;
+  /** Makes the name a button, such as one that opens the pupil's correction once the roll call is taken. */
+  readonly onName?: () => void;
+  /** The name button's spoken name. */
+  readonly nameLabel?: string;
   readonly testID?: string;
 };
 
@@ -63,7 +68,19 @@ export const RollCallRow = memo(function RollCallRow(props: RollCallRowProps) {
   return (
     <View style={[styles.row, { direction }, (props.absent || props.late) && styles.marked]}>
       <Text style={styles.number}>{props.number}</Text>
-      <Text style={[styles.name, { writingDirection: direction }]}>{props.name}</Text>
+      {props.onName === undefined ? (
+        <Text style={[styles.name, { writingDirection: direction }]}>{props.name}</Text>
+      ) : (
+        <Pressable
+          testID={sub('name')}
+          accessibilityRole="button"
+          accessibilityLabel={props.nameLabel ?? props.name}
+          onPress={props.onName}
+          style={({ pressed }) => [styles.nameButton, pressed && styles.pressed]}
+        >
+          <Text style={[styles.name, styles.link, { writingDirection: direction }]}>{props.name}</Text>
+        </Pressable>
+      )}
       <Toggle
         testID={sub('absent')}
         kind="absent"
@@ -99,6 +116,8 @@ const styles = StyleSheet.create({
   marked: { backgroundColor: colors['alt-day'] },
   number: { ...typography['roll-number'], color: colors.ink2, minWidth: 24, textAlign: 'center' },
   name: { ...typography.body, color: colors.ink, flex: 1, minWidth: 0, textAlign: 'start' },
+  nameButton: { flex: 1, minWidth: 0, minHeight: sizes.target, justifyContent: 'center' },
+  link: { flex: 0, textDecorationLine: 'underline' },
   toggle: {
     width: 64,
     minHeight: sizes.target,

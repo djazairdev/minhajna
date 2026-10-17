@@ -9,9 +9,21 @@
 // the session's date. «حفظ المناداة» records it in one step. A roll call
 // already taken opens with its marks and is saved as a correction with a
 // reason, never a detail about a pupil; both versions stay in the history.
+// There, a pupil's name opens their own correction (#39).
 // Nothing is sent anywhere: the official absence system stays as it is.
 
-import { compareDays, formatDay, pupilsFor, takeRollCall, type Day, type Pupil } from '@minhajna/core';
+import {
+  ROLL_CALL_REASONS,
+  compareDays,
+  formatDay,
+  pupilsFor,
+  takeRollCall,
+  type Day,
+  type Pupil,
+  type RollCallReason,
+  type RollCallUnit,
+  type Context,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
@@ -26,12 +38,10 @@ import { colors, spacing, typography } from '../design/tokens';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
-import { span } from '../times/TimeTable';
-import { sessionTime } from '../times/times-rules';
 import { dayAndMonth, dayName } from '../today/DayMark';
+import { unitTime } from './roll-labels';
 import {
   counts,
-  fixReasons,
   keepMarks,
   mark,
   noMarks,
@@ -40,7 +50,6 @@ import {
   startedMarks,
   takenOn,
   unitOf,
-  type FixReason,
 } from './roll-rules';
 
 type OnMark = (pupilId: string, kind: 'absent' | 'late', on: boolean) => void;
@@ -52,8 +61,10 @@ const PupilRow = memo(function PupilRow(props: {
   absent: boolean;
   late: boolean;
   onMark: OnMark;
+  onName: ((pupilId: string) => void) | null;
 }) {
-  const { pupil, onMark } = props;
+  const { pupil, onMark, onName } = props;
+  const t = useText();
   return (
     <RollCallRow
       testID={`roll-${props.number}`}
@@ -63,31 +74,58 @@ const PupilRow = memo(function PupilRow(props: {
       late={props.late}
       onAbsent={(on) => onMark(pupil.id, 'absent', on)}
       onLate={(on) => onMark(pupil.id, 'late', on)}
+      {...(onName !== null && {
+        onName: () => onName(pupil.id),
+        nameLabel: t('correct.open', { name: pupil.name }),
+      })}
     />
   );
 });
 
-/** The roll call of the unit a session belongs to; `onDone` goes back once it is saved. */
-export function Roll({ sessionKey, day, onDone }: { sessionKey: string; day: Day; onDone: () => void }) {
-  const insets = useSafeAreaInsets();
-  const { direction } = useLocale();
-  const t = useText();
-  const { state, profile, year, calendar, packs, bells, today, record } = useAppData();
-  const align = { writingDirection: direction, textAlign: 'start' } as const;
+type RollProps = {
+  sessionKey: string;
+  day: Day;
+  onDone: () => void;
+  onCorrect?: (unit: RollCallUnit, pupilId: string) => void;
+};
+
+/**
+ * The roll call of the unit a session belongs to; `onDone` goes back once it
+ * is saved. Once taken and with no change pending, a pupil's name opens
+ * `onCorrect`; the list starts again from each new version recorded.
+ */
+export function Roll(props: RollProps) {
+  const { state, profile, year, calendar, packs } = useAppData();
   const context = useMemo(
     () => coreContext({ profile, year, calendar, packs, state }),
     [profile, year, calendar, packs, state],
   );
-  const [unit] = useState(() => unitOf(context, sessionKey, day));
+  const [unit] = useState(() => unitOf(context, props.sessionKey, props.day));
+  const versions = unit === null ? 0 : (state.rollCalls.get(unit.key)?.length ?? 0);
+  return <RollList key={versions} {...props} context={context} unit={unit} />;
+}
+
+function RollList({ onDone, onCorrect, context, unit }: RollProps & { context: Context; unit: RollCallUnit | null }) {
+  const insets = useSafeAreaInsets();
+  const { direction } = useLocale();
+  const t = useText();
+  const { state, profile, bells, calendar, today, record } = useAppData();
+  const align = { writingDirection: direction, textAlign: 'start' } as const;
   const pupils = useMemo(() => (unit === null ? [] : pupilsFor(context, unit)), [context, unit]);
   const [recorded] = useState(() => (unit === null ? null : recordedMarks(context, unit)));
   const [marks, setMarks] = useState(() => (unit === null ? noMarks : (startedMarks(unit.key) ?? recorded ?? noMarks)));
-  const [reason, setReason] = useState<FixReason | null>(null);
+  const [reason, setReason] = useState<RollCallReason | null>(null);
   const onMark = useCallback<OnMark>((pupilId, kind, on) => setMarks((was) => mark(was, pupilId, kind, on)), []);
 
   useEffect(() => {
     if (unit !== null) keepMarks(unit.key, sameMarks(marks, recorded ?? noMarks) ? null : marks);
   }, [unit, marks, recorded]);
+
+  const opens = recorded !== null && onCorrect !== undefined && unit !== null && sameMarks(marks, recorded);
+  const onName = useMemo(
+    () => (opens ? (pupilId: string) => onCorrect(unit, pupilId) : null),
+    [opens, onCorrect, unit],
+  );
 
   if (unit === null) {
     return (
@@ -98,12 +136,7 @@ export function Roll({ sessionKey, day, onDone }: { sessionKey: string; day: Day
   }
   const language = currentLanguage();
   const schoolClass = state.classes.get(unit.classId);
-  const school = schoolClass && state.schools.get(schoolClass.schoolId);
-  const first = unit.sessions[0];
-  const last = unit.sessions.at(-1);
-  const from = first && sessionTime({ bells, calendar, state }, school, first.slot, unit.day);
-  const to = last && sessionTime({ bells, calendar, state }, school, last.slot, unit.day);
-  const timeText = from == null || to == null ? null : span(from.from, to.to, direction);
+  const timeText = unitTime({ state, bells, calendar }, unit, direction);
   const past = compareDays(unit.day, today()) < 0;
   const taken = recorded === null ? null : takenOn(context, unit);
   const figures = counts(context, unit, marks);
@@ -141,7 +174,7 @@ export function Roll({ sessionKey, day, onDone }: { sessionKey: string; day: Day
           <ChipGroup
             testID="roll-reason"
             label={t('roll.reason')}
-            choices={fixReasons.map((value) => ({ value, label: t(`roll.reasons.${value}`) }))}
+            choices={ROLL_CALL_REASONS.map((value) => ({ value, label: t(`roll.reasons.${value}`) }))}
             selected={reason}
             onSelect={setReason}
           />
@@ -171,6 +204,7 @@ export function Roll({ sessionKey, day, onDone }: { sessionKey: string; day: Day
             absent={absent.has(item.id)}
             late={late.has(item.id)}
             onMark={onMark}
+            onName={onName}
           />
         )}
         ListHeaderComponent={head}
