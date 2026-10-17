@@ -13,6 +13,7 @@ import { Entry } from '../entry/Entry';
 import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
 import { Roll } from '../roll/Roll';
+import { SeatsSetup } from '../seats/SeatsSetup';
 import { Today } from '../today/Today';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
@@ -44,6 +45,7 @@ export function RollScreen({ navigation, route }: NativeStackScreenProps<RootSta
       onCorrect={(unit, pupilId) => navigation.navigate('Correct', { unit: unit.key, day: unit.day, pupilId })}
       onRules={() => navigation.navigate('RollRules')}
       onMove={(classId) => navigation.navigate('PupilMove', { classId })}
+      onSeats={(classId, groupId) => navigation.navigate('SeatsSetup', { classId, groupId })}
     />
   );
 }
@@ -51,6 +53,11 @@ export function RollScreen({ navigation, route }: NativeStackScreenProps<RootSta
 /** A pupil who joins or leaves the class, back to the roll call once recorded. */
 export function PupilMoveScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PupilMove'>) {
   return <PupilMove classId={route.params.classId} onDone={() => navigation.goBack()} />;
+}
+
+/** The seating plan of a class or one of its groups, each change recorded at once. */
+export function SeatsSetupScreen({ route }: NativeStackScreenProps<RootStackParamList, 'SeatsSetup'>) {
+  return <SeatsSetup classId={route.params.classId} groupId={route.params.groupId} />;
 }
 
 /** One pupil's correction in a roll call already taken, back to it once saved. */
