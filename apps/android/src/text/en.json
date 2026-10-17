@@ -261,7 +261,11 @@
     "removeSlot": "Remove the slot",
     "saveSlot": "Save",
     "clashAt": "Clash, {{slot}}: {{items}}",
+    "resolve": "Open the slot to settle the clash",
     "holds": "What the slot holds",
-    "clash": "Clash"
+    "clash": "Clash",
+    "doubleShift": "Double shift: mornings one week, afternoons the next",
+    "shiftA": "In A weeks, classes are taught in the",
+    "shiftNote": "A class drawn in one half-day is placed in the other for the other week."
   }
 }

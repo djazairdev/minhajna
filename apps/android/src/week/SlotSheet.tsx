@@ -81,7 +81,9 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
     .map((clash) =>
       t('week.clashAt', {
         slot: slotSpoken(t, clash.slot),
-        items: gridCell(t, preview, records.lookup, { weekday: clash.weekday, slot: clash.slot })?.spoken ?? '',
+        items:
+          gridCell(t, preview, records.lookup, { weekday: clash.weekday, slot: clash.slot }, { shown: true })?.spoken ??
+          '',
       }),
     )
     .join('\n');

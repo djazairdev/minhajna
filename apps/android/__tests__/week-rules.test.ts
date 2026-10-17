@@ -12,6 +12,7 @@ import {
   contentOf,
   courseFor,
   holds,
+  mirrorOf,
   paint,
   versionToDraw,
   type Brush,
@@ -135,4 +136,40 @@ test('counts each class a week in the order of the classes, and says what sits o
   });
   expect(holds(version, (weekday) => weekday === 6)).toBe(true);
   expect(holds(version, (_, slot) => slot.index === 5)).toBe(false);
+});
+
+test('draws a double shift: a class in one half-day goes in the other for the other week, and clears in pairs', () => {
+  const shifted = (version: TimetableVersion, brush: Brush, cell: Cell) =>
+    paint(version, classOf, cell, brush, {
+      schoolClass: classes[0],
+      course: courses['k-1'],
+      ownLabel: 'وقت خاص',
+      newId,
+      shift: 'morning',
+      mirror: mirrorOf(cell),
+    });
+  const tue3: Cell = { weekday: 2, slot: { half: 'afternoon', index: 3 } };
+  expect(mirrorOf(tue3)).toEqual({ weekday: 2, slot: { half: 'morning', index: 3 } });
+  const drawn = shifted(empty, { kind: 'class', classId: 'k-1' }, tue3);
+  expect(drawn.entries.map((entry) => [entry.slot.half, entry.slot.index, entry.weeks])).toEqual([
+    ['afternoon', 3, 'B'],
+    ['morning', 3, 'A'],
+  ]);
+  expect(shifted(drawn, { kind: 'class', classId: 'k-1' }, tue3).entries).toEqual([]);
+  expect(shifted(drawn, { kind: 'erase' }, mirrorOf(tue3)).entries).toEqual([]);
+  expect(shifted(empty, { kind: 'own' }, tue3).blocks).toHaveLength(1);
+  const noMirror = paint(
+    empty,
+    classOf,
+    mon1,
+    { kind: 'class', classId: 'k-1' },
+    {
+      schoolClass: classes[0],
+      course: courses['k-1'],
+      ownLabel: '',
+      newId,
+      shift: 'afternoon',
+    },
+  );
+  expect(noMirror.entries.map((entry) => entry.weeks)).toEqual(['B']);
 });

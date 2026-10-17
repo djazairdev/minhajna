@@ -26,6 +26,7 @@ import { Classes } from '../setup/Classes';
 import { TypeList } from '../setup/TypeList';
 import { Week } from '../setup/Week';
 import { WeekDraw } from '../week/WeekDraw';
+import type { Cell } from '../week/week-rules';
 import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
@@ -41,7 +42,7 @@ export type RootStackParamList = {
   Classes: undefined;
   TypeList: { classId: string; name: string };
   Week: undefined;
-  WeekDraw: undefined;
+  WeekDraw: { slot?: Cell } | undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -241,14 +242,15 @@ function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, '
   return (
     <Week
       onDraw={() => navigation.navigate('WeekDraw')}
+      onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
       onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
     />
   );
 }
 
-/** Drawing the week by hand; «حفظ الأسبوع» returns. */
-function WeekDrawScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
-  return <WeekDraw onDone={() => navigation.goBack()} />;
+/** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */
+function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
+  return <WeekDraw openAt={route.params?.slot} onDone={() => navigation.goBack()} />;
 }
 
 /** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
