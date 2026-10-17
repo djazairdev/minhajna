@@ -17,6 +17,8 @@ import { ButtonSamples, IconButtonSamples } from './button-samples';
 import { ChipSamples, SetupStepsSamples } from './chip-samples';
 import { SwitchSamples } from './switch-samples';
 import { StepperSamples } from './stepper-samples';
+import { SegmentedControlSamples } from './segmented-control-samples';
+import { RadioCardSamples } from './radio-card-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
@@ -90,6 +92,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'Stepper',
     design: 'docs/design/system/components/Stepper/README.md',
     render: (sample, language) => <StepperSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'SegmentedControl',
+    design: 'docs/design/system/components/SegmentedControl/README.md',
+    render: (sample, language) => <SegmentedControlSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'RadioCard',
+    design: 'docs/design/system/components/RadioCard/README.md',
+    render: (sample, language) => <RadioCardSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'Notice',
