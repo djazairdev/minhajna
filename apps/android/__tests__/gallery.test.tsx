@@ -161,3 +161,20 @@ test('checks an inactive button even without an onPress handler', async () => {
     'inactive: smaller than 48dp (20×20)',
   ]);
 });
+
+test('checks a control that holds another, and the one it holds', async () => {
+  const { Pressable, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  await render(
+    <Pressable testID="card" onPress={() => undefined} style={{ height: 20 }}>
+      <Text>Card</Text>
+      <Pressable testID="inner" onPress={() => undefined} style={{ width: 20, height: 48 }} />
+    </Pressable>,
+  );
+  expect(accessibilityProblems(tree.root)).toEqual([
+    'Card: no accessibilityRole',
+    'Card: smaller than 48dp (0×20)',
+    'inner: no accessibilityRole',
+    'inner: nothing for TalkBack to read',
+    'inner: smaller than 48dp (20×48)',
+  ]);
+});
