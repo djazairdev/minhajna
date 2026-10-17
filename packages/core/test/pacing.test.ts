@@ -39,6 +39,7 @@ describe('pacing', () => {
       basis: 'exam-window',
       needs: 12,
       gives: 38,
+      td: { gives: 10, items: 2 },
     });
     const primary = contextOf(await openBook(primaryEvents()));
     assert.deepEqual(termCheck(primary, 'c-lang', d('2026-09-20')), {
@@ -47,7 +48,17 @@ describe('pacing', () => {
       basis: 'term-end',
       needs: 11,
       gives: 94,
+      td: { gives: 0, items: 0 },
     });
+  });
+
+  it('counts TD apart in the September check, and drops the TD items done', async () => {
+    const book = await openBook(cemEvents());
+    await confirmAll(book, d('2026-09-20'), d('2026-10-01'));
+    const check = termCheck(contextOf(book), 'c-math', d('2026-10-02'));
+    assert.deepEqual(check?.td, { gives: 8, items: 1 });
+    assert.equal(check?.needs, 4);
+    assert.equal(check?.gives, 30);
   });
 
   it('never reads sessions awaiting confirmation as a delay', async () => {
