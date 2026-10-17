@@ -157,7 +157,7 @@ export function Ready({ onDone }: { onDone: () => void }) {
   return (
     <View style={[styles.screen, { direction }]}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <WelcomeHero title={t('ready.title')} tagline={t('ready.tagline')} />
+        <WelcomeHero title={t('ready.title')} tagline={t('ready.tagline')} small />
         <View style={[styles.content, sides]}>
           <View testID="ready-kept" style={styles.kept}>
             {kept.map((line) => (

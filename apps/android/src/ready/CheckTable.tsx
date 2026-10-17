@@ -26,7 +26,7 @@ export function CheckTable({ rows, testID }: { rows: readonly CheckRow[]; testID
             <View style={[styles.cell, styles.head]}>{head(label)}</View>
             <View style={[styles.row, styles.top]}>
               {[t('ready.gives'), index === 0 ? t('ready.needs') : t('ready.items')].map((sub, at) => (
-                <View key={sub} style={[styles.cell, styles.head, styles.value, at === 1 && styles.side]}>
+                <View key={sub} style={[styles.cell, styles.head, styles.half, at === 1 && styles.side]}>
                   {head(sub)}
                 </View>
               ))}
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
   top: { borderTopWidth: 1, borderTopColor: colors.line },
   side: { borderStartWidth: 1, borderStartColor: colors.line },
-  pair: { flex: 2 },
+  pair: { width: '38%' },
   cell: {
     minHeight: 38,
     alignItems: 'center',
@@ -81,8 +81,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['space-2'],
     paddingVertical: spacing['space-4'],
   },
-  key: { flex: 1.2 },
-  value: { flex: 1 },
+  key: { width: '24%' },
+  value: { width: '19%' },
+  half: { width: '50%' },
   head: { minHeight: 30, backgroundColor: colors.due },
   headText: { ...typography.small, color: colors.ink2, textAlign: 'center' },
   name: { ...typography.label, color: colors.ink, textAlign: 'center' },
