@@ -640,6 +640,31 @@
   "roll": {
     "absent": "Absence",
     "late": "Retard",
-    "spoken": "{{state}} : {{name}}"
+    "spoken": "{{state}} : {{name}}",
+    "title": "Appel",
+    "present": "Présents",
+    "absentStat": "Absents",
+    "lateStat": "Retards, non comptés comme absences",
+    "hint": "Tous sont présents par défaut : marquez seulement les absences et les retards. L'appel peut se faire après la séance et se corriger à tout moment.",
+    "pastHint": "Tous sont présents par défaut : reportez de la feuille les seules absences et les retards.",
+    "pastBadge": "Saisie différée",
+    "pastTitle": "Depuis la feuille d'appel papier",
+    "pastNote": "Les absences sont enregistrées à la date de la séance, {{day}}, et non à celle d'aujourd'hui. Le registre garde le jour de la saisie, {{today}}, sans l'heure.",
+    "taken": "Cet appel a été enregistré le {{day}}. Une modification est enregistrée comme correction avec son motif, et les deux versions restent dans l'historique.",
+    "official": "Les absences ne sont pas envoyées au système du secteur : en mode enseignant, l'appel reste votre propre registre, et le circuit officiel des absences reste inchangé.",
+    "save": "Enregistrer l'appel",
+    "savePast": "Enregistrer l'appel du {{day}}",
+    "saveFix": "Enregistrer la correction",
+    "reason": "Motif de la correction, en bref",
+    "reasons": {
+      "arrived-late": "Arrivée après l'appel",
+      "entry-error": "Erreur de saisie",
+      "administration": "Correction de l'administration",
+      "other": "Autre motif"
+    },
+    "unavailable": "Cette séance n'a pas d'appel.",
+    "none": "Aucune absence enregistrée",
+    "allPresent": "Appel enregistré : tous présents",
+    "marked": "Appel enregistré · absents : {{absent}} · retards : {{late}}"
   }
 }

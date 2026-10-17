@@ -19,6 +19,7 @@ import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
+import { EntryScreen, RollScreen, TodayTab } from './RecordScreens';
 import { Welcome } from './Welcome';
 import {
   CardScreen,
@@ -34,11 +35,8 @@ import {
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
-import { Today } from '../today/Today';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
-import { Entry } from '../entry/Entry';
-import { parseDay } from '@minhajna/core';
 import type { Cell } from '../week/week-rules';
 
 export { tabLabels } from './HomePreview';
@@ -70,6 +68,7 @@ export type RootStackParamList = {
   LicenceNotice: { name: string };
   Entry: { key: string; day: string };
   ClassPlan: { courseId: string };
+  Roll: { key: string; day: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -193,6 +192,7 @@ export function AppNavigator({
           component={EntryScreen}
           options={{ title: t('entry.title'), statusBarStyle: 'dark' }}
         />
+        <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen
           name="ClassPlan"
           component={ClassPlanScreen}
@@ -236,23 +236,6 @@ function HomeTabs() {
       <Tabs.Screen name="Documents" component={HomePreview} />
     </Tabs.Navigator>
   );
-}
-
-/** The day's sessions; the help button opens Help and the privacy notice. */
-function TodayTab({
-  navigation,
-}: CompositeScreenProps<BottomTabScreenProps<HomeTabParamList, 'Today'>, NativeStackScreenProps<RootStackParamList>>) {
-  return (
-    <Today
-      onHelp={() => navigation.navigate('Help')}
-      onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
-    />
-  );
-}
-
-/** A session's details, back to Today once confirmed. */
-function EntryScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Entry'>) {
-  return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={() => navigation.goBack()} />;
 }
 
 /** The welcome leads to the notice; Back from the notice returns here. */

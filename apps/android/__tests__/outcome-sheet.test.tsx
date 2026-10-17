@@ -40,7 +40,7 @@ async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', day = '202
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Today onHelp={onHelp} onDetails={onDetails} />, day)}
+        {withData(data, <Today onHelp={onHelp} onDetails={onDetails} onRoll={jest.fn()} />, day)}
       </LocaleDirContext.Provider>,
     );
   });
