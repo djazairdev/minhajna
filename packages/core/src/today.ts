@@ -12,7 +12,7 @@ import type { Proposal } from './progress.ts';
 import type { CalendarEntry } from './reference.ts';
 import { compareSlots, type Course, type Reason, type SessionRecord, type TeacherBlock } from './records.ts';
 import { sessionsBetween, versionOn, type Session } from './sessions.ts';
-import type { RecordEvent } from './events.ts';
+import type { CorrectionReason, RecordEvent } from './events.ts';
 import { current } from './state.ts';
 
 export type SessionStatus =
@@ -99,6 +99,8 @@ export interface SessionConfirmation extends Omit<Confirmation, 'sessionKey'> {
   readonly privateNote?: string;
   /** A reason in the teacher's own words, for a first confirmation or a correction. Private too. */
   readonly reason?: string;
+  /** A correction's coded reason, which shows with it (PRD §5.5). */
+  readonly correction?: CorrectionReason;
 }
 
 /**
@@ -147,8 +149,8 @@ export function confirmSessions(context: Context, confirmations: readonly Sessio
 
   const events: RecordEvent[] = [];
   for (const { record, confirmation } of recorded) {
-    const { reason, privateReason, privateNote } = confirmation;
-    events.push({ kind: 'session.recorded', record });
+    const { reason, privateReason, privateNote, correction } = confirmation;
+    events.push({ kind: 'session.recorded', record, ...(correction !== undefined && { correction }) });
     if (privateReason !== undefined || privateNote !== undefined || reason !== undefined) {
       const earlier = context.state.notes.get(record.session.key);
       events.push({

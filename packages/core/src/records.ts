@@ -187,8 +187,8 @@ export type Coverage =
   | { readonly op: 'skipped'; readonly item: string }
   | { readonly op: 'retaught'; readonly item: string };
 
-/** The six outcomes (PRD §3.3). */
-export type Outcome = 'done' | 'partial' | 'merged' | 'skipped' | 'retaught' | 'not-held';
+/** The six outcomes, and another lesson than the one proposed (PRD §3.3, §4.7). */
+export type Outcome = 'done' | 'partial' | 'merged' | 'skipped' | 'retaught' | 'not-held' | 'changed';
 
 /** Enough to identify a session without the timetable, so a record survives any timetable change. */
 export interface SessionRef {
