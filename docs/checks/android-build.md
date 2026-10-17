@@ -98,11 +98,16 @@ Then, with USB debugging on, start the app ten times from cold:
 for i in 1 2 3 4 5 6 7 8 9 10; do
   adb shell am force-stop dz.minhajna.preview
   sleep 2
+  adb logcat -c
   adb shell am start -W -n dz.minhajna.preview/.MainActivity | grep TotalTime
+  sleep 5
+  adb logcat -d | grep "Fully drawn"
 done
 ```
 
-`TotalTime` is the time to the first frame, in milliseconds. The text can come a little later, once the JavaScript has run. To see when the whole first screen is there, record the screen during a start with `adb shell screenrecord --bugreport /sdcard/start.mp4`, which stamps the time on every frame.
+`TotalTime` is the time to the first frame, in milliseconds. The first screen with content comes later, once the JavaScript has run and the history has opened. At that moment the app tells Android, which logs a "Fully drawn" line with the time since launch. That line is the one the target is about. To see the screen itself, record it during a start with `adb shell screenrecord --bugreport /sdcard/start.mp4`, which stamps the time on every frame.
+
+With a full year of records, the start takes longer: [the encrypted history's check](encrypted-history.md#a-full-year-at-start-up) has the figures on emulators, and how to fill the history with a demo year.
 
 **On an emulator,** with Android 8.0, a 360×800 screen and no Google Play services, on an Apple silicon Mac, ten starts took 213 to 280 ms to the first frame, 230 ms in the middle. In five more, the whole first screen was there within 0.6 seconds. The emulator runs on a fast computer, so these figures say nothing yet about a budget phone.
 

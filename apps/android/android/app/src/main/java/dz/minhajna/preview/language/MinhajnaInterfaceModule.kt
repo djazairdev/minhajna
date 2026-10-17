@@ -20,4 +20,10 @@ class MinhajnaInterfaceModule(context: ReactApplicationContext) : NativeMinhajna
     val host = (reactApplicationContext.applicationContext as ReactApplication).reactHost ?: return
     UiThreadUtil.runOnUiThread { host.reload("The interface language changed direction") }
   }
+
+  /** Android logs the time since launch, as "Fully drawn", for timing a start on any phone. */
+  override fun reportFullyDrawn() {
+    val activity = reactApplicationContext.currentActivity ?: return
+    UiThreadUtil.runOnUiThread { activity.reportFullyDrawn() }
+  }
 }

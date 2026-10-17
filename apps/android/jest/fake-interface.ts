@@ -12,6 +12,8 @@ import type { Spec } from '../src/native/NativeMinhajnaInterface';
 export class FakeInterface {
   kept: string | null = null;
   restarts = 0;
+  /** How many times the app said its first screen with content was drawn. */
+  fullyDrawn = 0;
 
   asSpec(): Spec {
     return {
@@ -21,6 +23,9 @@ export class FakeInterface {
       },
       restart: () => {
         this.restarts += 1;
+      },
+      reportFullyDrawn: () => {
+        this.fullyDrawn += 1;
       },
       getConstants: () => ({}),
     };
