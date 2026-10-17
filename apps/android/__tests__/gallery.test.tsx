@@ -73,7 +73,7 @@ function backArrows(): string[] {
 }
 
 test('opens from the developer menu, with its title in the interface language', async () => {
-  await render(<AppNavigator direction="rtl" />);
+  await render(<AppNavigator initialRouteName="Home" direction="rtl" />);
   const open = (DevSettings as unknown as FakeDevMenu).items.get(GALLERY_MENU_ITEM);
   expect(open).toBeDefined();
   await ReactTestRenderer.act(() => {

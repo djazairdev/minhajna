@@ -1,36 +1,42 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   DefaultTheme,
   NavigationContainer,
   useNavigationContainerRef,
-  type CompositeScreenProps,
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
-import { DevSettings, I18nManager, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, sizes, spacing, typography } from '../design/tokens';
+import { DevSettings, I18nManager } from 'react-native';
+import { colors } from '../design/tokens';
 import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
+import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
+import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
+
+export { tabLabels } from './HomePreview';
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
 /** Inner pages cover the tabs and carry no record contents. The gallery and the storage check exist in debug builds only. */
 export type RootStackParamList = {
+  Welcome: undefined;
+  Privacy: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
   StorageCheck: undefined;
   Help: undefined;
+  PrivacyNotice: undefined;
+  Connections: undefined;
   Licences: undefined;
   LicenceNotice: { name: string };
 };
@@ -48,12 +54,6 @@ const theme = {
     primary: colors.ink,
   },
 };
-/** Each tab's label in the catalogue. */
-export const tabLabels = {
-  Today: 'navigation.today',
-  Classes: 'navigation.classes',
-  Documents: 'navigation.documents',
-} as const satisfies Record<keyof HomeTabParamList, string>;
 
 /** The developer menu's item that opens the gallery, in English like the rest of that menu. */
 export const GALLERY_MENU_ITEM = 'Component gallery';
@@ -65,7 +65,13 @@ export const STORAGE_CHECK_MENU_ITEM = 'Storage check';
  * debug builds, the developer menu also opens the component gallery and the
  * storage check.
  */
-export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: { direction?: 'rtl' | 'ltr' }) {
+export function AppNavigator({
+  direction = I18nManager.isRTL ? 'rtl' : 'ltr',
+  initialRouteName = 'Welcome',
+}: {
+  direction?: 'rtl' | 'ltr';
+  initialRouteName?: 'Welcome' | 'Home';
+}) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
   useEffect(() => {
@@ -75,7 +81,16 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
   }, [navigation]);
   return (
     <NavigationContainer ref={navigation} direction={direction} theme={theme}>
-      <Stack.Navigator screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}>
+      <Stack.Navigator
+        initialRouteName={initialRouteName}
+        screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}
+      >
+        <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="Privacy"
+          component={FirstNotice}
+          options={{ title: t('privacy.title'), statusBarStyle: 'dark' }}
+        />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
           name="NavigationPreview"
@@ -97,6 +112,16 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
           />
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen
+          name="PrivacyNotice"
+          component={HelpNotice}
+          options={{ title: t('privacy.helpTitle'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Connections"
+          component={Connections}
+          options={{ title: t('connections.title'), statusBarStyle: 'dark' }}
+        />
         <Stack.Screen
           name="Licences"
           component={LicencesScreen}
@@ -127,66 +152,25 @@ function HomeTabs() {
   );
 }
 
-type HomeProps = CompositeScreenProps<
-  BottomTabScreenProps<HomeTabParamList>,
-  NativeStackScreenProps<RootStackParamList>
->;
+/** The welcome leads to the notice; Back from the notice returns here. */
+function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
+  return <Welcome onStart={() => navigation.navigate('Privacy')} />;
+}
 
-function HomePreview({ navigation, route }: HomeProps) {
-  const t = useText();
+/**
+ * The notice before first use. Nothing records that it was read: until setup
+ * keeps the teacher's setup, every start shows the welcome and the notice.
+ */
+function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'Privacy'>) {
   return (
-    <Welcome>
-      <Text style={styles.tabTitle} accessibilityRole="header">
-        {t(tabLabels[route.name])}
-      </Text>
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => navigation.navigate('NavigationPreview')}
-        style={styles.open}
-      >
-        <Text style={styles.openLabel}>{t('navigation.openPreview')}</Text>
-      </Pressable>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('help.title')}
-        onPress={() => navigation.navigate('Help')}
-        style={styles.open}
-      >
-        <Text style={styles.openLabel}>{t('help.title')}</Text>
-      </Pressable>
-    </Welcome>
+    <PrivacyNotice
+      onAccept={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+      onConnections={() => navigation.navigate('Connections')}
+    />
   );
 }
 
-function InnerPreview() {
-  const insets = useSafeAreaInsets();
-  const t = useText();
-  return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.inner,
-        {
-          paddingBottom: spacing['space-20'] + insets.bottom,
-          paddingLeft: spacing['space-20'] + insets.left,
-          paddingRight: spacing['space-20'] + insets.right,
-        },
-      ]}
-    >
-      <Text style={styles.description}>{t('navigation.previewDescription')}</Text>
-    </ScrollView>
-  );
+/** The same notice, from Help. */
+function HelpNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrivacyNotice'>) {
+  return <PrivacyNotice onConnections={() => navigation.navigate('Connections')} />;
 }
-
-const styles = StyleSheet.create({
-  tabTitle: { ...typography.h2, color: colors.chalk, marginTop: spacing['space-24'], textAlign: 'center' },
-  open: {
-    minHeight: sizes.target,
-    justifyContent: 'center',
-    backgroundColor: colors.chalk,
-    padding: spacing['space-12'],
-    marginTop: spacing['space-16'],
-  },
-  openLabel: { ...typography.button, color: colors.board, textAlign: 'center' },
-  inner: { flexGrow: 1, padding: spacing['space-20'] },
-  description: { ...typography.body, color: colors.ink, textAlign: 'auto' },
-});

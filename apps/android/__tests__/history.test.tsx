@@ -135,22 +135,20 @@ describe('at start', () => {
     await ReactTestRenderer.act(() => tree!.unmount());
   });
 
-  test('opens an empty history before showing the navigation preview', async () => {
+  test('opens an empty history before offering the way into the app', async () => {
     const storage = new FakeStorage();
     expect(await shown(storage)).toEqual([
       text.name,
       text.tagline,
-      text.latinName,
+      text.welcome.line,
       text.language.label,
       text.language.ar,
       text.language.fr,
       text.language.en,
-      text.navigation.today,
-      text.navigation.openPreview,
-      text.help.title,
-      text.navigation.today,
-      text.navigation.classes,
-      text.navigation.documents,
+      text.welcome.noAccount,
+      text.welcome.offline,
+      text.welcome.onPhone,
+      text.welcome.start,
     ]);
     expect(storage.opened).toBe(true);
     expect((await openRecordBook(storage.asSpec())).entries).toEqual([]);
@@ -165,12 +163,15 @@ describe('at start', () => {
     expect(await shown(storage)).toEqual([
       text.name,
       text.tagline,
-      text.latinName,
+      text.welcome.line,
       text.historyRefused,
       text.language.label,
       text.language.ar,
       text.language.fr,
       text.language.en,
+      text.welcome.noAccount,
+      text.welcome.offline,
+      text.welcome.onPhone,
     ]);
     expect(warn).toHaveBeenCalledWith('History refused', expect.any(HistoryError));
   });

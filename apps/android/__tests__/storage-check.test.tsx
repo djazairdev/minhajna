@@ -62,7 +62,7 @@ describe('the storage check', () => {
     const logged = jest.spyOn(console, 'log').mockImplementation(() => {});
     let tree: ReactTestRenderer.ReactTestRenderer | undefined;
     await ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<AppNavigator direction="ltr" />);
+      tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction="ltr" />);
     });
     const open = (DevSettings as unknown as FakeDevMenu).items.get(STORAGE_CHECK_MENU_ITEM);
     expect(open).toBeDefined();

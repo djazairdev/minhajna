@@ -59,7 +59,7 @@ async function press(label: string) {
 
 async function openLicences(direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(async () => {
-    tree = ReactTestRenderer.create(<AppNavigator direction={direction} />);
+    tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction={direction} />);
     await Promise.resolve();
   });
   await press(text.help.title);

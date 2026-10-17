@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 The Minhajna contributors
+  SPDX-License-Identifier: CC-BY-SA-4.0
+
+  The approved chalk mim, from docs/design/system/logo, as drawn on the welcome
+  (Setup-1-Welcome); the app tints it chalk. The name and the logo stay under
+  TRADEMARKS.md.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="48dp"
+    android:viewportWidth="256"
+    android:viewportHeight="344">
+    <group
+        android:translateX="-140"
+        android:translateY="-84">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M334 100C361 100 378 117 376 141C374 163 355 177 330 179C298 181 264 194 238 206C220 214 212 224 211 242C210 302 207 358 201 407C200 413 193 413 192 407C178 352 160 296 159 234C158 188 176 160 212 152C250 144 278 126 299 110C309 103 321 100 334 100Z" />
+    </group>
+</vector>

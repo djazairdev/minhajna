@@ -1,87 +1,86 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The brand page, shared by the startup and refusal states and the navigation
-// previews. On a tab page the tab bar owns the bottom inset; a standalone page
-// owns it itself.
+// The welcome (Setup-1-Welcome, #24): the name on the board, the language
+// choice and the app's three promises, before anything is typed. It also
+// shows while the reference data and the history open, and on a refusal, with
+// no way forward. The restore link from another phone stays out of
+// field-check builds (choice F4, #49), and no restore exists yet.
 
-import type { ReactNode } from 'react';
+import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '../components/Button';
+import { Facts } from '../components/Facts';
+import { WelcomeHero } from '../components/WelcomeHero';
 import { colors, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
 import { LanguageChoice } from './LanguageChoice';
 
-/** Shares the offline brand page between navigation previews and safe startup/refusal states. */
+/** The first page; `onStart` leads to the privacy notice once the app may open. */
 export function Welcome({
-  children,
-  standalone = false,
+  onStart,
   referenceRefused = false,
   historyRefused = false,
 }: {
-  children?: ReactNode;
-  standalone?: boolean;
+  onStart?: () => void;
   referenceRefused?: boolean;
   historyRefused?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const { direction } = useLocale();
   const t = useText();
+  const refusals = [referenceRefused && t('referenceRefused'), historyRefused && t('historyRefused')];
   return (
-    <View
-      style={[
-        styles.screen,
-        {
-          paddingTop: insets.top,
-          paddingBottom: standalone ? insets.bottom : 0,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        },
-      ]}
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[styles.content, { direction, paddingBottom: insets.bottom }]}
     >
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.name} accessibilityRole="header">
-          {t('name')}
-        </Text>
-        <Text style={styles.tagline}>{t('tagline')}</Text>
-        <Text style={styles.latinName}>{t('latinName')}</Text>
-        {referenceRefused && (
-          <Text style={styles.notice} accessibilityRole="alert">
-            {t('referenceRefused')}
-          </Text>
-        )}
-        {historyRefused && (
-          <Text style={styles.notice} accessibilityRole="alert">
-            {t('historyRefused')}
-          </Text>
-        )}
+      <WelcomeHero mark title={t('name')} tagline={t('tagline')} line={t('welcome.line')} />
+      <View
+        style={[
+          styles.form,
+          { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] },
+        ]}
+      >
+        {refusals
+          .filter((line) => line !== false)
+          .map((line) => (
+            <Text
+              key={line}
+              accessibilityRole="alert"
+              style={[styles.refusal, { writingDirection: direction, textAlign: 'start' }]}
+            >
+              {line}
+            </Text>
+          ))}
         <LanguageChoice />
-        {children}
-      </ScrollView>
-    </View>
+        <Facts
+          facts={[
+            { icon: 'no_account', text: t('welcome.noAccount') },
+            { icon: 'offline', text: t('welcome.offline') },
+            { icon: 'phone', text: t('welcome.onPhone') },
+          ]}
+        />
+      </View>
+      {onStart && (
+        <View
+          style={[
+            styles.foot,
+            { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] },
+          ]}
+        >
+          <Button testID="welcome-start" label={t('welcome.start')} onPress={onStart} />
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
-// The logo's board and chalk colours (docs/design/system).
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.board },
-  // A scrollable, padded page keeps the fonts readable at 200% text, without
-  // shrinking the type or limiting the number of lines.
-  content: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing['space-20'],
-  },
-  // The canvas's 1.15 line box clips Ruqaa's lower dots on Android, especially
-  // at 200%. Let the bundled font's own ascent and descent set this line box.
-  name: { ...typography.brand, lineHeight: undefined, color: colors.chalk, textAlign: 'center' },
-  tagline: { ...typography.tagline, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-12'] },
-  latinName: {
-    ...typography['body-latin'],
-    color: colors.chalk,
-    textAlign: 'center',
-    writingDirection: 'ltr',
-    marginTop: spacing['space-12'],
-  },
-  notice: { ...typography.body, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-20'] },
+  screen: { flex: 1, backgroundColor: colors.paper },
+  content: { flexGrow: 1 },
+  form: { gap: spacing['space-16'], paddingTop: spacing['space-20'], paddingBottom: spacing['space-16'] },
+  refusal: { ...typography.body, color: colors.ink },
+  foot: { marginTop: 'auto', paddingTop: spacing['space-10'], paddingBottom: spacing['space-16'] },
 });

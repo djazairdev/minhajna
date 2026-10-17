@@ -57,7 +57,9 @@ test.each(Object.keys(catalogues) as Language[])(
     const alert = jest.spyOn(Alert, 'alert');
     await ReactTestRenderer.act(async () => {
       await i18n.changeLanguage(language);
-      tree = ReactTestRenderer.create(<AppNavigator direction={language === 'ar' ? 'rtl' : 'ltr'} />);
+      tree = ReactTestRenderer.create(
+        <AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />,
+      );
     });
     await press(text.help.title);
     expect(shown()).toContain(text.help.about);
@@ -89,7 +91,7 @@ test('updates Help labels on a same-direction language change', async () => {
   jest.spyOn(native, 'readNotices').mockReset().mockResolvedValue(fixture);
   await ReactTestRenderer.act(async () => {
     await i18n.changeLanguage('en');
-    tree = ReactTestRenderer.create(<AppNavigator direction="ltr" />);
+    tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction="ltr" />);
   });
   await press(catalogues.en.help.title);
   await press(catalogues.en.help.licences);

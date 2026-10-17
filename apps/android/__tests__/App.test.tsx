@@ -5,7 +5,8 @@ import ReactTestRenderer from 'react-test-renderer';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import type { ScrollViewProps, TextProps } from 'react-native';
 import { Welcome } from '../src/navigation/Welcome';
-import { colors, spacing, typography } from '../src/design/tokens';
+import { fontFamilyForWeight } from '../src/design/fonts';
+import { colors, fontFamilies, typography } from '../src/design/tokens';
 import text from '../src/text/ar.json';
 
 // Jest has no native side: the library's own mock gives fixed insets.
@@ -19,35 +20,30 @@ test('shows all three bundled families without limiting enlarged text', async ()
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(<Welcome />);
   });
-  const shown = tree!.root.findAllByType(Text).map((node): unknown => node.props.children);
-  expect(shown).toEqual([
+  const texts = tree!.root.findAllByType(Text);
+  expect(texts.map((node): unknown => node.props.children)).toEqual([
     text.name,
     text.tagline,
-    text.latinName,
+    text.welcome.line,
     text.language.label,
     text.language.ar,
     text.language.fr,
     text.language.en,
+    text.welcome.noAccount,
+    text.welcome.offline,
+    text.welcome.onPhone,
   ]);
 
   const scroll = tree!.root.findByType(ScrollView).props as ScrollViewProps;
   expect(StyleSheet.flatten(scroll.contentContainerStyle)).toMatchObject({ flexGrow: 1 });
-  const textStyles = tree!.root
-    .findAllByType(Text)
-    .slice(0, 3)
-    .map((node) => StyleSheet.flatten((node.props as TextProps).style));
-  expect(textStyles).toEqual([
-    { ...typography.brand, lineHeight: undefined, color: colors.chalk, textAlign: 'center' },
-    { ...typography.tagline, color: colors.chalk, textAlign: 'center', marginTop: spacing['space-12'] },
-    {
-      ...typography['body-latin'],
-      color: colors.chalk,
-      textAlign: 'center',
-      writingDirection: 'ltr',
-      marginTop: spacing['space-12'],
-    },
-  ]);
-  for (const node of tree!.root.findAllByType(Text)) {
+  const style = (at: number) => StyleSheet.flatten((texts[at].props as TextProps).style);
+  expect(style(0)).toMatchObject({ ...typography.brand, lineHeight: undefined, color: colors.chalk });
+  expect(style(1)).toMatchObject({ fontFamily: typography.tagline.fontFamily, color: colors.chalk });
+  expect(style(5)).toMatchObject({
+    fontFamily: fontFamilyForWeight(fontFamilies.latin, '500'),
+    writingDirection: 'ltr',
+  });
+  for (const node of texts) {
     const props = node.props as TextProps;
     expect(props.allowFontScaling).not.toBe(false);
     expect(props.numberOfLines).toBeUndefined();
