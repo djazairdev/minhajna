@@ -220,7 +220,7 @@ describe('school calendars', () => {
     const result = parseSchoolCalendar(calendarSource, profile);
     assert.ok(result.ok);
     const ref = { country: profile, year: result.value.year, calendar: result.value.entries, packs: new Map() };
-    const school: School = { id: 's-1', name: 'Example school', level: 'cem', zone: '16' };
+    const school: School = { id: 's-1', name: 'Example school', levels: ['cem'], subjects: ['arabic'], zone: '16' };
     const view = new CalendarView(ref, []);
     assert.equal(view.info(parseDay('2026-10-29'), school).schoolDay, false);
     assert.equal(view.info(parseDay('2026-11-02'), school).schoolDay, true);

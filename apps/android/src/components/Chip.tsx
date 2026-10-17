@@ -23,6 +23,8 @@ type Common<T extends string> = {
   readonly choices: readonly ChipChoice<T>[];
   /** Each chip's test ID is this, a hyphen and its value. */
   readonly testID?: string;
+  /** A last chip that shows more choices, such as «مواد أخرى»; a button, not a choice. */
+  readonly more?: { readonly label: string; readonly onPress: () => void };
 };
 
 /** The screen owns the selection: one value, or several. */
@@ -65,6 +67,15 @@ export function ChipGroup<T extends string>(props: ChipGroupProps<T>) {
             onPress={() => press(choice.value)}
           />
         ))}
+        {props.more && (
+          <Chip
+            testID={props.testID && `${props.testID}-more`}
+            label={props.more.label}
+            role="button"
+            selected={false}
+            onPress={props.more.onPress}
+          />
+        )}
       </View>
       {props.hint !== undefined && <Text style={[styles.hint, align]}>{props.hint}</Text>}
     </View>
@@ -81,7 +92,7 @@ function Chip({
 }: {
   label: string;
   script?: 'arabic' | 'latin';
-  role: 'radio' | 'checkbox';
+  role: 'radio' | 'checkbox' | 'button';
   selected: boolean;
   onPress: () => void;
   testID?: string;
@@ -92,7 +103,7 @@ function Chip({
       testID={testID}
       accessibilityRole={role}
       accessibilityLabel={label}
-      accessibilityState={{ checked: selected }}
+      accessibilityState={role === 'button' ? undefined : { checked: selected }}
       onPress={onPress}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}

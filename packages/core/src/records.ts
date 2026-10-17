@@ -19,9 +19,12 @@ export interface School {
   readonly name: string;
   /** The official code, when the teacher knows it. */
   readonly code?: string;
-  readonly level: string;
-  /** The zone or wilaya, which picks the zone layer of the calendar. */
-  readonly zone: string;
+  /** The levels the teacher teaches there: more than one when a school has several (PRD §3.2). */
+  readonly levels: readonly string[];
+  /** The subjects the teacher teaches there: two for a bivalent teacher, such as Arabic with Islamic education. */
+  readonly subjects: readonly string[];
+  /** The zone or wilaya, which picks the zone layer of the calendar. Until it is set, no zone entry applies. */
+  readonly zone?: string;
 }
 
 export interface ClassGroup {

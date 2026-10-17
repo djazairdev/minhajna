@@ -6,12 +6,14 @@
 // #21. Algeria's reference data (#87) and the teacher's encrypted history (#19)
 // must both verify before navigation opens. Until then, or on a refusal, the
 // offline welcome page shows, with no record contents. It starts from the
-// insets known at launch, so the first frame is drawn at once. Once the history
-// is open or refused, the app tells Android its first screen with content is
-// drawn, so a start can be timed on any phone. In development every problem in
-// the reference data is logged, for whoever keys it; teachers see one short
-// message.
+// insets known at launch, so the first frame is drawn at once. Once both are
+// open, the screens reach the record book and the profile through AppData.
+// Once the history is open or refused, the app tells Android its first screen
+// with content is drawn, so a start can be timed on any phone. In development
+// every problem in the reference data is logged, for whoever keys it; teachers
+// see one short message.
 
+import type { RecordBook } from '@minhajna/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -20,7 +22,8 @@ import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajna
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { Welcome } from './src/navigation/Welcome';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
-import { openRecordBook } from './src/storage/history';
+import { AppDataProvider } from './src/storage/AppData';
+import { nativeDeps, openRecordBook } from './src/storage/history';
 
 /** Verifies the bundled reference data and private history before opening the preview. */
 export default function App({
@@ -38,7 +41,8 @@ export default function App({
     if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
     return result;
   }, [files]);
-  const history = useHistory(storage);
+  const { status: history, book } = useHistory(storage);
+  const random = useMemo(() => nativeDeps(storage).random, [storage]);
   const reported = useRef(false);
   useEffect(() => {
     if (history === 'opening' || reported.current) return;
@@ -48,8 +52,10 @@ export default function App({
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
-      {reference.ok && history === 'open' ? (
-        <AppNavigator />
+      {reference.ok && book !== null ? (
+        <AppDataProvider book={book} profile={reference.profile} random={random}>
+          <AppNavigator />
+        </AppDataProvider>
       ) : (
         <Welcome referenceRefused={!reference.ok} historyRefused={history === 'refused'} />
       )}
@@ -64,22 +70,25 @@ type HistoryStatus = 'opening' | 'open' | 'refused';
  * key is gone, is never opened: the teacher sees one short line, which names
  * no pupil, and nothing from it is used (PRD §5.5).
  */
-function useHistory(storage: Storage): HistoryStatus {
-  const [status, setStatus] = useState<HistoryStatus>('opening');
+function useHistory(storage: Storage): { status: HistoryStatus; book: RecordBook | null } {
+  const [history, setHistory] = useState<{ status: HistoryStatus; book: RecordBook | null }>({
+    status: 'opening',
+    book: null,
+  });
   useEffect(() => {
     let current = true;
     openRecordBook(storage).then(
-      () => {
-        if (current) setStatus('open');
+      (book) => {
+        if (current) setHistory({ status: 'open', book });
       },
       (error: unknown) => {
         if (__DEV__) console.warn('History refused', error);
-        if (current) setStatus('refused');
+        if (current) setHistory({ status: 'refused', book: null });
       },
     );
     return () => {
       current = false;
     };
   }, [storage]);
-  return status;
+  return history;
 }

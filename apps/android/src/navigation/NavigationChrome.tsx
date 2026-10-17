@@ -11,6 +11,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
+import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
 
 /** Keeps tab labels and selection accessible without exposing decorative icons. */
@@ -95,6 +96,9 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           </Text>
           {route.name === 'NavigationPreview' && <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>}
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
+          {route.name === 'Teaching' && (
+            <Text style={styles.subtitle}>{t('setup.step', { step: 1, count: SETUP_STEPS })}</Text>
+          )}
         </View>
         <View style={styles.back} />
       </View>

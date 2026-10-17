@@ -92,5 +92,39 @@
     "none": "Cette version ne se connecte pas à internet : elle n’en demande pas l’autorisation, n’envoie rien et ne reçoit rien.",
     "source": "Le lien vers le code source, dans la page des licences, ne s’ouvre qu’après votre confirmation. Votre navigateur l’ouvre hors de l’application, sans aucun dossier ni identifiant.",
     "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application."
+  },
+  "setup": {
+    "title": "Configuration",
+    "step": "Étape {{step}} sur {{count}}",
+    "teachingHeading": "Niveau et matière",
+    "teachingIntro": "Les progressions et les documents proposés suivent ce choix.",
+    "schoolsIntro": "Chaque établissement a ses niveaux et ses matières ; les progressions et les documents proposés les suivent.",
+    "level": "Niveau",
+    "levelIn": "Niveau à {{school}}",
+    "levelHint": "Vous pouvez choisir plusieurs niveaux.",
+    "subject": "Matière",
+    "subjectIn": "Matière à {{school}}",
+    "subjectHint": "Vous pouvez choisir deux matières, comme la langue arabe avec l’éducation islamique.",
+    "twoSubjects": "Deux matières dans cet établissement, chacune avec sa progression et son cahier.",
+    "severalSubjects": "Chaque matière de cet établissement a sa progression et son cahier.",
+    "moreSubjects": "Autres matières",
+    "school": "Établissement",
+    "schoolNumber": "Établissement {{number}}",
+    "schoolPlaceholder": "Par exemple : CEM En-Nadjah",
+    "addSchool": "Ajouter un autre établissement",
+    "edit": "Modifier",
+    "editSchool": "Modifier {{school}}",
+    "deleteSchool": "Supprimer cet établissement",
+    "unnamed": "Établissement sans nom",
+    "nothingChosen": "Aucun niveau ni matière choisis",
+    "merged": "Chaque établissement envoie son emploi du temps ; ils sont fusionnés en une seule semaine, avec une alerte à chaque conflit. Chaque établissement garde ses classes et ses cahiers.",
+    "next": "Suivant",
+    "nextHint": "Écrivez le nom de chaque établissement et choisissez son niveau et sa matière.",
+    "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce téléphone.",
+    "levelName": {
+      "primary": "Primaire",
+      "cem": "Moyen",
+      "lycee": "Secondaire"
+    }
   }
 }

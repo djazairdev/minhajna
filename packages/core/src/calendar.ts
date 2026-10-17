@@ -15,9 +15,13 @@ import type { School, SchoolClass } from './records.ts';
 
 /** Whether an entry covers a school, and a class there if one is given. */
 export function appliesTo(entry: CalendarEntry, school: School, schoolClass?: SchoolClass): boolean {
-  if (entry.layer === 'zone' && entry.zone !== school.zone) return false;
+  if (entry.layer === 'zone' && (school.zone === undefined || entry.zone !== school.zone)) return false;
   if (entry.layer === 'school' && entry.schoolId !== school.id) return false;
-  if (entry.levels !== undefined && !entry.levels.includes(schoolClass?.level ?? school.level)) return false;
+  const levels = entry.levels;
+  if (levels !== undefined) {
+    const covered = schoolClass ? levels.includes(schoolClass.level) : school.levels.some((l) => levels.includes(l));
+    if (!covered) return false;
+  }
   if (entry.grades !== undefined && (schoolClass === undefined || !entry.grades.includes(schoolClass.grade))) {
     return false;
   }

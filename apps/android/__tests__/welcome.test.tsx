@@ -5,10 +5,11 @@
 // and the connections page again from Help.
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import { BackHandler, Image, Text } from 'react-native';
-import type { GestureResponderEvent, ImageProps, PressableProps } from 'react-native';
+import { BackHandler, Image, Text, TextInput } from 'react-native';
+import type { GestureResponderEvent, ImageProps, PressableProps, TextInputProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
+import { openTestData, withData } from '../jest/app-data';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -28,9 +29,23 @@ afterEach(async () => {
 });
 
 async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
+  const data = await openTestData();
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(<AppNavigator direction={direction} />);
+    tree = ReactTestRenderer.create(withData(data, <AppNavigator direction={direction} />));
   });
+}
+
+/** Completes setup's first step with one made-up school, which leads to the tabs for now. */
+async function finishTeaching() {
+  const ids = (prefix: string) =>
+    tree.root.findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(prefix));
+  const school = String(ids('levels-')[0].props.testID).slice('levels-'.length);
+  await press(byTestID(`levels-${school}-cem`));
+  await press(byTestID(`subjects-${school}-arabic`));
+  await ReactTestRenderer.act(() => {
+    (ids('school-name-')[0].findByType(TextInput).props as TextInputProps).onChangeText?.('متوسطة النجاح');
+  });
+  await press(byTestID('setup-next'));
 }
 
 async function press(match: (props: PressableProps) => boolean) {
@@ -100,6 +115,9 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
   );
   await press(byLabel(text.navigation.back));
   await press(byTestID('privacy-accept'));
+  expect(routes()).toEqual(['Welcome', 'Privacy', 'Teaching']);
+  expect(heading()).toEqual([text.setup.title, 'الخطوة 1 من 5']);
+  await finishTeaching();
   expect(tree.root.findAllByType(TopBar)).toHaveLength(0);
   expect(tree.root.findAllByProps({ testID: 'tab-Today' })).not.toEqual([]);
   let handled = true;
@@ -132,6 +150,7 @@ test('offers the notice and the connections from Help, without the first-use but
   await mount();
   await press(byTestID('welcome-start'));
   await press(byTestID('privacy-accept'));
+  await finishTeaching();
   await press(byLabel(text.help.title));
   await press(byLabel(text.privacy.helpTitle));
   expect(routes()).toEqual(['Home', 'Help', 'PrivacyNotice']);

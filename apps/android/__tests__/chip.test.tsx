@@ -106,6 +106,33 @@ describe.each(['rtl', 'ltr'] as const)('ChipGroup (%s)', (direction) => {
     await press(2);
     expect(onSelect).toHaveBeenLastCalledWith([]);
   });
+
+  test('ends with a «more» button that is not a choice and selects nothing', async () => {
+    const onSelect = jest.fn();
+    const onMore = jest.fn();
+    await render(
+      <ChipGroup
+        testID="level"
+        multiple
+        label={text.level}
+        choices={levels}
+        selected={[]}
+        onSelect={onSelect}
+        more={{ label: text.more, onPress: onMore }}
+      />,
+      direction,
+    );
+    expect(accessibilityProblems(tree.root)).toEqual([]);
+    expect(chips().map((chip) => [chip.testID, chip.accessibilityRole, chip.accessibilityState])).toEqual([
+      ['level-primary', 'checkbox', { checked: false }],
+      ['level-middle', 'checkbox', { checked: false }],
+      ['level-secondary', 'checkbox', { checked: false }],
+      ['level-more', 'button', undefined],
+    ]);
+    await press(3);
+    expect(onMore).toHaveBeenCalledTimes(1);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
 });
 
 test('draws the chosen chip on the board, with chalk text, and the others on the sheet', async () => {

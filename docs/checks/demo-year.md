@@ -22,8 +22,8 @@ Measured with the bundled profile release `2026.2` and the current 2026/27 calen
 
 | Variant | Teaching sessions | Roll-call units | All history entries | UTF-8 JSON bytes |
 |---|---:|---:|---:|---:|
-| Middle school (`cem`, default) | 161 | 161 | 396 | 260,598 |
-| Primary (`primary`) | 256 | 225 | 554 | 368,444 |
+| Middle school (`cem`, default) | 161 | 161 | 396 | 260,621 |
+| Primary (`primary`) | 256 | 225 | 554 | 368,469 |
 
 Middle school has 50 setup entries; primary has 49. Both add eight session corrections, eight roll-call corrections and eight private correction notes. There are 16/25 homework details and 5/8 test details respectively, already inside the session entries.
 
