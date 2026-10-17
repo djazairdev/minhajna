@@ -19,7 +19,8 @@ import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
-import { EntryScreen, RollScreen, TodayTab } from './RecordScreens';
+import { RollRules } from '../roll/RollRules';
+import { CorrectScreen, EntryScreen, RollScreen, TodayTab } from './RecordScreens';
 import { Welcome } from './Welcome';
 import {
   CardScreen,
@@ -69,6 +70,8 @@ export type RootStackParamList = {
   Entry: { key: string; day: string };
   ClassPlan: { courseId: string };
   Roll: { key: string; day: string };
+  Correct: { unit: string; day: string; pupilId: string };
+  RollRules: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -193,6 +196,16 @@ export function AppNavigator({
           options={{ title: t('entry.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen
+          name="Correct"
+          component={CorrectScreen}
+          options={{ title: t('correct.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="RollRules"
+          component={RollRules}
+          options={{ title: t('rules.title'), statusBarStyle: 'dark' }}
+        />
         <Stack.Screen
           name="ClassPlan"
           component={ClassPlanScreen}

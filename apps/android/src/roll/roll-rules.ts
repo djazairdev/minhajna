@@ -8,15 +8,20 @@
 // saved, so stepping away from the screen loses nothing (PRD §6.8).
 
 import {
+  addDays,
   compareDays,
   compareSessions,
   current,
+  eachDay,
   pupilsFor,
   rollCallUnits,
   type Context,
+  type CountryProfile,
   type Day,
   type Marks,
   type RollCallUnit,
+  type SchoolYear,
+  weekday,
 } from '@minhajna/core';
 
 /** Every class's roll-call units from `from` to `to`, in the order of their first sessions. */
@@ -44,6 +49,11 @@ export function rollsToEnter(context: Context, from: Day, to: Day): RollCallUnit
       pupilsFor(context, unit).length > 0 &&
       !unit.sessions.every((session) => current(context.state.sessions.get(session.key))?.outcome === 'not-held'),
   );
+}
+
+/** A unit by its key, on its day. */
+export function unitByKey(context: Context, key: string, day: Day): RollCallUnit | null {
+  return unitsBetween(context, day, day).find((unit) => unit.key === key) ?? null;
 }
 
 /** The marks recorded for a unit, or null before its roll call is taken. */
@@ -99,6 +109,23 @@ export function counts(context: Context, unit: RollCallUnit, marks: Marks) {
   return { present: pupils - marks.absent.length, absent: marks.absent.length, late: marks.late.length };
 }
 
-/** Why a roll call already taken is corrected; never a detail about a pupil (PRD §5.5, §5.6). */
-export const fixReasons = ['arrived-late', 'entry-error', 'administration', 'other'] as const;
-export type FixReason = (typeof fixReasons)[number];
+/**
+ * The days counting may start from: the school year's first day, then the
+ * first working day of each week until today.
+ */
+export function countingStarts(
+  profile: Pick<CountryProfile, 'workingDays' | 'weekStartsOn'>,
+  year: Pick<SchoolYear, 'from'>,
+  today: Day,
+): Day[] {
+  const starts = [year.from];
+  let waiting = false;
+  for (const day of eachDay(addDays(year.from, 1), today)) {
+    if (weekday(day) === profile.weekStartsOn) waiting = true;
+    if (waiting && profile.workingDays.includes(weekday(day))) {
+      starts.push(day);
+      waiting = false;
+    }
+  }
+  return starts;
+}

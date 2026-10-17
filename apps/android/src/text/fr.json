@@ -669,5 +669,48 @@
     "paper": "Saisir un appel depuis la feuille papier",
     "paperSub": "Pour une séance passée, enregistré à la date de cette séance",
     "paperNone": "Aucune séance passée de ces jours n'attend son appel."
+  },
+  "correct": {
+    "title": "Corriger l'appel",
+    "recorded": "Enregistré : {{mark}} · le {{day}}",
+    "becomes": "Devient",
+    "asRecorded": "{{mark}}, comme enregistré",
+    "marks": {
+      "present": "Présent",
+      "late": "Retard, non compté comme absence",
+      "justified": "Absence justifiée",
+      "unjustified": "Absence non justifiée"
+    },
+    "justifyNote": "Seule la justification est enregistrée ; le motif n'est jamais écrit.",
+    "logTitle": "Ajouté au journal des modifications",
+    "logLine": "{{today}} · {{day}} : de {{from}} à {{to}} · {{reason}}",
+    "monthLine": "{{month}} : absences {{before}} → {{after}} · taux {{rateBefore}} → {{rateAfter}}",
+    "lateAdded": "et un retard est ajouté à sa date",
+    "lateRemoved": "et le retard de cette date est retiré",
+    "both": "Les deux versions restent dans l'historique, datées sans l'heure.",
+    "open": "Corriger l'appel de {{name}}",
+    "unavailable": "Aucun appel n'est enregistré pour cet élève à cette séance."
+  },
+  "rules": {
+    "title": "Règles de décompte",
+    "scope": "Registre d'appel · toutes les classes",
+    "intro": "Aucun texte officiel ne fixe ces règles : ce sont des réglages. Les totaux sont recalculés quand elles changent ; les absences enregistrées ne changent pas.",
+    "start": "Début du décompte",
+    "schoolStart": "rentrée scolaire",
+    "change": "Modifier",
+    "startTitle": "Début du décompte",
+    "startContext": "La présence possible est comptée à partir de ce jour",
+    "holidays": "Vacances scolaires et fêtes nationales",
+    "singleShift": "Journée à un seul demi-jour",
+    "never": "Non comptées dans la présence possible",
+    "halfDay": "Compte pour une demi-journée",
+    "unitHalf": "Unité de décompte : la demi-journée",
+    "unitHalfNote": "Une absence le matin ou l'après-midi compte 1, une journée entière 2. Le retard ne compte jamais comme absence.",
+    "unitSession": "Unité de décompte : la séance",
+    "unitSessionNote": "Une absence à une séance compte 1. Le retard ne compte jamais comme absence.",
+    "reset": "Rétablir les valeurs initiales",
+    "open": "Règles de décompte",
+    "countSeminars": "Compter les journées pédagogiques et séminaires dans la présence possible",
+    "countNotHeld": "Compter les séances non tenues dans la présence possible"
   }
 }

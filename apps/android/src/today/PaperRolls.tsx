@@ -16,8 +16,7 @@ import { OptionRow } from '../components/OptionRow';
 import { colors, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
-import { span } from '../times/TimeTable';
-import { sessionTime } from '../times/times-rules';
+import { unitTime } from '../roll/roll-labels';
 import { rollsToEnter } from '../roll/roll-rules';
 import { dayName } from './DayMark';
 
@@ -59,19 +58,14 @@ export function PaperRolls(props: { context: Context; from: Day; to: Day; onRoll
         )}
         {units.map((unit) => {
           const schoolClass = state.classes.get(unit.classId);
-          const school = schoolClass && state.schools.get(schoolClass.schoolId);
+          const time = unitTime({ state, bells, calendar }, unit, direction);
           const first = unit.sessions[0];
-          const last = unit.sessions.at(-1);
-          const from = first && sessionTime({ bells, calendar, state }, school, first.slot, unit.day);
-          const to = last && sessionTime({ bells, calendar, state }, school, last.slot, unit.day);
           return (
             <OptionRow
               key={unit.key}
               testID={`paper-${unit.key}`}
               label={dayName(t, unit.day, language, profile)}
-              sub={[from == null || to == null ? null : span(from.from, to.to, direction), schoolClass?.name]
-                .filter(Boolean)
-                .join(' · ')}
+              sub={[time, schoolClass?.name].filter(Boolean).join(' · ')}
               directional
               onPress={() => {
                 setOpen(false);
