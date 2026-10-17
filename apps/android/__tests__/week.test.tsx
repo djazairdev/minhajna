@@ -27,6 +27,7 @@ const root = () => tree!.root;
 const onDraw = jest.fn();
 const onNext = jest.fn();
 const onResolve = jest.fn();
+const onTimes = jest.fn();
 const day = parseDay('2026-10-15');
 
 afterEach(async () => {
@@ -36,6 +37,7 @@ afterEach(async () => {
   onDraw.mockReset();
   onNext.mockReset();
   onResolve.mockReset();
+  onTimes.mockReset();
 });
 
 async function withWeek(): Promise<TestData> {
@@ -83,7 +85,7 @@ async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Week onDraw={onDraw} onResolve={onResolve} onNext={onNext} />)}
+        {withData(data, <Week onDraw={onDraw} onResolve={onResolve} onTimes={onTimes} onNext={onNext} />)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -117,6 +119,8 @@ test('says the week is not drawn yet, offers to draw it, and leads on either way
   expect(exists('week-card')).toBe(false);
   await press('week-draw');
   expect(onDraw).toHaveBeenCalledTimes(1);
+  await press('week-times');
+  expect(onTimes).toHaveBeenCalledTimes(1);
   await press('week-next');
   expect(onNext).toHaveBeenCalledTimes(1);
 });

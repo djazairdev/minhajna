@@ -36,7 +36,7 @@ function shown(tree: ReactTestRenderer.ReactTestRenderer): unknown[] {
   return tree.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
 }
 
-test("reads Algeria's bundled profile and 2026/27 calendar through the core", () => {
+test("reads Algeria's bundled profile, 2026/27 calendar and bell times through the core", () => {
   const reference = readReference(bundledReference);
 
   expect(reference.ok ? [] : reference.problems).toEqual([]);
@@ -44,6 +44,7 @@ test("reads Algeria's bundled profile and 2026/27 calendar through the core", ()
   expect(reference.profile.code).toBe('dz');
   expect(reference.calendar.year.from).toBe('2026-09-21');
   expect(reference.calendar.year.to).toBe('2027-07-08');
+  expect(reference.bells.templates.map((template) => template.level)).toEqual(['cem', 'lycee']);
 });
 
 test('shows the navigation preview when the data and history read', async () => {
@@ -91,7 +92,34 @@ describe('a refused file', () => {
     );
   });
 
-  test('refuses both files when the profile is not a profile', async () => {
+  test('refuses all three files when the bell times overlap', async () => {
+    const bells = bundledReference.bells as { templates: { morning: string[][] }[] };
+    const [first, ...rest] = bells.templates;
+    const files = {
+      ...bundledReference,
+      bells: {
+        ...bells,
+        templates: [
+          {
+            ...first,
+            morning: [
+              ['08:00', '09:00'],
+              ['08:30', '09:30'],
+            ],
+          },
+          ...rest,
+        ],
+      },
+    };
+
+    const reference = readReference(files);
+    expect(reference.ok ? [] : reference.problems).toEqual([
+      { path: 'templates[0].morning[1]', problem: 'invalid', file: 'bells' },
+    ]);
+    expect(shown(await render(files))).toContain(text.referenceRefused);
+  });
+
+  test('refuses all three files when the profile is not a profile', async () => {
     const files = { ...bundledReference, profile: '<html>' };
 
     const reference = readReference(files);

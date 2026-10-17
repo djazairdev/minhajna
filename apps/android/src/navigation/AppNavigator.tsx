@@ -25,6 +25,7 @@ import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
 import { TypeList } from '../setup/TypeList';
 import { Week } from '../setup/Week';
+import { Times } from '../times/Times';
 import { WeekDraw } from '../week/WeekDraw';
 import type { Cell } from '../week/week-rules';
 import { Teaching } from '../setup/Teaching';
@@ -43,6 +44,7 @@ export type RootStackParamList = {
   TypeList: { classId: string; name: string };
   Week: undefined;
   WeekDraw: { slot?: Cell } | undefined;
+  Times: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -137,6 +139,7 @@ export function AppNavigator({
           component={WeekDrawScreen}
           options={{ title: t('week.title'), statusBarStyle: 'dark' }}
         />
+        <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
           name="NavigationPreview"
@@ -243,6 +246,7 @@ function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, '
     <Week
       onDraw={() => navigation.navigate('WeekDraw')}
       onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
+      onTimes={() => navigation.navigate('Times')}
       onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
     />
   );

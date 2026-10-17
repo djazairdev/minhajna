@@ -1,10 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// An empty history in the fake native store and Algeria's bundled profile,
-// for tests of screens that read or keep records.
+// An empty history in the fake native store and Algeria's bundled reference
+// data, for tests of screens that read or keep records.
 
-import { parseDay, type CountryProfile, type RecordBook, type SchoolYear } from '@minhajna/core';
+import {
+  parseDay,
+  type BellData,
+  type CalendarEntry,
+  type CountryProfile,
+  type RecordBook,
+  type SchoolYear,
+} from '@minhajna/core';
 import type { ReactNode } from 'react';
 import { bundledReference, readReference } from '../src/reference';
 import { AppDataProvider } from '../src/storage/AppData';
@@ -16,6 +23,8 @@ export interface TestData {
   readonly book: RecordBook;
   readonly profile: CountryProfile;
   readonly year: SchoolYear;
+  readonly calendar: readonly CalendarEntry[];
+  readonly bells: BellData;
 }
 
 /** Opens an empty history, or the one in `storage`. */
@@ -23,7 +32,14 @@ export async function openTestData(storage = new FakeStorage()): Promise<TestDat
   const reference = readReference(bundledReference);
   if (!reference.ok) throw new Error('The bundled reference data is refused');
   const book = await openRecordBook(storage.asSpec());
-  return { storage, book, profile: reference.profile, year: reference.calendar.year };
+  return {
+    storage,
+    book,
+    profile: reference.profile,
+    year: reference.calendar.year,
+    calendar: reference.calendar.entries,
+    bells: reference.bells,
+  };
 }
 
 /** Wraps a screen in the provider, recording every change on one made-up day, or on `day`. */
@@ -33,6 +49,8 @@ export function withData(data: TestData, children: ReactNode, day = '2026-10-15'
       book={data.book}
       profile={data.profile}
       year={data.year}
+      calendar={data.calendar}
+      bells={data.bells}
       random={nativeDeps(data.storage.asSpec()).random}
       today={() => parseDay(day)}
     >

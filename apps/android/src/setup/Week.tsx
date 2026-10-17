@@ -5,9 +5,9 @@
 // so far, with the day it starts and its sessions a week, or a line saying it
 // is not drawn yet, and the way to draw it. Receiving the school's timetable
 // by code or file comes later (PRD §2.5), and the screen says so instead of
-// offering it; bell times come with #29. A week of two schools counts each
-// school's sessions, and a warning lists its clashes, with a button that
-// opens the first on Week-slot.
+// offering it. «المواقيت» opens each slot's time at the school (#29). A
+// week of two schools counts each school's sessions, and a warning lists its
+// clashes, with a button that opens the first on Week-slot.
 
 import { formatDay, weekGrid, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,14 +25,19 @@ import { gridCell, gridLabels, schoolTally, slotName, weekMarks } from '../week/
 import { classLoads, type Cell } from '../week/week-rules';
 import { SETUP_STEPS } from './Teaching';
 
-/** The fourth step of setup; `onDraw` opens the drawing, `onResolve` opens a clashing slot, and `onNext` leads on. */
+/**
+ * The fourth step of setup; `onDraw` opens the drawing, `onResolve` opens a clashing slot, `onTimes` the bell times,
+ * and `onNext` leads on.
+ */
 export function Week({
   onDraw,
   onResolve,
+  onTimes,
   onNext,
 }: {
   onDraw: () => void;
   onResolve: (cell: Cell) => void;
+  onTimes: () => void;
   onNext: () => void;
 }) {
   const insets = useSafeAreaInsets();
@@ -116,6 +121,7 @@ export function Week({
           </View>
         )}
         <Button testID="week-draw" variant="line" label={drawn ? t('week.edit') : t('week.draw')} onPress={onDraw} />
+        <Button testID="week-times" variant="line" label={t('week.times')} onPress={onTimes} />
         <Notice testID="package-later" icon={controlIcon('info')} message={t('week.packageLater')} />
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>

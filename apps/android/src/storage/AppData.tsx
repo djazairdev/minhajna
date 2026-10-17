@@ -8,6 +8,8 @@
 
 import {
   eventOf,
+  type BellData,
+  type CalendarEntry,
   newId,
   parseDay,
   type CountryProfile,
@@ -24,6 +26,10 @@ export interface AppData {
   readonly profile: CountryProfile;
   /** The bundled calendar's school year. */
   readonly year: SchoolYear;
+  /** The bundled calendar's entries, before the teacher's own. */
+  readonly calendar: readonly CalendarEntry[];
+  /** The bundled bell times (#29). */
+  readonly bells: BellData;
   readonly state: State;
   /** Saves one change. */
   readonly record: (event: RecordEvent) => void;
@@ -54,6 +60,8 @@ export function AppDataProvider({
   book,
   profile,
   year,
+  calendar,
+  bells,
   random,
   today = todayOf,
   children,
@@ -61,6 +69,8 @@ export function AppDataProvider({
   book: RecordBook;
   profile: CountryProfile;
   year: SchoolYear;
+  calendar: readonly CalendarEntry[];
+  bells: BellData;
   random: RandomBytes;
   today?: () => Day;
   children: ReactNode;
@@ -84,6 +94,8 @@ export function AppDataProvider({
     return {
       profile,
       year,
+      calendar,
+      bells,
       record: (event: RecordEvent) => save(() => book.record(today(), event)),
       recordAll: (events: readonly RecordEvent[]) => save(() => book.recordAll(today(), events)),
       erase: (match: (event: RecordEvent) => boolean) =>
@@ -100,7 +112,7 @@ export function AppDataProvider({
       newId: () => newId(random),
       settled: () => queue.current,
     };
-  }, [book, profile, year, random, today]);
+  }, [book, profile, year, calendar, bells, random, today]);
   const value = useMemo(() => ({ ...actions, state, unsaved }), [actions, state, unsaved]);
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
