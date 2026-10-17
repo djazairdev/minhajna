@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the screens show is worked out from the history (PRD §5.5).
+// What the screens show is worked out from the history (PRD §5.5). A
+// timetable version saved again under its ID while the week is drawn replaces
+// itself, so drawing a week adds one version, not one for each change.
 
 import { compareDays, maxDay, type Day } from './day.ts';
 import type { Entry } from './history.ts';
@@ -136,13 +138,16 @@ export function buildState(entries: readonly Entry[]): State {
       case 'course.set':
         courses.set(event.course.id, event.course);
         break;
-      case 'timetable.set':
+      case 'timetable.set': {
+        const redrawn = timetables.at(-1)?.version.id === event.version.id ? timetables.pop() : undefined;
+        const recorded = redrawn?.recorded ?? entry.day;
         timetables.push({
           version: event.version,
-          recorded: entry.day,
-          from: timetables.length === 0 ? event.version.from : maxDay(event.version.from, entry.day),
+          recorded,
+          from: timetables.length === 0 ? event.version.from : maxDay(event.version.from, recorded),
         });
         break;
+      }
       case 'calendar.set':
         calendar.set(event.entry.id, event.entry);
         break;

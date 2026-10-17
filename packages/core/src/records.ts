@@ -154,6 +154,7 @@ export interface WeekOptions {
 }
 
 export interface TimetableVersion {
+  /** Saved again under the same ID, as the week is drawn, it replaces itself. */
   readonly id: string;
   /** It applies from this day. Days before it keep the version they had (PRD §4.6). */
   readonly from: Day;

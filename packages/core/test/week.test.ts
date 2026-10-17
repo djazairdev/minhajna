@@ -149,6 +149,29 @@ describe('the week the teacher draws', () => {
     assert.equal(courseOf(state, 'k-1', 'arabic', '2027-2028'), undefined);
   });
 
+  it('replaces the version being drawn when it is saved again, keeping where it starts', async () => {
+    const book = await openBook([...setup, { kind: 'timetable.set', version: version([entry('c-1', 0, 1)]) }]);
+    await book.record(d('2026-09-15'), {
+      kind: 'timetable.set',
+      version: version([entry('c-1', 0, 1), entry('c-2', 1, 1)]),
+    });
+    assert.equal(book.state.timetables.length, 1);
+    assert.equal(book.state.timetables[0]?.from.toString(), '2026-09-13');
+    assert.equal(book.state.timetables[0]?.version.entries.length, 2);
+    await book.record(d('2026-10-04'), {
+      kind: 'timetable.set',
+      version: version([entry('c-2', 0, 1)], [], '2026-10-04'),
+    });
+    await book.record(d('2026-10-05'), {
+      kind: 'timetable.set',
+      version: version([entry('c-2', 0, 2)], [], '2026-10-04'),
+    });
+    assert.deepEqual(
+      book.state.timetables.map((timetable) => timetable.from.toString()),
+      ['2026-09-13', '2026-10-04'],
+    );
+  });
+
   it('keeps every earlier day on the version it had when the week changes', async () => {
     const book = await openBook([...setup, { kind: 'timetable.set', version: version([entry('c-1', 0, 1)]) }]);
     await book.record(d('2026-10-04'), {
