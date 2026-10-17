@@ -1,0 +1,137 @@
+/* SPDX-FileCopyrightText: 2026 The Minhajna contributors */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+
+:root {
+  color-scheme: light;
+  font:
+    1.05rem/1.7 system-ui,
+    sans-serif;
+  color: #192f2a;
+  background: #f4f1e9;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-inline-size: 56rem;
+  margin-inline: auto;
+  padding: 2rem 1rem 4rem;
+}
+header {
+  padding-block: 1rem 2rem;
+}
+h1 {
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.4;
+  margin-block: 0.3rem;
+}
+h2 {
+  font-size: 1.35rem;
+  margin-block-start: 0;
+}
+.eyebrow {
+  letter-spacing: 0.14em;
+  font-size: 0.85rem;
+  font-weight: 750;
+  color: #365b4e;
+}
+section {
+  background: #fffdf8;
+  border: 1px solid #8f9e95;
+  border-radius: 1rem;
+  padding: 1.4rem;
+  margin-block: 1.3rem;
+}
+label {
+  display: block;
+  font-weight: 650;
+  margin-block-start: 1rem;
+}
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  max-inline-size: 100%;
+}
+input,
+select,
+textarea {
+  display: block;
+  inline-size: 100%;
+  min-block-size: 48px;
+  padding: 0.65rem;
+  border: 1.5px solid #64796d;
+  border-radius: 0.45rem;
+  background: white;
+  color: inherit;
+}
+header select {
+  inline-size: auto;
+  min-inline-size: 12rem;
+}
+textarea {
+  font:
+    0.9rem/1.5 ui-monospace,
+    monospace;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+button {
+  min-block-size: 48px;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #173e35;
+  border-radius: 0.5rem;
+  background: #173e35;
+  color: white;
+  cursor: pointer;
+  white-space: normal;
+}
+button.secondary {
+  color: #173e35;
+  background: transparent;
+}
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+:focus-visible {
+  outline: 3px solid #92530c;
+  outline-offset: 3px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+.hint {
+  color: #405b50;
+  font-size: 0.95rem;
+}
+.notice {
+  padding: 1rem;
+  border-inline-start: 4px solid #92530c;
+  background: #fff4dc;
+}
+#status {
+  font-weight: 650;
+}
+a {
+  color: #1d5442;
+  text-underline-offset: 0.2em;
+}
+footer {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 30rem) {
+  section {
+    padding: 1rem;
+  }
+  .actions button {
+    inline-size: 100%;
+  }
+}
