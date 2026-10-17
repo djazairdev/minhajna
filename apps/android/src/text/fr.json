@@ -614,5 +614,27 @@
     "spare_one": "{{count}} séance de réserve",
     "spare_many": "{{count}} de séances de réserve",
     "spare_other": "{{count}} séances de réserve"
+  },
+  "classPlan": {
+    "title": "Plan",
+    "open": "Plan",
+    "noPack": "Pas de pack pour cette classe : ce qui est fait est écrit, sans plan pour comparer.",
+    "pack": "Pack {{release}}",
+    "reference": "La place que le plan donne à la classe n’est qu’un repère : elle ne déplace pas la classe et ne juge pas le travail.",
+    "untilExams": "Jusqu’aux examens du trimestre {{term}} ({{day}}) : {{gives}} pour les leçons, dont le plan demande {{needs}}.",
+    "untilEnd": "Jusqu’à la fin du trimestre {{term}} ({{day}}) : {{gives}} pour les leçons, dont le plan demande {{needs}}.",
+    "term1": "1",
+    "term2": "2",
+    "term3": "3",
+    "done": "Terminé",
+    "skipped": "Laissé",
+    "started": "En cours",
+    "startedStages": "En cours · {{covered}} étapes sur {{stages}}",
+    "position": "La classe est ici",
+    "expected": "Place selon le plan",
+    "buffer": "Réserve",
+    "td": "Travaux dirigés",
+    "taughtSpoken": "Enseigné le {{days}}",
+    "aheadSpoken": "Atteint le {{day}} si rien ne change"
   }
 }

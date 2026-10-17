@@ -21,7 +21,8 @@ import { currentLanguage, useText } from '../text/i18n';
 import { sessionTime } from '../times/times-rules';
 import { classRows, paceLine } from './class-rules';
 
-export function ClassesTab() {
+/** The tab; `onPlan` opens a class's plan. */
+export function ClassesTab({ onPlan }: { onPlan: (courseId: string) => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -75,6 +76,7 @@ export function ClassesTab() {
                   ...(extra.length > 0 && { subject: extra.join(' · ') }),
                 }}
                 lesson={paceLine(t, row)}
+                show={{ id: 'plan', label: t('classPlan.open'), onPress: () => onPlan(row.course.id) }}
               />
             );
           })}

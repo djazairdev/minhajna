@@ -9,7 +9,7 @@
 
 import { confirmSessions, parseDay, todayView, type Pace, type TermCheck } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
-import { Text } from 'react-native';
+import { Text, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { withData, type TestData } from '../jest/app-data';
@@ -28,6 +28,7 @@ jest.mock(
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const day = parseDay('2026-10-15');
+const onPlan = jest.fn();
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -67,7 +68,9 @@ async function notHeld(data: TestData, count: number) {
 async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', today = '2026-10-15') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
-      <LocaleDirContext.Provider value={direction}>{withData(data, <ClassesTab />, today)}</LocaleDirContext.Provider>,
+      <LocaleDirContext.Provider value={direction}>
+        {withData(data, <ClassesTab onPlan={onPlan} />, today)}
+      </LocaleDirContext.Provider>,
     );
   });
 }
@@ -91,12 +94,21 @@ test('one card per class, with its pupils, its first session today and where it 
     '3 تلاميذ',
     'اليوم 08:00',
     'لا تأخر · يحتاج المخطط 4 حصص أكثر مما بقي قبل الاختبارات',
+    text.classPlan.open,
     '4م2',
     'لا تلميذ',
     'اليوم 10:00',
     text.classes.noPack,
+    text.classPlan.open,
   ]);
   expect(accessibilityProblems(root())).toEqual([]);
+  await ReactTestRenderer.act(() => {
+    (
+      root().findAll((node) => node.props.testID === 'classes-c-1-plan' && typeof node.props.onPress === 'function')[0]
+        ?.props as PressableProps
+    ).onPress?.({} as never);
+  });
+  expect(onPlan).toHaveBeenCalledWith('c-1');
 });
 
 test('buffers absorb a delay before any delay is shown, and sessions awaiting confirmation add none', async () => {
