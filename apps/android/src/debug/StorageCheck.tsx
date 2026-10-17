@@ -4,8 +4,9 @@
 // The storage check's screen (#19), in debug builds only, opened from React
 // Native's developer menu. It runs the core's shared storage checks on the
 // phone as it opens, and again on request, and lists each result. The summary
-// also goes to the log, so a script can read it with adb logcat. Like the
-// developer menu, it is in English: teachers never see it.
+// also goes to the log, so a script can read it with adb logcat. Below them
+// are the crash check and the demo year (HistoryTools). Like the developer
+// menu, it is in English: teachers never see it.
 
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -13,10 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fontFamilies, sizes, spacing, typography } from '../design/tokens';
 import storage from '../native/NativeMinhajnaStorage';
 import check from '../native/NativeMinhajnaStorageCheck';
-import { runStorageChecks, type CheckResult } from './storage-check';
-
-/** The log line's prefix, for scripts that read the result. */
-export const LOG_PREFIX = '[storage-check]';
+import { HistoryTools } from './HistoryTools';
+import { LOG_PREFIX, runStorageChecks, type CheckResult } from './storage-check';
 
 /** Each result, then a summary, in the log. */
 function log(results: readonly CheckResult[]) {
@@ -80,6 +79,7 @@ export default function StorageCheck() {
       >
         <Text style={styles.buttonLabel}>Run again</Text>
       </Pressable>
+      {check && <HistoryTools check={check} />}
     </ScrollView>
   );
 }
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
   error: { ...typography.fact, ...latin, color: colors.ink2 },
   button: {
     minHeight: sizes.target,
+    minWidth: sizes.target,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: spacing['space-16'],

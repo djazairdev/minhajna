@@ -94,17 +94,44 @@ describe('at start', () => {
       });
       await originalOpen();
     });
+    const reportDrawn = jest.fn();
     let tree: ReactTestRenderer.ReactTestRenderer | undefined;
     await ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<App storage={storage} />);
+      tree = ReactTestRenderer.create(<App storage={storage} reportDrawn={reportDrawn} />);
     });
     expect(tree!.root.findAllByType(AppNavigator)).toHaveLength(0);
+    expect(reportDrawn).not.toHaveBeenCalled();
     await ReactTestRenderer.act(async () => {
       if (complete === undefined) throw new Error('History opening did not start');
       complete();
       await Promise.resolve();
     });
     expect(tree!.root.findAllByType(AppNavigator)).toHaveLength(1);
+    expect(reportDrawn).toHaveBeenCalledTimes(1);
+    await ReactTestRenderer.act(() => {
+      tree!.update(
+        <App
+          storage={storage}
+          reportDrawn={() => {
+            reportDrawn();
+          }}
+        />,
+      );
+    });
+    expect(reportDrawn).toHaveBeenCalledTimes(1);
+    await ReactTestRenderer.act(() => tree!.unmount());
+  });
+
+  test('says the first screen is drawn once when the history is refused too', async () => {
+    const storage = new FakeStorage();
+    storage.keyLost = true;
+    const reportDrawn = jest.fn();
+    let tree: ReactTestRenderer.ReactTestRenderer | undefined;
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<App storage={storage.asSpec()} reportDrawn={reportDrawn} />);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(reportDrawn).toHaveBeenCalledTimes(1);
     await ReactTestRenderer.act(() => tree!.unmount());
   });
 
