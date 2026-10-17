@@ -24,3 +24,12 @@ jest.mock('../src/native/NativeMinhajnaLicences', () => ({
   __esModule: true,
   default: { readNotices: jest.fn(() => Promise.resolve({ version: '0.0.0', notices: [] })) },
 }));
+
+// No web engine exists in Jest; tests check the HTML and supply a made PDF.
+jest.mock('../src/native/NativeMinhajnaPdf', () => ({
+  __esModule: true,
+  default: {
+    makePdf: jest.fn((_html: string, name: string) => Promise.resolve({ name, pages: 1, bytes: 1, milliseconds: 1 })),
+    sharePdf: jest.fn(() => Promise.resolve()),
+  },
+}));

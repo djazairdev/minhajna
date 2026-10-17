@@ -783,5 +783,29 @@
     "view": "Roll call by",
     "list": "List",
     "rollHint": "Tap a seat: absent. A second tap: late. A third: present again."
+  },
+  "documents": {
+    "journal": "Daily journal",
+    "year": "School year {{year}}",
+    "time": "From – to",
+    "className": "Class",
+    "content": "Unit, field and resource, and how the session went",
+    "teacher": "Teacher's signature",
+    "director": "Director's visa",
+    "empty": "No session on this day.",
+    "awaiting": "How the session went: awaiting confirmation",
+    "rollTitle": "Roll-call book · {{month}}",
+    "october": "October 2026",
+    "number": "No.",
+    "name": "Name",
+    "latinName": "In Latin letters",
+    "absent": "Absences",
+    "late": "Lateness",
+    "key": "U: unjustified absence · J: justified absence · L: late, not counted as an absence",
+    "marks": {
+      "unjustified": "U",
+      "justified": "J",
+      "late": "L"
+    }
   }
 }

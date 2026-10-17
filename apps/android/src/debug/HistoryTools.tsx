@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The storage check screen's tools for #19, in debug builds only: the crash
-// check's writer and verifier, and the demo year for the start-up check. Each
-// result goes to the log too, for the scripts that run the checks over adb.
+// check's writer and verifier, the demo year for the start-up check, and
+// October's PDFs for the Arabic PDF check (#44). Each result goes to the log
+// too, for the scripts that run the checks over adb.
 
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -11,7 +12,11 @@ import { colors, fontFamilies, sizes, spacing, typography } from '../design/toke
 import storage from '../native/NativeMinhajnaStorage';
 import type { Spec as CheckSpec } from '../native/NativeMinhajnaStorageCheck';
 import { CRASH_HISTORY, verifyCrashHistory, writeUntilStopped } from './crash-check';
+import pdf from '../native/NativeMinhajnaPdf';
+import { nativeDeps } from '../storage/history';
+import { useText } from '../text/i18n';
 import { fillWithDemoYear } from './demo-history';
+import { makeDemoPdfs } from './pdf-check';
 import { LOG_PREFIX } from './storage-check';
 
 function errorText(error: unknown): string {
@@ -32,6 +37,7 @@ function Tool({ label, onPress, disabled = false }: { label: string; onPress: ()
 }
 
 export function HistoryTools({ check }: { check: CheckSpec }) {
+  const t = useText();
   const [status, setStatus] = useState('');
   const [writing, setWriting] = useState(false);
   const stopped = useRef(false);
@@ -109,6 +115,33 @@ export function HistoryTools({ check }: { check: CheckSpec }) {
             attempt(async () => {
               const times = await fillWithDemoYear(storage, level);
               return `demo year: ${times.entries} entries, opened in ${times.openMilliseconds} ms, Today in ${times.todayMilliseconds} ms`;
+            })
+          }
+        />
+      ))}
+      <Text accessibilityRole="header" style={styles.heading}>
+        Arabic PDFs, October of the demo year
+      </Text>
+      <Tool
+        label="Make the journal and roll-call PDFs"
+        disabled={writing}
+        onPress={() =>
+          attempt(async () => {
+            const made = await makeDemoPdfs(t, nativeDeps(storage));
+            const one = (file: typeof made.journal) =>
+              `${file.name} ${file.pages} pages, ${file.bytes} bytes, ${file.milliseconds} ms`;
+            return `pdf: html ${made.htmlMilliseconds} ms; ${one(made.journal)}; ${one(made.roll)}`;
+          })
+        }
+      />
+      {(['journal-2026-10', 'roll-2026-10'] as const).map((name) => (
+        <Tool
+          key={name}
+          label={`Share ${name}.pdf`}
+          onPress={() =>
+            attempt(async () => {
+              await pdf.sharePdf(name, name);
+              return `shared ${name}`;
             })
           }
         />

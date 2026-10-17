@@ -52,6 +52,21 @@
       </activity>
 
       <!--
+        Hands a PDF the app made to the app the teacher picks in Android's
+        chooser, for that one file only (src/documents). No storage
+        permission is needed.
+      -->
+      <provider
+        android:name="androidx.core.content.FileProvider"
+        android:authorities="${applicationId}.documents"
+        android:exported="false"
+        android:grantUriPermissions="true">
+        <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/document_paths" />
+      </provider>
+
+      <!--
         At start-up, androidx's emoji support asks the phone's font provider,
         Google Play services on most phones, for a newer emoji font, which it
         may download. The app asks no other app for anything it does not
