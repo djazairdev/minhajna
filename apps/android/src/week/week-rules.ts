@@ -61,9 +61,18 @@ export function contentOf(version: TimetableVersion, classOf: ClassOf, cell: Cel
   return block === undefined ? null : { kind: 'own' as const, label: block.label };
 }
 
-/** The course a class's slots go to: the one it has for the year, or a new one in the school's first subject. */
-export function courseFor(state: State, schoolClass: SchoolClass, year: SchoolYear, newId: () => string) {
-  const subjects = state.schools.get(schoolClass.schoolId)?.subjects ?? [];
+/**
+ * The course a class's slots go to: the one it has for the year in `subject`, or in any of the school's subjects
+ * when none is named, or a new one in that subject or the school's first.
+ */
+export function courseFor(
+  state: State,
+  schoolClass: SchoolClass,
+  year: SchoolYear,
+  newId: () => string,
+  subject?: string,
+) {
+  const subjects = subject !== undefined ? [subject] : (state.schools.get(schoolClass.schoolId)?.subjects ?? []);
   for (const subject of subjects) {
     const found = courseOf(state, schoolClass.id, subject, year.id);
     if (found !== undefined) return { course: found, isNew: false };

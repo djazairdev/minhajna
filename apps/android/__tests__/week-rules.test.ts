@@ -110,6 +110,16 @@ test("finds a class's course for the year in any of the school's subjects, or ma
   expect(made.course).toMatchObject({ classId: 'k-2', subject: 'arabic', year: data.year.id, pack: null });
 });
 
+test('finds or makes the course of a class in a named subject, for a teacher of two subjects', async () => {
+  const data = await withClasses();
+  expect(courseFor(data.book.state, classes[0], data.year, newId, 'islamic')).toEqual({
+    course: courses['k-1'],
+    isNew: false,
+  });
+  const arabic = courseFor(data.book.state, classes[0], data.year, newId, 'arabic');
+  expect(arabic).toMatchObject({ isNew: true, course: { classId: 'k-1', subject: 'arabic' } });
+});
+
 test('counts each class a week in the order of the classes, and says what sits on Saturday', () => {
   let version = empty;
   for (const weekday of [0, 1, 2] as const) {

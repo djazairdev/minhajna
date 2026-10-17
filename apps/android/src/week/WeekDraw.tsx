@@ -7,21 +7,12 @@
 // while its slots hold something. Under the grid, each class's sessions, the
 // total and the clashes. Each change is saved once the taps pause, and «حفظ
 // الأسبوع» saves at once; the version starts on the day shown and never
-// changes a recorded session (PRD §4.6). A slot's group, weeks and subject
-// come with Week-slot. Class names in the totals are isolated, so a Latin
+// changes a recorded session (PRD §4.6). The «تفاصيل الخانة» pen opens a
+// slot on Week-slot, for its group, A/B weeks, subject, room, or kind of own
+// time. Class names in the totals are isolated, so a Latin
 // name at the start does not turn an Arabic line around.
 
-import {
-  SATURDAY,
-  formatDay,
-  weekClashes,
-  weekGrid,
-  type Course,
-  type SchoolClass,
-  type Slot,
-  type WeekOptions,
-  type Weekday,
-} from '@minhajna/core';
+import { SATURDAY, formatDay, weekClashes, weekGrid, type Slot, type WeekOptions, type Weekday } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -34,13 +25,12 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDraft } from '../setup/useDraft';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
-import { gridCell, gridLabels } from './grid-labels';
-import { classLoads, courseFor, holds, paint, versionToDraw, type Brush } from './week-rules';
+import { gridCell, gridLabels, isolate } from './grid-labels';
+import { SlotSheet } from './SlotSheet';
+import { useWeekRecords } from './useWeekRecords';
+import { classLoads, holds, paint, versionToDraw, type Brush, type Cell } from './week-rules';
 
 type Option = keyof Omit<WeekOptions, 'doubleShift'>;
-
-/** Keeps a class name, such as 4AM3, from setting the direction of the line around it. */
-const isolate = (name: string) => `\u2068${name}\u2069`;
 
 const OPTION_SLOTS: Record<Option, (weekday: Weekday, slot: Slot) => boolean> = {
   saturday: (weekday) => weekday === SATURDAY,
@@ -55,7 +45,8 @@ export function WeekDraw({ onDone }: { onDone: () => void }) {
   const { state, profile, year, record, today, newId, unsaved } = useAppData();
   const [start] = useState(() => versionToDraw(state, year, today(), newId));
   const draft = useDraft(start, (version) => record({ kind: 'timetable.set', version }));
-  const [made, setMade] = useState<ReadonlyMap<string, Course>>(new Map());
+  const records = useWeekRecords();
+  const [open, setOpen] = useState<Cell | null>(null);
   const version = draft.value;
   const classes = [...state.classes.values()].filter((schoolClass) => state.schools.has(schoolClass.schoolId));
   const [pen, setPen] = useState(classes[0]?.id ?? 'own');
@@ -64,23 +55,17 @@ export function WeekDraw({ onDone }: { onDone: () => void }) {
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
 
-  const classOf = (courseId: string): SchoolClass | undefined => {
-    const course = state.courses.get(courseId) ?? [...made.values()].find((item) => item.id === courseId);
-    return course && state.classes.get(course.classId);
-  };
-  const courseOfClass = (schoolClass: SchoolClass) => {
-    const kept = made.get(schoolClass.id);
-    if (kept !== undefined) return kept;
-    const { course, isNew } = courseFor(state, schoolClass, year, newId);
-    if (isNew) record({ kind: 'course.set', course });
-    setMade(new Map(made).set(schoolClass.id, course));
-    return course;
-  };
-  const tap = (cell: ReturnType<typeof labels.cellOf>) => {
+  const tap = (cell: Cell) => {
+    if (pen === 'details') {
+      setOpen(cell);
+      return;
+    }
     const brush: Brush = pen === 'own' || pen === 'erase' ? { kind: pen } : { kind: 'class', classId: pen };
-    const schoolClass = brush.kind === 'class' ? state.classes.get(brush.classId) : undefined;
-    const course = schoolClass && courseOfClass(schoolClass);
-    draft.change(paint(version, classOf, cell, brush, { schoolClass, course, ownLabel: t('week.ownTime'), newId }));
+    const schoolClass = brush.kind === 'class' ? records.lookup.schoolClass(brush.classId) : undefined;
+    const course = schoolClass && records.courseOfClass(schoolClass.id);
+    draft.change(
+      paint(version, records.classOf, cell, brush, { schoolClass, course, ownLabel: t('week.ownTime'), newId }),
+    );
   };
   const toggle = (option: Option, on: boolean) => {
     const next: { -readonly [Key in keyof WeekOptions]: WeekOptions[Key] } = { ...options };
@@ -88,8 +73,15 @@ export function WeekDraw({ onDone }: { onDone: () => void }) {
     else delete next[option];
     draft.change({ ...version, options: next });
   };
+  const slotTitle = (cell: Cell) => {
+    const day = labels.days.find((candidate) => candidate.key === String(cell.weekday));
+    const slot = labels.slots.find(
+      (candidate) => candidate.slot.half === cell.slot.half && candidate.slot.index === cell.slot.index,
+    );
+    return t('week.slotTitle', { day: day?.label ?? '', slot: slot?.spoken ?? '' });
+  };
   const locked = (option: Option) => options[option] === true && holds(version, OPTION_SLOTS[option]);
-  const { loads, total } = classLoads(version, classOf, classes);
+  const { loads, total } = classLoads(version, records.classOf, classes);
   const clashes = weekClashes(version, state).length;
   const tally = [
     ...loads.map((load) => `${isolate(load.name)}: ${load.count}`),
@@ -107,6 +99,7 @@ export function WeekDraw({ onDone }: { onDone: () => void }) {
             ...classes.map((schoolClass) => ({ value: schoolClass.id, label: schoolClass.name })),
             { value: 'own', label: t('week.ownTime') },
             { value: 'erase', label: t('week.erase') },
+            { value: 'details', label: t('week.details') },
           ]}
           selected={pen}
           onSelect={setPen}
@@ -129,9 +122,9 @@ export function WeekDraw({ onDone }: { onDone: () => void }) {
           testID="draw"
           days={labels.days}
           slots={labels.slots}
-          cell={(day, slot) => gridCell(version, classOf, labels.cellOf(day, slot))}
+          cell={(day, slot) => gridCell(t, version, records.lookup, labels.cellOf(day, slot))}
           cellName={labels.cellName}
-          cellHint={t('week.cellHint')}
+          cellHint={pen === 'details' ? t('week.detailsHint') : t('week.cellHint')}
           onPressCell={(day, slot) => tap(labels.cellOf(day, slot))}
         />
         <Text testID="week-tally" style={[styles.tally, align]}>
@@ -146,6 +139,17 @@ export function WeekDraw({ onDone }: { onDone: () => void }) {
           </Text>
         )}
       </ScrollView>
+      <SlotSheet
+        cell={open}
+        title={open === null ? '' : slotTitle(open)}
+        version={version}
+        records={records}
+        onClose={() => setOpen(null)}
+        onSave={(next) => {
+          draft.change(next);
+          setOpen(null);
+        }}
+      />
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button
           testID="week-save"
