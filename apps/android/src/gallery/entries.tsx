@@ -12,6 +12,7 @@ import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { useState, type ReactNode } from 'react';
 import { BottomNav, TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
+import { TextFieldSamples } from './text-field-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -60,6 +61,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'IconButton',
     design: 'docs/design/system/components/IconButton/README.md',
     render: (sample) => <IconButtonSamples sample={sample} />,
+  },
+  {
+    name: 'TextField',
+    design: 'docs/design/system/components/TextField/README.md',
+    render: (sample) => <TextFieldSamples key={sample.title} sample={sample} />,
   },
   {
     name: 'TopBar',

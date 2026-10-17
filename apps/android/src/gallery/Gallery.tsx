@@ -10,11 +10,12 @@
 
 import { LocaleDirContext } from '@react-navigation/native';
 import { useState } from 'react';
-import { PixelRatio, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { PixelRatio, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaInsetsContext, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colorRoles, colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
 import { currentLanguage, LANGUAGES } from '../text/i18n';
 import { entries } from './entries';
+import { GalleryScroll } from './GalleryScroll';
 import { fill, samples } from './samples';
 
 type Direction = 'rtl' | 'ltr';
@@ -29,7 +30,7 @@ export function Gallery() {
   const sample = samples[language];
   const [direction, setDirection] = useState<Direction>(LANGUAGES[language].rightToLeft ? 'rtl' : 'ltr');
   return (
-    <ScrollView
+    <GalleryScroll
       contentContainerStyle={{
         paddingBottom: spacing['space-20'] + insets.bottom,
         paddingLeft: insets.left,
@@ -71,7 +72,7 @@ export function Gallery() {
           </SafeAreaInsetsContext.Provider>
         </View>
       ))}
-    </ScrollView>
+    </GalleryScroll>
   );
 }
 

@@ -10,8 +10,8 @@
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DevSettings } from 'react-native';
-import type { PressableProps, ViewProps } from 'react-native';
+import { DevSettings, TextInput } from 'react-native';
+import type { PressableProps, TextInputProps, ViewProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { AppNavigator, GALLERY_MENU_ITEM } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
@@ -72,20 +72,23 @@ test('opens from the developer menu, with its title in the interface language', 
   expect(headers[0]).toBe(samples.ar.title);
 });
 
-test.each(LANGUAGES.flatMap((language) => (['rtl', 'ltr'] as const).map((direction) => [language, direction])))(
-  'shows every component, readable and large enough to press (%s, %s)',
-  async (language, direction) => {
-    await i18n.changeLanguage(language);
-    await render(<Gallery />);
-    await press(`gallery-${direction}`);
-    for (const entry of entries)
-      expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
-    expect(accessibilityProblems(tree.root)).toEqual([]);
-    const rotation = direction === 'rtl' ? '135deg' : '225deg';
-    expect(backArrows()).toHaveLength(2);
-    expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
-  },
-);
+test.each(
+  LANGUAGES.flatMap((language) => (['rtl', 'ltr'] as const).map((direction) => [language, direction] as const)),
+)('shows every component, readable and large enough to press (%s, %s)', async (language, direction) => {
+  await i18n.changeLanguage(language);
+  await render(<Gallery />);
+  await press(`gallery-${direction}`);
+  for (const entry of entries)
+    expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
+  expect(accessibilityProblems(tree.root)).toEqual([]);
+  const inputs = tree.root.findAllByType(TextInput).map((node) => node.props as TextInputProps);
+  expect(inputs).toHaveLength(7);
+  expect(new Set(inputs.map((input) => input.accessibilityLabelledBy)).size).toBe(7);
+  expect(inputs.find((input) => input.testID === 'field-code')?.value).toBe(samples[language].fields.codeValue);
+  const rotation = direction === 'rtl' ? '135deg' : '225deg';
+  expect(backArrows()).toHaveLength(2);
+  expect(backArrows().filter((style) => !style.includes(rotation))).toEqual([]);
+});
 
 test('selects a tab in the bottom bar sample as the app does', async () => {
   await render(<Gallery />);
@@ -112,6 +115,18 @@ test.each([
     ...weights,
     labels[5],
   ]);
+});
+
+test('editing a gallery field changes only its transient value', async () => {
+  await render(<Gallery />);
+  const field = () =>
+    tree.root.findAllByType(TextInput).find((node) => node.props.testID === 'field-empty')!.props as TextInputProps;
+  await ReactTestRenderer.act(() => {
+    field().onChangeText?.(samples.ar.fields.value);
+  });
+  expect(field().value).toBe(samples.ar.fields.value);
+  await press('gallery-ltr');
+  expect(field().value).toBe(samples.ar.fields.value);
 });
 
 test('links each entry to its page in the design system', () => {

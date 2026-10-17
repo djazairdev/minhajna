@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { StyleSheet, Text } from 'react-native';
-import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TextInput } from 'react-native';
+import type { PressableProps, StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import type { ReactTestInstance } from 'react-test-renderer';
 import { sizes } from '../src/design/tokens';
 
@@ -48,6 +48,30 @@ function wraps(control: ReactTestInstance): boolean {
   return control.findAll(isControl).some((inner) => inner !== control && views(inner) === views(control));
 }
 
+/** Native edit boxes keep their intrinsic role; resolve their associated label, not their current value. */
+function inputProblems(root: ReactTestInstance): string[] {
+  return root.findAllByType(TextInput).flatMap((input) => {
+    const props = input.props as TextInputProps;
+    const ids = [props.accessibilityLabelledBy ?? []].flat();
+    const labels = ids.map((id) => root.findAll((node) => node.props.nativeID === id)[0]);
+    const name = ids.length
+      ? labels
+          .map((label) => (label ? spokenName(label) : ''))
+          .join(' ')
+          .trim()
+      : spokenName(input);
+    const where = name || props.testID || 'an input';
+    const box = smallest(props.style);
+    return [
+      ...(labels.some((label) => !label) ? [`${where}: broken accessibilityLabelledBy`] : []),
+      ...(name ? [] : [`${where}: nothing for TalkBack to read`]),
+      ...(box.height >= sizes.target && box.width >= sizes.target
+        ? []
+        : [`${where}: smaller than ${sizes.target}dp (${box.width}×${box.height})`]),
+    ];
+  });
+}
+
 /**
  * Every control under a node that TalkBack or a thumb would miss: one with no
  * role, one with nothing to read out, or one smaller than 48dp either way
@@ -57,7 +81,7 @@ function wraps(control: ReactTestInstance): boolean {
  */
 export function accessibilityProblems(root: ReactTestInstance): string[] {
   const controls = root.findAll(isControl).filter((control) => !wraps(control));
-  return controls.flatMap((control) => {
+  const presses = controls.flatMap((control) => {
     const props = control.props as PressableProps;
     const name = spokenName(control);
     const where = name || props.testID || 'a control';
@@ -70,4 +94,5 @@ export function accessibilityProblems(root: ReactTestInstance): string[] {
         : [`${where}: smaller than ${sizes.target}dp (${box.width}×${box.height})`]),
     ];
   });
+  return [...presses, ...inputProblems(root)];
 }
