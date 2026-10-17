@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "id": "dz.cem.1am.math.example",
+  "release": "2026.1",
+  "status": "example",
+  "licence": "full-text",
+  "language": "ar",
+  "anchor": {
+    "kind": "budgets",
+    "unit": "hours"
+  },
+  "provenance": {
+    "issuer": "Minhajna example, made up to try the app; not a plan",
+    "edition": "example"
+  },
+  "stageTemplates": [
+    {
+      "id": "std",
+      "stages": ["تهيئة", "بناء", "تطبيق", "تقويم"]
+    }
+  ],
+  "items": [
+    {
+      "id": "d1",
+      "kind": "diagnostic",
+      "title": "تقويم تشخيصي (مثال)",
+      "budget": 1,
+      "term": 1
+    },
+    {
+      "id": "u1",
+      "kind": "unit",
+      "title": "الأعداد الطبيعية (مثال)"
+    },
+    {
+      "id": "u1-1",
+      "kind": "lesson",
+      "title": "درس مثال 1.1",
+      "unit": "u1",
+      "budget": 2,
+      "stages": "std",
+      "term": 1
+    },
+    {
+      "id": "u1-2",
+      "kind": "lesson",
+      "title": "درس مثال 1.2",
+      "unit": "u1",
+      "budget": 1,
+      "stages": "std",
+      "term": 1
+    },
+    {
+      "id": "u1-3",
+      "kind": "lesson",
+      "title": "درس مثال 1.3",
+      "unit": "u1",
+      "budget": 1,
+      "stages": "std",
+      "term": 1
+    },
+    {
+      "id": "u1-td",
+      "kind": "td",
+      "title": "أعمال موجهة 1 (مثال)",
+      "unit": "u1",
+      "budget": 1
+    },
+    {
+      "id": "u1-i",
+      "kind": "integration",
+      "title": "وضعية إدماجية 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1
+    },
+    {
+      "id": "u2",
+      "kind": "unit",
+      "title": "الكسور (مثال)"
+    },
+    {
+      "id": "u2-1",
+      "kind": "lesson",
+      "title": "درس مثال 2.1",
+      "unit": "u2",
+      "budget": 2,
+      "stages": "std",
+      "term": 2
+    },
+    {
+      "id": "u2-2",
+      "kind": "lesson",
+      "title": "درس مثال 2.2",
+      "unit": "u2",
+      "budget": 1,
+      "stages": "std",
+      "term": 2
+    },
+    {
+      "id": "u2-3",
+      "kind": "lesson",
+      "title": "درس مثال 2.3",
+      "unit": "u2",
+      "budget": 1,
+      "stages": "std",
+      "term": 2
+    },
+    {
+      "id": "u2-td",
+      "kind": "td",
+      "title": "أعمال موجهة 2 (مثال)",
+      "unit": "u2",
+      "budget": 1
+    },
+    {
+      "id": "u2-i",
+      "kind": "integration",
+      "title": "وضعية إدماجية 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 2
+    }
+  ],
+  "merges": []
+}

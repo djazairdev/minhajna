@@ -1,0 +1,164 @@
+{
+  "format": 1,
+  "id": "dz.cem.4am.arabic.example",
+  "release": "2026.1",
+  "status": "example",
+  "licence": "full-text",
+  "language": "ar",
+  "anchor": {
+    "kind": "budgets",
+    "unit": "sessions"
+  },
+  "provenance": {
+    "issuer": "Minhajna example, made up to try the app; not a plan",
+    "edition": "example"
+  },
+  "stageTemplates": [
+    {
+      "id": "std",
+      "stages": ["تهيئة", "بناء", "تطبيق", "تقويم"]
+    }
+  ],
+  "items": [
+    {
+      "id": "d1",
+      "kind": "diagnostic",
+      "title": "تقويم تشخيصي (مثال)",
+      "budget": 2,
+      "term": 1
+    },
+    {
+      "id": "u1",
+      "kind": "unit",
+      "title": "المقطع 1 (مثال)"
+    },
+    {
+      "id": "u1-1",
+      "kind": "launch-situation",
+      "title": "الوضعية المشكلة الانطلاقية 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1
+    },
+    {
+      "id": "u1-2",
+      "kind": "lesson",
+      "title": "فهم المنطوق 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u1-3",
+      "kind": "lesson",
+      "title": "فهم المكتوب 1 (مثال)",
+      "unit": "u1",
+      "budget": 2,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u1-4",
+      "kind": "lesson",
+      "title": "الظاهرة اللغوية 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u1-5",
+      "kind": "lesson",
+      "title": "الإنتاج الكتابي 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u1-6",
+      "kind": "integration",
+      "title": "الوضعية الإدماجية 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1
+    },
+    {
+      "id": "u1-7",
+      "kind": "assessment-remediation",
+      "title": "تقويم ومعالجة 1 (مثال)",
+      "unit": "u1",
+      "budget": 1,
+      "term": 1,
+      "buffer": true
+    },
+    {
+      "id": "u2",
+      "kind": "unit",
+      "title": "المقطع 2 (مثال)"
+    },
+    {
+      "id": "u2-1",
+      "kind": "launch-situation",
+      "title": "الوضعية المشكلة الانطلاقية 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 1
+    },
+    {
+      "id": "u2-2",
+      "kind": "lesson",
+      "title": "فهم المنطوق 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u2-3",
+      "kind": "lesson",
+      "title": "فهم المكتوب 2 (مثال)",
+      "unit": "u2",
+      "budget": 2,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u2-4",
+      "kind": "lesson",
+      "title": "الظاهرة اللغوية 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u2-5",
+      "kind": "lesson",
+      "title": "الإنتاج الكتابي 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 1,
+      "stages": "std"
+    },
+    {
+      "id": "u2-6",
+      "kind": "integration",
+      "title": "الوضعية الإدماجية 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 1
+    },
+    {
+      "id": "u2-7",
+      "kind": "assessment-remediation",
+      "title": "تقويم ومعالجة 2 (مثال)",
+      "unit": "u2",
+      "budget": 1,
+      "term": 1,
+      "buffer": true
+    }
+  ],
+  "merges": [["u1-4", "u1-5"]]
+}

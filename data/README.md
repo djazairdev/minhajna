@@ -1,6 +1,6 @@
 # Reference data
 
-This folder holds the reference data that Minhajna ships with: each country's profile, its school calendars and its bell times ([PRD §4.8](../docs/prd/PRD.md#48-getting-packs-and-calendars-to-the-app)). The app reads these files as untrusted, through the core's readers. A file that breaks the format is refused, with every problem listed ([PRD §5.9](../docs/prd/PRD.md#59-files-minhajna-reads-and-writes)).
+This folder holds the reference data that Minhajna ships with: each country's profile, its school calendars, its bell times and its plan packs ([PRD §4.8](../docs/prd/PRD.md#48-getting-packs-and-calendars-to-the-app)). The app reads these files as untrusted, through the core's readers. A file that breaks the format is refused, with every problem listed ([PRD §5.9](../docs/prd/PRD.md#59-files-minhajna-reads-and-writes)).
 
 The data lives here until curators join, then moves to its own data repository (choice F6 in [#49](https://github.com/djazairdev/minhajna/issues/49)). It is under [CC BY-SA 4.0](../LICENSES/CC-BY-SA-4.0.txt).
 
@@ -11,6 +11,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 | `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
+| `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
 
 ## Month names
 
@@ -40,6 +41,14 @@ A timetable names slots, never clock times. Each slot's time comes from `dz/bell
 - **Ramadan's length.** In Ramadan, each session keeps its place and its start time and lasts `minutes`. It still counts as one session. The 45 minutes of middle and secondary schools follow the Ministry's [communiqué of 16 February 2026](https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg), which cut the one-hour session by fifteen minutes. They are `projected` until the year's own notice, which may also give new start times.
 - **Ramadan's days** come from the calendar. Calendar release `2026.2` gives the Ramadan entry `"times": "ramadan"`, so its days take Ramadan's times. The timetable never changes.
 
+## Plan packs
+
+A plan pack holds one plan as data, for one level, grade, subject, stream and edition. Its ID reads `dz.<level>.<grade>.<subject>[.<stream>].<edition>` ([PRD §4.2](../docs/prd/PRD.md#42-plan-packs)). A class pins one release and stays on it until the teacher moves it.
+
+- **The real packs** for the field check are keyed in [#23](https://github.com/djazairdev/minhajna/issues/23). They stay private, and ship only in field-check builds, until counsel answers on the plans' copyright.
+- **Until then,** `dz/packs/` holds three made-up examples, so a class can be set up and tried: 1AM maths (budgets in hours), 4AM Arabic (budgets in sessions) and 5AP Arabic (weeks). Their status is `example`, their titles say «مثال», and their issuer says they are not a plan. They copy no official plan.
+- **A test checks** that every file reads, is named by its ID, is an example, and names a grade and subject the profile has.
+
 ## Sources
 
 Every date names its source. Every date but Ramadan's cites an official text.
@@ -64,7 +73,7 @@ Each entry carries one of three confidences ([PRD §4.5](../docs/prd/PRD.md#45-t
 
 - **A fix is a new release.** Raise `release` in the file that changes, for example from `2026.1` to `2026.2`, so that the app can tell the update apart ([PRD §4.10](../docs/prd/PRD.md#410-the-rest-of-the-reference-data)).
 - **Cite the official text** in the entry's `source`, with a link when there is one. A press article or a forum post can point to a text, but is never the source. When the moon is sighted, the lunar entry becomes announced and cites the announcement.
-- **Run the tests.** `npm test` reads the three files, checks their sources and exam windows, and runs made-up classes through the whole year.
+- **Run the tests.** `npm test` reads every file, checks their sources and exam windows, and runs made-up classes through the whole year.
 
 ## Not here yet
 
