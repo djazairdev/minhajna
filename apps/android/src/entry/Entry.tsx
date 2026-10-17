@@ -7,9 +7,12 @@
 // line for the book and statements, and a private note that never leaves
 // the teacher's devices, with a warning against pupils' health or
 // discipline. «تأكيد الحصة» records it all in one step; nothing is recorded
-// before (PRD §2.3, §3.3). A recorded session is corrected on its own screen.
+// before (PRD §2.3, §3.3). «تغيير الدرس» takes another lesson from the plan,
+// or content from outside it (Entry-lesson). A recorded session is corrected
+// on its own screen.
 
 import {
+  carryTo,
   confirmSessions,
   courseSetup,
   formatDay,
@@ -19,8 +22,8 @@ import {
   type Day,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { CheckRow } from '../components/CheckRow';
@@ -38,6 +41,8 @@ import { shortDay } from '../today/outcome-rules';
 import { BookRow } from './BookRow';
 import { bookLines } from './book-lines';
 import { confirmationOf, dueDays, previewOf, startDraft, stagesShown, type EntryDraft } from './entry-rules';
+import { LessonSheet } from './LessonSheet';
+import { lessonGroups, type Lesson } from './lesson-rules';
 
 /** The session's details; `onDone` goes back once it is recorded. */
 export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Day; onDone: () => void }) {
@@ -59,6 +64,8 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
     item === undefined ? null : startDraft(item.session, item.proposal, days[0] ?? null),
   );
   const [allDays, setAllDays] = useState(false);
+  const [choosing, setChoosing] = useState(false);
+  const change = useRef<ViewInstance>(null);
 
   if (item === undefined || draft === null || item.status !== 'awaiting') {
     return (
@@ -77,6 +84,10 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
   const confirmation = confirmationOf(profile, session, proposal, draft);
   const preview = previewOf(context, confirmation);
   const shownDays = allDays ? days : days.slice(0, 3);
+  const choose = (lesson: Lesson) =>
+    set({ lesson, ...(lesson.kind === 'unplanned' && draft.unplanned === null && { unplanned: '' }) });
+  const next = carryTo(context, session).next;
+  const missing = draft.lesson.kind === 'unplanned' && (draft.unplanned ?? '').trim() === '';
 
   return (
     <View style={[styles.screen, { direction }]}>
@@ -91,7 +102,18 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
             .filter(Boolean)
             .join(' · ')}
         </Text>
-        <Text style={[styles.label, align]}>{t('entry.book')}</Text>
+        <View style={styles.bookHead}>
+          <Text style={[styles.label, styles.grow, align]}>{t('entry.book')}</Text>
+          {proposal !== null && pack !== null && (
+            <Button
+              ref={change}
+              testID="entry-change"
+              variant="plain"
+              label={t('lesson.change')}
+              onPress={() => setChoosing(true)}
+            />
+          )}
+        </View>
         {preview !== null && (
           <BookRow
             testID="entry-book"
@@ -195,12 +217,30 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
           testID="entry-confirm"
           label={t('entry.confirm')}
           icon={controlIcon('check')}
+          disabled={missing}
           onPress={() => {
             recordAll(confirmSessions(context, [confirmation]));
             onDone();
           }}
         />
       </View>
+      {proposal !== null && pack !== null && (
+        <LessonSheet
+          visible={choosing}
+          context={[schoolClass?.name, timeText, t('lesson.context', { item: proposal.item.title })]
+            .filter(Boolean)
+            .join(' · ')}
+          className={schoolClass?.name ?? ''}
+          proposal={proposal}
+          lesson={draft.lesson}
+          groups={(query) => lessonGroups(context, profile, pack, session, proposal, query)}
+          dayName={(one) => shortDay(t, one)}
+          nextDay={next === null ? null : shortDay(t, next.day)}
+          onChoose={choose}
+          onClose={() => setChoosing(false)}
+          returnFocusRef={change}
+        />
+      )}
     </View>
   );
 }
@@ -221,5 +261,7 @@ const styles = StyleSheet.create({
   },
   privateHead: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'] },
   privateTitle: { flex: 1 },
+  bookHead: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'] },
+  grow: { flex: 1 },
   foot: { paddingHorizontal: spacing['space-16'], paddingTop: spacing['space-12'], backgroundColor: colors.paper },
 });

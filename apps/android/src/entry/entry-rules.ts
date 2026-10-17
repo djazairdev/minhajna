@@ -22,9 +22,11 @@ import {
   type SessionConfirmation,
   type SessionRecord,
 } from '@minhajna/core';
+import { choiceOf, type Lesson } from './lesson-rules';
 
 /** What the teacher has entered so far. */
 export interface EntryDraft {
+  readonly lesson: Lesson;
   readonly sessionType: string;
   /** The stage count covered, for a lesson with stages. */
   readonly reached: number;
@@ -42,6 +44,7 @@ export const TEST_TYPE = 'test';
 
 export function startDraft(session: Session, proposal: Proposal | null, due: Day | null): EntryDraft {
   return {
+    lesson: { kind: 'proposed' },
     sessionType: session.sessionType,
     reached: proposal === null ? 0 : proposal.to,
     unplanned: null,
@@ -53,9 +56,10 @@ export function startDraft(session: Session, proposal: Proposal | null, due: Day
   };
 }
 
-/** Whether the stages can be chosen: a proposal with stages, in the queue of the session's type. */
+/** Whether the stages can be chosen: the proposal kept, with stages, in the queue of the session's type. */
 export function stagesShown(profile: CountryProfile, session: Session, proposal: Proposal | null, draft: EntryDraft) {
   return (
+    draft.lesson.kind === 'proposed' &&
     proposal !== null &&
     proposal.stageNames.length > 0 &&
     findSessionType(profile, draft.sessionType).queue === findSessionType(profile, session.sessionType).queue
@@ -76,6 +80,7 @@ export function confirmationOf(
   const note = draft.note.trim();
   return {
     session,
+    ...(draft.lesson.kind !== 'proposed' && { choice: choiceOf(draft.lesson) }),
     ...(partial && { choice: { outcome: 'partial', reached: draft.reached } }),
     details: {
       ...(draft.sessionType !== session.sessionType && { sessionType: draft.sessionType }),

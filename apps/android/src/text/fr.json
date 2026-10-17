@@ -536,5 +536,21 @@
     "retaught": "Reprise",
     "bookTest": "Devoir",
     "bookHomework": "{{text}}, à rendre le {{day}}"
+  },
+  "lesson": {
+    "change": "Changer la leçon",
+    "title": "Une autre leçon pour cette séance",
+    "context": "Proposé : {{item}}",
+    "proposed": "Proposé aujourd’hui",
+    "taught": "Traité le {{day}}",
+    "next": "Suivant · {{day}}",
+    "search": "Chercher dans le plan de {{name}}",
+    "searchPlaceholder": "Un titre ou un domaine",
+    "td": "Travaux dirigés · leur propre liste",
+    "main": "Le plan principal, autour de la position de la classe",
+    "position": "Position de la classe",
+    "choose": "Choisir cette leçon",
+    "kept": "Ce que vous choisissez s’écrit dans le cahier de textes à la place de la proposition. « {{item}} » reste en tête de sa liste et sera proposé le {{day}}.",
+    "keptNext": "Ce que vous choisissez s’écrit dans le cahier de textes à la place de la proposition. « {{item}} » reste en tête de sa liste et sera proposé à la prochaine séance."
   }
 }
