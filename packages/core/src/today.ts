@@ -6,7 +6,7 @@
 // only that: it is never read as an absence (charter point 3).
 
 import type { Context } from './context.ts';
-import { addDays, compareDays, weekday, type Day } from './day.ts';
+import { addDays, compareDays, minDay, weekday, type Day } from './day.ts';
 import { confirmCourse, walkCourse, type Confirmation } from './engine.ts';
 import type { Proposal } from './progress.ts';
 import type { CalendarEntry } from './reference.ts';
@@ -36,7 +36,11 @@ export interface TodaySession {
 export interface TodayView {
   readonly day: Day;
   readonly sessions: readonly TodaySession[];
-  /** Holidays, closures, exam weeks, seminars and councils, for the day's marks. */
+  /**
+   * Holidays, closures, exam weeks, seminars and councils, for the day's marks:
+   * the schools' own, and those of the classes the day's sessions are for,
+   * such as an exam window for some grades only.
+   */
   readonly marks: readonly CalendarEntry[];
   readonly blocks: readonly TeacherBlock[];
   /** Earlier sessions still awaiting confirmation: a fact, never a judgement (PRD §3.1, rule 8). */
@@ -50,6 +54,23 @@ function isAwaiting(context: Context, session: Session): boolean {
 /** The ordinary sessions from `from` to `to` still awaiting confirmation, in order. */
 export function awaitingBetween(context: Context, from: Day, to: Day): Session[] {
   return sessionsBetween(context, from, to).filter((session) => isAwaiting(context, session));
+}
+
+/**
+ * The first session after `day` that the calendar leaves to teach: what
+ * Today shows as the next session on a holiday or in an exam week. Null
+ * after the year's last one.
+ */
+export function nextSession(context: Context, day: Day): Session | null {
+  const { ref } = context;
+  let from = addDays(day, 1);
+  while (compareDays(from, ref.year.to) <= 0) {
+    const to = minDay(addDays(from, 13), ref.year.to);
+    const found = sessionsBetween(context, from, to).find((session) => session.calendar === null);
+    if (found !== undefined) return found;
+    from = addDays(to, 1);
+  }
+  return null;
 }
 
 export function todayView(context: Context, day: Day): TodayView {
@@ -78,6 +99,12 @@ export function todayView(context: Context, day: Day): TodayView {
   const marks = new Map<string, CalendarEntry>();
   for (const school of state.schools.values()) {
     for (const entry of calendar.info(day, school).entries) marks.set(entry.id, entry);
+  }
+  for (const classId of new Set(sessions.map((session) => session.classId))) {
+    const schoolClass = state.classes.get(classId);
+    const school = schoolClass && state.schools.get(schoolClass.schoolId);
+    if (school === undefined) continue;
+    for (const entry of calendar.info(day, school, schoolClass).entries) marks.set(entry.id, entry);
   }
 
   const before = addDays(day, -1);

@@ -8,6 +8,7 @@ import {
   awaitingBetween,
   confirmSessions,
   current,
+  nextSession,
   recordsForRoute,
   todayView,
   undoSession,
@@ -66,6 +67,42 @@ describe('Today', () => {
     assert.equal(thursday?.status, 'recorded');
     const wednesday = todayView(after, d('2026-09-23')).sessions[0];
     assert.deepEqual(wednesday?.record?.coverage, [{ op: 'taught', item: 'l1', from: 1, to: 4 }]);
+  });
+
+  it('marks an exam window for some grades only, on the day of a class it covers', async () => {
+    const book = await openBook(cemEvents());
+    const exam = (id: string, grade: string) => ({
+      kind: 'calendar.set' as const,
+      entry: {
+        id,
+        layer: 'national' as const,
+        from: d('2026-10-20'),
+        to: d('2026-10-20'),
+        effect: 'exam' as const,
+        grades: [grade],
+        name: { en: `Made-up exams for ${grade}` },
+        source: 'made up for tests',
+        confidence: 'announced' as const,
+      },
+    });
+    await book.recordAll(d('2026-10-01'), [exam('exam-1am', '1am'), exam('exam-4am', '4am')]);
+    const view = todayView(contextOf(book), d('2026-10-20'));
+    assert.deepEqual(
+      view.marks.map((mark) => mark.id),
+      ['exam-1am'],
+    );
+    assert.equal(view.sessions[0]?.status, 'calendar');
+    assert.equal(view.sessions[0]?.session.calendarEntry, 'exam-1am');
+  });
+
+  it('gives the next session the calendar leaves to teach', async () => {
+    const context = contextOf(await openBook(cemEvents()));
+    const next = (day: string) => nextSession(context, d(day))?.day ?? null;
+    assert.equal(next('2026-10-27'), '2026-10-28');
+    assert.equal(next('2026-10-28'), '2026-11-08');
+    assert.equal(next('2026-11-17'), '2026-11-19');
+    assert.equal(next('2026-12-08'), '2026-12-13');
+    assert.equal(next(context.ref.year.to), null);
   });
 
   it('marks holidays and the sessions they replace', async () => {
