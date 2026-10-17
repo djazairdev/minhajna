@@ -4,6 +4,7 @@
     "paths": {
       "@minhajna/core": ["../../packages/core/src/index.ts"],
       "@minhajna/core/test-support": ["../../packages/core/test/history-store-suite.ts"],
+      "@minhajna/core/test-support/demo-year": ["../../packages/core/test/demo-year.ts"],
       "@minhajna/data/*": ["../../data/*"]
     }
   },
