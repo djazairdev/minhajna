@@ -26,6 +26,7 @@ jest.mock(
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const onHelp = jest.fn();
+const onDetails = jest.fn();
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -39,7 +40,7 @@ async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', day = '202
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Today onHelp={onHelp} />, day)}
+        {withData(data, <Today onHelp={onHelp} onDetails={onDetails} />, day)}
       </LocaleDirContext.Provider>,
     );
   });

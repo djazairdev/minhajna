@@ -35,6 +35,8 @@ import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '..
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
 import { Today } from '../today/Today';
+import { Entry } from '../entry/Entry';
+import { parseDay } from '@minhajna/core';
 import type { Cell } from '../week/week-rules';
 
 export { tabLabels } from './HomePreview';
@@ -64,6 +66,7 @@ export type RootStackParamList = {
   Connections: undefined;
   Licences: undefined;
   LicenceNotice: { name: string };
+  Entry: { key: string; day: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -183,6 +186,11 @@ export function AppNavigator({
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen
+          name="Entry"
+          component={EntryScreen}
+          options={{ title: t('entry.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
           name="PrivacyNotice"
           component={HelpNotice}
           options={{ title: t('privacy.helpTitle'), statusBarStyle: 'dark' }}
@@ -226,7 +234,17 @@ function HomeTabs() {
 function TodayTab({
   navigation,
 }: CompositeScreenProps<BottomTabScreenProps<HomeTabParamList, 'Today'>, NativeStackScreenProps<RootStackParamList>>) {
-  return <Today onHelp={() => navigation.navigate('Help')} />;
+  return (
+    <Today
+      onHelp={() => navigation.navigate('Help')}
+      onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
+    />
+  );
+}
+
+/** A session's details, back to Today once confirmed. */
+function EntryScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Entry'>) {
+  return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={() => navigation.goBack()} />;
 }
 
 /** The welcome leads to the notice; Back from the notice returns here. */

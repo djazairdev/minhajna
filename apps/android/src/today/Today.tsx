@@ -24,6 +24,7 @@ import {
   type Choice,
   type Reason,
   type RecordEvent,
+  type Session,
   type TodaySession,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -53,8 +54,8 @@ type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; reado
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean };
 
-/** The Today tab; `onHelp` opens Help and the privacy notice. */
-export function Today({ onHelp }: { onHelp: () => void }) {
+/** The Today tab; `onHelp` opens Help and the privacy notice, `onDetails` a session's details. */
+export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (session: Session) => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -157,7 +158,10 @@ export function Today({ onHelp }: { onHelp: () => void }) {
           proposal={proposalOf(t, pack, item.proposal)}
           confirm={t('today.confirm')}
           onConfirm={() => confirm(item)}
-          more={[{ id: 'other', label: t('outcome.other'), onPress: () => setSheet({ item, open: true }), ref: other }]}
+          more={[
+            { id: 'other', label: t('outcome.other'), onPress: () => setSheet({ item, open: true }), ref: other },
+            { id: 'details', label: t('entry.open'), onPress: () => onDetails(item.session) },
+          ]}
         />
       );
     }
