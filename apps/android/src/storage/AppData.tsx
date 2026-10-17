@@ -27,6 +27,8 @@ export interface AppData {
   readonly state: State;
   /** Saves one change. */
   readonly record: (event: RecordEvent) => void;
+  /** Saves several changes together, such as a class and its pupils. */
+  readonly recordAll: (events: readonly RecordEvent[]) => void;
   /** Erases every version of the records that `match` picks, such as a school and its changes (PRD §5.5). */
   readonly erase: (match: (event: RecordEvent) => boolean) => void;
   /** A new random ID for a record made on this phone. */
@@ -81,6 +83,7 @@ export function AppDataProvider({
       profile,
       year,
       record: (event: RecordEvent) => save(() => book.record(today(), event)),
+      recordAll: (events: readonly RecordEvent[]) => save(() => book.recordAll(today(), events)),
       erase: (match: (event: RecordEvent) => boolean) =>
         save(async () => {
           const ids = book.entries

@@ -10,6 +10,7 @@ export * from './canonical.ts';
 export { courseSetup, refOf, type Choice, type CourseSetup, type Details } from './choices.ts';
 export * from './context.ts';
 export * from './day.ts';
+export * from './demo-pupils.ts';
 export * from './engine.ts';
 export * from './events.ts';
 export * from './format.ts';

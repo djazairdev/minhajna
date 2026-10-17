@@ -5,7 +5,9 @@
 // Setup-4-Classes). Each class shows how many pupils it holds and whether its
 // list is ready; a class without one offers «كتابة القائمة». Importing the
 // official file comes with #42, and joint primary classes later, so neither
-// button shows yet. There is no limit on a class's size (R-3.2-12).
+// button shows yet. There is no limit on a class's size (R-3.2-12). Until
+// there is a demo class, «إضافة القسم التجريبي» offers one: 45 made-up pupils
+// for trying the app (PRD §1.5), which the field check uses (choice F1, #49).
 
 import type { SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -71,7 +73,7 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
   const { direction } = useLocale();
   const t = useText();
   const { state, unsaved } = useAppData();
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<'class' | 'demo' | null>(null);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const schools = [...state.schools.values()];
@@ -96,9 +98,26 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
           />
         ))}
         {adding ? (
-          <AddClass schools={schools} onDone={() => setAdding(false)} />
+          <AddClass key={adding} schools={schools} demo={adding === 'demo'} onDone={() => setAdding(null)} />
         ) : (
-          <Button testID="add-class-open" variant="line" label={t('setup.addClass')} onPress={() => setAdding(true)} />
+          <>
+            <Button
+              testID="add-class-open"
+              variant="line"
+              label={t('setup.addClass')}
+              onPress={() => setAdding('class')}
+            />
+            {!classes.some((schoolClass) => schoolClass.demo) && (
+              <View style={styles.centre}>
+                <Button
+                  testID="add-demo-open"
+                  variant="plain"
+                  label={t('setup.addDemo')}
+                  onPress={() => setAdding('demo')}
+                />
+              </View>
+            )}
+          </>
         )}
         <Notice testID="columns-note" icon={controlIcon('lock')} message={t('setup.columnsNote')} />
         {unsaved && (
@@ -151,6 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.ok,
   },
   badgeText: { ...typography.badge, color: colors['ok-ink'] },
+  centre: { flexDirection: 'row', justifyContent: 'center' },
   unsaved: { ...typography.label, color: colors.ink },
   foot: { paddingTop: spacing['space-12'], backgroundColor: colors.paper },
 });
