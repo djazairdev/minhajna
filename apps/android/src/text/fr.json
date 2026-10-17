@@ -601,5 +601,18 @@
     "paused": "Le plan s’arrête pendant les examens",
     "pausedNote": "Les examens remplacent les séances de la semaine : aucune leçon n’est proposée, et aucune séance ne compte comme non tenue ni comme retard. Chaque classe garde sa position.",
     "next": "Prochaine séance"
+  },
+  "classes": {
+    "today": "Aujourd’hui {{time}}",
+    "noPack": "Sans pack : pas de comparaison avec le plan",
+    "behind": "{{sessions}} de retard sur le plan, après toute la réserve",
+    "bufferUsed": "{{used}} de la réserve utilisées, il en reste {{left}}",
+    "bufferAll": "{{used}} de la réserve utilisées, il n’en reste plus",
+    "onPlan": "Pas de retard",
+    "onPlanSpare": "Pas de retard · {{spare}}",
+    "onPlanShort": "Pas de retard · le plan demande {{sessions}} de plus qu’il n’en reste avant les examens",
+    "spare_one": "{{count}} séance de réserve",
+    "spare_many": "{{count}} de séances de réserve",
+    "spare_other": "{{count}} séances de réserve"
   }
 }

@@ -35,6 +35,7 @@ import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '..
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
 import { Today } from '../today/Today';
+import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
 import { parseDay } from '@minhajna/core';
 import type { Cell } from '../week/week-rules';
@@ -224,7 +225,7 @@ function HomeTabs() {
       screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
     >
       <Tabs.Screen name="Today" component={TodayTab} />
-      <Tabs.Screen name="Classes" component={HomePreview} />
+      <Tabs.Screen name="Classes" component={ClassesTab} />
       <Tabs.Screen name="Documents" component={HomePreview} />
     </Tabs.Navigator>
   );
