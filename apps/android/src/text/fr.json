@@ -576,5 +576,16 @@
     "none": "rien",
     "yes": "oui",
     "no": "non"
+  },
+  "backlog": {
+    "label": "Séances passées en attente de confirmation",
+    "confirm_one": "Confirmer {{count}} séance comme proposé",
+    "confirm_many": "Confirmer {{count}} de séances comme proposé",
+    "confirm_other": "Confirmer {{count}} séances comme proposé",
+    "hint": "Touchez une séance pour la laisser de côté et enregistrer son autre résultat.",
+    "later": "La semaine suivante s’affiche ensuite.",
+    "snack_one": "{{count}} séance enregistrée pour le cahier de textes",
+    "snack_many": "{{count}} de séances enregistrées pour le cahier de textes",
+    "snack_other": "{{count}} séances enregistrées pour le cahier de textes"
   }
 }

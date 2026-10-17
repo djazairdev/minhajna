@@ -11,8 +11,11 @@
 // the session's private note only. A second choice in the same sheet keeps
 // the first one's undo, so «تراجع» brings back what was there before the
 // sheet, note included. The session's details come with their own screen.
+// Earlier sessions still awaiting confirmation come first, a week at a
+// time, to confirm at once but for the ones left out (#35).
 
 import {
+  backlogOf,
   carryTo,
   confirmSessions,
   courseSetup,
@@ -44,6 +47,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
 import { slotSpoken } from '../week/grid-labels';
+import { Backlog } from './Backlog';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
@@ -52,7 +56,7 @@ import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
 type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; readonly message: string };
 
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
-type Sheet = { readonly item: TodaySession; readonly open: boolean };
+type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
 
 /** The Today tab; `onHelp` opens Help and the privacy notice, `onDetails` a session's details. */
 export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (session: Session) => void }) {
@@ -63,6 +67,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
   const [done, setDone] = useState<Done | null>(null);
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const other = useRef<ViewInstance>(null);
+  const backlogOther = useRef<ViewInstance>(null);
   const day = today();
   const language = currentLanguage();
   const comma = language === 'ar' ? '، ' : ', ';
@@ -71,6 +76,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
     [profile, year, calendar, packs, state],
   );
   const view = useMemo(() => todayView(context, day), [context, day]);
+  const backlog = useMemo(() => backlogOf(context, day), [context, day]);
   const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
 
   const metaOf = (item: TodaySession, withSubject: boolean): SessionMeta => {
@@ -106,6 +112,20 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
       kind === 'partial' ? 'outcome.snackPartial' : kind === 'not-held' ? 'outcome.snackNotHeld' : 'today.snack',
     );
     setDone({ key, undo, message });
+  };
+
+  const confirmAll = (items: readonly TodaySession[]) => {
+    recordAll(
+      confirmSessions(
+        context,
+        items.map((item) => ({ session: item.session })),
+      ),
+    );
+    setDone({
+      key: 'backlog',
+      undo: items.map((item) => ({ kind: 'session.withdrawn', session: refOf(item.session) })),
+      message: t('backlog.snack', { count: items.length }),
+    });
   };
 
   const keepReason = (item: TodaySession, reason: Reason | undefined, text: string | undefined) => {
@@ -191,7 +211,26 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
             />
           }
         />
-        <View style={styles.list}>{view.sessions.map(card)}</View>
+        <View style={styles.list}>
+          {backlog.days.length > 0 && (
+            <Backlog
+              days={backlog.days.map((one) => ({
+                title: `${t(`week.days.${weekday(one.day)}`)} ${formatDayWithMonth(one.day, language, profile)}`,
+                rows: one.sessions.map((item) => {
+                  const meta = metaOf(item, false);
+                  return { item, label: [meta.slot, meta.className, lessonOf(t, item).lesson].join(' · ') };
+                }),
+              }))}
+              later={backlog.awaiting > backlog.days.reduce((sum, one) => sum + one.sessions.length, 0)}
+              sheetKey={sheet?.backlog === true ? sheet.item.session.key : null}
+              sheetRef={backlogOther}
+              onConfirm={confirmAll}
+              onOther={(item) => setSheet({ item, open: true, backlog: true })}
+              onDetails={onDetails}
+            />
+          )}
+          {view.sessions.map(card)}
+        </View>
       </ScrollView>
       {sheet?.item.proposal != null && (
         <OutcomeSheet
@@ -205,7 +244,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
           next={nextItem(courseSetup(context, sheet.item.course.id).pack, sheet.item.proposal.item)}
           previous={previousItem(state, courseSetup(context, sheet.item.course.id).pack, sheet.item.session)}
           carry={carryWords(t, profile, language, carryTo(context, sheet.item.session))}
-          returnFocusRef={other}
+          returnFocusRef={sheet.backlog === true ? backlogOther : other}
           onClose={() => setSheet({ ...sheet, open: false })}
           onChoose={(choice) => confirm(sheet.item, choice)}
           onReason={(reason, text) => keepReason(sheet.item, reason, text)}

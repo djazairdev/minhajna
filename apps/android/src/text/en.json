@@ -564,5 +564,14 @@
     "none": "nothing",
     "yes": "yes",
     "no": "no"
+  },
+  "backlog": {
+    "label": "Earlier sessions awaiting confirmation",
+    "confirm_one": "Confirm {{count}} session as proposed",
+    "confirm_other": "Confirm {{count}} sessions as proposed",
+    "hint": "Tap a session to leave it out, so its other outcome can be recorded.",
+    "later": "The next week shows after this one.",
+    "snack_one": "{{count}} session recorded for the texts book",
+    "snack_other": "{{count}} sessions recorded for the texts book"
   }
 }
