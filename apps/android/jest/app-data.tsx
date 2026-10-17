@@ -26,15 +26,15 @@ export async function openTestData(storage = new FakeStorage()): Promise<TestDat
   return { storage, book, profile: reference.profile, year: reference.calendar.year };
 }
 
-/** Wraps a screen in the provider, recording every change on one made-up day. */
-export function withData(data: TestData, children: ReactNode) {
+/** Wraps a screen in the provider, recording every change on one made-up day, or on `day`. */
+export function withData(data: TestData, children: ReactNode, day = '2026-10-15') {
   return (
     <AppDataProvider
       book={data.book}
       profile={data.profile}
       year={data.year}
       random={nativeDeps(data.storage.asSpec()).random}
-      today={() => parseDay('2026-10-15')}
+      today={() => parseDay(day)}
     >
       {children}
     </AppDataProvider>
