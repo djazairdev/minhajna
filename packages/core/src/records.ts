@@ -69,8 +69,12 @@ export interface PupilMovement {
 export interface Pupil {
   readonly id: string;
   readonly classId: string;
-  /** The official registration number. Pupils are matched by it, never by name. */
-  readonly registration: string;
+  /**
+   * The official registration number. Pupils are matched by it, never by
+   * name. A typed list may leave it out until the official file fills it in
+   * (PRD §3.2).
+   */
+  readonly registration?: string;
   readonly name: string;
   /** The name in Latin letters, if the class list has it. */
   readonly latinName?: string;

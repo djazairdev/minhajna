@@ -35,7 +35,7 @@ async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   });
 }
 
-/** Completes setup's first two steps with one made-up school and an empty card, which lead to the tabs for now. */
+/** Completes setup's first three steps with one made-up school, an empty card and no class, which lead to the tabs for now. */
 async function finishSetup() {
   const ids = (prefix: string) =>
     tree.root.findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(prefix));
@@ -51,6 +51,8 @@ async function finishSetup() {
   expect(routes()).toContain('Card');
   expect(heading()).toEqual([text.setup.title, 'الخطوة 2 من 5']);
   await press(byTestID('card-next'));
+  expect(heading()).toEqual([text.setup.title, 'الخطوة 3 من 5']);
+  await press(byTestID('classes-next'));
 }
 
 async function press(match: (props: PressableProps) => boolean) {
