@@ -53,7 +53,14 @@ export default function App({
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <StatusBar barStyle="light-content" />
       {reference.ok && book !== null ? (
-        <AppDataProvider book={book} profile={reference.profile} year={reference.calendar.year} random={random}>
+        <AppDataProvider
+          book={book}
+          profile={reference.profile}
+          year={reference.calendar.year}
+          calendar={reference.calendar.entries}
+          bells={reference.bells}
+          random={random}
+        >
           <AppNavigator />
         </AppDataProvider>
       ) : (
