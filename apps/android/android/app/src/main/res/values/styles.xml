@@ -4,13 +4,19 @@
   SPDX-FileCopyrightText: 2026 The Minhajna contributors
   SPDX-License-Identifier: MIT
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
         <!-- The board colour while the app starts, instead of a white flash. -->
         <item name="android:windowBackground">@color/ic_launcher_background</item>
+        <!--
+          Text breaks lines by advances, as React Native measures it. Android 15
+          breaks by glyph bounds for apps that target it, so a label whose ink
+          runs past its last letter, such as «تاريخ آخر», wrapped out of sight (#185).
+        -->
+        <item name="android:useBoundsForWidth" tools:targetApi="35">false</item>
     </style>
 
 </resources>
