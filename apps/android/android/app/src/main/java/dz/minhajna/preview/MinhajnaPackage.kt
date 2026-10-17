@@ -15,7 +15,7 @@ import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
 
-/** Registers the app's own TurboModules; libraries come through autolinking. */
+/** Registers the app's own TurboModules, and debug builds' extra ones; libraries come through autolinking. */
 class MinhajnaPackage : BaseReactPackage() {
 
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? =
@@ -23,7 +23,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaStorageSpec.NAME -> MinhajnaStorageModule(reactContext)
       NativeMinhajnaInterfaceSpec.NAME -> MinhajnaInterfaceModule(reactContext)
       NativeMinhajnaLicencesSpec.NAME -> MinhajnaLicencesModule(reactContext)
-      else -> null
+      else -> DebugModules.create(name, reactContext)
     }
 
   override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
@@ -31,7 +31,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaStorageSpec.NAME, MinhajnaStorageModule::class.java.name),
       info(NativeMinhajnaInterfaceSpec.NAME, MinhajnaInterfaceModule::class.java.name),
       info(NativeMinhajnaLicencesSpec.NAME, MinhajnaLicencesModule::class.java.name),
-    )
+    ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 
   private fun info(name: String, className: String) = name to ReactModuleInfo(

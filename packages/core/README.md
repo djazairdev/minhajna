@@ -37,7 +37,7 @@ The test data is made up ([engineering rules](../../docs/contributing/engineerin
 
 ### Full-year load fixture
 
-`@minhajna/core/test-support/demo-year` exports the portable `makeDemoYear(reference, deps, level?)` generator for [#77](https://github.com/djazairdev/minhajna/issues/77). See the [workload, sizes and loading example](../../docs/checks/demo-year.md). It returns a fresh, valid history and a reference containing its invented example plan; it imports neither Node APIs nor platform cryptography. The caller supplies the validated bundled 2026/27 profile/calendar and `HistoryDeps`. It is separate from the production entry and the Node-only shared storage assertions.
+`@minhajna/core/test-support/demo-year` exports the portable `makeDemoYear(reference, deps, level?)` generator for [#77](https://github.com/djazairdev/minhajna/issues/77). See the [workload, sizes and loading example](../../docs/checks/demo-year.md). It returns a fresh, valid history and a reference containing its invented example plan; it imports neither Node APIs nor platform cryptography. The caller supplies the validated bundled 2026/27 profile/calendar and `HistoryDeps`. It is separate from the production entry and from the shared storage checks, which import Node's assertions.
 
 ### Shared hashing checks
 
@@ -47,7 +47,7 @@ The cases cover empty text, Arabic, French, emoji, control characters, 55-, 56- 
 
 ### Shared storage checks
 
-`@minhajna/core/test-support` exports `historyStoreTests(register, createFixture, deps)` for [#76](https://github.com/djazairdev/minhajna/issues/76). It registers the same eight checks with Node's `it`, Jest's `test`, or another Node-based runner that awaits each callback. Hashing and randomness come from the caller's `HistoryDeps`. This separate entry imports Node's assertions; the normal `@minhajna/core` entry and the app bundle do not.
+`@minhajna/core/test-support` exports `historyStoreTests(register, createFixture, deps)` for [#76](https://github.com/djazairdev/minhajna/issues/76). It registers the same eight checks with Node's `it`, Jest's `test`, or another runner that awaits each callback. Hashing and randomness come from the caller's `HistoryDeps`. This separate entry imports Node's assertions; the normal `@minhajna/core` entry does not. The Android app's debug build also runs the checks on the phone, from the developer menu's **Storage check**, with a strict assert of its own in place of Node's ([#19](https://github.com/djazairdev/minhajna/issues/19)); its release bundle leaves them out.
 
 For example, from the core's tests:
 

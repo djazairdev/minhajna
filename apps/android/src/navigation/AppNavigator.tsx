@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 import { DevSettings, I18nManager, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, sizes, spacing, typography } from '../design/tokens';
+import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
@@ -23,11 +24,12 @@ import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '..
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
-/** Inner pages cover the tabs and carry no record contents. The gallery exists in debug builds only. */
+/** Inner pages cover the tabs and carry no record contents. The gallery and the storage check exist in debug builds only. */
 export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
+  StorageCheck: undefined;
   Help: undefined;
   Licences: undefined;
   LicenceNotice: { name: string };
@@ -55,16 +57,21 @@ export const tabLabels = {
 
 /** The developer menu's item that opens the gallery, in English like the rest of that menu. */
 export const GALLERY_MENU_ITEM = 'Component gallery';
+/** The developer menu's item that runs the storage check (#19). */
+export const STORAGE_CHECK_MENU_ITEM = 'Storage check';
 
 /**
  * Places typed tabs under the native stack so inner screens cover them. In
- * debug builds, the developer menu also opens the component gallery.
+ * debug builds, the developer menu also opens the component gallery and the
+ * storage check.
  */
 export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: { direction?: 'rtl' | 'ltr' }) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
   useEffect(() => {
-    if (__DEV__) DevSettings.addMenuItem(GALLERY_MENU_ITEM, () => navigation.navigate('Gallery'));
+    if (!__DEV__) return;
+    DevSettings.addMenuItem(GALLERY_MENU_ITEM, () => navigation.navigate('Gallery'));
+    DevSettings.addMenuItem(STORAGE_CHECK_MENU_ITEM, () => navigation.navigate('StorageCheck'));
   }, [navigation]);
   return (
     <NavigationContainer ref={navigation} direction={direction} theme={theme}>
@@ -80,6 +87,13 @@ export function AppNavigator({ direction = I18nManager.isRTL ? 'rtl' : 'ltr' }: 
             name="Gallery"
             component={Gallery}
             options={{ title: samples[currentLanguage()].title, statusBarStyle: 'dark' }}
+          />
+        )}
+        {__DEV__ && (
+          <Stack.Screen
+            name="StorageCheck"
+            component={StorageCheck}
+            options={{ title: STORAGE_CHECK_MENU_ITEM, statusBarStyle: 'dark' }}
           />
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
