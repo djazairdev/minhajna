@@ -50,13 +50,15 @@ export function lessonOf(t: Translate, item: TodaySession): { lesson: string; no
   };
 }
 
-/** What a recorded session wrote: the items it covered, or that it was not held. */
+/** What a recorded session wrote: the items it taught or taught again, the one it skipped, or that it was not held. */
 export function writtenOf(t: Translate, pack: PlanPack | null, record: SessionRecord, comma: string): string {
   if (record.outcome === 'not-held') return t('today.notHeld');
-  const titles = record.coverage.flatMap((cover) =>
-    cover.op === 'taught' ? [pack?.items.find((item) => item.id === cover.item)?.title ?? cover.item] : [],
-  );
-  return titles.length > 0 ? titles.join(comma) : (record.factual ?? record.unplanned ?? t('today.recorded'));
+  const title = (id: string) => pack?.items.find((item) => item.id === id)?.title ?? id;
+  const titles = record.coverage.flatMap((cover) => (cover.op === 'skipped' ? [] : [title(cover.item)]));
+  if (titles.length > 0) return titles.join(comma);
+  const skipped = record.coverage.find((cover) => cover.op === 'skipped');
+  if (skipped !== undefined) return t('today.skipped', { title: title(skipped.item) });
+  return record.factual ?? record.unplanned ?? t('today.recorded');
 }
 
 /** The day's facts: whether earlier sessions await confirmation, and how many of today's are confirmed. */

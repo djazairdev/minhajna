@@ -7,12 +7,13 @@
 // with no session, and every control named and 48dp. Made-up schools,
 // classes and timetables only.
 
-import { current, parseDay, type RecordEvent, type TimetableEntry } from '@minhajna/core';
+import { current } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Text, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
-import { openTestData, withData, type TestData } from '../jest/app-data';
+import { withData, type TestData } from '../jest/app-data';
+import { key, withDay } from '../jest/today-day';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import text from '../src/text/ar.json';
 import { Today } from '../src/today/Today';
@@ -25,7 +26,6 @@ jest.mock(
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const onHelp = jest.fn();
-const example = { id: 'dz.cem.4am.arabic.example', release: '2026.1' };
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -33,55 +33,6 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
   onHelp.mockReset();
 });
-
-const schoolClass = (id: string, name: string): RecordEvent => ({
-  kind: 'class.set',
-  schoolClass: {
-    id,
-    schoolId: 's-1',
-    level: 'cem',
-    grade: '4am',
-    name,
-    groups: [{ id: `${id}-w`, kind: 'whole', name }],
-  },
-});
-
-const entry = (id: string, weekday: 0 | 4, index: number, courseId: string) =>
-  ({
-    id,
-    weekday,
-    slot: { half: 'morning', index },
-    courseId,
-    groupId: courseId === 'c-1' ? 'k-1-w' : 'k-2-w',
-    weeks: 'every',
-    sessionType: 'lesson',
-  }) satisfies TimetableEntry;
-
-/** Thursday 15 October: 4م1 at 08:00 and 09:00 with the example pack, then 4م2 with no pack at 10:00. */
-async function withDay(): Promise<TestData> {
-  const data = await openTestData();
-  await data.book.recordAll(parseDay('2026-10-15'), [
-    {
-      kind: 'school.set',
-      school: { id: 's-1', name: 'متوسطة النجاح', levels: ['cem'], subjects: ['arabic'], zone: '16' },
-    },
-    schoolClass('k-1', '4م1'),
-    schoolClass('k-2', '4م2'),
-    { kind: 'course.set', course: { id: 'c-1', classId: 'k-1', subject: 'arabic', year: '2026-2027', pack: example } },
-    { kind: 'course.set', course: { id: 'c-2', classId: 'k-2', subject: 'arabic', year: '2026-2027', pack: null } },
-    {
-      kind: 'timetable.set',
-      version: {
-        id: 'v-1',
-        from: parseDay('2026-10-11'),
-        source: 'hand',
-        entries: [entry('e-1', 4, 1, 'c-1'), entry('e-2', 4, 2, 'c-1'), entry('e-3', 4, 3, 'c-2')],
-        blocks: [],
-      },
-    },
-  ]);
-  return data;
-}
 
 async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', day = '2026-10-15') {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -112,7 +63,6 @@ const press = async (id: string) => {
   });
   await settle();
 };
-const key = (slot: number, course = 'c-1', group = 'k-1-w') => `${course}/2026-10-15/m${slot}/${group}`;
 
 test("lists the day's sessions in order, with the plan's proposal in pencil on the first", async () => {
   await show(await withDay());
@@ -128,6 +78,7 @@ test("lists the day's sessions in order, with the plan's proposal in pencil on t
     'الموضوع: ',
     '- الحصة 1 من 2',
     text.today.confirm,
+    text.outcome.other,
     '4م1',
     '⁧09:00 – 10:00⁩',
     'تابع: تقويم تشخيصي (مثال)',
