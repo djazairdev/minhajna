@@ -55,6 +55,28 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
     }
 );
 
+/** The card's head: the class, the slot, and the subject where the card shows it, spoken as one. */
+export function MetaLine({ meta }: { meta: SessionMeta }) {
+  const { direction } = useLocale();
+  const align = { writingDirection: direction, textAlign: 'start' } as const;
+  return (
+    <View
+      style={styles.meta}
+      accessible
+      accessibilityLabel={[meta.className, meta.slot, meta.subject].filter(Boolean).join(', ')}
+    >
+      <Text style={styles.cls}>{meta.className}</Text>
+      <Text style={styles.slot}>{meta.slot}</Text>
+      {meta.subject !== undefined && (
+        <>
+          <View style={styles.dot} />
+          <Text style={[styles.subject, align]}>{meta.subject}</Text>
+        </>
+      )}
+    </View>
+  );
+}
+
 /**
  * A session on Today (docs/design/system/components/SessionCard): the focus
  * card for the next session awaiting confirmation, a mini card for the
@@ -66,19 +88,7 @@ export function SessionCard(props: SessionCardProps) {
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const { meta, testID } = props;
-  const spokenMeta = [meta.className, meta.slot, meta.subject].filter(Boolean).join(', ');
-  const metaLine = (
-    <View style={styles.meta} accessible accessibilityLabel={spokenMeta}>
-      <Text style={styles.cls}>{meta.className}</Text>
-      <Text style={styles.slot}>{meta.slot}</Text>
-      {meta.subject !== undefined && (
-        <>
-          <View style={styles.dot} />
-          <Text style={[styles.subject, align]}>{meta.subject}</Text>
-        </>
-      )}
-    </View>
-  );
+  const metaLine = <MetaLine meta={meta} />;
   const sub = (id: string) => (testID === undefined ? undefined : `${testID}-${id}`);
 
   if (props.kind === 'focus') {

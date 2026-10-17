@@ -847,6 +847,11 @@
     "year": "Niveau",
     "noYear": "Niveau non choisi",
     "tally": "{{year}} : {{pupils}}",
-    "short": "{{n}}AP"
+    "short": "{{n}}AP",
+    "confirm_one": "Confirmer la séance pour un niveau",
+    "confirm_many": "Confirmer la séance pour les {{count}} niveaux",
+    "confirm_other": "Confirmer la séance pour les {{count}} niveaux",
+    "confirmNote": "Chaque niveau est confirmé tel que proposé. Un appui sur une proposition la confirme seule.",
+    "alone": "Confirme ce niveau seul"
   }
 }
