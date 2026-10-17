@@ -5,7 +5,8 @@
 // choice and the app's three promises, before anything is typed. It also
 // shows while the reference data and the history open, and on a refusal, with
 // no way forward. The restore link from another phone stays out of
-// field-check builds (choice F4, #49), and no restore exists yet.
+// field-check builds (choice F4, #49), and no restore exists yet. The
+// preview says what it is before anything else (#48).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,6 +15,7 @@ import { Button } from '../components/Button';
 import { Facts } from '../components/Facts';
 import { WelcomeHero } from '../components/WelcomeHero';
 import { colors, spacing, typography } from '../design/tokens';
+import { PreviewNotice } from '../help/BuildFacts';
 import { useText } from '../text/i18n';
 import { LanguageChoice } from './LanguageChoice';
 
@@ -54,6 +56,7 @@ export function Welcome({
               {line}
             </Text>
           ))}
+        <PreviewNotice short />
         <LanguageChoice />
         <Facts
           facts={[

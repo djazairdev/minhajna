@@ -9,9 +9,11 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import dz.minhajna.preview.documents.MinhajnaPdfModule
+import dz.minhajna.preview.about.MinhajnaBuildModule
 import dz.minhajna.preview.language.MinhajnaInterfaceModule
 import dz.minhajna.preview.licences.MinhajnaLicencesModule
 import dz.minhajna.preview.storage.MinhajnaStorageModule
+import dz.minhajna.preview.storage.NativeMinhajnaBuildSpec
 import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
@@ -26,6 +28,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaInterfaceSpec.NAME -> MinhajnaInterfaceModule(reactContext)
       NativeMinhajnaLicencesSpec.NAME -> MinhajnaLicencesModule(reactContext)
       NativeMinhajnaPdfSpec.NAME -> MinhajnaPdfModule(reactContext)
+      NativeMinhajnaBuildSpec.NAME -> MinhajnaBuildModule(reactContext)
       else -> DebugModules.create(name, reactContext)
     }
 
@@ -35,6 +38,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaInterfaceSpec.NAME, MinhajnaInterfaceModule::class.java.name),
       info(NativeMinhajnaLicencesSpec.NAME, MinhajnaLicencesModule::class.java.name),
       info(NativeMinhajnaPdfSpec.NAME, MinhajnaPdfModule::class.java.name),
+      info(NativeMinhajnaBuildSpec.NAME, MinhajnaBuildModule::class.java.name),
     ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 

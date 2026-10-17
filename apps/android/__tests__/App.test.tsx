@@ -25,6 +25,8 @@ test('shows all three bundled families without limiting enlarged text', async ()
     text.name,
     text.tagline,
     text.welcome.line,
+    text.preview.badge,
+    text.preview.short,
     text.language.label,
     text.language.ar,
     text.language.fr,
@@ -39,7 +41,7 @@ test('shows all three bundled families without limiting enlarged text', async ()
   const style = (at: number) => StyleSheet.flatten((texts[at].props as TextProps).style);
   expect(style(0)).toMatchObject({ ...typography.brand, lineHeight: undefined, color: colors.chalk });
   expect(style(1)).toMatchObject({ fontFamily: typography.tagline.fontFamily, color: colors.chalk });
-  expect(style(5)).toMatchObject({
+  expect(style(7)).toMatchObject({
     fontFamily: fontFamilyForWeight(fontFamilies.latin, '500'),
     writingDirection: 'ltr',
   });
