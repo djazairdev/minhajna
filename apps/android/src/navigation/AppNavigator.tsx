@@ -19,18 +19,21 @@ import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
+import {
+  CardScreen,
+  ClassesScreen,
+  PacksScreen,
+  PlanScreen,
+  ReadyScreen,
+  TeachingScreen,
+  TypeListScreen,
+  WeekDrawScreen,
+  WeekScreen,
+} from './SetupScreens';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
-import { Card } from '../setup/Card';
-import { Classes } from '../setup/Classes';
-import { TypeList } from '../setup/TypeList';
-import { Week } from '../setup/Week';
-import { Packs } from '../plan/Packs';
-import { Plan } from '../setup/Plan';
 import { Times } from '../times/Times';
-import { WeekDraw } from '../week/WeekDraw';
 import type { Cell } from '../week/week-rules';
-import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
 
@@ -49,6 +52,7 @@ export type RootStackParamList = {
   Times: undefined;
   Plan: undefined;
   Packs: { grade: string; subject: string };
+  Ready: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -153,6 +157,7 @@ export function AppNavigator({
           component={PacksScreen}
           options={{ title: t('plan.packsTitle'), statusBarStyle: 'dark' }}
         />
+        <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
@@ -232,63 +237,6 @@ function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 
       onConnections={() => navigation.navigate('Connections')}
     />
   );
-}
-
-/** Setup's first step, which leads to the card. */
-function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Teaching'>) {
-  return <Teaching onNext={() => navigation.navigate('Card')} />;
-}
-
-/** Setup's second step, which leads to the classes. */
-function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
-  return <Card onNext={() => navigation.navigate('Classes')} />;
-}
-
-/** Setup's third step, which leads to the week. */
-function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Classes'>) {
-  return (
-    <Classes
-      onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
-      onNext={() => navigation.navigate('Week')}
-    />
-  );
-}
-
-/** Setup's fourth step; it leads to the plan. */
-function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Week'>) {
-  return (
-    <Week
-      onDraw={() => navigation.navigate('WeekDraw')}
-      onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
-      onTimes={() => navigation.navigate('Times')}
-      onNext={() => navigation.navigate('Plan')}
-    />
-  );
-}
-
-/** Setup's last step; the September check comes with #31, so it leads to the tabs for now. */
-function PlanScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Plan'>) {
-  return (
-    <Plan
-      onChange={(group) => navigation.navigate('Packs', { grade: group.grade, subject: group.subject })}
-      onFinish={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
-    />
-  );
-}
-
-/** A grade and subject's packs; pinning or cancelling returns to the plan. */
-function PacksScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Packs'>) {
-  return <Packs grade={route.params.grade} subject={route.params.subject} onDone={() => navigation.goBack()} />;
-}
-
-/** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */
-function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
-  return <WeekDraw openAt={route.params?.slot} onDone={() => navigation.goBack()} />;
-}
-
-/** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
-function TypeListScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TypeList'>) {
-  return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
 }
 
 /** The same notice, from Help. */

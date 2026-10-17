@@ -19,6 +19,7 @@ export const ICONS = [
   'chevron',
   'school',
   'info',
+  'check',
 ] as const;
 export type IconName = (typeof ICONS)[number];
 
