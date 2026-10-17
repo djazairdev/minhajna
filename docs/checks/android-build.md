@@ -6,6 +6,7 @@ This is the first of the checks before the pilot ([PRD §5.13](../prd/PRD.md#513
 - [The app](#the-app)
 - [What had to change](#what-had-to-change)
 - [Repeating the build](#repeating-the-build)
+- [Timing the start](#timing-the-start)
 - [F-Droid](#f-droid)
 - [Dependencies](#dependencies)
 - [Still open](#still-open)
@@ -15,23 +16,23 @@ This is the first of the checks before the pilot ([PRD §5.13](../prd/PRD.md#513
 | Check | Result |
 |---|---|
 | Two clean builds give the same APK | **Passed.** On macOS, two builds from clean checkouts in different folders gave the same APK byte for byte, and so did a third, in a working copy. CI repeats the check on Linux on every change to the app. Its first run caught the build machine's IP address in the APK, which is now left out ([below](#what-had-to-change)) |
-| The same APK on macOS and on Linux | **Passed.** Two Linux builds in CI and two macOS builds gave the same APK, byte for byte |
+| The same APK on macOS and on Linux | **Passed.** Two Linux builds in CI and two macOS builds gave the same APK, byte for byte. Checked again once the app had its encrypted history, its three languages, its navigation and its offline licences: a macOS build and both CI builds of the same commit gave the same APK |
 | A signed APK can be checked against a rebuild | **Passed.** The signature of a signed APK, copied onto a clean rebuild from another folder, verifies ([below](#checking-a-signed-apk)) |
 | No proprietary library | **Passed.** The build stops if one appears, directly or through another library. It was tried with Google Play services, and with Google's Maps utilities, which pull them in |
 | F-Droid's scanner on the APK | **Passed.** No known non-free code, and no extra signing block |
-| F-Droid's scanner on the source | **46 findings, all in installed npm packages.** Each one has a fix, [below](#f-droid) |
+| F-Droid's scanner on the source | **47 findings, all in installed npm packages.** Each one has a fix, [below](#f-droid) |
 | The app built with F-Droid's tools | **Open.** It needs a build recipe, with the Hermes compiler built from source ([below](#f-droid)) |
 | No permission | **Passed.** The release APK asks for none, not even the network. CI checks it |
-| Installs and opens on Android 8 | **Passed on an emulator** with Android 8.0 and a 360×800 screen, without Google Play services. It opened in about 0.2 seconds, but on a fast computer. **Open on a budget phone** |
-| `NETWORK.md` | **Unchanged.** The app makes no network call |
+| Installs and opens on Android 8 | **Passed on an emulator** with Android 8.0 and a 360×800 screen, without Google Play services. Its first frame came after about 0.23 seconds, and the whole first screen, text included, within 0.6 seconds, but on a fast computer ([below](#timing-the-start)). **Open on a budget phone** |
+| `NETWORK.md` | **No network call.** Help's source link hands a fixed address to the browser, and only after the teacher confirms |
 
 ## The app
 
-- React Native 0.87.1 with React 19.2.3, the new architecture and the Hermes engine 250829098.0.17, without Expo ([PRD §5.2](../prd/PRD.md#52-architecture)).
+- React Native 0.87.1 with React 19.3.0, the new architecture and the Hermes engine 250829098.0.17, without Expo ([PRD §5.2](../prd/PRD.md#52-architecture)).
 - Android 8 (API 26) and later. It targets Android 16 (API 36), and compiles against API 37 ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
-- One screen shows the name and the tagline in Arabic, right to left, whatever the phone's language. The design's tokens, fonts and components come with [#20](https://github.com/djazairdev/minhajna/issues/20), and the interface language with [#21](https://github.com/djazairdev/minhajna/issues/21).
+- The app opens on a first screen with the name and the tagline, a choice of Arabic, French or English, and Help. Three tabs lead to placeholder screens. The history is kept encrypted with SQLCipher ([#19](https://github.com/djazairdev/minhajna/issues/19)), and Help shows every licence notice offline. The screens themselves come with the setup issues.
 - The application ID is `dz.minhajna.preview` for now. The final ID follows the project's domain.
-- The release APK carries code for the two processor types of Android phones, `armeabi-v7a` and `arm64-v8a`, and weighs 27.2 MB. Its code is not shrunk yet.
+- The release APK carries code for the two processor types of Android phones, `armeabi-v7a` and `arm64-v8a`, and weighs 39.0 MB, up from 27.2 MB for the first screen alone. The native libraries of SQLCipher (3.1 MB) and of react-native-screens (2.3 MB) account for about half of the growth. Its code is not shrunk yet.
 
 ## What had to change
 
@@ -79,11 +80,39 @@ apksigcopier compare minhajna-signed.apk --unsigned app/build/outputs/apk/releas
 
 This works only if the release was signed without moving the files inside the APK. Sign with `apksigner sign --alignment-preserved --v1-signing-enabled false`. Android 8 doesn't need the old v1 scheme. Without `--alignment-preserved`, `apksigner` realigns the files, and the signature no longer fits any rebuild.
 
+## Timing the start
+
+The target is under 2 seconds on a budget 360×800 phone ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)). Time a cold start, with the app stopped beforehand, and use a release build: a debug build loads its code from Metro and is much slower.
+
+Build the APK as above. To install it, sign it with a throwaway key that is used only for the test and then deleted:
+
+```sh
+keytool -genkeypair -keystore throwaway.jks -alias test -keyalg RSA -keysize 2048 -validity 1 -dname CN=test
+apksigner sign --ks throwaway.jks --out minhajna-test.apk app/build/outputs/apk/release/app-release-unsigned.apk
+adb install minhajna-test.apk
+```
+
+Then, with USB debugging on, start the app ten times from cold:
+
+```sh
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  adb shell am force-stop dz.minhajna.preview
+  sleep 2
+  adb shell am start -W -n dz.minhajna.preview/.MainActivity | grep TotalTime
+done
+```
+
+`TotalTime` is the time to the first frame, in milliseconds. The text can come a little later, once the JavaScript has run. To see when the whole first screen is there, record the screen during a start with `adb shell screenrecord --bugreport /sdcard/start.mp4`, which stamps the time on every frame.
+
+**On an emulator,** with Android 8.0, a 360×800 screen and no Google Play services, on an Apple silicon Mac, ten starts took 213 to 280 ms to the first frame, 230 ms in the middle. In five more, the whole first screen was there within 0.6 seconds. The emulator runs on a fast computer, so these figures say nothing yet about a budget phone.
+
 ## F-Droid
 
 **The APK.** F-Droid's scanner, from fdroidserver 2.4.5 with its latest list of non-free libraries, found no non-free code and no extra signing block. CI runs the same scan on every build.
 
-**The source.** F-Droid scans the source after the dependencies are installed and before the build. The scan found 46 problems and 10 warnings, all in npm packages under `apps/android/node_modules`. None is in the project's own files.
+**The source.** F-Droid scans the source after the dependencies are installed and before the build. The scan found 47 problems and 10 warnings, all in npm packages under `apps/android/node_modules`. None is in the project's own files.
+
+To repeat the scan, install the dependencies afresh in a clean checkout. A build writes the compiled native modules into `node_modules`, and the scanner then reports nearly 2,000 more findings, all of them the build's own output.
 
 | Found | How many | What it is | The fix in F-Droid's build recipe |
 |---|---|---|---|
@@ -91,7 +120,7 @@ This works only if the release was signed without moving the files inside the AP
 | `react-native/React/I18n/strings/*/fbt_language_pack.bin` | 36 | Translation packs for iOS | Delete them: Android doesn't use them |
 | `fb-dotslash/bin` | 5 | Meta's tool that fetches the debugger's programs | Delete them: the build doesn't use them |
 | `fsevents/fsevents.node` | 1 warning | File watching on macOS | Delete it |
-| Unknown Maven repositories | 2 | React Native's script for publishing itself, and a local folder that older versions of React Native used, in `react-native-safe-area-context` | Ignore them: the build uses neither |
+| Unknown Maven repositories | 3 | React Native's script for publishing itself, and a local folder that older versions of React Native used, in `react-native-safe-area-context` and `react-native-screens` | Ignore them: the build uses none of them |
 
 The scanner also removes the Gradle wrapper, as it does for every app, and F-Droid builds with its own Gradle 9.4.1.
 
@@ -105,9 +134,9 @@ Gradle downloads the Android libraries, such as React Native's, Hermes's and and
 
 ## Dependencies
 
-**npm.** The app installs 664 packages. Nearly all are tools for building and testing. The app itself runs React, React Native and `react-native-safe-area-context`.
+**npm.** The app installs 688 packages. Nearly all are tools for building and testing. The app itself runs React, React Native, React Navigation with `react-native-screens` and `react-native-safe-area-context`, and i18next with `react-i18next`.
 
-The licences are MIT (573), ISC (44), BSD-3-Clause (25), Apache-2.0 (11), BSD-2-Clause (4), 0BSD (1) and CC-BY-4.0 (1). Three more packages offer MIT among other licences. Two need a look:
+The licences are MIT (597), ISC (44), BSD-3-Clause (25), Apache-2.0 (11), BSD-2-Clause (4), 0BSD (1) and CC-BY-4.0 (1). Three more packages offer MIT among other licences. Two need a look:
 - **`argparse` 2.0.1** is under the Python Software Foundation licence (`Python-2.0`), which is not on the allowed list, so a maintainer decides ([engineering rules](../contributing/engineering.md#dependencies)). It reaches React Native's command-line tools through `cosmiconfig` and `js-yaml`.
 - **`exit` 0.1.2**, which Jest uses, declares MIT in an old format that the lockfile doesn't record.
 
@@ -131,7 +160,7 @@ React Native includes OkHttp for its network functions. Without the network perm
 
 ## Still open
 
-- **A budget phone.** Time the app's start on a budget 360×800 phone with Android 8. The target is under 2 seconds ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
+- **A budget phone.** Time the app's start on a budget 360×800 phone with Android 8, as [above](#timing-the-start). The target is under 2 seconds ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
 - **F-Droid's build:** the recipe and the Hermes compiler, as above.
 - **The size.** Shrinking the code, and one APK for each processor type, would make the install smaller.
 - **The application ID**, once the project's domain is registered.
