@@ -24,7 +24,8 @@ export type WeekGridSlot = {
   readonly first?: boolean;
 };
 
-export type WeekGridCell = { readonly label: string; readonly kind: 'class' | 'own' } | null;
+/** `spoken`, when given, is what a screen reader says for the cell's content instead of its label. */
+export type WeekGridCell = { readonly label: string; readonly spoken?: string; readonly kind: 'class' | 'own' } | null;
 
 export type WeekGridProps = {
   readonly testID?: string;

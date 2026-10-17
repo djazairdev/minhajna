@@ -33,6 +33,7 @@ export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => voi
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const timetable = state.timetables.at(-1);
   const version = timetable?.version;
+  const lookup = { course: (id: string) => state.courses.get(id), schoolClass: (id: string) => state.classes.get(id) };
   const classOf = (courseId: string): SchoolClass | undefined => {
     const course = state.courses.get(courseId);
     return course && state.classes.get(course.classId);
@@ -66,7 +67,7 @@ export function Week({ onDraw, onNext }: { onDraw: () => void; onNext: () => voi
               testID="week-preview"
               days={labels.days}
               slots={labels.slots}
-              cell={(day, slot) => gridCell(timetable.version, classOf, labels.cellOf(day, slot))}
+              cell={(day, slot) => gridCell(t, timetable.version, lookup, labels.cellOf(day, slot))}
               cellName={labels.cellName}
             />
           </View>
