@@ -15,6 +15,8 @@ import type { ReactNode } from 'react';
 import { TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
 import { ChipSamples, SetupStepsSamples } from './chip-samples';
+import { SegmentedControlSamples } from './segmented-control-samples';
+import { RadioCardSamples } from './radio-card-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
@@ -74,6 +76,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'Facts',
     design: 'docs/design/system/components/Facts/README.md',
     render: () => <FactsSamples />,
+  },
+  {
+    name: 'SegmentedControl',
+    design: 'docs/design/system/components/SegmentedControl/README.md',
+    render: (sample, language) => <SegmentedControlSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'RadioCard',
+    design: 'docs/design/system/components/RadioCard/README.md',
+    render: (sample, language) => <RadioCardSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'Notice',

@@ -61,10 +61,8 @@ async function render(element: React.ReactElement) {
   });
 }
 
-async function press(testID: string) {
-  const [control] = tree.root.findAll(
-    (node) => (node.props as PressableProps).testID === testID && !!node.props.onPress,
-  );
+async function press(testID: string, root = tree.root) {
+  const [control] = root.findAll((node) => (node.props as PressableProps).testID === testID && !!node.props.onPress);
   expect(control).toBeDefined();
   await ReactTestRenderer.act(() => {
     (control.props as PressableProps).onPress?.({} as never);
@@ -125,11 +123,12 @@ test('selects a tab in the bottom bar sample as the app does', async () => {
   await render(<Gallery />);
   const selected = () =>
     tree.root
+      .findByProps({ testID: 'gallery-entry-BottomNav' })
       .findAll((node) => (node.props as PressableProps).accessibilityRole === 'tab' && !!node.props.onPress)
       .map((node) => (node.props as PressableProps).accessibilityState?.selected)
       .slice(0, 3);
   expect(selected()).toEqual([true, false, false]);
-  await press('tab-Classes');
+  await press('tab-Classes', tree.root.findByProps({ testID: 'gallery-entry-BottomNav' }));
   expect(selected()).toEqual([false, true, false]);
 });
 
@@ -229,7 +228,7 @@ test('catches a control TalkBack cannot name, or too small to press', async () =
   ]);
 });
 
-test.each(['button', 'checkbox', 'radio'] as const)(
+test.each(['button', 'checkbox', 'radio', 'tab'] as const)(
   'checks an inactive %s even without an onPress handler',
   async (role) => {
     const { Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
