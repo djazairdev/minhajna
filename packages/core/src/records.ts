@@ -118,7 +118,7 @@ export interface TimetableEntry {
   readonly slot: Slot;
   readonly courseId: string;
   readonly groupId: string;
-  readonly weeks: 'every' | 'A' | 'B';
+  readonly weeks: Weeks;
   /** A session type code from the country profile. */
   readonly sessionType: string;
   /** For primary activity slots, such as reading (PRD §4.6). */
@@ -126,20 +126,42 @@ export interface TimetableEntry {
   readonly room?: string;
 }
 
+/** Every week, or only A weeks or B weeks (PRD §4.6). */
+export type Weeks = 'every' | 'A' | 'B';
+
+/** The kinds of time that belong to the teacher (PRD §3.2, §4.6). */
+export const BLOCK_KINDS = ['pedagogical', 'other-school', 'duty', 'reduction'] as const;
+
+export type BlockKind = (typeof BLOCK_KINDS)[number];
+
 /** Time that belongs to the teacher rather than a class (PRD §3.2). */
 export interface TeacherBlock {
   readonly weekday: Weekday;
   readonly half: Half;
+  /** One slot of the half-day; without it, the whole half-day. */
+  readonly index?: number;
+  readonly weeks?: Weeks;
+  readonly kind?: BlockKind;
   readonly label: string;
 }
 
+/** How the teacher's week is drawn (PRD §3.2): extra rows and days, and a double shift. */
+export interface WeekOptions {
+  readonly saturday?: true;
+  readonly fifthMorning?: true;
+  /** Mornings one week and afternoons the next, drawn as A and B weeks. */
+  readonly doubleShift?: true;
+}
+
 export interface TimetableVersion {
+  /** Saved again under the same ID, as the week is drawn, it replaces itself. */
   readonly id: string;
   /** It applies from this day. Days before it keep the version they had (PRD §4.6). */
   readonly from: Day;
   readonly entries: readonly TimetableEntry[];
   readonly blocks: readonly TeacherBlock[];
   readonly source: 'hand' | 'package';
+  readonly options?: WeekOptions;
 }
 
 /** What a session record covered of the plan. */

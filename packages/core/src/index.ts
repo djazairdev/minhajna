@@ -31,3 +31,4 @@ export * from './roll-call-counts.ts';
 export * from './sessions.ts';
 export * from './state.ts';
 export * from './today.ts';
+export * from './week.ts';
