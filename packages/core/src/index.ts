@@ -18,6 +18,7 @@ export * from './events.ts';
 export * from './format.ts';
 export * from './history.ts';
 export * from './id.ts';
+export * from './joint.ts';
 export * from './layers.ts';
 export * from './memory-store.ts';
 export * from './pacing.ts';
