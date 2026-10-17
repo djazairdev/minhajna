@@ -11,6 +11,7 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { useState, type ReactNode } from 'react';
 import { BottomNav, TopBar } from '../navigation/NavigationChrome';
+import { ButtonSamples, IconButtonSamples } from './button-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -50,6 +51,16 @@ function TabsSample({ labels }: { labels: readonly string[] }) {
 
 /** The components on the gallery, each with its states. */
 export const entries: readonly GalleryEntry[] = [
+  {
+    name: 'Button',
+    design: 'docs/design/system/components/Button/README.md',
+    render: (sample) => <ButtonSamples sample={sample} />,
+  },
+  {
+    name: 'IconButton',
+    design: 'docs/design/system/components/IconButton/README.md',
+    render: (sample) => <IconButtonSamples sample={sample} />,
+  },
   {
     name: 'TopBar',
     design: 'docs/design/system/components/TopBar/README.md',

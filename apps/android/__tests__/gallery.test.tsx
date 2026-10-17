@@ -16,6 +16,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { AppNavigator, GALLERY_MENU_ITEM } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { Gallery } from '../src/gallery/Gallery';
+import { Button, type ButtonProps } from '../src/components/Button';
 import { entries } from '../src/gallery/entries';
 import { samples } from '../src/gallery/samples';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -98,6 +99,21 @@ test('selects a tab in the bottom bar sample as the app does', async () => {
   expect(selected()).toEqual([false, true, false]);
 });
 
+test.each([
+  ['ar', ['حفظ', 'تعديل', 'المناداة', 'تراجع', 'حذف', 'إضافة']],
+  ['fr', ['Enregistrer', 'Modifier', 'Appel', 'Annuler', 'Supprimer', 'Ajouter']],
+  ['en', ['Save', 'Edit', 'Roll call', 'Cancel', 'Delete', 'Add']],
+] as const)('uses concise action labels rather than lesson descriptions (%s)', async (language, labels) => {
+  await i18n.changeLanguage(language);
+  await render(<Gallery />);
+  const weights = labels.slice(0, 5);
+  expect(tree.root.findAllByType(Button).map((node) => (node.props as ButtonProps).label)).toEqual([
+    ...weights,
+    ...weights,
+    labels[5],
+  ]);
+});
+
 test('links each entry to its page in the design system', () => {
   for (const entry of entries) {
     expect([entry.name, existsSync(join(ROOT, entry.design))]).toEqual([entry.name, true]);
@@ -126,5 +142,39 @@ test('catches a control TalkBack cannot name, or too small to press', async () =
   expect(accessibilityProblems(tree.root)).toEqual([
     'tiny: nothing for TalkBack to read',
     'tiny: smaller than 48dp (20×20)',
+  ]);
+});
+
+test('checks an inactive button even without an onPress handler', async () => {
+  const { Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+  await render(
+    <Pressable
+      testID="inactive"
+      disabled
+      accessibilityRole="button"
+      accessibilityState={{ disabled: true }}
+      style={{ width: 20, height: 20 }}
+    />,
+  );
+  expect(accessibilityProblems(tree.root)).toEqual([
+    'inactive: nothing for TalkBack to read',
+    'inactive: smaller than 48dp (20×20)',
+  ]);
+});
+
+test('checks a control that holds another, and the one it holds', async () => {
+  const { Pressable, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  await render(
+    <Pressable testID="card" onPress={() => undefined} style={{ height: 20 }}>
+      <Text>Card</Text>
+      <Pressable testID="inner" onPress={() => undefined} style={{ width: 20, height: 48 }} />
+    </Pressable>,
+  );
+  expect(accessibilityProblems(tree.root)).toEqual([
+    'Card: no accessibilityRole',
+    'Card: smaller than 48dp (0×20)',
+    'inner: no accessibilityRole',
+    'inner: nothing for TalkBack to read',
+    'inner: smaller than 48dp (20×48)',
   ]);
 });

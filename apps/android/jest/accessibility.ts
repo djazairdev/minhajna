@@ -25,14 +25,38 @@ function smallest(style: StyleProp<ViewStyle> | ((state: { pressed: boolean }) =
   return { height: size(flat.height, flat.minHeight), width: size(flat.width, flat.minWidth) };
 }
 
+/** Include inactive buttons too; their native state must not hide a missing name or target. */
+function isControl(node: ReactTestInstance): boolean {
+  const props = node.props as PressableProps;
+  return (
+    typeof props.onPress === 'function' ||
+    (props.accessibilityRole === 'button' && props.accessibilityState?.disabled === true)
+  );
+}
+
+/** How many native views a node draws. */
+function views(node: ReactTestInstance): number {
+  return node.findAll((inner) => typeof inner.type === 'string').length;
+}
+
+/**
+ * A wrapper, such as Button around its Pressable, draws nothing but an inner
+ * control. A control that draws more, such as a card holding a button, is a
+ * control of its own and is checked too.
+ */
+function wraps(control: ReactTestInstance): boolean {
+  return control.findAll(isControl).some((inner) => inner !== control && views(inner) === views(control));
+}
+
 /**
  * Every control under a node that TalkBack or a thumb would miss: one with no
  * role, one with nothing to read out, or one smaller than 48dp either way
  * (PRD §6.8, docs/design/system/accessibility.md). Returns a line per
  * problem, so that a test can expect an empty list and show what is wrong.
+ * A component that only wraps another control is checked through it.
  */
 export function accessibilityProblems(root: ReactTestInstance): string[] {
-  const controls = root.findAll((node) => typeof (node.props as PressableProps).onPress === 'function');
+  const controls = root.findAll(isControl).filter((control) => !wraps(control));
   return controls.flatMap((control) => {
     const props = control.props as PressableProps;
     const name = spokenName(control);
