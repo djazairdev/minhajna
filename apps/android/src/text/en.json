@@ -573,5 +573,18 @@
     "later": "The next week shows after this one.",
     "snack_one": "{{count}} session recorded for the texts book",
     "snack_other": "{{count}} sessions recorded for the texts book"
+  },
+  "daymark": {
+    "holiday": "A holiday, no sessions today.",
+    "holidayNational": "A national holiday, no sessions today.",
+    "closure": "School is suspended, no sessions today.",
+    "exam": "{{from}} – {{to}} · day {{day}} of {{days}}",
+    "examOff": "{{from}} – {{to}}",
+    "lost_one": "{{count}} session not held because of the calendar",
+    "lost_other": "{{count}} sessions not held because of the calendar",
+    "lostNote": "They are counted apart in the weekly summary, so they never read as slow teaching. The lessons move to the next sessions, and none is dropped.",
+    "paused": "The plan pauses during the exams",
+    "pausedNote": "The exams take the week’s sessions: no lesson is proposed, and no session counts as not held or as delay. Each class keeps its position.",
+    "next": "Next session"
   }
 }
