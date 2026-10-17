@@ -114,3 +114,28 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }
+
+// AGP wires the task's output and dependency to each variant's asset merger.
+androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+    def licence = tasks.register("bundle${variant.name.capitalize()}AppLicence", AppLicenceAssets) {
+        licenceFile.set(file("${repositoryRoot}/LICENSES/AGPL-3.0-or-later.txt"))
+    }
+    variant.sources.assets.addGeneratedSourceDirectory(licence, { it.outputDirectory })
+}
+
+/** Copies the unchanged canonical licence; generated legal text is not a maintained source file. */
+abstract class AppLicenceAssets extends DefaultTask {
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    abstract org.gradle.api.file.RegularFileProperty getLicenceFile()
+
+    @OutputDirectory
+    abstract org.gradle.api.file.DirectoryProperty getOutputDirectory()
+
+    @TaskAction
+    void bundle() {
+        def target = new File(outputDirectory.get().asFile, "licenses/minhajna.txt")
+        target.parentFile.mkdirs()
+        java.nio.file.Files.copy(licenceFile.get().asFile.toPath(), target.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    }
+}

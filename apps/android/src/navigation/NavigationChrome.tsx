@@ -65,7 +65,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 }
 
 /** Provides a labelled, RTL-aware Back control and a scalable two-line heading. */
-export function TopBar({ navigation, options }: NativeStackHeaderProps) {
+export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -93,7 +93,7 @@ export function TopBar({ navigation, options }: NativeStackHeaderProps) {
           <Text accessibilityRole="header" style={styles.title}>
             {options.title}
           </Text>
-          <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>
+          {route.name === 'NavigationPreview' && <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>}
         </View>
         <View style={styles.back} />
       </View>
