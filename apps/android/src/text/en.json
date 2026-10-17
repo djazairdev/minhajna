@@ -624,6 +624,31 @@
   "roll": {
     "absent": "Absent",
     "late": "Late",
-    "spoken": "{{state}}: {{name}}"
+    "spoken": "{{state}}: {{name}}",
+    "title": "Roll call",
+    "present": "Present",
+    "absentStat": "Absent",
+    "lateStat": "Late, not counted as absent",
+    "hint": "Everyone is present unless marked: mark only absences and lateness. You can take it after the lesson and correct it at any time.",
+    "pastHint": "Everyone is present unless marked: copy only the absences and lateness from the sheet.",
+    "pastBadge": "Entered later",
+    "pastTitle": "From the paper roll-call sheet",
+    "pastNote": "Absences are recorded on the session's date, {{day}}, not today's. The record keeps the day they were entered, {{today}}, without the time.",
+    "taken": "This roll call was recorded on {{day}}. A change is saved as a correction with its reason, and both versions stay in the history.",
+    "official": "Absences are not sent to the sector's system: in teacher mode the roll call is your own record, and the state's absence channel stays as it is.",
+    "save": "Save the roll call",
+    "savePast": "Save the roll call of {{day}}",
+    "saveFix": "Save the correction",
+    "reason": "Reason for the correction, briefly",
+    "reasons": {
+      "arrived-late": "Arrived after the roll call",
+      "entry-error": "Entry error",
+      "administration": "Correction from the office",
+      "other": "Another reason"
+    },
+    "unavailable": "This session has no roll call.",
+    "none": "No absence recorded",
+    "allPresent": "Roll call saved: everyone present",
+    "marked": "Roll call saved · absent: {{absent}} · late: {{late}}"
   }
 }

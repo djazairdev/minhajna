@@ -48,6 +48,8 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
       readonly where: string;
       /** A soft button that opens the entry, such as «عرض». */
       readonly show?: MoreAction;
+      /** What still goes with the session, such as the roll call taken after the lesson. */
+      readonly due?: readonly DueStripProps[];
     }
 );
 
@@ -131,6 +133,9 @@ export function SessionCard(props: SessionCardProps) {
           <Button testID={sub(props.show.id)} variant="soft" label={props.show.label} onPress={props.show.onPress} />
         )}
       </View>
+      {props.due?.map((strip, index) => (
+        <DueStrip key={index} {...strip} />
+      ))}
     </View>
   );
 }

@@ -39,7 +39,7 @@ import { ScrollView, StyleSheet, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '../components/IconButton';
 import { PageHeading } from '../components/PageHeading';
-import { SessionCard, type SessionMeta } from '../components/SessionCard';
+import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
@@ -47,14 +47,13 @@ import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
-import { span } from '../times/TimeTable';
-import { sessionTime } from '../times/times-rules';
-import { slotSpoken } from '../week/grid-labels';
 import { Backlog } from './Backlog';
 import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from './DayMark';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
+import { rollStrip } from './roll-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
+import { sessionMeta } from './today-meta';
 
 /** The session just recorded, and the events that bring back what was there before. */
 type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; readonly message: string };
@@ -62,8 +61,13 @@ type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; reado
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
 
-/** The Today tab; `onHelp` opens Help and the privacy notice, `onDetails` a session's details. */
-export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (session: Session) => void }) {
+/** The Today tab; `onHelp` opens Help and the privacy notice, `onDetails` a session's details, `onRoll` its roll call. */
+export function Today(props: {
+  onHelp: () => void;
+  onDetails: (session: Session) => void;
+  onRoll: (session: Session) => void;
+}) {
+  const { onHelp, onDetails, onRoll } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -90,21 +94,8 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
   );
   const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
 
-  const metaOf = (item: TodaySession, withSubject: boolean): SessionMeta => {
-    const schoolClass = state.classes.get(item.course.classId);
-    const group = schoolClass?.groups.find((candidate) => candidate.id === item.session.groupId);
-    const className = [schoolClass?.name ?? '', group !== undefined && group.kind !== 'whole' ? group.name : null]
-      .filter(Boolean)
-      .join(' · ');
-    const school = schoolClass && state.schools.get(schoolClass.schoolId);
-    const time = sessionTime({ bells, calendar, state }, school, item.session.slot, item.session.day);
-    const subject = profile.subjects.find((candidate) => candidate.code === item.course.subject);
-    return {
-      className,
-      slot: time === null ? slotSpoken(t, item.session.slot) : span(time.from, time.to, direction),
-      ...(withSubject && { subject: subject ? localized(subject.name) : item.course.subject }),
-    };
-  };
+  const metaOf = (item: TodaySession, withSubject: boolean) =>
+    sessionMeta({ state, profile, bells, calendar }, t, direction, item, withSubject);
 
   const confirm = (item: TodaySession, choice?: Choice) => {
     const key = item.session.key;
@@ -179,6 +170,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
           written={writtenOf(t, pack, item.record, comma)}
           where={t('today.recorded')}
           show={{ id: 'fix', label: t('fix.open'), onPress: () => onDetails(item.session) }}
+          due={rollStrip(t, context, item.session, onRoll)}
         />
       );
     }
@@ -196,6 +188,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
           kind="focus"
           meta={metaOf(item, true)}
           proposal={proposalOf(t, pack, item.proposal)}
+          due={rollStrip(t, context, item.session, onRoll)}
           confirm={t('today.confirm')}
           onConfirm={() => confirm(item)}
           more={[

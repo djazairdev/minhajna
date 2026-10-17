@@ -27,6 +27,7 @@ let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const onHelp = jest.fn();
 const onDetails = jest.fn();
+const onRoll = jest.fn();
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -40,7 +41,7 @@ async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', day = '202
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Today onHelp={onHelp} onDetails={onDetails} />, day)}
+        {withData(data, <Today onHelp={onHelp} onDetails={onDetails} onRoll={onRoll} />, day)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -78,6 +79,8 @@ test("lists the day's sessions in order, with the plan's proposal in pencil on t
     'تقويم تشخيصي (مثال)',
     'الموضوع: ',
     '- الحصة 1 من 2',
+    text.roll.none,
+    text.roll.title,
     text.today.confirm,
     text.outcome.other,
     text.entry.open,
