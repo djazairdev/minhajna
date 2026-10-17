@@ -35,6 +35,7 @@ import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '..
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
 import { Today } from '../today/Today';
+import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
 import { parseDay } from '@minhajna/core';
@@ -68,6 +69,7 @@ export type RootStackParamList = {
   Licences: undefined;
   LicenceNotice: { name: string };
   Entry: { key: string; day: string };
+  ClassPlan: { courseId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -192,6 +194,11 @@ export function AppNavigator({
           options={{ title: t('entry.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen
+          name="ClassPlan"
+          component={ClassPlanScreen}
+          options={{ title: t('classPlan.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
           name="PrivacyNotice"
           component={HelpNotice}
           options={{ title: t('privacy.helpTitle'), statusBarStyle: 'dark' }}
@@ -225,7 +232,7 @@ function HomeTabs() {
       screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
     >
       <Tabs.Screen name="Today" component={TodayTab} />
-      <Tabs.Screen name="Classes" component={ClassesTab} />
+      <Tabs.Screen name="Classes" component={ClassesTabScreen} />
       <Tabs.Screen name="Documents" component={HomePreview} />
     </Tabs.Navigator>
   );
@@ -270,4 +277,19 @@ function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 
 /** The same notice, from Help. */
 function HelpNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrivacyNotice'>) {
   return <PrivacyNotice onConnections={() => navigation.navigate('Connections')} />;
+}
+
+/** The Classes tab; a class's «المخطط» opens its plan. */
+function ClassesTabScreen({
+  navigation,
+}: CompositeScreenProps<
+  BottomTabScreenProps<HomeTabParamList, 'Classes'>,
+  NativeStackScreenProps<RootStackParamList>
+>) {
+  return <ClassesTab onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })} />;
+}
+
+/** A class's plan. */
+function ClassPlanScreen({ route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
+  return <ClassPlan courseId={route.params.courseId} />;
 }

@@ -598,5 +598,27 @@
     "onPlanShort": "No delay · the plan needs {{sessions}} more than are left before the exams",
     "spare_one": "{{count}} spare session",
     "spare_other": "{{count}} spare sessions"
+  },
+  "classPlan": {
+    "title": "Plan",
+    "open": "Plan",
+    "noPack": "No pack for this class: what was done is written, with no plan to compare.",
+    "pack": "Pack {{release}}",
+    "reference": "Where the plan places the class is only a reference: it never moves the class and is never a judgement of the work.",
+    "untilExams": "Until the term {{term}} exams ({{day}}): {{gives}} for lessons, of which the plan needs {{needs}}.",
+    "untilEnd": "Until the end of term {{term}} ({{day}}): {{gives}} for lessons, of which the plan needs {{needs}}.",
+    "term1": "1",
+    "term2": "2",
+    "term3": "3",
+    "done": "Done",
+    "skipped": "Skipped",
+    "started": "In progress",
+    "startedStages": "In progress · {{covered}} of {{stages}} stages",
+    "position": "The class is here",
+    "expected": "The plan's place",
+    "buffer": "Buffer",
+    "td": "Guided work",
+    "taughtSpoken": "Taught {{days}}",
+    "aheadSpoken": "Reached {{day}} if nothing changes"
   }
 }

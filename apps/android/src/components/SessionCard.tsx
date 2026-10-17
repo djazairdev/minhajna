@@ -33,7 +33,13 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
       /** A row of line buttons, such as «نتيجة أخرى» and «تفاصيل الحصة», once their screens exist. */
       readonly more?: readonly MoreAction[];
     }
-  | { readonly kind: 'mini'; readonly lesson: string; readonly note?: string }
+  | {
+      readonly kind: 'mini';
+      readonly lesson: string;
+      readonly note?: string;
+      /** A soft button under the lesson, such as the class's «المخطط». */
+      readonly show?: MoreAction;
+    }
   | {
       readonly kind: 'done';
       /** What was written, such as «أعمال موجهة: مراجعة العدد والمعدود». */
@@ -104,6 +110,9 @@ export function SessionCard(props: SessionCardProps) {
         {metaLine}
         <Text style={[styles.lesson, align]}>{props.lesson}</Text>
         {props.note !== undefined && <Text style={[styles.note, align]}>{props.note}</Text>}
+        {props.show !== undefined && (
+          <Button testID={sub(props.show.id)} variant="soft" label={props.show.label} onPress={props.show.onPress} />
+        )}
       </View>
     );
   }
