@@ -21,6 +21,7 @@ import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
 import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
+import { WeekGridSamples } from './week-grid-samples';
 import type { Language } from '../text/i18n';
 import type { Sample } from './samples';
 
@@ -93,6 +94,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'TextField',
     design: 'docs/design/system/components/TextField/README.md',
     render: (sample, language) => <TextFieldSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'WeekGrid',
+    design: 'docs/design/system/components/WeekGrid/README.md',
+    render: (sample, language) => <WeekGridSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'CheckRow',
