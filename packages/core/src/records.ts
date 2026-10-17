@@ -8,10 +8,19 @@
 import type { Day, Weekday } from './day.ts';
 import type { RollCallUnitKind } from './reference.ts';
 
-/** The details the documents print (PRD §3.2). */
+/**
+ * The details the documents print (PRD §3.2). The subjects, schools and
+ * school year come from the schools and the calendar, so the card keeps only
+ * the rank.
+ */
 export interface TeacherCard {
-  readonly name: string;
-  readonly subjects: readonly string[];
+  /** As the teacher writes it, such as «أستاذ التعليم المتوسط». */
+  readonly rank: string;
+}
+
+/** The card's personal fields: optional, and they never leave the device (PRD §3.2, §5.6). */
+export interface TeacherPersonal {
+  readonly name?: string;
 }
 
 export interface School {

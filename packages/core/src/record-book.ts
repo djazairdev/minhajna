@@ -17,6 +17,8 @@ function recordKey(event: RecordEvent): string {
   switch (event.kind) {
     case 'teacher.set':
       return 'teacher';
+    case 'teacher.personal.set':
+      return 'teacher:personal';
     case 'school.set':
       return `school:${event.school.id}`;
     case 'class.set':

@@ -35,8 +35,8 @@ async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   });
 }
 
-/** Completes setup's first step with one made-up school, which leads to the tabs for now. */
-async function finishTeaching() {
+/** Completes setup's first two steps with one made-up school and an empty card, which lead to the tabs for now. */
+async function finishSetup() {
   const ids = (prefix: string) =>
     tree.root.findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(prefix));
   const school = String(ids('levels-')[0].props.testID).slice('levels-'.length);
@@ -48,6 +48,9 @@ async function finishTeaching() {
     (ids('school-name-')[0].findByType(TextInput).props as TextInputProps).onChangeText?.('متوسطة النجاح');
   });
   await press(byTestID('setup-next'));
+  expect(routes()).toContain('Card');
+  expect(heading()).toEqual([text.setup.title, 'الخطوة 2 من 5']);
+  await press(byTestID('card-next'));
 }
 
 async function press(match: (props: PressableProps) => boolean) {
@@ -119,7 +122,7 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
   await press(byTestID('privacy-accept'));
   expect(routes()).toEqual(['Welcome', 'Privacy', 'Teaching']);
   expect(heading()).toEqual([text.setup.title, 'الخطوة 1 من 5']);
-  await finishTeaching();
+  await finishSetup();
   expect(tree.root.findAllByType(TopBar)).toHaveLength(0);
   expect(tree.root.findAllByProps({ testID: 'tab-Today' })).not.toEqual([]);
   let handled = true;
@@ -152,7 +155,7 @@ test('offers the notice and the connections from Help, without the first-use but
   await mount();
   await press(byTestID('welcome-start'));
   await press(byTestID('privacy-accept'));
-  await finishTeaching();
+  await finishSetup();
   await press(byLabel(text.help.title));
   await press(byLabel(text.privacy.helpTitle));
   expect(routes()).toEqual(['Home', 'Help', 'PrivacyNotice']);

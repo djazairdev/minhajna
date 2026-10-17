@@ -180,7 +180,10 @@ describe('record layers', () => {
     );
     assert.deepEqual(days, ['2026-09-20', '2026-09-21', '2026-09-22', '2026-09-23']);
 
-    assert.deepEqual(forRoute(book.entries, 'full-export'), book.entries);
+    assert.deepEqual(
+      forRoute(book.entries, 'full-export'),
+      book.entries.filter((entry) => entry.layer !== 'device'),
+    );
     const outbound: Route = 'school-space';
     assert.throws(() => forRoute(book.entries, outbound as OwnRoute), /own routes/);
   });

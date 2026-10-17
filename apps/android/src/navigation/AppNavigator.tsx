@@ -21,6 +21,7 @@ import { BottomNav, TopBar } from './NavigationChrome';
 import { Welcome } from './Welcome';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
+import { Card } from '../setup/Card';
 import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
@@ -32,6 +33,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   Privacy: undefined;
   Teaching: undefined;
+  Card: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -96,6 +98,11 @@ export function AppNavigator({
         <Stack.Screen
           name="Teaching"
           component={TeachingScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Card"
+          component={CardScreen}
           options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
@@ -178,9 +185,14 @@ function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 
   );
 }
 
-/** Setup's first step; its next steps come with #26 and #27, so it leads to the tabs for now. */
+/** Setup's first step, which leads to the card. */
 function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Teaching'>) {
-  return <Teaching onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })} />;
+  return <Teaching onNext={() => navigation.navigate('Card')} />;
+}
+
+/** Setup's second step; the classes come with #27, so it leads to the tabs for now. */
+function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
+  return <Card onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })} />;
 }
 
 /** The same notice, from Help. */
