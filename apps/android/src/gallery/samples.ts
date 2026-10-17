@@ -28,6 +28,22 @@ export type Sample = {
   readonly back: string;
   readonly add: string;
   readonly activations: string;
+  readonly fields: {
+    readonly label: string;
+    readonly example: string;
+    readonly value: string;
+    readonly areaLabel: string;
+    readonly areaValue: string;
+    readonly noteLabel: string;
+    readonly optionalLabel: string;
+    readonly error: string;
+    readonly codeLabel: string;
+    readonly codeExample: string;
+    readonly codeValue: string;
+    readonly numberLabel: string;
+    readonly numberExample: string;
+    readonly numberValue: string;
+  };
 };
 
 /** The gallery's texts and made-up content, by interface language. */
@@ -50,6 +66,22 @@ export const samples: Readonly<Record<Language, Sample>> = {
     back: 'رجوع',
     add: 'إضافة حصة',
     activations: 'عدد الضغطات المتاحة: {{count}}',
+    fields: {
+      label: 'الواجب',
+      example: 'مثال: التمرين 5',
+      value: 'التمرين 5',
+      areaLabel: 'المحتوى',
+      areaValue: 'مراجعة الجمع.\nحلّ التمرين 5.\nتصحيح الحلّ.',
+      noteLabel: 'ملاحظة',
+      optionalLabel: 'اختياري',
+      error: 'أدخل الواجب.',
+      codeLabel: 'الرمز',
+      codeExample: 'مثال: CEM-01',
+      codeValue: 'CEM-01',
+      numberLabel: 'العدد',
+      numberExample: 'مثال: 12',
+      numberValue: '12',
+    },
   },
   fr: {
     title: 'Galerie des composants',
@@ -75,6 +107,22 @@ export const samples: Readonly<Record<Language, Sample>> = {
     back: 'Retour',
     add: 'Ajouter une séance',
     activations: 'Activations disponibles : {{count}}',
+    fields: {
+      label: 'Devoir',
+      example: 'Ex. : exercice 5',
+      value: 'Exercice 5',
+      areaLabel: 'Contenu',
+      areaValue: 'Réviser l’addition.\nFaire l’exercice 5.\nCorriger les réponses.',
+      noteLabel: 'Note',
+      optionalLabel: 'facultatif',
+      error: 'Indiquez le devoir.',
+      codeLabel: 'Code',
+      codeExample: 'Ex. : CEM-01',
+      codeValue: 'CEM-01',
+      numberLabel: 'Nombre',
+      numberExample: 'Ex. : 12',
+      numberValue: '12',
+    },
   },
   en: {
     title: 'Component gallery',
@@ -100,6 +148,22 @@ export const samples: Readonly<Record<Language, Sample>> = {
     back: 'Back',
     add: 'Add lesson',
     activations: 'Available activations: {{count}}',
+    fields: {
+      label: 'Homework',
+      example: 'e.g. Exercise 5',
+      value: 'Exercise 5',
+      areaLabel: 'Content',
+      areaValue: 'Revise addition.\nDo exercise 5.\nCorrect the answers.',
+      noteLabel: 'Note',
+      optionalLabel: 'optional',
+      error: 'Enter the homework.',
+      codeLabel: 'Code',
+      codeExample: 'e.g. CEM-01',
+      codeValue: 'CEM-01',
+      numberLabel: 'Number',
+      numberExample: 'e.g. 12',
+      numberValue: '12',
+    },
   },
 };
 
