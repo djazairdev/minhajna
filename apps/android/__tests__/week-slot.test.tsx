@@ -16,6 +16,7 @@ import { openTestData, withData, type TestData } from '../jest/app-data';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import text from '../src/text/ar.json';
 import { WeekDraw } from '../src/week/WeekDraw';
+import type { Cell } from '../src/week/week-rules';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -52,11 +53,11 @@ async function withClass(): Promise<TestData> {
   return data;
 }
 
-async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
+async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', openAt?: Cell) {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <WeekDraw onDone={jest.fn()} />)}
+        {withData(data, <WeekDraw openAt={openAt} onDone={jest.fn()} />)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -147,7 +148,9 @@ test("draws the teacher's own time with its kind over a half-day, warning of the
   await press('slot-0-half-day');
   expect(exists('slot-clash')).toBe(true);
   expect(shown()).toContain(
-    text.week.clashAt.replace('{{slot}}', 'الحصة 1 صباحاً').replace('{{items}}', `4م1، ${text.week.kinds.pedagogical}`),
+    text.week.clashAt
+      .replace('{{slot}}', 'الحصة 1 صباحاً')
+      .replace('{{items}}', `\u20684م1\u2069، ${text.week.kinds.pedagogical}`),
   );
   await press('slot-save');
   expect(shown()).toContain(text.week.clashes_one);
@@ -169,6 +172,15 @@ test('removes a slot, and keeps nothing when closed', async () => {
   await press('slot-remove');
   expect(label('draw-4-a1')).toBe(`الخميس، الحصة 1 مساءً: ${text.week.empty}`);
   expect((await saved(data)).entries).toEqual([]);
+});
+
+test('opens with a slot on Week-slot when a clash sends the teacher there', async () => {
+  const data = await withClass();
+  await render(data, 'rtl', { weekday: 4, slot: { half: 'afternoon', index: 1 } });
+  expect(shown()).toContain('خانة الخميس، الحصة 1 مساءً');
+  await press('slot-0-kind-class');
+  await press('slot-save');
+  expect(label('draw-4-a1')).toBe('الخميس، الحصة 1 مساءً: 4م1');
 });
 
 test.each(

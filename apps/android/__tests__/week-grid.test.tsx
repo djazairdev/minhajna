@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // WeekGrid (#133): days across in the reading direction, slots down, each
-// cell named by its day, slot and class, 48dp when it can be pressed, and
-// columns that grow at 200% text instead of shrinking it. Made-up weeks.
+// cell named by its day, slot and class, 48dp when it can be pressed,
+// columns that grow at 200% text instead of shrinking it, and a dashed
+// outline on a clash. Made-up weeks.
 
 import { LocaleDirContext } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, useWindowDimensions } from 'react-native';
@@ -134,5 +135,28 @@ test('gives every cell of a row one height, so a long class name widens its day 
     expect(flat((day?.props as ViewProps).style)).not.toHaveProperty('width');
   } finally {
     delete week['3:m1'];
+  }
+});
+
+test('outlines a clashing cell, dashed, so the clash is seen without colour', async () => {
+  week['4:m2'] = { label: '4م1\n4م2', kind: 'class', clash: true };
+  try {
+    await render();
+    const style = (label: string) =>
+      flat(
+        (
+          tree.root.findAll((node) => String((node.props as ViewProps).accessibilityLabel).includes(label), {
+            deep: false,
+          })[0].props as ViewProps
+        ).style,
+      );
+    expect(style('4م1\n4م2')).toMatchObject({
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: colors['notice-line'],
+    });
+    expect(style('الأحد، الحصة 1 صباحاً')).not.toHaveProperty('borderStyle');
+  } finally {
+    delete week['4:m2'];
   }
 });

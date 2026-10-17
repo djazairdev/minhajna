@@ -266,7 +266,11 @@
     "removeSlot": "Supprimer la case",
     "saveSlot": "Enregistrer",
     "clashAt": "Conflit, {{slot}} : {{items}}",
+    "resolve": "Ouvrir la case pour régler le conflit",
     "holds": "Contenu de la case",
-    "clash": "Conflit"
+    "clash": "Conflit",
+    "doubleShift": "Double vacation : le matin une semaine, l’après-midi la suivante",
+    "shiftA": "En semaine A, les classes ont cours le",
+    "shiftNote": "Une classe dessinée dans une demi-journée est placée dans l’autre pour l’autre semaine."
   }
 }

@@ -149,8 +149,8 @@ export interface TeacherBlock {
 export interface WeekOptions {
   readonly saturday?: true;
   readonly fifthMorning?: true;
-  /** Mornings one week and afternoons the next, drawn as A and B weeks. */
-  readonly doubleShift?: true;
+  /** Mornings one week and afternoons the next, drawn as A and B weeks: the half-day taught in A weeks. */
+  readonly doubleShift?: Half;
 }
 
 export interface TimetableVersion {

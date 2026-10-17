@@ -7,7 +7,8 @@
 // slot, and a second tap with the same brush clears it; the teacher's own
 // time works the same way, and the eraser clears whatever is there. The
 // first version starts with the school year; a later one starts the day it
-// is drawn, so the past never moves (PRD §4.6).
+// is drawn, so the past never moves (PRD §4.6). With a double shift, a
+// class drawn in one half-day also goes in the other, in the other week.
 
 import {
   blockCovers,
@@ -15,6 +16,7 @@ import {
   wholeGroup,
   type Course,
   type Day,
+  type Half,
   type SchoolClass,
   type SchoolYear,
   type Slot,
@@ -23,6 +25,7 @@ import {
   type TimetableEntry,
   type TimetableVersion,
   type Weekday,
+  type Weeks,
 } from '@minhajna/core';
 
 export type Brush =
@@ -87,7 +90,11 @@ export function courseFor(
   return { course, isNew: true };
 }
 
-/** The version after one tap: `course` is the brush's class course, and `ownLabel` names the teacher's time. */
+/**
+ * The version after one tap: `course` is the brush's class course, and `ownLabel` names the teacher's time. With a
+ * double shift, a class goes in A weeks in the half-day `shift` names and in B weeks in the other, at `mirror`, the
+ * same place in the other half-day, when the grid has it.
+ */
 export function paint(
   version: TimetableVersion,
   classOf: ClassOf,
@@ -98,10 +105,13 @@ export function paint(
     readonly course?: Course;
     readonly ownLabel: string;
     readonly newId: () => string;
+    readonly shift?: Half;
+    readonly mirror?: Cell;
   },
 ): TimetableVersion {
   const shown = contentOf(version, classOf, cell);
-  const entries = version.entries.filter((entry) => !at(cell)(entry));
+  const mirror = made.shift !== undefined && brush.kind !== 'own' ? made.mirror : undefined;
+  const entries = version.entries.filter((entry) => !at(cell)(entry) && !(mirror !== undefined && at(mirror)(entry)));
   const blocks = version.blocks.filter((block) => !blockCovers(block, cell.weekday, cell.slot));
   const cleared = { ...version, entries, blocks };
   if (brush.kind === 'erase') return cleared;
@@ -118,16 +128,27 @@ export function paint(
   if (shown?.kind === 'class' && shown.classId === brush.classId) return cleared;
   const { schoolClass, course } = made;
   if (schoolClass === undefined || course === undefined) return version;
-  const entry: TimetableEntry = {
+  const entry = (place: Cell, weeks: Weeks): TimetableEntry => ({
     id: made.newId(),
-    weekday: cell.weekday,
-    slot: cell.slot,
+    weekday: place.weekday,
+    slot: place.slot,
     courseId: course.id,
     groupId: wholeGroup(schoolClass).id,
-    weeks: 'every',
+    weeks,
     sessionType: 'lesson',
+  });
+  if (made.shift === undefined) return { ...cleared, entries: [...entries, entry(cell, 'every')] };
+  const weeks: Weeks = cell.slot.half === made.shift ? 'A' : 'B';
+  const added = [entry(cell, weeks), ...(mirror === undefined ? [] : [entry(mirror, weeks === 'A' ? 'B' : 'A')])];
+  return { ...cleared, entries: [...entries, ...added] };
+}
+
+/** The same place in the other half-day, for a double shift. */
+export function mirrorOf(cell: Cell): Cell {
+  return {
+    weekday: cell.weekday,
+    slot: { half: cell.slot.half === 'morning' ? 'afternoon' : 'morning', index: cell.slot.index },
   };
-  return { ...cleared, entries: [...entries, entry] };
 }
 
 /** Each class's sessions in a week, in the order of the classes, and their total. */
