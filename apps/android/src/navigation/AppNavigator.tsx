@@ -25,6 +25,8 @@ import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
 import { TypeList } from '../setup/TypeList';
 import { Week } from '../setup/Week';
+import { Packs } from '../plan/Packs';
+import { Plan } from '../setup/Plan';
 import { Times } from '../times/Times';
 import { WeekDraw } from '../week/WeekDraw';
 import type { Cell } from '../week/week-rules';
@@ -45,6 +47,8 @@ export type RootStackParamList = {
   Week: undefined;
   WeekDraw: { slot?: Cell } | undefined;
   Times: undefined;
+  Plan: undefined;
+  Packs: { grade: string; subject: string };
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -138,6 +142,16 @@ export function AppNavigator({
           name="WeekDraw"
           component={WeekDrawScreen}
           options={{ title: t('week.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Plan"
+          component={PlanScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Packs"
+          component={PacksScreen}
+          options={{ title: t('plan.packsTitle'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
@@ -240,16 +254,31 @@ function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList
   );
 }
 
-/** Setup's fourth step; bell times and plans come with #29 and #30, so it leads to the tabs for now. */
+/** Setup's fourth step; it leads to the plan. */
 function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Week'>) {
   return (
     <Week
       onDraw={() => navigation.navigate('WeekDraw')}
       onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
       onTimes={() => navigation.navigate('Times')}
-      onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+      onNext={() => navigation.navigate('Plan')}
     />
   );
+}
+
+/** Setup's last step; the September check comes with #31, so it leads to the tabs for now. */
+function PlanScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Plan'>) {
+  return (
+    <Plan
+      onChange={(group) => navigation.navigate('Packs', { grade: group.grade, subject: group.subject })}
+      onFinish={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+    />
+  );
+}
+
+/** A grade and subject's packs; pinning or cancelling returns to the plan. */
+function PacksScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Packs'>) {
+  return <Packs grade={route.params.grade} subject={route.params.subject} onDone={() => navigation.goBack()} />;
 }
 
 /** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */

@@ -317,5 +317,54 @@
     "save": "Save",
     "reset": "Template's time",
     "bySchool": "The school's time"
+  },
+  "plan": {
+    "heading": "Plan and calendar",
+    "intro": "The plan pack proposes each session's lesson. The class stays on the pinned release until another is chosen.",
+    "group": "{{subject}} · {{grade}}",
+    "status": {
+      "official": "Official plan",
+      "in-force": "Edition in force",
+      "latest-found": "Latest edition found",
+      "stale": "Stale plan",
+      "community": "Community plan",
+      "example": "Example to try"
+    },
+    "meaning": {
+      "official": "Published by the issuing authority itself, through Minhajna.",
+      "in-force": "Keyed by Minhajna's curators, and an official text confirms this edition applies this year.",
+      "latest-found": "The newest edition found, keyed and checked. Check with your inspector.",
+      "stale": "A later decision changed the subject's hours or content: nothing is proposed from it, and typing the items still works.",
+      "community": "A teacher's or a district's plan, reviewed before publishing, and credited with its authors' consent. Not official.",
+      "example": "A made-up pack to try the app, not a plan. Real plans come in Minhajna's packs."
+    },
+    "anchor": {
+      "weeks": "Timing: by weeks",
+      "hours": "Timing: hours per item",
+      "sessions": "Timing: sessions per item",
+      "hybrid": "Timing: sessions per item, with weekly targets"
+    },
+    "release": "Release {{release}}",
+    "provenance": "Based on: {{edition}}, {{issuer}}. Check with your inspector.",
+    "change": "Change the pack",
+    "choose": "Choose a pack",
+    "notPinned": "No pack pinned yet.",
+    "pinnedFor": "Pinned for",
+    "pin": "{{name}} · {{release}}",
+    "noPack": "No pack: type the items",
+    "noPackSub": "You type the items, and the book works as with a pack: each session proposes the next item.",
+    "noPacksYet": "No pack for this subject and year yet. You type the items, and the book works as with a pack.",
+    "free": "{{name}} · no pack",
+    "calendar": "National calendar {{year}}",
+    "bundled": "Built in",
+    "calendarSub": "Holidays, national days and exam weeks, shipped with the app, with no internet.",
+    "finish": "Finish setup",
+    "packsTitle": "Change the pack",
+    "packsIntro": "Each pack for {{group}}, with its status, edition and source.",
+    "statuses": "What each status means",
+    "pinFor": "Pin for",
+    "pinNote": "Each class stays on the pinned release until another is chosen.",
+    "pinButton": "Pin the pack",
+    "noClass": "Choose at least one class."
   }
 }

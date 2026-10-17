@@ -36,7 +36,7 @@ function shown(tree: ReactTestRenderer.ReactTestRenderer): unknown[] {
   return tree.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
 }
 
-test("reads Algeria's bundled profile, 2026/27 calendar and bell times through the core", () => {
+test("reads Algeria's bundled profile, 2026/27 calendar, bell times and packs through the core", () => {
   const reference = readReference(bundledReference);
 
   expect(reference.ok ? [] : reference.problems).toEqual([]);
@@ -45,12 +45,27 @@ test("reads Algeria's bundled profile, 2026/27 calendar and bell times through t
   expect(reference.calendar.year.from).toBe('2026-09-21');
   expect(reference.calendar.year.to).toBe('2027-07-08');
   expect(reference.bells.templates.map((template) => template.level)).toEqual(['cem', 'lycee']);
+  expect(reference.packs.map((pack) => pack.id)).toEqual([
+    'dz.cem.1am.math.example',
+    'dz.cem.4am.arabic.example',
+    'dz.primary.5ap.arabic.example',
+  ]);
+  expect(reference.refusedPacks).toBe(0);
 });
 
 test('shows the navigation preview when the data and history read', async () => {
   const tree = await render();
   expect(tree.root.findAllByType(AppNavigator)).toHaveLength(1);
   expect(shown(tree)).not.toContain(text.referenceRefused);
+});
+
+test('leaves out a refused plan pack on its own, and keeps the rest of the data', () => {
+  const [first, ...rest] = bundledReference.packs;
+  const reference = readReference({ ...bundledReference, packs: [{ ...(first as object), format: 2 }, ...rest] });
+  expect(reference.ok).toBe(true);
+  if (!reference.ok) return;
+  expect(reference.packs).toHaveLength(2);
+  expect(reference.refusedPacks).toBe(1);
 });
 
 describe('a refused file', () => {
