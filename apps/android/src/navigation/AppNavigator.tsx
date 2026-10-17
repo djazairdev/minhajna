@@ -22,6 +22,8 @@ import { Welcome } from './Welcome';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Card } from '../setup/Card';
+import { Classes } from '../setup/Classes';
+import { TypeList } from '../setup/TypeList';
 import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
@@ -34,6 +36,8 @@ export type RootStackParamList = {
   Privacy: undefined;
   Teaching: undefined;
   Card: undefined;
+  Classes: undefined;
+  TypeList: { classId: string; name: string };
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -104,6 +108,19 @@ export function AppNavigator({
           name="Card"
           component={CardScreen}
           options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="Classes"
+          component={ClassesScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="TypeList"
+          component={TypeListScreen}
+          options={({ route }) => ({
+            title: t('setup.typeTitle', { name: route.params.name }),
+            statusBarStyle: 'dark',
+          })}
         />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
@@ -190,9 +207,24 @@ function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackParamLis
   return <Teaching onNext={() => navigation.navigate('Card')} />;
 }
 
-/** Setup's second step; the classes come with #27, so it leads to the tabs for now. */
+/** Setup's second step, which leads to the classes. */
 function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
-  return <Card onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })} />;
+  return <Card onNext={() => navigation.navigate('Classes')} />;
+}
+
+/** Setup's third step; the week comes with #28, so it leads to the tabs for now. */
+function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Classes'>) {
+  return (
+    <Classes
+      onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
+      onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+    />
+  );
+}
+
+/** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
+function TypeListScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TypeList'>) {
+  return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
 }
 
 /** The same notice, from Help. */

@@ -1,0 +1,85 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// «إضافة قسم» on Setup-4-Classes (#27): the school, when there are several,
+// the year among that school's levels, and the class's name as the school
+// writes it, such as 4م3. The class is saved when it is added.
+
+import type { School, SchoolClass } from '@minhajna/core';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Button } from '../components/Button';
+import { ChipGroup } from '../components/Chip';
+import { TextField } from '../components/TextField';
+import { colors, radius, spacing } from '../design/tokens';
+import { useAppData } from '../storage/AppData';
+import { useText } from '../text/i18n';
+import { gradesFor, newClass } from './class-rules';
+import { localized } from './names';
+
+/** The form, open until the class is added or the teacher cancels. */
+export function AddClass({ schools, onDone }: { schools: readonly School[]; onDone: (added?: SchoolClass) => void }) {
+  const t = useText();
+  const { profile, record, newId } = useAppData();
+  const [schoolId, setSchoolId] = useState<string | null>(schools[0]?.id ?? null);
+  const [grade, setGrade] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const school = schools.find((candidate) => candidate.id === schoolId);
+  const grades = school ? gradesFor(profile, school) : [];
+  const chosen = grades.find((choice) => choice.grade.code === grade);
+  const ready = school !== undefined && chosen !== undefined && name.trim() !== '';
+  const add = () => {
+    if (!ready) return;
+    const schoolClass = newClass({ id: newId(), groupId: newId() }, school, chosen, name);
+    record({ kind: 'class.set', schoolClass });
+    onDone(schoolClass);
+  };
+  return (
+    <View testID="add-class" style={styles.card}>
+      {schools.length > 1 && (
+        <ChipGroup
+          testID="class-school"
+          label={t('setup.school')}
+          choices={schools.map((candidate) => ({ value: candidate.id, label: candidate.name }))}
+          selected={schoolId}
+          onSelect={(id) => {
+            setSchoolId(id);
+            setGrade(null);
+          }}
+        />
+      )}
+      <ChipGroup
+        testID="class-grade"
+        label={t('setup.grade')}
+        choices={grades.map((choice) => ({ value: choice.grade.code, label: localized(choice.grade.name) }))}
+        selected={grade}
+        onSelect={setGrade}
+      />
+      <TextField
+        testID="class-name"
+        label={t('setup.className')}
+        placeholder={t('setup.classNamePlaceholder')}
+        value={name}
+        onChangeText={setName}
+        onSubmitEditing={add}
+        returnKeyType="done"
+      />
+      <View style={styles.actions}>
+        <Button testID="class-add" variant="soft" label={t('setup.add')} disabled={!ready} onPress={add} />
+        <Button testID="class-cancel" variant="plain" label={t('setup.cancel')} onPress={() => onDone()} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    gap: spacing['space-16'],
+    padding: spacing['space-14'],
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radius['radius-card'],
+    backgroundColor: colors.sheet,
+  },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-8'] },
+});
