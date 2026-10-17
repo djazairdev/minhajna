@@ -9,7 +9,7 @@ import { BackHandler, Image, Text, TextInput } from 'react-native';
 import type { GestureResponderEvent, ImageProps, PressableProps, TextInputProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
-import { openTestData, withData } from '../jest/app-data';
+import { openTestData, withData, type TestData } from '../jest/app-data';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -21,6 +21,7 @@ jest.mock(
 );
 
 let tree: ReactTestRenderer.ReactTestRenderer;
+let data: TestData;
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree.unmount());
@@ -29,7 +30,7 @@ afterEach(async () => {
 });
 
 async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
-  const data = await openTestData();
+  data = await openTestData();
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(withData(data, <AppNavigator direction={direction} />));
   });
@@ -56,7 +57,10 @@ async function finishSetup() {
   expect(heading()).toEqual([text.setup.title, 'الخطوة 4 من 5']);
   await press(byTestID('week-next'));
   expect(heading()).toEqual([text.setup.title, 'الخطوة 5 من 5']);
+  expect(data.book.state.setupFinished).toBe(false);
   await press(byTestID('plan-finish'));
+  await ReactTestRenderer.act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+  expect(data.book.state.setupFinished).toBe(true);
   expect(tree.root.findAllByProps({ testID: 'ready-kept' })).not.toEqual([]);
   await press(byTestID('ready-today'));
 }

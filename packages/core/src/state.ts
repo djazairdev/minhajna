@@ -69,6 +69,8 @@ export interface State {
   readonly seating: ReadonlyMap<string, SeatingPlan>;
   /** The counting rules the teacher set, or null for the defaults. */
   readonly counting: CountingRules | null;
+  /** Whether the teacher has finished setup once. */
+  readonly setupFinished: boolean;
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -120,6 +122,7 @@ export function buildState(entries: readonly Entry[]): State {
   const rollCalls = new Map<string, Version<RollCall>[]>();
   const seating = new Map<string, SeatingPlan>();
   let counting: CountingRules | null = null;
+  let setupFinished = false;
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -183,6 +186,9 @@ export function buildState(entries: readonly Entry[]): State {
       case 'counting.set':
         counting = event.rules;
         break;
+      case 'setup.finished':
+        setupFinished = true;
+        break;
     }
   }
 
@@ -203,6 +209,7 @@ export function buildState(entries: readonly Entry[]): State {
     rollCalls,
     seating,
     counting,
+    setupFinished,
   };
 }
 
@@ -259,6 +266,7 @@ function currentRecords(state: State): RecordEvent[] {
   }
   for (const plan of state.seating.values()) records.push({ kind: 'seating.set', plan });
   if (state.counting !== null) records.push({ kind: 'counting.set', rules: state.counting });
+  if (state.setupFinished) records.push({ kind: 'setup.finished' });
   return records;
 }
 

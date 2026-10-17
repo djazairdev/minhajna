@@ -7,7 +7,8 @@
 // must both verify before navigation opens. Until then, or on a refusal, the
 // offline welcome page shows, with no record contents. It starts from the
 // insets known at launch, so the first frame is drawn at once. Once both are
-// open, the screens reach the record book and the profile through AppData.
+// open, the screens reach the record book and the profile through AppData,
+// and the app opens on Today once setup has been finished (#183).
 // Once the history is open or refused, the app tells Android its first screen
 // with content is drawn, so a start can be timed on any phone. In development
 // every problem in the reference data is logged, for whoever keys it; teachers
@@ -63,7 +64,7 @@ export default function App({
           packs={reference.packs}
           random={random}
         >
-          <AppNavigator />
+          <AppNavigator initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'} />
         </AppDataProvider>
       ) : (
         <Welcome referenceRefused={!reference.ok} historyRefused={history === 'refused'} />
