@@ -513,7 +513,7 @@
   "entry": {
     "title": "Détails de la séance",
     "open": "Détails de la séance",
-    "unavailable": "Cette séance n’attend pas de confirmation. Ce qui a été enregistré se corrige sur sa propre page.",
+    "unavailable": "Cette séance ne peut pas s’ouvrir ici.",
     "book": "Ainsi l’écrira le cahier de textes",
     "type": "Type de séance",
     "stages": "Étapes réalisées",
@@ -552,5 +552,29 @@
     "choose": "Choisir cette leçon",
     "kept": "Ce que vous choisissez s’écrit dans le cahier de textes à la place de la proposition. « {{item}} » reste en tête de sa liste et sera proposé le {{day}}.",
     "keptNext": "Ce que vous choisissez s’écrit dans le cahier de textes à la place de la proposition. « {{item}} » reste en tête de sa liste et sera proposé à la prochaine séance."
+  },
+  "fix": {
+    "open": "Corriger",
+    "title": "Correction : la première version reste dans le registre",
+    "promise": "Toute séance peut être corrigée à tout moment. La correction s’ajoute à la date du jour, et rien n’est effacé.",
+    "recorded": "Telle qu’enregistrée pour le cahier de textes",
+    "reasonLabel": "Motif de la correction (facultatif)",
+    "reasons": {
+      "none": "Sans motif",
+      "added-later": "Ajouté après confirmation",
+      "entry-error": "Erreur de saisie",
+      "other": "Autre motif"
+    },
+    "reasonText": "Le motif, en bref",
+    "reasonNote": "Le type de motif figure avec la correction, dans les corrections du cahier et le journal d’activité. Les mots d’un « autre motif » restent sur vos appareils ; n’y écrivez rien sur un élève.",
+    "log": "Ajouté au journal d’activité",
+    "change": "{{field}} : était {{before}}, devient {{after}}",
+    "added": "Ajouté le {{day}}, sans heure.",
+    "paper": "Si la séance a été recopiée dans le cahier papier, corrigez-la aussi et signez.",
+    "save": "Enregistrer la correction",
+    "lesson": "Leçon",
+    "none": "rien",
+    "yes": "oui",
+    "no": "non"
   }
 }

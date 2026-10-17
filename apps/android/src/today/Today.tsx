@@ -139,6 +139,7 @@ export function Today({ onHelp, onDetails }: { onHelp: () => void; onDetails: (s
           meta={metaOf(item, true)}
           written={writtenOf(t, pack, item.record, comma)}
           where={t('today.recorded')}
+          show={{ id: 'fix', label: t('fix.open'), onPress: () => onDetails(item.session) }}
         />
       );
     }

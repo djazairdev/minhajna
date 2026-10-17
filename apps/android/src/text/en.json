@@ -501,7 +501,7 @@
   "entry": {
     "title": "Session details",
     "open": "Session details",
-    "unavailable": "This session is not awaiting confirmation. What was recorded is corrected on its own page.",
+    "unavailable": "This session cannot be opened here.",
     "book": "How the texts book will take it",
     "type": "Session type",
     "stages": "Stages covered",
@@ -540,5 +540,29 @@
     "choose": "Choose this lesson",
     "kept": "What you choose is written in the texts book instead of the proposal. “{{item}}” stays first on its list and is proposed on {{day}}.",
     "keptNext": "What you choose is written in the texts book instead of the proposal. “{{item}}” stays first on its list and is proposed next session."
+  },
+  "fix": {
+    "open": "Correct",
+    "title": "Correction: the first version stays in the record",
+    "promise": "Any session can be corrected at any time. The correction is added with today’s date, and nothing is deleted.",
+    "recorded": "As recorded for the texts book",
+    "reasonLabel": "Reason for the correction (optional)",
+    "reasons": {
+      "none": "No reason",
+      "added-later": "Added after confirming",
+      "entry-error": "Entry error",
+      "other": "Another reason"
+    },
+    "reasonText": "The reason, briefly",
+    "reasonNote": "The kind of reason shows with the correction, in the book’s corrections and the activity log. The words of “another reason” stay on your devices only; write nothing about a pupil there.",
+    "log": "Added to the activity log",
+    "change": "{{field}}: was {{before}}, becomes {{after}}",
+    "added": "Added on {{day}}, with no time of day.",
+    "paper": "If the session was copied into the paper book, correct it there too and sign it.",
+    "save": "Save the correction",
+    "lesson": "Lesson",
+    "none": "nothing",
+    "yes": "yes",
+    "no": "no"
   }
 }
