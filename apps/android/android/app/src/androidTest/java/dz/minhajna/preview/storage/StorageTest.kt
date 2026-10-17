@@ -123,7 +123,7 @@ class StorageTest {
     assertTrue(db.pragma("cipher_version")!!.startsWith("4.19."))
     assertEquals("libtomcrypt", db.pragma("cipher_provider"))
     db.append(row(0))
-    assertEquals("2", db.pragma("synchronous"))
+    assertEquals("3", db.pragma("synchronous"))
     assertEquals("1", db.pragma("secure_delete"))
     assertEquals("delete", db.pragma("journal_mode"))
     db.close()
