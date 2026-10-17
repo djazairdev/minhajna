@@ -14,6 +14,12 @@ import { sourceUrl } from '../src/help/SourceLink';
 import { sizes } from '../src/design/tokens';
 import text from '../src/text/ar.json';
 import { i18n } from '../src/text/i18n';
+import { openTestData, withData, type TestData } from '../jest/app-data';
+
+let navData: TestData;
+beforeEach(async () => {
+  navData = await openTestData();
+});
 
 jest.mock(
   'react-native-safe-area-context',
@@ -59,7 +65,7 @@ async function press(label: string) {
 
 async function openLicences(direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(async () => {
-    tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction={direction} />);
+    tree = ReactTestRenderer.create(withData(navData, <AppNavigator initialRouteName="Home" direction={direction} />));
     await Promise.resolve();
   });
   await press(text.help.title);

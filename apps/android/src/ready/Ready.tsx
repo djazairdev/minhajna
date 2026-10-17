@@ -5,7 +5,7 @@
 // and subject before its term's exams, and the next session with what the
 // plan proposes for it. The printed check for an inspector comes with #44.
 
-import { addDays, bellTimes, findSessionType, formatDayWithMonth, hoursOn, weekday, type Day } from '@minhajna/core';
+import { addDays, findSessionType, formatDayWithMonth, weekday, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -20,19 +20,11 @@ import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
-import { levelOf, shiftOf, timesSchools } from '../times/times-rules';
+import { coreContext } from '../storage/core-context';
+import { sessionTime, timesSchools } from '../times/times-rules';
 import { isolate } from '../week/grid-labels';
 import { CheckTable } from './CheckTable';
-import {
-  startDay,
-  checkGroups,
-  checkTerm,
-  nextSession,
-  readyContext,
-  spareOf,
-  weekMinutes,
-  type CheckGroup,
-} from './ready-rules';
+import { startDay, checkGroups, checkTerm, nextSession, spareOf, weekMinutes, type CheckGroup } from './ready-rules';
 
 /** The end of setup; `onDone` opens the day's page. */
 export function Ready({ onDone }: { onDone: () => void }) {
@@ -47,7 +39,7 @@ export function Ready({ onDone }: { onDone: () => void }) {
   const day = today();
 
   const { context, groups, checks, next } = useMemo(() => {
-    const made = readyContext({ profile, year, calendar, packs, state });
+    const made = coreContext({ profile, year, calendar, packs, state });
     const start = startDay(year, day);
     const term = checkTerm(year, start);
     const all = planGroups(state);
@@ -125,11 +117,7 @@ export function Ready({ onDone }: { onDone: () => void }) {
     if (next === null) return null;
     const { session, schoolClass } = next;
     const school = state.schools.get(schoolClass.schoolId);
-    const hours = hoursOn([...calendar, ...state.calendar], session.day);
-    const time =
-      school === undefined
-        ? null
-        : (bellTimes(bells, school, levelOf(school) ?? '', shiftOf(state), hours, [session.slot])[0] ?? null);
+    const time = sessionTime({ bells, calendar, state }, school, session.slot, session.day);
     const what =
       next.proposal ?? (next.sessionType === null ? null : localized(findSessionType(profile, next.sessionType).name));
     return (

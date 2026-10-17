@@ -31,6 +31,12 @@ import { samples } from '../src/gallery/samples';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import { accessibilityProblems } from '../jest/accessibility';
 import type { FakeDevMenu } from '../jest/fake-dev-menu';
+import { openTestData, withData, type TestData } from '../jest/app-data';
+
+let navData: TestData;
+beforeEach(async () => {
+  navData = await openTestData();
+});
 
 jest.mock(
   'react-native-safe-area-context',
@@ -78,7 +84,7 @@ function backArrows(): string[] {
 }
 
 test('opens from the developer menu, with its title in the interface language', async () => {
-  await render(<AppNavigator initialRouteName="Home" direction="rtl" />);
+  await render(withData(navData, <AppNavigator initialRouteName="Home" direction="rtl" />));
   const open = (DevSettings as unknown as FakeDevMenu).items.get(GALLERY_MENU_ITEM);
   expect(open).toBeDefined();
   await ReactTestRenderer.act(() => {

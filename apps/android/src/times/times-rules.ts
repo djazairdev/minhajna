@@ -4,7 +4,20 @@
 // The rules behind Settings-times (#29): which school and level the times
 // are for, the teacher's shift, and a time as the teacher types it.
 
-import { CLOCK, clockMinutes, type School, type Shift, type State } from '@minhajna/core';
+import {
+  bellTimes,
+  CLOCK,
+  clockMinutes,
+  hoursOn,
+  type BellData,
+  type BellTime,
+  type CalendarEntry,
+  type Day,
+  type School,
+  type Shift,
+  type Slot,
+  type State,
+} from '@minhajna/core';
 
 /** The schools that have classes, in the order they were added, or every school when none has. */
 export function timesSchools(state: State): School[] {
@@ -40,4 +53,16 @@ export function readSpan(from: string, to: string): { readonly from: string; rea
   const end = readClock(to);
   if (start === null || end === null || clockMinutes(end) <= clockMinutes(start)) return null;
   return { from: start, to: end };
+}
+
+/** A session's bell time at its school on its day, Ramadan's when it falls then; null when no template or own time gives one. */
+export function sessionTime(
+  data: { readonly bells: BellData; readonly calendar: readonly CalendarEntry[]; readonly state: State },
+  school: School | undefined,
+  slot: Slot,
+  day: Day,
+): BellTime | null {
+  if (school === undefined) return null;
+  const hours = hoursOn([...data.calendar, ...data.state.calendar], day);
+  return bellTimes(data.bells, school, levelOf(school) ?? '', shiftOf(data.state), hours, [slot])[0] ?? null;
 }

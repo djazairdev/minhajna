@@ -6,6 +6,7 @@
 // each state the app has and in each language, and anything shown that no
 // entry of that language produces fails the test, an Arabic fallback included.
 
+import { formatDayWithMonth, parseDay } from '@minhajna/core';
 import i18next from 'i18next';
 import type { ReactElement } from 'react';
 import { Text } from 'react-native';
@@ -15,6 +16,12 @@ import { AppNavigator } from '../src/navigation/AppNavigator';
 import { Welcome } from '../src/navigation/Welcome';
 import { catalogues, currentLanguage, i18n, missingKeys, type Language } from '../src/text/i18n';
 import { installPluralRules } from '../src/text/plural-rules';
+import { openTestData, withData, type TestData } from '../jest/app-data';
+
+let navData: TestData;
+beforeEach(async () => {
+  navData = await openTestData();
+});
 
 jest.mock(
   'react-native-safe-area-context',
@@ -179,13 +186,16 @@ test.each(LANGUAGES)('shows only catalogue texts on the welcome page, refusals i
 
 test.each(LANGUAGES)('shows only catalogue texts on every tab and on the inner screen (%s)', async (language) => {
   await speak(language);
-  const tree = await render(<AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />);
+  const tree = await render(
+    withData(navData, <AppNavigator initialRouteName="Home" direction={language === 'ar' ? 'rtl' : 'ltr'} />),
+  );
+  const day = formatDayWithMonth(parseDay('2026-10-15'), language, navData.profile);
   for (const tab of ['Today', 'Classes', 'Documents']) {
     await press(tree, (props) => props.testID === `tab-${tab}`);
-    expect(notInCatalogue(tree)).toEqual([]);
+    expect(notInCatalogue(tree).filter((text) => text !== day)).toEqual([]);
   }
   await press(tree, (props) => props.accessibilityRole === 'button');
-  expect(notInCatalogue(tree)).toEqual([]);
+  expect(notInCatalogue(tree).filter((text) => text !== day)).toEqual([]);
   expect(missingKeys).toEqual([]);
 });
 

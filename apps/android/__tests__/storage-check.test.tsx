@@ -12,6 +12,12 @@ import { FakeStorageCheck } from '../jest/fake-storage-check';
 import type { FakeDevMenu } from '../jest/fake-dev-menu';
 import { runStorageChecks } from '../src/debug/storage-check';
 import { AppNavigator, STORAGE_CHECK_MENU_ITEM } from '../src/navigation/AppNavigator';
+import { openTestData, withData, type TestData } from '../jest/app-data';
+
+let navData: TestData;
+beforeEach(async () => {
+  navData = await openTestData();
+});
 
 jest.mock(
   'react-native-safe-area-context',
@@ -62,7 +68,7 @@ describe('the storage check', () => {
     const logged = jest.spyOn(console, 'log').mockImplementation(() => {});
     let tree: ReactTestRenderer.ReactTestRenderer | undefined;
     await ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<AppNavigator initialRouteName="Home" direction="ltr" />);
+      tree = ReactTestRenderer.create(withData(navData, <AppNavigator initialRouteName="Home" direction="ltr" />));
     });
     const open = (DevSettings as unknown as FakeDevMenu).items.get(STORAGE_CHECK_MENU_ITEM);
     expect(open).toBeDefined();
