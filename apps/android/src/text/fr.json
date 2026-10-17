@@ -56,5 +56,41 @@
     "ar": "العربية",
     "fr": "Français",
     "en": "English"
+  },
+  "welcome": {
+    "line": "Une séance notée une fois, et tous les documents sont prêts.",
+    "noAccount": "Sans compte ni mot de passe",
+    "offline": "Fonctionne sans internet",
+    "onPhone": "Les données restent sur ce téléphone",
+    "start": "Commencer"
+  },
+  "privacy": {
+    "title": "Avant de commencer",
+    "helpTitle": "Avis de confidentialité",
+    "subtitle": "Avis de confidentialité · Loi 18-07",
+    "heading": "Ce que Minhajna conserve, et où",
+    "intro": "Un court avis avant la première utilisation, toujours disponible dans l’aide.",
+    "phoneTitle": "Sur ce téléphone seulement",
+    "phoneText": "Les listes, l’appel, les notes et les cahiers sont enregistrés chiffrés sur l’appareil. Ni compte ni internet ne sont nécessaires.",
+    "leaveTitle": "Rien ne quitte ce téléphone",
+    "leaveText": "Cette version ne se connecte pas à internet et n’en demande pas l’autorisation. Les données des élèves n’entrent pas dans les sauvegardes du téléphone dans le cloud.",
+    "neverTitle": "Ce qui n’est jamais collecté",
+    "neverText": "Ni santé, ni handicap, ni religion, ni photos des élèves, ni informations sur les parents, ni adresses. Une absence est justifiée ou non, sans en indiquer le motif.",
+    "trackingTitle": "Aucun suivi",
+    "trackingText": "Ni publicité, ni outil d’analyse, ni enregistrement des horaires ou de la position, ni rapport de plantage.",
+    "publisherTitle": "Qui publie l’application",
+    "publisherText": "Le projet libre Minhajna. Cette version ne se connecte à aucun de ses serveurs.",
+    "rightsTitle": "Vos droits",
+    "rightsText": "Consulter ce que le projet conserve sur vous, le faire corriger et supprimer sous 10 jours.",
+    "contact": "Contact : le délégué à la protection des données du projet",
+    "contactName": "[Nom]",
+    "contactAddress": "[Adresse]",
+    "accept": "J’ai compris, commencer"
+  },
+  "connections": {
+    "title": "Ce à quoi l’application se connecte, et pourquoi",
+    "none": "Cette version ne se connecte pas à internet : elle n’en demande pas l’autorisation, n’envoie rien et ne reçoit rien.",
+    "source": "Le lien vers le code source, dans la page des licences, ne s’ouvre qu’après votre confirmation. Votre navigateur l’ouvre hors de l’application, sans aucun dossier ni identifiant.",
+    "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application."
   }
 }

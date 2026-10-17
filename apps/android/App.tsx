@@ -51,7 +51,7 @@ export default function App({
       {reference.ok && history === 'open' ? (
         <AppNavigator />
       ) : (
-        <Welcome standalone referenceRefused={!reference.ok} historyRefused={history === 'refused'} />
+        <Welcome referenceRefused={!reference.ok} historyRefused={history === 'refused'} />
       )}
     </SafeAreaProvider>
   );

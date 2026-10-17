@@ -94,6 +94,7 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
             {options.title}
           </Text>
           {route.name === 'NavigationPreview' && <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>}
+          {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
         </View>
         <View style={styles.back} />
       </View>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 The Minhajna contributors
+  SPDX-License-Identifier: CC-BY-SA-4.0
+
+  A person, crossed out: no account and no password. From the design canvas's 24-unit line icons;
+  the app tints it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M8.5 8a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M5 20c0.8 -3.6 3.6 -5.5 7 -5.5s6.2 1.9 7 5.5M4 4l16 16"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

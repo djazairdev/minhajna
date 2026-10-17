@@ -132,6 +132,11 @@ test.each([
   expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(3);
 });
 
+test('the welcome hero’s line, chalk at 80% on board, reaches 4.5:1', () => {
+  const ground = on(colors.board);
+  expect(contrast(on(colors['chalk-80'], ground), ground)).toBeGreaterThanOrEqual(4.5);
+});
+
 test.each(['paper', 'sheet'] as const)('input error text on %s reaches 4.5:1', (ground) => {
   expect(contrast(on(colors['error-ink']), on(colors[ground]))).toBeGreaterThanOrEqual(4.5);
 });
