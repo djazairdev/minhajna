@@ -712,5 +712,48 @@
     "open": "Règles de décompte",
     "countSeminars": "Compter les journées pédagogiques et séminaires dans la présence possible",
     "countNotHeld": "Compter les séances non tenues dans la présence possible"
+  },
+  "move": {
+    "title": "Arrivée ou départ",
+    "open": "Arrivée ou départ",
+    "scope": "{{class}} · {{pupils}}",
+    "join": "Arrivée",
+    "leave": "Départ",
+    "mode": "Type de mouvement",
+    "name": "Nom et prénom",
+    "namePlaceholder": "Par exemple : Anis Belhadj",
+    "sex": "Sexe",
+    "male": "Garçon",
+    "female": "Fille",
+    "registration": "Numéro d'inscription",
+    "registrationPlaceholder": "Comme dans le dossier officiel",
+    "optional": "Facultatif",
+    "registrationError": "Chiffres seulement",
+    "registrationTaken": "Ce numéro est déjà inscrit pour un autre élève de l'établissement.",
+    "from": "À partir du",
+    "otherDay": "Autre date",
+    "reason": "Motif",
+    "joinReasons": {
+      "transfer": "Transfert d'un autre établissement",
+      "class-change": "Changement de classe dans l'établissement",
+      "other": "Autre motif"
+    },
+    "leaveReasons": {
+      "transfer": "Transfert vers un autre établissement",
+      "class-change": "Changement de classe dans l'établissement",
+      "other": "Autre motif"
+    },
+    "joinNote": "Ajouté en fin de liste sous le numéro {{number}}, comme dans le registre d'appel papier, et appelé à partir de cette date.",
+    "pupil": "Élève",
+    "choose": "Choisir l'élève",
+    "chooseContext": "Dans la liste de la classe",
+    "leaveNote": "Reste sur la liste avec le motif de son départ jusqu'à ce que la confirmation du directeur soit enregistrée.",
+    "save": "Enregistrer",
+    "pending": "En attente de la confirmation du directeur",
+    "left": "Parti le {{day}} · {{reason}}",
+    "confirm": "Confirmé par le directeur",
+    "confirmSpoken": "Enregistrer la confirmation du directeur pour le départ de {{name}}",
+    "awaiting": "Parti le {{day}} · en attente de la confirmation du directeur",
+    "reassurance": "Rien n'est envoyé : le mouvement est votre propre registre."
   }
 }

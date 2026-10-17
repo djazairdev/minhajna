@@ -8,7 +8,8 @@
 // and a tick besides its fill, so colour is never the only signal. A marked
 // row is shaded alt-day. Each toggle reports its state, and its spoken name
 // includes the pupil's. The caller owns the states and saves them. The
-// name may be a button, such as one that opens the pupil's correction.
+// name may be a button, such as one that opens the pupil's correction, and
+// may carry a line under it, such as a departure not yet confirmed.
 
 import { useLocale } from '@react-navigation/native';
 import { memo } from 'react';
@@ -28,6 +29,8 @@ export type RollCallRowProps = {
   readonly onName?: () => void;
   /** The name button's spoken name. */
   readonly nameLabel?: string;
+  /** A line under the name, such as a departure awaiting the director's confirmation. */
+  readonly note?: string;
   readonly testID?: string;
 };
 
@@ -68,19 +71,26 @@ export const RollCallRow = memo(function RollCallRow(props: RollCallRowProps) {
   return (
     <View style={[styles.row, { direction }, (props.absent || props.late) && styles.marked]}>
       <Text style={styles.number}>{props.number}</Text>
-      {props.onName === undefined ? (
-        <Text style={[styles.name, { writingDirection: direction }]}>{props.name}</Text>
-      ) : (
-        <Pressable
-          testID={sub('name')}
-          accessibilityRole="button"
-          accessibilityLabel={props.nameLabel ?? props.name}
-          onPress={props.onName}
-          style={({ pressed }) => [styles.nameButton, pressed && styles.pressed]}
-        >
-          <Text style={[styles.name, styles.link, { writingDirection: direction }]}>{props.name}</Text>
-        </Pressable>
-      )}
+      <View style={styles.who}>
+        {props.onName === undefined ? (
+          <Text style={[styles.name, { writingDirection: direction }]}>{props.name}</Text>
+        ) : (
+          <Pressable
+            testID={sub('name')}
+            accessibilityRole="button"
+            accessibilityLabel={props.nameLabel ?? props.name}
+            onPress={props.onName}
+            style={({ pressed }) => [styles.nameButton, pressed && styles.pressed]}
+          >
+            <Text style={[styles.name, styles.link, { writingDirection: direction }]}>{props.name}</Text>
+          </Pressable>
+        )}
+        {props.note !== undefined && (
+          <Text testID={sub('note')} style={[styles.note, { writingDirection: direction }]}>
+            {props.note}
+          </Text>
+        )}
+      </View>
       <Toggle
         testID={sub('absent')}
         kind="absent"
@@ -115,9 +125,11 @@ const styles = StyleSheet.create({
   },
   marked: { backgroundColor: colors['alt-day'] },
   number: { ...typography['roll-number'], color: colors.ink2, minWidth: 24, textAlign: 'center' },
-  name: { ...typography.body, color: colors.ink, flex: 1, minWidth: 0, textAlign: 'start' },
-  nameButton: { flex: 1, minWidth: 0, minHeight: sizes.target, justifyContent: 'center' },
-  link: { flex: 0, textDecorationLine: 'underline' },
+  name: { ...typography.body, color: colors.ink, textAlign: 'start' },
+  who: { flex: 1, minWidth: 0 },
+  nameButton: { minHeight: sizes.target, justifyContent: 'center' },
+  note: { ...typography.caption, color: colors.ink2, textAlign: 'start' },
+  link: { textDecorationLine: 'underline' },
   toggle: {
     width: 64,
     minHeight: sizes.target,

@@ -16,6 +16,7 @@ import {
   ROLL_CALL_REASONS,
   compareDays,
   formatDay,
+  pendingDeparture,
   pupilsFor,
   takeRollCall,
   type Day,
@@ -43,6 +44,7 @@ import { unitTime } from './roll-labels';
 import {
   counts,
   keepMarks,
+  listNumbers,
   mark,
   noMarks,
   recordedMarks,
@@ -62,6 +64,7 @@ const PupilRow = memo(function PupilRow(props: {
   late: boolean;
   onMark: OnMark;
   onName: ((pupilId: string) => void) | null;
+  note: string | null;
 }) {
   const { pupil, onMark, onName } = props;
   const t = useText();
@@ -74,6 +77,7 @@ const PupilRow = memo(function PupilRow(props: {
       late={props.late}
       onAbsent={(on) => onMark(pupil.id, 'absent', on)}
       onLate={(on) => onMark(pupil.id, 'late', on)}
+      {...(props.note !== null && { note: props.note })}
       {...(onName !== null && {
         onName: () => onName(pupil.id),
         nameLabel: t('correct.open', { name: pupil.name }),
@@ -88,6 +92,7 @@ type RollProps = {
   onDone: () => void;
   onCorrect?: (unit: RollCallUnit, pupilId: string) => void;
   onRules?: () => void;
+  onMove?: (classId: string) => void;
 };
 
 /**
@@ -110,6 +115,7 @@ function RollList({
   onDone,
   onCorrect,
   onRules,
+  onMove,
   context,
   unit,
 }: RollProps & { context: Context; unit: RollCallUnit | null }) {
@@ -119,6 +125,10 @@ function RollList({
   const { state, profile, bells, calendar, today, record } = useAppData();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const pupils = useMemo(() => (unit === null ? [] : pupilsFor(context, unit)), [context, unit]);
+  const numbers = useMemo(
+    () => (unit === null ? new Map<string, number>() : listNumbers(context, unit.classId)),
+    [context, unit],
+  );
   const [recorded] = useState(() => (unit === null ? null : recordedMarks(context, unit)));
   const [marks, setMarks] = useState(() => (unit === null ? noMarks : (startedMarks(unit.key) ?? recorded ?? noMarks)));
   const [reason, setReason] = useState<RollCallReason | null>(null);
@@ -150,6 +160,10 @@ function RollList({
   const absent = new Set(marks.absent.map((absence) => absence.pupilId));
   const late = new Set(marks.late);
   const unchanged = recorded !== null && sameMarks(marks, recorded);
+  const leaverNote = (pupil: Pupil) => {
+    const left = pendingDeparture(pupil);
+    return left === null ? null : t('move.awaiting', { day: dayAndMonth(left.day, language, profile) });
+  };
   const label =
     recorded !== null
       ? t('roll.saveFix')
@@ -196,11 +210,14 @@ function RollList({
         ]}
       />
       <Notice icon={controlIcon('info')} message={t(past ? 'roll.pastHint' : 'roll.hint')} />
-      {onRules !== undefined && (
-        <View style={styles.start}>
+      <View style={styles.links}>
+        {onMove !== undefined && (
+          <Button testID="roll-move" variant="plain" label={t('move.open')} onPress={() => onMove(unit.classId)} />
+        )}
+        {onRules !== undefined && (
           <Button testID="roll-rules" variant="plain" label={t('rules.open')} onPress={onRules} />
-        </View>
-      )}
+        )}
+      </View>
     </View>
   );
   return (
@@ -212,11 +229,12 @@ function RollList({
         renderItem={({ item, index }) => (
           <PupilRow
             pupil={item}
-            number={index + 1}
+            number={numbers.get(item.id) ?? index + 1}
             absent={absent.has(item.id)}
             late={late.has(item.id)}
             onMark={onMark}
             onName={onName}
+            note={leaverNote(item)}
           />
         )}
         ListHeaderComponent={head}
@@ -245,7 +263,7 @@ function RollList({
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   pad: { padding: spacing['space-16'] },
-  start: { alignItems: 'flex-start' },
+  links: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-8'] },
   head: { gap: spacing['space-12'], padding: spacing['space-16'] },
   body: { ...typography.body, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },
