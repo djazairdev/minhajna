@@ -22,6 +22,7 @@ export * from './layers.ts';
 export * from './memory-store.ts';
 export * from './pacing.ts';
 export * from './pack.ts';
+export * from './pack-catalogue.ts';
 export * from './progress.ts';
 export type { ParseProblem, ParseProblemKind, ParseResult } from './read.ts';
 export * from './records.ts';

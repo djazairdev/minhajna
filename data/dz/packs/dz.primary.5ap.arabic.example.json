@@ -1,0 +1,95 @@
+{
+  "format": 1,
+  "id": "dz.primary.5ap.arabic.example",
+  "release": "2026.1",
+  "status": "example",
+  "licence": "full-text",
+  "language": "ar",
+  "anchor": {
+    "kind": "weeks"
+  },
+  "provenance": {
+    "issuer": "Minhajna example, made up to try the app; not a plan",
+    "edition": "example"
+  },
+  "items": [
+    {
+      "id": "w1-1",
+      "kind": "lesson",
+      "title": "قراءة 1 (مثال)",
+      "week": 1,
+      "term": 1,
+      "activity": "reading"
+    },
+    {
+      "id": "w1-2",
+      "kind": "lesson",
+      "title": "كتابة 1 (مثال)",
+      "week": 1,
+      "term": 1,
+      "activity": "writing"
+    },
+    {
+      "id": "w1-3",
+      "kind": "lesson",
+      "title": "تعبير شفوي 1 (مثال)",
+      "week": 1,
+      "term": 1
+    },
+    {
+      "id": "w2-1",
+      "kind": "lesson",
+      "title": "قراءة 2 (مثال)",
+      "week": 2,
+      "term": 1,
+      "activity": "reading"
+    },
+    {
+      "id": "w2-2",
+      "kind": "lesson",
+      "title": "كتابة 2 (مثال)",
+      "week": 2,
+      "term": 1,
+      "activity": "writing"
+    },
+    {
+      "id": "w2-3",
+      "kind": "lesson",
+      "title": "تعبير شفوي 2 (مثال)",
+      "week": 2,
+      "term": 1
+    },
+    {
+      "id": "w3-1",
+      "kind": "lesson",
+      "title": "قراءة 3 (مثال)",
+      "week": 3,
+      "term": 1,
+      "activity": "reading"
+    },
+    {
+      "id": "w3-2",
+      "kind": "lesson",
+      "title": "كتابة 3 (مثال)",
+      "week": 3,
+      "term": 1,
+      "activity": "writing"
+    },
+    {
+      "id": "w3-3",
+      "kind": "lesson",
+      "title": "تعبير شفوي 3 (مثال)",
+      "week": 3,
+      "term": 1
+    },
+    {
+      "id": "w4-b",
+      "kind": "assessment-remediation",
+      "title": "إدماج وتقويم ومعالجة (مثال)",
+      "week": 4,
+      "buffer": true,
+      "term": 1
+    }
+  ],
+  "merges": []
+}
