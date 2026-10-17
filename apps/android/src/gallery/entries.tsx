@@ -15,6 +15,7 @@ import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
+import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -71,6 +72,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'TextField',
     design: 'docs/design/system/components/TextField/README.md',
     render: (sample) => <TextFieldSamples key={sample.title} sample={sample} />,
+  },
+  {
+    name: 'CheckRow',
+    design: 'docs/design/system/components/CheckRow/README.md',
+    render: (sample) => <CheckRowSamples key={sample.title} sample={sample} />,
+  },
+  {
+    name: 'OptionRow',
+    design: 'docs/design/system/components/OptionRow/README.md',
+    render: (sample) => <OptionRowSamples key={sample.title} sample={sample} />,
   },
   {
     name: 'TopBar',

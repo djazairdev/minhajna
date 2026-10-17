@@ -21,6 +21,8 @@ import { PageHeading, type PageHeadingProps } from '../src/components/PageHeadin
 import { SectionHeader } from '../src/components/SectionHeader';
 import { Notice } from '../src/components/Notice';
 import { Snackbar, type SnackbarProps } from '../src/components/Snackbar';
+import { CheckRow } from '../src/components/CheckRow';
+import { OptionRow } from '../src/components/OptionRow';
 import { entries } from '../src/gallery/entries';
 import { samples } from '../src/gallery/samples';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -93,6 +95,8 @@ test.each(
   for (const entry of entries)
     expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
   expect(accessibilityProblems(tree.root)).toEqual([]);
+  expect(tree.root.findAllByType(CheckRow)).toHaveLength(5);
+  expect(tree.root.findAllByType(OptionRow)).toHaveLength(5);
   expect(tree.root.findAllByType(PageHeading).map((node) => (node.props as PageHeadingProps).title)).toEqual([
     samples[language].headings.day,
     samples[language].longHeading,
@@ -222,22 +226,25 @@ test('catches a control TalkBack cannot name, or too small to press', async () =
   ]);
 });
 
-test('checks an inactive button even without an onPress handler', async () => {
-  const { Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
-  await render(
-    <Pressable
-      testID="inactive"
-      disabled
-      accessibilityRole="button"
-      accessibilityState={{ disabled: true }}
-      style={{ width: 20, height: 20 }}
-    />,
-  );
-  expect(accessibilityProblems(tree.root)).toEqual([
-    'inactive: nothing for TalkBack to read',
-    'inactive: smaller than 48dp (20×20)',
-  ]);
-});
+test.each(['button', 'checkbox', 'radio'] as const)(
+  'checks an inactive %s even without an onPress handler',
+  async (role) => {
+    const { Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+    await render(
+      <Pressable
+        testID="inactive"
+        disabled
+        accessibilityRole={role}
+        accessibilityState={{ disabled: true }}
+        style={{ width: 20, height: 20 }}
+      />,
+    );
+    expect(accessibilityProblems(tree.root)).toEqual([
+      'inactive: nothing for TalkBack to read',
+      'inactive: smaller than 48dp (20×20)',
+    ]);
+  },
+);
 
 test('checks a control that holds another, and the one it holds', async () => {
   const { Pressable, Text } = jest.requireActual<typeof import('react-native')>('react-native');

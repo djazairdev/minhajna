@@ -25,12 +25,13 @@ function smallest(style: StyleProp<ViewStyle> | ((state: { pressed: boolean }) =
   return { height: size(flat.height, flat.minHeight), width: size(flat.width, flat.minWidth) };
 }
 
-/** Include inactive buttons too; their native state must not hide a missing name or target. */
+/** Include inactive choice controls too; their native state must not hide a missing name or target. */
 function isControl(node: ReactTestInstance): boolean {
   const props = node.props as PressableProps;
   return (
     typeof props.onPress === 'function' ||
-    (props.accessibilityRole === 'button' && props.accessibilityState?.disabled === true)
+    (['button', 'checkbox', 'radio'].includes(props.accessibilityRole ?? '') &&
+      props.accessibilityState?.disabled === true)
   );
 }
 
