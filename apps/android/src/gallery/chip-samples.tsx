@@ -12,12 +12,17 @@ import { fill, type SampleProps } from './samples';
 type Type = 'ordinary' | 'revision' | 'assessment';
 type Level = 'primary' | 'middle' | 'secondary' | 'long';
 
-/** One choice, several with a hint, and a long label behind «more» that wraps; selections stay in this sample. */
+/**
+ * One choice, several with a hint, a long label behind «more» that wraps, and
+ * short two-word labels that must never wrap out of sight (#185); selections
+ * stay in this sample.
+ */
 export function ChipSamples({ language }: SampleProps) {
   const text = chipTexts[language];
   const [type, setType] = useState<Type | null>('ordinary');
   const [levels, setLevels] = useState<Level[]>(['middle']);
   const [all, setAll] = useState(false);
+  const [pair, setPair] = useState<string | null>(null);
   const types = (['ordinary', 'revision', 'assessment'] as const).map((value, at) => ({
     value,
     label: text.types[at],
@@ -38,6 +43,13 @@ export function ChipSamples({ language }: SampleProps) {
         selected={levels}
         onSelect={setLevels}
         more={all ? undefined : { label: text.more, onPress: () => setAll(true) }}
+      />
+      <ChipGroup
+        testID="chip-pair"
+        label={text.pair}
+        choices={text.pairs.map((label) => ({ value: label, label }))}
+        selected={pair}
+        onSelect={setPair}
       />
     </View>
   );

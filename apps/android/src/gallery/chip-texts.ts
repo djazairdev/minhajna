@@ -14,6 +14,9 @@ export type ChipTexts = {
   readonly levelHint: string;
   readonly long: string;
   readonly more: string;
+  /** Short two-word labels that hug their text, for #185. */
+  readonly pair: string;
+  readonly pairs: readonly string[];
   readonly step: string;
 };
 
@@ -27,6 +30,8 @@ export const chipTexts: Readonly<Record<Language, ChipTexts>> = {
     levelHint: 'يمكن اختيار أكثر من مستوى.',
     long: 'التربية العلمية والتكنولوجية مع الأفواج الصغيرة',
     more: 'مستويات أخرى',
+    pair: 'كلمتان قصيرتان',
+    pairs: ['تاريخ آخر', 'سبب آخر', 'يوم آخر', 'قسم آخر', 'اسم آخر', 'وقت آخر', 'فوج آخر'],
     step: 'الخطوة {{step}} من {{count}}',
   },
   fr: {
@@ -37,6 +42,8 @@ export const chipTexts: Readonly<Record<Language, ChipTexts>> = {
     levelHint: 'Vous pouvez choisir plusieurs niveaux.',
     long: 'Éducation scientifique et technologique en petits groupes',
     more: 'Autres niveaux',
+    pair: 'Deux mots courts',
+    pairs: ['Autre date', 'Autre motif', 'Autre jour', 'Autre classe', 'Autre nom', 'Autre heure', 'Autre groupe'],
     step: 'Étape {{step}} sur {{count}}',
   },
   en: {
@@ -47,6 +54,8 @@ export const chipTexts: Readonly<Record<Language, ChipTexts>> = {
     levelHint: 'You can choose more than one level.',
     long: 'Science and technology with small groups',
     more: 'Other levels',
+    pair: 'Two short words',
+    pairs: ['Another date', 'Other reason', 'Another day', 'Other class', 'Other name', 'Other time', 'Other group'],
     step: 'Step {{step}} of {{count}}',
   },
 };
