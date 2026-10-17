@@ -109,6 +109,14 @@ test('option explanations on the pressed ground reach 4.5:1', () => {
   expect(contrast(on(colors.ink2), on(colors.soft))).toBeGreaterThanOrEqual(4.5);
 });
 
+test.each([colors.rule, colors.sheet])('the switch thumb edge contrasts with %s by at least 3:1', (ground) => {
+  expect(contrast(on(colors.board), on(ground))).toBeGreaterThanOrEqual(3);
+});
+
+test('the switch thumb fill on its on-track reaches 3:1', () => {
+  expect(contrast(on(colors.sheet), on(colors.board))).toBeGreaterThanOrEqual(3);
+});
+
 test.each([
   ['notice instruction', colors.ink, colors.notice],
   ['notice badge', colors['notice-ink'], colors['notice-strong']],

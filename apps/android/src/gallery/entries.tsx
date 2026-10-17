@@ -15,6 +15,8 @@ import type { ReactNode } from 'react';
 import { TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
 import { ChipSamples, SetupStepsSamples } from './chip-samples';
+import { SwitchSamples } from './switch-samples';
+import { StepperSamples } from './stepper-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
@@ -78,6 +80,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'Facts',
     design: 'docs/design/system/components/Facts/README.md',
     render: () => <FactsSamples />,
+  },
+  {
+    name: 'Switch',
+    design: 'docs/design/system/components/Switch/README.md',
+    render: (sample, language) => <SwitchSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'Stepper',
+    design: 'docs/design/system/components/Stepper/README.md',
+    render: (sample, language) => <StepperSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'Notice',
