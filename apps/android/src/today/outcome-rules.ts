@@ -1,17 +1,23 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The rules behind «نتيجة أخرى» (#32, Sheet, Sheet-nostage, Sheet-reason):
-// the stages a session may have reached, the item after the proposed one,
-// the last item taught before, and the reasons a teacher may give. Stages,
-// not percentages (PRD §4.7); a reason stays private (PRD §3.3, §5.4).
+// The rules behind «نتيجة أخرى» (#32, #33, Sheet, Sheet-nostage,
+// Sheet-reason): the stages a session may have reached, the item after the
+// proposed one, the last item taught before, the reasons a teacher may give,
+// and where what is left goes on, by its day. Stages, not percentages
+// (PRD §4.7); a reason stays private (PRD §3.3, §5.4).
 
 import {
   compareDays,
+  findSessionType,
   compareSlots,
   current,
   queueItems,
   REASONS,
+  weekday,
+  type CarryTo,
+  type CountryProfile,
+  type Day,
   type PackItem,
   type PlanPack,
   type Proposal,
@@ -20,6 +26,10 @@ import {
   type SessionRef,
   type State,
 } from '@minhajna/core';
+import { localized } from '../setup/names';
+import type { Language, useText } from '../text/i18n';
+
+type Translate = ReturnType<typeof useText>;
 
 /** A stage the session may have reached, and the stage count that makes covered. */
 export interface StageChoice {
@@ -67,3 +77,37 @@ export function previousItem(state: State, pack: PlanPack | null, session: Sessi
 export type ReasonChoice = 'none' | Reason;
 
 export const REASON_CHOICES: readonly ReasonChoice[] = ['none', ...REASONS];
+
+/** A day as the sheet names it, such as «الإثنين 09/11». */
+export function shortDay(t: Translate, day: Day): string {
+  return `${t(`week.days.${weekday(day)}`)} ${day.slice(8, 10)}/${day.slice(5, 7)}`;
+}
+
+/** Where what is left goes on, in words: «حصة الإثنين 09/11», and «، لا في فرض الأحد 08/11» when it passes one over. */
+export interface CarryWords {
+  readonly at: string;
+  readonly not: string;
+  readonly day: string;
+}
+
+export function carryWords(
+  t: Translate,
+  profile: CountryProfile,
+  language: Language,
+  { next, passed }: CarryTo,
+): CarryWords | null {
+  if (next === null) return null;
+  const day = shortDay(t, next.day);
+  const td = findSessionType(profile, next.sessionType).queue === 'td';
+  const name = passed && localized(findSessionType(profile, passed.sessionType).name);
+  return {
+    day,
+    at: t(td ? 'outcome.atTd' : 'outcome.at', { day }),
+    not: passed
+      ? t('outcome.notIn', {
+          type: language === 'ar' ? name : name?.toLocaleLowerCase(language),
+          day: shortDay(t, passed.day),
+        })
+      : '',
+  };
+}

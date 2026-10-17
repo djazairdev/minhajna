@@ -13,6 +13,7 @@
 // sheet, note included. The session's details come with their own screen.
 
 import {
+  carryTo,
   confirmSessions,
   courseSetup,
   current,
@@ -42,7 +43,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
 import { slotSpoken } from '../week/grid-labels';
-import { nextItem, previousItem } from './outcome-rules';
+import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
 
@@ -109,7 +110,7 @@ export function Today({ onHelp }: { onHelp: () => void }) {
   const keepReason = (item: TodaySession, reason: Reason | undefined, text: string | undefined) => {
     const key = item.session.key;
     const earlier = state.notes.get(key);
-    if (reason === undefined && earlier?.reason === undefined && earlier?.reasonText === undefined) return;
+    if (earlier?.reason === reason && earlier?.reasonText === text) return;
     record({
       kind: 'session.noted',
       note: {
@@ -198,6 +199,7 @@ export function Today({ onHelp }: { onHelp: () => void }) {
           proposal={sheet.item.proposal}
           next={nextItem(courseSetup(context, sheet.item.course.id).pack, sheet.item.proposal.item)}
           previous={previousItem(state, courseSetup(context, sheet.item.course.id).pack, sheet.item.session)}
+          carry={carryWords(t, profile, language, carryTo(context, sheet.item.session))}
           returnFocusRef={other}
           onClose={() => setSheet({ ...sheet, open: false })}
           onChoose={(choice) => confirm(sheet.item, choice)}

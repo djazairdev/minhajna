@@ -443,6 +443,7 @@
     "notHeld": "Séance non tenue",
     "recorded": "Enregistrée pour le cahier de textes",
     "skipped": "Passée : {{title}}",
+    "notHeldMakeUp": "Séance non tenue · à rattraper",
     "snack": "Séance enregistrée pour le cahier de textes",
     "undo": "Annuler",
     "undone": "Enregistrement annulé : la séance attend la confirmation.",
@@ -492,6 +493,21 @@
     "back": "Autre résultat",
     "done": "Terminé",
     "snackPartial": "Séance enregistrée ; le reste se poursuit à la prochaine séance",
-    "snackNotHeld": "« Séance non tenue » enregistrée"
+    "snackNotHeld": "« Séance non tenue » enregistrée",
+    "at": "la séance du {{day}}",
+    "atTd": "la séance de travaux dirigés du {{day}}",
+    "notIn": ", et non à la séance du {{day}} ({{type}})",
+    "carryAt": "Le reste se poursuit à {{at}} (suite){{not}}.",
+    "goesOnAt": "Il se poursuit à {{at}} (suite){{not}}.",
+    "spent_one": "{{count}} séance jusqu’ici.",
+    "spent_many": "{{count}} de séances jusqu’ici.",
+    "spent_other": "{{count}} séances jusqu’ici.",
+    "finishedIn_one": "En {{count}} séance.",
+    "finishedIn_many": "En {{count}} de séances.",
+    "finishedIn_other": "En {{count}} séances.",
+    "finishedSubOn": "Ensuite est proposé « {{next}} », le {{day}}.",
+    "keptNotHeldOn": "« Séance non tenue » enregistrée. « {{item}} » reste en tête de liste et sera proposé le {{day}}.",
+    "makeUp": "Cette séance sera rattrapée",
+    "makeUpNote": "Le résumé de la semaine affiche « séance à rattraper » jusqu’à ce qu’elle soit programmée. L’application ne décide jamais seule qu’une séance est rattrapée."
   }
 }

@@ -433,6 +433,7 @@
     "notHeld": "Session not held",
     "recorded": "Recorded for the texts book",
     "skipped": "Skipped: {{title}}",
+    "notHeldMakeUp": "Session not held · to be made up",
     "snack": "Session recorded for the texts book",
     "undo": "Undo",
     "undone": "Recording undone: the session awaits confirmation.",
@@ -482,6 +483,19 @@
     "back": "Another outcome",
     "done": "Done",
     "snackPartial": "Session recorded; what is left goes on next session",
-    "snackNotHeld": "“Session not held” recorded"
+    "snackNotHeld": "“Session not held” recorded",
+    "at": "the session on {{day}}",
+    "atTd": "the guided-work session on {{day}}",
+    "notIn": ", not in the {{type}} on {{day}}",
+    "carryAt": "What is left goes on in {{at}} (continued){{not}}.",
+    "goesOnAt": "It goes on in {{at}} (continued){{not}}.",
+    "spent_one": "{{count}} session so far.",
+    "spent_other": "{{count}} sessions so far.",
+    "finishedIn_one": "In {{count}} session.",
+    "finishedIn_other": "In {{count}} sessions.",
+    "finishedSubOn": "Next comes “{{next}}”, on {{day}}.",
+    "keptNotHeldOn": "“Session not held” recorded. “{{item}}” stays first on the list and is proposed on {{day}}.",
+    "makeUp": "This session is to be made up",
+    "makeUpNote": "The week’s summary shows “make-up owed” until it is scheduled. The app never decides on its own that a session is made up."
   }
 }
