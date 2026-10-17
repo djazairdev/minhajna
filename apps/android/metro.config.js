@@ -22,6 +22,17 @@ const config = {
     extraNodeModules: { '@minhajna/core': coreRoot, '@minhajna/data': dataRoot },
     // Babel's helpers for core files come from the app's locked dependencies.
     nodeModulesPaths: [path.resolve(__dirname, 'node_modules')],
+    // Debug builds run the core's shared storage checks on the phone (#19).
+    // Hermes has no Node modules, so they get a strict assert of the app's.
+    // Release bundles leave the checks out: the storage check is never shown
+    // there.
+    resolveRequest: (context, moduleName, platform) => {
+      if (moduleName === '@minhajna/core/test-support' && !context.dev) return { type: 'empty' };
+      if (moduleName === 'node:assert/strict') {
+        return { type: 'sourceFile', filePath: path.resolve(__dirname, 'src/debug/strict-assert.ts') };
+      }
+      return context.resolveRequest(context, moduleName, platform);
+    },
   },
 };
 

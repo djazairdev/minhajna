@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Shared storage checks for #76 (PRD sections 5.5 and 6.8). This test-only
-// entry keeps Node's assertions out of the platform-independent runtime.
+// entry keeps Node's assertions out of the platform-independent runtime. The
+// Android app's debug build also runs it on the phone, on Hermes, with a
+// strict assert of its own (#19), so it uses nothing else from Node.
 
 import assert from 'node:assert/strict';
 import {
@@ -39,7 +41,7 @@ type Check = (fixture: StoreFixture) => Promise<void>;
 /**
  * Registers the same storage contract for any adapter, using its own hashing
  * and randomness. The probe checks observable acknowledgement, not power-loss
- * safety: platform crash tests remain separate. Import only in Node-based tests.
+ * safety: platform crash tests remain separate. Import only in tests and debug builds.
  */
 export function historyStoreTests(register: RegisterStoreTest, create: CreateStoreFixture, deps: HistoryDeps): void {
   const test = (name: string, run: Check) => registerCheck(register, create, name, run);
@@ -59,7 +61,7 @@ export function historyStoreTests(register: RegisterStoreTest, create: CreateSto
   test('acknowledges only committed appends', async ({ store, readCommitted }) => {
     const entries = await sampleEntries(deps);
     for (const [index, entry] of entries.entries()) {
-      await store.append(structuredClone(entry));
+      await store.append(copy(entry));
       assert.deepEqual(await readCommitted(), entries.slice(0, index + 1));
     }
   });
@@ -156,9 +158,14 @@ async function sampleEntries(deps: HistoryDeps): Promise<readonly Entry[]> {
   return log.entries;
 }
 
+/** A deep copy. Entries are JSON values, and Hermes, where the app runs these checks, has no structuredClone. */
+function copy(entry: Entry): Entry {
+  return JSON.parse(JSON.stringify(entry)) as Entry;
+}
+
 /** The expected entries never alias the adapter's input, so mutation cannot hide a fault. */
 async function seed(store: HistoryStore, deps: HistoryDeps): Promise<readonly Entry[]> {
   const entries = await sampleEntries(deps);
-  for (const entry of entries) await store.append(structuredClone(entry));
+  for (const entry of entries) await store.append(copy(entry));
   return entries;
 }

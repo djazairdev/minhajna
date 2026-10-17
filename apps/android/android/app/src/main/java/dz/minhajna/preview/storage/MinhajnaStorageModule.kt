@@ -7,13 +7,10 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
-import java.io.File
 import java.nio.charset.CharacterCodingException
 import java.security.SecureRandom
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import org.json.JSONArray
-import org.json.JSONObject
 
 /**
  * The app's storage and cryptography (#19, #75): the history in SQLCipher,
@@ -28,8 +25,7 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
 
   private val random = SecureRandom()
   private val worker: ExecutorService = Executors.newSingleThreadExecutor { task -> Thread(task, "minhajna-history") }
-  private val folder: File = context.noBackupFilesDir
-  private var history: HistoryDatabase? = null
+  private val history = HistoryStorage(context.noBackupFilesDir)
 
   override fun randomBytes(length: Double): String {
     val count = length.toInt()
@@ -55,79 +51,30 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
   }
 
   override fun openHistory(promise: Promise) = onWorker(promise) {
-    if (history == null) {
-      val database = File(folder, DATABASE)
-      val key = DatabaseKey(File(folder, KEY))
-      if (database.exists() && !key.exists()) {
-        throw KeyLostException("The history's key file is missing")
-      }
-      val bytes = key.getOrCreate(random)
-      try {
-        history = HistoryDatabase.open(database, bytes)
-      } finally {
-        bytes.fill(0)
-      }
-    }
+    history.open(random)
     null
   }
 
-  override fun loadHistory(promise: Promise) = onWorker(promise) {
-    val rows = JSONArray()
-    for (row in opened().load()) {
-      rows.put(
-        JSONObject()
-          .put("seq", row.seq)
-          .put("id", row.id)
-          .put("day", row.day)
-          .put("layer", row.layer)
-          .put("kind", row.kind)
-          .put("digest", row.digest)
-          .put("previous", row.previous)
-          .put("hash", row.hash)
-          .put("salt", row.salt ?: JSONObject.NULL)
-          .put("body", row.body ?: JSONObject.NULL),
-      )
-    }
-    rows.toString()
-  }
+  override fun loadHistory(promise: Promise) = onWorker(promise) { history.loadJson() }
 
   override fun appendEntry(entry: String, promise: Promise) = onWorker(promise) {
-    val json = JSONObject(entry)
-    opened().append(
-      EntryRow(
-        seq = json.getLong("seq"),
-        id = json.getString("id"),
-        day = json.getString("day"),
-        layer = json.getString("layer"),
-        kind = json.getString("kind"),
-        digest = json.getString("digest"),
-        previous = json.getString("previous"),
-        hash = json.getString("hash"),
-        salt = if (json.isNull("salt")) null else json.getString("salt"),
-        body = if (json.isNull("body")) null else json.getString("body"),
-      ),
-    )
+    history.appendJson(entry)
     null
   }
 
   override fun eraseContent(ids: ReadableArray, promise: Promise) {
     val copies = List(ids.size()) { ids.getString(it) ?: "" }
     onWorker(promise) {
-      opened().eraseContent(copies)
+      history.eraseContent(copies)
       null
     }
   }
 
   override fun invalidate() {
-    worker.execute {
-      history?.close()
-      history = null
-    }
+    worker.execute { history.close() }
     worker.shutdown()
     super.invalidate()
   }
-
-  private fun opened(): HistoryDatabase = history ?: throw IllegalStateException("The history is not open")
 
   /** Runs `task` on the worker. A failure's message is SQLite's or the app's own, never a record's content. */
   private fun onWorker(promise: Promise, task: () -> Any?) {
@@ -143,8 +90,6 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
   }
 
   companion object {
-    const val DATABASE = "history.db"
-    const val KEY = "history.key"
     private const val MAX_RANDOM_BYTES = 1024
   }
 }
