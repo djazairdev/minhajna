@@ -1,0 +1,9 @@
+<!-- SPDX-FileCopyrightText: 2026 The Minhajna contributors -->
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#173e35"/>
+  <g fill="none" stroke="#fff4dc" stroke-width="20">
+    <ellipse cx="256" cy="160" rx="120" ry="48"/>
+    <path d="M136 160v180c0 64 240 64 240 0V160M136 248c0 64 240 64 240 0"/>
+  </g>
+</svg>
