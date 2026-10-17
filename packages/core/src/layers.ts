@@ -5,12 +5,17 @@
 // export and share goes through `mayTravel`, so a private note can never slip
 // into a statement (PRD §5.4, engineering rules).
 //
+// The device layer holds the teacher card's personal fields. They never leave
+// the device: not to the teacher's other devices, nor the export, nor anyone
+// else. Only the documents made on the device print them (PRD §3.2, §5.6).
+//
 // Only the teacher's own routes take whole history entries. A route that
 // leaves the teacher takes records: the current version of each one, never
 // its entry. An entry's day and its place in the history would show when the
 // record was made, such as the day a session was confirmed (PRD §7.6).
 
 export const LAYERS = [
+  'device',
   'private',
   'pupil-records',
   'lesson-record',
@@ -57,7 +62,7 @@ const ALLOWED: Readonly<Record<Route, readonly Layer[]>> = {
   'own-devices': ['private', 'pupil-records', 'lesson-record', 'shared-statement', 'official-snapshot'],
   'full-export': ['private', 'pupil-records', 'lesson-record', 'shared-statement', 'official-snapshot'],
   'seating-plan-printout': [],
-  documents: ['pupil-records', 'lesson-record'],
+  documents: ['device', 'pupil-records', 'lesson-record'],
   statement: ['lesson-record'],
   handover: ['lesson-record'],
   'handover-direct': ['pupil-records', 'lesson-record'],

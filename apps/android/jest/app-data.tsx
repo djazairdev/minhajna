@@ -4,7 +4,7 @@
 // An empty history in the fake native store and Algeria's bundled profile,
 // for tests of screens that read or keep records.
 
-import { parseDay, type CountryProfile, type RecordBook } from '@minhajna/core';
+import { parseDay, type CountryProfile, type RecordBook, type SchoolYear } from '@minhajna/core';
 import type { ReactNode } from 'react';
 import { bundledReference, readReference } from '../src/reference';
 import { AppDataProvider } from '../src/storage/AppData';
@@ -15,6 +15,7 @@ export interface TestData {
   readonly storage: FakeStorage;
   readonly book: RecordBook;
   readonly profile: CountryProfile;
+  readonly year: SchoolYear;
 }
 
 /** Opens an empty history, or the one in `storage`. */
@@ -22,7 +23,7 @@ export async function openTestData(storage = new FakeStorage()): Promise<TestDat
   const reference = readReference(bundledReference);
   if (!reference.ok) throw new Error('The bundled reference data is refused');
   const book = await openRecordBook(storage.asSpec());
-  return { storage, book, profile: reference.profile };
+  return { storage, book, profile: reference.profile, year: reference.calendar.year };
 }
 
 /** Wraps a screen in the provider, recording every change on one made-up day. */
@@ -31,6 +32,7 @@ export function withData(data: TestData, children: ReactNode) {
     <AppDataProvider
       book={data.book}
       profile={data.profile}
+      year={data.year}
       random={nativeDeps(data.storage.asSpec()).random}
       today={() => parseDay('2026-10-15')}
     >

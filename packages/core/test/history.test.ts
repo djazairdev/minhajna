@@ -219,12 +219,12 @@ describe('the history', () => {
     assert.deepEqual(stored[1]?.content?.body, { absent: ['p01'] });
 
     const book = await RecordBook.open(new MemoryStore(), deps);
-    await book.record(d('2026-09-13'), { kind: 'teacher.set', card: { name: 'Example Teacher', subjects: ['math'] } });
+    await book.record(d('2026-09-13'), { kind: 'teacher.set', card: { rank: 'Example rank' } });
     const [entry] = book.entries as Entry[];
     assert.ok(entry?.content);
     const edited = {
       ...entry,
-      content: { ...entry.content, body: { kind: 'teacher.set', card: { name: 'Edited', subjects: [] } } },
+      content: { ...entry.content, body: { kind: 'teacher.set', card: { rank: 'Edited' } } },
     };
     const tampered: HistoryStore = {
       load: () => Promise.resolve([edited]),

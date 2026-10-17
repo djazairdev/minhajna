@@ -15,12 +15,15 @@ import {
   type RandomBytes,
   type RecordBook,
   type RecordEvent,
+  type SchoolYear,
   type State,
 } from '@minhajna/core';
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
 export interface AppData {
   readonly profile: CountryProfile;
+  /** The bundled calendar's school year. */
+  readonly year: SchoolYear;
   readonly state: State;
   /** Saves one change. */
   readonly record: (event: RecordEvent) => void;
@@ -46,12 +49,14 @@ export function todayOf(now: Date = new Date()): Day {
 export function AppDataProvider({
   book,
   profile,
+  year,
   random,
   today = todayOf,
   children,
 }: {
   book: RecordBook;
   profile: CountryProfile;
+  year: SchoolYear;
   random: RandomBytes;
   today?: () => Day;
   children: ReactNode;
@@ -74,6 +79,7 @@ export function AppDataProvider({
     };
     return {
       profile,
+      year,
       record: (event: RecordEvent) => save(() => book.record(today(), event)),
       erase: (match: (event: RecordEvent) => boolean) =>
         save(async () => {
@@ -88,7 +94,7 @@ export function AppDataProvider({
       newId: () => newId(random),
       settled: () => queue.current,
     };
-  }, [book, profile, random, today]);
+  }, [book, profile, year, random, today]);
   const value = useMemo(() => ({ ...actions, state, unsaved }), [actions, state, unsaved]);
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

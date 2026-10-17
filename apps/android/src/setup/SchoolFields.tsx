@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     borderRadius: radius['radius-card'],
     backgroundColor: colors.sheet,
   },
-  delete: { alignItems: 'center' },
+  delete: { flexDirection: 'row', justifyContent: 'center' },
   summary: {
     flexDirection: 'row',
     alignItems: 'center',

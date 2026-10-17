@@ -14,6 +14,9 @@ import { colors, fontFamilies, radius, sizes, spacing, typography } from '../des
 import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
 
+/** Each setup screen's step, which its bar's subtitle names. */
+const SETUP_ROUTES = { Teaching: 1, Card: 2 } as const;
+
 /** Keeps tab labels and selection accessible without exposing decorative icons. */
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -96,8 +99,10 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           </Text>
           {route.name === 'NavigationPreview' && <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>}
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
-          {route.name === 'Teaching' && (
-            <Text style={styles.subtitle}>{t('setup.step', { step: 1, count: SETUP_STEPS })}</Text>
+          {Object.hasOwn(SETUP_ROUTES, route.name) && (
+            <Text style={styles.subtitle}>
+              {t('setup.step', { step: SETUP_ROUTES[route.name as keyof typeof SETUP_ROUTES], count: SETUP_STEPS })}
+            </Text>
           )}
         </View>
         <View style={styles.back} />

@@ -61,8 +61,8 @@ describe('the demo year', () => {
   test('fills an empty history with a year that opens and verifies', async () => {
     const storage = new FakeStorage();
     const times = await fillWithDemoYear(storage.asSpec(), 'cem');
-    expect(times.entries).toBe(396);
-    expect(storage.rows).toHaveLength(396);
+    expect(times.entries).toBe(397);
+    expect(storage.rows).toHaveLength(397);
     expect(times.openMilliseconds).toBeGreaterThanOrEqual(0);
   });
 

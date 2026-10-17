@@ -36,7 +36,7 @@ describe('Reusing the full-year load fixture', () => {
       );
       assert.equal(book.entries.length, fixture.entries.length + 2);
       assert.deepEqual(await core.verifyHistory(deps.digest, book.entries), []);
-      assert.equal(fixture.entries.length, level === 'cem' ? 396 : 554);
+      assert.equal(fixture.entries.length, level === 'cem' ? 397 : 554);
     }
   });
 

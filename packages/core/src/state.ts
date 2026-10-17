@@ -20,6 +20,7 @@ import {
   type SeatingPlan,
   type SessionRecord,
   type TeacherCard,
+  type TeacherPersonal,
   type TimetableVersion,
 } from './records.ts';
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
@@ -43,6 +44,8 @@ export interface RecordedTimetable {
 
 export interface State {
   readonly teacher: TeacherCard | null;
+  /** The card's personal fields, which never leave the device. */
+  readonly personal: TeacherPersonal | null;
   readonly schools: ReadonlyMap<string, School>;
   readonly classes: ReadonlyMap<string, SchoolClass>;
   readonly pupils: ReadonlyMap<string, Pupil>;
@@ -95,6 +98,7 @@ function withMovements(pupil: Pupil, order: number, moved: readonly Movement[]):
  */
 export function buildState(entries: readonly Entry[]): State {
   let teacher: TeacherCard | null = null;
+  let personal: TeacherPersonal | null = null;
   const schools = new Map<string, School>();
   const classes = new Map<string, SchoolClass>();
   const pupilSets = new Map<string, { readonly pupil: Pupil; readonly order: number }>();
@@ -113,6 +117,9 @@ export function buildState(entries: readonly Entry[]): State {
     switch (event.kind) {
       case 'teacher.set':
         teacher = event.card;
+        break;
+      case 'teacher.personal.set':
+        personal = event.personal;
         break;
       case 'school.set':
         schools.set(event.school.id, event.school);
@@ -163,6 +170,7 @@ export function buildState(entries: readonly Entry[]): State {
 
   return {
     teacher,
+    personal,
     schools,
     classes,
     pupils,
@@ -197,6 +205,7 @@ function compareText(a: string, b: string): number {
 function currentRecords(state: State): RecordEvent[] {
   const records: RecordEvent[] = [];
   if (state.teacher !== null) records.push({ kind: 'teacher.set', card: state.teacher });
+  if (state.personal !== null) records.push({ kind: 'teacher.personal.set', personal: state.personal });
   for (const school of state.schools.values()) records.push({ kind: 'school.set', school });
   for (const schoolClass of state.classes.values()) records.push({ kind: 'class.set', schoolClass });
   for (const pupil of state.pupils.values()) records.push({ kind: 'pupil.set', pupil });

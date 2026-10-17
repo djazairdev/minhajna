@@ -19,11 +19,13 @@ import type {
   SeatingPlan,
   SessionRecord,
   TeacherCard,
+  TeacherPersonal,
   TimetableVersion,
 } from './records.ts';
 
 export type RecordEvent =
   | { readonly kind: 'teacher.set'; readonly card: TeacherCard }
+  | { readonly kind: 'teacher.personal.set'; readonly personal: TeacherPersonal }
   | { readonly kind: 'school.set'; readonly school: School }
   | { readonly kind: 'class.set'; readonly schoolClass: SchoolClass }
   | { readonly kind: 'pupil.set'; readonly pupil: Pupil }
@@ -46,6 +48,7 @@ export type RecordKind = RecordEvent['kind'];
 // built. The compiler checks that none is missing.
 const KINDS: Readonly<Record<RecordKind, true>> = {
   'teacher.set': true,
+  'teacher.personal.set': true,
   'school.set': true,
   'class.set': true,
   'pupil.set': true,
@@ -67,6 +70,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
  */
 export function layerOf(event: RecordEvent): Layer {
   switch (event.kind) {
+    case 'teacher.personal.set':
+      return 'device';
     case 'pupil.set':
     case 'pupil.moved':
     case 'roll-call.taken':

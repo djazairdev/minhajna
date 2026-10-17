@@ -34,7 +34,8 @@ export function cemEvents(): RecordEvent[] {
     sessionType: 'lesson',
   });
   return [
-    { kind: 'teacher.set', card: { name: 'Example Teacher', subjects: ['math'] } },
+    { kind: 'teacher.set', card: { rank: 'Example rank' } },
+    { kind: 'teacher.personal.set', personal: { name: 'Example Teacher' } },
     {
       kind: 'school.set',
       school: { id: 's-cem', name: 'Example middle school', levels: ['cem'], subjects: ['math'], zone: '16' },
