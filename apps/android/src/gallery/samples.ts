@@ -28,6 +28,17 @@ export type Sample = {
   readonly back: string;
   readonly add: string;
   readonly activations: string;
+  readonly headings: {
+    readonly day: string;
+    readonly date: string;
+    readonly fact: string;
+    readonly scope: string;
+    readonly settings: string;
+    readonly addSession: string;
+    readonly section: string;
+    readonly count: string;
+    readonly emptyCount: string;
+  };
   readonly feedback: {
     readonly reassurance: string;
     readonly longReassurance: string;
@@ -78,6 +89,17 @@ export const samples: Readonly<Record<Language, Sample>> = {
     back: 'رجوع',
     add: 'إضافة حصة',
     activations: 'عدد الضغطات المتاحة: {{count}}',
+    headings: {
+      day: 'الأحد',
+      date: '4 أكتوبر 2026',
+      fact: '3 حصص بانتظار التأكيد',
+      scope: 'المؤسسة التجريبية · 2026/2027',
+      settings: 'الإعدادات',
+      addSession: '+ حصة',
+      section: 'الفوج الأول',
+      count: '18 تلميذاً',
+      emptyCount: '0 تلاميذ',
+    },
     feedback: {
       reassurance: 'يمكن تصحيح أي حصة لاحقاً، ويُحفظ كل تعديل.',
       longReassurance: 'الحضور هو الأصل، ويُعلَّم الغياب والتأخر فقط. يمكن التسجيل بعد الحصة، والتصحيح في أي وقت.',
@@ -131,6 +153,17 @@ export const samples: Readonly<Record<Language, Sample>> = {
     back: 'Retour',
     add: 'Ajouter une séance',
     activations: 'Activations disponibles : {{count}}',
+    headings: {
+      day: 'Dimanche',
+      date: '4 octobre 2026',
+      fact: '3 séances attendent une confirmation',
+      scope: 'Établissement de démonstration · 2026/2027',
+      settings: 'Réglages',
+      addSession: '+ Séance',
+      section: 'Premier groupe',
+      count: '18 élèves',
+      emptyCount: '0 élève',
+    },
     feedback: {
       reassurance: 'Chaque séance peut être corrigée plus tard. Chaque modification est conservée.',
       longReassurance:
@@ -187,6 +220,17 @@ export const samples: Readonly<Record<Language, Sample>> = {
     back: 'Back',
     add: 'Add lesson',
     activations: 'Available activations: {{count}}',
+    headings: {
+      day: 'Sunday',
+      date: '4 October 2026',
+      fact: '3 sessions await confirmation',
+      scope: 'Demo school · 2026/2027',
+      settings: 'Settings',
+      addSession: '+ Session',
+      section: 'First group',
+      count: '18 pupils',
+      emptyCount: '0 pupils',
+    },
     feedback: {
       reassurance: 'You can correct any session later. Each change is kept.',
       longReassurance:

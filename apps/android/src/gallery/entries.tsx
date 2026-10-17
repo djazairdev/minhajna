@@ -11,6 +11,7 @@ import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import type { ReactNode } from 'react';
 import { TopBar } from '../navigation/NavigationChrome';
 import { ButtonSamples, IconButtonSamples } from './button-samples';
+import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
@@ -45,6 +46,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'IconButton',
     design: 'docs/design/system/components/IconButton/README.md',
     render: (sample) => <IconButtonSamples sample={sample} />,
+  },
+  {
+    name: 'PageHeading',
+    design: 'docs/design/system/components/PageHeading/README.md',
+    render: (sample) => <PageHeadingSamples key={sample.title} sample={sample} />,
+  },
+  {
+    name: 'SectionHeader',
+    design: 'docs/design/system/components/SectionHeader/README.md',
+    render: (sample) => <SectionHeaderSamples key={sample.title} sample={sample} />,
   },
   {
     name: 'Notice',

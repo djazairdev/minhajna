@@ -17,6 +17,8 @@ import { AppNavigator, GALLERY_MENU_ITEM } from '../src/navigation/AppNavigator'
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { Gallery } from '../src/gallery/Gallery';
 import { Button, type ButtonProps } from '../src/components/Button';
+import { PageHeading, type PageHeadingProps } from '../src/components/PageHeading';
+import { SectionHeader } from '../src/components/SectionHeader';
 import { Notice } from '../src/components/Notice';
 import { Snackbar, type SnackbarProps } from '../src/components/Snackbar';
 import { entries } from '../src/gallery/entries';
@@ -91,6 +93,12 @@ test.each(
   for (const entry of entries)
     expect(tree.root.findAllByProps({ testID: `gallery-entry-${entry.name}` })).not.toEqual([]);
   expect(accessibilityProblems(tree.root)).toEqual([]);
+  expect(tree.root.findAllByType(PageHeading).map((node) => (node.props as PageHeadingProps).title)).toEqual([
+    samples[language].headings.day,
+    samples[language].longHeading,
+    samples[language].tabs[1],
+  ]);
+  expect(tree.root.findAllByType(SectionHeader)).toHaveLength(5);
   expect(tree.root.findAllByType(Notice)).toHaveLength(3);
   expect(tree.root.findAllByType(Snackbar)).toHaveLength(2);
   expect(tree.root.findAllByType(Snackbar).map((node) => (node.props as SnackbarProps).message)).toEqual([
@@ -132,6 +140,22 @@ test.each([
     ...weights,
     labels[5],
   ]);
+});
+
+test('heading actions remain reachable and change only their own synthetic gallery counter', async () => {
+  await render(<Gallery />);
+  const counter = (name: string) =>
+    tree.root
+      .findByProps({ testID: `gallery-entry-${name}` })
+      .findAllByType(Text)
+      .find((node) => node.props.accessibilityLiveRegion === 'polite')?.props.children as string;
+  await press('heading-settings');
+  await press('heading-add');
+  expect(counter('PageHeading')).toBe(samples.ar.activations.replace('{{count}}', '2'));
+  expect(counter('SectionHeader')).toBe(samples.ar.activations.replace('{{count}}', '0'));
+  await press('section-edit');
+  expect(counter('SectionHeader')).toBe(samples.ar.activations.replace('{{count}}', '1'));
+  expect(counter('PageHeading')).toBe(samples.ar.activations.replace('{{count}}', '2'));
 });
 
 test('Undo changes only the feedback preview and its confirmation can be shown again', async () => {
