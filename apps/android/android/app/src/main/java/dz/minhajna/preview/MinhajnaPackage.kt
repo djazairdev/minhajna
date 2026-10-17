@@ -8,11 +8,13 @@ import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
+import dz.minhajna.preview.documents.MinhajnaPdfModule
 import dz.minhajna.preview.language.MinhajnaInterfaceModule
 import dz.minhajna.preview.licences.MinhajnaLicencesModule
 import dz.minhajna.preview.storage.MinhajnaStorageModule
 import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
+import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
 
 /** Registers the app's own TurboModules, and debug builds' extra ones; libraries come through autolinking. */
@@ -23,6 +25,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaStorageSpec.NAME -> MinhajnaStorageModule(reactContext)
       NativeMinhajnaInterfaceSpec.NAME -> MinhajnaInterfaceModule(reactContext)
       NativeMinhajnaLicencesSpec.NAME -> MinhajnaLicencesModule(reactContext)
+      NativeMinhajnaPdfSpec.NAME -> MinhajnaPdfModule(reactContext)
       else -> DebugModules.create(name, reactContext)
     }
 
@@ -31,6 +34,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaStorageSpec.NAME, MinhajnaStorageModule::class.java.name),
       info(NativeMinhajnaInterfaceSpec.NAME, MinhajnaInterfaceModule::class.java.name),
       info(NativeMinhajnaLicencesSpec.NAME, MinhajnaLicencesModule::class.java.name),
+      info(NativeMinhajnaPdfSpec.NAME, MinhajnaPdfModule::class.java.name),
     ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 

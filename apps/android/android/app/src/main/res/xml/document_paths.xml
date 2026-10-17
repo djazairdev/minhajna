@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 The Minhajna contributors
+  SPDX-License-Identifier: AGPL-3.0-or-later
+
+  Only the PDFs the app makes, in its cache, can be handed to another app.
+-->
+<paths>
+    <cache-path name="pdf" path="pdf/" />
+</paths>

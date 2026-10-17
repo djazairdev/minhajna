@@ -800,5 +800,29 @@
     "view": "Appel par",
     "list": "Liste",
     "rollHint": "Un toucher sur la place : absent. Le deuxième : en retard. Le troisième : présent de nouveau."
+  },
+  "documents": {
+    "journal": "Cahier journal",
+    "year": "Année scolaire {{year}}",
+    "time": "De – à",
+    "className": "Classe",
+    "content": "Séquence, domaine et ressource, et déroulement de la séance",
+    "teacher": "Signature de l’enseignant",
+    "director": "Visa du directeur",
+    "empty": "Aucune séance ce jour.",
+    "awaiting": "Déroulement : en attente de confirmation",
+    "rollTitle": "Registre d’appel · {{month}}",
+    "october": "octobre 2026",
+    "number": "N°",
+    "name": "Nom et prénom",
+    "latinName": "En lettres latines",
+    "absent": "Absences",
+    "late": "Retards",
+    "key": "N : absence non justifiée · J : absence justifiée · R : retard, non compté comme absence",
+    "marks": {
+      "unjustified": "N",
+      "justified": "J",
+      "late": "R"
+    }
   }
 }
