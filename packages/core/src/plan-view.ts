@@ -14,7 +14,7 @@ import { compareDays, type Day } from './day.ts';
 import { walkCourse } from './engine.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { pace } from './pacing.ts';
-import { sessionsBetween } from './sessions.ts';
+import { compareSessions, sessionsBetween } from './sessions.ts';
 import { current } from './state.ts';
 
 /** `started` once any group of the class was taught it, such as one half in a TD. */
@@ -29,7 +29,10 @@ export interface PlanRow {
   readonly next: Day | null;
   readonly stages: number;
   readonly covered: number;
-  /** Where the class is: the first item of its queue not finished. */
+  /**
+   * Where the class is: the item the plan goes on with after its last
+   * recorded session, or, with none left, the first item not finished.
+   */
   readonly position: boolean;
   /** Where the plan says the class should be, for the main queue only. A reference. */
   readonly expected: boolean;
@@ -68,14 +71,26 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
   }
 
   const reached = new Map<string, Day>();
+  const goesOn = new Map<string, string>();
   const ahead = walkCourse(context, courseId, ref.year.to).proposals;
-  for (const session of sessionsBetween(context, today, ref.year.to, new Set([courseId]))) {
+  const sessions = sessionsBetween(context, ref.year.from, ref.year.to, new Set([courseId]));
+  const last = sessions
+    .filter((session) => compareDays(session.day, today) <= 0 && current(state.sessions.get(session.key)) != null)
+    .at(-1);
+  for (const session of sessions) {
     const proposal = ahead.get(session.key);
-    if (proposal != null && !reached.has(proposal.item.id)) reached.set(proposal.item.id, session.day);
+    if (proposal == null) continue;
+    if (compareDays(session.day, today) >= 0 && !reached.has(proposal.item.id)) {
+      reached.set(proposal.item.id, session.day);
+    }
+    if ((last === undefined || compareSessions(session, last) > 0) && !goesOn.has(proposal.queue)) {
+      goesOn.set(proposal.queue, proposal.item.id);
+    }
   }
 
-  const rows = (items: readonly PackItem[], expectedAt: number): PlanRow[] => {
-    const position = items.findIndex((item) => !progress.isFinished(pack, item, whole));
+  const rows = (items: readonly PackItem[], queue: 'main' | 'td', expectedAt: number): PlanRow[] => {
+    const next = items.findIndex((item) => item.id === goesOn.get(queue));
+    const position = next >= 0 ? next : items.findIndex((item) => !progress.isFinished(pack, item, whole));
     return items.map((item, index) => {
       const finished = progress.isFinished(pack, item, whole);
       const covered = progress.covered(item.id, whole);
@@ -114,7 +129,7 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
   return {
     pack,
     units: pack.items.filter((item) => item.kind === 'unit'),
-    main: rows(main, expectedAt),
-    td: rows(queueItems(pack, 'td'), -1),
+    main: rows(main, 'main', expectedAt),
+    td: rows(queueItems(pack, 'td'), 'td', -1),
   };
 }

@@ -54,6 +54,22 @@ describe('A class plan', () => {
     assert.equal(view?.main.filter((one) => one.expected).length, 1);
   });
 
+  it('places the class where the plan goes on after its last recorded session', async () => {
+    const book = await openBook(cemEvents());
+    await confirmAll(book, d('2026-09-21'), d('2026-09-24'));
+    const view = planView(contextOf(book), 'c-math', d('2026-09-25'));
+    assert.equal(view?.main.find((one) => one.item.id === 'd1')?.status, 'open');
+    assert.equal(view?.main.find((one) => one.position)?.item.id, 'l3');
+  });
+
+  it('keeps the class where it is while later sessions await confirmation', async () => {
+    const book = await openBook(cemEvents());
+    await confirmAll(book, d('2026-09-20'), d('2026-09-21'));
+    const view = planView(contextOf(book), 'c-math', d('2026-09-24'));
+    assert.equal(view?.main.find((one) => one.position)?.item.id, 'l1');
+    assert.equal(view?.main.find((one) => one.item.id === 'l2')?.next, '2026-09-24');
+  });
+
   it('counts a TD taught to one half of the class as started', async () => {
     const book = await openBook(cemEvents());
     await confirmAll(book, d('2026-09-20'), d('2026-09-24'));
