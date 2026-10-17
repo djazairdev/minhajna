@@ -24,6 +24,8 @@ import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
 import { TypeList } from '../setup/TypeList';
+import { Week } from '../setup/Week';
+import { WeekDraw } from '../week/WeekDraw';
 import { Teaching } from '../setup/Teaching';
 
 export { tabLabels } from './HomePreview';
@@ -38,6 +40,8 @@ export type RootStackParamList = {
   Card: undefined;
   Classes: undefined;
   TypeList: { classId: string; name: string };
+  Week: undefined;
+  WeekDraw: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   NavigationPreview: undefined;
   Gallery: undefined;
@@ -121,6 +125,16 @@ export function AppNavigator({
             title: t('setup.typeTitle', { name: route.params.name }),
             statusBarStyle: 'dark',
           })}
+        />
+        <Stack.Screen
+          name="Week"
+          component={WeekScreen}
+          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="WeekDraw"
+          component={WeekDrawScreen}
+          options={{ title: t('week.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <Stack.Screen
@@ -212,14 +226,29 @@ function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, '
   return <Card onNext={() => navigation.navigate('Classes')} />;
 }
 
-/** Setup's third step; the week comes with #28, so it leads to the tabs for now. */
+/** Setup's third step, which leads to the week. */
 function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Classes'>) {
   return (
     <Classes
       onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
+      onNext={() => navigation.navigate('Week')}
+    />
+  );
+}
+
+/** Setup's fourth step; bell times and plans come with #29 and #30, so it leads to the tabs for now. */
+function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Week'>) {
+  return (
+    <Week
+      onDraw={() => navigation.navigate('WeekDraw')}
       onNext={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
     />
   );
+}
+
+/** Drawing the week by hand; «حفظ الأسبوع» returns. */
+function WeekDrawScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
+  return <WeekDraw onDone={() => navigation.goBack()} />;
 }
 
 /** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */

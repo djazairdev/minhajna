@@ -53,6 +53,8 @@ async function finishSetup() {
   await press(byTestID('card-next'));
   expect(heading()).toEqual([text.setup.title, 'الخطوة 3 من 5']);
   await press(byTestID('classes-next'));
+  expect(heading()).toEqual([text.setup.title, 'الخطوة 4 من 5']);
+  await press(byTestID('week-next'));
 }
 
 async function press(match: (props: PressableProps) => boolean) {
