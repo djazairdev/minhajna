@@ -6,8 +6,11 @@
 // in pencil and the one tap that records it; the others show their lesson,
 // and a recorded session shows what it wrote. Nothing is recorded until the
 // teacher taps (PRD §2.3), and the tap can be undone at once: the history
-// keeps both changes (PRD §4.7). The other outcomes and the session's
-// details come with their own screens.
+// keeps both changes (PRD §4.7). «نتيجة أخرى» records any other outcome in
+// a second tap (#33). A reason for a skip or a session not held goes into
+// the session's private note only. A second choice in the same sheet keeps
+// the first one's undo, so «تراجع» brings back what was there before the
+// sheet, note included. The session's details come with their own screen.
 
 import {
   confirmSessions,
@@ -17,6 +20,8 @@ import {
   refOf,
   todayView,
   weekday,
+  type Choice,
+  type Reason,
   type RecordEvent,
   type TodaySession,
 } from '@minhajna/core';
@@ -38,11 +43,14 @@ import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
 import { slotSpoken } from '../week/grid-labels';
 import { nextItem, previousItem } from './outcome-rules';
-import { OutcomeSheet, type Outcome } from './OutcomeSheet';
+import { OutcomeSheet } from './OutcomeSheet';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
 
-/** The tap just made, and the event that undoes it. */
-type Done = { readonly key: string; readonly undo: RecordEvent; readonly message: string };
+/** The session just recorded, and the events that bring back what was there before. */
+type Done = { readonly key: string; readonly undo: readonly RecordEvent[]; readonly message: string };
+
+/** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
+type Sheet = { readonly item: TodaySession; readonly open: boolean };
 
 /** The Today tab; `onHelp` opens Help and the privacy notice. */
 export function Today({ onHelp }: { onHelp: () => void }) {
@@ -51,7 +59,7 @@ export function Today({ onHelp }: { onHelp: () => void }) {
   const t = useText();
   const { state, profile, year, calendar, packs, bells, today, record, recordAll } = useAppData();
   const [done, setDone] = useState<Done | null>(null);
-  const [sheet, setSheet] = useState(false);
+  const [sheet, setSheet] = useState<Sheet | null>(null);
   const other = useRef<ViewInstance>(null);
   const day = today();
   const language = currentLanguage();
@@ -79,18 +87,41 @@ export function Today({ onHelp }: { onHelp: () => void }) {
     };
   };
 
-  const confirm = (item: TodaySession, outcome?: Outcome) => {
-    const before = current(state.sessions.get(item.session.key));
-    const undo: RecordEvent =
-      before === null
-        ? { kind: 'session.withdrawn', session: refOf(item.session) }
-        : { kind: 'session.recorded', record: before };
-    recordAll(confirmSessions(context, [{ session: item.session, ...outcome }]));
-    const kind = outcome?.choice.outcome;
+  const confirm = (item: TodaySession, choice?: Choice) => {
+    const key = item.session.key;
+    const before = current(state.sessions.get(key));
+    const undo: readonly RecordEvent[] =
+      done?.key === key
+        ? done.undo
+        : [
+            before === null
+              ? { kind: 'session.withdrawn', session: refOf(item.session) }
+              : { kind: 'session.recorded', record: before },
+          ];
+    recordAll(confirmSessions(context, [{ session: item.session, ...(choice !== undefined && { choice }) }]));
+    const kind = choice?.outcome;
     const message = t(
       kind === 'partial' ? 'outcome.snackPartial' : kind === 'not-held' ? 'outcome.snackNotHeld' : 'today.snack',
     );
-    setDone({ key: item.session.key, undo, message });
+    setDone({ key, undo, message });
+  };
+
+  const keepReason = (item: TodaySession, reason: Reason | undefined, text: string | undefined) => {
+    const key = item.session.key;
+    const earlier = state.notes.get(key);
+    if (reason === undefined && earlier?.reason === undefined && earlier?.reasonText === undefined) return;
+    record({
+      kind: 'session.noted',
+      note: {
+        sessionKey: key,
+        ...(earlier?.note !== undefined && { note: earlier.note }),
+        ...(reason !== undefined && { reason }),
+        ...(text !== undefined && { reasonText: text }),
+      },
+    });
+    if (done?.key === key && !done.undo.some((event) => event.kind === 'session.noted')) {
+      setDone({ ...done, undo: [...done.undo, { kind: 'session.noted', note: earlier ?? { sessionKey: key } }] });
+    }
   };
 
   const card = (item: TodaySession) => {
@@ -125,7 +156,7 @@ export function Today({ onHelp }: { onHelp: () => void }) {
           proposal={proposalOf(t, pack, item.proposal)}
           confirm={t('today.confirm')}
           onConfirm={() => confirm(item)}
-          more={[{ id: 'other', label: t('outcome.other'), onPress: () => setSheet(true), ref: other }]}
+          more={[{ id: 'other', label: t('outcome.other'), onPress: () => setSheet({ item, open: true }), ref: other }]}
         />
       );
     }
@@ -156,19 +187,21 @@ export function Today({ onHelp }: { onHelp: () => void }) {
         />
         <View style={styles.list}>{view.sessions.map(card)}</View>
       </ScrollView>
-      {focus?.proposal != null && (
+      {sheet?.item.proposal != null && (
         <OutcomeSheet
-          visible={sheet}
-          context={[metaOf(focus, false).className, metaOf(focus, false).slot, focus.proposal.item.title].join(' · ')}
-          proposal={focus.proposal}
-          next={nextItem(courseSetup(context, focus.course.id).pack, focus.proposal.item)}
-          previous={previousItem(state, courseSetup(context, focus.course.id).pack, focus.session)}
+          visible={sheet.open}
+          context={[
+            metaOf(sheet.item, false).className,
+            metaOf(sheet.item, false).slot,
+            sheet.item.proposal.item.title,
+          ].join(' · ')}
+          proposal={sheet.item.proposal}
+          next={nextItem(courseSetup(context, sheet.item.course.id).pack, sheet.item.proposal.item)}
+          previous={previousItem(state, courseSetup(context, sheet.item.course.id).pack, sheet.item.session)}
           returnFocusRef={other}
-          onClose={() => setSheet(false)}
-          onChoose={(outcome) => {
-            setSheet(false);
-            confirm(focus, outcome);
-          }}
+          onClose={() => setSheet({ ...sheet, open: false })}
+          onChoose={(choice) => confirm(sheet.item, choice)}
+          onReason={(reason, text) => keepReason(sheet.item, reason, text)}
         />
       )}
       {done !== null && (
@@ -178,7 +211,7 @@ export function Today({ onHelp }: { onHelp: () => void }) {
           undoLabel={t('today.undo')}
           bottomOffset={0}
           onUndo={() => {
-            record(done.undo);
+            recordAll(done.undo);
             setDone(null);
           }}
         />

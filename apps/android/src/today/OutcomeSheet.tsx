@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «نتيجة أخرى» on Today (#32, Sheet, Sheet-nostage, Sheet-reason): the last
-// stage reached, or for an item without stages whether it goes on or is
+// «نتيجة أخرى» on Today (#32, #33, Sheet, Sheet-nostage, Sheet-reason): the
+// last stage reached, or for an item without stages whether it goes on or is
 // finished, merged with the next one; skipping the lesson, teaching an
-// earlier one again, or a session not held. Skipping and «لم تُعقد الحصة»
-// take an optional reason, which stays on the teacher's devices. Nothing is
-// recorded until a choice is made, and closing chooses nothing.
+// earlier one again, or a session not held. Each is recorded on the second
+// tap. Skipping and «لم تُعقد الحصة» then offer an optional reason, which
+// stays on the teacher's devices. Closing before a choice records nothing.
 
 import type { Choice, PackItem, Proposal, Reason } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -21,13 +21,6 @@ import { colors, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
 import { REASON_CHOICES, stageChoices, type ReasonChoice } from './outcome-rules';
 
-/** What the sheet chose: the outcome, and a private reason for a skip or a session not held. */
-export interface Outcome {
-  readonly choice: Choice;
-  readonly privateReason?: Reason;
-  readonly reason?: string;
-}
-
 export interface OutcomeSheetProps {
   readonly visible: boolean;
   /** Such as «4م2 · 08:00 – 09:00 · الموضوع». */
@@ -35,7 +28,10 @@ export interface OutcomeSheetProps {
   readonly proposal: Proposal;
   readonly next: PackItem | undefined;
   readonly previous: PackItem | undefined;
-  readonly onChoose: (outcome: Outcome) => void;
+  /** Records the outcome chosen. */
+  readonly onChoose: (choice: Choice) => void;
+  /** Keeps the reason given for a skip or a session not held, in the private note only. */
+  readonly onReason: (reason: Reason | undefined, text: string | undefined) => void;
   readonly onClose: () => void;
   readonly returnFocusRef: RefObject<ViewInstance | null>;
 }
@@ -43,7 +39,7 @@ export interface OutcomeSheetProps {
 type Asking = 'skipped' | 'not-held' | null;
 
 export function OutcomeSheet(props: OutcomeSheetProps) {
-  const { proposal, next, previous, onChoose } = props;
+  const { proposal, next, previous } = props;
   const { direction } = useLocale();
   const t = useText();
   const [asking, setAsking] = useState<Asking>(null);
@@ -57,11 +53,13 @@ export function OutcomeSheet(props: OutcomeSheetProps) {
     setText('');
     props.onClose();
   };
-  const choose = (outcome: Outcome) => {
-    setAsking(null);
-    setReason('none');
-    setText('');
-    onChoose(outcome);
+  const choose = (choice: Choice) => {
+    props.onChoose(choice);
+    close();
+  };
+  const ask = (choice: Choice & { outcome: 'skipped' | 'not-held' }) => {
+    props.onChoose(choice);
+    setAsking(choice.outcome);
   };
 
   const options = (
@@ -73,7 +71,7 @@ export function OutcomeSheet(props: OutcomeSheetProps) {
           hint={t('outcome.carry')}
           choices={stageChoices(proposal).map((stage) => ({ value: String(stage.reached), label: stage.name }))}
           selected={null}
-          onSelect={(value) => choose({ choice: { outcome: 'partial', reached: Number(value) } })}
+          onSelect={(value) => choose({ outcome: 'partial', reached: Number(value) })}
         />
       ) : (
         <View style={styles.group}>
@@ -82,20 +80,20 @@ export function OutcomeSheet(props: OutcomeSheetProps) {
             testID="outcome-goes-on"
             label={t('outcome.goesOn')}
             sub={t('outcome.goesOnSub')}
-            onPress={() => choose({ choice: { outcome: 'partial', reached: 0 } })}
+            onPress={() => choose({ outcome: 'partial', reached: 0 })}
           />
           <OptionRow
             testID="outcome-finished"
             label={t('outcome.finished')}
             sub={next === undefined ? t('outcome.lastItem') : t('outcome.finishedSub', { next: next.title })}
-            onPress={() => choose({ choice: { outcome: 'partial', reached: 1 } })}
+            onPress={() => choose({ outcome: 'partial', reached: 1 })}
           />
           {next !== undefined && (
             <OptionRow
               testID="outcome-merged"
               label={t('outcome.merged')}
               sub={next.title}
-              onPress={() => choose({ choice: { outcome: 'merged', with: next.id } })}
+              onPress={() => choose({ outcome: 'merged', with: next.id })}
             />
           )}
         </View>
@@ -104,21 +102,21 @@ export function OutcomeSheet(props: OutcomeSheetProps) {
         testID="outcome-skip"
         label={t('outcome.skip')}
         sub={t('outcome.reasonSub')}
-        onPress={() => setAsking('skipped')}
+        onPress={() => ask({ outcome: 'skipped', instead: false })}
       />
       {previous !== undefined && (
         <OptionRow
           testID="outcome-retaught"
           label={t('outcome.retaught')}
           sub={previous.title}
-          onPress={() => choose({ choice: { outcome: 'retaught', item: previous.id } })}
+          onPress={() => choose({ outcome: 'retaught', item: previous.id })}
         />
       )}
       <OptionRow
         testID="outcome-not-held"
         label={t('outcome.notHeld')}
         sub={t('outcome.reasonSub')}
-        onPress={() => setAsking('not-held')}
+        onPress={() => ask({ outcome: 'not-held' })}
       />
     </>
   );
@@ -159,13 +157,11 @@ export function OutcomeSheet(props: OutcomeSheetProps) {
           <Button
             testID="outcome-done"
             label={t('outcome.done')}
-            onPress={() =>
-              choose({
-                choice: asking === 'not-held' ? { outcome: 'not-held' } : { outcome: 'skipped', instead: false },
-                ...(reason !== 'none' && { privateReason: reason }),
-                ...(reason === 'other' && text.trim() !== '' && { reason: text.trim() }),
-              })
-            }
+            onPress={() => {
+              const typed = reason === 'other' && text.trim() !== '' ? text.trim() : undefined;
+              props.onReason(reason === 'none' ? undefined : reason, typed);
+              close();
+            }}
           />
         </View>
       </View>

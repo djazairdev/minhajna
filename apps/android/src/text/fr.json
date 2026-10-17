@@ -470,9 +470,9 @@
     "reasonSub": "La raison est facultative et reste sur vos appareils",
     "retaught": "Reprendre une leçon précédente",
     "reassurance": "Chaque séance peut être corrigée plus tard. Chaque modification est conservée.",
-    "keptNotHeld": "« {{item}} » reste en tête de liste et sera proposé à la prochaine séance.",
-    "keptSkip": "« {{item}} » est passé, et « {{next}} » sera proposé à la prochaine séance.",
-    "keptSkipLast": "« {{item}} » est passé ; c’est le dernier élément du plan.",
+    "keptNotHeld": "« Séance non tenue » enregistrée. « {{item}} » reste en tête de liste et sera proposé à la prochaine séance.",
+    "keptSkip": "Enregistré : « {{item}} » est passé, et « {{next}} » sera proposé à la prochaine séance.",
+    "keptSkipLast": "Enregistré : « {{item}} » est passé ; c’est le dernier élément du plan.",
     "reasonLabel": "Raison (facultatif)",
     "reasons": {
       "none": "Sans raison",

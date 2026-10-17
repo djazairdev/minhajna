@@ -460,9 +460,9 @@
     "reasonSub": "A reason is optional and stays on your devices",
     "retaught": "Teach an earlier lesson again",
     "reassurance": "Any session can be corrected later, and every change is kept.",
-    "keptNotHeld": "“{{item}}” stays first on the list and is proposed next session.",
-    "keptSkip": "“{{item}}” is skipped, and “{{next}}” is proposed next session.",
-    "keptSkipLast": "“{{item}}” is skipped; it is the plan's last item.",
+    "keptNotHeld": "“Session not held” recorded. “{{item}}” stays first on the list and is proposed next session.",
+    "keptSkip": "Recorded: “{{item}}” is skipped, and “{{next}}” is proposed next session.",
+    "keptSkipLast": "Recorded: “{{item}}” is skipped; it is the plan's last item.",
     "reasonLabel": "Reason (optional)",
     "reasons": {
       "none": "No reason",

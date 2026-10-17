@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «نتيجة أخرى» on Today (#32): an item without stages goes on, is finished
+// «نتيجة أخرى» on Today (#32, #33): an item without stages goes on, is finished
 // or merged; the last stage reached on a lesson with stages; skipping and a
-// session not held with a private reason; closing chooses nothing. Made-up
+// session not held, each recorded on the second tap, with a private reason;
+// closing before a choice records nothing. Made-up
 // schools, classes and timetables only.
 
 import { current } from '@minhajna/core';
@@ -132,19 +133,33 @@ test('a lesson taught again shows on its done card', async () => {
   expect(shown()).toContain('الوضعية المشكلة الانطلاقية 1 (مثال)');
 });
 
-test('a session not held keeps its reason private, in the note only', async () => {
+const undo = async () => {
+  await ReactTestRenderer.act(() => {
+    (
+      root().find(
+        (node) => node.props.accessibilityLabel === text.today.undo && typeof node.props.onPress === 'function',
+      ).props as PressableProps
+    ).onPress?.({} as never);
+  });
+  await settle();
+};
+
+test('a session not held is recorded on the second tap, and its reason stays in the private note', async () => {
   const data = await withDay();
   await show(data);
   await press(`today-${key(1)}-other`);
   await press('outcome-not-held');
+  expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'not-held', coverage: [] });
+  expect(data.book.state.notes.size).toBe(0);
+  expect(sheetOpen()).toBe(true);
   expect(shown()).toEqual(
     expect.arrayContaining([
-      'يبقى «تقويم تشخيصي (مثال)» أول القائمة، فيُقترح في الحصة القادمة.',
+      'سُجّلت «لم تُعقد الحصة». ويبقى «تقويم تشخيصي (مثال)» أول القائمة، فيُقترح في الحصة القادمة.',
       text.outcome.private,
       text.outcome.statement,
+      text.outcome.snackNotHeld,
     ]),
   );
-  expect(data.book.state.sessions.size).toBe(0);
   expect(accessibilityProblems(root())).toEqual([]);
   await press('outcome-reason-other');
   await ReactTestRenderer.act(() => {
@@ -154,28 +169,47 @@ test('a session not held keeps its reason private, in the note only', async () =
       ?.onChangeText?.('سبب مختلق');
   });
   await press('outcome-done');
-  const record = current(data.book.state.sessions.get(key(1)));
-  expect(record).toMatchObject({ outcome: 'not-held', coverage: [] });
-  expect(JSON.stringify(record)).not.toContain('سبب مختلق');
-  expect(data.book.state.notes.get(key(1))).toMatchObject({ reason: 'other', reasonText: 'سبب مختلق' });
-  expect(shown()).toContain(text.outcome.snackNotHeld);
+  expect(sheetOpen()).toBe(false);
+  expect(data.book.state.sessions.get(key(1))).toHaveLength(1);
+  expect(JSON.stringify(data.book.state.sessions.get(key(1)))).not.toContain('سبب مختلق');
+  expect(data.book.state.notes.get(key(1))).toEqual({ sessionKey: key(1), reason: 'other', reasonText: 'سبب مختلق' });
+  await undo();
+  expect(current(data.book.state.sessions.get(key(1)))).toBeNull();
+  expect(data.book.state.notes.get(key(1))).toEqual({ sessionKey: key(1) });
 });
 
-test('skipping goes back to the other outcomes on «نتيجة أخرى»', async () => {
+test('a skip is recorded on the second tap; another outcome replaces it, and «تراجع» brings back the start', async () => {
   const data = await withDay();
   await show(data);
   await press(`today-${key(1)}-other`);
   await press('outcome-skip');
+  expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'skipped' });
   expect(shown()).toContain(
-    'يُترك «تقويم تشخيصي (مثال)»، ويُقترح «الوضعية المشكلة الانطلاقية 1 (مثال)» في الحصة القادمة.',
+    'سُجّل تجاوز «تقويم تشخيصي (مثال)»، ويُقترح «الوضعية المشكلة الانطلاقية 1 (مثال)» في الحصة القادمة.',
   );
   expect(shown()).not.toContain(text.outcome.statement);
   await press('outcome-back');
   expect(shown()).toContain(text.outcome.noStages);
+  await press('outcome-goes-on');
+  expect(sheetOpen()).toBe(false);
+  expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'partial' });
+  await undo();
+  expect(current(data.book.state.sessions.get(key(1)))).toBeNull();
+});
+
+test('a skip closed without a reason stays recorded, with no note', async () => {
+  const data = await withDay();
+  await show(data);
+  await press(`today-${key(1)}-other`);
+  await press('outcome-skip');
+  await press('sheet-close');
+  expect(sheetOpen()).toBe(false);
+  expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'skipped' });
+  expect(data.book.state.notes.size).toBe(0);
+  expect(shown()).toContain('تُرك: تقويم تشخيصي (مثال)');
+  await press(`today-${key(2)}-other`);
   await press('outcome-skip');
   await press('outcome-reason-holiday');
   await press('outcome-done');
-  expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ outcome: 'skipped' });
-  expect(data.book.state.notes.get(key(1))).toMatchObject({ reason: 'holiday' });
-  expect(shown()).toContain('تُرك: تقويم تشخيصي (مثال)');
+  expect(data.book.state.notes.get(key(2))).toEqual({ sessionKey: key(2), reason: 'holiday' });
 });
