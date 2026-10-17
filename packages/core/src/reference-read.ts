@@ -7,8 +7,8 @@
 
 import type { Weekday } from './day.ts';
 import { isFields, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
-import { QUEUES, ROLL_CALL_UNITS, type CountryProfile, type Level, type MonthNames } from './reference.ts';
-import { CODE, COUNTRY, distinct, readName, readWeekday, type KnownCodes } from './reference-fields.ts';
+import { QUEUES, ROLL_CALL_UNITS, type CountryProfile, type Level, type MonthNames, type Zone } from './reference.ts';
+import { CODE, COUNTRY, distinct, PLACE, readName, readWeekday, type KnownCodes } from './reference-fields.ts';
 
 /** The level's code counts as known even when another field is wrong, so the problem is reported once. */
 function readLevel(reader: Reader, raw: unknown, path: string, known: KnownCodes): Level | undefined {
@@ -67,6 +67,28 @@ function readMonths(reader: Reader, fields: Fields): readonly MonthNames[] | und
   return months;
 }
 
+/** The zones, each with a distinct code. Older profiles have none. */
+function readZones(reader: Reader, fields: Fields): readonly Zone[] | undefined {
+  if (fields['zones'] === undefined) return undefined;
+  const codes = new Set<string>();
+  return reader.list(
+    fields,
+    'zones',
+    '',
+    (raw, path) => {
+      if (!isFields(raw)) {
+        reader.fail(path, 'invalid');
+        return undefined;
+      }
+      const code = reader.requiredText(raw, 'code', path, PLACE);
+      distinct(reader, codes, code, path);
+      const name = readName(reader, raw, path);
+      return name === undefined ? undefined : { code, name };
+    },
+    { nonEmpty: true },
+  );
+}
+
 /** Reads a country profile from parsed JSON, keeping only the format's fields. */
 export function parseCountryProfile(input: unknown): ParseResult<CountryProfile> {
   const reader = new Reader();
@@ -77,6 +99,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
   const release = reader.requiredText(input, 'release', '', RELEASE);
   const weekStartsOn = readWeekday(reader, input['weekStartsOn'], 'weekStartsOn');
   const months = readMonths(reader, input);
+  const zones = readZones(reader, input);
 
   const rawDays = input['workingDays'];
   const workingDays: Weekday[] = [];
@@ -146,6 +169,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
       levels,
       subjects,
       sessionTypes,
+      ...(zones === undefined ? {} : { zones }),
     },
   };
 }

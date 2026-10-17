@@ -4,8 +4,7 @@
 // Getting started, step 1 of 5: levels, subjects and schools (#25, §3.2),
 // as Setup-2-Teaching and, with several schools, Setup-2b-Schools draw them.
 // One school is open at a time; the others fold to a line with «تعديل».
-// Every change is saved as it is made. The wilaya picker waits for the
-// wilaya list in the country profile, so no zone entry applies until then.
+// Every change is saved as it is made, the wilaya included.
 
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
@@ -31,12 +30,12 @@ export function Teaching({ onNext }: { onNext: () => void }) {
   const { direction } = useLocale();
   const t = useText();
   const { profile, unsaved } = useAppData();
-  const { schools, chooseLevels, chooseSubjects, rename, flush, add, remove } = useSchools();
-  const [open, setOpen] = useState(() => (schools.find((school) => !isComplete(school)) ?? schools[0]).id);
+  const { schools, chooseLevels, chooseSubjects, chooseZone, rename, flush, add, remove } = useSchools();
+  const [open, setOpen] = useState(() => (schools.find((school) => !isComplete(profile, school)) ?? schools[0]).id);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const single = schools.length === 1;
-  const complete = schools.every(isComplete);
+  const complete = schools.every((school) => isComplete(profile, school));
   const openSchool = (id: string) => {
     flush();
     setOpen(id);
@@ -53,6 +52,7 @@ export function Teaching({ onNext }: { onNext: () => void }) {
         onSubjects={(subjects) => chooseSubjects(school.id, subjects)}
         onName={(name) => rename(school.id, name)}
         onNameDone={flush}
+        onZone={(zone) => chooseZone(school.id, zone)}
         onDelete={
           single
             ? undefined

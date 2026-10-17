@@ -30,3 +30,23 @@ The wilaya picker, and the wilaya list it needs in the country profile, come in 
 ## Still to do by a person
 
 TalkBack in Arabic on this step, with the other setup screens (see the BrowserStack note on #20).
+
+## The wilaya (second pull request)
+
+Checks of 17 October 2026, on `feat/25-wilaya`.
+
+### What changed
+
+- **The country profile** may list `zones`, each with a code and a name in each language; older profiles have none. A calendar's zone entry must name a listed zone, or the calendar is refused.
+- **Algeria's profile,** release `2026.3`, lists the 69 wilayas of Law 26-06 of 4 April 2026, with the codes and names of decrees 84-79, 21-117 and 26-206. `data/README.md` gives the sources and the spellings chosen.
+- **Each school has its own wilaya,** as the calendar's zone layer covers a school. The field opens the list over the screen, with a search by name or number that ignores short vowels, letter variants and accents. Choosing saves it at once; Back or «إغلاق» close it unchanged. A new school starts in the last school's wilaya. «التالي» waits for every school's wilaya.
+- **`OptionRow`** may leave out its icon, for long lists.
+
+### Checks
+
+| Check | Result |
+|---|---|
+| Core tests | 180 pass, 6 of them new: the zones' reading and refusals, zone entries checked against them, and Algeria's 69 wilayas |
+| Android tests | 462 pass, 10 of them new in `zone-picker.test.tsx`: folding and matching, opening, searching, choosing and saving, closing unchanged, the wilaya required and carried to a new school, and every row named and 48dp in the three languages, both directions |
+| Type check, ESLint, Prettier | Pass |
+| Android 15 emulator, release build | The school kept from the first pull request asked for its wilaya; «setif» found 19 · سطيف, choosing it turned «التالي» on, and Back closed the list with the choice kept |

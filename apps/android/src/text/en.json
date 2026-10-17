@@ -120,6 +120,13 @@
     "next": "Next",
     "nextHint": "Write each school’s name and choose its level and subject.",
     "notSaved": "The last change could not be saved on this phone.",
+    "zone": "Wilaya",
+    "zoneChoose": "Choose the wilaya",
+    "zoneHint": "It picks your wilaya’s dates in the calendar, and is never sent to any server.",
+    "zoneSearch": "Search by name or number",
+    "zoneSearchExample": "For example: 16 or Algiers",
+    "zoneNone": "No wilaya has this name or number.",
+    "close": "Close",
     "levelName": {
       "primary": "Primary",
       "cem": "Middle school",

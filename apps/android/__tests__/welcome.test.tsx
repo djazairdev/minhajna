@@ -42,6 +42,8 @@ async function finishTeaching() {
   const school = String(ids('levels-')[0].props.testID).slice('levels-'.length);
   await press(byTestID(`levels-${school}-cem`));
   await press(byTestID(`subjects-${school}-arabic`));
+  await press(byTestID(`zone-${school}`));
+  await press(byTestID(`zone-${school}-16`));
   await ReactTestRenderer.act(() => {
     (ids('school-name-')[0].findByType(TextInput).props as TextInputProps).onChangeText?.('متوسطة النجاح');
   });

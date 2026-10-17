@@ -50,6 +50,13 @@ export interface Level {
   readonly grades: readonly Grade[];
 }
 
+/** A zone the teacher picks at setup, such as one of Algeria's wilayas: it picks the calendar's zone layer. */
+export interface Zone {
+  /** As the zone layer names it, such as `16`. */
+  readonly code: string;
+  readonly name: LocalizedText;
+}
+
 export interface Subject {
   readonly code: string;
   readonly name: LocalizedText;
@@ -73,6 +80,8 @@ export interface CountryProfile {
   readonly levels: readonly Level[];
   readonly subjects: readonly Subject[];
   readonly sessionTypes: readonly SessionType[];
+  /** In the order the teacher sees them; absent only in older profiles. */
+  readonly zones?: readonly Zone[];
 }
 
 export interface Term {

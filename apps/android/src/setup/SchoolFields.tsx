@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // One school's fields on Setup-2-Teaching (#25). Alone, they follow
-// Setup-2-Teaching: levels, subjects, then the school's name. In a card, among
-// several schools, they follow Setup-2b-Schools: the name first, then levels
-// and subjects named after the school. Bivalent teachers pick two subjects
-// (R-3.2-23). Names come from the country profile; the levels' short names
-// come from the catalogue, as the chips draw them.
+// Setup-2-Teaching: levels, subjects, then the school's name and wilaya. In a
+// card, among several schools, they follow Setup-2b-Schools: the name and
+// wilaya first, then levels and subjects named after the school. Bivalent
+// teachers pick two subjects (R-3.2-23). Each school has its own wilaya, as
+// the calendar's zone layer covers a school.
 
-import type { CountryProfile, LocalizedText, School } from '@minhajna/core';
+import type { CountryProfile, School } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -17,32 +17,10 @@ import { ChipGroup } from '../components/Chip';
 import { TextField } from '../components/TextField';
 import { Icon } from '../design/Icon';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
-import { currentLanguage, useText } from '../text/i18n';
+import { useText } from '../text/i18n';
+import { levelName, localized, schoolLine } from './names';
 import { shownSubjects } from './school-rules';
-
-type Translate = ReturnType<typeof useText>;
-
-/** A name in the interface language, or English when the profile lacks it. */
-export function localized(name: LocalizedText): string {
-  return name[currentLanguage()] ?? name.en ?? Object.values(name)[0] ?? '';
-}
-
-/** The chips' short name for a level, as Setup-2-Teaching draws it. */
-export function levelName(t: Translate, profile: CountryProfile, code: string): string {
-  const level = profile.levels.find((candidate) => candidate.code === code);
-  return t(`setup.levelName.${code}`, { defaultValue: level ? localized(level.name) : code });
-}
-
-/** «متوسط · اللغة العربية»: the levels, then the subjects, in the profile's names. */
-export function schoolLine(t: Translate, profile: CountryProfile, school: School): string {
-  const comma = currentLanguage() === 'ar' ? '، ' : ', ';
-  const subjects = profile.subjects.filter((subject) => school.subjects.includes(subject.code));
-  const parts = [
-    school.levels.map((code) => levelName(t, profile, code)).join(comma),
-    subjects.map((subject) => localized(subject.name)).join(comma),
-  ].filter((part) => part !== '');
-  return parts.length > 0 ? parts.join(' · ') : t('setup.nothingChosen');
-}
+import { ZonePicker } from './ZonePicker';
 
 export interface SchoolFieldsProps {
   readonly profile: CountryProfile;
@@ -53,6 +31,7 @@ export interface SchoolFieldsProps {
   readonly onSubjects: (subjects: string[]) => void;
   readonly onName: (name: string) => void;
   readonly onNameDone: () => void;
+  readonly onZone: (code: string) => void;
   /** Offered only while there is another school. */
   readonly onDelete?: () => void;
 }
@@ -69,20 +48,25 @@ export function SchoolFields(props: SchoolFieldsProps) {
   const count = school.subjects.length;
   const subjectHint =
     count === 2 ? t('setup.twoSubjects') : count > 2 ? t('setup.severalSubjects') : t('setup.subjectHint');
-  const nameField = (
-    <TextField
-      testID={`school-name-${school.id}`}
-      label={layout === 'single' ? t('setup.school') : t('setup.schoolNumber', { number: layout.number })}
-      placeholder={t('setup.schoolPlaceholder')}
-      value={school.name}
-      onChangeText={props.onName}
-      onBlur={props.onNameDone}
-      returnKeyType="done"
-    />
+  const place = (
+    <>
+      <TextField
+        testID={`school-name-${school.id}`}
+        label={layout === 'single' ? t('setup.school') : t('setup.schoolNumber', { number: layout.number })}
+        placeholder={t('setup.schoolPlaceholder')}
+        value={school.name}
+        onChangeText={props.onName}
+        onBlur={props.onNameDone}
+        returnKeyType="done"
+      />
+      {profile.zones && (
+        <ZonePicker testID={`zone-${school.id}`} zones={profile.zones} value={school.zone} onChange={props.onZone} />
+      )}
+    </>
   );
   const fields = (
     <>
-      {layout !== 'single' && nameField}
+      {layout !== 'single' && place}
       <ChipGroup
         testID={`levels-${school.id}`}
         multiple
@@ -102,7 +86,7 @@ export function SchoolFields(props: SchoolFieldsProps) {
         onSelect={props.onSubjects}
         more={hidden > 0 ? { label: t('setup.moreSubjects'), onPress: () => setAll(true) } : undefined}
       />
-      {layout === 'single' && nameField}
+      {layout === 'single' && place}
       {props.onDelete && (
         <View style={styles.delete}>
           <Button

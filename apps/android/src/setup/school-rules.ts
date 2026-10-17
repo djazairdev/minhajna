@@ -10,9 +10,9 @@ import type { CountryProfile, School, Subject } from '@minhajna/core';
 
 const FIRST_SUBJECTS: readonly string[] = ['arabic', 'islamic', 'french', 'english', 'math'];
 
-/** A school with nothing chosen yet. */
-export function blankSchool(id: string): School {
-  return { id, name: '', levels: [], subjects: [] };
+/** A school with nothing chosen yet, or only the wilaya of the school before it. */
+export function blankSchool(id: string, zone?: string): School {
+  return { id, name: '', levels: [], subjects: [], ...(zone !== undefined && { zone }) };
 }
 
 /** The subjects taught at any of these levels, or every subject while no level is chosen. */
@@ -49,9 +49,10 @@ export function withLevels(profile: CountryProfile, school: School, levels: read
   return { ...school, levels, subjects: school.subjects.filter((code) => offered.includes(code)) };
 }
 
-/** A name, at least one level and at least one subject. */
-export function isComplete(school: School): boolean {
-  return school.name.trim() !== '' && school.levels.length > 0 && school.subjects.length > 0;
+/** A name, at least one level and one subject, and a wilaya when the profile lists them. */
+export function isComplete(profile: CountryProfile, school: School): boolean {
+  const placed = profile.zones === undefined || school.zone !== undefined;
+  return school.name.trim() !== '' && school.levels.length > 0 && school.subjects.length > 0 && placed;
 }
 
 /** The school as it is saved: the name without spaces around it. */

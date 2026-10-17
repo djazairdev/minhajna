@@ -95,6 +95,13 @@ function shown(): string[] {
 
 const saved = (data: TestData, id: string) => data.book.state.schools.get(id);
 
+/** Picks a wilaya as its list would; `zone-picker.test.tsx` checks the list itself. */
+async function chooseZone(id: string, code: string) {
+  await ReactTestRenderer.act(() => {
+    (byID(`zone-${id}`).props as { onChange: (code: string) => void }).onChange(code);
+  });
+}
+
 async function fillFirst(data: TestData): Promise<string> {
   await render(data);
   const [id] = openSchools();
@@ -102,6 +109,7 @@ async function fillFirst(data: TestData): Promise<string> {
   await press(`subjects-${id}-arabic`);
   await type(id, 'متوسطة النجاح');
   await leave(id);
+  await chooseZone(id, '16');
   await settle();
   return id;
 }
@@ -186,6 +194,7 @@ test('a second school folds the first to its line, with its own levels and subje
     name: 'متوسطة الأمل',
     levels: ['cem'],
     subjects: ['arabic', 'islamic'],
+    zone: '16',
   });
   expect(byID('setup-next').props).toMatchObject({ disabled: false });
   await press(`summary-${first}`);
