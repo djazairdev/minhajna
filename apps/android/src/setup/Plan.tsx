@@ -5,8 +5,9 @@
 // Setup-6-Plan). For each grade and subject, the pack its classes are pinned
 // to, with its status, timing, release and source, and each class's pin; a
 // grade with no pack yet works with typed items. The national calendar is
-// shown as built in. Where the class starts in its plan comes with the
-// September check (#31), as do the calendar's own screens.
+// shown as built in. Finishing opens Setup-7-Ready, with the September
+// check (#31); where the class starts in its plan and the calendar's own
+// screens come later.
 
 import { packsFor, type PinnedPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';

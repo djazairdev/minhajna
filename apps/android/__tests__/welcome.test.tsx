@@ -57,6 +57,8 @@ async function finishSetup() {
   await press(byTestID('week-next'));
   expect(heading()).toEqual([text.setup.title, 'الخطوة 5 من 5']);
   await press(byTestID('plan-finish'));
+  expect(tree.root.findAllByProps({ testID: 'ready-kept' })).not.toEqual([]);
+  await press(byTestID('ready-today'));
 }
 
 async function press(match: (props: PressableProps) => boolean) {
