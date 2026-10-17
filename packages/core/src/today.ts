@@ -36,7 +36,11 @@ export interface TodaySession {
 export interface TodayView {
   readonly day: Day;
   readonly sessions: readonly TodaySession[];
-  /** Holidays, closures, exam weeks, seminars and councils, for the day's marks. */
+  /**
+   * Holidays, closures, exam weeks, seminars and councils, for the day's marks:
+   * the schools' own, and those of the classes the day's sessions are for,
+   * such as an exam window for some grades only.
+   */
   readonly marks: readonly CalendarEntry[];
   readonly blocks: readonly TeacherBlock[];
   /** Earlier sessions still awaiting confirmation: a fact, never a judgement (PRD §3.1, rule 8). */
@@ -95,6 +99,12 @@ export function todayView(context: Context, day: Day): TodayView {
   const marks = new Map<string, CalendarEntry>();
   for (const school of state.schools.values()) {
     for (const entry of calendar.info(day, school).entries) marks.set(entry.id, entry);
+  }
+  for (const classId of new Set(sessions.map((session) => session.classId))) {
+    const schoolClass = state.classes.get(classId);
+    const school = schoolClass && state.schools.get(schoolClass.schoolId);
+    if (school === undefined) continue;
+    for (const entry of calendar.info(day, school, schoolClass).entries) marks.set(entry.id, entry);
   }
 
   const before = addDays(day, -1);
