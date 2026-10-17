@@ -9,6 +9,7 @@ import { compareDays } from './day.ts';
 import { at, isFields, Reader, RELEASE, type ParseResult } from './read.ts';
 import {
   CALENDAR_EFFECTS,
+  CALENDAR_TIMES,
   CONFIDENCES,
   type CalendarEntry,
   type CountryProfile,
@@ -111,6 +112,7 @@ function readEntry(
   if (term !== undefined && year !== undefined && !year.terms.some((candidate) => candidate.number === term)) {
     reader.fail(at(path, 'term'), 'unknown-reference');
   }
+  const times = raw['times'] === undefined ? undefined : reader.oneOf(raw, 'times', path, CALENDAR_TIMES);
   const name = readName(reader, raw, path);
   const source = reader.requiredText(raw, 'source', path);
   const confidence = reader.oneOf(raw, 'confidence', path, CONFIDENCES);
@@ -127,6 +129,7 @@ function readEntry(
     ...(levels !== undefined && { levels }),
     ...(grades !== undefined && { grades }),
     ...(term !== undefined && { term }),
+    ...(times !== undefined && { times }),
     name,
     source,
     confidence,
