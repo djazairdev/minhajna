@@ -54,6 +54,7 @@
     "sessions_many": "{{count}} حصة",
     "sessions_other": "{{count}} حصة"
   },
+  "bottomSheet": { "close": "إغلاق" },
   "language": {
     "label": "لغة الواجهة",
     "ar": "العربية",

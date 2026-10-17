@@ -12,14 +12,18 @@ import { spacing } from '../design/tokens';
  * focused field once the viewport has resized. ScrollView's focus measurement
  * is content-relative while the keyboard is screen-relative, so its reveal
  * offset includes that header too. No keyboard data is retained.
+ * Only this scroll area's inputs may resize it. Native children stay attached
+ * so a modal can restore its off-screen opener after the window regains focus.
  */
 export function GalleryScroll(props: ScrollViewProps) {
   const frame = useRef<ViewInstance>(null);
   const scroll = useRef<ScrollViewInstance>(null);
+  const focused = useRef<ReturnType<typeof TextInput.State.currentlyFocusedInput>>(null);
+  const [ownsKeyboard, setOwnsKeyboard] = useState(false);
   const [top, setTop] = useState(0);
   const reveal = () => {
     const input = TextInput.State.currentlyFocusedInput();
-    if (input && Keyboard.isVisible()) {
+    if (input && input === focused.current && Keyboard.isVisible()) {
       scroll.current?.scrollResponderScrollNativeHandleToKeyboard(input, top + spacing['space-16'], true);
     }
   };
@@ -27,12 +31,27 @@ export function GalleryScroll(props: ScrollViewProps) {
     <View
       ref={frame}
       style={styles.fill}
-      onFocus={reveal}
+      onFocus={() => {
+        focused.current = TextInput.State.currentlyFocusedInput();
+        setOwnsKeyboard(!!focused.current);
+        reveal();
+      }}
+      onBlur={() => {
+        focused.current = null;
+        setOwnsKeyboard(false);
+      }}
       onLayout={() => frame.current?.measureInWindow((_x, y) => setTop(y))}
     >
-      <KeyboardAvoidingView behavior="height" keyboardVerticalOffset={top} style={styles.fill} onLayout={reveal}>
+      <KeyboardAvoidingView
+        enabled={ownsKeyboard}
+        behavior="height"
+        keyboardVerticalOffset={top}
+        style={styles.fill}
+        onLayout={reveal}
+      >
         <ScrollView
           {...props}
+          removeClippedSubviews={false}
           ref={scroll}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"

@@ -50,6 +50,7 @@
     "sessions_one": "{{count}} session",
     "sessions_other": "{{count}} sessions"
   },
+  "bottomSheet": { "close": "Close" },
   "language": {
     "label": "Interface language",
     "ar": "العربية",
