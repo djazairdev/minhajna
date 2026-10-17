@@ -22,6 +22,7 @@ import { TextFieldSamples } from './text-field-samples';
 import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
+import { DueStripSamples, ProposalSamples } from './proposal-samples';
 import type { Language } from '../text/i18n';
 import type { Sample } from './samples';
 
@@ -99,6 +100,16 @@ export const entries: readonly GalleryEntry[] = [
     name: 'WeekGrid',
     design: 'docs/design/system/components/WeekGrid/README.md',
     render: (sample, language) => <WeekGridSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'Proposal',
+    design: 'docs/design/system/components/Proposal/README.md',
+    render: (sample, language) => <ProposalSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'DueStrip',
+    design: 'docs/design/system/components/DueStrip/README.md',
+    render: (sample, language) => <DueStripSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'CheckRow',
