@@ -5,7 +5,7 @@
 // text. Its end border resolves to physical left in RTL before rotation.
 
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { useLocale } from '@react-navigation/native';
+import { DefaultTheme, useLocale } from '@react-navigation/native';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,6 +13,19 @@ import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
 import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
+
+/** The navigator's colours, from the design's tokens. */
+export const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: colors.paper,
+    card: colors.sheet,
+    text: colors.ink,
+    border: colors.line,
+    primary: colors.ink,
+  },
+};
 
 /** Each setup screen's step, which its bar's subtitle names. */
 const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4, Plan: 5 } as const;
@@ -101,6 +114,7 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
           {route.name === 'TypeList' && <Text style={styles.subtitle}>{t('setup.sorted')}</Text>}
           {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
+          {route.name === 'Security' && <Text style={styles.subtitle}>{t('security.subtitle')}</Text>}
           {Object.hasOwn(SETUP_ROUTES, route.name) && (
             <Text style={styles.subtitle}>
               {t('setup.step', { step: SETUP_ROUTES[route.name as keyof typeof SETUP_ROUTES], count: SETUP_STEPS })}

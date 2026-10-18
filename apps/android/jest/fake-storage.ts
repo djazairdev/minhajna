@@ -122,7 +122,8 @@ export class FakeStorage {
     const result = this.#try(pin);
     if (!result.opened) return Promise.resolve(result);
     this.biometric = this.prompt === 'match';
-    return Promise.resolve({ opened: this.biometric, waitSeconds: 0 });
+    if (!this.biometric) return Promise.reject(failure('E_CANCELLED'));
+    return Promise.resolve({ opened: true, waitSeconds: 0 });
   }
 
   disableBiometrics(): Promise<void> {

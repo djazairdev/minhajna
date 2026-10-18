@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The screens that record the day's work, as navigation routes: Today, a
-// session's details, its roll call, a pupil's correction in it, and a
-// pupil who joins or leaves the class.
+// session's details, its roll call, a pupil's correction in it, a pupil who
+// joins or leaves the class, and the Classes tab with each class's plan.
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
+import { ClassPlan } from '../classes/ClassPlan';
+import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
 import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
@@ -72,4 +74,19 @@ export function CorrectScreen({ navigation, route }: NativeStackScreenProps<Root
       onRules={() => navigation.navigate('RollRules')}
     />
   );
+}
+
+/** The Classes tab; a class's «المخطط» opens its plan. */
+export function ClassesTabScreen({
+  navigation,
+}: CompositeScreenProps<
+  BottomTabScreenProps<HomeTabParamList, 'Classes'>,
+  NativeStackScreenProps<RootStackParamList>
+>) {
+  return <ClassesTab onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })} />;
+}
+
+/** A class's plan. */
+export function ClassPlanScreen({ route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
+  return <ClassPlan courseId={route.params.courseId} />;
 }

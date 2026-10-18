@@ -873,6 +873,39 @@
       "promptTitle": "Turn on fingerprint",
       "cancel": "Cancel",
       "failed": "Fingerprint is not on. You can turn it on later in “Lock and security”."
+    },
+    "change": {
+      "current": "Type your current PIN",
+      "next": "Choose a new 4-digit PIN",
+      "confirm": "Type the PIN to turn on the fingerprint or face",
+      "biometricFailed": "Not turned on: the phone did not confirm a fingerprint or face."
     }
+  },
+  "security": {
+    "title": "Lock and security",
+    "subtitle": "On this phone",
+    "open": "Opening the app",
+    "withPhone": "The PIN, or the phone's fingerprint or face",
+    "withPhoneLine": "The app asks the phone for them, and keeps no fingerprint or face image.",
+    "pinOnly": "The PIN only",
+    "pinOnlyLine": "The 4-digit PIN every time.",
+    "noBiometric": "This phone cannot match a fingerprint or face securely enough, so the app opens with the PIN only.",
+    "changePin": "Change the PIN",
+    "delay": "Lock automatically after this long unused",
+    "minutes_one": "1 minute",
+    "minutes_other": "{{count}} minutes",
+    "screenshots": "Allow screenshots",
+    "screenshotsLine": "Blocked on screens with pupils' names or marks, and those screens are hidden in recent apps. PIN screens stay blocked always.",
+    "fixed": "Fixed, cannot be changed",
+    "fixedLabel": "Fixed",
+    "notFixed": "Not applied",
+    "fixedDatabase": "The database is encrypted, and its key in the phone's keystore opens only with the lock",
+    "fixedNotifications": "No names or marks in notifications",
+    "fixedBackup": "The database never goes into the phone's cloud backup",
+    "fixedPermissions": "No permission for location, contacts or microphone; the camera only scans QR codes",
+    "pinChanged": "The PIN is changed.",
+    "biometricOn": "The app now opens with the fingerprint or face too.",
+    "biometricOff": "The app now opens with the PIN only.",
+    "failed": "The change was not saved. Try again."
   }
 }

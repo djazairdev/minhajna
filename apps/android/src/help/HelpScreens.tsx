@@ -21,6 +21,7 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
       </Text>
       <AboutBuild />
       <HelpRow label={t('privacy.helpTitle')} onPress={() => navigation.navigate('PrivacyNotice')} />
+      <HelpRow label={t('security.title')} onPress={() => navigation.navigate('Security')} />
       <HelpRow label={t('connections.title')} onPress={() => navigation.navigate('Connections')} />
       <HelpRow label={t('help.licences')} detail={t('help.offline')} onPress={() => navigation.navigate('Licences')} />
     </HelpPage>

@@ -4,6 +4,7 @@
 import { waitFor } from '../jest/fake-storage';
 import { errorCode, idleLongEnough, typed, waitWording } from '../src/lock/lock-rules';
 import { onUse, noteUse } from '../src/lock/activity';
+import { focusedRoute, gateKind, screenKind } from '../src/lock/screen-guard';
 import ar from '../src/text/ar.json';
 import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
@@ -69,4 +70,32 @@ test('every lock text is in each language, and the Arabic footer matches the des
   );
   expect(i18n.getFixedT('ar')('lock.waitSeconds', { count: 30 })).toBe('انتظر 30 ثانية قبل محاولة أخرى.');
   expect(i18n.getFixedT('en')('lock.footer', { count: 1 })).toContain('after 1 minute unused');
+});
+
+test('the guard reads the screen in front, and guards any screen it does not know', () => {
+  const state = {
+    index: 1,
+    routes: [
+      { name: 'Welcome' },
+      { name: 'Home', state: { index: 1, routes: [{ name: 'Today' }, { name: 'Classes' }] } },
+    ],
+  };
+  expect(focusedRoute(state)).toBe('Classes');
+  expect(focusedRoute({ routes: [{ name: 'Welcome' }, { name: 'Privacy' }] })).toBe('Privacy');
+  expect(focusedRoute({ routes: [] })).toBeUndefined();
+  expect(focusedRoute(undefined)).toBeUndefined();
+  expect(screenKind('Help')).toBe('open');
+  expect(screenKind('Security')).toBe('open');
+  expect(screenKind('Roll')).toBe('records');
+  expect(screenKind('Today')).toBe('records');
+  expect(screenKind('LockPin')).toBe('pin');
+  expect(screenKind('SomeNewScreen')).toBe('records');
+  expect(screenKind(undefined)).toBe('records');
+  expect(gateKind({ kind: 'welcome' }, false)).toBe('open');
+  expect(gateKind({ kind: 'ask', pin: '1234', upgrade: false }, false)).toBe('open');
+  expect(gateKind({ kind: 'create', upgrade: false }, false)).toBe('pin');
+  expect(gateKind({ kind: 'locked', biometric: false, waitSeconds: 0 }, false)).toBe('pin');
+  expect(gateKind({ kind: 'checking' }, false)).toBe('records');
+  expect(gateKind({ kind: 'open', fresh: false, opening: 1 }, false)).toBe('records');
+  expect(gateKind({ kind: 'locked', biometric: false, waitSeconds: 0 }, true)).toBe('open');
 });

@@ -26,6 +26,9 @@ class LockedException : Exception("The history is locked")
 /** A PIN is not tried while its try cannot be counted, as when the phone's storage is full. */
 class NoSpaceException(cause: Exception) : Exception("A PIN try cannot be counted", cause)
 
+/** The phone's prompt was closed before a match, so the fingerprint or face stays off. */
+class CancelledException : Exception("The phone's prompt was closed")
+
 /**
  * The app lock (#210, PRD §6.4). The history's key is the same 32 bytes as
  * before; the lock only changes how it is kept:

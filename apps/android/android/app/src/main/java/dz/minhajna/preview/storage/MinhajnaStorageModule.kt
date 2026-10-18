@@ -206,7 +206,8 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
   /**
    * Shows the phone's prompt; `then` runs on the worker with the released
    * cipher, and its value resolves the promise. A cancelled prompt resolves
-   * false, or `tried(false, 0)` when `onCancel` is given. One prompt at a time.
+   * false, or rejects with E_CANCELLED when `onCancel` is given, so a closed
+   * prompt never reads as a wrong PIN. One prompt at a time.
    */
   private fun prompt(
     texts: BiometricUnlock.Texts,
@@ -230,7 +231,7 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
           then(released)
         } else if (onCancel != null) {
           onCancel()
-          tried(false, 0)
+          throw CancelledException()
         } else {
           false
         }
@@ -262,6 +263,8 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
           promise.reject("E_NO_SPACE", e.message, e)
         } catch (e: KeyLostException) {
           promise.reject("E_KEY_LOST", e.message, e)
+        } catch (e: CancelledException) {
+          promise.reject("E_CANCELLED", e.message, e)
         } catch (e: Exception) {
           promise.reject("E_HISTORY", e.message ?: e.javaClass.simpleName, e)
         }
