@@ -119,7 +119,8 @@ test("pins the example pack to the grade's classes, keeping a course already mad
     root().findAll(
       (node) =>
         node.props.testID === `pack-${example.id}` &&
-        (node.props as PressableProps).accessibilityState?.selected === true,
+        node.props.accessibilityRole === 'radio' &&
+        (node.props as PressableProps).accessibilityState?.checked === true,
     ),
   ).not.toHaveLength(0);
   expect(shown()).toEqual(expect.arrayContaining(Object.values(text.plan.meaning)));
