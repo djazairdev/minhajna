@@ -5,6 +5,8 @@ import ReactTestRenderer from 'react-test-renderer';
 import { Text } from 'react-native';
 import type { TextProps } from 'react-native';
 import App from '../App';
+import { FakeStorage } from '../jest/fake-storage';
+import { typePin } from '../jest/unlock';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { bundledReference, readReference } from '../src/reference';
 import text from '../src/text/ar.json';
@@ -25,10 +27,12 @@ afterEach(async () => {
 
 async function render(files = bundledReference): Promise<ReactTestRenderer.ReactTestRenderer> {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
-  await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(<App files={files} />);
+  await ReactTestRenderer.act(async () => {
+    tree = ReactTestRenderer.create(<App files={files} storage={FakeStorage.unlocked().asSpec()} />);
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
   trees.push(tree!);
+  if (tree!.root.findAllByProps({ testID: 'pin-1' }).length > 0) await typePin(tree!);
   return tree!;
 }
 

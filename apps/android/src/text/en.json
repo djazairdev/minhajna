@@ -50,7 +50,9 @@
     "sessions_one": "{{count}} session",
     "sessions_other": "{{count}} sessions"
   },
-  "bottomSheet": { "close": "Close" },
+  "bottomSheet": {
+    "close": "Close"
+  },
   "language": {
     "label": "Interface language",
     "ar": "العربية",
@@ -835,5 +837,42 @@
     "confirm_other": "Confirm the session for the {{count}} years",
     "confirmNote": "Each year is confirmed as proposed. Tapping a proposal confirms it alone.",
     "alone": "Confirms this year alone"
+  },
+  "lock": {
+    "prompt": "The PIN, or your fingerprint",
+    "promptPin": "Type the PIN",
+    "biometric": "Fingerprint",
+    "biometricLabel": "Open with your fingerprint",
+    "delete": "Delete",
+    "entered_one": "{{count}} digit of {{total}}",
+    "entered_other": "{{count}} digits of {{total}}",
+    "footer_one": "The app locks after {{count}} minute unused. It keeps no fingerprint or face: it asks the phone for them.",
+    "footer_other": "The app locks after {{count}} minutes unused. It keeps no fingerprint or face: it asks the phone for them.",
+    "wrong": "Wrong PIN.",
+    "waitSeconds_one": "Wait {{count}} second before trying again.",
+    "waitSeconds_other": "Wait {{count}} seconds before trying again.",
+    "waitMinutes_one": "Wait {{count}} minute before trying again.",
+    "waitMinutes_other": "Wait {{count}} minutes before trying again.",
+    "waitWhy": "Each wrong PIN makes the wait longer, up to an hour. Nobody can lift the lock, not even the Minhajna project.",
+    "noSpace": "The phone’s storage is full, so the PIN is not tried. Free some space, then try again.",
+    "promptTitle": "Open Minhajna",
+    "promptCancel": "Use the PIN",
+    "create": {
+      "title": "Choose a 4-digit PIN",
+      "repeat": "Type the PIN again",
+      "mismatch": "The two PINs differ. Choose the PIN again.",
+      "line": "This PIN opens the app on this phone. Keep it safe: nobody can recover it, not even the Minhajna project.",
+      "upgrade": "The app now locks with a PIN. Your record book stays as it is.",
+      "failed": "The PIN was not saved. Check the phone has free space, then choose the PIN again."
+    },
+    "biometricAsk": {
+      "title": "Open with your fingerprint or face too?",
+      "line": "The app asks the phone for them and keeps nothing of them. The PIN always works.",
+      "yes": "Yes, fingerprint or face",
+      "no": "The PIN alone",
+      "promptTitle": "Turn on fingerprint",
+      "cancel": "Cancel",
+      "failed": "Fingerprint is not on. You can turn it on later in “Lock and security”."
+    }
   }
 }

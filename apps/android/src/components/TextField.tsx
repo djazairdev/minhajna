@@ -7,6 +7,7 @@ import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-na
 import type { TextInputInstance, TextInputProps } from 'react-native';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
 import type { ControlIcon } from './control';
+import { noteUse } from '../lock/activity';
 
 /** Controlled text, with translated labels/examples supplied by the screen's catalogue. */
 export type TextFieldProps = Pick<
@@ -35,6 +36,7 @@ export type TextFieldProps = Pick<
  * value. Its label includes any error, independently of optional speech hints.
  * Android's content-size event already includes the input's compound padding.
  * Until that first event, a text area keeps its native intrinsic height.
+ * Each change counts as use of the app, for the automatic lock (#210).
  */
 export function TextField({
   label,
@@ -90,7 +92,10 @@ export function TextField({
           placeholder={placeholder}
           placeholderTextColor={colors.pencil}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={(value) => {
+            noteUse();
+            onChangeText(value);
+          }}
           multiline={multiline}
           autoComplete="off"
           importantForAutofill="noExcludeDescendants"

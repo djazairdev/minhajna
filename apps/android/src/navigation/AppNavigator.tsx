@@ -6,6 +6,8 @@ import {
   DefaultTheme,
   NavigationContainer,
   useNavigationContainerRef,
+  type InitialState,
+  type NavigationState,
   type CompositeScreenProps,
   type NavigatorScreenParams,
 } from '@react-navigation/native';
@@ -101,14 +103,19 @@ const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
 /**
  * Places typed tabs under the native stack so inner screens cover them. In
  * debug builds, the developer menu also opens the component gallery and the
- * storage check.
+ * storage check. After the app lock, the screens come back as they were,
+ * from a state kept in memory only (#210).
  */
 export function AppNavigator({
   direction = I18nManager.isRTL ? 'rtl' : 'ltr',
   initialRouteName = 'Welcome',
+  initialState,
+  onStateChange,
 }: {
   direction?: 'rtl' | 'ltr';
   initialRouteName?: 'Welcome' | 'Home';
+  initialState?: InitialState;
+  onStateChange?: (state: NavigationState | undefined) => void;
 }) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
@@ -118,7 +125,13 @@ export function AppNavigator({
     DevSettings.addMenuItem(STORAGE_CHECK_MENU_ITEM, () => navigation.navigate('StorageCheck'));
   }, [navigation]);
   return (
-    <NavigationContainer ref={navigation} direction={direction} theme={theme}>
+    <NavigationContainer
+      ref={navigation}
+      direction={direction}
+      theme={theme}
+      initialState={initialState}
+      onStateChange={onStateChange}
+    >
       <Stack.Navigator
         initialRouteName={initialRouteName}
         screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}

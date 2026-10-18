@@ -51,7 +51,9 @@
     "sessions_many": "{{count}} de séances",
     "sessions_other": "{{count}} séances"
   },
-  "bottomSheet": { "close": "Fermer" },
+  "bottomSheet": {
+    "close": "Fermer"
+  },
   "language": {
     "label": "Langue de l’interface",
     "ar": "العربية",
@@ -853,5 +855,46 @@
     "confirm_other": "Confirmer la séance pour les {{count}} niveaux",
     "confirmNote": "Chaque niveau est confirmé tel que proposé. Un appui sur une proposition la confirme seule.",
     "alone": "Confirme ce niveau seul"
+  },
+  "lock": {
+    "prompt": "Le code, ou l’empreinte",
+    "promptPin": "Tapez le code",
+    "biometric": "Empreinte",
+    "biometricLabel": "Ouvrir avec l’empreinte",
+    "delete": "Effacer",
+    "entered_one": "{{count}} chiffre sur {{total}}",
+    "entered_many": "{{count}} chiffres sur {{total}}",
+    "entered_other": "{{count}} chiffres sur {{total}}",
+    "footer_one": "L’application se verrouille après {{count}} minute sans utilisation. Elle n’enregistre ni empreinte ni visage : elle les demande au téléphone.",
+    "footer_many": "L’application se verrouille après {{count}} minutes sans utilisation. Elle n’enregistre ni empreinte ni visage : elle les demande au téléphone.",
+    "footer_other": "L’application se verrouille après {{count}} minutes sans utilisation. Elle n’enregistre ni empreinte ni visage : elle les demande au téléphone.",
+    "wrong": "Code incorrect.",
+    "waitSeconds_one": "Attendez {{count}} seconde avant de réessayer.",
+    "waitSeconds_many": "Attendez {{count}} secondes avant de réessayer.",
+    "waitSeconds_other": "Attendez {{count}} secondes avant de réessayer.",
+    "waitMinutes_one": "Attendez {{count}} minute avant de réessayer.",
+    "waitMinutes_many": "Attendez {{count}} minutes avant de réessayer.",
+    "waitMinutes_other": "Attendez {{count}} minutes avant de réessayer.",
+    "waitWhy": "Chaque code incorrect allonge l’attente, jusqu’à une heure. Personne ne peut lever le verrou, pas même le projet Minhajna.",
+    "noSpace": "La mémoire du téléphone est pleine : le code n’est pas essayé. Libérez de l’espace, puis réessayez.",
+    "promptTitle": "Ouvrir Minhajna",
+    "promptCancel": "Utiliser le code",
+    "create": {
+      "title": "Choisissez un code à 4 chiffres",
+      "repeat": "Tapez le code une seconde fois",
+      "mismatch": "Les deux codes diffèrent. Choisissez le code à nouveau.",
+      "line": "Ce code ouvre l’application sur ce téléphone. Gardez-le bien : personne ne peut le retrouver, pas même le projet Minhajna.",
+      "upgrade": "L’application se verrouille désormais avec un code. Votre registre reste tel quel.",
+      "failed": "Le code n’a pas été enregistré. Vérifiez qu’il reste de l’espace sur le téléphone, puis choisissez le code à nouveau."
+    },
+    "biometricAsk": {
+      "title": "Ouvrir aussi avec l’empreinte ou le visage ?",
+      "line": "L’application les demande au téléphone et n’en garde rien. Le code fonctionne toujours.",
+      "yes": "Oui, avec l’empreinte ou le visage",
+      "no": "Le code seul",
+      "promptTitle": "Activer l’empreinte",
+      "cancel": "Annuler",
+      "failed": "L’empreinte n’est pas activée. Vous pourrez l’activer plus tard dans « Verrou et sécurité »."
+    }
   }
 }
