@@ -14,10 +14,11 @@
 // and a range reads in the page's direction. A row's wrapped lines are
 // counted, safe side, so the empty rules after it still fit the page. The
 // blank version keeps the labels and the tables' heads, and leaves
-// everything else for the pen.
+// everything else for the pen. Primary classes keep their own journal, so
+// they and the primary schools are left out of the card and the seminars.
 
 import { appliesTo, classGrades, forGrade, type CalendarEntry, type Day } from '@minhajna/core';
-import { schoolNames, yearLabel, type DocumentData, type Translate } from './document-data';
+import { yearLabel, type DocumentData, type Translate } from './document-data';
 import { journalFrontHtml, type FrontRow, type FrontTable } from './journal-front-html';
 import { bookClasses, bookCourses } from './texts-book-pages';
 import { span } from '../times/TimeTable';
@@ -62,14 +63,17 @@ function isHoliday(entry: CalendarEntry): boolean {
 /** The journal's front pages for the school year of `data`, or blank ones with their labels and heads. */
 export function journalFrontPages(data: DocumentData, t: Translate, blank: boolean): string {
   const key = (name: FrontKey) => `documents.journalFront.${name}` as const;
-  const schools = [...data.state.schools.values()];
-  const courses = bookCourses(data);
+  const courses = bookCourses(data).filter(({ schoolClass }) => schoolClass.level !== 'primary');
   const name = (entry: CalendarEntry) => entry.name[data.lang] ?? entry.name.ar ?? Object.values(entry.name)[0] ?? '';
   const date = (day: Day) => `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
   const dates = (entry: CalendarEntry) =>
     entry.from === entry.to ? date(entry.from) : span(date(entry.from), date(entry.to), data.dir);
   const inYear = (entry: CalendarEntry) => entry.from <= data.year.to && entry.to >= data.year.from;
-  const taught = bookClasses(data);
+  const taught = bookClasses(data).filter((one) => one.level !== 'primary');
+  const all = [...data.state.schools.values()];
+  const own = all.filter((school) => school.levels.some((level) => level !== 'primary'));
+  const schools = own.length > 0 ? own : all;
+  const names = schools.map((school) => school.name).join(' · ');
   const covers = (entry: CalendarEntry) =>
     schools.length === 0
       ? entry.layer === 'national'
@@ -142,7 +146,7 @@ export function journalFrontPages(data: DocumentData, t: Translate, blank: boole
       dir: data.dir,
       book: t('documents.journal'),
       front: t(key('name')),
-      school: blank ? '' : schoolNames(data),
+      school: blank ? '' : names,
       year: t('documents.year', { year: yearLabel(data) }),
       card: t(key('card')),
       director: t('documents.director'),
@@ -151,7 +155,7 @@ export function journalFrontPages(data: DocumentData, t: Translate, blank: boole
       { label: t(key('teacherName')), value: value(data.state.personal?.name) },
       { label: t(key('rank')), value: value(data.state.teacher?.rank) },
       { label: t(key('subject')), value: value(subjects.join(t(key('and')))) },
-      { label: t(key('school')), value: value(schoolNames(data)) },
+      { label: t(key('school')), value: value(names) },
       { label: t(key('year')), value: yearLabel(data) },
       { label: t(key('classes')), value: value(classes.join(' · ')) },
     ],

@@ -832,6 +832,25 @@
       "retaught": "Taught again: {{title}}",
       "colon": ": "
     },
+    "primaryJournal": {
+      "name": "Primary daily journal",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "teacher": "Teacher's signature",
+      "minutes": "{{minutes}} min",
+      "activities": {
+        "reading": "Reading",
+        "writing": "Writing"
+      },
+      "heads": {
+        "minutes": "Duration",
+        "subject": "Subject",
+        "activity": "Activity",
+        "content": "Content",
+        "indicator": "Competence indicator",
+        "domain": "Domain · lesson note"
+      }
+    },
     "journalFront": {
       "name": "Front pages",
       "card": "Teacher card",
@@ -914,7 +933,10 @@
         "per-classLine": "A page for each class with a session that day; in the blank version, a page for each class."
       },
       "blankJournalFront": "The card prints with its labels, and both tables with their heads and empty rules.",
-      "signatureJournalFront": "The name and rank print as entered in setup; the director's visa stays blank."
+      "signatureJournalFront": "The name and rank print as entered in setup; the director's visa stays blank.",
+      "blankPrimaryJournal": "A page for each primary class, with its heads, its two halves of the day and empty rows; the day is written by hand.",
+      "signaturePrimaryJournal": "The teacher's box stays blank to sign by hand, and the director's visa always blank. The competence indicator and the lesson note's number are written by hand.",
+      "noPrimary": "No primary class taught this year, so there is no primary journal to print."
     },
     "textsBook": {
       "name": "Texts book",

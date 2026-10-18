@@ -28,7 +28,7 @@ export function DocumentsTab({ onOpen }: { readonly onOpen: (id: DocumentId) => 
       <ScrollView contentContainerStyle={[styles.content, { paddingLeft: insets.left, paddingRight: insets.right }]}>
         <PageHeading testID="documents-heading" title={t('navigation.documents')} scope={t('documents.list.line')} />
         <View style={styles.list}>
-          {DOCUMENTS.map((kind) => (
+          {DOCUMENTS.filter((kind) => kind.shown?.(data) ?? true).map((kind) => (
             <RowLink
               key={kind.id}
               testID={`documents-${kind.id}`}

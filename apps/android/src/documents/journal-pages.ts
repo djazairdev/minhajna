@@ -9,6 +9,7 @@
 // (R-3.8-38): per class, each class taught that day gets its own page. The
 // blank page keeps the head and the columns, with the day left to write by
 // hand; per class, a blank page for each class taught this school year.
+// Primary classes keep their own journal, so they are left out here.
 
 import { courseSetup, todayView, type TodaySession } from '@minhajna/core';
 import { bookSpan } from '../entry/book-lines';
@@ -47,18 +48,22 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
       awaiting,
     };
   };
-  const sessions = blank ? [] : todayView(context, data.day).sessions.filter((item) => item.status !== 'calendar');
+  const classes = bookClasses(data).filter((one) => one.level !== 'primary');
+  const sessions = blank
+    ? []
+    : todayView(context, data.day).sessions.filter(
+        (item) => item.status !== 'calendar' && classes.some((one) => one.id === item.course.classId),
+      );
   const days: JournalDay[] =
     layout !== 'per-class'
       ? [{ title: blank ? '' : title(data.day), entries: sessions.map(entry) }]
-      : (blank
-          ? bookClasses(data)
-          : bookClasses(data).filter((one) => sessions.some((item) => item.course.classId === one.id))
-        ).map((one) => ({
-          title: blank ? '' : title(data.day),
-          className: t('documents.textsBook.className', { name: isolate(one.name) }),
-          entries: sessions.filter((item) => item.course.classId === one.id).map(entry),
-        }));
+      : (blank ? classes : classes.filter((one) => sessions.some((item) => item.course.classId === one.id))).map(
+          (one) => ({
+            title: blank ? '' : title(data.day),
+            className: t('documents.textsBook.className', { name: isolate(one.name) }),
+            entries: sessions.filter((item) => item.course.classId === one.id).map(entry),
+          }),
+        );
   return journalHtml(
     {
       lang: data.lang,

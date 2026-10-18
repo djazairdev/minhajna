@@ -849,6 +849,25 @@
       "retaught": "Reprise : {{title}}",
       "colon": " : "
     },
+    "primaryJournal": {
+      "name": "Cahier journal",
+      "morning": "Matinée",
+      "afternoon": "Après-midi",
+      "teacher": "Signature de l'enseignant",
+      "minutes": "{{minutes}} min",
+      "activities": {
+        "reading": "Lecture",
+        "writing": "Écriture"
+      },
+      "heads": {
+        "minutes": "Durée",
+        "subject": "Matière",
+        "activity": "Activité",
+        "content": "Contenu",
+        "indicator": "Indicateur de compétence",
+        "domain": "Domaine · fiche"
+      }
+    },
     "journalFront": {
       "name": "Pages de garde",
       "card": "Fiche de l'enseignant",
@@ -932,7 +951,10 @@
         "per-classLine": "Une page par classe ayant cours ce jour-là ; dans la version vierge, une page par classe."
       },
       "blankJournalFront": "La fiche s'imprime avec ses intitulés, et les deux tableaux avec leurs en-têtes et des lignes vides.",
-      "signatureJournalFront": "Le nom et le grade s'impriment tels que saisis à la configuration ; le visa du directeur reste vide."
+      "signatureJournalFront": "Le nom et le grade s'impriment tels que saisis à la configuration ; le visa du directeur reste vide.",
+      "blankPrimaryJournal": "Une page par classe du primaire, avec ses en-têtes, ses deux demi-journées et des lignes vides ; le jour s'écrit à la main.",
+      "signaturePrimaryJournal": "La case de l'enseignant reste vide pour signer à la main, et celle du visa du directeur toujours vide. L'indicateur de compétence et le numéro de fiche s'écrivent à la main.",
+      "noPrimary": "Aucune classe du primaire cette année : pas de cahier journal à imprimer."
     },
     "textsBook": {
       "name": "Cahier de textes",
