@@ -90,7 +90,7 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
       dir: 'rtl',
       book: t('documents.journal'),
       school,
-      year: t('documents.year', { year: '2026-2027' }),
+      year: t('documents.year', { year: '\u20682026-2027\u2069' }),
       time: t('documents.time'),
       className: t('documents.className'),
       content: t('documents.content'),

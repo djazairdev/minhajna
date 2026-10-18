@@ -25,7 +25,7 @@ import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { i18n, isLanguage, type Language } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
-import { yearLabel, type DocumentData, type Translate } from './document-data';
+import { yearShown, type DocumentData, type Translate } from './document-data';
 import { escapeHtml, printDocument } from './print-html';
 import { span } from '../times/TimeTable';
 import { bookClasses } from './texts-book-pages';
@@ -83,7 +83,7 @@ export function supervisedPages(data: DocumentData, t: Translate, blank: boolean
     const head = bookHead({
       lang: book,
       school: data.state.schools.get(schoolClass.schoolId)?.name ?? '',
-      year: bt('documents.year', { year: yearLabel(data) }),
+      year: bt('documents.year', { year: yearShown(data) }),
       className: bt('documents.textsBook.className', { name: isolate(schoolClass.name) }),
       title: bt('documents.supervised.page'),
     });

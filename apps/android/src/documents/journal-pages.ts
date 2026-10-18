@@ -16,7 +16,7 @@ import { bookSpan } from '../entry/book-lines';
 import { coreContext } from '../storage/core-context';
 import { sessionTime } from '../times/times-rules';
 import { sessionMeta } from '../today/today-meta';
-import { dayTitle, schoolNames, yearLabel, type DocumentData, type Translate } from './document-data';
+import { dayTitle, schoolNames, yearShown, type DocumentData, type Translate } from './document-data';
 import { journalHtml, type JournalDay, type JournalEntry } from './journal-html';
 import { journalLines, proposedRecord, type JournalNames } from './journal-lines';
 import { bookClasses } from './texts-book-pages';
@@ -70,7 +70,7 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
       dir: data.dir,
       book: t('documents.journal'),
       school: schoolNames(data),
-      year: t('documents.year', { year: yearLabel(data) }),
+      year: t('documents.year', { year: yearShown(data) }),
       time: t('documents.time'),
       className: t('documents.className'),
       content: t('documents.content'),

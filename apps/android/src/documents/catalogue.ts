@@ -9,7 +9,7 @@
 // plugs in here.
 
 import type { IconName } from '../design/Icon';
-import { dayTitle, monthLabel, taughtClasses, yearLabel, type DocumentData, type Translate } from './document-data';
+import { dayTitle, monthLabel, taughtClasses, yearShown, type DocumentData, type Translate } from './document-data';
 import { journalFrontPages } from './journal-front-pages';
 import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
 import { primaryFrontPages } from './primary-front-pages';
@@ -109,7 +109,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     empty: () => false,
     period: (data) => data.year.id,
     title: (t) => `${t('documents.journal')} · ${t('documents.journalFront.name')}`,
-    line: (data, t) => t('documents.journalFront.line', { year: yearLabel(data) }),
+    line: (data, t) => t('documents.journalFront.line', { year: yearShown(data) }),
     blankLine: (t) => t('documents.output.blankJournalFront'),
     signatureLine: (t) => t('documents.output.signatureJournalFront'),
     emptyLine: (t) => t('documents.output.noClasses'),
@@ -140,7 +140,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     empty: (data) => !teachesPrimary(data),
     period: (data) => data.year.id,
     title: (t) => `${t('documents.primaryJournal.name')} · ${t('documents.journalFront.name')}`,
-    line: (data, t) => t('documents.journalFront.line', { year: yearLabel(data) }),
+    line: (data, t) => t('documents.journalFront.line', { year: yearShown(data) }),
     blankLine: (t) => t('documents.output.blankPrimaryFront'),
     signatureLine: (t) => t('documents.output.signaturePrimaryFront'),
     emptyLine: (t) => t('documents.output.noPrimary'),

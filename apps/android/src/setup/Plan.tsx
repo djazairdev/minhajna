@@ -95,7 +95,7 @@ export function Plan({ onChange, onFinish }: { onChange: (group: PlanGroup) => v
         <View testID="plan-calendar" style={styles.card}>
           <View style={styles.cardHead}>
             <Text accessibilityRole="header" style={[styles.title, align]}>
-              {t('plan.calendar', { year: year.id })}
+              {t('plan.calendar', { year: isolate(year.id) })}
             </Text>
             <Text style={styles.badge}>{t('plan.bundled')}</Text>
           </View>

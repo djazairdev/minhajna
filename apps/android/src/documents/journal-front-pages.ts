@@ -12,7 +12,7 @@
 // everything else for the pen. Primary classes keep their own journal, so
 // they and the primary schools are left out of the card and the seminars.
 
-import { yearLabel, type DocumentData, type Translate } from './document-data';
+import { yearLabel, yearShown, type DocumentData, type Translate } from './document-data';
 import { frontTables } from './front-tables';
 import { journalFrontHtml } from './journal-front-html';
 import { bookClasses, bookCourses } from './texts-book-pages';
@@ -42,7 +42,7 @@ export function journalFrontPages(data: DocumentData, t: Translate, blank: boole
       book: t('documents.journal'),
       front: t(key('name')),
       school: blank ? '' : names,
-      year: t('documents.year', { year: yearLabel(data) }),
+      year: t('documents.year', { year: yearShown(data) }),
       card: t(key('card')),
       director: t('documents.director'),
     },

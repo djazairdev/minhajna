@@ -73,7 +73,7 @@ export function Ready({ onDone }: { onDone: () => void }) {
         pinned === 0 ? 'ready.pinnedNone' : pinned < group.classes.length ? 'ready.pinnedSome' : 'ready.pinnedAll';
       return t(key, { group: groupName(t, profile, group) });
     }),
-    t('plan.calendar', { year: year.id }),
+    t('plan.calendar', { year: isolate(year.id) }),
   ];
 
   const checkCard = ({ group, rows }: CheckGroup) => {

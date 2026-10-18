@@ -100,7 +100,7 @@ test('lists each grade and subject with no pack pinned yet, the built-in calenda
       '⁨4م1⁩ · دون حزمة',
       'اللغة العربية · السنة الأولى متوسط',
       text.plan.noPacksYet,
-      'الرزنامة الوطنية 2026-2027',
+      'الرزنامة الوطنية \u20682026-2027\u2069',
       text.plan.bundled,
     ]),
   );

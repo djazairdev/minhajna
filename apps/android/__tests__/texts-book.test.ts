@@ -53,6 +53,7 @@ test('prints a confirmed session as the book takes it, under an Arabic head, and
   const data = await withFirstConfirmed();
   const html = textsBookPages(documentData(data), t, false);
   expect(html).toContain('دفتر النصوص · الصفحة 1');
+  expect(html).toContain('السنة الدراسية \u20682026-2027\u2069');
   expect(html).toContain('المادة: اللغة العربية');
   expect(html).toContain('2026/10/15');
   expect(html).toContain('08سا – 09سا');

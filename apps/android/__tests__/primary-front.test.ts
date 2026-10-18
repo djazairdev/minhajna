@@ -70,6 +70,7 @@ test('a class gets its cover, card, holidays, seminars, pupil list and timetable
   const html = primaryFrontPages(documentData(await withPupils()), t, false);
   expect(html.match(/<section class="page">/g)).toHaveLength(6);
   expect(html).toContain('<div class="cover">');
+  expect(html.match(/السنة الدراسية \u20682026-2027\u2069/g)).toHaveLength(6);
   expect(html).toContain('الاسم واللقب: مقراني نادية');
   expect(html).toContain('أستاذ المدرسة الابتدائية');
   expect(html).toContain('⁨5 ابتدائي أ⁩ · 3 تلاميذ');
