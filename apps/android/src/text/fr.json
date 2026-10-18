@@ -868,6 +868,19 @@
         "domain": "Domaine · fiche"
       }
     },
+    "primaryFront": {
+      "className": "Classe",
+      "pupils": "Liste des élèves",
+      "pupilsNote": "Le numéro, le nom et le numéro d'inscription seulement : ni date de naissance, ni adresse, ni coordonnées des parents.",
+      "number": "N°",
+      "pupilName": "Nom et prénom",
+      "registration": "N° d'inscription",
+      "week": "Emploi du temps hebdomadaire",
+      "time": "Horaire",
+      "approved": "Approuvé le :",
+      "seal": "Signature et cachet du directeur",
+      "weekNote": "Les séances de l'enseignant avec la classe, d'après l'emploi du temps en vigueur. Le directeur écrit les heures des enseignants spécialisés et la date d'approbation, et signe à la main."
+    },
     "journalFront": {
       "name": "Pages de garde",
       "card": "Fiche de l'enseignant",
@@ -954,7 +967,9 @@
       "signatureJournalFront": "Le nom et le grade s'impriment tels que saisis à la configuration ; le visa du directeur reste vide.",
       "blankPrimaryJournal": "Une page par classe du primaire, avec ses en-têtes, ses deux demi-journées et des lignes vides ; le jour s'écrit à la main.",
       "signaturePrimaryJournal": "La case de l'enseignant reste vide pour signer à la main, et celle du visa du directeur toujours vide. L'indicateur de compétence et le numéro de fiche s'écrivent à la main.",
-      "noPrimary": "Aucune classe du primaire cette année : pas de cahier journal à imprimer."
+      "noPrimary": "Aucune classe du primaire cette année : pas de cahier journal à imprimer.",
+      "blankPrimaryFront": "Pour chaque classe du primaire, les pages de garde avec leurs intitulés : couverture, fiche, tableaux, liste d'élèves et emploi du temps vides.",
+      "signaturePrimaryFront": "Les pages portent « Interne · confidentiel » car elles contiennent les noms des élèves. Le visa du directeur et la date d'approbation restent vides."
     },
     "textsBook": {
       "name": "Cahier de textes",

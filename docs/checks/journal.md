@@ -54,22 +54,36 @@ Each primary class with a session that day gets an A4 landscape page, with the s
 
 A session awaiting confirmation prints in grey with what confirming it would record. Boxes for the teacher's signature and the director's visa close the page (R-3.8-10). The type is set so a full day of seven sessions of three lines fits one sheet. The blank version gives every primary class a page with five empty rows in the morning and three in the afternoon.
 
+## The primary journal's front pages
+
+«الكراس اليومي · الصفحات الأولى» prints, for each primary class this school year, six A4 portrait pages marked «داخلي · سري», as they hold pupils' names (R-3.8-08, R-5.9-15):
+
+- **The cover:** the school, the year, «الكراس اليومي», the class and the teacher's name, with no logo.
+- **The teacher's card:** the name and rank as given in setup, the school, the class with its number of pupils, such as «5 ابتدائي أ · 34 تلميذاً», and the year, with the director's visa.
+- **Holidays and national days,** then **seminars and training,** for the class's school and its levels, as the CEM front pages give them, with 23 rules a page.
+- **The pupil list** on the day it is printed, in the class list's order: the number, the name and the registration number only, never a birth date, an address or a parent's details. A long list runs on to the next sheet with its heads.
+- **The weekly timetable** in force that day: the teacher's sessions with the class by slot and day, a lesson of week A or B marked «(أ)» or «(ب)», and the levels of a multigrade session that is not for all of them. The bell times are the usual ones, even when printed in Ramadan, or the slot's name without bells, in a morning band and an afternoon band. Boxes for the day it was approved and the director's signature and stamp close it; the specialists' hours are the director's to write.
+
+Printed before the school year starts, the pages take its first day, and before the first timetable applies, the first timetable drawn. The blank version keeps the labels, the heads, the class on the cover, the card and the timetable, and one page of 23 empty rules for the pupil list.
+
 ## The result
 
 | Check | Result |
 |---|---|
-| Android tests | 1199 pass. The new ones cover a carried-on item with its unit, stages and remarks; guided work with its field, a skipped item, an earlier lesson and content off the plan; a session not held; a session awaiting confirmation; one page or a page per class, on a day with sessions, a day without and blank; the book clock; French colons and an isolated class name; the file name of each layout; a journal opened before the school year; and the output stepping through the days and printing a page per class. For the front pages: the card, events in order with those to come in grey and none of another school's, the days off with their confidence, day-first dates and ranges in both directions, the blank version, the file name, each school's event of the same name, an event for one grade or for a joint class's second level, an entry across the whole year, and a long row taking more rules. For the primary journal: the bands with duration, subject, activity and content, a session awaiting confirmation in grey, the boxes, a day without sessions and the blank version, a multigrade level with a remediation session, the journals each level of teacher sees, and a teacher of both levels |
+| Android tests | 1205 pass. The new ones cover a carried-on item with its unit, stages and remarks; guided work with its field, a skipped item, an earlier lesson and content off the plan; a session not held; a session awaiting confirmation; one page or a page per class, on a day with sessions, a day without and blank; the book clock; French colons and an isolated class name; the file name of each layout; a journal opened before the school year; and the output stepping through the days and printing a page per class. For the front pages: the card, events in order with those to come in grey and none of another school's, the days off with their confidence, day-first dates and ranges in both directions, the blank version, the file name, each school's event of the same name, an event for one grade or for a joint class's second level, an entry across the whole year, and a long row taking more rules. For the primary journal: the bands with duration, subject, activity and content, a session awaiting confirmation in grey, the boxes, a day without sessions and the blank version, a multigrade level with a remediation session, the journals each level of teacher sees, and a teacher of both levels. For the primary front pages: the cover, the card with the pupils' number, the calendar tables, the pupil list with names and registration numbers only and without a pupil who left, the confidential mark, the timetable's cells and boxes, a multigrade class's levels and weeks A and B, the usual times in Ramadan, printing before the year and before the first timetable, the blank version, and the tab listing them to a primary teacher only |
 | The journal's output opens on Sunday 18 October with «قسمان · الأحد 18 أكتوبر 2026», the day between its two arrows, then «الدفتر» with «دفتر واحد للأقسام» chosen and «دفتر لكل قسم», then the version | **Passed** |
 | Ten taps on the day before reach Thursday 8 October; the line under the title follows | **Passed** |
 | 8 October as one journal: 4AM1 at «08سا – 09سا» with its French content as «المورد», «سير الحصة: تمّت كما هو مقترح» and its homework under «ملاحظات»; 4AM2 at «09سا – 10سا» in grey, «سير الحصة: تنتظر التأكيد» | **Passed** after a fix |
 | 8 October with «دفتر لكل قسم»: two pages, «القسم: 4AM1» and «القسم: 4AM2» under the day | **Passed** |
 | The front pages print as three A4 portrait pages: the card with «اللغة العربية», «CEM Test», «2026-2027» and «4AM1 · 4AM2», name and rank blank as setup left them, and the visa box; the seminars table with its 25 rules and its note; the twelve days off from the autumn holiday to Independence Day, each with its status, then empty rules | **Passed** after a fix |
+| The primary front pages, made from the tests' made-up class with 34 made-up pupils and printed through desktop Chrome: the cover, the card with «5 ابتدائي أ · 34 تلميذاً», the twelve days off within 23 rules, the seminars, the list on two sheets with its heads repeated, and the timetable with Arabic and mathematics on Thursday and both boxes, each page marked «داخلي · سري»; the blank version on six pages | **Passed** after a fix |
 | The primary journal, made from the tests' made-up class and printed through desktop Chrome, since the emulator's teacher has no primary class: one landscape page with both bands and the boxes; a made-up full day of seven sessions of three lines fits one sheet | **Passed** after a fix |
 
 Faults found and fixed while checking:
 - French words in an Arabic line were not isolated; titles, units, stages, content off the plan and the factual line now are, as the homework already was.
 - The front pages' ranges first printed year first and in the wrong order on a right-to-left page; they are now day first and read from the right.
 - A full primary day ran over one sheet; the type, the head and the boxes are now set so it fits.
+- The blank pupil list ran on to a second sheet; it now holds one page of rules, and the blank card keeps the class.
 
 ## Repeating the checks
 
@@ -78,9 +92,10 @@ Faults found and fixed while checking:
 3. Choose «دفتر لكل قسم» and save again: each class taught that day has its own page.
 4. Open «الدفتر اليومي · الصفحات الأولى» and press «حفظ PDF». Look at the card, the seminars and the holidays.
 5. With a primary class, open «الكراس اليومي», step to a day with sessions and press «حفظ PDF».
+6. Open «الكراس اليومي · الصفحات الأولى» and press «حفظ PDF». Look at each class's cover, card, tables, pupil list and timetable.
 
 ## Still open
 
 - TalkBack on the output's day and journal choices, on a real phone.
 - The page on paper, against a paper journal.
-- The primary journal on a phone and on paper, with a primary teacher's records.
+- The primary journal and its front pages on a phone and on paper, with a primary teacher's records.

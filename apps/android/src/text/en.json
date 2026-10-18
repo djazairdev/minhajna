@@ -851,6 +851,19 @@
         "domain": "Domain · lesson note"
       }
     },
+    "primaryFront": {
+      "className": "Class",
+      "pupils": "Pupil list",
+      "pupilsNote": "Number, name and registration number only: no birth date, address or parents' details.",
+      "number": "No.",
+      "pupilName": "Full name",
+      "registration": "Registration no.",
+      "week": "Weekly timetable",
+      "time": "Time",
+      "approved": "Approved on:",
+      "seal": "Director's signature and stamp",
+      "weekNote": "The teacher's sessions with the class, from the timetable in force. The director writes in the specialist teachers' hours and the approval date, and signs by hand."
+    },
     "journalFront": {
       "name": "Front pages",
       "card": "Teacher card",
@@ -936,7 +949,9 @@
       "signatureJournalFront": "The name and rank print as entered in setup; the director's visa stays blank.",
       "blankPrimaryJournal": "A page for each primary class, with its heads, its two halves of the day and empty rows; the day is written by hand.",
       "signaturePrimaryJournal": "The teacher's box stays blank to sign by hand, and the director's visa always blank. The competence indicator and the lesson note's number are written by hand.",
-      "noPrimary": "No primary class taught this year, so there is no primary journal to print."
+      "noPrimary": "No primary class taught this year, so there is no primary journal to print.",
+      "blankPrimaryFront": "For each primary class, the front pages with their labels: cover, card, tables, and an empty pupil list and timetable.",
+      "signaturePrimaryFront": "The pages carry the confidential mark, as they hold pupils' names. The director's visa and the approval date stay blank."
     },
     "textsBook": {
       "name": "Texts book",
