@@ -81,9 +81,9 @@ test.each(['rtl', 'ltr'] as const)(
     await mount(direction);
     await press((props) => props.testID === 'tab-Documents');
     expect(bar().state.routes[bar().state.index].name).toBe('Documents');
-    await press((props) => props.accessibilityLabel === text.navigation.openPreview);
+    await press((props) => props.testID === 'documents-journal');
     const header = tree.root.findByType(TopBar).props as NativeStackHeaderProps;
-    expect(header.navigation.getState().routes.map((route) => route.name)).toEqual(['Home', 'NavigationPreview']);
+    expect(header.navigation.getState().routes.map((route) => route.name)).toEqual(['Home', 'DocOutput']);
     expect(header.navigation.getState().index).toBe(1);
     const icon = tree.root.findByProps({ testID: 'back-icon' }).props as ViewProps;
     expect(StyleSheet.flatten(icon.style)).toMatchObject({

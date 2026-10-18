@@ -10,6 +10,10 @@ export type MadePdf = { name: string; pages: number; bytes: number; milliseconds
 export interface Spec extends TurboModule {
   makePdf(html: string, name: string, landscape: boolean): Promise<MadePdf>;
   sharePdf(name: string, title: string): Promise<void>;
+  /** Opens Android's print screen for the pages, where the teacher picks a printer or saves a PDF. */
+  printHtml(html: string, title: string, landscape: boolean): Promise<void>;
+  /** Asks where to keep a made PDF, through the system's file picker; false when the teacher cancels. */
+  savePdf(name: string, fileName: string): Promise<boolean>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaPdf');

@@ -6,11 +6,7 @@
     "today": "Aujourd’hui",
     "classes": "Classes",
     "documents": "Documents",
-    "back": "Retour",
-    "openPreview": "Ouvrir un écran intérieur d’essai",
-    "previewTitle": "Aperçu de la navigation",
-    "previewSubtitle": "Écran d’essai, sans données",
-    "previewDescription": "Ceci n’est qu’un aperçu de la navigation. Les onglets ne s’affichent pas sur l’écran intérieur. Le bouton Retour vous ramène à l’onglet que vous aviez ouvert, sans rien enregistrer."
+    "back": "Retour"
   },
   "help": {
     "title": "Aide et confidentialité",
@@ -825,6 +821,33 @@
       "unjustified": "N",
       "justified": "J",
       "late": "R"
+    },
+    "confidential": "Interne · confidentiel",
+    "rollBook": "Registre d'appel",
+    "list": {
+      "line": "Imprimés ou enregistrés en PDF comme le demandent le directeur et l'inspecteur, ou vierges avec leurs en-têtes.",
+      "more": "Les autres documents s’ajoutent ici à mesure qu’ils sont prêts.",
+      "today": "page du jour",
+      "classes_one": "{{count}} classe",
+      "classes_many": "{{count}} classes",
+      "classes_other": "{{count}} classes"
+    },
+    "output": {
+      "portrait": "A4 portrait",
+      "landscape": "A4 paysage",
+      "version": "Version",
+      "recorded": "Tel qu’enregistré",
+      "recordedLine": "Avec ce qui est enregistré dans l’application.",
+      "blank": "Vierge avec en-têtes",
+      "blankJournal": "L’établissement et l’année sont remplis ; le jour et les séances restent vides, à écrire à la main.",
+      "blankRoll": "Les en-têtes, les jours d’appel et les noms des élèves sont remplis ; les marques restent vides.",
+      "confidentialLine": "Écrit en haut et en bas de chaque page, dans les deux versions, car elles contiennent des données d’élèves.",
+      "signature": "La case de l’enseignant reste vide pour signer à la main, et celle du directeur reste toujours vide.",
+      "print": "Imprimer",
+      "save": "Enregistrer en PDF",
+      "saved": "Le fichier est enregistré.",
+      "failed": "Le document n’a pas été créé. Réessayez.",
+      "noClasses": "Aucune classe enseignée pour l’instant : il n’y a pas de page d’appel à imprimer."
     }
   },
   "preview": {

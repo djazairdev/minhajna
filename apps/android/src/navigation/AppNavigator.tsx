@@ -16,7 +16,6 @@ import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
-import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
 import { BottomNav, TopBar, theme } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
 import {
@@ -30,6 +29,8 @@ import {
   TodayTab,
 } from './RecordScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
+import { DocOutputScreen, DocumentsTabScreen } from './DocumentScreens';
+import { documentKind } from '../documents/catalogue';
 import type { LockPinMode } from '../lock/LockPin';
 import type { SecurityDone } from '../lock/Security';
 import { Welcome } from './Welcome';
@@ -49,7 +50,12 @@ import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
 import type { Cell } from '../week/week-rules';
 
-export { tabLabels } from './HomePreview';
+/** Each tab's label in the catalogue. */
+export const tabLabels = {
+  Today: 'navigation.today',
+  Classes: 'navigation.classes',
+  Documents: 'navigation.documents',
+} as const satisfies Record<keyof HomeTabParamList, string>;
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
@@ -68,7 +74,6 @@ export type RootStackParamList = {
   Packs: { grade: string; subject: string };
   Ready: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
-  NavigationPreview: undefined;
   Gallery: undefined;
   StorageCheck: undefined;
   Help: undefined;
@@ -85,6 +90,7 @@ export type RootStackParamList = {
   SeatsSetup: { classId: string; groupId: string };
   Security: { done?: SecurityDone; at?: number } | undefined;
   LockPin: { mode: LockPinMode };
+  DocOutput: { id: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -193,11 +199,6 @@ export function AppNavigator({
         <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false, statusBarStyle: 'dark' }} />
-        <Stack.Screen
-          name="NavigationPreview"
-          component={InnerPreview}
-          options={{ title: t('navigation.previewTitle'), statusBarStyle: 'dark' }}
-        />
         {__DEV__ && (
           <Stack.Screen
             name="Gallery"
@@ -215,6 +216,11 @@ export function AppNavigator({
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
         <Stack.Screen name="LockPin" component={LockPinScreen} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="DocOutput"
+          component={DocOutputScreen}
+          options={({ route }) => dark(documentKind(route.params.id)?.title(t) ?? '')}
+        />
         <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
         <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />
@@ -257,7 +263,7 @@ function HomeTabs() {
     >
       <Tabs.Screen name="Today" component={TodayTab} />
       <Tabs.Screen name="Classes" component={ClassesTabScreen} />
-      <Tabs.Screen name="Documents" component={HomePreview} />
+      <Tabs.Screen name="Documents" component={DocumentsTabScreen} />
     </Tabs.Navigator>
   );
 }

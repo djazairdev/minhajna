@@ -25,7 +25,6 @@ export const OPEN_SCREENS: ReadonlySet<string> = new Set<keyof RootStackParamLis
   'Licences',
   'LicenceNotice',
   'Security',
-  'NavigationPreview',
   'Gallery',
   'StorageCheck',
 ]);

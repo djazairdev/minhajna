@@ -3,8 +3,12 @@
 
 // What every printed document shares (PRD §3.8, §5.13): the bundled fonts,
 // embedded by the phone's web engine from the app's own resources; A4
-// pages in black and white with a binding margin; and text escaped, since
-// names and lessons come from the teacher and the class list.
+// pages in black and white with a binding margin; text escaped, since names
+// and lessons come from the teacher and the class list; and, on a document
+// with pupils' data, «داخلي · سري» at the head and foot of every page
+// (R-5.9-15): the head and foot of a frame table around each page's
+// content, which the web engine repeats on each printed page, as fixed
+// positions are not. Pages break between frames, never inside a cell.
 
 /** The bundled fonts, read by the web engine from the APK's resources. */
 const FONTS = [
@@ -32,20 +36,35 @@ export function printDocument(options: {
   title: string;
   landscape: boolean;
   css: string;
-  body: string;
+  /** Each page's content; a long one runs onto more printed pages. */
+  pages: readonly string[];
+  /** The mark for a document with pupils' data, such as «داخلي · سري», on every page. */
+  confidential?: string;
 }): string {
   const faces = FONTS.map(
     ([family, file, weight]) =>
       `@font-face{font-family:${family};src:url('${file}.ttf') format('truetype');font-weight:${weight};font-display:block}`,
   ).join('');
+  const { confidential } = options;
+  const marked = confidential !== undefined;
   const page = `@page{size:A4 ${options.landscape ? 'landscape' : 'portrait'};margin:12mm 12mm 12mm 18mm}`;
+  const mark = marked ? `<tr><td class="mark">${escapeHtml(confidential)}</td></tr>` : '';
+  const framed = (content: string) =>
+    marked
+      ? `<table class="frame"><thead>${mark}</thead><tfoot>${mark}</tfoot><tbody><tr><td>${content}</td></tr></tbody></table>`
+      : content;
+  const body = options.pages.map((content) => `<section class="page">${framed(content)}</section>`).join('');
   const base =
     'html{-webkit-print-color-adjust:exact}body{margin:0;font-family:Naskh,Sans,serif;font-size:11pt;color:#000}' +
     '.page{break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}' +
-    '.latin{font-family:Sans,Naskh,sans-serif}bdi{unicode-bidi:isolate}';
+    '.latin{font-family:Sans,Naskh,sans-serif}bdi{unicode-bidi:isolate}' +
+    'table.frame{width:100%;border-collapse:collapse;table-layout:auto;font-size:inherit}' +
+    'table.frame>*>tr{break-inside:auto}table.frame>*>tr>td{border:0;padding:0;height:auto;overflow:visible;text-align:start}' +
+    'table.frame>thead{display:table-header-group}table.frame>tfoot{display:table-footer-group}' +
+    'table.frame>*>tr>td.mark{text-align:center;font-size:9pt;font-weight:700;padding:2mm 0}';
   return (
     `<!doctype html><html lang="${escapeHtml(options.lang)}" dir="${options.dir}"><head><meta charset="utf-8">` +
     `<title>${escapeHtml(options.title)}</title><style>${faces}${page}${base}${options.css}</style></head>` +
-    `<body>${options.body}</body></html>`
+    `<body>${body}</body></html>`
   );
 }

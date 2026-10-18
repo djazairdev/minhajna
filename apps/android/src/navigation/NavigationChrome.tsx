@@ -11,6 +11,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
+import { documentKind } from '../documents/catalogue';
 import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
 
@@ -86,6 +87,7 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
+  const document = route.name === 'DocOutput' ? documentKind((route.params as { id: string }).id) : undefined;
   return (
     <View
       style={[
@@ -110,11 +112,15 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           <Text accessibilityRole="header" style={styles.title}>
             {options.title}
           </Text>
-          {route.name === 'NavigationPreview' && <Text style={styles.subtitle}>{t('navigation.previewSubtitle')}</Text>}
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
           {route.name === 'TypeList' && <Text style={styles.subtitle}>{t('setup.sorted')}</Text>}
           {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
           {route.name === 'Security' && <Text style={styles.subtitle}>{t('security.subtitle')}</Text>}
+          {route.name === 'DocOutput' && document !== undefined && (
+            <Text style={styles.subtitle}>
+              {t(document.landscape ? 'documents.output.landscape' : 'documents.output.portrait')}
+            </Text>
+          )}
           {Object.hasOwn(SETUP_ROUTES, route.name) && (
             <Text style={styles.subtitle}>
               {t('setup.step', { step: SETUP_ROUTES[route.name as keyof typeof SETUP_ROUTES], count: SETUP_STEPS })}

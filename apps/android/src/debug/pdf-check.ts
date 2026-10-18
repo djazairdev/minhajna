@@ -106,7 +106,6 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
       lang: 'ar',
       dir: 'rtl',
       title: t('documents.rollTitle', { month: t('documents.october') }),
-      scope: `${schoolClass.name} · ${school}`,
       number: t('documents.number'),
       name: t('documents.name'),
       latinName: t('documents.latinName'),
@@ -118,14 +117,21 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
         justified: t('documents.marks.justified'),
         late: t('documents.marks.late'),
       },
+      confidential: t('documents.confidential'),
     },
-    units.map((unit) => `${unit.day.slice(8)}/${unit.day.slice(5, 7)}`),
-    pupils.map((pupil, index) => ({
-      number: index + 1,
-      name: pupil.name,
-      latinName: pupil.latinName ?? '',
-      marks: units.map((unit) => markOf(unit.key, pupil.id)),
-    })),
+    [
+      {
+        title: t('documents.rollTitle', { month: t('documents.october') }),
+        scope: `${schoolClass.name} · ${school}`,
+        columns: units.map((unit) => `${unit.day.slice(8)}/${unit.day.slice(5, 7)}`),
+        rows: pupils.map((pupil, index) => ({
+          number: index + 1,
+          name: pupil.name,
+          latinName: pupil.latinName ?? '',
+          marks: units.map((unit) => markOf(unit.key, pupil.id)),
+        })),
+      },
+    ],
   );
   const htmlMilliseconds = Date.now() - start;
   return {
