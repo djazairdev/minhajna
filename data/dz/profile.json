@@ -1,7 +1,7 @@
 {
   "format": 1,
   "code": "dz",
-  "release": "2026.3",
+  "release": "2026.4",
   "weekStartsOn": 0,
   "workingDays": [0, 1, 2, 3, 4],
   "months": [
@@ -92,6 +92,7 @@
       ]
     }
   ],
+  "language": "ar",
   "subjects": [
     {
       "code": "arabic",
@@ -106,12 +107,14 @@
     {
       "code": "french",
       "name": { "ar": "اللغة الفرنسية", "fr": "Langue française", "en": "French" },
-      "levels": ["primary", "cem", "lycee"]
+      "levels": ["primary", "cem", "lycee"],
+      "language": "fr"
     },
     {
       "code": "english",
       "name": { "ar": "اللغة الإنجليزية", "fr": "Langue anglaise", "en": "English" },
-      "levels": ["primary", "cem", "lycee"]
+      "levels": ["primary", "cem", "lycee"],
+      "language": "en"
     },
     {
       "code": "math",
@@ -214,17 +217,20 @@
     {
       "code": "german",
       "name": { "ar": "اللغة الألمانية", "fr": "Langue allemande", "en": "German" },
-      "levels": ["lycee"]
+      "levels": ["lycee"],
+      "language": "de"
     },
     {
       "code": "spanish",
       "name": { "ar": "اللغة الإسبانية", "fr": "Langue espagnole", "en": "Spanish" },
-      "levels": ["lycee"]
+      "levels": ["lycee"],
+      "language": "es"
     },
     {
       "code": "italian",
       "name": { "ar": "اللغة الإيطالية", "fr": "Langue italienne", "en": "Italian" },
-      "levels": ["lycee"]
+      "levels": ["lycee"],
+      "language": "it"
     }
   ],
   "sessionTypes": [

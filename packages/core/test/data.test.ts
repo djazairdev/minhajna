@@ -72,9 +72,9 @@ describe("Algeria's reference data", () => {
     assert.deepEqual([calendar.year.from, calendar.year.to], ['2026-09-21', '2027-07-08']);
   });
 
-  it('ships release 2026.3 with all month spellings and written dates unchanged', () => {
+  it('ships release 2026.4 with all month spellings and written dates unchanged', () => {
     const { profile } = readAlgeria();
-    assert.equal(profile.release, '2026.3');
+    assert.equal(profile.release, '2026.4');
     assert.deepEqual(profile.months, monthNames);
     for (const [index, names] of monthNames.entries()) {
       const day = d(`2027-${String(index + 1).padStart(2, '0')}-03`);
@@ -82,6 +82,21 @@ describe("Algeria's reference data", () => {
         assert.equal(formatDayWithMonth(day, language, profile), `3 ${names[language]} 2027`);
       }
     }
+  });
+
+  it('teaches in Arabic, and each foreign language in its own', () => {
+    const { profile } = readAlgeria();
+    assert.equal(profile.language, 'ar');
+    assert.deepEqual(
+      profile.subjects.filter((subject) => subject.language !== undefined).map((s) => [s.code, s.language]),
+      [
+        ['french', 'fr'],
+        ['english', 'en'],
+        ['german', 'de'],
+        ['spanish', 'es'],
+        ['italian', 'it'],
+      ],
+    );
   });
 
   it('lists the 69 wilayas of Law 26-06 in order, each named in the three languages', () => {

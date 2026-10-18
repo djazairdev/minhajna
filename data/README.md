@@ -31,6 +31,10 @@ Profile release `2026.3` adds `zones`: Algeria's 69 wilayas, in the order of the
 - **The spellings** are those of the recent Journal officiel issues (2019 to 2026), not the older typography of 1984. Code `11` is تامنغست in Arabic and Tamenghasset in French, as JORADP n° 25 of 2026 writes it; its English name is Tamanrasset. English names are the French ones without accents, except Algiers and Tamanrasset.
 - **The eleven new wilayas,** `59` to `69`, are in transition until 31 December 2026 at the latest: their mother wilaya's services, its education directorate included, keep running them (Law 26-06, new Art. 54). A closure that covers a new wilaya is keyed with that wilaya's own code, even when the mother wilaya announces it.
 
+## Teaching languages
+
+Profile release `2026.4` adds `language`, the language subjects are taught in, `ar`, and gives French, English, German, Spanish and Italian their own: `fr`, `en`, `de`, `es` and `it`. Each subject's pages in the texts book come out in its language, under the book's Arabic heads ([PRD §3.8](../docs/prd/PRD.md#38-the-documents), R-3.1-18). Until the app speaks German, Spanish and Italian, their pages keep the book's words and direction, with the teacher's own text running left to right. Tamazight keeps the profile's language for now: the script its pages are written in varies, and the field check will tell. Older profiles without `language` still open.
+
 ## Bell times
 
 A timetable names slots, never clock times. Each slot's time comes from `dz/bells.json` ([PRD §4.6](../docs/prd/PRD.md#46-how-sessions-are-generated)):
