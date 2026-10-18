@@ -20,6 +20,7 @@ export const ICONS = [
   'school',
   'info',
   'check',
+  'cross',
   'pupils',
   'homework',
 ] as const;
