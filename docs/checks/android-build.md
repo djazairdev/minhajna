@@ -22,7 +22,7 @@ This is the first of the checks before the pilot ([PRD §5.13](../prd/PRD.md#513
 | F-Droid's scanner on the APK | **Passed.** No known non-free code, and no extra signing block |
 | F-Droid's scanner on the source | **47 findings, all in installed npm packages.** Each one has a fix, [below](#f-droid) |
 | The app built with F-Droid's tools | **Open.** It needs a build recipe, with the Hermes compiler built from source ([below](#f-droid)) |
-| No permission | **Passed.** The release APK asks for none, not even the network. CI checks it |
+| No permission but the lock's | **Passed.** The release APK asks only for the phone's fingerprint or face prompt, for the app lock ([#210](https://github.com/djazairdev/minhajna/issues/210)), and not for the network. CI checks it |
 | Installs and opens on Android 8 | **Passed on an emulator** with Android 8.0 and a 360×800 screen, without Google Play services. Its first frame came after about 0.23 seconds, and the whole first screen, text included, within 0.6 seconds, but on a fast computer ([below](#timing-the-start)). **Open on a budget phone**. The shrunk arm64 APK installs and opens on an emulator; a 32-bit device check remains open ([#93 report](apk-size.md)) |
 | `NETWORK.md` | **No network call.** Help's source link hands a fixed address to the browser, and only after the teacher confirms |
 
@@ -40,7 +40,8 @@ React Native's app template is the starting point. These changes make it follow 
 
 - **No proprietary library.** `android/build.gradle` stops the build when a library from a proprietary group is resolved, anywhere in the build. The groups cover Google Play services, Firebase, Play Core, Google's ads, consent and ML Kit libraries, Play billing and install referrer, Crashlytics, Facebook's SDKs, and Huawei's and Amazon's services.
 - **Release builds** come out unsigned, so that two builds can be compared. They carry no version-control information and no dependency block. Google Play asks for that block, encrypted for Google alone, and F-Droid refuses it.
-- **No permission.**
+- **No permission but the lock's.**
+  - The app lock asks for `USE_BIOMETRIC`, to show the phone's own fingerprint or face prompt ([#210](https://github.com/djazairdev/minhajna/issues/210)). Android grants it at install without asking, and the app receives no biometric data. CI fails on any other permission.
   - androidx adds a permission of the app's own, for receivers registered through `ContextCompat.registerReceiver`. Nothing in the app calls it, so the manifest removes the permission.
   - CI fails if a library starts to call it, since the call would then throw on Android 12 and earlier.
 - **No request to another app.** At start-up, androidx's emoji support asks the phone's font provider for a newer emoji font, which it may download. On most phones that provider is Google Play services. The manifest turns this off, and emoji use the phone's own font.

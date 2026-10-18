@@ -9,7 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * A history in one folder: the database and its wrapped key, read and written
+ * A history in one folder: the database and its key, read and written
  * as the JavaScript side sends them, in JSON. The app keeps one, in its
  * no-backup folder; the storage check in debug builds opens throwaway ones,
  * each with its own Keystore key, through this same code.
@@ -21,21 +21,33 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
 
   private var history: HistoryDatabase? = null
 
-  /** Opens the history, creating it and its key on first use. Opening it again does nothing. */
+  /**
+   * Opens the history with the 0.1.0 key file, creating both on first use,
+   * while no PIN is set. Opening it again does nothing.
+   */
   fun open(random: SecureRandom) {
     if (history != null) return
-    val database = File(folder, DATABASE)
     val key = DatabaseKey(File(folder, KEY), alias)
-    if (database.exists() && !key.exists()) {
+    if (exists() && !key.exists()) {
       throw KeyLostException("The history's key file is missing")
     }
     val bytes = key.getOrCreate(random)
     try {
-      history = HistoryDatabase.open(database, bytes)
+      openWithKey(bytes)
     } finally {
       bytes.fill(0)
     }
   }
+
+  /** Opens the history with a key the lock gave; the caller clears the key. Opening it again does nothing. */
+  fun openWithKey(bytes: ByteArray) {
+    if (history != null) return
+    history = HistoryDatabase.open(File(folder, DATABASE), bytes)
+  }
+
+  fun isOpen(): Boolean = history != null
+
+  fun exists(): Boolean = File(folder, DATABASE).exists()
 
   /** Every entry, by sequence, as a JSON array. */
   fun loadJson(): String = toJson(opened().load())
