@@ -28,11 +28,11 @@ This is the first of the checks before the pilot ([PRD §5.13](../prd/PRD.md#513
 
 ## The app
 
-- React Native 0.87.1 with React 19.3.0, the new architecture and the Hermes engine 250829098.0.17, without Expo ([PRD §5.2](../prd/PRD.md#52-architecture)).
+- React Native 0.87.1 with React 19.3.1, the new architecture and the Hermes engine 250829098.0.17, without Expo ([PRD §5.2](../prd/PRD.md#52-architecture)).
 - Android 8 (API 26) and later. It targets Android 16 (API 36), and compiles against API 37 ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
 - The app opens on a first screen with the name and the tagline, a choice of Arabic, French or English, and Help. Three tabs lead to placeholder screens. The history is kept encrypted with SQLCipher ([#19](https://github.com/djazairdev/minhajna/issues/19)), and Help shows every licence notice offline. The screens themselves come with the setup issues.
 - The application ID is `dz.minhajna.preview` for now. The final ID follows the project's domain.
-- Release builds shrink code and resources with R8 and produce a separate APK for `armeabi-v7a` and `arm64-v8a`, with no universal APK. The [#93 report](apk-size.md) measured 16,952,333 and 22,511,453 bytes respectively on the navigation preview; the app has grown since.
+- Release builds shrink code and resources with R8 and produce a separate APK for `armeabi-v7a` and `arm64-v8a`, plus a universal APK with both, for a phone whose processor nobody knows. Each has its own version code ([versioning.md](../contributing/versioning.md#the-apps)). On main `d8915b9` they are 17,679,832 bytes for `armeabi-v7a`, 23,238,952 for `arm64-v8a` and 34,441,767 for the universal APK ([#93 report](apk-size.md#after-rebasing-onto-main-2026-10-18)).
 
 ## What had to change
 
@@ -69,7 +69,7 @@ sha256sum app/build/outputs/apk/release/app-*-release-unsigned.apk
 node ../../../tools/android/release-apks.js verify app/build/outputs/apk/release
 ```
 
-Build again from a second clone in another folder and compare matching processor types with `tools/android/release-apks.js compare <first-output-directory> <second-output-directory>`. The checker requires both APKs and their `output-metadata.json`, and rejects missing outputs or a stale universal APK. Use `./gradlew clean assembleRelease` when changing the output layout. Any folder works, unless its path has a space. Linux/cross-OS confirmation for shrinking awaits CI.
+Build again from a second clone in another folder and compare matching processor types with `tools/android/release-apks.js compare <first-output-directory> <second-output-directory>`. The checker requires all three APKs, their version codes and their `output-metadata.json`, and rejects missing outputs or a stale single APK from before the split. Use `./gradlew clean assembleRelease` when changing the output layout. Any folder works, unless its path has a space. Linux/cross-OS confirmation for shrinking awaits CI.
 
 ### Checking a signed APK
 
@@ -91,7 +91,7 @@ Build the APK as above. To install it, sign it with a throwaway key that is used
 
 ```sh
 keytool -genkeypair -keystore throwaway.jks -alias test -keyalg RSA -keysize 2048 -validity 1 -dname CN=test
-apksigner sign --ks throwaway.jks --out minhajna-test.apk app/build/outputs/apk/release/app-release-unsigned.apk
+apksigner sign --ks throwaway.jks --out minhajna-test.apk app/build/outputs/apk/release/app-universal-release-unsigned.apk
 adb install minhajna-test.apk
 ```
 

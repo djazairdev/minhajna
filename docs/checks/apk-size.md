@@ -5,7 +5,7 @@ Local verification on 2026-10-16 for [#93](https://github.com/djazairdev/minhajn
 ## What changes
 
 - Release code and resources are shrunk with R8 and Android's optimising default rules. AGP 9.2.1 supplies integrated resource shrinking; no compatibility-mode or broad app-wide keep rule is added ([Android guidance](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization)).
-- ABI splitting produces one self-contained APK per configured processor type and no universal APK. The existing `reactNativeArchitectures` property controls both compilation and splitting, preserving the developer's emulator override ([Android ABI splitting](https://developer.android.com/build/configure-apk-splits), [React Native guidance](https://reactnative.dev/docs/signed-apk-android#publishing-to-other-stores)).
+- ABI splitting produces one self-contained APK per configured processor type, plus a universal APK with both, for a phone whose processor nobody knows (added after review, see [below](#after-rebasing-onto-main-2026-10-18)). The existing `reactNativeArchitectures` property controls both compilation and splitting, preserving the developer's emulator override ([Android ABI splitting](https://developer.android.com/build/configure-apk-splits), [React Native guidance](https://reactnative.dev/docs/signed-apk-android#publishing-to-other-stores)).
 - React Native, Screens and SQLCipher supply their own consumer rules for native entry points and fragment restoration. The app adds only a narrow receiver-guard rule, described below. Font registration uses explicit `R.font` references; no blanket resource keep file is necessary.
 - There is no new dependency, data format, permission, product network call or change to encryption. `NETWORK.md` is unchanged. This does not close the separate F-Droid source-build/Hermes/SQLCipher work.
 
@@ -35,7 +35,7 @@ The working checkout's clean build and a fresh source export in another director
 
 Before submission, the parent branch gained comment-only update `c3591cd` in two app source files. Rebuilding both source trees preserved the sizes but changed the APK hashes above: only `assets/index.android.bundle` differed from the previous candidate, with 40 changed bytes at its header/footer. Final clean builds in both trees matched these hashes; APK contents, the exact CI permission/receiver guard and refreshed F-Droid scans passed again. The final arm64 APK was installed as an update and opened again on both isolated emulators. The table above identifies the final candidate, not the earlier bytes used for the detailed navigation checks.
 
-CI now requires both expected outputs and their Gradle ABI metadata before checking permissions or uploading artifacts. It compares each ABI independently, scans both with F-Droid, and retains the R8 mapping/configuration. Missing output, wrong ABI metadata, stale universal output and differences in either APK are failures, not partial successes. The checker uses only Node built-ins and the existing `unzip` tool.
+CI now requires both expected outputs and their Gradle ABI metadata before checking permissions or uploading artifacts. It compares each ABI independently, scans both with F-Droid, and retains the R8 mapping/configuration. Missing output, wrong ABI metadata, a stale single APK from before the split and a difference in any APK are failures, not partial successes. The checker uses only Node built-ins and the existing `unzip` tool.
 
 ## Permission guard under R8
 
@@ -79,11 +79,40 @@ The maintainer reports that BrowserStack's open-source programme requires the re
 
 No application, account creation or APK upload was made. Before using the service, confirm eligibility, native-app coverage and an Android 8+ device that supports `armeabi-v7a`. Upload only a disposable test-signed APK with synthetic content, never pupil records or production signing keys. This is an optional test-environment route, not a product dependency or a new app network call; `NETWORK.md` stays unchanged. The 32-bit installation/open check remains pending and can also be completed on a compatible local emulator host or phone.
 
+## After rebasing onto main (2026-10-18)
+
+The branch was rebased onto main `d8915b9`, which has grown since `9edc26d` (setup, Today, roll call, seating plan, PDFs, the preview's checksums). The review of this PR led to these changes:
+
+- **A universal APK** with both processors, for the field check's handover, where nobody knows a phone's processor: an `arm64-v8a` APK does not install on a phone running 32-bit Android, and an `armeabi-v7a` one does not install on a 64-bit-only phone. Prebuilt libraries also carry x86 code, which React Native's Gradle plugin keeps through its pick-first rules for every processor; `app/build.gradle` narrows those rules to the processors built for and excludes the rest, and the APK check rejects a universal APK with any other processor.
+- **A version code per APK**: the version's code × 10 plus 0 for universal, 1 for `armeabi-v7a`, 2 for `arm64-v8a` ([versioning rules](../contributing/versioning.md#the-apps)). Help now shows the installed APK's own code, read from the package, not the build-wide `BuildConfig` value.
+- **The generated AGPL notice** (`assets/licenses/minhajna.txt`) is checked against `LICENSES/AGPL-3.0-or-later.txt` in every APK.
+- **A keep rule for `android.print.WebViewPdf`** and its callbacks, which must stay in `android.print`. The shrunk DEX keeps all three there.
+- **The preview's release steps** ([session guide](../field-check/session-guide.md#making-the-preview)) sign and publish all three APKs with their checksums, and keep the shrinker's mapping, which CI keeps for 90 days.
+
+Unsigned release APKs from `d8915b9` plus these changes, built on macOS arm64 with the same toolchain:
+
+| APK | Version code | Bytes | SHA-256 |
+|---|---:|---:|---|
+| Universal | 100990 | 34,441,767 | `1b93a1719fcd3913f08218fbf94fdd0cde1b14ddca8c70d99bf80a8c4687f29a` |
+| `armeabi-v7a` | 100991 | 17,679,832 | `1c819a22af7f758069a5df466052bf17bdd6390f51b402c9333345a71541661d` |
+| `arm64-v8a` | 100992 | 23,238,952 | `cf7ea7e4881e5a263f33973baf618c681db2c7181df4aa03697277ce8d9465c7` |
+
+Before the pick-first rules were narrowed, the universal APK was 65,053,601 bytes, with x86 and x86_64 code. `release-apks.js verify` passes for all three: fonts, notices, version codes and native libraries. A second clean build for byte comparison is left to CI.
+
+On an Android 15 (API 35) arm64 emulator, with each APK signed by a throwaway key that was deleted afterwards:
+
+- The universal APK installed fresh, ran setup to Today, and Help showed «الإصدار 0.1.0 (100990)», its APK checksum and the certificate's, matching the signed file.
+- The `arm64-v8a` APK then installed over it as an update, kept the records, opened on Today, and Help showed 100992 and that APK's checksum.
+- Switching the interface to French and back, the licence list and the app's own AGPL notice worked in the shrunk build.
+- PDFs are made only from the debug build's tools, so the release build could not make one; its DEX keeps `WebViewPdf` and both callbacks in `android.print`.
+
+The 32-bit APK's install and open check is still open, as below.
+
 ## Before acceptance or release
 
 - Complete the 32-bit APK install/open check on a compatible emulator or phone. #93 is not fully accepted until both processor-specific APKs run successfully; no physical-phone-only requirement is imposed for this smoke test.
 - Run the updated CI on Linux and compare its APK hashes with these macOS results. Local verification is not a claim that later remote CI has passed.
-- Both unpublished preview APKs retain the existing version code `1` and app version `0.0.0`. No ABI bits are invented in the handbook's versioning scheme. Store publishing in #48 must follow the [versioning rules](../contributing/versioning.md); these same-code preview APKs are not a Play multi-APK upload configuration.
+- Each APK has its own version code: the version's code × 10 plus its processor's digit, 0 universal, 1 `armeabi-v7a`, 2 `arm64-v8a` ([versioning rules](../contributing/versioning.md#the-apps)). For 0.1.0 they are 100990, 100991 and 100992.
 - Keep the independent budget-phone, accessibility and F-Droid source-build gates in the [Android build report](android-build.md). Do not treat a smaller APK or a binary scan as completion of those gates.
 
 This report records local verification before submission. A draft PR may share the work for review, but does not complete the pending acceptance checks above.

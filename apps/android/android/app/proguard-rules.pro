@@ -7,3 +7,9 @@
 -keep,allowshrinking class androidx.core.content.ContextCompat {
     public static *** registerReceiver(...);
 }
+
+# WebViewPdf makes the print adapter's callbacks, whose constructors only
+# code in android.print may call. Keep it and its callbacks where they are,
+# so that no optimisation moves them out of the package and breaks PDFs.
+-keep class android.print.WebViewPdf { *; }
+-keep class android.print.WebViewPdf$* { *; }

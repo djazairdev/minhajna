@@ -35,7 +35,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // The field-check preview. The code follows the version
-        // (docs/contributing/versioning.md): 0.1.0 is 10099.
+        // (docs/contributing/versioning.md): 0.1.0 is 10099. Each APK's own
+        // code adds its processor's digit, below.
         versionCode 10099
         versionName "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -100,13 +101,14 @@ android {
     }
 
     // Reuse the native build's ABI list, including a developer's emulator
-    // override. No phone downloads code for the other processor type.
+    // override. Each processor-specific APK carries only its own code; the
+    // universal APK carries both, for a phone whose processor nobody knows.
     splits {
         abi {
             enable true
             reset()
             include(*providers.gradleProperty("reactNativeArchitectures").get().split(","))
-            universalApk false
+            universalApk true
         }
     }
 
@@ -139,6 +141,29 @@ androidComponents.onVariants(androidComponents.selector().all()) { variant ->
         licenceFile.set(file("${repositoryRoot}/LICENSES/AGPL-3.0-or-later.txt"))
     }
     variant.sources.assets.addGeneratedSourceDirectory(licence, { it.outputDirectory })
+}
+
+// Each APK's version code is the version's code × 10 plus its processor's
+// digit (docs/contributing/versioning.md): 0 for the universal APK, 1 for
+// 32-bit ARM and 2 for 64-bit ARM, so a phone can move from one to another.
+// Prebuilt libraries also carry x86 code. React Native's Gradle plugin picks
+// its own libraries first for every processor ("**/libjsi.so" and others, in
+// NdkConfiguratorUtils), which would keep that code in the universal APK even
+// when excluded. These hooks run after the plugin's: they pick the same
+// libraries for the processors built for only, and exclude the rest. CI's APK
+// check fails if a new library brings the x86 code back.
+def processorDigits = ["armeabi-v7a": 1, "arm64-v8a": 2, "x86": 3, "x86_64": 4]
+def builtProcessors = providers.gradleProperty("reactNativeArchitectures").get().split(",") as List
+def reactNativeLibraries = ["libfbjni.so", "libreactnative.so", "libjsi.so", "libc++_shared.so", "libhermesvm.so", "libhermestooling.so"]
+androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+    def jniLibs = variant.packaging.jniLibs
+    jniLibs.pickFirsts.empty()
+    builtProcessors.each { abi -> reactNativeLibraries.each { jniLibs.pickFirsts.add("lib/${abi}/${it}") } }
+    processorDigits.keySet().findAll { !(it in builtProcessors) }.each { jniLibs.excludes.add("lib/${it}/**") }
+    variant.outputs.each { output ->
+        def abi = output.filters.find { it.filterType.name() == "ABI" }?.identifier
+        output.versionCode.set(android.defaultConfig.versionCode * 10 + (abi == null ? 0 : processorDigits[abi]))
+    }
 }
 
 /** Copies the unchanged canonical licence; generated legal text is not a maintained source file. */

@@ -8,14 +8,15 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { compareApks, phoneAbis, releaseApks, verifyContents } from './release-apks.js';
+import { compareApks, phoneAbis, releaseApks, releaseOutputs, verifyContents } from './release-apks.js';
 
 function fixture(t, change = () => {}) {
   const directory = mkdtempSync(join(tmpdir(), 'minhajna-apks-test-'));
   t.after(() => rmSync(directory, { recursive: true }));
-  const elements = phoneAbis.map((abi) => ({
+  const elements = releaseOutputs.map(({ abi, digit }) => ({
     outputFile: `app-${abi}-release-unsigned.apk`,
-    filters: [{ filterType: 'ABI', value: abi }],
+    filters: abi === 'universal' ? [] : [{ filterType: 'ABI', value: abi }],
+    versionCode: 100990 + digit,
   }));
   const metadata = { variantName: 'release', applicationId: 'dz.minhajna.preview', elements };
   change(metadata);
@@ -24,12 +25,43 @@ function fixture(t, change = () => {}) {
   return directory;
 }
 
-test('requires both phone APKs and agrees with Gradle output metadata', (t) => {
+test('requires the universal and both phone APKs and agrees with Gradle output metadata', (t) => {
   const directory = fixture(t);
   assert.deepEqual(
-    releaseApks(directory).map(({ abi }) => abi),
-    phoneAbis,
+    releaseApks(directory).map(({ abi, versionCode }) => [abi, versionCode]),
+    [
+      ['universal', 100990],
+      ['armeabi-v7a', 100991],
+      ['arm64-v8a', 100992],
+    ],
   );
+});
+
+test('rejects an APK without its processor digit, or from another version', (t) => {
+  assert.throws(
+    () =>
+      releaseApks(
+        fixture(t, (metadata) => {
+          metadata.elements[2].versionCode = 100990;
+        }),
+      ),
+    /version code digit 2/,
+  );
+  assert.throws(
+    () =>
+      releaseApks(
+        fixture(t, (metadata) => {
+          metadata.elements[1].versionCode = 101001;
+        }),
+      ),
+    /One version/,
+  );
+});
+
+test('rejects a missing universal APK', (t) => {
+  const directory = fixture(t);
+  rmSync(join(directory, 'app-universal-release-unsigned.apk'));
+  assert.throws(() => releaseApks(directory));
 });
 
 test('rejects a missing ABI instead of checking only the APK that exists', (t) => {
@@ -38,7 +70,7 @@ test('rejects a missing ABI instead of checking only the APK that exists', (t) =
   assert.throws(() => releaseApks(directory));
 });
 
-test('rejects a stale universal APK beside the two new outputs', (t) => {
+test('rejects a stale single APK from before the split beside the new outputs', (t) => {
   const directory = fixture(t);
   writeFileSync(join(directory, 'app-release-unsigned.apk'), 'stale synthetic output');
   assert.throws(() => releaseApks(directory));
@@ -46,7 +78,7 @@ test('rejects a stale universal APK beside the two new outputs', (t) => {
 
 test('rejects an APK whose filename and ABI filter disagree', (t) => {
   const directory = fixture(t, (metadata) => {
-    metadata.elements[0].filters[0].value = 'arm64-v8a';
+    metadata.elements[1].filters[0].value = 'arm64-v8a';
   });
   assert.throws(() => releaseApks(directory));
 });
@@ -68,11 +100,11 @@ test('rejects debug or wrong-application output metadata', (t) => {
   );
 });
 
-test('compares both ABI outputs and rejects a difference in either one', (t) => {
+test('compares every APK and rejects a difference in any one', (t) => {
   const first = fixture(t);
   const second = fixture(t);
   compareApks(first, second);
-  for (const abi of phoneAbis) {
+  for (const { abi } of releaseOutputs) {
     const file = join(second, `app-${abi}-release-unsigned.apk`);
     const original = readFileSync(file);
     writeFileSync(file, 'different synthetic output');
@@ -81,16 +113,18 @@ test('compares both ABI outputs and rejects a difference in either one', (t) => 
   }
 });
 
-function contents() {
+function contents(abis = ['arm64-v8a']) {
   const font = Buffer.from('synthetic font bytes');
   const notice = Buffer.from('synthetic licence bytes');
   const files = new Map([
     ['res/font/demo.ttf', font],
     ['assets/licenses/demo.txt', notice],
-    ...['libappmodules.so', 'libreactnative.so', 'libhermesvm.so', 'libsqlcipher.so'].map((name) => [
-      `lib/arm64-v8a/${name}`,
-      Buffer.from('synthetic native library'),
-    ]),
+    ...abis.flatMap((abi) =>
+      ['libappmodules.so', 'libreactnative.so', 'libhermesvm.so', 'libsqlcipher.so'].map((name) => [
+        `lib/${abi}/${name}`,
+        Buffer.from('synthetic native library'),
+      ]),
+    ),
   ]);
   return {
     files,
@@ -98,7 +132,7 @@ function contents() {
       verifyContents(
         [...files.keys()],
         (name) => files.get(name),
-        'arm64-v8a',
+        abis,
         [createHash('sha256').update(font).digest('hex')],
         new Map([['demo.txt', notice]]),
       ),
@@ -117,6 +151,13 @@ test('rejects a native library for the wrong processor', () => {
   const { files, verify } = contents();
   files.set('lib/armeabi-v7a/libextra.so', Buffer.from('synthetic library'));
   assert.throws(verify);
+});
+
+test('requires both processors in the universal APK', () => {
+  const { files, verify } = contents(phoneAbis);
+  verify();
+  files.delete('lib/armeabi-v7a/libhermesvm.so');
+  assert.throws(verify, /Missing libhermesvm.so for armeabi-v7a/);
 });
 
 test('rejects removal of a required JNI library', () => {
