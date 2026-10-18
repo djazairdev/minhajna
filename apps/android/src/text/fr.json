@@ -598,7 +598,10 @@
     "lostNote": "Elles sont comptées à part dans le résumé de la semaine : elles ne se lisent jamais comme un retard. Les leçons passent aux séances suivantes, sans qu’aucune ne tombe.",
     "paused": "Le plan s’arrête pendant les examens",
     "pausedNote": "Les examens remplacent les séances de la semaine : aucune leçon n’est proposée, et aucune séance ne compte comme non tenue ni comme retard. Chaque classe garde sa position.",
-    "next": "Prochaine séance"
+    "next": "Prochaine séance",
+    "makeUp": "Séances de rattrapage selon l’emploi du temps du {{weekday}}.",
+    "support": "Séances de soutien selon l’emploi du temps du {{weekday}}, sans avancer le plan.",
+    "revision": "Révision selon l’emploi du temps du {{weekday}}, sans avancer le plan."
   },
   "classes": {
     "today": "Aujourd’hui {{time}}",
@@ -1000,5 +1003,59 @@
     "undo": "Annuler",
     "failed": "La séance n’a pas été enregistrée. Réessayez.",
     "beforeYear": "L’année scolaire n’a pas encore commencé : aucune séance ne s’enregistre avant."
+  },
+  "addSessions": {
+    "title": "Ajouter des séances",
+    "subtitle": "Journée de rattrapage, de soutien ou de révision",
+    "open": "Ajouter une journée de rattrapage, de soutien ou de révision",
+    "kind": "Type",
+    "kinds": {
+      "make-up": "Rattrapage",
+      "support": "Soutien",
+      "revision": "Révision en vacances"
+    },
+    "names": {
+      "make-up": "Journée de rattrapage",
+      "support": "Journée de soutien",
+      "revision": "Révision en vacances"
+    },
+    "intros": {
+      "make-up": "Une journée fixée par l’établissement pour rattraper des séances perdues, selon l’emploi du temps d’un jour de la semaine.",
+      "support": "Une journée de soutien fixée par l’établissement, selon l’emploi du temps d’un jour de la semaine. Elle ne fait pas avancer le plan.",
+      "revision": "Une révision en vacances fixée par l’établissement, selon l’emploi du temps d’un jour de la semaine. Elle ne fait pas avancer le plan."
+    },
+    "school": "Établissement",
+    "day": "Jour",
+    "replaces": "En rattrapage de",
+    "noClosure": "Sans fermeture",
+    "follows": "Selon l’emploi du temps du",
+    "sessions": "Les séances, d’après l’emploi du temps",
+    "sessionsHint": "Les séances de la semaine du jour sont choisies d’abord ; un appui les change.",
+    "noSessions": "Aucune séance pour vous ce jour-là dans l’emploi du temps.",
+    "source": "Source",
+    "sourceDefault": "Annonce du directeur",
+    "confidence": "Certitude",
+    "confidences": {
+      "announced": "Annoncé",
+      "expected": "Prévu"
+    },
+    "changes": "Ce qui change",
+    "summary": "{{day}}, selon l’emploi du temps du {{weekday}} : {{sessions}}, {{list}}.",
+    "makeUpLine": "Des séances du plan : les ressources avancent comme à toute séance, et elles s’inscrivent dans les pages de la matière du cahier de textes, à leur date.",
+    "supportLine": "Elles ne font pas avancer le plan, et s’inscrivent dans la page des séances supplémentaires du cahier de textes.",
+    "replacesLine": "En rattrapage de {{closure}}. Ses séances restent perdues à cause du calendrier, telles qu’enregistrées.",
+    "spare": "Marge avant les examens",
+    "spareLine": "{{name}} : {{before}} → {{after}}",
+    "spareNone": "aucune",
+    "spareShort": "il manque {{sessions}}",
+    "clash": "Deux séances dans un même créneau. Choisissez une séance par créneau, hors des créneaux déjà enseignés ce jour-là.",
+    "choose": "Choisissez au moins une séance et indiquez la source.",
+    "save": "Ajouter",
+    "saved": "Journée ajoutée au calendrier.",
+    "undo": "Annuler",
+    "failed": "La journée n’a pas été enregistrée. Réessayez.",
+    "noClass": "Aucune classe pour l’instant. Ajoutez vos classes et dessinez votre semaine d’abord.",
+    "separator": ", ",
+    "untimed": "Certaines de ces séances n’ont pas encore d’horaire dans l’établissement : elles s’inscrivent dans la page des séances supplémentaires une fois l’horaire réglé."
   }
 }

@@ -4,6 +4,7 @@
 // The shared core of Minhajna's apps. It has no platform code, so the
 // Android app and the web app give the same results (PRD §5.2).
 
+export * from './added-days.ts';
 export * from './bells.ts';
 export * from './bells-read.ts';
 export * from './calendar.ts';

@@ -12,6 +12,7 @@ import { parseDay } from '@minhajna/core';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
+import { AddSessions } from '../extra/AddSessions';
 import { ExtraSession } from '../extra/ExtraSession';
 import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
@@ -95,6 +96,15 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
 }
 
 /** A session outside the timetable, for the class it was opened from, if any. */
-export function ExtraScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Extra'>) {
-  return <ExtraSession {...(route.params?.courseId !== undefined && { courseId: route.params.courseId })} />;
+export function ExtraScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'Extra'>) {
+  return (
+    <ExtraSession
+      {...(route.params?.courseId !== undefined && { courseId: route.params.courseId })}
+      onAddDay={() => navigation.navigate('AddSessions')}
+    />
+  );
+}
+
+export function AddSessionsScreen() {
+  return <AddSessions />;
 }

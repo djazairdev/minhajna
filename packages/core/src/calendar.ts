@@ -132,6 +132,13 @@ export class CalendarView {
     return weeks;
   }
 
+  /** The A or B week of `day`, or in a week with no teaching day, of the last teaching week before it; null before the first. */
+  parityOn(day: Day, school: School): Parity | null {
+    const start = startOfWeek(day, this.#ref.country.weekStartsOn);
+    const before = this.teachingWeeks(school).filter((week) => compareDays(week.start, start) <= 0);
+    return before.at(-1)?.parity ?? null;
+  }
+
   /** The teaching week that holds `day`, or null in a holiday week or outside the year. */
   weekOf(day: Day, school: School): TeachingWeek | null {
     const start = startOfWeek(day, this.#ref.country.weekStartsOn);

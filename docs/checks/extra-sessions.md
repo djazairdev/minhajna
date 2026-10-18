@@ -21,7 +21,7 @@ How logging a session outside the timetable was checked for [#219](https://githu
 
 In the core, a session outside the timetable is its own record, `extra.logged`, in the lesson-record layer. A removal is `extra.removed`. They never enter the plan's sessions, so pacing, Today and the roll call do not see them. The topic is a `session.noted` private note keyed `extra:<id>`, in the own-devices layer.
 
-Make-up sessions, which count as plan sessions and go on the subject's pages, come in the next part of #219.
+Make-up sessions, which count as plan sessions and go on the subject's pages, come with make-up, support and revision days: see [make-up-days.md](make-up-days.md).
 
 ## The result
 

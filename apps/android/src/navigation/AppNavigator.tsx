@@ -20,6 +20,7 @@ import { BottomNav, TopBar, theme } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
 import {
   ClassPlanScreen,
+  AddSessionsScreen,
   ExtraScreen,
   ClassesTabScreen,
   CorrectScreen,
@@ -93,6 +94,7 @@ export type RootStackParamList = {
   LockPin: { mode: LockPinMode };
   DocOutput: { id: string };
   Extra: { courseId?: string } | undefined;
+  AddSessions: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -231,6 +233,7 @@ export function AppNavigator({
         <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
         <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
         <Stack.Screen name="Extra" component={ExtraScreen} options={dark(t('extra.title'))} />
+        <Stack.Screen name="AddSessions" component={AddSessionsScreen} options={dark(t('addSessions.title'))} />
         <Stack.Screen
           name="PrivacyNotice"
           component={HelpNotice}

@@ -90,11 +90,18 @@ export interface SupervisedRow {
 
 /**
  * A class's rows on the page for the school year `year`, in order, from its
- * courses' sessions logged outside the timetable. Nothing comes from the
+ * courses' sessions logged outside the timetable and, with `days`, the
+ * sessions of support and revision days. Nothing else comes from the
  * timetable. With none, the page prints blank (R-3.8-29).
  */
-export function supervisedRows(state: State, classId: string, year: string): SupervisedRow[] {
-  return extraSessions(state)
+export function supervisedRows(
+  state: State,
+  classId: string,
+  year: string,
+  days: readonly ExtraSession[] = [],
+): SupervisedRow[] {
+  return [...extraSessions(state), ...days]
+    .sort(compareExtras)
     .flatMap((extra) => {
       const course = state.courses.get(extra.courseId);
       return course === undefined || course.classId !== classId || course.year !== year ? [] : [{ course, ...extra }];
