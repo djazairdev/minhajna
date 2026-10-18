@@ -65,6 +65,7 @@ async function finishSetup() {
   await press(byTestID('ready-today'));
 }
 
+/** Presses inside an async act, so what the press starts, such as Help reading the build facts, settles in it. */
 async function press(match: (props: PressableProps) => boolean) {
   const button = tree.root.findAll(
     (node) => typeof (node.props as PressableProps).onPress === 'function' && match(node.props),
@@ -72,6 +73,7 @@ async function press(match: (props: PressableProps) => boolean) {
   expect(button).toBeDefined();
   await ReactTestRenderer.act(() => {
     (button.props as PressableProps).onPress?.({} as GestureResponderEvent);
+    return Promise.resolve();
   });
 }
 

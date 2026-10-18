@@ -87,6 +87,7 @@ async function render(element: ReactElement): Promise<ReactTestRenderer.ReactTes
   return tree!;
 }
 
+/** Presses inside an async act, so what the press starts, such as Help reading the build facts, settles in it. */
 async function press(tree: ReactTestRenderer.ReactTestRenderer, match: (props: PressableProps) => boolean) {
   const [node] = tree.root.findAll(
     (candidate) => typeof (candidate.props as PressableProps).onPress === 'function' && match(candidate.props),
@@ -94,6 +95,7 @@ async function press(tree: ReactTestRenderer.ReactTestRenderer, match: (props: P
   expect(node).toBeDefined();
   await ReactTestRenderer.act(() => {
     (node.props as PressableProps).onPress?.({} as never);
+    return Promise.resolve();
   });
 }
 

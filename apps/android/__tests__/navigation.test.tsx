@@ -37,11 +37,13 @@ async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   });
 }
 
+/** Presses inside an async act, so what the press starts, such as Help reading the build facts, settles in it. */
 async function press(match: (props: PressableProps) => boolean) {
   const button = buttons().find((node) => match(node.props as PressableProps));
   expect(button).toBeDefined();
   await ReactTestRenderer.act(() => {
     (button!.props as PressableProps).onPress?.({} as GestureResponderEvent);
+    return Promise.resolve();
   });
 }
 

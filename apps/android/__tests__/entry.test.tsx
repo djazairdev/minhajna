@@ -99,7 +99,9 @@ test('shows the row the texts book will take, and records nothing before «تأ�
   expect(book()).toContain('الواجب المنزلي: التمرين 5 ص 22، يُسلَّم الخميس 22/10');
   expect(book()).toContain('فرض');
   expect(data.book.state.sessions.size).toBe(0);
-  await i18n.changeLanguage('en');
+  await ReactTestRenderer.act(async () => {
+    await i18n.changeLanguage('en');
+  });
   await show(data, key(1), 'ltr');
   expect(accessibilityProblems(root())).toEqual([]);
 });
