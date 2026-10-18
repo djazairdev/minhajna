@@ -636,7 +636,8 @@
     "empty": "No session in this book yet. Each session you confirm appears here as the book takes it.",
     "before": "Previous page, {{page}}",
     "after": "Next page, {{page}}",
-    "print": "Print {{month}}"
+    "print": "Print {{month}}",
+    "strip": "Strip of {{day}} to paste"
   },
   "roll": {
     "absent": "Absent",
@@ -855,7 +856,9 @@
       "blankSupervised": "Each class's page 08 prints with its headings and columns, its rows left empty.",
       "signatureSupervised": "Sessions are numbered in the order of the year: those logged outside the timetable and those of support and revision days. A class with none gets the page blank.",
       "blankHomework": "Each class and subject's homework page prints with its headings and columns, its rows left empty.",
-      "signatureHomework": "Each homework is written with the day it was set and the day it comes back, then the two counts once entered; what is not counted stays blank. Counts only, never names."
+      "signatureHomework": "Each homework is written with the day it was set and the day it comes back, then the two counts once entered; what is not counted stays blank. Counts only, never names.",
+      "signatureStrip": "At the paper book's column widths and line spacing. Cut along the marks and paste each piece where it says, if the school accepts it. The signature box stays blank, to sign by hand.",
+      "noStrip": "No session confirmed on this day yet, so no strip to print."
     },
     "textsBook": {
       "name": "Texts book",
@@ -896,6 +899,12 @@
       "line": "Homework · school year",
       "page": "Texts book · homework",
       "caption": "{{className}} · {{subject}} · homework"
+    },
+    "strip": {
+      "name": "Strip to paste",
+      "line": "Sessions confirmed on {{day}}",
+      "from": "Page {{page}} · from rule 1",
+      "after": "Page {{page}} · after rule {{rule}}"
     }
   },
   "preview": {

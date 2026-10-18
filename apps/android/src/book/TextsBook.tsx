@@ -8,7 +8,9 @@
 // confirmation is confirmed as proposed with one tap, with «تراجع», or opened
 // for another outcome (R-2.3-07); «تراجع» shows only while the record the
 // tap made is still the session's latest. The month on screen prints from
-// here, so any month of the year can be printed (R-3.8-01).
+// here, so any month of the year can be printed (R-3.8-01), and so does the
+// strip of the page's last confirmed day, to paste into the paper book
+// (R-3.8-15).
 
 import {
   canonicalJson,
@@ -32,6 +34,7 @@ import { Snackbar } from '../components/Snackbar';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDocumentData } from '../documents/useDocumentData';
 import { directionOf, subjectLanguage, wordsFor } from '../documents/texts-book-pages';
+import { bookDate } from '../documents/texts-book-rows';
 import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -58,9 +61,11 @@ export interface TextsBookProps {
   readonly onPrint: (day: Day) => void;
   /** Opens the course's homework record. */
   readonly onHomework?: (courseId: string) => void;
+  /** Prints the strip of a day's entries, to paste into the paper book. */
+  readonly onStrip?: (day: Day) => void;
 }
 
-export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework }: TextsBookProps) {
+export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework, onStrip }: TextsBookProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -118,6 +123,7 @@ export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework }
       });
     }
   };
+  const stripDay = page?.rows.filter((row) => !row.awaiting).at(-1)?.day;
   const undoing = undo !== null && canonicalJson(current(state.sessions.get(undo.key))) === undo.made ? undo : null;
 
   return (
@@ -196,6 +202,14 @@ export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework }
               variant="line"
               label={t('book.after', { page: pageName(pages[index + 1]) })}
               onPress={() => setShown(index + 1)}
+            />
+          )}
+          {onStrip !== undefined && stripDay !== undefined && (
+            <Button
+              testID="book-strip"
+              variant="line"
+              label={t('book.strip', { day: bookDate(stripDay, dir) })}
+              onPress={() => onStrip(stripDay)}
             />
           )}
           {onHomework !== undefined && (

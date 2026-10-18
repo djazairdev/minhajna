@@ -116,6 +116,7 @@ export function TextsBookScreen({ navigation, route }: NativeStackScreenProps<Ro
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
       onPrint={(day) => navigation.navigate('DocOutput', { id: 'texts', day })}
       onHomework={(courseId) => navigation.navigate('Homework', { courseId })}
+      onStrip={(day) => navigation.navigate('DocOutput', { id: 'strip', day })}
     />
   );
 }

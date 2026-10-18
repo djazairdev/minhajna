@@ -1,6 +1,6 @@
-# Homework in the texts book
+# Homework in the texts book, and the pasted strip
 
-How the texts book's homework record and its printed page were checked for [#214](https://github.com/djazairdev/minhajna/issues/214) (PRD [§3.8](../prd/PRD.md#38-the-documents), [§3.3](../prd/PRD.md#33-today-and-the-session)). Every record in these checks is made up. They ran on 18 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
+How the texts book's homework record, its printed page and the strip to paste were checked for [#214](https://github.com/djazairdev/minhajna/issues/214) (PRD [§3.8](../prd/PRD.md#38-the-documents), [§3.3](../prd/PRD.md#33-today-and-the-session)). Every record in these checks is made up. They ran on 18 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
 
 - [What it does](#what-it-does)
 - [The result](#the-result)
@@ -21,7 +21,9 @@ In the core, the counts are their own record, `homework.counted`, keyed by the s
 
 **The printed page** is «سجل الواجبات» on the Documents tab, and «طباعة سجل الواجبات» at the foot of the record. It covers the school year: for each class and subject taught, a page on the book's head titled «دفتر النصوص · الواجبات», with the continuous-assessment line and the paper book's seven columns: the day it was set, the day it comes back, the activity, then each count with its percentage. Each homework is in the order it was set. Counts not entered are left blank. A count the list no longer holds prints without a percentage. A subject's page is in its language and direction; a French one runs left to right with its dates day first. A subject with no homework, and every subject in the blank version, gets the page with its heads and empty rules. A long activity wraps and its rules are counted, so a year of homework runs on to more pages. No name is printed.
 
-Counts proposed from per-pupil homework marks (R-3.8-24) wait for the in-session capture that records those marks (PL-30). The pasted strip (R-3.8-15) comes in the last part of #214.
+**The strip to paste** (R-3.8-15), for schools that accept it, is «شريط للّصق». It prints a day's confirmed entries: from the texts book in the app, «شريط … للّصق» prints the last confirmed day of the page on screen, and the Documents tab prints today's. Each class and subject gets a piece at the book's column widths and line spacing, inside a dashed box with crop marks at its corners, in the subject's language and direction. Each piece says where it goes: «الصفحة 1 · يلي السطر 7» after the rules the entries before it take as written, or «من السطر 1» when it starts a page. The rules are counted on the safe side, so a piece may leave a rule or two empty above it, never overlap the one before. The pieces span the page's full width, as the book's pages print, so their columns line up with the book's. A day that runs on to the next page gives a piece for each page. The signature column is blank, to sign by hand; the drawn signature (R-3.8-17) is not part of #214. There is no blank version, so the output screen offers none.
+
+Counts proposed from per-pupil homework marks (R-3.8-24) wait for the in-session capture that records those marks (PL-30).
 
 ## The result
 
@@ -31,6 +33,8 @@ Counts proposed from per-pupil homework marks (R-3.8-24) wait for the in-session
 | The page heads read «التاريخ / تاريخ إعادة الواجب», «النشاط الواجب إنجازه», «التخلي عن إنجاز النشاط» and «الاعتماد على الغير», each count «العدد · %» | **Passed** |
 | With no pupil list, opening the homework of 8 October says the class has no list yet and offers no count | **Passed** |
 | With a list of 45 (made up in the build tree only), 3 and 1 show 7% and 2%; «تأكيد» saves them, the row reads «3 · 7%» and «1 · 2%», and «تراجع» blanks them again | **Passed** |
+| «شريط 2026/10/08 للّصق» on 4AM1's October page opens the output for «الحصص المؤكّدة يوم 2026/10/08», with no blank version; the PDF has one piece, «الصفحة 2 · يلي السطر 2», with the session's three lines | **Passed** after a fix |
+| On September's page, «شريط 2026/09/28 للّصق» prints a piece for 4AM1 after rule 7 and one for 4AM2 after rule 3 | **Passed** |
 | «سجل الواجبات» from the Documents tab prints 4AM1's Arabic page with both homework pieces, their two dates, the French activity wrapping inside its column, and blank counts, then 4AM2's page blank with its heads | **Passed** after a fix |
 
 Faults found and fixed while checking:
@@ -38,6 +42,7 @@ Faults found and fixed while checking:
 - «من 45 تلميذاً» showed twice under each stepper; the share now gives the percentage alone.
 - The two buttons had different widths; they now share the row.
 - On the printed page, the day the homework comes back touched its column's edge; dates now use the book's smaller date style.
+- On the strip, the cut marks floated beside the piece's label; they are now crop marks at the corners of the piece.
 
 The review before committing found more, all fixed:
 - A joint class's homework was counted against every level's pupils; it now counts against its own level's list.
@@ -53,8 +58,9 @@ The review before committing found more, all fixed:
 2. In a session's details, write homework and choose a day it comes back, then confirm.
 3. On that day, press «إحصاء» on the class's card on Today, or open the texts book from the Classes tab and press «الواجبات».
 4. Press «طباعة سجل الواجبات», or open «سجل الواجبات» on the Documents tab, and save or print the PDF.
+5. On a page of the texts book with confirmed sessions, press «شريط … للّصق», or open «شريط للّصق» on the Documents tab, and save or print the PDF.
 
-The core tests in `packages/core/test/homework.test.ts` and the app tests in `apps/android/__tests__/homework.test.tsx` and `homework-page.test.ts` cover:
+The core tests in `packages/core/test/homework.test.ts` and the app tests in `apps/android/__tests__/homework.test.tsx`, `homework-page.test.ts` and `strip.test.tsx` cover:
 - the record's order, each group's list on the day the homework comes back, and a pupil who left before it;
 - counting only once it has come back, never past the list, corrections, and taking a count back with the history kept;
 - the rounding, and a count the list no longer holds;
@@ -64,7 +70,8 @@ The core tests in `packages/core/test/homework.test.ts` and the app tests in `ap
 - the layer, with no name in a count;
 - Today's strip on the first session held only, then the counts;
 - the screen: the homework due today open, homework still out shown only, the shares, «الجميع أنجزه بنفسه», «تراجع», no list and no homework, and printing;
-- the printed page: its heads, rows and blank counts, a subject with none, the blank version, a French page, the rules a long activity takes, no name, and its Documents entry.
+- the printed page: its heads, rows and blank counts, a subject with none, the blank version, a French page, the rules a long activity takes, no name, and its Documents entry;
+- the strip: the book's columns, the crop marks, the page and rule each piece goes after, a day running on to the next page, a day with nothing confirmed, no blank version, and the book's button for the page's last confirmed day.
 
 ## Still open
 
@@ -72,4 +79,5 @@ The core tests in `packages/core/test/homework.test.ts` and the app tests in `ap
 - **Today's strip on the device,** on a day when homework comes back.
 - **Counts proposed from per-pupil marks** (R-3.8-24), with PL-30's in-session capture.
 - **Printing on paper,** matched against a paper texts book's homework page.
-- **The pasted strip,** in the last part of #214.
+- **Pasting a strip** into a paper texts book, to check its widths and line spacing against the book's edition.
+- **The drawn signature** on the strip (R-3.8-17), with its own issue.

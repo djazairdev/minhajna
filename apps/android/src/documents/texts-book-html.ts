@@ -55,7 +55,8 @@ export const TEXTS_BOOK_CSS =
   'table.book td.what div{text-align:start;overflow-wrap:anywhere}' +
   'table.book.latin td,table.book.latin th{font-family:Sans,Naskh,sans-serif}';
 
-const COLUMNS =
+/** The book's columns, at the paper book's widths. */
+export const BOOK_COLUMNS =
   '<colgroup><col style="width:13%"><col style="width:15%"><col style="width:56%"><col style="width:16%"></colgroup>';
 
 function line(entry: BookLine, textLang: string | undefined): string {
@@ -75,15 +76,20 @@ export function bookHead(page: TextsBookHead): string {
   );
 }
 
-/** One page's content, for `printDocument`. */
-export function textsBookPage(page: TextsBookPage): string {
-  const rows = (page.rows ?? [])
+/** The rows of the book's entries, its signature column left blank. */
+export function entryRows(rows: readonly BookRow[], textLang: string | undefined): string {
+  return rows
     .map(
       (row) =>
         `<tr class="entry"><td class="when">${escapeHtml(row.date)}</td><td class="when">${escapeHtml(row.time)}</td>` +
-        `<td class="what">${row.lines.map((entry) => line(entry, page.textLang)).join('')}</td><td></td></tr>`,
+        `<td class="what">${row.lines.map((entry) => line(entry, textLang)).join('')}</td><td></td></tr>`,
     )
     .join('');
+}
+
+/** One page's content, for `printDocument`. */
+export function textsBookPage(page: TextsBookPage): string {
+  const rows = entryRows(page.rows ?? [], page.textLang);
   const left = Math.max(0, PAGE_RULES - page.used);
   const fill = '<tr class="rule"><td></td><td></td><td></td><td></td></tr>'.repeat(left);
   const latin = page.dir === 'ltr' ? ' latin' : '';
@@ -91,7 +97,7 @@ export function textsBookPage(page: TextsBookPage): string {
     bookHead(page.head) +
     `<p class="caption" lang="${escapeHtml(page.lang)}" dir="${page.dir}">${escapeHtml(page.caption)}</p>` +
     (page.note === undefined ? '' : `<p class="note" dir="${page.dir}">${escapeHtml(page.note)}</p>`) +
-    `<table class="book${latin}" lang="${escapeHtml(page.lang)}" dir="${page.dir}">${COLUMNS}` +
+    `<table class="book${latin}" lang="${escapeHtml(page.lang)}" dir="${page.dir}">${BOOK_COLUMNS}` +
     `<thead><tr>${page.columns.map((column) => `<th>${escapeHtml(column)}</th>`).join('')}</tr></thead>` +
     `<tbody>${rows}${fill}</tbody></table>`
   );

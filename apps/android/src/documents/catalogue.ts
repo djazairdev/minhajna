@@ -12,10 +12,12 @@ import { monthLabel, taughtClasses, type DocumentData, type Translate } from './
 import { journalPages } from './journal-pages';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
+import { stripEmpty, stripPages } from './strip-pages';
 import { supervisedPages } from './supervised-pages';
+import { bookDate } from './texts-book-rows';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 
-export type DocumentId = 'journal' | 'roll' | 'texts' | 'supervised' | 'homework';
+export type DocumentId = 'journal' | 'roll' | 'texts' | 'supervised' | 'homework' | 'strip';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -30,8 +32,8 @@ export interface DocumentKind {
   readonly title: (t: Translate) => string;
   /** What it covers now, under its title in the list. */
   readonly line: (data: DocumentData, t: Translate) => string;
-  /** What the blank version fills in, and what it leaves for the pen. */
-  readonly blankLine: (t: Translate) => string;
+  /** What the blank version fills in, and what it leaves for the pen; null for a document with no blank version. */
+  readonly blankLine: (t: Translate) => string | null;
   /** What is left to sign by hand. */
   readonly signatureLine: (t: Translate) => string;
   /** Why there is nothing to print, when `empty` says so. */
@@ -117,6 +119,20 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     signatureLine: (t) => t('documents.output.signatureHomework'),
     emptyLine: (t) => t('documents.output.noClassesTexts'),
     pages: homeworkPages,
+  },
+  {
+    id: 'strip',
+    icon: 'homework',
+    pupils: false,
+    landscape: false,
+    empty: stripEmpty,
+    period: (data) => data.day,
+    title: (t) => t('documents.strip.name'),
+    line: (data, t) => t('documents.strip.line', { day: bookDate(data.day, data.dir) }),
+    blankLine: () => null,
+    signatureLine: (t) => t('documents.output.signatureStrip'),
+    emptyLine: (t) => t('documents.output.noStrip'),
+    pages: (data, t) => stripPages(data, t),
   },
 ];
 
