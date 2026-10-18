@@ -5,17 +5,17 @@
 // native module, which counts wrong tries and keeps the wait, so a reload
 // resets nothing. Where the teacher turned it on, the phone's fingerprint or
 // face prompt opens once by itself, and again from its key, during a wait
-// too. A wait reads the time left from the native module each second, whose
-// clock counts time asleep and ignores a change of the phone's time, and
+// too. A wait reads its time left from the native module (useWait), and
 // TalkBack hears it once, not every second.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, AppState } from 'react-native';
+import { AccessibilityInfo } from 'react-native';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { useText } from '../text/i18n';
 import { LockBoard } from './LockBoard';
 import { PIN_LENGTH, errorCode, typed, waitWording } from './lock-rules';
 import { PinPad } from './PinPad';
+import { useWait } from './useWait';
 
 export type UnlockProps = {
   readonly storage: Storage;
@@ -34,8 +34,12 @@ type Message = 'wrong' | 'noSpace' | null;
 export function Unlock({ storage, biometric, waitSeconds, lockMinutes, onOpened, onRefused }: UnlockProps) {
   const t = useText();
   const [pin, setPin] = useState('');
-  const [wait, setWait] = useState(waitSeconds);
   const [message, setMessage] = useState<Message>(null);
+  const [wait, setWait] = useWait(
+    storage,
+    waitSeconds,
+    useCallback(() => setMessage(null), []),
+  );
   const [busy, setBusy] = useState(false);
   const [prompting, setPrompting] = useState(false);
   const mounted = useRef(true);
@@ -61,29 +65,6 @@ export function Unlock({ storage, biometric, waitSeconds, lockMinutes, onOpened,
   }, [t, waitSeconds]);
 
   const waiting = wait > 0;
-  useEffect(() => {
-    if (!waiting) return;
-    const tick = () => {
-      storage.lockStatus().then(
-        (status) => {
-          if (!mounted.current) return;
-          setWait(status.waitSeconds);
-          if (status.waitSeconds === 0) setMessage(null);
-        },
-        (error: unknown) => {
-          if (__DEV__) console.warn('The lock status did not read', errorCode(error));
-        },
-      );
-    };
-    const timer = setInterval(tick, 1000);
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') tick();
-    });
-    return () => {
-      clearInterval(timer);
-      subscription.remove();
-    };
-  }, [storage, waiting]);
 
   const askPhone = useCallback(() => {
     setPrompting(true);

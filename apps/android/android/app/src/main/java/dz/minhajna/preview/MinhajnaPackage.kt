@@ -12,10 +12,12 @@ import dz.minhajna.preview.documents.MinhajnaPdfModule
 import dz.minhajna.preview.about.MinhajnaBuildModule
 import dz.minhajna.preview.language.MinhajnaInterfaceModule
 import dz.minhajna.preview.licences.MinhajnaLicencesModule
+import dz.minhajna.preview.lock.MinhajnaLockModule
 import dz.minhajna.preview.storage.MinhajnaStorageModule
 import dz.minhajna.preview.storage.NativeMinhajnaBuildSpec
 import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
+import dz.minhajna.preview.storage.NativeMinhajnaLockSpec
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
 
@@ -29,6 +31,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaLicencesSpec.NAME -> MinhajnaLicencesModule(reactContext)
       NativeMinhajnaPdfSpec.NAME -> MinhajnaPdfModule(reactContext)
       NativeMinhajnaBuildSpec.NAME -> MinhajnaBuildModule(reactContext)
+      NativeMinhajnaLockSpec.NAME -> MinhajnaLockModule(reactContext)
       else -> DebugModules.create(name, reactContext)
     }
 
@@ -39,6 +42,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaLicencesSpec.NAME, MinhajnaLicencesModule::class.java.name),
       info(NativeMinhajnaPdfSpec.NAME, MinhajnaPdfModule::class.java.name),
       info(NativeMinhajnaBuildSpec.NAME, MinhajnaBuildModule::class.java.name),
+      info(NativeMinhajnaLockSpec.NAME, MinhajnaLockModule::class.java.name),
     ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 

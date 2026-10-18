@@ -54,7 +54,8 @@ export function BiometricAsk({ storage, pin, onDone }: BiometricAskProps) {
         setFailed(true);
       },
       (error: unknown) => {
-        if (__DEV__) console.warn('Turning the fingerprint on failed', errorCode(error));
+        if (__DEV__ && errorCode(error) !== 'E_CANCELLED')
+          console.warn('Turning the fingerprint on failed', errorCode(error));
         if (!mounted.current) return;
         setBusy(false);
         setFailed(true);

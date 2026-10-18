@@ -1,28 +1,37 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
-  DefaultTheme,
   NavigationContainer,
   useNavigationContainerRef,
   type InitialState,
   type NavigationState,
-  type CompositeScreenProps,
   type NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
 import { DevSettings, I18nManager } from 'react-native';
-import { colors } from '../design/tokens';
 import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
 import { HomePreview, InnerPreview, tabLabels } from './HomePreview';
-import { BottomNav, TopBar } from './NavigationChrome';
+import { BottomNav, TopBar, theme } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
-import { CorrectScreen, EntryScreen, PupilMoveScreen, RollScreen, SeatsSetupScreen, TodayTab } from './RecordScreens';
+import {
+  ClassPlanScreen,
+  ClassesTabScreen,
+  CorrectScreen,
+  EntryScreen,
+  PupilMoveScreen,
+  RollScreen,
+  SeatsSetupScreen,
+  TodayTab,
+} from './RecordScreens';
+import { LockPinScreen, SecurityScreen } from './LockScreens';
+import type { LockPinMode } from '../lock/LockPin';
+import type { SecurityDone } from '../lock/Security';
 import { Welcome } from './Welcome';
 import {
   CardScreen,
@@ -38,8 +47,6 @@ import {
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
-import { ClassPlan } from '../classes/ClassPlan';
-import { ClassesTab } from '../classes/ClassesTab';
 import type { Cell } from '../week/week-rules';
 
 export { tabLabels } from './HomePreview';
@@ -76,21 +83,12 @@ export type RootStackParamList = {
   RollRules: undefined;
   PupilMove: { classId: string };
   SeatsSetup: { classId: string; groupId: string };
+  Security: { done?: SecurityDone; at?: number } | undefined;
+  LockPin: { mode: LockPinMode };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<HomeTabParamList>();
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: colors.paper,
-    card: colors.sheet,
-    text: colors.ink,
-    border: colors.line,
-    primary: colors.ink,
-  },
-};
 
 /** The developer menu's item that opens the gallery, in English like the rest of that menu. */
 export const GALLERY_MENU_ITEM = 'Component gallery';
@@ -111,14 +109,21 @@ export function AppNavigator({
   initialRouteName = 'Welcome',
   initialState,
   onStateChange,
+  onAction,
 }: {
   direction?: 'rtl' | 'ltr';
   initialRouteName?: 'Welcome' | 'Home';
   initialState?: InitialState;
   onStateChange?: (state: NavigationState | undefined) => void;
+  /** Called as each navigation action is sent, before any screen it brings is drawn. */
+  onAction?: () => void;
 }) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
+  useEffect(
+    () => (onAction === undefined ? undefined : navigation.addListener('__unsafe_action__', onAction)),
+    [navigation, onAction],
+  );
   useEffect(() => {
     if (!__DEV__) return;
     DevSettings.addMenuItem(GALLERY_MENU_ITEM, () => navigation.navigate('Gallery'));
@@ -208,6 +213,8 @@ export function AppNavigator({
           />
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
+        <Stack.Screen name="LockPin" component={LockPinScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
         <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />
@@ -277,19 +284,4 @@ function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 
 /** The same notice, from Help. */
 function HelpNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrivacyNotice'>) {
   return <PrivacyNotice onConnections={() => navigation.navigate('Connections')} />;
-}
-
-/** The Classes tab; a class's «المخطط» opens its plan. */
-function ClassesTabScreen({
-  navigation,
-}: CompositeScreenProps<
-  BottomTabScreenProps<HomeTabParamList, 'Classes'>,
-  NativeStackScreenProps<RootStackParamList>
->) {
-  return <ClassesTab onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })} />;
-}
-
-/** A class's plan. */
-function ClassPlanScreen({ route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
-  return <ClassPlan courseId={route.params.courseId} />;
 }

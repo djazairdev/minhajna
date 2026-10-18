@@ -12,7 +12,10 @@
 // once. Once both are open, the screens reach the record book and the
 // profile through AppData, and the app opens on Today once setup has been
 // finished (#183). Unused for the lock's delay, the app closes the history
-// and shows the lock; the screens come back as they were after it.
+// and shows the lock; the screens come back as they were after it. The
+// screen guard follows the screen in front: records stay out of screenshots
+// and the recent-apps preview unless the teacher allows them, and PIN pads
+// always. Each navigation action raises it before the next screen is drawn.
 // Once the lock, the welcome or the history shows, the app tells Android its
 // first screen with content is drawn, so a start can be timed on any phone.
 // In development every problem in the reference data is logged, for whoever
@@ -26,7 +29,9 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { noteUse } from './src/lock/activity';
 import { BiometricAsk } from './src/lock/BiometricAsk';
 import { CreatePin } from './src/lock/CreatePin';
-import { DEFAULT_LOCK_DELAY } from './src/lock/lock-rules';
+import { guardScreen, useLockSettings } from './src/lock/lock-settings';
+import { LockStorage } from './src/lock/lock-storage';
+import { focusedRoute, gateKind, screenKind } from './src/lock/screen-guard';
 import { Unlock } from './src/lock/Unlock';
 import { useAutoLock } from './src/lock/useAutoLock';
 import { useLockPhase, type LockPhase } from './src/lock/useLockPhase';
@@ -43,15 +48,13 @@ export default function App({
   files = bundledReference,
   storage = NativeStorage,
   reportDrawn = () => NativeInterface.reportFullyDrawn(),
-  lockMinutes = DEFAULT_LOCK_DELAY,
 }: {
   files?: ReferenceFiles;
   storage?: Storage;
   /** Called once, when the first screen with content is drawn. */
   reportDrawn?: () => void;
-  /** The automatic lock's delay, in minutes. */
-  lockMinutes?: number;
 }) {
+  const { delayMinutes: lockMinutes } = useLockSettings();
   const reference = useMemo(() => {
     const result = readReference(files);
     if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
@@ -64,15 +67,31 @@ export default function App({
   const random = useMemo(() => nativeDeps(storage).random, [storage]);
   const navigation = useRef<NavigationState | undefined>(undefined);
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
+  const [route, setRoute] = useState<string | undefined>(undefined);
   const firstState =
     restore ??
     (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN : undefined);
   const { lockNow } = lock;
   const lockAway = useCallback(() => {
     setRestore(navigation.current ?? firstState);
+    setRoute(undefined);
     lockNow();
   }, [lockNow, firstState]);
   useAutoLock(book !== null, lockMinutes, lockAway);
+  const open = phase.kind === 'open' && reference.ok && book !== null;
+  const front = route ?? focusedRoute(firstState) ?? (book?.state.setupFinished ? 'Home' : 'Welcome');
+  const refused = !reference.ok || phase.kind === 'refused' || history === 'refused';
+  const kind = open ? screenKind(front) : gateKind(phase, refused);
+  const [actions, setActions] = useState(0);
+  const shown = useRef(kind);
+  const raiseGuard = useCallback(() => {
+    guardScreen(shown.current === 'pin' ? 'pin' : 'records');
+    setActions((count) => count + 1);
+  }, []);
+  useEffect(() => {
+    shown.current = kind;
+    guardScreen(kind);
+  }, [kind, actions]);
   const reported = useRef(false);
   const drawn = phase.kind !== 'checking' && !(phase.kind === 'open' && history === 'opening');
   useEffect(() => {
@@ -90,7 +109,7 @@ export default function App({
           return false;
         }}
       >
-        {phase.kind === 'open' && reference.ok && book !== null ? (
+        {open && reference.ok && book !== null ? (
           <AppDataProvider
             book={book}
             profile={reference.profile}
@@ -100,13 +119,17 @@ export default function App({
             packs={reference.packs}
             random={random}
           >
-            <AppNavigator
-              initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
-              initialState={firstState}
-              onStateChange={(state) => {
-                navigation.current = state;
-              }}
-            />
+            <LockStorage.Provider value={storage}>
+              <AppNavigator
+                initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
+                initialState={firstState}
+                onAction={raiseGuard}
+                onStateChange={(state) => {
+                  navigation.current = state;
+                  setRoute(focusedRoute(state));
+                }}
+              />
+            </LockStorage.Provider>
           </AppDataProvider>
         ) : (
           <LocaleDirContext.Provider value={I18nManager.isRTL ? 'rtl' : 'ltr'}>

@@ -1,12 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Jest has no native side: the app's storage, interface-language and licence
-// modules, and React Native's developer menu, are Node fakes, fresh for each
-// test file.
+// Jest has no native side: the app's storage, lock-settings, interface-language
+// and licence modules, and React Native's developer menu, are Node fakes,
+// fresh for each test file.
 jest.mock('../src/native/NativeMinhajnaStorage', () => {
   const { FakeStorage } = jest.requireActual<typeof import('./fake-storage')>('./fake-storage');
   return { __esModule: true, default: new FakeStorage().asSpec() };
+});
+
+jest.mock('../src/native/NativeMinhajnaLock', () => {
+  const { FakeLock } = jest.requireActual<typeof import('./fake-lock')>('./fake-lock');
+  return { __esModule: true, default: new FakeLock().asSpec() };
 });
 
 jest.mock('../src/native/NativeMinhajnaInterface', () => {

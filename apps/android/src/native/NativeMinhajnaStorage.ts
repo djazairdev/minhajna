@@ -48,7 +48,7 @@ export interface Spec extends TurboModule {
   unlock(pin: string): Promise<PinResult>;
   /** Shows the phone's prompt. Resolves true once the history is open, false when cancelled. */
   unlockWithBiometrics(title: string, subtitle: string, cancel: string): Promise<boolean>;
-  /** Turns the phone's prompt on, after the PIN and a first match. Cancelled: opened is false, with no wait. */
+  /** Turns the phone's prompt on, after the PIN and a first match. A wrong PIN resolves; a closed prompt rejects with E_CANCELLED. */
   enableBiometrics(pin: string, title: string, subtitle: string, cancel: string): Promise<PinResult>;
   disableBiometrics(): Promise<void>;
   changePin(old: string, next: string): Promise<PinResult>;

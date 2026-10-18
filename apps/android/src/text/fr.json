@@ -895,6 +895,40 @@
       "promptTitle": "Activer l’empreinte",
       "cancel": "Annuler",
       "failed": "L’empreinte n’est pas activée. Vous pourrez l’activer plus tard dans « Verrou et sécurité »."
+    },
+    "change": {
+      "current": "Tapez votre code actuel",
+      "next": "Choisissez un nouveau code à 4 chiffres",
+      "confirm": "Tapez le code pour activer l'empreinte ou le visage",
+      "biometricFailed": "Non activé : le téléphone n'a confirmé ni empreinte ni visage."
     }
+  },
+  "security": {
+    "title": "Verrouillage et sécurité",
+    "subtitle": "Sur ce téléphone",
+    "open": "Ouvrir l'application",
+    "withPhone": "Le code, ou l'empreinte ou le visage du téléphone",
+    "withPhoneLine": "L'application les demande au téléphone et ne garde ni empreinte ni image du visage.",
+    "pinOnly": "Le code seul",
+    "pinOnlyLine": "Le code à 4 chiffres à chaque fois.",
+    "noBiometric": "Ce téléphone ne reconnaît pas une empreinte ou un visage de façon assez sûre : l'application s'ouvre avec le code seul.",
+    "changePin": "Changer le code",
+    "delay": "Verrouillage automatique après cette durée sans utilisation",
+    "minutes_one": "1 minute",
+    "minutes_many": "{{count}} minutes",
+    "minutes_other": "{{count}} minutes",
+    "screenshots": "Autoriser les captures d'écran",
+    "screenshotsLine": "Bloquées sur les écrans qui montrent les noms ou les notes des élèves, et ces écrans sont masqués dans les applications récentes. Les écrans du code restent toujours bloqués.",
+    "fixed": "Fixe, non modifiable",
+    "fixedLabel": "Fixe",
+    "notFixed": "Non appliqué",
+    "fixedDatabase": "La base de données est chiffrée, et sa clé dans le coffre du téléphone ne s'ouvre qu'avec le verrouillage",
+    "fixedNotifications": "Aucun nom ni note dans les notifications",
+    "fixedBackup": "La base de données n'entre jamais dans la sauvegarde en ligne du téléphone",
+    "fixedPermissions": "Aucune autorisation pour la position, les contacts ou le micro ; l'appareil photo sert seulement à lire les codes QR",
+    "pinChanged": "Le code est changé.",
+    "biometricOn": "L'application s'ouvre maintenant aussi avec l'empreinte ou le visage.",
+    "biometricOff": "L'application s'ouvre maintenant avec le code seul.",
+    "failed": "Le changement n'a pas été enregistré. Réessayez."
   }
 }
