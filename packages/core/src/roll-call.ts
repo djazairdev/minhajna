@@ -103,13 +103,16 @@ export function isEnrolled(pupil: Pupil, day: Day): boolean {
 
 /** The pupils a roll call covers, in the class list's order. */
 export function pupilsFor(context: Context, unit: RollCallUnit): Pupil[] {
-  const schoolClass = findClass(context, unit.classId);
+  return pupilsOn(context, unit.classId, unit.groupId, unit.day);
+}
+
+/** The pupils of a class's group on its list on `day`, in the class list's order. */
+export function pupilsOn(context: Context, classId: string, groupId: string, day: Day): Pupil[] {
+  const schoolClass = findClass(context, classId);
   const whole = wholeGroup(schoolClass).id;
   return [...context.state.pupils.values()].filter(
     (pupil) =>
-      pupil.classId === unit.classId &&
-      isEnrolled(pupil, unit.day) &&
-      (unit.groupId === whole || pupil.groups.includes(unit.groupId)),
+      pupil.classId === classId && isEnrolled(pupil, day) && (groupId === whole || pupil.groups.includes(groupId)),
   );
 }
 

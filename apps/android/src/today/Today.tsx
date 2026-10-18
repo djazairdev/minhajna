@@ -27,6 +27,7 @@ import {
   nextSession,
   todayView,
   weekday,
+  type HomeworkItem,
   type Session,
   type TodaySession,
 } from '@minhajna/core';
@@ -50,7 +51,7 @@ import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from '.
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
-import { rollStrip } from './roll-strip';
+import { dueStrips } from '../homework/homework-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
 import { todayEntries } from './joint-today';
 import { useTodayActions } from './today-actions';
@@ -59,14 +60,17 @@ import { sessionMeta } from './today-meta';
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
 
-/** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call. */
+const sessionsOf = (items: readonly TodaySession[]) => items.map((item) => item.session);
+
+/** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call, `onHomework` the homework that comes back. */
 export function Today(props: {
   onHelp: () => void;
   onExtra?: () => void;
   onDetails: (session: Session) => void;
   onRoll: (session: Session) => void;
+  onHomework?: (item: HomeworkItem) => void;
 }) {
-  const { onHelp, onDetails, onRoll, onExtra } = props;
+  const { onHelp, onDetails, onRoll, onExtra, onHomework = () => undefined } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -109,7 +113,7 @@ export function Today(props: {
     const key = item.session.key;
     const testID = `today-${key}`;
     const pack = courseSetup(context, item.course.id).pack;
-    const due = rollStrip(t, context, item.session, onRoll);
+    const due = dueStrips(t, context, [item.session], onRoll, onHomework);
     if (item.status === 'recorded' && item.record !== null) {
       return (
         <SessionCard
@@ -179,7 +183,7 @@ export function Today(props: {
         testID={`today-${key}`}
         meta={{ ...metaOf(first, true), className: schoolClass.name }}
         years={years}
-        due={rollStrip(t, context, first.session, onRoll)}
+        due={dueStrips(t, context, sessionsOf(items), onRoll, onHomework)}
         {...(onFocus && {
           confirm: {
             label: t('joint.confirm', { count: ready.length }),

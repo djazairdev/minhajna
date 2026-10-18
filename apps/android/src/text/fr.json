@@ -899,6 +899,15 @@
       "date": "Date",
       "time": "Horaire",
       "note": "(1) En application de la décision n° 835 du 13/09/1991"
+    },
+    "homework": {
+      "date": "Date",
+      "due": "Date de retour",
+      "activity": "Activité demandée",
+      "notDone": "Abandon de l'activité",
+      "reliedOn": "Recours à autrui",
+      "number": "Nombre",
+      "sideNote": "Activités d’évaluation continue : diagnostique, formative, sommative"
     }
   },
   "preview": {
@@ -1105,5 +1114,30 @@
     "noClass": "Aucune classe pour l’instant. Ajoutez vos classes et dessinez votre semaine d’abord.",
     "separator": ", ",
     "untimed": "Certaines de ces séances n’ont pas encore d’horaire dans l’établissement : elles s’inscrivent dans la page des séances supplémentaires une fois l’horaire réglé."
+  },
+  "homework": {
+    "title": "Devoirs",
+    "heading": "Cahier de textes · {{className}} · {{subject}} · devoirs",
+    "dueToday": "À rendre aujourd'hui : {{text}}",
+    "counted": "Devoir compté · non fait : {{notDone}} · recours à autrui : {{reliedOn}}",
+    "count": "Compter",
+    "open": "Devoirs",
+    "today": "À rendre aujourd'hui",
+    "backOn": "À rendre le {{day}}",
+    "notCounted": "Pas encore compté",
+    "countHint": "Ouvre le comptage de ce devoir",
+    "counting": "Comptage au retour du devoir : {{text}}",
+    "of_one": "sur {{count}} élève",
+    "of_many": "sur {{count}} d’élèves",
+    "of_other": "sur {{count}} élèves",
+    "share": "{{percent}} %",
+    "less": "Diminuer : {{name}}",
+    "more": "Augmenter : {{name}}",
+    "allDid": "Tous l'ont fait seuls",
+    "confirm": "Confirmer",
+    "saved": "Comptage enregistré",
+    "noList": "Cette classe n'a pas encore de liste d'élèves. Ajoutez-la dans la configuration pour compter.",
+    "empty": "Aucun devoir dans cette matière pour l'instant. Chaque devoir écrit dans le détail d'une séance s'y inscrit, avec sa date de retour.",
+    "printNote": "Seuls les deux nombres confirmés s'impriment ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms."
   }
 }

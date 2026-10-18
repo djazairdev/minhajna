@@ -6,7 +6,7 @@
 // confirmation shown in what confirming them would record, never counted
 // as printed nor numbered, confirmed with one tap and taken back with «تراجع»; a
 // confirmed row opening its details; the month on screen printing; and the
-// class's other subjects. Made-up records only.
+// class's other subjects, and its homework record. Made-up records only.
 
 import { confirmSessions, current, parseDay, sessionsBetween, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -36,6 +36,7 @@ const t = i18n.getFixedT('ar');
 const onCourse = jest.fn();
 const onDetails = jest.fn();
 const onPrint = jest.fn();
+const onHomework = jest.fn();
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -87,7 +88,13 @@ async function show(data: TestData, courseId = 'c-1') {
         {withData(
           data,
           <>
-            <TextsBook courseId={courseId} onCourse={onCourse} onDetails={onDetails} onPrint={onPrint} />
+            <TextsBook
+              courseId={courseId}
+              onCourse={onCourse}
+              onDetails={onDetails}
+              onPrint={onPrint}
+              onHomework={onHomework}
+            />
             <Elsewhere />
           </>,
           '2026-11-12',
@@ -233,4 +240,6 @@ test("the class's other subjects are a tap away, and a book with nothing yet say
   expect(said('book-empty')).toBe(text.book.empty);
   await press('book-subjects-c-1');
   expect(onCourse).toHaveBeenCalledWith('c-1');
+  await press('book-homework');
+  expect(onHomework).toHaveBeenCalledWith('c-3');
 });

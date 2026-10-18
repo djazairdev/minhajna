@@ -6,28 +6,26 @@
 // itself, so drawing a week adds one version, not one for each change.
 
 import { compareDays, maxDay, type Day } from './day.ts';
-import { compareExtras, type ExtraSession } from './extra-records.ts';
+import type { ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
-import { mayTravelAs, type OutboundRoute } from './layers.ts';
+import type { HomeworkCount } from './homework.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
-import {
-  compareHalves,
-  compareSlots,
-  type Course,
-  type PrivateNote,
-  type Pupil,
-  type PupilMovement,
-  type RollCall,
-  type School,
-  type SchoolClass,
-  type SeatingPlan,
-  type SessionRecord,
-  type TeacherCard,
-  type TeacherPersonal,
-  type TimetableVersion,
+import type {
+  Course,
+  PrivateNote,
+  Pupil,
+  PupilMovement,
+  RollCall,
+  School,
+  SchoolClass,
+  SeatingPlan,
+  SessionRecord,
+  TeacherCard,
+  TeacherPersonal,
+  TimetableVersion,
 } from './records.ts';
-import { eventOf, layerOf, type RecordEvent } from './events.ts';
+import { eventOf } from './events.ts';
 
 /** One version of a record. Corrections add versions, and every version stays (PRD §3.1, rule 4). */
 export interface Version<T> {
@@ -65,6 +63,8 @@ export interface State {
    */
   readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
+  /** Every version of each homework's two counts, by the key of the session that set it; null once taken back. */
+  readonly homeworkCounts: ReadonlyMap<string, readonly Version<HomeworkCount | null>[]>;
   /** Every version of each session outside the timetable, by ID; null once removed. */
   readonly extras: ReadonlyMap<string, readonly Version<ExtraSession | null>[]>;
   /** Every version of each roll call, by unit key. The last is the current one. */
@@ -123,6 +123,7 @@ export function buildState(entries: readonly Entry[]): State {
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const extras = new Map<string, Version<ExtraSession | null>[]>();
+  const homeworkCounts = new Map<string, Version<HomeworkCount | null>[]>();
   const rollCalls = new Map<string, Version<RollCall>[]>();
   const seating = new Map<string, SeatingPlan>();
   let counting: CountingRules | null = null;
@@ -182,6 +183,17 @@ export function buildState(entries: readonly Entry[]): State {
       case 'session.noted':
         notes.set(event.note.sessionKey, event.note);
         break;
+      case 'homework.counted': {
+        const key = event.count.sessionKey;
+        homeworkCounts.set(key, [...(homeworkCounts.get(key) ?? []), versionOf(entry, event.count)]);
+        break;
+      }
+      case 'homework.uncounted':
+        homeworkCounts.set(event.sessionKey, [
+          ...(homeworkCounts.get(event.sessionKey) ?? []),
+          versionOf<HomeworkCount | null>(entry, null),
+        ]);
+        break;
       case 'extra.logged':
         extras.set(event.extra.id, [...(extras.get(event.extra.id) ?? []), versionOf(entry, event.extra)]);
         break;
@@ -219,6 +231,7 @@ export function buildState(entries: readonly Entry[]): State {
     sessions,
     notes,
     extras,
+    homeworkCounts,
     rollCalls,
     seating,
     counting,
@@ -229,72 +242,4 @@ export function buildState(entries: readonly Entry[]): State {
 /** The current version of a record, or null. */
 export function current<T>(versions: readonly Version<T>[] | undefined): T | null {
   return versions?.at(-1)?.value ?? null;
-}
-
-function compareText(a: string, b: string): number {
-  if (a === b) return 0;
-  return a < b ? -1 : 1;
-}
-
-/**
- * The current version of each record, as the event that sets it, with
- * nothing from its history entry: no ID, place in the history, day or hash.
- * Sessions and roll calls come in the order of their own days, so not even
- * the order shows when they were recorded (PRD §7.6).
- *
- * A version names the first day it applies, which can be later than the day the teacher gave it.
- */
-function currentRecords(state: State): RecordEvent[] {
-  const records: RecordEvent[] = [];
-  if (state.teacher !== null) records.push({ kind: 'teacher.set', card: state.teacher });
-  if (state.personal !== null) records.push({ kind: 'teacher.personal.set', personal: state.personal });
-  for (const school of state.schools.values()) records.push({ kind: 'school.set', school });
-  for (const schoolClass of state.classes.values()) records.push({ kind: 'class.set', schoolClass });
-  for (const pupil of state.pupils.values()) records.push({ kind: 'pupil.set', pupil });
-  for (const course of state.courses.values()) records.push({ kind: 'course.set', course });
-  for (const { version, from } of state.timetables)
-    records.push({ kind: 'timetable.set', version: { ...version, from } });
-  for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });
-  const sessions = [...state.sessions.values()]
-    .flatMap((versions) => versions.slice(-1))
-    .flatMap(({ value }) => (value === null ? [] : [value]))
-    .sort(
-      (a, b) =>
-        compareDays(a.session.day, b.session.day) ||
-        compareSlots(a.session.slot, b.session.slot) ||
-        compareText(a.session.key, b.session.key),
-    );
-  for (const record of sessions) records.push({ kind: 'session.recorded', record });
-  for (const note of state.notes.values()) records.push({ kind: 'session.noted', note });
-  const extras = [...state.extras.values()].flatMap((versions) => {
-    const extra = current(versions);
-    return extra === null ? [] : [extra];
-  });
-  for (const extra of extras.sort(compareExtras)) records.push({ kind: 'extra.logged', extra });
-  const rollCalls = [...state.rollCalls.values()]
-    .flatMap((versions) => versions.slice(-1))
-    .sort(
-      (a, b) =>
-        compareDays(a.value.day, b.value.day) ||
-        compareHalves(a.value.half, b.value.half) ||
-        compareText(a.value.unit, b.value.unit),
-    );
-  for (const { value, reason } of rollCalls) {
-    records.push({ kind: 'roll-call.taken', rollCall: value, ...(reason !== undefined && { reason }) });
-  }
-  for (const plan of state.seating.values()) records.push({ kind: 'seating.set', plan });
-  if (state.counting !== null) records.push({ kind: 'counting.set', rules: state.counting });
-  if (state.setupFinished) records.push({ kind: 'setup.finished' });
-  return records;
-}
-
-/**
- * What may leave the teacher on `route`: the current version of each record
- * whose layer the route takes. History entries stay with the teacher, so no
- * entry's day or place in the history travels, and nobody can work out when
- * a record was made, such as the day a session was confirmed (PRD §5.4,
- * §7.6).
- */
-export function recordsForRoute(state: State, route: OutboundRoute): RecordEvent[] {
-  return currentRecords(state).filter((record) => mayTravelAs(layerOf(record), record.kind, route));
 }

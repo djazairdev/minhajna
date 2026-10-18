@@ -7,6 +7,7 @@
 
 import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
+import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
 import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
@@ -55,6 +56,10 @@ export type RecordEvent =
   // was recorded stays in the history (PRD §4.7).
   | { readonly kind: 'session.withdrawn'; readonly session: SessionRef }
   | { readonly kind: 'session.noted'; readonly note: PrivateNote }
+  // Homework's two counts, entered or corrected when it comes back, and
+  // taken back; the history keeps every version (PRD §3.8, §5.5).
+  | { readonly kind: 'homework.counted'; readonly count: HomeworkCount }
+  | { readonly kind: 'homework.uncounted'; readonly sessionKey: string }
   // A session outside the timetable, logged or corrected, and one removed
   // when logged by mistake; the history keeps both (PRD §3.3, §5.5).
   | { readonly kind: 'extra.logged'; readonly extra: ExtraSession }
@@ -86,6 +91,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'session.recorded': true,
   'session.withdrawn': true,
   'session.noted': true,
+  'homework.counted': true,
+  'homework.uncounted': true,
   'extra.logged': true,
   'extra.removed': true,
   'roll-call.taken': true,
@@ -126,6 +133,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'session.withdrawn':
     case 'extra.logged':
     case 'extra.removed':
+    case 'homework.counted':
+    case 'homework.uncounted':
       return 'lesson-record';
   }
 }
