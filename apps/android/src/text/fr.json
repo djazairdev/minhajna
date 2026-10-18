@@ -828,7 +828,27 @@
     "teacher": "Signature de l’enseignant",
     "director": "Visa du directeur",
     "empty": "Aucune séance ce jour.",
-    "awaiting": "Déroulement : en attente de confirmation",
+    "journalLines": {
+      "sequence": "Séquence",
+      "domain": "Domaine",
+      "resource": "Ressource",
+      "how": "Déroulement",
+      "remarks": "Remarques",
+      "awaiting": "en attente de confirmation",
+      "and": " ; ",
+      "outcomes": {
+        "done": "comme proposé",
+        "partial": "en partie, la suite à la prochaine séance (suite)",
+        "merged": "deux contenus regroupés",
+        "skipped": "contenu proposé sauté",
+        "retaught": "leçon précédente reprise",
+        "not-held": "séance non tenue",
+        "changed": "autre leçon que celle proposée"
+      },
+      "continued": "Suite : {{title}}",
+      "retaught": "Reprise : {{title}}",
+      "colon": " : "
+    },
     "rollTitle": "Registre d’appel · {{month}}",
     "october": "octobre 2026",
     "number": "N°",
@@ -847,7 +867,6 @@
     "list": {
       "line": "Imprimés ou enregistrés en PDF comme le demandent le directeur et l'inspecteur, ou vierges avec leurs en-têtes.",
       "more": "Les autres documents s’ajoutent ici à mesure qu’ils sont prêts.",
-      "today": "page du jour",
       "classes_one": "{{count}} classe",
       "classes_many": "{{count}} classes",
       "classes_other": "{{count}} classes"
@@ -876,7 +895,16 @@
       "blankHomework": "La page des devoirs de chaque classe et matière s'imprime avec ses titres et ses colonnes, ses lignes laissées vides.",
       "signatureHomework": "Chaque devoir s'écrit avec sa date et sa date de retour, puis les deux nombres une fois saisis ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms.",
       "signatureStrip": "Aux largeurs de colonnes et à l'interligne du cahier papier. À découper aux repères et à coller où chaque morceau l'indique, si l'établissement l'accepte. La case de signature reste vide, pour signer à la main.",
-      "noStrip": "Aucune séance confirmée ce jour pour l'instant : pas de bande à imprimer."
+      "noStrip": "Aucune séance confirmée ce jour pour l'instant : pas de bande à imprimer.",
+      "dayBefore": "Jour précédent",
+      "dayAfter": "Jour suivant",
+      "layout": "Cahier",
+      "layouts": {
+        "combined": "Un cahier pour toutes les classes",
+        "combinedLine": "Toutes les séances du jour sur une page.",
+        "per-class": "Un cahier par classe",
+        "per-classLine": "Une page par classe ayant cours ce jour-là ; dans la version vierge, une page par classe."
+      }
     },
     "textsBook": {
       "name": "Cahier de textes",

@@ -4,12 +4,13 @@
 // Every document the app makes (#212, PRD §3.8), in the order «الوثائق»
 // lists them. Each one gives its title, what it covers, whether it holds
 // pupils' data, its page orientation, and its pages as recorded or blank
-// with their headings; the output screen does the rest. A later document,
-// such as the grade book, plugs in here.
+// with their headings, and for some the day and the layout to choose; the
+// output screen does the rest. A later document, such as the grade book,
+// plugs in here.
 
 import type { IconName } from '../design/Icon';
-import { monthLabel, taughtClasses, type DocumentData, type Translate } from './document-data';
-import { journalPages } from './journal-pages';
+import { dayTitle, monthLabel, taughtClasses, type DocumentData, type Translate } from './document-data';
+import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
 import { stripEmpty, stripPages } from './strip-pages';
@@ -38,8 +39,18 @@ export interface DocumentKind {
   readonly signatureLine: (t: Translate) => string;
   /** Why there is nothing to print, when `empty` says so. */
   readonly emptyLine: (t: Translate) => string;
-  /** The whole document as HTML, as recorded or blank with its headings. */
-  readonly pages: (data: DocumentData, t: Translate, blank: boolean) => string;
+  /** A document of a day: the output chooses the day, within the school year. */
+  readonly byDay?: true;
+  /** The ways the document can be kept, the first by default, such as one journal or one per class. */
+  readonly layouts?: (t: Translate) => readonly DocumentLayout[];
+  /** The whole document as HTML, as recorded or blank with its headings, in the chosen layout. */
+  readonly pages: (data: DocumentData, t: Translate, blank: boolean, layout?: string) => string;
+}
+
+export interface DocumentLayout {
+  readonly value: string;
+  readonly label: string;
+  readonly description: string;
 }
 
 const classes = (data: DocumentData, t: Translate) =>
@@ -58,10 +69,17 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     empty: () => false,
     period: (data) => data.day,
     title: (t) => t('documents.journal'),
-    line: (data, t) => `${classes(data, t)} · ${t('documents.list.today')}`,
+    line: (data, t) => `${classes(data, t)} · ${dayTitle(data, t, data.day)}`,
     blankLine: (t) => t('documents.output.blankJournal'),
     signatureLine: (t) => t('documents.output.signature'),
     emptyLine: (t) => t('documents.output.noClasses'),
+    byDay: true,
+    layouts: (t) =>
+      JOURNAL_LAYOUTS.map((value) => ({
+        value,
+        label: t(`documents.output.layouts.${value}`),
+        description: t(`documents.output.layouts.${value}Line`),
+      })),
     pages: journalPages,
   },
   {
@@ -141,8 +159,19 @@ export function documentKind(id: string): DocumentKind | undefined {
   return DOCUMENTS.find((kind) => kind.id === id);
 }
 
-/** The file name offered when saving, such as «الدفتر اليومي 2026-10-18.pdf», with the blank version said. */
-export function fileName(kind: DocumentKind, data: DocumentData, t: Translate, blank: boolean): string {
-  const version = blank ? ` - ${t('documents.output.blank')}` : '';
+/**
+ * The file name offered when saving, such as «الدفتر اليومي 2026-10-18.pdf», with the blank version and a layout
+ * other than the first said.
+ */
+export function fileName(
+  kind: DocumentKind,
+  data: DocumentData,
+  t: Translate,
+  blank: boolean,
+  layout?: string,
+): string {
+  const layouts = kind.layouts?.(t) ?? [];
+  const other = layouts.find((one) => one.value === layout && one !== layouts[0]);
+  const version = `${other === undefined ? '' : ` - ${other.label}`}${blank ? ` - ${t('documents.output.blank')}` : ''}`;
   return `${kind.title(t)} ${kind.period(data)}${version}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
 }

@@ -111,7 +111,7 @@ test('lists each document with what it covers now, and opens it', async () => {
       text.documents.list.more,
     ]),
   );
-  expect(texts().some((line) => line.includes(text.documents.list.today))).toBe(true);
+  expect(texts().some((line) => Object.values(text.week.days).some((name) => line.includes(name)))).toBe(true);
   await press('documents-roll');
   expect(onOpen).toHaveBeenCalledWith('roll');
 });

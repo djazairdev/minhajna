@@ -811,7 +811,27 @@
     "teacher": "Teacher's signature",
     "director": "Director's visa",
     "empty": "No session on this day.",
-    "awaiting": "How the session went: awaiting confirmation",
+    "journalLines": {
+      "sequence": "Unit",
+      "domain": "Field",
+      "resource": "Resource",
+      "how": "How the session went",
+      "remarks": "Remarks",
+      "awaiting": "awaiting confirmation",
+      "and": "; ",
+      "outcomes": {
+        "done": "as proposed",
+        "partial": "partly done, the rest continued next session",
+        "merged": "two items taught together",
+        "skipped": "the proposed item skipped",
+        "retaught": "an earlier lesson retaught",
+        "not-held": "the session was not held",
+        "changed": "another lesson than the one proposed"
+      },
+      "continued": "Continued: {{title}}",
+      "retaught": "Taught again: {{title}}",
+      "colon": ": "
+    },
     "rollTitle": "Roll-call book · {{month}}",
     "october": "October 2026",
     "number": "No.",
@@ -830,7 +850,6 @@
     "list": {
       "line": "Printed or saved as PDF as the director and the inspector ask, or blank with their headings.",
       "more": "Other documents are added here as they are ready.",
-      "today": "today's page",
       "classes_one": "{{count}} class",
       "classes_other": "{{count}} classes"
     },
@@ -858,7 +877,16 @@
       "blankHomework": "Each class and subject's homework page prints with its headings and columns, its rows left empty.",
       "signatureHomework": "Each homework is written with the day it was set and the day it comes back, then the two counts once entered; what is not counted stays blank. Counts only, never names.",
       "signatureStrip": "At the paper book's column widths and line spacing. Cut along the marks and paste each piece where it says, if the school accepts it. The signature box stays blank, to sign by hand.",
-      "noStrip": "No session confirmed on this day yet, so no strip to print."
+      "noStrip": "No session confirmed on this day yet, so no strip to print.",
+      "dayBefore": "Day before",
+      "dayAfter": "Day after",
+      "layout": "Journal",
+      "layouts": {
+        "combined": "One journal for all classes",
+        "combinedLine": "All the day's sessions on one page.",
+        "per-class": "One journal per class",
+        "per-classLine": "A page for each class with a session that day; in the blank version, a page for each class."
+      }
     },
     "textsBook": {
       "name": "Texts book",

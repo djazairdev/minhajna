@@ -10,7 +10,10 @@
 // book when a button is pressed, so they hold the latest entries. A
 // document of a month prints the month it was opened for, as the texts
 // book's pages in the app open it (#213), or else the current one; the
-// screen says which.
+// screen says which. The journal chooses its day, starting on the school
+// year's nearest day when today is outside it, and whether it is kept for
+// all classes or one per class (#216). What was said of the last file goes
+// once a choice changes.
 
 import { useEffect, useRef, useState } from 'react';
 import type { Day } from '@minhajna/core';
@@ -25,7 +28,9 @@ import { colors, spacing, typography } from '../design/tokens';
 import pdf from '../native/NativeMinhajnaPdf';
 import { useText } from '../text/i18n';
 import { fileName, type DocumentKind } from './catalogue';
+import { DayStep } from './DayStep';
 import { useDocumentData } from './useDocumentData';
+import { useAppData } from '../storage/AppData';
 
 type Said = 'saved' | 'failed' | null;
 
@@ -34,7 +39,15 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const data = useDocumentData(day);
+  const { today, year } = useAppData();
+  const [on, setOn] = useState(() => {
+    const start = day ?? today();
+    if (!kind.byDay) return start;
+    return start < year.from ? year.from : start > year.to ? year.to : start;
+  });
+  const data = useDocumentData(on);
+  const layouts = kind.layouts?.(t) ?? [];
+  const [layout, setLayout] = useState(layouts[0]?.value);
   const [blank, setBlank] = useState(false);
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<Said>(null);
@@ -76,14 +89,14 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
 
   const print = () =>
     run(async () => {
-      await pdf.printHtml(kind.pages(data, t, blank), kind.title(t), kind.landscape);
+      await pdf.printHtml(kind.pages(data, t, blank, layout), kind.title(t), kind.landscape);
       return null;
     });
 
   const save = () =>
     run(async () => {
-      const made = await pdf.makePdf(kind.pages(data, t, blank), `document-${kind.id}`, kind.landscape);
-      return (await pdf.savePdf(made.name, fileName(kind, data, t, blank))) ? 'saved' : null;
+      const made = await pdf.makePdf(kind.pages(data, t, blank, layout), `document-${kind.id}`, kind.landscape);
+      return (await pdf.savePdf(made.name, fileName(kind, data, t, blank, layout))) ? 'saved' : null;
     });
 
   return (
@@ -102,13 +115,42 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
       <Text testID="output-period" style={styles.period}>
         {kind.line(data, t)}
       </Text>
+      {kind.byDay && (
+        <DayStep
+          day={data.day}
+          first={data.year.from}
+          last={data.year.to}
+          disabled={busy}
+          profile={data.profile}
+          onDay={(next) => {
+            setOn(next);
+            setSaid(null);
+          }}
+        />
+      )}
+      {layout !== undefined && (
+        <RadioCardGroup
+          testID="output-layout"
+          label={t('documents.output.layout')}
+          selected={layout}
+          disabled={busy}
+          onSelect={(next) => {
+            setLayout(next);
+            setSaid(null);
+          }}
+          choices={layouts}
+        />
+      )}
       {blankLine !== null && (
         <RadioCardGroup
           testID="output-version"
           label={t('documents.output.version')}
           selected={blank ? 'blank' : 'recorded'}
           disabled={busy}
-          onSelect={(value) => setBlank(value === 'blank')}
+          onSelect={(value) => {
+            setBlank(value === 'blank');
+            setSaid(null);
+          }}
           choices={[
             {
               value: 'recorded',
