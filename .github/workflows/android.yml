@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: 2026 The Minhajna contributors
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-# The Android app, built twice from clean checkouts at different paths. The
-# two APKs must be the same byte for byte, ask for no permission, and hold
-# no code that F-Droid's scanner knows as non-free (docs/checks/android-build.md).
+# The Android app, built twice from clean checkouts at different paths. Each
+# release APK (universal, 32-bit and 64-bit ARM) must be the same byte for byte
+# in both copies, ask for no permission, and hold no code that F-Droid's
+# scanner knows as non-free (docs/checks/android-build.md).
 
 name: Android
 
@@ -14,6 +15,7 @@ on:
       - packages/core/**
       - data/**
       - LICENSES/AGPL-3.0-or-later.txt
+      - tools/android/**
       - docs/design/system/tokens.json
       - .github/workflows/android.yml
   push:
@@ -23,6 +25,7 @@ on:
       - packages/core/**
       - data/**
       - LICENSES/AGPL-3.0-or-later.txt
+      - tools/android/**
       - docs/design/system/tokens.json
       - .github/workflows/android.yml
 
@@ -100,50 +103,81 @@ jobs:
         working-directory: ${{ matrix.path }}/apps/android
         run: npm test
 
-      - name: Build the release APK
+      - name: Build the release APKs
         working-directory: ${{ matrix.path }}/apps/android/android
         run: ./gradlew --no-daemon assembleRelease
 
-      - name: Check that the APK asks for no permission
+      - name: Check every APK, its fonts and its notices
+        working-directory: ${{ matrix.path }}
+        run: node tools/android/release-apks.js verify apps/android/android/app/build/outputs/apk/release
+
+      # The manifest removes the permission needed by ContextCompat's receiver
+      # helper on Android 12 and earlier. R8 keeps that helper recognisable
+      # and uninlined (app/proguard-rules.pro), so a new caller still fails.
+      - name: Check that no APK asks for a permission or needs the removed receiver permission
         working-directory: ${{ matrix.path }}/apps/android/android
         run: |
-          apk=app/build/outputs/apk/release/app-release-unsigned.apk
           tools="$ANDROID_HOME/build-tools/$BUILD_TOOLS"
-          permissions=$("$tools/aapt2" dump permissions "$apk" | grep -v '^package:' || true)
-          if [[ -n "$permissions" ]]; then
-            echo "::error title=Permissions::The release APK asks for permissions, and the app may ask for none (NETWORK.md):"
-            echo "$permissions"
-            exit 1
-          fi
-          # The manifest removes the permission that ContextCompat.registerReceiver
-          # needs on Android 12 and earlier, so nothing may call it.
-          unzip -q -o "$apk" 'classes*.dex' -d "$RUNNER_TEMP/dex"
-          callers=$("$tools/dexdump" -d "$RUNNER_TEMP"/dex/classes*.dex |
-            awk -v self="'Landroidx/core/content/ContextCompat;'" '
-              /Class descriptor/ { class = $4 }
-              /Landroidx\/core\/content\/ContextCompat;\.registerReceiver/ && class != self { print class }
-            ' | sort -u)
-          if [[ -n "$callers" ]]; then
-            echo "::error title=Receivers::These classes call ContextCompat.registerReceiver, which throws without the permission the manifest removes:"
-            echo "$callers"
-            exit 1
-          fi
+          for abi in universal armeabi-v7a arm64-v8a; do
+            apk="app/build/outputs/apk/release/app-$abi-release-unsigned.apk"
+            permissions=$("$tools/aapt2" dump permissions "$apk" | grep -v '^package:' || true)
+            if [[ -n "$permissions" ]]; then
+              echo "::error title=Permissions::$abi asks for permissions (NETWORK.md): $permissions"
+              exit 1
+            fi
+            dex="$RUNNER_TEMP/dex/$abi"
+            mkdir -p "$dex"
+            unzip -q -o "$apk" 'classes*.dex' -d "$dex"
+            callers=$("$tools/dexdump" -d "$dex"/classes*.dex |
+              awk -v self="'Landroidx/core/content/ContextCompat;'" '
+                /Class descriptor/ { class = $4 }
+                /Landroidx\/core\/content\/ContextCompat;\.registerReceiver/ && class != self { print class }
+              ' | sort -u)
+            if [[ -n "$callers" ]]; then
+              echo "::error title=Receivers::$abi calls the receiver helper without its removed permission: $callers"
+              exit 1
+            fi
+          done
 
-      - name: Keep the APK for the comparison
+      - name: Keep every APK for the comparison
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: apk-${{ matrix.copy }}
-          path: ${{ matrix.path }}/apps/android/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: |
+            ${{ matrix.path }}/apps/android/android/app/build/outputs/apk/release/*.apk
+            ${{ matrix.path }}/apps/android/android/app/build/outputs/apk/release/output-metadata.json
           if-no-files-found: error
           retention-days: 7
+
+      # The longest GitHub keeps an artifact. A published preview keeps its own
+      # copy of the mapping (docs/field-check/session-guide.md).
+      - name: Keep the shrinker's mapping and configuration
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mapping-${{ matrix.copy }}
+          path: ${{ matrix.path }}/apps/android/android/app/build/outputs/mapping/release/
+          if-no-files-found: error
+          retention-days: 90
 
   compare:
     name: Same APK twice
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    permissions: {}
+    permissions:
+      contents: read
     steps:
+      - name: Check out the comparison tool
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
       - name: Download the two APKs
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -151,16 +185,7 @@ jobs:
           path: apks
 
       - name: Compare them byte for byte
-        run: |
-          first=apks/apk-first/app-release-unsigned.apk
-          second=apks/apk-second/app-release-unsigned.apk
-          sha256sum "$first" "$second"
-          if ! cmp --quiet "$first" "$second"; then
-            echo "::error title=Reproducible build::Two clean builds gave different APKs. The files that differ, by CRC:"
-            diff <(unzip -lv "$first" | awk '{ print $7, $8 }') \
-                 <(unzip -lv "$second" | awk '{ print $7, $8 }') || true
-            exit 1
-          fi
+        run: node tools/android/release-apks.js compare apks/apk-first apks/apk-second
 
   scan:
     name: F-Droid scanner
@@ -169,7 +194,7 @@ jobs:
     timeout-minutes: 15
     permissions: {}
     steps:
-      - name: Download the APK
+      - name: Download the first copy's APKs
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: apk-first
@@ -183,8 +208,10 @@ jobs:
           "$RUNNER_TEMP/fdroid/bin/pip" install --quiet "fdroidserver==$FDROIDSERVER_VERSION"
 
       # --refresh fetches F-Droid's latest list of non-free libraries.
-      - name: Scan the APK for non-free code
+      - name: Scan each APK for non-free code
         run: |
           export PATH="$ANDROID_HOME/build-tools/$BUILD_TOOLS:$PATH"
-          "$RUNNER_TEMP/fdroid/bin/fdroid" scanner --refresh --exit-code --verbose \
-            apk/app-release-unsigned.apk
+          for abi in universal armeabi-v7a arm64-v8a; do
+            "$RUNNER_TEMP/fdroid/bin/fdroid" scanner --refresh --exit-code --verbose \
+              "apk/app-$abi-release-unsigned.apk"
+          done

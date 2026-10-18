@@ -28,13 +28,27 @@ class MinhajnaBuildModule(private val context: ReactApplicationContext) : Native
       try {
         promise.resolve(Arguments.createMap().apply {
           putString("version", BuildConfig.VERSION_NAME)
-          putDouble("versionCode", BuildConfig.VERSION_CODE.toDouble())
+          putDouble("versionCode", installedVersionCode().toDouble())
           putString("apkSha256", sha256(File(context.applicationInfo.sourceDir)))
           putString("signerSha256", signer()?.let { hex(MessageDigest.getInstance("SHA-256").digest(it)) })
         })
       } catch (e: Exception) {
         promise.reject("E_BUILD", "The build could not be described", e)
       }
+    }
+  }
+
+  /**
+   * The installed APK's own version code. Each APK of a release has its own,
+   * by processor (docs/contributing/versioning.md), unlike BuildConfig's.
+   */
+  private fun installedVersionCode(): Long {
+    val info = context.packageManager.getPackageInfo(context.packageName, 0)
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      info.longVersionCode
+    } else {
+      @Suppress("DEPRECATION")
+      info.versionCode.toLong()
     }
   }
 

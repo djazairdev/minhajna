@@ -20,7 +20,7 @@ The field check puts a preview of Minhajna in the hands of 5 to 10 teachers, a f
 
 ## Before the session
 
-- Have the APK and its two published checksums, the APK's and the signing certificate's, from the project's release page.
+- Have the universal APK, `minhajna-<version>.apk`, and its two published checksums, the APK's and the signing certificate's, from the project's release page. The universal APK installs on any Android 8 phone, whatever its processor. The release page also has smaller APKs, one for each processor type, each with its own checksum; hand those over only to someone who knows their phone's processor.
 - Charge the phones. The app needs no network, so the session needs none either.
 - Remind everyone: no real pupil's name goes into the preview.
 
@@ -39,7 +39,7 @@ Open the app, then «المساعدة والخصوصية» from Today. Under «�
 - «بصمة هذا التطبيق»: the SHA-256 checksum of the installed APK;
 - «بصمة شهادة توقيعه»: the SHA-256 checksum of the certificate that signed it.
 
-Compare both with the published checksums, four characters at a time. If either differs, the APK is not the project's preview: remove it and install the published one.
+Compare both with the published checksums of the APK that was installed, four characters at a time: each APK has its own checksum, and the certificate's is the same for all. If either differs, the APK is not the project's preview: remove it and install the published one.
 
 ## Going back to the demo class
 
@@ -60,18 +60,22 @@ Uninstall the app as usual: hold its icon, then **Uninstall**, or from **Setting
 
 For the maintainer who releases it ([releases.md](../contributing/releases.md#signing)):
 
-1. Build the release APK from the tagged commit, as in [the Android build check](../checks/android-build.md#repeating-the-build). It comes out unsigned, so that two builds can be compared.
-2. Sign it with the project's key, which never enters the repository. Sign without moving the files inside the APK, so the signature can be checked against any rebuild ([Checking a signed APK](../checks/android-build.md#checking-a-signed-apk)):
+1. Build the release APKs from the tagged commit, as in [the Android build check](../checks/android-build.md#repeating-the-build). There are three: the universal APK, for any phone, and one for each processor type, 32-bit and 64-bit ARM, which are smaller. They come out unsigned, so that two builds can be compared, and each has its own version code ([versioning.md](../contributing/versioning.md#the-apps)).
+2. Sign each one with the project's key, which never enters the repository. Sign without moving the files inside the APK, so the signature can be checked against any rebuild ([Checking a signed APK](../checks/android-build.md#checking-a-signed-apk)):
 
    ```sh
-   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0.apk app/build/outputs/apk/release/app-release-unsigned.apk
+   cd app/build/outputs/apk/release
+   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0.apk app-universal-release-unsigned.apk
+   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0-armeabi-v7a.apk app-armeabi-v7a-release-unsigned.apk
+   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0-arm64-v8a.apk app-arm64-v8a-release-unsigned.apk
    ```
 
-3. Publish the APK with its SHA-256 checksum and the certificate's:
+3. Publish the three APKs, each with its SHA-256 checksum, and the certificate's checksum, the same for all three:
 
    ```sh
-   sha256sum minhajna-0.1.0.apk
+   sha256sum minhajna-0.1.0*.apk
    apksigner verify --print-certs minhajna-0.1.0.apk
    ```
 
-4. Install it on a phone and check that «المساعدة والخصوصية» shows the same two checksums.
+   Keep the shrinker's mapping, `apps/android/android/app/build/outputs/mapping/release/`, with the release's files, so that a crash report from these APKs can be read. CI keeps its copy for 90 days only.
+4. Install the universal APK on a phone, and check that «المساعدة والخصوصية» shows its checksum and the certificate's.

@@ -15,24 +15,24 @@ This is the first of the checks before the pilot ([PRD §5.13](../prd/PRD.md#513
 
 | Check | Result |
 |---|---|
-| Two clean builds give the same APK | **Passed.** On macOS, two builds from clean checkouts in different folders gave the same APK byte for byte, and so did a third, in a working copy. CI repeats the check on Linux on every change to the app. Its first run caught the build machine's IP address in the APK, which is now left out ([below](#what-had-to-change)) |
-| The same APK on macOS and on Linux | **Passed.** Two Linux builds in CI and two macOS builds gave the same APK, byte for byte. Checked again once the app had its encrypted history, its three languages, its navigation and its offline licences: a macOS build and both CI builds of the same commit gave the same APK |
-| A signed APK can be checked against a rebuild | **Passed.** The signature of a signed APK, copied onto a clean rebuild from another folder, verifies ([below](#checking-a-signed-apk)) |
+| Two clean builds give the same APK | **Passed.** On macOS, two builds from clean checkouts in different folders gave the same APK byte for byte, and so did a third, in a working copy. CI repeats the check on Linux on every change to the app. Its first run caught the build machine's IP address in the APK, which is now left out ([below](#what-had-to-change)). Since [#93](https://github.com/djazairdev/minhajna/issues/93), release builds are shrunk and split by processor; CI compares each processor's APK separately, and the [#93 report](apk-size.md) records their sizes and hashes |
+| The same APK on macOS and on Linux | **Passed.** Two Linux builds in CI and two macOS builds gave the same APK, byte for byte. Checked again once the app had its encrypted history, its three languages, its navigation and its offline licences: a macOS build and both CI builds of the same commit gave the same APK. For the shrunk, per-processor APKs, CI's two Linux builds match; macOS against Linux is not repeated yet |
+| A signed APK can be checked against a rebuild | **Passed.** The signature of a signed APK, copied onto a clean rebuild from another folder, verifies ([below](#checking-a-signed-apk)). Not repeated for the shrunk APKs: compare a signed APK with a rebuild for the same processor |
 | No proprietary library | **Passed.** The build stops if one appears, directly or through another library. It was tried with Google Play services, and with Google's Maps utilities, which pull them in |
 | F-Droid's scanner on the APK | **Passed.** No known non-free code, and no extra signing block |
 | F-Droid's scanner on the source | **47 findings, all in installed npm packages.** Each one has a fix, [below](#f-droid) |
 | The app built with F-Droid's tools | **Open.** It needs a build recipe, with the Hermes compiler built from source ([below](#f-droid)) |
 | No permission | **Passed.** The release APK asks for none, not even the network. CI checks it |
-| Installs and opens on Android 8 | **Passed on an emulator** with Android 8.0 and a 360×800 screen, without Google Play services. Its first frame came after about 0.23 seconds, and the whole first screen, text included, within 0.6 seconds, but on a fast computer ([below](#timing-the-start)). **Open on a budget phone** |
+| Installs and opens on Android 8 | **Passed on an emulator** with Android 8.0 and a 360×800 screen, without Google Play services. Its first frame came after about 0.23 seconds, and the whole first screen, text included, within 0.6 seconds, but on a fast computer ([below](#timing-the-start)). **Open on a budget phone**. The shrunk arm64 APK installs and opens on an emulator; a 32-bit device check remains open ([#93 report](apk-size.md)) |
 | `NETWORK.md` | **No network call.** Help's source link hands a fixed address to the browser, and only after the teacher confirms |
 
 ## The app
 
-- React Native 0.87.1 with React 19.3.0, the new architecture and the Hermes engine 250829098.0.17, without Expo ([PRD §5.2](../prd/PRD.md#52-architecture)).
+- React Native 0.87.1 with React 19.3.1, the new architecture and the Hermes engine 250829098.0.17, without Expo ([PRD §5.2](../prd/PRD.md#52-architecture)).
 - Android 8 (API 26) and later. It targets Android 16 (API 36), and compiles against API 37 ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
 - The app opens on a first screen with the name and the tagline, a choice of Arabic, French or English, and Help. Three tabs lead to placeholder screens. The history is kept encrypted with SQLCipher ([#19](https://github.com/djazairdev/minhajna/issues/19)), and Help shows every licence notice offline. The screens themselves come with the setup issues.
 - The application ID is `dz.minhajna.preview` for now. The final ID follows the project's domain.
-- The release APK carries code for the two processor types of Android phones, `armeabi-v7a` and `arm64-v8a`, and weighs 39.0 MB, up from 27.2 MB for the first screen alone. The native libraries of SQLCipher (3.1 MB) and of react-native-screens (2.3 MB) account for about half of the growth. Its code is not shrunk yet.
+- Release builds shrink code and resources with R8 and produce a separate APK for `armeabi-v7a` and `arm64-v8a`, plus a universal APK with both, for a phone whose processor nobody knows. Each has its own version code ([versioning.md](../contributing/versioning.md#the-apps)). On main `d8915b9` they are 17,679,832 bytes for `armeabi-v7a`, 23,238,952 for `arm64-v8a` and 34,441,767 for the universal APK ([#93 report](apk-size.md#after-rebasing-onto-main-2026-10-18)).
 
 ## What had to change
 
@@ -65,20 +65,23 @@ cd minhajna/apps/android
 npm ci --no-audit
 cd android
 ./gradlew assembleRelease
-sha256sum app/build/outputs/apk/release/app-release-unsigned.apk
+sha256sum app/build/outputs/apk/release/app-*-release-unsigned.apk
+node ../../../tools/android/release-apks.js verify app/build/outputs/apk/release
 ```
 
-Build again from a second clone in another folder, on macOS or on Linux, and the two checksums match. Any folder works, unless its path has a space.
+Build again from a second clone in another folder and compare matching processor types with `tools/android/release-apks.js compare <first-output-directory> <second-output-directory>`. The checker requires all three APKs, their version codes and their `output-metadata.json`, and rejects missing outputs or a stale single APK from before the split. Use `./gradlew clean assembleRelease` when changing the output layout. Any folder works, unless its path has a space. Linux/cross-OS confirmation for shrinking awaits CI.
 
 ### Checking a signed APK
 
 A signed APK differs from an unsigned build only by its signature. To check one against the source, rebuild it as above. Then F-Droid's [`apksigcopier`](https://github.com/obfusk/apksigcopier) copies the signature onto your build and checks that it verifies:
 
 ```sh
-apksigcopier compare minhajna-signed.apk --unsigned app/build/outputs/apk/release/app-release-unsigned.apk
+apksigcopier compare minhajna-arm64-v8a-signed.apk --unsigned app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk
 ```
 
 This works only if the release was signed without moving the files inside the APK. Sign with `apksigner sign --alignment-preserved --v1-signing-enabled false`. Android 8 doesn't need the old v1 scheme. Without `--alignment-preserved`, `apksigner` realigns the files, and the signature no longer fits any rebuild.
+
+The signed APK and rebuild must target the same processor. CI retains each build's R8 mapping/configuration separately for diagnosis; they are not installed on the phone.
 
 ## Timing the start
 
@@ -88,7 +91,7 @@ Build the APK as above. To install it, sign it with a throwaway key that is used
 
 ```sh
 keytool -genkeypair -keystore throwaway.jks -alias test -keyalg RSA -keysize 2048 -validity 1 -dname CN=test
-apksigner sign --ks throwaway.jks --out minhajna-test.apk app/build/outputs/apk/release/app-release-unsigned.apk
+apksigner sign --ks throwaway.jks --out minhajna-test.apk app/build/outputs/apk/release/app-universal-release-unsigned.apk
 adb install minhajna-test.apk
 ```
 
@@ -167,6 +170,6 @@ React Native includes OkHttp for its network functions. Without the network perm
 
 - **A budget phone.** Time the app's start on a budget 360×800 phone with Android 8, as [above](#timing-the-start). The target is under 2 seconds ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
 - **F-Droid's build:** the recipe and the Hermes compiler, as above.
-- **The size.** Shrinking the code, and one APK for each processor type, would make the install smaller.
+- **Shrinking follow-up.** Implemented and measured in [#93's report](apk-size.md); 32-bit install/open verification and CI remain open before acceptance.
 - **The application ID**, once the project's domain is registered.
 - **Maintainer decisions** on the `argparse` licence and the two advisories.
