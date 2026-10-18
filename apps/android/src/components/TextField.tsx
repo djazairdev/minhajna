@@ -6,6 +6,7 @@ import { useId, useState, type Ref } from 'react';
 import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import type { TextInputInstance, TextInputProps } from 'react-native';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
+import type { ControlIcon } from './control';
 
 /** Controlled text, with translated labels/examples supplied by the screen's catalogue. */
 export type TextFieldProps = Pick<
@@ -13,6 +14,8 @@ export type TextFieldProps = Pick<
   'keyboardType' | 'inputMode' | 'maxLength' | 'editable' | 'onSubmitEditing' | 'returnKeyType' | 'onFocus' | 'onBlur'
 > & {
   readonly label: string;
+  /** Decorative only; the translated label must carry its meaning. */
+  readonly labelIcon?: ControlIcon;
   readonly placeholder: string;
   readonly value: string;
   readonly onChangeText: (value: string) => void;
@@ -31,9 +34,11 @@ export type TextFieldProps = Pick<
  * Android's labelled-by association preserves the name when the field has a
  * value. Its label includes any error, independently of optional speech hints.
  * Android's content-size event already includes the input's compound padding.
+ * Until that first event, a text area keeps its native intrinsic height.
  */
 export function TextField({
   label,
+  labelIcon,
   placeholder,
   value,
   onChangeText,
@@ -59,11 +64,23 @@ export function TextField({
     multiline ? 80 : sizes.target,
     typography.body.lineHeight * fontScale + spacing['space-10'] * 2 + 1.5 * 2,
   );
+  const labelText = (
+    <Text nativeID={labelId} accessibilityLabel={spokenLabel} style={[styles.label, labelIcon && styles.labelWords]}>
+      {displayLabel}
+    </Text>
+  );
   return (
     <View style={[styles.group, { direction }]}>
-      <Text nativeID={labelId} accessibilityLabel={spokenLabel} style={styles.label}>
-        {displayLabel}
-      </Text>
+      {labelIcon ? (
+        <View style={styles.labelRow}>
+          <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            {labelIcon({ size: sizes.icon, color: colors.ink2 })}
+          </View>
+          {labelText}
+        </View>
+      ) : (
+        labelText
+      )}
       <View>
         <TextInput
           {...inputProps}
@@ -107,7 +124,7 @@ export function TextField({
               textAlign: inputDirection === 'rtl' ? 'right' : 'left',
               textAlignVertical: multiline ? 'top' : 'center',
             },
-            multiline && { height: Math.max(minimum, contentHeight) },
+            multiline && contentHeight > 0 && { height: Math.max(minimum, contentHeight) },
           ]}
         />
         {focused && <View pointerEvents="none" accessible={false} style={styles.focus} />}
@@ -124,6 +141,8 @@ export function TextField({
 const styles = StyleSheet.create({
   group: { gap: spacing['space-6'], alignSelf: 'stretch' },
   label: { ...typography.label, color: colors.ink2 },
+  labelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-6'] },
+  labelWords: { flex: 1, minWidth: 0, textAlign: 'start' },
   input: {
     ...typography.body,
     minWidth: sizes.target,
