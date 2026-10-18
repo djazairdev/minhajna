@@ -12,6 +12,7 @@ import type { IconName } from '../design/Icon';
 import { dayTitle, monthLabel, taughtClasses, yearLabel, type DocumentData, type Translate } from './document-data';
 import { journalFrontPages } from './journal-front-pages';
 import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
+import { primaryJournalPages, teachesPrimary } from './primary-journal-pages';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
 import { stripEmpty, stripPages } from './strip-pages';
@@ -19,7 +20,8 @@ import { supervisedPages } from './supervised-pages';
 import { bookDate } from './texts-book-rows';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 
-export type DocumentId = 'journal' | 'journal-front' | 'roll' | 'texts' | 'supervised' | 'homework' | 'strip';
+export type DocumentId =
+  'journal' | 'journal-front' | 'primary-journal' | 'roll' | 'texts' | 'supervised' | 'homework' | 'strip';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -27,6 +29,8 @@ export interface DocumentKind {
   /** Pupils' names or marks: «داخلي · سري» on every page (R-5.9-15). */
   readonly pupils: boolean;
   readonly landscape: boolean;
+  /** Whether the tab lists it, such as a journal only for the levels taught; listed when not given. */
+  readonly shown?: (data: DocumentData) => boolean;
   /** Nothing to print yet, such as a roll-call book with no class taught; the output says so. */
   readonly empty: (data: DocumentData) => boolean;
   /** What a saved file is named after: the day, or the month for a document of a month. */
@@ -61,6 +65,10 @@ const classes = (data: DocumentData, t: Translate) =>
 const bookClassCount = (data: DocumentData, t: Translate) =>
   t('documents.list.classes', { count: bookClasses(data).length });
 
+/** A CEM or lycée teacher, or one with no primary class: their journal and its front pages apply. */
+const teachesSecondary = (data: DocumentData) =>
+  !teachesPrimary(data) || bookClasses(data).some((one) => one.level !== 'primary');
+
 export const DOCUMENTS: readonly DocumentKind[] = [
   {
     id: 'journal',
@@ -74,6 +82,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     blankLine: (t) => t('documents.output.blankJournal'),
     signatureLine: (t) => t('documents.output.signature'),
     emptyLine: (t) => t('documents.output.noClasses'),
+    shown: teachesSecondary,
     byDay: true,
     layouts: (t) =>
       JOURNAL_LAYOUTS.map((value) => ({
@@ -95,7 +104,24 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     blankLine: (t) => t('documents.output.blankJournalFront'),
     signatureLine: (t) => t('documents.output.signatureJournalFront'),
     emptyLine: (t) => t('documents.output.noClasses'),
+    shown: teachesSecondary,
     pages: journalFrontPages,
+  },
+  {
+    id: 'primary-journal',
+    icon: 'homework',
+    pupils: false,
+    landscape: true,
+    empty: (data) => !teachesPrimary(data),
+    period: (data) => data.day,
+    title: (t) => t('documents.primaryJournal.name'),
+    line: (data, t) => dayTitle(data, t, data.day),
+    blankLine: (t) => t('documents.output.blankPrimaryJournal'),
+    signatureLine: (t) => t('documents.output.signaturePrimaryJournal'),
+    emptyLine: (t) => t('documents.output.noPrimary'),
+    shown: teachesPrimary,
+    byDay: true,
+    pages: primaryJournalPages,
   },
   {
     id: 'roll',

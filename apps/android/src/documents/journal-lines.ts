@@ -39,6 +39,14 @@ export function proposedRecord(session: Session, proposal: Proposal | null): Ses
   };
 }
 
+/** What a journal with its own columns for them leaves out of a session's lines. */
+export interface JournalOmits {
+  /** «المقطع» and «الميدان», which the primary journal puts in their own columns. */
+  readonly heads?: true;
+  /** «سير الحصة» for a session done as proposed, the usual case, unless it would be the only line. */
+  readonly done?: true;
+}
+
 /** The lines of a session in the journal, from its record or from what confirming it would record. */
 export function journalLines(
   t: Translate,
@@ -46,13 +54,15 @@ export function journalLines(
   pack: PlanPack | null,
   record: SessionRecord,
   awaiting: boolean,
+  omits: JournalOmits = {},
 ): BookLine[] {
   const how = (text: string): BookLine => ({ label: t('documents.journalLines.how'), text });
   if (!awaiting && record.outcome === 'not-held') return [how(t('documents.journalLines.outcomes.not-held'))];
   const label = (key: 'sequence' | 'domain' | 'resource' | 'remarks' | 'and') => t(`documents.journalLines.${key}`);
   const sequences: BookLine[] = [];
   const lines: BookLine[] = [];
-  if (record.sessionType !== 'lesson') lines.push({ label: label('domain'), text: names.type(record.sessionType) });
+  if (record.sessionType !== 'lesson' && omits.heads === undefined)
+    lines.push({ label: label('domain'), text: names.type(record.sessionType) });
   for (const cover of record.coverage) {
     const item = pack?.items.find((candidate) => candidate.id === cover.item);
     const title = isolate(item?.title ?? cover.item);
@@ -75,9 +85,12 @@ export function journalLines(
   if (record.unplanned !== undefined) {
     lines.push({ label: label('resource'), text: isolate(record.unplanned) });
   }
-  lines.push(
-    how(awaiting ? t('documents.journalLines.awaiting') : t(`documents.journalLines.outcomes.${record.outcome}`)),
-  );
+  const quiet = !awaiting && record.outcome === 'done' && omits.done !== undefined;
+  if (!quiet) {
+    lines.push(
+      how(awaiting ? t('documents.journalLines.awaiting') : t(`documents.journalLines.outcomes.${record.outcome}`)),
+    );
+  }
   const remarks = [
     record.test === undefined ? null : t('entry.bookTest'),
     record.homework === undefined
@@ -88,5 +101,6 @@ export function journalLines(
   if (!awaiting && remarks.length > 0) {
     lines.push({ label: label('remarks'), text: remarks.join(label('and')) });
   }
-  return [...sequences, ...lines];
+  if (quiet && lines.length === 0) lines.push(how(t('documents.journalLines.outcomes.done')));
+  return omits.heads === undefined ? [...sequences, ...lines] : lines;
 }
