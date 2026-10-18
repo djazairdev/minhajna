@@ -62,7 +62,13 @@ export function fromHex(text: string): Uint8Array {
   return bytes;
 }
 
-export function nativeDeps(native: Spec): HistoryDeps {
+/** The calls the history needs, without the lock's: the debug checks send them to throwaway histories. */
+export type HistorySpec = Pick<
+  Spec,
+  'randomBytes' | 'digest' | 'openHistory' | 'loadHistory' | 'appendEntry' | 'eraseContent'
+>;
+
+export function nativeDeps(native: HistorySpec): HistoryDeps {
   return {
     digest: async (text) => {
       const [hash] = await native.digest([text]);
@@ -73,7 +79,7 @@ export function nativeDeps(native: Spec): HistoryDeps {
   };
 }
 
-export function nativeStore(native: Spec): HistoryStore {
+export function nativeStore(native: HistorySpec): HistoryStore {
   return {
     load: async () => (JSON.parse(await native.loadHistory()) as EntryRow[]).map(fromRow),
     append: (entry) => native.appendEntry(JSON.stringify(toRow(entry))),
@@ -82,7 +88,7 @@ export function nativeStore(native: Spec): HistoryStore {
 }
 
 /** Opens the teacher's history, but only one that verifies (`RecordBook.open`). */
-export async function openRecordBook(native: Spec): Promise<RecordBook> {
+export async function openRecordBook(native: HistorySpec): Promise<RecordBook> {
   await native.openHistory();
   return RecordBook.open(nativeStore(native), nativeDeps(native));
 }

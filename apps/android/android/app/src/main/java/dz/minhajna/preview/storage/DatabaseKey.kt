@@ -29,12 +29,12 @@ class KeyLostException(message: String) : Exception(message)
  * phone's backup nor a device transfer can take it (PRD §1.5).
  *
  * Every primitive is the platform's: the project writes no cryptography of
- * its own (PRD §6.5). The app lock that will release the key comes in the
- * pilot (choice F2, #49).
+ * its own (PRD §6.5). Once the teacher sets a PIN, HistoryLock seals the
+ * same key under it and this file is removed (#210).
  */
 class DatabaseKey(private val file: File, private val alias: String = ALIAS) {
 
-  fun exists(): Boolean = file.exists()
+  fun exists(): Boolean = Sealing.existsAtomically(file)
 
   /**
    * The key, made on first use. The caller clears it once the database is
@@ -43,10 +43,11 @@ class DatabaseKey(private val file: File, private val alias: String = ALIAS) {
    */
   fun getOrCreate(random: SecureRandom): ByteArray {
     val keyStore = KeyStore.getInstance(KEYSTORE).apply { load(null) }
-    if (file.exists()) {
+    val stored = Sealing.readAtomically(file)
+    if (stored != null) {
       val wrapping = keyStore.getKey(alias, null) as? SecretKey
         ?: throw KeyLostException("The Keystore no longer holds the history's key")
-      return unwrap(wrapping, file.readBytes())
+      return unwrap(wrapping, stored)
     }
     val wrapping = keyStore.getKey(alias, null) as? SecretKey ?: generate()
     val key = ByteArray(KEY_BYTES).also(random::nextBytes)
@@ -61,6 +62,17 @@ class DatabaseKey(private val file: File, private val alias: String = ALIAS) {
       throw e
     }
     return key
+  }
+
+  /** The Keystore key that seals the history's key to this phone, made on first use (#210). */
+  fun deviceKey(): SecretKey {
+    val keyStore = KeyStore.getInstance(KEYSTORE).apply { load(null) }
+    return keyStore.getKey(alias, null) as? SecretKey ?: generate()
+  }
+
+  /** Removes the key file once the lock has sealed the key again (#210). */
+  fun delete() {
+    AtomicFile(file).delete()
   }
 
   /** Where the phone keeps the wrapping key, for the logs: never the key itself. */

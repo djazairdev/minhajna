@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { createHash, randomBytes } from 'node:crypto';
-import type { Spec } from '../src/native/NativeMinhajnaStorage';
+import type { LockStatus, PinResult, Spec } from '../src/native/NativeMinhajnaStorage';
 
 interface Row {
   seq: number;
@@ -17,16 +17,39 @@ interface Row {
   body: string | null;
 }
 
+const PIN = /^[0-9]{4}$/;
+
+/** The wait after the given count of wrong PINs in a row, as LockAttempts.kt counts it. */
+export function waitFor(failures: number): number {
+  if (failures <= 4) return 0;
+  return Math.min(30 * 2 ** Math.min(failures - 5, 7), 3600);
+}
+
+function failure(code: string, message = code): Error {
+  return Object.assign(new Error(message), { code });
+}
+
 /**
  * The native module's behaviour in Node, for Jest: Node's SHA-256 and random
- * bytes, and the database's rules (entries added in order, only content
- * erased). The device tests check the real module against the same rules.
+ * bytes, the database's rules (entries added in order, only content erased)
+ * and the lock's (#210). The device tests check the real module against the
+ * same rules. Errors carry the native module's codes.
  */
 export class FakeStorage {
   rows: Row[] = [];
   opened = false;
   /** Set to make `openHistory` fail, as when the key is gone. */
   keyLost = false;
+  created = false;
+  /** The lock's PIN once set; the fake keeps it plain, the device never does. */
+  pin: string | null = null;
+  biometric = false;
+  biometricAvailable = false;
+  /** What the phone's prompt does when shown. */
+  prompt: 'match' | 'cancel' = 'match';
+  failures = 0;
+  waitUntil = 0;
+  now: () => number = () => Date.now();
 
   randomBytes(length: number): string {
     return randomBytes(length).toString('hex');
@@ -40,8 +63,74 @@ export class FakeStorage {
   }
 
   openHistory(): Promise<void> {
-    if (this.keyLost) return Promise.reject(new Error('E_KEY_LOST'));
+    if (this.pin !== null) return this.opened ? Promise.resolve() : Promise.reject(failure('E_LOCKED'));
+    if (this.keyLost) return Promise.reject(failure('E_KEY_LOST'));
     this.opened = true;
+    this.created = true;
+    return Promise.resolve();
+  }
+
+  lockStatus(): Promise<LockStatus> {
+    return Promise.resolve({
+      state: this.pin === null ? 'setup' : this.opened ? 'open' : 'locked',
+      biometric: this.biometric,
+      biometricAvailable: this.biometricAvailable,
+      waitSeconds: this.#wait(),
+      hasHistory: this.created,
+    });
+  }
+
+  createLock(pin: string): Promise<void> {
+    if (this.pin !== null || !PIN.test(pin)) return Promise.reject(failure('E_HISTORY'));
+    if (this.keyLost) return Promise.reject(failure('E_KEY_LOST'));
+    this.pin = pin;
+    this.opened = true;
+    this.created = true;
+    return Promise.resolve();
+  }
+
+  unlock(pin: string): Promise<PinResult> {
+    if (this.pin === null) return Promise.reject(failure('E_HISTORY'));
+    const result = this.#try(pin);
+    if (result.opened) this.opened = true;
+    return Promise.resolve(result);
+  }
+
+  unlockWithBiometrics(title: string, _subtitle: string, cancel: string): Promise<boolean> {
+    if (!title.trim() || !cancel.trim()) return Promise.reject(failure('E_HISTORY'));
+    if (!this.biometric || this.prompt === 'cancel') return Promise.resolve(false);
+    this.opened = true;
+    this.failures = 0;
+    this.waitUntil = 0;
+    return Promise.resolve(true);
+  }
+
+  enableBiometrics(pin: string, title: string, _subtitle: string, cancel: string): Promise<PinResult> {
+    if (!this.opened || this.pin === null) return Promise.reject(failure('E_LOCKED'));
+    if (!title.trim() || !cancel.trim()) return Promise.reject(failure('E_HISTORY'));
+    if (!this.biometricAvailable) return Promise.reject(failure('E_HISTORY'));
+    const result = this.#try(pin);
+    if (!result.opened) return Promise.resolve(result);
+    this.biometric = this.prompt === 'match';
+    return Promise.resolve({ opened: this.biometric, waitSeconds: 0 });
+  }
+
+  disableBiometrics(): Promise<void> {
+    if (!this.opened || this.pin === null) return Promise.reject(failure('E_LOCKED'));
+    this.biometric = false;
+    return Promise.resolve();
+  }
+
+  changePin(old: string, next: string): Promise<PinResult> {
+    if (!this.opened || this.pin === null) return Promise.reject(failure('E_LOCKED'));
+    if (!PIN.test(next)) return Promise.reject(failure('E_HISTORY'));
+    const result = this.#try(old);
+    if (result.opened) this.pin = next;
+    return Promise.resolve(result);
+  }
+
+  lockHistory(): Promise<void> {
+    if (this.pin !== null) this.opened = false;
     return Promise.resolve();
   }
 
@@ -72,8 +161,26 @@ export class FakeStorage {
     return this;
   }
 
+  #wait(): number {
+    return Math.max(0, Math.ceil((this.waitUntil - this.now()) / 1000));
+  }
+
+  #try(pin: string): PinResult {
+    const wait = this.#wait();
+    if (wait > 0) return { opened: false, waitSeconds: wait };
+    if (pin === this.pin) {
+      this.failures = 0;
+      this.waitUntil = 0;
+      return { opened: true, waitSeconds: 0 };
+    }
+    this.failures = Math.min(this.failures + 1, 64);
+    const next = waitFor(this.failures);
+    this.waitUntil = this.now() + next * 1000;
+    return { opened: false, waitSeconds: next };
+  }
+
   #whenOpen<T>(task: () => T): Promise<T> {
-    if (!this.opened) return Promise.reject(new Error('The history is not open'));
+    if (!this.opened) return Promise.reject(failure('E_HISTORY', 'The history is not open'));
     try {
       return Promise.resolve(task());
     } catch (error) {

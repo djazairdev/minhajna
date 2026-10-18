@@ -15,7 +15,7 @@ Checks of 17 October 2026 for the first pull request of [#48](https://github.com
 |---|---|
 | Android tests | 976 pass, 4 of them new: the welcome's one line before the language choice, Help's version and grouped checksums, a missing certificate, and a refusal. The catalogue check now accepts a label that only joins the texts shown inside it, as a notice's does |
 | Type check, ESLint, Prettier | Pass |
-| Permissions | The release APK asks for none, the internet included |
+| Permissions | The release APK asked for none, the internet included. Since the app lock ([#210](https://github.com/djazairdev/minhajna/issues/210)), it asks only for the phone's fingerprint or face prompt |
 | Android 15 emulator, release build signed with a throwaway key | The welcome shows the notice with «لنبدأ» still on screen at 360×800. Help shows `0.1.0 (10099)`. Its APK checksum matched `sha256sum` of the signed APK, and its certificate checksum matched `apksigner verify --print-certs` |
 
 ## Still open

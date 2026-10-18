@@ -4,12 +4,16 @@
   SPDX-FileCopyrightText: 2026 The Minhajna contributors
   SPDX-License-Identifier: MIT
 
-  No permission here: the app makes no network call (NETWORK.md), so a
-  release build asks for none. Debug builds add the network for Metro, in
-  src/debug.
+  One permission only: the phone's own fingerprint or face prompt, for the
+  app lock (#210). Android grants it at install, without asking, and it
+  gives the app no biometric data. The app makes no network call
+  (NETWORK.md), so a release build asks for nothing else. Debug builds add
+  the network for Metro, in src/debug.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <!--
       androidx.core adds this permission for receivers registered through

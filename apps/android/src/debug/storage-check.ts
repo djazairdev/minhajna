@@ -9,7 +9,7 @@
 import { historyStoreTests } from '@minhajna/core/test-support';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import type { Spec as CheckSpec } from '../native/NativeMinhajnaStorageCheck';
-import { fromRow, nativeDeps, nativeStore } from '../storage/history';
+import { fromRow, nativeDeps, nativeStore, type HistorySpec } from '../storage/history';
 
 /** The prefix of every line the storage check logs, for scripts that read the results over adb. */
 export const LOG_PREFIX = '[storage-check]';
@@ -25,7 +25,7 @@ export interface CheckResult {
 type Row = Parameters<typeof fromRow>[0];
 
 /** The app's storage module, with its history calls sent to one throwaway history instead. */
-export function throwawaySpec(storage: StorageSpec, check: CheckSpec, name: string): StorageSpec {
+export function throwawaySpec(storage: StorageSpec, check: CheckSpec, name: string): HistorySpec {
   return {
     randomBytes: (length) => storage.randomBytes(length),
     digest: (texts) => storage.digest(texts),
