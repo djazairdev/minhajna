@@ -7,7 +7,8 @@
 // opens its two counts; the homework that comes back today, or the one
 // Today's card opened, starts open. A count is saved the moment it is
 // confirmed, with «تراجع» while it is still the latest. Only confirmed
-// counts print; the rest stay blank, as on paper.
+// counts print; the rest stay blank, as on paper. The year's homework
+// pages print from here.
 
 import {
   canonicalJson,
@@ -25,6 +26,7 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '../components/Button';
 import { Snackbar } from '../components/Snackbar';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { directionOf, subjectLanguage, wordsFor } from '../documents/texts-book-pages';
@@ -47,9 +49,11 @@ export interface HomeworkBookProps {
   readonly courseId: string;
   /** The homework Today's card opened, by the key of the session that set it. */
   readonly sessionKey?: string;
+  /** Prints the homework pages of the year. */
+  readonly onPrint?: () => void;
 }
 
-export function HomeworkBook({ courseId, sessionKey }: HomeworkBookProps) {
+export function HomeworkBook({ courseId, sessionKey, onPrint }: HomeworkBookProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -167,6 +171,9 @@ export function HomeworkBook({ courseId, sessionKey }: HomeworkBookProps) {
           </View>
         )}
         <Text style={styles.note}>{t('homework.printNote')}</Text>
+        {onPrint !== undefined && (
+          <Button testID="homework-print" variant="soft" label={t('homework.print')} onPress={onPrint} />
+        )}
       </ScrollView>
       {undoing !== null && (
         <Snackbar

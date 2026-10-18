@@ -31,7 +31,7 @@ import { span } from '../times/TimeTable';
 import { bookClasses } from './texts-book-pages';
 import { TEXTS_BOOK_CSS, bookHead } from './texts-book-html';
 import { bookClock } from '../entry/book-lines';
-import { bookDate, wrappedRules } from './texts-book-rows';
+import { bookDate, byRules, rulesOf, wrappedRules } from './texts-book-rows';
 
 /** The rules a page holds below its head, its title and its column heads, and the characters of a subject's rule. */
 export const SUPERVISED_RULES = 24;
@@ -79,7 +79,7 @@ export function supervisedPages(data: DocumentData, t: Translate, blank: boolean
   const bt = i18n.getFixedT(book);
   const pages = bookClasses(data).flatMap((schoolClass) => {
     const rows = blank ? [] : lessonRows(data, context, schoolClass).map((row) => lessonRow(data, row, bt, book));
-    const chunks = rows.length === 0 ? [[]] : byRules(rows);
+    const chunks = rows.length === 0 ? [[]] : byRules(rows, SUPERVISED_RULES);
     const head = bookHead({
       lang: book,
       school: data.state.schools.get(schoolClass.schoolId)?.name ?? '',
@@ -110,21 +110,4 @@ export function supervisedPages(data: DocumentData, t: Translate, blank: boolean
     css: CSS,
     pages,
   });
-}
-
-const rulesOf = (rows: readonly LessonRow[]) => rows.reduce((sum, row) => sum + row.rules, 0);
-
-/** The rows in pages of at most `SUPERVISED_RULES` rules. */
-function byRules(rows: readonly LessonRow[]): LessonRow[][] {
-  const pages: LessonRow[][] = [];
-  let page: LessonRow[] = [];
-  for (const row of rows) {
-    if (page.length > 0 && rulesOf(page) + row.rules > SUPERVISED_RULES) {
-      pages.push(page);
-      page = [];
-    }
-    page.push(row);
-  }
-  if (page.length > 0) pages.push(page);
-  return pages;
 }

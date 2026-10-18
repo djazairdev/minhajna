@@ -34,8 +34,8 @@ import type { DocumentData, Translate } from './document-data';
 export const PAGE_RULES = 28;
 const RULE_CHARACTERS = { rtl: 44, ltr: 46 } as const;
 /** An entry's ruled foot, in millimetres, on top of its rules of 7.3 mm. */
-const ENTRY_FOOT = 0.3;
-const RULE = 7.3;
+export const ENTRY_FOOT = 0.3;
+export const RULE = 7.3;
 
 export type Direction = 'rtl' | 'ltr';
 
@@ -154,4 +154,22 @@ export function pagesBefore(
   const months = new Map<string, BookRow[]>();
   for (const row of rows) months.set(row.day.slice(0, 7), [...(months.get(row.day.slice(0, 7)) ?? []), row]);
   return [...months.values()].reduce((sum, monthRows) => sum + paginate(monthRows, dir).length, 0);
+}
+
+/** The rules rows take together. */
+export const rulesOf = (rows: readonly { readonly rules: number }[]) => rows.reduce((sum, row) => sum + row.rules, 0);
+
+/** Rows in pages of at most `max` rules; a row never breaks across pages. */
+export function byRules<Row extends { readonly rules: number }>(rows: readonly Row[], max: number): Row[][] {
+  const pages: Row[][] = [];
+  let page: Row[] = [];
+  for (const row of rows) {
+    if (page.length > 0 && rulesOf(page) + row.rules > max) {
+      pages.push(page);
+      page = [];
+    }
+    page.push(row);
+  }
+  if (page.length > 0) pages.push(page);
+  return pages;
 }
