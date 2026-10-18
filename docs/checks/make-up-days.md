@@ -90,4 +90,4 @@ The core tests in `packages/core/test/added-days.test.ts` and `added-days-read.t
 
 - **TalkBack in Arabic and text at 200%,** on a real phone.
 - **The calendar's own screen,** where an entry is changed or removed later, with #222.
-- **The page for additional lessons** with these sessions, and **the subject's pages** with the make-up sessions, with #213.
+- ~~The page for additional lessons with these sessions, and the subject's pages with the make-up sessions, with #213.~~ Both print since #213's first two pull requests ([texts-book.md](texts-book.md)).

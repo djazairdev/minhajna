@@ -1,6 +1,6 @@
-# The texts book's subject pages
+# The texts book's pages
 
-How the texts book's pages for each class and subject were checked for [#213](https://github.com/djazairdev/minhajna/issues/213) (PRD [§3.8](../prd/PRD.md#38-the-documents)), the first of its pull requests. Every record in these checks is made up. They ran on 18 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
+How the texts book's pages for each class and subject, and its page 08 for supervised or additional lessons, were checked for [#213](https://github.com/djazairdev/minhajna/issues/213) (PRD [§3.8](../prd/PRD.md#38-the-documents)), in its first two pull requests. Every record in these checks is made up. They ran on 18 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
 
 - [What it does](#what-it-does)
 - [The result](#the-result)
@@ -23,6 +23,15 @@ The Documents tab lists «دفتر النصوص» with the daily journal and the
 - **A joint class** has a run of pages for each level, named with its level, as on the Classes tab.
 - **The blank version** gives each class and subject one page, with its head filled in and its rules empty.
 
+**Page 08, for supervised or additional lessons** (Decision 835 of 13/09/1991, R-3.8-26), is its own entry on the Documents tab, «الدروس المحروسة أو الإضافية», since it holds the whole school year.
+
+- **One page 08 for each class** taught this school year, in Arabic, on the book's head, titled «الدروس المحروسة أو الإضافية بالمؤسسة» with the decision as its footnote.
+- **A row for each session** logged outside the timetable (support, catch-up, review, supervised study) and each session of a support or revision day (R-3.3-18). Rows are numbered in order through the year, as the screen for a session outside the timetable numbers them.
+- **The columns:** the number, the subject (with its level in a joint class), the kind of activity, the date, and the time as by hand, «14سا – 15سا30».
+- **A class with none** gets the page blank, with its heads and empty rules (R-3.8-29), and so does every class in the blank version.
+- A year with more rows than a page holds runs on to another page. A long subject name wraps, and the rules it takes are counted.
+- Make-up sessions are not here: they go on the subject's pages (R-3.8-28).
+
 In the reference data, profile release `2026.4` gives the profile a teaching language, `ar`, and gives French, English, German, Spanish and Italian their own. Tamazight keeps the profile's language for now (`data/README.md`).
 
 ## The result
@@ -38,6 +47,9 @@ In the reference data, profile release `2026.4` gives the profile a teaching lan
 | A long topic wraps onto three lines and the homework line keeps its due date in order; the page still fits on one A4 | **Passed** |
 | The print service's preview shows the same pages | **Passed** |
 | The French page, blank, runs left to right under the Arabic head (in a desktop browser, from the test data) | **Passed** after a fix |
+| «الدروس المحروسة أو الإضافية» is listed with «قسمان · الصفحة 08 · السنة الدراسية» | **Passed** |
+| With no session outside the timetable, each class's page 08 prints blank, with its heads, as the Supervised-empty screen draws it | **Passed** |
+| A supervised study logged on 6 October, 14:00 to 15:30, prints as row 1: «اللغة العربية · دراسة محروسة · 2026/10/06 · 14سا – 15سا30» | **Passed** |
 
 Three faults were found and fixed while checking:
 - The first PDF after the app started printed with its text hidden: it was printed before its fonts had loaded. That fault affected every document, and is fixed separately in [#260](https://github.com/djazairdev/minhajna/pull/260).
@@ -50,6 +62,8 @@ The review before committing found more, all fixed:
 - The Documents tab offered the texts book with an empty document when the teacher's classes were all of another school year.
 - A joint class's level without its own grade was not named.
 - A long word, such as a web address, ran into the signature column.
+- On page 08, a long subject name that wrapped could push the page's foot onto a sheet of its own; pages now count the rules each row takes.
+- The Documents tab counted classes of earlier years for the texts book.
 
 The emulator's teacher had no plan pack, so the sessions were confirmed with content from outside the plan.
 
@@ -66,11 +80,13 @@ The core tests in `packages/core/test/profile-languages.test.ts` and `data.test.
 - Ramadan's time;
 - rows kept whole, wrapped by words, and the empty rules;
 - the blank version, and a month with nothing confirmed;
-- the Documents tab's entry, with no class of this school year, and the saved file's name.
+- the Documents tab's entry, with no class of this school year, and the saved file's name;
+- in `supervised-page.test.ts`, page 08: sessions outside the timetable and a support day's, numbered; a class with none, and the blank version; a year of rows over several pages, with a long subject; and its entry.
+
+To check page 08 on a phone, log a session from Today's plus, «حصة خارج استعمال الزمن», then open «الدروس المحروسة أو الإضافية» on the Documents tab.
 
 ## Still open
 
-- **The page for supervised or additional lessons** (R-3.8-26, R-3.8-29), in the next pull request for #213.
 - **The book's pages in the app** (P09, P10), with any month to print, in a later pull request for #213. Until then the Documents tab prints the current month.
 - **Page numbers for a session confirmed late.** Each month's pages are numbered after the months before, as recorded now. A session of an earlier month confirmed after that month was printed moves the numbers on, so a number can be skipped. The rule comes with the choice of month.
 - **Printed at 100% on A4 and compared with the paper book,** on paper, by the founder.

@@ -853,7 +853,9 @@
       "noClasses": "Aucune classe enseignée pour l’instant : il n’y a pas de page d’appel à imprimer.",
       "blankTexts": "L’établissement, l’année, la classe et la matière sont remplis sur une page par classe et matière ; les lignes restent vides, pour écrire à la main.",
       "signatureTexts": "La colonne d’émargement reste vide, pour signer à la main. Une séance en attente de confirmation n’est jamais imprimée.",
-      "noClassesTexts": "Aucune classe enseignée pour l’instant : pas de page du cahier de textes à imprimer."
+      "noClassesTexts": "Aucune classe enseignée pour l’instant : pas de page du cahier de textes à imprimer.",
+      "blankSupervised": "La page 08 de chaque classe s'imprime avec ses titres et ses colonnes, ses lignes laissées vides.",
+      "signatureSupervised": "Les séances sont numérotées dans l'ordre de l'année : celles notées hors emploi du temps et celles des journées de soutien et de révision. La page s'imprime vide pour une classe sans séance."
     },
     "textsBook": {
       "name": "Cahier de textes",
@@ -869,6 +871,18 @@
       "topic": "Thème",
       "signature": "Émargement",
       "none": "Aucune séance confirmée ce mois-ci."
+    },
+    "supervised": {
+      "name": "Séances surveillées ou supplémentaires",
+      "line": "Page 08 · année scolaire",
+      "page": "Cahier de textes · page 08",
+      "title": "Séances surveillées ou supplémentaires à l'établissement",
+      "number": "N°",
+      "subject": "Activité en",
+      "kind": "Type d'activité",
+      "date": "Date",
+      "time": "Horaire",
+      "note": "(1) En application de la décision n° 835 du 13/09/1991"
     }
   },
   "preview": {

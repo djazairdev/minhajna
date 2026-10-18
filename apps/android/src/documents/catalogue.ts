@@ -11,9 +11,10 @@ import type { IconName } from '../design/Icon';
 import { monthLabel, taughtClasses, type DocumentData, type Translate } from './document-data';
 import { journalPages } from './journal-pages';
 import { rollPages } from './roll-pages';
-import { bookCourses, textsBookPages } from './texts-book-pages';
+import { supervisedPages } from './supervised-pages';
+import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 
-export type DocumentId = 'journal' | 'roll' | 'texts';
+export type DocumentId = 'journal' | 'roll' | 'texts' | 'supervised';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -40,6 +41,10 @@ export interface DocumentKind {
 
 const classes = (data: DocumentData, t: Translate) =>
   t('documents.list.classes', { count: taughtClasses(data).length });
+
+/** The texts book's classes: those taught this school year. */
+const bookClassCount = (data: DocumentData, t: Translate) =>
+  t('documents.list.classes', { count: bookClasses(data).length });
 
 export const DOCUMENTS: readonly DocumentKind[] = [
   {
@@ -78,11 +83,25 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     empty: (data) => bookCourses(data).length === 0,
     period: (data) => data.day.slice(0, 7),
     title: (t) => t('documents.textsBook.name'),
-    line: (data, t) => `${classes(data, t)} · ${monthLabel(data, data.day)}`,
+    line: (data, t) => `${bookClassCount(data, t)} · ${monthLabel(data, data.day)}`,
     blankLine: (t) => t('documents.output.blankTexts'),
     signatureLine: (t) => t('documents.output.signatureTexts'),
     emptyLine: (t) => t('documents.output.noClassesTexts'),
     pages: textsBookPages,
+  },
+  {
+    id: 'supervised',
+    icon: 'homework',
+    pupils: false,
+    landscape: false,
+    empty: (data) => bookCourses(data).length === 0,
+    period: (data) => data.year.id,
+    title: (t) => t('documents.supervised.name'),
+    line: (data, t) => `${bookClassCount(data, t)} · ${t('documents.supervised.line')}`,
+    blankLine: (t) => t('documents.output.blankSupervised'),
+    signatureLine: (t) => t('documents.output.signatureSupervised'),
+    emptyLine: (t) => t('documents.output.noClassesTexts'),
+    pages: supervisedPages,
   },
 ];
 

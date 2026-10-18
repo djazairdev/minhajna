@@ -54,7 +54,7 @@ export function bookClock(time: string, t: Translate): string {
 }
 
 /** The rules a text wraps onto, word by word as the web engine wraps it; a word longer than a rule breaks. */
-function wrappedRules(text: string, room: number): number {
+export function wrappedRules(text: string, room: number): number {
   let rules = 1;
   let used = 0;
   for (const word of text.split(/\s+/).filter((part) => part !== '')) {
