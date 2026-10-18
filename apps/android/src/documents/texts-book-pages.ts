@@ -54,6 +54,13 @@ export function bookCourses(data: DocumentData): { readonly course: Course; read
   );
 }
 
+/** Each class taught this school year, once, in the order of the Classes tab. */
+export function bookClasses(data: DocumentData): SchoolClass[] {
+  const seen = new Map<string, SchoolClass>();
+  for (const { schoolClass } of bookCourses(data)) seen.set(schoolClass.id, schoolClass);
+  return [...seen.values()];
+}
+
 function monthName(data: DocumentData, month: string, language: Language): string {
   const name = data.profile.months?.[Number(month.slice(5, 7)) - 1]?.[language] ?? month.slice(5, 7);
   return `${name} ${month.slice(0, 4)}`;

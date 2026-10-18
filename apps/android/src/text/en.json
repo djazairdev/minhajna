@@ -835,7 +835,9 @@
       "noClasses": "No class taught yet, so there is no roll-call page to print.",
       "blankTexts": "The school, the year, the class and the subject are filled in on a page for each class and subject; the rules stay empty, to write by hand.",
       "signatureTexts": "The signature column stays empty, to sign by hand. A session awaiting confirmation is never printed.",
-      "noClassesTexts": "No class taught yet, so no texts book page to print."
+      "noClassesTexts": "No class taught yet, so no texts book page to print.",
+      "blankSupervised": "Each class's page 08 prints with its headings and columns, its rows left empty.",
+      "signatureSupervised": "Sessions are numbered in the order of the year: those logged outside the timetable and those of support and revision days. A class with none gets the page blank."
     },
     "textsBook": {
       "name": "Texts book",
@@ -851,6 +853,18 @@
       "topic": "Topic or work set",
       "signature": "Signature",
       "none": "No session confirmed this month yet."
+    },
+    "supervised": {
+      "name": "Supervised or additional lessons",
+      "line": "Page 08 · school year",
+      "page": "Texts book · page 08",
+      "title": "Supervised or additional lessons at the school",
+      "number": "No.",
+      "subject": "Activity in",
+      "kind": "Kind of activity",
+      "date": "Date",
+      "time": "Time",
+      "note": "(1) Under Decision No. 835 of 13/09/1991"
     }
   },
   "preview": {

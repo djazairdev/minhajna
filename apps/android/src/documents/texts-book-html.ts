@@ -19,7 +19,8 @@ export interface TextsBookHead {
   readonly school: string;
   readonly year: string;
   readonly className: string;
-  readonly subject: string;
+  /** None on the page for supervised or additional lessons, which holds every subject. */
+  readonly subject?: string;
   readonly title: string;
 }
 
@@ -63,12 +64,13 @@ function line(entry: BookLine, textLang: string | undefined): string {
   return `<div>${label}${text}</div>`;
 }
 
-function head(page: TextsBookHead): string {
+/** The page's head, in the book's language, right to left. */
+export function bookHead(page: TextsBookHead): string {
   const field = (text: string) => `<span>${escapeHtml(text)}</span>`;
   return (
     `<div class="head" lang="${escapeHtml(page.lang)}" dir="rtl">` +
     `<div class="row">${field(page.school)}${field(page.year)}</div>` +
-    `<div class="row">${field(page.className)}${field(page.subject)}</div>` +
+    `<div class="row">${field(page.className)}${page.subject === undefined ? '' : field(page.subject)}</div>` +
     `<div class="title">${escapeHtml(page.title)}</div></div>`
   );
 }
@@ -86,7 +88,7 @@ export function textsBookPage(page: TextsBookPage): string {
   const fill = '<tr class="rule"><td></td><td></td><td></td><td></td></tr>'.repeat(left);
   const latin = page.dir === 'ltr' ? ' latin' : '';
   return (
-    head(page.head) +
+    bookHead(page.head) +
     `<p class="caption" lang="${escapeHtml(page.lang)}" dir="${page.dir}">${escapeHtml(page.caption)}</p>` +
     (page.note === undefined ? '' : `<p class="note" dir="${page.dir}">${escapeHtml(page.note)}</p>`) +
     `<table class="book${latin}" lang="${escapeHtml(page.lang)}" dir="${page.dir}">${COLUMNS}` +
