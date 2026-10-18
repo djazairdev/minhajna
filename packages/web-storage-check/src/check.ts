@@ -65,7 +65,7 @@ function metrics(snapshot: Snapshot): Pick<Result, 'level' | 'events' | 'plainJs
 }
 
 async function decrypt(snapshot: Snapshot, key: CryptoKey): Promise<void> {
-  await verify(snapshot, await unseal(snapshot.rows, key, snapshot.meta.runId));
+  await verify(snapshot, await unseal(snapshot.rows, key, snapshot.meta));
 }
 
 /** Replaces only the explicitly labelled synthetic run, atomically. */
@@ -77,7 +77,7 @@ export async function run(passphrase: string, level: DemoLevel): Promise<Result>
     byte.toString(16).padStart(2, '0'),
   ).join('');
   const meta: RunMeta = {
-    format: 1,
+    format: 2,
     runId,
     level,
     count: fixture.entries.length,
@@ -85,7 +85,7 @@ export async function run(passphrase: string, level: DemoLevel): Promise<Result>
     salt,
     iterations: ITERATIONS,
   };
-  const encrypted = await timed(() => seal(fixture.entries, key.value, runId));
+  const encrypted = await timed(() => seal(fixture.entries, key.value, meta));
   const write = await timed(() => replace({ meta, rows: encrypted.value }));
   const saved = await timed(read);
   if (saved.value === null || saved.value.meta.runId !== runId) throw new Error('changed-run');

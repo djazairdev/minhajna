@@ -11,7 +11,7 @@ export const DATABASE = 'minhajna-synthetic-storage-check-v1';
 
 /** Non-secret test parameters; no passphrase, key, pupil or clock time. */
 export interface RunMeta {
-  readonly format: 1;
+  readonly format: 2;
   readonly runId: string;
   readonly level: DemoLevel;
   readonly count: number;
@@ -59,6 +59,16 @@ export function completed(transaction: IDBTransaction): Promise<void> {
   });
 }
 
+/** Aborts unless the transaction already finished or aborted, so the original error is the one reported. */
+function abortQuietly(tx: IDBTransaction): boolean {
+  try {
+    tx.abort();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** A synchronous cloning/queue error must abort too, leaving the old run intact. */
 export async function writeTransaction(tx: IDBTransaction, snapshot: Snapshot): Promise<void> {
   const done = completed(tx);
@@ -68,18 +78,18 @@ export async function writeTransaction(tx: IDBTransaction, snapshot: Snapshot): 
     for (const row of snapshot.rows) entries.put(row);
     tx.objectStore('meta').put(snapshot.meta, 'run');
   } catch (error) {
-    tx.abort();
+    abortQuietly(tx);
     await done.catch(() => undefined);
     throw error;
   }
   await done;
 }
 
-/** Encryption finishes before starting this transaction, avoiding auto-close. */
+/** Encryption finishes before starting this transaction, avoiding auto-close; strict durability flushes it to disk. */
 export async function replace(snapshot: Snapshot): Promise<void> {
   const db = await open();
   try {
-    const tx = db.transaction(['entries', 'meta'], 'readwrite');
+    const tx = db.transaction(['entries', 'meta'], 'readwrite', { durability: 'strict' });
     await writeTransaction(tx, snapshot);
   } finally {
     db.close();
@@ -97,7 +107,7 @@ export async function read(): Promise<Snapshot | null> {
     await done;
     const value: unknown = meta.result;
     if (value === undefined) return null;
-    if (typeof value !== 'object' || value === null || !('format' in value) || value.format !== 1)
+    if (typeof value !== 'object' || value === null || !('format' in value) || value.format !== 2)
       throw new Error('metadata');
     const run = value as RunMeta;
     if (
@@ -122,12 +132,12 @@ export async function read(): Promise<Snapshot | null> {
   }
 }
 
-/** Deletes only this diagnostic's database; close other diagnostic tabs if blocked. */
-export function clear(): Promise<void> {
+/** Deletes only this diagnostic's database; while other tabs keep it open, the deletion waits for them. */
+export function clear(onWaiting: () => void): Promise<void> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.deleteDatabase(DATABASE);
     request.onsuccess = () => resolve();
     request.onerror = () => reject(new Error('delete-failed'));
-    request.onblocked = () => reject(new Error('blocked'));
+    request.onblocked = () => onWaiting();
   });
 }

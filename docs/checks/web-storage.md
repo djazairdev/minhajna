@@ -24,7 +24,7 @@ Arabic is the default, with French/English and both text directions. Every test 
 
 Generation is outside the encryption/storage timers. These are single-run diagnostic elapsed times, not averages or performance guarantees. There are no clock times in the synthetic records or their history. A later Reopen does not fetch/generate a new workload: it uses only persisted salt, parameters and ciphertext, and a re-entered disposable phrase. The core checks the reopened chain and state before success is reported.
 
-The key is non-extractable and stays in memory; no passphrase/key is stored in IndexedDB, localStorage, Cache Storage or a copied report. UI errors use an allowlisted code, not arbitrary exception text. AES-GCM failure never reports a successful measurement. A replacement is one transaction; quota/abort/queuing failures do not commit a cleared or partial replacement. Deletion targets this tool's named synthetic database only.
+The key is non-extractable and stays in memory; no passphrase/key is stored in IndexedDB, localStorage, Cache Storage or a copied report. UI errors use an allowlisted code, not arbitrary exception text. AES-GCM failure never reports a successful measurement. A replacement is one transaction, opened with strict durability so that the timed write is flushed to disk, not only queued; quota/abort/queuing failures do not commit a cleared or partial replacement. Deletion targets this tool's named synthetic database only; while another tool tab keeps it open, the page says the deletion is waiting rather than failed.
 
 ## Evidence collected locally
 
@@ -37,11 +37,11 @@ On **17 October 2026**, the Codex in-app Chromium browser on macOS reported Chro
 - With the optional static host stopped, the cached page reloaded, reopened the saved primary history and generated/encrypted/verified a new CEM workload from cached reference files. This checks loss of access to the host, not every possible OS network condition.
 - Arabic RTL, French LTR and English LTR controls were exercised. At a 360 × 800 viewport override, the Arabic page had no horizontal overflow (345-pixel content/client width after the scrollbar); controls measured 48 pixels or more. Native installation, 200% text and screen-reader acceptance remain unverified.
 
-The final locally exercised build hash was `865dc8772bcdca513fd7ca173f1b0de3cfef2f61fdd46942a80e3b552e4773f6`. On that build, one offline CEM run reported 42.8 ms derivation, 2.7 ms encryption, 23.3 ms committed write, 2.3 ms read and 9.4 ms decrypt/verification. The primary reopen reported 554 entries / 368,444 plaintext JSON bytes / 383,401 ciphertext-and-IV bytes. These are observations from one local run, not Windows acceptance figures, averages or the Android Today benchmark. The static preview was stopped after QA; synthetic test records and the offline cache remain local to its dedicated origin.
+On 2026-10-17, before the review fixes below, the locally exercised build's hash was `865dc8772bcdca513fd7ca173f1b0de3cfef2f61fdd46942a80e3b552e4773f6`; any later build has another. On that build, one offline CEM run reported 42.8 ms derivation, 2.7 ms encryption, 23.3 ms committed write, 2.3 ms read and 9.4 ms decrypt/verification. The primary reopen reported 554 entries / 368,444 plaintext JSON bytes / 383,401 ciphertext-and-IV bytes. These are observations from one local run, not Windows acceptance figures, averages or the Android Today benchmark. The static preview was stopped after QA; synthetic test records and the offline cache remain local to its dedicated origin.
 
-The automated tests cover full-year authenticated round-trip, a different key, tampered ciphertext/IV/run identity, row order, repeatable derivation, minimum test-phrase length, transaction acknowledgement/abort, synchronous queuing failure, grant/refusal/unsupported/error reporting, catalogue key parity, and reproducible static build/cache coverage. Node tests do not simulate browser durability or installability.
+The automated tests cover full-year authenticated round-trip, a different key, tampered ciphertext/IV/run identity/workload, row order, a truncated run with its count lowered to match, an abort that can no longer run, repeatable derivation, minimum test-phrase length, transaction acknowledgement/abort, synchronous queuing failure, grant/refusal/unsupported/error reporting, catalogue key parity, and reproducible static build/cache coverage. Node tests do not simulate browser durability or installability.
 
-Local verification also passed: clean locked installs, the static build, root and Android type checks, lint/format checks, all 185 core/diagnostic tests (170 + 15), all 182 Android tests, and secret scanning. Source-only REUSE validation passed for all 917 files. Before the new workspace is tracked, REUSE's Git-ignore enumeration scans its ignored `dist/` output; a clean source snapshot avoids that local tooling artefact without changing any source licence or committing generated files. The built static files still carry the code/data licence texts and the source files' SPDX headers.
+Local verification on 2026-10-17 also passed: clean locked installs, the static build, root and Android type checks, lint/format checks, the core and diagnostic tests, the Android tests, and secret scanning. Source-only REUSE validation passed for all 917 files. Before the new workspace is tracked, REUSE's Git-ignore enumeration scans its ignored `dist/` output; a clean source snapshot avoids that local tooling artefact without changing any source licence or committing generated files. The built static files still carry the code/data licence texts and the source files' SPDX headers.
 
 ## Required manual matrix: not yet accepted
 
@@ -72,3 +72,15 @@ A persistence grant reduces automatic eviction risk under the browser's policy; 
 - [IndexedDB transaction completion](https://developer.mozilla.org/en-US/docs/Web/API/IDBTransaction/complete_event): request success is not transaction completion.
 - [Web Crypto](https://www.w3.org/TR/webcrypto/): built-in AES-GCM, PBKDF2 and random bytes, not project-written cryptography.
 - [PWA installation](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable): secure hosting and browser-dependent native installation.
+
+## Review fixes (2026-10-18)
+
+After the rebase onto main, the review of [#120](https://github.com/djazairdev/minhajna/pull/120) led to these changes:
+
+- **Truncation is detected.** Each row's additional authenticated data now binds the run, its workload level and its row count (`demo-check/2/<run>/<level>/<count>/<seq>`, stored format 2). Deleting the last rows and lowering the stored count to match makes every remaining row fail to decrypt. Runs saved in format 1 are refused as `metadata`; run the check again.
+- **Strict durability.** The write transaction asks for `durability: 'strict'`, so `committedWriteMs` means flushed, not queued, in browsers that honour it.
+- **Distinct error codes.** A history that does not verify reports `HistoryError`; `DataCloneError`, `AbortError`, `UnknownError` and `delete-failed` keep their own codes instead of `check-failed`.
+- **A failed abort keeps the original error,** and a blocked deletion is reported as waiting, then as done once the other tabs close.
+- The workload figures follow main's demo year: 397 CEM entries.
+
+Checked on 2026-10-18 in a Chromium-based browser on macOS, from a local build served on loopback: a CEM write-read run succeeded with the fixes (397 entries, format 2). Then the last five stored rows were deleted and the stored count lowered by five, directly in IndexedDB: Reopen failed, as it should. The test database was deleted afterwards.

@@ -74,6 +74,11 @@ async function report(requestPersistence = false): Promise<void> {
 function safeCode(error: unknown): string {
   const allowed = [
     'blocked',
+    'HistoryError',
+    'DataCloneError',
+    'AbortError',
+    'UnknownError',
+    'delete-failed',
     'no-saved-run',
     'changed-run',
     'metadata',
@@ -170,7 +175,10 @@ field('persist').addEventListener('click', () => {
 });
 field('clear').addEventListener('click', () => {
   if (!confirm(messages(language).confirmClear)) return;
-  void clear()
+  void clear(() => {
+    status = 'clearWaiting';
+    translate();
+  })
     .then(async () => {
       result = null;
       failure = null;

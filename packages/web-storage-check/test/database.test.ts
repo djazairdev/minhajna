@@ -59,4 +59,19 @@ describe('IndexedDB commit acknowledgement', () => {
     await assert.rejects(writeTransaction(tx, snapshot), /synthetic-clone-error/);
     assert.equal(aborted, true);
   });
+
+  it('keeps the original error when the transaction can no longer abort', async () => {
+    const tx = transaction();
+    tx.objectStore = () =>
+      ({
+        clear: () => {
+          throw new Error('synthetic-queue-error');
+        },
+      }) as unknown as IDBObjectStore;
+    tx.abort = () => {
+      tx.onabort?.call(tx, new Event('abort'));
+      throw new DOMException('Already finished', 'InvalidStateError');
+    };
+    await assert.rejects(writeTransaction(tx, { rows: [] } as unknown as Snapshot), /synthetic-queue-error/);
+  });
 });

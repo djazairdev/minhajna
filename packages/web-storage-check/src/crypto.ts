@@ -9,6 +9,13 @@ import { toHex, type Entry, type HistoryDeps } from '../../core/src/index.ts';
 /** Fixed diagnostic parameters; performance results identify this workload. */
 export const ITERATIONS = 600_000;
 
+/** What every row is bound to: its run, its workload and how many rows the run has. */
+export interface RunBinding {
+  readonly runId: string;
+  readonly level: string;
+  readonly count: number;
+}
+
 /** The only per-entry data stored in IndexedDB, apart from run metadata. */
 export interface SealedEntry {
   readonly seq: number;
@@ -37,17 +44,19 @@ export async function testKey(passphrase: string, salt: Uint8Array<ArrayBuffer>)
   );
 }
 
-function envelope(runId: string, seq: number, iv: Uint8Array<ArrayBuffer>): AesGcmParams {
+/** Binding the row count stops a truncated run, with its count lowered to match, from verifying. */
+function envelope(run: RunBinding, seq: number, iv: Uint8Array<ArrayBuffer>): AesGcmParams {
   return {
     name: 'AES-GCM',
     iv,
     tagLength: 128,
-    additionalData: new TextEncoder().encode(`demo-check/1/${runId}/${seq}`),
+    additionalData: new TextEncoder().encode(`demo-check/2/${run.runId}/${run.level}/${run.count}/${seq}`),
   };
 }
 
 /** Each entry gets a fresh 96-bit IV under a fresh per-run salted key. */
-export async function seal(entries: readonly Entry[], key: CryptoKey, runId: string): Promise<SealedEntry[]> {
+export async function seal(entries: readonly Entry[], key: CryptoKey, run: RunBinding): Promise<SealedEntry[]> {
+  if (run.count !== entries.length) throw new Error('count');
   const rows: SealedEntry[] = [];
   for (const entry of entries) {
     const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -55,18 +64,19 @@ export async function seal(entries: readonly Entry[], key: CryptoKey, runId: str
     rows.push({
       seq: entry.seq,
       iv,
-      ciphertext: await crypto.subtle.encrypt(envelope(runId, entry.seq, iv), key, plaintext),
+      ciphertext: await crypto.subtle.encrypt(envelope(run, entry.seq, iv), key, plaintext),
     });
   }
   return rows;
 }
 
-/** Authentication rejects a wrong key, changed body, row order or another run. */
-export async function unseal(rows: readonly SealedEntry[], key: CryptoKey, runId: string): Promise<Entry[]> {
+/** Authentication rejects a wrong key, changed body, row order, another run or another row count. */
+export async function unseal(rows: readonly SealedEntry[], key: CryptoKey, run: RunBinding): Promise<Entry[]> {
+  if (rows.length !== run.count) throw new Error('count');
   const entries: Entry[] = [];
   for (const [index, row] of rows.entries()) {
     if (row.seq !== index) throw new Error('row-order');
-    const bytes = await crypto.subtle.decrypt(envelope(runId, row.seq, row.iv), key, row.ciphertext);
+    const bytes = await crypto.subtle.decrypt(envelope(run, row.seq, row.iv), key, row.ciphertext);
     const entry = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)) as Entry;
     if (entry.seq !== row.seq) throw new Error('entry-order');
     entries.push(entry);
