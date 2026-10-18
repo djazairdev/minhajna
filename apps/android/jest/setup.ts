@@ -36,6 +36,8 @@ jest.mock('../src/native/NativeMinhajnaPdf', () => ({
   default: {
     makePdf: jest.fn((_html: string, name: string) => Promise.resolve({ name, pages: 1, bytes: 1, milliseconds: 1 })),
     sharePdf: jest.fn(() => Promise.resolve()),
+    printHtml: jest.fn(() => Promise.resolve()),
+    savePdf: jest.fn(() => Promise.resolve(true)),
   },
 }));
 

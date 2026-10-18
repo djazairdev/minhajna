@@ -34,7 +34,6 @@ const rollTexts: RollMonthTexts = {
   lang: 'ar',
   dir: 'rtl',
   title: 'سجل المناداة · أكتوبر 2026',
-  scope: '4م2 · متوسطة النجاح',
   number: 'الرقم',
   name: 'الاسم واللقب',
   latinName: 'بالحروف اللاتينية',
@@ -42,6 +41,7 @@ const rollTexts: RollMonthTexts = {
   late: 'التأخر',
   key: 'غ: غياب غير مبرر',
   marks: { unjustified: 'غ', justified: 'م', late: 'ت' },
+  confidential: 'داخلي · سري',
 };
 
 test('escapes text from the teacher and the class list', () => {
@@ -78,15 +78,15 @@ test('prints a journal page a day, in A4 portrait, with the fonts embedded and t
   expect(html).not.toMatch(/<script|https?:/);
 });
 
+const rows = [
+  { number: 1, name: 'مختلق ريان', latinName: 'Rayane Mokhtalaq', marks: ['unjustified', 'late'] as const },
+  { number: 2, name: 'مختلق آية', latinName: 'Aya Mokhtalaq', marks: [null, 'justified'] as const },
+];
+
 test('prints the month’s roll calls in A4 landscape, with letters for marks and the totals', () => {
-  const html = rollMonthHtml(
-    rollTexts,
-    ['04/10', '05/10'],
-    [
-      { number: 1, name: 'مختلق ريان', latinName: 'Rayane Mokhtalaq', marks: ['unjustified', 'late'] },
-      { number: 2, name: 'مختلق آية', latinName: 'Aya Mokhtalaq', marks: [null, 'justified'] },
-    ],
-  );
+  const html = rollMonthHtml(rollTexts, [
+    { title: rollTexts.title, scope: '4م2 · متوسطة النجاح', columns: ['04/10', '05/10'], rows },
+  ]);
   expect(html).toContain('@page{size:A4 landscape;');
   expect(html).toContain('<thead><tr><th>الرقم</th>');
   expect(html.match(/<col[ >]/g)).toHaveLength(7);
@@ -94,6 +94,26 @@ test('prints the month’s roll calls in A4 landscape, with letters for marks an
     '<tr><td>1</td><td class="name">مختلق ريان</td><td class="latin latin-name">Rayane Mokhtalaq</td><td>غ</td><td>ت</td><td>1</td><td>1</td></tr>',
   );
   expect(html).toContain('<td></td><td>م</td><td>1</td><td>0</td></tr>');
+  expect(html.match(/داخلي · سري/g)).toHaveLength(2);
+  expect(html).toContain('@page{size:A4 landscape;margin:12mm');
+  expect(html).toMatch(/<table class="frame"><thead><tr><td class="mark">[^<]+<\/td><\/tr><\/thead><tfoot>/);
+});
+
+test('starts each class on its page, and a blank sheet keeps the names with no marks or totals', () => {
+  const html = rollMonthHtml(rollTexts, [
+    { title: rollTexts.title, scope: '4م1', columns: ['04/10'], rows: [rows[0]] },
+    {
+      title: rollTexts.title,
+      scope: '4م2',
+      columns: ['04/10', '05/10'],
+      rows: [{ ...rows[1], marks: [null, null] }],
+      blank: true,
+    },
+  ]);
+  expect(html.match(/<section class="page">/g)).toHaveLength(2);
+  expect(html).toContain(
+    '<td class="name">مختلق آية</td><td class="latin latin-name">Aya Mokhtalaq</td><td></td><td></td><td></td><td></td></tr>',
+  );
 });
 
 test('makes October of the demo year into the journal and the roll-call PDFs', async () => {

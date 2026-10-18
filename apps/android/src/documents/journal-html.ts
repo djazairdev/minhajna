@@ -70,7 +70,7 @@ function entryHtml(entry: JournalEntry): string {
 export function journalHtml(texts: JournalTexts, days: readonly JournalDay[]): string {
   const pages = days.map(
     (day) =>
-      `<section class="page"><div class="head"><div><div class="book">${escapeHtml(texts.book)}</div>` +
+      `<div class="head"><div><div class="book">${escapeHtml(texts.book)}</div>` +
       `<small>${escapeHtml(texts.school)}</small></div><div><b>${escapeHtml(day.title)}</b><br>` +
       `<small>${escapeHtml(texts.year)}</small></div></div><div class="sheet">` +
       `<div class="row cols"><div>${escapeHtml(texts.time)}</div><div>${escapeHtml(texts.className)}</div>` +
@@ -79,7 +79,7 @@ export function journalHtml(texts: JournalTexts, days: readonly JournalDay[]): s
         ? `<div class="row"><div></div><div></div><div>${escapeHtml(texts.empty)}</div></div>`
         : day.entries.map(entryHtml).join('')) +
       `<div class="blank"></div><div class="visa"><div>${escapeHtml(texts.teacher)}</div>` +
-      `<div>${escapeHtml(texts.director)}</div></div></div></section>`,
+      `<div>${escapeHtml(texts.director)}</div></div></div>`,
   );
   return printDocument({
     lang: texts.lang,
@@ -87,6 +87,6 @@ export function journalHtml(texts: JournalTexts, days: readonly JournalDay[]): s
     title: texts.book,
     landscape: false,
     css: CSS,
-    body: pages.join(''),
+    pages,
   });
 }

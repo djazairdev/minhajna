@@ -6,7 +6,9 @@
 // name in Arabic and in Latin letters, then a column per roll call and the
 // month's totals. A mark is a letter, never a colour alone: «غ» unjustified,
 // «م» justified, «ت» late. Rows run on to further pages with the head
-// repeated.
+// repeated, each class starts a page, and every page carries «داخلي · سري»
+// (R-5.9-15). A blank sheet keeps the names and leaves marks and totals
+// empty.
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -20,11 +22,21 @@ export interface RollMonthRow {
   readonly marks: readonly RollMark[];
 }
 
+/** One class's month. */
+export interface RollSheet {
+  readonly title: string;
+  readonly scope: string;
+  /** One heading per roll call, such as «04/10». */
+  readonly columns: readonly string[];
+  readonly rows: readonly RollMonthRow[];
+  readonly blank?: boolean;
+}
+
 export interface RollMonthTexts {
   readonly lang: string;
   readonly dir: 'rtl' | 'ltr';
+  /** The document's title, for the file and the print job. */
   readonly title: string;
-  readonly scope: string;
   readonly number: string;
   readonly name: string;
   readonly latinName: string;
@@ -32,6 +44,7 @@ export interface RollMonthTexts {
   readonly late: string;
   readonly key: string;
   readonly marks: Readonly<Record<Exclude<RollMark, null>, string>>;
+  readonly confidential: string;
 }
 
 const CSS =
@@ -41,12 +54,8 @@ const CSS =
   'td.name{text-align:start}td.latin{direction:ltr;text-align:left}' +
   'th.day{font-family:Sans;font-size:6.5pt;padding:1pt 0}.key{font-size:9pt;margin-top:4pt}';
 
-/** The month's roll calls for one class, as one landscape HTML document. */
-export function rollMonthHtml(
-  texts: RollMonthTexts,
-  columns: readonly string[],
-  rows: readonly RollMonthRow[],
-): string {
+function sheetHtml(texts: RollMonthTexts, sheet: RollSheet): string {
+  const { columns } = sheet;
   const head =
     `<tr><th>${escapeHtml(texts.number)}</th><th>${escapeHtml(texts.name)}</th>` +
     `<th>${escapeHtml(texts.latinName)}</th>` +
@@ -56,7 +65,7 @@ export function rollMonthHtml(
     '<colgroup><col style="width:7mm"><col style="width:36mm"><col style="width:36mm">' +
     columns.map(() => '<col>').join('') +
     '<col style="width:11mm"><col style="width:11mm"></colgroup>';
-  const body = rows
+  const body = sheet.rows
     .map((row) => {
       const absent = row.marks.filter((mark) => mark === 'unjustified' || mark === 'justified').length;
       const late = row.marks.filter((mark) => mark === 'late').length;
@@ -64,19 +73,26 @@ export function rollMonthHtml(
         `<tr><td>${row.number}</td><td class="name">${escapeHtml(row.name)}</td>` +
         `<td class="latin latin-name">${escapeHtml(row.latinName)}</td>` +
         row.marks.map((mark) => `<td>${mark === null ? '' : escapeHtml(texts.marks[mark])}</td>`).join('') +
-        `<td>${absent}</td><td>${late}</td></tr>`
+        (sheet.blank === true ? '<td></td><td></td></tr>' : `<td>${absent}</td><td>${late}</td></tr>`)
       );
     })
     .join('');
+  return (
+    `<h1>${escapeHtml(sheet.title)}</h1><div class="scope">${escapeHtml(sheet.scope)}</div>` +
+    `<table>${cols}<thead>${head}</thead><tbody>${body}</tbody></table>` +
+    `<div class="key">${escapeHtml(texts.key)}</div>`
+  );
+}
+
+/** The month's roll calls, a class per page, as one landscape HTML document. */
+export function rollMonthHtml(texts: RollMonthTexts, sheets: readonly RollSheet[]): string {
   return printDocument({
     lang: texts.lang,
     dir: texts.dir,
     title: texts.title,
     landscape: true,
     css: CSS,
-    body:
-      `<section class="page"><h1>${escapeHtml(texts.title)}</h1><div class="scope">${escapeHtml(texts.scope)}</div>` +
-      `<table>${cols}<thead>${head}</thead><tbody>${body}</tbody></table>` +
-      `<div class="key">${escapeHtml(texts.key)}</div></section>`,
+    pages: sheets.map((sheet) => sheetHtml(texts, sheet)),
+    confidential: texts.confidential,
   });
 }

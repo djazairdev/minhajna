@@ -6,11 +6,7 @@
     "today": "Today",
     "classes": "Classes",
     "documents": "Documents",
-    "back": "Back",
-    "openPreview": "Open a sample inner screen",
-    "previewTitle": "Navigation preview",
-    "previewSubtitle": "Sample screen, with no data",
-    "previewDescription": "This is only a navigation preview. The tabs are hidden on the inner screen. The Back button takes you back to the tab you opened, and nothing is stored."
+    "back": "Back"
   },
   "help": {
     "title": "Help and privacy",
@@ -808,6 +804,32 @@
       "unjustified": "U",
       "justified": "J",
       "late": "L"
+    },
+    "confidential": "Internal · confidential",
+    "rollBook": "Roll-call book",
+    "list": {
+      "line": "Printed or saved as PDF as the director and the inspector ask, or blank with their headings.",
+      "more": "Other documents are added here as they are ready.",
+      "today": "today's page",
+      "classes_one": "{{count}} class",
+      "classes_other": "{{count}} classes"
+    },
+    "output": {
+      "portrait": "A4 portrait",
+      "landscape": "A4 landscape",
+      "version": "Version",
+      "recorded": "As recorded",
+      "recordedLine": "With what is recorded in the app so far.",
+      "blank": "Blank with headings",
+      "blankJournal": "The school and the year are filled in; the day and the sessions stay blank, to write by hand.",
+      "blankRoll": "The headings, the roll-call days and the pupils' names are filled in; the marks stay blank.",
+      "confidentialLine": "Written at the head and foot of every page, in both versions, as they hold pupils' data.",
+      "signature": "The teacher's box stays blank, to sign by hand, and the director's box is always blank.",
+      "print": "Print",
+      "save": "Save PDF",
+      "saved": "The file is saved.",
+      "failed": "The document was not made. Try again.",
+      "noClasses": "No class taught yet, so there is no roll-call page to print."
     }
   },
   "preview": {

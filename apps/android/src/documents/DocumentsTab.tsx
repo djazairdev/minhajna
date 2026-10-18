@@ -1,0 +1,52 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// «الوثائق» (#212, Docs): every document the app makes, with what each one
+// covers now. A document opens its output: print, or save a PDF, as
+// recorded or blank with its headings.
+
+import { useLocale } from '@react-navigation/native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Notice } from '../components/Notice';
+import { PageHeading } from '../components/PageHeading';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
+import { colors, spacing } from '../design/tokens';
+import { useText } from '../text/i18n';
+import { DOCUMENTS, type DocumentId } from './catalogue';
+import { useDocumentData } from './useDocumentData';
+
+/** The Documents tab; `onOpen` opens a document's output. */
+export function DocumentsTab({ onOpen }: { readonly onOpen: (id: DocumentId) => void }) {
+  const t = useText();
+  const insets = useSafeAreaInsets();
+  const { direction } = useLocale();
+  const data = useDocumentData();
+  return (
+    <View style={[styles.screen, { direction, paddingTop: insets.top }]}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingLeft: insets.left, paddingRight: insets.right }]}>
+        <PageHeading testID="documents-heading" title={t('navigation.documents')} scope={t('documents.list.line')} />
+        <View style={styles.list}>
+          {DOCUMENTS.map((kind) => (
+            <RowLink
+              key={kind.id}
+              testID={`documents-${kind.id}`}
+              icon={controlIcon(kind.icon)}
+              title={kind.title(t)}
+              description={kind.line(data, t)}
+              onPress={() => onOpen(kind.id)}
+            />
+          ))}
+          <Notice icon={controlIcon('info')} message={t('documents.list.more')} />
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.paper },
+  content: { paddingBottom: spacing['space-16'] },
+  list: { gap: spacing['space-10'], paddingHorizontal: spacing['space-16'], paddingBottom: spacing['space-16'] },
+});
