@@ -166,6 +166,9 @@ export function buildState(entries: readonly Entry[]): State {
       case 'calendar.set':
         calendar.set(event.entry.id, event.entry);
         break;
+      case 'calendar.removed':
+        calendar.delete(event.id);
+        break;
       case 'session.recorded': {
         const key = event.record.session.key;
         sessions.set(key, [...(sessions.get(key) ?? []), versionOf(entry, event.record, event.correction)]);
@@ -201,7 +204,6 @@ export function buildState(entries: readonly Entry[]): State {
         break;
     }
   }
-
   const pupils = new Map<string, Pupil>();
   for (const [id, { pupil, order }] of pupilSets) pupils.set(id, withMovements(pupil, order, moved.get(id) ?? []));
 

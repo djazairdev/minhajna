@@ -583,7 +583,10 @@
     "lostNote": "They are counted apart in the weekly summary, so they never read as slow teaching. The lessons move to the next sessions, and none is dropped.",
     "paused": "The plan pauses during the exams",
     "pausedNote": "The exams take the week’s sessions: no lesson is proposed, and no session counts as not held or as delay. Each class keeps its position.",
-    "next": "Next session"
+    "next": "Next session",
+    "makeUp": "Make-up sessions on {{weekday}}’s timetable.",
+    "support": "Support sessions on {{weekday}}’s timetable; the plan does not move.",
+    "revision": "Revision on {{weekday}}’s timetable; the plan does not move."
   },
   "classes": {
     "today": "Today {{time}}",
@@ -976,5 +979,59 @@
     "undo": "Undo",
     "failed": "The session was not saved. Try again.",
     "beforeYear": "The school year has not started yet, so no session can be logged before it."
+  },
+  "addSessions": {
+    "title": "Add sessions",
+    "subtitle": "A make-up, support or revision day",
+    "open": "Add a make-up, support or revision day",
+    "kind": "Kind",
+    "kinds": {
+      "make-up": "Make-up",
+      "support": "Support",
+      "revision": "Holiday revision"
+    },
+    "names": {
+      "make-up": "Make-up day",
+      "support": "Support day",
+      "revision": "Holiday revision"
+    },
+    "intros": {
+      "make-up": "A day the school sets to make up for lost sessions, on the timetable of a weekday.",
+      "support": "A support day the school sets, on the timetable of a weekday. It does not move the plan.",
+      "revision": "Holiday revision the school sets, on the timetable of a weekday. It does not move the plan."
+    },
+    "school": "School",
+    "day": "Day",
+    "replaces": "Making up for",
+    "noClosure": "No closure",
+    "follows": "On the timetable of",
+    "sessions": "The sessions, from the timetable",
+    "sessionsHint": "The sessions of the day’s week are chosen first; a tap changes them.",
+    "noSessions": "You have no sessions on that day in the timetable.",
+    "source": "Source",
+    "sourceDefault": "Head teacher’s notice",
+    "confidence": "Certainty",
+    "confidences": {
+      "announced": "Announced",
+      "expected": "Expected"
+    },
+    "changes": "What changes",
+    "summary": "{{day}}, on {{weekday}}’s timetable: {{sessions}}, {{list}}.",
+    "makeUpLine": "Plan sessions: the resources move on as in any session, and they go on the subject’s pages of the texts book, with their date.",
+    "supportLine": "They do not move the plan, and go on the texts book’s page for additional lessons.",
+    "replacesLine": "Making up for {{closure}}. Its sessions stay lost to the calendar, as recorded.",
+    "spare": "Spare before the exams",
+    "spareLine": "{{name}}: {{before}} → {{after}}",
+    "spareNone": "none",
+    "spareShort": "{{sessions}} short",
+    "clash": "Two sessions in one slot. Choose one session per slot, and none in a slot you teach that day.",
+    "choose": "Choose at least one session, and write the source.",
+    "save": "Add",
+    "saved": "The day was added to the calendar.",
+    "undo": "Undo",
+    "failed": "The day was not saved. Try again.",
+    "noClass": "No class yet. Add your classes and draw your week first.",
+    "separator": ", ",
+    "untimed": "Some of these sessions have no time at the school yet, so they go on the page for additional lessons once their time is set."
   }
 }

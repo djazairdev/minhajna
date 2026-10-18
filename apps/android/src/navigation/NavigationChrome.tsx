@@ -117,6 +117,7 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
           {route.name === 'Security' && <Text style={styles.subtitle}>{t('security.subtitle')}</Text>}
           {route.name === 'Extra' && <Text style={styles.subtitle}>{t('extra.subtitle')}</Text>}
+          {route.name === 'AddSessions' && <Text style={styles.subtitle}>{t('addSessions.subtitle')}</Text>}
           {route.name === 'DocOutput' && document !== undefined && (
             <Text style={styles.subtitle}>
               {t(document.landscape ? 'documents.output.landscape' : 'documents.output.portrait')}

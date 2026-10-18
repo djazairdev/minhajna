@@ -117,9 +117,20 @@ export const CALENDAR_EFFECTS = [
   /** The teaching week that holds the entry's first day is an A week, or a B week. */
   'week-a',
   'week-b',
+  /** A make-up, support or revision day: sessions on a weekday's timetable, even on a day off (PRD §4.5, §7.7). */
+  'adds-sessions',
 ] as const;
 
 export type CalendarEffect = (typeof CALENDAR_EFFECTS)[number];
+
+/**
+ * What a day that adds sessions is for. Make-up sessions are plan sessions
+ * and move the plan; support and revision sessions do not, and go on the
+ * texts book's page for supervised or additional lessons (R-3.3-18, R-4.5-08).
+ */
+export const ADDED_KINDS = ['make-up', 'support', 'revision'] as const;
+
+export type AddedKind = (typeof ADDED_KINDS)[number];
 
 /** Whose bell times apply on an entry's days, when not the usual ones: Ramadan's (PRD §4.5). */
 export const CALENDAR_TIMES = ['ramadan'] as const;
@@ -150,6 +161,18 @@ export interface CalendarEntry {
   readonly term?: number;
   /** Ramadan: its days take Ramadan's bell times, and keep their sessions. */
   readonly times?: CalendarTimes;
+  /** For a day that adds sessions: what they are for. */
+  readonly adds?: AddedKind;
+  /** For a day that adds sessions: the weekday whose timetable it follows. */
+  readonly follows?: Weekday;
+  /**
+   * For a day that adds sessions: the weekday's sessions it takes, as the
+   * teacher chose them, each as `takeKey` gives it, so a redrawn week keeps
+   * them; all of the weekday's for the week otherwise.
+   */
+  readonly takes?: readonly string[];
+  /** For a make-up day: the closure whose sessions it makes up for. */
+  readonly replaces?: string;
   readonly name: LocalizedText;
   /** The text or notice it comes from. */
   readonly source: string;

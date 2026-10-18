@@ -3,11 +3,14 @@
 
 // Reads a school calendar from parsed JSON, against the country profile it
 // belongs to. It comes in as a file, so it is untrusted: every field is
-// checked, and only the format's fields are kept (PRD §5.9).
+// checked, and only the format's fields are kept (PRD §5.9). A day that
+// adds sessions names what they are for and the weekday it follows; which of
+// that weekday's sessions it takes is the teacher's choice, never the file's.
 
 import { compareDays } from './day.ts';
-import { at, isFields, Reader, RELEASE, type ParseResult } from './read.ts';
+import { at, isFields, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
 import {
+  ADDED_KINDS,
   CALENDAR_EFFECTS,
   CALENDAR_TIMES,
   CONFIDENCES,
@@ -27,6 +30,19 @@ import {
   placeFits,
   readName,
 } from './reference-fields.ts';
+
+const ADDED_FIELDS = ['adds', 'follows', 'replaces'] as const;
+
+/** What a day that adds sessions is for, the working day it follows, and the closure it makes up for, if any. */
+function readAdded(reader: Reader, raw: Fields, path: string, profile: CountryProfile) {
+  const adds = reader.oneOf(raw, 'adds', path, ADDED_KINDS);
+  const value = raw['follows'];
+  const follows = profile.workingDays.find((day) => day === value);
+  if (follows === undefined) reader.fail(at(path, 'follows'), value === undefined ? 'required' : 'invalid');
+  const replaces = reader.text(raw, 'replaces', path, ENTRY_ID);
+  if (replaces !== undefined && adds !== 'make-up') reader.fail(at(path, 'replaces'), 'invalid');
+  return { adds, follows, replaces };
+}
 
 /**
  * Reads the school year. Its terms are numbered from 1, lie within the
@@ -102,6 +118,10 @@ function readEntry(
   }
   const span = reader.span(raw, path);
   const effect = reader.oneOf(raw, 'effect', path, CALENDAR_EFFECTS);
+  const added = effect === 'adds-sessions' ? readAdded(reader, raw, path, profile) : undefined;
+  if (effect !== 'adds-sessions') {
+    for (const key of ADDED_FIELDS) if (raw[key] !== undefined) reader.fail(at(path, key), 'invalid');
+  }
   const levels = reader.codes(raw, 'levels', path, levelCodes(profile), false);
   const grades = reader.codes(raw, 'grades', path, gradeCodes(profile), false);
   if (grades !== undefined && levels !== undefined) {
@@ -130,6 +150,9 @@ function readEntry(
     ...(grades !== undefined && { grades }),
     ...(term !== undefined && { term }),
     ...(times !== undefined && { times }),
+    ...(added?.adds !== undefined && { adds: added.adds }),
+    ...(added?.follows !== undefined && { follows: added.follows }),
+    ...(added?.replaces !== undefined && { replaces: added.replaces }),
     name,
     source,
     confidence,

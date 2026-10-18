@@ -8,7 +8,7 @@
 import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { Layer } from './layers.ts';
-import type { CalendarEntry } from './reference.ts';
+import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type {
   Course,
@@ -45,6 +45,8 @@ export type RecordEvent =
   | { readonly kind: 'course.set'; readonly course: Course }
   | { readonly kind: 'timetable.set'; readonly version: TimetableVersion }
   | { readonly kind: 'calendar.set'; readonly entry: CalendarEntry }
+  /** An entry the teacher added, taken back; its layer keeps a teacher's own entry private. */
+  | { readonly kind: 'calendar.removed'; readonly id: string; readonly layer: CalendarLayer }
   // A session record never carries free text about why it changed: that is
   // private, and goes into the session's note (PRD §5.4). A correction may
   // carry a coded reason, which shows with it (PRD §5.5).
@@ -80,6 +82,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'course.set': true,
   'timetable.set': true,
   'calendar.set': true,
+  'calendar.removed': true,
   'session.recorded': true,
   'session.withdrawn': true,
   'session.noted': true,
@@ -112,6 +115,8 @@ export function layerOf(event: RecordEvent): Layer {
       return 'private';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
+    case 'calendar.removed':
+      return event.layer === 'teacher' ? 'private' : 'lesson-record';
     case 'teacher.set':
     case 'school.set':
     case 'class.set':

@@ -7,9 +7,10 @@
 // today), and the times typed as on paper; the tap time is never recorded
 // (R-3.3-17). The row it takes on the texts book's page shows before saving
 // (R-3.8-26). It does not move the plan (R-3.3-18). The topic is a private
-// note, never on the page nor sent anywhere. Saving keeps the class, the
+// note on the teacher's own devices, never on the page. Saving keeps the class, the
 // kind and the day for the next one, and «تراجع» removes it with the
-// history kept. A second tap waits for the first save.
+// history kept. A second tap waits for the first save. A make-up, support
+// or revision day the school sets opens «إضافة حصص» instead.
 
 import {
   extraRemoval,
@@ -39,17 +40,30 @@ import { currentLanguage, useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { readSpan } from '../times/times-rules';
 import { dayName } from '../today/DayMark';
+import { supportRows } from './add-sessions-rules';
 import { classChoices, courseOfChoice, loggableDays, monthOf, rowNumber, subjectName } from './extra-rules';
 import { ExtraPreview } from './ExtraPreview';
 import { MonthDays } from './MonthDays';
 
 type Said = { readonly id: string; readonly noted: boolean } | 'failed' | null;
 
-export function ExtraSession({ courseId: initial }: { readonly courseId?: string }) {
+export function ExtraSession({
+  courseId: initial,
+  onAddDay,
+}: {
+  readonly courseId?: string;
+  /** Opens «إضافة حصص», for a make-up, support or revision day the school sets. */
+  readonly onAddDay?: () => void;
+}) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, packs, today, recordAll, newId, settled } = useAppData();
+  const data = useAppData();
+  const { state, profile, year, calendar, packs, today, recordAll, newId, settled } = data;
+  const dayRows = useMemo(
+    () => supportRows(data, coreContext({ profile, year, calendar, packs, state })),
+    [data, profile, year, calendar, packs, state],
+  );
   const days = loggableDays(year, today());
   const choices = useMemo(
     () => classChoices(state, profile, year.id, (grade) => yearShort(t, grade)),
@@ -204,7 +218,7 @@ export function ExtraSession({ courseId: initial }: { readonly courseId?: string
         {choice !== undefined && (
           <ExtraPreview
             className={className}
-            number={rowNumber(supervisedRows(state, choice.classId, year.id), {
+            number={rowNumber(supervisedRows(state, choice.classId, year.id, dayRows), {
               day,
               from: times?.from ?? '23:59',
               to: times?.to ?? '23:59',
@@ -218,6 +232,9 @@ export function ExtraSession({ courseId: initial }: { readonly courseId?: string
         <Notice icon={controlIcon('check')} message={t('extra.noPlan', { class: className || '—' })} />
         <Notice icon={controlIcon('check')} message={t('extra.noTap')} />
         <Notice icon={controlIcon('info')} message={`${t('extra.makeUp')} ${t('extra.makeUpLine')}`} />
+        {onAddDay !== undefined && (
+          <Button testID="extra-add-day" variant="line" label={t('addSessions.open')} onPress={onAddDay} />
+        )}
         {said === 'failed' && <Notice testID="extra-failed" icon={controlIcon('info')} message={t('extra.failed')} />}
         {tried && (choice === undefined || kind === null) && (
           <Notice testID="extra-choose" icon={controlIcon('info')} message={t('extra.choose')} />

@@ -5,7 +5,10 @@
 // Today-exams): the day's name in chalk on the board; the sessions it took,
 // counted apart so a holiday never reads as slow teaching (PRD §3.9, §4.7);
 // in an exam week, that the plan pauses and no session counts as not held
-// (PRD §3.3); and the next session the calendar leaves to teach.
+// (PRD §3.3); and the next session the calendar leaves to teach. A make-up,
+// support or revision day (#219) names the weekday whose timetable it
+// follows, and takes the place of a holiday's mark: its make-up sessions
+// are held as any other, while support and revision sessions show only there.
 
 import { eachDay, weekday, type CalendarEntry, type CountryProfile, type Day, type TodayView } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -16,10 +19,16 @@ import { useText, type Language } from '../text/i18n';
 
 type Translate = ReturnType<typeof useText>;
 
-/** The entry that takes the whole day, a holiday first, then a closure, then an exam. */
+/**
+ * The entry that marks the whole day: a day that adds sessions unless the
+ * day is closed, then a holiday, then a closure, then an exam.
+ */
 export function dayMarkOf(view: TodayView): CalendarEntry | null {
   const find = (effect: CalendarEntry['effect']) => view.marks.find((mark) => mark.effect === effect);
-  return find('no-school') ?? find('closure') ?? find('exam') ?? null;
+  const closure = find('closure');
+  return (
+    (closure === undefined ? find('adds-sessions') : undefined) ?? find('no-school') ?? closure ?? find('exam') ?? null
+  );
 }
 
 /** «2 نوفمبر», without the year. */
@@ -55,6 +64,10 @@ export function markLine(
   if (entry.effect === 'no-school')
     return t(entry.layer === 'national' ? 'daymark.holidayNational' : 'daymark.holiday');
   if (entry.effect === 'closure') return t('daymark.closure');
+  if (entry.effect === 'adds-sessions') {
+    const kind = entry.adds === 'make-up' ? 'makeUp' : (entry.adds ?? 'support');
+    return t(`daymark.${kind}`, { weekday: t(`week.days.${entry.follows ?? weekday(day)}`) });
+  }
   const span = { from: dayAndMonth(entry.from, language, profile), to: dayAndMonth(entry.to, language, profile) };
   const which = examDay(entry, day, profile);
   return which === null ? t('daymark.examOff', span) : t('daymark.exam', { ...span, ...which });

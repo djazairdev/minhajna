@@ -33,6 +33,8 @@ function recordKey(event: RecordEvent): string {
       return `timetable:${event.version.id}`;
     case 'calendar.set':
       return `calendar:${event.entry.id}`;
+    case 'calendar.removed':
+      return `calendar:${event.id}`;
     case 'session.recorded':
       return `session:${event.record.session.key}`;
     case 'session.withdrawn':
