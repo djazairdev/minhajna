@@ -8,7 +8,8 @@ import { HistoryError, HistoryLog, parseDay } from '@minhajna/core';
 import App from '../App';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { FakeStorage } from '../jest/fake-storage';
-import { fromHex, nativeDeps, nativeStore, openRecordBook } from '../src/storage/history';
+import { typePin } from '../jest/unlock';
+import { fromHex, nativeDeps, nativeStore } from '../src/storage/history';
 import text from '../src/text/ar.json';
 
 jest.mock(
@@ -23,13 +24,14 @@ async function openLog(storage: FakeStorage): Promise<HistoryLog> {
   return HistoryLog.open(nativeStore(storage.asSpec()), nativeDeps(storage.asSpec()));
 }
 
-/** The texts the app shows once its history has had a turn to open. */
+/** The texts the app shows once its history has had a turn to open, past the lock where there is one. */
 async function shown(storage: FakeStorage): Promise<unknown[]> {
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(<App storage={storage.asSpec()} />);
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
+  if (storage.pin !== null) await typePin(tree!, storage.pin);
   const shown = tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
   await ReactTestRenderer.act(() => tree!.unmount());
   return shown;
@@ -85,7 +87,7 @@ describe('at start', () => {
   afterEach(() => warn.mockRestore());
 
   test('keeps navigation unavailable until history verification completes', async () => {
-    const storage = new FakeStorage().asSpec();
+    const storage = FakeStorage.unlocked();
     const originalOpen = storage.openHistory.bind(storage);
     let complete: (() => void) | undefined;
     jest.spyOn(storage, 'openHistory').mockImplementation(async () => {
@@ -96,11 +98,13 @@ describe('at start', () => {
     });
     const reportDrawn = jest.fn();
     let tree: ReactTestRenderer.ReactTestRenderer | undefined;
-    await ReactTestRenderer.act(() => {
-      tree = ReactTestRenderer.create(<App storage={storage} reportDrawn={reportDrawn} />);
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<App storage={storage.asSpec()} reportDrawn={reportDrawn} />);
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
+    expect(reportDrawn).toHaveBeenCalledTimes(1);
+    await typePin(tree!);
     expect(tree!.root.findAllByType(AppNavigator)).toHaveLength(0);
-    expect(reportDrawn).not.toHaveBeenCalled();
     await ReactTestRenderer.act(async () => {
       if (complete === undefined) throw new Error('History opening did not start');
       complete();
@@ -111,7 +115,7 @@ describe('at start', () => {
     await ReactTestRenderer.act(() => {
       tree!.update(
         <App
-          storage={storage}
+          storage={storage.asSpec()}
           reportDrawn={() => {
             reportDrawn();
           }}
@@ -123,19 +127,34 @@ describe('at start', () => {
   });
 
   test('says the first screen is drawn once when the history is refused too', async () => {
-    const storage = new FakeStorage();
-    storage.keyLost = true;
+    const storage = FakeStorage.unlocked();
+    storage.rows.push({
+      seq: 0,
+      id: 'x',
+      day: '2026-10-15',
+      layer: 'private',
+      kind: 'note',
+      digest: '',
+      previous: '',
+      hash: '',
+      salt: null,
+      body: null,
+    });
     const reportDrawn = jest.fn();
     let tree: ReactTestRenderer.ReactTestRenderer | undefined;
     await ReactTestRenderer.act(async () => {
       tree = ReactTestRenderer.create(<App storage={storage.asSpec()} reportDrawn={reportDrawn} />);
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
+    await typePin(tree!);
+    expect(tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children)).toContain(
+      text.historyRefused,
+    );
     expect(reportDrawn).toHaveBeenCalledTimes(1);
     await ReactTestRenderer.act(() => tree!.unmount());
   });
 
-  test('opens an empty history before offering the way into the app', async () => {
+  test('opens nothing before the first PIN, and offers the way into the app', async () => {
     const storage = new FakeStorage();
     expect(await shown(storage)).toEqual([
       text.name,
@@ -152,8 +171,8 @@ describe('at start', () => {
       text.welcome.onPhone,
       text.welcome.start,
     ]);
-    expect(storage.opened).toBe(true);
-    expect((await openRecordBook(storage.asSpec())).entries).toEqual([]);
+    expect(storage.opened).toBe(false);
+    expect(storage.created).toBe(false);
   });
 
   test('shows one line, and nothing from the history, when it does not verify', async () => {
@@ -161,6 +180,7 @@ describe('at start', () => {
     const log = await openLog(storage);
     await log.append(day, 'private', 'note', { text: 'kept' });
     storage.rows[0].hash = '0'.repeat(64);
+    storage.pin = '1234';
 
     expect(await shown(storage)).toEqual([
       text.name,
@@ -181,8 +201,17 @@ describe('at start', () => {
   });
 
   test('shows the same line when the key is gone', async () => {
-    const storage = new FakeStorage();
+    const storage = FakeStorage.unlocked();
+    storage.opened = false;
     storage.keyLost = true;
-    expect(await shown(storage)).toContain(text.historyRefused);
+    let tree: ReactTestRenderer.ReactTestRenderer | undefined;
+    await ReactTestRenderer.act(async () => {
+      tree = ReactTestRenderer.create(<App storage={storage.asSpec()} />);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    await typePin(tree!);
+    const texts = tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
+    expect(texts).toContain(text.historyRefused);
+    await ReactTestRenderer.act(() => tree!.unmount());
   });
 });

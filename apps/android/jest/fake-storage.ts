@@ -51,6 +51,15 @@ export class FakeStorage {
   waitUntil = 0;
   now: () => number = () => Date.now();
 
+  /** A fake whose PIN is set and whose history is open, as after an unlock. */
+  static unlocked(pin = '1234'): FakeStorage {
+    const storage = new FakeStorage();
+    storage.pin = pin;
+    storage.opened = true;
+    storage.created = true;
+    return storage;
+  }
+
   randomBytes(length: number): string {
     return randomBytes(length).toString('hex');
   }
@@ -91,6 +100,7 @@ export class FakeStorage {
 
   unlock(pin: string): Promise<PinResult> {
     if (this.pin === null) return Promise.reject(failure('E_HISTORY'));
+    if (this.keyLost) return Promise.reject(failure('E_KEY_LOST'));
     const result = this.#try(pin);
     if (result.opened) this.opened = true;
     return Promise.resolve(result);
