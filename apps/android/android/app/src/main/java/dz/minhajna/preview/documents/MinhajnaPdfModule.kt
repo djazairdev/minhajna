@@ -9,8 +9,11 @@ import android.content.Intent
 import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
 import android.os.CancellationSignal
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
+import android.util.Log
 import android.print.PageRange
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
@@ -34,7 +37,10 @@ import java.io.IOException
 /**
  * Makes, prints and saves a document's PDF on the device (PRD §5.13, §6.4):
  * the app's own HTML is laid out by the phone's web engine, offscreen, with
- * scripts off and every load refused except the app's bundled fonts. A PDF
+ * every load refused except the app's bundled fonts. The page carries no
+ * script, and its policy refuses any; the module only asks the engine,
+ * once the page has loaded, whether its fonts have arrived, and waits for
+ * them, so a short page never prints with its text still hidden. A PDF
  * is written to the app's cache; only a file name crosses the bridge, never
  * a path. Printing goes through Android's print service and saving through
  * the system's file picker, so the app asks for no storage permission. A
@@ -46,6 +52,8 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   private val folder: File get() = File(context.cacheDir, "pdf").apply { mkdirs() }
   private var printing: WebView? = null
   private var saving: Pair<File, Promise>? = null
+  private val main = Handler(Looper.getMainLooper())
+  @Volatile private var invalidated = false
 
   init {
     context.addActivityEventListener(this)
@@ -195,7 +203,9 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
     context.removeActivityEventListener(this)
     saving?.second?.resolve(false)
     saving = null
+    invalidated = true
     UiThreadUtil.runOnUiThread {
+      main.removeCallbacksAndMessages(null)
       printing?.destroy()
       printing = null
     }
@@ -221,10 +231,32 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
         override fun onPageFinished(page: WebView, url: String?) {
           if (finished) return
           finished = true
-          then(page)
+          page.settings.javaScriptEnabled = true
+          whenFontsLoaded(page, SystemClock.elapsedRealtime()) { then(page) }
         }
       }
       view.loadDataWithBaseURL(FONTS, html, "text/html", "utf-8", null)
+    }
+  }
+
+  /**
+   * Calls `then` once the page's fonts have loaded, asking again every 50 ms, or after `FONT_WAIT` ms at most.
+   * The scripts are switched on only once the page has loaded, so none of its own could run even without its
+   * policy; after a reload of the app's JavaScript, the page is let go and nothing is printed.
+   */
+  private fun whenFontsLoaded(page: WebView, started: Long, then: () -> Unit) {
+    if (invalidated) return page.destroy()
+    page.evaluateJavascript(FONTS_LOADED) { loaded ->
+      val waited = SystemClock.elapsedRealtime() - started
+      when {
+        invalidated -> page.destroy()
+        loaded == "true" -> then()
+        waited > FONT_WAIT -> {
+          Log.d(TAG, "Printing after $waited ms with a font still loading")
+          then()
+        }
+        else -> main.postDelayed({ whenFontsLoaded(page, started, then) }, 50)
+      }
     }
   }
 
@@ -249,6 +281,10 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
     }
 
     private const val FONTS = "file:///android_res/font/"
+    /** Lays the page out, which asks for the fonts it uses, then says whether none is still on its way. */
+    private const val FONTS_LOADED = "document.body.offsetHeight >= 0 && document.fonts.status === 'loaded'"
+    private const val FONT_WAIT = 5_000L
+    private const val TAG = "MinhajnaPdf"
     private const val SAVE_REQUEST = 4_210
     private val NAME_PATTERN = Regex("^[a-z0-9-]{1,64}$")
   }

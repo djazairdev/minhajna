@@ -76,6 +76,7 @@ test('prints a journal page a day, in A4 portrait, with the fonts embedded and t
   expect(html).toContain('class="row entry awaiting"');
   expect(html).toContain('لا حصة في هذا اليوم.');
   expect(html).not.toMatch(/<script|https?:/);
+  expect(html).toContain(`content="script-src 'none'; object-src 'none'"`);
 });
 
 const rows = [

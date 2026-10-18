@@ -8,7 +8,8 @@
 // with pupils' data, «داخلي · سري» at the head and foot of every page
 // (R-5.9-15): the head and foot of a frame table around each page's
 // content, which the web engine repeats on each printed page, as fixed
-// positions are not. Pages break between frames, never inside a cell.
+// positions are not. Pages break between frames, never inside a cell. The
+// page carries no script, and its policy refuses any.
 
 /** The bundled fonts, read by the web engine from the APK's resources. */
 const FONTS = [
@@ -64,6 +65,7 @@ export function printDocument(options: {
     'table.frame>*>tr>td.mark{text-align:center;font-size:9pt;font-weight:700;padding:2mm 0}';
   return (
     `<!doctype html><html lang="${escapeHtml(options.lang)}" dir="${options.dir}"><head><meta charset="utf-8">` +
+    `<meta http-equiv="Content-Security-Policy" content="script-src 'none'; object-src 'none'">` +
     `<title>${escapeHtml(options.title)}</title><style>${faces}${page}${base}${options.css}</style></head>` +
     `<body>${body}</body></html>`
   );
