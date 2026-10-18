@@ -5,6 +5,7 @@
 // layer, so a session's private note is its own event, apart from the
 // session record (PRD §5.4, §5.5).
 
+import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { Layer } from './layers.ts';
 import type { CalendarEntry } from './reference.ts';
@@ -52,6 +53,10 @@ export type RecordEvent =
   // was recorded stays in the history (PRD §4.7).
   | { readonly kind: 'session.withdrawn'; readonly session: SessionRef }
   | { readonly kind: 'session.noted'; readonly note: PrivateNote }
+  // A session outside the timetable, logged or corrected, and one removed
+  // when logged by mistake; the history keeps both (PRD §3.3, §5.5).
+  | { readonly kind: 'extra.logged'; readonly extra: ExtraSession }
+  | { readonly kind: 'extra.removed'; readonly id: string }
   // A roll call's correction carries its short reason, which is part of the
   // roll-call record (PRD §3.4, §5.5).
   | { readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string }
@@ -78,6 +83,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'session.recorded': true,
   'session.withdrawn': true,
   'session.noted': true,
+  'extra.logged': true,
+  'extra.removed': true,
   'roll-call.taken': true,
   'seating.set': true,
   'counting.set': true,
@@ -112,6 +119,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'timetable.set':
     case 'session.recorded':
     case 'session.withdrawn':
+    case 'extra.logged':
+    case 'extra.removed':
       return 'lesson-record';
   }
 }

@@ -23,6 +23,7 @@ export const ICONS = [
   'cross',
   'pupils',
   'homework',
+  'plus',
 ] as const;
 export type IconName = (typeof ICONS)[number];
 

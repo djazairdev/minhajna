@@ -49,6 +49,10 @@ export function recordKey(entry: Entry): string | null {
       return `session/${event.session.key}`;
     case 'session.noted':
       return `note/${event.note.sessionKey}`;
+    case 'extra.logged':
+      return `extra/${event.extra.id}`;
+    case 'extra.removed':
+      return `extra/${event.id}`;
     case 'roll-call.taken':
       return `roll-call/${event.rollCall.unit}`;
     case 'seating.set':

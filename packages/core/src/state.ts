@@ -6,6 +6,7 @@
 // itself, so drawing a week adds one version, not one for each change.
 
 import { compareDays, maxDay, type Day } from './day.ts';
+import { compareExtras, type ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
 import { mayTravelAs, type OutboundRoute } from './layers.ts';
 import type { CalendarEntry } from './reference.ts';
@@ -64,6 +65,8 @@ export interface State {
    */
   readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
+  /** Every version of each session outside the timetable, by ID; null once removed. */
+  readonly extras: ReadonlyMap<string, readonly Version<ExtraSession | null>[]>;
   /** Every version of each roll call, by unit key. The last is the current one. */
   readonly rollCalls: ReadonlyMap<string, readonly Version<RollCall>[]>;
   readonly seating: ReadonlyMap<string, SeatingPlan>;
@@ -119,6 +122,7 @@ export function buildState(entries: readonly Entry[]): State {
   const calendar = new Map<string, CalendarEntry>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
+  const extras = new Map<string, Version<ExtraSession | null>[]>();
   const rollCalls = new Map<string, Version<RollCall>[]>();
   const seating = new Map<string, SeatingPlan>();
   let counting: CountingRules | null = null;
@@ -175,6 +179,12 @@ export function buildState(entries: readonly Entry[]): State {
       case 'session.noted':
         notes.set(event.note.sessionKey, event.note);
         break;
+      case 'extra.logged':
+        extras.set(event.extra.id, [...(extras.get(event.extra.id) ?? []), versionOf(entry, event.extra)]);
+        break;
+      case 'extra.removed':
+        extras.set(event.id, [...(extras.get(event.id) ?? []), versionOf<ExtraSession | null>(entry, null)]);
+        break;
       case 'roll-call.taken': {
         const key = event.rollCall.unit;
         rollCalls.set(key, [...(rollCalls.get(key) ?? []), versionOf(entry, event.rollCall, event.reason)]);
@@ -206,6 +216,7 @@ export function buildState(entries: readonly Entry[]): State {
     calendar: [...calendar.values()],
     sessions,
     notes,
+    extras,
     rollCalls,
     seating,
     counting,
@@ -253,6 +264,11 @@ function currentRecords(state: State): RecordEvent[] {
     );
   for (const record of sessions) records.push({ kind: 'session.recorded', record });
   for (const note of state.notes.values()) records.push({ kind: 'session.noted', note });
+  const extras = [...state.extras.values()].flatMap((versions) => {
+    const extra = current(versions);
+    return extra === null ? [] : [extra];
+  });
+  for (const extra of extras.sort(compareExtras)) records.push({ kind: 'extra.logged', extra });
   const rollCalls = [...state.rollCalls.values()]
     .flatMap((versions) => versions.slice(-1))
     .sort(

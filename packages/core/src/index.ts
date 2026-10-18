@@ -15,6 +15,8 @@ export * from './day.ts';
 export * from './demo-pupils.ts';
 export * from './engine.ts';
 export * from './events.ts';
+export * from './extra.ts';
+export * from './extra-records.ts';
 export * from './format.ts';
 export * from './history.ts';
 export * from './id.ts';
