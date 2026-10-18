@@ -44,7 +44,7 @@ import { isolate, slotSpoken } from '../week/grid-labels';
 import { yearLabel, yearShown, type DocumentData, type Translate } from './document-data';
 import { frontTables } from './front-tables';
 import { primaryFrontHtml, type PrimaryFront, type WeekRow } from './primary-front-html';
-import { bookClasses } from './texts-book-pages';
+import { bySpecialist, classTeacherClasses } from './specialists';
 
 /** Rules on a table's page, fewer than the CEM's as the confidential band takes room. */
 const PRIMARY_RULES = 23;
@@ -81,7 +81,7 @@ export function primaryFrontPages(data: DocumentData, t: Translate, blank: boole
   const subjectOf = (code: string) => data.profile.subjects.find((one) => one.code === code)?.name[data.lang] ?? code;
   const said = (schoolClass: SchoolClass, entry: TimetableEntry): string[] => {
     const course = data.state.courses.get(entry.courseId);
-    if (course === undefined || course.classId !== schoolClass.id) return [];
+    if (course === undefined || course.classId !== schoolClass.id || bySpecialist(data, course, schoolClass)) return [];
     const grades = entryCourses(data.state, course).map((one) => courseGrade(one, schoolClass));
     const levels = isJoint(schoolClass) && classGrades(schoolClass).some((grade) => !grades.includes(grade));
     const week = entry.weeks === 'every' ? '' : ` ${t(entry.weeks === 'A' ? 'week.weekShortA' : 'week.weekShortB')}`;
@@ -165,7 +165,7 @@ export function primaryFrontPages(data: DocumentData, t: Translate, blank: boole
       },
     };
   };
-  const classes = bookClasses(data).filter((one) => one.level === 'primary');
+  const classes = classTeacherClasses(data);
   const schools = [...new Set(classes.map((one) => data.state.schools.get(one.schoolId)?.name ?? ''))];
   return primaryFrontHtml(
     {

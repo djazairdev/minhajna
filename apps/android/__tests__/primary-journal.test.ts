@@ -60,7 +60,8 @@ test('a class’s day prints in its two bands, with duration, subject, activity 
   );
   expect(html).toContain(primary.teacher);
   expect(html).toContain(text.documents.director);
-  for (const head of Object.values(primary.heads)) expect(html).toContain(`<th>${head}</th>`);
+  const heads = ['minutes', 'subject', 'activity', 'content', 'indicator', 'domain'] as const;
+  expect(html).toContain(heads.map((head) => `<th>${primary.heads[head]}</th>`).join(''));
 });
 
 test('a day with no session says so; the blank version gives the class its bands of empty rows', async () => {

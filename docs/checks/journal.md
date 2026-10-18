@@ -41,7 +41,7 @@ Dates are written day first, «01/11/2026», as the journal's pages are drawn (R
 
 ## The primary journal
 
-A primary teacher keeps «الكراس اليومي» instead (R-3.8-09). The Documents tab lists it only to a teacher with a primary class this school year, and the CEM journal and its front pages only to a teacher with another class, so a teacher of both gets each session in one journal only. Its output chooses the day, as the CEM journal's does.
+A primary class teacher keeps «الكراس اليومي» instead (R-3.8-09). It leaves out the subjects a specialist teaches, French, English and Tamazight, which have their own journal. The Documents tab lists it only to a teacher of a primary class's other subjects this school year, and the CEM journal and its front pages only to a teacher with another class, so a teacher of both gets each session in one journal only. Its output chooses the day, as the CEM journal's does.
 
 Each primary class with a session that day gets an A4 landscape page, with the school and the class, the day and the year on top. The sessions sit in a morning band and an afternoon band, a band with none left out, in six columns:
 
@@ -66,17 +66,27 @@ A session awaiting confirmation prints in grey with what confirming it would rec
 
 Printed before the school year starts, the pages take its first day, and before the first timetable applies, the first timetable drawn. The blank version keeps the labels, the heads, the class on the cover, the card and the timetable, and one page of 23 empty rules for the pupil list.
 
+## The specialists' journal
+
+A primary French, English or Tamazight specialist keeps «كراس الأستاذ المختص», in the subject's language (R-3.8-11, PS-Journal). The country profile names those subjects (`data/README.md`). The Documents tab lists it to a teacher of one of them, and its output chooses the day and the layout, as the CEM journal's does:
+
+- **One journal for all classes:** a page for the day, with a band for each school and half-day in clock order, each school's bells included, or in the slots' order when a session of that half-day has no time, such as «⁨مدرسة الفتح⁩ · Matinée», and a director's visa for each school taught that day.
+- **One journal per class:** a page for each class with a session that day, with its school in the head and its school's visa.
+
+The columns are the time from the school's bells, or the slot's name without bells; the class, with the level in a multigrade class; then the activity, content, competence indicator and domain, as in the class teacher's journal. A French or English page runs left to right in the Latin face, with the day, the year and every label in that language. Tamazight keeps the book's Arabic words and direction until its script is settled. A teacher of two such subjects gets each language's pages in turn. The blank version gives a page with a morning and an afternoon band of empty rows, for all classes or for each class.
+
 ## The result
 
 | Check | Result |
 |---|---|
-| Android tests | 1205 pass. The new ones cover a carried-on item with its unit, stages and remarks; guided work with its field, a skipped item, an earlier lesson and content off the plan; a session not held; a session awaiting confirmation; one page or a page per class, on a day with sessions, a day without and blank; the book clock; French colons and an isolated class name; the file name of each layout; a journal opened before the school year; and the output stepping through the days and printing a page per class. For the front pages: the card, events in order with those to come in grey and none of another school's, the days off with their confidence, day-first dates and ranges in both directions, the blank version, the file name, each school's event of the same name, an event for one grade or for a joint class's second level, an entry across the whole year, and a long row taking more rules. For the primary journal: the bands with duration, subject, activity and content, a session awaiting confirmation in grey, the boxes, a day without sessions and the blank version, a multigrade level with a remediation session, the journals each level of teacher sees, and a teacher of both levels. For the primary front pages: the cover, the card with the pupils' number, the calendar tables, the pupil list with names and registration numbers only and without a pupil who left, the confidential mark, the timetable's cells and boxes, a multigrade class's levels and weeks A and B, the usual times in Ramadan, printing before the year and before the first timetable, the blank version, and the tab listing them to a primary teacher only |
+| Android tests | 1213 pass. The new ones cover a carried-on item with its unit, stages and remarks; guided work with its field, a skipped item, an earlier lesson and content off the plan; a session not held; a session awaiting confirmation; one page or a page per class, on a day with sessions, a day without and blank; the book clock; French colons and an isolated class name; the file name of each layout; a journal opened before the school year; and the output stepping through the days and printing a page per class. For the front pages: the card, events in order with those to come in grey and none of another school's, the days off with their confidence, day-first dates and ranges in both directions, the blank version, the file name, each school's event of the same name, an event for one grade or for a joint class's second level, an entry across the whole year, and a long row taking more rules. For the primary journal: the bands with duration, subject, activity and content, a session awaiting confirmation in grey, the boxes, a day without sessions and the blank version, a multigrade level with a remediation session, the journals each level of teacher sees, and a teacher of both levels. For the primary front pages: the cover, the card with the pupils' number, the calendar tables, the pupil list with names and registration numbers only and without a pupil who left, the confidential mark, the timetable's cells and boxes, a multigrade class's levels and weeks A and B, the usual times in Ramadan, printing before the year and before the first timetable, the blank version, and the tab listing them to a primary teacher only. For the specialists' journal: the day in French with a band for each school and half-day and each school's visa, a page per class with its school, sessions in clock order across two schools' bells, or in the slots' order when one has no time, a multigrade class's level, Tamazight, French and English pages in turn, the blank version for all classes and for each, a day without sessions, and the class teacher's journal, front pages and tab leaving the specialist's subjects to it |
 | The journal's output opens on Sunday 18 October with «قسمان · الأحد 18 أكتوبر 2026», the day between its two arrows, then «الدفتر» with «دفتر واحد للأقسام» chosen and «دفتر لكل قسم», then the version | **Passed** |
 | Ten taps on the day before reach Thursday 8 October; the line under the title follows | **Passed** |
 | 8 October as one journal: 4AM1 at «08سا – 09سا» with its French content as «المورد», «سير الحصة: تمّت كما هو مقترح» and its homework under «ملاحظات»; 4AM2 at «09سا – 10سا» in grey, «سير الحصة: تنتظر التأكيد» | **Passed** after a fix |
 | 8 October with «دفتر لكل قسم»: two pages, «القسم: 4AM1» and «القسم: 4AM2» under the day | **Passed** |
 | The front pages print as three A4 portrait pages: the card with «اللغة العربية», «CEM Test», «2026-2027» and «4AM1 · 4AM2», name and rank blank as setup left them, and the visa box; the seminars table with its 25 rules and its note; the twelve days off from the autumn holiday to Independence Day, each with its status, then empty rules | **Passed** after a fix |
 | The primary front pages, made from the tests' made-up class with 34 made-up pupils and printed through desktop Chrome: the cover, the card with «5 ابتدائي أ · 34 تلميذاً», the twelve days off within 23 rules, the seminars, the list on two sheets with its heads repeated, and the timetable with Arabic and mathematics on Thursday and both boxes, each page marked «داخلي · سري»; the blank version on six pages | **Passed** after a fix |
+| The specialists' journal, made from the tests' made-up French specialist, with four more made-up classes added for the render, seven classes at two schools, and printed through desktop Chrome: one landscape page in French, left to right, with «Jeudi 15 octobre 2026», a band for each school's morning or afternoon, the Arabic class and school names in their own direction, and a visa for each school; a page per class with its school; the blank version on one page | **Passed** after a fix |
 | The primary journal, made from the tests' made-up class and printed through desktop Chrome, since the emulator's teacher has no primary class: one landscape page with both bands and the boxes; a made-up full day of seven sessions of three lines fits one sheet | **Passed** after a fix |
 
 Faults found and fixed while checking:
@@ -84,6 +94,7 @@ Faults found and fixed while checking:
 - The front pages' ranges first printed year first and in the wrong order on a right-to-left page; they are now day first and read from the right.
 - A full primary day ran over one sheet; the type, the head and the boxes are now set so it fits.
 - The blank pupil list ran on to a second sheet; it now holds one page of rules, and the blank card keeps the class.
+- The specialists' journal's time column was too narrow for «08:00 – 08:45»; it is now wider.
 
 ## Repeating the checks
 
@@ -93,9 +104,11 @@ Faults found and fixed while checking:
 4. Open «الدفتر اليومي · الصفحات الأولى» and press «حفظ PDF». Look at the card, the seminars and the holidays.
 5. With a primary class, open «الكراس اليومي», step to a day with sessions and press «حفظ PDF».
 6. Open «الكراس اليومي · الصفحات الأولى» and press «حفظ PDF». Look at each class's cover, card, tables, pupil list and timetable.
+7. As a French specialist, open «كراس الأستاذ المختص», step to a day with sessions and press «حفظ PDF», for all classes and for each.
 
 ## Still open
 
 - TalkBack on the output's day and journal choices, on a real phone.
 - The page on paper, against a paper journal.
 - The primary journal and its front pages on a phone and on paper, with a primary teacher's records.
+- The specialists' journal on a phone and on paper, with a specialist's records; Tamazight's words once its script is settled.

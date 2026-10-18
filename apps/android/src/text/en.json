@@ -843,6 +843,8 @@
         "writing": "Writing"
       },
       "heads": {
+        "time": "Time",
+        "class": "Class",
         "minutes": "Duration",
         "subject": "Subject",
         "activity": "Activity",
@@ -850,6 +852,11 @@
         "indicator": "Competence indicator",
         "domain": "Domain · lesson note"
       }
+    },
+    "specialistJournal": {
+      "name": "Specialist's daily journal",
+      "band": "{{school}} · {{half}}",
+      "combinedLine": "All the day's sessions on one page for each language."
     },
     "primaryFront": {
       "className": "Class",
@@ -949,7 +956,10 @@
       "signatureJournalFront": "The name and rank print as entered in setup; the director's visa stays blank.",
       "blankPrimaryJournal": "A page for each primary class, with its heads, its two halves of the day and empty rows; the day is written by hand.",
       "signaturePrimaryJournal": "The teacher's box stays blank to sign by hand, and the director's visa always blank. The competence indicator and the lesson note's number are written by hand.",
+      "blankSpecialistJournal": "A page with its heads and empty morning and afternoon rows, for all classes or for each; the day is written by hand.",
+      "signatureSpecialistJournal": "The teacher's box stays blank to sign by hand, and each director's visa always blank. The competence indicator and the lesson note's number are written by hand. The journal is in the subject's language, Tamazight in Arabic until its script is settled.",
       "noPrimary": "No primary class taught this year, so there is no primary journal to print.",
+      "noSpecialist": "No primary specialist subject taught this year, so there is no specialist's journal to print.",
       "blankPrimaryFront": "For each primary class, the front pages with their labels: cover, card, tables, and an empty pupil list and timetable.",
       "signaturePrimaryFront": "The pages carry the confidential mark, as they hold pupils' names. The director's visa and the approval date stay blank."
     },
