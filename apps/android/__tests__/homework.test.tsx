@@ -6,9 +6,10 @@
 // entered; the record in the order the homework was set, the homework back
 // today open, homework still out shown only; the two counts with their
 // share of the class list, rounded; «الجميع أنجزه بنفسه»; «تراجع», which
-// puts back what was there before; and a class with no list, or no
-// homework, saying so; a count from a longer list; and the count on the
-// next session when the first was not held. Made-up records only.
+// puts back what was there before; a class with no list, or no homework,
+// saying so, and the year's pages printing; a count from a longer list;
+// and the count on the next session when the first was not held. Made-up
+// records only.
 
 import { confirmSessions, current, parseDay, sessionsBetween, type HomeworkItem } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -159,8 +160,11 @@ test('a class with no list says so instead of counting, and a subject with no ho
   await mount(data, <HomeworkBook courseId="c-1" />);
   expect(shown()).toContain(text.homework.noList);
   expect(root().findAll((node) => node.props.testID === 'homework-confirm')).toHaveLength(0);
-  await mount(data, <HomeworkBook courseId="c-2" />);
+  const onPrint = jest.fn();
+  await mount(data, <HomeworkBook courseId="c-2" onPrint={onPrint} />);
   expect(said('homework-empty')).toBe(text.homework.empty);
+  await press('homework-print');
+  expect(onPrint).toHaveBeenCalled();
 });
 
 test('a count kept from a longer list opens at what the list now allows', async () => {

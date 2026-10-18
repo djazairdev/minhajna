@@ -11,10 +11,11 @@ import type { IconName } from '../design/Icon';
 import { monthLabel, taughtClasses, type DocumentData, type Translate } from './document-data';
 import { journalPages } from './journal-pages';
 import { rollPages } from './roll-pages';
+import { homeworkPages } from './homework-pages';
 import { supervisedPages } from './supervised-pages';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 
-export type DocumentId = 'journal' | 'roll' | 'texts' | 'supervised';
+export type DocumentId = 'journal' | 'roll' | 'texts' | 'supervised' | 'homework';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -102,6 +103,20 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     signatureLine: (t) => t('documents.output.signatureSupervised'),
     emptyLine: (t) => t('documents.output.noClassesTexts'),
     pages: supervisedPages,
+  },
+  {
+    id: 'homework',
+    icon: 'homework',
+    pupils: false,
+    landscape: false,
+    empty: (data) => bookCourses(data).length === 0,
+    period: (data) => data.year.id,
+    title: (t) => t('documents.homework.name'),
+    line: (data, t) => `${bookClassCount(data, t)} · ${t('documents.homework.line')}`,
+    blankLine: (t) => t('documents.output.blankHomework'),
+    signatureLine: (t) => t('documents.output.signatureHomework'),
+    emptyLine: (t) => t('documents.output.noClassesTexts'),
+    pages: homeworkPages,
   },
 ];
 

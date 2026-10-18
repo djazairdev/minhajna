@@ -120,14 +120,15 @@ export function TextsBookScreen({ navigation, route }: NativeStackScreenProps<Ro
   );
 }
 
-/** A course's homework record, open on the homework Today's card opened, if any. */
-export function HomeworkScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Homework'>) {
+/** A course's homework record, open on the homework Today's card opened, if any; it prints the year's pages. */
+export function HomeworkScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Homework'>) {
   const { courseId, sessionKey } = route.params;
   return (
     <HomeworkBook
       key={`${courseId}/${sessionKey ?? ''}`}
       courseId={courseId}
       {...(sessionKey !== undefined && { sessionKey })}
+      onPrint={() => navigation.navigate('DocOutput', { id: 'homework' })}
     />
   );
 }
