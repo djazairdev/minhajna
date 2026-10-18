@@ -12,6 +12,7 @@ import type { IconName } from '../design/Icon';
 import { dayTitle, monthLabel, taughtClasses, yearLabel, type DocumentData, type Translate } from './document-data';
 import { journalFrontPages } from './journal-front-pages';
 import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
+import { primaryFrontPages } from './primary-front-pages';
 import { primaryJournalPages, teachesPrimary } from './primary-journal-pages';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
@@ -21,7 +22,15 @@ import { bookDate } from './texts-book-rows';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 
 export type DocumentId =
-  'journal' | 'journal-front' | 'primary-journal' | 'roll' | 'texts' | 'supervised' | 'homework' | 'strip';
+  | 'journal'
+  | 'journal-front'
+  | 'primary-journal'
+  | 'primary-front'
+  | 'roll'
+  | 'texts'
+  | 'supervised'
+  | 'homework'
+  | 'strip';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -122,6 +131,21 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     shown: teachesPrimary,
     byDay: true,
     pages: primaryJournalPages,
+  },
+  {
+    id: 'primary-front',
+    icon: 'homework',
+    pupils: true,
+    landscape: false,
+    empty: (data) => !teachesPrimary(data),
+    period: (data) => data.year.id,
+    title: (t) => `${t('documents.primaryJournal.name')} · ${t('documents.journalFront.name')}`,
+    line: (data, t) => t('documents.journalFront.line', { year: yearLabel(data) }),
+    blankLine: (t) => t('documents.output.blankPrimaryFront'),
+    signatureLine: (t) => t('documents.output.signaturePrimaryFront'),
+    emptyLine: (t) => t('documents.output.noPrimary'),
+    shown: teachesPrimary,
+    pages: primaryFrontPages,
   },
   {
     id: 'roll',

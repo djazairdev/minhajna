@@ -34,6 +34,8 @@ export interface FrontTable {
   readonly dateColumn: number;
   readonly rows: readonly FrontRow[];
   readonly note?: string;
+  /** The rules the table fills to with empty ones; FRONT_RULES when not given. */
+  readonly rules?: number;
 }
 
 export interface FrontTexts {
@@ -50,7 +52,7 @@ export interface FrontTexts {
 /** The rules a table's page holds below its head, its title and its column heads. */
 export const FRONT_RULES = 25;
 
-const CSS =
+export const FRONT_CSS =
   '.head{display:flex;justify-content:space-between;align-items:flex-end;border:1.2pt solid #000;border-radius:4pt;' +
   'padding:6pt 10pt;margin-bottom:8pt}.head .book{font-family:Ruqaa,Naskh;font-size:18pt}.head small{font-size:10pt}' +
   'h2{font-family:Ruqaa,Naskh;font-size:15pt;font-weight:700;text-align:center;margin:4mm 0}' +
@@ -64,7 +66,8 @@ const CSS =
   'table.front tr{break-inside:avoid}table.front td.d{text-align:center;white-space:nowrap}' +
   '.later{color:#666}.note{font-size:9pt;margin-top:3mm}';
 
-function headHtml(texts: FrontTexts): string {
+/** The head every front page carries: the book and the school, then the front pages' name and the year. */
+export function headHtml(texts: FrontTexts): string {
   return (
     `<div class="head"><div><div class="book">${escapeHtml(texts.book)}</div>` +
     `<small>${escapeHtml(texts.school)}</small></div><div><b>${escapeHtml(texts.front)}</b><br>` +
@@ -72,7 +75,8 @@ function headHtml(texts: FrontTexts): string {
   );
 }
 
-function tableHtml(table: FrontTable): string {
+/** A table with its title and heads, its rows, then empty rules up to its total, and its note. */
+export function tableHtml(table: FrontTable): string {
   const cols = table.widths.map((width) => `<col${width === 'auto' ? '' : ` style="width:${width}"`}>`).join('');
   const heads = table.heads.map((head) => `<th>${escapeHtml(head)}</th>`).join('');
   const rows = table.rows.map(
@@ -89,11 +93,25 @@ function tableHtml(table: FrontTable): string {
   );
   const empty = `<tr>${table.heads.map(() => '<td></td>').join('')}</tr>`;
   const used = table.rows.reduce((sum, row) => sum + row.rules, 0);
-  const fill = Array.from({ length: Math.max(0, FRONT_RULES - used) }, () => empty);
+  const fill = Array.from({ length: Math.max(0, (table.rules ?? FRONT_RULES) - used) }, () => empty);
   return (
     `<h2>${escapeHtml(table.title)}</h2><table class="front"><colgroup>${cols}</colgroup>` +
     `<thead><tr>${heads}</tr></thead><tbody>${[...rows, ...fill].join('')}</tbody></table>` +
     (table.note === undefined ? '' : `<div class="note">${escapeHtml(table.note)}</div>`)
+  );
+}
+
+/** The teacher's card with its title, then the box for the director's visa. */
+export function cardHtml(texts: FrontTexts, card: readonly FrontField[]): string {
+  const fields = card
+    .map(
+      (field) =>
+        `<tr><th>${escapeHtml(field.label)}</th><td><bdi dir="${texts.dir}">${escapeHtml(field.value)}</bdi></td></tr>`,
+    )
+    .join('');
+  return (
+    `<h2>${escapeHtml(texts.card)}</h2><table class="card">${fields}</table>` +
+    `<div class="visa">${escapeHtml(texts.director)}</div>`
   );
 }
 
@@ -103,21 +121,13 @@ export function journalFrontHtml(
   card: readonly FrontField[],
   tables: readonly FrontTable[],
 ): string {
-  const fields = card
-    .map(
-      (field) =>
-        `<tr><th>${escapeHtml(field.label)}</th><td><bdi dir="${texts.dir}">${escapeHtml(field.value)}</bdi></td></tr>`,
-    )
-    .join('');
-  const first =
-    `${headHtml(texts)}<h2>${escapeHtml(texts.card)}</h2><table class="card">${fields}</table>` +
-    `<div class="visa">${escapeHtml(texts.director)}</div>`;
+  const first = `${headHtml(texts)}${cardHtml(texts, card)}`;
   return printDocument({
     lang: texts.lang,
     dir: texts.dir,
     title: `${texts.book} · ${texts.front}`,
     landscape: false,
-    css: CSS,
+    css: FRONT_CSS,
     pages: [first, ...tables.map((table) => `${headHtml(texts)}${tableHtml(table)}`)],
   });
 }
