@@ -39,6 +39,7 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<Said>(null);
   const empty = kind.empty(data);
+  const blankLine = kind.blankLine(t);
   const mounted = useRef(true);
   const running = useRef(false);
 
@@ -101,17 +102,23 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
       <Text testID="output-period" style={styles.period}>
         {kind.line(data, t)}
       </Text>
-      <RadioCardGroup
-        testID="output-version"
-        label={t('documents.output.version')}
-        selected={blank ? 'blank' : 'recorded'}
-        disabled={busy}
-        onSelect={(value) => setBlank(value === 'blank')}
-        choices={[
-          { value: 'recorded', label: t('documents.output.recorded'), description: t('documents.output.recordedLine') },
-          { value: 'blank', label: t('documents.output.blank'), description: kind.blankLine(t) },
-        ]}
-      />
+      {blankLine !== null && (
+        <RadioCardGroup
+          testID="output-version"
+          label={t('documents.output.version')}
+          selected={blank ? 'blank' : 'recorded'}
+          disabled={busy}
+          onSelect={(value) => setBlank(value === 'blank')}
+          choices={[
+            {
+              value: 'recorded',
+              label: t('documents.output.recorded'),
+              description: t('documents.output.recordedLine'),
+            },
+            { value: 'blank', label: t('documents.output.blank'), description: blankLine },
+          ]}
+        />
+      )}
       {kind.pupils && (
         <Notice
           testID="output-confidential"

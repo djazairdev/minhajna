@@ -6,7 +6,8 @@
 // confirmation shown in what confirming them would record, never counted
 // as printed nor numbered, confirmed with one tap and taken back with «تراجع»; a
 // confirmed row opening its details; the month on screen printing; and the
-// class's other subjects, and its homework record. Made-up records only.
+// class's other subjects, its homework record, and the strip of the page's
+// last confirmed day. Made-up records only.
 
 import { confirmSessions, current, parseDay, sessionsBetween, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -37,6 +38,7 @@ const onCourse = jest.fn();
 const onDetails = jest.fn();
 const onPrint = jest.fn();
 const onHomework = jest.fn();
+const onStrip = jest.fn();
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -94,6 +96,7 @@ async function show(data: TestData, courseId = 'c-1') {
               onDetails={onDetails}
               onPrint={onPrint}
               onHomework={onHomework}
+              onStrip={onStrip}
             />
             <Elsewhere />
           </>,
@@ -222,12 +225,15 @@ test('an earlier page is a tap away, a confirmed row opens its details, and the 
   expect(onDetails).toHaveBeenCalledWith(expect.objectContaining({ courseId: 'c-1' }));
   await press('book-print');
   expect(onPrint).toHaveBeenCalledWith('2026-10-01');
+  await press('book-strip');
+  expect(onStrip).toHaveBeenCalledWith('2026-10-29');
   expect(
     root().findAll((node) => node.props.testID === 'book-after' && node.props.accessibilityLabel !== undefined)[0]
       ?.props.accessibilityLabel,
   ).toBe('الصفحة التالية، نوفمبر 2026');
   await press('book-after');
   expect(said('book-page')).toBe('نوفمبر 2026 · لا صفحة مطبوعة بعد');
+  expect(root().findAll((node) => node.props.testID === 'book-strip')).toHaveLength(0);
 });
 
 test("the class's other subjects are a tap away, and a book with nothing yet says so", async () => {

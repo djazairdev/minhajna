@@ -652,7 +652,8 @@
     "empty": "Aucune séance dans ce cahier pour l'instant. Chaque séance confirmée s'y inscrit, comme dans le cahier.",
     "before": "Page précédente, {{page}}",
     "after": "Page suivante, {{page}}",
-    "print": "Imprimer {{month}}"
+    "print": "Imprimer {{month}}",
+    "strip": "Bande du {{day}} à coller"
   },
   "roll": {
     "absent": "Absence",
@@ -873,7 +874,9 @@
       "blankSupervised": "La page 08 de chaque classe s'imprime avec ses titres et ses colonnes, ses lignes laissées vides.",
       "signatureSupervised": "Les séances sont numérotées dans l'ordre de l'année : celles notées hors emploi du temps et celles des journées de soutien et de révision. La page s'imprime vide pour une classe sans séance.",
       "blankHomework": "La page des devoirs de chaque classe et matière s'imprime avec ses titres et ses colonnes, ses lignes laissées vides.",
-      "signatureHomework": "Chaque devoir s'écrit avec sa date et sa date de retour, puis les deux nombres une fois saisis ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms."
+      "signatureHomework": "Chaque devoir s'écrit avec sa date et sa date de retour, puis les deux nombres une fois saisis ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms.",
+      "signatureStrip": "Aux largeurs de colonnes et à l'interligne du cahier papier. À découper aux repères et à coller où chaque morceau l'indique, si l'établissement l'accepte. La case de signature reste vide, pour signer à la main.",
+      "noStrip": "Aucune séance confirmée ce jour pour l'instant : pas de bande à imprimer."
     },
     "textsBook": {
       "name": "Cahier de textes",
@@ -914,6 +917,12 @@
       "line": "Devoirs · année scolaire",
       "page": "Cahier de textes · devoirs",
       "caption": "{{className}} · {{subject}} · devoirs"
+    },
+    "strip": {
+      "name": "Bande à coller",
+      "line": "Séances confirmées du {{day}}",
+      "from": "Page {{page}} · dès la ligne 1",
+      "after": "Page {{page}} · après la ligne {{rule}}"
     }
   },
   "preview": {
