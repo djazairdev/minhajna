@@ -41,7 +41,7 @@ import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
 import { shortDay } from '../today/outcome-rules';
 import { BookRow } from './BookRow';
-import { bookLines } from './book-lines';
+import { bookLines, bookSpan } from './book-lines';
 import { confirmationOf, dueDays, previewOf, stagesShown, type EntryDraft } from './entry-rules';
 import { correctionOf, fixChanges, startOf } from './fix-rules';
 import { FixFoot, FixHead } from './FixPart';
@@ -119,7 +119,7 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
           <FixHead
             recorded={{
               date: formatTextsBookDay(session.day),
-              time: timeText,
+              time: bookSpan(t, time, direction),
               lines: bookLines(t, pack, record, dayName),
             }}
           />
@@ -140,7 +140,7 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
           <BookRow
             testID="entry-book"
             date={formatTextsBookDay(session.day)}
-            time={timeText}
+            time={bookSpan(t, time, direction)}
             lines={bookLines(t, pack, preview, dayName)}
           />
         )}

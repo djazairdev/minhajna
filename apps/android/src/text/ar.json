@@ -686,6 +686,22 @@
     "taughtSpoken": "دُرّس {{days}}",
     "aheadSpoken": "يُبلغ {{day}} إن بقي كل شيء كما هو"
   },
+  "book": {
+    "title": "دفتر النصوص",
+    "open": "دفتر النصوص",
+    "heading": "{{className}} · {{subject}}",
+    "page": "الصفحة {{page}} · {{month}}",
+    "unprinted": "{{month}} · لا صفحة مطبوعة بعد",
+    "subjects": "المادة",
+    "awaiting": "تنتظر التأكيد",
+    "proposedToday": "مقترح · اليوم",
+    "confirmed": "مؤكَّدة",
+    "editHint": "يفتح تفاصيل الحصة لتصحيحها",
+    "empty": "لا حصة في هذا الدفتر بعد. تظهر هنا كل حصة تؤكّدها، كما تُكتب في الدفتر.",
+    "before": "الصفحة السابقة، {{page}}",
+    "after": "الصفحة التالية، {{page}}",
+    "print": "طباعة {{month}}"
+  },
   "roll": {
     "absent": "غياب",
     "late": "تأخر",

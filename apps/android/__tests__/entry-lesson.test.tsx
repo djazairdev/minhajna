@@ -149,7 +149,7 @@ test('content from outside the plan needs its words before «تأكيد الحص
   await press('lesson-choose');
   expect((control('entry-confirm')?.props as PressableProps).disabled).toBe(true);
   await type('entry-unplanned', 'زيارة مختلقة');
-  expect(book()).toBe('2026/10/15. ⁧08:00 – 09:00⁩. زيارة مختلقة');
+  expect(book()).toBe('2026/10/15. ⁧08سا – 09سا⁩. زيارة مختلقة');
   await press('entry-confirm');
   expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({
     outcome: 'changed',

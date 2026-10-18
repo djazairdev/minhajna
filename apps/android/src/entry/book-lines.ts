@@ -5,15 +5,34 @@
 // unit, the item, the stages covered, content from outside the plan, a test
 // given, the homework with its due day, and the factual line. The printed
 // page comes with the documents; this is the row as the book will take it.
+// The homework's own words are isolated, so a French line keeps its order
+// inside an Arabic one.
 
 import { stageNames, type PlanPack, type SessionRecord } from '@minhajna/core';
 import type { useText } from '../text/i18n';
+import { span } from '../times/TimeTable';
+import { isolate } from '../week/grid-labels';
 
 type Translate = ReturnType<typeof useText>;
 
 export interface BookLine {
   readonly label?: string;
   readonly text: string;
+}
+
+/** A clock time as the book writes it by hand: «08سا» or «09سا45» in Arabic, 08h or 08h45 in French. */
+export function bookClock(time: string, t: Translate): string {
+  const [hours = '', minutes = '00'] = time.split(':');
+  return t(minutes === '00' ? 'documents.textsBook.hour' : 'documents.textsBook.hourMinutes', { hours, minutes });
+}
+
+/** A session's time as the book writes it by hand, in the reading direction; none without a time. */
+export function bookSpan(
+  t: Translate,
+  time: { readonly from: string; readonly to: string } | null,
+  dir: 'rtl' | 'ltr',
+) {
+  return time === null ? null : span(bookClock(time.from, t), bookClock(time.to, t), dir);
 }
 
 export function bookLines(
@@ -48,7 +67,7 @@ export function bookLines(
   if (record.homework !== undefined) {
     lines.push({
       label: t('entry.homework'),
-      text: t('entry.bookHomework', { text: record.homework.text, day: dayName(record.homework.due) }),
+      text: t('entry.bookHomework', { text: isolate(record.homework.text), day: dayName(record.homework.due) }),
     });
   }
   if (record.factual !== undefined) lines.push({ text: record.factual });
