@@ -59,13 +59,14 @@ import { sessionMeta } from './today-meta';
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
 
-/** The Today tab; `onHelp` opens Help and the privacy notice, `onDetails` a session's details, `onRoll` its roll call. */
+/** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call. */
 export function Today(props: {
   onHelp: () => void;
+  onExtra?: () => void;
   onDetails: (session: Session) => void;
   onRoll: (session: Session) => void;
 }) {
-  const { onHelp, onDetails, onRoll } = props;
+  const { onHelp, onDetails, onRoll, onExtra } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -204,12 +205,22 @@ export function Today(props: {
           scope={formatDayWithMonth(day, language, profile)}
           fact={{ text: dayFacts(t, view, mark !== null), icon: controlIcon('check') }}
           actions={
-            <IconButton
-              testID="today-help"
-              icon={controlIcon('info')}
-              accessibilityLabel={t('today.help')}
-              onPress={onHelp}
-            />
+            <>
+              {onExtra !== undefined && (
+                <IconButton
+                  testID="today-extra"
+                  icon={controlIcon('plus')}
+                  accessibilityLabel={t('extra.open')}
+                  onPress={onExtra}
+                />
+              )}
+              <IconButton
+                testID="today-help"
+                icon={controlIcon('info')}
+                accessibilityLabel={t('today.help')}
+                onPress={onHelp}
+              />
+            </>
           }
         />
         <View style={styles.list}>

@@ -6,13 +6,15 @@
 // what the plan still needs by then; then each unit's items with the days
 // they were taught or the day the plan would reach them, their stages,
 // where the class is, and where the plan says it should be, marked only as
-// a reference (PRD §4.7). TD items follow in their own list.
+// a reference (PRD §4.7). TD items follow in their own list. A session
+// outside the timetable for the class opens from the foot (#219).
 
 import { pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '../components/Button';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
@@ -21,7 +23,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { paceLine } from './class-rules';
 import { rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
 
-export function ClassPlan({ courseId }: { courseId: string }) {
+export function ClassPlan({ courseId, onExtra }: { courseId: string; onExtra?: () => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -118,6 +120,7 @@ export function ClassPlan({ courseId }: { courseId: string }) {
           )}
         </>
       )}
+      {onExtra !== undefined && <Button testID="plan-extra" variant="line" label={t('extra.open')} onPress={onExtra} />}
     </ScrollView>
   );
 }

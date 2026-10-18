@@ -12,6 +12,7 @@ import { parseDay } from '@minhajna/core';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
+import { ExtraSession } from '../extra/ExtraSession';
 import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
 import { Roll } from '../roll/Roll';
@@ -28,6 +29,7 @@ export function TodayTab({
       onHelp={() => navigation.navigate('Help')}
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
       onRoll={(session) => navigation.navigate('Roll', { key: session.key, day: session.day })}
+      onExtra={() => navigation.navigate('Extra')}
     />
   );
 }
@@ -87,6 +89,12 @@ export function ClassesTabScreen({
 }
 
 /** A class's plan. */
-export function ClassPlanScreen({ route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
-  return <ClassPlan courseId={route.params.courseId} />;
+export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
+  const { courseId } = route.params;
+  return <ClassPlan courseId={courseId} onExtra={() => navigation.navigate('Extra', { courseId })} />;
+}
+
+/** A session outside the timetable, for the class it was opened from, if any. */
+export function ExtraScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Extra'>) {
+  return <ExtraSession {...(route.params?.courseId !== undefined && { courseId: route.params.courseId })} />;
 }

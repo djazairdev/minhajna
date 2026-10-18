@@ -38,9 +38,10 @@ export function shiftOf(state: State): Shift {
   return state.timetables.at(-1)?.version.options?.doubleShift ? 'double' : 'single';
 }
 
-/** A time as typed, such as «8:15», «08.15» or «8h15», written HH:MM; null when it is not a time of day. */
+/** A time as typed, such as «8:15», «08.15», «8h15» or «٨:١٥», written HH:MM; null when it is not a time of day. */
 export function readClock(text: string): string | null {
-  const match = /^\s*(\d{1,2})\s*[:.hH]\s*(\d{2})\s*$/.exec(text);
+  const western = text.replace(/[\u0660-\u0669\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) & 0xf));
+  const match = /^\s*(\d{1,2})\s*[:.hH،٫]\s*(\d{2})\s*$/.exec(western);
   if (match === null) return null;
   const [, hours = '', minutes = ''] = match;
   const clock = `${hours.padStart(2, '0')}:${minutes}`;
