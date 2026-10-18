@@ -3,9 +3,10 @@
 
 // Choosing a grade and subject's pack (#30, Setup-6b-Packs): each pack with
 // its status, timing, release and source, the ones that apply best first, or
-// no pack and typed items. What each status means is listed under them. The
-// pack is pinned to the classes chosen, each staying on that release until
-// another is chosen (PRD §4.2). District variants come later.
+// no pack and typed items, each a radio card as drawn. What each status
+// means is listed under them. The pack is pinned to the classes chosen, each
+// staying on that release until another is chosen (PRD §4.2). District
+// variants come later.
 
 import { packsFor, pinOf, STATUS_ORDER } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -14,7 +15,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
-import { OptionRow } from '../components/OptionRow';
+import { RadioCard } from '../components/RadioCard';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
@@ -57,19 +58,19 @@ export function Packs({ grade, subject, onDone }: { grade: string; subject: stri
         </Text>
         <View accessibilityRole="radiogroup" style={styles.list}>
           {offered.map((pack) => (
-            <OptionRow
+            <RadioCard
               key={pack.id}
               testID={`pack-${pack.id}`}
               label={t(`plan.status.${pack.status}`)}
-              sub={`${packFacts(t, pack)}\n${packSource(t, pack)}`}
+              description={`${packFacts(t, pack)}\n${packSource(t, pack)}`}
               selected={chosen === pack.id}
               onPress={() => setChosen(pack.id)}
             />
           ))}
-          <OptionRow
+          <RadioCard
             testID="pack-none"
             label={t('plan.noPack')}
-            sub={t('plan.noPackSub')}
+            description={t('plan.noPackSub')}
             selected={chosen === NO_PACK}
             onPress={() => setChosen(NO_PACK)}
           />
