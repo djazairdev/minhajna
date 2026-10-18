@@ -19,7 +19,7 @@ The rebase preserves upstream gallery entries and welcome tests alongside this c
 |---|---|
 | Locked installs | Root offline install and Android `npm ci --no-audit` pass after rebasing; lockfiles unchanged by this PR |
 | Type checks | Root and Android pass |
-| Tests | 262 core and 13 sync-check tests pass; 1,062 Android assertions pass, but the full Android command exits 1 on the upstream teardown error below |
+| Tests | 262 core and 13 sync-check tests pass; all 1,062 Android tests pass |
 | Focused checks | All 147 tests across the six component/gallery/privacy/contrast suites pass with exit 0 |
 | Badge and Facts | All three languages, both directions and 100%/200% font environments; named states, palette pairs, uncapped text, spoken exclusions, distinct marks, all kept results and the original promise limit |
 | RowLink | The same language/direction/font matrix, whole-row action, title/hint, mirrored chevron, disabled state, optional explanation, pressed feedback, focus/blur and target-size contracts |
@@ -29,7 +29,7 @@ The rebase preserves upstream gallery entries and welcome tests alongside this c
 | Hygiene | Lint/formatting, diff checks and Gitleaks pass; maintained files stay below 300 lines |
 | Licences | REUSE 6.2.0 passes with the isolated `chardet` detector |
 
-The full Android command is not green: `joint-class.test.tsx` imports native views after Jest teardown and exits 1 despite its passing assertions. The same isolated test exits 1 on an unmodified archive of main `85bfb3a`, using the same locked dependencies. The second test remounts through `addJoint` without unmounting its first renderer; cleanup reaches only the later tree. This contribution leaves that unrelated test unchanged rather than suppressing the failure. The PR must disclose it for maintainer review. The full suite also emits `act` warnings from unchanged AboutBuild, Entry/LessonSheet and Classes tests.
+The full Android command once exited 1 on `joint-class.test.tsx`'s teardown, on main `85bfb3a` as well; [#202](https://github.com/djazairdev/minhajna/pull/202) fixed that test, and [#203](https://github.com/djazairdev/minhajna/pull/203) the `act` warnings from the AboutBuild and Entry/LessonSheet tests.
 
 Mocking font scale checks component contracts, not actual native layout. Native observations are recorded separately below. The existing REUSE detector workaround avoids an unchanged demo-pupils UTF-8 chunk-classification problem; it adds no app dependency and changes no source header or licence annotation.
 
