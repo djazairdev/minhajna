@@ -6,6 +6,7 @@ Every network call that Minhajna's code makes is listed here, with the address, 
 |---|---|---|---|
 | The shared core (`packages/core`) | None | Nothing | The core makes no network calls |
 | Android app (`apps/android`) | None | Nothing | Help reads licence notices from the installed APK; no network permission is requested |
+| Synthetic browser-storage diagnostic (`packages/web-storage-check`, #79) | Its own static origin only (HTTPS or optional `http://127.0.0.1:4179` preview) | GET requests for the page, modules, public profile/calendar, manifest, icon, build checksum and licence files; the offline worker caches these static assets | Load/install the standalone test page. No result, history entry, passphrase, key or other user input is uploaded. There are no external scripts, telemetry or third-party endpoints |
 
 The tests make no network calls either ([engineering rules](docs/contributing/engineering.md#tests)).
 

@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- SPDX-FileCopyrightText: 2026 The Minhajna contributors -->
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#173e35" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self'; img-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <title>فحص تخزين المتصفح</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <script type="module" src="./packages/web-storage-check/src/main.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">MINHAJNA · #79</p>
+        <h1 data-text="title">فحص تخزين المتصفح</h1>
+        <p data-text="intro"></p>
+        <label for="language">اللغة · Français · English</label>
+        <select id="language">
+          <option value="ar">العربية</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+        </select>
+      </header>
+      <p class="notice" data-text="warning"></p>
+      <section aria-labelledby="setup-title">
+        <h2 id="setup-title" data-text="step"></h2>
+        <label for="level" data-text="level"></label>
+        <select id="level">
+          <option value="cem" data-text="cem"></option>
+          <option value="primary" data-text="primary"></option>
+        </select>
+        <label for="platform" data-text="platform"></label>
+        <select id="platform">
+          <option value="not-recorded" data-text="unknown"></option>
+          <option>Windows 10</option>
+          <option>Windows 11</option>
+          <option>macOS</option>
+          <option>Linux</option>
+        </select>
+        <label for="passphrase" data-text="password"></label>
+        <input
+          id="passphrase"
+          type="password"
+          minlength="12"
+          required
+          autocomplete="off"
+          spellcheck="false"
+          aria-describedby="password-hint"
+        />
+        <p id="password-hint" class="hint" data-text="passwordHint"></p>
+        <div class="actions">
+          <button id="run" data-text="run"></button><button id="reopen" class="secondary" data-text="reopen"></button>
+        </div>
+        <p class="hint" data-text="replaceHint"></p>
+        <button id="persist" class="secondary" data-text="persist"></button>
+      </section>
+      <section aria-labelledby="results-title">
+        <h2 id="results-title" data-text="report"></h2>
+        <p id="status" role="status" aria-live="polite"></p>
+        <p id="report-hint" class="hint" data-text="empty"></p>
+        <textarea
+          id="report"
+          readonly
+          dir="ltr"
+          aria-labelledby="results-title"
+          aria-describedby="report-hint"
+          rows="18"
+        ></textarea>
+        <div class="actions">
+          <button id="copy" data-text="copy"></button><button id="clear" class="secondary" data-text="clear"></button>
+        </div>
+      </section>
+      <section aria-labelledby="offline-title">
+        <h2 id="offline-title" data-text="offline"></h2>
+        <p id="offline-status" role="status"></p>
+        <p data-text="install"></p>
+        <p data-text="reload"></p>
+        <p class="notice" data-text="limits"></p>
+      </section>
+      <footer>
+        <a href="./LICENSE.txt">AGPL-3.0-or-later</a> · <a href="./DATA-LICENSE.txt">Reference data: CC-BY-SA-4.0</a>
+      </footer>
+    </main>
+  </body>
+</html>
