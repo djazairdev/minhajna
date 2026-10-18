@@ -42,7 +42,9 @@ async function withSchools(...schools: School[]): Promise<TestData> {
   return data;
 }
 
+/** Mounts one screen, unmounting the one before so no renderer outlives its test. */
 async function render(data: TestData, node: ReactElement) {
+  await ReactTestRenderer.act(() => tree?.unmount());
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">{withData(data, node)}</LocaleDirContext.Provider>,
@@ -88,7 +90,6 @@ async function addJoint(data: TestData, ...grades: string[]) {
 test('offers a joint class only where a school teaches primary', async () => {
   await render(await withSchools(middle), <Classes onType={jest.fn()} onNext={jest.fn()} />);
   expect(exists('add-joint-open')).toBe(false);
-  await ReactTestRenderer.act(() => tree?.unmount());
   await render(await withSchools(middle, primary), <Classes onType={jest.fn()} onNext={jest.fn()} />);
   await press('add-joint-open');
   expect(shown()).toEqual(expect.arrayContaining([text.joint.title, text.joint.sub, text.joint.levelsHint]));
@@ -126,7 +127,6 @@ test('adds two or three years, saved as the class’s years in order', async () 
 test('asks each pupil’s year in a joint class, and counts each year', async () => {
   const data = await withSchools(primary);
   const joint = await addJoint(data, '4ap', '5ap');
-  await ReactTestRenderer.act(() => tree?.unmount());
   await render(data, <TypeList classId={joint.id} onDone={jest.fn()} />);
   await type('pupil-name', 'سلمى حداد');
   expect(control('pupil-keep').props).toMatchObject({ disabled: true });
