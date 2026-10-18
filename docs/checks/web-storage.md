@@ -6,7 +6,7 @@ This is the diagnostic page for [#79](https://github.com/djazairdev/minhajna/iss
 
 The [standalone page and instructions](../../packages/web-storage-check/README.md) build with the existing TypeScript compiler and run as static files on HTTPS or localhost. There is no application backend, external script, upload, analytics or new dependency. Only the static origin is contacted, as listed in [NETWORK.md](../../NETWORK.md). Do not deploy it into a teacher app's origin or run it with real data.
 
-Arabic is the default, with French/English and both text directions. Every test uses 45 made-up identities, the bundled public calendar and an invented example plan. CEM has 396 history entries / 260,598 compact UTF-8 JSON bytes; primary has 554 / 368,444 bytes. Synthetic records never appear in the report.
+Arabic is the default, with French/English and both text directions. Every test uses 45 made-up identities, the bundled public calendar and an invented example plan. CEM has 397 history entries / 261,075 compact UTF-8 JSON bytes; primary has 554 / 368,469 bytes. Synthetic records never appear in the report.
 
 | Report field | Meaning |
 |---|---|
@@ -30,7 +30,7 @@ The key is non-extractable and stays in memory; no passphrase/key is stored in I
 
 On **17 October 2026**, the Codex in-app Chromium browser on macOS reported Chrome 155 compatibility in its user agent, in a normal browser tab. This is **not a Chrome-branded Windows acceptance run**.
 
-- CEM: encrypted write/read verified all 396 history entries; reload plus re-entered disposable phrase reopened the same saved run successfully.
+- CEM: encrypted write/read verified all 396 history entries of the demo year at the time (397 on main now); reload plus re-entered disposable phrase reopened the same saved run successfully.
 - Primary: encrypted write/read verified all 554 history entries.
 - A wrong disposable phrase failed with `OperationError`, a null measurement and no record/phrase in the report.
 - The explicit persistence request returned `false`, recorded without changing browser settings or treating it as success.

@@ -23,7 +23,7 @@ describe('The synthetic AES-GCM envelope', () => {
 
   it('round-trips the complete demo year without storing a key or plaintext body', async () => {
     assert.equal(key.extractable, false);
-    assert.equal(entries.length, 396);
+    assert.equal(entries.length, 397);
     assert.deepEqual(await unseal(rows, key, runId), entries);
     assert.equal(new Set(rows.map((row) => Buffer.from(row.iv).toString('hex'))).size, rows.length);
     for (const row of rows) {
