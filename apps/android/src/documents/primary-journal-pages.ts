@@ -31,7 +31,7 @@ import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { sessionTime } from '../times/times-rules';
 import { isolate } from '../week/grid-labels';
-import { dayTitle, schoolNames, yearLabel, type DocumentData, type Translate } from './document-data';
+import { dayTitle, schoolNames, yearShown, type DocumentData, type Translate } from './document-data';
 import { journalLines, proposedRecord, type JournalNames } from './journal-lines';
 import { primaryJournalHtml, type PrimaryDay, type PrimaryEntry } from './primary-journal-html';
 import { bookClasses } from './texts-book-pages';
@@ -111,7 +111,7 @@ export function primaryJournalPages(data: DocumentData, t: Translate, blank: boo
       dir: data.dir,
       book: key('name'),
       school: schoolNames(data),
-      year: t('documents.year', { year: yearLabel(data) }),
+      year: t('documents.year', { year: yearShown(data) }),
       heads: (['minutes', 'subject', 'activity', 'content', 'indicator', 'domain'] as const).map((head) =>
         t(`documents.primaryJournal.heads.${head}`),
       ),

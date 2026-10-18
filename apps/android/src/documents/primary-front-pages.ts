@@ -41,7 +41,7 @@ import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { span } from '../times/TimeTable';
 import { isolate, slotSpoken } from '../week/grid-labels';
-import { yearLabel, type DocumentData, type Translate } from './document-data';
+import { yearLabel, yearShown, type DocumentData, type Translate } from './document-data';
 import { frontTables } from './front-tables';
 import { primaryFrontHtml, type PrimaryFront, type WeekRow } from './primary-front-html';
 import { bookClasses } from './texts-book-pages';
@@ -119,7 +119,7 @@ export function primaryFrontPages(data: DocumentData, t: Translate, blank: boole
     return {
       cover: {
         school: value(school?.name),
-        year: t('documents.year', { year: yearLabel(data) }),
+        year: t('documents.year', { year: yearShown(data) }),
         book: t('documents.primaryJournal.name'),
         className: t('documents.textsBook.className', { name: className }),
         teacher: `${front('teacherName')}${t('documents.journalLines.colon')}${value(teacher)}`,
@@ -174,7 +174,7 @@ export function primaryFrontPages(data: DocumentData, t: Translate, blank: boole
       book: t('documents.primaryJournal.name'),
       front: front('name'),
       school: blank ? '' : schools.filter(Boolean).join(' · '),
-      year: t('documents.year', { year: yearLabel(data) }),
+      year: t('documents.year', { year: yearShown(data) }),
       card: front('card'),
       director: t('documents.director'),
     },

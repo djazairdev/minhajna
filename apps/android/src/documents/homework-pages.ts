@@ -18,7 +18,7 @@ import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { i18n, isLanguage, type Language } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
-import { yearLabel, type DocumentData, type Translate } from './document-data';
+import { yearShown, type DocumentData, type Translate } from './document-data';
 import { escapeHtml, printDocument } from './print-html';
 import { TEXTS_BOOK_CSS, bookHead } from './texts-book-html';
 import { bookCourses, directionOf, subjectLanguage, wordsFor } from './texts-book-pages';
@@ -92,7 +92,7 @@ export function homeworkPages(data: DocumentData, t: Translate, blank: boolean):
     const head = bookHead({
       lang: book,
       school: data.state.schools.get(schoolClass.schoolId)?.name ?? '',
-      year: bt('documents.year', { year: yearLabel(data) }),
+      year: bt('documents.year', { year: yearShown(data) }),
       className: bt('documents.textsBook.className', { name: name(book) }),
       subject: bt('documents.textsBook.subject', { name: subject(book) }),
       title: bt('documents.homework.page'),

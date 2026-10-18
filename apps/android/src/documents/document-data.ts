@@ -22,6 +22,11 @@ export function yearLabel(data: DocumentData): string {
   return `${data.year.from.slice(0, 4)}-${data.year.to.slice(0, 4)}`;
 }
 
+/** The school year isolated, so it reads «2026-2027» after Arabic words too, not «2027-2026». */
+export function yearShown(data: DocumentData): string {
+  return `\u2068${yearLabel(data)}\u2069`;
+}
+
 /** The teacher's schools, as printed in a head. */
 export function schoolNames(data: DocumentData): string {
   return [...data.state.schools.values()].map((school) => school.name).join(' · ');

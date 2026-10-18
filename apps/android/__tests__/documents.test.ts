@@ -21,7 +21,7 @@ const journalTexts: JournalTexts = {
   dir: 'rtl',
   book: 'الدفتر اليومي',
   school: 'متوسطة <النجاح>',
-  year: 'السنة الدراسية 2026-2027',
+  year: 'السنة الدراسية \u20682026-2027\u2069',
   time: 'من – إلى',
   className: 'القسم',
   content: 'المقطع والميدان والمورد، وسير الحصة',

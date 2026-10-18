@@ -129,11 +129,14 @@ test('the blank version keeps the labels and the heads, and leaves the rest for 
   expect(rows(html)).toBe(6 + 2 * (FRONT_RULES + 1));
 });
 
-test('a teacher with no name or rank gets them blank; the document is named after the year', async () => {
+test('a teacher with no name or rank gets them blank; the year reads in order; the document is named after it', async () => {
   const data = await withDay();
   const html = journalFrontPages(documentData(data), t, false);
   expect(html).toContain(`<th>${front.teacherName}</th><td><bdi dir="rtl"></bdi></td>`);
+  expect(html).toContain('<small>السنة الدراسية \u20682026-2027\u2069</small>');
+  expect(html).toContain('<bdi dir="rtl">2026-2027</bdi>');
   const kind = documentKind('journal-front')!;
+  expect(kind.line(documentData(data), t)).toContain('\u20682026-2027\u2069');
   expect(fileName(kind, documentData(data), t, false)).toBe(`${text.documents.journal} · ${front.name} 2026-2027.pdf`);
 });
 

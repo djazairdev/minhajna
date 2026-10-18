@@ -23,7 +23,7 @@ import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { i18n, isLanguage, type Language } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
-import { taughtClasses, yearLabel, type DocumentData, type Translate } from './document-data';
+import { taughtClasses, yearShown, type DocumentData, type Translate } from './document-data';
 import { printDocument } from './print-html';
 import { TEXTS_BOOK_CSS, textsBookPage, type TextsBookPage } from './texts-book-html';
 import { bookRows, pageRules, pagesBefore, paginate, type Direction } from './texts-book-rows';
@@ -97,7 +97,7 @@ export function textsBookPages(data: DocumentData, t: Translate, blank: boolean)
         head: {
           lang: book,
           school,
-          year: bookT('documents.year', { year: yearLabel(data) }),
+          year: bookT('documents.year', { year: yearShown(data) }),
           className: bookT('documents.textsBook.className', { name: name(book) }),
           subject: bookT('documents.textsBook.subject', { name: subject?.name[book] ?? course.subject }),
           title:
