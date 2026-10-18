@@ -36,6 +36,8 @@ export type RootStackParamList = {
   Entry: { key: string; day: string };
   ClassPlan: { courseId: string };
   TextsBook: { courseId: string };
+  /** A course's homework record, open on the homework a session set, if given. */
+  Homework: { courseId: string; sessionKey?: string };
   Roll: { key: string; day: string };
   Correct: { unit: string; day: string; pupilId: string };
   RollRules: undefined;

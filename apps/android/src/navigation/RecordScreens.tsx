@@ -20,6 +20,7 @@ import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
 import { Roll } from '../roll/Roll';
 import { SeatsSetup } from '../seats/SeatsSetup';
+import { HomeworkBook } from '../homework/HomeworkBook';
 import { Today } from '../today/Today';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
@@ -33,6 +34,9 @@ export function TodayTab({
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
       onRoll={(session) => navigation.navigate('Roll', { key: session.key, day: session.day })}
       onExtra={() => navigation.navigate('Extra')}
+      onHomework={(item) =>
+        navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
+      }
     />
   );
 }
@@ -111,6 +115,19 @@ export function TextsBookScreen({ navigation, route }: NativeStackScreenProps<Ro
       onCourse={(courseId) => navigation.setParams({ courseId })}
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
       onPrint={(day) => navigation.navigate('DocOutput', { id: 'texts', day })}
+      onHomework={(courseId) => navigation.navigate('Homework', { courseId })}
+    />
+  );
+}
+
+/** A course's homework record, open on the homework Today's card opened, if any. */
+export function HomeworkScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Homework'>) {
+  const { courseId, sessionKey } = route.params;
+  return (
+    <HomeworkBook
+      key={`${courseId}/${sessionKey ?? ''}`}
+      courseId={courseId}
+      {...(sessionKey !== undefined && { sessionKey })}
     />
   );
 }

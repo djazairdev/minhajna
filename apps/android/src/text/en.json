@@ -881,6 +881,15 @@
       "date": "Date",
       "time": "Time",
       "note": "(1) Under Decision No. 835 of 13/09/1991"
+    },
+    "homework": {
+      "date": "Date",
+      "due": "Date it comes back",
+      "activity": "Activity set",
+      "notDone": "Did not do it",
+      "reliedOn": "Relied on someone else",
+      "number": "Count",
+      "sideNote": "Continuous assessment: diagnostic, formative, summative"
     }
   },
   "preview": {
@@ -1081,5 +1090,29 @@
     "noClass": "No class yet. Add your classes and draw your week first.",
     "separator": ", ",
     "untimed": "Some of these sessions have no time at the school yet, so they go on the page for additional lessons once their time is set."
+  },
+  "homework": {
+    "title": "Homework",
+    "heading": "Texts book · {{className}} · {{subject}} · homework",
+    "dueToday": "Due today: {{text}}",
+    "counted": "Homework counted · not done: {{notDone}} · relied on others: {{reliedOn}}",
+    "count": "Count",
+    "open": "Homework",
+    "today": "Due today",
+    "backOn": "Due on {{day}}",
+    "notCounted": "Not counted yet",
+    "countHint": "Opens the count for this homework",
+    "counting": "Count when it comes back: {{text}}",
+    "of_one": "of {{count}} pupil",
+    "of_other": "of {{count}} pupils",
+    "share": "{{percent}}%",
+    "less": "Decrease: {{name}}",
+    "more": "Increase: {{name}}",
+    "allDid": "Everyone did it alone",
+    "confirm": "Confirm",
+    "saved": "Count saved",
+    "noList": "This class has no pupil list yet. Add it in setup to count.",
+    "empty": "No homework in this subject yet. Each homework you write in a session’s details appears here, with the day it comes back.",
+    "printNote": "Only the two confirmed counts print; what is not counted stays blank. Counts only, never names."
   }
 }

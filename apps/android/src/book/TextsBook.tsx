@@ -56,9 +56,11 @@ export interface TextsBookProps {
   readonly onDetails: (session: Session) => void;
   /** Prints the month of `day`. */
   readonly onPrint: (day: Day) => void;
+  /** Opens the course's homework record. */
+  readonly onHomework?: (courseId: string) => void;
 }
 
-export function TextsBook({ courseId, onCourse, onDetails, onPrint }: TextsBookProps) {
+export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework }: TextsBookProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -194,6 +196,14 @@ export function TextsBook({ courseId, onCourse, onDetails, onPrint }: TextsBookP
               variant="line"
               label={t('book.after', { page: pageName(pages[index + 1]) })}
               onPress={() => setShown(index + 1)}
+            />
+          )}
+          {onHomework !== undefined && (
+            <Button
+              testID="book-homework"
+              variant="line"
+              label={t('homework.open')}
+              onPress={() => onHomework(course.id)}
             />
           )}
           {page !== undefined && (

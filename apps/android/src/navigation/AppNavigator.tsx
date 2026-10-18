@@ -28,6 +28,7 @@ import {
   RollScreen,
   SeatsSetupScreen,
   TextsBookScreen,
+  HomeworkScreen,
   TodayTab,
 } from './RecordScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
@@ -195,6 +196,7 @@ export function AppNavigator({
         <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
         <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
         <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
+        <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />
         <Stack.Screen name="Extra" component={ExtraScreen} options={dark(t('extra.title'))} />
         <Stack.Screen name="AddSessions" component={AddSessionsScreen} options={dark(t('addSessions.title'))} />
         <Stack.Screen

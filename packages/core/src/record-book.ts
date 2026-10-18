@@ -41,6 +41,10 @@ function recordKey(event: RecordEvent): string {
       return `session:${event.session.key}`;
     case 'session.noted':
       return `note:${event.note.sessionKey}`;
+    case 'homework.counted':
+      return `homework:${event.count.sessionKey}`;
+    case 'homework.uncounted':
+      return `homework:${event.sessionKey}`;
     case 'extra.logged':
       return `extra:${event.extra.id}`;
     case 'extra.removed':
