@@ -6,7 +6,7 @@
 // (PRD §5.9).
 
 import type { Weekday } from './day.ts';
-import { isFields, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
+import { isFields, LANGUAGE, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
 import { QUEUES, ROLL_CALL_UNITS, type CountryProfile, type Level, type MonthNames, type Zone } from './reference.ts';
 import { CODE, COUNTRY, distinct, PLACE, readName, readWeekday, type KnownCodes } from './reference-fields.ts';
 
@@ -100,6 +100,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
   const weekStartsOn = readWeekday(reader, input['weekStartsOn'], 'weekStartsOn');
   const months = readMonths(reader, input);
   const zones = readZones(reader, input);
+  const language = reader.text(input, 'language', '', LANGUAGE);
 
   const rawDays = input['workingDays'];
   const workingDays: Weekday[] = [];
@@ -131,9 +132,15 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
       distinct(reader, subjectCodes, subjectCode, path);
       const name = readName(reader, raw, path);
       const subjectLevels = reader.codes(raw, 'levels', path, [...known.levels], true);
+      const subjectLanguage = reader.text(raw, 'language', path, LANGUAGE);
       return name === undefined || subjectLevels === undefined
         ? undefined
-        : { code: subjectCode, name, levels: subjectLevels };
+        : {
+            code: subjectCode,
+            name,
+            levels: subjectLevels,
+            ...(subjectLanguage !== undefined && { language: subjectLanguage }),
+          };
     },
     { nonEmpty: true },
   );
@@ -167,6 +174,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
       workingDays,
       ...(months === undefined ? {} : { months }),
       levels,
+      ...(language === undefined ? {} : { language }),
       subjects,
       sessionTypes,
       ...(zones === undefined ? {} : { zones }),

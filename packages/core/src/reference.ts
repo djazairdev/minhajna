@@ -62,6 +62,8 @@ export interface Subject {
   readonly name: LocalizedText;
   /** The levels that teach it. */
   readonly levels: readonly string[];
+  /** The language it is taught in, as a language code such as `fr`, when not the profile's. */
+  readonly language?: string;
 }
 
 /** A Gregorian month's names in each interface language. */
@@ -78,6 +80,8 @@ export interface CountryProfile {
   /** January to December; absent only in older profiles. Named dates require this data. */
   readonly months?: readonly MonthNames[];
   readonly levels: readonly Level[];
+  /** The language subjects are taught in, unless a subject names its own; absent only in older profiles. */
+  readonly language?: string;
   readonly subjects: readonly Subject[];
   readonly sessionTypes: readonly SessionType[];
   /** In the order the teacher sees them; absent only in older profiles. */

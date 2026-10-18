@@ -850,7 +850,25 @@
       "save": "Enregistrer en PDF",
       "saved": "Le fichier est enregistré.",
       "failed": "Le document n’a pas été créé. Réessayez.",
-      "noClasses": "Aucune classe enseignée pour l’instant : il n’y a pas de page d’appel à imprimer."
+      "noClasses": "Aucune classe enseignée pour l’instant : il n’y a pas de page d’appel à imprimer.",
+      "blankTexts": "L’établissement, l’année, la classe et la matière sont remplis sur une page par classe et matière ; les lignes restent vides, pour écrire à la main.",
+      "signatureTexts": "La colonne d’émargement reste vide, pour signer à la main. Une séance en attente de confirmation n’est jamais imprimée.",
+      "noClassesTexts": "Aucune classe enseignée pour l’instant : pas de page du cahier de textes à imprimer."
+    },
+    "textsBook": {
+      "name": "Cahier de textes",
+      "className": "Classe : {{name}}",
+      "subject": "Matière : {{name}}",
+      "title": "Cahier de textes · page {{page}}",
+      "blankTitle": "Cahier de textes · page .........",
+      "caption": "Cahier de textes · {{className}} · {{subject}} · {{month}}",
+      "date": "Date",
+      "time": "Horaire",
+      "hour": "{{hours}}h",
+      "hourMinutes": "{{hours}}h{{minutes}}",
+      "topic": "Thème",
+      "signature": "Émargement",
+      "none": "Aucune séance confirmée ce mois-ci."
     }
   },
   "preview": {

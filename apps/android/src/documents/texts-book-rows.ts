@@ -1,0 +1,147 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The texts book's rows (#213, PRD §3.8, R-3.8-14): for one course, each
+// confirmed session as the book takes it, in the subject's language; a
+// session awaiting confirmation never prints (R-2.3-14). The date is
+// Gregorian with Western digits (R-3.8-59), year first on a right-to-left
+// page as the book is written by hand; the time comes from the school's
+// bells, Ramadan's when the day falls then, so a shortened session prints
+// its real length (R-4.5-14), and is written as by hand too, «08سا – 09سا».
+// Each month starts a page, and the pages of a course are numbered from the
+// school year's first, so a month printed later carries on where the one
+// before stopped.
+
+import {
+  courseSetup,
+  current,
+  formatTextsBookDay,
+  sessionsBetween,
+  type Context,
+  type Course,
+  type Day,
+} from '@minhajna/core';
+import { bookLines, type BookLine } from '../entry/book-lines';
+import { sessionTime } from '../times/times-rules';
+import { span } from '../times/TimeTable';
+import type { DocumentData, Translate } from './document-data';
+
+/** The rules a page holds below its head, and the characters a rule holds in each direction, kept on the safe side. */
+export const PAGE_RULES = 28;
+const RULE_CHARACTERS = { rtl: 44, ltr: 46 } as const;
+/** An entry's ruled foot, in millimetres, on top of its rules of 7.3 mm. */
+const ENTRY_FOOT = 0.3;
+const RULE = 7.3;
+
+export type Direction = 'rtl' | 'ltr';
+
+export interface BookRow {
+  readonly day: Day;
+  readonly date: string;
+  readonly time: string;
+  readonly lines: readonly BookLine[];
+}
+
+/** A day as the book writes it: 2026/10/01 on a right-to-left page, 01/10/2026 on a left-to-right one. */
+export function bookDate(day: Day, dir: Direction): string {
+  return dir === 'rtl' ? formatTextsBookDay(day) : `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
+}
+
+/** A clock time as the book writes it by hand: «08سا» or «09سا45» in Arabic, 08h or 08h45 in French. */
+export function bookClock(time: string, t: Translate): string {
+  const [hours = '', minutes = '00'] = time.split(':');
+  return t(minutes === '00' ? 'documents.textsBook.hour' : 'documents.textsBook.hourMinutes', { hours, minutes });
+}
+
+/** The rules a text wraps onto, word by word as the web engine wraps it; a word longer than a rule breaks. */
+function wrappedRules(text: string, room: number): number {
+  let rules = 1;
+  let used = 0;
+  for (const word of text.split(/\s+/).filter((part) => part !== '')) {
+    if (used > 0 && used + 1 + word.length <= room) {
+      used += 1 + word.length;
+      continue;
+    }
+    if (used > 0) rules += 1;
+    rules += Math.ceil(word.length / room) - 1;
+    used = word.length % room || room;
+  }
+  return rules;
+}
+
+/** The rules a row takes: each line wraps onto as many as its words need. */
+export function rowRules(row: Pick<BookRow, 'lines'>, dir: Direction): number {
+  const room = RULE_CHARACTERS[dir];
+  return (
+    row.lines.reduce(
+      (sum, line) => sum + wrappedRules(line.label === undefined ? line.text : `${line.label}: ${line.text}`, room),
+      0,
+    ) || 1
+  );
+}
+
+/** The rules a page's rows take, their ruled feet included. */
+export function pageRules(rows: readonly Pick<BookRow, 'lines'>[], dir: Direction): number {
+  return rows.reduce((sum, row) => sum + rowRules(row, dir), 0) + Math.ceil((rows.length * ENTRY_FOOT) / RULE);
+}
+
+/** The rows in pages of at most `PAGE_RULES` rules; a row longer than a page has one to itself. */
+export function paginate<Row extends Pick<BookRow, 'lines'>>(rows: readonly Row[], dir: Direction): Row[][] {
+  const pages: Row[][] = [];
+  let page: Row[] = [];
+  for (const row of rows) {
+    if (page.length > 0 && pageRules([...page, row], dir) > PAGE_RULES) {
+      pages.push(page);
+      page = [];
+    }
+    page.push(row);
+  }
+  if (page.length > 0) pages.push(page);
+  return pages;
+}
+
+/** The course's confirmed sessions from `from` to `to`, as the book's rows. */
+export function bookRows(
+  data: DocumentData,
+  context: Context,
+  course: Course,
+  from: Day,
+  to: Day,
+  t: Translate,
+  dir: Direction,
+): BookRow[] {
+  const { state } = data;
+  const pack = courseSetup(context, course.id).pack;
+  const schoolClass = state.classes.get(course.classId);
+  const school = schoolClass && state.schools.get(schoolClass.schoolId);
+  return sessionsBetween(context, from, to, new Set([course.id])).flatMap((session) => {
+    const record = current(state.sessions.get(session.key));
+    if (record === null) return [];
+    const time = sessionTime(data, school, session.slot, session.day);
+    return [
+      {
+        day: session.day,
+        date: bookDate(session.day, dir),
+        time: time === null ? '' : span(bookClock(time.from, t), bookClock(time.to, t), dir),
+        lines: bookLines(t, pack, record, (day) => bookDate(day, dir)),
+      },
+    ];
+  });
+}
+
+/** The pages a course's confirmed sessions fill from the year's first day to the day before `month` starts. */
+export function pagesBefore(
+  data: DocumentData,
+  context: Context,
+  course: Course,
+  month: string,
+  t: Translate,
+  dir: Direction,
+): number {
+  const rows = bookRows(data, context, course, data.year.from, `${month}-01` as Day, t, dir).filter(
+    (row) => row.day < `${month}-01`,
+  );
+  const months = new Map<string, BookRow[]>();
+  for (const row of rows) months.set(row.day.slice(0, 7), [...(months.get(row.day.slice(0, 7)) ?? []), row]);
+  return [...months.values()].reduce((sum, monthRows) => sum + paginate(monthRows, dir).length, 0);
+}

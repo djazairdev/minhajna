@@ -5,14 +5,15 @@
 // lists them. Each one gives its title, what it covers, whether it holds
 // pupils' data, its page orientation, and its pages as recorded or blank
 // with their headings; the output screen does the rest. A later document,
-// such as the texts book (#213) or the grade book, plugs in here.
+// such as the grade book, plugs in here.
 
 import type { IconName } from '../design/Icon';
 import { monthLabel, taughtClasses, type DocumentData, type Translate } from './document-data';
 import { journalPages } from './journal-pages';
 import { rollPages } from './roll-pages';
+import { bookCourses, textsBookPages } from './texts-book-pages';
 
-export type DocumentId = 'journal' | 'roll';
+export type DocumentId = 'journal' | 'roll' | 'texts';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -29,6 +30,10 @@ export interface DocumentKind {
   readonly line: (data: DocumentData, t: Translate) => string;
   /** What the blank version fills in, and what it leaves for the pen. */
   readonly blankLine: (t: Translate) => string;
+  /** What is left to sign by hand. */
+  readonly signatureLine: (t: Translate) => string;
+  /** Why there is nothing to print, when `empty` says so. */
+  readonly emptyLine: (t: Translate) => string;
   /** The whole document as HTML, as recorded or blank with its headings. */
   readonly pages: (data: DocumentData, t: Translate, blank: boolean) => string;
 }
@@ -47,6 +52,8 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     title: (t) => t('documents.journal'),
     line: (data, t) => `${classes(data, t)} · ${t('documents.list.today')}`,
     blankLine: (t) => t('documents.output.blankJournal'),
+    signatureLine: (t) => t('documents.output.signature'),
+    emptyLine: (t) => t('documents.output.noClasses'),
     pages: journalPages,
   },
   {
@@ -59,7 +66,23 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     title: (t) => t('documents.rollBook'),
     line: (data, t) => `${classes(data, t)} · ${monthLabel(data, data.day)}`,
     blankLine: (t) => t('documents.output.blankRoll'),
+    signatureLine: (t) => t('documents.output.signature'),
+    emptyLine: (t) => t('documents.output.noClasses'),
     pages: rollPages,
+  },
+  {
+    id: 'texts',
+    icon: 'homework',
+    pupils: false,
+    landscape: false,
+    empty: (data) => bookCourses(data).length === 0,
+    period: (data) => data.day.slice(0, 7),
+    title: (t) => t('documents.textsBook.name'),
+    line: (data, t) => `${classes(data, t)} · ${monthLabel(data, data.day)}`,
+    blankLine: (t) => t('documents.output.blankTexts'),
+    signatureLine: (t) => t('documents.output.signatureTexts'),
+    emptyLine: (t) => t('documents.output.noClassesTexts'),
+    pages: textsBookPages,
   },
 ];
 

@@ -832,7 +832,25 @@
       "save": "Save PDF",
       "saved": "The file is saved.",
       "failed": "The document was not made. Try again.",
-      "noClasses": "No class taught yet, so there is no roll-call page to print."
+      "noClasses": "No class taught yet, so there is no roll-call page to print.",
+      "blankTexts": "The school, the year, the class and the subject are filled in on a page for each class and subject; the rules stay empty, to write by hand.",
+      "signatureTexts": "The signature column stays empty, to sign by hand. A session awaiting confirmation is never printed.",
+      "noClassesTexts": "No class taught yet, so no texts book page to print."
+    },
+    "textsBook": {
+      "name": "Texts book",
+      "className": "Class: {{name}}",
+      "subject": "Subject: {{name}}",
+      "title": "Texts book · page {{page}}",
+      "blankTitle": "Texts book · page .........",
+      "caption": "Texts book · {{className}} · {{subject}} · {{month}}",
+      "date": "Date",
+      "time": "Time",
+      "hour": "{{hours}}:00",
+      "hourMinutes": "{{hours}}:{{minutes}}",
+      "topic": "Topic or work set",
+      "signature": "Signature",
+      "none": "No session confirmed this month yet."
     }
   },
   "preview": {

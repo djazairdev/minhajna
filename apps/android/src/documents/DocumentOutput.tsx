@@ -113,8 +113,8 @@ export function DocumentOutput({ kind }: { readonly kind: DocumentKind }) {
           message={t('documents.output.confidentialLine')}
         />
       )}
-      <Notice icon={controlIcon('info')} message={t('documents.output.signature')} />
-      {empty && <Notice testID="output-empty" icon={controlIcon('info')} message={t('documents.output.noClasses')} />}
+      <Notice icon={controlIcon('info')} message={kind.signatureLine(t)} />
+      {empty && <Notice testID="output-empty" icon={controlIcon('info')} message={kind.emptyLine(t)} />}
       {said !== null && (
         <Notice
           testID="output-said"
