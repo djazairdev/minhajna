@@ -72,6 +72,9 @@ const shown = () =>
     .findAllByType(Text)
     .map((node) => [node.props.children as unknown].flat().join(''));
 const label = (id: string) => String(control(id).props.accessibilityLabel);
+const tabState = (id: string): unknown =>
+  root().findAll((node) => node.props.testID === id && node.props.accessibilityRole === 'tab')[0]?.props
+    .accessibilityState;
 
 async function press(id: string) {
   await ReactTestRenderer.act(() => {
@@ -99,8 +102,12 @@ test('takes two half-groups in alternate weeks, making the half-groups and savin
   expect(shown()).toContain(
     text.week.wholeSummary.replace('{{name}}', '\u20684م1\u2069').replace('{{weeks}}', text.week.everyWeek),
   );
+  expect(shown()).toEqual(expect.arrayContaining([text.week.group, text.week.weeks]));
+  expect(shown()).not.toContain(text.week.holds);
   await press('slot-0-group-half-1');
   await press('slot-0-weeks-A');
+  expect(tabState('slot-0-weeks-A')).toEqual({ selected: true, disabled: false });
+  expect(tabState('slot-0-weeks-every')).toEqual({ selected: false, disabled: false });
   await press('slot-1-kind-class');
   await press('slot-1-group-half-2');
   await press('slot-save');
