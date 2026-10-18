@@ -19,12 +19,15 @@ import { SwitchSamples } from './switch-samples';
 import { StepperSamples } from './stepper-samples';
 import { SegmentedControlSamples } from './segmented-control-samples';
 import { RadioCardSamples } from './radio-card-samples';
+import { BadgeSamples } from './badge-samples';
+import { RowLinkSamples } from './row-link-samples';
+import { FactsSamples } from './facts-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
 import { CheckRowSamples, OptionRowSamples } from './choice-samples';
-import { FactsSamples, WelcomeHeroSamples } from './welcome-samples';
+import { WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
 import { DueStripSamples, ProposalSamples } from './proposal-samples';
 import { SessionCardSamples } from './session-card-samples';
@@ -79,9 +82,19 @@ export const entries: readonly GalleryEntry[] = [
     render: (sample, language) => <ChipSamples key={language} sample={sample} language={language} />,
   },
   {
+    name: 'Badge',
+    design: 'docs/design/system/components/Badge/README.md',
+    render: (sample, language) => <BadgeSamples sample={sample} language={language} />,
+  },
+  {
+    name: 'RowLink',
+    design: 'docs/design/system/components/RowLink/README.md',
+    render: (sample, language) => <RowLinkSamples key={language} sample={sample} language={language} />,
+  },
+  {
     name: 'Facts',
     design: 'docs/design/system/components/Facts/README.md',
-    render: () => <FactsSamples />,
+    render: (sample, language) => <FactsSamples sample={sample} language={language} />,
   },
   {
     name: 'Switch',

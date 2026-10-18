@@ -6,15 +6,54 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, sizes, spacing, typography } from '../design/tokens';
 import { Icon, type IconName } from '../design/Icon';
 
-/** At most three short promises, each one a fact the app keeps (docs/design/system/components/Facts). */
-export function Facts({ facts }: { facts: readonly { readonly icon: IconName; readonly text: string }[] }) {
+/** A display-only result; its stable ID is local to this list, not a record identifier. */
+export type KeptFact = { readonly id: string; readonly text: string; readonly kept: boolean };
+
+/** Kept summaries require translated state words because a strike-through is not spoken by TalkBack. */
+export type FactsProps =
+  | {
+      readonly facts: readonly { readonly icon: IconName; readonly text: string }[];
+      readonly kept?: never;
+    }
+  | {
+      readonly facts?: never;
+      readonly kept: readonly KeptFact[];
+      readonly keptLabel: string;
+      readonly notKeptLabel: string;
+    };
+
+/** At most three promises, or all the results of a step, including explicitly named exclusions. */
+export function Facts(props: FactsProps) {
   const { direction } = useLocale();
+  const align = { writingDirection: direction, textAlign: 'start' } as const;
+  if (props.kept !== undefined) {
+    return (
+      <View style={[styles.list, { direction }]}>
+        {props.kept.map((fact) => (
+          <View
+            key={fact.id}
+            accessible
+            accessibilityRole="text"
+            accessibilityLabel={`${fact.kept ? props.keptLabel : props.notKeptLabel}: ${fact.text}`}
+            style={styles.kept}
+          >
+            <Icon
+              name={fact.kept ? 'check' : 'cross'}
+              size={sizes.icon}
+              color={fact.kept ? colors.board : colors.ink2}
+            />
+            <Text style={[styles.keptText, align, !fact.kept && styles.notKept]}>{fact.text}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  }
   return (
     <View style={[styles.list, { direction }]}>
-      {facts.slice(0, 3).map((fact) => (
+      {props.facts.slice(0, 3).map((fact) => (
         <View key={fact.icon} style={styles.fact}>
           <Icon name={fact.icon} size={sizes.icon} color={colors.board} />
-          <Text style={[styles.text, { writingDirection: direction, textAlign: 'start' }]}>{fact.text}</Text>
+          <Text style={[styles.text, align]}>{fact.text}</Text>
         </View>
       ))}
     </View>
@@ -25,4 +64,7 @@ const styles = StyleSheet.create({
   list: { gap: spacing['space-2'] },
   fact: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing['space-12'] },
   text: { ...typography.body, color: colors.ink, flex: 1 },
+  kept: { minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'] },
+  keptText: { ...typography.fact, color: colors.ink, flex: 1, minWidth: 0 },
+  notKept: { color: colors.ink2, textDecorationLine: 'line-through' },
 });

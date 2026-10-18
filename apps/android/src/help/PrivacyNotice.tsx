@@ -8,10 +8,11 @@
 // keeps the design's placeholders until counsel names it (R-6.2-02).
 
 import { useLocale } from '@react-navigation/native';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
-import { Icon, type IconName } from '../design/Icon';
+import { RowLink } from '../components/RowLink';
+import { controlIcon, Icon, type IconName } from '../design/Icon';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
 
@@ -66,17 +67,14 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
             </View>
           </View>
         ))}
-        <Pressable
-          testID="privacy-connections"
-          accessibilityRole="button"
-          accessibilityLabel={t('connections.title')}
-          onPress={onConnections}
-          style={({ pressed }) => [styles.link, pressed && { borderColor: colors.ink }]}
-        >
-          <Icon name="globe" size={sizes.icon} color={colors.ink} />
-          <Text style={[styles.linkText, align]}>{t('connections.title')}</Text>
-          <Icon name="chevron" size={sizes.icon} color={colors.ink2} />
-        </Pressable>
+        <View style={styles.link}>
+          <RowLink
+            testID="privacy-connections"
+            icon={controlIcon('globe')}
+            title={t('connections.title')}
+            onPress={onConnections}
+          />
+        </View>
       </ScrollView>
       {onAccept && (
         <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
@@ -151,21 +149,9 @@ const styles = StyleSheet.create({
     borderRadius: radius['radius-class'],
   },
   link: {
-    minHeight: 56,
-    minWidth: sizes.target,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing['space-12'],
     marginTop: spacing['space-6'],
     marginBottom: spacing['space-16'],
-    paddingVertical: spacing['space-8'],
-    paddingHorizontal: spacing['space-12'],
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius['radius-button'],
-    backgroundColor: colors.sheet,
   },
-  linkText: { ...typography.body, color: colors.ink, flex: 1 },
   foot: { paddingTop: spacing['space-10'], backgroundColor: colors.paper },
   paragraphs: { gap: spacing['space-16'], paddingTop: spacing['space-20'] },
   paragraph: { ...typography.body, color: colors.ink },

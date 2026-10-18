@@ -120,6 +120,10 @@ test('the switch thumb fill on its on-track reaches 3:1', () => {
 test.each([
   ['notice instruction', colors.ink, colors.notice],
   ['notice badge', colors['notice-ink'], colors['notice-strong']],
+  ['default badge', colors.ink2, colors['pill-on']],
+  ['done badge', colors['ok-ink'], colors.ok],
+  ['row title', colors.ink, colors['link-row']],
+  ['row explanation', colors.ink2, colors['link-row']],
   ['snackbar Undo', colors.hi, colors.board],
 ] as const)('%s text reaches 4.5:1', (_name, foreground, background) => {
   expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(4.5);
@@ -138,6 +142,12 @@ test.each([
   ['soft', colors.focus, colors.soft],
 ] as const)('%s inset focus and pressed border reach 3:1', (_name, foreground, background) => {
   expect(contrast(on(foreground), on(background))).toBeGreaterThanOrEqual(3);
+});
+
+test('pressed navigation rows keep their focus ring and chevron above 3:1', () => {
+  for (const foreground of [colors.focus, colors.ink2]) {
+    expect(contrast(on(foreground), on(colors['link-row']))).toBeGreaterThanOrEqual(3);
+  }
 });
 
 test('the welcome hero’s line, chalk at 80% on board, reaches 4.5:1', () => {

@@ -10,6 +10,7 @@ import type { GestureResponderEvent, ImageProps, PressableProps, TextInputProps 
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData, type TestData } from '../jest/app-data';
+import { RowLink } from '../src/components/RowLink';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -194,6 +195,7 @@ test.each(
     expect(accessibilityProblems(tree.root)).toEqual([]);
     await press(byTestID('welcome-start'));
     expect(accessibilityProblems(tree.root)).toEqual([]);
+    expect(tree.root.findByType(RowLink).props.title).toBe(catalogues[language].connections.title);
     await press(byTestID('privacy-connections'));
     expect(accessibilityProblems(tree.root)).toEqual([]);
     expect(shown()).toContain(catalogues[language].connections.none);
