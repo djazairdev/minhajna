@@ -30,7 +30,8 @@ import { escapeHtml, printDocument } from './print-html';
 import { span } from '../times/TimeTable';
 import { bookClasses } from './texts-book-pages';
 import { TEXTS_BOOK_CSS, bookHead } from './texts-book-html';
-import { bookClock, bookDate, wrappedRules } from './texts-book-rows';
+import { bookClock } from '../entry/book-lines';
+import { bookDate, wrappedRules } from './texts-book-rows';
 
 /** The rules a page holds below its head, its title and its column heads, and the characters of a subject's rule. */
 export const SUPERVISED_RULES = 24;

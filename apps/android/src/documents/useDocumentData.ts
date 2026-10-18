@@ -5,16 +5,17 @@
 // as the documents read them (#212).
 
 import { useLocale } from '@react-navigation/native';
+import type { Day } from '@minhajna/core';
 import { useMemo } from 'react';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage } from '../text/i18n';
 import type { DocumentData } from './document-data';
 
-/** What the documents are made from, for today, in the interface's language and direction. */
-export function useDocumentData(): DocumentData {
+/** What the documents are made from, for `on` or else today, in the interface's language and direction. */
+export function useDocumentData(on?: Day): DocumentData {
   const { state, profile, year, calendar, packs, bells, today } = useAppData();
   const { direction } = useLocale();
-  const day = today();
+  const day = on ?? today();
   const lang = currentLanguage();
   return useMemo(
     () => ({ state, profile, year, calendar, packs, bells, day, lang, dir: direction }),

@@ -3,12 +3,14 @@
 
 // The screens that record the day's work, as navigation routes: Today, a
 // session's details, its roll call, a pupil's correction in it, a pupil who
-// joins or leaves the class, and the Classes tab with each class's plan.
+// joins or leaves the class, and the Classes tab with each class's plan and
+// texts book.
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
+import { TextsBook } from '../book/TextsBook';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
@@ -86,13 +88,31 @@ export function ClassesTabScreen({
   BottomTabScreenProps<HomeTabParamList, 'Classes'>,
   NativeStackScreenProps<RootStackParamList>
 >) {
-  return <ClassesTab onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })} />;
+  return (
+    <ClassesTab
+      onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })}
+      onBook={(courseId) => navigation.navigate('TextsBook', { courseId })}
+    />
+  );
 }
 
 /** A class's plan. */
 export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
   const { courseId } = route.params;
   return <ClassPlan courseId={courseId} onExtra={() => navigation.navigate('Extra', { courseId })} />;
+}
+
+/** A class's texts book; another subject replaces it, and the month on screen prints. */
+export function TextsBookScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TextsBook'>) {
+  return (
+    <TextsBook
+      key={route.params.courseId}
+      courseId={route.params.courseId}
+      onCourse={(courseId) => navigation.setParams({ courseId })}
+      onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
+      onPrint={(day) => navigation.navigate('DocOutput', { id: 'texts', day })}
+    />
+  );
 }
 
 /** A session outside the timetable, for the class it was opened from, if any. */

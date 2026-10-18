@@ -40,7 +40,7 @@ export function directionOf(language: string): Direction {
 }
 
 /** The catalogue that writes a language's words: its own, or else the book's. */
-function wordsFor(language: string, book: Language): Language {
+export function wordsFor(language: string, book: Language): Language {
   return isLanguage(language) ? language : book;
 }
 

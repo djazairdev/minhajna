@@ -3,9 +3,10 @@
 
 // The Classes tab (#37, Classes): one card per class and subject, with its
 // pupils, its first session today, and where it stands against the plan,
-// buffers first. The heading names the subjects, the schools and the
-// pupils. The year switch, the weekly digest, the attendance and the roll
-// call and texts book buttons come with their own issues.
+// buffers first, with its plan and its texts book a tap away (#213). The
+// heading names the subjects, the schools and the pupils. The year switch,
+// the weekly digest, the attendance and the roll call button come with
+// their own issues.
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
@@ -21,8 +22,14 @@ import { currentLanguage, useText } from '../text/i18n';
 import { sessionTime } from '../times/times-rules';
 import { classRows, paceLine } from './class-rules';
 
-/** The tab; `onPlan` opens a class's plan. */
-export function ClassesTab({ onPlan }: { onPlan: (courseId: string) => void }) {
+/** The tab; `onPlan` opens a class's plan, and `onBook` its texts book. */
+export function ClassesTab({
+  onPlan,
+  onBook,
+}: {
+  onPlan: (courseId: string) => void;
+  onBook: (courseId: string) => void;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -80,6 +87,7 @@ export function ClassesTab({ onPlan }: { onPlan: (courseId: string) => void }) {
                 }}
                 lesson={paceLine(t, row)}
                 show={{ id: 'plan', label: t('classPlan.open'), onPress: () => onPlan(row.course.id) }}
+                also={{ id: 'book', label: t('book.open'), onPress: () => onBook(row.course.id) }}
               />
             );
           })}

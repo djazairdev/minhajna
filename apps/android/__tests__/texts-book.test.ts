@@ -92,7 +92,13 @@ test("a German subject keeps the book's words and direction, its own text runnin
     caption: '',
     columns: ['التاريخ', 'التوقيت', 'الموضوع', 'التوقيع'],
     rows: [
-      { day: '2026-10-15' as Day, date: '2026/10/15', time: '', lines: [{ label: 'الموضوع', text: 'Der Konjunktiv' }] },
+      {
+        key: 'k',
+        day: '2026-10-15' as Day,
+        date: '2026/10/15',
+        time: '',
+        lines: [{ label: 'الموضوع', text: 'Der Konjunktiv' }],
+      },
     ],
     used: 1,
   });

@@ -39,6 +39,8 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
       readonly note?: string;
       /** A soft button under the lesson, such as the class's «المخطط». */
       readonly show?: MoreAction;
+      /** A line button beside it, such as the class's «دفتر النصوص». */
+      readonly also?: MoreAction;
       /** What goes with the session whatever its card, such as its roll call. */
       readonly due?: readonly DueStripProps[];
     }
@@ -124,8 +126,29 @@ export function SessionCard(props: SessionCardProps) {
         {metaLine}
         <Text style={[styles.lesson, align]}>{props.lesson}</Text>
         {props.note !== undefined && <Text style={[styles.note, align]}>{props.note}</Text>}
-        {props.show !== undefined && (
-          <Button testID={sub(props.show.id)} variant="soft" label={props.show.label} onPress={props.show.onPress} />
+        {(props.show !== undefined || props.also !== undefined) && (
+          <View style={styles.buttons}>
+            {props.show !== undefined && (
+              <View style={styles.half}>
+                <Button
+                  testID={sub(props.show.id)}
+                  variant="soft"
+                  label={props.show.label}
+                  onPress={props.show.onPress}
+                />
+              </View>
+            )}
+            {props.also !== undefined && (
+              <View style={styles.half}>
+                <Button
+                  testID={sub(props.also.id)}
+                  variant="line"
+                  label={props.also.label}
+                  onPress={props.also.onPress}
+                />
+              </View>
+            )}
+          </View>
         )}
         {props.due !== undefined && props.due.length > 0 && (
           <View style={styles.due}>

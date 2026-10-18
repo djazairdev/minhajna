@@ -20,8 +20,12 @@ import {
   type Context,
   type Course,
   type Day,
+  type PlanPack,
+  type School,
+  type Session,
+  type SessionRecord,
 } from '@minhajna/core';
-import { bookLines, type BookLine } from '../entry/book-lines';
+import { bookClock, bookLines, type BookLine } from '../entry/book-lines';
 import { sessionTime } from '../times/times-rules';
 import { span } from '../times/TimeTable';
 import type { DocumentData, Translate } from './document-data';
@@ -36,6 +40,8 @@ const RULE = 7.3;
 export type Direction = 'rtl' | 'ltr';
 
 export interface BookRow {
+  /** The session's key, for the book's pages in the app to open it. */
+  readonly key: string;
   readonly day: Day;
   readonly date: string;
   readonly time: string;
@@ -45,12 +51,6 @@ export interface BookRow {
 /** A day as the book writes it: 2026/10/01 on a right-to-left page, 01/10/2026 on a left-to-right one. */
 export function bookDate(day: Day, dir: Direction): string {
   return dir === 'rtl' ? formatTextsBookDay(day) : `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
-}
-
-/** A clock time as the book writes it by hand: «08سا» or «09سا45» in Arabic, 08h or 08h45 in French. */
-export function bookClock(time: string, t: Translate): string {
-  const [hours = '', minutes = '00'] = time.split(':');
-  return t(minutes === '00' ? 'documents.textsBook.hour' : 'documents.textsBook.hourMinutes', { hours, minutes });
 }
 
 /** The rules a text wraps onto, word by word as the web engine wraps it; a word longer than a rule breaks. */
@@ -100,6 +100,25 @@ export function paginate<Row extends Pick<BookRow, 'lines'>>(rows: readonly Row[
   return pages;
 }
 
+/** A session's row as the book takes it, from its record or from what confirming it would record. */
+export function bookRow(
+  data: Pick<DocumentData, 'bells' | 'calendar' | 'state'>,
+  where: { readonly school: School | undefined; readonly pack: PlanPack | null },
+  session: Session,
+  record: SessionRecord,
+  t: Translate,
+  dir: Direction,
+): BookRow {
+  const time = sessionTime(data, where.school, session.slot, session.day);
+  return {
+    key: session.key,
+    day: session.day,
+    date: bookDate(session.day, dir),
+    time: time === null ? '' : span(bookClock(time.from, t), bookClock(time.to, t), dir),
+    lines: bookLines(t, where.pack, record, (day) => bookDate(day, dir)),
+  };
+}
+
 /** The course's confirmed sessions from `from` to `to`, as the book's rows. */
 export function bookRows(
   data: DocumentData,
@@ -116,16 +135,7 @@ export function bookRows(
   const school = schoolClass && state.schools.get(schoolClass.schoolId);
   return sessionsBetween(context, from, to, new Set([course.id])).flatMap((session) => {
     const record = current(state.sessions.get(session.key));
-    if (record === null) return [];
-    const time = sessionTime(data, school, session.slot, session.day);
-    return [
-      {
-        day: session.day,
-        date: bookDate(session.day, dir),
-        time: time === null ? '' : span(bookClock(time.from, t), bookClock(time.to, t), dir),
-        lines: bookLines(t, pack, record, (day) => bookDate(day, dir)),
-      },
-    ];
+    return record === null ? [] : [bookRow(data, { school, pack }, session, record, t, dir)];
   });
 }
 

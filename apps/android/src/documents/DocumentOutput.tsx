@@ -7,17 +7,21 @@
 // with pupils' data says that «داخلي · سري» is on every page (R-5.9-15). The
 // teacher's box stays blank, to sign by hand (R-3.8-42); the drawn signature
 // and a password on the PDF come later. The pages are made from the record
-// book when a button is pressed, so they hold the latest entries.
+// book when a button is pressed, so they hold the latest entries. A
+// document of a month prints the month it was opened for, as the texts
+// book's pages in the app open it (#213), or else the current one; the
+// screen says which.
 
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import type { Day } from '@minhajna/core';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocale } from '@react-navigation/native';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
 import { controlIcon } from '../design/Icon';
-import { colors, spacing } from '../design/tokens';
+import { colors, spacing, typography } from '../design/tokens';
 import pdf from '../native/NativeMinhajnaPdf';
 import { useText } from '../text/i18n';
 import { fileName, type DocumentKind } from './catalogue';
@@ -25,12 +29,12 @@ import { useDocumentData } from './useDocumentData';
 
 type Said = 'saved' | 'failed' | null;
 
-/** Prints or saves one document. */
-export function DocumentOutput({ kind }: { readonly kind: DocumentKind }) {
+/** Prints or saves one document, for the period of `day` when given, else today's. */
+export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; readonly day?: Day }) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const data = useDocumentData();
+  const data = useDocumentData(day);
   const [blank, setBlank] = useState(false);
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<Said>(null);
@@ -94,6 +98,9 @@ export function DocumentOutput({ kind }: { readonly kind: DocumentKind }) {
         },
       ]}
     >
+      <Text testID="output-period" style={styles.period}>
+        {kind.line(data, t)}
+      </Text>
       <RadioCardGroup
         testID="output-version"
         label={t('documents.output.version')}
@@ -138,6 +145,7 @@ export function DocumentOutput({ kind }: { readonly kind: DocumentKind }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
+  period: { ...typography.body, color: colors.pencil },
   content: { gap: spacing['space-16'], paddingTop: spacing['space-16'] },
   actions: { gap: spacing['space-10'], paddingTop: spacing['space-8'] },
 });

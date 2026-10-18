@@ -1,6 +1,6 @@
 # The texts book's pages
 
-How the texts book's pages for each class and subject, and its page 08 for supervised or additional lessons, were checked for [#213](https://github.com/djazairdev/minhajna/issues/213) (PRD [§3.8](../prd/PRD.md#38-the-documents)), in its first two pull requests. Every record in these checks is made up. They ran on 18 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
+How the texts book's pages for each class and subject, its page 08 for supervised or additional lessons, and its pages in the app were checked for [#213](https://github.com/djazairdev/minhajna/issues/213) (PRD [§3.8](../prd/PRD.md#38-the-documents)), in its three pull requests. Every record in these checks is made up. They ran on 18 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
 
 - [What it does](#what-it-does)
 - [The result](#the-result)
@@ -32,6 +32,15 @@ The Documents tab lists «دفتر النصوص» with the daily journal and the
 - A year with more rows than a page holds runs on to another page. A long subject name wraps, and the rules it takes are counted.
 - Make-up sessions are not here: they go on the subject's pages (R-3.8-28).
 
+**The book in the app** (P09, P10) opens from «دفتر النصوص» on each class's card on the Classes tab.
+
+- **One class and subject, page by page as it prints,** in the subject's language and direction, opening on the latest page. «الصفحة السابقة» and «الصفحة التالية» turn the pages.
+- **The class's other subjects** are chips at the top.
+- **A confirmed row** carries a check in the signature column and opens «تفاصيل الحصة» to correct it.
+- **A session awaiting confirmation, up to today,** shows grey on the page of its month, marked «تنتظر التأكيد» or «مقترح · اليوم», in what confirming it as proposed would record. It never counts towards the printed pages or their numbers, so a month of awaiting sessions only is named by its month alone, «لا صفحة مطبوعة بعد» (R-2.3-14). When a lesson is proposed, «تمّت كما هو مقترح» confirms it with one tap, with «تراجع» (R-2.3-07), as on Today; «تراجع» goes once the session is recorded otherwise, so it never takes back a later correction. «تفاصيل الحصة» opens it for another outcome.
+- **«طباعة» and the month on screen** opens the texts book's output for that month, so any month of the year prints. The output screen now names the period it prints, such as «قسمان · سبتمبر 2026».
+- **The time is written as by hand** in «تفاصيل الحصة»'s preview and in its row as recorded, and the homework's own words are isolated, so a French line keeps its order inside an Arabic one there, on screen and on paper.
+
 In the reference data, profile release `2026.4` gives the profile a teaching language, `ar`, and gives French, English, German, Spanish and Italian their own. Tamazight keeps the profile's language for now (`data/README.md`).
 
 ## The result
@@ -50,6 +59,10 @@ In the reference data, profile release `2026.4` gives the profile a teaching lan
 | «الدروس المحروسة أو الإضافية» is listed with «قسمان · الصفحة 08 · السنة الدراسية» | **Passed** |
 | With no session outside the timetable, each class's page 08 prints blank, with its heads, as the Supervised-empty screen draws it | **Passed** |
 | A supervised study logged on 6 October, 14:00 to 15:30, prints as row 1: «اللغة العربية · دراسة محروسة · 2026/10/06 · 14سا – 15سا30» | **Passed** |
+| Each class card on the Classes tab has «المخطط» and «دفتر النصوص» | **Passed** |
+| 4AM1's book opens on «الصفحة 2 · أكتوبر 2026», with three confirmed rows and the awaiting sessions of 12 and 15 October in grey, offering «تفاصيل الحصة» only, as nothing is proposed without a plan pack | **Passed** after a fix |
+| «الصفحة السابقة، 1» shows September's page; «طباعة سبتمبر 2026» opens the output for «قسمان · سبتمبر 2026», and the PDF's page 1 holds September's rows | **Passed** |
+| A confirmed row opens «تفاصيل الحصة» in correction mode, and going back keeps the page | **Passed** |
 
 Three faults were found and fixed while checking:
 - The first PDF after the app started printed with its text hidden: it was printed before its fonts had loaded. That fault affected every document, and is fixed separately in [#260](https://github.com/djazairdev/minhajna/pull/260).
@@ -64,6 +77,10 @@ The review before committing found more, all fixed:
 - A long word, such as a web address, ran into the signature column.
 - On page 08, a long subject name that wrapped could push the page's foot onto a sheet of its own; pages now count the rules each row takes.
 - The Documents tab counted classes of earlier years for the texts book.
+- In the app, a session awaiting confirmation without a proposed lesson offered «تمّت كما هو مقترح»; it now offers only «تفاصيل الحصة», as Today does.
+- A French homework line wrapped out of order inside an Arabic one; its words are now isolated.
+- The row as recorded, in a correction, still gave the clock time; it now gives the book's, as the preview does.
+- The audit found the app's page numbers counting a month of awaiting sessions, unlike print; «تراجع» able to withdraw a correction made after it; the last row hidden under the undo bar; a joint class's subject chips without their level; and, on re-audit, a month of awaiting sessions sharing its number with the next printed month. All are fixed and tested.
 
 The emulator's teacher had no plan pack, so the sessions were confirmed with content from outside the plan.
 
@@ -81,14 +98,15 @@ The core tests in `packages/core/test/profile-languages.test.ts` and `data.test.
 - rows kept whole, wrapped by words, and the empty rules;
 - the blank version, and a month with nothing confirmed;
 - the Documents tab's entry, with no class of this school year, and the saved file's name;
+- in `book-view.test.tsx`, the book in the app: page numbers, awaiting sessions on their month, one-tap confirmation and «تراجع», «تراجع» gone after a correction, numbers matching print after a month left awaiting, an earlier page, a row's details, the month's print, other subjects, and an empty book;
 - in `supervised-page.test.ts`, page 08: sessions outside the timetable and a support day's, numbered; a class with none, and the blank version; a year of rows over several pages, with a long subject; and its entry.
 
 To check page 08 on a phone, log a session from Today's plus, «حصة خارج استعمال الزمن», then open «الدروس المحروسة أو الإضافية» on the Documents tab.
 
 ## Still open
 
-- **The book's pages in the app** (P09, P10), with any month to print, in a later pull request for #213. Until then the Documents tab prints the current month.
-- **Page numbers for a session confirmed late.** Each month's pages are numbered after the months before, as recorded now. A session of an earlier month confirmed after that month was printed moves the numbers on, so a number can be skipped. The rule comes with the choice of month.
+- **Page numbers for a session confirmed late.** Each month's pages are numbered after the months before, as recorded now. A session of an earlier month confirmed after that month was printed moves the numbers on, so a number can be skipped. Reprinting the earlier month from the book in the app puts the late row on paper; whether printed pages should then keep their numbers is left to the pilot's teachers.
 - **Printed at 100% on A4 and compared with the paper book,** on paper, by the founder.
 - **A month in under 10 seconds on a budget phone.**
-- **TalkBack in Arabic and text at 200%,** on a real phone.
+- **TalkBack in Arabic and text at 200%,** on a real phone, for the printed pages and the book in the app.
+- **Homework and what is due today** in the book, with [#214](https://github.com/djazairdev/minhajna/issues/214).

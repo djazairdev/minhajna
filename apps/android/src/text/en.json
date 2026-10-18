@@ -622,6 +622,22 @@
     "taughtSpoken": "Taught {{days}}",
     "aheadSpoken": "Reached {{day}} if nothing changes"
   },
+  "book": {
+    "title": "Texts book",
+    "open": "Texts book",
+    "heading": "{{className}} · {{subject}}",
+    "page": "Page {{page}} · {{month}}",
+    "unprinted": "{{month}} · no printed page yet",
+    "subjects": "Subject",
+    "awaiting": "Awaiting confirmation",
+    "proposedToday": "Proposed · today",
+    "confirmed": "Confirmed",
+    "editHint": "Opens the session's details to correct it",
+    "empty": "No session in this book yet. Each session you confirm appears here as the book takes it.",
+    "before": "Previous page, {{page}}",
+    "after": "Next page, {{page}}",
+    "print": "Print {{month}}"
+  },
   "roll": {
     "absent": "Absent",
     "late": "Late",

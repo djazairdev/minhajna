@@ -7,7 +7,6 @@ import {
   useNavigationContainerRef,
   type InitialState,
   type NavigationState,
-  type NavigatorScreenParams,
 } from '@react-navigation/native';
 import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
@@ -28,13 +27,12 @@ import {
   PupilMoveScreen,
   RollScreen,
   SeatsSetupScreen,
+  TextsBookScreen,
   TodayTab,
 } from './RecordScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
 import { DocOutputScreen, DocumentsTabScreen } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
-import type { LockPinMode } from '../lock/LockPin';
-import type { SecurityDone } from '../lock/Security';
 import { Welcome } from './Welcome';
 import {
   CardScreen,
@@ -50,7 +48,7 @@ import {
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
 import { Times } from '../times/Times';
-import type { Cell } from '../week/week-rules';
+import type { HomeTabParamList, RootStackParamList } from './routes';
 
 /** Each tab's label in the catalogue. */
 export const tabLabels = {
@@ -59,43 +57,7 @@ export const tabLabels = {
   Documents: 'navigation.documents',
 } as const satisfies Record<keyof HomeTabParamList, string>;
 
-/** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
-export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
-/** Inner pages cover the tabs and carry no record contents. The gallery and the storage check exist in debug builds only. */
-export type RootStackParamList = {
-  Welcome: undefined;
-  Privacy: undefined;
-  Teaching: undefined;
-  Card: undefined;
-  Classes: undefined;
-  TypeList: { classId: string; name: string };
-  Week: undefined;
-  WeekDraw: { slot?: Cell } | undefined;
-  Times: undefined;
-  Plan: undefined;
-  Packs: { grade: string; subject: string };
-  Ready: undefined;
-  Home: NavigatorScreenParams<HomeTabParamList> | undefined;
-  Gallery: undefined;
-  StorageCheck: undefined;
-  Help: undefined;
-  PrivacyNotice: undefined;
-  Connections: undefined;
-  Licences: undefined;
-  LicenceNotice: { name: string };
-  Entry: { key: string; day: string };
-  ClassPlan: { courseId: string };
-  Roll: { key: string; day: string };
-  Correct: { unit: string; day: string; pupilId: string };
-  RollRules: undefined;
-  PupilMove: { classId: string };
-  SeatsSetup: { classId: string; groupId: string };
-  Security: { done?: SecurityDone; at?: number } | undefined;
-  LockPin: { mode: LockPinMode };
-  DocOutput: { id: string };
-  Extra: { courseId?: string } | undefined;
-  AddSessions: undefined;
-};
+export type { HomeTabParamList, RootStackParamList } from './routes';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<HomeTabParamList>();
@@ -232,6 +194,7 @@ export function AppNavigator({
         <Stack.Screen name="PupilMove" component={PupilMoveScreen} options={dark(t('move.title'))} />
         <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
         <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
+        <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
         <Stack.Screen name="Extra" component={ExtraScreen} options={dark(t('extra.title'))} />
         <Stack.Screen name="AddSessions" component={AddSessionsScreen} options={dark(t('addSessions.title'))} />
         <Stack.Screen

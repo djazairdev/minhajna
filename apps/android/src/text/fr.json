@@ -638,6 +638,22 @@
     "taughtSpoken": "Enseigné le {{days}}",
     "aheadSpoken": "Atteint le {{day}} si rien ne change"
   },
+  "book": {
+    "title": "Cahier de textes",
+    "open": "Cahier de textes",
+    "heading": "{{className}} · {{subject}}",
+    "page": "Page {{page}} · {{month}}",
+    "unprinted": "{{month}} · pas encore de page imprimée",
+    "subjects": "Matière",
+    "awaiting": "En attente de confirmation",
+    "proposedToday": "Proposé · aujourd'hui",
+    "confirmed": "Confirmée",
+    "editHint": "Ouvre les détails de la séance pour la corriger",
+    "empty": "Aucune séance dans ce cahier pour l'instant. Chaque séance confirmée s'y inscrit, comme dans le cahier.",
+    "before": "Page précédente, {{page}}",
+    "after": "Page suivante, {{page}}",
+    "print": "Imprimer {{month}}"
+  },
   "roll": {
     "absent": "Absence",
     "late": "Retard",

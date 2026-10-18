@@ -79,7 +79,7 @@ const type = async (id: string, value: string) => {
 test('shows the row the texts book will take, and records nothing before «تأكيد الحصة»', async () => {
   const data = await withDay();
   await show(data);
-  expect(book()).toBe('2026/10/15. ⁧08:00 – 09:00⁩. الموضوع: تقويم تشخيصي (مثال)');
+  expect(book()).toBe('2026/10/15. ⁧08سا – 09سا⁩. الموضوع: تقويم تشخيصي (مثال)');
   expect(shown()).toEqual(
     expect.arrayContaining([
       text.entry.book,
@@ -96,7 +96,7 @@ test('shows the row the texts book will take, and records nothing before «تأ�
   expect(shown()).toEqual(expect.arrayContaining([text.entry.due, 'الخميس 22/10', 'الخميس 05/11']));
   await press('entry-test');
   await type('entry-factual', 'سطر مختلق');
-  expect(book()).toContain('الواجب المنزلي: التمرين 5 ص 22، يُسلَّم الخميس 22/10');
+  expect(book()).toContain('الواجب المنزلي: \u2068التمرين 5 ص 22\u2069، يُسلَّم الخميس 22/10');
   expect(book()).toContain('فرض');
   expect(data.book.state.sessions.size).toBe(0);
   await ReactTestRenderer.act(async () => {
@@ -158,7 +158,7 @@ test('a test session takes no lesson, and a recorded session opens as a correcti
   const data = await withDay();
   await show(data);
   await press('entry-type-test');
-  expect(book()).toBe('2026/10/15. ⁧08:00 – 09:00⁩');
+  expect(book()).toBe('2026/10/15. ⁧08سا – 09سا⁩');
   await press('entry-confirm');
   expect(current(data.book.state.sessions.get(key(1)))).toMatchObject({ sessionType: 'test', coverage: [] });
   await show(data);

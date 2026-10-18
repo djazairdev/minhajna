@@ -96,6 +96,10 @@ test('opens from what was recorded, and saves nothing until something changes', 
     expect.arrayContaining([text.fix.title, text.fix.promise, text.fix.recorded, text.fix.reasonLabel, text.fix.paper]),
   );
   expect(accessibilityProblems(root())).toEqual([]);
+  const recorded = root().findAll(
+    (node) => node.props.testID === 'fix-recorded' && typeof node.props.accessibilityLabel === 'string',
+  )[0];
+  expect(recorded?.props.accessibilityLabel).toContain('⁧08سا – 09سا⁩');
   expect((control('entry-confirm')?.props as PressableProps).disabled).toBe(true);
 });
 
