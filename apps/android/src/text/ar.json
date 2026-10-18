@@ -918,6 +918,8 @@
       "caption": "دفتر النصوص · {{className}} · {{subject}} · {{month}}",
       "date": "التاريخ",
       "time": "التوقيت",
+      "hour": "{{hours}}سا",
+      "hourMinutes": "{{hours}}سا{{minutes}}",
       "topic": "الموضوع أو العمل المطلوب إنجازه",
       "signature": "التوقيع",
       "none": "لا حصة مؤكَّدة في هذا الشهر بعد."

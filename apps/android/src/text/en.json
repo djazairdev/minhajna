@@ -846,6 +846,8 @@
       "caption": "Texts book · {{className}} · {{subject}} · {{month}}",
       "date": "Date",
       "time": "Time",
+      "hour": "{{hours}}:00",
+      "hourMinutes": "{{hours}}:{{minutes}}",
       "topic": "Topic or work set",
       "signature": "Signature",
       "none": "No session confirmed this month yet."

@@ -864,6 +864,8 @@
       "caption": "Cahier de textes · {{className}} · {{subject}} · {{month}}",
       "date": "Date",
       "time": "Horaire",
+      "hour": "{{hours}}h",
+      "hourMinutes": "{{hours}}h{{minutes}}",
       "topic": "Thème",
       "signature": "Émargement",
       "none": "Aucune séance confirmée ce mois-ci."

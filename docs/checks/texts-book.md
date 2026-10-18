@@ -18,7 +18,7 @@ The Documents tab lists «دفتر النصوص» with the daily journal and the
   - A session awaiting confirmation never prints (R-2.3-14). One the calendar took prints only if the teacher had confirmed it, as in the daily journal.
   - Make-up sessions print on the subject's pages, with their dates (R-3.8-28).
 - **The date** is Gregorian, with Western digits (R-3.8-59): year first on a right-to-left page, as the book is written by hand, and day first on a left-to-right one.
-- **The time** comes from the school's bells, with Ramadan's times on a Ramadan day, so a shortened session prints its real length (R-4.5-14).
+- **The time** comes from the school's bells, with Ramadan's times on a Ramadan day, so a shortened session prints its real length (R-4.5-14). It is written as by hand, as the design screens write it: «08سا – 09سا» or «08سا – 08سا45» in Arabic, with the start on the right, and «08h – 09h» in French.
 - **Rows are never cut** across pages. A row's height is estimated by wrapping its words, on the safe side, with each entry's ruled foot counted. Empty rules 7.3 mm apart fill each page to its foot. The signature column stays blank, to sign by hand.
 - **A joint class** has a run of pages for each level, named with its level, as on the Classes tab.
 - **The blank version** gives each class and subject one page, with its head filled in and its rules empty.
@@ -33,7 +33,7 @@ In the reference data, profile release `2026.4` gives the profile a teaching lan
 | Its output screen says the signature column stays blank and no session awaiting confirmation prints | **Passed** |
 | With sessions confirmed in September and October, October's pages are numbered 2, one for each class | **Passed** |
 | The head runs right to left: the school and «القسم: 4AM1» on the right, the year and the subject on the left, the title in Ruqaa | **Passed** |
-| Dates read «2026/10/01», times «08:00 – 09:00» in the same order as on Today | **Passed** |
+| Dates read «2026/10/01», times «08سا – 09سا», the start on the right as on Today | **Passed** |
 | A session still awaiting confirmation is left out | **Passed** |
 | A long topic wraps onto three lines and the homework line keeps its due date in order; the page still fits on one A4 | **Passed** |
 | The print service's preview shows the same pages | **Passed** |

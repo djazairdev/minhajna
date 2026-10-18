@@ -7,9 +7,10 @@
 // Gregorian with Western digits (R-3.8-59), year first on a right-to-left
 // page as the book is written by hand; the time comes from the school's
 // bells, Ramadan's when the day falls then, so a shortened session prints
-// its real length (R-4.5-14). Each month starts a page, and the pages of a
-// course are numbered from the school year's first, so a month printed
-// later carries on where the one before stopped.
+// its real length (R-4.5-14), and is written as by hand too, «08سا – 09سا».
+// Each month starts a page, and the pages of a course are numbered from the
+// school year's first, so a month printed later carries on where the one
+// before stopped.
 
 import {
   courseSetup,
@@ -44,6 +45,12 @@ export interface BookRow {
 /** A day as the book writes it: 2026/10/01 on a right-to-left page, 01/10/2026 on a left-to-right one. */
 export function bookDate(day: Day, dir: Direction): string {
   return dir === 'rtl' ? formatTextsBookDay(day) : `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
+}
+
+/** A clock time as the book writes it by hand: «08سا» or «09سا45» in Arabic, 08h or 08h45 in French. */
+export function bookClock(time: string, t: Translate): string {
+  const [hours = '', minutes = '00'] = time.split(':');
+  return t(minutes === '00' ? 'documents.textsBook.hour' : 'documents.textsBook.hourMinutes', { hours, minutes });
 }
 
 /** The rules a text wraps onto, word by word as the web engine wraps it; a word longer than a rule breaks. */
@@ -115,7 +122,7 @@ export function bookRows(
       {
         day: session.day,
         date: bookDate(session.day, dir),
-        time: time === null ? '' : span(time.from, time.to, dir),
+        time: time === null ? '' : span(bookClock(time.from, t), bookClock(time.to, t), dir),
         lines: bookLines(t, pack, record, (day) => bookDate(day, dir)),
       },
     ];

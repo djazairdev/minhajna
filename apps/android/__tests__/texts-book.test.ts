@@ -55,7 +55,7 @@ test('prints a confirmed session as the book takes it, under an Arabic head, and
   expect(html).toContain('دفتر النصوص · الصفحة 1');
   expect(html).toContain('المادة: اللغة العربية');
   expect(html).toContain('2026/10/15');
-  expect(html).toContain('08:00 – 09:00');
+  expect(html).toContain('08سا – 09سا');
   expect(entries(html)).toBe(1);
   expect(html.match(/<tr class="rule">/g)).toHaveLength(PAGE_RULES - 2);
   expect(html).toContain('<th>الموضوع أو العمل المطلوب إنجازه</th>');
@@ -128,7 +128,7 @@ test("a session in Ramadan prints Ramadan's shorter time", async () => {
   await data.book.recordAll(day, confirmSessions(context, [{ session: first.session }]));
   const html = textsBookPages(documentData(data, '2027-02-15'), t, false);
   expect(html).toContain('2027/02/11');
-  expect(html).toContain('08:00 – 08:45');
+  expect(html).toContain('08سا – 08سا45');
   expect(html).toContain('دفتر النصوص · الصفحة 2');
 });
 
