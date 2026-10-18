@@ -5,7 +5,7 @@
 // data the screens read, the day it is made for, and the interface's
 // language and direction, which the printed pages follow.
 
-import type { Day, SchoolClass } from '@minhajna/core';
+import { formatDayWithMonth, weekday, type Day, type SchoolClass } from '@minhajna/core';
 import type { AppData } from '../storage/AppData';
 import type { useText } from '../text/i18n';
 
@@ -39,4 +39,9 @@ export function taughtClasses(data: DocumentData): SchoolClass[] {
 export function monthLabel(data: DocumentData, day: Day): string {
   const name = data.profile.months?.[Number(day.slice(5, 7)) - 1]?.[data.lang] ?? day.slice(5, 7);
   return `${name} ${day.slice(0, 4)}`;
+}
+
+/** A day as a page's head prints it, such as «الأحد 18 أكتوبر 2026». */
+export function dayTitle(data: DocumentData, t: Translate, day: Day): string {
+  return `${t(`week.days.${weekday(day)}`)} ${formatDayWithMonth(day, data.lang, data.profile)}`;
 }

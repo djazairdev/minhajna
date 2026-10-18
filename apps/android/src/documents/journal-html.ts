@@ -3,11 +3,12 @@
 
 // The daily journal (الدفتر اليومي) as printed pages (Journal, PRD §3.8):
 // one A4 page a day, in portrait, with the school, the year and the day on
-// top; then the sessions in three columns, from–to, the class, and the
-// unit, the item and how the session went; ruled lines for the rest of the
-// page; and the teacher's signature and the director's visa at the foot.
-// A session still awaiting confirmation prints in grey. Times and class
-// codes are isolated, so they keep their order in any language.
+// top, and the class on a journal kept for one class; then the sessions in
+// three columns, from–to, the class, and the session's journal lines; ruled
+// lines for the rest of the page; and the teacher's signature and the
+// director's visa at the foot. A session still awaiting confirmation prints
+// in grey. Times and class codes are isolated, so they keep their order in
+// any language.
 
 import type { BookLine } from '../entry/book-lines';
 import { escapeHtml, printDocument } from './print-html';
@@ -22,6 +23,8 @@ export interface JournalEntry {
 export interface JournalDay {
   /** Such as «الأحد 4 أكتوبر 2026». */
   readonly title: string;
+  /** Such as «القسم: 1م2», on a journal kept for one class. */
+  readonly className?: string;
   readonly entries: readonly JournalEntry[];
 }
 
@@ -37,6 +40,8 @@ export interface JournalTexts {
   readonly teacher: string;
   readonly director: string;
   readonly empty: string;
+  /** Between a line's label and its text: «: », or « : » in French. */
+  readonly colon: string;
 }
 
 const CSS =
@@ -52,10 +57,11 @@ const CSS =
   '.visa{display:grid;grid-template-columns:1fr 1fr;border-top:1.2pt solid #000;height:30mm}' +
   '.visa div{padding:4pt 8pt;font-family:Ruqaa,Naskh}.visa div+div{border-inline-start:0.8pt solid #000}';
 
-function entryHtml(entry: JournalEntry): string {
+function entryHtml(entry: JournalEntry, colon: string): string {
   const lines = entry.lines
     .map(
-      (line) => `<div>${line.label === undefined ? '' : `${escapeHtml(line.label)}: `}${escapeHtml(line.text)}</div>`,
+      (line) =>
+        `<div>${line.label === undefined ? '' : `${escapeHtml(line.label)}${escapeHtml(colon)}`}${escapeHtml(line.text)}</div>`,
     )
     .join('');
   return (
@@ -72,12 +78,13 @@ export function journalHtml(texts: JournalTexts, days: readonly JournalDay[]): s
     (day) =>
       `<div class="head"><div><div class="book">${escapeHtml(texts.book)}</div>` +
       `<small>${escapeHtml(texts.school)}</small></div><div><b>${escapeHtml(day.title)}</b><br>` +
+      (day.className === undefined ? '' : `<small>${escapeHtml(day.className)}</small><br>`) +
       `<small>${escapeHtml(texts.year)}</small></div></div><div class="sheet">` +
       `<div class="row cols"><div>${escapeHtml(texts.time)}</div><div>${escapeHtml(texts.className)}</div>` +
       `<div>${escapeHtml(texts.content)}</div></div>` +
       (day.entries.length === 0
         ? `<div class="row"><div></div><div></div><div>${escapeHtml(texts.empty)}</div></div>`
-        : day.entries.map(entryHtml).join('')) +
+        : day.entries.map((entry) => entryHtml(entry, texts.colon)).join('')) +
       `<div class="blank"></div><div class="visa"><div>${escapeHtml(texts.teacher)}</div>` +
       `<div>${escapeHtml(texts.director)}</div></div></div>`,
   );

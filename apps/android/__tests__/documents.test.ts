@@ -28,6 +28,7 @@ const journalTexts: JournalTexts = {
   teacher: 'توقيع الأستاذ',
   director: 'تأشيرة المدير',
   empty: 'لا حصة في هذا اليوم.',
+  colon: ': ',
 };
 
 const rollTexts: RollMonthTexts = {

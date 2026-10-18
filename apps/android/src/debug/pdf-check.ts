@@ -24,8 +24,8 @@ import {
   type HistoryDeps,
 } from '@minhajna/core';
 import { makeDemoYear } from '@minhajna/core/test-support/demo-year';
-import { bookLines } from '../entry/book-lines';
 import { journalHtml, type JournalDay } from '../documents/journal-html';
+import { journalLines, proposedRecord } from '../documents/journal-lines';
 import { rollMonthHtml, type RollMark } from '../documents/roll-month-html';
 import pdf, { type MadePdf } from '../native/NativeMinhajnaPdf';
 import { bundledReference, readReference } from '../reference';
@@ -59,6 +59,10 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
   const context = makeContext(year.reference, state);
   const meta = { state, profile: read.profile, bells: read.bells, calendar: read.calendar.entries };
   const title = (day: Day) => `${t(`week.days.${weekday(day)}`)} ${formatDayWithMonth(day, 'ar', read.profile)}`;
+  const names = {
+    type: (code: string) => read.profile.sessionTypes.find((one) => one.code === code)?.name.ar ?? code,
+    day: title,
+  };
   const days: JournalDay[] = DAYS.map((day) => todayView(context, day))
     .filter((view) => view.sessions.some((item) => item.status !== 'calendar'))
     .map((view) => ({
@@ -68,10 +72,13 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
         .map((item) => ({
           time: sessionMeta(meta, t, 'rtl', item, false).slot,
           className: sessionMeta(meta, t, 'rtl', item, false).className,
-          lines:
-            item.record === null
-              ? [{ text: t('documents.awaiting') }]
-              : bookLines(t, courseSetup(context, item.course.id).pack, item.record, title),
+          lines: journalLines(
+            t,
+            names,
+            courseSetup(context, item.course.id).pack,
+            item.record ?? proposedRecord(item.session, item.proposal),
+            item.record === null,
+          ),
           awaiting: item.record === null,
         })),
     }));
@@ -90,6 +97,7 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
       teacher: t('documents.teacher'),
       director: t('documents.director'),
       empty: t('documents.empty'),
+      colon: t('documents.journalLines.colon'),
     },
     days,
   );
