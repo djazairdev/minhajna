@@ -849,6 +849,32 @@
       "retaught": "Reprise : {{title}}",
       "colon": " : "
     },
+    "journalFront": {
+      "name": "Pages de garde",
+      "card": "Fiche de l'enseignant",
+      "teacherName": "Nom et prénom",
+      "rank": "Grade",
+      "subject": "Matière",
+      "school": "Établissement",
+      "year": "Année scolaire",
+      "classes": "Classes",
+      "and": ", ",
+      "events": "Séminaires, formations et réunions",
+      "eventsNote": "En gris, ce qui n'a pas encore eu lieu. Les autres séminaires et réunions s'écrivent à la main.",
+      "date": "Date",
+      "activity": "Activité et lieu",
+      "remarks": "Remarques",
+      "holidays": "Vacances et fêtes nationales",
+      "holidaysNote": "Une date prévisionnelle porte le mot « prévisionnelle » jusqu'à son annonce ; une date attendue peut avancer ou reculer d'un jour.",
+      "occasion": "Occasion",
+      "status": "Statut",
+      "line": "Fiche, séminaires et vacances · {{year}}",
+      "confidences": {
+        "announced": "annoncée",
+        "expected": "attendue",
+        "projected": "prévisionnelle"
+      }
+    },
     "rollTitle": "Registre d’appel · {{month}}",
     "october": "octobre 2026",
     "number": "N°",
@@ -904,7 +930,9 @@
         "combinedLine": "Toutes les séances du jour sur une page.",
         "per-class": "Un cahier par classe",
         "per-classLine": "Une page par classe ayant cours ce jour-là ; dans la version vierge, une page par classe."
-      }
+      },
+      "blankJournalFront": "La fiche s'imprime avec ses intitulés, et les deux tableaux avec leurs en-têtes et des lignes vides.",
+      "signatureJournalFront": "Le nom et le grade s'impriment tels que saisis à la configuration ; le visa du directeur reste vide."
     },
     "textsBook": {
       "name": "Cahier de textes",

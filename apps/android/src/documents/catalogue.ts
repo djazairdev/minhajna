@@ -9,7 +9,8 @@
 // plugs in here.
 
 import type { IconName } from '../design/Icon';
-import { dayTitle, monthLabel, taughtClasses, type DocumentData, type Translate } from './document-data';
+import { dayTitle, monthLabel, taughtClasses, yearLabel, type DocumentData, type Translate } from './document-data';
+import { journalFrontPages } from './journal-front-pages';
 import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
@@ -18,7 +19,7 @@ import { supervisedPages } from './supervised-pages';
 import { bookDate } from './texts-book-rows';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 
-export type DocumentId = 'journal' | 'roll' | 'texts' | 'supervised' | 'homework' | 'strip';
+export type DocumentId = 'journal' | 'journal-front' | 'roll' | 'texts' | 'supervised' | 'homework' | 'strip';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -81,6 +82,20 @@ export const DOCUMENTS: readonly DocumentKind[] = [
         description: t(`documents.output.layouts.${value}Line`),
       })),
     pages: journalPages,
+  },
+  {
+    id: 'journal-front',
+    icon: 'homework',
+    pupils: false,
+    landscape: false,
+    empty: () => false,
+    period: (data) => data.year.id,
+    title: (t) => `${t('documents.journal')} · ${t('documents.journalFront.name')}`,
+    line: (data, t) => t('documents.journalFront.line', { year: yearLabel(data) }),
+    blankLine: (t) => t('documents.output.blankJournalFront'),
+    signatureLine: (t) => t('documents.output.signatureJournalFront'),
+    emptyLine: (t) => t('documents.output.noClasses'),
+    pages: journalFrontPages,
   },
   {
     id: 'roll',

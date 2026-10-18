@@ -832,6 +832,32 @@
       "retaught": "Taught again: {{title}}",
       "colon": ": "
     },
+    "journalFront": {
+      "name": "Front pages",
+      "card": "Teacher card",
+      "teacherName": "Full name",
+      "rank": "Rank",
+      "subject": "Subject",
+      "school": "School",
+      "year": "School year",
+      "classes": "Classes",
+      "and": ", ",
+      "events": "Seminars, training and meetings",
+      "eventsNote": "In grey, what has not happened yet. Other seminars and meetings are written by hand.",
+      "date": "Date",
+      "activity": "Activity and place",
+      "remarks": "Remarks",
+      "holidays": "Holidays and national days",
+      "holidaysNote": "A projected date is printed with the word “projected” until it is announced; an expected date may move by a day.",
+      "occasion": "Occasion",
+      "status": "Status",
+      "line": "Card, seminars and holidays · {{year}}",
+      "confidences": {
+        "announced": "announced",
+        "expected": "expected",
+        "projected": "projected"
+      }
+    },
     "rollTitle": "Roll-call book · {{month}}",
     "october": "October 2026",
     "number": "No.",
@@ -886,7 +912,9 @@
         "combinedLine": "All the day's sessions on one page.",
         "per-class": "One journal per class",
         "per-classLine": "A page for each class with a session that day; in the blank version, a page for each class."
-      }
+      },
+      "blankJournalFront": "The card prints with its labels, and both tables with their heads and empty rules.",
+      "signatureJournalFront": "The name and rank print as entered in setup; the director's visa stays blank."
     },
     "textsBook": {
       "name": "Texts book",
