@@ -35,6 +35,10 @@ Profile release `2026.3` adds `zones`: Algeria's 69 wilayas, in the order of the
 
 Profile release `2026.4` adds `language`, the language subjects are taught in, `ar`, and gives French, English, German, Spanish and Italian their own: `fr`, `en`, `de`, `es` and `it`. Each subject's pages in the texts book come out in its language, under the book's Arabic heads ([PRD §3.8](../docs/prd/PRD.md#38-the-documents), R-3.1-18). Until the app speaks German, Spanish and Italian, their pages keep the book's words and direction, with the teacher's own text running left to right. Tamazight keeps the profile's language for now: the script its pages are written in varies, and the field check will tell. Older profiles without `language` still open.
 
+## Specialists' subjects
+
+Profile release `2026.5` adds `specialist`, the levels where a specialist teaches a subject and keeps their own journal. French, English and Tamazight have `["primary"]`: in primary school they are taught by specialists, so the class teacher's journal leaves them out, and the specialist keeps a journal of their own, in the subject's language where it has one; Tamazight's keeps the profile's for now, as under Teaching languages ([PRD §3.8](../docs/prd/PRD.md#38-the-documents), R-3.8-11). The levels must be among the subject's own. Older profiles without `specialist` still open, with every subject the class teacher's.
+
 ## Bell times
 
 A timetable names slots, never clock times. Each slot's time comes from `dz/bells.json` ([PRD §4.6](../docs/prd/PRD.md#46-how-sessions-are-generated)):

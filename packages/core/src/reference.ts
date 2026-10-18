@@ -64,6 +64,11 @@ export interface Subject {
   readonly levels: readonly string[];
   /** The language it is taught in, as a language code such as `fr`, when not the profile's. */
   readonly language?: string;
+  /**
+   * The levels where a specialist teaches it, so the class teacher's journal leaves it out and the specialist keeps
+   * their own; `primary` for French, for example (PRD §3.8, R-3.8-11).
+   */
+  readonly specialist?: readonly string[];
 }
 
 /** A Gregorian month's names in each interface language. */

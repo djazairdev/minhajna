@@ -72,9 +72,9 @@ describe("Algeria's reference data", () => {
     assert.deepEqual([calendar.year.from, calendar.year.to], ['2026-09-21', '2027-07-08']);
   });
 
-  it('ships release 2026.4 with all month spellings and written dates unchanged', () => {
+  it('ships release 2026.5 with all month spellings and written dates unchanged', () => {
     const { profile } = readAlgeria();
-    assert.equal(profile.release, '2026.4');
+    assert.equal(profile.release, '2026.5');
     assert.deepEqual(profile.months, monthNames);
     for (const [index, names] of monthNames.entries()) {
       const day = d(`2027-${String(index + 1).padStart(2, '0')}-03`);

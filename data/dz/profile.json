@@ -1,7 +1,7 @@
 {
   "format": 1,
   "code": "dz",
-  "release": "2026.4",
+  "release": "2026.5",
   "weekStartsOn": 0,
   "workingDays": [0, 1, 2, 3, 4],
   "months": [
@@ -102,19 +102,22 @@
     {
       "code": "tamazight",
       "name": { "ar": "اللغة الأمازيغية", "fr": "Tamazight", "en": "Tamazight" },
-      "levels": ["primary", "cem", "lycee"]
+      "levels": ["primary", "cem", "lycee"],
+      "specialist": ["primary"]
     },
     {
       "code": "french",
       "name": { "ar": "اللغة الفرنسية", "fr": "Langue française", "en": "French" },
       "levels": ["primary", "cem", "lycee"],
-      "language": "fr"
+      "language": "fr",
+      "specialist": ["primary"]
     },
     {
       "code": "english",
       "name": { "ar": "اللغة الإنجليزية", "fr": "Langue anglaise", "en": "English" },
       "levels": ["primary", "cem", "lycee"],
-      "language": "en"
+      "language": "en",
+      "specialist": ["primary"]
     },
     {
       "code": "math",

@@ -133,6 +133,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
       const name = readName(reader, raw, path);
       const subjectLevels = reader.codes(raw, 'levels', path, [...known.levels], true);
       const subjectLanguage = reader.text(raw, 'language', path, LANGUAGE);
+      const specialist = reader.codes(raw, 'specialist', path, subjectLevels ?? [...known.levels], false);
       return name === undefined || subjectLevels === undefined
         ? undefined
         : {
@@ -140,6 +141,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
             name,
             levels: subjectLevels,
             ...(subjectLanguage !== undefined && { language: subjectLanguage }),
+            ...(specialist !== undefined && { specialist }),
           };
     },
     { nonEmpty: true },
