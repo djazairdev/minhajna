@@ -8,7 +8,7 @@ import type { TextInputInstance, TextInputProps, TextProps, ViewProps } from 're
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { PrivateNote, type PrivateNoteProps } from '../src/components/PrivateNote';
-import { colors, typography } from '../src/design/tokens';
+import { colors, sizes, typography } from '../src/design/tokens';
 import { PrivateNoteSamples } from '../src/gallery/private-note-samples';
 import { privateNoteTexts } from '../src/gallery/private-note-texts';
 import { samples } from '../src/gallery/samples';
@@ -108,6 +108,11 @@ test('the lock is decorative and cannot replace the words or become a focus stop
     accessible: false,
     accessibilityElementsHidden: true,
     importantForAccessibility: 'no-hide-descendants',
+  });
+  expect(StyleSheet.flatten(icon.props.style)).toMatchObject({
+    width: sizes['icon-small'],
+    height: sizes['icon-small'],
+    tintColor: colors.ink2,
   });
   const decoration = tree.root.findAllByType(View).find((node) => node.props.pointerEvents === 'none');
   expect(decoration?.props).toMatchObject({ importantForAccessibility: 'no-hide-descendants' });

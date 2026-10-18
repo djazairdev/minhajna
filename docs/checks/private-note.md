@@ -21,14 +21,14 @@ This slice adds no dependency, permission, network call, persistence, encryption
 | Lint and formatting | Pass |
 | Core and sync-check tests | 262 core and 13 sync-check tests pass |
 | Focused Android checks | 150 tests across nine suites pass, including PrivateNote, TextField, gallery and contrast |
-| Full Android suite | All 1,021 assertions in 87 suites pass; the command exits 1 with the existing `joint-class.test.tsx` teardown error described below |
+| Full Android suite | Merged with main `70f7d34`, which includes the `joint-class.test.tsx` teardown fix from #202: 1,085 tests in 90 suites pass and the command exits 0 |
 | Component | All three languages, both directions and 100%/200% font-scale contracts; associated label order, hidden lock, caller-controlled editing, newlines, growth/shrinkage, ref/focus/blur, optional/error text and editability |
 | Gallery | Nine uniquely labelled inputs; empty/long note edits are independent and reset on remount; `accessibilityProblems` is empty in both directions |
 | Contrast | Label/reminder/lock on `private` exceed 4.5:1; input outline against `private` exceeds 3:1 |
 | Native build | ARM64 debug APK builds using the offline Gradle cache |
 | Hygiene | REUSE, Gitleaks, formatting and diff checks pass; every changed/new maintained file is under 300 lines |
 
-The full-suite exit is not a green run. It reports imports after the Jest environment has been torn down in the unchanged `joint-class.test.tsx`. The same error was already reproduced on unmodified main `85bfb3a`, using the same locked dependencies. That test leaves an earlier renderer mounted when it creates a second one; later language changes can update it after teardown. It is outside this component's scope and is not suppressed or silently repaired here. Existing unrelated `act` warnings are also not claimed as fixed.
+An earlier run on main `85bfb3a` exited 1 with imports after the Jest environment had been torn down in `joint-class.test.tsx`. #202 fixed that test on main; the rerun above has no teardown error and no `act` warning.
 
 Toolchain: Node 22.23.2, JDK 17.0.20.1, Gradle 9.4.1, React Native 0.87.1 and React 19.3.1. The isolated REUSE invocation uses its cached `chardet` detector because the default detector misidentifies an unchanged Arabic fixture; this does not add an app dependency or alter licence declarations.
 
@@ -46,6 +46,6 @@ Only synthetic gallery content is used. Screenshots, APKs, temporary navigation 
 
 ## Remaining human/device checks
 
-No human TalkBack listening acceptance is claimed. Confirm title → own-devices assurance → native edit box, no lock focus stop, and access to the reminder in Arabic, French and English, with empty and filled notes. Native French/English layouts and entry, full Arabic-keyboard composition, selection/cursor behaviour, landscape and physical/budget-phone behaviour are not certified here. Component font-scale contracts do not substitute for native visual checks.
+No human TalkBack listening acceptance is claimed. Confirm title → own-devices assurance → native edit box, no lock focus stop, whether the middle dot between the title and the assurance is spoken, and access to the reminder in Arabic, French and English, with empty and filled notes. Native French/English layouts and entry, full Arabic-keyboard composition, selection/cursor behaviour, landscape and physical/budget-phone behaviour are not certified here. Component font-scale contracts do not substitute for native visual checks.
 
 To repeat: run the contributor checks, build/install the debug APK, open developer menu → **Component gallery** and find **PrivateNote** after **TextField**. Try both examples, both directions, all three languages and 200% system text. Changing system text size recreates the preview activity; reopen the gallery afterwards. Enter invented text only and verify that the focused field remains reachable above the keyboard. Restore test settings and remove temporary preview forwards when done.

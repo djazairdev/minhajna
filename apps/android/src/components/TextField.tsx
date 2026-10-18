@@ -74,7 +74,7 @@ export function TextField({
       {labelIcon ? (
         <View style={styles.labelRow}>
           <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-            {labelIcon({ size: sizes.icon, color: colors.ink2 })}
+            {labelIcon({ size: sizes['icon-small'], color: colors.ink2 })}
           </View>
           {labelText}
         </View>
