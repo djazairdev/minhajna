@@ -109,7 +109,8 @@ describe.each(['rtl', 'ltr'] as const)('TextField (%s)', (direction) => {
 
   test('grows and shrinks a text area from native measurements without counting padding twice', async () => {
     await render({ multiline: true }, direction);
-    expect(box()).toMatchObject({ height: 80, textAlignVertical: 'top' });
+    expect(box()).toMatchObject({ minHeight: 80, textAlignVertical: 'top' });
+    expect(box().height).toBeUndefined();
     for (const [height, expected] of [
       [180.2, 181],
       [20, 80],
@@ -187,6 +188,14 @@ test.each([1, 2])('respects %sx text without capping, truncating or fixing singl
     expect(text.props.numberOfLines).toBeUndefined();
     expect(text.props.allowFontScaling).not.toBe(false);
   }
+});
+
+test('leaves an initially filled area intrinsically sized until native content is measured', async () => {
+  jest.mocked(useWindowDimensions).mockReturnValue({ ...window, fontScale: 2 });
+  await render({ multiline: true, value: fieldTexts.ar.areaValue.repeat(8) });
+  expect(box().minHeight).toBe(80);
+  expect(box().height).toBeUndefined();
+  expect(box().maxHeight).toBeUndefined();
 });
 
 test('forwards keyboard, maximum length, submission, editability and a ref without exposing arbitrary style overrides', async () => {

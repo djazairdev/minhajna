@@ -26,6 +26,7 @@ import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
 import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
+import { PrivateNoteSamples } from './private-note-samples';
 import { CheckRowSamples, OptionRowSamples } from './choice-samples';
 import { WelcomeHeroSamples } from './welcome-samples';
 import { WeekGridSamples } from './week-grid-samples';
@@ -135,6 +136,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'TextField',
     design: 'docs/design/system/components/TextField/README.md',
     render: (sample, language) => <TextFieldSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'PrivateNote',
+    design: 'docs/design/system/components/PrivateNote/README.md',
+    render: (sample, language) => <PrivateNoteSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'WeekGrid',

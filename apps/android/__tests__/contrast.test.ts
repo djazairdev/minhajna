@@ -109,6 +109,14 @@ test('option explanations on the pressed ground reach 4.5:1', () => {
   expect(contrast(on(colors.ink2), on(colors.soft))).toBeGreaterThanOrEqual(4.5);
 });
 
+test('private-note label, reminder and decorative lock on the private ground reach 4.5:1', () => {
+  expect(contrast(on(colors.ink2), on(colors.private))).toBeGreaterThanOrEqual(4.5);
+});
+
+test('the input border against the private panel reaches 3:1', () => {
+  expect(contrast(on(colorRoles.controlBorder), on(colors.private))).toBeGreaterThanOrEqual(3);
+});
+
 test.each([colors.rule, colors.sheet])('the switch thumb edge contrasts with %s by at least 3:1', (ground) => {
   expect(contrast(on(colors.board), on(ground))).toBeGreaterThanOrEqual(3);
 });

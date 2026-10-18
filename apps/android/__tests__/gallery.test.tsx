@@ -117,8 +117,8 @@ test.each(
     feedbackTexts[language].longConfirmation,
   ]);
   const inputs = tree.root.findAllByType(TextInput).map((node) => node.props as TextInputProps);
-  expect(inputs).toHaveLength(7);
-  expect(new Set(inputs.map((input) => input.accessibilityLabelledBy)).size).toBe(7);
+  expect(inputs).toHaveLength(9);
+  expect(new Set(inputs.map((input) => input.accessibilityLabelledBy)).size).toBe(9);
   expect(inputs.find((input) => input.testID === 'field-code')?.value).toBe(fieldTexts[language].codeValue);
   const rotation = direction === 'rtl' ? '135deg' : '225deg';
   expect(backArrows()).toHaveLength(2);
