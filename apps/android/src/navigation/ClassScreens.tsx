@@ -12,7 +12,6 @@ import { View, type ViewInstance } from 'react-native';
 import { ClassPage } from '../classes/ClassPage';
 import { courseGroup } from '../classes/class-page-rules';
 import { IconButton } from '../components/IconButton';
-import { RollMonth } from '../rollbook/RollMonth';
 import { controlIcon } from '../design/Icon';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
@@ -64,26 +63,7 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onSeats={() => navigation.navigate('SeatsSetup', { classId: schoolClass.id, groupId })}
       onRules={() => navigation.navigate('RollRules')}
       onMonth={() => navigation.navigate('RollMonth', { courseId })}
-    />
-  );
-}
-
-/** The roll-call book of a class's course: a month, or the yearly summary. */
-export function RollMonthScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'RollMonth'>) {
-  const t = useText();
-  const { state } = useAppData();
-  const { courseId, month } = route.params;
-  const course = state.courses.get(courseId);
-  const schoolClass = course === undefined ? undefined : state.classes.get(course.classId);
-  const title = schoolClass === undefined ? t('classPage.roll') : t('rollBook.titleOf', { name: schoolClass.name });
-  useLayoutEffect(() => navigation.setOptions({ title }), [navigation, title]);
-  return (
-    <RollMonth
-      courseId={courseId}
-      month={month ?? ''}
-      onMonth={(one) => navigation.setParams({ month: one })}
-      onRoll={(session) => navigation.navigate('Roll', { key: session.key, day: session.day })}
-      onRules={() => navigation.navigate('RollRules')}
+      onPupil={(pupilId) => navigation.navigate('Pupil', { courseId, pupilId })}
     />
   );
 }

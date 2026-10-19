@@ -78,7 +78,7 @@ export function bookMonths(context: Context, today: Day): string[] {
 }
 
 /** The days of `month` the roll-call book covers: within the school year and up to `today`. */
-function monthSpan(context: Context, month: string, today: Day): { from: Day; to: Day } | null {
+export function monthSpan(context: Context, month: string, today: Day): { from: Day; to: Day } | null {
   const { year } = context.ref;
   const range = monthRange(month);
   const from = maxDay(range.from, year.from);
@@ -120,6 +120,22 @@ function bookPupils(context: Context, classId: string, groupId: string, day: Day
     .map((pupil) => ({ id: pupil.id, number: numbers.get(pupil.id) ?? 0, name: pupil.name }));
 }
 
+/**
+ * The class's roll calls from `from` to `to`: those the timetable and the
+ * calendar give, then any taken that they no longer give, with no session,
+ * since the core still counts them.
+ */
+export function bookUnits(context: Context, classId: string, from: Day, to: Day): RollCallUnit[] {
+  const units = rollCallUnits(context, classId, from, to);
+  const keys = new Set(units.map((unit) => unit.key));
+  for (const [key, versions] of context.state.rollCalls) {
+    const taken = current(versions);
+    if (taken === null || keys.has(key) || taken.classId !== classId || !isWithin(taken.day, from, to)) continue;
+    units.push({ key, classId, groupId: taken.groupId, day: taken.day, half: taken.half, sessions: [] });
+  }
+  return units;
+}
+
 /** The month's counts so far, up to `today`, or none before the month starts. */
 export function monthCounts(context: Context, classId: string, month: string, today: Day): RollCallCounts | null {
   const span = monthSpan(context, month, today);
@@ -131,15 +147,7 @@ export function monthView(context: Context, classId: string, groupId: string, mo
   const span = monthSpan(context, month, today);
   const rules = context.state.counting ?? DEFAULT_COUNTING;
   const counts = monthCounts(context, classId, month, today)?.pupils ?? [];
-  const units = span === null ? [] : rollCallUnits(context, classId, span.from, span.to);
-  const keys = new Set(units.map((unit) => unit.key));
-  for (const [key, versions] of span === null ? [] : context.state.rollCalls) {
-    const taken = current(versions);
-    if (taken === null || keys.has(key) || taken.classId !== classId) continue;
-    if (span === null || !isWithin(taken.day, span.from, span.to)) continue;
-    const { groupId: group, day, half } = taken;
-    units.push({ key, classId, groupId: group, day, half, sessions: [] });
-  }
+  const units = span === null ? [] : bookUnits(context, classId, span.from, span.to);
   const days = new Map<Day, RollCallUnit[]>();
   for (const unit of units) days.set(unit.day, [...(days.get(unit.day) ?? []), unit]);
   const byPupil = new Map(counts.map((count) => [count.pupilId, count]));

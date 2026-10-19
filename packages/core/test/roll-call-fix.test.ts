@@ -76,6 +76,29 @@ describe('roll-call corrections', () => {
     assert.throws(() => correctPupil(contextOf(book), later, 'p01', 'late', 'other'), /No roll call/);
   });
 
+  it('corrects one pupil after another marked in the roll call has changed group, not a pupil off its list', async () => {
+    const book = await openBook(cemEvents());
+    const unit = rollCallUnits(contextOf(book), 'k-1am2', d('2026-09-20'), d('2026-10-08')).find(
+      (one) => one.groupId === 'g-2',
+    );
+    assert.ok(unit);
+    const absent = [
+      { pupilId: 'p06', justified: false },
+      { pupilId: 'p07', justified: false },
+    ];
+    await book.record(unit.day, takeRollCall(contextOf(book), unit, { absent, late: [] }));
+    const moved = book.state.pupils.get('p07');
+    assert.ok(moved);
+    await book.record(d('2026-10-10'), { kind: 'pupil.set', pupil: { ...moved, groups: ['g-1'] } });
+    await book.record(d('2026-10-11'), correctPupil(contextOf(book), unit, 'p06', 'justified', 'administration'));
+    assert.deepEqual(book.state.rollCalls.get(unit.key)?.at(-1)?.value.absent, [
+      { pupilId: 'p07', justified: false },
+      { pupilId: 'p06', justified: true },
+    ]);
+    assert.throws(() => correctPupil(contextOf(book), unit, 'p01', 'late', 'other'), /not on this roll call/);
+    await book.record(d('2026-10-11'), correctPupil(contextOf(book), unit, 'p07', 'present', 'entry-error'));
+  });
+
   it("previews the month's totals before and after, recording nothing", async () => {
     const { book, unit } = await taken();
     const entries = book.entries.length;

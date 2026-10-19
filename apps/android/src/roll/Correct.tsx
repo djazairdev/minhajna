@@ -65,6 +65,7 @@ export function Correct(props: {
   const pupil = state.pupils.get(props.pupilId);
   const [mark, setMark] = useState<PupilMark | null>(null);
   const [reason, setReason] = useState<RollCallReason | null>(null);
+  const [refused, setRefused] = useState(false);
   const was = rollCall === null ? null : markOf(rollCall, props.pupilId);
   const previewed = useMemo(
     () => (unit === null || mark === null ? null : previewCorrection(context, unit, props.pupilId, mark)),
@@ -123,7 +124,10 @@ export function Correct(props: {
               testID={`correct-${one}`}
               label={one === was ? t('correct.asRecorded', { mark: markWords(t, one) }) : markWords(t, one)}
               selected={(mark ?? was) === one}
-              onPress={() => setMark(one)}
+              onPress={() => {
+                setMark(one);
+                setRefused(false);
+              }}
             />
           ))}
           <Text style={[styles.note, align]}>{t('correct.justifyNote')}</Text>
@@ -171,6 +175,7 @@ export function Correct(props: {
           </View>
         )}
         <Text style={[styles.note, align]}>{t('correct.both')}</Text>
+        {refused && <Text style={[styles.note, align]}>{t('correct.refused')}</Text>}
       </ScrollView>
       <View style={[styles.foot, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button
@@ -180,7 +185,14 @@ export function Correct(props: {
           disabled={!changed || reason === null}
           onPress={() => {
             if (mark === null || reason === null) return;
-            record(correctPupil(context, unit, props.pupilId, mark, reason));
+            let event;
+            try {
+              event = correctPupil(context, unit, props.pupilId, mark, reason);
+            } catch {
+              setRefused(true);
+              return;
+            }
+            record(event);
             props.onDone();
           }}
         />

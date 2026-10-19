@@ -43,6 +43,7 @@ export type RollMonthProps = {
   readonly onMonth: (month: string) => void;
   readonly onRoll: (session: Session) => void;
   readonly onRules: () => void;
+  readonly onPupil?: (pupilId: string) => void;
 };
 
 export function RollMonth(props: RollMonthProps) {
@@ -146,7 +147,7 @@ export function RollMonth(props: RollMonthProps) {
             'year-legend',
           )}
           {note(`${t('rollBook.yearNote', { day: dayName(t, day, data.lang, profile) })} ${t('rollBook.yearScroll')}`)}
-          {summary !== null && <YearGrid view={summary} monthName={monthName} />}
+          {summary !== null && <YearGrid view={summary} monthName={monthName} onPupil={props.onPupil} />}
           {note(t('rollBook.yearFoot'))}
         </>
       ) : (
@@ -164,7 +165,7 @@ export function RollMonth(props: RollMonthProps) {
           {note(t('rollBook.tap'))}
           <View ref={opener} collapsable={false}>
             {view !== null && view.days.length > 0 ? (
-              <MonthGrid days={view.days} rows={view.rows} onDay={onDay} />
+              <MonthGrid days={view.days} rows={view.rows} onDay={onDay} onPupil={props.onPupil} />
             ) : (
               note(t('rollBook.noDays'), 'month-none')
             )}

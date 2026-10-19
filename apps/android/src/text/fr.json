@@ -779,6 +779,50 @@
       "6": "S"
     }
   },
+  "pupilPage": {
+    "head": "{{class}} · n° {{number}}",
+    "headRegistration": "{{class}} · n° {{number}} · matricule {{registration}}",
+    "year": "Année scolaire",
+    "rate": "Taux",
+    "monthCol": "Mois",
+    "yearRow": "Année",
+    "unitNote": "En demi-journées, dans les seules séances de {{subject}}.",
+    "unitNoteAll": "En demi-journées, dans vos séances avec cette classe.",
+    "yearNote": "Sa ligne du bilan annuel, mois par mois, en demi-journées dans les seules séances de {{subject}}, jusqu’au {{day}}. Les mois à venir sont vides.",
+    "yearNoteAll": "Sa ligne du bilan annuel, mois par mois, en demi-journées dans vos séances avec cette classe, jusqu’au {{day}}. Les mois à venir sont vides.",
+    "classYear": "Bilan annuel de la classe",
+    "classYearSub": "Tous les élèves, mois par mois",
+    "absences": "Absences",
+    "absencesNone": "Aucune absence sur cette période.",
+    "justification": "Justification de l’absence du {{day}}",
+    "justified": "Justifiée",
+    "unjustified": "Non justifiée",
+    "lock": "Seule la justification est enregistrée ; le motif n’est jamais écrit.",
+    "refused": "Cet élève n’est pas sur la liste de cet appel ; la justification n’y est pas enregistrée.",
+    "correct": "Corriger une absence ou un retard enregistré",
+    "correctContext": "Chaque appel ouvre la correction de la marque de l’élève.",
+    "correctNone": "Aucun appel enregistré sur cette période.",
+    "late": "Retards",
+    "lateNone": "Aucun retard sur cette période.",
+    "lateLine": "non compté comme absence",
+    "log": "Journal des modifications",
+    "logNone": "Rien d’enregistré sur cette période.",
+    "recorded": "{{changed}} · {{mark}} du {{day}} enregistré(e)",
+    "changed": "{{changed}} · {{day}} : de {{from}} à {{to}} · {{reason}}",
+    "marks": {
+      "present": "présence",
+      "late": "retard",
+      "justified": "absence justifiée",
+      "unjustified": "absence"
+    },
+    "markNames": {
+      "present": "présent",
+      "late": "en retard",
+      "justified": "absence justifiée",
+      "unjustified": "absence non justifiée"
+    },
+    "move": "Enregistrer une arrivée ou un départ"
+  },
   "correct": {
     "title": "Corriger l'appel",
     "recorded": "Enregistré : {{mark}} · le {{day}}",
@@ -798,7 +842,8 @@
     "lateRemoved": "et le retard de cette date est retiré",
     "both": "Les deux versions restent dans l'historique, datées sans l'heure.",
     "open": "Corriger l'appel de {{name}}",
-    "unavailable": "Aucun appel n'est enregistré pour cet élève à cette séance."
+    "unavailable": "Aucun appel n'est enregistré pour cet élève à cette séance.",
+    "refused": "Cet élève n’est pas sur la liste de cet appel ; seule la présence peut lui être enregistrée."
   },
   "rules": {
     "title": "Règles de décompte",

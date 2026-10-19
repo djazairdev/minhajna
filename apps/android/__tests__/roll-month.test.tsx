@@ -171,7 +171,12 @@ test('a roll call the timetable no longer gives keeps its day, listed but not op
   expect(props.onRoll).not.toHaveBeenCalled();
 });
 
-test('switches month and opens the counting rules; a month with no session yet says so', async () => {
+test('opens a pupil from the table, switches month and opens the counting rules; an empty month says so', async () => {
+  const onPupil = jest.fn();
+  await mount(await withPupils(), { onPupil });
+  await press('month-pupil-p-2');
+  expect(onPupil).toHaveBeenCalledWith('p-2');
+  await ReactTestRenderer.act(() => tree?.unmount());
   const props = await mount(await withPupils(), { month: '2026-09' });
   expect(texts()).toContain('لا حصة للقسم في هذا الشهر حتى اليوم.');
   expect(texts()).toContain('سبتمبر 2026 · ربيع الأول – ربيع الثاني 1448');
