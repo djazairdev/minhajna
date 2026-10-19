@@ -858,6 +858,20 @@
       "band": "{{school}} · {{half}}",
       "combinedLine": "All the day's sessions on one page for each language."
     },
+    "timetable": {
+      "name": "Weekly timetable",
+      "title": "Teacher's weekly timetable",
+      "teacher": "Full name",
+      "subject": "Subject",
+      "subjects": "Subjects",
+      "classes": "Classes",
+      "total": "Total {{hours}} a week",
+      "from": "In force from {{day}}",
+      "none": "Not drawn yet",
+      "teacherBox": "Teacher's signature",
+      "inspector": "Inspector's visa",
+      "date": "Date:"
+    },
     "primaryFront": {
       "className": "Class",
       "pupils": "Pupil list",
@@ -958,8 +972,11 @@
       "signaturePrimaryJournal": "The teacher's box stays blank to sign by hand, and the director's visa always blank. The competence indicator and the lesson note's number are written by hand.",
       "blankSpecialistJournal": "A page with its heads and empty morning and afternoon rows, for all classes or for each; the day is written by hand.",
       "signatureSpecialistJournal": "The teacher's box stays blank to sign by hand, and each director's visa always blank. The competence indicator and the lesson note's number are written by hand. The journal is in the subject's language, Tamazight in Arabic until its script is settled.",
+      "blankTimetable": "The days and slots with their heads, and an empty grid to fill in by hand.",
+      "signatureTimetable": "The teacher's box stays blank to sign by hand, and the director's and inspector's visas always blank.",
       "noPrimary": "No primary class taught this year, so there is no primary journal to print.",
       "noSpecialist": "No primary specialist subject taught this year, so there is no specialist's journal to print.",
+      "noTimetable": "The timetable is not drawn yet, so there is nothing to print.",
       "blankPrimaryFront": "For each primary class, the front pages with their labels: cover, card, tables, and an empty pupil list and timetable.",
       "signaturePrimaryFront": "The pages carry the confidential mark, as they hold pupils' names. The director's visa and the approval date stay blank."
     },
