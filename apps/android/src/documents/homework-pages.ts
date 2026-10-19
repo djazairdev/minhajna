@@ -75,6 +75,7 @@ export function homeworkPages(data: DocumentData, t: Translate, blank: boolean):
   const context = coreContext(data);
   const book: Language = isLanguage(data.profile.language) ? data.profile.language : data.lang;
   const bt = i18n.getFixedT(book);
+  const books: string[] = [];
   const pages = bookCourses(data).flatMap(({ course, schoolClass }) => {
     const language = subjectLanguage(data.profile, course.subject, data.lang);
     const words = wordsFor(language, book);
@@ -102,7 +103,9 @@ export function homeworkPages(data: DocumentData, t: Translate, blank: boolean):
       .join('');
     const counts = `<th>${escapeHtml(st('documents.homework.number'))}</th><th>%</th>`.repeat(2);
     const latin = dir === 'ltr' ? ' latin' : '';
-    return (rows.length === 0 ? [[]] : byRules(rows, HOMEWORK_RULES)).map(
+    const chunks = rows.length === 0 ? [[]] : byRules(rows, HOMEWORK_RULES);
+    books.push(...chunks.map(() => schoolClass.id));
+    return chunks.map(
       (page) =>
         head +
         `<p class="caption" lang="${escapeHtml(words)}" dir="${dir}">` +
@@ -127,5 +130,6 @@ export function homeworkPages(data: DocumentData, t: Translate, blank: boolean):
     landscape: false,
     css: CSS,
     pages,
+    books,
   });
 }

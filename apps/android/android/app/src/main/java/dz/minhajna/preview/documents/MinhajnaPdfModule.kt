@@ -6,15 +6,10 @@ package dz.minhajna.preview.documents
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.pdf.PdfRenderer
-import android.os.Bundle
-import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
-import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.util.Log
-import android.print.PageRange
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintManager
@@ -28,6 +23,7 @@ import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.UiThreadUtil
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
 import java.io.ByteArrayInputStream
@@ -46,6 +42,8 @@ import java.io.IOException
  * the system's file picker, so the app asks for no storage permission. A
  * PDF holds pupils' data unencrypted, so a saved, cancelled or refused one
  * is deleted from the cache, and the app empties the cache at every start.
+ * The print set's counting pass is laid out the same way, its colours read
+ * at a few points on each page, and the file deleted at once.
  */
 class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   NativeMinhajnaPdfSpec(context), ActivityEventListener {
@@ -63,6 +61,44 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
     if (!NAME_PATTERN.matches(name)) return promise.reject("E_PDF_NAME", "A PDF name has lowercase letters, digits and hyphens")
     val file = File(folder, "$name.pdf")
     val start = SystemClock.elapsedRealtime()
+    write(html, name, landscape, file) { error ->
+      if (error != null) {
+        file.delete()
+        promise.reject("E_PDF", "The PDF could not be made", error)
+      }
+      else promise.resolve(Arguments.createMap().apply {
+        putString("name", name)
+        putInt("pages", PdfPages.count(file))
+        putDouble("bytes", file.length().toDouble())
+        putDouble("milliseconds", (SystemClock.elapsedRealtime() - start).toDouble())
+      })
+    }
+  }
+
+  /** Lays the pages out as a PDF, reads the colours at the points on each page, away from the screen, and deletes it. */
+  override fun pageColors(html: String, landscape: Boolean, points: ReadableArray, promise: Promise) {
+    val at = DoubleArray(points.size()) { points.getDouble(it) }
+    if (at.size % 2 != 0) return promise.reject("E_PDF", "A point is an x and a y")
+    val file = File(folder, "colors-${SystemClock.elapsedRealtimeNanos()}.pdf")
+    write(html, "colors", landscape, file) { error ->
+      if (error != null) {
+        file.delete()
+        return@write promise.reject("E_PDF", "The pages could not be laid out", error)
+      }
+      Thread {
+        try {
+          promise.resolve(Arguments.createArray().apply { PdfPages.colors(file, at).forEach(::pushDouble) })
+        } catch (error: Exception) {
+          promise.reject("E_PDF", "The pages could not be read", error)
+        } finally {
+          file.delete()
+        }
+      }.start()
+    }
+  }
+
+  /** Lays the HTML out offscreen and writes it to `file` as A4 pages, then says whether it failed. */
+  private fun write(html: String, name: String, landscape: Boolean, file: File, done: (Throwable?) -> Unit) {
     layOut(html) { page ->
       val attributes = PrintAttributes.Builder()
         .setMediaSize(size(landscape))
@@ -71,16 +107,7 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
         .build()
       WebViewPdf(attributes).write(page.createPrintDocumentAdapter(name), file) { error ->
         page.destroy()
-        if (error != null) {
-          file.delete()
-          promise.reject("E_PDF", "The PDF could not be made", error)
-        }
-        else promise.resolve(Arguments.createMap().apply {
-          putString("name", name)
-          putInt("pages", pageCount(file))
-          putDouble("bytes", file.length().toDouble())
-          putDouble("milliseconds", (SystemClock.elapsedRealtime() - start).toDouble())
-        })
+        done(error)
       }
     }
   }
@@ -105,29 +132,9 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   }
 
   /** The web engine's adapter, which lets the page go once the print job is done, so its names leave memory. */
-  private fun released(page: WebView, adapter: PrintDocumentAdapter) = object : PrintDocumentAdapter() {
-    override fun onStart() = adapter.onStart()
-
-    override fun onLayout(
-      old: PrintAttributes?,
-      new: PrintAttributes,
-      cancel: CancellationSignal?,
-      callback: LayoutResultCallback,
-      extras: Bundle?,
-    ) = adapter.onLayout(old, new, cancel, callback, extras)
-
-    override fun onWrite(
-      pages: Array<out PageRange>,
-      destination: ParcelFileDescriptor,
-      cancel: CancellationSignal?,
-      callback: WriteResultCallback,
-    ) = adapter.onWrite(pages, destination, cancel, callback)
-
-    override fun onFinish() {
-      adapter.onFinish()
-      if (printing === page) printing = null
-      page.destroy()
-    }
+  private fun released(page: WebView, adapter: PrintDocumentAdapter) = ReleasingAdapter(adapter) {
+    if (printing === page) printing = null
+    page.destroy()
   }
 
   /** Asks where to keep a made PDF, through the system's file picker, and copies it there; false when cancelled. */
@@ -270,9 +277,6 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   }
 
   private fun refused() = WebResourceResponse("text/plain", "utf-8", 403, "Refused", emptyMap(), ByteArrayInputStream(ByteArray(0)))
-
-  private fun pageCount(file: File): Int =
-    ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { PdfRenderer(it).use { pdf -> pdf.pageCount } }
 
   companion object {
     /** Empties the PDF cache, called as the app starts, so no PDF outlives a process killed mid-save. */

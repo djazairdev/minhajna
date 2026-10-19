@@ -53,6 +53,8 @@ export interface PrimaryFront {
   readonly card: readonly FrontField[];
   readonly tables: readonly FrontTable[];
   readonly week: WeekTable;
+  /** The class whose journal the pages open. */
+  readonly book?: string;
 }
 
 const CSS =
@@ -102,12 +104,14 @@ function weekHtml(week: WeekTable): string {
 
 /** The front pages of each class, one after the other, as one HTML document. */
 export function primaryFrontHtml(texts: FrontTexts, fronts: readonly PrimaryFront[], confidential: string): string {
-  const pages = fronts.flatMap((front) => [
+  const each = fronts.map((front) => [
     coverHtml(front.cover),
     `${headHtml(texts)}${cardHtml(texts, front.card)}`,
     ...front.tables.map((table) => `${headHtml(texts)}${tableHtml(table)}`),
     `${headHtml(texts)}${weekHtml(front.week)}`,
   ]);
+  const pages = each.flat();
+  const books = fronts.flatMap((front, index) => each[index].map(() => front.book ?? ''));
   return printDocument({
     lang: texts.lang,
     dir: texts.dir,
@@ -115,6 +119,7 @@ export function primaryFrontHtml(texts: FrontTexts, fronts: readonly PrimaryFron
     landscape: false,
     css: CSS,
     pages,
+    books,
     confidential,
   });
 }

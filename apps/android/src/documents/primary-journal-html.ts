@@ -49,6 +49,8 @@ export interface PrimaryDay {
   readonly bands: readonly PrimaryBand[];
   /** A director's visa box for each, with the school's name under it, or one empty name for a box with none. */
   readonly visas: readonly string[];
+  /** The class whose book the page belongs to, in a journal kept for each class. */
+  readonly book?: string;
 }
 
 export interface PrimaryTexts {
@@ -143,5 +145,6 @@ export function primaryJournalHtml(texts: PrimaryTexts, days: readonly PrimaryDa
     landscape: true,
     css: PRIMARY_CSS,
     pages: days.map((day) => primaryPageHtml(texts, day, blank)),
+    books: days.map((day) => day.book ?? ''),
   });
 }

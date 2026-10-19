@@ -87,7 +87,7 @@ test('the card gives the name, the rank, the subject, the school, the year and t
   }
   expect(html).toContain(front.card);
   expect(html).toContain(text.documents.director);
-  expect(html.match(/<section class="page">/g)).toHaveLength(3);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(3);
 });
 
 test('the events are the teacher’s own and the school’s, in order, those still to come in grey', async () => {

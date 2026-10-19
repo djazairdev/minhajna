@@ -69,7 +69,7 @@ test('prints a journal page a day, in A4 portrait, with the fonts embedded and t
   expect(html).toContain('@page{size:A4 portrait;');
   expect(html).toContain("src:url('noto_naskh_arabic_regular.ttf')");
   expect(html).toContain("src:url('aref_ruqaa_bold.ttf')");
-  expect(html.match(/<section class="page">/g)).toHaveLength(2);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(2);
   expect(html).toContain('<bdi>08:00 – 09:00</bdi>');
   expect(html).toContain('<bdi>4م2</bdi>');
   expect(html).toContain('المورد: العدد &lt;والمعدود&gt;');
@@ -98,7 +98,8 @@ test('prints the month’s roll calls in A4 landscape, with letters for marks an
   expect(html).toContain('<td></td><td>م</td><td>1</td><td>0</td></tr>');
   expect(html.match(/داخلي · سري/g)).toHaveLength(2);
   expect(html).toContain('@page{size:A4 landscape;margin:12mm');
-  expect(html).toMatch(/<table class="frame"><thead><tr><td class="mark">[^<]+<\/td><\/tr><\/thead><tfoot>/);
+  expect(html).toMatch(/<table class="frame"><thead><tr><td class="mark">[^<]+<\/td><\/tr><\/thead><tbody>/);
+  expect(html).toMatch(/<\/tbody><tfoot><tr><td class="mark">[^<]+<\/td><\/tr><\/tfoot><\/table><\/section>/);
 });
 
 test('starts each class on its page, and a blank sheet keeps the names with no marks or totals', () => {
@@ -112,7 +113,7 @@ test('starts each class on its page, and a blank sheet keeps the names with no m
       blank: true,
     },
   ]);
-  expect(html.match(/<section class="page">/g)).toHaveLength(2);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(2);
   expect(html).toContain(
     '<td class="name">مختلق آية</td><td class="latin latin-name">Aya Mokhtalaq</td><td></td><td></td><td></td><td></td></tr>',
   );
@@ -131,7 +132,7 @@ test('makes October of the demo year into the journal and the roll-call PDFs', a
     'roll-2026-10',
     true,
   ]);
-  expect(journal.match(/<section class="page">/g)).toHaveLength(19);
+  expect(journal.match(/<section class="page"[^>]*>/g)).toHaveLength(19);
   expect(journal).toContain('الخميس 1 أكتوبر 2026');
   expect(roll.match(/<tr><td>\d+<\/td>/g)).toHaveLength(45);
   expect(made.journal.name).toBe('journal-2026-10');

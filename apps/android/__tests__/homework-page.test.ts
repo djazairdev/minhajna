@@ -35,7 +35,7 @@ const documentData = (data: TestData): DocumentData => ({
 const set = (slot: number) => `c-1/2026-10-15/m${slot}/k-1-w`;
 const entries = (html: string) => html.match(/<tr class="entry">/g)?.length ?? 0;
 const rules = (html: string) => html.match(/<tr class="rule">/g)?.length ?? 0;
-const pages = (html: string) => html.match(/<section class="page">/g)?.length ?? 0;
+const pages = (html: string) => html.match(/<section class="page"[^>]*>/g)?.length ?? 0;
 
 /** Two homework set on 15 October in 4م1's Arabic, the first counted; 4م1's French and 4م2's Arabic have none. */
 async function withHomework(texts = ['التمرين 2 ص 21', 'أسئلة الفهم ص 17']): Promise<TestData> {

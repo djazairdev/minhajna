@@ -71,6 +71,7 @@ export function primaryJournalPages(data: DocumentData, t: Translate, blank: boo
           blank: blank ? BLANK_ROWS[half] : 0,
         })),
         visas: [''],
+        book: one.id,
       };
     });
   const empty: PrimaryDay = {

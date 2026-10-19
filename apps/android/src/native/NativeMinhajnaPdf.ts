@@ -14,6 +14,11 @@ export interface Spec extends TurboModule {
   printHtml(html: string, title: string, landscape: boolean): Promise<void>;
   /** Asks where to keep a made PDF, through the system's file picker; false when the teacher cancels. */
   savePdf(name: string, fileName: string): Promise<boolean>;
+  /**
+   * Lays the pages out as a PDF that is deleted at once, and gives each page's colours, as 0xRRGGBB, at the points,
+   * each an x and a y in millimetres from its top-left corner, page after page.
+   */
+  pageColors(html: string, landscape: boolean, points: ReadonlyArray<number>): Promise<ReadonlyArray<number>>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaPdf');

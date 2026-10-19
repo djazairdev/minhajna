@@ -44,7 +44,7 @@ test('a class’s day prints in its two bands, with duration, subject, activity 
   await data.book.recordAll(parseDay('2026-10-15'), confirmSessions(context, [{ session: first }]));
   const html = primaryJournalPages(documentData(data), t, false);
   expect(html).toContain('size:A4 landscape');
-  expect(html.match(/<section class="page">/g)).toHaveLength(1);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(1);
   expect(html).toContain('القسم: ⁨5 ابتدائي أ⁩');
   expect(html).toContain('الخميس 15 أكتوبر 2026');
   const morning = html.indexOf(primary.morning);

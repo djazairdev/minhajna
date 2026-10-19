@@ -26,6 +26,8 @@ export interface JournalDay {
   /** Such as «القسم: 1م2», on a journal kept for one class. */
   readonly className?: string;
   readonly entries: readonly JournalEntry[];
+  /** The class whose book the page belongs to, in a journal kept for each class. */
+  readonly book?: string;
 }
 
 export interface JournalTexts {
@@ -95,5 +97,6 @@ export function journalHtml(texts: JournalTexts, days: readonly JournalDay[]): s
     landscape: false,
     css: CSS,
     pages,
+    books: days.map((day) => day.book ?? ''),
   });
 }

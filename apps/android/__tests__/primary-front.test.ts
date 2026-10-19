@@ -68,7 +68,7 @@ const documentData = (data: TestData, day = '2026-10-15'): DocumentData => ({
 
 test('a class gets its cover, card, holidays, seminars, pupil list and timetable, marked confidential', async () => {
   const html = primaryFrontPages(documentData(await withPupils()), t, false);
-  expect(html.match(/<section class="page">/g)).toHaveLength(6);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(6);
   expect(html).toContain('<div class="cover">');
   expect(html.match(/السنة الدراسية \u20682026-2027\u2069/g)).toHaveLength(6);
   expect(html).toContain('الاسم واللقب: مقراني نادية');

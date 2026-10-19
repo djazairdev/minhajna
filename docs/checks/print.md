@@ -1,8 +1,9 @@
 # Printing the week, and the weekly timetable
 
-How the teacher's weekly timetable as a document was checked for [#215](https://github.com/djazairdev/minhajna/issues/215) (PRD [§3.8](../prd/PRD.md#38-the-documents), [§4.6](../prd/PRD.md#46-how-sessions-are-generated)). Every record in these checks is made up. They ran on 19 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
+How the teacher's weekly timetable as a document, and the one PDF a print shop can use, were checked for [#215](https://github.com/djazairdev/minhajna/issues/215) (PRD [§3.8](../prd/PRD.md#38-the-documents), [§4.6](../prd/PRD.md#46-how-sessions-are-generated)). Every record in these checks is made up. They ran on 19 October 2026 on `minhajna-claude-api35`, an Android 15 emulator with a 1080×2280 screen, without Google Play services.
 
 - [The weekly timetable](#the-weekly-timetable)
+- [One PDF for the print shop](#one-pdf-for-the-print-shop)
 - [The result](#the-result)
 - [Repeating the checks](#repeating-the-checks)
 - [Still open](#still-open)
@@ -18,6 +19,23 @@ How the teacher's weekly timetable as a document was checked for [#215](https://
 
 The blank version keeps the schools, the year, the labels, the days and the slots, with an empty grid. A teacher with no timetable drawn has nothing to print, blank or not, and the Documents tab says so.
 
+## One PDF for the print shop
+
+«طباعة الأسبوع» will bind the chosen documents into one PDF (R-3.8-52), each made as the Documents tab makes it; its screen follows in a later pull request. `src/documents/print-set.ts` builds the PDF, and the phone's web engine prints it as one document, with portrait and landscape pages in their own orientation.
+
+- **Each document as it prints alone.** A document's own styles apply to its pages only, through `:where()`, which adds no weight to a rule, so each page lays out as it does on its own.
+- **Books.** A book is a document's pages for one class, such as its texts book or its roll-call book, or all its pages for a document kept as one, such as the journal. A document's copies, such as a journal's days, are gathered book by book, so each class's pages come together. A day with no session in a journal kept for each class, or in the specialist's journal, names no book and is left out.
+- **Binding margins (R-3.8-51).** The wider margin, 18 mm against 12, falls on the spine's side of a portrait page: the right of a page in Arabic and the left of one in French or English, on every document. Printed on both sides, it alternates with the side facing the spine. Landscape pages keep 12 mm on their long edges, as their layouts fill the rest. Without binding margins, both sides get 15 mm. The text keeps its width either way, so no page's layout changes.
+- **Both sides (R-3.8-54).** Each book starts on a sheet of its own, so a class's pages can go into its own book: a blank page goes before a book that would start on the back of a sheet. Only the web engine knows how many pages each book takes, so a counting pass prints the set once with a red and green mark at the top of each book's first page, taking no room; the native module reads the colours at two points on each page and deletes that PDF at once.
+- **The summary (R-3.8-56).** The printed pages, the sheets they take, and their cost at about 5 DA a page.
+
+What the web engine does, found on the emulator's (Chromium 124):
+
+- A named page with `size: A4 landscape` gives landscape pages in a portrait document, laid out at their full size. Other sizes snap to A4.
+- `@page :left` and `:right` give the two sides their margins, and a right-to-left document starts on a left page, as an Arabic book does.
+- `break-before: right` adds no blank page, so the set adds its own.
+- On a named page, a repeated table footer moves to a page of its own, which would print «داخلي · سري» alone on an extra page. So the set's own page takes the orientation of the documents with pupils' data when they share one, such as the roll-call book's landscape in a CEM teacher's week, and only the other orientation is named. A page with pupils' data on the named one keeps «داخلي · سري» at its head on every printed page and at its foot at its end only.
+
 ## The result
 
 | Check | Result |
@@ -25,6 +43,9 @@ The blank version keeps the schools, the year, the labels, the days and the slot
 | Android tests | 1219 pass. The new ones cover the version in force with its bell times, each class's hours and the total, the day it applies from and the boxes; another day's version, and the first before it applies; the first version that ever applies, never last school year's; a week A slot counting half; the teacher's own time; a week of two schools; the blank version; and the Documents tab's line, file name and empty state |
 | On the emulator, «استعمال الزمن الأسبوعي» prints one A4 portrait page: «CEM Test» and «السنة الدراسية 2026-2027» on top; 4AM1 and 4AM2 on Monday and Thursday at «08:00 – 09:00» and «09:00 – 10:00»; «4AM1: ساعتان · 4AM2: ساعتان · المجموع 4 ساعات في الأسبوع»; «ساري من الإثنين 21/09/2026»; and the three boxes | **Passed** |
 | A fuller made-up week printed through desktop Chrome, with a pedagogical half-day, fits one sheet | **Passed** |
+| Android tests for the print set | 1231 pass. The new ones cover a document read back with each page's book, the frame's foot after its content, a day with no session left out, the binding margin's side, books gathered across days, each class's pages naming its book, styles scoped with no added weight, the set's own page and the named one, the margins on one side and on both, the blank pages, the counts read from the marks, and the pages, sheets and cost |
+| On the emulator, a CEM teacher's set: the timetable, a week of the journal kept for each class, the roll-call book and the texts book, on both sides. The counting pass found 8 books of 1, 2, 2, 3, 1, 1, 1 and 1 pages in 0.84 s; the PDF has those 12 pages and 5 blank ones, the roll-call pages in landscape, the binding margin alternating, and each document laid out as on its own | **Passed** |
+| On the emulator, a set whose documents with pupils' data mix orientations, the roll-call book in landscape and a portrait page: the set's own page is portrait, the roll-call pages are named landscape pages of one page a class, and both kinds keep «داخلي · سري» above and below their content | **Passed** |
 
 ## Repeating the checks
 
@@ -35,4 +56,6 @@ The blank version keeps the schools, the year, the labels, the days and the slot
 ## Still open
 
 - The page on paper, printed at 100% on A4, against a school's timetable form.
+- A print shop's PDF printed on both sides, with portrait and landscape pages, at a print shop: the right pages in the right order, each book on its own sheets, the binding margin on the spine's side.
+- The counting pass's time on a budget phone.
 - TalkBack on the output's day choice, on a real phone.

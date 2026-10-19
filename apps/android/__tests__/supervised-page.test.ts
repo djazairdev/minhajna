@@ -82,7 +82,7 @@ test("numbers a class's sessions outside the timetable and its support-day sessi
 test('a class with no such session, and the blank version, get the page with its heads and empty rules', async () => {
   const data = await withDay();
   const recorded = supervisedPages(documentData(data), t, false);
-  expect(recorded.match(/<section class="page">/g)).toHaveLength(2);
+  expect(recorded.match(/<section class="page"[^>]*>/g)).toHaveLength(2);
   expect(rows(recorded)).toBe(0);
   expect(recorded.match(/<tr><td><\/td>/g)).toHaveLength(2 * SUPERVISED_RULES);
   const blank = supervisedPages(documentData(await withSupportDay()), t, true);
@@ -100,14 +100,14 @@ test('a year of rows runs on to more pages, a long subject counted as the rules 
     });
   }
   const short = supervisedPages(documentData(data), t, false);
-  expect(short.match(/<section class="page">/g)).toHaveLength(3);
+  expect(short.match(/<section class="page"[^>]*>/g)).toHaveLength(3);
   expect(short).toContain('<td>30</td>');
   const long = 'التربية العلمية والتكنولوجية والإعلام';
   const subjects = data.profile.subjects.map((one) =>
     one.code === 'arabic' ? { ...one, name: { ...one.name, ar: long } } : one,
   );
   const wrapped = supervisedPages({ ...documentData(data), profile: { ...data.profile, subjects } }, t, false);
-  expect(wrapped.match(/<section class="page">/g)).toHaveLength(4);
+  expect(wrapped.match(/<section class="page"[^>]*>/g)).toHaveLength(4);
   expect(wrapped.match(/<tr><td><\/td>/g)).toHaveLength(SUPERVISED_RULES - 12 + SUPERVISED_RULES);
 });
 

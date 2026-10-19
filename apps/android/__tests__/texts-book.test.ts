@@ -67,7 +67,7 @@ test('prints a confirmed session as the book takes it, under an Arabic head, and
 test('the blank version gives each class and subject a page, the French one left to right', async () => {
   const data = await withFirstConfirmed();
   const html = textsBookPages(documentData(data), t, true);
-  expect(html.match(/<section class="page">/g)).toHaveLength(3);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(3);
   expect(entries(html)).toBe(0);
   expect(html).toContain('دفتر النصوص · الصفحة .........');
   expect(html).toContain('المادة: اللغة الفرنسية');
@@ -109,7 +109,7 @@ test("a German subject keeps the book's words and direction, its own text runnin
 test('a month with nothing confirmed says so for each class and subject', async () => {
   const data = await withFirstConfirmed();
   const html = textsBookPages(documentData(data, '2026-11-15'), t, false);
-  expect(html.match(/<section class="page">/g)).toHaveLength(3);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(3);
   expect(html).toContain('لا حصة مؤكَّدة في هذا الشهر بعد.');
   expect(html).toContain('Aucune séance confirmée ce mois-ci.');
 });
