@@ -807,7 +807,39 @@
     "monthPrint": "Imprimer ce mois",
     "yearPrint": "Imprimer le bilan annuel",
     "classRow": "Imprimer le registre d’appel",
-    "classRowLine": "La double page du mois et le bilan annuel"
+    "classRowLine": "La double page du mois et le bilan annuel",
+    "front": {
+      "name": "Premières pages",
+      "line": "La couverture et la liste de la classe, avec les deux pages confidentielles vides",
+      "note": "L’application ne collecte ni les coordonnées des parents ni les adresses : les deux pages confidentielles se remplissent à la main.",
+      "teacher": "Enseignant",
+      "counts": "Garçons {{boys}} · Filles {{girls}} · Total {{total}}",
+      "list": "Liste des élèves de la classe",
+      "registration": "Numéro d’inscription",
+      "recordOne": "Fiches des élèves (1) · confidentiel",
+      "recordTwo": "Fiches des élèves (2) · confidentiel",
+      "entered": "Date d’entrée",
+      "left": "Date de sortie",
+      "born": "Date et lieu de naissance",
+      "father": "Nom du père",
+      "fatherJob": "Profession du père",
+      "motherJob": "Profession de la mère",
+      "previous": "Classe précédente",
+      "siblings": "Frères et sœurs",
+      "address": "Adresse",
+      "blank": "La couverture et les en-têtes s’impriment ; les noms et les nombres restent vides."
+    },
+    "day": {
+      "name": "Feuille d’appel vierge",
+      "line": "Pour un remplaçant, ou un jour sans téléphone",
+      "note": "Elle s’imprime avec les noms des élèves et une case par appel de ce jour, grisée pour qui n’est pas dans son groupe ; les absences s’en saisissent ensuite par « Saisir un appel depuis la feuille papier ».",
+      "title": "Feuille d’appel · {{day}}",
+      "key": "Dans la case : غ pour une absence, ت pour un retard.",
+      "days": "Jour de séances",
+      "none": "Cette classe n’a aucune séance cette année scolaire, donc aucune feuille d’appel.",
+      "open": "Imprimer une feuille d’appel vierge pour cette classe",
+      "confidential": "Écrit en haut et en bas de la feuille, car elle contient les noms des élèves."
+    }
   },
   "pupilPage": {
     "head": "{{class}} · n° {{number}}",

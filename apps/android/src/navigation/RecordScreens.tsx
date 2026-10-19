@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The screens that record the day's work, as navigation routes: Today, a
-// session's details, its roll call, a pupil's correction in it, a pupil who
+// session's details, its roll call with a print icon for its class's blank
+// sheet (R-3.4-16, answer 262), a pupil's correction in it, a pupil who
 // joins or leaves the class, and the Classes tab with each class's plan and
 // texts book.
 
@@ -10,6 +11,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
+import { useLayoutEffect } from 'react';
 import { TextsBook } from '../book/TextsBook';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
@@ -21,6 +23,10 @@ import { Correct } from '../roll/Correct';
 import { Roll } from '../roll/Roll';
 import { SeatsSetup } from '../seats/SeatsSetup';
 import { HomeworkBook } from '../homework/HomeworkBook';
+import { IconButton } from '../components/IconButton';
+import { controlIcon } from '../design/Icon';
+import { useAppData } from '../storage/AppData';
+import { useText } from '../text/i18n';
 import { Today } from '../today/Today';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
@@ -32,7 +38,9 @@ export function TodayTab({
     <Today
       onHelp={() => navigation.navigate('Help')}
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
-      onRoll={(session) => navigation.navigate('Roll', { key: session.key, day: session.day })}
+      onRoll={(session) =>
+        navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
+      }
       onExtra={() => navigation.navigate('Extra')}
       onHomework={(item) =>
         navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
@@ -46,8 +54,24 @@ export function EntryScreen({ navigation, route }: NativeStackScreenProps<RootSt
   return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={() => navigation.goBack()} />;
 }
 
-/** A session's roll call, back to where it was opened once saved. */
+/** A session's roll call, back to where it was opened once saved; the print icon opens its class's blank sheet. */
 export function RollScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Roll'>) {
+  const t = useText();
+  const { state } = useAppData();
+  const { day, courseId } = route.params;
+  const known = state.courses.has(courseId);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <IconButton
+          testID="roll-print-sheet"
+          icon={controlIcon('print')}
+          accessibilityLabel={t('rollPrint.day.open')}
+          onPress={() => navigation.navigate('RollPrint', { ...(known && { courseId }), choice: 'day', day })}
+        />
+      ),
+    });
+  }, [navigation, t, known, courseId, day]);
   return (
     <Roll
       sessionKey={route.params.key}

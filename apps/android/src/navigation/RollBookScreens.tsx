@@ -30,7 +30,9 @@ export function RollMonthScreen({ navigation, route }: NativeStackScreenProps<Ro
       courseId={courseId}
       month={month ?? ''}
       onMonth={(one) => navigation.setParams({ month: one })}
-      onRoll={(session) => navigation.navigate('Roll', { key: session.key, day: session.day })}
+      onRoll={(session) =>
+        navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
+      }
       onRules={() => navigation.navigate('RollRules')}
       onPupil={(pupilId) =>
         navigation.navigate('Pupil', { courseId, pupilId, ...(month !== undefined && month !== '' && { month }) })

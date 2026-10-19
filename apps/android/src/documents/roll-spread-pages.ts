@@ -23,6 +23,7 @@ import {
   type AbsenceMark,
   type Day,
   type PupilCount,
+  type RollCallUnit,
 } from '@minhajna/core';
 import { hijriOf } from '../rollbook/hijri-months';
 import { bookUnits, monthView, percent, totals } from '../rollbook/month-rules';
@@ -61,6 +62,13 @@ export function rollBooks(data: DocumentData): RollBook[] {
       subject: subjects.size === 1 ? ([...subjects][0] ?? null) : null,
     }))
     .sort((a, b) => name(a.classId).localeCompare(name(b.classId), 'ar') || a.groupId.localeCompare(b.groupId));
+}
+
+/** Whether a roll call is the book's: its group's or the whole class's, or any when the book is the whole class. */
+export function ofBook(data: DocumentData, book: RollBook): (unit: RollCallUnit) => boolean {
+  const schoolClass = data.state.classes.get(book.classId);
+  const whole = schoolClass === undefined ? book.groupId : wholeGroup(schoolClass).id;
+  return (unit) => book.groupId === whole || unit.groupId === whole || unit.groupId === book.groupId;
 }
 
 /** The head's scope: the class, the subject when the book has one, the school, then the Hijri months if given. */
@@ -106,13 +114,8 @@ function spread(data: DocumentData, t: Translate, blank: boolean, book: RollBook
   const school = schoolClass === undefined ? undefined : data.state.schools.get(schoolClass.schoolId);
   const first = compareDays(from, data.year.from) < 0 ? data.year.from : from;
   const last = compareDays(to, data.year.to) > 0 ? data.year.to : to;
-  const whole = schoolClass === undefined ? book.groupId : wholeGroup(schoolClass).id;
   const units = compareDays(first, last) > 0 ? [] : bookUnits(context, book.classId, first, last);
-  const sessions = new Set(
-    units
-      .filter((unit) => book.groupId === whole || unit.groupId === whole || unit.groupId === book.groupId)
-      .map((unit) => unit.day),
-  );
+  const sessions = new Set(units.filter(ofBook(data, book)).map((unit) => unit.day));
   const days: DayShade[] = Array.from({ length }, (_, index) => {
     const day = parseDay(`${month}-${String(index + 1).padStart(2, '0')}`);
     if (sessions.has(day)) return view.countsFrom !== null && compareDays(day, view.countsFrom) < 0 ? 'none' : null;

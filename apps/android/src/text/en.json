@@ -789,7 +789,39 @@
     "monthPrint": "Print this month",
     "yearPrint": "Print the yearly summary",
     "classRow": "Print the roll-call book",
-    "classRowLine": "The month's two pages and the yearly summary"
+    "classRowLine": "The month's two pages and the yearly summary",
+    "front": {
+      "name": "Front pages",
+      "line": "The cover and the class list, with the two confidential pages blank",
+      "note": "The app does not collect parents' details or home addresses, so the two confidential pages are filled in by hand.",
+      "teacher": "Teacher",
+      "counts": "Boys {{boys}} · Girls {{girls}} · Total {{total}}",
+      "list": "The class's pupils",
+      "registration": "Registration number",
+      "recordOne": "Pupil records (1) · confidential",
+      "recordTwo": "Pupil records (2) · confidential",
+      "entered": "Date of entry",
+      "left": "Date of leaving",
+      "born": "Date and place of birth",
+      "father": "Father's name",
+      "fatherJob": "Father's job",
+      "motherJob": "Mother's job",
+      "previous": "Previous class",
+      "siblings": "Brothers and sisters",
+      "address": "Home address",
+      "blank": "The cover and the headings print; the names and figures stay blank."
+    },
+    "day": {
+      "name": "Blank roll-call sheet",
+      "line": "For a substitute, or a day without the phone",
+      "note": "It prints with the pupils' names and a box for each roll call that day, grey for pupils outside its group; the absences are entered from it later through “Enter a roll call from the paper sheet”.",
+      "title": "Roll-call sheet · {{day}}",
+      "key": "In the box: غ for an absence, ت for a late arrival.",
+      "days": "Session day",
+      "none": "This class has no session this school year, so there is no sheet to print.",
+      "open": "Print a blank roll-call sheet for this class",
+      "confidential": "Written at the head and foot of the sheet, as it holds pupils' names."
+    }
   },
   "pupilPage": {
     "head": "{{class}} · no. {{number}}",
