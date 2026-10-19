@@ -6,18 +6,12 @@ package dz.minhajna.preview.documents
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
-import android.util.Log
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintManager
 import android.print.WebViewPdf
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.core.content.FileProvider
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Arguments
@@ -26,7 +20,6 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.UiThreadUtil
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.IOException
 
@@ -43,15 +36,16 @@ import java.io.IOException
  * PDF holds pupils' data unencrypted, so a saved, cancelled or refused one
  * is deleted from the cache, and the app empties the cache at every start.
  * The print set's counting pass is laid out the same way, its colours read
- * at a few points on each page, and the file deleted at once.
+ * at a few points on each page, and the file deleted at once. If the web
+ * engine's renderer dies, or a page is not laid out in time, the waiting
+ * promise is rejected, so the screen that asked never waits for good.
  */
 class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   NativeMinhajnaPdfSpec(context), ActivityEventListener {
   private val folder: File get() = File(context.cacheDir, "pdf").apply { mkdirs() }
   private var printing: WebView? = null
   private var saving: Pair<File, Promise>? = null
-  private val main = Handler(Looper.getMainLooper())
-  @Volatile private var invalidated = false
+  private val layout = OffscreenLayout { context.currentActivity ?: context }
 
   init {
     context.addActivityEventListener(this)
@@ -97,9 +91,10 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
     }
   }
 
-  /** Lays the HTML out offscreen and writes it to `file` as A4 pages, then says whether it failed. */
-  private fun write(html: String, name: String, landscape: Boolean, file: File, done: (Throwable?) -> Unit) {
-    layOut(html) { page ->
+  /** Lays the HTML out offscreen and writes it to `file` as A4 pages, then says, once, whether it failed. */
+  private fun write(html: String, name: String, landscape: Boolean, file: File, then: (Throwable?) -> Unit) {
+    val done = once(then)
+    layout.layOut(html, done) { page ->
       val attributes = PrintAttributes.Builder()
         .setMediaSize(size(landscape))
         .setResolution(PrintAttributes.Resolution("pdf", "pdf", 300, 300))
@@ -115,18 +110,21 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   /** Hands the pages to Android's print service, whose own screen picks the printer, or saves a PDF. */
   override fun printHtml(html: String, title: String, landscape: Boolean, promise: Promise) {
     val activity = context.currentActivity ?: return promise.reject("E_PDF", "No screen to print from")
-    layOut(html) { page ->
+    val opened = once { error ->
+      if (error == null) promise.resolve(null) else promise.reject("E_PDF", "The print screen did not open", error)
+    }
+    layout.layOut(html, opened) { page ->
       printing?.destroy()
       printing = page
       try {
         val manager = activity.getSystemService(Context.PRINT_SERVICE) as PrintManager
         val attributes = PrintAttributes.Builder().setMediaSize(size(landscape)).build()
         manager.print(title, released(page, page.createPrintDocumentAdapter(title)), attributes)
-        promise.resolve(null)
+        opened(null)
       } catch (error: RuntimeException) {
         page.destroy()
         if (printing === page) printing = null
-        promise.reject("E_PDF", "The print screen did not open", error)
+        opened(error)
       }
     }
   }
@@ -210,59 +208,21 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
     context.removeActivityEventListener(this)
     saving?.second?.resolve(false)
     saving = null
-    invalidated = true
+    layout.invalidate()
     UiThreadUtil.runOnUiThread {
-      main.removeCallbacksAndMessages(null)
       printing?.destroy()
       printing = null
     }
     super.invalidate()
   }
 
-  /** Lays out the HTML in an offscreen web engine that loads nothing but the bundled fonts, then hands it on. */
-  private fun layOut(html: String, then: (WebView) -> Unit) {
-    UiThreadUtil.runOnUiThread {
-      val view = WebView(context.currentActivity ?: context)
-      view.settings.apply {
-        javaScriptEnabled = false
-        blockNetworkLoads = true
-        allowFileAccess = false
-        allowContentAccess = false
-      }
-      view.webViewClient = object : WebViewClient() {
-        private var finished = false
-
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
-          if (allowed(request)) null else refused()
-
-        override fun onPageFinished(page: WebView, url: String?) {
-          if (finished) return
-          finished = true
-          page.settings.javaScriptEnabled = true
-          whenFontsLoaded(page, SystemClock.elapsedRealtime()) { then(page) }
-        }
-      }
-      view.loadDataWithBaseURL(FONTS, html, "text/html", "utf-8", null)
-    }
-  }
-
-  /**
-   * Calls `then` once the page's fonts have loaded, asking again every 50 ms, or after `FONT_WAIT` ms at most.
-   * The scripts are switched on only once the page has loaded, so none of its own could run even without its
-   * policy; after a reload of the app's JavaScript, the page is let go and nothing is printed.
-   */
-  private fun whenFontsLoaded(page: WebView, started: Long, then: () -> Unit) {
-    if (invalidated) return page.destroy()
-    page.evaluateJavascript(FONTS_LOADED) { loaded ->
-      val waited = SystemClock.elapsedRealtime() - started
-      when {
-        invalidated -> page.destroy()
-        loaded == "true" -> then()
-        waited > FONT_WAIT -> {
-          Log.d(TAG, "Printing after $waited ms with a font still loading")
-          then()
-        }
-        else -> main.postDelayed({ whenFontsLoaded(page, started, then) }, 50)
+  /** Calls `done` the first time only: a lost renderer can fail a job that is also failing on its own. */
+  private fun once(done: (Throwable?) -> Unit): (Throwable?) -> Unit {
+    var called = false
+    return { error ->
+      if (!called) {
+        called = true
+        done(error)
       }
     }
   }
@@ -270,25 +230,12 @@ class MinhajnaPdfModule(private val context: ReactApplicationContext) :
   private fun size(landscape: Boolean) =
     if (landscape) PrintAttributes.MediaSize.ISO_A4.asLandscape() else PrintAttributes.MediaSize.ISO_A4
 
-  /** The page itself, handed over as data, and the bundled fonts: nothing else loads. */
-  private fun allowed(request: WebResourceRequest): Boolean {
-    val url = request.url.toString()
-    return (request.isForMainFrame && url.startsWith("data:")) || url.startsWith(FONTS)
-  }
-
-  private fun refused() = WebResourceResponse("text/plain", "utf-8", 403, "Refused", emptyMap(), ByteArrayInputStream(ByteArray(0)))
-
   companion object {
     /** Empties the PDF cache, called as the app starts, so no PDF outlives a process killed mid-save. */
     fun clearCache(context: Context) {
       File(context.cacheDir, "pdf").listFiles()?.forEach { it.delete() }
     }
 
-    private const val FONTS = "file:///android_res/font/"
-    /** Lays the page out, which asks for the fonts it uses, then says whether none is still on its way. */
-    private const val FONTS_LOADED = "document.body.offsetHeight >= 0 && document.fonts.status === 'loaded'"
-    private const val FONT_WAIT = 5_000L
-    private const val TAG = "MinhajnaPdf"
     private const val SAVE_REQUEST = 4_210
     private val NAME_PATTERN = Regex("^[a-z0-9-]{1,64}$")
   }
