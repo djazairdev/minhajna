@@ -2,6 +2,26 @@
 
 What changes for teachers in each release of Minhajna, newest first. How these notes are written is in [releases.md](docs/contributing/releases.md#the-changelog).
 
+## Unreleased
+
+**لم تُنشر هذه التغييرات بعد.**
+
+### Changed · تغييرات
+
+- The teacher charter is easier to read in Arabic and English, with a clear distinction between current features and planned safeguards. Its protections are unchanged.
+  - أعدنا صياغة الميثاق بالعربية والإنجليزية لتوضيح ما هو متاح الآن وما نعمل عليه، دون تغيير بنود الحماية.
+- Clearer teacher guides and Algerian school terminology. The project introduction now distinguishes its education-wide vision from the tools available in the preview.
+  - أدلّة أوضح بمصطلحات المدرسة الجزائرية. وتعريف يفرّق بين هدف رقمنة المنظومة التعليمية وما توفره النسخة الحالية.
+
+### Security · الأمان
+
+- App lock with a 4-digit PIN chosen at first use. You can also unlock with your phone's fingerprint or face recognition. The app stores no fingerprint or face data.
+  - قفل للتطبيق برمز من 4 أرقام تختاره عند أول استعمال. يمكنك فتحه أيضًا ببصمة الهاتف أو التعرّف على الوجه. لا يحفظ التطبيق بيانات البصمة أو الوجه.
+- The app locks after 5 minutes unused. From the fifth incorrect PIN attempt, the wait before another attempt increases, up to one hour.
+  - يُقفل التطبيق بعد 5 دقائق دون استعمال. ابتداءً من المحاولة الخامسة الخاطئة، تزداد مدة الانتظار قبل المحاولة التالية، حتى ساعة.
+- Your 0.1.0 records stay intact when you update and set the new PIN.
+  - تبقى سجلاتك محفوظة عند التحديث من الإصدار 0.1.0 وتعيين رمز القفل.
+
 ## 0.1.0 (2026-10-18)
 
 The field-check preview: setup, Today and the roll call, for trying the app with made-up pupils only. It is handed over directly as an APK, not through a store.
