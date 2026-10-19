@@ -1,22 +1,35 @@
 # Privacy
 
-What the Minhajna project holds about people, why, and what it never holds. This file covers the project itself: its repositories, its teachers' group and website, and later its own services. The records of the national system are the Ministry's, which runs it as their controller, and are not covered here ([PRD §1.15](docs/prd/PRD.md#115-institution-mode)).
+[ملخّص الخصوصية بالعربية](docs/ar/privacy.md)
+
+This policy covers personal information held by the project through its repositories, teachers' group, website and future services. National-system records will be controlled by the Ministry and are not covered here ([PRD §1.15](docs/prd/PRD.md#115-institution-mode)).
 
 ## What the project never holds
 
-- **Pupil data.** Pupils' names, marks and absences never reach the project (principle 2). In teacher mode they stay on the teacher's devices, and sync and backup are end-to-end encrypted, so the project cannot read them.
-- **The records of the national system.** They are kept on the Ministry's servers, encrypted so that only the teacher and their school can read them, and a granted inspector only the lesson records a grant names. The project holds none of them, and nobody who runs a server holds a key to a named record ([PRD §6.5](docs/prd/PRD.md#65-keys-sync-and-recovery)).
+- **Pupil data.** Pupils' names, marks and absences never reach the project (principle 2). The preview is for invented pupils only and keeps entries on the phone. Future sync and backup must be end-to-end encrypted before they open, so the project cannot read them.
+- **The records of the planned national system.** After adoption, they will be kept on the Ministry's servers, encrypted so that only the teacher and their school can read them, and a granted inspector only the lesson records a grant names. The project will hold none of them, and nobody who runs a server may hold a key to a named record ([PRD §6.5](docs/prd/PRD.md#65-keys-sync-and-recovery)).
 - **Anything that tracks teachers.** No clock times, sign-in events or location, and no analytics, advertising or crash-reporting SDKs. No ads or trackers, and no sale or sharing of data, ever (principle 3).
 - **Private notes.** They never leave the teacher's own devices.
 
-## What the project holds now
+## The 0.1.0 preview
 
-The project is in planning, and there is no app yet.
+The [Android preview](https://djazair.dev/en/minhajna/), published on 18 October 2026, is for invited teachers using made-up data only.
+
+- Entries stay in an encrypted database on your phone. There is no account, internet permission, automatic reporting or usage tracking.
+- There is no sync, backup or recovery. Records are excluded from the phone's cloud backup. Uninstalling, clearing storage or losing the phone can lose your entries; the project cannot restore them.
+- The app shows its privacy notice before first use, and keeps it available in Help and privacy.
+- Opening the public source link requires a separate confirmation. The browser may then connect to GitHub, but the app attaches no record or identifier. Download links in the guides also open GitHub in the browser, separately from the app.
+- Feedback is sent by the teacher, not automatically: [Facebook page messages](https://www.facebook.com/djazairdev), [email](mailto:contact@djazair.dev), or GitHub if preferred. These are external services, not app connections. GitHub posts and Facebook comments are public. Never send real pupil data through any route, even privately.
+
+Sync, reporting and national-system services are future features. Each must meet its published launch requirements before opening.
+
+## What the project holds now
 
 | What | Why | Where, and for how long |
 |---|---|---|
 | What people post on GitHub: issues, pull requests and comments | To build the project in public | On GitHub, which is run from abroad, under its own terms. Everything there is public, so never post personal details or pupil data |
 | Posts in the teachers' Facebook group | To hear from teachers | On Facebook, under its own terms. The group's admins remove posts with real pupil data |
+| Feedback voluntarily sent to the Facebook page or `contact@djazair.dev`, including the sender's contact details | To answer questions and improve the preview; not to collect pupil records | On the chosen message or email service, under its own terms, with the maintainer handling the reply. Do not send real pupil data. A sender can ask the maintainer to delete the project's copy; the provider's own retention rules also apply |
 | Field-check contacts: a name, and a phone number or an e-mail address, for the teachers and staff who take part ([PRD §10.2](docs/prd/PRD.md#102-the-field-check)) | To run the field check, to ask about each proposal, and to invite members of the teacher council and subject maintainers ([PRD §1.8](docs/prd/PRD.md#18-governance-and-decisions)) | Kept by the lead maintainer only, and never published. Deleted whenever the person asks |
 
 ## What it will hold, as each part opens
@@ -45,4 +58,4 @@ The project is in planning, and there is no app yet.
 
 You can see, correct and delete what the project holds about you. Corrections and deletions are made within 10 days ([PRD §6.2](docs/prd/PRD.md#62-compliance-before-each-launch)).
 
-For now, ask in a [GitHub issue](https://github.com/djazairdev/minhajna/issues), without personal details, and a maintainer answers there. If you took part in the field check, you can also ask the person who contacted you. The project will add an address of its own for these questions when it has one.
+Email [contact@djazair.dev](mailto:contact@djazair.dev) privately, or contact your field-check organiser. Never include real pupil data or post personal details publicly.

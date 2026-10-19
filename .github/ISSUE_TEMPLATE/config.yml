@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+blank_issues_enabled: true
+contact_links:
+  - name: راسلنا على فيسبوك · Message us on Facebook
+    url: https://www.facebook.com/djazairdev
+    about: للمساعدة والملاحظات، دون بيانات تلاميذ. يمكنك أيضاً مراسلة contact@djazair.dev.
+  - name: التحميل والتجربة · Download and testing
+    url: https://djazair.dev/ar/minhajna/
+    about: تنزيل التطبيق وتثبيته وتحديثه وتجربته.
+  - name: سؤال عن التطبيق · Ask a question
+    url: https://github.com/orgs/djazairdev/discussions/categories/q-a
+    about: نقاش علني؛ لا ترسل بيانات تلاميذ أو معلومات شخصية.
+  - name: مشكلة أمن أو خصوصية · Security or privacy problem
+    url: https://github.com/djazairdev/minhajna/security/policy
+    about: أبلغ بشكل خاص، لا في منشور علني، ودون بيانات تلاميذ.
+  - name: إبلاغ عن إساءة · Report someone's behaviour
+    url: https://github.com/djazairdev/minhajna/blob/main/CODE_OF_CONDUCT.md#reporting-a-problem
+    about: طريقة الإبلاغ الخاص لمشرفي المشروع أو المجموعة.
