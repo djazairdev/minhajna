@@ -130,7 +130,7 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
             </Text>
           )}
         </View>
-        <View style={styles.back} />
+        <View style={styles.back}>{options.headerRight?.({ canGoBack: true })}</View>
       </View>
     </View>
   );

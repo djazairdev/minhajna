@@ -94,7 +94,7 @@ export function ClassesTabScreen({
 >) {
   return (
     <ClassesTab
-      onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })}
+      onClass={(courseId) => navigation.navigate('Class', { courseId })}
       onBook={(courseId) => navigation.navigate('TextsBook', { courseId })}
     />
   );
