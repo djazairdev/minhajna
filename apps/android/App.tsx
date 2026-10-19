@@ -31,6 +31,8 @@ import { BiometricAsk } from './src/lock/BiometricAsk';
 import { CreatePin } from './src/lock/CreatePin';
 import { guardScreen, useLockSettings } from './src/lock/lock-settings';
 import { LockStorage } from './src/lock/lock-storage';
+import { PILOT_BUILD } from './src/pilot/pilot-build';
+import { PilotTimings, timingStore } from './src/pilot/timing-store';
 import { focusedRoute, gateKind, screenKind } from './src/lock/screen-guard';
 import { Unlock } from './src/lock/Unlock';
 import { useAutoLock } from './src/lock/useAutoLock';
@@ -65,6 +67,11 @@ export default function App({
   const { phase } = lock;
   const { status: history, book } = useHistory(storage, phase.kind === 'open' ? phase.opening : null);
   const random = useMemo(() => nativeDeps(storage).random, [storage]);
+  const weekStartsOn = reference.ok ? reference.profile.weekStartsOn : null;
+  const pilot = useMemo(
+    () => (PILOT_BUILD && weekStartsOn !== null ? timingStore(storage, weekStartsOn) : null),
+    [storage, weekStartsOn],
+  );
   const navigation = useRef<NavigationState | undefined>(undefined);
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
   const [route, setRoute] = useState<string | undefined>(undefined);
@@ -120,15 +127,17 @@ export default function App({
             random={random}
           >
             <LockStorage.Provider value={storage}>
-              <AppNavigator
-                initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
-                initialState={firstState}
-                onAction={raiseGuard}
-                onStateChange={(state) => {
-                  navigation.current = state;
-                  setRoute(focusedRoute(state));
-                }}
-              />
+              <PilotTimings.Provider value={pilot}>
+                <AppNavigator
+                  initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
+                  initialState={firstState}
+                  onAction={raiseGuard}
+                  onStateChange={(state) => {
+                    navigation.current = state;
+                    setRoute(focusedRoute(state));
+                  }}
+                />
+              </PilotTimings.Provider>
             </LockStorage.Provider>
           </AppDataProvider>
         ) : (
