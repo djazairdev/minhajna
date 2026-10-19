@@ -40,6 +40,7 @@ import { PageHeading } from '../components/PageHeading';
 import { JointCard, type JointYear } from './JointCard';
 import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
+import { ExamWarnings } from '../exams/ExamWarnings';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
 import { localized, yearShort } from '../setup/names';
@@ -69,6 +70,7 @@ export function Today(props: {
   onDetails: (session: Session) => void;
   onRoll: (session: Session) => void;
   onHomework?: (item: HomeworkItem) => void;
+  onExamWindow?: (courseId: string) => void;
 }) {
   const { onHelp, onDetails, onRoll, onExtra, onHomework = () => undefined } = props;
   const insets = useSafeAreaInsets();
@@ -229,6 +231,7 @@ export function Today(props: {
         />
         <View style={styles.list}>
           {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
+          {props.onExamWindow && <ExamWarnings context={context} day={day} onOpen={props.onExamWindow} />}
           {backlog.days.length > 0 && (
             <Backlog
               days={backlog.days.map((one) => ({

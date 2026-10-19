@@ -22,6 +22,7 @@ import { Entry } from '../entry/Entry';
 import { usePilotTiming } from '../pilot/pilot-timing';
 import { AddSessions } from '../extra/AddSessions';
 import { ExtraSession } from '../extra/ExtraSession';
+import { ExamWindow } from '../exams/ExamWindow';
 import { TestSchedule } from '../exams/TestSchedule';
 import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
@@ -52,6 +53,7 @@ export function TodayTab({
       onHomework={(item) =>
         navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
       }
+      onExamWindow={(courseId) => navigation.navigate('ExamWindow', { courseId })}
     />
   );
 }
@@ -178,6 +180,18 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       courseId={courseId}
       onExtra={() => navigation.navigate('Extra', { courseId })}
       onTests={() => navigation.navigate('TestSchedule', { courseId })}
+      onExamWindow={() => navigation.navigate('ExamWindow', { courseId })}
+    />
+  );
+}
+
+/** The answers to a class's exam-window warning; a make-up day opens from it. */
+export function ExamWindowScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ExamWindow'>) {
+  return (
+    <ExamWindow
+      courseId={route.params.courseId}
+      onMakeUp={() => navigation.navigate('AddSessions')}
+      onLater={() => navigation.goBack()}
     />
   );
 }

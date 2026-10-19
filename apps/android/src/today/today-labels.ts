@@ -3,12 +3,14 @@
 
 // What a session card on Today says (#32): the plan's proposal as the book
 // will take it, the lesson of a session further down the day, what a
-// recorded session wrote, and the day's facts. The words state facts and
-// never judge (PRD §3.1, rule 8).
+// recorded session wrote, and the day's facts; with an item merged into
+// the session by the teacher's decision, both (#221). The words state facts
+// and never judge (PRD §3.1, rule 8).
 
 import type { PlanPack, Proposal, SessionRecord, TodaySession, TodayView } from '@minhajna/core';
 import type { ProposalProps } from '../components/Proposal';
 import type { useText } from '../text/i18n';
+import { isolate } from '../week/grid-labels';
 
 type Translate = ReturnType<typeof useText>;
 
@@ -33,6 +35,7 @@ export function proposalOf(t: Translate, pack: PlanPack | null, proposal: Propos
     lines: [
       ...(unit === undefined ? [] : [{ label: t('today.unit'), text: unit.title }]),
       { label: t(proposal.continued ? 'today.continued' : 'today.topic'), text: proposal.item.title },
+      ...(proposal.with === undefined ? [] : [{ label: t('today.merged'), text: proposal.with.item.title }]),
       ...stageLines(t, proposal).map((text) => ({ text })),
     ],
   };
@@ -42,10 +45,14 @@ export function proposalOf(t: Translate, pack: PlanPack | null, proposal: Propos
 export function lessonOf(t: Translate, item: TodaySession): { lesson: string; note?: string } {
   const { proposal } = item;
   if (proposal === null) return { lesson: t(item.packMissing ? 'today.packMissing' : 'today.noProposal') };
-  if (!proposal.continued) return { lesson: proposal.item.title };
+  const title =
+    proposal.with === undefined
+      ? proposal.item.title
+      : t('today.mergedLesson', { title: isolate(proposal.item.title), with: isolate(proposal.with.item.title) });
+  if (!proposal.continued) return { lesson: title };
   const stage = proposal.stageNames[proposal.from];
   return {
-    lesson: t('today.continuedLesson', { title: proposal.item.title }),
+    lesson: t('today.continuedLesson', { title }),
     ...(stage !== undefined && { note: t('today.continuedNote', { stage }) }),
   };
 }

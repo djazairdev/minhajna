@@ -57,6 +57,7 @@ export type RootStackParamList = {
     | undefined;
   ClassPlan: { courseId: string };
   TestSchedule: { courseId: string };
+  ExamWindow: { courseId: string };
   TextsBook: { courseId: string };
   /** A course's homework record, open on the homework a session set, if given. */
   Homework: { courseId: string; sessionKey?: string };
