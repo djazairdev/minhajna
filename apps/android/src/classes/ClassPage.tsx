@@ -44,7 +44,7 @@ export type ClassPageProps = {
   readonly onRoll: (session: Session) => void;
   readonly onBook: () => void;
   readonly onPlan: () => void;
-  /** Opens the roll-call book's month; none until it is built. */
+  /** Opens the roll-call book's month; the row is disabled without it. */
   readonly onMonth?: () => void;
   readonly onHomework: () => void;
   readonly onExtra: () => void;
