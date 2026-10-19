@@ -90,7 +90,7 @@ const PupilRow = memo(function PupilRow(props: {
 type RollProps = {
   sessionKey: string;
   day: Day;
-  onDone: () => void;
+  onDone: (first: boolean) => void;
   onCorrect?: (unit: RollCallUnit, pupilId: string) => void;
   onRules?: () => void;
   onMove?: (classId: string) => void;
@@ -99,8 +99,9 @@ type RollProps = {
 
 /**
  * The roll call of the unit a session belongs to; `onDone` goes back once it
- * is saved. Once taken and with no change pending, a pupil's name opens
- * `onCorrect`; the list starts again from each new version recorded.
+ * is saved, saying whether it was taken for the first time. Once taken and
+ * with no change pending, a pupil's name opens `onCorrect`; the list starts
+ * again from each new version recorded.
  */
 export function Roll(props: RollProps) {
   const { state, profile, year, calendar, packs } = useAppData();
@@ -245,7 +246,7 @@ function RollList({
           onPress={() => {
             record(takeRollCall(context, unit, marks, recorded === null || reason === null ? undefined : reason));
             keepMarks(unit.key, null);
-            onDone();
+            onDone(recorded === null);
           }}
         />
       </View>

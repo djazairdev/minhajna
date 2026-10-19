@@ -48,8 +48,8 @@ import { FixFoot, FixHead } from './FixPart';
 import { LessonSheet } from './LessonSheet';
 import { lessonGroups, type Lesson } from './lesson-rules';
 
-/** The session's details; `onDone` goes back once it is recorded. */
-export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Day; onDone: () => void }) {
+/** The session's details; `onDone` goes back once it is recorded, saying whether it was its first confirmation. */
+export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Day; onDone: (first: boolean) => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -252,7 +252,7 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
           disabled={missing || unchanged}
           onPress={() => {
             recordAll(confirmSessions(context, [confirmation]));
-            onDone();
+            onDone(record === null);
           }}
         />
       </View>

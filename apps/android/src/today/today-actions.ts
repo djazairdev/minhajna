@@ -5,7 +5,13 @@
 // before (#32, #33, #35). A second choice for the same session keeps the
 // first one's undo, so the undo brings back what was there before the sheet,
 // note included. A reason for a skip or a session not held goes into the
-// session's private note only.
+// session's private note only. In a pilot build, a first confirmation is
+// timed (#220): in one tap from its card, or with the sheet's choice; a tap
+// confirming several sessions splits its time among them. A timing is held
+// while «تراجع» can still undo it, and kept once another tap replaces it,
+// another screen covers Today, the app goes to the background or Today
+// closes: an undo drops it, and a second choice for the same session adds
+// its time and makes it no longer one tap.
 
 import {
   confirmSessions,
@@ -16,8 +22,12 @@ import {
   type Reason,
   type RecordEvent,
   type TodaySession,
+  type Timing,
 } from '@minhajna/core';
-import { useState } from 'react';
+import { NavigationContext } from '@react-navigation/native';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
+import { usePilotTiming } from '../pilot/pilot-timing';
 import type { useText } from '../text/i18n';
 
 /** The sessions just recorded, and the events that bring back what was there before. */
@@ -36,6 +46,32 @@ export function useTodayActions(
 ) {
   const { state } = context;
   const [done, setDone] = useState<Done | null>(null);
+  const pilot = usePilotTiming();
+  const held = useRef<readonly Timing[]>([]);
+  const keep = useRef(pilot.keep);
+  useEffect(() => {
+    keep.current = pilot.keep;
+  }, [pilot]);
+  const navigation = useContext(NavigationContext);
+  useEffect(() => {
+    const flush = () => {
+      keep.current(held.current);
+      held.current = [];
+    };
+    const app = AppState.addEventListener('change', (status) => {
+      if (status === 'background') flush();
+    });
+    const blur = navigation?.addListener('blur', flush);
+    return () => {
+      app.remove();
+      blur?.();
+      flush();
+    };
+  }, [navigation]);
+  const hold = (timings: readonly Timing[]) => {
+    pilot.keep(held.current);
+    held.current = timings;
+  };
 
   const confirm = (item: TodaySession, choice?: Choice) => {
     const key = item.session.key;
@@ -49,6 +85,12 @@ export function useTodayActions(
               : { kind: 'session.recorded', record: before },
           ];
     recordAll(confirmSessions(context, [{ session: item.session, ...(choice !== undefined && { choice }) }]));
+    const tenths = pilot.lap();
+    if (done?.key === key) {
+      held.current = held.current.map((one) => ({ ...one, tenths: one.tenths + tenths, oneTap: false }));
+    } else {
+      hold(before === null ? pilot.timings('session', 1, tenths, choice === undefined) : []);
+    }
     const kind = choice?.outcome;
     const message = t(
       kind === 'partial' ? 'outcome.snackPartial' : kind === 'not-held' ? 'outcome.snackNotHeld' : 'today.snack',
@@ -63,6 +105,7 @@ export function useTodayActions(
         items.map((item) => ({ session: item.session })),
       ),
     );
+    hold(pilot.timings('session', items.length, pilot.lap(), true));
     setDone({
       key,
       undo: items.map((item) => ({ kind: 'session.withdrawn', session: refOf(item.session) })),
@@ -90,6 +133,7 @@ export function useTodayActions(
 
   const undo = () => {
     if (done === null) return;
+    held.current = [];
     recordAll(done.undo);
     setDone(null);
   };

@@ -7,7 +7,8 @@
 // for its absence slip (R-3.4-31, answer 264), a pupil's correction in it,
 // a pupil who joins or leaves the class, the seating plan with a print icon
 // once it is arranged (answer 265), and the Classes tab with each class's
-// plan and texts book.
+// plan and texts book. In a pilot build, a session's first confirmation on
+// its own screen and a roll call's first taking are timed (#220).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -18,6 +19,7 @@ import { TextsBook } from '../book/TextsBook';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
+import { usePilotTiming } from '../pilot/pilot-timing';
 import { AddSessions } from '../extra/AddSessions';
 import { ExtraSession } from '../extra/ExtraSession';
 import { PupilMove } from '../moves/PupilMove';
@@ -55,7 +57,13 @@ export function TodayTab({
 
 /** A session's details, back to Today once confirmed. */
 export function EntryScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Entry'>) {
-  return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={() => navigation.goBack()} />;
+  const pilot = usePilotTiming();
+  const done = (first: boolean) => {
+    const tenths = pilot.lap();
+    if (first) pilot.keep(pilot.timings('session', 1, tenths, false));
+    navigation.goBack();
+  };
+  return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={done} />;
 }
 
 /** A session's roll call, back to where it was opened once saved; the print icon opens its blank sheet or its slip. */
@@ -63,6 +71,7 @@ export function RollScreen({ navigation, route }: NativeStackScreenProps<RootSta
   const t = useText();
   const { state, profile, year, calendar, packs } = useAppData();
   const { key, day, courseId } = route.params;
+  const pilot = usePilotTiming();
   const known = state.courses.has(courseId);
   const slip = useMemo(
     () => takenSlip(coreContext({ profile, year, calendar, packs, state }), key, parseDay(day)),
@@ -90,7 +99,11 @@ export function RollScreen({ navigation, route }: NativeStackScreenProps<RootSta
     <Roll
       sessionKey={route.params.key}
       day={parseDay(route.params.day)}
-      onDone={() => navigation.goBack()}
+      onDone={(first) => {
+        const tenths = pilot.lap();
+        if (first) pilot.keep(pilot.timings('roll', 1, tenths, false));
+        navigation.goBack();
+      }}
       onCorrect={(unit, pupilId) => navigation.navigate('Correct', { unit: unit.key, day: unit.day, pupilId })}
       onRules={() => navigation.navigate('RollRules')}
       onMove={(classId) => navigation.navigate('PupilMove', { classId })}

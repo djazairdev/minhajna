@@ -3,7 +3,8 @@
 
 // The documents as navigation routes (#212): the Documents tab, a
 // document's output above the tabs, and «طباعة الأسبوع» (#215). The
-// roll-call book opens Roll-print (#217).
+// roll-call book opens Roll-print (#217). In a pilot build, the tab's last
+// row opens «توقيتاتي» (#220).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -14,6 +15,8 @@ import { documentKind } from '../documents/catalogue';
 import { DocumentOutput } from '../documents/DocumentOutput';
 import { DocumentsTab } from '../documents/DocumentsTab';
 import { PrintWeek } from '../documents/PrintWeek';
+import { PilotTimings } from '../pilot/PilotTimings';
+import { useTimingStore } from '../pilot/timing-store';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
 /** The Documents tab. */
@@ -28,6 +31,7 @@ export function DocumentsTabScreen({
       onOpen={(id) => (id === 'roll' ? navigation.navigate('RollPrint') : navigation.navigate('DocOutput', { id }))}
       onPrintWeek={() => navigation.navigate('PrintWeek')}
       onFixes={() => navigation.navigate('BookFixes')}
+      onTimings={() => navigation.navigate('PilotTimings')}
     />
   );
 }
@@ -35,6 +39,12 @@ export function DocumentsTabScreen({
 /** «تصحيحات دفتر النصوص», above the tabs, on the month and class given. */
 export function BookFixesScreen({ route }: NativeStackScreenProps<RootStackParamList, 'BookFixes'>) {
   return <BookFixes {...route.params} />;
+}
+
+/** «توقيتاتي في التجربة», above the tabs; nothing outside a pilot build. */
+export function PilotTimingsScreen() {
+  const store = useTimingStore();
+  return store === null ? null : <PilotTimings store={store} />;
 }
 
 /** «طباعة الأسبوع», above the tabs. */

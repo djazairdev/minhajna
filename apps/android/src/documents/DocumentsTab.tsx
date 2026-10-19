@@ -5,6 +5,7 @@
 // covers now. A document opens its output: print, or save a PDF, as
 // recorded or blank with its headings. «طباعة الأسبوع» comes first, with
 // how many documents have something new since their last print (#215).
+// In a pilot build, the last row opens «توقيتاتي في التجربة» (#220).
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
@@ -15,25 +16,33 @@ import { PageHeading } from '../components/PageHeading';
 import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
+import { useTimingStore } from '../pilot/timing-store';
 import { useText } from '../text/i18n';
 import { DOCUMENTS, type DocumentId } from './catalogue';
 import { weekEntries } from './print-week';
 import { useDocumentData } from './useDocumentData';
 
-/** The Documents tab; `onOpen` opens a document's output, `onPrintWeek` «طباعة الأسبوع», and `onFixes` the texts book's corrections. */
+/**
+ * The Documents tab; `onOpen` opens a document's output, `onPrintWeek`
+ * «طباعة الأسبوع», `onFixes` the texts book's corrections, and `onTimings`
+ * «توقيتاتي» in a pilot build.
+ */
 export function DocumentsTab({
   onOpen,
   onPrintWeek,
   onFixes,
+  onTimings,
 }: {
   readonly onOpen: (id: DocumentId) => void;
   readonly onPrintWeek: () => void;
   readonly onFixes: () => void;
+  readonly onTimings?: () => void;
 }) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useDocumentData();
+  const pilot = useTimingStore() !== null;
   const news = useMemo(() => weekEntries(data).filter((entry) => entry.news !== null).length, [data]);
   return (
     <View style={[styles.screen, { direction, paddingTop: insets.top }]}>
@@ -66,6 +75,15 @@ export function DocumentsTab({
             description={t('bookFixes.line')}
             onPress={onFixes}
           />
+          {pilot && onTimings !== undefined && (
+            <RowLink
+              testID="documents-timings"
+              icon={controlIcon('phone')}
+              title={t('pilotTimings.title')}
+              description={t('pilotTimings.line')}
+              onPress={onTimings}
+            />
+          )}
           <Notice icon={controlIcon('info')} message={t('documents.list.more')} />
         </View>
       </ScrollView>

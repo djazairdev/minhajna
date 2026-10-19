@@ -41,6 +41,7 @@ export type RootStackParamList = {
   Pupil: { courseId: string; pupilId: string; month?: string };
   /** The texts book's corrections, for the director: a month written YYYY-MM and a class, or this month and all. */
   BookFixes: { month?: string; classId?: string } | undefined;
+  PilotTimings: undefined;
   RollPrint:
     | {
         courseId?: string;
