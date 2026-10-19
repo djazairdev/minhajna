@@ -22,6 +22,7 @@ import { Entry } from '../entry/Entry';
 import { usePilotTiming } from '../pilot/pilot-timing';
 import { AddSessions } from '../extra/AddSessions';
 import { ExtraSession } from '../extra/ExtraSession';
+import { DutyEntry } from '../exams/DutyEntry';
 import { ExamWindow } from '../exams/ExamWindow';
 import { TestSchedule } from '../exams/TestSchedule';
 import { PupilMove } from '../moves/PupilMove';
@@ -53,7 +54,10 @@ export function TodayTab({
       onHomework={(item) =>
         navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
       }
-      onExamWindow={(courseId) => navigation.navigate('ExamWindow', { courseId })}
+      onExams={{
+        warning: (courseId) => navigation.navigate('ExamWindow', { courseId }),
+        duty: (day) => navigation.navigate('Duty', { day }),
+      }}
     />
   );
 }
@@ -185,6 +189,11 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
   );
 }
 
+/** An invigilation or a class exam, on the day asked or the next exam day. */
+export function DutyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Duty'>) {
+  return <DutyEntry {...(route.params?.day !== undefined && { day: parseDay(route.params.day) })} />;
+}
+
 /** The answers to a class's exam-window warning; a make-up day opens from it. */
 export function ExamWindowScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ExamWindow'>) {
   return (
@@ -198,7 +207,13 @@ export function ExamWindowScreen({ navigation, route }: NativeStackScreenProps<R
 
 /** A class's tests, another class's from its chip. */
 export function TestScheduleScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TestSchedule'>) {
-  return <TestSchedule courseId={route.params.courseId} onCourse={(courseId) => navigation.setParams({ courseId })} />;
+  return (
+    <TestSchedule
+      courseId={route.params.courseId}
+      onCourse={(courseId) => navigation.setParams({ courseId })}
+      onDuty={(day) => navigation.navigate('Duty', { day })}
+    />
+  );
 }
 
 /** A class's texts book; another subject replaces it, and the month on screen prints. */

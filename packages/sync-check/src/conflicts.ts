@@ -78,6 +78,10 @@ export function recordKey(entry: Entry): string | null {
       return `decision/${event.decision.id}`;
     case 'plan.undecided':
       return `decision/${event.id}`;
+    case 'duty.set':
+      return `duty/${event.duty.id}`;
+    case 'duty.removed':
+      return `duty/${event.id}`;
   }
 }
 

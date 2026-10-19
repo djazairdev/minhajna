@@ -726,6 +726,36 @@
     "takenBack": "Decision taken back; “Undo” restores it.",
     "undo": "Undo"
   },
+  "duties": {
+    "title": "Invigilation or exam",
+    "open": "Add an invigilation or exam",
+    "intro": "Typed from the school's paper on exam days: invigilations and class exams. Nothing counts them, and an invigilation goes in the daily journal, not the texts book.",
+    "kind": "Kind",
+    "kinds": {
+      "invigilation": "Invigilation",
+      "exam": "Class exam"
+    },
+    "date": "Day",
+    "time": "Time",
+    "from": "From",
+    "to": "To",
+    "clockExample": "08:00",
+    "timeWrong": "Type the time like 08:00, ending after it starts.",
+    "room": "Room",
+    "roomExample": "For example: 5",
+    "optional": "Optional",
+    "roomLine": "Room {{room}}",
+    "classes": "Classes",
+    "classesMissing": "Choose at least one class.",
+    "save": "Save",
+    "saved": "“{{kind}}” saved for {{day}}.",
+    "failed": "Not saved. Check the day, the times and the classes.",
+    "undo": "Undo",
+    "dayList": "Entered for {{day}}",
+    "remove": "Remove {{kind}}, {{time}}",
+    "removed": "“{{kind}}” removed.",
+    "noExams": "The calendar has no exam days yet for your classes."
+  },
   "book": {
     "title": "Texts book",
     "open": "Texts book",

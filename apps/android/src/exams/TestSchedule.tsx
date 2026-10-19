@@ -7,8 +7,10 @@
 // teacher ticked it, and «حذف». The next exams follow, from the calendar,
 // never the pack, with how sure their date is. «إضافة فرض» opens the form,
 // which shows what moves before saving. A save or a removal can be taken
-// back with «تراجع». Tests come from the teacher only, so there is no
-// «من رزنامة المؤسسة» badge until the school's calendar exists.
+// back with «تراجع». Under the exams, «إضافة حراسة أو اختبار» opens the
+// form for the school's paper before the week starts (answer 270). Tests
+// come from the teacher only, so there is no «من رزنامة المؤسسة» badge
+// until the school's calendar exists.
 
 import { nextExams, type ScheduledTest } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -34,7 +36,14 @@ import { courseTests } from './test-rules';
 
 type Said = { readonly kind: 'added' | 'removed'; readonly test: ScheduledTest } | null;
 
-export function TestSchedule({ courseId, onCourse }: { courseId: string; onCourse: (courseId: string) => void }) {
+export type TestScheduleProps = {
+  readonly courseId: string;
+  readonly onCourse: (courseId: string) => void;
+  /** Opens the form for an invigilation or a class exam, on the exams' first day. */
+  readonly onDuty?: (day: string) => void;
+};
+
+export function TestSchedule({ courseId, onCourse, onDuty }: TestScheduleProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -142,6 +151,9 @@ export function TestSchedule({ courseId, onCourse }: { courseId: string; onCours
               </Text>
             </View>
           </View>
+        )}
+        {exams !== null && onDuty !== undefined && (
+          <Button testID="tests-duty" variant="line" label={t('duties.open')} onPress={() => onDuty(exams.from)} />
         )}
         {schoolClass === undefined ? null : adding ? (
           <AddTest

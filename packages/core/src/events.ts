@@ -9,6 +9,7 @@ import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
+import type { ExamDuty } from './exam-duties.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { CalendarEntry, CalendarLayer } from './reference.ts';
@@ -82,7 +83,10 @@ export type RecordEvent =
   | { readonly kind: 'test.removed'; readonly id: string }
   /** What the teacher decided when an item would pass an exam window, or that decision taken back (#221). */
   | { readonly kind: 'plan.decided'; readonly decision: PlanDecision }
-  | { readonly kind: 'plan.undecided'; readonly id: string };
+  | { readonly kind: 'plan.undecided'; readonly id: string }
+  /** An invigilation or a class exam on an exam week, set or corrected, or removed (#221). */
+  | { readonly kind: 'duty.set'; readonly duty: ExamDuty }
+  | { readonly kind: 'duty.removed'; readonly id: string };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -115,6 +119,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'test.removed': true,
   'plan.decided': true,
   'plan.undecided': true,
+  'duty.set': true,
+  'duty.removed': true,
 };
 
 /**
@@ -156,6 +162,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'test.removed':
     case 'plan.decided':
     case 'plan.undecided':
+    case 'duty.set':
+    case 'duty.removed':
       return 'lesson-record';
   }
 }

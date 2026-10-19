@@ -6,6 +6,7 @@
 // from its history entry.
 
 import { compareDays } from './day.ts';
+import { compareDuties } from './exam-duties.ts';
 import { compareExtras } from './extra-records.ts';
 import { mayTravelAs, type OutboundRoute } from './layers.ts';
 import { compareHalves, compareSlots } from './records.ts';
@@ -82,6 +83,7 @@ function currentRecords(state: State): RecordEvent[] {
     (a, b) => compareText(a.courseId, b.courseId) || compareText(a.id, b.id),
   );
   for (const decision of decisions) records.push({ kind: 'plan.decided', decision });
+  for (const duty of [...state.duties.values()].sort(compareDuties)) records.push({ kind: 'duty.set', duty });
   return records;
 }
 

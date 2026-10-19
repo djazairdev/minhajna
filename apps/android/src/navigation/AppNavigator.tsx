@@ -21,6 +21,7 @@ import {
   ClassPlanScreen,
   TestScheduleScreen,
   ExamWindowScreen,
+  DutyScreen,
   AddSessionsScreen,
   ExtraScreen,
   ClassesTabScreen,
@@ -214,6 +215,7 @@ export function AppNavigator({
         <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
         <Stack.Screen name="TestSchedule" component={TestScheduleScreen} options={dark(t('tests.title'))} />
         <Stack.Screen name="ExamWindow" component={ExamWindowScreen} options={dark(t('examWindow.title'))} />
+        <Stack.Screen name="Duty" component={DutyScreen} options={dark(t('duties.title'))} />
         <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
         <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />
         <Stack.Screen name="Extra" component={ExtraScreen} options={dark(t('extra.title'))} />
