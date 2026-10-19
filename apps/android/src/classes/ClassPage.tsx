@@ -45,6 +45,7 @@ export type ClassPageProps = {
   readonly onRoll: (session: Session) => void;
   readonly onBook: () => void;
   readonly onPlan: () => void;
+  readonly onTests?: () => void;
   /** Opens the roll-call book's month; the row is disabled without it. */
   readonly onMonth?: () => void;
   /** Opens Roll-print on this class's book. */
@@ -188,6 +189,7 @@ export function ClassPage(props: ClassPageProps) {
       <View style={styles.rows}>
         {link('book', 'school', t('book.title'), lines.book, props.onBook)}
         {link('plan', 'tune', t('classPlan.open'), plan.join('\n'), props.onPlan)}
+        {link('tests', 'check', t('tests.open'), t('tests.openLine'), props.onTests)}
         {link('roll', 'pupils', t('classPage.roll'), lines.roll, props.onMonth)}
         {link('roll-print', 'print', t('rollPrint.classRow'), t('rollPrint.classRowLine'), props.onRollPrint)}
         {link('homework', 'homework', t('homework.open'), lines.homework, props.onHomework)}

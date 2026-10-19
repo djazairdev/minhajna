@@ -19,6 +19,7 @@ import { BottomNav, TopBar, theme } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
 import {
   ClassPlanScreen,
+  TestScheduleScreen,
   AddSessionsScreen,
   ExtraScreen,
   ClassesTabScreen,
@@ -210,6 +211,7 @@ export function AppNavigator({
         <Stack.Screen name="BookFixes" component={BookFixesScreen} options={dark(t('bookFixes.title'))} />
         <Stack.Screen name="PilotTimings" component={PilotTimingsScreen} options={dark(t('pilotTimings.title'))} />
         <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
+        <Stack.Screen name="TestSchedule" component={TestScheduleScreen} options={dark(t('tests.title'))} />
         <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
         <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />
         <Stack.Screen name="Extra" component={ExtraScreen} options={dark(t('extra.title'))} />

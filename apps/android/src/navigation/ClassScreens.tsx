@@ -58,6 +58,7 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
       }
       onBook={() => navigation.navigate('TextsBook', { courseId })}
       onPlan={() => navigation.navigate('ClassPlan', { courseId })}
+      onTests={() => navigation.navigate('TestSchedule', { courseId })}
       onHomework={() => navigation.navigate('Homework', { courseId })}
       onExtra={() => navigation.navigate('Extra', { courseId })}
       onSupervised={() => navigation.navigate('DocOutput', { id: 'supervised' })}

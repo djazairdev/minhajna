@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Joint primary classes (#43): one class, two or three levels, each on its
-// own plan, sharing the room's slot and its roll call. Made-up data only.
+// own plan, sharing the room's slot and its roll call, each with its own
+// grade's exams. Made-up data only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -13,9 +14,11 @@ import {
   isJoint,
   jointProblems,
   makeContext,
+  nextExams,
   pupilGrade,
   rollCallUnits,
   sessionsBetween,
+  termCheck,
   todayView,
   type RecordEvent,
   type SchoolClass,
@@ -142,6 +145,27 @@ describe('Joint classes', () => {
       ['c-lang-4', null],
       ['c-lang-4', null],
     ]);
+  });
+
+  it('takes each level’s exam window from its own grade', async () => {
+    const exams = {
+      id: 'exams-5',
+      layer: 'national' as const,
+      from: d('2026-12-06'),
+      to: d('2026-12-10'),
+      effect: 'exam' as const,
+      levels: ['primary'],
+      grades: ['5ap'],
+      term: 1,
+      name: { en: 'Made-up 5AP exams' },
+      source: 'made up for tests',
+      confidence: 'announced' as const,
+    };
+    const book = await openBook(jointEvents());
+    const context = makeContext({ ...reference, calendar: [...reference.calendar, exams] }, book.state);
+    assert.equal(nextExams(context, 'c-lang', sunday)?.id, 'exams-5');
+    assert.equal(nextExams(context, 'c-lang-4', sunday), null);
+    assert.equal(termCheck(context, 'c-lang', sunday)?.basis, 'exam-window');
   });
 
   it('holds two or three different levels of its own, in order', () => {

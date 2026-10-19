@@ -22,6 +22,7 @@ import { Entry } from '../entry/Entry';
 import { usePilotTiming } from '../pilot/pilot-timing';
 import { AddSessions } from '../extra/AddSessions';
 import { ExtraSession } from '../extra/ExtraSession';
+import { TestSchedule } from '../exams/TestSchedule';
 import { PupilMove } from '../moves/PupilMove';
 import { Correct } from '../roll/Correct';
 import { Roll } from '../roll/Roll';
@@ -172,7 +173,18 @@ export function ClassesTabScreen({
 /** A class's plan. */
 export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
   const { courseId } = route.params;
-  return <ClassPlan courseId={courseId} onExtra={() => navigation.navigate('Extra', { courseId })} />;
+  return (
+    <ClassPlan
+      courseId={courseId}
+      onExtra={() => navigation.navigate('Extra', { courseId })}
+      onTests={() => navigation.navigate('TestSchedule', { courseId })}
+    />
+  );
+}
+
+/** A class's tests, another class's from its chip. */
+export function TestScheduleScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TestSchedule'>) {
+  return <TestSchedule courseId={route.params.courseId} onCourse={(courseId) => navigation.setParams({ courseId })} />;
 }
 
 /** A class's texts book; another subject replaces it, and the month on screen prints. */

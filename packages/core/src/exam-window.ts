@@ -21,7 +21,7 @@ import { courseGrade, forGrade } from './joint.ts';
 import { queueItems, type PackItem } from './pack.ts';
 import { decisionsFor } from './plan-decisions.ts';
 import { wholeGroup } from './records.ts';
-import type { Confidence } from './reference.ts';
+import type { CalendarEntry, Confidence } from './reference.ts';
 import { sessionsBetween } from './sessions.ts';
 
 export interface PastWindow {
@@ -33,17 +33,25 @@ export interface PastWindow {
   readonly items: readonly { readonly item: PackItem; readonly lands: Day | null }[];
 }
 
+/** A course's next exam window of a term, not yet ended on `today`, from its own grade's calendar. */
+export function nextExams(context: Context, courseId: string, today: Day): CalendarEntry | null {
+  const setup = courseSetup(context, courseId);
+  const school = context.state.schools.get(setup.schoolClass.schoolId);
+  if (school === undefined) return null;
+  return (
+    context.calendar
+      .entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass)))
+      .filter((entry) => entry.effect === 'exam' && entry.term !== undefined && compareDays(entry.to, today) >= 0)
+      .sort((a, b) => compareDays(a.from, b.from))[0] ?? null
+  );
+}
+
 /** The items a course's plan would push past its next exam window, as of `today`; null when none. */
 export function pastWindow(context: Context, courseId: string, today: Day): PastWindow | null {
   const setup = courseSetup(context, courseId);
   const pack = setup.pack;
-  const school = context.state.schools.get(setup.schoolClass.schoolId);
-  if (pack === null || school === undefined) return null;
-  const exam = context.calendar
-    .entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass)))
-    .filter((entry) => entry.effect === 'exam' && entry.term !== undefined && compareDays(entry.to, today) >= 0)
-    .sort((a, b) => compareDays(a.from, b.from))[0];
-  if (exam?.term === undefined || compareDays(exam.from, today) <= 0) return null;
+  const exam = nextExams(context, courseId, today);
+  if (pack === null || exam?.term === undefined || compareDays(exam.from, today) <= 0) return null;
   const term = exam.term;
 
   const postponed = new Set(
