@@ -132,6 +132,7 @@ export function specialistJournalPages(data: DocumentData, _t: Translate, blank:
                     .map(entry),
                 })),
             visas: [schoolName(one)],
+            book: `${language}/${one.id}`,
           }))
       : sessions.length > 0 || blank
         ? [
@@ -140,6 +141,7 @@ export function specialistJournalPages(data: DocumentData, _t: Translate, blank:
               className: '',
               bands: blank ? blankBands : bandsOf(sessions, (item) => schoolName(classOf(item)), half, entry, tl),
               visas: blank ? schools : [...new Set(sessions.map((item) => schoolName(classOf(item))))],
+              book: language,
             },
           ]
         : [];
@@ -164,7 +166,10 @@ export function specialistJournalPages(data: DocumentData, _t: Translate, blank:
     };
   };
   const sets = (languages.length > 0 ? languages : [book]).map(pages);
-  const html = sets.flatMap(({ texts, days }) => days.map((day) => wrapped(texts, primaryPageHtml(texts, day, blank))));
+  const days = sets.flatMap(({ texts, days }) =>
+    days.map((day) => ({ day, html: wrapped(texts, primaryPageHtml(texts, day, blank)) })),
+  );
+  const html = days.map((one) => one.html);
   const first = sets[0];
   return printDocument({
     lang: first.texts.lang,
@@ -173,6 +178,7 @@ export function specialistJournalPages(data: DocumentData, _t: Translate, blank:
     landscape: true,
     css: PRIMARY_CSS,
     pages: html.length > 0 ? html : [wrapped(first.texts, primaryPageHtml(first.texts, first.none, false))],
+    books: days.map((one) => one.day.book ?? ''),
   });
 }
 

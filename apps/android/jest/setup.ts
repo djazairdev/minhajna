@@ -38,6 +38,7 @@ jest.mock('../src/native/NativeMinhajnaPdf', () => ({
     sharePdf: jest.fn(() => Promise.resolve()),
     printHtml: jest.fn(() => Promise.resolve()),
     savePdf: jest.fn(() => Promise.resolve(true)),
+    pageColors: jest.fn(() => Promise.resolve([])),
   },
 }));
 

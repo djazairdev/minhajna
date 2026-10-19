@@ -150,7 +150,7 @@ test('a class with no course is in neither the count nor the roll-call book', as
   await mount(data, <DocumentOutput kind={kind('roll')} />);
   await press('output-print');
   const [html] = printHtml.mock.calls[0];
-  expect(html.match(/<section class="page">/g)).toHaveLength(2);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(2);
   expect(html).not.toContain('قسم بلا مادة');
 });
 

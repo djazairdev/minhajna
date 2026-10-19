@@ -30,6 +30,8 @@ export interface RollSheet {
   readonly columns: readonly string[];
   readonly rows: readonly RollMonthRow[];
   readonly blank?: boolean;
+  /** The class whose roll-call book the page belongs to. */
+  readonly book?: string;
 }
 
 export interface RollMonthTexts {
@@ -93,6 +95,7 @@ export function rollMonthHtml(texts: RollMonthTexts, sheets: readonly RollSheet[
     landscape: true,
     css: CSS,
     pages: sheets.map((sheet) => sheetHtml(texts, sheet)),
+    books: sheets.map((sheet) => sheet.book ?? ''),
     confidential: texts.confidential,
   });
 }

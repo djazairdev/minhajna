@@ -40,6 +40,7 @@ export function rollPages(data: DocumentData, t: Translate, blank: boolean): str
         marks: units.map((unit) => (blank ? null : markOf(data.state, unit.key, pupil.id))),
       })),
       blank,
+      book: schoolClass.id,
     };
   });
   return rollMonthHtml(

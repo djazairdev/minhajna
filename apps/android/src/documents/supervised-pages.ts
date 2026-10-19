@@ -77,6 +77,7 @@ export function supervisedPages(data: DocumentData, t: Translate, blank: boolean
   const context = coreContext(data);
   const book: Language = isLanguage(data.profile.language) ? data.profile.language : data.lang;
   const bt = i18n.getFixedT(book);
+  const books: string[] = [];
   const pages = bookClasses(data).flatMap((schoolClass) => {
     const rows = blank ? [] : lessonRows(data, context, schoolClass).map((row) => lessonRow(data, row, bt, book));
     const chunks = rows.length === 0 ? [[]] : byRules(rows, SUPERVISED_RULES);
@@ -87,6 +88,7 @@ export function supervisedPages(data: DocumentData, t: Translate, blank: boolean
       className: bt('documents.textsBook.className', { name: isolate(schoolClass.name) }),
       title: bt('documents.supervised.page'),
     });
+    books.push(...chunks.map(() => schoolClass.id));
     return chunks.map(
       (page) =>
         head +
@@ -109,5 +111,6 @@ export function supervisedPages(data: DocumentData, t: Translate, blank: boolean
     landscape: false,
     css: CSS,
     pages,
+    books,
   });
 }

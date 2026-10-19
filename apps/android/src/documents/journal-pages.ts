@@ -72,6 +72,7 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
             title: blank ? '' : title(data.day),
             className: t('documents.textsBook.className', { name: isolate(one.name) }),
             entries: sessions.filter((item) => item.course.classId === one.id).map(entry),
+            book: one.id,
           }),
         );
   return journalHtml(

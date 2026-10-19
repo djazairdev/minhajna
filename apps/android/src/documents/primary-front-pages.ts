@@ -163,6 +163,7 @@ export function primaryFrontPages(data: DocumentData, t: Translate, blank: boole
         signature: key('seal'),
         note: key('weekNote'),
       },
+      book: schoolClass.id,
     };
   };
   const classes = classTeacherClasses(data);

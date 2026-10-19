@@ -39,7 +39,7 @@ const documentData = (data: TestData, day = '2026-10-15'): DocumentData => ({
   dir: 'rtl',
 });
 
-const pages = (html: string) => html.match(/<section class="page">/g)?.length ?? 0;
+const pages = (html: string) => html.match(/<section class="page"[^>]*>/g)?.length ?? 0;
 
 test('one journal for all classes: the day in French, a band for each school and half-day, each school’s visa', async () => {
   const html = specialistJournalPages(documentData(await withSpecialist()), t, false);

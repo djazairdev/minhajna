@@ -77,7 +77,9 @@ export function textsBookPages(data: DocumentData, t: Translate, blank: boolean)
   const book: Language = isLanguage(data.profile.language) ? data.profile.language : data.lang;
   const bookT = i18n.getFixedT(book);
   const pages: string[] = [];
+  const books: string[] = [];
   const empty: string[] = [];
+  const emptyBooks: string[] = [];
   for (const { course, schoolClass } of bookCourses(data)) {
     const language = subjectLanguage(data.profile, course.subject, data.lang);
     const words = wordsFor(language, book);
@@ -125,16 +127,19 @@ export function textsBookPages(data: DocumentData, t: Translate, blank: boolean)
       });
     if (blank) {
       pages.push(pageOf(null, null, 0));
+      books.push(schoolClass.id);
       continue;
     }
     const rows = bookRows(data, context, course, from, to, st, dir);
     if (rows.length === 0) {
       empty.push(pageOf(null, [], 0, st('documents.textsBook.none')));
+      emptyBooks.push(schoolClass.id);
       continue;
     }
     const before = pagesBefore(data, context, course, month, st, dir);
     paginate(rows, dir).forEach((page, index) => {
       pages.push(pageOf(before + index + 1, page, pageRules(page, dir)));
+      books.push(schoolClass.id);
     });
   }
   return printDocument({
@@ -144,5 +149,6 @@ export function textsBookPages(data: DocumentData, t: Translate, blank: boolean)
     landscape: false,
     css: TEXTS_BOOK_CSS,
     pages: pages.length > 0 ? pages : empty,
+    books: pages.length > 0 ? books : emptyBooks,
   });
 }
