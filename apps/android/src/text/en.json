@@ -838,6 +838,13 @@
       "sessions": "Session",
       "empty": "No roll call recorded for this class yet.",
       "open": "Print this session's absence slip"
+    },
+    "seats": {
+      "name": "Seating plan",
+      "line": "Names only, one A4 page per plan",
+      "note": "Each of the class's seating plans prints as arranged, with the board at the top; an empty seat is a box to write a name in by hand.",
+      "open": "Print the seating plan",
+      "confidential": "Written at the head and foot of every page, as they hold pupils' names."
     }
   },
   "pupilPage": {

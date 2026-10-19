@@ -856,6 +856,13 @@
       "sessions": "Séance",
       "empty": "Aucun appel enregistré pour cette classe.",
       "open": "Imprimer le billet d’absence de cette séance"
+    },
+    "seats": {
+      "name": "Plan de classe",
+      "line": "Les noms seuls, une page A4 par plan",
+      "note": "Chaque plan de la classe s’imprime tel qu’il est arrangé, le tableau en haut ; une place vide est une case où écrire un nom à la main.",
+      "open": "Imprimer le plan de classe",
+      "confidential": "Écrit en haut et en bas de chaque page, car elles contiennent les noms des élèves."
     }
   },
   "pupilPage": {
