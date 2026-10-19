@@ -9,9 +9,11 @@ import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
+import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
+import type { ScheduledTest } from './test-schedule.ts';
 import type {
   Course,
   PrivateNote,
@@ -74,7 +76,13 @@ export type RecordEvent =
   // Setup was finished once, so the app opens on Today from then on (#183).
   | { readonly kind: 'setup.finished' }
   /** The week's print set went to a printer or to the print shop's PDF. */
-  | { readonly kind: 'print.recorded'; readonly print: PrintRecord };
+  | { readonly kind: 'print.recorded'; readonly print: PrintRecord }
+  /** A test on the teacher's schedule, set or moved (#221). */
+  | { readonly kind: 'test.set'; readonly test: ScheduledTest }
+  | { readonly kind: 'test.removed'; readonly id: string }
+  /** What the teacher decided when an item would pass an exam window, or that decision taken back (#221). */
+  | { readonly kind: 'plan.decided'; readonly decision: PlanDecision }
+  | { readonly kind: 'plan.undecided'; readonly id: string };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -103,6 +111,10 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'counting.set': true,
   'setup.finished': true,
   'print.recorded': true,
+  'test.set': true,
+  'test.removed': true,
+  'plan.decided': true,
+  'plan.undecided': true,
 };
 
 /**
@@ -140,6 +152,10 @@ export function layerOf(event: RecordEvent): Layer {
     case 'extra.removed':
     case 'homework.counted':
     case 'homework.uncounted':
+    case 'test.set':
+    case 'test.removed':
+    case 'plan.decided':
+    case 'plan.undecided':
       return 'lesson-record';
   }
 }

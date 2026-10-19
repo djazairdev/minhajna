@@ -59,6 +59,14 @@ function recordKey(event: RecordEvent): string {
       return 'setup';
     case 'print.recorded':
       return `print:${event.print.id}`;
+    case 'test.set':
+      return `test:${event.test.id}`;
+    case 'test.removed':
+      return `test:${event.id}`;
+    case 'plan.decided':
+      return `decision:${event.decision.id}`;
+    case 'plan.undecided':
+      return `decision:${event.id}`;
   }
 }
 
