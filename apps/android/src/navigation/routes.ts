@@ -47,6 +47,7 @@ export type RootStackParamList = {
   LockPin: { mode: LockPinMode };
   /** A document, for the month of `day` when given, else today's. */
   DocOutput: { id: string; day?: string };
+  PrintWeek: undefined;
   Extra: { courseId?: string } | undefined;
   AddSessions: undefined;
 };

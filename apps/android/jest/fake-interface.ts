@@ -11,6 +11,8 @@ import type { Spec } from '../src/native/NativeMinhajnaInterface';
  */
 export class FakeInterface {
   kept: string | null = null;
+  /** The phone's other settings, such as the print screen's choices, by key. */
+  readonly settings = new Map<string, string>();
   restarts = 0;
   /** How many times the app said its first screen with content was drawn. */
   fullyDrawn = 0;
@@ -20,6 +22,10 @@ export class FakeInterface {
       language: () => this.kept,
       setLanguage: (code) => {
         this.kept = code;
+      },
+      setting: (key) => this.settings.get(key) ?? null,
+      setSetting: (key, value) => {
+        this.settings.set(key, value);
       },
       restart: () => {
         this.restarts += 1;

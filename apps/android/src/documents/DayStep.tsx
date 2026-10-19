@@ -21,17 +21,19 @@ export type DayStepProps = {
   readonly disabled: boolean;
   readonly profile: Pick<CountryProfile, 'months'>;
   readonly onDay: (day: Day) => void;
+  /** The step's test ID, and its buttons' with «-before» and «-after»; `output-day` when not given. */
+  readonly testID?: string;
 };
 
-export function DayStep({ day, first, last, disabled, profile, onDay }: DayStepProps) {
+export function DayStep({ day, first, last, disabled, profile, onDay, testID = 'output-day' }: DayStepProps) {
   const t = useText();
   const { direction } = useLocale();
   const name = dayName(t, day, currentLanguage(), profile);
   return (
-    <View testID="output-day" style={[styles.box, { direction }]}>
+    <View testID={testID} style={[styles.box, { direction }]}>
       <View style={styles.flip}>
         <IconButton
-          testID="output-day-before"
+          testID={`${testID}-before`}
           icon={controlIcon('chevron')}
           accessibilityLabel={t('documents.output.dayBefore')}
           disabled={disabled || day <= first}
@@ -42,7 +44,7 @@ export function DayStep({ day, first, last, disabled, profile, onDay }: DayStepP
         {name}
       </Text>
       <IconButton
-        testID="output-day-after"
+        testID={`${testID}-after`}
         icon={controlIcon('chevron')}
         accessibilityLabel={t('documents.output.dayAfter')}
         disabled={disabled || day >= last}

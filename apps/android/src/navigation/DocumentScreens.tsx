@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The documents as navigation routes (#212): the Documents tab, and a
-// document's output above the tabs.
+// The documents as navigation routes (#212): the Documents tab, a
+// document's output above the tabs, and «طباعة الأسبوع» (#215).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { parseDay } from '@minhajna/core';
 import { documentKind } from '../documents/catalogue';
 import { DocumentOutput } from '../documents/DocumentOutput';
 import { DocumentsTab } from '../documents/DocumentsTab';
+import { PrintWeek } from '../documents/PrintWeek';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
 /** The Documents tab. */
@@ -20,7 +21,17 @@ export function DocumentsTabScreen({
   BottomTabScreenProps<HomeTabParamList, 'Documents'>,
   NativeStackScreenProps<RootStackParamList>
 >) {
-  return <DocumentsTab onOpen={(id) => navigation.navigate('DocOutput', { id })} />;
+  return (
+    <DocumentsTab
+      onOpen={(id) => navigation.navigate('DocOutput', { id })}
+      onPrintWeek={() => navigation.navigate('PrintWeek')}
+    />
+  );
+}
+
+/** «طباعة الأسبوع», above the tabs. */
+export function PrintWeekScreen() {
+  return <PrintWeek />;
 }
 
 /** A document's output, for the month of the day given, if any; a document this version does not make shows nothing. */

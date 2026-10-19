@@ -13,7 +13,7 @@ import com.facebook.react.uimanager.IllegalViewOperationException
 import com.facebook.react.uimanager.UIManagerHelper
 import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
 
-/** Native interface settings and presentation; only [InterfaceLanguage] keeps a preference. */
+/** Native interface settings and presentation; [InterfaceLanguage] and [DeviceSettings] keep the preferences. */
 class MinhajnaInterfaceModule(context: ReactApplicationContext) : NativeMinhajnaInterfaceSpec(context) {
   private var focusRequest = 0L
   private var pendingFocus: (() -> Unit)? = null
@@ -21,6 +21,10 @@ class MinhajnaInterfaceModule(context: ReactApplicationContext) : NativeMinhajna
   override fun language(): String? = InterfaceLanguage.language(reactApplicationContext)
 
   override fun setLanguage(code: String) = InterfaceLanguage.set(reactApplicationContext, code)
+
+  override fun setting(key: String): String? = DeviceSettings.get(reactApplicationContext, key)
+
+  override fun setSetting(key: String, value: String) = DeviceSettings.set(reactApplicationContext, key, value)
 
   /** Reloads React Native, which reads the direction again as it starts. */
   override fun restart() {
