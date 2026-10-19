@@ -70,6 +70,14 @@ export function recordKey(entry: Entry): string | null {
       return 'setup';
     case 'print.recorded':
       return null;
+    case 'test.set':
+      return `test/${event.test.id}`;
+    case 'test.removed':
+      return `test/${event.id}`;
+    case 'plan.decided':
+      return `decision/${event.decision.id}`;
+    case 'plan.undecided':
+      return `decision/${event.id}`;
   }
 }
 

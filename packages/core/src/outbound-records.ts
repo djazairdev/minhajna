@@ -75,6 +75,13 @@ function currentRecords(state: State): RecordEvent[] {
   if (state.counting !== null) records.push({ kind: 'counting.set', rules: state.counting });
   if (state.setupFinished) records.push({ kind: 'setup.finished' });
   for (const print of state.prints) records.push({ kind: 'print.recorded', print: print.value });
+  for (const test of [...state.tests.values()].sort((a, b) => compareDays(a.day, b.day) || compareText(a.id, b.id))) {
+    records.push({ kind: 'test.set', test });
+  }
+  const decisions = [...state.decisions.values()].sort(
+    (a, b) => compareText(a.courseId, b.courseId) || compareText(a.id, b.id),
+  );
+  for (const decision of decisions) records.push({ kind: 'plan.decided', decision });
   return records;
 }
 

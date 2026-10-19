@@ -2,14 +2,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Walks a course's sessions in order, counting what was recorded, and
-// confirms new sessions against the proposals (PRD §4.7).
+// confirms new sessions against the proposals (PRD §4.7). Items the teacher
+// decided to leave out count as skipped from the start, when the pack
+// marks them optional (#221).
 
 import type { Context } from './context.ts';
 import type { Day } from './day.ts';
 import type { SessionRecord } from './records.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
-import { Progress, type Proposal } from './progress.ts';
+import { allowedBy, decisionsFor } from './plan-decisions.ts';
+import { Progress, proposedCoverage, type Proposal } from './progress.ts';
 import {
   courseSetup,
   coverageFor,
@@ -33,6 +36,11 @@ function walk(context: Context, setup: CourseSetup, upTo: Day, ignore: ReadonlyS
   const { ref, state } = context;
   const recorded = Progress.of(setup.schoolClass);
   const chain = Progress.of(setup.schoolClass);
+  for (const decision of decisionsFor(state.decisions, setup.course.id)) {
+    if (decision.kind !== 'leave-out' || setup.pack === null || !allowedBy(setup.pack, decision)) continue;
+    recorded.leaveOut(decision.item);
+    chain.leaveOut(decision.item);
+  }
   for (const session of sessionsBetween(context, ref.year.from, upTo, new Set([setup.course.id]))) {
     const record = ignore.has(session.key) ? null : current(state.sessions.get(session.key));
     if (record !== null) {
@@ -67,15 +75,7 @@ export function walkCourse(context: Context, courseId: string, upTo: Day): Cours
     if (session.calendar !== null) return null;
     const p = proposal();
     proposals.set(session.key, p);
-    return p === null
-      ? null
-      : recordOf(
-          session,
-          { outcome: 'done' },
-          [{ op: 'taught', item: p.item.id, from: p.from, to: p.to }],
-          {},
-          session.sessionType,
-        );
+    return p === null ? null : recordOf(session, { outcome: 'done' }, proposedCoverage(p), {}, session.sessionType);
   });
   return { setup, proposals, progress };
 }
@@ -114,15 +114,7 @@ export function proposalAt(context: Context, session: Session): Proposal | null 
       found = p;
       return null;
     }
-    return p === null
-      ? null
-      : recordOf(
-          other,
-          { outcome: 'done' },
-          [{ op: 'taught', item: p.item.id, from: p.from, to: p.to }],
-          {},
-          other.sessionType,
-        );
+    return p === null ? null : recordOf(other, { outcome: 'done' }, proposedCoverage(p), {}, other.sessionType);
   });
   return found;
 }
@@ -147,15 +139,7 @@ export function confirmCourse(
     if (confirmation === undefined) {
       if (session.calendar !== null) return null;
       const p = proposal();
-      return p === null
-        ? null
-        : recordOf(
-            session,
-            { outcome: 'done' },
-            [{ op: 'taught', item: p.item.id, from: p.from, to: p.to }],
-            {},
-            session.sessionType,
-          );
+      return p === null ? null : recordOf(session, { outcome: 'done' }, proposedCoverage(p), {}, session.sessionType);
     }
     const details = confirmation.details ?? {};
     const recorded = current(context.state.sessions.get(session.key));

@@ -10,10 +10,14 @@
 // an item at the head of the queue, and its remaining stages move to the next
 // ordinary session of the same class and subject. Each stage covered is kept
 // on its own, so a stage never counts as covered because a later one was.
+//
+// An item the teacher decided to leave out counts as skipped, and two items
+// the teacher decided to merge are proposed together, in the first one's
+// session, each to its last stage (#221).
 
 import { budgetInSessions, queueItems, stageCount, stageNames, type PackItem, type PlanPack } from './pack.ts';
 import type { Queue } from './reference.ts';
-import { wholeGroup, type SchoolClass, type SessionRecord } from './records.ts';
+import { wholeGroup, type Coverage, type SchoolClass, type SessionRecord } from './records.ts';
 
 interface GroupProgress {
   /** The stages covered, numbered from 0. */
@@ -132,6 +136,11 @@ export class Progress {
     return groupId === this.#whole ? whole : whole + (item.groups.get(groupId)?.spent ?? 0);
   }
 
+  /** Counts an item the teacher decided to leave out as skipped. */
+  leaveOut(itemId: string): void {
+    this.#item(itemId).skipped = true;
+  }
+
   skipped(itemId: string): boolean {
     return this.#items.get(itemId)?.skipped ?? false;
   }
@@ -181,6 +190,8 @@ export interface Proposal {
   readonly budget: number;
   /** Carried over from an earlier session: the texts book reads "continued" (PRD §4.7). */
   readonly continued: boolean;
+  /** The item merged into this session by the teacher's decision, taught to its last stage. */
+  readonly with?: { readonly item: PackItem; readonly from: number; readonly to: number };
 }
 
 export interface ProposalInput {
@@ -188,6 +199,8 @@ export interface ProposalInput {
   readonly groupId: string;
   readonly activity?: string;
   readonly sessionMinutes: number;
+  /** The items the teacher decided to merge: the first item's ID, then the second's. */
+  readonly merges?: ReadonlyMap<string, string>;
 }
 
 /**
@@ -213,7 +226,11 @@ export function propose(pack: PlanPack, progress: Progress, input: ProposalInput
   const from = progress.firstOpen(item.id, input.groupId);
   const spent = Math.floor(progress.spent(item.id, input.groupId));
   const session = spent + 1;
-  const to = session >= budget ? stages : Math.max(from, Math.min(stages, Math.floor((session * stages) / budget)));
+  const merged = pack.items.find((other) => other.id === input.merges?.get(item.id));
+  const joins = merged !== undefined && !progress.isFinished(pack, merged, input.groupId);
+  const planned =
+    session >= budget ? stages : Math.max(from, Math.min(stages, Math.floor((session * stages) / budget)));
+  const to = joins ? stages : planned;
   return {
     queue: input.queue,
     item,
@@ -224,5 +241,18 @@ export function propose(pack: PlanPack, progress: Progress, input: ProposalInput
     session,
     budget,
     continued: progress.covered(item.id, input.groupId) > 0 || spent > 0,
+    ...(joins && {
+      with: { item: merged, from: progress.firstOpen(merged.id, input.groupId), to: stageCount(pack, merged) },
+    }),
   };
+}
+
+/** What a session covers when it goes as proposed: the item's stages, and the merged item's. */
+export function proposedCoverage(proposal: Proposal): Coverage[] {
+  return [
+    { op: 'taught', item: proposal.item.id, from: proposal.from, to: proposal.to },
+    ...(proposal.with === undefined
+      ? []
+      : [{ op: 'taught' as const, item: proposal.with.item.id, from: proposal.with.from, to: proposal.with.to }]),
+  ];
 }

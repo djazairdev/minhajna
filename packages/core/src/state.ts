@@ -12,9 +12,11 @@ import { compareDays, maxDay, type Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
+import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
+import type { ScheduledTest } from './test-schedule.ts';
 import type {
   Course,
   PrivateNote,
@@ -83,6 +85,10 @@ export interface State {
   readonly setupFinished: boolean;
   /** Every print of the week's print set, the latest last. */
   readonly prints: readonly Version<PrintRecord>[];
+  /** The teacher's test schedule, by ID (#221). */
+  readonly tests: ReadonlyMap<string, ScheduledTest>;
+  /** What the teacher decided about items past an exam window, by ID (#221). */
+  readonly decisions: ReadonlyMap<string, PlanDecision>;
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -151,6 +157,8 @@ export function buildState(entries: readonly Entry[]): State {
   let counting: CountingRules | null = null;
   let setupFinished = false;
   const prints: Version<PrintRecord>[] = [];
+  const tests = new Map<string, ScheduledTest>();
+  const decisions = new Map<string, PlanDecision>();
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -234,6 +242,18 @@ export function buildState(entries: readonly Entry[]): State {
       case 'print.recorded':
         prints.push(versionOf(entry, event.print));
         break;
+      case 'test.set':
+        tests.set(event.test.id, event.test);
+        break;
+      case 'test.removed':
+        tests.delete(event.id);
+        break;
+      case 'plan.decided':
+        decisions.set(event.decision.id, event.decision);
+        break;
+      case 'plan.undecided':
+        decisions.delete(event.id);
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -257,6 +277,8 @@ export function buildState(entries: readonly Entry[]): State {
     counting,
     setupFinished,
     prints,
+    tests,
+    decisions,
   };
 }
 

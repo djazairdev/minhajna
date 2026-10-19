@@ -9,7 +9,8 @@ import { stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findLevel, findSessionType, packKey } from './reference.ts';
 import type { Course, Coverage, Homework, SchoolClass, SessionRecord, SessionRef } from './records.ts';
 import type { Session } from './sessions.ts';
-import { propose, type Progress, type Proposal } from './progress.ts';
+import { mergesOf } from './plan-decisions.ts';
+import { propose, proposedCoverage, type Progress, type Proposal } from './progress.ts';
 
 /** What the teacher chose for a session (PRD §3.3). */
 export type Choice =
@@ -98,6 +99,7 @@ export function proposalFor(
     groupId: session.groupId,
     ...(session.activity !== undefined && { activity: session.activity }),
     sessionMinutes: setup.sessionMinutes,
+    merges: mergesOf(setup.pack, context.state.decisions, setup.course.id),
   });
 }
 
@@ -112,7 +114,7 @@ export function coverageFor(
 ): Coverage[] {
   switch (choice.outcome) {
     case 'done':
-      return proposal === null ? [] : [{ op: 'taught', item: proposal.item.id, from: proposal.from, to: proposal.to }];
+      return proposal === null ? [] : proposedCoverage(proposal);
     case 'partial': {
       const p = needProposal(proposal);
       if (!Number.isInteger(choice.reached) || choice.reached < p.from || choice.reached > p.stages) {
@@ -147,7 +149,7 @@ export function coverageFor(
         coverage: [skipped],
       });
       const next = proposalFor(context, setup, after, session, sessionType);
-      return next === null ? [skipped] : [skipped, { op: 'taught', item: next.item.id, from: next.from, to: next.to }];
+      return next === null ? [skipped] : [skipped, ...proposedCoverage(next)];
     }
     case 'retaught':
       return [{ op: 'retaught', item: findItem(setup.pack, choice.item).id }];

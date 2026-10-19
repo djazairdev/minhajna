@@ -11,7 +11,14 @@
 // shows what confirming it would record, and says it awaits confirmation
 // instead of how it went (R-3.1-05).
 
-import { stageNames, type PlanPack, type Proposal, type Session, type SessionRecord } from '@minhajna/core';
+import {
+  proposedCoverage,
+  stageNames,
+  type PlanPack,
+  type Proposal,
+  type Session,
+  type SessionRecord,
+} from '@minhajna/core';
 import type { BookLine } from '../entry/book-lines';
 import { isolate } from '../week/grid-labels';
 import type { Translate } from './document-data';
@@ -35,7 +42,7 @@ export function proposedRecord(session: Session, proposal: Proposal | null): Ses
     },
     outcome: 'done',
     sessionType: session.sessionType,
-    coverage: proposal === null ? [] : [{ op: 'taught', item: proposal.item.id, from: proposal.from, to: proposal.to }],
+    coverage: proposal === null ? [] : proposedCoverage(proposal),
   };
 }
 

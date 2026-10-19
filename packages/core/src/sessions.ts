@@ -20,6 +20,10 @@
 // page for additional lessons lists them, and Today shows the day's mark.
 // The sessions a day takes are kept by course, slot, group and A or B week, so redrawing
 // the week keeps them.
+//
+// A test on the teacher's schedule takes its session, which becomes a test
+// session and proposes no lesson, unless the calendar takes it first (#221).
+// Once recorded, the session is what was recorded: a test only if so.
 
 import { appliesTo } from './calendar.ts';
 import type { Context } from './context.ts';
@@ -28,6 +32,7 @@ import { courseGrade, entryCourses, forGrade } from './joint.ts';
 import type { AddedKind } from './reference.ts';
 import { compareSlots, slotKey, type Slot, type TimetableVersion } from './records.ts';
 import { current, type RecordedTimetable } from './state.ts';
+import { TEST_SESSION_TYPE } from './test-schedule.ts';
 
 /** Why a session cannot be taught as usual. */
 export type CalendarMark =
@@ -60,6 +65,8 @@ export interface Session {
   readonly scheduled: boolean;
   /** For a session a make-up day adds: that day's calendar entry. */
   readonly added?: string;
+  /** For a session a test on the teacher's schedule takes: the test's ID (#221). */
+  readonly test?: string;
 }
 
 /** A session a day that adds sessions gives, and what it is for. */
@@ -230,26 +237,34 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
     if (usual === undefined || taken) sessions.set(session.key, session);
   }
 
+  for (const test of state.tests.values()) {
+    const key = sessionKey(test.courseId, test.day, test.slot, test.groupId);
+    const session = sessions.get(key);
+    if (session === undefined || session.calendar !== null) continue;
+    sessions.set(key, { ...session, sessionType: TEST_SESSION_TYPE, test: test.id });
+  }
+
   for (const [key, versions] of state.sessions) {
     const record = current(versions);
     if (record === null || !isWithin(record.session.day, from, to)) continue;
     if (courseIds !== undefined && !courseIds.has(record.session.courseId)) continue;
     const course = state.courses.get(record.session.courseId);
     if (course === undefined) continue;
-    const scheduled = sessions.get(key);
+    const { test, ...scheduled } = sessions.get(key) ?? {
+      key,
+      courseId: course.id,
+      classId: course.classId,
+      groupId: record.session.groupId,
+      day: record.session.day,
+      slot: record.session.slot,
+      calendar: null,
+      calendarEntry: null,
+      scheduled: false,
+    };
     sessions.set(key, {
-      ...(scheduled ?? {
-        key,
-        courseId: course.id,
-        classId: course.classId,
-        groupId: record.session.groupId,
-        day: record.session.day,
-        slot: record.session.slot,
-        calendar: null,
-        calendarEntry: null,
-        scheduled: false,
-      }),
+      ...scheduled,
       sessionType: record.sessionType,
+      ...(test !== undefined && record.sessionType === TEST_SESSION_TYPE && { test }),
     });
   }
 
