@@ -16,7 +16,7 @@ npm run lint
 npm test
 ```
 
-The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md).
+The [Android build workflow](.github/workflows/android.yml) defines its additional checks.
 
 ## Rules
 

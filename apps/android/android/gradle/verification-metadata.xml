@@ -6,7 +6,7 @@
   SQLCipher is the one prebuilt native library the app takes from Maven, so
   its files are pinned to the checksums Maven Central publishes: any other
   bytes stop the build. Every other dependency is built from source or
-  checked by "Same APK twice" (docs/checks/android-build.md), and is trusted
+  checked by "Same APK twice" in the Android workflow, and is trusted
   here. SQLCipher is built from source before the first F-Droid submission (#75).
 -->
 <verification-metadata xmlns="https://schema.gradle.org/dependency-verification"

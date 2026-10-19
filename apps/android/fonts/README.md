@@ -66,7 +66,7 @@ The welcome screen demonstrates Aref Ruqaa (Arabic name), Noto Naskh Arabic (Ara
 
 ### Local result, 15 October 2026
 
-- macOS, Node.js 22.23.2, JDK 17 and the SDK versions in the [Android build check](../../../docs/checks/android-build.md).
+- macOS, Node.js 22.23.2 and JDK 17.
 - Root type check and 97 core tests passed. Android type check and 12 tests passed. ESLint, source formatting and REUSE passed (776/776 files); the full `npm run lint` also passed in a clean source copy before its native build. The working checkout still has the generated-file formatting issue fixed separately in PR #83.
 - Two independent source copies, each with its own locked offline dependency install, passed `clean assembleRelease` in different directories. Their unsigned APKs and the working checkout's APK match byte for byte: SHA-256 `baaa05633cd0d0ade65b30d66a5619d87ec48a4a66cae4bdb0bf8182be52d415`.
 - APK inspection found all nine expected font hashes and `assets/licenses/fonts.txt`. The release asks for no permissions.

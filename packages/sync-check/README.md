@@ -1,6 +1,6 @@
 # The sync check
 
-This package checks sync on weak mobile data before the pilot depends on it ([PRD §5.13](../../docs/prd/PRD.md#513-checks-before-the-pilot)): resuming, payload sizes and conflict notices. It is a measurement, not the app's sync. Sync opens only once its gates are met ([PRD §6.2](../../docs/prd/PRD.md#62-compliance-before-each-launch)). The results are in [docs/checks/sync-weak-data.md](../../docs/checks/sync-weak-data.md).
+This package checks sync on weak mobile data before the pilot depends on it ([PRD §5.13](../../docs/prd/PRD.md#513-checks-before-the-pilot)): resuming, payload sizes and conflict notices. It is a measurement, not the app's sync. Sync opens only once its gates are met ([PRD §6.2](../../docs/prd/PRD.md#62-compliance-before-each-launch)).
 
 Everything is made up and stays in memory. No server is reached: a stand-in server keeps the batches, and a simulated link carries them.
 

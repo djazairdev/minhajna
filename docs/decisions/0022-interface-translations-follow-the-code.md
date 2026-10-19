@@ -6,7 +6,7 @@
 
 ## Context
 
-The apps' interface texts live in catalogues, one file per language, such as `apps/android/src/text/ar.json`. Translators will add the French and English ones, and later other languages, through Weblate ([#74](https://github.com/djazairdev/minhajna/issues/74), [message-catalogue.md](../checks/message-catalogue.md)).
+The apps' interface texts live in catalogues, one file per language, such as `apps/android/src/text/ar.json`. Translators will add the French and English ones, and later other languages, through Weblate ([#74](https://github.com/djazairdev/minhajna/issues/74)).
 
 Two rules disagreed about these files:
 - `REUSE.toml` licenses the catalogues under AGPL-3.0-or-later, like the code they ship in.

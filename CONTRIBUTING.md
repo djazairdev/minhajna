@@ -68,7 +68,7 @@ npm run lint
 npm test
 ```
 
-The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md). Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
+The [Android build workflow](.github/workflows/android.yml) defines its additional checks. Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
 
 ### Your first pull request
 

@@ -37,7 +37,7 @@ The test data is made up ([engineering rules](../../docs/contributing/engineerin
 
 ### Full-year load fixture
 
-`@minhajna/core/test-support/demo-year` exports the portable `makeDemoYear(reference, deps, level?)` generator for [#77](https://github.com/djazairdev/minhajna/issues/77). See the [workload, sizes and loading example](../../docs/checks/demo-year.md). It returns a fresh, valid history and a reference containing its invented example plan; it imports neither Node APIs nor platform cryptography. The caller supplies the validated bundled 2026/27 profile/calendar and `HistoryDeps`. It is separate from the production entry and from the shared storage checks, which import Node's assertions.
+`@minhajna/core/test-support/demo-year` exports the portable `makeDemoYear(reference, deps, level?)` generator for [#77](https://github.com/djazairdev/minhajna/issues/77). It returns a fresh, valid history and a reference containing its invented example plan; it imports neither Node APIs nor platform cryptography. The caller supplies the validated bundled 2026/27 profile/calendar and `HistoryDeps`. It is separate from the production entry and from the shared storage checks, which import Node's assertions.
 
 ### Shared hashing checks
 

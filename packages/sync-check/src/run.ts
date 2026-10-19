@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Runs the sync check and prints its tables in Markdown, for
-// docs/checks/sync-weak-data.md: `npm run check -w packages/sync-check`.
+// Runs the sync check and prints its tables in Markdown.
+// Run with `npm run check -w packages/sync-check`.
 // Everything is made up and stays in memory; no server is reached.
 
 import { parseDay, verifyHistory } from '@minhajna/core';
