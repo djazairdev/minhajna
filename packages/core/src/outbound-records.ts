@@ -74,6 +74,7 @@ function currentRecords(state: State): RecordEvent[] {
   for (const plan of state.seating.values()) records.push({ kind: 'seating.set', plan });
   if (state.counting !== null) records.push({ kind: 'counting.set', rules: state.counting });
   if (state.setupFinished) records.push({ kind: 'setup.finished' });
+  for (const print of state.prints) records.push({ kind: 'print.recorded', print: print.value });
   return records;
 }
 

@@ -38,6 +38,7 @@ export * from './reference-read.ts';
 export * from './roll-call.ts';
 export * from './roll-call-counts.ts';
 export * from './roll-call-fix.ts';
+export * from './prints.ts';
 export * from './pupil-moves.ts';
 export * from './seating.ts';
 export * from './sessions.ts';

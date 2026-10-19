@@ -5,10 +5,11 @@
 // change is lost, since both stay in the history; when the two differ, the
 // teacher chooses which to keep. A record is named by what it changes: a
 // session, a roll call, a pupil, a seating plan. Entries that only add, such
-// as a pupil's joining or leaving, never conflict. The notice says how many
-// records wait for a choice, and of which kinds; the Conflict screen then
-// shows both versions with their device and day, and until the teacher
-// chooses, this device's version shows.
+// as a pupil's joining or leaving, or a print of the week's set, never
+// conflict. The notice says how many records wait for a choice, and of
+// which kinds; the Conflict screen then shows both versions with their
+// device and day, and until the teacher chooses, this device's version
+// shows.
 
 import { canonicalJson, eventOf, type Entry, type RecordEvent } from '@minhajna/core';
 
@@ -67,6 +68,8 @@ export function recordKey(entry: Entry): string | null {
       return 'counting';
     case 'setup.finished':
       return 'setup';
+    case 'print.recorded':
+      return null;
   }
 }
 

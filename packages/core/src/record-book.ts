@@ -57,6 +57,8 @@ function recordKey(event: RecordEvent): string {
       return 'counting';
     case 'setup.finished':
       return 'setup';
+    case 'print.recorded':
+      return `print:${event.print.id}`;
   }
 }
 
