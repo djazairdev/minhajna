@@ -3,8 +3,9 @@
 
 // What a row of the class plan says (#37): the days an item was taught, or
 // the day the plan would reach it if nothing changes; its status and stages;
-// where the class is; and where the plan says it should be, as a reference
-// only. The words state facts (PRD §3.1, rule 8).
+// where the class is; where the plan says it should be, as a reference
+// only; and «بعد الاختبارات» until an item postponed past them is taught.
+// The words state facts (PRD §3.1, rule 8).
 
 import type { Day, PlanRow, TermCheck } from '@minhajna/core';
 import type { useText } from '../text/i18n';
@@ -26,11 +27,11 @@ export function rowDays(row: PlanRow): { text: string; ahead: boolean } | null {
 }
 
 export interface RowTag {
-  readonly id: 'status' | 'position' | 'expected' | 'buffer';
+  readonly id: 'status' | 'position' | 'expected' | 'buffer' | 'postponed';
   readonly label: string;
 }
 
-export function rowTags(t: Translate, row: PlanRow): RowTag[] {
+export function rowTags(t: Translate, row: PlanRow, postponed = false): RowTag[] {
   const status =
     row.status === 'done'
       ? t('classPlan.done')
@@ -46,11 +47,14 @@ export function rowTags(t: Translate, row: PlanRow): RowTag[] {
     ...(row.position ? [{ id: 'position' as const, label: t('classPlan.position') }] : []),
     ...(row.expected ? [{ id: 'expected' as const, label: t('classPlan.expected') }] : []),
     ...(row.item.buffer === true ? [{ id: 'buffer' as const, label: t('classPlan.buffer') }] : []),
+    ...(postponed && row.status !== 'done' && row.status !== 'skipped'
+      ? [{ id: 'postponed' as const, label: t('classPlan.postponed') }]
+      : []),
   ];
 }
 
 /** The row as TalkBack reads it: the title, then the days and every tag. */
-export function rowSpoken(t: Translate, row: PlanRow, comma: string): string {
+export function rowSpoken(t: Translate, row: PlanRow, comma: string, postponed = false): string {
   const days = rowDays(row);
   return [
     row.item.title,
@@ -59,7 +63,7 @@ export function rowSpoken(t: Translate, row: PlanRow, comma: string): string {
       : days.ahead
         ? t('classPlan.aheadSpoken', { day: days.text })
         : t('classPlan.taughtSpoken', { days: days.text }),
-    ...rowTags(t, row).map((tag) => tag.label),
+    ...rowTags(t, row, postponed).map((tag) => tag.label),
   ]
     .filter((part): part is string => part !== null)
     .join(comma);

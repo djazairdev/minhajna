@@ -57,3 +57,40 @@ Checks of 19 October 2026 for [#221](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, debug build | From the class page, «مواعيد الفروض» showed no test yet and the term 1 exams from 6 December, «تاريخ معلن». The form offered only the class's session days. Monday 26 October showed its three sessions and, with no pack, that nothing moves. The saved test showed with «ثابت» and «تراجع», and the class plan listed it on 26/10. |
 
+## Part 2b: the warning and its answers
+
+- **The warning** (R-4.7-32, answers 268 and 269):
+  - one card for each class whose plan would push items past its next exams, on Today below the day's mark;
+  - the same card, for its own class, at the top of the class plan;
+  - each card names the items, the exams' first day and the class.
+  - It stays until the teacher decides, and goes once nothing falls after the exams or the exams begin.
+  - Each class's warning is kept until something it reads changes, such as its own sessions, tests or decisions, the timetable or the day. A tap confirming another class's session does not work it out again.
+- **«ما العمل؟»** opens the answers (Exam-window):
+  - the items, each with the day it would fall on, or «لا يُبلغ هذه السنة»;
+  - the exams' dates and how sure they are.
+  - Nothing applies before a choice.
+- **The three answers of 0.2.0:**
+  - **«دمج موارد أو ترك الاختيارية»**, shown only when the pack allows a leave-out or a merge:
+    - each choice is a tick, and a choice that shares an item with one ticked cannot be ticked with it;
+    - a suggestion comes ticked: one choice at a time, each the one that brings back the most items, up to three. It may miss a pair that helps only together, so the teacher can change the ticks.
+    - What the ticks leave after the exams, or that everything comes back, shows before «تأكيد».
+  - **«إضافة حصة استدراكية»** opens «إضافة حصص», on a make-up day.
+  - **«تأجيله بعد الاختبارات»** keeps the items for the first sessions after the exams. The warning leaves them alone, and the class plan tags them «بعد الاختبارات» until they are taught.
+  - «إعادة توزيع بقية الفصل» comes with the Repace screen in its own issue.
+- **«لاحقاً»** keeps the warning on Today and the plan.
+- **«تراجع»** takes a choice back, and a second tap before the first shows does nothing.
+- **«قراراتك في …»** lists every decision made for the class, each with a button that takes it back, so none stays for good once «تراجع» has gone.
+- **A merged session:** Today's card shows the merged item under the first, «يُدمج معه», and a later session reads «X، مع Y», or «تابع: X، مع Y» when it goes on from an earlier session. Confirming it as proposed records both items.
+- **Plan tags:** «بعد الاختبارات» shows on a postponed item until it is taught or left out.
+
+| Check | Result |
+|---|---|
+| Android tests | 1350 pass, 14 of them new:<br>• Today's card for a class with items past the exams, and none for a class without a pack, opening its answers;<br>• the items with their days, and nothing applied before a choice;<br>• a merge ticked as a suggestion, what it leaves, recorded, then taken back;<br>• postponing, a second tap doing nothing, the warning gone and the items tagged in the plan;<br>• the class plan's own card, the make-up day and «لاحقاً»;<br>• a merged session's proposal and lesson;<br>• a decision listed, taken back after its «تراجع» has gone, then restored;<br>• a class's warning kept while only another class's records change, and worked out again when its own change;<br>• every control named in Arabic, French and English, right to left and left to right. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+
+## Still to do by a person
+
+- The warning and its answers on a phone, with a class on a pack whose plan runs past its exams. The emulator's class has no pack.
+- A teacher adding a real test schedule from the school's paper, and reading the warning (#44).
+- TalkBack in Arabic on «مواعيد الفروض» and the answers (see #206).
+

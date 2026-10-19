@@ -9,7 +9,8 @@
 // a reference (PRD §4.7). TD items follow in their own list, then the
 // class's tests, fixed rows the lessons flow around, which open «مواعيد
 // الفروض» (#221). A session outside the timetable for the class opens from
-// the foot (#219).
+// the foot (#219). A warning card tops the plan while items would fall past
+// the next exams, and items postponed past them are tagged until taught.
 
 import { pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -23,16 +24,19 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { paceLine } from './class-rules';
+import { ExamWarnings } from '../exams/ExamWarnings';
 import { courseTests } from '../exams/test-rules';
+import { postponedItems } from '../exams/window-rules';
 import { dayMonth, rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
 
 export type ClassPlanProps = {
   readonly courseId: string;
   readonly onExtra?: () => void;
   readonly onTests?: () => void;
+  readonly onExamWindow?: () => void;
 };
 
-export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
+export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPlanProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -47,26 +51,27 @@ export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
   const view = useMemo(() => planView(context, courseId, day), [context, courseId, day]);
   const check = useMemo(() => termCheck(context, courseId, day), [context, courseId, day]);
   const tests = courseTests(context, courseId);
+  const postponed = useMemo(() => postponedItems(context, courseId), [context, courseId]);
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
   const line = paceLine(t, { pace: view === null ? null : pace(context, courseId, day), check });
 
-  const row = (one: PlanRow) => {
+  const row = (one: PlanRow, later = false) => {
     const days = rowDays(one);
     return (
       <View
         key={one.item.id}
         testID={`plan-${one.item.id}`}
         accessible
-        accessibilityLabel={rowSpoken(t, one, comma)}
+        accessibilityLabel={rowSpoken(t, one, comma, later)}
         style={[styles.row, one.position && styles.here]}
       >
         <Text style={[styles.day, days?.ahead === true && styles.ahead]}>{days?.text ?? ''}</Text>
         <View style={styles.grow}>
           <Text style={[styles.title, one.status === 'open' && styles.ahead, align]}>{one.item.title}</Text>
           <View style={styles.tags}>
-            {rowTags(t, one).map((tag) => (
+            {rowTags(t, one, later).map((tag) => (
               <Text key={tag.id} style={[styles.tag, tag.id === 'position' && styles.tagHere]}>
                 {tag.label}
               </Text>
@@ -76,7 +81,7 @@ export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
       </View>
     );
   };
-  const units = (rows: readonly PlanRow[], heads: readonly PackItem[]) => {
+  const units = (rows: readonly PlanRow[], heads: readonly PackItem[], later: ReadonlySet<string>) => {
     const unitOf = (one: PlanRow) => one.item.unit ?? '';
     const ids = [...new Set(rows.map(unitOf))];
     return ids.map((id) => (
@@ -86,7 +91,7 @@ export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
             {heads.find((unit) => unit.id === id)?.title ?? id}
           </Text>
         )}
-        {rows.filter((one) => unitOf(one) === id).map(row)}
+        {rows.filter((one) => unitOf(one) === id).map((one) => row(one, later.has(one.item.id)))}
       </View>
     ));
   };
@@ -109,6 +114,9 @@ export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
           .filter(Boolean)
           .join(' · ')}
       </Text>
+      {onExamWindow !== undefined && (
+        <ExamWarnings context={context} day={day} courseId={courseId} onOpen={onExamWindow} />
+      )}
       <View testID="plan-pace" accessible style={styles.card}>
         <Text style={[styles.title, align]}>{line}</Text>
         {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}
@@ -119,13 +127,13 @@ export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
       ) : (
         <>
           <Text style={[styles.note, align]}>{t('classPlan.pack', { release: view.pack.release })}</Text>
-          {units(view.main, view.units)}
+          {units(view.main, view.units, postponed)}
           {view.td.length > 0 && (
             <View style={styles.group}>
               <Text accessibilityRole="header" style={[styles.label, align]}>
                 {t('classPlan.td')}
               </Text>
-              {view.td.map(row)}
+              {view.td.map((one) => row(one))}
             </View>
           )}
         </>

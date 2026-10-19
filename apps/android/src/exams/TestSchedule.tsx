@@ -10,7 +10,7 @@
 // back with «تراجع». Tests come from the teacher only, so there is no
 // «من رزنامة المؤسسة» badge until the school's calendar exists.
 
-import { courseGrade, isJoint, nextExams, type ScheduledTest } from '@minhajna/core';
+import { nextExams, type ScheduledTest } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -23,14 +23,13 @@ import { Snackbar } from '../components/Snackbar';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { sessionLabel } from '../extra/AddSessionsChanges';
-import { subjectName } from '../extra/extra-rules';
-import { yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
 import { AddTest } from './AddTest';
+import { courseLabel, termName } from './course-label';
 import { courseTests } from './test-rules';
 
 type Said = { readonly kind: 'added' | 'removed'; readonly test: ScheduledTest } | null;
@@ -55,19 +54,10 @@ export function TestSchedule({ courseId, onCourse }: { courseId: string; onCours
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
   const courses = [...state.courses.values()].filter((one) => state.classes.has(one.classId));
-  const label = (id: string): string => {
-    const one = state.courses.get(id);
-    const room = one && state.classes.get(one.classId);
-    if (one === undefined || room === undefined) return id;
-    const grade = isJoint(room) ? yearShort(t, courseGrade(one, room)) : null;
-    const subjects = new Set(courses.filter((other) => other.classId === room.id).map((other) => other.subject));
-    return [room.name, grade, subjects.size > 1 ? subjectName(profile, one.subject) : null].filter(Boolean).join(' · ');
-  };
+  const label = (id: string): string => courseLabel(t, state, profile, id);
   const tests = courseTests(context, courseId);
   const exams = course === undefined ? null : nextExams(context, courseId, today());
   const className = label(courseId);
-  const termName = (term: number | undefined): string | number =>
-    term !== undefined && term >= 1 && term <= 3 ? t(`classPlan.term${term as 1 | 2 | 3}`) : (term ?? '');
 
   const add = (draft: Omit<ScheduledTest, 'id'>) => {
     const test = { ...draft, id: newId() };
@@ -145,7 +135,7 @@ export function TestSchedule({ courseId, onCourse }: { courseId: string; onCours
         {exams !== null && (
           <View testID="tests-exams" accessible style={styles.card}>
             <View style={styles.grow}>
-              <Text style={[styles.title, align]}>{t('tests.exams', { term: termName(exams.term) })}</Text>
+              <Text style={[styles.title, align]}>{t('tests.exams', { term: termName(t, exams.term) })}</Text>
               <Badge label={t(exams.confidence === 'announced' ? 'tests.announced' : 'tests.expected')} />
               <Text style={[styles.body, align]}>
                 {t('tests.examsLine', { day: dayName(t, exams.from, language, profile) })}
