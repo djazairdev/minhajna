@@ -3,15 +3,17 @@
 
 // The printed documents for the Arabic PDF check (#44): text escaped, the
 // bundled fonts embedded, A4 portrait journal pages with times and class
-// codes isolated, the landscape roll-call month with letters for marks and
-// its totals, and October of the demo year made into both PDFs. Made-up
-// classes and pupils only; Jest has no web engine, so the PDFs are mocked.
+// codes isolated, the roll-call book's two-page portrait spread with its
+// shading, totals and signature boxes, its yearly summary on A4 landscape,
+// and October of the demo year made into both PDFs. Made-up classes and
+// pupils only; Jest has no web engine, so the PDFs are mocked.
 
 import { FakeStorage } from '../jest/fake-storage';
 import { makeDemoPdfs } from '../src/debug/pdf-check';
 import { journalHtml, type JournalTexts } from '../src/documents/journal-html';
 import { escapeHtml } from '../src/documents/print-html';
-import { rollMonthHtml, type RollMonthTexts } from '../src/documents/roll-month-html';
+import { rollSpreadHtml, type RollSpread, type SpreadTexts } from '../src/documents/roll-spread-html';
+import { rollYearHtml, type YearTexts } from '../src/documents/roll-year-html';
 import pdf from '../src/native/NativeMinhajnaPdf';
 import { nativeDeps } from '../src/storage/history';
 import { i18n } from '../src/text/i18n';
@@ -31,17 +33,24 @@ const journalTexts: JournalTexts = {
   colon: ': ',
 };
 
-const rollTexts: RollMonthTexts = {
+const spreadTexts: SpreadTexts = {
   lang: 'ar',
   dir: 'rtl',
-  title: 'سجل المناداة · أكتوبر 2026',
+  title: 'دفتر المناداة · أكتوبر 2026',
   number: 'الرقم',
   name: 'الاسم واللقب',
-  latinName: 'بالحروف اللاتينية',
-  absent: 'الغياب',
+  absent: 'غ',
+  present: 'ح-ف',
+  possible: 'ح-ك',
+  dates: 'تواريخ الغياب',
   late: 'التأخر',
-  key: 'غ: غياب غير مبرر',
-  marks: { unjustified: 'غ', justified: 'م', late: 'ت' },
+  legend: ['- غياب صباحاً'],
+  off: 'عطلة',
+  none: 'لا حصة',
+  teacher: 'الأستاذ',
+  director: 'المدير',
+  inspector: 'المفتش',
+  date: 'التاريخ:',
   confidential: 'داخلي · سري',
 };
 
@@ -80,43 +89,106 @@ test('prints a journal page a day, in A4 portrait, with the fonts embedded and t
   expect(html).toContain(`content="script-src 'none'; object-src 'none'"`);
 });
 
-const rows = [
-  { number: 1, name: 'مختلق ريان', latinName: 'Rayane Mokhtalaq', marks: ['unjustified', 'late'] as const },
-  { number: 2, name: 'مختلق آية', latinName: 'Aya Mokhtalaq', marks: [null, 'justified'] as const },
-];
-
-test('prints the month’s roll calls in A4 landscape, with letters for marks and the totals', () => {
-  const html = rollMonthHtml(rollTexts, [
-    { title: rollTexts.title, scope: '4م2 · متوسطة النجاح', columns: ['04/10', '05/10'], rows },
-  ]);
-  expect(html).toContain('@page{size:A4 landscape;');
-  expect(html).toContain('<thead><tr><th>الرقم</th>');
-  expect(html.match(/<col[ >]/g)).toHaveLength(7);
-  expect(html).toContain(
-    '<tr><td>1</td><td class="name">مختلق ريان</td><td class="latin latin-name">Rayane Mokhtalaq</td><td>غ</td><td>ت</td><td>1</td><td>1</td></tr>',
-  );
-  expect(html).toContain('<td></td><td>م</td><td>1</td><td>0</td></tr>');
-  expect(html.match(/داخلي · سري/g)).toHaveLength(2);
-  expect(html).toContain('@page{size:A4 landscape;margin:12mm');
-  expect(html).toMatch(/<table class="frame"><thead><tr><td class="mark">[^<]+<\/td><\/tr><\/thead><tbody>/);
-  expect(html).toMatch(/<\/tbody><tfoot><tr><td class="mark">[^<]+<\/td><\/tr><\/tfoot><\/table><\/section>/);
+const spreadRow = (number: number, name: string, marks: Record<number, string>) => ({
+  number,
+  name,
+  marks: Array.from({ length: 31 }, (_, index) => marks[index + 1] ?? ''),
+  absent: '2',
+  present: '14',
+  possible: '16',
+  dates: '05، 22م',
+  late: '06',
 });
 
-test('starts each class on its page, and a blank sheet keeps the names with no marks or totals', () => {
-  const html = rollMonthHtml(rollTexts, [
-    { title: rollTexts.title, scope: '4م1', columns: ['04/10'], rows: [rows[0]] },
+const sheet: RollSpread = {
+  title: spreadTexts.title,
+  scope: '4م2 · متوسطة <النجاح>',
+  days: Array.from({ length: 31 }, (_, index) => (index === 4 ? 'off' : index === 5 ? 'none' : null)),
+  rows: [spreadRow(1, 'مختلق ريان', { 5: '-', 22: '(ǀ)' }), spreadRow(2, '', {})],
+  possibleColumn: false,
+  footer: 'ح-ك 16 لكل تلميذ',
+  book: 'k-2',
+};
+
+test('prints a class’s month as two A4 portrait pages, days 1 to 20 and then the rest with the totals', () => {
+  const html = rollSpreadHtml(spreadTexts, [sheet]);
+  expect(html).toContain('@page{size:A4 portrait;');
+  const pages = html.split('<section class="page"').slice(1);
+  expect(pages).toHaveLength(2);
+  expect(pages.every((one) => one.startsWith(' data-book="k-2">'))).toBe(true);
+  expect(pages[0].match(/<th[^>]*><bdi>\d\d<\/bdi><\/th>/g)).toHaveLength(20);
+  expect(pages[1].match(/<th[^>]*><bdi>\d\d<\/bdi><\/th>/g)).toHaveLength(11);
+  expect(pages[0]).toContain('<th class="off"><bdi>05</bdi></th><th class="none"><bdi>06</bdi></th>');
+  expect(pages[0]).toContain('<td class="off" style="height:5mm">-</td>');
+  expect(pages[1]).toContain('<td style="height:5mm">(ǀ)</td>');
+  expect(pages[1]).toContain('<th>غ</th><th>ح-ف</th><th>تواريخ الغياب</th><th>التأخر</th>');
+  expect(pages[1]).not.toContain('<th>ح-ك</th>');
+  expect(pages[1]).toContain('>05، 22م</td><td class="wrap" style="height:5mm">06</td>');
+  expect(pages[0]).toContain('- غياب صباحاً');
+  expect(pages[0]).not.toContain('المفتش');
+  expect(pages[1]).toContain('<td>الأستاذ</td><td>المدير<br>التاريخ:</td><td>المفتش<br>التاريخ:</td>');
+  expect(pages[1]).toContain('ح-ك 16 لكل تلميذ');
+  expect(html).toContain('متوسطة &lt;النجاح&gt;');
+  expect(html.match(/داخلي · سري/g)).toHaveLength(4);
+});
+
+test('a spread gives «ح-ك» a column when pupils differ, and shrinks rows past 50 to keep one spread', () => {
+  const many = Array.from({ length: 60 }, (_, index) => spreadRow(index + 1, `تلميذ ${index + 1}`, {}));
+  const html = rollSpreadHtml(spreadTexts, [
+    { ...sheet, rows: many, possibleColumn: true, days: sheet.days.slice(0, 30) },
+  ]);
+  const pages = html.split('<section class="page"').slice(1);
+  expect(pages[1]).toContain('<th>ح-ك</th><th>غ</th><th>ح-ف</th>');
+  expect(pages[1].match(/<th[^>]*><bdi>\d\d<\/bdi><\/th>/g)).toHaveLength(10);
+  expect(pages[0]).toContain('style="height:3.06mm"');
+  expect(pages[1]).toContain('<td style="height:3.06mm">16</td><td style="height:3.06mm">2</td>');
+});
+
+test('prints the yearly summary on one A4 landscape page a class, months to come empty, with the class’s totals', () => {
+  const texts: YearTexts = {
+    lang: 'ar',
+    dir: 'rtl',
+    title: 'الملخص السنوي',
+    number: 'الرقم',
+    name: 'الاسم واللقب',
+    heads: ['ح-ك', 'غ', 'ح-ف', '%'],
+    year: 'السنة',
+    teacher: 'الأستاذ',
+    director: 'المدير',
+    inspector: 'المفتش',
+    date: 'التاريخ:',
+    confidential: 'داخلي · سري',
+  };
+  const html = rollYearHtml(texts, [
     {
-      title: rollTexts.title,
-      scope: '4م2',
-      columns: ['04/10', '05/10'],
-      rows: [{ ...rows[1], marks: [null, null] }],
-      blank: true,
+      title: 'الملخص السنوي',
+      scope: '4م1',
+      months: ['سبتمبر', 'أكتوبر'],
+      rows: [
+        {
+          number: '1',
+          name: 'مختلق ريان',
+          figures: ['16', '2', '14', '87.5', '', '', '', '', '16', '2', '14', '87.5'],
+        },
+      ],
+      total: {
+        number: '',
+        name: 'مجموع القسم',
+        figures: ['16', '2', '14', '87.5', '', '', '', '', '16', '2', '14', '87.5'],
+      },
+      note: 'حتى 19/10',
+      book: 'k-1',
     },
   ]);
-  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(2);
+  expect(html).toContain('@page{size:A4 landscape;');
+  expect(html.match(/<section class="page"/g)).toHaveLength(1);
   expect(html).toContain(
-    '<td class="name">مختلق آية</td><td class="latin latin-name">Aya Mokhtalaq</td><td></td><td></td><td></td><td></td></tr>',
+    '<th colspan="4" class="m">سبتمبر</th><th colspan="4" class="m">أكتوبر</th><th colspan="4" class="m">السنة</th>',
   );
+  expect(html.match(/<th class="m">ح-ك<\/th>/g)).toHaveLength(3);
+  expect(html).toContain('<tr class="total">');
+  expect(html).toContain('<td class="m" style="height:5mm"></td>');
+  expect(html).toContain('<td>المفتش<br>التاريخ:</td>');
 });
 
 test('makes October of the demo year into the journal and the roll-call PDFs', async () => {
@@ -130,10 +202,12 @@ test('makes October of the demo year into the journal and the roll-call PDFs', a
     'journal-2026-10',
     false,
     'roll-2026-10',
-    true,
+    false,
   ]);
   expect(journal.match(/<section class="page"[^>]*>/g)).toHaveLength(19);
   expect(journal).toContain('الخميس 1 أكتوبر 2026');
-  expect(roll.match(/<tr><td>\d+<\/td>/g)).toHaveLength(45);
+  expect(roll.match(/<section class="page"/g)).toHaveLength(2);
+  expect(roll.match(/<tr><td style="height:[\d.]+mm">\d+<\/td>/g)).toHaveLength(100);
+  expect(roll.match(/<td class="name"[^>]*><\/td>/g)).toHaveLength(5);
   expect(made.journal.name).toBe('journal-2026-10');
 }, 30000);

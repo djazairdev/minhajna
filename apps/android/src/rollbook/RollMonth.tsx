@@ -8,8 +8,8 @@
 // its totals; a day opens its roll call, or with several, a sheet listing
 // them by time, each saying whether it was taken (answer 255). The summary
 // shows each month and the year for every pupil, with the class's totals.
-// Both open the counting rules; printing comes with Roll-print (answer
-// 258). The screen reads the record and adds nothing to it.
+// Both open the counting rules, and Roll-print on the month or the summary
+// shown (answer 260). The screen reads the record and adds nothing to it.
 
 import { parseDay, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -44,6 +44,7 @@ export type RollMonthProps = {
   readonly onRoll: (session: Session) => void;
   readonly onRules: () => void;
   readonly onPupil?: (pupilId: string) => void;
+  readonly onPrint?: () => void;
 };
 
 export function RollMonth(props: RollMonthProps) {
@@ -175,6 +176,14 @@ export function RollMonth(props: RollMonthProps) {
             note(t('rollBook.countsFrom', { day: dayName(t, view.countsFrom, data.lang, profile) }), 'month-from')}
           {note(t('rollBook.daysNote'))}
         </>
+      )}
+      {props.onPrint !== undefined && (
+        <Button
+          testID="month-print"
+          variant="line"
+          label={t(yearly ? 'rollPrint.yearPrint' : 'rollPrint.monthPrint')}
+          onPress={props.onPrint}
+        />
       )}
       <Button testID="month-rules" variant="line" label={t('rules.title')} onPress={props.onRules} />
       <BottomSheet

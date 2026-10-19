@@ -4,8 +4,9 @@
 // «الوثائق» (#212): the list with what each document covers now, and a
 // document's output: printed or saved as recorded or blank, «داخلي · سري»
 // said and on the pages of a document with pupils, a cancelled save saying
-// nothing, a failure said, a document this version does not make showing
-// nothing, and the month's absences totalled in half-days. Made-up pupils only.
+// nothing, a failure said, and a document this version does not make
+// showing nothing. The roll-call book's pages are in roll-print.test.tsx.
+// Made-up pupils only.
 
 import { parseDay, type Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -116,44 +117,6 @@ test('lists each document with what it covers now, and opens it', async () => {
   expect(onOpen).toHaveBeenCalledWith('roll');
 });
 
-test('prints the roll-call month as recorded, landscape, marked confidential', async () => {
-  await mount(await withMarks(), <DocumentOutput kind={kind('roll')} />);
-  expect(tree!.root.findAllByProps({ testID: 'output-confidential' }).length).toBeGreaterThan(0);
-  expect(texts()).toContain(text.documents.output.signature);
-  await press('output-print');
-  expect(printHtml).toHaveBeenCalledTimes(1);
-  const [html, title, landscape] = printHtml.mock.calls[0];
-  expect([title, landscape]).toEqual([text.documents.rollBook, true]);
-  expect(html.split(text.documents.confidential).length - 1).toBeGreaterThanOrEqual(2);
-  expect(html).toContain(`>${text.documents.marks.unjustified}<`);
-  expect(html).toContain(`>${text.documents.marks.late}<`);
-  expect(tree!.root.findAllByProps({ testID: 'output-said' })).toHaveLength(0);
-});
-
-test('the month totals half-days: two sessions missed in one morning count once', async () => {
-  const data = await withMarks();
-  await data.book.recordAll(parseDay('2026-10-15'), [
-    {
-      kind: 'roll-call.taken',
-      rollCall: {
-        unit: unitKey(2),
-        classId: 'k-1',
-        groupId: 'k-1-w',
-        day: '2026-10-15' as Day,
-        half: 'morning',
-        absent: [{ pupilId: 'p-3', justified: false }],
-        late: [],
-      },
-    },
-  ]);
-  await mount(data, <DocumentOutput kind={kind('roll')} />);
-  await press('output-print');
-  const [html] = printHtml.mock.calls[0];
-  const row = html.split('<tr>').find((one) => one.includes('>3</td>')) ?? '';
-  expect(row.split(`>${text.documents.marks.unjustified}<`)).toHaveLength(3);
-  expect(row).toMatch(/<td>1<\/td><td>0<\/td><\/tr>$/);
-});
-
 test('a class with no course is in neither the count nor the roll-call book', async () => {
   const data = await withMarks();
   await data.book.recordAll(parseDay('2026-10-15'), [
@@ -174,19 +137,8 @@ test('a class with no course is in neither the count nor the roll-call book', as
   await mount(data, <DocumentOutput kind={kind('roll')} />);
   await press('output-print');
   const [html] = printHtml.mock.calls[0];
-  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(2);
+  expect(html.match(/<section class="page"[^>]*>/g)).toHaveLength(4);
   expect(html).not.toContain('قسم بلا مادة');
-});
-
-test('the blank version keeps the names and leaves the marks for the pen', async () => {
-  await mount(await withMarks(), <DocumentOutput kind={kind('roll')} />);
-  await choose('blank');
-  expect(tree!.root.findByProps({ testID: 'output-version' }).props.selected).toBe('blank');
-  await press('output-print');
-  const [html] = printHtml.mock.calls[0];
-  expect(html.match(/<tr><td>\d+<\/td>/g)).toHaveLength(45);
-  expect(html).not.toContain(`>${text.documents.marks.unjustified}<`);
-  expect(html).not.toContain(`>${text.documents.marks.late}<`);
 });
 
 test('saves the journal as a PDF where the teacher picks, and says so', async () => {

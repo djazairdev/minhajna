@@ -39,6 +39,7 @@ export type RootStackParamList = {
   RollMonth: { courseId: string; month?: string };
   /** A pupil in the roll-call book of a class's course, on a month written YYYY-MM or `year`. */
   Pupil: { courseId: string; pupilId: string; month?: string };
+  RollPrint: { courseId?: string; month?: string; choice?: 'spread' | 'year' } | undefined;
   ClassPlan: { courseId: string };
   TextsBook: { courseId: string };
   /** A course's homework record, open on the homework a session set, if given. */

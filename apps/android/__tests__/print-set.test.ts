@@ -26,7 +26,8 @@ import {
   type SetLayout,
 } from '../src/documents/print-set';
 import { homeworkPages } from '../src/documents/homework-pages';
-import { rollPages } from '../src/documents/roll-pages';
+import { rollSpreadPages } from '../src/documents/roll-spread-pages';
+import { rollYearPages } from '../src/documents/roll-year-pages';
 import { supervisedPages } from '../src/documents/supervised-pages';
 import { textsBookPages } from '../src/documents/texts-book-pages';
 import { timetablePages } from '../src/documents/timetable-pages';
@@ -137,7 +138,8 @@ test('the frame’s foot follows the page’s content, so it stays at the foot w
 test('each class’s pages name its book, and a document kept as one names none', async () => {
   const data = documentData(await withDay());
   const books = (html: string) => printedParts(html).pages.map((one) => one.book);
-  expect(books(rollPages(data, t, false))).toEqual(['k-1', 'k-2']);
+  expect(books(rollSpreadPages(data, t, false))).toEqual(['k-1', 'k-1', 'k-2', 'k-2']);
+  expect(books(rollYearPages(data, t, true))).toEqual(['k-1', 'k-2']);
   expect(books(textsBookPages(data, t, false))).toEqual(['k-1', 'k-2']);
   expect(books(homeworkPages(data, t, true))).toEqual(['k-1', 'k-2']);
   expect(books(supervisedPages(data, t, true))).toEqual(['k-1', 'k-2']);
@@ -151,12 +153,12 @@ test('scopes each document’s styles to its pages, adding no weight, and shares
   const roll: SetDocument = {
     landscape: true,
     pupils: true,
-    copies: [rollPages(data, t, false), rollPages(data, t, true)],
+    copies: [rollYearPages(data, t, false), rollYearPages(data, t, true)],
   };
   const timetable: SetDocument = { landscape: false, pupils: false, copies: [timetablePages(data, t, false)] };
   const html = printSetHtml([timetable, roll], layout);
-  expect(html).toContain(':where(.d1) table{border-collapse:collapse;width:100%');
-  expect(html).toContain(':where(.d1) th,:where(.d1) td{border:0.6pt solid #000');
+  expect(html).toContain(':where(.d1) table.year{border-collapse:collapse;width:100%');
+  expect(html).toContain(':where(.d1) table.year th,:where(.d1) table.year td{border:0.4pt solid #000');
   expect(html).toContain(':where(.d0) h1{font-family:Ruqaa,Naskh;font-size:20pt');
   const own = /<\/style><style>(.*?)<\/style><\/head>/s.exec(html)?.[1] ?? '';
   const selectors = own.split('}').flatMap((rule) => (rule === '' ? [] : rule.split('{')[0].split(',')));
@@ -172,9 +174,18 @@ test('scopes each document’s styles to its pages, adding no weight, and shares
   ).toThrow('A style the print set cannot scope');
 });
 
+test('the roll-call spread binds into a set, its shading scoped to its pages', async () => {
+  const data = documentData(await withDay());
+  const spread: SetDocument = { landscape: false, pupils: true, copies: [rollSpreadPages(data, t, false)] };
+  const html = printSetHtml([spread], layout, [2, 2]);
+  expect(html).toContain(':where(.d0) .none{background-image:radial-gradient(circle,#000 0.22mm,transparent 0.28mm)');
+  expect(html).toContain(':where(.d0) table.book th,:where(.d0) table.book td{border:0.5pt solid #000');
+  expect(sections(html).filter((one) => one.split(' ').includes('d0'))).toHaveLength(4);
+});
+
 test('the set’s own page takes the orientation of the documents with pupils’ data, and names the other', async () => {
   const data = documentData(await withDay());
-  const roll: SetDocument = { landscape: true, pupils: true, copies: [rollPages(data, t, false)] };
+  const roll: SetDocument = { landscape: true, pupils: true, copies: [rollYearPages(data, t, false)] };
   const timetable: SetDocument = { landscape: false, pupils: false, copies: [timetablePages(data, t, false)] };
   const front: SetDocument = { landscape: false, pupils: true, copies: [page('A')] };
   expect(setLandscape([timetable, roll])).toBe(true);

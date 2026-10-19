@@ -17,7 +17,7 @@ import { primaryJournalPages } from './primary-journal-pages';
 import { specialistJournalPages } from './specialist-journal-pages';
 import { teachesPrimary, teachesSecondary, teachesSpecialist } from './specialists';
 import { printedVersion, timetableLine, timetablePages } from './timetable-pages';
-import { rollPages } from './roll-pages';
+import { rollSpreadPages } from './roll-spread-pages';
 import { homeworkPages } from './homework-pages';
 import { stripEmpty, stripPages } from './strip-pages';
 import { supervisedPages } from './supervised-pages';
@@ -182,15 +182,15 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     id: 'roll',
     icon: 'pupils',
     pupils: true,
-    landscape: true,
+    landscape: false,
     empty: (data) => taughtClasses(data).length === 0,
     period: (data) => data.day.slice(0, 7),
     title: (t) => t('documents.rollBook'),
     line: (data, t) => `${classes(data, t)} · ${monthLabel(data, data.day)}`,
     blankLine: (t) => t('documents.output.blankRoll'),
-    signatureLine: (t) => t('documents.output.signature'),
+    signatureLine: (t) => t('documents.output.signatureRoll'),
     emptyLine: (t) => t('documents.output.noClasses'),
-    pages: rollPages,
+    pages: (data, t, blank) => rollSpreadPages(data, t, blank),
   },
   {
     id: 'texts',

@@ -13,6 +13,8 @@ export type Translate = ReturnType<typeof useText>;
 
 export type DocumentData = Pick<AppData, 'state' | 'profile' | 'year' | 'calendar' | 'packs' | 'bells'> & {
   readonly day: Day;
+  /** Today, which counts stop at; the end of the period when not given. */
+  readonly today?: Day;
   readonly lang: 'ar' | 'fr' | 'en';
   readonly dir: 'rtl' | 'ltr';
 };

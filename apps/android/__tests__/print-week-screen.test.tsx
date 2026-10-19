@@ -164,7 +164,7 @@ test('one PDF for the print shop; a cancelled save says nothing and leaves no re
   await counted();
   savePdf.mockResolvedValueOnce(false);
   await press('print-pdf');
-  expect(makePdf.mock.calls[0].slice(1)).toEqual(['print-week', true]);
+  expect(makePdf.mock.calls[0].slice(1)).toEqual(['print-week', false]);
   expect(savePdf).toHaveBeenCalledWith('print-week', `${words.name} ${DAY}.pdf`);
   expect(data.book.state.prints).toHaveLength(0);
   expect(tree!.root.findAllByProps({ testID: 'print-said' })).toHaveLength(0);

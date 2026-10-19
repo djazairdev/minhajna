@@ -1,15 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The roll-call book's routes (#217): a class's month or yearly summary, and
-// one pupil's page, each titled with the class or the pupil. Choosing
-// another month replaces the screen's in place; a pupil's name in a table
-// opens their page on the same month.
+// The roll-call book's routes (#217): a class's month or yearly summary, one
+// pupil's page, each titled with the class or the pupil, and Roll-print.
+// Choosing another month replaces the screen's in place; a pupil's name in a
+// table opens their page on the same month, and the print button opens
+// Roll-print on the month or the yearly summary shown.
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useLayoutEffect } from 'react';
 import { PupilPage } from '../rollbook/PupilPage';
 import { RollMonth } from '../rollbook/RollMonth';
+import { RollPrint } from '../rollbook/RollPrint';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import type { RootStackParamList } from './routes';
@@ -33,6 +35,12 @@ export function RollMonthScreen({ navigation, route }: NativeStackScreenProps<Ro
       onPupil={(pupilId) =>
         navigation.navigate('Pupil', { courseId, pupilId, ...(month !== undefined && month !== '' && { month }) })
       }
+      onPrint={() =>
+        navigation.navigate('RollPrint', {
+          courseId,
+          ...(month === 'year' ? { choice: 'year' } : month !== undefined && month !== '' && { month }),
+        })
+      }
     />
   );
 }
@@ -55,4 +63,9 @@ export function PupilScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onMove={() => course !== undefined && navigation.navigate('PupilMove', { classId: course.classId })}
     />
   );
+}
+
+/** Printing the roll-call book, on a class and a month or the yearly summary when given. */
+export function RollPrintScreen({ route }: NativeStackScreenProps<RootStackParamList, 'RollPrint'>) {
+  return <RollPrint {...route.params} />;
 }

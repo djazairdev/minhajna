@@ -63,6 +63,7 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onSeats={() => navigation.navigate('SeatsSetup', { classId: schoolClass.id, groupId })}
       onRules={() => navigation.navigate('RollRules')}
       onMonth={() => navigation.navigate('RollMonth', { courseId })}
+      onRollPrint={() => navigation.navigate('RollPrint', { courseId })}
       onPupil={(pupilId) => navigation.navigate('Pupil', { courseId, pupilId })}
     />
   );
