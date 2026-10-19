@@ -34,6 +34,7 @@ export type RootStackParamList = {
   Licences: undefined;
   LicenceNotice: { name: string };
   Entry: { key: string; day: string };
+  Class: { courseId: string };
   ClassPlan: { courseId: string };
   TextsBook: { courseId: string };
   /** A course's homework record, open on the homework a session set, if given. */

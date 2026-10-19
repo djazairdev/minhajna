@@ -28,7 +28,7 @@ jest.mock(
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const day = parseDay('2026-10-15');
-const onPlan = jest.fn();
+const onClass = jest.fn();
 const onBook = jest.fn();
 
 afterEach(async () => {
@@ -70,7 +70,7 @@ async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', today = '2
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <ClassesTab onPlan={onPlan} onBook={onBook} />, today)}
+        {withData(data, <ClassesTab onClass={onClass} onBook={onBook} />, today)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -95,23 +95,23 @@ test('one card per class, with its pupils, its first session today and where it 
     '3 تلاميذ',
     'اليوم 08:00',
     'لا تأخر · يحتاج المخطط 4 حصص أكثر مما بقي قبل الاختبارات',
-    text.classPlan.open,
+    text.classPage.open,
     text.book.open,
     '4م2',
     'لا تلميذ',
     'اليوم 10:00',
     text.classes.noPack,
-    text.classPlan.open,
+    text.classPage.open,
     text.book.open,
   ]);
   expect(accessibilityProblems(root())).toEqual([]);
   await ReactTestRenderer.act(() => {
     (
-      root().findAll((node) => node.props.testID === 'classes-c-1-plan' && typeof node.props.onPress === 'function')[0]
+      root().findAll((node) => node.props.testID === 'classes-c-1-class' && typeof node.props.onPress === 'function')[0]
         ?.props as PressableProps
     ).onPress?.({} as never);
   });
-  expect(onPlan).toHaveBeenCalledWith('c-1');
+  expect(onClass).toHaveBeenCalledWith('c-1');
   await ReactTestRenderer.act(() => {
     (
       root().findAll((node) => node.props.testID === 'classes-c-1-book' && typeof node.props.onPress === 'function')[0]
