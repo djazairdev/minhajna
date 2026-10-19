@@ -9,6 +9,7 @@ import { compareDays, maxDay, type Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
+import type { PrintRecord } from './prints.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type {
@@ -74,6 +75,8 @@ export interface State {
   readonly counting: CountingRules | null;
   /** Whether the teacher has finished setup once. */
   readonly setupFinished: boolean;
+  /** Every print of the week's print set, the latest last. */
+  readonly prints: readonly Version<PrintRecord>[];
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -128,6 +131,7 @@ export function buildState(entries: readonly Entry[]): State {
   const seating = new Map<string, SeatingPlan>();
   let counting: CountingRules | null = null;
   let setupFinished = false;
+  const prints: Version<PrintRecord>[] = [];
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -214,6 +218,9 @@ export function buildState(entries: readonly Entry[]): State {
       case 'setup.finished':
         setupFinished = true;
         break;
+      case 'print.recorded':
+        prints.push(versionOf(entry, event.print));
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -236,6 +243,7 @@ export function buildState(entries: readonly Entry[]): State {
     seating,
     counting,
     setupFinished,
+    prints,
   };
 }
 

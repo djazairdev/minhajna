@@ -9,6 +9,7 @@ import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
+import type { PrintRecord } from './prints.ts';
 import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type {
@@ -71,7 +72,9 @@ export type RecordEvent =
   // The roll-call book's counting rules, one set for every class (PRD §3.4).
   | { readonly kind: 'counting.set'; readonly rules: CountingRules }
   // Setup was finished once, so the app opens on Today from then on (#183).
-  | { readonly kind: 'setup.finished' };
+  | { readonly kind: 'setup.finished' }
+  /** The week's print set went to a printer or to the print shop's PDF. */
+  | { readonly kind: 'print.recorded'; readonly print: PrintRecord };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -99,6 +102,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'seating.set': true,
   'counting.set': true,
   'setup.finished': true,
+  'print.recorded': true,
 };
 
 /**
@@ -119,6 +123,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'session.noted':
     case 'seating.set':
     case 'setup.finished':
+    case 'print.recorded':
       return 'private';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
