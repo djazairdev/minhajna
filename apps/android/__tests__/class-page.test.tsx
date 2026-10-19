@@ -204,13 +204,16 @@ test('opens each record, switches class, and leaves the rows not built yet disab
   expect(control('class-pupil-p-1')).toBeUndefined();
 });
 
-test('the month row and each pupil open once their screens are given', async () => {
+test('the month row, Roll-print and each pupil open once their screens are given', async () => {
   const onMonth = jest.fn();
   const onPupil = jest.fn();
-  await mount(await withPupils(), { onMonth, onPupil });
+  const onRollPrint = jest.fn();
+  await mount(await withPupils(), { onMonth, onPupil, onRollPrint });
   await press('class-roll');
+  await press('class-roll-print');
   await press('class-pupil-p-2');
   expect(onMonth).toHaveBeenCalledTimes(1);
+  expect(onRollPrint).toHaveBeenCalledTimes(1);
   expect(onPupil).toHaveBeenCalledWith('p-2');
 });
 

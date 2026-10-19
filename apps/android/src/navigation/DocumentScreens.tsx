@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The documents as navigation routes (#212): the Documents tab, a
-// document's output above the tabs, and «طباعة الأسبوع» (#215).
+// document's output above the tabs, and «طباعة الأسبوع» (#215). The
+// roll-call book opens Roll-print (#217).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -23,7 +24,7 @@ export function DocumentsTabScreen({
 >) {
   return (
     <DocumentsTab
-      onOpen={(id) => navigation.navigate('DocOutput', { id })}
+      onOpen={(id) => (id === 'roll' ? navigation.navigate('RollPrint') : navigation.navigate('DocOutput', { id }))}
       onPrintWeek={() => navigation.navigate('PrintWeek')}
     />
   );

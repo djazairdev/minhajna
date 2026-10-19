@@ -761,6 +761,36 @@
       "6": "S"
     }
   },
+  "rollPrint": {
+    "title": "Print the roll-call book",
+    "spreadTitle": "Roll-call book · {{month}}",
+    "yearTitle": "Roll-call book · Yearly summary {{year}}",
+    "dates": "Absence dates",
+    "datesKey": "م after a date: justified absence · م½: whole day half justified",
+    "late": "Late",
+    "off": "Weekend, national day or holiday",
+    "none": "No session of the teacher's with the class, or before counting starts",
+    "teacher": "Teacher",
+    "director": "Director",
+    "inspector": "Inspector",
+    "date": "Date:",
+    "until": "Up to {{day}}; the days after it are filled in by hand.",
+    "what": "What prints",
+    "spread": "The month's two pages · {{month}}",
+    "spreadLine": "Every day of the month, with late arrivals and absence dates · A4 portrait",
+    "spreadNote": "Weekends, national days and holidays are shaded, days with none of your sessions with the class are dotted, and the matching Hijri months print. Signature boxes: the teacher, then the director and the inspector with the date.",
+    "year": "Yearly summary",
+    "yearLine": "{{from}} to {{to}} · one A4 landscape page",
+    "yearNote": "For each pupil, each month's totals (possible attendance, absences, actual attendance and the rate), then the year's, with the class's totals at the foot of the page.",
+    "signature": "My signature box",
+    "signatureNote": "My box prints blank, to sign by hand, until the drawn signature comes. The director's and the inspector's boxes stay blank.",
+    "classes": "Class",
+    "blankYear": "The names and the months print; the figures stay blank.",
+    "monthPrint": "Print this month",
+    "yearPrint": "Print the yearly summary",
+    "classRow": "Print the roll-call book",
+    "classRowLine": "The month's two pages and the yearly summary"
+  },
   "pupilPage": {
     "head": "{{class}} · no. {{number}}",
     "headRegistration": "{{class}} · no. {{number}} · registration {{registration}}",
@@ -1045,19 +1075,8 @@
         "projected": "projected"
       }
     },
-    "rollTitle": "Roll-call book · {{month}}",
-    "october": "October 2026",
     "number": "No.",
     "name": "Name",
-    "latinName": "In Latin letters",
-    "absent": "Absences",
-    "late": "Lateness",
-    "key": "U: unjustified absence · J: justified absence · L: late, not counted as an absence",
-    "marks": {
-      "unjustified": "U",
-      "justified": "J",
-      "late": "L"
-    },
     "confidential": "Internal · confidential",
     "rollBook": "Roll-call book",
     "list": {
@@ -1074,9 +1093,10 @@
       "recordedLine": "With what is recorded in the app so far.",
       "blank": "Blank with headings",
       "blankJournal": "The school and the year are filled in; the day and the sessions stay blank, to write by hand.",
-      "blankRoll": "The headings, the roll-call days and the pupils' names are filled in; the marks stay blank.",
+      "blankRoll": "The names and the days' shading print, with empty numbered rows up to 50; the marks and figures stay blank.",
       "confidentialLine": "Written at the head and foot of every page, in both versions, as they hold pupils' data.",
       "signature": "The teacher's box stays blank, to sign by hand, and the director's box is always blank.",
+      "signatureRoll": "The teacher's, the director's and the inspector's boxes stay blank, to sign by hand.",
       "print": "Print",
       "save": "Save PDF",
       "saved": "The file is saved.",

@@ -7,8 +7,9 @@
 // Hijri months, its session days up to today, each pupil's marks and totals
 // and the class's; a day with two roll calls listing them, each saying
 // whether it was taken (answer 255); the months up to today and the yearly
-// summary ending at June (answer 255). The teacher has 4م1, with 45 made-up
-// pupils, on Thursdays from 11 October 2026, with two sessions that day.
+// summary ending at June (answer 255); the print button opening Roll-print
+// (answer 260). The teacher has 4م1, with 45 made-up pupils, on Thursdays
+// from 11 October 2026, with two sessions that day.
 
 import { DEFAULT_COUNTING, parseDay, type Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -189,6 +190,18 @@ test('opens a pupil from the table, switches month and opens the counting rules;
   await press('month-rules');
   expect(props.onMonth).toHaveBeenCalledWith('year');
   expect(props.onRules).toHaveBeenCalledTimes(1);
+  expect(control('month-print')).toBeUndefined();
+});
+
+test('the print button names the month or the yearly summary shown, and opens Roll-print', async () => {
+  const onPrint = jest.fn();
+  await mount(await withPupils(), { onPrint });
+  expect(texts()).toContain('طباعة هذا الشهر');
+  await press('month-print');
+  expect(onPrint).toHaveBeenCalledTimes(1);
+  await ReactTestRenderer.act(() => tree?.unmount());
+  await mount(await withPupils(), { month: 'year', onPrint });
+  expect(texts()).toContain('طباعة الملخص السنوي');
 });
 
 test('the yearly summary gives each month and the year, ending in June, with the class totals', async () => {

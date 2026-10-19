@@ -3,30 +3,26 @@
 
 // The Arabic PDF check (#44, PRD §5.13): October 2026 of the core's demo
 // year, made up from start to end and held in memory only, becomes the
-// daily journal, one A4 portrait page a day, and the class's roll calls on
-// an A4 landscape page. The phone's web engine makes both PDFs; the times
-// cover building the HTML and making the file, against the target of 10
-// seconds for a month of journal pages (§6.8).
+// daily journal, one A4 portrait page a day, and the class's roll-call book
+// as its two-page A4 portrait spread. The phone's web engine makes both
+// PDFs; the times cover building the HTML and making the file, against the
+// target of 10 seconds for a month of journal pages (§6.8).
 
 import {
   buildState,
   courseSetup,
-  current,
   formatDayWithMonth,
-  groupPupils,
   makeContext,
   parseDay,
-  rollCallUnits,
   todayView,
   weekday,
-  wholeGroup,
   type Day,
   type HistoryDeps,
 } from '@minhajna/core';
 import { makeDemoYear } from '@minhajna/core/test-support/demo-year';
 import { journalHtml, type JournalDay } from '../documents/journal-html';
 import { journalLines, proposedRecord } from '../documents/journal-lines';
-import { rollMonthHtml, type RollMark } from '../documents/roll-month-html';
+import { rollSpreadPages } from '../documents/roll-spread-pages';
 import pdf, { type MadePdf } from '../native/NativeMinhajnaPdf';
 import { bundledReference, readReference } from '../reference';
 import type { useText } from '../text/i18n';
@@ -101,50 +97,26 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
     },
     days,
   );
-  const units = rollCallUnits(context, year.classId, DAYS[0], DAYS[30]);
-  const pupils = groupPupils(context, year.classId, wholeGroup(schoolClass).id, DAYS[0]);
-  const markOf = (unitKey: string, pupilId: string): RollMark => {
-    const roll = current(state.rollCalls.get(unitKey));
-    const absence = roll?.absent.find((one) => one.pupilId === pupilId);
-    if (absence !== undefined) return absence.justified ? 'justified' : 'unjustified';
-    return roll?.late.includes(pupilId) ? 'late' : null;
-  };
-  const roll = rollMonthHtml(
+  const roll = rollSpreadPages(
     {
+      state,
+      profile: read.profile,
+      year: read.calendar.year,
+      calendar: read.calendar.entries,
+      packs: [],
+      bells: read.bells,
+      day: DAYS[0],
+      today: DAYS[30],
       lang: 'ar',
       dir: 'rtl',
-      title: t('documents.rollTitle', { month: t('documents.october') }),
-      number: t('documents.number'),
-      name: t('documents.name'),
-      latinName: t('documents.latinName'),
-      absent: t('documents.absent'),
-      late: t('documents.late'),
-      key: t('documents.key'),
-      marks: {
-        unjustified: t('documents.marks.unjustified'),
-        justified: t('documents.marks.justified'),
-        late: t('documents.marks.late'),
-      },
-      confidential: t('documents.confidential'),
     },
-    [
-      {
-        title: t('documents.rollTitle', { month: t('documents.october') }),
-        scope: `${schoolClass.name} · ${school}`,
-        columns: units.map((unit) => `${unit.day.slice(8)}/${unit.day.slice(5, 7)}`),
-        rows: pupils.map((pupil, index) => ({
-          number: index + 1,
-          name: pupil.name,
-          latinName: pupil.latinName ?? '',
-          marks: units.map((unit) => markOf(unit.key, pupil.id)),
-        })),
-      },
-    ],
+    t,
+    false,
   );
   const htmlMilliseconds = Date.now() - start;
   return {
     journal: await pdf.makePdf(journal, 'journal-2026-10', false),
-    roll: await pdf.makePdf(roll, 'roll-2026-10', true),
+    roll: await pdf.makePdf(roll, 'roll-2026-10', false),
     htmlMilliseconds,
   };
 }

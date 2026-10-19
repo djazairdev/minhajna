@@ -4,8 +4,9 @@
 // One class and subject (#279, Class): its subject and pupils, chips to switch
 // to the teacher's other classes of the subject, today's session with its roll
 // call, then a row for each of its records, each opening its screen: the texts
-// book, the plan, the roll-call book, homework, sessions outside the timetable,
-// supervised or extra lessons, and assessment, which comes in a later version.
+// book, the plan, the roll-call book and its print (answer 260), homework,
+// sessions outside the timetable, supervised or extra lessons, and
+// assessment, which comes in a later version.
 // Then the pupils, each with the month's absences and lateness so far, and
 // «إضافة أو نقل». The settings button in the top bar opens the class's settings
 // that exist (answer 256). The page reads the record and adds nothing to it.
@@ -46,6 +47,8 @@ export type ClassPageProps = {
   readonly onPlan: () => void;
   /** Opens the roll-call book's month; the row is disabled without it. */
   readonly onMonth?: () => void;
+  /** Opens Roll-print on this class's book. */
+  readonly onRollPrint?: () => void;
   readonly onHomework: () => void;
   readonly onExtra: () => void;
   readonly onSupervised: () => void;
@@ -186,6 +189,7 @@ export function ClassPage(props: ClassPageProps) {
         {link('book', 'school', t('book.title'), lines.book, props.onBook)}
         {link('plan', 'tune', t('classPlan.open'), plan.join('\n'), props.onPlan)}
         {link('roll', 'pupils', t('classPage.roll'), lines.roll, props.onMonth)}
+        {link('roll-print', 'print', t('rollPrint.classRow'), t('rollPrint.classRowLine'), props.onRollPrint)}
         {link('homework', 'homework', t('homework.open'), lines.homework, props.onHomework)}
         {link('extra', 'plus', t('extra.title'), t('classPage.extraLine'), props.onExtra)}
         {link('supervised', 'school', t('documents.supervised.name'), lines.supervised, props.onSupervised)}

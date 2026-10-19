@@ -779,6 +779,36 @@
       "6": "S"
     }
   },
+  "rollPrint": {
+    "title": "Imprimer le registre d’appel",
+    "spreadTitle": "Registre d’appel · {{month}}",
+    "yearTitle": "Registre d’appel · Bilan annuel {{year}}",
+    "dates": "Dates d’absence",
+    "datesKey": "م après une date : absence justifiée · م½ : journée à moitié justifiée",
+    "late": "Retards",
+    "off": "Congé hebdomadaire, fête nationale ou vacances",
+    "none": "Pas de séance de l’enseignant avec la classe, ou avant le début du décompte",
+    "teacher": "L’enseignant",
+    "director": "Le directeur",
+    "inspector": "L’inspecteur",
+    "date": "Date :",
+    "until": "Jusqu’au {{day}} ; la suite se remplit à la main.",
+    "what": "Ce qui s’imprime",
+    "spread": "La double page du mois · {{month}}",
+    "spreadLine": "Tous les jours du mois, avec les retards et les dates d’absence · A4 portrait",
+    "spreadNote": "Les week-ends, les fêtes nationales et les vacances sont grisés, les jours sans séance avec la classe sont pointillés, et le mois hégirien correspondant est imprimé. Cases de signature : l’enseignant, puis le directeur et l’inspecteur avec la date.",
+    "year": "Bilan annuel",
+    "yearLine": "De {{from}} à {{to}} · une page A4 paysage",
+    "yearNote": "Pour chaque élève, les totaux de chaque mois (présence possible, absences, présence effective et taux), puis ceux de l’année, avec les totaux de la classe en bas de page.",
+    "signature": "Ma case de signature",
+    "signatureNote": "Ma case s’imprime vide, à signer à la main, jusqu’à l’ajout de la signature dessinée. Les cases du directeur et de l’inspecteur restent vides.",
+    "classes": "Classe",
+    "blankYear": "Les noms et les mois s’impriment ; les nombres restent vides.",
+    "monthPrint": "Imprimer ce mois",
+    "yearPrint": "Imprimer le bilan annuel",
+    "classRow": "Imprimer le registre d’appel",
+    "classRowLine": "La double page du mois et le bilan annuel"
+  },
   "pupilPage": {
     "head": "{{class}} · n° {{number}}",
     "headRegistration": "{{class}} · n° {{number}} · matricule {{registration}}",
@@ -1064,19 +1094,8 @@
         "projected": "prévisionnelle"
       }
     },
-    "rollTitle": "Registre d’appel · {{month}}",
-    "october": "octobre 2026",
     "number": "N°",
     "name": "Nom et prénom",
-    "latinName": "En lettres latines",
-    "absent": "Absences",
-    "late": "Retards",
-    "key": "N : absence non justifiée · J : absence justifiée · R : retard, non compté comme absence",
-    "marks": {
-      "unjustified": "N",
-      "justified": "J",
-      "late": "R"
-    },
     "confidential": "Interne · confidentiel",
     "rollBook": "Registre d'appel",
     "list": {
@@ -1094,9 +1113,10 @@
       "recordedLine": "Avec ce qui est enregistré dans l’application.",
       "blank": "Vierge avec en-têtes",
       "blankJournal": "L’établissement et l’année sont remplis ; le jour et les séances restent vides, à écrire à la main.",
-      "blankRoll": "Les en-têtes, les jours d’appel et les noms des élèves sont remplis ; les marques restent vides.",
+      "blankRoll": "Les noms et le grisé des jours s’impriment, avec des lignes vides numérotées jusqu’à 50 ; les marques et les nombres restent vides.",
       "confidentialLine": "Écrit en haut et en bas de chaque page, dans les deux versions, car elles contiennent des données d’élèves.",
       "signature": "La case de l’enseignant reste vide pour signer à la main, et celle du directeur reste toujours vide.",
+      "signatureRoll": "Les cases de l’enseignant, du directeur et de l’inspecteur restent vides, à signer à la main.",
       "print": "Imprimer",
       "save": "Enregistrer en PDF",
       "saved": "Le fichier est enregistré.",

@@ -77,7 +77,7 @@ test('each ticked document is copied for each day of its range, then its blank v
   expect(set.ids).toEqual(['journal', 'roll']);
   expect(set.documents.map((document) => [document.copies.length, document.landscape, document.pupils])).toEqual([
     [2, false, false],
-    [1, true, true],
+    [1, false, true],
   ]);
   expect(set.printed).toEqual([
     { id: 'journal', from: '2026-09-21', to: '2026-10-23' },

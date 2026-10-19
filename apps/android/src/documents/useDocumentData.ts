@@ -15,10 +15,11 @@ import type { DocumentData } from './document-data';
 export function useDocumentData(on?: Day): DocumentData {
   const { state, profile, year, calendar, packs, bells, today } = useAppData();
   const { direction } = useLocale();
-  const day = on ?? today();
+  const now = today();
+  const day = on ?? now;
   const lang = currentLanguage();
   return useMemo(
-    () => ({ state, profile, year, calendar, packs, bells, day, lang, dir: direction }),
-    [state, profile, year, calendar, packs, bells, day, lang, direction],
+    () => ({ state, profile, year, calendar, packs, bells, day, today: now, lang, dir: direction }),
+    [state, profile, year, calendar, packs, bells, day, now, lang, direction],
   );
 }

@@ -15,7 +15,7 @@
 // all classes or one per class (#216). What was said of the last file goes
 // once a choice changes.
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { Day } from '@minhajna/core';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,14 +25,12 @@ import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
-import pdf from '../native/NativeMinhajnaPdf';
 import { useText } from '../text/i18n';
 import { fileName, type DocumentKind } from './catalogue';
 import { DayStep } from './DayStep';
 import { useDocumentData } from './useDocumentData';
 import { useAppData } from '../storage/AppData';
-
-type Said = 'saved' | 'failed' | null;
+import { useOutputRun } from './output-run';
 
 /** Prints or saves one document, for the period of `day` when given, else today's. */
 export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; readonly day?: Day }) {
@@ -49,55 +47,10 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
   const layouts = kind.layouts?.(t) ?? [];
   const [layout, setLayout] = useState(layouts[0]?.value);
   const [blank, setBlank] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [said, setSaid] = useState<Said>(null);
+  const { busy, said, print, save, clear } = useOutputRun();
   const empty = kind.empty(data);
   const blankLine = kind.blankLine(t);
-  const mounted = useRef(true);
-  const running = useRef(false);
-
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
-  const run = (work: () => Promise<Said>) => {
-    if (running.current) return;
-    running.current = true;
-    setBusy(true);
-    setSaid(null);
-    work()
-      .finally(() => {
-        running.current = false;
-      })
-      .then(
-        (result) => {
-          if (!mounted.current) return;
-          setBusy(false);
-          setSaid(result);
-        },
-        (error: unknown) => {
-          if (__DEV__) console.warn('A document was not made', error);
-          if (!mounted.current) return;
-          setBusy(false);
-          setSaid('failed');
-        },
-      );
-  };
-
-  const print = () =>
-    run(async () => {
-      await pdf.printHtml(kind.pages(data, t, blank, layout), kind.title(t), kind.landscape);
-      return null;
-    });
-
-  const save = () =>
-    run(async () => {
-      const made = await pdf.makePdf(kind.pages(data, t, blank, layout), `document-${kind.id}`, kind.landscape);
-      return (await pdf.savePdf(made.name, fileName(kind, data, t, blank, layout))) ? 'saved' : null;
-    });
+  const html = () => kind.pages(data, t, blank, layout);
 
   return (
     <ScrollView
@@ -124,7 +77,7 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
           profile={data.profile}
           onDay={(next) => {
             setOn(next);
-            setSaid(null);
+            clear();
           }}
         />
       )}
@@ -136,7 +89,7 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
           disabled={busy}
           onSelect={(next) => {
             setLayout(next);
-            setSaid(null);
+            clear();
           }}
           choices={layouts}
         />
@@ -149,7 +102,7 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
           disabled={busy}
           onSelect={(value) => {
             setBlank(value === 'blank');
-            setSaid(null);
+            clear();
           }}
           choices={[
             {
@@ -179,13 +132,18 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
         />
       )}
       <View style={styles.actions}>
-        <Button testID="output-print" label={t('documents.output.print')} disabled={busy || empty} onPress={print} />
+        <Button
+          testID="output-print"
+          label={t('documents.output.print')}
+          disabled={busy || empty}
+          onPress={() => print(html, kind.title(t), kind.landscape)}
+        />
         <Button
           testID="output-save"
           variant="line"
           label={t('documents.output.save')}
           disabled={busy || empty}
-          onPress={save}
+          onPress={() => save(html, `document-${kind.id}`, fileName(kind, data, t, blank, layout), kind.landscape)}
         />
       </View>
     </ScrollView>
