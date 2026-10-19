@@ -4,8 +4,8 @@
 // «الوثائق» (#212): the list with what each document covers now, and a
 // document's output: printed or saved as recorded or blank, «داخلي · سري»
 // said and on the pages of a document with pupils, a cancelled save saying
-// nothing, a failure said, and a document this version does not make
-// showing nothing. Made-up pupils only.
+// nothing, a failure said, a document this version does not make showing
+// nothing, and the month's absences totalled in half-days. Made-up pupils only.
 
 import { parseDay, type Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -128,6 +128,30 @@ test('prints the roll-call month as recorded, landscape, marked confidential', a
   expect(html).toContain(`>${text.documents.marks.unjustified}<`);
   expect(html).toContain(`>${text.documents.marks.late}<`);
   expect(tree!.root.findAllByProps({ testID: 'output-said' })).toHaveLength(0);
+});
+
+test('the month totals half-days: two sessions missed in one morning count once', async () => {
+  const data = await withMarks();
+  await data.book.recordAll(parseDay('2026-10-15'), [
+    {
+      kind: 'roll-call.taken',
+      rollCall: {
+        unit: unitKey(2),
+        classId: 'k-1',
+        groupId: 'k-1-w',
+        day: '2026-10-15' as Day,
+        half: 'morning',
+        absent: [{ pupilId: 'p-3', justified: false }],
+        late: [],
+      },
+    },
+  ]);
+  await mount(data, <DocumentOutput kind={kind('roll')} />);
+  await press('output-print');
+  const [html] = printHtml.mock.calls[0];
+  const row = html.split('<tr>').find((one) => one.includes('>3</td>')) ?? '';
+  expect(row.split(`>${text.documents.marks.unjustified}<`)).toHaveLength(3);
+  expect(row).toMatch(/<td>1<\/td><td>0<\/td><\/tr>$/);
 });
 
 test('a class with no course is in neither the count nor the roll-call book', async () => {

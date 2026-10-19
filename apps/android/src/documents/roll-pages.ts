@@ -4,9 +4,10 @@
 // The roll-call book's month (#212), from the record book: a landscape
 // page for each class, a column for each roll call the timetable gives in
 // the month, and a row for each pupil of the whole class. The blank page
-// keeps the head, the columns and the names, with the marks left empty.
+// keeps the head, the columns and the names, with the marks left empty. The
+// absences total in half-days, as the core counts them (answer 253).
 
-import { current, groupPupils, rollCallUnits, wholeGroup, type Day, type State } from '@minhajna/core';
+import { countMonth, current, groupPupils, rollCallUnits, wholeGroup, type Day, type State } from '@minhajna/core';
 import { coreContext } from '../storage/core-context';
 import { monthLabel, schoolNames, taughtClasses, type DocumentData, type Translate } from './document-data';
 import { rollMonthHtml, type RollMark, type RollSheet } from './roll-month-html';
@@ -29,6 +30,8 @@ export function rollPages(data: DocumentData, t: Translate, blank: boolean): str
     const units = rollCallUnits(context, schoolClass.id, from, to);
     const pupils = groupPupils(context, schoolClass.id, wholeGroup(schoolClass).id, to);
     const school = data.state.schools.get(schoolClass.schoolId)?.name ?? schoolNames(data);
+    const counted = countMonth(context, schoolClass.id, data.day.slice(0, 7)).pupils;
+    const absent = new Map(counted.map((count) => [count.pupilId, count.absent]));
     return {
       title: t('documents.rollTitle', { month }),
       scope: `${schoolClass.name} · ${school}`,
@@ -38,6 +41,7 @@ export function rollPages(data: DocumentData, t: Translate, blank: boolean): str
         name: pupil.name,
         latinName: pupil.latinName ?? '',
         marks: units.map((unit) => (blank ? null : markOf(data.state, unit.key, pupil.id))),
+        absent: absent.get(pupil.id) ?? 0,
       })),
       blank,
       book: schoolClass.id,
