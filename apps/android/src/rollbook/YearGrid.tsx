@@ -10,7 +10,7 @@
 
 import type { PupilCount } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
 import { percent, totals, type YearView } from './month-rules';
@@ -32,7 +32,11 @@ const figures = (count: PupilCount | Sum | null, zero = ''): string[] =>
         percent(count.rate),
       ];
 
-export function YearGrid(props: { readonly view: YearView; readonly monthName: (month: string) => string }) {
+export function YearGrid(props: {
+  readonly view: YearView;
+  readonly monthName: (month: string) => string;
+  readonly onPupil?: (pupilId: string) => void;
+}) {
   const t = useText();
   const { direction } = useLocale();
   const { fontScale } = useWindowDimensions();
@@ -61,30 +65,57 @@ export function YearGrid(props: { readonly view: YearView; readonly monthName: (
         <View style={[styles.cell, head, { height: 2 * head.height }]}>
           <Text style={[styles.headText, align]}>{t('rollBook.name')}</Text>
         </View>
-        {view.rows.map((one) => (
-          <View
-            key={one.id}
-            testID={`year-pupil-${one.id}`}
-            accessible
-            accessibilityLabel={t('rollBook.row', {
-              number: one.number,
-              name: one.name,
-              counts: [
-                t('classPage.absences', { count: one.year?.absent ?? 0 }),
-                `${t('rollBook.presentLong')} ${one.year?.present ?? 0}`,
-                one.year?.rate == null ? null : `${t('rollBook.rateLong')} ${percent(one.year.rate)}%`,
-              ]
-                .filter((part) => part !== null)
-                .join('، '),
-            })}
-            style={[styles.cell, styles.name, row]}
-          >
-            <Text style={styles.number}>{one.number}</Text>
-            <Text numberOfLines={1} style={[styles.nameText, align]}>
-              {one.name}
-            </Text>
-          </View>
-        ))}
+        {view.rows.map((one) =>
+          props.onPupil === undefined ? (
+            <View
+              key={one.id}
+              testID={`year-pupil-${one.id}`}
+              accessible
+              accessibilityLabel={t('rollBook.row', {
+                number: one.number,
+                name: one.name,
+                counts: [
+                  t('classPage.absences', { count: one.year?.absent ?? 0 }),
+                  `${t('rollBook.presentLong')} ${one.year?.present ?? 0}`,
+                  one.year?.rate == null ? null : `${t('rollBook.rateLong')} ${percent(one.year.rate)}%`,
+                ]
+                  .filter((part) => part !== null)
+                  .join('، '),
+              })}
+              style={[styles.cell, styles.name, row, { width: NAME * scale }]}
+            >
+              <Text style={styles.number}>{one.number}</Text>
+              <Text numberOfLines={1} style={[styles.nameText, align]}>
+                {one.name}
+              </Text>
+            </View>
+          ) : (
+            <Pressable
+              key={one.id}
+              testID={`year-pupil-${one.id}`}
+              accessible
+              accessibilityLabel={t('rollBook.row', {
+                number: one.number,
+                name: one.name,
+                counts: [
+                  t('classPage.absences', { count: one.year?.absent ?? 0 }),
+                  `${t('rollBook.presentLong')} ${one.year?.present ?? 0}`,
+                  one.year?.rate == null ? null : `${t('rollBook.rateLong')} ${percent(one.year.rate)}%`,
+                ]
+                  .filter((part) => part !== null)
+                  .join('، '),
+              })}
+              style={[styles.cell, styles.name, row, { width: NAME * scale }]}
+              accessibilityRole="button"
+              onPress={() => props.onPupil?.(one.id)}
+            >
+              <Text style={styles.number}>{one.number}</Text>
+              <Text numberOfLines={1} style={[styles.nameText, align]}>
+                {one.name}
+              </Text>
+            </Pressable>
+          ),
+        )}
         <View style={[styles.cell, styles.name, styles.sum, row]}>
           <Text style={[styles.label, align]}>{t('rollBook.classTotal')}</Text>
         </View>

@@ -211,3 +211,21 @@ test.each(['en', 'fr'] satisfies Language[])('has every correction text in %s', 
     );
   expect(keys(catalogues[language].correct).sort()).toEqual(keys(text.correct).sort());
 });
+
+test('refuses to mark absent a pupil who joined after the roll call, and records nothing', async () => {
+  const data = await taken();
+  const pupil = data.book.state.pupils.get('p-5')!;
+  await data.book.record(thursday as never, {
+    kind: 'pupil.set',
+    pupil: { ...pupil, movements: [{ day: '2026-10-16' as never, kind: 'in', reason: 'transfer' }] },
+  });
+  await correct(data, 'p-5');
+  await press('correct-unjustified');
+  await press('correct-reason-entry-error');
+  await press('correct-save');
+  expect(shown()).toContain(text.correct.refused);
+  expect(data.book.state.rollCalls.get(unitKey(1))).toHaveLength(1);
+  expect(onDone).not.toHaveBeenCalled();
+  await press('correct-present');
+  expect(shown()).not.toContain(text.correct.refused);
+});

@@ -761,6 +761,50 @@
       "6": "S"
     }
   },
+  "pupilPage": {
+    "head": "{{class}} · no. {{number}}",
+    "headRegistration": "{{class}} · no. {{number}} · registration {{registration}}",
+    "year": "School year",
+    "rate": "Rate",
+    "monthCol": "Month",
+    "yearRow": "Year",
+    "unitNote": "In half-days, in {{subject}} sessions only.",
+    "unitNoteAll": "In half-days, in your sessions with this class.",
+    "yearNote": "Their line of the yearly summary, month by month, in half-days in {{subject}} sessions only, up to {{day}}. The months to come are empty.",
+    "yearNoteAll": "Their line of the yearly summary, month by month, in half-days in your sessions with this class, up to {{day}}. The months to come are empty.",
+    "classYear": "The class’s yearly summary",
+    "classYearSub": "Every pupil, month by month",
+    "absences": "Absences",
+    "absencesNone": "No absence in this period.",
+    "justification": "Justification of the absence on {{day}}",
+    "justified": "Justified",
+    "unjustified": "Not justified",
+    "lock": "Only the justification is recorded; the cause is never written.",
+    "refused": "This pupil is not on that roll call’s list, so the justification is not recorded there.",
+    "correct": "Correct a recorded absence or late arrival",
+    "correctContext": "Each roll call opens the correction of the pupil’s mark.",
+    "correctNone": "No roll call recorded in this period.",
+    "late": "Late arrivals",
+    "lateNone": "No late arrival in this period.",
+    "lateLine": "not counted as absent",
+    "log": "Change log",
+    "logNone": "Nothing recorded in this period.",
+    "recorded": "{{changed}} · {{mark}} on {{day}} recorded",
+    "changed": "{{changed}} · {{day}}: from {{from}} to {{to}} · {{reason}}",
+    "marks": {
+      "present": "presence",
+      "late": "late arrival",
+      "justified": "justified absence",
+      "unjustified": "absence"
+    },
+    "markNames": {
+      "present": "present",
+      "late": "late",
+      "justified": "justified absence",
+      "unjustified": "unjustified absence"
+    },
+    "move": "Record an arrival or a departure"
+  },
   "correct": {
     "title": "Correct the roll call",
     "recorded": "Recorded: {{mark}} · on {{day}}",
@@ -780,7 +824,8 @@
     "lateRemoved": "and the late arrival on that date is removed",
     "both": "Both versions stay in the history, dated without the time.",
     "open": "Correct the roll call of {{name}}",
-    "unavailable": "No roll call is recorded for this pupil in this session."
+    "unavailable": "No roll call is recorded for this pupil in this session.",
+    "refused": "This pupil is not on this roll call’s list; only present can be recorded for them."
   },
   "rules": {
     "title": "Counting rules",

@@ -36,6 +36,7 @@ export function MonthGrid(props: {
   readonly days: readonly BookDay[];
   readonly rows: readonly BookRow[];
   readonly onDay: (day: BookDay) => void;
+  readonly onPupil?: (pupilId: string) => void;
 }) {
   const t = useText();
   const { direction } = useLocale();
@@ -71,20 +72,37 @@ export function MonthGrid(props: {
         <View style={[styles.cell, styles.head, head]}>
           <Text style={[styles.headText, align]}>{t('rollBook.name')}</Text>
         </View>
-        {props.rows.map((one) => (
-          <View
-            key={one.id}
-            testID={`month-pupil-${one.id}`}
-            accessible
-            accessibilityLabel={spoken(one)}
-            style={[styles.cell, styles.name, row]}
-          >
-            <Text style={styles.number}>{one.number}</Text>
-            <Text numberOfLines={1} style={[styles.nameText, align]}>
-              {one.name}
-            </Text>
-          </View>
-        ))}
+        {props.rows.map((one) =>
+          props.onPupil === undefined ? (
+            <View
+              key={one.id}
+              testID={`month-pupil-${one.id}`}
+              accessible
+              accessibilityLabel={spoken(one)}
+              style={[styles.cell, styles.name, row, { width: NAME * scale }]}
+            >
+              <Text style={styles.number}>{one.number}</Text>
+              <Text numberOfLines={1} style={[styles.nameText, align]}>
+                {one.name}
+              </Text>
+            </View>
+          ) : (
+            <Pressable
+              key={one.id}
+              testID={`month-pupil-${one.id}`}
+              accessible
+              accessibilityLabel={spoken(one)}
+              style={[styles.cell, styles.name, row, { width: NAME * scale }]}
+              accessibilityRole="button"
+              onPress={() => props.onPupil?.(one.id)}
+            >
+              <Text style={styles.number}>{one.number}</Text>
+              <Text numberOfLines={1} style={[styles.nameText, align]}>
+                {one.name}
+              </Text>
+            </Pressable>
+          ),
+        )}
       </View>
       <ScrollView
         ref={scroller}

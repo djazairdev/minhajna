@@ -13,7 +13,7 @@ import type { RecordEvent } from './events.ts';
 import { compareDays, type Day } from './day.ts';
 import { compareHalves, type Half, type RollCall } from './records.ts';
 import { countMonth, type PupilCount } from './roll-call-counts.ts';
-import { takeRollCall, type Marks, type RollCallUnit } from './roll-call.ts';
+import { pupilsFor, type Marks, type RollCallUnit } from './roll-call.ts';
 import { current, type State } from './state.ts';
 
 /** A pupil's mark in one roll call. */
@@ -47,7 +47,9 @@ function recorded(context: Context, unit: RollCallUnit): RollCall {
 
 /**
  * The event that corrects one pupil's mark, with its reason. A mark left as
- * it was is refused, so the history holds no empty correction.
+ * it was is refused, so the history holds no empty correction. Only that
+ * pupil must be on the roll call's list now: the others' marks stay as they
+ * were taken, even if a pupil has since changed group or left.
  */
 export function correctPupil(
   context: Context,
@@ -58,7 +60,19 @@ export function correctPupil(
 ): RecordEvent {
   const rollCall = recorded(context, unit);
   if (markOf(rollCall, pupilId) === mark) throw new RangeError('The mark does not change');
-  return takeRollCall(context, unit, withMark(rollCall, pupilId, mark), reason);
+  if (mark !== 'present' && !pupilsFor(context, unit).some((pupil) => pupil.id === pupilId)) {
+    throw new RangeError('A marked pupil is not on this roll call');
+  }
+  const marks = withMark(rollCall, pupilId, mark);
+  return {
+    kind: 'roll-call.taken',
+    rollCall: {
+      ...rollCall,
+      absent: marks.absent.map(({ pupilId: id, justified }) => ({ pupilId: id, justified })),
+      late: [...marks.late],
+    },
+    reason,
+  };
 }
 
 /** The pupil's totals for the unit's month, before and after the correction. */
