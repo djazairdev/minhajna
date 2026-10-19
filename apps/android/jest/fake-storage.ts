@@ -17,6 +17,13 @@ interface Row {
   body: string | null;
 }
 
+interface Timing {
+  kind: string;
+  week: string;
+  tenths: number;
+  oneTap: boolean;
+}
+
 const PIN = /^[0-9]{4}$/;
 
 /** The wait after the given count of wrong PINs in a row, as LockAttempts.kt counts it. */
@@ -37,6 +44,8 @@ function failure(code: string, message = code): Error {
  */
 export class FakeStorage {
   rows: Row[] = [];
+  /** The pilot's timings, beside the history (#220). */
+  timings: Timing[] = [];
   opened = false;
   /** Set to make `openHistory` fail, as when the key is gone. */
   keyLost = false;
@@ -165,6 +174,31 @@ export class FakeStorage {
           row.body = null;
         }
       }
+    });
+  }
+
+  loadTimings(): Promise<string> {
+    return this.#whenOpen(() => JSON.stringify(this.timings));
+  }
+
+  /** Refuses the batch, all of it, as the table's checks do. */
+  addTimings(timings: string): Promise<void> {
+    return this.#whenOpen(() => {
+      const rows = JSON.parse(timings) as Timing[];
+      const fits = (row: Timing) =>
+        ['session', 'roll'].includes(row.kind) &&
+        /^\d{4}-\d{2}-\d{2}$/.test(row.week) &&
+        Number.isInteger(row.tenths) &&
+        row.tenths >= 0 &&
+        typeof row.oneTap === 'boolean';
+      if (!rows.every(fits)) throw new Error('CHECK constraint failed: timing');
+      this.timings.push(...rows.map(({ kind, week, tenths, oneTap }) => ({ kind, week, tenths, oneTap })));
+    });
+  }
+
+  clearTimings(): Promise<void> {
+    return this.#whenOpen(() => {
+      this.timings = [];
     });
   }
 

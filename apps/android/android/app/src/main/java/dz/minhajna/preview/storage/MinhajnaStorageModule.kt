@@ -23,7 +23,8 @@ import javax.crypto.Cipher
  * The app's storage and cryptography (#19, #75): the history in SQLCipher,
  * its key in the Android Keystore, SHA-256 from MessageDigest and random
  * bytes from SecureRandom. Every primitive is the platform's or SQLCipher's.
- * Once a PIN is set, the history opens only through the lock (#210).
+ * Once a PIN is set, the history opens only through the lock (#210). The
+ * pilot's timings live in the same database, outside the history (#220).
  *
  * Database work runs on one thread, in order, so a promise resolves only
  * after its own write is committed. Error messages name no pupil: they carry
@@ -178,6 +179,18 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
       history.eraseContent(copies)
       null
     }
+  }
+
+  override fun loadTimings(promise: Promise) = onWorker(promise) { history.loadTimingsJson() }
+
+  override fun addTimings(timings: String, promise: Promise) = onWorker(promise) {
+    history.addTimingsJson(timings)
+    null
+  }
+
+  override fun clearTimings(promise: Promise) = onWorker(promise) {
+    history.clearTimings()
+    null
   }
 
   override fun invalidate() {

@@ -5,6 +5,7 @@ package dz.minhajna.preview.storage
 
 import java.io.File
 import java.security.SecureRandom
+import java.time.LocalDate
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -57,6 +58,30 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
 
   fun eraseContent(ids: List<String>) = opened().eraseContent(ids)
 
+  /** The pilot's timings, in the order kept, as a JSON array (#220). */
+  fun loadTimingsJson(): String {
+    val array = JSONArray()
+    for (row in opened().loadTimings()) {
+      array.put(
+        JSONObject().put("kind", row.kind).put("week", row.week).put("tenths", row.tenths).put("oneTap", row.oneTap),
+      )
+    }
+    return array.toString()
+  }
+
+  /**
+   * Adds timings given as a JSON array, all or none. Each field must already
+   * have its own type, as JSON's own conversions would change a value, and
+   * the week must be a real date.
+   */
+  fun addTimingsJson(timings: String) {
+    val array = JSONArray(timings)
+    val rows = List(array.length()) { at -> timingFromJson(array.getJSONObject(at)) }
+    opened().addTimings(rows)
+  }
+
+  fun clearTimings() = opened().clearTimings()
+
   fun close() {
     history?.close()
     history = null
@@ -86,6 +111,18 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
         )
       }
       return array.toString()
+    }
+
+    fun timingFromJson(json: JSONObject): TimingRow {
+      val kind = json.get("kind")
+      val week = json.get("week")
+      val tenths = json.get("tenths")
+      val oneTap = json.get("oneTap")
+      require(kind is String && week is String && (tenths is Int || tenths is Long) && oneTap is Boolean) {
+        "A timing is malformed"
+      }
+      LocalDate.parse(week)
+      return TimingRow(kind, week, (tenths as Number).toLong(), oneTap)
     }
 
     fun fromJson(json: JSONObject) = EntryRow(
