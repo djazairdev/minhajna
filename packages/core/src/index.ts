@@ -48,6 +48,7 @@ export * from './seating.ts';
 export * from './sessions.ts';
 export * from './state.ts';
 export * from './outbound-records.ts';
+export * from './timings.ts';
 export * from './today.ts';
 export * from './backlog.ts';
 export * from './week.ts';

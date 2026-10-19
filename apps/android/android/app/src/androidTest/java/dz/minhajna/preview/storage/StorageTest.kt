@@ -18,6 +18,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -177,6 +178,87 @@ class StorageTest {
     val reopened = openDatabase()
     assertEquals(listOf(row(0)), reopened.load())
     reopened.close()
+  }
+
+  @Test
+  fun keepsTimingsBesideTheHistoryWithNoDayAndClearsThem() {
+    val timings = listOf(TimingRow("session", "2026-10-11", 42, true), TimingRow("roll", "2026-10-11", 610, false))
+    openDatabase().apply {
+      append(row(0))
+      addTimings(timings)
+      close()
+    }
+    val db = openDatabase()
+    assertEquals(timings, db.loadTimings())
+    assertEquals("2", db.pragma("user_version"))
+    db.clearTimings()
+    assertEquals(emptyList<TimingRow>(), db.loadTimings())
+    assertEquals(listOf(row(0)), db.load())
+    db.close()
+    val bytes = key().getOrCreate(random)
+    val raw = openRaw(bytes)
+    bytes.fill(0)
+    try {
+      val columns = raw.rawQuery("SELECT name FROM pragma_table_info('timing')", null).use { cursor ->
+        generateSequence { if (cursor.moveToNext()) cursor.getString(0) else null }.toList()
+      }
+      assertEquals(listOf("kind", "week", "tenths", "one_tap"), columns)
+    } finally {
+      raw.close()
+    }
+  }
+
+  @Test
+  fun refusesAMalformedTimingAndKeepsNoneOfItsBatch() {
+    val db = openDatabase()
+    val good = TimingRow("session", "2026-10-11", 42, true)
+    for (bad in listOf(
+      TimingRow("mark", "2026-10-11", 1, false),
+      TimingRow("roll", "2026-10-11 08:00", 1, false),
+      TimingRow("roll", "2026-10-11", -1, false),
+    )) {
+      assertThrows(Exception::class.java) { db.addTimings(listOf(good, bad)) }
+    }
+    assertEquals(emptyList<TimingRow>(), db.loadTimings())
+    db.close()
+  }
+
+  @Test
+  fun readsOnlyTimingsWhoseFieldsHaveTheirOwnTypes() {
+    val good = """{"kind":"roll","week":"2026-10-11","tenths":12,"oneTap":false}"""
+    assertEquals(TimingRow("roll", "2026-10-11", 12, false), HistoryStorage.timingFromJson(JSONObject(good)))
+    for (bad in listOf(
+      good.replace("12", "1.5"),
+      good.replace(":12", ":\"12\""),
+      good.replace("false", "\"false\""),
+      good.replace("\"roll\"", "1"),
+      good.replace("2026-10-11", "2026-13-45"),
+    )) {
+      assertThrows(Exception::class.java) { HistoryStorage.timingFromJson(JSONObject(bad)) }
+    }
+  }
+
+  @Test
+  fun upgradesAVersionOneHistoryAndKeepsItsEntries() {
+    openDatabase().apply {
+      append(row(0))
+      close()
+    }
+    val bytes = key().getOrCreate(random)
+    val raw = openRaw(bytes)
+    bytes.fill(0)
+    try {
+      raw.execSQL("DROP TABLE timing")
+      raw.execSQL("PRAGMA user_version = 1")
+    } finally {
+      raw.close()
+    }
+    val db = openDatabase()
+    assertEquals("2", db.pragma("user_version"))
+    assertEquals(listOf(row(0)), db.load())
+    db.addTimings(listOf(TimingRow("roll", "2026-10-11", 610, false)))
+    assertEquals(1, db.loadTimings().size)
+    db.close()
   }
 
   /** The same vectors as Node's crypto and the browsers' WebCrypto. */

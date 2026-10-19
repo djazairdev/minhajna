@@ -24,10 +24,19 @@ data class EntryRow(
 )
 
 /**
- * The teacher's history in an SQLCipher database (PRD §5.5, §6.4). It holds
- * entries only: they are added in order and never changed, except that an
- * erasure removes an entry's content and salt. The core checks the chain
- * when it opens the history; the triggers below refuse the rest here too.
+ * One timing of the pilot's own (#220): what was timed, the first day of its
+ * school week, whole tenths of a second, and whether it took one tap. It
+ * holds no day and no clock time.
+ */
+data class TimingRow(val kind: String, val week: String, val tenths: Long, val oneTap: Boolean)
+
+/**
+ * The teacher's history in an SQLCipher database (PRD §5.5, §6.4). Its
+ * entries are added in order and never changed, except that an erasure
+ * removes an entry's content and salt. The core checks the chain when it
+ * opens the history; the triggers below refuse the rest here too. Since
+ * version 2 it also keeps the pilot's timings, in a table of their own
+ * outside the history, which the teacher can clear.
  */
 class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
 
@@ -62,6 +71,29 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
     )
   }
 
+  fun loadTimings(): List<TimingRow> {
+    val rows = mutableListOf<TimingRow>()
+    db.rawQuery("SELECT kind, week, tenths, one_tap FROM timing ORDER BY rowid", null).use { cursor ->
+      while (cursor.moveToNext()) {
+        rows += TimingRow(cursor.getString(0), cursor.getString(1), cursor.getLong(2), cursor.getLong(3) == 1L)
+      }
+    }
+    return rows
+  }
+
+  /** Adds the timings, all or none, and returns once they are committed. */
+  fun addTimings(rows: List<TimingRow>) = write {
+    for (row in rows) {
+      db.execSQL(
+        "INSERT INTO timing (kind, week, tenths, one_tap) VALUES (?, ?, ?, ?)",
+        arrayOf(row.kind, row.week, row.tenths, if (row.oneTap) 1L else 0L),
+      )
+    }
+  }
+
+  /** Deletes every timing; secure_delete overwrites them. */
+  fun clearTimings() = write { db.execSQL("DELETE FROM timing") }
+
   /** Removes the content and salt of the given entries, all or none. */
   fun eraseContent(ids: List<String>) = write {
     for (id in ids) db.execSQL("UPDATE entry SET salt = NULL, body = NULL WHERE id = ?", arrayOf(id))
@@ -89,7 +121,7 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
   }
 
   companion object {
-    private const val SCHEMA_VERSION = 1
+    private const val SCHEMA_VERSION = 2
 
     init {
       System.loadLibrary("sqlcipher")
@@ -158,47 +190,18 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
     private fun migrate(db: SQLiteDatabase) {
       val version = db.rawQuery("PRAGMA user_version", null).use { it.moveToFirst(); it.getInt(0) }
       if (version == SCHEMA_VERSION) return
-      check(version == 0) { "The history's database is from a newer version of the app" }
+      check(version in 0 until SCHEMA_VERSION) { "The history's database is from a newer version of the app" }
       db.beginTransaction()
       try {
+        if (version == 0) createHistory(db)
         db.execSQL(
           """
-          CREATE TABLE entry (
-            seq INTEGER PRIMARY KEY CHECK (seq >= 0),
-            id TEXT NOT NULL UNIQUE,
-            day TEXT NOT NULL,
-            layer TEXT NOT NULL,
-            kind TEXT NOT NULL,
-            digest TEXT NOT NULL,
-            previous TEXT NOT NULL,
-            hash TEXT NOT NULL,
-            salt TEXT,
-            body TEXT,
-            CHECK ((salt IS NULL) = (body IS NULL))
+          CREATE TABLE timing (
+            kind TEXT NOT NULL CHECK (kind IN ('session', 'roll')),
+            week TEXT NOT NULL CHECK (week GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+            tenths INTEGER NOT NULL CHECK (tenths >= 0),
+            one_tap INTEGER NOT NULL CHECK (one_tap IN (0, 1))
           ) STRICT
-          """.trimIndent(),
-        )
-        db.execSQL(
-          """
-          CREATE TRIGGER entry_added_in_order BEFORE INSERT ON entry
-          WHEN NEW.seq IS NOT (SELECT coalesce(max(seq), -1) + 1 FROM entry)
-          BEGIN SELECT RAISE(ABORT, 'entries are added in order'); END
-          """.trimIndent(),
-        )
-        db.execSQL(
-          """
-          CREATE TRIGGER entry_never_deleted BEFORE DELETE ON entry
-          BEGIN SELECT RAISE(ABORT, 'the history is append-only'); END
-          """.trimIndent(),
-        )
-        db.execSQL(
-          """
-          CREATE TRIGGER entry_only_erased BEFORE UPDATE ON entry
-          WHEN NEW.seq IS NOT OLD.seq OR NEW.id IS NOT OLD.id OR NEW.day IS NOT OLD.day
-            OR NEW.layer IS NOT OLD.layer OR NEW.kind IS NOT OLD.kind OR NEW.digest IS NOT OLD.digest
-            OR NEW.previous IS NOT OLD.previous OR NEW.hash IS NOT OLD.hash
-            OR NEW.salt IS NOT NULL OR NEW.body IS NOT NULL
-          BEGIN SELECT RAISE(ABORT, 'only an entry''s content is erased'); END
           """.trimIndent(),
         )
         db.execSQL("PRAGMA user_version = $SCHEMA_VERSION")
@@ -206,6 +209,50 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
       } finally {
         db.endTransaction()
       }
+    }
+
+    /** Version 1: the history's entries and the triggers that keep them. */
+    private fun createHistory(db: SQLiteDatabase) {
+      db.execSQL(
+        """
+        CREATE TABLE entry (
+          seq INTEGER PRIMARY KEY CHECK (seq >= 0),
+          id TEXT NOT NULL UNIQUE,
+          day TEXT NOT NULL,
+          layer TEXT NOT NULL,
+          kind TEXT NOT NULL,
+          digest TEXT NOT NULL,
+          previous TEXT NOT NULL,
+          hash TEXT NOT NULL,
+          salt TEXT,
+          body TEXT,
+          CHECK ((salt IS NULL) = (body IS NULL))
+        ) STRICT
+        """.trimIndent(),
+      )
+      db.execSQL(
+        """
+        CREATE TRIGGER entry_added_in_order BEFORE INSERT ON entry
+        WHEN NEW.seq IS NOT (SELECT coalesce(max(seq), -1) + 1 FROM entry)
+        BEGIN SELECT RAISE(ABORT, 'entries are added in order'); END
+        """.trimIndent(),
+      )
+      db.execSQL(
+        """
+        CREATE TRIGGER entry_never_deleted BEFORE DELETE ON entry
+        BEGIN SELECT RAISE(ABORT, 'the history is append-only'); END
+        """.trimIndent(),
+      )
+      db.execSQL(
+        """
+        CREATE TRIGGER entry_only_erased BEFORE UPDATE ON entry
+        WHEN NEW.seq IS NOT OLD.seq OR NEW.id IS NOT OLD.id OR NEW.day IS NOT OLD.day
+          OR NEW.layer IS NOT OLD.layer OR NEW.kind IS NOT OLD.kind OR NEW.digest IS NOT OLD.digest
+          OR NEW.previous IS NOT OLD.previous OR NEW.hash IS NOT OLD.hash
+          OR NEW.salt IS NOT NULL OR NEW.body IS NOT NULL
+        BEGIN SELECT RAISE(ABORT, 'only an entry''s content is erased'); END
+        """.trimIndent(),
+      )
     }
   }
 }

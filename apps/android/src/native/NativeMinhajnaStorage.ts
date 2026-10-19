@@ -27,9 +27,10 @@ export interface PinResult {
 /**
  * The app's own native module (#19, #75). It wraps the platform's audited
  * primitives and SQLCipher; the project writes no cryptography of its own
- * (PRD §6.5). It stores only the history, entry by entry, so no other code
- * can run SQL against the teacher's records. Once a PIN is set, only the
- * lock opens the history (#210).
+ * (PRD §6.5). It stores only the history, entry by entry, and the pilot's
+ * timings beside it (#220), so no other code can run SQL against the
+ * teacher's records. Once a PIN is set, only the lock opens the history
+ * (#210).
  */
 export interface Spec extends TurboModule {
   /** Secure random bytes from SecureRandom, as lowercase hex. Synchronous. */
@@ -60,6 +61,12 @@ export interface Spec extends TurboModule {
   appendEntry(entry: string): Promise<void>;
   /** Removes the content and salt of the given entries, in one transaction. */
   eraseContent(ids: readonly string[]): Promise<void>;
+  /** The pilot's timings, kept outside the history, as a JSON array (#220). */
+  loadTimings(): Promise<string>;
+  /** Adds timings, given as a JSON array, all or none. */
+  addTimings(timings: string): Promise<void>;
+  /** Deletes every timing. */
+  clearTimings(): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaStorage');
