@@ -63,9 +63,11 @@ export interface TextsBookProps {
   readonly onHomework?: (courseId: string) => void;
   /** Prints the strip of a day's entries, to paste into the paper book. */
   readonly onStrip?: (day: Day) => void;
+  /** The month's corrections, for the director, of this class. */
+  readonly onFixes?: (month: string, classId: string) => void;
 }
 
-export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework, onStrip }: TextsBookProps) {
+export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework, onStrip, onFixes }: TextsBookProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -218,6 +220,14 @@ export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework, 
               variant="line"
               label={t('homework.open')}
               onPress={() => onHomework(course.id)}
+            />
+          )}
+          {onFixes !== undefined && page !== undefined && (
+            <Button
+              testID="book-fixes"
+              variant="line"
+              label={t('bookFixes.open', { month: monthName(page.month) })}
+              onPress={() => onFixes(page.month, course.classId)}
             />
           )}
           {page !== undefined && (

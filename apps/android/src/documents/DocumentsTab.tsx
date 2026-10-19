@@ -20,13 +20,15 @@ import { DOCUMENTS, type DocumentId } from './catalogue';
 import { weekEntries } from './print-week';
 import { useDocumentData } from './useDocumentData';
 
-/** The Documents tab; `onOpen` opens a document's output, and `onPrintWeek` «طباعة الأسبوع». */
+/** The Documents tab; `onOpen` opens a document's output, `onPrintWeek` «طباعة الأسبوع», and `onFixes` the texts book's corrections. */
 export function DocumentsTab({
   onOpen,
   onPrintWeek,
+  onFixes,
 }: {
   readonly onOpen: (id: DocumentId) => void;
   readonly onPrintWeek: () => void;
+  readonly onFixes: () => void;
 }) {
   const t = useText();
   const insets = useSafeAreaInsets();
@@ -57,6 +59,13 @@ export function DocumentsTab({
               onPress={() => onOpen(kind.id)}
             />
           ))}
+          <RowLink
+            testID="documents-fixes"
+            icon={controlIcon('check')}
+            title={t('bookFixes.title')}
+            description={t('bookFixes.line')}
+            onPress={onFixes}
+          />
           <Notice icon={controlIcon('info')} message={t('documents.list.more')} />
         </View>
       </ScrollView>
