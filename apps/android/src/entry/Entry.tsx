@@ -30,9 +30,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { CheckRow } from '../components/CheckRow';
 import { ChipGroup } from '../components/Chip';
+import { PrivateNote } from '../components/PrivateNote';
 import { TextField } from '../components/TextField';
-import { Icon, controlIcon } from '../design/Icon';
-import { colors, radius, sizes, spacing, typography } from '../design/tokens';
+import { controlIcon } from '../design/Icon';
+import { colors, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -218,21 +219,15 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
           onChangeText={(factual) => set({ factual })}
           multiline
         />
-        <View testID="entry-private" style={styles.private}>
-          <View style={styles.privateHead}>
-            <Icon name="lock" size={sizes['icon-small']} color={colors.ink2} />
-            <Text style={[styles.label, styles.privateTitle, align]}>{t('entry.note')}</Text>
-          </View>
-          <TextField
-            testID="entry-note"
-            label={t('entry.noteLabel')}
-            placeholder={t('entry.notePlaceholder')}
-            value={draft.note}
-            onChangeText={(note) => set({ note })}
-            multiline
-          />
-          <Text style={[styles.note, align]}>{t('entry.noteWarning')}</Text>
-        </View>
+        <PrivateNote
+          testID="entry-note"
+          label={t('entry.noteTitle')}
+          assurance={t('entry.noteAssurance')}
+          placeholder={t('entry.notePlaceholder')}
+          reminder={t('entry.noteWarning')}
+          value={draft.note}
+          onChangeText={(note) => set({ note })}
+        />
         {record !== null && (
           <FixFoot
             reason={reason}
@@ -285,14 +280,6 @@ const styles = StyleSheet.create({
   body: { ...typography.body, color: colors.ink },
   label: { ...typography.label, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },
-  private: {
-    gap: spacing['space-8'],
-    padding: spacing['space-12'],
-    borderRadius: radius['radius-card'],
-    backgroundColor: colors.private,
-  },
-  privateHead: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'] },
-  privateTitle: { flex: 1 },
   bookHead: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'] },
   grow: { flex: 1 },
   foot: { paddingHorizontal: spacing['space-16'], paddingTop: spacing['space-12'], backgroundColor: colors.paper },

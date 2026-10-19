@@ -2,6 +2,15 @@
 
 What changes for teachers in each release of Minhajna, newest first. How these notes are written is in [releases.md](docs/contributing/releases.md#the-changelog).
 
+## Unreleased
+
+لم تُنشر هذه التغييرات بعد.
+
+### Fixed · إصلاحات
+
+- In session details, the screen reader now says that a private note stays on your devices when you enter its field.
+- في تفاصيل الحصة، يقرأ قارئ الشاشة الآن أن الملاحظة الخاصة لا تغادر أجهزتك عند الانتقال إلى خانتها.
+
 ## 0.1.0 (2026-10-18)
 
 The field-check preview: setup, Today and the roll call, for trying the app with made-up pupils only. It is handed over directly as an APK, not through a store.

@@ -8,11 +8,19 @@
 
 import { confirmSessions, current, parseDay, recordsForRoute, todayView, type OutboundRoute } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
-import { Text, type PressableProps, type TextInputProps } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  type PressableProps,
+  type TextInputProps,
+} from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { withData, type TestData } from '../jest/app-data';
 import { key, withDay } from '../jest/today-day';
+import { PrivateNote } from '../src/components/PrivateNote';
 import { Entry } from '../src/entry/Entry';
 import { coreContext } from '../src/storage/core-context';
 import { i18n } from '../src/text/i18n';
@@ -23,9 +31,19 @@ jest.mock(
   () => jest.requireActual<{ default: unknown }>('react-native-safe-area-context/jest/mock').default,
 );
 
+jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
+const window = { width: 360, height: 800, scale: 2, fontScale: 1 };
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const onDone = jest.fn();
+
+beforeEach(() => {
+  jest.mocked(useWindowDimensions).mockReturnValue(window);
+});
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -75,6 +93,41 @@ const type = async (id: string, value: string) => {
       ?.onChangeText?.(value);
   });
 };
+
+test.each(
+  (
+    [
+      { language: 'ar', direction: 'rtl', label: 'ملاحظة خاصة · لا تغادر أجهزتك' },
+      { language: 'fr', direction: 'ltr', label: 'Note privée · ne quitte pas vos appareils' },
+      { language: 'en', direction: 'ltr', label: 'Private note · never leaves your devices' },
+    ] as const
+  ).flatMap((choice) => [1, 2].map((fontScale) => ({ ...choice, fontScale }))),
+)(
+  'associates the private note with its privacy label ($language, $fontScale×)',
+  async ({ language, direction, label, fontScale }) => {
+    jest.mocked(useWindowDimensions).mockReturnValue({ ...window, fontScale });
+    await i18n.changeLanguage(language);
+    const data = await withDay();
+    await show(data, key(1), direction);
+    const input = () =>
+      root()
+        .findAllByType(TextInput)
+        .find((node) => node.props.testID === 'entry-note')!.props as TextInputProps;
+    const associated = () => root().findByProps({ nativeID: input().accessibilityLabelledBy });
+    expect(associated().props.accessibilityLabel).toBe(label);
+    expect(associated().props.children).toBe(label);
+    expect(root().findByType(PrivateNote).props.testID).toBe('entry-note');
+    expect(input()).toMatchObject({ multiline: true, value: '' });
+    expect(StyleSheet.flatten(input().style)).toMatchObject({ writingDirection: direction, minWidth: 48 });
+    const labelId = input().accessibilityLabelledBy;
+    await type('entry-note', 'تذكير مختلق\nوسائل للحصة المقبلة');
+    expect(input().value).toBe('تذكير مختلق\nوسائل للحصة المقبلة');
+    expect(input().accessibilityLabelledBy).toBe(labelId);
+    expect(associated().props.accessibilityLabel).toBe(label);
+    expect(data.book.state.notes.size).toBe(0);
+    expect(accessibilityProblems(root())).toEqual([]);
+  },
+);
 
 test('shows the row the texts book will take, and records nothing before «تأكيد الحصة»', async () => {
   const data = await withDay();
@@ -130,6 +183,20 @@ test('records the details in one step, the private note on the devices only', as
   const outbound: readonly OutboundRoute[] = ['documents', 'statement', 'handover', 'handover-direct', 'school-space'];
   for (const route of outbound) {
     expect(JSON.stringify(recordsForRoute(data.book.state, route))).not.toContain('ملاحظة مختلقة');
+  }
+  await show(data);
+  const note = root()
+    .findAllByType(TextInput)
+    .find((node) => node.props.testID === 'entry-note');
+  expect(note?.props.value).toBe('ملاحظة مختلقة');
+  await type('entry-note', 'تذكير مختلق جديد\nوسائل للحصة المقبلة');
+  expect(data.book.state.notes.get(key(1))?.note).toBe('ملاحظة مختلقة');
+  const record = current(data.book.state.sessions.get(key(1)));
+  await press('entry-confirm');
+  expect(data.book.state.notes.get(key(1))?.note).toBe('تذكير مختلق جديد\nوسائل للحصة المقبلة');
+  expect(current(data.book.state.sessions.get(key(1)))).toEqual(record);
+  for (const route of outbound) {
+    expect(JSON.stringify(recordsForRoute(data.book.state, route))).not.toContain('تذكير مختلق جديد');
   }
 });
 
