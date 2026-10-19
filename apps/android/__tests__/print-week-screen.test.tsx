@@ -115,7 +115,7 @@ const summary = (pages: number, sheets: number, two = true) =>
 test('the Documents tab opens it from its first row, with how many documents have something new', async () => {
   const data = await withDay();
   const open = jest.fn();
-  await mount(data, <DocumentsTab onOpen={() => undefined} onPrintWeek={open} />);
+  await mount(data, <DocumentsTab onOpen={() => undefined} onPrintWeek={open} onFixes={() => undefined} />);
   const row = control('documents-print-week').props as { accessibilityLabel?: string };
   expect(JSON.stringify(row)).toContain(t('documents.printWeek.tabNew', { count: 7 }));
   await press('documents-print-week');
@@ -150,7 +150,7 @@ test('prints on both sides with a blank page where a book would start on a back,
   expect(html).not.toContain(' set-u"');
   expect(data.book.state.prints).toHaveLength(1);
   expect(data.book.state.prints[0].value.documents.map((one) => one.id)).toEqual(IDS);
-  await mount(data, <DocumentsTab onOpen={() => undefined} onPrintWeek={() => undefined} />);
+  await mount(data, <DocumentsTab onOpen={() => undefined} onPrintWeek={() => undefined} onFixes={() => undefined} />);
   expect(JSON.stringify(control('documents-print-week').props)).toContain(words.tabNone);
   await mount(data, <PrintWeek />);
   expect(IDS.some(checked)).toBe(false);

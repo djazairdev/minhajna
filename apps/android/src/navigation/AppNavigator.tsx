@@ -34,7 +34,7 @@ import {
 import { LockPinScreen, SecurityScreen } from './LockScreens';
 import { ClassScreen } from './ClassScreens';
 import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens';
-import { DocOutputScreen, DocumentsTabScreen, PrintWeekScreen } from './DocumentScreens';
+import { BookFixesScreen, DocOutputScreen, DocumentsTabScreen, PrintWeekScreen } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
 import { Welcome } from './Welcome';
 import {
@@ -201,6 +201,7 @@ export function AppNavigator({
         <Stack.Screen name="RollMonth" component={RollMonthScreen} options={dark(t('classPage.roll'))} />
         <Stack.Screen name="Pupil" component={PupilScreen} options={dark(t('classPage.roll'))} />
         <Stack.Screen name="RollPrint" component={RollPrintScreen} options={dark(t('rollPrint.title'))} />
+        <Stack.Screen name="BookFixes" component={BookFixesScreen} options={dark(t('bookFixes.title'))} />
         <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
         <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
         <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />

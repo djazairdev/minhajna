@@ -7,8 +7,8 @@
 // can offer what is new since. A print counts no later than the day it was
 // made, as days printed ahead may still change, and a reprint of older days
 // never moves a document's last printed day back. A document printed whole,
-// such as the front pages before the year starts, counts as far as it went. The record is the
-// teacher's own and stays private (PRD §5.4).
+// such as the front pages before the year starts, counts as far as it went.
+// The record is the teacher's own and stays private (PRD §5.4).
 
 import { compareDays, minDay, type Day } from './day.ts';
 import type { State } from './state.ts';
@@ -56,4 +56,23 @@ export function lastPrinted(state: Pick<State, 'prints'>, document: string): Las
 /** Whether a print held the document up to exactly `day`, such as the timetable's version from the day it applies. */
 export function printedTo(state: Pick<State, 'prints'>, document: string, day: Day): boolean {
   return state.prints.some((version) => version.value.documents.some((one) => one.id === document && one.to === day));
+}
+
+/**
+ * Whether the document was printed with `entry`'s day on or before `day`, so
+ * a change made that day may be on paper already and needs correcting there
+ * too (#218). The history keeps days, not times, so a print on the day of
+ * the change counts as before it.
+ */
+export function printedBefore(state: Pick<State, 'prints'>, document: string, entry: Day, day: Day): boolean {
+  return state.prints.some(
+    (version) =>
+      compareDays(version.day, day) <= 0 &&
+      version.value.documents.some(
+        (one) =>
+          one.id === document &&
+          compareDays(one.from, entry) <= 0 &&
+          compareDays(entry, minDay(one.to, version.day)) <= 0,
+      ),
+  );
 }

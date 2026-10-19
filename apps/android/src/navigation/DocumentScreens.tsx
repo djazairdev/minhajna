@@ -9,6 +9,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
+import { BookFixes } from '../book/BookFixes';
 import { documentKind } from '../documents/catalogue';
 import { DocumentOutput } from '../documents/DocumentOutput';
 import { DocumentsTab } from '../documents/DocumentsTab';
@@ -26,8 +27,14 @@ export function DocumentsTabScreen({
     <DocumentsTab
       onOpen={(id) => (id === 'roll' ? navigation.navigate('RollPrint') : navigation.navigate('DocOutput', { id }))}
       onPrintWeek={() => navigation.navigate('PrintWeek')}
+      onFixes={() => navigation.navigate('BookFixes')}
     />
   );
+}
+
+/** «تصحيحات دفتر النصوص», above the tabs, on the month and class given. */
+export function BookFixesScreen({ route }: NativeStackScreenProps<RootStackParamList, 'BookFixes'>) {
+  return <BookFixes {...route.params} />;
 }
 
 /** «طباعة الأسبوع», above the tabs. */

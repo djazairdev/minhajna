@@ -39,6 +39,8 @@ export type RootStackParamList = {
   RollMonth: { courseId: string; month?: string };
   /** A pupil in the roll-call book of a class's course, on a month written YYYY-MM or `year`. */
   Pupil: { courseId: string; pupilId: string; month?: string };
+  /** The texts book's corrections, for the director: a month written YYYY-MM and a class, or this month and all. */
+  BookFixes: { month?: string; classId?: string } | undefined;
   RollPrint:
     | {
         courseId?: string;
