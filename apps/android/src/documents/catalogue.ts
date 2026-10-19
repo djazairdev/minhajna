@@ -13,7 +13,9 @@ import { dayTitle, monthLabel, taughtClasses, yearShown, type DocumentData, type
 import { journalFrontPages } from './journal-front-pages';
 import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
 import { primaryFrontPages } from './primary-front-pages';
-import { primaryJournalPages, teachesPrimary } from './primary-journal-pages';
+import { primaryJournalPages } from './primary-journal-pages';
+import { specialistJournalPages } from './specialist-journal-pages';
+import { teachesPrimary, teachesSpecialist } from './specialists';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
 import { stripEmpty, stripPages } from './strip-pages';
@@ -25,6 +27,7 @@ export type DocumentId =
   | 'journal'
   | 'journal-front'
   | 'primary-journal'
+  | 'specialist-journal'
   | 'primary-front'
   | 'roll'
   | 'texts'
@@ -74,9 +77,19 @@ const classes = (data: DocumentData, t: Translate) =>
 const bookClassCount = (data: DocumentData, t: Translate) =>
   t('documents.list.classes', { count: bookClasses(data).length });
 
-/** A CEM or lycée teacher, or one with no primary class: their journal and its front pages apply. */
-const teachesSecondary = (data: DocumentData) =>
-  !teachesPrimary(data) || bookClasses(data).some((one) => one.level !== 'primary');
+/** Whether the CEM and lycée journal applies: to a teacher of such a class, or one with no class yet. */
+const teachesSecondary = (data: DocumentData) => {
+  const classes = bookClasses(data);
+  return classes.length === 0 || classes.some((one) => one.level !== 'primary');
+};
+
+/** The daily journals' layouts: one journal for all classes, or one for each. */
+const journalLayouts = (t: Translate): readonly DocumentLayout[] =>
+  JOURNAL_LAYOUTS.map((value) => ({
+    value,
+    label: t(`documents.output.layouts.${value}`),
+    description: t(`documents.output.layouts.${value}Line`),
+  }));
 
 export const DOCUMENTS: readonly DocumentKind[] = [
   {
@@ -93,12 +106,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     emptyLine: (t) => t('documents.output.noClasses'),
     shown: teachesSecondary,
     byDay: true,
-    layouts: (t) =>
-      JOURNAL_LAYOUTS.map((value) => ({
-        value,
-        label: t(`documents.output.layouts.${value}`),
-        description: t(`documents.output.layouts.${value}Line`),
-      })),
+    layouts: journalLayouts,
     pages: journalPages,
   },
   {
@@ -146,6 +154,26 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     emptyLine: (t) => t('documents.output.noPrimary'),
     shown: teachesPrimary,
     pages: primaryFrontPages,
+  },
+  {
+    id: 'specialist-journal',
+    icon: 'homework',
+    pupils: false,
+    landscape: true,
+    empty: (data) => !teachesSpecialist(data),
+    period: (data) => data.day,
+    title: (t) => t('documents.specialistJournal.name'),
+    line: (data, t) => dayTitle(data, t, data.day),
+    blankLine: (t) => t('documents.output.blankSpecialistJournal'),
+    signatureLine: (t) => t('documents.output.signatureSpecialistJournal'),
+    emptyLine: (t) => t('documents.output.noSpecialist'),
+    shown: teachesSpecialist,
+    byDay: true,
+    layouts: (t) =>
+      journalLayouts(t).map((one) =>
+        one.value === 'combined' ? { ...one, description: t('documents.specialistJournal.combinedLine') } : one,
+      ),
+    pages: specialistJournalPages,
   },
   {
     id: 'roll',
