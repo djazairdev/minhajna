@@ -5,7 +5,9 @@
 // month's days on a grid, Sunday first, with the month before and after.
 // Only days from `first` to `last` can be chosen, so never a day after
 // today; each day is a button that says its full date, and the chosen one
-// is marked by its fill and its selected state, not by colour alone.
+// is marked by its fill and its selected state, not by colour alone. With
+// `allows`, only the days it allows can be chosen, such as a class's
+// session days for a test (#221).
 
 import type { CountryProfile, Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,9 +27,10 @@ export type MonthDaysProps = {
   readonly profile: Pick<CountryProfile, 'months'>;
   readonly onMonth: (month: Month) => void;
   readonly onSelect: (day: Day) => void;
+  readonly allows?: (day: Day) => boolean;
 };
 
-export function MonthDays({ month, selected, first, last, profile, onMonth, onSelect }: MonthDaysProps) {
+export function MonthDays({ month, selected, first, last, profile, onMonth, onSelect, allows }: MonthDaysProps) {
   const t = useText();
   const { direction } = useLocale();
   const language = currentLanguage();
@@ -65,7 +68,7 @@ export function MonthDays({ month, selected, first, last, profile, onMonth, onSe
         <View key={row} style={styles.week}>
           {week.map((day, column) => {
             if (day === null) return <View key={column} style={styles.cell} />;
-            const open = day >= first && day <= last;
+            const open = day >= first && day <= last && (allows?.(day) ?? true);
             const chosen = day === selected;
             return (
               <Pressable

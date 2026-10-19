@@ -14,6 +14,7 @@ import type { Context } from './context.ts';
 import { addDays, compareDays, isWithin, type Day } from './day.ts';
 import { courseSetup, type CourseSetup } from './choices.ts';
 import { walkCourse } from './engine.ts';
+import { courseGrade, forGrade } from './joint.ts';
 import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findSessionType, type Confidence, type Queue } from './reference.ts';
@@ -227,7 +228,7 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
   const school = state.schools.get(setup.schoolClass.schoolId);
   const exam = school
     ? calendar
-        .entriesFor(school, setup.schoolClass)
+        .entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass)))
         .filter((entry) => entry.effect === 'exam' && entry.term === term.number)
         .sort((a, b) => compareDays(a.from, b.from))[0]
     : undefined;

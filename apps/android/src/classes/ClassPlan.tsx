@@ -6,8 +6,10 @@
 // what the plan still needs by then; then each unit's items with the days
 // they were taught or the day the plan would reach them, their stages,
 // where the class is, and where the plan says it should be, marked only as
-// a reference (PRD §4.7). TD items follow in their own list. A session
-// outside the timetable for the class opens from the foot (#219).
+// a reference (PRD §4.7). TD items follow in their own list, then the
+// class's tests, fixed rows the lessons flow around, which open «مواعيد
+// الفروض» (#221). A session outside the timetable for the class opens from
+// the foot (#219).
 
 import { pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -21,9 +23,16 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { paceLine } from './class-rules';
-import { rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
+import { courseTests } from '../exams/test-rules';
+import { dayMonth, rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
 
-export function ClassPlan({ courseId, onExtra }: { courseId: string; onExtra?: () => void }) {
+export type ClassPlanProps = {
+  readonly courseId: string;
+  readonly onExtra?: () => void;
+  readonly onTests?: () => void;
+};
+
+export function ClassPlan({ courseId, onExtra, onTests }: ClassPlanProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -37,6 +46,7 @@ export function ClassPlan({ courseId, onExtra }: { courseId: string; onExtra?: (
   );
   const view = useMemo(() => planView(context, courseId, day), [context, courseId, day]);
   const check = useMemo(() => termCheck(context, courseId, day), [context, courseId, day]);
+  const tests = courseTests(context, courseId);
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
@@ -119,6 +129,28 @@ export function ClassPlan({ courseId, onExtra }: { courseId: string; onExtra?: (
             </View>
           )}
         </>
+      )}
+      {(tests.length > 0 || onTests !== undefined) && (
+        <View style={styles.group}>
+          <Text accessibilityRole="header" style={[styles.label, align]}>
+            {t('tests.title')}
+          </Text>
+          {tests.map((test) => (
+            <View key={test.id} testID={`plan-test-${test.id}`} accessible style={styles.row}>
+              <Text style={styles.day}>{dayMonth(test.day)}</Text>
+              <View style={styles.grow}>
+                <Text style={[styles.title, align]}>{test.title}</Text>
+                <View style={styles.tags}>
+                  <Text style={styles.tag}>{t('tests.fixed')}</Text>
+                  {test.common === true && <Text style={styles.tag}>{t('tests.common')}</Text>}
+                </View>
+              </View>
+            </View>
+          ))}
+          {onTests !== undefined && (
+            <Button testID="plan-tests" variant="line" label={t('tests.open')} onPress={onTests} />
+          )}
+        </View>
       )}
       {onExtra !== undefined && <Button testID="plan-extra" variant="line" label={t('extra.open')} onPress={onExtra} />}
     </ScrollView>
