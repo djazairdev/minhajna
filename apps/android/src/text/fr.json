@@ -875,6 +875,20 @@
       "band": "{{school}} · {{half}}",
       "combinedLine": "Toutes les séances du jour sur une page par langue."
     },
+    "timetable": {
+      "name": "Emploi du temps hebdomadaire",
+      "title": "Emploi du temps hebdomadaire de l'enseignant",
+      "teacher": "Nom et prénom",
+      "subject": "Matière",
+      "subjects": "Matières",
+      "classes": "Classes",
+      "total": "Total : {{hours}} par semaine",
+      "from": "En vigueur depuis le {{day}}",
+      "none": "Pas encore dessiné",
+      "teacherBox": "Signature de l'enseignant",
+      "inspector": "Visa de l'inspecteur",
+      "date": "Date :"
+    },
     "primaryFront": {
       "className": "Classe",
       "pupils": "Liste des élèves",
@@ -976,8 +990,11 @@
       "signaturePrimaryJournal": "La case de l'enseignant reste vide pour signer à la main, et celle du visa du directeur toujours vide. L'indicateur de compétence et le numéro de fiche s'écrivent à la main.",
       "blankSpecialistJournal": "Une page avec ses en-têtes, la matinée et l'après-midi en lignes vides, pour toutes les classes ou pour chacune ; le jour s'écrit à la main.",
       "signatureSpecialistJournal": "La case de l'enseignant reste vide pour signer à la main, et celle du visa de chaque directeur toujours vide. L'indicateur de compétence et le numéro de fiche s'écrivent à la main. Le cahier est dans la langue de la matière, le tamazight en arabe tant que son écriture n'est pas fixée.",
+      "blankTimetable": "Les jours et les séances avec leurs en-têtes, et la grille vide à remplir à la main.",
+      "signatureTimetable": "La case de l'enseignant reste vide pour signer à la main, et celles du visa du directeur et de l'inspecteur toujours vides.",
       "noPrimary": "Aucune classe du primaire cette année : pas de cahier journal à imprimer.",
       "noSpecialist": "Aucune matière de spécialiste au primaire cette année : pas de cahier journal de spécialiste à imprimer.",
+      "noTimetable": "L'emploi du temps n'est pas encore dessiné : pas de document à imprimer.",
       "blankPrimaryFront": "Pour chaque classe du primaire, les pages de garde avec leurs intitulés : couverture, fiche, tableaux, liste d'élèves et emploi du temps vides.",
       "signaturePrimaryFront": "Les pages portent « Interne · confidentiel » car elles contiennent les noms des élèves. Le visa du directeur et la date d'approbation restent vides."
     },

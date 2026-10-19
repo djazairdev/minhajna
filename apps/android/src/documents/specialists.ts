@@ -9,7 +9,7 @@
 
 import type { Course, SchoolClass } from '@minhajna/core';
 import type { DocumentData } from './document-data';
-import { bookCourses } from './texts-book-pages';
+import { bookClasses, bookCourses } from './texts-book-pages';
 
 /** Whether a specialist teaches the course's subject at its class's level, and so keeps their own journal for it. */
 export function bySpecialist(data: DocumentData, course: Course, schoolClass: SchoolClass): boolean {
@@ -39,4 +39,10 @@ export function specialistCourses(data: DocumentData): ReturnType<typeof bookCou
 /** Whether the teacher teaches a specialist's subject this school year, so the specialist's journal applies. */
 export function teachesSpecialist(data: DocumentData): boolean {
   return specialistCourses(data).length > 0;
+}
+
+/** Whether the CEM and lycée journal applies: to a teacher of such a class, or one with no class yet. */
+export function teachesSecondary(data: DocumentData): boolean {
+  const classes = bookClasses(data);
+  return classes.length === 0 || classes.some((one) => one.level !== 'primary');
 }

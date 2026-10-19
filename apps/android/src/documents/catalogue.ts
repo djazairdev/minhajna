@@ -11,11 +11,12 @@
 import type { IconName } from '../design/Icon';
 import { dayTitle, monthLabel, taughtClasses, yearShown, type DocumentData, type Translate } from './document-data';
 import { journalFrontPages } from './journal-front-pages';
-import { JOURNAL_LAYOUTS, journalPages } from './journal-pages';
+import { journalLayouts, journalPages } from './journal-pages';
 import { primaryFrontPages } from './primary-front-pages';
 import { primaryJournalPages } from './primary-journal-pages';
 import { specialistJournalPages } from './specialist-journal-pages';
-import { teachesPrimary, teachesSpecialist } from './specialists';
+import { teachesPrimary, teachesSecondary, teachesSpecialist } from './specialists';
+import { printedVersion, timetableLine, timetablePages } from './timetable-pages';
 import { rollPages } from './roll-pages';
 import { homeworkPages } from './homework-pages';
 import { stripEmpty, stripPages } from './strip-pages';
@@ -28,6 +29,7 @@ export type DocumentId =
   | 'journal-front'
   | 'primary-journal'
   | 'specialist-journal'
+  | 'timetable'
   | 'primary-front'
   | 'roll'
   | 'texts'
@@ -76,20 +78,6 @@ const classes = (data: DocumentData, t: Translate) =>
 /** The texts book's classes: those taught this school year. */
 const bookClassCount = (data: DocumentData, t: Translate) =>
   t('documents.list.classes', { count: bookClasses(data).length });
-
-/** Whether the CEM and lycée journal applies: to a teacher of such a class, or one with no class yet. */
-const teachesSecondary = (data: DocumentData) => {
-  const classes = bookClasses(data);
-  return classes.length === 0 || classes.some((one) => one.level !== 'primary');
-};
-
-/** The daily journals' layouts: one journal for all classes, or one for each. */
-const journalLayouts = (t: Translate): readonly DocumentLayout[] =>
-  JOURNAL_LAYOUTS.map((value) => ({
-    value,
-    label: t(`documents.output.layouts.${value}`),
-    description: t(`documents.output.layouts.${value}Line`),
-  }));
 
 export const DOCUMENTS: readonly DocumentKind[] = [
   {
@@ -174,6 +162,21 @@ export const DOCUMENTS: readonly DocumentKind[] = [
         one.value === 'combined' ? { ...one, description: t('documents.specialistJournal.combinedLine') } : one,
       ),
     pages: specialistJournalPages,
+  },
+  {
+    id: 'timetable',
+    icon: 'homework',
+    pupils: false,
+    landscape: false,
+    empty: (data) => printedVersion(data) === null,
+    period: (data) => printedVersion(data)?.from ?? data.year.id,
+    title: (t) => t('documents.timetable.name'),
+    line: timetableLine,
+    blankLine: (t) => t('documents.output.blankTimetable'),
+    signatureLine: (t) => t('documents.output.signatureTimetable'),
+    emptyLine: (t) => t('documents.output.noTimetable'),
+    byDay: true,
+    pages: timetablePages,
   },
   {
     id: 'roll',

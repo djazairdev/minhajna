@@ -16,6 +16,7 @@ import { bookSpan } from '../entry/book-lines';
 import { coreContext } from '../storage/core-context';
 import { sessionTime } from '../times/times-rules';
 import { sessionMeta } from '../today/today-meta';
+import type { DocumentLayout } from './catalogue';
 import { dayTitle, schoolNames, yearShown, type DocumentData, type Translate } from './document-data';
 import { journalHtml, type JournalDay, type JournalEntry } from './journal-html';
 import { journalLines, proposedRecord, type JournalNames } from './journal-lines';
@@ -25,6 +26,15 @@ import { isolate } from '../week/grid-labels';
 export type JournalLayout = 'combined' | 'per-class';
 
 export const JOURNAL_LAYOUTS: readonly JournalLayout[] = ['combined', 'per-class'];
+
+/** The daily journals' layouts, as the output offers them: one journal for all classes, or one for each. */
+export function journalLayouts(t: Translate): readonly DocumentLayout[] {
+  return JOURNAL_LAYOUTS.map((value) => ({
+    value,
+    label: t(`documents.output.layouts.${value}`),
+    description: t(`documents.output.layouts.${value}Line`),
+  }));
+}
 
 /** The journal's pages for `data.day`, combined or one per class, or blank ones with their heads filled. */
 export function journalPages(data: DocumentData, t: Translate, blank: boolean, layout?: string): string {
