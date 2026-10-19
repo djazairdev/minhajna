@@ -7,11 +7,14 @@
 // slot, and a second tap with the same brush clears it; the teacher's own
 // time works the same way, and the eraser clears whatever is there. The
 // first version starts with the school year; a later one starts the day it
-// is drawn, so the past never moves (PRD §4.6). With a double shift, a
-// class drawn in one half-day also goes in the other, in the other week.
+// is drawn, so the past never moves (PRD §4.6). A version not in force yet,
+// such as the week drawn during setup before the year begins, is drawn
+// again rather than followed by a new one. With a double shift, a class
+// drawn in one half-day also goes in the other, in the other week.
 
 import {
   blockCovers,
+  compareDays,
   courseOf,
   wholeGroup,
   type Course,
@@ -36,10 +39,15 @@ export type Cell = { readonly weekday: Weekday; readonly slot: Slot };
 const at = (cell: Cell) => (entry: TimetableEntry) =>
   entry.weekday === cell.weekday && entry.slot.half === cell.slot.half && entry.slot.index === cell.slot.index;
 
-/** The version a drawing edits: the one drawn today, or a new one that starts today, or with the year if it is the first. */
+/**
+ * The version a drawing edits: the one drawn today or not in force yet, or a new one that starts today, or with the
+ * year if it is the first.
+ */
 export function versionToDraw(state: State, year: SchoolYear, today: Day, newId: () => string): TimetableVersion {
   const last = state.timetables.at(-1);
-  if (last !== undefined && last.recorded === today) return { ...last.version, from: last.from };
+  if (last !== undefined && (last.recorded === today || compareDays(last.from, today) > 0)) {
+    return { ...last.version, from: last.from };
+  }
   return {
     id: newId(),
     from: last === undefined ? year.from : today,

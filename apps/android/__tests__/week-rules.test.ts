@@ -82,6 +82,24 @@ test('keeps editing the version drawn today, from where it starts', async () => 
   expect(again).toMatchObject({ id: first.id, from: data.year.from, options: { saturday: true } });
 });
 
+test('draws again a week not in force yet, so a correction before the year begins is the week the year starts with', async () => {
+  const data = await withClasses();
+  const drawn = parseDay('2026-09-10');
+  const corrected = parseDay('2026-09-12');
+  expect(corrected < data.year.from).toBe(true);
+  const first = versionToDraw(data.book.state, data.year, drawn, newId);
+  await data.book.record(drawn, {
+    kind: 'timetable.set',
+    version: { ...first, entries: tap(empty, { kind: 'class', classId: 'k-1' }).entries },
+  });
+  const again = versionToDraw(data.book.state, data.year, corrected, newId);
+  expect(again).toMatchObject({ id: first.id, from: data.year.from });
+  await data.book.record(corrected, { kind: 'timetable.set', version: { ...again, entries: [] } });
+  expect(data.book.state.timetables).toEqual([
+    expect.objectContaining({ recorded: drawn, from: data.year.from, version: { ...again, entries: [] } }),
+  ]);
+});
+
 test('puts a class in a slot, whole and every week, and clears it with a second tap of the same pen', () => {
   const drawn = tap(empty, { kind: 'class', classId: 'k-1' });
   expect(drawn.entries).toEqual([

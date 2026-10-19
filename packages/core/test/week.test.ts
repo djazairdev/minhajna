@@ -3,7 +3,8 @@
 
 // The week the teacher draws (#28): its grid, A/B weeks, time that belongs
 // to the teacher, clashes within a school and between two, the weekly load,
-// and versions that never move the past. Made-up schools and classes.
+// versions that never move the past, and a week corrected before the year
+// begins. Made-up schools and classes.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -15,6 +16,7 @@ import {
   weekGrid,
   weeklyLoad,
   weeksOverlap,
+  versionOn,
   type RecordEvent,
   type TeacherBlock,
   type TimetableEntry,
@@ -182,5 +184,48 @@ describe('the week the teacher draws', () => {
       (session) => `${session.day.toString()} ${session.courseId}`,
     );
     assert.deepEqual(sundays, ['2026-09-20 c-1', '2026-09-27 c-1', '2026-10-04 c-2', '2026-10-11 c-2']);
+  });
+
+  it('lets a week corrected before the year begins replace the one drawn first, once the year starts', async () => {
+    const book = await openBook(setup, d('2026-09-10'));
+    await book.record(d('2026-09-10'), {
+      kind: 'timetable.set',
+      version: version([entry('c-1', 0, 1)], [], '2026-09-20'),
+    });
+    await book.record(d('2026-09-12'), {
+      kind: 'timetable.set',
+      version: version([entry('c-2', 0, 1)], [], '2026-09-12'),
+    });
+    const listed = () =>
+      book.state.timetables.map(({ version, recorded, from }) => `${version.id} ${recorded} ${from}`);
+    assert.deepEqual(listed(), ['v-2026-09-12 2026-09-12 2026-09-12']);
+    assert.equal(versionOn(book.state.timetables, d('2026-09-25'))?.id, 'v-2026-09-12');
+    const sundays = sessionsBetween(contextOf(book), d('2026-09-20'), d('2026-09-27')).map(
+      (session) => `${session.day.toString()} ${session.courseId}`,
+    );
+    assert.deepEqual(sundays, ['2026-09-20 c-2', '2026-09-27 c-2']);
+    await book.record(d('2026-09-14'), {
+      kind: 'timetable.set',
+      version: { ...version([entry('c-2', 0, 2)], [], '2026-09-12'), from: d('2026-09-01') },
+    });
+    assert.deepEqual(listed(), ['v-2026-09-12 2026-09-12 2026-09-12']);
+  });
+
+  it('lets a later version replace one that has not started, keeping those that have', async () => {
+    const book = await openBook([...setup, { kind: 'timetable.set', version: version([entry('c-1', 0, 1)]) }]);
+    await book.record(d('2026-10-01'), {
+      kind: 'timetable.set',
+      version: version([entry('c-2', 0, 1)], [], '2026-10-18'),
+    });
+    await book.record(d('2026-10-04'), {
+      kind: 'timetable.set',
+      version: version([entry('c-3', 0, 1)], [], '2026-10-04'),
+    });
+    assert.deepEqual(
+      book.state.timetables.map(({ version, from }) => `${version.id} ${from}`),
+      ['v-2026-09-13 2026-09-13', 'v-2026-10-04 2026-10-04'],
+    );
+    assert.equal(versionOn(book.state.timetables, d('2026-10-01'))?.id, 'v-2026-09-13');
+    assert.equal(versionOn(book.state.timetables, d('2026-10-20'))?.id, 'v-2026-10-04');
   });
 });

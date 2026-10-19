@@ -3,7 +3,10 @@
 
 // What the screens show is worked out from the history (PRD §5.5). A
 // timetable version saved again under its ID while the week is drawn replaces
-// itself, so drawing a week adds one version, not one for each change.
+// itself, so drawing a week adds one version, not one for each change. A
+// version recorded later replaces any earlier one that has not started by its
+// first day, such as a week drawn during setup and corrected before the year
+// begins.
 
 import { compareDays, maxDay, type Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
@@ -52,7 +55,10 @@ export interface State {
   readonly classes: ReadonlyMap<string, SchoolClass>;
   readonly pupils: ReadonlyMap<string, Pupil>;
   readonly courses: ReadonlyMap<string, Course>;
-  /** Every timetable version recorded, in the order they apply. */
+  /**
+   * The timetable versions that apply on some day, in the order they were recorded, which is the order they apply.
+   * One recorded later takes the place of every earlier one that would start on its first day or later.
+   */
   readonly timetables: readonly RecordedTimetable[];
   /** The entries the teacher added to the calendar. */
   readonly calendar: readonly CalendarEntry[];
@@ -104,12 +110,24 @@ function withMovements(pupil: Pupil, order: number, moved: readonly Movement[]):
 }
 
 /**
- * Builds the state from the history entries. A timetable's first version
- * applies from its own day, so setup can fill in the weeks already gone. A
- * later one never reaches back before the day it was recorded: the past never
- * moves (PRD §4.6). Of two versions from the same day, the one recorded later
- * applies, as the sort is stable.
+ * Adds a timetable version recorded on `day`. Saved again under the ID of the
+ * last one, it replaces it and keeps the day that one was recorded. The first
+ * version, `firstId`, applies from its own day, so setup can fill in the weeks
+ * already gone. A later one never reaches back before the day it was
+ * recorded, and it takes the place of every earlier one that would start on
+ * its first day or later, none of which has applied before that day: the past
+ * never moves (PRD §4.6).
  */
+function addTimetable(timetables: RecordedTimetable[], version: TimetableVersion, day: Day, firstId: string): void {
+  const redrawn = timetables.at(-1)?.version.id === version.id ? timetables.pop() : undefined;
+  const recorded = redrawn?.recorded ?? day;
+  const first = version.id === firstId && (redrawn !== undefined || timetables.length === 0);
+  const from = first ? version.from : maxDay(version.from, recorded);
+  const kept = timetables.filter((timetable) => compareDays(timetable.from, from) < 0);
+  timetables.splice(0, timetables.length, ...kept, { version, recorded, from });
+}
+
+/** Builds the state from the history entries. */
 export function buildState(entries: readonly Entry[]): State {
   let teacher: TeacherCard | null = null;
   let personal: TeacherPersonal | null = null;
@@ -119,6 +137,7 @@ export function buildState(entries: readonly Entry[]): State {
   const moved = new Map<string, Movement[]>();
   const courses = new Map<string, Course>();
   const timetables: RecordedTimetable[] = [];
+  let firstTimetable: string | undefined;
   const calendar = new Map<string, CalendarEntry>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
@@ -154,16 +173,10 @@ export function buildState(entries: readonly Entry[]): State {
       case 'course.set':
         courses.set(event.course.id, event.course);
         break;
-      case 'timetable.set': {
-        const redrawn = timetables.at(-1)?.version.id === event.version.id ? timetables.pop() : undefined;
-        const recorded = redrawn?.recorded ?? entry.day;
-        timetables.push({
-          version: event.version,
-          recorded,
-          from: timetables.length === 0 ? event.version.from : maxDay(event.version.from, recorded),
-        });
+      case 'timetable.set':
+        firstTimetable ??= event.version.id;
+        addTimetable(timetables, event.version, entry.day, firstTimetable);
         break;
-      }
       case 'calendar.set':
         calendar.set(event.entry.id, event.entry);
         break;
@@ -226,7 +239,7 @@ export function buildState(entries: readonly Entry[]): State {
     classes,
     pupils,
     courses,
-    timetables: timetables.sort((a, b) => compareDays(a.from, b.from)),
+    timetables,
     calendar: [...calendar.values()],
     sessions,
     notes,
