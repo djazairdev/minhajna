@@ -839,6 +839,23 @@
       "none": "Cette classe n’a aucune séance cette année scolaire, donc aucune feuille d’appel.",
       "open": "Imprimer une feuille d’appel vierge pour cette classe",
       "confidential": "Écrit en haut et en bas de la feuille, car elle contient les noms des élèves."
+    },
+    "slip": {
+      "name": "Billet d’absence de la séance",
+      "line": "À remettre au conseiller d’éducation",
+      "note": "Un billet par séance, avec seulement les absents et les retards, nommés, sur une demi-page A4 à découper.",
+      "session": "Séance",
+      "teacher": "Enseignant",
+      "state": "Situation",
+      "absent": "Absent",
+      "justified": "Absent, justifié",
+      "late": "En retard",
+      "none": "Ni absence ni retard",
+      "supervisor": "Conseiller d’éducation ou surveillant",
+      "days": "Jour de l’appel",
+      "sessions": "Séance",
+      "empty": "Aucun appel enregistré pour cette classe.",
+      "open": "Imprimer le billet d’absence de cette séance"
     }
   },
   "pupilPage": {

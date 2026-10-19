@@ -3,15 +3,16 @@
 
 // The screens that record the day's work, as navigation routes: Today, a
 // session's details, its roll call with a print icon for its class's blank
-// sheet (R-3.4-16, answer 262), a pupil's correction in it, a pupil who
-// joins or leaves the class, and the Classes tab with each class's plan and
-// texts book.
+// sheet (R-3.4-16, answer 262), or, once a per-session roll call is taken,
+// for its absence slip (R-3.4-31, answer 264), a pupil's correction in it,
+// a pupil who joins or leaves the class, and the Classes tab with each
+// class's plan and texts book.
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { TextsBook } from '../book/TextsBook';
 import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
@@ -26,6 +27,8 @@ import { HomeworkBook } from '../homework/HomeworkBook';
 import { IconButton } from '../components/IconButton';
 import { controlIcon } from '../design/Icon';
 import { useAppData } from '../storage/AppData';
+import { coreContext } from '../storage/core-context';
+import { takenSlip } from '../documents/roll-slip';
 import { useText } from '../text/i18n';
 import { Today } from '../today/Today';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
@@ -54,24 +57,34 @@ export function EntryScreen({ navigation, route }: NativeStackScreenProps<RootSt
   return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={() => navigation.goBack()} />;
 }
 
-/** A session's roll call, back to where it was opened once saved; the print icon opens its class's blank sheet. */
+/** A session's roll call, back to where it was opened once saved; the print icon opens its blank sheet or its slip. */
 export function RollScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Roll'>) {
   const t = useText();
-  const { state } = useAppData();
-  const { day, courseId } = route.params;
+  const { state, profile, year, calendar, packs } = useAppData();
+  const { key, day, courseId } = route.params;
   const known = state.courses.has(courseId);
+  const slip = useMemo(
+    () => takenSlip(coreContext({ profile, year, calendar, packs, state }), key, parseDay(day)),
+    [profile, year, calendar, packs, state, key, day],
+  );
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <IconButton
           testID="roll-print-sheet"
           icon={controlIcon('print')}
-          accessibilityLabel={t('rollPrint.day.open')}
-          onPress={() => navigation.navigate('RollPrint', { ...(known && { courseId }), choice: 'day', day })}
+          accessibilityLabel={t(slip === null ? 'rollPrint.day.open' : 'rollPrint.slip.open')}
+          onPress={() =>
+            navigation.navigate('RollPrint', {
+              ...(known && { courseId }),
+              day,
+              ...(slip === null ? { choice: 'day' } : { choice: 'slip', unit: slip.key }),
+            })
+          }
         />
       ),
     });
-  }, [navigation, t, known, courseId, day]);
+  }, [navigation, t, known, courseId, day, slip]);
   return (
     <Roll
       sessionKey={route.params.key}
