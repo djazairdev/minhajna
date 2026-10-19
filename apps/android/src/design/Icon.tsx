@@ -24,6 +24,8 @@ export const ICONS = [
   'pupils',
   'homework',
   'plus',
+  'tune',
+  'print',
 ] as const;
 export type IconName = (typeof ICONS)[number];
 

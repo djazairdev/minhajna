@@ -32,7 +32,7 @@ import {
   TodayTab,
 } from './RecordScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
-import { DocOutputScreen, DocumentsTabScreen } from './DocumentScreens';
+import { DocOutputScreen, DocumentsTabScreen, PrintWeekScreen } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
 import { Welcome } from './Welcome';
 import {
@@ -188,6 +188,7 @@ export function AppNavigator({
           component={DocOutputScreen}
           options={({ route }) => dark(documentKind(route.params.id)?.title(t) ?? '')}
         />
+        <Stack.Screen name="PrintWeek" component={PrintWeekScreen} options={dark(t('documents.printWeek.name'))} />
         <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
         <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />

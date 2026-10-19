@@ -3,9 +3,11 @@
 
 // «الوثائق» (#212, Docs): every document the app makes, with what each one
 // covers now. A document opens its output: print, or save a PDF, as
-// recorded or blank with its headings.
+// recorded or blank with its headings. «طباعة الأسبوع» comes first, with
+// how many documents have something new since their last print (#215).
 
 import { useLocale } from '@react-navigation/native';
+import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Notice } from '../components/Notice';
@@ -15,19 +17,36 @@ import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
 import { useText } from '../text/i18n';
 import { DOCUMENTS, type DocumentId } from './catalogue';
+import { weekEntries } from './print-week';
 import { useDocumentData } from './useDocumentData';
 
-/** The Documents tab; `onOpen` opens a document's output. */
-export function DocumentsTab({ onOpen }: { readonly onOpen: (id: DocumentId) => void }) {
+/** The Documents tab; `onOpen` opens a document's output, and `onPrintWeek` «طباعة الأسبوع». */
+export function DocumentsTab({
+  onOpen,
+  onPrintWeek,
+}: {
+  readonly onOpen: (id: DocumentId) => void;
+  readonly onPrintWeek: () => void;
+}) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useDocumentData();
+  const news = useMemo(() => weekEntries(data).filter((entry) => entry.news !== null).length, [data]);
   return (
     <View style={[styles.screen, { direction, paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={[styles.content, { paddingLeft: insets.left, paddingRight: insets.right }]}>
         <PageHeading testID="documents-heading" title={t('navigation.documents')} scope={t('documents.list.line')} />
         <View style={styles.list}>
+          <RowLink
+            testID="documents-print-week"
+            icon={controlIcon('print')}
+            title={t('documents.printWeek.name')}
+            description={
+              news === 0 ? t('documents.printWeek.tabNone') : t('documents.printWeek.tabNew', { count: news })
+            }
+            onPress={onPrintWeek}
+          />
           {DOCUMENTS.filter((kind) => kind.shown?.(data) ?? true).map((kind) => (
             <RowLink
               key={kind.id}

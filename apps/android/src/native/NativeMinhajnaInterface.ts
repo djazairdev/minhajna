@@ -12,6 +12,10 @@ export interface Spec extends TurboModule {
   language(): string | null;
   /** Keeps the language; its direction, which the native side derives from the code, applies from the next start. */
   setLanguage(code: string): void;
+  /** A setting of this phone, such as the print screen's choices, kept outside the history; null before any. Synchronous. */
+  setting(key: string): string | null;
+  /** Keeps a setting of this phone: a key of lowercase letters, digits and hyphens, and a value of at most 4096 characters. */
+  setSetting(key: string, value: string): void;
   /** Starts the interface again, so that a new direction applies. */
   restart(): void;
   /** Focuses a mounted UI target, including in touch mode; no label or contents cross this boundary. */

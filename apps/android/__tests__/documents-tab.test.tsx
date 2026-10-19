@@ -102,7 +102,7 @@ async function withMarks() {
 const kind = (id: string) => documentKind(id)!;
 
 test('lists each document with what it covers now, and opens it', async () => {
-  await mount(await withPupils(), <DocumentsTab onOpen={onOpen} />);
+  await mount(await withPupils(), <DocumentsTab onOpen={onOpen} onPrintWeek={() => undefined} />);
   expect(texts()).toEqual(
     expect.arrayContaining([
       text.navigation.documents,
@@ -145,7 +145,7 @@ test('a class with no course is in neither the count nor the roll-call book', as
       },
     },
   ]);
-  await mount(data, <DocumentsTab onOpen={onOpen} />);
+  await mount(data, <DocumentsTab onOpen={onOpen} onPrintWeek={() => undefined} />);
   expect(texts().some((line) => line.startsWith(`${text.documents.list.classes_two} ·`))).toBe(true);
   await mount(data, <DocumentOutput kind={kind('roll')} />);
   await press('output-print');
