@@ -1,16 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Printing the roll-call book (#217, Roll-print, answers 260 to 262): a
-// class's book, then what prints: the month's two-page A4 portrait spread,
-// the yearly summary on A4 landscape, the front pages, or the blank sheet of
-// one of the class's session days; as recorded or blank, but for the sheet,
-// and «طباعة» or «حفظ PDF». It opens on the Month screen's class and month,
-// the yearly summary's, the Class page's class, the Roll screen's day for the
-// blank sheet, or from the Documents tab on the first class and the latest
-// month. «خانة توقيعي» shows for the spread and the summary, with the drawn
-// signature disabled until #236, so the boxes print blank, and a file with
-// pupils' data says «داخلي · سري» is on every page.
+// Printing the roll-call book (#217, Roll-print, answers 260 to 264): a class's
+// book, then what prints: the month's two-page A4 portrait spread, the yearly
+// summary on A4 landscape, the front pages, the blank sheet of one of the
+// class's session days, or, where the roll is called per session, the slip of
+// one taken roll call, picked by its day and then its session; as recorded or
+// blank, but for the sheet and the slip, and «طباعة» or «حفظ PDF». It opens on
+// the Month screen's class and month, the yearly summary's, the Class page's
+// class, the Roll screen's day for the blank sheet or its roll call for the
+// slip, or from the Documents tab on the first class and the latest month.
+// «خانة توقيعي» shows for the spread and the summary, with the drawn signature
+// disabled until #236, so the boxes print blank, and a file with pupils' data
+// says «داخلي · سري» is on every page.
 
 import { useLocale } from '@react-navigation/native';
 import { compareDays, countYear, courseGrade, isJoint, parseDay, type Day } from '@minhajna/core';
@@ -25,16 +27,18 @@ import { SegmentedControl } from '../components/SegmentedControl';
 import { courseGroup } from '../classes/class-page-rules';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
-import { DayStep } from '../documents/DayStep';
 import { monthLabel } from '../documents/document-data';
 import { useOutputRun } from '../documents/output-run';
 import { sessionDays } from '../documents/roll-day-sheet';
+import { slipDays, slipsOffered, slipLabel, slipUnits } from '../documents/roll-slip';
 import { rollOutput, type RollPrintChoice } from '../documents/roll-print-output';
 import { rollBooks, type RollBook } from '../documents/roll-spread-pages';
 import { useDocumentData } from '../documents/useDocumentData';
 import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
 import { bookMonths } from './month-rules';
+import { blankLine, choiceNote, whatChoices } from './roll-print-choices';
+import { RollPrintDay } from './RollPrintDay';
 
 export type { RollPrintChoice };
 
@@ -45,6 +49,8 @@ export type RollPrintProps = {
   readonly month?: string;
   /** The blank sheet's day; today or the next session day when not given. */
   readonly day?: string;
+  /** The slip's roll call, by its key, on `day`. */
+  readonly unit?: string;
   readonly choice?: RollPrintChoice;
 };
 
@@ -70,7 +76,8 @@ export function RollPrint(props: RollPrintProps) {
   });
   const [month, setMonth] = useState(props.month !== undefined && months.includes(props.month) ? props.month : null);
   const [day, setDay] = useState<string | null>(props.day ?? null);
-  const [choice, setChoice] = useState<RollPrintChoice>(props.choice ?? 'spread');
+  const [unitKey, setUnitKey] = useState<string | null>(props.unit ?? null);
+  const [picked, setChoice] = useState<RollPrintChoice>(props.choice ?? 'spread');
   const [blank, setBlank] = useState(false);
   const { busy, said, print, save, clear } = useOutputRun();
   const book = books.find((one) => bookKey(one) === chosen) ?? books[0];
@@ -78,11 +85,20 @@ export function RollPrint(props: RollPrintProps) {
     if (book === undefined) return [];
     return countYear(context, book.classId, undefined, data.day).months.map((one) => one.month);
   }, [context, book, data.day]);
+  const offered = book !== undefined && slipsOffered(data, book);
+  const choice = picked === 'slip' && !offered ? 'spread' : picked;
   const days = useMemo(() => (book === undefined ? [] : sessionDays(data, book)), [data, book]);
+  const taken = useMemo(() => (book === undefined || !offered ? [] : slipDays(data, book)), [data, book, offered]);
   const monthName = (one: string) => data.profile.months?.[Number(one.slice(5, 7)) - 1]?.[data.lang] ?? one;
   const shown = month ?? months.at(-1) ?? data.day.slice(0, 7);
   const sheetDay: Day | undefined =
     days.find((one) => one === day) ?? days.find((one) => compareDays(one, data.day) >= 0) ?? days.at(-1);
+  const slipDay: Day | undefined =
+    taken.find((one) => one === day) ??
+    [...taken].reverse().find((one) => compareDays(one, data.day) <= 0) ??
+    taken.at(-1);
+  const units = book === undefined || slipDay === undefined ? [] : slipUnits(data, book, slipDay);
+  const unit = units.find((one) => one.key === unitKey) ?? units[0];
   const named = monthLabel(data, parseDay(`${shown}-01`));
   const className = (one: RollBook) => {
     const schoolClass = data.state.classes.get(one.classId);
@@ -92,22 +108,18 @@ export function RollPrint(props: RollPrintProps) {
       : `${schoolClass?.name ?? ''} · ${group.name}`;
   };
   const output =
-    book === undefined || (choice === 'day' && sheetDay === undefined)
+    book === undefined || (choice === 'day' && sheetDay === undefined) || (choice === 'slip' && unit === undefined)
       ? null
-      : rollOutput(data, t, { choice, book, name: className(book), blank, month: shown, day: sheetDay ?? data.day });
+      : rollOutput(data, t, {
+          choice,
+          book,
+          name: className(book),
+          blank,
+          month: shown,
+          day: sheetDay ?? data.day,
+          ...(unit !== undefined && { unit }),
+        });
   const signed = choice === 'spread' || choice === 'year';
-  const notes: Record<RollPrintChoice, string> = {
-    spread: t('rollPrint.spreadNote'),
-    year: t('rollPrint.yearNote'),
-    front: t('rollPrint.front.note'),
-    day: t('rollPrint.day.note'),
-  };
-  const blankLines: Record<RollPrintChoice, string> = {
-    spread: t('documents.output.blankRoll'),
-    year: t('rollPrint.blankYear'),
-    front: t('rollPrint.front.blank'),
-    day: '',
-  };
   const change =
     <T,>(set: (value: T) => void) =>
     (value: T) => {
@@ -146,19 +158,34 @@ export function RollPrint(props: RollPrintProps) {
         />
       )}
       {choice === 'day' && sheetDay !== undefined && (
-        <>
-          <Text style={styles.label}>{t('rollPrint.day.days')}</Text>
-          <DayStep
-            testID="roll-print-day"
-            day={sheetDay}
-            first={data.year.from}
-            last={data.year.to}
-            days={days}
-            disabled={busy}
-            profile={data.profile}
-            onDay={change(setDay)}
-          />
-        </>
+        <RollPrintDay
+          testID="roll-print-day"
+          label={t('rollPrint.day.days')}
+          day={sheetDay}
+          days={days}
+          year={data.year}
+          profile={data.profile}
+          disabled={busy}
+          onDay={change(setDay)}
+        />
+      )}
+      {choice === 'slip' && slipDay !== undefined && unit !== undefined && (
+        <RollPrintDay
+          testID="roll-print-slip"
+          label={t('rollPrint.slip.days')}
+          day={slipDay}
+          days={taken}
+          year={data.year}
+          profile={data.profile}
+          disabled={busy}
+          onDay={change(setDay)}
+          sessions={{
+            label: t('rollPrint.slip.sessions'),
+            selected: unit.key,
+            choices: units.map((one) => ({ value: one.key, label: slipLabel(data, t, one) })),
+            onSelect: change(setUnitKey),
+          }}
+        />
       )}
       <RadioCardGroup
         testID="roll-print-what"
@@ -166,22 +193,15 @@ export function RollPrint(props: RollPrintProps) {
         selected={choice}
         disabled={busy}
         onSelect={change(setChoice)}
-        choices={[
-          { value: 'spread', label: t('rollPrint.spread', { month: named }), description: t('rollPrint.spreadLine') },
-          {
-            value: 'year',
-            label: t('rollPrint.year'),
-            description: t('rollPrint.yearLine', {
-              from: monthName(span[0] ?? data.year.from.slice(0, 7)),
-              to: monthName(span.at(-1) ?? data.year.to.slice(0, 7)),
-            }),
-          },
-          { value: 'front', label: t('rollPrint.front.name'), description: t('rollPrint.front.line') },
-          { value: 'day', label: t('rollPrint.day.name'), description: t('rollPrint.day.line') },
-        ]}
+        choices={whatChoices(t, {
+          month: named,
+          from: monthName(span[0] ?? data.year.from.slice(0, 7)),
+          to: monthName(span.at(-1) ?? data.year.to.slice(0, 7)),
+          slip: offered,
+        })}
       />
-      <Text style={styles.line}>{notes[choice]}</Text>
-      {choice !== 'day' && (
+      <Text style={styles.line}>{choiceNote(t, choice)}</Text>
+      {choice !== 'day' && choice !== 'slip' && (
         <RadioCardGroup
           testID="roll-print-version"
           label={t('documents.output.version')}
@@ -194,7 +214,7 @@ export function RollPrint(props: RollPrintProps) {
               label: t('documents.output.recorded'),
               description: t('documents.output.recordedLine'),
             },
-            { value: 'blank', label: t('documents.output.blank'), description: blankLines[choice] },
+            { value: 'blank', label: t('documents.output.blank'), description: blankLine(t, choice) },
           ]}
         />
       )}
@@ -202,7 +222,9 @@ export function RollPrint(props: RollPrintProps) {
         testID="roll-print-confidential"
         variant="notice"
         badge={t('documents.confidential')}
-        message={t(choice === 'day' ? 'rollPrint.day.confidential' : 'documents.output.confidentialLine')}
+        message={t(
+          choice === 'day' || choice === 'slip' ? 'rollPrint.day.confidential' : 'documents.output.confidentialLine',
+        )}
       />
       {signed && (
         <>
@@ -225,7 +247,13 @@ export function RollPrint(props: RollPrintProps) {
         <Notice
           testID="roll-print-empty"
           icon={controlIcon('info')}
-          message={t(book === undefined ? 'documents.output.noClasses' : 'rollPrint.day.none')}
+          message={t(
+            book === undefined
+              ? 'documents.output.noClasses'
+              : choice === 'slip'
+                ? 'rollPrint.slip.empty'
+                : 'rollPrint.day.none',
+          )}
         />
       )}
       {said !== null && (

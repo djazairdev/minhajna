@@ -821,6 +821,23 @@
       "none": "This class has no session this school year, so there is no sheet to print.",
       "open": "Print a blank roll-call sheet for this class",
       "confidential": "Written at the head and foot of the sheet, as it holds pupils' names."
+    },
+    "slip": {
+      "name": "Session absence slip",
+      "line": "Handed to the education counsellor",
+      "note": "One slip per session, with only the absent and late pupils, by name, on half an A4 page to cut.",
+      "session": "Session",
+      "teacher": "Teacher",
+      "state": "Status",
+      "absent": "Absent",
+      "justified": "Absent, justified",
+      "late": "Late",
+      "none": "No absence or lateness",
+      "supervisor": "Education counsellor or supervisor",
+      "days": "Roll-call day",
+      "sessions": "Session",
+      "empty": "No roll call recorded for this class yet.",
+      "open": "Print this session's absence slip"
     }
   },
   "pupilPage": {
