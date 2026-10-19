@@ -46,7 +46,10 @@ export type RootStackParamList = {
         day?: string;
         /** The slip's roll call, by its unit key. */
         unit?: string;
-        choice?: 'spread' | 'year' | 'front' | 'day' | 'slip';
+        /** The class to open on when no course is given, and its one plan to print. */
+        classId?: string;
+        plan?: string;
+        choice?: 'spread' | 'year' | 'front' | 'day' | 'slip' | 'seats';
       }
     | undefined;
   ClassPlan: { courseId: string };

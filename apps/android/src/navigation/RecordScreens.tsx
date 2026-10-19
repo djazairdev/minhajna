@@ -5,8 +5,9 @@
 // session's details, its roll call with a print icon for its class's blank
 // sheet (R-3.4-16, answer 262), or, once a per-session roll call is taken,
 // for its absence slip (R-3.4-31, answer 264), a pupil's correction in it,
-// a pupil who joins or leaves the class, and the Classes tab with each
-// class's plan and texts book.
+// a pupil who joins or leaves the class, the seating plan with a print icon
+// once it is arranged (answer 265), and the Classes tab with each class's
+// plan and texts book.
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -103,9 +104,27 @@ export function PupilMoveScreen({ navigation, route }: NativeStackScreenProps<Ro
   return <PupilMove classId={route.params.classId} onDone={() => navigation.goBack()} />;
 }
 
-/** The seating plan of a class or one of its groups, each change recorded at once. */
-export function SeatsSetupScreen({ route }: NativeStackScreenProps<RootStackParamList, 'SeatsSetup'>) {
-  return <SeatsSetup classId={route.params.classId} groupId={route.params.groupId} />;
+/** The seating plan of a class or one of its groups, each change recorded at once; the print icon prints it. */
+export function SeatsSetupScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'SeatsSetup'>) {
+  const t = useText();
+  const { state } = useAppData();
+  const { classId, groupId } = route.params;
+  const arranged = state.seating.has(`${classId}/${groupId}`);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: arranged
+        ? () => (
+            <IconButton
+              testID="seats-print"
+              icon={controlIcon('print')}
+              accessibilityLabel={t('rollPrint.seats.open')}
+              onPress={() => navigation.navigate('RollPrint', { classId, plan: groupId, choice: 'seats' })}
+            />
+          )
+        : undefined,
+    });
+  }, [navigation, t, arranged, classId, groupId]);
+  return <SeatsSetup classId={classId} groupId={groupId} />;
 }
 
 /** One pupil's correction in a roll call already taken, back to it once saved. */
