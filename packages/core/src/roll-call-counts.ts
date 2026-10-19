@@ -1,8 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The roll-call book's totals (PRD §3.4): how many half-days or sessions
-// each pupil missed, under the counting rules the teacher sets.
+// The roll-call book's totals (PRD §3.4): how many half-days each pupil
+// missed, under the counting rules the teacher sets. The book counts in
+// half-days at every level (answer 253): in middle and secondary school,
+// where the roll is taken each session, a morning with any of the teacher's
+// sessions is one half-day, missed if any of them was, and justified only
+// if each absence in it was.
 
 import type { Context } from './context.ts';
 import { compareDays, isWithin, maxDay, monthRange, type Day } from './day.ts';
@@ -38,13 +42,15 @@ export interface AbsenceMark {
   readonly day: Day;
   readonly half: Half;
   readonly justified: boolean;
+  /** The roll calls, by unit key, that marked the pupil absent in this half-day. */
+  readonly units: readonly string[];
 }
 
 export interface PupilCount {
   readonly pupilId: string;
-  /** Possible attendance: the units the pupil could attend. */
+  /** Possible attendance: the half-days the pupil could attend. */
   readonly possible: number;
-  /** Absences. With half-day units, a whole day counts 2. */
+  /** Half-days missed; a whole day counts 2. */
   readonly absent: number;
   readonly justified: number;
   readonly unjustified: number;
@@ -52,8 +58,9 @@ export interface PupilCount {
   readonly present: number;
   /** Actual over possible attendance, or null when none was possible. */
   readonly rate: number | null;
+  /** Each half-day missed, in order. */
   readonly absences: readonly AbsenceMark[];
-  /** The days of each late arrival. Lateness never counts as an absence. */
+  /** The day of each late arrival, once per roll call. Lateness never counts as an absence. */
   readonly late: readonly Day[];
 }
 
@@ -70,6 +77,13 @@ export interface RollCallCounts {
    * held. Unit keys only, so the app can ask the teacher which is right.
    */
   readonly conflicts: readonly string[];
+}
+
+/** One half-day of a pupil's: each absence in it, with its roll call and whether it was justified. */
+interface HalfDay {
+  readonly day: Day;
+  readonly half: Half;
+  readonly absences: { readonly unit: string; readonly justified: boolean }[];
 }
 
 interface Counted {
@@ -122,14 +136,16 @@ export function countRollCalls(
   }
   counted.sort((a, b) => compareDays(a.unit.day, b.unit.day) || compareHalves(a.unit.half, b.unit.half));
 
-  const counts = new Map<string, { possible: number; absences: AbsenceMark[]; late: Day[] }>();
+  const counts = new Map<string, { halves: Map<string, HalfDay>; late: Day[] }>();
   for (const { unit, rollCall } of counted) {
     for (const pupil of pupilsFor(context, unit)) {
-      const count = counts.get(pupil.id) ?? { possible: 0, absences: [], late: [] };
-      count.possible += 1;
+      const count = counts.get(pupil.id) ?? { halves: new Map<string, HalfDay>(), late: [] };
+      const key = `${unit.day} ${unit.half}`;
+      const halfDay = count.halves.get(key) ?? { day: unit.day, half: unit.half, absences: [] };
       const absence = rollCall?.absent.find((candidate) => candidate.pupilId === pupil.id);
-      if (absence !== undefined) count.absences.push({ day: unit.day, half: unit.half, justified: absence.justified });
+      if (absence !== undefined) halfDay.absences.push({ unit: unit.key, justified: absence.justified });
       if (rollCall?.late.includes(pupil.id) === true) count.late.push(unit.day);
+      count.halves.set(key, halfDay);
       counts.set(pupil.id, count);
     }
   }
@@ -139,17 +155,26 @@ export function countRollCalls(
     if (pupil.classId !== classId) continue;
     const count = counts.get(pupil.id);
     if (count === undefined) continue;
-    const justified = count.absences.filter((absence) => absence.justified).length;
-    const absent = count.absences.length;
+    const absences = [...count.halves.values()]
+      .filter((halfDay) => halfDay.absences.length > 0)
+      .map(({ day, half, absences: marks }) => ({
+        day,
+        half,
+        justified: marks.every((mark) => mark.justified),
+        units: marks.map((mark) => mark.unit),
+      }));
+    const possible = count.halves.size;
+    const justified = absences.filter((absence) => absence.justified).length;
+    const absent = absences.length;
     pupils.push({
       pupilId: pupil.id,
-      possible: count.possible,
+      possible,
       absent,
       justified,
       unjustified: absent - justified,
-      present: count.possible - absent,
-      rate: count.possible === 0 ? null : (count.possible - absent) / count.possible,
-      absences: count.absences,
+      present: possible - absent,
+      rate: possible === 0 ? null : (possible - absent) / possible,
+      absences,
       late: count.late,
     });
   }

@@ -121,7 +121,7 @@ describe('roll-call counts', () => {
     assert.deepEqual(closed.conflicts, [monday.key]);
     assert.equal(closed.untaken, 4);
     assert.deepEqual(closed.pupils.find((pupil) => pupil.pupilId === 'p01')?.absences, [
-      { day: '2026-09-21', half: 'morning', justified: false },
+      { day: '2026-09-21', half: 'morning', justified: false, units: [monday.key] },
     ]);
 
     const absent = ['p01', 'p02', 'p03', 'p04', 'p05', 'p06', 'p07', 'p08'].map((pupilId) => ({

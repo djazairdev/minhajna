@@ -12,6 +12,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 | `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
 | `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
+| `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
 
 ## Month names
 
@@ -48,6 +49,15 @@ A timetable names slots, never clock times. Each slot's time comes from `dz/bell
 - **Primary school** has no template yet. Its periods are not one-hour slots, and they come with the primary timetable.
 - **Ramadan's length.** In Ramadan, each session keeps its place and its start time and lasts `minutes`. It still counts as one session. The 45 minutes of middle and secondary schools follow the Ministry's [communiqué of 16 February 2026](https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg), which cut the one-hour session by fifteen minutes. They are `projected` until the year's own notice, which may also give new start times.
 - **Ramadan's days** come from the calendar. Calendar release `2026.2` gives the Ramadan entry `"times": "ramadan"`, so its days take Ramadan's times. The timetable never changes.
+
+## Hijri months
+
+The roll-call book prints, beside each month, the Hijri months it spans, such as «ربيع الأول – ربيع الثاني 1448» for September 2026 (R-3.4-25). `hijri-umalqura.json` holds them, so nothing is computed on the phone:
+
+- **The months** come from the Umm al-Qura calendar, as ICU 78 computes it (`islamic-umalqura`). They agree with the lunar entries of the 2026/27 calendar: Ramadan 1448 starts on 8 February 2027 and Shawwal on 9 March.
+- **Algeria fixes each month by sighting the moon,** so a month may start a day earlier or later. The months a Gregorian month is said to span rarely change with it.
+- **The names** follow Algerian usage: «جمادى الثانية» in Arabic, and the Journal officiel's style of spelling in French, such as «Rabie El Aouel» and «Dhou El Hidja».
+- **A reader checks** that the months follow one another, each 29 or 30 days long, with the twelve names in the three languages. Beyond the table, nothing is printed rather than guessed: the last day it names a month for is 12 March 2032. A release before then extends it.
 
 ## Plan packs
 

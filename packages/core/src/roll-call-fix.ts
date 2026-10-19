@@ -4,15 +4,17 @@
 // Correcting one pupil in a roll call already taken (PRD §3.4, §5.5): the
 // mark it becomes, the reason, and what the month's totals become. The
 // correction is a new version of the whole roll call, so the history keeps
-// both, with their days and order and no clock time. Absences are justified
-// or not; the cause is never typed (PRD §5.6).
+// both, with their days and order and no clock time, and a pupil's changes
+// can be listed from them. Absences are justified or not; the cause is
+// never typed (PRD §5.6).
 
 import type { Context } from './context.ts';
 import type { RecordEvent } from './events.ts';
-import type { RollCall } from './records.ts';
+import { compareDays, type Day } from './day.ts';
+import { compareHalves, type Half, type RollCall } from './records.ts';
 import { countMonth, type PupilCount } from './roll-call-counts.ts';
 import { takeRollCall, type Marks, type RollCallUnit } from './roll-call.ts';
-import { current } from './state.ts';
+import { current, type State } from './state.ts';
 
 /** A pupil's mark in one roll call. */
 export type PupilMark = 'present' | 'late' | 'justified' | 'unjustified';
@@ -75,4 +77,45 @@ export function previewCorrection(
   const find = (target: Context) =>
     countMonth(target, unit.classId, month).pupils.find((count) => count.pupilId === pupilId) ?? null;
   return { before: find(context), after: find({ ...context, state: { ...context.state, rollCalls } }) };
+}
+
+/** One change to a pupil's mark: the roll call's day and half, when it was recorded, and why. */
+export interface MarkChange {
+  /** The roll call's unit key. */
+  readonly unit: string;
+  readonly day: Day;
+  readonly half: Half;
+  /** The day the change was recorded. */
+  readonly changed: Day;
+  readonly from: PupilMark;
+  readonly to: PupilMark;
+  readonly reason?: string;
+}
+
+/**
+ * Every change to the pupil's marks after a roll call was first taken
+ * (R-3.4-18): by the day each was recorded, then by the roll call's day,
+ * half and unit, a roll call's own changes in their order.
+ */
+export function pupilChanges(state: State, pupilId: string): MarkChange[] {
+  const changes: MarkChange[] = [];
+  for (const [unit, versions] of state.rollCalls) {
+    versions.forEach((version, index) => {
+      const before = versions[index - 1]?.value;
+      if (before === undefined) return;
+      const from = markOf(before, pupilId);
+      const to = markOf(version.value, pupilId);
+      if (from === to) return;
+      const { day, half } = version.value;
+      const change = { unit, day, half, changed: version.day, from, to };
+      changes.push(version.reason === undefined ? change : { ...change, reason: version.reason });
+    });
+  }
+  return changes.sort(
+    (a, b) =>
+      compareDays(a.changed, b.changed) ||
+      compareDays(a.day, b.day) ||
+      compareHalves(a.half, b.half) ||
+      a.unit.localeCompare(b.unit),
+  );
 }

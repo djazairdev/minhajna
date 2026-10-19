@@ -4,11 +4,11 @@
 // A class's roll calls for a month, as the roll-call book prints them
 // (PRD §3.4, §5.13): A4 landscape, a row per pupil with the number, the
 // name in Arabic and in Latin letters, then a column per roll call and the
-// month's totals. A mark is a letter, never a colour alone: «غ» unjustified,
-// «م» justified, «ت» late. Rows run on to further pages with the head
-// repeated, each class starts a page, and every page carries «داخلي · سري»
-// (R-5.9-15). A blank sheet keeps the names and leaves marks and totals
-// empty.
+// month's totals, the absences in half-days as the book counts them. A
+// mark is a letter, never a colour alone: «غ» unjustified, «م» justified,
+// «ت» late. Rows run on to further pages with the head repeated, each class
+// starts a page, and every page carries «داخلي · سري» (R-5.9-15). A blank
+// sheet keeps the names and leaves marks and totals empty.
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -20,6 +20,8 @@ export interface RollMonthRow {
   readonly latinName: string;
   /** One mark per column, in the columns' order. */
   readonly marks: readonly RollMark[];
+  /** The half-days missed, as the book counts them; the absences marked when not given. */
+  readonly absent?: number;
 }
 
 /** One class's month. */
@@ -69,7 +71,7 @@ function sheetHtml(texts: RollMonthTexts, sheet: RollSheet): string {
     '<col style="width:11mm"><col style="width:11mm"></colgroup>';
   const body = sheet.rows
     .map((row) => {
-      const absent = row.marks.filter((mark) => mark === 'unjustified' || mark === 'justified').length;
+      const absent = row.absent ?? row.marks.filter((mark) => mark === 'unjustified' || mark === 'justified').length;
       const late = row.marks.filter((mark) => mark === 'late').length;
       return (
         `<tr><td>${row.number}</td><td class="name">${escapeHtml(row.name)}</td>` +
