@@ -8,7 +8,10 @@
 // morning of two sessions missed counts once; the yearly summary saves on A4
 // landscape; the blank spread keeps the names and the shading over 50 rows;
 // from the Documents tab it opens on the first class, and another prints
-// alone; the drawn signature is disabled. 4م1 has 45 made-up pupils and two
+// alone; the drawn signature is disabled; the front pages print the cover's
+// counts and legend, the list and the two confidential pages; the blank
+// sheet steps through session days (answer 262); and the Roll screen's print
+// icon opens it. 4م1 has 45 made-up pupils and two
 // sessions on Thursdays from 11 October 2026; today is Sunday 18 October.
 
 import { parseDay, type Day } from '@minhajna/core';
@@ -19,6 +22,7 @@ import { accessibilityProblems } from '../jest/accessibility';
 import { withData, type TestData } from '../jest/app-data';
 import { unitKey, withPupils } from '../jest/roll-class';
 import pdf from '../src/native/NativeMinhajnaPdf';
+import { RollScreen } from '../src/navigation/RecordScreens';
 import { RollPrint, type RollPrintProps } from '../src/rollbook/RollPrint';
 import text from '../src/text/ar.json';
 
@@ -190,4 +194,88 @@ test('the drawn signature is disabled, so the boxes print blank', async () => {
   };
   expect([signature.selected, signature.disabled]).toEqual(['blank', true]);
   expect(texts()).toContain(text.rollPrint.signatureNote);
+});
+
+test('the front pages print the cover with the counts and the legend, the list, then the two confidential pages', async () => {
+  await mount(await withPupils());
+  await select('roll-print-what', 'front');
+  expect(texts()).toContain(text.rollPrint.front.note);
+  expect(tree!.root.findAllByProps({ testID: 'roll-print-signature' })).toHaveLength(0);
+  const pages = await printed();
+  expect(printHtml.mock.calls[0][2]).toBe(false);
+  expect(pages).toHaveLength(4);
+  expect(pages[0]).toContain('الذكور 23 · الإناث 22 · المجموع 45');
+  expect(pages[0]).toContain('4م1 · اللغة العربية · متوسطة النجاح');
+  expect(pages[0]).toContain(`(-) ${text.rollBook.legend.justified}`);
+  expect(pages[1].match(/<tr><td class="n">\d+<\/td><td>[^<]+<\/td>/g)).toHaveLength(45);
+  expect(pages[1].match(/<tr><td class="n">\d+<\/td>/g)).toHaveLength(50);
+  expect(pages[2]).toContain(text.rollPrint.front.recordOne);
+  expect(pages[3]).toContain(`<th>${text.rollPrint.front.address}</th>`);
+  expect(pages[3].match(/<tr><td class="n">\d+<\/td>/g)).toHaveLength(50);
+  printHtml.mockClear();
+  await select('roll-print-version', 'blank');
+  const blank = await printed();
+  expect(blank[1].match(/<tr><td class="n">\d+<\/td><td>[^<]+<\/td>/g)).toBeNull();
+  expect(blank[0]).not.toContain('المجموع 45');
+});
+
+test('the blank sheet steps through the class’s session days from the next one, a box per roll call', async () => {
+  await mount(await withPupils());
+  await select('roll-print-what', 'day');
+  expect(tree!.root.findAllByProps({ testID: 'roll-print-version' })).toHaveLength(0);
+  expect(texts()).toContain(text.rollPrint.day.confidential);
+  expect(texts()).not.toContain(text.documents.output.confidentialLine);
+  expect(texts()).toContain('الخميس 22 أكتوبر');
+  await press('roll-print-day-before');
+  expect(texts()).toContain('الخميس 15 أكتوبر');
+  expect(control('roll-print-day-before')?.props.disabled).toBe(true);
+  await press('roll-print-save');
+  const [html, made, landscape] = makePdf.mock.calls[0];
+  expect([made, landscape]).toEqual(['roll-day-2026-10-15', false]);
+  expect(html).toContain('ورقة المناداة · الخميس 15 أكتوبر 2026');
+  expect(html.match(/<th><bdi>/g)).toHaveLength(2);
+  expect(html).toContain('08:00 – 09:00');
+  expect(html.match(/<tr><td class="n"/g)).toHaveLength(50);
+  expect(html).toContain(text.rollPrint.day.key);
+  expect(savePdf).toHaveBeenCalledWith(
+    'roll-day-2026-10-15',
+    `${text.documents.rollBook} 4م1 ${text.rollPrint.day.name} 2026-10-15.pdf`,
+  );
+  expect(accessibilityProblems(tree!.root)).toEqual([]);
+});
+
+test('the Roll screen’s print icon opens the blank sheet of its class and day', async () => {
+  let options: { headerRight: () => React.ReactElement } | undefined;
+  const navigation = {
+    setOptions: (next: typeof options) => {
+      options = next;
+    },
+    navigate: jest.fn(),
+    goBack: jest.fn(),
+  };
+  await ReactTestRenderer.act(async () => {
+    tree = ReactTestRenderer.create(
+      <LocaleDirContext.Provider value="rtl">
+        {withData(
+          await withPupils(),
+          <RollScreen
+            navigation={navigation as never}
+            route={
+              {
+                key: 'r',
+                name: 'Roll',
+                params: { key: 'c-1/2026-10-15/m1/k-1-w', day: '2026-10-15', courseId: 'c-1' },
+              } as never
+            }
+          />,
+          TODAY,
+        )}
+      </LocaleDirContext.Provider>,
+    );
+    await settle();
+  });
+  const icon = options?.headerRight().props as PressableProps & { accessibilityLabel: string };
+  expect(icon.accessibilityLabel).toBe(text.rollPrint.day.open);
+  icon.onPress?.({} as never);
+  expect(navigation.navigate).toHaveBeenCalledWith('RollPrint', { courseId: 'c-1', choice: 'day', day: '2026-10-15' });
 });

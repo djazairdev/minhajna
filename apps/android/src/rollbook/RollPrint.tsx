@@ -1,17 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Printing the roll-call book (#217, Roll-print, answers 260 and 261): a
-// class's book and a month, then what prints, the month's two-page A4
-// portrait spread or the yearly summary on A4 landscape, as recorded or
-// blank, and «طباعة» or «حفظ PDF». It opens on the Month screen's class and
-// month, the yearly summary's, the Class page's class, or from the Documents
-// tab on the first class and the latest month. «خانة توقيعي» shows with the
-// drawn signature disabled until #236, so the boxes print blank, and a file
-// with pupils' data says «داخلي · سري» is on every page.
+// Printing the roll-call book (#217, Roll-print, answers 260 to 262): a
+// class's book, then what prints: the month's two-page A4 portrait spread,
+// the yearly summary on A4 landscape, the front pages, or the blank sheet of
+// one of the class's session days; as recorded or blank, but for the sheet,
+// and «طباعة» or «حفظ PDF». It opens on the Month screen's class and month,
+// the yearly summary's, the Class page's class, the Roll screen's day for the
+// blank sheet, or from the Documents tab on the first class and the latest
+// month. «خانة توقيعي» shows for the spread and the summary, with the drawn
+// signature disabled until #236, so the boxes print blank, and a file with
+// pupils' data says «داخلي · سري» is on every page.
 
 import { useLocale } from '@react-navigation/native';
-import { countYear, courseGrade, isJoint, parseDay } from '@minhajna/core';
+import { compareDays, countYear, courseGrade, isJoint, parseDay, type Day } from '@minhajna/core';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,22 +25,26 @@ import { SegmentedControl } from '../components/SegmentedControl';
 import { courseGroup } from '../classes/class-page-rules';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
-import { monthLabel, yearShown } from '../documents/document-data';
+import { DayStep } from '../documents/DayStep';
+import { monthLabel } from '../documents/document-data';
 import { useOutputRun } from '../documents/output-run';
-import { rollBooks, rollSpreadPages, type RollBook } from '../documents/roll-spread-pages';
-import { rollYearPages } from '../documents/roll-year-pages';
+import { sessionDays } from '../documents/roll-day-sheet';
+import { rollOutput, type RollPrintChoice } from '../documents/roll-print-output';
+import { rollBooks, type RollBook } from '../documents/roll-spread-pages';
 import { useDocumentData } from '../documents/useDocumentData';
 import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
 import { bookMonths } from './month-rules';
 
-export type RollPrintChoice = 'spread' | 'year';
+export type { RollPrintChoice };
 
 export type RollPrintProps = {
   /** The course whose book opens first; the first book when not given. */
   readonly courseId?: string;
   /** A month written YYYY-MM; the latest when not given. */
   readonly month?: string;
+  /** The blank sheet's day; today or the next session day when not given. */
+  readonly day?: string;
   readonly choice?: RollPrintChoice;
 };
 
@@ -63,6 +69,7 @@ export function RollPrint(props: RollPrintProps) {
     });
   });
   const [month, setMonth] = useState(props.month !== undefined && months.includes(props.month) ? props.month : null);
+  const [day, setDay] = useState<string | null>(props.day ?? null);
   const [choice, setChoice] = useState<RollPrintChoice>(props.choice ?? 'spread');
   const [blank, setBlank] = useState(false);
   const { busy, said, print, save, clear } = useOutputRun();
@@ -71,9 +78,11 @@ export function RollPrint(props: RollPrintProps) {
     if (book === undefined) return [];
     return countYear(context, book.classId, undefined, data.day).months.map((one) => one.month);
   }, [context, book, data.day]);
+  const days = useMemo(() => (book === undefined ? [] : sessionDays(data, book)), [data, book]);
   const monthName = (one: string) => data.profile.months?.[Number(one.slice(5, 7)) - 1]?.[data.lang] ?? one;
   const shown = month ?? months.at(-1) ?? data.day.slice(0, 7);
-  const yearly = choice === 'year';
+  const sheetDay: Day | undefined =
+    days.find((one) => one === day) ?? days.find((one) => compareDays(one, data.day) >= 0) ?? days.at(-1);
   const named = monthLabel(data, parseDay(`${shown}-01`));
   const className = (one: RollBook) => {
     const schoolClass = data.state.classes.get(one.classId);
@@ -82,18 +91,22 @@ export function RollPrint(props: RollPrintProps) {
       ? (schoolClass?.name ?? '')
       : `${schoolClass?.name ?? ''} · ${group.name}`;
   };
-  const html = () =>
-    book === undefined
-      ? ''
-      : yearly
-        ? rollYearPages(data, t, blank, [book])
-        : rollSpreadPages(data, t, blank, shown, [book]);
-  const title = yearly
-    ? t('rollPrint.yearTitle', { year: yearShown(data) })
-    : t('rollPrint.spreadTitle', { month: named });
-  const file = () => {
-    const name = `${t('documents.rollBook')} ${book === undefined ? '' : className(book)} ${yearly ? data.year.id : shown}`;
-    return `${name}${blank ? ` - ${t('documents.output.blank')}` : ''}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+  const output =
+    book === undefined || (choice === 'day' && sheetDay === undefined)
+      ? null
+      : rollOutput(data, t, { choice, book, name: className(book), blank, month: shown, day: sheetDay ?? data.day });
+  const signed = choice === 'spread' || choice === 'year';
+  const notes: Record<RollPrintChoice, string> = {
+    spread: t('rollPrint.spreadNote'),
+    year: t('rollPrint.yearNote'),
+    front: t('rollPrint.front.note'),
+    day: t('rollPrint.day.note'),
+  };
+  const blankLines: Record<RollPrintChoice, string> = {
+    spread: t('documents.output.blankRoll'),
+    year: t('rollPrint.blankYear'),
+    front: t('rollPrint.front.blank'),
+    day: '',
   };
   const change =
     <T,>(set: (value: T) => void) =>
@@ -123,17 +136,29 @@ export function RollPrint(props: RollPrintProps) {
           choices={books.map((one) => ({ value: bookKey(one), label: className(one) }))}
         />
       )}
-      {!yearly && (
+      {choice === 'spread' && (
         <ChipGroup
           testID="roll-print-month"
           label={t('rollBook.months')}
           selected={shown}
           onSelect={change(setMonth)}
-          choices={months.map((one) => ({
-            value: one,
-            label: monthName(one),
-          }))}
+          choices={months.map((one) => ({ value: one, label: monthName(one) }))}
         />
+      )}
+      {choice === 'day' && sheetDay !== undefined && (
+        <>
+          <Text style={styles.label}>{t('rollPrint.day.days')}</Text>
+          <DayStep
+            testID="roll-print-day"
+            day={sheetDay}
+            first={data.year.from}
+            last={data.year.to}
+            days={days}
+            disabled={busy}
+            profile={data.profile}
+            onDay={change(setDay)}
+          />
+        </>
       )}
       <RadioCardGroup
         testID="roll-print-what"
@@ -151,45 +176,57 @@ export function RollPrint(props: RollPrintProps) {
               to: monthName(span.at(-1) ?? data.year.to.slice(0, 7)),
             }),
           },
+          { value: 'front', label: t('rollPrint.front.name'), description: t('rollPrint.front.line') },
+          { value: 'day', label: t('rollPrint.day.name'), description: t('rollPrint.day.line') },
         ]}
       />
-      <Text style={styles.line}>{t(yearly ? 'rollPrint.yearNote' : 'rollPrint.spreadNote')}</Text>
-      <RadioCardGroup
-        testID="roll-print-version"
-        label={t('documents.output.version')}
-        selected={blank ? 'blank' : 'recorded'}
-        disabled={busy}
-        onSelect={(value) => change(setBlank)(value === 'blank')}
-        choices={[
-          { value: 'recorded', label: t('documents.output.recorded'), description: t('documents.output.recordedLine') },
-          {
-            value: 'blank',
-            label: t('documents.output.blank'),
-            description: t(yearly ? 'rollPrint.blankYear' : 'documents.output.blankRoll'),
-          },
-        ]}
-      />
+      <Text style={styles.line}>{notes[choice]}</Text>
+      {choice !== 'day' && (
+        <RadioCardGroup
+          testID="roll-print-version"
+          label={t('documents.output.version')}
+          selected={blank ? 'blank' : 'recorded'}
+          disabled={busy}
+          onSelect={(value) => change(setBlank)(value === 'blank')}
+          choices={[
+            {
+              value: 'recorded',
+              label: t('documents.output.recorded'),
+              description: t('documents.output.recordedLine'),
+            },
+            { value: 'blank', label: t('documents.output.blank'), description: blankLines[choice] },
+          ]}
+        />
+      )}
       <Notice
         testID="roll-print-confidential"
         variant="notice"
         badge={t('documents.confidential')}
-        message={t('documents.output.confidentialLine')}
+        message={t(choice === 'day' ? 'rollPrint.day.confidential' : 'documents.output.confidentialLine')}
       />
-      <Text style={styles.label}>{t('rollPrint.signature')}</Text>
-      <SegmentedControl
-        testID="roll-print-signature"
-        label={t('rollPrint.signature')}
-        selected="blank"
-        disabled
-        onSelect={() => undefined}
-        choices={[
-          { value: 'drawn', label: t('documents.printWeek.drawn') },
-          { value: 'blank', label: t('documents.printWeek.blankBox') },
-        ]}
-      />
-      <Text style={styles.line}>{t('rollPrint.signatureNote')}</Text>
-      {book === undefined && (
-        <Notice testID="roll-print-empty" icon={controlIcon('info')} message={t('documents.output.noClasses')} />
+      {signed && (
+        <>
+          <Text style={styles.label}>{t('rollPrint.signature')}</Text>
+          <SegmentedControl
+            testID="roll-print-signature"
+            label={t('rollPrint.signature')}
+            selected="blank"
+            disabled
+            onSelect={() => undefined}
+            choices={[
+              { value: 'drawn', label: t('documents.printWeek.drawn') },
+              { value: 'blank', label: t('documents.printWeek.blankBox') },
+            ]}
+          />
+          <Text style={styles.line}>{t('rollPrint.signatureNote')}</Text>
+        </>
+      )}
+      {output === null && (
+        <Notice
+          testID="roll-print-empty"
+          icon={controlIcon('info')}
+          message={t(book === undefined ? 'documents.output.noClasses' : 'rollPrint.day.none')}
+        />
       )}
       {said !== null && (
         <Notice
@@ -202,15 +239,15 @@ export function RollPrint(props: RollPrintProps) {
         <Button
           testID="roll-print-print"
           label={t('documents.output.print')}
-          disabled={busy || book === undefined}
-          onPress={() => print(html, title, yearly)}
+          disabled={busy || output === null}
+          onPress={() => output !== null && print(output.html, output.title, output.landscape)}
         />
         <Button
           testID="roll-print-save"
           variant="line"
           label={t('documents.output.save')}
-          disabled={busy || book === undefined}
-          onPress={() => save(html, yearly ? 'roll-year' : `roll-${shown}`, file(), yearly)}
+          disabled={busy || output === null}
+          onPress={() => output !== null && save(output.html, output.made, output.file, output.landscape)}
         />
       </View>
     </ScrollView>

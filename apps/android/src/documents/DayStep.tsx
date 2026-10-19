@@ -3,7 +3,9 @@
 
 // The day a document of a day is made for (#216, Journal): the day before
 // and the day after, within the school year, so any day of the year can be
-// printed (R-3.8-01). TalkBack reads the new day out as it changes.
+// printed (R-3.8-01), or, given a list of days, such as a class's session
+// days for Roll-print's blank sheet (#217), the one before and after in it.
+// TalkBack reads the new day out as it changes.
 
 import { addDays, type CountryProfile, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -23,12 +25,17 @@ export type DayStepProps = {
   readonly onDay: (day: Day) => void;
   /** The step's test ID, and its buttons' with «-before» and «-after»; `output-day` when not given. */
   readonly testID?: string;
+  /** The only days to step through, in order; every day from `first` to `last` when not given. */
+  readonly days?: readonly Day[];
 };
 
-export function DayStep({ day, first, last, disabled, profile, onDay, testID = 'output-day' }: DayStepProps) {
+export function DayStep({ day, first, last, disabled, profile, onDay, testID = 'output-day', days }: DayStepProps) {
   const t = useText();
   const { direction } = useLocale();
   const name = dayName(t, day, currentLanguage(), profile);
+  const before =
+    days === undefined ? (day <= first ? null : addDays(day, -1)) : (days.filter((one) => one < day).at(-1) ?? null);
+  const after = days === undefined ? (day >= last ? null : addDays(day, 1)) : (days.find((one) => one > day) ?? null);
   return (
     <View testID={testID} style={[styles.box, { direction }]}>
       <View style={styles.flip}>
@@ -36,8 +43,8 @@ export function DayStep({ day, first, last, disabled, profile, onDay, testID = '
           testID={`${testID}-before`}
           icon={controlIcon('chevron')}
           accessibilityLabel={t('documents.output.dayBefore')}
-          disabled={disabled || day <= first}
-          onPress={() => onDay(addDays(day, -1))}
+          disabled={disabled || before === null}
+          onPress={() => before !== null && onDay(before)}
         />
       </View>
       <Text accessibilityRole="header" accessibilityLiveRegion="polite" style={styles.day}>
@@ -47,8 +54,8 @@ export function DayStep({ day, first, last, disabled, profile, onDay, testID = '
         testID={`${testID}-after`}
         icon={controlIcon('chevron')}
         accessibilityLabel={t('documents.output.dayAfter')}
-        disabled={disabled || day >= last}
-        onPress={() => onDay(addDays(day, 1))}
+        disabled={disabled || after === null}
+        onPress={() => after !== null && onDay(after)}
       />
     </View>
   );

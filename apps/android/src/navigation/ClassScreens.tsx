@@ -53,7 +53,9 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onSettings={setSettings}
       settingsOpener={gear}
       onCourse={(id) => navigation.setParams({ courseId: id })}
-      onRoll={(session) => navigation.navigate('Roll', { key: session.key, day: session.day })}
+      onRoll={(session) =>
+        navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
+      }
       onBook={() => navigation.navigate('TextsBook', { courseId })}
       onPlan={() => navigation.navigate('ClassPlan', { courseId })}
       onHomework={() => navigation.navigate('Homework', { courseId })}
