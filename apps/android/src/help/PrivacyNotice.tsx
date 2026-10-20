@@ -116,7 +116,7 @@ export function Connections() {
         },
       ]}
     >
-      {(['none', 'source', 'packSource', 'register'] as const).map((key) => (
+      {(['none', 'source', 'packSource', 'errorReport', 'register'] as const).map((key) => (
         <Text key={key} style={[styles.paragraph, align]}>
           {t(`connections.${key}`)}
         </Text>

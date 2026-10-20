@@ -10,7 +10,8 @@
 // class's changes; skipping or joining an item the pack marks essential
 // asks first (answer 284). An item the teacher added shows neither badge
 // nor IDs, being no item of the pack; a part of a split shows the pack
-// item's ID and its part. Nothing recorded changes.
+// item's ID and its part. A pack item links to a report of an error in
+// it (R-4.3-01). Nothing recorded changes.
 
 import { type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -35,9 +36,10 @@ export type PlanItemProps = {
   readonly courseId: string;
   readonly itemId: string;
   readonly onChanges?: () => void;
+  readonly onReport?: () => void;
 };
 
-export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
+export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -206,6 +208,7 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
         </View>
         <Text style={[styles.sub, align]}>{t('planItem.layerNote')}</Text>
         {onChanges !== undefined && action('changes', 'info', t('planItem.changes'), onChanges)}
+        {onReport !== undefined && !added && action('report', 'info', t('planItem.report'), onReport)}
       </ScrollView>
       <ItemSheets
         key={item.id}
