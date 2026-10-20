@@ -20,6 +20,8 @@ import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLockSpec
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
+import dz.minhajna.preview.calendar.MinhajnaCalendarInputModule
+import dz.minhajna.preview.storage.NativeMinhajnaCalendarInputSpec
 
 /** Registers the app's own TurboModules, and debug builds' extra ones; libraries come through autolinking. */
 class MinhajnaPackage : BaseReactPackage() {
@@ -32,6 +34,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaPdfSpec.NAME -> MinhajnaPdfModule(reactContext)
       NativeMinhajnaBuildSpec.NAME -> MinhajnaBuildModule(reactContext)
       NativeMinhajnaLockSpec.NAME -> MinhajnaLockModule(reactContext)
+      NativeMinhajnaCalendarInputSpec.NAME -> MinhajnaCalendarInputModule(reactContext)
       else -> DebugModules.create(name, reactContext)
     }
 
@@ -43,6 +46,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaPdfSpec.NAME, MinhajnaPdfModule::class.java.name),
       info(NativeMinhajnaBuildSpec.NAME, MinhajnaBuildModule::class.java.name),
       info(NativeMinhajnaLockSpec.NAME, MinhajnaLockModule::class.java.name),
+      info(NativeMinhajnaCalendarInputSpec.NAME, MinhajnaCalendarInputModule::class.java.name),
     ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 
