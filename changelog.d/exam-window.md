@@ -1,5 +1,0 @@
----
-section: new
----
-- en: When a class's plan would push items past its next exams, a warning card shows on Today and at the top of the class plan until the teacher decides. «ما العمل؟» lists the items with the day each would fall on. The teacher can merge items or leave out optional ones, with a suggestion ticked and the result shown before confirming; add a make-up session; or postpone the items to the first sessions after the exams, where the plan tags them until they are taught. «لاحقاً» keeps the warning, nothing applies before a choice, and «تراجع» takes a choice back. A session with two merged items proposes both.
-- ar: حين يدفع مخطط قسم عناصر إلى ما بعد اختباراته المقبلة، تظهر بطاقة تنبيه في «اليوم» وأعلى مخطط القسم حتى يختار الأستاذ. وتعرض «ما العمل؟» العناصر ويوم وقوع كل منها. ويمكن للأستاذ دمج موارد أو ترك الاختيارية، باقتراح معلَّم ونتيجة تظهر قبل التأكيد؛ أو إضافة حصة استدراكية؛ أو تأجيل العناصر إلى أول حصص بعد الاختبارات، فيعلّمها المخطط حتى تُنجز. و«لاحقاً» يُبقي التنبيه، ولا يُطبَّق شيء قبل الاختيار، و«تراجع» يُرجع الاختيار. والحصة التي دُمج فيها عنصران تقترحهما معاً.
