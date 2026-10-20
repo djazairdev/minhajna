@@ -16,7 +16,7 @@
 import { courseSetup, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -39,9 +39,12 @@ export type ClassPlanProps = {
   readonly onExamWindow?: () => void;
   readonly onCourse?: (courseId: string) => void;
   readonly onDetails?: () => void;
+  readonly onChanges?: () => void;
+  readonly onItem?: (itemId: string) => void;
 };
 
-export function ClassPlan({ courseId, onExtra, onTests, onExamWindow, onCourse, onDetails }: ClassPlanProps) {
+export function ClassPlan(props: ClassPlanProps) {
+  const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onItem } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -71,12 +74,17 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow, onCourse, 
   const row = (one: PlanRow, later = false) => {
     const days = rowDays(one);
     return (
-      <View
+      <Pressable
         key={one.item.id}
         testID={`plan-${one.item.id}`}
         accessible
         accessibilityLabel={rowSpoken(t, one, comma, later)}
-        style={[styles.row, one.position && styles.here]}
+        {...(onItem !== undefined && { accessibilityRole: 'button' as const, onPress: () => onItem(one.item.id) })}
+        style={({ pressed }) => [
+          styles.row,
+          one.position && styles.here,
+          pressed && onItem !== undefined && styles.pressed,
+        ]}
       >
         <Text style={[styles.day, days?.ahead === true && styles.ahead]}>{days?.text ?? ''}</Text>
         <View style={styles.grow}>
@@ -89,7 +97,7 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow, onCourse, 
             ))}
           </View>
         </View>
-      </View>
+      </Pressable>
     );
   };
   const units = (rows: readonly PlanRow[], heads: readonly PackItem[], later: ReadonlySet<string>) => {
@@ -131,6 +139,7 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow, onCourse, 
         pack={view?.pack ?? null}
         {...(onCourse !== undefined && { onCourse })}
         {...(onDetails !== undefined && { onDetails })}
+        {...(onChanges !== undefined && { onChanges })}
       />
       {onExamWindow !== undefined && (
         <ExamWarnings context={context} day={day} courseId={courseId} onOpen={onExamWindow} />
@@ -206,6 +215,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
+  pressed: { backgroundColor: colors.sheet },
   here: { backgroundColor: colors.sheet, borderRadius: radius['radius-control'] },
   grow: { flex: 1, gap: spacing['space-4'] },
   day: { ...typography.caption, color: colors.ink, minWidth: 76 },

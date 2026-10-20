@@ -72,6 +72,8 @@ export type RootStackParamList = {
     | undefined;
   ClassPlan: { courseId: string };
   PlanDetails: { courseId: string };
+  PlanItem: { courseId: string; itemId: string };
+  PlanChanges: { courseId: string };
   TestSchedule: { courseId: string };
   ExamWindow: { courseId: string };
   Duty: { day?: string } | undefined;

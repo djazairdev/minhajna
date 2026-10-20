@@ -21,6 +21,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 - A class's plan now names the pack it follows: its status, release and timing, who keyed it and where it comes from. Pack details show the issuer as printed, the edition, the pack's ID, its source pages, where the file was found and its licence. A parallel class's plan is one tap away. In a link-only pack, each item's source opens in your browser only after you confirm.
   - يذكر مخطط القسم الآن الحزمة التي يتبعها: حالتها وإصدارها وتوقيتها ومن أدخلها ومن أين جاءت. وتعرض تفاصيل الحزمة الجهة المصدرة كما طُبعت، والطبعة، ومعرّف الحزمة، وصفحات المصدر، وأين وُجد الملف، ونمط الترخيص. ومخطط القسم الموازي على بعد لمسة. وفي حزمة بالرابط وحده، لا يُفتح مصدر العنصر في المتصفّح إلا بعد موافقتك.
+- Tap an item in a class's plan to see its kind, sessions, stages, source pages and ID. For that class alone, you can move it, join it with the next item, change its sessions, split it in two, leave it out or add an item after it. Leaving out or joining an essential item asks first. You can undo a change at once or later from the class's changes; recorded sessions stay as they are.
+  - المس عنصراً في مخطط القسم لترى نوعه وعدد حصصه ومراحله وصفحات مصدره ومعرّفه. ويمكنك، لهذا القسم وحده، نقله أو دمجه مع العنصر الموالي أو تغيير عدد حصصه أو تقسيمه عنصرين أو تركه أو إضافة عنصر بعده. ويسألك التطبيق قبل ترك عنصر أساسي أو دمجه. ويمكنك التراجع عن التغيير فوراً أو لاحقاً من تغييرات القسم، وتبقى الحصص المسجّلة كما هي.
 
 ### Changed
 
