@@ -119,7 +119,14 @@ export function bookRow(
     time: time === null ? '' : span(bookClock(time.from, t), bookClock(time.to, t), dir),
     lines: [
       ...(session.rotation !== undefined && schoolClass !== undefined && group !== undefined
-        ? [{ text: `${schoolClass.name} · ${group.name}` }]
+        ? [
+            {
+              text: t('documents.textsBook.rotationGroup', {
+                class: `\u2068${schoolClass.name}\u2069`,
+                group: `\u2068${group.name}\u2069`,
+              }),
+            },
+          ]
         : []),
       ...bookLines(t, where.pack, record, (day) => bookDate(day, dir)),
     ],

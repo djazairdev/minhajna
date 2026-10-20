@@ -31,6 +31,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 - In a session's details, the screen reader now says that a private note never leaves your devices as you reach its field.
   - في تفاصيل الحصة، يقول قارئ الشاشة الآن إن الملاحظة الخاصة لا تغادر أجهزتك عند الوصول إلى خانتها.
 
+### Privacy
+
+- The app now has the camera permission, used only when you choose to scan a calendar QR code. Its frames are read in the phone's memory and never saved or sent. Opening a file reads only the file you pick, with no lasting access.
+  - أصبح للتطبيق إذن الكاميرا، ولا يستعملها إلا حين تختار مسح رمز QR لموعد في الرزنامة. تُقرأ صورها في ذاكرة الهاتف، ولا تُحفظ ولا تُرسل. وفتح ملف لا يقرأ إلا الملف الذي تختاره، دون إذن دائم.
+
 ## 0.2.0 (2026-10-20)
 
 The documents preview: the texts book, the daily journal, the roll-call book and the other paper books, printed from what you record, with the app lock, tests and exam weeks. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.

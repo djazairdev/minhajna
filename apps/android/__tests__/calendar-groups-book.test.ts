@@ -67,12 +67,16 @@ test('the app and printed texts book keep each physical session, date and attend
   const rows = bookRows(document, context(), course, day, last, t, 'rtl');
   expect(rows).toHaveLength(3);
   expect(new Set(rows.map((one) => one.date)).size).toBe(2);
-  expect(rows.some((one) => one.lines.some((line) => line.text === '4م1 · الفوج الأول'))).toBe(true);
-  expect(rows.some((one) => one.lines.some((line) => line.text === '4م1 · الفوج الثاني'))).toBe(true);
+  expect(rows.some((one) => one.lines.some((line) => line.text === `\u20684م1\u2069 · \u2068الفوج الأول\u2069`))).toBe(
+    true,
+  );
+  expect(rows.some((one) => one.lines.some((line) => line.text === `\u20684م1\u2069 · \u2068الفوج الثاني\u2069`))).toBe(
+    true,
+  );
   const html = textsBookPages(document, t, false);
   expect(html.match(/<tr class="entry">/g)).toHaveLength(3);
-  expect(html).toContain('4م1 · الفوج الأول');
-  expect(html).toContain('4م1 · الفوج الثاني');
+  expect(html).toContain(`\u20684م1\u2069 · \u2068الفوج الأول\u2069`);
+  expect(html).toContain(`\u20684م1\u2069 · \u2068الفوج الثاني\u2069`);
   const view = bookViewPages(document, context(), course, t, 'rtl', last);
   expect(
     view

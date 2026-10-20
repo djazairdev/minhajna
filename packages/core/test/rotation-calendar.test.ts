@@ -156,8 +156,26 @@ test('rotation follows profile week order, optional Saturday and explicit school
   await book.record(rotation.from, { kind: 'timetable.set', version: { ...version, options: { saturday: true } } });
   const context = makeContext({ ...reference, country: { ...country, workingDays: [4, 2, 0, 3, 1] } }, book.state);
   const schoolClass = book.state.classes.get('k-1am2')!;
+  assert.equal(rotationOn(context, schoolClass, d('2026-09-20'))!.groupId, 'g-1');
   assert.equal(rotationOn(context, schoolClass, d('2026-09-26'))!.groupId, 'g-2');
-  assert.equal(rotationOn(context, schoolClass, d('2026-09-27'))!.groupId, 'g-1');
+  assert.equal(rotationOn(context, schoolClass, d('2026-09-27'))!.groupId, 'g-2');
+});
+
+test('the same weekday alternates between A and B weeks, with or without Saturday', async () => {
+  const book = await rotatingBook();
+  const schoolClass = book.state.classes.get('k-1am2')!;
+  const groups = () =>
+    ['2026-09-20', '2026-09-27', '2026-09-22', '2026-09-29'].map(
+      (day) => rotationOn(contextOf(book), schoolClass, d(day))!.groupId,
+    );
+  const [sunday, nextSunday, tuesday, nextTuesday] = groups();
+  assert.notEqual(sunday, nextSunday);
+  assert.notEqual(tuesday, nextTuesday);
+  const version = book.state.timetables[0]!.version;
+  await book.record(rotation.from, { kind: 'timetable.set', version: { ...version, options: { saturday: true } } });
+  const withSaturday = groups();
+  assert.notEqual(withSaturday[0], withSaturday[1]);
+  assert.notEqual(withSaturday[2], withSaturday[3]);
 });
 
 test('remaining capacity includes the second group completing work already recorded for the first', async () => {

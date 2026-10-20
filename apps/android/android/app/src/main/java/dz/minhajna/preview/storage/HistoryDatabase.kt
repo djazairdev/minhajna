@@ -37,8 +37,9 @@ data class TimingRow(val kind: String, val week: String, val tenths: Long, val o
  * opens the history; the triggers below refuse the rest here too. Since
  * version 2 it also keeps the pilot's timings, in a table of their own
  * outside the history, which the teacher can clear. Version 5 keeps the
- * same rows, but refuses older apps that cannot interpret half-day entries
- * local lunar confirmations, rotation snapshots and received notices safely (#222).
+ * same rows, but stops older apps from opening entries they cannot read
+ * safely: half-day entries, local lunar confirmations, rotation snapshots
+ * and received notices (#222). Versions 3 and 4 were never released.
  */
 class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
 

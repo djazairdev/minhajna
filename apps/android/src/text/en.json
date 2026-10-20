@@ -37,7 +37,8 @@
       "react-native-helpers.txt": "React Native helper libraries",
       "react-native-hermes.txt": "Hermes engine",
       "react-native-jpeg.txt": "JPEG image libraries",
-      "react-native-native.txt": "React Native native libraries"
+      "react-native-native.txt": "React Native native libraries",
+      "zxing.txt": "ZXing"
     }
   },
   "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
@@ -1389,6 +1390,7 @@
       "time": "Time",
       "hour": "{{hours}}:00",
       "hourMinutes": "{{hours}}:{{minutes}}",
+      "rotationGroup": "{{class}} · {{group}}",
       "topic": "Topic or work set",
       "signature": "Signature",
       "none": "No session confirmed this month yet."

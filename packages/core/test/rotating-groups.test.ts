@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  addDays,
   assignRotationGroups,
   calendarImpact,
   cancelCalendarEntry,
@@ -13,6 +14,7 @@ import {
   pace,
   planView,
   pupilsFor,
+  pupilsOn,
   rollCallUnits,
   rotationCredits,
   rotationOn,
@@ -195,4 +197,22 @@ test('rotation validation rejects another layer, class, group pair, overlapping 
     { ...plain, effect: 'marker' },
   ];
   for (const entry of invalid) assert.throws(() => setCalendarEntry(contextOf(book), entry));
+});
+
+test('a half-group keeps its pupils on days before the class list was recorded', async () => {
+  const book = await openBook(cemEvents());
+  const context = contextOf(book);
+  const halves = [...book.state.classes.values()].flatMap((one) =>
+    one.groups.filter((group) => group.kind === 'half').map((group) => ({ classId: one.id, groupId: group.id })),
+  );
+  const pupil = (one: { classId: string; groupId: string }) =>
+    [...book.state.pupils.values()].find((p) => p.classId === one.classId && p.groups.includes(one.groupId));
+  const half = halves.find((one) => pupil(one) !== undefined)!;
+  const recorded = book.state.memberships!.get(pupil(half)!.id)![0]!.day;
+  const on = pupilsOn(context, half.classId, half.groupId, recorded).map((p) => p.id);
+  assert.ok(on.length > 0);
+  assert.deepEqual(
+    pupilsOn(context, half.classId, half.groupId, addDays(recorded, -1)).map((p) => p.id),
+    on,
+  );
 });

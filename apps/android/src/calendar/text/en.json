@@ -142,12 +142,12 @@
     "rules": "Rotation follows working days and the A/B week. An item is complete for the class only after both groups have covered it. The whole class resumes after the period. Recorded sessions and roll calls stay unchanged.",
     "main": "Lessons",
     "td": "TD",
-    "capacity": "{{subject}} · {{queue}}: {{physical}} physical sessions, equivalent to {{effective}} plan sessions. The {{repeated}} repeats count as calendar cost, not delay.",
+    "capacity": "{{subject}} · {{queue}} — physical sessions: {{physical}} · plan sessions they equal: {{effective}} · repeats: {{repeated}}, counted as calendar cost, not delay.",
     "slot": "{{day}} · {{half}} · slot {{slot}} · {{group}}: {{status}}",
     "only": "For {{group}} only",
     "off": "No session for this group today",
     "cost": "Repeats counted as calendar cost: {{count}}",
-    "tdCapacity": "TD before {{day}}: {{gives}} sessions available, {{items}} items left. No extra buffers are invented."
+    "tdCapacity": "TD before {{day}} — sessions available: {{gives}} · items left: {{items}}. No extra buffers are invented."
   },
   "receive": {
     "open": "Receive a calendar entry",

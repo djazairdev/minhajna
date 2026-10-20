@@ -104,6 +104,19 @@ test('rejects oversized UTF-8, lone surrogates, malformed JSON, arrays, URL code
   }
 });
 
+test('refuses bidi controls in every text, so no claimed sender or source can read as another', () => {
+  for (const control of ['\u061c', '\u200e', '\u200f', '\u202a', '\u202e', '\u2066', '\u2069']) {
+    for (const value of [
+      { ...noticeFile, sender: `Made-up${control}sender` },
+      { ...noticeFile, school: { ...noticeFile.school, name: `Made-up${control}school` } },
+      { ...noticeFile, entry: { ...noticeFile.entry, source: `Made-up${control}source` } },
+      { ...noticeFile, entry: { ...noticeFile.entry, name: { en: `Made-up${control}name` } } },
+    ]) {
+      assert.throws(() => read(value), CalendarNoticeError);
+    }
+  }
+});
+
 test('zone notices carry no school or local school ID and preserve their zone layer', () => {
   const { school, ...base } = noticeFile;
   assert.ok(school);

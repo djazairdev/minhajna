@@ -130,6 +130,10 @@ test.each([
   ['ar', arBase],
   ['fr', frBase],
   ['en', enBase],
-] as const)('keeps the settings texts in their own catalogue, never shadowed by the base one (%s)', (_, base) => {
-  expect(Object.keys(base)).not.toContain('settings');
-});
+] as const)(
+  'keeps the settings and calendar texts in their own catalogues, never shadowed by the base one (%s)',
+  (_, base) => {
+    expect(Object.keys(base)).not.toContain('settings');
+    expect(Object.keys(base)).not.toContain('calendarView');
+  },
+);

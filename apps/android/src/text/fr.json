@@ -37,7 +37,8 @@
       "react-native-helpers.txt": "Bibliothèques d’aide à React Native",
       "react-native-hermes.txt": "Moteur Hermes",
       "react-native-jpeg.txt": "Bibliothèques d’images JPEG",
-      "react-native-native.txt": "Bibliothèques natives de React Native"
+      "react-native-native.txt": "Bibliothèques natives de React Native",
+      "zxing.txt": "ZXing"
     }
   },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
@@ -1415,6 +1416,7 @@
       "time": "Horaire",
       "hour": "{{hours}}h",
       "hourMinutes": "{{hours}}h{{minutes}}",
+      "rotationGroup": "{{class}} · {{group}}",
       "topic": "Thème",
       "signature": "Émargement",
       "none": "Aucune séance confirmée ce mois-ci."

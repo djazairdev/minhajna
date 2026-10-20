@@ -142,12 +142,12 @@
     "rules": "L’alternance suit les jours ouvrés et la semaine A ou B. Un élément est terminé pour la classe lorsque les deux groupes l’ont suivi. La classe entière reprend après cette période. Les séances et appels enregistrés sont conservés.",
     "main": "Cours",
     "td": "TD",
-    "capacity": "{{subject}} · {{queue}} : {{physical}} séances réelles, soit {{effective}} séances du plan. Les {{repeated}} répétitions sont comptées dans le calendrier, pas comme retard.",
+    "capacity": "{{subject}} · {{queue}} — séances réelles : {{physical}} · séances du plan équivalentes : {{effective}} · répétitions : {{repeated}}, comptées dans le calendrier, pas comme retard.",
     "slot": "{{day}} · {{half}} · créneau {{slot}} · {{group}} : {{status}}",
     "only": "Pour {{group}} seulement",
     "off": "Pas de séance pour ce groupe aujourd’hui",
     "cost": "Répétitions comptées dans le calendrier : {{count}}",
-    "tdCapacity": "TD avant le {{day}} : {{gives}} séances disponibles, {{items}} éléments restants. Aucune réserve n’est inventée."
+    "tdCapacity": "TD avant le {{day}} — séances disponibles : {{gives}} · éléments restants : {{items}}. Aucune réserve n’est inventée."
   },
   "receive": {
     "open": "Recevoir une date du calendrier",

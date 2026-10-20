@@ -79,7 +79,7 @@ export function rotationOn(
   days.sort((a, b) => ((a - start + 7) % 7) - ((b - start + 7) % 7));
   const index = days.indexOf(weekday(day));
   if (index < 0) return null;
-  const offset = context.calendar.parityOn(day, school) === 'B' ? days.length : 0;
+  const offset = context.calendar.parityOn(day, school) === 'B' ? 1 : 0;
   return { entry, groupId: entry.rotation.groups[(index + offset) % 2]! };
 }
 

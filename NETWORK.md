@@ -14,7 +14,7 @@ The tests make no network calls either ([engineering rules](docs/contributing/en
 
 Only after the teacher selects Open file does Android's document picker select one local document (`EXTRA_LOCAL_ONLY`). The app reads that content URI with a byte limit and timeout, takes no persistent URI grant, and asks for no storage permission. It does not fetch URLs found in a file or QR code.
 
-Only after the teacher selects Scan QR code does an unexported app screen request camera permission and decode frames locally with ZXing Core 3.5.4. Frames remain in memory, are cleared after decoding and are not saved or sent. Leaving or backgrounding that screen closes the camera. Refusing access leaves file input available. No Google Play service, online decoder, identifier, upload, analytics or new network permission is involved. The user approved this dependency and scan-only camera access in the #222 working chat; no public comment was posted by the agent.
+Only after the teacher selects Scan QR code does an unexported app screen request camera permission and decode frames locally with ZXing Core 3.5.4. Frames remain in memory, are cleared after decoding and are not saved or sent. Leaving or backgrounding that screen closes the camera. Refusing access leaves file input available. No Google Play service, online decoder, identifier, upload, analytics or new network permission is involved. The founder approved this dependency and scan-only camera access for #222 (answer 288 in the project's decision record).
 
 ## Optional source link in Help
 

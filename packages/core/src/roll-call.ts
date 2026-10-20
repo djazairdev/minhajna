@@ -146,9 +146,7 @@ export function rotationRosterReady(context: Context, unit: RollCallUnit): boole
     .filter((pupil) => {
       const first = context.state.memberships?.get(pupil.id)?.[0];
       return (
-        pupil.classId === unit.classId &&
-        isEnrolled(pupil, unit.day) &&
-        (first === undefined || (first.day <= unit.day && first.order <= cutoff))
+        pupil.classId === unit.classId && isEnrolled(pupil, unit.day) && (first === undefined || first.order <= cutoff)
       );
     })
     .every((pupil) => {
