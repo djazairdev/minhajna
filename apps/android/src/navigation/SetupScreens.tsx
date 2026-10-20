@@ -14,6 +14,8 @@ import { TypeList } from '../setup/TypeList';
 import { Week } from '../setup/Week';
 import { useAppData } from '../storage/AppData';
 import { WeekDraw } from '../week/WeekDraw';
+import { Welcome } from './Welcome';
+import { PrivacyNotice } from '../help/PrivacyNotice';
 import type { RootStackParamList } from './AppNavigator';
 
 /** Setup's first step, which leads to the card. */
@@ -72,7 +74,14 @@ export function ReadyScreen({ navigation }: NativeStackScreenProps<RootStackPara
 
 /** A grade and subject's packs; pinning or cancelling returns to the plan. */
 export function PacksScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Packs'>) {
-  return <Packs grade={route.params.grade} subject={route.params.subject} onDone={() => navigation.goBack()} />;
+  return (
+    <Packs
+      grade={route.params.grade}
+      subject={route.params.subject}
+      schoolId={route.params.schoolId}
+      onDone={() => navigation.goBack()}
+    />
+  );
 }
 
 /** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */
@@ -83,4 +92,24 @@ export function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<Roo
 /** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
 export function TypeListScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TypeList'>) {
   return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
+}
+
+/** The welcome leads to the notice; Back from the notice returns here. */
+export function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
+  return <Welcome onStart={() => navigation.navigate('Privacy')} />;
+}
+
+/** The first-use notice leads to setup without recording that it was read. */
+export function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'Privacy'>) {
+  return (
+    <PrivacyNotice
+      onAccept={() => navigation.navigate('Teaching')}
+      onConnections={() => navigation.navigate('Connections')}
+    />
+  );
+}
+
+/** The same notice, from Help or Settings. */
+export function HelpNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrivacyNotice'>) {
+  return <PrivacyNotice onConnections={() => navigation.navigate('Connections')} />;
 }

@@ -83,7 +83,15 @@ function ClassCard({
 }
 
 /** The third step of setup; `onType` opens a class's list and `onNext` leads on. */
-export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass) => void; onNext: () => void }) {
+export function Classes({
+  onType,
+  onNext,
+  editing = false,
+}: {
+  onType: (schoolClass: SchoolClass) => void;
+  onNext: () => void;
+  editing?: boolean;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -105,7 +113,7 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
       : undefined;
   return (
     <View style={[styles.screen, { direction }]}>
-      <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={3} />
+      {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={3} />}
       <ScrollView contentContainerStyle={[styles.content, sides]} keyboardShouldPersistTaps="handled">
         <View style={styles.intro}>
           <Text accessibilityRole="header" style={[styles.heading, align]}>
@@ -162,7 +170,7 @@ export function Classes({ onType, onNext }: { onType: (schoolClass: SchoolClass)
         )}
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <Button testID="classes-next" label={t('setup.next')} onPress={onNext} />
+        <Button testID="classes-next" label={t(editing ? 'settings.done' : 'setup.next')} onPress={onNext} />
       </View>
     </View>
   );

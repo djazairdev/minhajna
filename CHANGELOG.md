@@ -2,6 +2,15 @@
 
 What changes for teachers in each release of Minhajna, newest first. How these notes are written is in [releases.md](docs/contributing/releases.md#the-changelog).
 
+## Unreleased
+
+لم تُنشر هذه التغييرات بعد.
+
+### New · الجديد
+
+- Settings now opens from Today. You can revisit your teacher card, schools, classes, timetable and packs without starting again, preview a language before saving it, and read each level’s session lengths and their sources. Optional planning minutes appear beside session counts. Features not built yet are marked unavailable.
+- تفتح الإعدادات من صفحة اليوم. يمكنك تعديل بطاقة الأستاذ والمؤسسات والأقسام وجدول التوقيت والحزم دون البدء من جديد، ومعاينة اللغة قبل حفظها، والاطلاع على مدة الحصص ومصادرها لكل مستوى. ويمكن إظهار دقائق التخطيط بجانب عدد الحصص. الميزات التي لم تُنجز بعد مبيّنة بوضوح.
+
 ## 0.1.0 (2026-10-18)
 
 The field-check preview: setup, Today and the roll call, for trying the app with made-up pupils only. It is handed over directly as an APK, not through a store.

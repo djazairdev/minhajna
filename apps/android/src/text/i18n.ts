@@ -11,10 +11,15 @@
 import i18next, { type TFunction } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 import NativeInterface, { type Spec as InterfaceSettings } from '../native/NativeMinhajnaInterface';
-import ar from './ar.json';
-import en from './en.json';
-import fr from './fr.json';
+import arBase from './ar.json';
+import enBase from './en.json';
+import frBase from './fr.json';
+import { settingsCatalogues } from '../settings/catalogues';
 import { installPluralRules } from './plural-rules';
+
+const ar = { ...arBase, settings: settingsCatalogues.ar };
+const fr = { ...frBase, settings: settingsCatalogues.fr };
+const en = { ...enBase, settings: settingsCatalogues.en };
 
 declare module 'i18next' {
   interface CustomTypeOptions {

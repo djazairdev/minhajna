@@ -34,11 +34,13 @@ export function Week({
   onResolve,
   onTimes,
   onNext,
+  editing = false,
 }: {
   onDraw: () => void;
   onResolve: (cell: Cell) => void;
   onTimes: () => void;
   onNext: () => void;
+  editing?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -65,7 +67,7 @@ export function Week({
     });
   return (
     <View style={[styles.screen, { direction }]}>
-      <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={4} />
+      {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={4} />}
       <ScrollView contentContainerStyle={[styles.content, sides]}>
         <View style={styles.intro}>
           <Text accessibilityRole="header" style={[styles.heading, align]}>
@@ -125,7 +127,7 @@ export function Week({
         <Notice testID="package-later" icon={controlIcon('info')} message={t('week.packageLater')} />
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <Button testID="week-next" label={t('setup.next')} onPress={onNext} />
+        <Button testID="week-next" label={t(editing ? 'settings.done' : 'setup.next')} onPress={onNext} />
       </View>
     </View>
   );

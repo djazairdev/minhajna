@@ -40,8 +40,11 @@ async function project(values) {
 }
 
 /** Creates the component, or brings its settings up to date, with the repository's addresses filled in. */
-async function component(projectSlug, values) {
-  const filled = { ...values, repo: REPOSITORY, push: PUSH ?? REPOSITORY };
+async function component(projectSlug, values, linkedTo) {
+  const filled =
+    linkedTo === undefined
+      ? { ...values, repo: REPOSITORY, push: PUSH ?? REPOSITORY }
+      : { ...values, repo: `weblate://${projectSlug}/${linkedTo}` };
   const path = `components/${projectSlug}/${values.slug}/`;
   if (await api('GET', path)) return api('PATCH', path, filled);
   return api('POST', `projects/${projectSlug}/components/`, filled);
@@ -71,9 +74,9 @@ function flags(unit) {
 }
 
 /** Sets each source text's flags, after checking that every read-only text is there. */
-async function flag(units) {
-  const found = units.filter((unit) => READ_ONLY.includes(unit.context));
-  if (found.length !== READ_ONLY.length) throw new Error(`Expected ${READ_ONLY.join(', ')} in the source.`);
+async function flag(units, required = READ_ONLY) {
+  const found = units.filter((unit) => required.includes(unit.context));
+  if (found.length !== required.length) throw new Error(`Expected ${required.join(', ')} in the source.`);
   for (const unit of units) {
     if (unit.extra_flags !== flags(unit)) await api('PATCH', `units/${unit.id}/`, { extra_flags: flags(unit) });
   }
@@ -86,11 +89,15 @@ async function main() {
   }
   const projectValues = await settings('./project.json');
   const componentValues = await settings('./component.json');
+  const namespaces = await settings('./namespaces.json');
   await project(projectValues);
-  await component(projectValues.slug, componentValues);
-  const units = await sourceUnits(projectValues.slug, componentValues.slug, componentValues.source_language);
-  await flag(units);
-  console.log(`Set up ${WEBLATE_URL}/projects/${projectValues.slug}/${componentValues.slug}/`);
+  const components = [componentValues, ...namespaces.map((namespace) => ({ ...componentValues, ...namespace }))];
+  for (const [index, values] of components.entries()) {
+    await component(projectValues.slug, values, index === 0 ? undefined : componentValues.slug);
+    const units = await sourceUnits(projectValues.slug, values.slug, values.source_language);
+    await flag(units, index === 0 ? READ_ONLY : []);
+    console.log(`Set up ${WEBLATE_URL}/projects/${projectValues.slug}/${values.slug}/`);
+  }
 }
 
 await main();

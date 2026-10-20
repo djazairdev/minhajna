@@ -25,7 +25,17 @@ import { pinEvents, pinOfClass, planGroups } from './plan-rules';
 const NO_PACK = 'none';
 
 /** The chooser for one grade and subject; `onDone` returns, pinned or not. */
-export function Packs({ grade, subject, onDone }: { grade: string; subject: string; onDone: () => void }) {
+export function Packs({
+  grade,
+  subject,
+  schoolId,
+  onDone,
+}: {
+  grade: string;
+  subject: string;
+  schoolId?: string;
+  onDone: () => void;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -33,7 +43,9 @@ export function Packs({ grade, subject, onDone }: { grade: string; subject: stri
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const group = planGroups(state).find((candidate) => candidate.grade === grade && candidate.subject === subject);
-  const classes = group?.classes ?? [];
+  const classes = (group?.classes ?? []).filter(
+    (schoolClass) => schoolId === undefined || schoolClass.schoolId === schoolId,
+  );
   const offered = packsFor(packs, grade, subject);
   const pinned = classes.map((schoolClass) => pinOfClass(state, schoolClass.id, subject, year.id, grade)).find(Boolean);
   const [chosen, setChosen] = useState(() => {

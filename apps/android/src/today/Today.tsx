@@ -35,7 +35,7 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { IconButton } from '../components/IconButton';
+import { TodayHeadingActions } from './TodayHeadingActions';
 import { PageHeading } from '../components/PageHeading';
 import { JointCard, type JointYear } from './JointCard';
 import { SessionCard } from '../components/SessionCard';
@@ -66,6 +66,7 @@ const sessionsOf = (items: readonly TodaySession[]) => items.map((item) => item.
 /** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call, `onHomework` the homework that comes back. */
 export function Today(props: {
   onHelp: () => void;
+  onSettings?: () => void;
   onExtra?: () => void;
   onDetails: (session: Session) => void;
   onRoll: (session: Session) => void;
@@ -210,24 +211,7 @@ export function Today(props: {
           title={t(`week.days.${weekday(day)}`)}
           scope={formatDayWithMonth(day, language, profile)}
           fact={{ text: dayFacts(t, view, mark !== null), icon: controlIcon('check') }}
-          actions={
-            <>
-              {onExtra !== undefined && (
-                <IconButton
-                  testID="today-extra"
-                  icon={controlIcon('plus')}
-                  accessibilityLabel={t('extra.open')}
-                  onPress={onExtra}
-                />
-              )}
-              <IconButton
-                testID="today-help"
-                icon={controlIcon('info')}
-                accessibilityLabel={t('today.help')}
-                onPress={onHelp}
-              />
-            </>
-          }
+          actions={<TodayHeadingActions onExtra={onExtra} onSettings={props.onSettings} onHelp={onHelp} />}
         />
         <View style={styles.list}>
           {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
