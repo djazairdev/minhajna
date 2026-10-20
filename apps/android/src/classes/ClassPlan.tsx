@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A class's plan (#37, the plan rows of Class and Plan): where the class
-// stands, buffers first, with the sessions left before the next exams and
-// what the plan still needs by then; then each unit's items with the days
-// they were taught or the day the plan would reach them, their stages,
-// where the class is, and where the plan says it should be, marked only as
-// a reference (PRD §4.7). TD items follow in their own list, then the
-// class's tests, fixed rows the lessons flow around, which open «مواعيد
-// الفروض» (#221). A session outside the timetable for the class opens from
-// the foot (#219). A warning card tops the plan while items would fall past
-// the next exams, and items postponed past them are tagged until taught.
+// A class's plan (#37, the plan rows of Class and Plan): the pack it follows
+// and its parallel classes (#225), where the class stands, buffers first, with
+// the sessions left before the next exams and what the plan still needs by
+// then; then each unit's items with the days they were taught or the day the
+// plan would reach them, their stages, where the class is, and where the plan
+// says it should be, marked only as a reference (PRD §4.7). TD items follow in
+// their own list, then the class's tests, fixed rows the lessons flow around,
+// which open «مواعيد الفروض» (#221). A session outside the timetable for the
+// class opens from the foot (#219). A warning card tops the plan while items
+// would fall past the next exams, and items postponed past them are tagged
+// until taught.
 
 import { courseSetup, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -29,15 +30,18 @@ import { ExamWarnings } from '../exams/ExamWarnings';
 import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
 import { dayMonth, rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
+import { PlanHeader } from './PlanHeader';
 
 export type ClassPlanProps = {
   readonly courseId: string;
   readonly onExtra?: () => void;
   readonly onTests?: () => void;
   readonly onExamWindow?: () => void;
+  readonly onCourse?: (courseId: string) => void;
+  readonly onDetails?: () => void;
 };
 
-export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPlanProps) {
+export function ClassPlan({ courseId, onExtra, onTests, onExamWindow, onCourse, onDetails }: ClassPlanProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -121,6 +125,13 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
           .filter(Boolean)
           .join(' · ')}
       </Text>
+      <PlanHeader
+        context={context}
+        courseId={courseId}
+        pack={view?.pack ?? null}
+        {...(onCourse !== undefined && { onCourse })}
+        {...(onDetails !== undefined && { onDetails })}
+      />
       {onExamWindow !== undefined && (
         <ExamWarnings context={context} day={day} courseId={courseId} onOpen={onExamWindow} />
       )}
@@ -136,7 +147,6 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>
       ) : (
         <>
-          <Text style={[styles.note, align]}>{t('classPlan.pack', { release: view.pack.release })}</Text>
           {units(view.main, view.units, postponed)}
           {view.td.length > 0 && (
             <View style={styles.group}>

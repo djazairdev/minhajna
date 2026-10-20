@@ -7,6 +7,7 @@
 
 import type { CountryProfile, PlanPack } from '@minhajna/core';
 import { localized } from '../setup/names';
+import { isolate } from '../week/grid-labels';
 import type { useText } from '../text/i18n';
 import type { PlanGroup } from './plan-rules';
 
@@ -22,15 +23,20 @@ export function groupName(t: Translate, profile: CountryProfile, group: Pick<Pla
   });
 }
 
+/** Its timing, such as «التوقيت: حصص لكل عنصر». */
+export function packTiming(t: Translate, pack: PlanPack): string {
+  const anchor = pack.anchor.kind === 'budgets' ? pack.anchor.unit : pack.anchor.kind;
+  return t(`plan.anchor.${anchor}`);
+}
+
 /** Its timing and release, such as «التوقيت: حصص لكل عنصر · الإصدار 2026.1». */
 export function packFacts(t: Translate, pack: PlanPack): string {
-  const anchor = pack.anchor.kind === 'budgets' ? pack.anchor.unit : pack.anchor.kind;
-  return `${t(`plan.anchor.${anchor}`)} · ${t('plan.release', { release: pack.release })}`;
+  return `${packTiming(t, pack)} · ${t('plan.release', { release: pack.release })}`;
 }
 
 /** Where it comes from, or, for an example, that it is not a plan. */
 export function packSource(t: Translate, pack: PlanPack): string {
   return pack.status === 'example'
     ? t('plan.meaning.example')
-    : t('plan.provenance', { edition: pack.provenance.edition, issuer: pack.provenance.issuer });
+    : t('plan.provenance', { edition: isolate(pack.provenance.edition), issuer: isolate(pack.provenance.issuer) });
 }

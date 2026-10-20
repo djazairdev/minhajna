@@ -18,7 +18,6 @@ import { currentLanguage, useText } from '../text/i18n';
 import { BottomNav, TopBar, theme } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
 import {
-  ClassPlanScreen,
   TestScheduleScreen,
   ExamWindowScreen,
   DutyScreen,
@@ -74,6 +73,7 @@ import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '..
 import { Connections } from '../help/PrivacyNotice';
 import type { HomeTabParamList, RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
+import { planRoutes } from './PlanScreens';
 
 /** Each tab's label in the catalogue. */
 export const tabLabels = {
@@ -250,7 +250,7 @@ export function AppNavigator({
         <Stack.Screen name="RollPrint" component={RollPrintScreen} options={dark(t('rollPrint.title'))} />
         <Stack.Screen name="BookFixes" component={BookFixesScreen} options={dark(t('bookFixes.title'))} />
         <Stack.Screen name="PilotTimings" component={PilotTimingsScreen} options={dark(t('pilotTimings.title'))} />
-        <Stack.Screen name="ClassPlan" component={ClassPlanScreen} options={dark(t('classPlan.title'))} />
+        {planRoutes(Stack, t)}
         <Stack.Screen name="TestSchedule" component={TestScheduleScreen} options={dark(t('tests.title'))} />
         <Stack.Screen name="ExamWindow" component={ExamWindowScreen} options={dark(t('examWindow.title'))} />
         <Stack.Screen name="Duty" component={DutyScreen} options={dark(t('duties.title'))} />

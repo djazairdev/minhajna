@@ -90,6 +90,7 @@
     "title": "What the app connects to, and why",
     "none": "This version does not connect to the internet: it asks for no permission to, and sends and receives nothing.",
     "source": "The source code link in Licences opens only after you confirm. Your browser opens it outside the app, with no record or identifier.",
+    "packSource": "A pack’s source address, in its details, opens only after you are asked, and the question names the site. Your browser opens it outside the app, with no record or identifier.",
     "register": "Any connection the project adds is listed in the NETWORK.md file of the source code, with what is sent and why, before it reaches the app."
   },
   "setup": {
@@ -636,7 +637,6 @@
     "title": "Plan",
     "open": "Plan",
     "noPack": "No pack for this class: what was done is written, with no plan to compare.",
-    "pack": "Pack {{release}}",
     "reference": "Where the plan places the class is only a reference: it never moves the class and is never a judgement of the work.",
     "untilExams": "Until the term {{term}} exams ({{day}}): {{gives}} for lessons, of which the plan needs {{needs}}.",
     "untilEnd": "Until the end of term {{term}} ({{day}}): {{gives}} for lessons, of which the plan needs {{needs}}.",
@@ -653,7 +653,39 @@
     "postponed": "After the exams",
     "td": "Guided work",
     "taughtSpoken": "Taught {{days}}",
-    "aheadSpoken": "Reached {{day}} if nothing changes"
+    "aheadSpoken": "Reached {{day}} if nothing changes",
+    "parallel": "Parallel classes",
+    "packTitle": "Yearly plan · release {{release}}",
+    "keyedBy": "Keyed by Minhajna’s curators",
+    "details": "Pack details"
+  },
+  "planDetails": {
+    "title": "Pack details",
+    "issuer": "Issuer, as printed",
+    "edition": "Edition",
+    "id": "Pack ID and release",
+    "pages": "Source pages",
+    "pagesRange": "Pages {{from}} to {{to}} of the plan file.",
+    "pagesNone": "The pack names no source pages.",
+    "foundAt": "Where the file was found",
+    "notStated": "Not stated",
+    "licence": "Licence mode",
+    "licences": {
+      "link-only": "Link only: item titles and sessions show, and each item’s text opens from its source. The text is not copied into the app until that is cleared.",
+      "structure-only": "Structure: item titles, kinds, sessions and stages as printed, without the plan’s text.",
+      "full-text": "Full text: the plan’s text as printed."
+    },
+    "timing": "Timing",
+    "keyed": "Keyed",
+    "items": "Items",
+    "sessions_one": "{{count}} session",
+    "sessions_other": "{{count}} sessions",
+    "sourcePage": "{{sessions}} · source p. {{page}}",
+    "openSource": "Open the source",
+    "openSourceOf": "Open the source of “{{title}}”",
+    "sourceNotice": "{{host}} will open in the browser, outside the app. The browser may connect to the internet; Minhajna passes it no record or identifier.",
+    "sourceRefused": "The browser could not be opened. The source address is shown on this screen.",
+    "linkNote": "Each session’s suggestion works from the titles alone, and the title goes into the texts book. Opening the source needs the network."
   },
   "tests": {
     "title": "Test schedule",
