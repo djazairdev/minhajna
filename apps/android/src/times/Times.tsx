@@ -38,13 +38,13 @@ import { TimeSheet } from './TimeSheet';
 import { levelOf, shiftOf, timesSchools } from './times-rules';
 
 /** The screen. */
-export function Times() {
+export function Times({ schoolId: initialSchoolId }: { schoolId?: string } = {}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
   const { state, profile, calendar, bells, today, record } = useAppData();
   const schools = timesSchools(state);
-  const [schoolId, setSchoolId] = useState(schools[0]?.id ?? '');
+  const [schoolId, setSchoolId] = useState(initialSchoolId ?? schools[0]?.id ?? '');
   const school = state.schools.get(schoolId) ?? schools[0];
   const day = today();
   const entries = [...calendar, ...state.calendar];

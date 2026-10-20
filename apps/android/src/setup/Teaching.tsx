@@ -17,6 +17,7 @@ import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
+import { protectedChoices } from '../settings/school-guards';
 import { SchoolFields, SchoolSummary } from './SchoolFields';
 import { isComplete } from './school-rules';
 import { useSchools } from './useSchools';
@@ -25,11 +26,11 @@ import { useSchools } from './useSchools';
 export const SETUP_STEPS = 5;
 
 /** The first step of setup; `onNext` leads on once every school is complete. */
-export function Teaching({ onNext }: { onNext: () => void }) {
+export function Teaching({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { profile, unsaved } = useAppData();
+  const { profile, state, unsaved } = useAppData();
   const { schools, chooseLevels, chooseSubjects, chooseZone, rename, flush, add, remove } = useSchools();
   const [open, setOpen] = useState(() => (schools.find((school) => !isComplete(profile, school)) ?? schools[0]).id);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -48,13 +49,17 @@ export function Teaching({ onNext }: { onNext: () => void }) {
         profile={profile}
         school={school}
         layout={single ? 'single' : { number: index + 1 }}
-        onLevels={(levels) => chooseLevels(school.id, levels)}
-        onSubjects={(subjects) => chooseSubjects(school.id, subjects)}
+        onLevels={(levels) =>
+          chooseLevels(school.id, editing ? protectedChoices(state, school.id, 'levels', levels) : levels)
+        }
+        onSubjects={(subjects) =>
+          chooseSubjects(school.id, editing ? protectedChoices(state, school.id, 'subjects', subjects) : subjects)
+        }
         onName={(name) => rename(school.id, name)}
         onNameDone={flush}
         onZone={(zone) => chooseZone(school.id, zone)}
         onDelete={
-          single
+          single || (editing && [...state.classes.values()].some((schoolClass) => schoolClass.schoolId === school.id))
             ? undefined
             : () => {
                 remove(school.id);
@@ -66,7 +71,7 @@ export function Teaching({ onNext }: { onNext: () => void }) {
   };
   return (
     <View style={[styles.screen, { direction }]}>
-      <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={1} />
+      {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={1} />}
       <ScrollView contentContainerStyle={[styles.content, sides]} keyboardShouldPersistTaps="handled">
         <View style={styles.intro}>
           <Text accessibilityRole="header" style={[styles.heading, align]}>
@@ -74,6 +79,9 @@ export function Teaching({ onNext }: { onNext: () => void }) {
           </Text>
           <Text style={[styles.sub, align]}>{t(single ? 'setup.teachingIntro' : 'setup.schoolsIntro')}</Text>
         </View>
+        {editing && (
+          <Notice testID="settings-school-guard" icon={controlIcon('lock')} message={t('settings.schoolGuard')} />
+        )}
         {schools.map((school, index) =>
           single || school.id === open ? (
             fieldsOf(index)
@@ -92,7 +100,7 @@ export function Teaching({ onNext }: { onNext: () => void }) {
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button
           testID="setup-next"
-          label={t('setup.next')}
+          label={t(editing ? 'settings.done' : 'setup.next')}
           disabled={!complete}
           accessibilityHint={complete ? undefined : t('setup.nextHint')}
           onPress={() => {

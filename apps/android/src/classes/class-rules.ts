@@ -77,10 +77,17 @@ export function classRows(context: Context, day: Day): ClassRow[] {
 }
 
 /** Where the class stands: behind beyond the buffers, buffers used, or the spare sessions before the exams. */
-export function paceLine(t: Translate, row: Pick<ClassRow, 'pace' | 'check'>): string {
+export function paceLine(t: Translate, row: Pick<ClassRow, 'pace' | 'check'>, sessionMinutes?: number): string {
   const { pace: p, check } = row;
   if (p === null) return t('classes.noPack');
-  const sessions = (count: number) => t('count.sessions', { count });
+  const withMinutes = (sessions: string, count: number) =>
+    sessionMinutes === undefined
+      ? sessions
+      : t('settings.withMinutes', {
+          sessions,
+          minutes: t('settings.minutes', { count: Math.round(count * sessionMinutes) }),
+        });
+  const sessions = (count: number) => withMinutes(t('count.sessions', { count }), count);
   const delay = Math.round(p.delay);
   if (delay > 0) return t('classes.behind', { sessions: sessions(delay) });
   const used = Math.round(p.bufferUsed);
@@ -93,6 +100,6 @@ export function paceLine(t: Translate, row: Pick<ClassRow, 'pace' | 'check'>): s
   if (check === null) return t('classes.onPlan');
   const spare = check.gives - check.needs;
   return spare >= 0
-    ? t('classes.onPlanSpare', { spare: t('classes.spare', { count: spare }) })
+    ? t('classes.onPlanSpare', { spare: withMinutes(t('classes.spare', { count: spare }), spare) })
     : t('classes.onPlanShort', { sessions: sessions(-spare) });
 }

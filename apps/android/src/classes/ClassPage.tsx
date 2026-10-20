@@ -11,7 +11,7 @@
 // «إضافة أو نقل». The settings button in the top bar opens the class's settings
 // that exist (answer 256). The page reads the record and adds nothing to it.
 
-import type { Session } from '@minhajna/core';
+import { courseSetup, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
@@ -29,6 +29,7 @@ import { bookSpan } from '../entry/book-lines';
 import { localized, yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
+import { useCountMinutes } from '../settings/preferences';
 import { useText } from '../text/i18n';
 import { sessionTime } from '../times/times-rules';
 import { rollStrip } from '../today/roll-strip';
@@ -62,6 +63,7 @@ export type ClassPageProps = {
 
 export function ClassPage(props: ClassPageProps) {
   const t = useText();
+  const minutes = useCountMinutes();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { state, profile, year, calendar, packs, bells, today } = useAppData();
@@ -109,7 +111,10 @@ export function ClassPage(props: ClassPageProps) {
           row.today.slot,
           row.today.day,
         );
-  const plan = [paceLine(t, row), tdLine(t, row.check)].filter((line): line is string => line !== null);
+  const plan = [
+    paceLine(t, row, minutes ? courseSetup(context, row.course.id).sessionMinutes : undefined),
+    tdLine(t, row.check),
+  ].filter((line): line is string => line !== null);
   const link = (
     id: string,
     icon: Parameters<typeof controlIcon>[0],

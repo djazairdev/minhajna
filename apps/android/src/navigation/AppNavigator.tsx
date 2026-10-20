@@ -8,7 +8,7 @@ import {
   type InitialState,
   type NavigationState,
 } from '@react-navigation/native';
-import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
 import { DevSettings, I18nManager } from 'react-native';
 import StorageCheck from '../debug/StorageCheck';
@@ -45,7 +45,17 @@ import {
   PrintWeekScreen,
 } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
-import { Welcome } from './Welcome';
+import {
+  SettingsScreen,
+  SettingsCardScreen,
+  SettingsSchoolsScreen,
+  SettingsClassesScreen,
+  SettingsWeekScreen,
+  SettingsPlansScreen,
+  SettingsLengthsScreen,
+  LanguageScreen,
+  TimesScreen,
+} from './SettingsScreens';
 import {
   CardScreen,
   ClassesScreen,
@@ -56,10 +66,12 @@ import {
   TypeListScreen,
   WeekDrawScreen,
   WeekScreen,
+  WelcomeScreen,
+  FirstNotice,
+  HelpNotice,
 } from './SetupScreens';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
-import { Connections, PrivacyNotice } from '../help/PrivacyNotice';
-import { Times } from '../times/Times';
+import { Connections } from '../help/PrivacyNotice';
 import type { HomeTabParamList, RootStackParamList } from './routes';
 
 /** Each tab's label in the catalogue. */
@@ -175,7 +187,11 @@ export function AppNavigator({
           options={{ title: t('plan.packsTitle'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Times" component={Times} options={{ title: t('times.title'), statusBarStyle: 'dark' }} />
+        <Stack.Screen
+          name="Times"
+          component={TimesScreen}
+          options={{ title: t('times.title'), statusBarStyle: 'dark' }}
+        />
         <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false, statusBarStyle: 'dark' }} />
         {__DEV__ && (
           <Stack.Screen
@@ -193,6 +209,26 @@ export function AppNavigator({
         )}
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
+        <Stack.Screen name="Settings" component={SettingsScreen} options={dark(t('settings.title'))} />
+        <Stack.Screen name="SettingsCard" component={SettingsCardScreen} options={dark(t('settings.rows.card'))} />
+        <Stack.Screen
+          name="SettingsSchools"
+          component={SettingsSchoolsScreen}
+          options={dark(t('settings.rows.schools'))}
+        />
+        <Stack.Screen
+          name="SettingsClasses"
+          component={SettingsClassesScreen}
+          options={dark(t('settings.rows.classes'))}
+        />
+        <Stack.Screen name="SettingsWeek" component={SettingsWeekScreen} options={dark(t('settings.rows.week'))} />
+        <Stack.Screen name="SettingsPlans" component={SettingsPlansScreen} options={dark(t('settings.rows.plans'))} />
+        <Stack.Screen
+          name="SettingsLengths"
+          component={SettingsLengthsScreen}
+          options={dark(t('settings.rows.lengths'))}
+        />
+        <Stack.Screen name="Language" component={LanguageScreen} options={dark(t('settings.rows.language'))} />
         <Stack.Screen name="LockPin" component={LockPinScreen} options={{ headerShown: false }} />
         <Stack.Screen
           name="DocOutput"
@@ -258,28 +294,4 @@ function HomeTabs() {
       <Tabs.Screen name="Documents" component={DocumentsTabScreen} />
     </Tabs.Navigator>
   );
-}
-
-/** The welcome leads to the notice; Back from the notice returns here. */
-function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
-  return <Welcome lockSet onStart={() => navigation.navigate('Privacy')} />;
-}
-
-/**
- * The notice before first use, which leads to setup. Nothing records that it
- * was read: until setup is complete, every start shows the welcome and the
- * notice, and setup shows what was already chosen.
- */
-function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'Privacy'>) {
-  return (
-    <PrivacyNotice
-      onAccept={() => navigation.navigate('Teaching')}
-      onConnections={() => navigation.navigate('Connections')}
-    />
-  );
-}
-
-/** The same notice, from Help. */
-function HelpNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrivacyNotice'>) {
-  return <PrivacyNotice onConnections={() => navigation.navigate('Connections')} />;
 }

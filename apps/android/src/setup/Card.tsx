@@ -49,7 +49,7 @@ function Shown({ label, value, testID }: { label: string; value: string; testID:
 }
 
 /** The second step of setup; `onNext` leads on, with or without the card filled in. */
-export function Card({ onNext }: { onNext: () => void }) {
+export function Card({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -70,7 +70,7 @@ export function Card({ onNext }: { onNext: () => void }) {
   };
   return (
     <View style={[styles.screen, { direction }]}>
-      <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={2} />
+      {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={2} />}
       <ScrollView contentContainerStyle={[styles.content, sides]} keyboardShouldPersistTaps="handled">
         <View style={styles.intro}>
           <Text accessibilityRole="header" style={[styles.heading, align]}>
@@ -106,7 +106,7 @@ export function Card({ onNext }: { onNext: () => void }) {
           label={t('setup.school')}
           value={schools.map((school) => school.name).join(comma)}
         />
-        <Text style={[styles.sub, align]}>{t('setup.fromStepOne')}</Text>
+        <Text style={[styles.sub, align]}>{t(editing ? 'settings.cardFromSchools' : 'setup.fromStepOne')}</Text>
         {unsaved && (
           <Text testID="not-saved" accessibilityLiveRegion="polite" style={[styles.unsaved, align]}>
             {t('setup.notSaved')}
@@ -114,10 +114,12 @@ export function Card({ onNext }: { onNext: () => void }) {
         )}
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-8'] }]}>
-        <Button testID="card-next" label={t('setup.next')} onPress={leave} />
-        <View style={styles.later}>
-          <Button testID="card-later" variant="plain" label={t('setup.later')} onPress={leave} />
-        </View>
+        <Button testID="card-next" label={t(editing ? 'settings.done' : 'setup.next')} onPress={leave} />
+        {!editing && (
+          <View style={styles.later}>
+            <Button testID="card-later" variant="plain" label={t('setup.later')} onPress={leave} />
+          </View>
+        )}
       </View>
     </View>
   );
