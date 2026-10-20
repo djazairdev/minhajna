@@ -50,8 +50,20 @@ async function component(projectSlug, values, linkedTo) {
   };
   const filled = linkedTo === undefined ? { ...values, repo: REPOSITORY, push: PUSH ?? REPOSITORY } : linked();
   const path = `components/${projectSlug}/${values.slug}/`;
-  if (await api('GET', path)) return api('PATCH', path, filled);
-  return api('POST', `projects/${projectSlug}/components/`, filled);
+  if (!(await api('GET', path))) return api('POST', `projects/${projectSlug}/components/`, filled);
+  const updated = await api('PATCH', path, filled);
+  if (linkedTo === undefined) await pull(projectSlug, values.slug);
+  return updated;
+}
+
+/** Makes an existing component read the repository's latest commit, so that catalogues added since are found. */
+async function pull(projectSlug, componentSlug) {
+  const answer = await api('POST', `components/${projectSlug}/${componentSlug}/repository/`, { operation: 'pull' });
+  if (answer?.result !== true) {
+    throw new Error(
+      `Weblate could not update ${componentSlug} from the repository: see its repository maintenance page.`,
+    );
+  }
 }
 
 /** The source language's texts, once Weblate has read the repository, which it does in the background. */
