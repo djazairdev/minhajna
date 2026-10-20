@@ -24,7 +24,7 @@
 
 **هدفنا:** أن تعتمد وزارة التربية الوطنية «منهاجنا» سجلًّا رسميًا رقميًا للتدريس، وتشغّله على خوادمها منظومةً وطنية واحدة، مع حماية مبنيّة في تصميمه نفسه: من يشغّل الخوادم لا يستطيع قراءة أي سجل يحمل اسمًا. وإلى ذلك الحين، يبقى أداة في يد الأستاذ وحده.
 
-> **المشروع قيد التطوير.** آخر إصدار، 0.2.0، [نسخة معاينة موقّعة للوثائق](https://github.com/djazairdev/minhajna/releases/tag/app-v0.2.0) للأساتذة المشاركين في التجربة الميدانية، تُستعمل بأسماء تلاميذ مختلَقة فقط. في المستودع النواة المشتركة وتطبيق أندرويد، وتجد ما نعمل عليه الآن في [خطة التجربة](https://github.com/djazairdev/minhajna/issues/252). دمج التعديلات لا يُنشئ إصداراً ([كيف نُصدر](docs/contributing/releases.md)). كان اسم المشروع «طباشير» حتى أكتوبر 2026.
+> **المشروع قيد التطوير.** آخر إصدار، 0.2.0، [نسخة معاينة موقّعة للوثائق](https://github.com/djazairdev/minhajna/releases/tag/v0.2.0) للأساتذة المشاركين في التجربة الميدانية، تُستعمل بأسماء تلاميذ مختلَقة فقط. في المستودع النواة المشتركة وتطبيق أندرويد، وتجد ما نعمل عليه الآن في [خطة التجربة](https://github.com/djazairdev/minhajna/issues/252). دمج التعديلات لا يُنشئ إصداراً ([كيف نُصدر](docs/contributing/releases.md)). كان اسم المشروع «طباشير» حتى أكتوبر 2026.
 >
 > **بصمة شهادة التوقيع (SHA-256):** `de2a5a7839bb88733456078bb937179f43ff99004d2408cb965093aa0aed6a5b`. تعرضها صفحة «المساعدة والخصوصية» في التطبيق. أي تطبيق يحمل أحد الاسمين دون هذه البصمة ليس تطبيقنا.
 
@@ -87,7 +87,7 @@
 
 **Our goal:** the Ministry of National Education adopts Minhajna as the official digital record of teaching, and runs it on its own servers as one national system. Protection is built into the design: the people who run the servers cannot read any record that carries a name. Until then, Minhajna is the teacher's own tool.
 
-> **The project is in development.** The latest release, 0.2.0, is [a signed preview of the documents](https://github.com/djazairdev/minhajna/releases/tag/app-v0.2.0) for the teachers in the field check, to be used with made-up pupils only. This repository holds the shared core and the Android app, and [the pilot plan](https://github.com/djazairdev/minhajna/issues/252) shows what we're working on now. Merging a pull request doesn't make a release ([how we release](docs/contributing/releases.md)). The project was called Tabachir until October 2026.
+> **The project is in development.** The latest release, 0.2.0, is [a signed preview of the documents](https://github.com/djazairdev/minhajna/releases/tag/v0.2.0) for the teachers in the field check, to be used with made-up pupils only. This repository holds the shared core and the Android app, and [the pilot plan](https://github.com/djazairdev/minhajna/issues/252) shows what we're working on now. Merging a pull request doesn't make a release ([how we release](docs/contributing/releases.md)). The project was called Tabachir until October 2026.
 >
 > **Signing certificate SHA-256:** `de2a5a7839bb88733456078bb937179f43ff99004d2408cb965093aa0aed6a5b`. The app's «المساعدة والخصوصية» (Help and privacy) page shows it. Any app called "Minhajna" or "Tabachir" that doesn't carry this certificate is not ours.
 
