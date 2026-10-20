@@ -1,6 +1,6 @@
 # Releases and the changelog
 
-This guide is mostly for maintainers. Contributors need only [the changelog fragments](#changelog-fragments).
+This guide is mostly for maintainers. Contributors need only [adding a release note](#adding-a-release-note).
 
 - [The calendar](#the-calendar)
 - [Branches and tags](#branches-and-tags)
@@ -45,7 +45,7 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 **Before the first beta**
 1. The freeze dates are respected.
 2. Each privacy-sensitive change has two maintainers' approval and its plain-Arabic line. While there is only one maintainer, its public notice goes out at least a week before the release ([PRD §1.7](../prd/PRD.md#17-contributions)).
-3. The changelog fragments are complete, with every Arabic line written.
+3. The release notes in `CHANGELOG.md` cover every change teachers can see, with both English and Arabic text complete.
 
 **Checks on the release commit** ([PRD §6.9](../prd/PRD.md#69-security-and-privacy-while-building))
 
@@ -92,10 +92,10 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 
 ## The changelog
 
-`CHANGELOG.md` holds the release notes for teachers, in English. Teachers read the same notes in Arabic in the app and in the teacher group ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security)).
+`CHANGELOG.md` holds the release notes for teachers. New entries are in English and Arabic; earlier releases keep their original wording. The Arabic notes are also used in the app and in the teacher group ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security)).
 
 - **Written for teachers:** what changes for them, in plain words, without jargon or code names.
-- **Newest first.** Each release has its version and date, then its sections.
+- **Newest first.** Pending notes go under `Unreleased` at the top. Each published release has its version and date, then its sections.
 - **Credit.** Each release thanks its contributors. Only those who agreed are listed, under the names they chose ([PRD §1.7](../prd/PRD.md#17-contributions)).
 - **Changes only developers notice,** such as refactors and new checks, stay out of `CHANGELOG.md`. The GitHub release lists every merged pull request.
 
@@ -111,25 +111,22 @@ Each release has these sections, in this order, each only when it has entries. T
 | Privacy | Every privacy-sensitive change, in plain words. The app's Arabic notes carry its plain-Arabic line ([PRD §1.7](../prd/PRD.md#17-contributions)) |
 | Security | Security fixes |
 
-### Changelog fragments
+### Adding a release note
 
-A pull request that changes something teachers can see adds one file to `changelog.d/`, named after the change. For example, `changelog.d/one-tap-roll-call.md`:
+A pull request that changes something teachers can see adds a short note under `Unreleased` in [CHANGELOG.md](../../CHANGELOG.md#unreleased), using the section names above. Put the Arabic translation immediately below the English entry, as a nested bullet:
 
 ```markdown
----
-section: new
-credit: Nour B.
----
-- en: You can now mark the whole class present in one tap.
-- ar: <the same sentence, in Arabic>
+### New
+
+- You can now mark the whole class present in one tap.
+  - يمكنك الآن تسجيل حضور القسم كله بضغطة واحدة.
 ```
 
-- **`section`** is one of `new`, `changed`, `going-away`, `removed`, `fixed`, `privacy` or `security`.
-- **`credit`** is the name to thank. Leave it out if you'd rather not be listed.
-- **If you can't write the Arabic line,** leave it out, and a maintainer adds it before the release.
-- **At release time,** the release manager gathers the English lines into `CHANGELOG.md` and the Arabic lines into the app's release notes, then deletes the fragments.
-
-Fragments avoid conflicts in `CHANGELOG.md` when many pull requests are open at once.
+- **Write for teachers.** Describe what changes for them, not how the code works.
+- **If you can't write the Arabic line,** a maintainer adds it before the release.
+- **Credit** is agreed in the pull request. Only contributors who consent are named in the release notes.
+- **Keep other pending notes.** If another change edits the same section, keep both entries when resolving the conflict.
+- **Before tagging a release,** the release manager changes the `Unreleased` heading to the version and release date, following the existing headings, and starts a fresh `Unreleased` section above it. The Arabic entries are copied into the app's release notes and the teacher announcement. Published notes stay in `CHANGELOG.md`.
 
 ## Reference-data releases
 

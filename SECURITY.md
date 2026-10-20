@@ -2,13 +2,15 @@
 
 ## Reporting a problem
 
-- **Report it privately,** through GitHub's [private vulnerability reporting](https://github.com/djazairdev/minhajna/security/advisories/new).
-- **Never report it in public:** not in an issue, a pull request, a discussion or the teacher group.
-- **Include:**
-  - what is affected: the app or the server, its version, and the device or browser;
-  - how to reproduce the problem, using the demo class or made-up data;
-  - what an attacker could do with it.
-- **Never include real pupil data,** even to show the problem.
+Email [contact@djazair.dev privately](mailto:contact@djazair.dev?subject=Minhajna%20private%20report), or use GitHub's [private vulnerability reporting](https://github.com/djazairdev/minhajna/security/advisories/new). Do not post in public.
+
+Include, if known:
+
+- the affected app or service, its version, and your device or browser;
+- steps to show the problem, using made-up data;
+- what someone could read, change or misuse.
+
+Never include real pupil data, even privately.
 
 ## What happens next
 
@@ -24,7 +26,7 @@
 - Anything that could expose pupil data or teachers' records, or let someone read, change or forge them.
 - An official build or a signed file that doesn't match its source, its checksum or its signature.
 
-For now, this repository holds documents only, and there is no app yet. An app that calls itself Minhajna or Tabachir today is not ours ([README](README.md)).
+Preview 0.1.0 is for invited teachers using made-up data. The [download page](https://djazair.dev/en/minhajna/) links to the signed release; the [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview) explains how to verify it. National-system services are not available yet.
 
 ## Supported versions
 

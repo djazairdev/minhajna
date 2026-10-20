@@ -1,10 +1,10 @@
 # The name and the logo
 
-This policy says what anyone may do with the name Minhajna and its logo. The code and the documents are free to use under their licences. The name and the logo are not covered by those licences ([PRD §1.9](docs/prd/PRD.md#19-official-builds-releases-the-name-and-security)).
+The code and documents are free to use under their licences. Those licences do not cover the Minhajna name and logo; this policy sets their use ([PRD §1.9](docs/prd/PRD.md#19-official-builds-releases-the-name-and-security)).
 
 ## The name
 
-- **Minhajna (منهاجنا)** means "our curriculum". The line under it reads «من التدرّج إلى الحصّة», in English "From the yearly plan to every lesson".
+- **Minhajna (منهاجنا)** means "our curriculum". The line under it reads «من المخطط السنوي إلى درس اليوم», in English "From the yearly plan to every lesson".
 - **Spelling.** Always "Minhajna" in Latin letters, never "Minhadjna" or "Manhajna". The Arabic form is منهاجنا.
 - **The former name.** The project was called Tabachir (طباشير) until October 2026 ([decision 0019](docs/decisions/0019-name-minhajna.md)). This policy covers that name too.
 - **Not registered.** The name and the logo are not registered as trademarks. They are protected by use, by the official sources below and by the published checksums.
@@ -12,9 +12,9 @@ This policy says what anyone may do with the name Minhajna and its logo. The cod
 
 ## Official builds
 
-- **Official sources:** Google Play, the project's `.dz` website (the Android APK, and the PC and web apps) and F-Droid. No other source is official.
-- **There is no app yet.** Any app called Minhajna or Tabachir today is not the project's.
-- **Signed and checkable.** Every release is signed. The signing key's fingerprint and each release's checksums are published on the website and in the [README](README.md).
+- **Field-check preview 0.1.0:** get it from the project's [release page](https://github.com/djazairdev/minhajna/releases/tag/app-v0.1.0) or directly from the organisers, as F9 of the [field-check plan](https://github.com/djazairdev/minhajna/issues/49) allows. The [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview) explains how to check it.
+- **At launch:** the planned official sources are Google Play, the project's `.dz` website (the Android APK, and the PC and web apps) and F-Droid. The preview is not listed in those stores yet. A matching name alone never proves that a copy is official.
+- **Signed and checkable.** Every release is signed. The [README](README.md) carries the signing certificate's fingerprint; the [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview), [download page](https://djazair.dev/en/minhajna/#verify) and release page give the file checksums and verification details.
 
 ## What anyone may do
 

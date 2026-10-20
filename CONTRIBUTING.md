@@ -11,7 +11,15 @@ The project is at stage 1 of its opening plan ([PRD §1.13](docs/prd/PRD.md#113-
 - translations: of the interface, which follow the code's licence, and of documents, which follow the documents' ([0022](docs/decisions/0022-interface-translations-follow-the-code.md));
 - code, from anyone ([0021](docs/decisions/0021-code-contributions-open-to-all.md)).
 
-**A first contribution** starts with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for a larger one. Comment `/take` on it to have it assigned to you, and start straight away: if someone already has it, the bot says who. Comment `/drop` if you stop. Then follow [Content contributions](#content-contributions) or [Code contributions](#code-contributions) below.
+## Trying the app or sending feedback
+
+Start with the [Arabic download and testing page](https://djazair.dev/ar/minhajna/) or its [English version](https://djazair.dev/en/minhajna/). For feedback or help, [message us on Facebook](https://www.facebook.com/djazairdev), email [contact@djazair.dev](mailto:contact@djazair.dev), or optionally use GitHub to [report a problem](https://github.com/djazairdev/minhajna/issues/new?template=bug.yml) or [suggest an improvement](https://github.com/djazairdev/minhajna/issues/new?template=idea.yml).
+
+Never send real pupil data through any channel. GitHub reports are public; leave out personal details. Screenshots must use the demo class.
+
+## Taking a development task
+
+For a first code contribution, start with an issue labelled [good first issue](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), or [help wanted](https://github.com/djazairdev/minhajna/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) for a larger one. Comment `/take` on it to have it assigned to you: if someone already has it, the bot says who. Comment `/drop` if you stop. Then follow [Content contributions](#content-contributions) or [Code contributions](#code-contributions) below.
 
 ## Never post real pupil data
 
@@ -68,7 +76,7 @@ npm run lint
 npm test
 ```
 
-The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md). Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
+The [Android build workflow](.github/workflows/android.yml) defines its additional checks. Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
 
 ### Your first pull request
 
@@ -141,7 +149,7 @@ The maintainers reply to every newcomer's pull request within 7 days, even if on
 | [Releases](docs/contributing/releases.md) | The release calendar, the release checks, signing and the changelog |
 | [Engineering rules](docs/contributing/engineering.md) | The rules every code change follows: privacy, secrets, test data, tests, dependencies and licences |
 
-`CHANGELOG.md`, which the handbook mentions, arrives with the first release.
+[CHANGELOG.md](CHANGELOG.md) records the published releases. The [download and testing page](https://djazair.dev/ar/minhajna/) explains the current preview in Arabic.
 
 How the project decides, and the teacher council's part in it, are in [GOVERNANCE.md](GOVERNANCE.md).
 
@@ -149,6 +157,8 @@ How the project decides, and the teacher council's part in it, are in [GOVERNANC
 
 - **With teachers:** Arabic.
 - **Code, commits and developer documents:** English, with Arabic summaries of anything teachers need to know.
+
+Use the [Arabic terminology guide](docs/ar/terms.md) for teacher-facing copy. Explain tasks in familiar words, and quote button labels exactly as they appear in the released app.
 
 ## Conduct
 
