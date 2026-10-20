@@ -10,7 +10,12 @@
 
 import type { PackItem, PlanPack } from '@minhajna/core';
 
-const ADDRESS = /^https:\/\/((?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,})(:[0-9]{1,5})?(\/[!-"$-?A-~]*)?$/;
+const ADDRESS = /^https:\/\/((?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,})(:[0-9]{1,5})?(\/[^#@]*)?$/;
+
+/** Whether every character is printable ASCII, without spaces. */
+function printable(text: string): boolean {
+  return [...text].every((char) => char > ' ' && char <= '~');
+}
 
 /** The first and last source pages the pack's items name, or null. */
 export function sourcePages(pack: PlanPack): { readonly from: number; readonly to: number } | null {
@@ -21,7 +26,7 @@ export function sourcePages(pack: PlanPack): { readonly from: number; readonly t
 /** The address to open for the pack or one of its items, or null when it is not a plain https address. */
 export function sourceAddress(pack: PlanPack, item?: PackItem): string | null {
   const found = pack.provenance.foundAt?.trim();
-  if (found === undefined || found.length > 500 || !ADDRESS.test(found)) return null;
+  if (found === undefined || found.length > 500 || !printable(found) || !ADDRESS.test(found)) return null;
   return item?.sourcePage === undefined ? found : `${found}#page=${item.sourcePage}`;
 }
 
