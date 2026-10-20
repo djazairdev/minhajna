@@ -6,7 +6,7 @@
 // is read as untrusted: it is checked against the format, and fields outside
 // the format are dropped (PRD §5.9).
 
-import { isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
+import { hasBidiControl, isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
 import type { Queue } from './reference.ts';
 
 /** The closed list of item kinds (PRD §4.2). */
@@ -195,7 +195,7 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
       if (
         !Array.isArray(stages) ||
         stages.length === 0 ||
-        !stages.every((s) => typeof s === 'string' && s.trim() !== '')
+        !stages.every((s) => typeof s === 'string' && s.trim() !== '' && !hasBidiControl(s))
       ) {
         return reader.fail(`${path}.stages`, 'invalid');
       }

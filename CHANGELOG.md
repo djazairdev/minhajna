@@ -39,6 +39,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 - The app now has the camera permission, used only when you choose to scan a calendar QR code. Its frames are read in the phone's memory and never saved or sent. Opening a file reads only the file you pick, with no lasting access.
   - أصبح للتطبيق إذن الكاميرا، ولا يستعملها إلا حين تختار مسح رمز QR لموعد في الرزنامة. تُقرأ صورها في ذاكرة الهاتف، ولا تُحفظ ولا تُرسل. وفتح ملف لا يقرأ إلا الملف الذي تختاره، دون إذن دائم.
 
+### Security
+
+- Plan packs and reference data are refused when a text in them carries hidden characters that change the reading direction, so a crafted title or name cannot make a line read as something else.
+  - تُرفض الحزم والمعطيات المرجعية إذا احتوى نص فيها على محارف خفية تغيّر اتجاه القراءة، حتى لا يجعل عنوان أو اسم مصطنع السطرَ يُقرأ على غير حقيقته.
+
 ## 0.2.0 (2026-10-20)
 
 The documents preview: the texts book, the daily journal, the roll-call book and the other paper books, printed from what you record, with the app lock, tests and exam weeks. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.

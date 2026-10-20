@@ -4,7 +4,9 @@
 // Plan packs and reference data travel as files, from the data repository
 // or from a colleague's phone, so every one is read as untrusted (PRD §5.9).
 // A reader checks each field against the format, reports every problem
-// rather than the first, and keeps only the format's fields.
+// rather than the first, and keeps only the format's fields. No text may
+// carry a bidi control or a line or paragraph separator: isolating a value
+// on screen cannot hold against one that closes the isolate itself.
 
 import { compareDays, isDay, type Day } from './day.ts';
 
@@ -33,6 +35,20 @@ export function isOneOf<T extends string>(list: readonly T[], value: unknown): v
   return typeof value === 'string' && (list as readonly string[]).includes(value);
 }
 
+/** Whether a text carries a bidi control (U+061C, U+200E/F, U+202A–E, U+2066–9) or U+2028/9. */
+export function hasBidiControl(value: string): boolean {
+  return [...value].some((char) => {
+    const point = char.codePointAt(0)!;
+    return (
+      point === 0x061c ||
+      point === 0x200e ||
+      point === 0x200f ||
+      (point >= 0x2028 && point <= 0x202e) ||
+      (point >= 0x2066 && point <= 0x2069)
+    );
+  });
+}
+
 function isText(value: unknown): value is string {
   return typeof value === 'string';
 }
@@ -51,7 +67,12 @@ export class Reader {
   text(fields: Fields, key: string, path: string, pattern?: RegExp): string | undefined {
     const value = fields[key];
     if (value === undefined) return undefined;
-    if (typeof value !== 'string' || value.trim() === '' || (pattern !== undefined && !pattern.test(value))) {
+    if (
+      typeof value !== 'string' ||
+      value.trim() === '' ||
+      hasBidiControl(value) ||
+      (pattern !== undefined && !pattern.test(value))
+    ) {
       this.fail(at(path, key), 'invalid');
       return undefined;
     }
