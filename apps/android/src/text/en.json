@@ -658,7 +658,8 @@
     "packTitle": "Yearly plan · release {{release}}",
     "keyedBy": "Keyed by Minhajna’s curators",
     "details": "Pack details",
-    "changes": "My changes to the class’s plan"
+    "changes": "My changes to the class’s plan",
+    "openItem": "Opens the item and what you can change in it for this class"
   },
   "planDetails": {
     "title": "Pack details",
@@ -711,7 +712,7 @@
     "sessionsUnit": "{{sessions}} · {{unit}}",
     "stages": "Stages",
     "sourcePage": "Source: the yearly plan, page {{page}}",
-    "textbook": "textbook, page {{pages}}",
+    "textbook": "Textbook, p. {{pages}}",
     "changeFor": "Change for {{class}} only",
     "move": "Move it elsewhere",
     "moveContext": "It comes before the item you choose, in {{class}}’s plan only.",
@@ -746,11 +747,12 @@
     "refused": "This change doesn’t fit the class’s plan now.",
     "ids": "Item ID",
     "gone": "This item is no longer in the class’s plan: it was split, or the class moved to another release. Any change can be taken back from the class’s changes.",
-    "changes": "My changes to the class’s plan"
+    "changes": "My changes to the class’s plan",
+    "partId": "Part {{part}} of this item"
   },
   "planChanges": {
     "title": "My changes to the class’s plan",
-    "intro": "My layer over the pack: each change is dated and can be taken back. Neither a change nor taking it back touches recorded sessions.",
+    "intro": "My layer over the pack: each change is dated and can be undone. Neither a change nor undoing it touches recorded sessions.",
     "none": "No change: {{class}} follows the pack as it is.",
     "count_one": "One change in force",
     "count_other": "{{count}} changes in force · newest first",
@@ -774,13 +776,14 @@
     "join": "{{first}} and {{second}} in one session",
     "takes": "Takes from the buffers: {{sessions}}",
     "gives": "Gives back to the buffers: {{sessions}}",
-    "undo": "Take back",
-    "undoSpoken": "Take back: {{change}}",
-    "undoAsk": "Take this change back? The plan goes back to how it was before it, and both the change and taking it back stay in the history.",
-    "undoGo": "Take back",
-    "cancel": "Cancel",
+    "undo": "Undo",
+    "undoSpoken": "Undo: {{change}}",
+    "undoAsk": "Undo this change? The plan goes back to how it was before it, and both the change and the undo stay in the list.",
+    "undoGo": "Undo",
+    "cancel": "Keep it",
     "under": "Under my changes: the pack, release {{release}}. A fix to the pack still reaches the class, and my changes stay.",
-    "gone": "No longer in the plan"
+    "goneItem": "{{item}} (no longer in the plan)",
+    "undone": "Undone"
   },
   "tests": {
     "title": "Test schedule",

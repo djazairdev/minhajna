@@ -7,12 +7,14 @@
 // alone, moving it, joining it with the item after it, its sessions,
 // splitting it in two, leaving it out, or adding an item after it. Each
 // change is saved at once and can be undone on the spot or later from the
-// class's changes; skipping or joining an essential item asks first
-// (answer 284). Nothing recorded changes.
+// class's changes; skipping or joining an item the pack marks essential
+// asks first (answer 284). An item the teacher added shows neither badge
+// nor IDs, being no item of the pack; a part of a split shows the pack
+// item's ID and its part. Nothing recorded changes.
 
 import { type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useMemo, useRef, useState } from 'react';
+import { createRef, useMemo, useState, type RefObject } from 'react';
 import { Alert, ScrollView, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Badge } from '../components/Badge';
@@ -27,7 +29,7 @@ import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { dayMonth, rowDays } from '../classes/plan-labels';
 import { ItemSheets, type Sheet } from './ItemSheets';
-import { asksFirst, changeEvent, itemPage, type Draft } from './item-rules';
+import { asksFirst, changeEvent, isAdded, itemPage, shownId, type Draft } from './item-rules';
 
 export type PlanItemProps = {
   readonly courseId: string;
@@ -47,7 +49,12 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
     [profile, year, calendar, packs, state],
   );
   const page = useMemo(() => itemPage(context, courseId, itemId, day), [context, courseId, itemId, day]);
-  const opener = useRef<ViewInstance>(null);
+  const [openers] = useState(
+    () =>
+      Object.fromEntries(
+        (['move', 'budget', 'split', 'add'] as const).map((kind) => [kind, createRef<ViewInstance>()]),
+      ) as Record<Sheet, RefObject<ViewInstance | null>>,
+  );
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const [made, setMade] = useState<string | null>(null);
   const course = state.courses.get(courseId);
@@ -64,7 +71,9 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
     setSheet(null);
   };
   const ask = (draft: Draft) => {
-    if (page === null || !asksFirst(page.row.item, draft.kind)) return save(draft);
+    const items =
+      page === null ? [] : [page.row.item, ...(draft.kind === 'join' && page.next !== undefined ? [page.next] : [])];
+    if (page === null || !asksFirst(items)) return save(draft);
     Alert.alert(t('planItem.title'), t('planItem.essentialAsk', { title: isolate(page.row.item.title) }), [
       { text: t('planItem.cancel'), style: 'cancel' },
       { text: t('planItem.goOn'), onPress: () => save(draft) },
@@ -95,6 +104,8 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
 
   const { row, pack, stages, sessions, next, answered } = page;
   const item = row.item;
+  const added = isAdded(item);
+  const ids = shownId(item);
   const unit = pack.items.find((one) => one.id === item.unit);
   const days = rowDays(row);
   const when =
@@ -103,13 +114,20 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
       : days !== null
         ? t('planItem.taught', { class: className, days: days.text })
         : t('planItem.classOnly', { class: className });
-  const kind = item.id.startsWith('add~') ? t('planItem.kinds.added') : t(`planItem.kinds.${item.kind}`);
+  const kind = added ? t('planItem.kinds.added') : t(`planItem.kinds.${item.kind}`);
   const source = [
     ...(item.sourcePage === undefined ? [] : [t('planItem.sourcePage', { page: item.sourcePage })]),
     ...(item.pages === undefined ? [] : [t('planItem.textbook', { pages: item.pages })]),
   ].join(' · ');
   const action = (id: string, icon: Parameters<typeof controlIcon>[0], title: string, onPress: () => void) => (
-    <RowLink key={id} testID={`item-${id}`} icon={controlIcon(icon)} title={title} onPress={onPress} />
+    <RowLink
+      key={id}
+      ref={id in openers ? openers[id as Sheet] : undefined}
+      testID={`item-${id}`}
+      icon={controlIcon(icon)}
+      title={title}
+      onPress={onPress}
+    />
   );
   return (
     <View style={styles.screen}>
@@ -133,7 +151,7 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-8'], direction }}>
           <Badge label={kind} />
-          <Badge label={item.optional === true ? t('planItem.optional') : t('planItem.essential')} />
+          {!added && <Badge label={item.optional === true ? t('planItem.optional') : t('planItem.essential')} />}
         </View>
         <Text testID="item-sessions" style={[styles.body, align]}>
           {unit === undefined
@@ -152,18 +170,24 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
           </View>
         )}
         {source !== '' && <Text style={[styles.sub, align]}>{source}</Text>}
-        <View accessible style={styles.group}>
-          <Text style={[styles.sub, align]}>{t('planItem.ids')}</Text>
-          <Text selectable style={[styles.sub, { writingDirection: 'ltr', textAlign: 'left' }]}>
-            {`${pack.id} · ${item.id}`}
-          </Text>
-        </View>
-        <View ref={opener} collapsable={false} style={styles.group}>
+        {!added && (
+          <View accessible style={styles.group}>
+            <Text style={[styles.sub, align]}>{t('planItem.ids')}</Text>
+            <Text selectable style={[styles.sub, { writingDirection: 'ltr', textAlign: 'left' }]}>
+              {`${pack.id} · ${ids.id}`}
+            </Text>
+            {ids.part !== undefined && (
+              <Text style={[styles.sub, align]}>{t('planItem.partId', { part: ids.part })}</Text>
+            )}
+          </View>
+        )}
+        <View style={styles.group}>
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {t('planItem.changeFor', { class: className })}
           </Text>
           {action('move', 'tune', t('planItem.move'), () => setSheet('move'))}
           {next !== undefined &&
+            page.joinable &&
             action('join', 'plus', t('planItem.join', { title: isolate(next.title) }), () =>
               ask({ kind: 'join', items: [item.id, next.id] }),
             )}
@@ -183,13 +207,14 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
         {onChanges !== undefined && action('changes', 'info', t('planItem.changes'), onChanges)}
       </ScrollView>
       <ItemSheets
-        key={`${item.id}-${sheet ?? ''}`}
+        key={item.id}
         sheet={sheet}
         item={item}
         className={className}
         sessions={sessions}
         others={page.others}
-        opener={opener}
+        last={page.last}
+        openers={openers}
         onClose={() => setSheet(null)}
         onMove={(before) => save({ kind: 'move', item: item.id, before })}
         onBudget={(count) => save({ kind: 'budget', item: item.id, sessions: count })}

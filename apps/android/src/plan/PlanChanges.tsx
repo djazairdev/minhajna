@@ -5,9 +5,9 @@
 // R-4.7-35): the parallel classes, where the class stands once its changes
 // are counted, then each change in force, newest first, with its day, what
 // it does and what it takes from the buffers or gives back. «تراجع» asks
-// first, then records an undo: the change and taking it back both stay in
-// the history, and no recorded session changes (answer 285). Under the
-// changes lies the pack's release, which every fix still reaches.
+// first, then records an undo: the change stays listed, struck through, and
+// no recorded session changes (answer 285). Under the changes lies the
+// pack's release, which every fix still reaches.
 
 import { courseSetup, formatDay, pace, recordChange, nextSeq, termCheck, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -54,17 +54,14 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
       { text: t('planChanges.cancel'), style: 'cancel' },
       {
         text: t('planChanges.undoGo'),
-        onPress: () =>
-          record(
-            recordChange(context, {
-              id: newId(),
-              courseId,
-              day,
-              seq: nextSeq(context.state.decisions, courseId),
-              kind: 'undo',
-              change: id,
-            }),
-          ),
+        onPress: () => {
+          try {
+            const seq = nextSeq(context.state.decisions, courseId);
+            record(recordChange(context, { id: newId(), courseId, day, seq, kind: 'undo', change: id }));
+          } catch {
+            Alert.alert(t('planChanges.title'), t('planItem.refused'));
+          }
+        },
       },
     ]);
   const sessions = (count: number) => t('planDetails.sessions', { count });
@@ -102,9 +99,10 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
             <View accessible style={styles.group}>
               <View style={{ flexDirection: 'row', gap: spacing['space-8'], direction }}>
                 <Badge label={label} />
+                {one.undone && <Badge label={t('planChanges.undone')} />}
                 {one.change.day !== undefined && <Text style={styles.sub}>{formatDay(one.change.day)}</Text>}
               </View>
-              <Text style={[styles.body, align]}>{one.text}</Text>
+              <Text style={[styles.body, align, one.undone && { textDecorationLine: 'line-through' }]}>{one.text}</Text>
               {one.sessions !== 0 && (
                 <Text style={[styles.sub, align]}>
                   {one.sessions > 0
@@ -113,13 +111,15 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
                 </Text>
               )}
             </View>
-            <Button
-              testID={`change-undo-${one.change.id}`}
-              variant="line"
-              label={t('planChanges.undo')}
-              accessibilityHint={t('planChanges.undoSpoken', { change: one.text })}
-              onPress={() => takeBack(one.change.id)}
-            />
+            {!one.undone && (
+              <Button
+                testID={`change-undo-${one.change.id}`}
+                variant="line"
+                label={t('planChanges.undo')}
+                accessibilityHint={t('planChanges.undoSpoken', { change: one.text })}
+                onPress={() => takeBack(one.change.id)}
+              />
+            )}
           </View>
         );
       })}

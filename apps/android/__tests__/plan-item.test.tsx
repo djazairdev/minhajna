@@ -3,20 +3,24 @@
 
 // One plan item and the class's changes (#225, Plan-item, Plan-changes):
 // what the item is; changing its sessions, then undoing it on the spot;
-// leaving out or joining an essential item, which asks first; splitting,
-// adding, moving; a split refused while an exam answer names the item; the
-// class's changes, newest first, each taken back after a question; and
-// every control named in each language and direction. Made-up data only.
+// focus back on the row that opened a sheet; leaving out or joining an
+// essential item, which asks first, and an added item, which does not;
+// splitting, adding, moving; a split refused while an exam answer names
+// the item; the class's changes, newest first, each taken back after a
+// question and still listed; and every control named in each language and
+// direction. Made-up data only.
 
 import { changesFor, courseSetup, parseDay, queueItems } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Alert, Text, type AlertButton } from 'react-native';
+import * as ReactNative from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { withData, type TestData } from '../jest/app-data';
 import { withDay } from '../jest/today-day';
 import { PlanChanges } from '../src/plan/PlanChanges';
 import { PlanItem } from '../src/plan/PlanItem';
+import NativeInterface from '../src/native/NativeMinhajnaInterface';
 import { coreContext } from '../src/storage/core-context';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import text from '../src/text/ar.json';
@@ -84,8 +88,8 @@ test('shows the item: kind, essential, sessions and unit, stages and its ID', as
       'فهم المكتوب 1 (مثال)',
       text.planItem.kinds.lesson,
       text.planItem.essential,
-      'حصتان · ⁨المقطع 1 (مثال)⁩',
-      '1. ⁨تهيئة⁩',
+      'حصتان · \u2068المقطع 1 (مثال)\u2069',
+      '1. \u2068تهيئة\u2069',
       'dz.cem.4am.arabic.example · u1-3',
     ]),
   );
@@ -112,6 +116,40 @@ test('changes its sessions for this class, and undoes it on the spot', async () 
   await settle();
   expect(changesFor(data.book.state.decisions, 'c-1')).toEqual([]);
   expect(data.book.state.decisions.size).toBe(2);
+});
+
+test('hands focus back to the row that opened a sheet, once it closes', async () => {
+  const frames: ((time: number) => void)[] = [];
+  jest.spyOn(global, 'requestAnimationFrame').mockImplementation((callback) => frames.push(callback));
+  jest
+    .spyOn(jest.requireActual<typeof ReactNative>('react-native'), 'findNodeHandle')
+    .mockImplementation((node) =>
+      (node as { props?: { testID?: string } } | null)?.props?.testID === 'item-budget' ? 29 : 71,
+    );
+  const focus = jest.spyOn(NativeInterface, 'focusView').mockImplementation(() => undefined);
+  await show(await withDay(), <PlanItem courseId="c-1" itemId="u1-3" />);
+  await press('item-budget');
+  await press('sheet-close');
+  await ReactTestRenderer.act(() => frames.splice(0).forEach((callback) => callback(0)));
+  expect(focus).toHaveBeenLastCalledWith(29);
+});
+
+test('an item the teacher added is not the pack’s: no badge, no IDs, and leaving it out does not ask', async () => {
+  const data = await withDay();
+  const alert = jest.spyOn(Alert, 'alert');
+  await show(data, <PlanItem courseId="c-1" itemId="u1-6" />);
+  await press('item-add');
+  await type('item-add-title', 'مراجعة للتجربة');
+  await press('item-add-save');
+  await settle();
+  const added = main(data).find((id) => id.startsWith('add~'))!;
+  await rerender(data, <PlanItem courseId="c-1" itemId={added} />);
+  expect(shown()).toEqual(expect.arrayContaining([text.planItem.kinds.added]));
+  expect(shown()).not.toEqual(expect.arrayContaining([text.planItem.essential, text.planItem.ids]));
+  await press('item-skip');
+  await settle();
+  expect(alert).not.toHaveBeenCalled();
+  expect(changesFor(data.book.state.decisions, 'c-1').at(-1)).toEqual(expect.objectContaining({ kind: 'skip' }));
 });
 
 test('leaving out or joining an essential item asks first', async () => {
@@ -186,8 +224,8 @@ test('lists the class’s changes newest first, and takes one back after asking'
   expect(shown()).toEqual(
     expect.arrayContaining([
       'تغييران قائمان · الأحدث أولاً',
-      '«⁨تقويم ومعالجة 1 (مثال)⁩» قبل «⁨الوضعية المشكلة الانطلاقية 1 (مثال)⁩»',
-      '«⁨فهم المنطوق 1 (مثال)⁩»: حصتان',
+      '«\u2068تقويم ومعالجة 1 (مثال)\u2069» قبل «\u2068الوضعية المشكلة الانطلاقية 1 (مثال)\u2069»',
+      '«\u2068فهم المنطوق 1 (مثال)\u2069»: حصتان',
       'يأخذ من الاحتياط: حصة واحدة',
     ]),
   );
@@ -200,6 +238,8 @@ test('lists the class’s changes newest first, and takes one back after asking'
   await confirm(alert);
   await settle();
   expect(changesFor(data.book.state.decisions, 'c-1')).toEqual([budget]);
+  expect(shown()).toContain(text.planChanges.undone);
+  expect(root().findAll((node) => node.props.testID === `change-undo-${moved.id}`)).toHaveLength(0);
 });
 
 test.each(

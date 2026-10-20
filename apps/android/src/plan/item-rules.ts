@@ -5,13 +5,17 @@
 // (#225, Plan-item, R-4.2-02, R-4.2-14): its row in the class's plan, its
 // stages, the item after it, and whether an exam-window answer names it,
 // which keeps it from being split. Each change takes the next place in the
-// course's order, and skipping or joining an essential item asks first
-// (answer 284).
+// course's order, and skipping or joining an item the pack marks essential
+// asks first (answer 284); an item the teacher added is not the pack's, so
+// it never asks. A change that would do nothing is not offered: moving an
+// item before the one already after it, or to the end when it is last, or
+// joining items already merged or joined.
 
 import {
   budgetInSessions,
   courseSetup,
   decisionsFor,
+  mergesOf,
   nextSeq,
   planView,
   queueItems,
@@ -31,10 +35,14 @@ export type ItemPage = {
   readonly row: PlanRow;
   readonly stages: readonly string[];
   readonly sessions: number;
-  /** The item the plan puts after it in its queue, to join it with. */
+  /** The item the plan puts after it in its queue. */
   readonly next: PackItem | undefined;
-  /** The other items of its queue, to move it before. */
+  /** Whether it can be joined with the next item: neither is merged or joined yet. */
+  readonly joinable: boolean;
+  /** The other items of its queue it can move before: not the one already after it. */
   readonly others: readonly PackItem[];
+  /** Whether it is the last of its queue, so moving it to the end does nothing. */
+  readonly last: boolean;
   /** An exam-window answer names it, so it is not split. */
   readonly answered: boolean;
 };
@@ -47,22 +55,38 @@ export function itemPage(context: Context, courseId: string, itemId: string, day
   if (row === undefined) return null;
   const queue = queueItems(view.pack, row.item.kind === 'td' ? 'td' : 'main');
   const at = queue.findIndex((item) => item.id === itemId);
+  const next = queue[at + 1];
+  const merges = mergesOf(view.pack, context.state.decisions, courseId);
+  const taken = new Set([...merges.keys(), ...merges.values()]);
   return {
     pack: view.pack,
     row,
     stages: stageNames(view.pack, row.item),
     sessions: budgetInSessions(view.pack, row.item, courseSetup(context, courseId).sessionMinutes),
-    next: queue[at + 1],
-    others: queue.filter((item) => item.id !== itemId),
+    next,
+    joinable: next !== undefined && !taken.has(itemId) && !taken.has(next.id),
+    others: queue.filter((item) => item.id !== itemId && item.id !== next?.id),
+    last: next === undefined,
     answered: decisionsFor(context.state.decisions, courseId).some((one) =>
       one.kind === 'leave-out' ? one.item === itemId : one.items.includes(itemId),
     ),
   };
 }
 
-/** Whether a change to the item asks first: skipping or joining an item the pack does not mark optional. */
-export function asksFirst(item: PackItem, kind: PlanChange['kind']): boolean {
-  return item.optional !== true && (kind === 'skip' || kind === 'join');
+/** Whether the teacher added the item, or a part of one, so the pack marks it neither essential nor optional. */
+export function isAdded(item: PackItem): boolean {
+  return item.id.startsWith('add~');
+}
+
+/** Whether skipping or joining these items asks first: one of them is essential in the pack. */
+export function asksFirst(items: readonly PackItem[]): boolean {
+  return items.some((item) => !isAdded(item) && item.optional !== true);
+}
+
+/** The ID to show for an item: a part of a split shows the pack item's own ID and its part. */
+export function shownId(item: PackItem): { readonly id: string; readonly part?: string } {
+  const [base = item.id, ...rest] = item.id.split('~');
+  return rest.length === 0 ? { id: base } : { id: base, part: rest.at(-1)! };
 }
 
 /** A change as a screen makes it, before its ID, day and place in the order. */

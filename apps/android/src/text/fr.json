@@ -676,7 +676,8 @@
     "packTitle": "Plan annuel · version {{release}}",
     "keyedBy": "Saisi par l’équipe éditoriale de Minhajna",
     "details": "Détails du pack",
-    "changes": "Mes changements au plan de la classe"
+    "changes": "Mes changements au plan de la classe",
+    "openItem": "Ouvre l’élément et ce que vous pouvez y changer pour cette classe"
   },
   "planDetails": {
     "title": "Détails du pack",
@@ -730,7 +731,7 @@
     "sessionsUnit": "{{sessions}} · {{unit}}",
     "stages": "Étapes",
     "sourcePage": "Source : le plan annuel, page {{page}}",
-    "textbook": "manuel, page {{pages}}",
+    "textbook": "Manuel, p. {{pages}}",
     "changeFor": "Modifier pour {{class}} seulement",
     "move": "Le déplacer",
     "moveContext": "Il vient avant l’élément choisi, dans le plan de {{class}} seulement.",
@@ -765,7 +766,8 @@
     "refused": "Ce changement ne convient pas au plan de la classe pour le moment.",
     "ids": "Identifiant de l’élément",
     "gone": "Cet élément n’est plus dans le plan de la classe : il a été divisé, ou la classe est passée à une autre version. Tout changement s’annule depuis les changements de la classe.",
-    "changes": "Mes changements au plan de la classe"
+    "changes": "Mes changements au plan de la classe",
+    "partId": "Partie {{part}} de cet élément"
   },
   "planChanges": {
     "title": "Mes changements au plan de la classe",
@@ -800,7 +802,8 @@
     "undoGo": "Annuler",
     "cancel": "Garder",
     "under": "Sous mes changements : le pack, version {{release}}. Une correction du pack atteint toujours la classe, et mes changements restent.",
-    "gone": "N’est plus dans le plan"
+    "goneItem": "{{item}} (n’est plus dans le plan)",
+    "undone": "Annulé"
   },
   "tests": {
     "title": "Calendrier des devoirs",

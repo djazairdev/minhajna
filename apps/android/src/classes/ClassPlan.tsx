@@ -79,7 +79,11 @@ export function ClassPlan(props: ClassPlanProps) {
         testID={`plan-${one.item.id}`}
         accessible
         accessibilityLabel={rowSpoken(t, one, comma, later)}
-        {...(onItem !== undefined && { accessibilityRole: 'button' as const, onPress: () => onItem(one.item.id) })}
+        {...(onItem !== undefined && {
+          accessibilityRole: 'button' as const,
+          accessibilityHint: t('classPlan.openItem'),
+          onPress: () => onItem(one.item.id),
+        })}
         style={({ pressed }) => [
           styles.row,
           one.position && styles.here,
