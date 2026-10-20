@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { isDay } from './day.ts';
-import { isFields, LANGUAGE, type Fields } from './read.ts';
+import { hasBidiControl, isFields, LANGUAGE, type Fields } from './read.ts';
 import type { CalendarEntry, CountryProfile, SchoolYear } from './reference.ts';
 import { ENTRY_ID, PLACE } from './reference-fields.ts';
 
@@ -39,17 +39,9 @@ function line(value: unknown, limit: number): value is string {
     value.length <= limit &&
     ![...value].some((char) => {
       const point = char.codePointAt(0)!;
-      return (
-        point < 32 ||
-        point === 127 ||
-        (point >= 0xd800 && point <= 0xdfff) ||
-        point === 0x061c ||
-        point === 0x200e ||
-        point === 0x200f ||
-        (point >= 0x202a && point <= 0x202e) ||
-        (point >= 0x2066 && point <= 0x2069)
-      );
-    })
+      return point < 32 || point === 127 || (point >= 0xd800 && point <= 0xdfff);
+    }) &&
+    !hasBidiControl(value)
   );
 }
 

@@ -71,6 +71,25 @@ describe('plan packs', () => {
     assert.deepEqual(problemsOf('not a pack'), [{ path: '', problem: 'invalid' }]);
   });
 
+  it('refuses bidi controls and line separators in its texts (#314)', () => {
+    const [d1, ...rest] = mathPackSource.items;
+    assert.deepEqual(
+      problemsOf({
+        ...mathPackSource,
+        provenance: { issuer: 'Made up\u2069 for tests', edition: '\u202eelpmaxe' },
+        stageTemplates: [{ id: 'std', stages: ['Warm-up', 'Practice\u2028Assessment'] }],
+        items: [{ ...d1, title: 'Diagnostic\u200f assessment' }, ...rest],
+      }),
+      [
+        { path: 'provenance.issuer', problem: 'invalid' },
+        { path: 'provenance.edition', problem: 'invalid' },
+        { path: 'stageTemplates[0].stages', problem: 'invalid' },
+        { path: 'items[0].title', problem: 'invalid' },
+        ...[2, 3, 11].map((n) => ({ path: `items[${n}].stages`, problem: 'unknown-reference' })),
+      ],
+    );
+  });
+
   it('asks week packs for weeks', () => {
     const source = {
       ...mathPackSource,

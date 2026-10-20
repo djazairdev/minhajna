@@ -5,7 +5,7 @@
 // export them: they are not part of the core's interface.
 
 import type { Weekday } from './day.ts';
-import { at, isFields, LANGUAGE, Reader, type Fields } from './read.ts';
+import { at, hasBidiControl, isFields, LANGUAGE, Reader, type Fields } from './read.ts';
 import type { CountryProfile, LocalizedText } from './reference.ts';
 
 export const COUNTRY = /^[a-z]{2}$/;
@@ -22,7 +22,8 @@ export function readName(reader: Reader, fields: Fields, path: string): Localize
   const value = fields['name'];
   const texts = isFields(value) ? Object.entries(value) : [];
   const valid = texts.every(
-    ([language, text]) => LANGUAGE.test(language) && typeof text === 'string' && text.trim() !== '',
+    ([language, text]) =>
+      LANGUAGE.test(language) && typeof text === 'string' && text.trim() !== '' && !hasBidiControl(text),
   );
   if (texts.length === 0 || !valid) {
     reader.fail(at(path, 'name'), value === undefined ? 'required' : 'invalid');
