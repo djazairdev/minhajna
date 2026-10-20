@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### New
+
+- Settings now opens from Today. You can revisit your teacher card, schools, classes, timetable and packs without starting again, preview a language before saving it, and read each level's session lengths and their sources. Optional planning minutes appear beside session counts. Features not built yet are marked unavailable.
+  - تُفتح الإعدادات من صفحة اليوم. يمكنك مراجعة بطاقة الأستاذ والمؤسسات والأقسام وجدول التوقيت والحزم دون البدء من جديد، ومعاينة اللغة قبل حفظها، والاطّلاع على مدة الحصص ومصادرها لكل طور. ويمكن إظهار دقائق التخطيط بجانب عدد الحصص. والميزات التي لم تُنجز بعد مبيّنة بأنها غير متاحة.
+
 ### Changed
 
 - The line under the name on the welcome screen now reads «من المخطط السنوي إلى درس اليوم».

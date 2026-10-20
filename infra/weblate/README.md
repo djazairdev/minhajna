@@ -6,8 +6,8 @@ Translators work on the interface's catalogues in Weblate, in their browser, wit
 |---|---|
 | `compose.yaml` | Weblate's own Docker Compose setup: Weblate, PostgreSQL and Valkey, each image pinned by version and digest |
 | `environment.example` | The settings, to copy to `environment` and fill in; the copy holds secrets and is never committed |
-| `project.json`, `component.json` | The project's and the catalogues' settings in Weblate |
-| `configure.js` | Sets up the project in Weblate from those two files, through its API |
+| `project.json`, `component.json`, `namespaces.json` | The project, the main catalogue and the smaller feature catalogues |
+| `configure.js` | Sets up these components through Weblate's API; feature catalogues share the main component's repository |
 
 ## Start it on your computer
 
@@ -38,6 +38,10 @@ node infra/weblate/configure.js
 Run it from the repository's root, with Node.js 22 or later. It creates the project and the component, or updates their settings when they exist. It also marks the brand and the language names read-only, and turns off Weblate's placeholder check on counted texts, which the catalogue test checks instead. Change a setting in the JSON files and run it again, rather than changing it in Weblate's pages, so that the files stay the truth.
 
 The component reads `apps/android/src/text/*.json` in i18next's JSON v4 format, with Arabic as the source, and offers French and English. To add a language, add its code to `language_regex` in `component.json`.
+
+`namespaces.json` adds the Settings catalogue at `apps/android/src/settings/text/*.json`. It inherits the format, licences, contributor agreement and commit settings, and links to the main component's repository so both use the same translation branch. The app bundles both catalogues; it never contacts Weblate. After merging a new namespace, a maintainer reruns `configure.js` on their instance. No instance is changed merely by checking out the code.
+
+Linked components share the complete checkout, as [Weblate's repository-sharing guide](https://docs.weblate.org/en/latest/vcs.html#weblate-internal-urls) explains. Keep their administration with the same trusted maintainers; a component's file mask is not a permissions boundary.
 
 ## How a translation reaches `main`
 

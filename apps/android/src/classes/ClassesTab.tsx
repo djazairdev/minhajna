@@ -8,6 +8,7 @@
 // subjects, the schools and the pupils. The year switch, the weekly digest,
 // the attendance and the roll call button come with their own issues.
 
+import { courseSetup } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -21,6 +22,7 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { sessionTime } from '../times/times-rules';
 import { classRows, paceLine } from './class-rules';
+import { useCountMinutes } from '../settings/preferences';
 
 /** The tab; `onClass` opens a class's page, and `onBook` its texts book. */
 export function ClassesTab({
@@ -33,6 +35,7 @@ export function ClassesTab({
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
+  const minutes = useCountMinutes();
   const { state, profile, year, calendar, packs, bells, today } = useAppData();
   const day = today();
   const context = useMemo(
@@ -85,7 +88,7 @@ export function ClassesTab({
                   slot: t('setup.pupils', { count: row.pupils }),
                   ...(extra.length > 0 && { subject: extra.join(' · ') }),
                 }}
-                lesson={paceLine(t, row)}
+                lesson={paceLine(t, row, minutes ? courseSetup(context, row.course.id).sessionMinutes : undefined)}
                 show={{ id: 'class', label: t('classPage.open'), onPress: () => onClass(row.course.id) }}
                 also={{ id: 'book', label: t('book.open'), onPress: () => onBook(row.course.id) }}
               />

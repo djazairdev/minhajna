@@ -46,6 +46,7 @@ export function TodayTab({
   return (
     <Today
       onHelp={() => navigation.navigate('Help')}
+      onSettings={() => navigation.navigate('Settings')}
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
       onRoll={(session) =>
         navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })

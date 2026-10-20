@@ -12,7 +12,7 @@
 // the foot (#219). A warning card tops the plan while items would fall past
 // the next exams, and items postponed past them are tagged until taught.
 
-import { pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
+import { courseSetup, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -22,6 +22,7 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
+import { useCountMinutes } from '../settings/preferences';
 import { currentLanguage, useText } from '../text/i18n';
 import { paceLine } from './class-rules';
 import { ExamWarnings } from '../exams/ExamWarnings';
@@ -40,6 +41,7 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
+  const minutes = useCountMinutes();
   const { state, profile, year, calendar, packs, today } = useAppData();
   const day = today();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -55,7 +57,11 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
-  const line = paceLine(t, { pace: view === null ? null : pace(context, courseId, day), check });
+  const line = paceLine(
+    t,
+    { pace: view === null ? null : pace(context, courseId, day), check },
+    minutes && view !== null ? courseSetup(context, courseId).sessionMinutes : undefined,
+  );
 
   const row = (one: PlanRow, later = false) => {
     const days = rowDays(one);

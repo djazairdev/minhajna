@@ -46,6 +46,8 @@ export interface AppData {
   readonly newId: () => string;
   /** Resolves once every change made so far is saved or refused. */
   readonly settled: () => Promise<void>;
+  /** Waits for queued changes; false when one of them failed while waiting, not before. */
+  readonly allSaved: () => Promise<boolean>;
   /** True after a change failed to save, until the next one saves. */
   readonly unsaved: boolean;
 }
@@ -83,6 +85,7 @@ export function AppDataProvider({
   const [state, setState] = useState(book.state);
   const [unsaved, setUnsaved] = useState(false);
   const queue = useRef<Promise<void>>(Promise.resolve());
+  const failureCount = useRef(0);
   const actions = useMemo(() => {
     const save = (work: () => Promise<unknown>) => {
       queue.current = queue.current.then(work).then(
@@ -91,6 +94,7 @@ export function AppDataProvider({
           setUnsaved(false);
         },
         (error: unknown) => {
+          failureCount.current += 1;
           if (__DEV__) console.warn('A change was not saved', error);
           setUnsaved(true);
         },
@@ -117,6 +121,16 @@ export function AppDataProvider({
       today,
       newId: () => newId(random),
       settled: () => queue.current,
+      allSaved: async () => {
+        const started = failureCount.current;
+        let pending = queue.current;
+        await pending;
+        while (pending !== queue.current) {
+          pending = queue.current;
+          await pending;
+        }
+        return failureCount.current === started;
+      },
     };
   }, [book, profile, year, calendar, bells, packs, random, today]);
   const value = useMemo(() => ({ ...actions, state, unsaved }), [actions, state, unsaved]);
