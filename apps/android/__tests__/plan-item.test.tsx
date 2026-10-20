@@ -82,7 +82,10 @@ const main = (data: TestData) => queueItems(courseSetup(context(data), 'c-1').pa
 const settle = () => ReactTestRenderer.act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 
 test('shows the item: kind, essential, sessions and unit, stages and its ID', async () => {
-  await show(await withDay(), <PlanItem courseId="c-1" itemId="u1-3" />);
+  const report = jest.fn();
+  await show(await withDay(), <PlanItem courseId="c-1" itemId="u1-3" onReport={report} />);
+  await press('item-report');
+  expect(report).toHaveBeenCalledTimes(1);
   expect(shown()).toEqual(
     expect.arrayContaining([
       'فهم المكتوب 1 (مثال)',
@@ -143,8 +146,9 @@ test('an item the teacher added is not the pack’s: no badge, no IDs, and leavi
   await press('item-add-save');
   await settle();
   const added = main(data).find((id) => id.startsWith('add~'))!;
-  await rerender(data, <PlanItem courseId="c-1" itemId={added} />);
+  await rerender(data, <PlanItem courseId="c-1" itemId={added} onReport={() => undefined} />);
   expect(shown()).toEqual(expect.arrayContaining([text.planItem.kinds.added]));
+  expect(root().findAll((node) => node.props.testID === 'item-report')).toHaveLength(0);
   expect(shown()).not.toEqual(expect.arrayContaining([text.planItem.essential, text.planItem.ids]));
   await press('item-skip');
   await settle();

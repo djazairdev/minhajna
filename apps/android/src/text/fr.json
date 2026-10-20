@@ -92,6 +92,7 @@
     "none": "Cette version ne se connecte pas à internet : elle n’en demande pas l’autorisation, n’envoie rien et ne reçoit rien.",
     "source": "Le lien vers le code source, dans la page des licences, ne s’ouvre qu’après votre confirmation. Votre navigateur l’ouvre hors de l’application, sans aucun dossier ni identifiant.",
     "packSource": "L’adresse source d’un pack, dans ses détails, ne s’ouvre qu’après votre accord, et la question nomme le site. Votre navigateur l’ouvre hors de l’application, sans dossier ni identifiant.",
+    "errorReport": "Un signalement d’erreur dans le plan est affiché en entier, et ne quitte le téléphone que si vous le partagez et choisissez l’application qui l’envoie. L’application n’y ajoute rien sur vos classes ou vos élèves, ni votre nom sauf si vous le saisissez.",
     "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application."
   },
   "setup": {
@@ -767,7 +768,8 @@
     "ids": "Identifiant de l’élément",
     "gone": "Cet élément n’est plus dans le plan de la classe : il a été divisé, ou la classe est passée à une autre version. Tout changement s’annule depuis les changements de la classe.",
     "changes": "Mes changements au plan de la classe",
-    "partId": "Partie {{part}} de cet élément"
+    "partId": "Partie {{part}} de cet élément",
+    "report": "Signaler une erreur dans cet élément"
   },
   "planChanges": {
     "title": "Mes changements au plan de la classe",
@@ -804,6 +806,37 @@
     "under": "Sous mes changements : le pack, version {{release}}. Une correction du pack atteint toujours la classe, et mes changements restent.",
     "goneItem": "{{item}} (n’est plus dans le plan)",
     "undone": "Annulé"
+  },
+  "planError": {
+    "title": "Signaler une erreur dans le plan",
+    "kind": "Type d’erreur",
+    "kinds": {
+      "title": "Titre",
+      "page": "Page du manuel",
+      "duration": "Durée",
+      "order": "Ordre",
+      "other": "Autre erreur"
+    },
+    "note": "Remarque",
+    "notePlaceholder": "Par exemple : le texte est à la page 26 du manuel, pas à la page 24.",
+    "credit": "Me citer dans les remerciements de l’équipe éditoriale lors de la correction",
+    "name": "Nom tel qu’il doit apparaître",
+    "namePlaceholder": "Votre nom ou vos initiales",
+    "preview": "Ce qui sera envoyé, tel quel",
+    "lineItem": "Élément : {{item}}",
+    "partOf": "{{item}}, partie {{part}}",
+    "lineRelease": "Version : {{release}}",
+    "lineKind": "Type : {{kind}}",
+    "lineNote": "Remarque : {{note}}",
+    "lineName": "Nom : {{name}}",
+    "noName": "non envoyé",
+    "never": "L’application n’ajoute ni classe, ni école, ni donnée d’élève. N’écrivez pas de noms d’élèves dans la remarque.",
+    "needsNote": "Écrivez d’abord une remarque.",
+    "needsName": "Saisissez le nom à citer, ou désactivez la mention.",
+    "sendTo": "Envoyez-le à contact@djazair.dev, par e-mail ou avec l’application choisie dans le menu de partage.",
+    "share": "Partager le signalement",
+    "offline": "L’application n’envoie rien elle-même : le menu de partage du téléphone s’ouvre, et vous choisissez.",
+    "gone": "Cet élément n’est plus dans le plan de la classe, ou vous l’avez ajouté : il n’y a pas d’erreur de pack à signaler."
   },
   "tests": {
     "title": "Calendrier des devoirs",

@@ -137,6 +137,7 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
       text.connections.none,
       text.connections.source,
       text.connections.packSource,
+      text.connections.errorReport,
       text.connections.register,
     ]),
   );
