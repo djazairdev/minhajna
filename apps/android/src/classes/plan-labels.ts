@@ -19,6 +19,7 @@ export function dayMonth(day: Day): string {
 
 /** The days it was taught, or the day the plan would reach it, or nothing. */
 export function rowDays(row: PlanRow): { text: string; ahead: boolean } | null {
+  if (row.completed !== undefined) return { text: dayMonth(row.completed), ahead: false };
   if (row.taught !== null) {
     const { from, to } = row.taught;
     return { text: from === to ? dayMonth(from) : `${dayMonth(from)}–${dayMonth(to)}`, ahead: false };
@@ -38,9 +39,11 @@ export function rowTags(t: Translate, row: PlanRow, postponed = false): RowTag[]
       : row.status === 'skipped'
         ? t('classPlan.skipped')
         : row.status === 'started'
-          ? row.stages > 1
-            ? t('classPlan.startedStages', { covered: row.covered, stages: row.stages })
-            : t('classPlan.started')
+          ? row.onlyGroup !== undefined
+            ? t('calendarView.groups.only', { group: row.onlyGroup })
+            : row.stages > 1
+              ? t('classPlan.startedStages', { covered: row.covered, stages: row.stages })
+              : t('classPlan.started')
           : null;
   return [
     ...(status === null ? [] : [{ id: 'status' as const, label: status }]),

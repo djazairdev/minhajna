@@ -20,6 +20,7 @@ import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack 
 import { findSessionType, type Confidence, type Queue } from './reference.ts';
 import { compareSessions, sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
+import { rotationCredits } from './rotation-sessions.ts';
 
 export interface Pace {
   /** Ordinary sessions of the main plan recorded so far, held or not. */
@@ -29,7 +30,12 @@ export interface Pace {
    * lost to the teacher's own calendar, such as training days: it is
    * private, and only the teacher sees it (PRD §4.5).
    */
-  readonly lost: { readonly holiday: number; readonly closure: number; readonly teacher: number };
+  readonly lost: {
+    readonly holiday: number;
+    readonly closure: number;
+    readonly teacher: number;
+    readonly rotation: number;
+  };
   /** Where the class is, in sessions of the plan's budgets. */
   readonly position: number;
   /** Where the plan says the class should be, in the same unit. Only a reference (PRD §4.7). */
@@ -139,7 +145,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     0,
   );
 
-  let expected = Math.min(total, recorded.length);
+  let expected = Math.min(total, rotationCredits(recorded));
   let weeksBehind: number | null = null;
   if (pack.anchor.kind === 'weeks') {
     const school = state.schools.get(setup.schoolClass.schoolId);
@@ -156,7 +162,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     }).length;
     const before = items.filter((item) => (item.week ?? 0) < planWeek).reduce((sum, item) => sum + budgetOf(item), 0);
     const during = items.filter((item) => item.week === planWeek).reduce((sum, item) => sum + budgetOf(item), 0);
-    expected = before + Math.min(during, thisWeek);
+    expected = Math.max(0, before + Math.min(during, thisWeek) - (recorded.length - rotationCredits(recorded)));
     const firstOpen = items.find((item) => !progress.isFinished(pack, item, whole));
     weeksBehind = firstOpen?.week === undefined ? 0 : Math.max(0, planWeek - firstOpen.week);
   }
@@ -174,6 +180,10 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
       holiday: sessions.filter((session) => session.calendar === 'holiday').length,
       closure: sessions.filter((session) => session.calendar === 'closure').length,
       teacher: sessions.filter((session) => session.calendar === 'teacher').length,
+      rotation:
+        ordinary.length -
+        rotationCredits(ordinary) +
+        sessions.filter((session) => session.calendar === 'rotation').length,
     },
     position,
     expected,
@@ -242,12 +252,16 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
       const budget = budgetInSessions(pack, item, setup.sessionMinutes);
       return sum + budget * (1 - share(pack, progress, item, whole, budget));
     }, 0);
-  const open = (queue: Queue): number =>
-    compareDays(from, before) < 0
-      ? queueSessions(context, setup, from, addDays(before, -1), queue).filter(
-          (session) => session.calendar === null && current(state.sessions.get(session.key)) === null,
-        ).length
-      : 0;
+  const open = (queue: Queue): number => {
+    if (compareDays(from, before) >= 0) return 0;
+    const all = queueSessions(context, setup, ref.year.from, addDays(before, -1), queue);
+    const recorded = all.filter((session) => current(state.sessions.get(session.key)) !== null);
+    const future = all.filter(
+      (session) =>
+        session.day >= from && session.calendar === null && current(state.sessions.get(session.key)) === null,
+    );
+    return rotationCredits([...recorded, ...future]) - rotationCredits(recorded);
+  };
   const tdItems = queueItems(pack, 'td').filter((item) => {
     const itemTerm = tdTerm(pack, item);
     if (itemTerm === undefined || itemTerm > term.number) return false;

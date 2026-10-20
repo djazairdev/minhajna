@@ -78,6 +78,7 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
           </View>
         ))}
         <View style={styles.link}>
+          <Text style={[styles.text, align]}>{t('calendarView.receive.privacy')}</Text>
           <RowLink
             testID="privacy-connections"
             icon={controlIcon('globe')}

@@ -57,9 +57,10 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
+  const paced = useMemo(() => (view === null ? null : pace(context, courseId, day)), [view, context, courseId, day]);
   const line = paceLine(
     t,
-    { pace: view === null ? null : pace(context, courseId, day), check },
+    { pace: paced, check },
     minutes && view !== null ? courseSetup(context, courseId).sessionMinutes : undefined,
   );
 
@@ -127,6 +128,9 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
         <Text style={[styles.title, align]}>{line}</Text>
         {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}
         {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
+        {(paced?.lost.rotation ?? 0) > 0 && (
+          <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
+        )}
       </View>
       {view === null ? (
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>

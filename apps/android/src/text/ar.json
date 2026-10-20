@@ -37,7 +37,8 @@
       "react-native-helpers.txt": "مكتبات مساعدة لـ React Native",
       "react-native-hermes.txt": "محرك Hermes",
       "react-native-jpeg.txt": "مكتبات صور JPEG",
-      "react-native-native.txt": "المكتبات الأصلية لـ React Native"
+      "react-native-native.txt": "المكتبات الأصلية لـ React Native",
+      "zxing.txt": "ZXing"
     }
   },
   "referenceRefused": "تعذّرت قراءة الرزنامة وبيانات الجزائر المرفقة بالتطبيق، فلم يُستعمل منها شيء.",
@@ -1493,6 +1494,7 @@
       "time": "التوقيت",
       "hour": "{{hours}}سا",
       "hourMinutes": "{{hours}}سا{{minutes}}",
+      "rotationGroup": "{{class}} · {{group}}",
       "topic": "الموضوع أو العمل المطلوب إنجازه",
       "signature": "التوقيع",
       "none": "لا حصة مؤكَّدة في هذا الشهر بعد."

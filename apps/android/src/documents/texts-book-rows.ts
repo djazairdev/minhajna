@@ -110,12 +110,26 @@ export function bookRow(
   dir: Direction,
 ): BookRow {
   const time = sessionTime(data, where.school, session.slot, session.day);
+  const schoolClass = data.state.classes.get(session.classId);
+  const group = schoolClass?.groups.find((one) => one.id === session.groupId);
   return {
     key: session.key,
     day: session.day,
     date: bookDate(session.day, dir),
     time: time === null ? '' : span(bookClock(time.from, t), bookClock(time.to, t), dir),
-    lines: bookLines(t, where.pack, record, (day) => bookDate(day, dir)),
+    lines: [
+      ...(session.rotation !== undefined && schoolClass !== undefined && group !== undefined
+        ? [
+            {
+              text: t('documents.textsBook.rotationGroup', {
+                class: `\u2068${schoolClass.name}\u2069`,
+                group: `\u2068${group.name}\u2069`,
+              }),
+            },
+          ]
+        : []),
+      ...bookLines(t, where.pack, record, (day) => bookDate(day, dir)),
+    ],
   };
 }
 

@@ -36,7 +36,10 @@ data class TimingRow(val kind: String, val week: String, val tenths: Long, val o
  * removes an entry's content and salt. The core checks the chain when it
  * opens the history; the triggers below refuse the rest here too. Since
  * version 2 it also keeps the pilot's timings, in a table of their own
- * outside the history, which the teacher can clear.
+ * outside the history, which the teacher can clear. Version 5 keeps the
+ * same rows, but stops older apps from opening entries they cannot read
+ * safely: half-day entries, local lunar confirmations, rotation snapshots
+ * and received notices (#222). Versions 3 and 4 were never released.
  */
 class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
 
@@ -121,7 +124,7 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
   }
 
   companion object {
-    private const val SCHEMA_VERSION = 2
+    private const val SCHEMA_VERSION = 5
 
     init {
       System.loadLibrary("sqlcipher")
@@ -194,7 +197,7 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
       db.beginTransaction()
       try {
         if (version == 0) createHistory(db)
-        db.execSQL(
+        if (version < 2) db.execSQL(
           """
           CREATE TABLE timing (
             kind TEXT NOT NULL CHECK (kind IN ('session', 'roll')),

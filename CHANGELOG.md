@@ -8,6 +8,14 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### New
 
+- You can browse your school's calendar by month and filter its four layers, with each date's source and confidence. Add, edit or cancel local entries for a whole day, morning or afternoon, and make-up, support or revision days, after reviewing their effect. Earlier versions and recorded lessons stay intact.
+  - يمكنك عرض رزنامة مؤسستك شهراً بشهر، واختيار المواعيد الوطنية أو الخاصة بالولاية أو المؤسسة أو بك، مع مصدر كل موعد ودرجة يقينه. ويمكنك إضافة مواعيد لليوم كله أو الصبيحة أو المساء، وأيام تعويض أو دعم أو مراجعة، وتعديلها أو إلغاؤها بعد معاينة أثرها. تبقى النسخ السابقة والحصص المسجّلة محفوظة.
+- Confirm a lunar holiday's announced first day and source on your device, or set your school's A/B week and preview the letters that change. You can correct or withdraw either later. A local confirmation does not mean an authority verified or sent it.
+  - يمكنك تأكيد أول يوم للعطلة القمرية حسب الإعلان الذي اطّلعت عليه، مع ذكر مصدره، أو ضبط الأسبوع أ/ب لمؤسستك ومعاينة الحروف التي تتغيّر. ويمكنك تصحيح التأكيد أو الضبط أو سحبه لاحقاً. هذا حفظ محلي، وليس تحققاً من جهة رسمية أو إعلاناً أرسلته عبر التطبيق.
+- Review and adjust two half-groups, then preview a dated rotation following the school's A/B weeks. Repeating a lesson for the other group counts as calendar cost, not delay. Roll call covers only the attending group; the texts book keeps each session's group and date. Recorded sessions and roll calls stay intact.
+  - يمكنك مراجعة قسمة القسم إلى فوجين وتعديلها، ثم معاينة التناوب خلال فترة تختارها حسب الأسبوع أ/ب. يُحسب تكرار الدرس للفوج الآخر ضمن الرزنامة، لا كتأخر. تخص المناداة الفوج الحاضر وحده، ويحتفظ دفتر النصوص بفوج كل حصة وتاريخها. تبقى الحصص والمناداة المسجّلة كما هي.
+- Receive a school or wilaya closure notice from a local file or QR code, without an internet connection. Check the dates, source and school, then preview its effect before adding it. The sender is not verified. Camera access is requested only when you choose to scan; you can use a file instead.
+  - يمكنك استلام إشعار بغلق المؤسسة أو مؤسسات الولاية من ملف أو رمز QR، دون إنترنت. راجع التاريخ والمصدر والمؤسسة، ثم عاين أثره قبل إضافته. لا يتحقق التطبيق من هوية المُرسل. لا تُطلب الكاميرا إلا عند اختيار المسح، ويمكنك فتح ملف بدلاً منه.
 - Settings now opens from Today. You can revisit your teacher card, schools, classes, timetable and packs without starting again, preview a language before saving it, and read each level's session lengths and their sources. Optional planning minutes appear beside session counts. Features not built yet are marked unavailable.
   - تُفتح الإعدادات من صفحة اليوم. يمكنك مراجعة بطاقة الأستاذ والمؤسسات والأقسام وجدول التوقيت والحزم دون البدء من جديد، ومعاينة اللغة قبل حفظها، والاطّلاع على مدة الحصص ومصادرها لكل طور. ويمكن إظهار دقائق التخطيط بجانب عدد الحصص. والميزات التي لم تُنجز بعد مبيّنة بأنها غير متاحة.
 
@@ -22,6 +30,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 - In a session's details, the screen reader now says that a private note never leaves your devices as you reach its field.
   - في تفاصيل الحصة، يقول قارئ الشاشة الآن إن الملاحظة الخاصة لا تغادر أجهزتك عند الوصول إلى خانتها.
+
+### Privacy
+
+- The app now has the camera permission, used only when you choose to scan a calendar QR code. Its frames are read in the phone's memory and never saved or sent. Opening a file reads only the file you pick, with no lasting access.
+  - أصبح للتطبيق إذن الكاميرا، ولا يستعملها إلا حين تختار مسح رمز QR لموعد في الرزنامة. تُقرأ صورها في ذاكرة الهاتف، ولا تُحفظ ولا تُرسل. وفتح ملف لا يقرأ إلا الملف الذي تختاره، دون إذن دائم.
 
 ## 0.2.0 (2026-10-20)
 

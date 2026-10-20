@@ -1,0 +1,21 @@
+{
+  "format": "minhajna.calendar-entry",
+  "version": { "major": 1, "minor": 0 },
+  "country": "dz",
+  "year": "2026-2027",
+  "sender": "مُرسل تجريبي — ليس إعلاناً رسمياً",
+  "school": { "name": "متوسطة تجريبية", "zone": "16" },
+  "entry": {
+    "id": "synthetic-school-closure",
+    "layer": "school",
+    "effect": "closure",
+    "from": "2026-10-15",
+    "to": "2026-10-15",
+    "half": "morning",
+    "source": "مثال مختلق لاختبار الاستلام",
+    "name": { "ar": "غلق تجريبي", "fr": "Fermeture fictive", "en": "Example closure" },
+    "confidence": "announced",
+    "levels": ["cem"],
+    "grades": ["4am"]
+  }
+}

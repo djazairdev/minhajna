@@ -10,6 +10,12 @@ Every network call that Minhajna's code makes is listed here, with the address, 
 
 The tests make no network calls either ([engineering rules](docs/contributing/engineering.md#tests)).
 
+## Offline calendar input
+
+Only after the teacher selects Open file does Android's document picker select one local document (`EXTRA_LOCAL_ONLY`). The app reads that content URI with a byte limit and timeout, takes no persistent URI grant, and asks for no storage permission. It does not fetch URLs found in a file or QR code.
+
+Only after the teacher selects Scan QR code does an unexported app screen request camera permission and decode frames locally with ZXing Core 3.5.4. Frames remain in memory, are cleared after decoding and are not saved or sent. Leaving or backgrounding that screen closes the camera. Refusing access leaves file input available. No Google Play service, online decoder, identifier, upload, analytics or new network permission is involved. The founder approved this dependency and scan-only camera access for #222 (answer 288 in the project's decision record).
+
 ## Optional source link in Help
 
 The source link is the fixed public address [github.com/djazairdev/minhajna](https://github.com/djazairdev/minhajna). Reading Help or a licence makes no request and does not launch another app. Only after the teacher selects the link and confirms a notice in their interface language does Android hand that address to the user's browser. No record, identifier, query parameter or other payload is attached. The browser may then contact GitHub under its own settings, revealing its normal connection/browser information to that site; this is not an in-app fetch or an embedded web view. Cancelling makes no hand-off. An unavailable browser does not prevent offline reading.

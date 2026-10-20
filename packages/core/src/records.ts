@@ -7,6 +7,7 @@
 
 import type { Day, Weekday } from './day.ts';
 import type { RollCallUnitKind } from './reference.ts';
+export type { Absence, Pupil, PupilMovement, RollCall } from './attendance-records.ts';
 
 /**
  * The details the documents print (PRD §3.2). The subjects, schools and
@@ -75,33 +76,6 @@ export interface SchoolClass {
   readonly rollCallUnit?: RollCallUnitKind;
   /** The demo class, whose pupils are made up (PRD §1.5). */
   readonly demo?: true;
-}
-
-export interface PupilMovement {
-  readonly day: Day;
-  readonly kind: 'in' | 'out';
-  readonly reason: string;
-  /** For a pupil who left: the director's confirmation, once the teacher records it (PRD §3.2). */
-  readonly confirmed?: boolean;
-}
-
-/** Only the fields in PRD §5.6. */
-export interface Pupil {
-  readonly id: string;
-  readonly classId: string;
-  /**
-   * The official registration number. Pupils are matched by it, never by
-   * name. A typed list may leave it out until the official file fills it in
-   * (PRD §3.2).
-   */
-  readonly registration?: string;
-  readonly name: string;
-  /** The name in Latin letters, if the class list has it. */
-  readonly latinName?: string;
-  readonly sex: 'f' | 'm';
-  /** Half-groups and option groups. Every pupil is in the whole-class group. */
-  readonly groups: readonly string[];
-  readonly movements: readonly PupilMovement[];
 }
 
 export interface PinnedPack {
@@ -201,6 +175,13 @@ export interface SessionRef {
   readonly groupId: string;
   readonly day: Day;
   readonly slot: Slot;
+  readonly rotation?: Rotation;
+}
+
+/** Group IDs only: the rule used when a session or roll call was recorded. */
+export interface Rotation {
+  readonly entryId: string;
+  readonly groups: readonly [string, string];
 }
 
 export interface Homework {
@@ -244,23 +225,6 @@ export interface PrivateNote {
   readonly note?: string;
   /** A reason in the teacher's own words, given when confirming or correcting the session. */
   readonly reasonText?: string;
-}
-
-export interface Absence {
-  readonly pupilId: string;
-  /** Justified or unjustified. The cause is never typed (PRD §5.6). */
-  readonly justified: boolean;
-}
-
-/** One roll call: everyone is present except those marked (PRD §3.4). */
-export interface RollCall {
-  readonly unit: string;
-  readonly classId: string;
-  readonly groupId: string;
-  readonly day: Day;
-  readonly half: Half;
-  readonly absent: readonly Absence[];
-  readonly late: readonly string[];
 }
 
 export interface Seat {

@@ -30,6 +30,13 @@ export type RootStackParamList = {
   StorageCheck: undefined;
   Help: undefined;
   Settings: undefined;
+  Calendar: undefined;
+  CalendarEntry: { id: string; origin: 'bundled' | 'local'; schoolId: string };
+  CalendarEdit: { id?: string; schoolId: string };
+  CalendarAb: { schoolId: string };
+  CalendarGroups: { schoolId: string };
+  CalendarReceive: { schoolId: string };
+  CalendarLunar: { id: string; schoolId: string };
   SettingsCard: undefined;
   SettingsSchools: undefined;
   SettingsClasses: undefined;
@@ -81,5 +88,5 @@ export type RootStackParamList = {
   DocOutput: { id: string; day?: string };
   PrintWeek: undefined;
   Extra: { courseId?: string } | undefined;
-  AddSessions: undefined;
+  AddSessions: { schoolId?: string; calendar?: true } | undefined;
 };

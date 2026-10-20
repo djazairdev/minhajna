@@ -130,7 +130,12 @@ describe('pacing', () => {
 
   it("counts sessions lost to the calendar apart, and those lost to the teacher's own calendar for the teacher alone", async () => {
     const book = await openBook(cemEvents());
-    assert.deepEqual(pace(contextOf(book), 'c-math', d('2026-11-19'))?.lost, { holiday: 1, closure: 1, teacher: 0 });
+    assert.deepEqual(pace(contextOf(book), 'c-math', d('2026-11-19'))?.lost, {
+      holiday: 1,
+      closure: 1,
+      teacher: 0,
+      rotation: 0,
+    });
     await book.record(d('2026-10-01'), {
       kind: 'calendar.set',
       entry: {
@@ -145,7 +150,7 @@ describe('pacing', () => {
       },
     });
     const result = pace(contextOf(book), 'c-math', d('2026-11-19'));
-    assert.deepEqual(result?.lost, { holiday: 1, closure: 1, teacher: 4 });
+    assert.deepEqual(result?.lost, { holiday: 1, closure: 1, teacher: 4, rotation: 0 });
   });
 
   it('counts week packs in plan weeks', async () => {

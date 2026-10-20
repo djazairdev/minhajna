@@ -51,3 +51,12 @@ jest.mock('../src/native/NativeMinhajnaBuild', () => ({
     ),
   },
 }));
+
+jest.mock('../src/native/NativeMinhajnaCalendarInput', () => ({
+  __esModule: true,
+  default: {
+    readFile: jest.fn(() => Promise.resolve(null)),
+    scanQr: jest.fn(() => Promise.resolve(null)),
+    cancel: jest.fn(),
+  },
+}));

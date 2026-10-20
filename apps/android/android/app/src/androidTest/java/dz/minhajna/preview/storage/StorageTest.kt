@@ -190,7 +190,7 @@ class StorageTest {
     }
     val db = openDatabase()
     assertEquals(timings, db.loadTimings())
-    assertEquals("2", db.pragma("user_version"))
+    assertEquals("5", db.pragma("user_version"))
     db.clearTimings()
     assertEquals(emptyList<TimingRow>(), db.loadTimings())
     assertEquals(listOf(row(0)), db.load())
@@ -254,7 +254,7 @@ class StorageTest {
       raw.close()
     }
     val db = openDatabase()
-    assertEquals("2", db.pragma("user_version"))
+    assertEquals("5", db.pragma("user_version"))
     assertEquals(listOf(row(0)), db.load())
     db.addTimings(listOf(TimingRow("roll", "2026-10-11", 610, false)))
     assertEquals(1, db.loadTimings().size)

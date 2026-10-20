@@ -1,7 +1,7 @@
 {
   "format": 1,
   "country": "dz",
-  "release": "2026.2",
+  "release": "2026.3",
   "year": {
     "id": "2026-2027",
     "from": "2026-09-21",
@@ -155,7 +155,8 @@
       "effect": "no-school",
       "name": { "ar": "عيد الفطر", "fr": "Aïd el-Fitr", "en": "Eid al-Fitr" },
       "source": "Law 63-278 of 26 July 1963 on legal holidays, as amended. Date expected from the Umm al-Qura calendar, confirmed when the moon is sighted",
-      "confidence": "expected"
+      "confidence": "expected",
+      "lunar": true
     },
     {
       "id": "spring-holidays",
@@ -209,7 +210,8 @@
       "effect": "no-school",
       "name": { "ar": "عيد الأضحى", "fr": "Aïd el-Adha", "en": "Eid al-Adha" },
       "source": "Law 63-278 of 26 July 1963 on legal holidays, as amended. Date expected from the Umm al-Qura calendar, confirmed when the moon is sighted",
-      "confidence": "expected"
+      "confidence": "expected",
+      "lunar": true
     },
     {
       "id": "term-3-exams",
@@ -231,7 +233,8 @@
       "effect": "no-school",
       "name": { "ar": "رأس السنة الهجرية", "fr": "Awal Moharram", "en": "Islamic New Year" },
       "source": "Law 63-278 of 26 July 1963 on legal holidays, as amended. Date expected from the Umm al-Qura calendar, confirmed when the moon is sighted",
-      "confidence": "expected"
+      "confidence": "expected",
+      "lunar": true
     },
     {
       "id": "ashura",
@@ -241,7 +244,8 @@
       "effect": "no-school",
       "name": { "ar": "عاشوراء", "fr": "Achoura", "en": "Ashura" },
       "source": "Law 63-278 of 26 July 1963 on legal holidays, as amended. Date expected from the Umm al-Qura calendar, confirmed when the moon is sighted",
-      "confidence": "expected"
+      "confidence": "expected",
+      "lunar": true
     },
     {
       "id": "independence-day",

@@ -30,7 +30,8 @@ import type { Context } from './context.ts';
 import { compareDays, eachDay, isWithin, maxDay, minDay, weekday, type Day } from './day.ts';
 import { courseGrade, entryCourses, forGrade } from './joint.ts';
 import type { AddedKind } from './reference.ts';
-import { compareSlots, slotKey, type Slot, type TimetableVersion } from './records.ts';
+import { compareSlots, slotKey, type Rotation, type Slot, type TimetableVersion } from './records.ts';
+import { rotatingSessions } from './rotation-sessions.ts';
 import { current, type RecordedTimetable } from './state.ts';
 import { TEST_SESSION_TYPE } from './test-schedule.ts';
 
@@ -46,13 +47,15 @@ export type CalendarMark =
    * The teacher's own calendar, such as a training day or a seminar. The
    * class is still there, so its roll call stays. Private (PRD §4.5).
    */
-  | 'teacher';
+  | 'teacher'
+  | 'rotation';
 
 export interface Session {
   readonly key: string;
   readonly courseId: string;
   readonly classId: string;
   readonly groupId: string;
+  readonly rotation?: Rotation;
   readonly day: Day;
   readonly slot: Slot;
   /** From the timetable, or from the record once the session is recorded. */
@@ -155,7 +158,7 @@ export function addedSessions(
             if (courseIds !== undefined && !courseIds.has(level.id)) continue;
             const forLevel = forGrade(schoolClass, courseGrade(level, schoolClass));
             if (!appliesTo(added, school, forLevel)) continue;
-            const info = calendar.info(day, school, forLevel);
+            const info = calendar.info(day, school, forLevel, entry.slot.half);
             const blocking = info.closure ?? info.exam ?? info.teacher;
             const key = sessionKey(level.id, day, entry.slot, entry.groupId);
             found.push({
@@ -180,7 +183,13 @@ export function addedSessions(
       }
     }
   }
-  return found.sort((a, b) => compareSessions(a.session, b.session));
+  const grouped = rotatingSessions(context, new Map(found.map((one) => [one.session.key, one.session])));
+  return [...grouped.values()]
+    .map((session) => ({
+      session,
+      kind: found.find((one) => one.session.added === session.added)!.kind,
+    }))
+    .sort((a, b) => compareSessions(a.session, b.session));
 }
 
 /**
@@ -190,7 +199,7 @@ export function addedSessions(
  */
 export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?: ReadonlySet<string>): Session[] {
   const { ref, state, calendar } = context;
-  const sessions = new Map<string, Session>();
+  let sessions = new Map<string, Session>();
   const first = maxDay(from, ref.year.from);
   const last = minDay(to, ref.year.to);
 
@@ -208,7 +217,12 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
       if (entry.weeks !== 'every' && entry.weeks !== week.parity) continue;
       for (const level of entryCourses(state, course)) {
         if (courseIds !== undefined && !courseIds.has(level.id)) continue;
-        const info = calendar.info(day, school, forGrade(schoolClass, courseGrade(level, schoolClass)));
+        const info = calendar.info(
+          day,
+          school,
+          forGrade(schoolClass, courseGrade(level, schoolClass)),
+          entry.slot.half,
+        );
         const blocking = !info.schoolDay
           ? (info.entries.find((e) => e.effect === 'no-school' && e.layer !== 'teacher') ?? null)
           : (info.closure ?? info.exam ?? info.teacher);
@@ -237,6 +251,7 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
     if (usual === undefined || taken) sessions.set(session.key, session);
   }
 
+  sessions = rotatingSessions(context, sessions);
   for (const test of state.tests.values()) {
     const key = sessionKey(test.courseId, test.day, test.slot, test.groupId);
     const session = sessions.get(key);
@@ -250,20 +265,24 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
     if (courseIds !== undefined && !courseIds.has(record.session.courseId)) continue;
     const course = state.courses.get(record.session.courseId);
     if (course === undefined) continue;
-    const { test, ...scheduled } = sessions.get(key) ?? {
+    const matched: Session = sessions.get(key) ?? {
       key,
       courseId: course.id,
       classId: course.classId,
       groupId: record.session.groupId,
       day: record.session.day,
       slot: record.session.slot,
+      ...(record.session.rotation !== undefined && { rotation: record.session.rotation }),
       calendar: null,
       calendarEntry: null,
       scheduled: false,
+      sessionType: record.sessionType,
     };
+    const { test, ...scheduled } = matched;
     sessions.set(key, {
       ...scheduled,
       sessionType: record.sessionType,
+      ...(record.outcome !== 'not-held' && { calendar: null, calendarEntry: null }),
       ...(test !== undefined && record.sessionType === TEST_SESSION_TYPE && { test }),
     });
   }

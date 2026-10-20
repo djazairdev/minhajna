@@ -73,6 +73,7 @@ import {
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections } from '../help/PrivacyNotice';
 import type { HomeTabParamList, RootStackParamList } from './routes';
+import { calendarRoutes } from './CalendarScreens';
 
 /** Each tab's label in the catalogue. */
 export const tabLabels = {
@@ -210,6 +211,7 @@ export function AppNavigator({
         <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={dark(t('settings.title'))} />
+        {calendarRoutes(Stack, t)}
         <Stack.Screen name="SettingsCard" component={SettingsCardScreen} options={dark(t('settings.rows.card'))} />
         <Stack.Screen
           name="SettingsSchools"

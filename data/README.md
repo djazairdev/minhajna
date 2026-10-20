@@ -89,6 +89,12 @@ Each entry carries one of three confidences ([PRD §4.5](../docs/prd/PRD.md#45-t
 
 ## Changing the data
 
+Calendar release `2026.3` adds `lunar: true` to the four expected lunar holidays: the two Eids, Awal Muharram and Ashura. All dates, durations, sources and confidence values stay unchanged. This optional metadata is safe for an older format-1 reader to leave out; it only identifies which entries may offer local sighting confirmation. An expected date alone never qualifies. Ramadan remains an expected month with its existing hours, not a holiday to confirm through this control.
+
+Local confirmations keep the exact original reference entry, as canonical text, alongside the announced dates and the source the teacher entered. They replace the expected entry's effect only while that reference still matches. Cancelling restores the bundled dates; a changed reference makes the old confirmation inactive. No signature or issuer is verified here. Local `half`, `confirmedFrom`, `rotation` and `received` fields, and the `rotating-groups` effect, are not part of the format-1 reference exchange: its reader refuses them rather than silently discarding their meaning.
+
+Single-entry receiving uses its own [bounded closure-notice format](../docs/checks/calendar-notice-format.md), not this reference-release format. Received provenance stays in local history; it is not an issuer-verification claim. Signed reference imports remain #223.
+
 - **A fix is a new release.** Raise `release` in the file that changes, for example from `2026.1` to `2026.2`, so that the app can tell the update apart ([PRD §4.10](../docs/prd/PRD.md#410-the-rest-of-the-reference-data)).
 - **Cite the official text** in the entry's `source`, with a link when there is one. A press article or a forum post can point to a text, but is never the source. When the moon is sighted, the lunar entry becomes announced and cites the announcement.
 - **Run the tests.** `npm test` reads every file, checks their sources and exam windows, and runs made-up classes through the whole year.
