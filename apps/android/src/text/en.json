@@ -1472,13 +1472,22 @@
     "badge": "Preview",
     "short": "A preview, for trying the app with made-up pupils only.",
     "title": "A preview of Minhajna",
-    "message": "For trying the app with made-up pupils only: the demo class, or names you invent. Real pupils’ records wait for the pilot version.",
+    "message": "For trying the app with made-up pupils only: the demo class, or names you invent. Real pupils’ records wait for the version the Ministry runs.",
     "version": "Version {{version}} ({{code}})",
     "apk": "Checksum of this app (SHA-256)",
     "signer": "Checksum of its signing certificate (SHA-256)",
     "compare": "Compare them with the checksums published with the preview. If they differ, this is not the project’s preview.",
     "reading": "Working out the checksums…",
     "refused": "The checksums could not be worked out on this phone."
+  },
+  "realNames": {
+    "badge": "Real names",
+    "setup": "You can type your pupils’ real names. They stay encrypted on this phone, behind the app lock, and never reach the Minhajna project.",
+    "beforeLock": "Pupils’ real names are accepted once you choose the app’s PIN.",
+    "title": "Real class lists",
+    "message": "This version takes your pupils’ real names once the app lock is set. They stay encrypted on this phone and never reach the Minhajna project. Declared to the ANPDP under number {{declaration}}.",
+    "privacy": "The processing is declared to the ANPDP under number {{declaration}}.",
+    "compare": "Compare them with the checksums published with this version. If they differ, this is not the published version."
   },
   "joint": {
     "open": "Joint class (primary)",

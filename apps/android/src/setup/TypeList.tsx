@@ -4,10 +4,11 @@
 // Typing a class list (#27, Setup-4c-Type, R-3.2-11): the name, the sex and,
 // if the teacher has it, the registration number. Each pupil is saved when
 // added, the list is sorted alphabetically, and there is no limit on its size.
-// Tapping a pupil loads them back into the form, to correct or remove. Until
-// the pilot, teachers type made-up names only, and the screen says so (choice
-// F1 of the field check, #49). In a joint class, each pupil's year is chosen
-// too, and the list counts each year's pupils (#43).
+// Tapping a pupil loads them back into the form, to correct or remove. The
+// project's builds take made-up names only, and the screen says so (choice
+// F1 of the field check, #49); the build the Ministry runs takes real names,
+// and says how they are protected (#211). In a joint class, each pupil's
+// year is chosen too, and the list counts each year's pupils (#43).
 
 import { isJoint, levelGroups, pupilGrade, type Pupil, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -18,6 +19,7 @@ import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { TextField } from '../components/TextField';
+import { REAL_NAMES, realNamesDeclaration } from '../privacy/real-names';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
@@ -117,7 +119,16 @@ export function TypeList({ classId, onDone }: { classId: string; onDone: () => v
     <View style={[styles.screen, { direction }]}>
       <ScrollView contentContainerStyle={[styles.content, sides]} keyboardShouldPersistTaps="handled">
         <Text style={[styles.sub, align]}>{t('setup.typeIntro')}</Text>
-        <Notice testID="made-up-only" variant="notice" badge={t('setup.trialBadge')} message={t('setup.madeUpOnly')} />
+        {realNamesDeclaration(REAL_NAMES, true) === null ? (
+          <Notice
+            testID="made-up-only"
+            variant="notice"
+            badge={t('setup.trialBadge')}
+            message={t('setup.madeUpOnly')}
+          />
+        ) : (
+          <Notice testID="real-names" variant="notice" badge={t('realNames.badge')} message={t('realNames.setup')} />
+        )}
         <View style={styles.form}>
           <TextField
             testID="pupil-name"

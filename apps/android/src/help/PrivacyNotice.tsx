@@ -5,7 +5,9 @@
 // Help, as Law 18-07 Art. 32 requires (PRD §6.2). Its words describe this
 // build, which has no network permission: the design's lines on sync, backup,
 // servers and crash reports wait for those features. The contact
-// keeps the design's placeholders until counsel names it (R-6.2-02).
+// keeps the design's placeholders until counsel names it (R-6.2-02). The
+// build the Ministry runs states its ANPDP declaration under the publisher
+// (#211, answer 274); the project's own builds have none to state.
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,7 +16,9 @@ import { Button } from '../components/Button';
 import { RowLink } from '../components/RowLink';
 import { controlIcon, Icon, type IconName } from '../design/Icon';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
+import { buildDeclaration, REAL_NAMES } from '../privacy/real-names';
 import { useText } from '../text/i18n';
+import { isolate } from '../week/grid-labels';
 
 const SECTIONS = [
   ['phone', 'phone'],
@@ -32,6 +36,7 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
   const t = useText();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
+  const declaration = buildDeclaration(REAL_NAMES);
   return (
     <View style={[styles.screen, { direction }]}>
       <ScrollView
@@ -57,6 +62,11 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
                 {t(`privacy.${key}Title`)}
               </Text>
               <Text style={[styles.text, align]}>{t(`privacy.${key}Text`)}</Text>
+              {key === 'publisher' && declaration !== null && (
+                <Text testID="privacy-declaration" style={[styles.text, align]}>
+                  {t('realNames.privacy', { declaration: isolate(declaration) })}
+                </Text>
+              )}
               {key === 'rights' && (
                 <View style={styles.contact}>
                   <Text style={[styles.text, align]}>{t('privacy.contact')}</Text>
