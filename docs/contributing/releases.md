@@ -31,9 +31,9 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
   2. a maintainer copies it to the release branch with `git cherry-pick -x`, which records where it came from.
 - **Patch releases** come from the release branch.
 - **Tags** are annotated and signed by the release manager:
-  - `app-v1.5.0` and `app-v1.5.0-beta.1` for the apps;
+  - `v1.5.0` and `v1.5.0-beta.1` for the apps;
   - `server-v1.2.0` for the server.
-- **A pushed tag is never moved or deleted.** A mistake gets a new version.
+- **A pushed tag is never moved or deleted.** A mistake gets a new version. The first two releases were tagged `app-v0.1.0` and `app-v0.2.0`; those tags stay, beside `v0.1.0` and `v0.2.0` on the same commits.
 
 ## Who releases
 
@@ -68,7 +68,7 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 
 12. The release manager signs the tag. The release is built from the tag and signed, and the SHA-256 checksum of each file is published with it.
 13. The release is published:
-    - on GitHub, with the notes, the files, the checksums and the signatures;
+    - on GitHub, titled with its tag (`v1.5.0`), with the notes, the files, the checksums and the signatures. A beta is marked as a pre-release; the newest release is marked as Latest;
     - on the project's website, with the signing key's fingerprint and the checksums, which the README repeats ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security));
     - on Google Play, as a staged rollout;
     - on F-Droid, which builds it from the tag.
