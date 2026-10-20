@@ -15,10 +15,10 @@ Give teachers the [Arabic download and testing page](https://djazair.dev/ar/minh
 
 ## What the preview is
 
-- **Signed preview 0.1.0:** from the project's [release page](https://github.com/djazairdev/minhajna/releases/tag/app-v0.1.0) or handed over by the organiser.
+- **The signed preview:** the latest from the project's [releases page](https://github.com/djazairdev/minhajna/releases/latest), or handed over by the organiser.
 - **Made-up data only:** use «إضافة القسم التجريبي» in setup, or invented names. Keep using official school records.
 - **Offline:** entries stay on the phone. Opening the source link asks before launching the browser; no app record or identifier is attached.
-- **Included:** the demo class and 2026/27 calendar. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
+- **Included:** the demo class and the 2026/27 calendar, and from 0.2.0 the app lock and the paper books printed from what is recorded. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
 - **Compatible Android 8-or-later phones.**
 
 ## Before the session
@@ -34,7 +34,7 @@ Give teachers the [Arabic download and testing page](https://djazair.dev/ar/minh
 2. Open the file. If asked, allow that browser or file manager to install apps, then choose **Install**.
 3. Turn that permission off afterwards.
 
-Keep Play Protect on. If Android reports a harmful app or blocks installation, stop. Do not bypass the warning. [Google's guide](https://developers.google.com/android/play-protect/warning-dev-guidance) explains the messages.
+Keep Play Protect on. The preview is not on Google Play, so Play Protect may say that it doesn't recognise the app or its developer: check the file's checksum first ([below](#checksums--البصمات)), then choose to install anyway. If Android says the app is harmful, or blocks it outright, stop: don't install it, and ask the maintainers. [Google's guide](https://developers.google.com/android/play-protect/warning-dev-guidance) explains the messages.
 
 ## Checking that it is the project's preview
 
@@ -48,26 +48,22 @@ Compare both checksums with those published for the installed file. Each install
 
 من «المساعدة والخصوصية»، قارن «بصمة هذا التطبيق» و«بصمة شهادة توقيعه» بالبصمتين المنشورتين للملف نفسه. إن اختلفت إحداهما، توقّف عن استعمال النسخة واطلب المساعدة.
 
-### Preview 0.1.0 checksums · بصمات النسخة 0.1.0
+### Checksums · البصمات
 
-Universal installer / الملف الشامل: `minhajna-0.1.0.apk`, for compatible ARM phones running Android 8 or later.
+Each release lists the SHA-256 checksum of every file in its `SHA256SUMS.txt`: see the [latest release](https://github.com/djazairdev/minhajna/releases/latest) and [its checksum list](https://github.com/djazairdev/minhajna/releases/latest/download/SHA256SUMS.txt). Use the list of the version you installed.
 
-File SHA-256 / بصمة الملف:
+تجد بصمة كل ملف في قائمة `SHA256SUMS.txt` للإصدار نفسه.
 
-`334f2b0b991f9d25b13438a1b6b2ba119e0f90f34056c6bbb06c3ddb413036ba`
-
-Project signing certificate SHA-256 / بصمة شهادة توقيع المشروع:
+Project signing certificate SHA-256, the same for every release and file / بصمة شهادة توقيع المشروع، وهي نفسها لكل إصدار وملف:
 
 `de2a5a7839bb88733456078bb937179f43ff99004d2408cb965093aa0aed6a5b`
-
-The smaller ARM installers have different file checksums but the same signing certificate. See the [0.1.0 checksum list](https://github.com/djazairdev/minhajna/releases/download/app-v0.1.0/SHA256SUMS.txt) and [release files](https://github.com/djazairdev/minhajna/releases/tag/app-v0.1.0). For a newer version, use that release's checksums, not these.
 
 ## Updating the preview
 
 Updates are manual, announced on [Facebook](https://www.facebook.com/djazairdev). Use the new download link in the announcement, or the [download page](https://djazair.dev/en/minhajna/).
 
 1. Leave the current app installed. Download the new version and open its installer.
-2. Choose **Update**, reopen Minhajna and check the entries are still there. Turn installation permission off again if you enabled it.
+2. Choose **Update**, reopen Minhajna and check the entries are still there. Updating from 0.1.0, the app first asks for a new 4-digit PIN. Turn installation permission off again if you enabled it.
 
 **Never uninstall or clear storage to update: that deletes the entries.** If Android refuses the update, stop, do not install an older version, and [ask for help](https://djazair.dev/en/minhajna/#feedback).
 
@@ -91,21 +87,21 @@ Uninstall through **Settings › Apps › Minhajna**. This deletes the encrypted
 
 For the maintainer who releases it ([releases.md](../contributing/releases.md#signing)):
 
-1. Build the release APKs from the tagged commit, following the [Android build workflow](../../.github/workflows/android.yml) for prerequisites and commands. There are three: the universal APK, with both supported ARM processor types, and the smaller APKs for 32-bit and 64-bit ARM separately. They come out unsigned, so that two builds can be compared, and each has its own version code ([versioning.md](../contributing/versioning.md#the-apps)).
-2. Sign each one with the project's key, which never enters the repository. Sign without moving the files inside the APK, so the signature can be checked against any rebuild:
+1. Build the release APKs from the tagged commit, as in [the Android build check](../checks/android-build.md#repeating-the-build). There are three: the universal APK, with both supported ARM processor types, and the smaller APKs for 32-bit and 64-bit ARM separately. They come out unsigned, so that two builds can be compared, and each has its own version code ([versioning.md](../contributing/versioning.md#the-apps)).
+2. Sign each one with the project's key, which never enters the repository. Sign without moving the files inside the APK, so the signature can be checked against any rebuild ([Checking a signed APK](../checks/android-build.md#checking-a-signed-apk)):
 
    ```sh
    cd app/build/outputs/apk/release
-   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0.apk app-universal-release-unsigned.apk
-   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0-armeabi-v7a.apk app-armeabi-v7a-release-unsigned.apk
-   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --out minhajna-0.1.0-arm64-v8a.apk app-arm64-v8a-release-unsigned.apk
+   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --v4-signing-enabled false --out minhajna-<version>.apk app-universal-release-unsigned.apk
+   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --v4-signing-enabled false --out minhajna-<version>-armeabi-v7a.apk app-armeabi-v7a-release-unsigned.apk
+   apksigner sign --ks <project key> --alignment-preserved --v1-signing-enabled false --v4-signing-enabled false --out minhajna-<version>-arm64-v8a.apk app-arm64-v8a-release-unsigned.apk
    ```
 
 3. Publish the three APKs, each with its SHA-256 checksum, and the certificate's checksum, the same for all three:
 
    ```sh
-   sha256sum minhajna-0.1.0*.apk
-   apksigner verify --print-certs minhajna-0.1.0.apk
+   sha256sum minhajna-<version>*.apk
+   apksigner verify --print-certs minhajna-<version>.apk
    ```
 
    Keep the shrinker's mapping, `apps/android/android/app/build/outputs/mapping/release/`, with the release's files, so that a crash report from these APKs can be read. CI keeps its copy for 90 days only.

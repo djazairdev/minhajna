@@ -8,6 +8,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### Changed
 
+- The line under the name on the welcome screen now reads «من المخطط السنوي إلى درس اليوم».
+  - صار السطر تحت الاسم في شاشة الترحيب: «من المخطط السنوي إلى درس اليوم».
 - The preview's notice in Help now says that real pupils' records wait for the version the Ministry runs, not the pilot version. The project's own builds keep asking for made-up names only.
   - صار إشعار المعاينة في المساعدة يذكر أن سجلات التلاميذ الحقيقيين تنتظر النسخة التي تشغّلها الوزارة، لا نسخة التجربة. وتبقى نسخ المشروع نفسه تطلب أسماء مختلَقة فقط.
 

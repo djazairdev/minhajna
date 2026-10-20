@@ -46,7 +46,7 @@ The community moderators, the maintainers and the lead maintainer ([GOVERNANCE.m
 - **Never report in public,** and never put real pupil data in a report.
 - **Security problems** go through [SECURITY.md](SECURITY.md) instead.
 
-Every report is reviewed and answered promptly and fairly, and the privacy of the person who reported it is respected. The project will add an address of its own for reports when it has one.
+Every report is reviewed and answered promptly and fairly, and the privacy of the person who reported it is respected. You can also write privately to [contact@djazair.dev](mailto:contact@djazair.dev).
 
 ## What can happen
 
@@ -82,6 +82,7 @@ This code of conduct is adapted from the [Contributor Covenant](https://www.cont
 
 - في مجموعة فيسبوك: أبلغ مشرفي المجموعة.
 - على GitHub: استعمل «Report content» لإبلاغ مشرفي المشروع.
+- أو راسل [contact@djazair.dev](mailto:contact@djazair.dev) بشكل خاص.
 
 لا تنشر الاتهامات علنًا.
 

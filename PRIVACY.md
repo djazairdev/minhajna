@@ -11,12 +11,15 @@ This policy covers personal information held by the project through its reposito
 - **Anything that tracks teachers.** No clock times, sign-in events or location, and no analytics, advertising or crash-reporting SDKs. No ads or trackers, and no sale or sharing of data, ever (principle 3).
 - **Private notes.** They never leave the teacher's own devices.
 
-## The 0.1.0 preview
+## The preview
 
-The [Android preview](https://djazair.dev/en/minhajna/), published on 18 October 2026, is for invited teachers using made-up data only.
+The [Android preview](https://djazair.dev/en/minhajna/) (0.1.0 on 18 October 2026, 0.2.0 on 20 October 2026) is for invited teachers using made-up data only.
 
 - Entries stay in an encrypted database on your phone. There is no account, internet permission, automatic reporting or usage tracking.
+- The app is locked with a 4-digit PIN. Unlocking with a fingerprint or the face uses the phone's own prompt, and the app stores no fingerprint or face data.
+- Documents print through the phone's print service, or are saved as a PDF where the teacher chooses. That is the only way records leave the app, and only when the teacher does it; the copy is then the teacher's to keep safe. Documents with pupils' names carry «داخلي · سري» on every page.
 - There is no sync, backup or recovery. Records are excluded from the phone's cloud backup. Uninstalling, clearing storage or losing the phone can lose your entries; the project cannot restore them.
+- «توقيتاتي في التجربة» (My pilot timings) measures, on the phone only, how many seconds confirming a session and taking a roll call take, kept by school week, never by day or time of day, and with no content. What is shared carries no date. The figures leave the phone only if the teacher shares them by hand, and can be cleared at any time.
 - The app shows its privacy notice before first use, and keeps it available in Help and privacy.
 - Opening the public source link requires a separate confirmation. The browser may then connect to GitHub, but the app attaches no record or identifier. Download links in the guides also open GitHub in the browser, separately from the app.
 - Feedback is sent by the teacher, not automatically: [Facebook page messages](https://www.facebook.com/djazairdev), [email](mailto:contact@djazair.dev), or GitHub if preferred. These are external services, not app connections. GitHub posts and Facebook comments are public. Never send real pupil data through any route, even privately.
@@ -40,7 +43,7 @@ Sync, reporting and national-system services are future features. Each must meet
 | Pilot contacts | The pilot | Only what the pilot needs. Kept by the lead maintainer, and deleted whenever the person asks |
 | Problem reports | The pilot | Built by the app with pupils' names replaced, and shown to the teacher before they are sent ([PRD §1.5](docs/prd/PRD.md#15-pupil-data-and-privacy-rules)). Kept until the problem is fixed, 12 months at most, and the teacher can delete theirs sooner |
 | Crash reports | The pilot | Off by default. The teacher sees each one before it is sent, and names and marks are removed |
-| Pilot timings | The pilot | Off by default. With the teacher's consent, four figures go once a month: seconds per session, the share confirmed in one tap, minutes a week and whether the term export was done. No identifier, date or class goes with them ([PRD §10.3](docs/prd/PRD.md#103-how-success-is-measured)) |
+| Pilot timings | The pilot | In the preview, measured on the phone only and shared by hand, as above. Planned for the pilot: off by default; with the teacher's consent, four figures go once a month: seconds per session, the share confirmed in one tap, minutes a week and whether the term export was done. No identifier, date or class goes with them ([PRD §10.3](docs/prd/PRD.md#103-how-success-is-measured)) |
 | Sync accounts | When sync opens | A login, and encrypted records the project cannot read. The server sees memberships, encrypted batches and their sizes, never names or times of activity |
 | Pack-editor accounts | For curators and subject maintainers | Only what the editor needs to credit their work |
 | Donors' details | Once the association exists | Only what the accounts need. Donations unlock nothing |

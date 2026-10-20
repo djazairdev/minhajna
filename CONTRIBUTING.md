@@ -76,7 +76,7 @@ npm run lint
 npm test
 ```
 
-The [Android build workflow](.github/workflows/android.yml) defines its additional checks. Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
+The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md). Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
 
 ### Your first pull request
 
@@ -149,7 +149,7 @@ The maintainers reply to every newcomer's pull request within 7 days, even if on
 | [Releases](docs/contributing/releases.md) | The release calendar, the release checks, signing and the changelog |
 | [Engineering rules](docs/contributing/engineering.md) | The rules every code change follows: privacy, secrets, test data, tests, dependencies and licences |
 
-[CHANGELOG.md](CHANGELOG.md) records the published releases. The [download and testing page](https://djazair.dev/ar/minhajna/) explains the current preview in Arabic.
+[CHANGELOG.md](CHANGELOG.md) records the published releases and, under Unreleased, what the next one adds. The [download and testing page](https://djazair.dev/ar/minhajna/) explains the current preview in Arabic.
 
 How the project decides, and the teacher council's part in it, are in [GOVERNANCE.md](GOVERNANCE.md).
 

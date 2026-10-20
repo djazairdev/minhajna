@@ -261,7 +261,7 @@ The insights layer is opt-in and shares lesson-level data only. A later section 
 - **The name: Minhajna (منهاجنا)** (4 Oct, decision 0019). Until then it was Tabachir (طباشير).
   - **Meaning.** "Our curriculum": the app follows the official curriculum, through the yearly plan, down to each lesson.
   - **Spelling.** Always "Minhajna" in Latin letters, never "Minhadjna" or "Manhajna". The Arabic form is منهاجنا. In Arabic sentences it is written «منهاجنا», so that it reads as the app's name rather than as "our curriculum".
-  - **The line under the name.** «من التدرّج إلى الحصّة», in English "From the yearly plan to every lesson".
+  - **The line under the name.** «من المخطط السنوي إلى درس اليوم», in English "From the yearly plan to every lesson". It replaced «من التدرّج إلى الحصّة» on 20 October 2026.
   - **Store listings.** The words teachers search for go after the name, never in the name itself, for example "Minhajna: الكراس اليومي ودفتر المناداة والتنقيط" or "Minhajna: the teacher's class logbook".
   - **Not the state's app by its name.** Neither the name nor the app suggests that it comes from the Ministry. It becomes the official record only through a competent authority's written decision (principle 6).
   - **Not registered** (29 Sep). The name and logo are not registered as trademarks. They are protected only by use, by the official sources above and by the published checksums.
@@ -555,7 +555,7 @@ The code and the reference data live in separate repositories, because they have
 
 | Decision | Choice |
 |---|---|
-| Name | **Minhajna** (منهاجنا), with the line «من التدرّج إلى الحصّة», "From the yearly plan to every lesson". It replaces Tabachir. On 3 and 4 Oct 2026, `minhajna.dz`, `minhajna.com.dz`, `minhajna.com` and `minhajna.org` were free, and no app on Google Play Algeria or the App Store used the name |
+| Name | **Minhajna** (منهاجنا), with the line «من المخطط السنوي إلى درس اليوم», "From the yearly plan to every lesson". It replaces Tabachir. On 3 and 4 Oct 2026, `minhajna.dz`, `minhajna.com.dz`, `minhajna.com` and `minhajna.org` were free, and no app on Google Play Algeria or the App Store used the name |
 | Naming rule | Loosened: a name no longer has to be distinctive, it is no longer checked on GitHub, and the echo rules cover only exact official names and the apps that teachers use in Algeria |
 | Code host (changed by 0020) | The repository is `founderscoffee/minhajna`, renamed on 4 Oct 2026. The GitHub name `minhajna` belongs to a person, so there is no organisation of the product's name to reserve |
 

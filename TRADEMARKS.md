@@ -12,7 +12,7 @@ The code and documents are free to use under their licences. Those licences do n
 
 ## Official builds
 
-- **Field-check preview 0.1.0:** get it from the project's [release page](https://github.com/djazairdev/minhajna/releases/tag/app-v0.1.0) or directly from the organisers, as F9 of the [field-check plan](https://github.com/djazairdev/minhajna/issues/49) allows. The [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview) explains how to check it.
+- **Previews:** get them from the project's [releases page](https://github.com/djazairdev/minhajna/releases) or directly from the organisers, as F9 of the [field-check plan](https://github.com/djazairdev/minhajna/issues/49) allows. The [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview) explains how to check it.
 - **At launch:** the planned official sources are Google Play, the project's `.dz` website (the Android APK, and the PC and web apps) and F-Droid. The preview is not listed in those stores yet. A matching name alone never proves that a copy is official.
 - **Signed and checkable.** Every release is signed. The [README](README.md) carries the signing certificate's fingerprint; the [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview), [download page](https://djazair.dev/en/minhajna/#verify) and release page give the file checksums and verification details.
 
