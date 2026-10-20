@@ -7,7 +7,14 @@
 // the session by the teacher's decision, both (#221). The words state facts
 // and never judge (PRD §3.1, rule 8).
 
-import type { PlanPack, Proposal, SessionRecord, TodaySession, TodayView } from '@minhajna/core';
+import {
+  findPackItem,
+  type PlanPack,
+  type Proposal,
+  type SessionRecord,
+  type TodaySession,
+  type TodayView,
+} from '@minhajna/core';
 import type { ProposalProps } from '../components/Proposal';
 import type { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
@@ -60,7 +67,7 @@ export function lessonOf(t: Translate, item: TodaySession): { lesson: string; no
 /** What a recorded session wrote: the items it taught or taught again, the one it skipped, or that it was not held. */
 export function writtenOf(t: Translate, pack: PlanPack | null, record: SessionRecord, comma: string): string {
   if (record.outcome === 'not-held') return t(record.makeUp === true ? 'today.notHeldMakeUp' : 'today.notHeld');
-  const title = (id: string) => pack?.items.find((item) => item.id === id)?.title ?? id;
+  const title = (id: string) => findPackItem(pack, id)?.title ?? id;
   const titles = record.coverage.flatMap((cover) => (cover.op === 'skipped' ? [] : [title(cover.item)]));
   if (titles.length > 0) return titles.join(comma);
   const skipped = record.coverage.find((cover) => cover.op === 'skipped');

@@ -10,6 +10,7 @@
 
 import {
   courseSetup,
+  findPackItem,
   proposalAt,
   type Context,
   type CorrectionReason,
@@ -31,7 +32,7 @@ type Translate = ReturnType<typeof useText>;
 
 /** The lesson a record took, as the form shows it. */
 function lessonOf(pack: PlanPack | null, record: SessionRecord): Lesson {
-  const find = (id: string): PackItem | undefined => pack?.items.find((item) => item.id === id);
+  const find = (id: string): PackItem | undefined => findPackItem(pack, id);
   const [first] = record.coverage;
   if (record.outcome === 'changed') {
     const item = first && find(first.item);

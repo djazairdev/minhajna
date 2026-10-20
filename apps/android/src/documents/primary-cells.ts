@@ -11,7 +11,14 @@
 //   pen until the app keeps lesson notes.
 // A session awaiting confirmation gives what confirming it would record.
 
-import { courseSetup, type Context, type CourseSetup, type PlanPack, type TodaySession } from '@minhajna/core';
+import {
+  courseSetup,
+  findPackItem,
+  type Context,
+  type CourseSetup,
+  type PlanPack,
+  type TodaySession,
+} from '@minhajna/core';
 import type { BookLine } from '../entry/book-lines';
 import { isolate } from '../week/grid-labels';
 import { dayTitle, type DocumentData, type Translate } from './document-data';
@@ -29,7 +36,7 @@ export interface SessionCells {
 }
 
 function unitOf(pack: PlanPack | null, itemId: string | undefined): string | undefined {
-  const unit = pack?.items.find((one) => one.id === itemId)?.unit;
+  const unit = itemId === undefined ? undefined : findPackItem(pack, itemId)?.unit;
   return unit === undefined ? undefined : pack?.items.find((one) => one.id === unit)?.title;
 }
 
@@ -43,7 +50,7 @@ export function sessionCells(data: DocumentData, t: Translate, context: Context,
   const awaiting = item.record === null;
   const record = item.record ?? proposedRecord(item.session, item.proposal);
   const first = record.coverage[0]?.item;
-  const code = item.session.activity ?? setup.pack?.items.find((one) => one.id === first)?.activity;
+  const code = item.session.activity ?? findPackItem(setup.pack, first)?.activity;
   const activity = ACTIVITIES.find((one) => one === code);
   const unit = unitOf(setup.pack, first);
   return {

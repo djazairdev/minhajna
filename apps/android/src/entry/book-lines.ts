@@ -8,7 +8,7 @@
 // The homework's own words are isolated, so a French line keeps its order
 // inside an Arabic one.
 
-import { stageNames, type PlanPack, type SessionRecord } from '@minhajna/core';
+import { findPackItem, stageNames, type PlanPack, type SessionRecord } from '@minhajna/core';
 import type { useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { isolate } from '../week/grid-labels';
@@ -45,7 +45,7 @@ export function bookLines(
   const lines: BookLine[] = [];
   const units = new Set<string>();
   for (const cover of record.coverage) {
-    const item = pack?.items.find((candidate) => candidate.id === cover.item);
+    const item = findPackItem(pack, cover.item);
     const title = item?.title ?? cover.item;
     const unit = item?.unit === undefined ? undefined : pack?.items.find((candidate) => candidate.id === item.unit);
     if (unit !== undefined && !units.has(unit.id)) {

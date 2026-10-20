@@ -12,6 +12,7 @@
 // instead of how it went (R-3.1-05).
 
 import {
+  findPackItem,
   proposedCoverage,
   stageNames,
   type PlanPack,
@@ -71,7 +72,7 @@ export function journalLines(
   if (record.sessionType !== 'lesson' && omits.heads === undefined)
     lines.push({ label: label('domain'), text: names.type(record.sessionType) });
   for (const cover of record.coverage) {
-    const item = pack?.items.find((candidate) => candidate.id === cover.item);
+    const item = findPackItem(pack, cover.item);
     const title = isolate(item?.title ?? cover.item);
     const unit = item?.unit === undefined ? undefined : pack?.items.find((candidate) => candidate.id === item.unit);
     if (unit !== undefined && !sequences.some((line) => line.text === isolate(unit.title))) {

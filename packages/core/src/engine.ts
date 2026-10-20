@@ -4,7 +4,8 @@
 // Walks a course's sessions in order, counting what was recorded, and
 // confirms new sessions against the proposals (PRD §4.7). Items the teacher
 // decided to leave out count as skipped from the start, when the pack
-// marks them optional (#221).
+// marks them optional (#221), and so do the items the class's own changes
+// skip (#225).
 
 import type { Context } from './context.ts';
 import type { Day } from './day.ts';
@@ -12,6 +13,7 @@ import type { SessionRecord } from './records.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
 import { allowedBy, decisionsFor } from './plan-decisions.ts';
+import { skippedBy } from './plan-layer.ts';
 import { Progress, proposedCoverage, type Proposal } from './progress.ts';
 import {
   courseSetup,
@@ -40,6 +42,10 @@ function walk(context: Context, setup: CourseSetup, upTo: Day, ignore: ReadonlyS
     if (decision.kind !== 'leave-out' || setup.pack === null || !allowedBy(setup.pack, decision)) continue;
     recorded.leaveOut(decision.item);
     chain.leaveOut(decision.item);
+  }
+  for (const item of setup.pack === null ? [] : skippedBy(setup.pack, state.decisions, setup.course.id)) {
+    recorded.leaveOut(item);
+    chain.leaveOut(item);
   }
   for (const session of sessionsBetween(context, ref.year.from, upTo, new Set([setup.course.id]))) {
     const record = ignore.has(session.key) ? null : current(state.sessions.get(session.key));
