@@ -44,6 +44,7 @@ export * from './roll-call-year.ts';
 export * from './prints.ts';
 export * from './corrections.ts';
 export * from './exam-answers.ts';
+export * from './exam-duties.ts';
 export * from './exam-window.ts';
 export * from './plan-decisions.ts';
 export * from './test-schedule.ts';

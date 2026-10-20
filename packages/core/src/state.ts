@@ -12,6 +12,7 @@ import { compareDays, maxDay, type Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
+import type { ExamDuty } from './exam-duties.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { CalendarEntry } from './reference.ts';
@@ -89,6 +90,8 @@ export interface State {
   readonly tests: ReadonlyMap<string, ScheduledTest>;
   /** What the teacher decided about items past an exam window, by ID (#221). */
   readonly decisions: ReadonlyMap<string, PlanDecision>;
+  /** The teacher's invigilations and class exams on exam weeks, by ID (#221). */
+  readonly duties: ReadonlyMap<string, ExamDuty>;
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -159,6 +162,7 @@ export function buildState(entries: readonly Entry[]): State {
   const prints: Version<PrintRecord>[] = [];
   const tests = new Map<string, ScheduledTest>();
   const decisions = new Map<string, PlanDecision>();
+  const duties = new Map<string, ExamDuty>();
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -254,6 +258,12 @@ export function buildState(entries: readonly Entry[]): State {
       case 'plan.undecided':
         decisions.delete(event.id);
         break;
+      case 'duty.set':
+        duties.set(event.duty.id, event.duty);
+        break;
+      case 'duty.removed':
+        duties.delete(event.id);
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -279,6 +289,7 @@ export function buildState(entries: readonly Entry[]): State {
     prints,
     tests,
     decisions,
+    duties,
   };
 }
 

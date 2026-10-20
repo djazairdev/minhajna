@@ -95,7 +95,15 @@ const answers = (onMakeUp = jest.fn(), onLater = jest.fn()) => (
 test('Today shows a card for each class with items past the exams, and opens its answers', async () => {
   const data = await withDay();
   const onExamWindow = jest.fn();
-  await mount(data, <Today onHelp={jest.fn()} onDetails={jest.fn()} onRoll={jest.fn()} onExamWindow={onExamWindow} />);
+  await mount(
+    data,
+    <Today
+      onHelp={jest.fn()}
+      onDetails={jest.fn()}
+      onRoll={jest.fn()}
+      onExams={{ warning: onExamWindow, duty: jest.fn() }}
+    />,
+  );
   expect(exists('exam-warning-c-1')).toBe(true);
   expect(exists('exam-warning-c-2')).toBe(false);
   expect(texts()).toEqual(expect.arrayContaining([past, '4م1 · يبقى هذا التنبيه حتى تختار ما تفعل.']));

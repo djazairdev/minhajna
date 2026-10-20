@@ -88,9 +88,35 @@ Checks of 19 October 2026 for [#221](https://github.com/djazairdev/minhajna/issu
 | Android tests | 1350 pass, 14 of them new:<br>• Today's card for a class with items past the exams, and none for a class without a pack, opening its answers;<br>• the items with their days, and nothing applied before a choice;<br>• a merge ticked as a suggestion, what it leaves, recorded, then taken back;<br>• postponing, a second tap doing nothing, the warning gone and the items tagged in the plan;<br>• the class plan's own card, the make-up day and «لاحقاً»;<br>• a merged session's proposal and lesson;<br>• a decision listed, taken back after its «تراجع» has gone, then restored;<br>• a class's warning kept while only another class's records change, and worked out again when its own change;<br>• every control named in Arabic, French and English, right to left and left to right. |
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 
+## Part 3: the exam-week entries
+
+- **The form «حراسة أو اختبار»** (Today-exams, answers 268 and 270): the teacher types an invigilation or a class exam from the school's paper.
+  - The kind, «حراسة» or «اختبار قسمي».
+  - The day, on a month's grid where only days an exam window of the teacher's classes covers can be chosen. It opens on the asked day, else the next exam day, else the last one.
+  - The times as on paper, the end after the start.
+  - The room, when typed.
+  - For a class exam, the classes sitting it, at least one, among those whose own exams cover the day.
+  - When the calendar has no exam days for the teacher's classes yet, the form says so and offers nothing.
+- **The day's entries** follow the form, each with a button that removes it. A save or a removal can be taken back with «تراجع», and a second tap before the first shows does nothing.
+- **Nothing is counted:** an entry moves no item of a plan and adds no session.
+- **Where it opens:**
+  - from «إضافة حراسة أو اختبار» on Today, on an exam day, below that day's entries;
+  - from the same button under the exams row of «مواعيد الفروض», on the exams' first day.
+- **The journal:** in «كل الأقسام», an invigilation has its own row on its day, among the sessions by its start, with its times and room. A journal for one class leaves it out. The texts book never shows an entry.
+- **The core:** `duty.set` and `duty.removed` on the lesson-record layer. `setDuty` refuses a day outside an exam window, a time not like 08:00 or ending before it starts, a room over 40 characters, and a class exam without known classes or naming a class with no exams that day. Entries are pushed in day and time order.
+
+| Check | Result |
+|---|---|
+| Core tests | 3 new: the exam windows and days of the teacher's classes; what `setDuty` refuses, a class with no exams that day among it; the day's entries in order, a removal and the pushed order |
+| Android tests | 1364 pass, 14 of them new:<br>• the form on the next exam day, only exam days offered, an invigilation saved with its room;<br>• the form on the last exam day once they have all passed;<br>• a time ending before it starts, and a class exam without classes, not saved, then saved with two classes;<br>• an entry removed and restored with «تراجع»;<br>• Today's entries and button only on an exam day;<br>• the test schedule opening the form on the exams' first day;<br>• the invigilation row in the journal for all classes, not in one per class, and among the sessions by its start;<br>• every control named in Arabic, French and English, right to left and left to right. |
+| Android emulator, debug build | From «مواعيد الفروض», «إضافة حراسة أو اختبار» opened on Sunday 6 December with only the exam days open. An invigilation on Monday 7 December, 10:00 to 12:00, room 5, saved and showed its card; «حذف» and then «تراجع» restored it. A class exam on Tuesday 8 December was refused without a class, then saved with the class. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+
 ## Still to do by a person
 
 - The warning and its answers on a phone, with a class on a pack whose plan runs past its exams. The emulator's class has no pack.
 - A teacher adding a real test schedule from the school's paper, and reading the warning (#44).
-- TalkBack in Arabic on «مواعيد الفروض» and the answers (see #206).
+- A teacher typing an invigilation and a class exam from the school's paper during an exam week, and finding the invigilation in the printed journal.
+- Today's entries and «إضافة حراسة أو اختبار» on a phone during an exam week. The emulator's date is outside one.
+- TalkBack in Arabic on «مواعيد الفروض», the answers and «حراسة أو اختبار» (see #206).
 

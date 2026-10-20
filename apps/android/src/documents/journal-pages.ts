@@ -9,9 +9,12 @@
 // (R-3.8-38): per class, each class taught that day gets its own page. The
 // blank page keeps the head and the columns, with the day left to write by
 // hand; per class, a blank page for each class taught this school year.
-// Primary classes keep their own journal, so they are left out here.
+// Primary classes keep their own journal, so they are left out here. On a
+// journal for all classes, an invigilation the teacher typed has its own
+// row among the sessions by its start, with its times and its room (#221,
+// answer 270); it belongs to no class, so a journal per class leaves it out.
 
-import { courseSetup, todayView, type TodaySession } from '@minhajna/core';
+import { courseSetup, dutiesOn, todayView, type TodaySession } from '@minhajna/core';
 import { bookSpan } from '../entry/book-lines';
 import { coreContext } from '../storage/core-context';
 import { sessionTime } from '../times/times-rules';
@@ -44,6 +47,11 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
     type: (code) => data.profile.sessionTypes.find((one) => one.code === code)?.name[data.lang] ?? code,
     day: title,
   };
+  const start = (item: TodaySession) => {
+    const schoolClass = data.state.classes.get(item.course.classId);
+    const school = schoolClass && data.state.schools.get(schoolClass.schoolId);
+    return sessionTime(data, school, item.session.slot, item.session.day)?.from ?? null;
+  };
   const entry = (item: TodaySession): JournalEntry => {
     const meta = sessionMeta(data, t, data.dir, item, false);
     const schoolClass = data.state.classes.get(item.course.classId);
@@ -64,9 +72,27 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
     : todayView(context, data.day).sessions.filter(
         (item) => item.status !== 'calendar' && classes.some((one) => one.id === item.course.classId),
       );
+  const combined: { readonly start: string | null; readonly entry: JournalEntry }[] = sessions.map((item) => ({
+    start: start(item),
+    entry: entry(item),
+  }));
+  for (const duty of blank ? [] : dutiesOn(data.state, data.day)) {
+    if (duty.kind !== 'invigilation') continue;
+    const row = {
+      start: duty.from,
+      entry: {
+        time: bookSpan(t, duty, data.dir) ?? '',
+        className: t('duties.kinds.invigilation'),
+        lines: duty.room === undefined ? [] : [{ text: t('duties.roomLine', { room: isolate(duty.room) }) }],
+        awaiting: false,
+      },
+    };
+    const after = combined.findIndex((one) => one.start !== null && one.start > duty.from);
+    combined.splice(after === -1 ? combined.length : after, 0, row);
+  }
   const days: JournalDay[] =
     layout !== 'per-class'
-      ? [{ title: blank ? '' : title(data.day), entries: sessions.map(entry) }]
+      ? [{ title: blank ? '' : title(data.day), entries: combined.map((one) => one.entry) }]
       : (blank ? classes : classes.filter((one) => sessions.some((item) => item.course.classId === one.id))).map(
           (one) => ({
             title: blank ? '' : title(data.day),

@@ -744,6 +744,36 @@
     "takenBack": "Décision annulée ; « Annuler » la rétablit.",
     "undo": "Annuler"
   },
+  "duties": {
+    "title": "Surveillance ou examen",
+    "open": "Ajouter une surveillance ou un examen",
+    "intro": "Saisis d’après la feuille de l’établissement les jours d’examens : surveillances et examens de classe. Rien ne les compte, et une surveillance va dans le cahier journal, pas dans le cahier de textes.",
+    "kind": "Type",
+    "kinds": {
+      "invigilation": "Surveillance",
+      "exam": "Examen de classe"
+    },
+    "date": "Jour",
+    "time": "Horaire",
+    "from": "De",
+    "to": "À",
+    "clockExample": "08:00",
+    "timeWrong": "Saisissez l’heure comme 08:00, la fin après le début.",
+    "room": "Salle",
+    "roomExample": "Par exemple : 5",
+    "optional": "Facultatif",
+    "roomLine": "Salle {{room}}",
+    "classes": "Classes",
+    "classesMissing": "Choisissez au moins une classe.",
+    "save": "Enregistrer",
+    "saved": "Entrée « {{kind}} » enregistrée pour le {{day}}.",
+    "failed": "Non enregistré. Vérifiez le jour, l’horaire et les classes.",
+    "undo": "Annuler",
+    "dayList": "Saisi pour le {{day}}",
+    "remove": "Supprimer {{kind}}, {{time}}",
+    "removed": "Entrée « {{kind}} » supprimée.",
+    "noExams": "Le calendrier n’a pas encore de jours d’examens pour vos classes."
+  },
   "book": {
     "title": "Cahier de textes",
     "open": "Cahier de textes",
