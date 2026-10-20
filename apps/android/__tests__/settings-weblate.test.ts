@@ -8,11 +8,12 @@ import { pathToFileURL } from 'node:url';
 type Call = { url: string; method: string; body: Record<string, unknown> | null };
 
 /** Run the configuration against a fake API, with synthetic credentials and no real network access. */
-function configure(existing: boolean): Call[] {
+function configure(existing: boolean, pulls = true): Call[] {
   const url = pathToFileURL(resolve(__dirname, '../../../infra/weblate/configure.js')).href;
   const script = `
 const calls = [];
 const existing = ${String(existing)};
+const pulls = ${String(pulls)};
 globalThis.fetch = async (url, init) => {
   const path = new URL(url).pathname;
   const body = init.body === undefined ? null : JSON.parse(init.body);
@@ -24,6 +25,7 @@ globalThis.fetch = async (url, init) => {
     const contexts = path.includes('/android-interface/') ? ['name', 'latinName', 'language.ar', 'language.fr', 'language.en'] : ['minutes'];
     result = { results: contexts.map((context, id) => ({ id, context, source: context === 'minutes' ? ['one', 'other'] : ['text'], extra_flags: '' })) };
   }
+  if (path.endsWith('/repository/')) result = { result: pulls };
   return { status, ok: status === 200, json: async () => result };
 };
 const output = console.log;
@@ -71,3 +73,20 @@ test.each([false, true])(
     expect(calls.every((call) => call.url.startsWith('https://weblate.invalid/'))).toBe(true);
   },
 );
+
+test.each([false, true])('pulls the main component before linking catalogues to it (existing: %s)', (existing) => {
+  const calls = configure(existing);
+  const pull = calls.findIndex((call) => call.url.endsWith('/components/minhajna/android-interface/repository/'));
+  const linked = calls.findIndex((call) => call.body?.filemask === 'apps/android/src/settings/text/*.json');
+  if (!existing) {
+    expect(pull).toBe(-1);
+    return;
+  }
+  expect(calls[pull]).toMatchObject({ method: 'POST', body: { operation: 'pull' } });
+  expect(pull).toBeLessThan(linked);
+  expect(calls.filter((call) => call.url.endsWith('/repository/'))).toHaveLength(1);
+});
+
+test('stops before linking a catalogue when Weblate cannot pull', () => {
+  expect(() => configure(true, false)).toThrow(/could not update android-interface/);
+});

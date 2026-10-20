@@ -39,7 +39,7 @@ Run it from the repository's root, with Node.js 22 or later. It creates the proj
 
 The component reads `apps/android/src/text/*.json` in i18next's JSON v4 format, with Arabic as the source, and offers French and English. To add a language, add its code to `language_regex` in `component.json`.
 
-`namespaces.json` adds the Settings catalogue at `apps/android/src/settings/text/*.json`. It inherits the format, licences, contributor agreement and commit settings, and links to the main component's repository so both use the same translation branch. The app bundles both catalogues; it never contacts Weblate. After merging a new namespace, a maintainer reruns `configure.js` on their instance. No instance is changed merely by checking out the code.
+`namespaces.json` adds the Settings catalogue at `apps/android/src/settings/text/*.json`. It inherits the format, licences, contributor agreement and commit settings, and links to the main component's repository so both use the same translation branch. The app bundles both catalogues; it never contacts Weblate. After merging a new namespace, a maintainer reruns `configure.js` on their instance. It makes Weblate pull the repository first, so the new catalogue's files are found, and stops with a message if the pull fails. Pulling first commits any pending translations, which may then reach the `weblate` branch sooner than their usual day's wait. No instance is changed merely by checking out the code.
 
 Linked components share the complete checkout, as [Weblate's repository-sharing guide](https://docs.weblate.org/en/latest/vcs.html#weblate-internal-urls) explains. Keep their administration with the same trusted maintainers; a component's file mask is not a permissions boundary.
 
@@ -52,7 +52,7 @@ Linked components share the complete checkout, as [Weblate's repository-sharing 
 
 ## Keep it working
 
-- **Update.** Change the three image lines in `compose.yaml` to the new versions and digests, read Weblate's release notes, then run `docker compose pull` and `docker compose up -d`. Weblate updates its database as it starts.
+- **Update.** Change the three image lines in `compose.yaml` to the new versions and digests, read Weblate's release notes, then run `docker compose pull` and `docker compose up -d`. If a newer Weblate answers repository operations with a queued task (HTTP 202) instead of a result, teach `configure.js` to wait for that task before relying on it. Weblate updates its database as it starts.
 - **Back up.** The `database-data` and `weblate-data` volumes. Weblate also makes its own backups once a backup service is set in its admin pages.
 - **Logs.** `docker compose logs weblate`.
 
