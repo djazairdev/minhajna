@@ -256,6 +256,20 @@ export function ExtraScreen({ route, navigation }: NativeStackScreenProps<RootSt
   );
 }
 
-export function AddSessionsScreen() {
-  return <AddSessions />;
+export function AddSessionsScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'AddSessions'>) {
+  return (
+    <AddSessions
+      schoolId={route.params?.schoolId}
+      onDone={
+        route.params?.calendar
+          ? (entry) =>
+              navigation.replace('CalendarEntry', {
+                id: entry.id,
+                origin: 'local',
+                schoolId: entry.schoolId!,
+              })
+          : undefined
+      }
+    />
+  );
 }

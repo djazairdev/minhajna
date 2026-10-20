@@ -25,6 +25,7 @@ const AVAILABLE = [
   'times',
   'lengths',
   'plans',
+  'calendar',
   'rules',
   'print',
   'security',

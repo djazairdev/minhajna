@@ -127,6 +127,11 @@ export function ClassPlan({ courseId, onExtra, onTests, onExamWindow }: ClassPla
         <Text style={[styles.title, align]}>{line}</Text>
         {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}
         {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
+        {(pace(context, courseId, day)?.lost.rotation ?? 0) > 0 && (
+          <Text style={[styles.note, align]}>
+            {t('calendarView.groups.cost', { count: pace(context, courseId, day)!.lost.rotation })}
+          </Text>
+        )}
       </View>
       {view === null ? (
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>

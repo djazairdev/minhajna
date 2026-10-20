@@ -17,6 +17,9 @@ import type { RootStackParamList } from './routes';
 export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Settings'>) {
   const open = (target: SettingTarget, schoolId?: string) => {
     switch (target) {
+      case 'calendar':
+        navigation.navigate('Calendar');
+        break;
       case 'card':
         navigation.navigate('SettingsCard');
         break;

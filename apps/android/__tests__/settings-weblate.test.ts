@@ -47,14 +47,14 @@ output(JSON.stringify(calls));
 }
 
 test.each([false, true])(
-  'configures both catalogues with the same licence and review branch (existing: %s)',
+  'configures all catalogues with the same licence and review branch (existing: %s)',
   (existing) => {
     const calls = configure(existing);
     const components = calls.filter(
       (call) => ['POST', 'PATCH'].includes(call.method) && typeof call.body?.filemask === 'string',
     );
-    expect(components).toHaveLength(2);
-    const [base, settings] = components.map((call) => call.body!);
+    expect(components).toHaveLength(3);
+    const [base, settings, calendar] = components.map((call) => call.body!);
     expect(base.repo).toBe('https://example.invalid/source.git');
     expect(base.push).toBe('https://example.invalid/push.git');
     expect(settings.repo).toBe('weblate://minhajna/android-interface');
@@ -63,7 +63,10 @@ test.each([false, true])(
     }
     expect(base.push_branch).toBe('weblate');
     expect(settings.filemask).toBe('apps/android/src/settings/text/*.json');
-    for (const component of [base, settings]) {
+    expect(calendar.repo).toBe('weblate://minhajna/android-interface');
+    expect(calendar.push).toBeUndefined();
+    expect(calendar.filemask).toBe('apps/android/src/calendar/text/*.json');
+    for (const component of [base, settings, calendar]) {
       expect(component.license).toBe('AGPL-3.0-or-later');
       expect(component.source_language).toBe('ar');
       expect(component.commit_message).toContain('Signed-off-by: {{ author }}');

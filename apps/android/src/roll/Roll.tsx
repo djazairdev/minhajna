@@ -19,6 +19,7 @@ import {
   pupilsFor,
   seatedRoll,
   takeRollCall,
+  rotationRosterReady,
   type Day,
   type Pupil,
   type RollCallReason,
@@ -166,6 +167,7 @@ function RollList({
   const absent = new Set(marks.absent.map((absence) => absence.pupilId));
   const late = new Set(marks.late);
   const unchanged = recorded !== null && sameMarks(marks, recorded);
+  const groupsReady = rotationRosterReady(context, unit);
   const leaverNote = (pupil: Pupil) => {
     const left = pendingDeparture(pupil);
     return left === null ? null : t('move.awaiting', { day: dayAndMonth(left.day, language, profile) });
@@ -238,11 +240,18 @@ function RollList({
       )}
       <View style={[styles.foot, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Notice icon={controlIcon('never')} message={t('roll.official')} />
+        {!groupsReady && (
+          <Notice
+            testID="roll-groups-missing"
+            icon={controlIcon('info')}
+            message={t('calendarView.groups.missingRoster')}
+          />
+        )}
         <Button
           testID="roll-save"
           label={label}
           icon={controlIcon('check')}
-          disabled={pupils.length === 0 || unchanged || (recorded !== null && reason === null)}
+          disabled={!groupsReady || pupils.length === 0 || unchanged || (recorded !== null && reason === null)}
           onPress={() => {
             record(takeRollCall(context, unit, marks, recorded === null || reason === null ? undefined : reason));
             keepMarks(unit.key, null);

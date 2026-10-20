@@ -48,6 +48,8 @@ export interface AppData {
   readonly settled: () => Promise<void>;
   /** Waits for queued changes; false when one of them failed while waiting, not before. */
   readonly allSaved: () => Promise<boolean>;
+  /** The durable book's current state, including queued writes that have settled before React redraws. */
+  readonly latestState: () => State;
   /** True after a change failed to save, until the next one saves. */
   readonly unsaved: boolean;
 }
@@ -95,6 +97,7 @@ export function AppDataProvider({
         },
         (error: unknown) => {
           failureCount.current += 1;
+          setState(book.state);
           if (__DEV__) console.warn('A change was not saved', error);
           setUnsaved(true);
         },
@@ -121,6 +124,7 @@ export function AppDataProvider({
       today,
       newId: () => newId(random),
       settled: () => queue.current,
+      latestState: () => book.state,
       allSaved: async () => {
         const started = failureCount.current;
         let pending = queue.current;

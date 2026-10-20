@@ -4,5 +4,11 @@
     "slug": "android-settings",
     "filemask": "apps/android/src/settings/text/*.json",
     "template": "apps/android/src/settings/text/ar.json"
+  },
+  {
+    "name": "Android calendar",
+    "slug": "android-calendar",
+    "filemask": "apps/android/src/calendar/text/*.json",
+    "template": "apps/android/src/calendar/text/ar.json"
   }
 ]

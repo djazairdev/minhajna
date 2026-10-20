@@ -1,40 +1,36 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «إضافة حصص» (#219, Calendar-add-sessions): a make-up, support or revision
-// day the school sets, on the timetable of a chosen weekday (R-4.5-08). The
-// kind, the school when there are several, the day on a month's grid, the
-// closure it makes up for, the weekday, and that weekday's sessions, the
-// day's A or B week chosen first. What changes shows before saving: the
-// sessions, where they go, and each class's spare sessions before the exams.
-// Make-up sessions move the plan; support and revision sessions do not. Two
-// sessions never share a slot. A second tap waits until the screen shows
-// the first save. «تراجع» takes the day back.
+// Add/edit make-up, support or revision days (#219, #222, PRD §4.5).
+// Preview sessions and capacity; save and undo preserve durable history.
 
 import {
   addSessionsDay,
   addedEntry,
   busySlots,
+  cancelCalendarEntry,
   closuresBefore,
+  editableCalendarEntry,
   followedEntries,
+  setCalendarEntry,
   slotKey,
   type AddedDay,
   type AddedKind,
   type Day,
   type Weekday,
+  type CalendarEntry,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Snackbar } from '../components/Snackbar';
-import { TextField } from '../components/TextField';
 import { controlIcon } from '../design/Icon';
-import { colors, spacing, typography } from '../design/tokens';
+import { spacing } from '../design/tokens';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
@@ -43,48 +39,72 @@ import { addedName, closureWeekday, firstChoice, firstOffer, taughtSchools } fro
 import { AddSessionsChanges, sessionLabel } from './AddSessionsChanges';
 import { monthOf } from './extra-rules';
 import { MonthDays } from './MonthDays';
+import { SourceConfidence } from './SourceConfidence';
+import { useCalendarSave } from '../calendar/useCalendarSave';
+import { SaveProblem } from '../calendar/SaveProblem';
+import { addSessionsStyles as styles } from './add-sessions-styles';
+import { closureChoices } from './closure-choices';
 
 const KINDS = ['make-up', 'support', 'revision'] as const;
 
 type Said = { readonly id: string } | 'failed' | null;
 
-export function AddSessions() {
+export function AddSessions({
+  entryId,
+  schoolId: startSchool,
+  onDone,
+}: {
+  entryId?: string;
+  schoolId?: string;
+  onDone?: (entry: CalendarEntry) => void;
+} = {}) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useAppData();
-  const { state, profile, year, calendar, packs, today, record, recordAll, newId, unsaved } = data;
+  const { state, profile, year, calendar, packs, today, newId, unsaved } = data;
+  const [initial] = useState(() =>
+    entryId === undefined ? undefined : state.calendar.find((entry) => entry.id === entryId),
+  );
+  const writer = useCalendarSave();
   const context = useMemo(
     () => coreContext({ profile, year, calendar, packs, state }),
     [profile, year, calendar, packs, state],
   );
   const schools = taughtSchools(state);
-  const [kind, setKind] = useState<AddedKind>('make-up');
-  const [schoolId, setSchoolId] = useState(schools[0]?.id ?? '');
-  const [day, setDay] = useState<Day>(() => firstOffer(year, today(), profile));
+  const [kind, setKind] = useState<AddedKind>(initial?.adds ?? 'make-up');
+  const [schoolId, setSchoolId] = useState(initial?.schoolId ?? startSchool ?? schools[0]?.id ?? '');
+  const [day, setDay] = useState<Day>(() => initial?.from ?? firstOffer(year, today(), profile));
   const [month, setMonth] = useState(monthOf(day));
   const closures = kind === 'make-up' ? closuresBefore(context, schoolId, day) : [];
-  const [replaces, setReplaces] = useState<string>(closures[0]?.id ?? 'none');
+  const [replaces, setReplaces] = useState<string>(
+    initial === undefined ? (closures[0]?.id ?? 'none') : (initial.replaces ?? 'none'),
+  );
   const closure = closures.find((one) => one.id === replaces);
   const [follows, setFollows] = useState<Weekday>(
-    (closure && closureWeekday(closure, profile)) ?? profile.workingDays[0] ?? 0,
+    initial?.follows ?? (closure && closureWeekday(closure, profile)) ?? profile.workingDays[0] ?? 0,
   );
-  const [picked, setPicked] = useState<string[] | null>(null);
-  const [source, setSource] = useState(t('addSessions.sourceDefault'));
-  const [confidence, setConfidence] = useState<'announced' | 'expected'>('announced');
+  const [picked, setPicked] = useState<string[] | null>(initial?.takes === undefined ? null : [...initial.takes]);
+  const [source, setSource] = useState(initial?.source ?? t('addSessions.sourceDefault'));
+  const [confidence, setConfidence] = useState<'announced' | 'expected'>(
+    initial?.confidence === 'expected' ? 'expected' : 'announced',
+  );
   const [tried, setTried] = useState(false);
   const [said, setSaid] = useState<Said>(null);
   const savedFrom = useRef<typeof state | null>(null);
   const undone = useRef<string | null>(null);
 
   const followed = followedEntries(context, schoolId, day, follows);
-  const taken = busySlots(context, day);
+  const taken = busySlots(context, day, initial?.id);
   const chosen = picked ?? firstChoice(followed, taken);
   const slots = followed.filter((one) => chosen.includes(one.take)).map((one) => slotKey(one.entry.slot));
   const clash = new Set(slots).size !== slots.length || slots.some((slot) => taken.has(slot));
   const align = { writingDirection: direction, textAlign: 'start' } as const;
 
-  if (schools.length === 0) {
+  if (
+    schools.length === 0 ||
+    (entryId !== undefined && (initial === undefined || editableCalendarEntry(context, entryId) === null))
+  ) {
     return (
       <View style={[styles.screen, styles.content]}>
         <Notice testID="add-closed" icon={controlIcon('info')} message={t('addSessions.noClass')} />
@@ -93,18 +113,19 @@ export function AddSessions() {
   }
 
   const added: AddedDay = {
-    id: 'preview',
+    id: initial?.id ?? 'preview',
     schoolId,
     day,
     adds: kind,
     follows,
     takes: chosen,
     ...(closure !== undefined && { replaces: closure.id }),
-    name: addedName(kind),
+    name: initial !== undefined && kind === initial.adds ? initial.name : addedName(kind),
     source,
     confidence,
   };
   const reset = (change: () => void) => {
+    if (writer.isBusy()) return;
     change();
     setPicked(null);
   };
@@ -117,15 +138,22 @@ export function AddSessions() {
       if (covered != null) setFollows(covered);
     });
 
-  const save = () => {
-    if (savedFrom.current === state && !unsaved) return;
+  const save = async () => {
+    if (writer.isBusy() || (savedFrom.current === state && !unsaved)) return;
     setTried(true);
     if (chosen.length === 0 || clash || source.trim() === '') return;
-    const id = newId();
+    const id = initial?.id ?? newId();
     try {
-      const event = addSessionsDay(context, { ...added, id });
+      const raw = addSessionsDay(context, { ...added, id });
+      if (raw.kind !== 'calendar.set') return;
+      const event = setCalendarEntry(context, { ...initial, ...raw.entry });
       savedFrom.current = state;
-      recordAll([event]);
+      if (!(await writer.save(event, state))) return;
+      undone.current = null;
+      if (onDone !== undefined) {
+        onDone(raw.entry);
+        return;
+      }
     } catch (error: unknown) {
       if (__DEV__) console.warn('A day adding sessions was refused', error);
       setSaid('failed');
@@ -136,11 +164,12 @@ export function AddSessions() {
     setSaid({ id });
   };
 
-  const undo = () => {
+  const undo = async () => {
     if (said === null || said === 'failed' || undone.current === said.id) return;
     undone.current = said.id;
-    setSaid(null);
-    record({ kind: 'calendar.removed', id: said.id, layer: 'school' });
+    const event = initial === undefined ? cancelCalendarEntry(context, said.id) : setCalendarEntry(context, initial);
+    if (await writer.save(event, state)) setSaid(null);
+    else undone.current = null;
   };
 
   return (
@@ -166,10 +195,11 @@ export function AddSessions() {
             { value: KINDS[2], label: t(`addSessions.kinds.${KINDS[2]}`) },
           ]}
           selected={kind}
+          disabled={writer.busy}
           onSelect={(next) => reset(() => setKind(next))}
         />
         <Text style={[styles.body, align]}>{t(`addSessions.intros.${kind}`)}</Text>
-        {schools.length > 1 && (
+        {schools.length > 1 && initial === undefined && (
           <ChipGroup
             testID="add-school"
             label={t('addSessions.school')}
@@ -197,10 +227,7 @@ export function AddSessions() {
           <ChipGroup
             testID="add-replaces"
             label={t('addSessions.replaces')}
-            choices={[
-              ...closures.map((one) => ({ value: one.id, label: dayName(t, one.from, currentLanguage(), profile) })),
-              { value: 'none', label: t('addSessions.noClosure') },
-            ]}
+            choices={closureChoices(t, profile, closures)}
             selected={closure?.id ?? 'none'}
             onSelect={chooseClosure}
           />
@@ -222,30 +249,23 @@ export function AddSessions() {
             multiple
             choices={followed.map((one) => ({ value: one.take, label: sessionLabel(t, data, one, day) }))}
             selected={chosen}
-            onSelect={setPicked}
+            onSelect={(next) => {
+              if (!writer.isBusy()) setPicked(next);
+            }}
           />
         )}
-        <TextField
-          testID="add-source"
-          label={t('addSessions.source')}
-          placeholder={t('addSessions.sourceDefault')}
-          value={source}
-          onChangeText={setSource}
-          maxLength={200}
+        <SourceConfidence
+          testID="add"
+          source={source}
+          confidence={confidence}
+          busy={writer.busy}
+          onSource={(next) => {
+            if (!writer.isBusy()) setSource(next);
+          }}
+          onConfidence={(next) => {
+            if (!writer.isBusy()) setConfidence(next);
+          }}
         />
-        <View style={styles.group}>
-          <Text style={[styles.label, align]}>{t('addSessions.confidence')}</Text>
-          <SegmentedControl
-            testID="add-confidence"
-            label={t('addSessions.confidence')}
-            choices={[
-              { value: 'announced', label: t('addSessions.confidences.announced') },
-              { value: 'expected', label: t('addSessions.confidences.expected') },
-            ]}
-            selected={confidence}
-            onSelect={setConfidence}
-          />
-        </View>
         {chosen.length > 0 && !clash && <AddSessionsChanges context={context} entry={addedEntry(added)} />}
         {clash && <Notice testID="add-clash" icon={controlIcon('info')} message={t('addSessions.clash')} />}
         {tried && !clash && (chosen.length === 0 || source.trim() === '') && (
@@ -254,7 +274,13 @@ export function AddSessions() {
         {said === 'failed' && (
           <Notice testID="add-failed" icon={controlIcon('info')} message={t('addSessions.failed')} />
         )}
-        <Button testID="add-save" label={t('addSessions.save')} onPress={save} />
+        <SaveProblem testID="add-write-failed" problem={writer.problem} />
+        <Button
+          testID="add-save"
+          label={t(initial === undefined ? 'addSessions.save' : 'calendarView.edit.save')}
+          onPress={save}
+          disabled={writer.busy}
+        />
       </ScrollView>
       {said !== null && said !== 'failed' && (
         <Snackbar
@@ -262,17 +288,11 @@ export function AddSessions() {
           message={t('addSessions.saved')}
           undoLabel={t('addSessions.undo')}
           bottomOffset={insets.bottom}
-          onUndo={undo}
+          onUndo={() => {
+            void undo();
+          }}
         />
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.paper },
-  content: { gap: spacing['space-16'], paddingTop: spacing['space-16'] },
-  group: { gap: spacing['space-8'] },
-  label: { ...typography.label, color: colors.ink2 },
-  body: { ...typography.body, color: colors.ink },
-});
