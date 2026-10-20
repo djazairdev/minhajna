@@ -3,7 +3,8 @@
 
 // What may leave the teacher (PRD §5.4, §7.6): the current version of each
 // record whose layer a route takes, as the event that sets it, with nothing
-// from its history entry.
+// from its history entry. A class's own changes to its plan travel in their
+// order, which their meaning needs, without the day each was made (#225).
 
 import { compareDays } from './day.ts';
 import { compareDuties } from './exam-duties.ts';
@@ -12,6 +13,7 @@ import { mayTravelAs, type OutboundRoute } from './layers.ts';
 import { compareHalves, compareSlots } from './records.ts';
 import { layerOf, type RecordEvent } from './events.ts';
 import { countOf } from './homework.ts';
+import { isChange } from './plan-layer.ts';
 import { current, type State } from './state.ts';
 
 function compareText(a: string, b: string): number {
@@ -82,7 +84,12 @@ function currentRecords(state: State): RecordEvent[] {
   const decisions = [...state.decisions.values()].sort(
     (a, b) => compareText(a.courseId, b.courseId) || compareText(a.id, b.id),
   );
-  for (const decision of decisions) records.push({ kind: 'plan.decided', decision });
+  for (const decision of decisions) {
+    const undated = isChange(decision)
+      ? (Object.fromEntries(Object.entries(decision).filter(([key]) => key !== 'day')) as typeof decision)
+      : decision;
+    records.push({ kind: 'plan.decided', decision: undated });
+  }
   for (const duty of [...state.duties.values()].sort(compareDuties)) records.push({ kind: 'duty.set', duty });
   return records;
 }

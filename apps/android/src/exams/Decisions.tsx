@@ -6,7 +6,7 @@
 // with a button that takes it back, so a decision never stays for good once
 // the «تراجع» of the moment has gone. Nothing shows without a decision.
 
-import { courseSetup, decisionsFor, type Context, type PlanDecision } from '@minhajna/core';
+import { courseSetup, decisionsFor, findPackItem, type Context, type ExamDecision } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { IconButton } from '../components/IconButton';
@@ -20,7 +20,7 @@ export type DecisionsProps = {
   readonly context: Context;
   readonly courseId: string;
   readonly className: string;
-  readonly onTakeBack: (decision: PlanDecision) => void;
+  readonly onTakeBack: (decision: ExamDecision) => void;
 };
 
 export function Decisions({ context, courseId, className, onTakeBack }: DecisionsProps) {
@@ -30,9 +30,8 @@ export function Decisions({ context, courseId, className, onTakeBack }: Decision
   const decisions = decisionsFor(context.state.decisions, courseId);
   if (decisions.length === 0) return null;
   const pack = courseSetup(context, courseId).pack;
-  const quoted = (id: string) =>
-    t('tests.quoted', { title: isolate(pack?.items.find((item) => item.id === id)?.title ?? id) });
-  const said = (decision: PlanDecision): string => {
+  const quoted = (id: string) => t('tests.quoted', { title: isolate(findPackItem(pack, id)?.title ?? id) });
+  const said = (decision: ExamDecision): string => {
     switch (decision.kind) {
       case 'leave-out':
         return t('examWindow.leftOut', { item: quoted(decision.item) });

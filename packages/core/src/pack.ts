@@ -103,6 +103,8 @@ export interface PlanPack {
   readonly items: readonly PackItem[];
   /** Merges the plan proposes, each a list of item IDs. Only ever proposals to the teacher. */
   readonly merges: readonly (readonly string[])[];
+  /** Never in a file: the items a class's changes made and it took back, kept for their titles (#225). */
+  readonly retired?: readonly PackItem[];
 }
 
 const PACK_ID = /^[a-z]{2}(\.[a-z0-9-]+){4,5}$/;

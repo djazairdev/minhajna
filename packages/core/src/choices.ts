@@ -10,6 +10,7 @@ import { findLevel, findSessionType, packKey } from './reference.ts';
 import type { Course, Coverage, Homework, SchoolClass, SessionRecord, SessionRef } from './records.ts';
 import type { Session } from './sessions.ts';
 import { mergesOf } from './plan-decisions.ts';
+import { layered } from './plan-layer.ts';
 import { propose, proposedCoverage, type Progress, type Proposal } from './progress.ts';
 
 /** What the teacher chose for a session (PRD §3.3). */
@@ -65,6 +66,7 @@ export function needProposal(proposal: Proposal | null): Proposal {
 export interface CourseSetup {
   readonly course: Course;
   readonly schoolClass: SchoolClass;
+  /** The pinned release with the class's own changes over it (#225). */
   readonly pack: PlanPack | null;
   /** True when the course pins a pack release that is not installed. */
   readonly packMissing: boolean;
@@ -77,12 +79,13 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
   const schoolClass = course && state.classes.get(course.classId);
   if (course === undefined || schoolClass === undefined) throw new RangeError(`Unknown course: ${courseId}`);
   const pack = course.pack === null ? null : (ref.packs.get(packKey(course.pack.id, course.pack.release)) ?? null);
+  const sessionMinutes = course.sessionMinutes ?? findLevel(ref.country, schoolClass.level).sessionMinutes;
   return {
     course,
     schoolClass,
-    pack,
+    pack: pack === null ? null : layered(pack, state.decisions, courseId, sessionMinutes),
     packMissing: course.pack !== null && pack === null,
-    sessionMinutes: course.sessionMinutes ?? findLevel(ref.country, schoolClass.level).sessionMinutes,
+    sessionMinutes,
   };
 }
 

@@ -15,8 +15,10 @@
 // first, and an item takes part in one merge only, the first one made.
 
 import type { PlanPack } from './pack.ts';
+import { isChange, joinsOf, type PlanChange } from './plan-layer.ts';
 
-export type PlanDecision =
+/** An answer to an exam window (#221). */
+export type ExamDecision =
   | {
       readonly id: string;
       readonly courseId: string;
@@ -39,13 +41,19 @@ export type PlanDecision =
       readonly term: number;
     };
 
-/** A course's decisions, in the order made. */
-export function decisionsFor(decisions: ReadonlyMap<string, PlanDecision>, courseId: string): PlanDecision[] {
-  return [...decisions.values()].filter((decision) => decision.courseId === courseId);
+/** An exam-window answer, or one of the class's own changes to its plan (#225). */
+export type PlanDecision = ExamDecision | PlanChange;
+
+/** A course's answers to exam windows, in the order made. */
+export function decisionsFor(decisions: ReadonlyMap<string, PlanDecision>, courseId: string): ExamDecision[] {
+  return [...decisions.values()].filter(
+    (decision): decision is ExamDecision => !isChange(decision) && decision.courseId === courseId,
+  );
 }
 
 /** Whether a course's pack allows a decision: an optional item, two items it lets merge, items it has. */
 export function allowedBy(pack: PlanPack, decision: PlanDecision): boolean {
+  if (isChange(decision)) return false;
   const has = (id: string): boolean => pack.items.some((item) => item.id === id && item.kind !== 'unit');
   switch (decision.kind) {
     case 'leave-out':
@@ -73,6 +81,11 @@ export function mergesOf(
   for (const decision of decisionsFor(decisions, courseId)) {
     if (decision.kind !== 'merge' || !allowedBy(pack, decision)) continue;
     const [first, second] = [...decision.items].sort((a, b) => order(a) - order(b)) as [string, string];
+    if (taken.has(first) || taken.has(second)) continue;
+    merges.set(first, second);
+    taken.add(first).add(second);
+  }
+  for (const [first, second] of joinsOf(pack, decisions, courseId)) {
     if (taken.has(first) || taken.has(second)) continue;
     merges.set(first, second);
     taken.add(first).add(second);
