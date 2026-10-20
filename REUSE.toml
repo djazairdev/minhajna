@@ -14,7 +14,7 @@ SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 # The Android app's files that cannot hold a comment.
 [[annotations]]
-path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/android/app.json", "apps/android/src/text/*.json", "apps/android/src/settings/text/*.json", "infra/weblate/project.json", "infra/weblate/component.json", "infra/weblate/namespaces.json"]
+path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/android/app.json", "apps/android/src/text/*.json", "apps/android/src/settings/text/*.json", "apps/android/src/calendar/text/*.json", "infra/weblate/project.json", "infra/weblate/component.json", "infra/weblate/namespaces.json"]
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 

@@ -177,6 +177,7 @@ export function refOf(session: Session): SessionRef {
     groupId: session.groupId,
     day: session.day,
     slot: session.slot,
+    ...(session.rotation !== undefined && { rotation: session.rotation }),
   };
 }
 

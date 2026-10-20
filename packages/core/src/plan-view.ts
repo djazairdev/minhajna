@@ -16,6 +16,7 @@ import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack 
 import { pace } from './pacing.ts';
 import { compareSessions, sessionsBetween } from './sessions.ts';
 import { current } from './state.ts';
+import { rotationProgress } from './rotation-progress.ts';
 
 /** `started` once any group of the class was taught it, such as one half in a TD. */
 export type PlanItemStatus = 'done' | 'skipped' | 'started' | 'open';
@@ -25,7 +26,7 @@ export interface PlanRow {
   readonly status: PlanItemStatus;
   /** The first and last days it was taught, from the records. */
   readonly taught: { readonly from: Day; readonly to: Day } | null;
-  /** The day the plan would reach it from today if nothing changes; null once finished. */
+  /** The projected date, or during rotation its common completion date; null once finished. */
   readonly next: Day | null;
   readonly stages: number;
   readonly covered: number;
@@ -36,6 +37,8 @@ export interface PlanRow {
   readonly position: boolean;
   /** Where the plan says the class should be, for the main queue only. A reference. */
   readonly expected: boolean;
+  readonly completed?: Day;
+  readonly onlyGroup?: string;
 }
 
 export interface PlanView {
@@ -74,6 +77,9 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
   const goesOn = new Map<string, string>();
   const ahead = walkCourse(context, courseId, ref.year.to).proposals;
   const sessions = sessionsBetween(context, ref.year.from, ref.year.to, new Set([courseId]));
+  const rotating = sessions.some((session) => session.rotation !== undefined)
+    ? rotationProgress(context, setup, sessions, ahead, today)
+    : null;
   const last = sessions
     .filter((session) => compareDays(session.day, today) <= 0 && current(state.sessions.get(session.key)) != null)
     .at(-1);
@@ -94,6 +100,7 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
     return items.map((item, index) => {
       const finished = progress.isFinished(pack, item, whole);
       const covered = progress.covered(item.id, whole);
+      const completion = rotating?.projected.get(item.id);
       const status: PlanItemStatus = progress.skipped(item.id)
         ? 'skipped'
         : finished
@@ -105,11 +112,25 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
         item,
         status,
         taught: taught.get(item.id) ?? null,
-        next: finished ? null : (reached.get(item.id) ?? null),
+        next: finished
+          ? null
+          : rotating?.rotatingItems.has(item.id)
+            ? completion !== undefined && completion >= today
+              ? completion
+              : null
+            : (reached.get(item.id) ?? null),
         stages: stageCount(pack, item),
         covered,
         position: index === position,
         expected: index === expectedAt,
+        ...(rotating?.rotatingItems.has(item.id) &&
+          rotating.completed.has(item.id) && { completed: rotating.completed.get(item.id)! }),
+        ...(status === 'started' &&
+          rotating?.groups.get(item.id)?.size === 1 && {
+            onlyGroup:
+              setup.schoolClass.groups.find((one) => one.id === [...rotating.groups.get(item.id)!][0])?.name ??
+              [...rotating.groups.get(item.id)!][0]!,
+          }),
       };
     });
   };

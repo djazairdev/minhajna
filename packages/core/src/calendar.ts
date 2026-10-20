@@ -12,9 +12,12 @@
 import { addDays, compareDays, isWithin, startOfWeek, weekday, type Day } from './day.ts';
 import type { CalendarEffect, CalendarEntry, Reference } from './reference.ts';
 import type { School, SchoolClass } from './records.ts';
+import { effectiveCalendar } from './calendar-lunar.ts';
 
 /** Whether an entry covers a school, and a class there if one is given. */
 export function appliesTo(entry: CalendarEntry, school: School, schoolClass?: SchoolClass): boolean {
+  if (entry.rotation !== undefined && schoolClass !== undefined && entry.rotation.classId !== schoolClass.id)
+    return false;
   if (entry.layer === 'zone' && (school.zone === undefined || entry.zone !== school.zone)) return false;
   if (entry.layer === 'school' && entry.schoolId !== school.id) return false;
   const levels = entry.levels;
@@ -61,7 +64,7 @@ export class CalendarView {
   /** `own` holds the entries the teacher added: closures and their own layer. */
   constructor(ref: Reference, own: readonly CalendarEntry[]) {
     this.#ref = ref;
-    this.#entries = [...ref.calendar, ...own];
+    this.#entries = effectiveCalendar(ref.calendar, own);
   }
 
   /** Every entry that covers a school, and a class there if one is given. */
@@ -75,9 +78,12 @@ export class CalendarView {
    * school layers, which every teacher of the school shares. The teacher's
    * own layer can only take the teacher's sessions.
    */
-  info(day: Day, school: School, schoolClass?: SchoolClass): DayInfo {
+  info(day: Day, school: School, schoolClass?: SchoolClass, half?: 'morning' | 'afternoon'): DayInfo {
     const entries = this.#entries.filter(
-      (entry) => isWithin(day, entry.from, entry.to) && appliesTo(entry, school, schoolClass),
+      (entry) =>
+        isWithin(day, entry.from, entry.to) &&
+        appliesTo(entry, school, schoolClass) &&
+        (half === undefined || entry.half === undefined || entry.half === half),
     );
     const shared = entries.filter((entry) => entry.layer !== 'teacher');
     const inYear = isWithin(day, this.#ref.year.from, this.#ref.year.to);
@@ -117,13 +123,17 @@ export class CalendarView {
         teaching = country.workingDays.includes(weekday(day)) && this.info(day, school).schoolDay;
       }
       if (!teaching) continue;
-      const reset = this.#entries.find(
-        (entry) =>
-          (entry.effect === 'week-a' || entry.effect === 'week-b') &&
-          entry.layer !== 'teacher' &&
-          isWithin(entry.from, start, end) &&
-          appliesTo(entry, school),
-      );
+      const priority = { national: 0, zone: 1, school: 2, teacher: -1 };
+      const reset = this.#entries
+        .filter(
+          (entry) =>
+            (entry.effect === 'week-a' || entry.effect === 'week-b') &&
+            entry.layer !== 'teacher' &&
+            isWithin(entry.from, start, end) &&
+            appliesTo(entry, school),
+        )
+        .sort((a, b) => priority[a.layer] - priority[b.layer])
+        .at(-1);
       if (reset === undefined) parity = parity === 'A' ? 'B' : 'A';
       else parity = reset.effect === 'week-a' ? 'A' : 'B';
       weeks.push({ start, number: weeks.length + 1, parity });

@@ -18,10 +18,12 @@ import {
   type Pupil,
   type RollCall,
   type SchoolClass,
+  type Rotation,
 } from './records.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
 import type { RecordEvent } from './events.ts';
 import { current } from './state.ts';
+import { groupsOn } from './pupil-history.ts';
 
 /** One roll call's place: a half-day of a class, or one session of a group. */
 export interface RollCallUnit {
@@ -30,6 +32,7 @@ export interface RollCallUnit {
   readonly groupId: string;
   readonly day: Day;
   readonly half: Half;
+  readonly rotation?: Rotation;
   /** The sessions it covers. */
   readonly sessions: readonly Session[];
 }
@@ -66,7 +69,7 @@ export function rollCallUnits(context: Context, classId: string, from: Day, to: 
   for (const session of sessions) {
     const place = bySession
       ? `${session.day}/${slotKey(session.slot)}/${session.groupId}`
-      : `half-day:${classId}/${session.day}/${session.slot.half}`;
+      : `half-day:${classId}/${session.day}/${session.slot.half}${session.rotation === undefined ? '' : `/${session.groupId}`}`;
     const found = units.get(place);
     if (found !== undefined) found.sessions.push(session);
     else
@@ -74,14 +77,37 @@ export function rollCallUnits(context: Context, classId: string, from: Day, to: 
         unit: {
           key: bySession ? `session:${session.key}` : place,
           classId,
-          groupId: bySession ? session.groupId : whole,
+          groupId: bySession || session.rotation !== undefined ? session.groupId : whole,
           day: session.day,
           half: session.slot.half,
+          ...(session.rotation !== undefined && { rotation: session.rotation }),
         },
         sessions: [session],
       });
   }
-  return [...units.values()].map(({ unit, sessions: covered }) => ({ ...unit, sessions: covered }));
+  const found = [...units.values()].map(({ unit, sessions: covered }) => ({ ...unit, sessions: covered }));
+  const keys = new Set(found.map((one) => one.key));
+  for (const versions of context.state.rollCalls.values()) {
+    const saved = current(versions);
+    if (
+      saved?.rotation === undefined ||
+      saved.classId !== classId ||
+      saved.day < from ||
+      saved.day > to ||
+      keys.has(saved.unit)
+    )
+      continue;
+    found.push({
+      key: saved.unit,
+      classId,
+      groupId: saved.groupId,
+      day: saved.day,
+      half: saved.half,
+      rotation: saved.rotation,
+      sessions: [],
+    });
+  }
+  return found.sort((a, b) => compareDays(a.day, b.day) || (a.half === b.half ? 0 : a.half === 'morning' ? -1 : 1));
 }
 
 /**
@@ -103,7 +129,32 @@ export function isEnrolled(pupil: Pupil, day: Day): boolean {
 
 /** The pupils a roll call covers, in the class list's order. */
 export function pupilsFor(context: Context, unit: RollCallUnit): Pupil[] {
-  return pupilsOn(context, unit.classId, unit.groupId, unit.day);
+  const whole = wholeGroup(findClass(context, unit.classId)).id;
+  const listed = pupilsOn(context, unit.classId, whole, unit.day);
+  if (unit.groupId === whole) return listed;
+  const cutoff = context.state.rollCallOrders?.get(unit.key);
+  return listed.filter((pupil) =>
+    groupsOn(pupil, context.state.memberships?.get(pupil.id), unit.day, cutoff).includes(unit.groupId),
+  );
+}
+
+/** An unassigned or ambiguous pupil must be reviewed, never silently treated as off-duty. */
+export function rotationRosterReady(context: Context, unit: RollCallUnit): boolean {
+  if (unit.rotation === undefined) return true;
+  const cutoff = context.state.rollCallOrders?.get(unit.key) ?? Infinity;
+  return [...context.state.pupils.values()]
+    .filter((pupil) => {
+      const first = context.state.memberships?.get(pupil.id)?.[0];
+      return (
+        pupil.classId === unit.classId &&
+        isEnrolled(pupil, unit.day) &&
+        (first === undefined || (first.day <= unit.day && first.order <= cutoff))
+      );
+    })
+    .every((pupil) => {
+      const groups = groupsOn(pupil, context.state.memberships?.get(pupil.id), unit.day, cutoff);
+      return unit.rotation!.groups.filter((id) => groups.includes(id)).length === 1;
+    });
 }
 
 /** The pupils of a class's group on its list on `day`, in the class list's order. */
@@ -112,7 +163,9 @@ export function pupilsOn(context: Context, classId: string, groupId: string, day
   const whole = wholeGroup(schoolClass).id;
   return [...context.state.pupils.values()].filter(
     (pupil) =>
-      pupil.classId === classId && isEnrolled(pupil, day) && (groupId === whole || pupil.groups.includes(groupId)),
+      pupil.classId === classId &&
+      isEnrolled(pupil, day) &&
+      (groupId === whole || groupsOn(pupil, context.state.memberships?.get(pupil.id), day).includes(groupId)),
   );
 }
 
@@ -127,6 +180,7 @@ export interface Marks {
  * Its error messages name no pupil, as the engineering rules ask.
  */
 export function takeRollCall(context: Context, unit: RollCallUnit, marks: Marks, reason?: string): RecordEvent {
+  if (!rotationRosterReady(context, unit)) throw new RangeError('Review the class group split before roll call');
   const listed = new Set(pupilsFor(context, unit).map((pupil) => pupil.id));
   const marked = [...marks.absent.map((absence) => absence.pupilId), ...marks.late];
   if (!marked.every((id) => listed.has(id))) throw new RangeError('A marked pupil is not on this roll call');
@@ -144,6 +198,7 @@ export function takeRollCall(context: Context, unit: RollCallUnit, marks: Marks,
     half: unit.half,
     absent: marks.absent.map(({ pupilId, justified }) => ({ pupilId, justified })),
     late: [...marks.late],
+    ...(unit.rotation !== undefined && { rotation: unit.rotation }),
   };
   return { kind: 'roll-call.taken', rollCall, ...(correction && reason !== undefined && { reason }) };
 }

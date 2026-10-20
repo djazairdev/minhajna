@@ -134,7 +134,11 @@ export function Today(props: {
     if (item.status === 'calendar') {
       const entry = view.marks.find((mark) => mark.id === item.session.calendarEntry);
       const lesson =
-        entry !== undefined ? localized(entry.name) : t(`today.calendar.${item.session.calendar ?? 'holiday'}`);
+        item.session.calendar === 'rotation'
+          ? t('calendarView.groups.off')
+          : entry !== undefined
+            ? localized(entry.name)
+            : t(`today.calendar.${item.session.calendar ?? 'holiday'}`);
       return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} lesson={lesson} />;
     }
     if (item === focus && item.proposal !== null) {

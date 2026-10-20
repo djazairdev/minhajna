@@ -61,6 +61,7 @@ export function markLine(
   language: Language,
   profile: Pick<CountryProfile, 'months' | 'workingDays'>,
 ): string {
+  if (entry.half !== undefined) return t(`calendarView.periods.${entry.half}`);
   if (entry.effect === 'no-school')
     return t(entry.layer === 'national' ? 'daymark.holidayNational' : 'daymark.holiday');
   if (entry.effect === 'closure') return t('daymark.closure');

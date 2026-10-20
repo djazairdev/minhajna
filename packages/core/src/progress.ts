@@ -133,7 +133,10 @@ export class Progress {
     const item = this.#items.get(itemId);
     if (item === undefined) return 0;
     const whole = item.groups.get(this.#whole)?.spent ?? 0;
-    return groupId === this.#whole ? whole : whole + (item.groups.get(groupId)?.spent ?? 0);
+    if (groupId !== this.#whole) return whole + (item.groups.get(groupId)?.spent ?? 0);
+    const common =
+      this.#halves.length === 0 ? 0 : Math.min(...this.#halves.map((id) => item.groups.get(id)?.spent ?? 0));
+    return whole + common;
   }
 
   /** Counts an item the teacher decided to leave out as skipped. */

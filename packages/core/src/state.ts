@@ -22,7 +22,6 @@ import type {
   Course,
   PrivateNote,
   Pupil,
-  PupilMovement,
   RollCall,
   School,
   SchoolClass,
@@ -33,6 +32,7 @@ import type {
   TimetableVersion,
 } from './records.ts';
 import { eventOf } from './events.ts';
+import { withMovements, type Membership, type Movement } from './pupil-history.ts';
 
 /** One version of a record. Corrections add versions, and every version stays (PRD §3.1, rule 4). */
 export interface Version<T> {
@@ -58,6 +58,8 @@ export interface State {
   readonly schools: ReadonlyMap<string, School>;
   readonly classes: ReadonlyMap<string, SchoolClass>;
   readonly pupils: ReadonlyMap<string, Pupil>;
+  readonly memberships?: ReadonlyMap<string, readonly Membership[]>;
+  readonly rollCallOrders?: ReadonlyMap<string, number>;
   readonly courses: ReadonlyMap<string, Course>;
   /**
    * The timetable versions that apply on some day, in the order they were recorded, which is the order they apply.
@@ -98,29 +100,6 @@ function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
   return { entry: entry.id, day: entry.day, value, ...(reason !== undefined && { reason }) };
 }
 
-interface Movement {
-  readonly movement: PupilMovement;
-  /** The place of the event that recorded it, in the history. */
-  readonly order: number;
-}
-
-/**
- * A pupil's movements are those of their latest record plus every movement
- * recorded on its own, so setting the pupil again, to fix a name for
- * example, never loses one. The same movement recorded again on the same
- * day, such as a departure once the director confirms it, replaces the
- * earlier one.
- */
-function withMovements(pupil: Pupil, order: number, moved: readonly Movement[]): Pupil {
-  const latest = new Map<string, Movement>();
-  const all = [...pupil.movements.map((movement) => ({ movement, order })), ...moved].sort((a, b) => a.order - b.order);
-  for (const candidate of all) latest.set(`${candidate.movement.day}/${candidate.movement.kind}`, candidate);
-  const movements = [...latest.values()]
-    .sort((a, b) => compareDays(a.movement.day, b.movement.day) || a.order - b.order)
-    .map((candidate) => candidate.movement);
-  return { ...pupil, movements };
-}
-
 /**
  * Adds a timetable version recorded on `day`. Saved again under the ID of the
  * last one, it replaces it and keeps the day that one was recorded. The first
@@ -147,6 +126,8 @@ export function buildState(entries: readonly Entry[]): State {
   const classes = new Map<string, SchoolClass>();
   const pupilSets = new Map<string, { readonly pupil: Pupil; readonly order: number }>();
   const moved = new Map<string, Movement[]>();
+  const memberships = new Map<string, Membership[]>();
+  const rollCallOrders = new Map<string, number>();
   const courses = new Map<string, Course>();
   const timetables: RecordedTimetable[] = [];
   let firstTimetable: string | undefined;
@@ -182,6 +163,10 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'pupil.set':
         pupilSets.set(event.pupil.id, { pupil: event.pupil, order });
+        memberships.set(event.pupil.id, [
+          ...(memberships.get(event.pupil.id) ?? []),
+          { day: entry.day, order: entry.seq, groups: event.pupil.groups },
+        ]);
         break;
       case 'pupil.moved':
         moved.set(event.pupilId, [...(moved.get(event.pupilId) ?? []), { movement: event.movement, order }]);
@@ -194,6 +179,7 @@ export function buildState(entries: readonly Entry[]): State {
         addTimetable(timetables, event.version, entry.day, firstTimetable);
         break;
       case 'calendar.set':
+        calendar.delete(event.entry.id);
         calendar.set(event.entry.id, event.entry);
         break;
       case 'calendar.removed':
@@ -231,6 +217,7 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'roll-call.taken': {
         const key = event.rollCall.unit;
+        if (!rollCallOrders.has(key)) rollCallOrders.set(key, entry.seq);
         rollCalls.set(key, [...(rollCalls.get(key) ?? []), versionOf(entry, event.rollCall, event.reason)]);
         break;
       }
@@ -275,6 +262,8 @@ export function buildState(entries: readonly Entry[]): State {
     schools,
     classes,
     pupils,
+    memberships,
+    rollCallOrders,
     courses,
     timetables,
     calendar: [...calendar.values()],

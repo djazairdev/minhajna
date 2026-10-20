@@ -128,6 +128,7 @@ export const CALENDAR_EFFECTS = [
   'week-b',
   /** A make-up, support or revision day: sessions on a weekday's timetable, even on a day off (PRD §4.5, §7.7). */
   'adds-sessions',
+  'rotating-groups',
 ] as const;
 
 export type CalendarEffect = (typeof CALENDAR_EFFECTS)[number];
@@ -161,7 +162,11 @@ export interface CalendarEntry {
   readonly from: Day;
   /** The last day, included. */
   readonly to: Day;
+  /** Local entries only: the same half of every included day; omitted means the whole day. */
+  readonly half?: 'morning' | 'afternoon';
   readonly effect: CalendarEffect;
+  /** Local class rule; pupil identities and membership never belong in the calendar. */
+  readonly rotation?: { readonly classId: string; readonly groups: readonly [string, string] };
   /** Only these levels, if set. */
   readonly levels?: readonly string[];
   /** Only these grades, if set. */
@@ -186,6 +191,15 @@ export interface CalendarEntry {
   /** The text or notice it comes from. */
   readonly source: string;
   readonly confidence: Confidence;
+  /** A lunar holiday whose date is fixed by a sighting, not merely any expected entry. */
+  readonly lunar?: true;
+  /** Local confirmation only: the exact canonical reference entry it confirms, never a signature. */
+  readonly confirmedFrom?: string;
+  /** Unverified claims retained from an explicitly accepted single-entry notice, never a signature. */
+  readonly received?: {
+    readonly sender: string;
+    readonly school?: { readonly name: string; readonly zone: string; readonly code?: string };
+  };
 }
 
 /** A school year and its calendar entries, as one release of reference data (PRD §4.5, §4.8). */
