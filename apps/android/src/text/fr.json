@@ -731,7 +731,7 @@
     "sessionsUnit": "{{sessions}} · {{unit}}",
     "stages": "Étapes",
     "sourcePage": "Source : le plan annuel, page {{page}}",
-    "textbook": "Manuel, p. {{pages}}",
+    "textbook": "Manuel, page {{pages}}",
     "changeFor": "Modifier pour {{class}} seulement",
     "move": "Le déplacer",
     "moveContext": "Il vient avant l’élément choisi, dans le plan de {{class}} seulement.",

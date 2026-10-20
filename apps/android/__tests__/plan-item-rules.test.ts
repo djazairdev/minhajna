@@ -23,12 +23,13 @@ const item = (id: string, optional?: boolean): PackItem => ({
   ...(optional !== undefined && { optional }),
 });
 
-test('a skip or join asks first when one of its items is essential, never for an added item', () => {
-  expect(asksFirst([item('a', true)])).toBe(false);
-  expect(asksFirst([item('a', true), item('b')])).toBe(true);
-  expect(asksFirst([item('a', true), item('b', true)])).toBe(false);
-  expect(asksFirst([item('add~x')])).toBe(false);
-  expect(asksFirst([item('add~x~c~1')])).toBe(false);
+test('a skip or join asks first, naming the essential item, never for an added item', () => {
+  expect(asksFirst([item('a', true)])).toBeUndefined();
+  expect(asksFirst([item('a', true), item('b')])?.id).toBe('b');
+  expect(asksFirst([item('a'), item('b')])?.id).toBe('a');
+  expect(asksFirst([item('a', true), item('b', true)])).toBeUndefined();
+  expect(asksFirst([item('add~x')])).toBeUndefined();
+  expect(asksFirst([item('add~x~c~1')])).toBeUndefined();
 });
 
 test('offers no move that does nothing, and no join of items already joined', async () => {

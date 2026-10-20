@@ -712,7 +712,7 @@
     "sessionsUnit": "{{sessions}} · {{unit}}",
     "stages": "Stages",
     "sourcePage": "Source: the yearly plan, page {{page}}",
-    "textbook": "Textbook, p. {{pages}}",
+    "textbook": "Textbook, page {{pages}}",
     "changeFor": "Change for {{class}} only",
     "move": "Move it elsewhere",
     "moveContext": "It comes before the item you choose, in {{class}}’s plan only.",

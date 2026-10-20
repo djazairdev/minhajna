@@ -78,9 +78,9 @@ export function isAdded(item: PackItem): boolean {
   return item.id.startsWith('add~');
 }
 
-/** Whether skipping or joining these items asks first: one of them is essential in the pack. */
-export function asksFirst(items: readonly PackItem[]): boolean {
-  return items.some((item) => !isAdded(item) && item.optional !== true);
+/** The item that makes skipping or joining these ask first, the first essential in the pack, or undefined. */
+export function asksFirst(items: readonly PackItem[]): PackItem | undefined {
+  return items.find((item) => !isAdded(item) && item.optional !== true);
 }
 
 /** The ID to show for an item: a part of a split shows the pack item's own ID and its part. */

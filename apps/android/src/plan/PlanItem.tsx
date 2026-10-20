@@ -73,8 +73,9 @@ export function PlanItem({ courseId, itemId, onChanges }: PlanItemProps) {
   const ask = (draft: Draft) => {
     const items =
       page === null ? [] : [page.row.item, ...(draft.kind === 'join' && page.next !== undefined ? [page.next] : [])];
-    if (page === null || !asksFirst(items)) return save(draft);
-    Alert.alert(t('planItem.title'), t('planItem.essentialAsk', { title: isolate(page.row.item.title) }), [
+    const essential = asksFirst(items);
+    if (essential === undefined) return save(draft);
+    Alert.alert(t('planItem.title'), t('planItem.essentialAsk', { title: isolate(essential.title) }), [
       { text: t('planItem.cancel'), style: 'cancel' },
       { text: t('planItem.goOn'), onPress: () => save(draft) },
     ]);
