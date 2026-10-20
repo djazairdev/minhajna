@@ -6,7 +6,8 @@
 // shows while the reference data and the history open, and on a refusal, with
 // no way forward. The restore link from another phone stays out of
 // field-check builds (choice F4, #49), and no restore exists yet. The
-// preview says what it is before anything else (#48).
+// preview says what it is before anything else (#48), and whether the PIN
+// is set yet, for a build that takes real names (#211).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -24,10 +25,13 @@ export function Welcome({
   onStart,
   referenceRefused = false,
   historyRefused = false,
+  lockSet = false,
 }: {
   onStart?: () => void;
   referenceRefused?: boolean;
   historyRefused?: boolean;
+  /** True once the app's PIN is set, as when the welcome is left under the privacy notice. */
+  lockSet?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -56,7 +60,7 @@ export function Welcome({
               {line}
             </Text>
           ))}
-        <PreviewNotice short />
+        <PreviewNotice short lockSet={lockSet} />
         <LanguageChoice />
         <Facts
           facts={[

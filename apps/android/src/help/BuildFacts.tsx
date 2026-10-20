@@ -1,18 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the installed preview is (#48, choice F9 in #49): a preview, for
-// made-up pupils only; its version; and the checksums of its APK and of the
-// certificate that signed it, which anyone can compare with those published
-// with the preview. Checksums are Latin text, cut into groups of four and
-// selectable, so they can be read aloud or copied.
+// What the installed preview is (#48, choice F9 in #49): a preview, for made-up
+// pupils only, or, in the build the Ministry runs, one that takes real names
+// once the lock is set, under its declaration (#211); its version; and the
+// checksums of its APK and of the certificate that signed it, which anyone can
+// compare with those published with the build. Checksums are Latin text, cut
+// into groups of four and selectable, so they can be read aloud or copied.
 
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Notice } from '../components/Notice';
 import native, { type BuildFacts } from '../native/NativeMinhajnaBuild';
 import { spacing } from '../design/tokens';
+import { buildDeclaration, REAL_NAMES, realNamesDeclaration } from '../privacy/real-names';
 import { useText } from '../text/i18n';
+import { isolate } from '../week/grid-labels';
 import { helpStyles } from './HelpPage';
 
 type Result = { status: 'loading' | 'refused' } | { status: 'ready'; value: BuildFacts };
@@ -42,8 +45,30 @@ function useBuildFacts(): Result {
 }
 
 /** The preview's notice: one line on the welcome, so its button stays in view, and in full in Help. */
-export function PreviewNotice({ short = false }: { short?: boolean }) {
+export function PreviewNotice({ short = false, lockSet = true }: { short?: boolean; lockSet?: boolean }) {
   const t = useText();
+  const declaration = realNamesDeclaration(REAL_NAMES, lockSet);
+  if (buildDeclaration(REAL_NAMES) !== null && (short || declaration === null)) {
+    return (
+      <Notice
+        testID="preview-notice"
+        variant="notice"
+        badge={t('realNames.badge')}
+        message={t(declaration === null ? 'realNames.beforeLock' : 'realNames.setup')}
+      />
+    );
+  }
+  if (declaration !== null) {
+    return (
+      <Notice
+        testID="preview-notice"
+        variant="notice"
+        badge={t('realNames.badge')}
+        title={t('realNames.title')}
+        message={t('realNames.message', { declaration: isolate(declaration) })}
+      />
+    );
+  }
   return short ? (
     <Notice testID="preview-notice" variant="notice" badge={t('preview.badge')} message={t('preview.short')} />
   ) : (
@@ -84,7 +109,9 @@ export function AboutBuild() {
           {result.value.signerSha256 !== null && (
             <Checksum label={t('preview.signer')} hex={result.value.signerSha256} />
           )}
-          <Text style={helpStyles.body}>{t('preview.compare')}</Text>
+          <Text style={helpStyles.body}>
+            {t(buildDeclaration(REAL_NAMES) === null ? 'preview.compare' : 'realNames.compare')}
+          </Text>
         </>
       ) : (
         <Text accessibilityLiveRegion="polite" style={helpStyles.body}>

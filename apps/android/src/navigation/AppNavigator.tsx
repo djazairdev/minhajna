@@ -262,7 +262,7 @@ function HomeTabs() {
 
 /** The welcome leads to the notice; Back from the notice returns here. */
 function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
-  return <Welcome onStart={() => navigation.navigate('Privacy')} />;
+  return <Welcome lockSet onStart={() => navigation.navigate('Privacy')} />;
 }
 
 /**
