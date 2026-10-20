@@ -366,6 +366,7 @@
     "packsTitle": "Changer de pack",
     "packsIntro": "Chaque pack pour {{group}}, avec son statut, son édition et sa source.",
     "statuses": "Le statut de chaque pack",
+    "current": "Version actuelle",
     "pinFor": "Épingler pour",
     "pinNote": "Chaque classe reste sur la version épinglée jusqu'à ce qu'on en choisisse une autre.",
     "pinButton": "Épingler le pack",

@@ -20,7 +20,7 @@ export function Plans({
   onChoose,
 }: {
   schoolId?: string;
-  onChoose: (grade: string, subject: string, schoolId: string) => void;
+  onChoose: (grade: string, subject: string, schoolId: string, classId: string) => void;
 }) {
   const t = useText();
   const { direction } = useLocale();
@@ -62,7 +62,7 @@ export function Plans({
                   style={styles.card}
                 >
                   <Text accessibilityRole="header" style={[styles.title, align]}>
-                    {schoolClass.name} · {groupName(t, profile, group)}
+                    {t('settings.classLabel', { name: schoolClass.name, subject: groupName(t, profile, group) })}
                   </Text>
                   {pack !== undefined ? (
                     <>
@@ -79,7 +79,7 @@ export function Plans({
                     testID={`settings-choose-${schoolClass.id}-${group.subject}-${group.grade}`}
                     variant="line"
                     label={t('plan.change')}
-                    onPress={() => onChoose(group.grade, group.subject, school.id)}
+                    onPress={() => onChoose(group.grade, group.subject, school.id, schoolClass.id)}
                   />
                 </View>
               );

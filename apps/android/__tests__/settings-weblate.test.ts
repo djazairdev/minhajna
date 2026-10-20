@@ -56,11 +56,13 @@ test.each([false, true])(
     expect(base.repo).toBe('https://example.invalid/source.git');
     expect(base.push).toBe('https://example.invalid/push.git');
     expect(settings.repo).toBe('weblate://minhajna/android-interface');
-    expect(settings.push).toBeUndefined();
+    for (const option of ['vcs', 'branch', 'push', 'push_branch', 'merge_style']) {
+      expect(settings[option]).toBeUndefined();
+    }
+    expect(base.push_branch).toBe('weblate');
     expect(settings.filemask).toBe('apps/android/src/settings/text/*.json');
     for (const component of [base, settings]) {
       expect(component.license).toBe('AGPL-3.0-or-later');
-      expect(component.push_branch).toBe('weblate');
       expect(component.source_language).toBe('ar');
       expect(component.commit_message).toContain('Signed-off-by: {{ author }}');
       expect(component.agreement).toBe(base.agreement);

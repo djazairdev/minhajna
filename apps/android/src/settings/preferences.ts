@@ -6,15 +6,18 @@ import face from '../native/NativeMinhajnaInterface';
 
 const KEY = 'count-minutes';
 const listeners = new Set<() => void>();
+let cached: boolean | undefined;
 
 /** An optional display choice on this phone only; it never changes the plan or the history. */
 export function countMinutes(): boolean {
-  return face.setting(KEY) === 'true';
+  cached ??= face.setting(KEY) === 'true';
+  return cached;
 }
 
 /** Keep first, then notify every mounted view; a failed write leaves their choice unchanged. */
 export function setCountMinutes(value: boolean): void {
   face.setSetting(KEY, String(value));
+  cached = value;
   for (const listener of listeners) listener();
 }
 

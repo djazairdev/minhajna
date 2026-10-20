@@ -39,12 +39,16 @@ async function project(values) {
   return api('POST', 'projects/', values);
 }
 
+/** Options Weblate refuses on a component that shares another's repository. */
+const REPOSITORY_ONLY = ['vcs', 'branch', 'push', 'push_branch', 'merge_style'];
+
 /** Creates the component, or brings its settings up to date, with the repository's addresses filled in. */
 async function component(projectSlug, values, linkedTo) {
-  const filled =
-    linkedTo === undefined
-      ? { ...values, repo: REPOSITORY, push: PUSH ?? REPOSITORY }
-      : { ...values, repo: `weblate://${projectSlug}/${linkedTo}` };
+  const linked = () => {
+    const shared = Object.fromEntries(Object.entries(values).filter(([key]) => !REPOSITORY_ONLY.includes(key)));
+    return { ...shared, repo: `weblate://${projectSlug}/${linkedTo}` };
+  };
+  const filled = linkedTo === undefined ? { ...values, repo: REPOSITORY, push: PUSH ?? REPOSITORY } : linked();
   const path = `components/${projectSlug}/${values.slug}/`;
   if (await api('GET', path)) return api('PATCH', path, filled);
   return api('POST', `projects/${projectSlug}/components/`, filled);

@@ -37,7 +37,7 @@ test('shows each school’s real pins and missing releases, not the newest insta
   expect(settingsTexts().some((text) => text.includes('2025.9'))).toBe(true);
   expect(accessibilityProblems(settingsRoot())).toEqual([]);
   await pressSettings('settings-choose-k-other-arabic-4am');
-  expect(onChoose).toHaveBeenCalledWith('4am', 'arabic', 's-2');
+  expect(onChoose).toHaveBeenCalledWith('4am', 'arabic', 's-2', 'k-other');
 });
 
 test('a school-specific plan page does not include the other school’s classes', async () => {
@@ -64,4 +64,53 @@ test('pinning a pack in one school changes neither the other school’s pin nor 
   expect(data.book.state.courses.get('c-other')?.pack).toEqual(otherPin);
   expect(data.book.state.sessions).toEqual(records);
   expect(data.book.entries.slice(0, history.length)).toEqual(history);
+});
+
+test('«تغيير» on one class pins that class only, leaving a sibling on its release', async () => {
+  const data = await settingsData();
+  const example = { id: 'dz.cem.4am.arabic.example', release: '2026.1' };
+  await data.book.recordAll(parseDay('2026-10-15'), [
+    { kind: 'course.set', course: { id: 'c-2', classId: 'k-2', subject: 'arabic', year: '2026-2027', pack: example } },
+  ]);
+  await showSettingsScreen(<Packs grade="4am" subject="arabic" schoolId="s-1" classId="k-1" onDone={onDone} />, data);
+  expect(settingsRoot().findByProps({ testID: 'pack-classes' }).props.selected).toEqual(['k-1']);
+  await pressSettings('pack-none');
+  await pressSettings('pack-pin');
+  expect(data.book.state.courses.get('c-1')?.pack).toBeNull();
+  expect(data.book.state.courses.get('c-2')?.pack).toEqual(example);
+});
+
+test('a class on a missing release keeps it unless another is chosen', async () => {
+  const data = await settingsData();
+  const history = data.book.entries.length;
+  await showSettingsScreen(
+    <Packs grade="4am" subject="arabic" schoolId="s-2" classId="k-other" onDone={onDone} />,
+    data,
+  );
+  expect(settingsRoot().findByProps({ testID: 'pack-current' }).props.selected).toBe(true);
+  expect(settingsTexts().some((text) => text.includes('2025.9'))).toBe(true);
+  await pressSettings('pack-pin');
+  expect(onDone).toHaveBeenCalledTimes(1);
+  expect(data.book.state.courses.get('c-other')?.pack).toEqual({ id: 'dz.cem.4am.arabic.example', release: '2025.9' });
+  expect(data.book.entries).toHaveLength(history);
+  expect(accessibilityProblems(settingsRoot())).toEqual([]);
+});
+
+test("setup's chooser for several classes on different pins offers the latest, not one class's old release", async () => {
+  const data = await settingsData();
+  await data.book.recordAll(parseDay('2026-10-15'), [
+    {
+      kind: 'course.set',
+      course: {
+        id: 'c-1',
+        classId: 'k-1',
+        subject: 'arabic',
+        year: '2026-2027',
+        pack: { id: 'dz.cem.4am.arabic.example', release: '2025.9' },
+      },
+    },
+  ]);
+  await showSettingsScreen(<Packs grade="4am" subject="arabic" schoolId="s-1" onDone={onDone} />, data);
+  expect(settingsRoot().findAllByProps({ testID: 'pack-current' })).toHaveLength(0);
+  expect(settingsRoot().findByProps({ testID: 'pack-dz.cem.4am.arabic.example' }).props.selected).toBe(true);
 });

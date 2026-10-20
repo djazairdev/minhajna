@@ -103,7 +103,9 @@ export function SettingsPlansScreen({
   return (
     <Plans
       schoolId={route.params?.schoolId}
-      onChoose={(grade, subject, schoolId) => navigation.navigate('Packs', { grade, subject, schoolId })}
+      onChoose={(grade, subject, schoolId, classId) =>
+        navigation.navigate('Packs', { grade, subject, schoolId, classId })
+      }
     />
   );
 }

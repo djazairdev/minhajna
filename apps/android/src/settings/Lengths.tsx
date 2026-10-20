@@ -44,43 +44,52 @@ export function Lengths({ onTimes }: { onTimes: () => void }) {
         <Badge label={t(hoursOn(entries, day) === 'ramadan' ? 'times.ramadanNow' : 'times.usualNow')} />
       </View>
       <Text style={[styles.body, align]}>{t('settings.lengthsIntro')}</Text>
-      {profile.levels.map((level) => {
-        const template = templateFor(bells, level.code, 'single');
-        const shortened = ramadanLength(bells, level.code);
-        return (
-          <View key={level.code} testID={`lengths-${level.code}`} style={styles.card}>
-            <Text accessibilityRole="header" style={[styles.title, align]}>
-              {localized(level.name)}
-            </Text>
-            {levels.has(level.code) && <Badge label={t('settings.myLevel')} />}
-            <Text style={[styles.body, align]}>
-              {t('settings.usual')}: {t('settings.minutes', { count: level.sessionMinutes })}
-            </Text>
-            <Text style={[styles.sub, align]}>{t('settings.reference', { release: profile.release })}</Text>
-            <Text style={[styles.sub, align]}>
-              {template === null ? t('settings.noTemplate') : t('settings.source', { source: template.source })}
-            </Text>
-            <Text style={[styles.title, align]}>{t('settings.ramadan')}</Text>
-            {shortened === null ? (
-              <Text testID={`lengths-no-ramadan-${level.code}`} style={[styles.body, align]}>
-                {t('settings.noRamadan')}
+      {[...profile.levels]
+        .sort((a, b) => Number(levels.has(b.code)) - Number(levels.has(a.code)))
+        .map((level) => {
+          const template = templateFor(bells, level.code, 'single');
+          const shortened = ramadanLength(bells, level.code);
+          return (
+            <View key={level.code} testID={`lengths-${level.code}`} style={styles.card}>
+              <Text accessibilityRole="header" style={[styles.title, align]}>
+                {localized(level.name)}
               </Text>
-            ) : (
-              <>
-                <Text style={[styles.body, align]}>{t('settings.minutes', { count: shortened.minutes })}</Text>
-                <Badge label={t(`settings.confidence.${shortened.confidence}`)} variant="warning" />
-                <Text style={[styles.sub, align]}>{t('settings.source', { source: shortened.source })}</Text>
-              </>
-            )}
-            {ramadan !== null && (
+              {levels.has(level.code) && <Badge label={t('settings.myLevel')} />}
+              <Text style={[styles.body, align]}>
+                {level.rollCallUnit === 'half-day'
+                  ? t('settings.byPeriod')
+                  : t('settings.usualValue', {
+                      label: t('settings.usual'),
+                      minutes: t('settings.minutes', { count: level.sessionMinutes }),
+                    })}
+              </Text>
+              <Text style={[styles.sub, align]}>{t('settings.reference', { release: profile.release })}</Text>
               <Text style={[styles.sub, align]}>
-                {t('settings.range', { from: formatDay(ramadan.from), to: formatDay(ramadan.to) })} ·{' '}
-                {t(`settings.confidence.${ramadan.confidence}`)}
+                {template === null ? t('settings.noTemplate') : t('settings.source', { source: template.source })}
               </Text>
-            )}
-          </View>
-        );
-      })}
+              <Text style={[styles.title, align]}>{t('settings.ramadan')}</Text>
+              {shortened === null ? (
+                <Text testID={`lengths-no-ramadan-${level.code}`} style={[styles.body, align]}>
+                  {t('settings.noRamadan')}
+                </Text>
+              ) : (
+                <>
+                  <Text style={[styles.body, align]}>{t('settings.minutes', { count: shortened.minutes })}</Text>
+                  <Badge label={t(`settings.confidence.${shortened.confidence}`)} variant="warning" />
+                  <Text style={[styles.sub, align]}>{t('settings.source', { source: shortened.source })}</Text>
+                </>
+              )}
+              {ramadan !== null && (
+                <Text style={[styles.sub, align]}>
+                  {t('settings.rangeConfidence', {
+                    range: t('settings.range', { from: formatDay(ramadan.from), to: formatDay(ramadan.to) }),
+                    confidence: t(`settings.confidence.${ramadan.confidence}`),
+                  })}
+                </Text>
+              )}
+            </View>
+          );
+        })}
       <Notice icon={controlIcon('check')} message={t('settings.lengthsRule')} />
       <RowLink testID="lengths-times" icon={controlIcon('school')} title={t('settings.rows.times')} onPress={onTimes} />
     </ScrollView>

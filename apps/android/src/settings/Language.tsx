@@ -46,7 +46,7 @@ export function Language({ onDone }: { onDone: () => void }) {
     setFailed(false);
     const restart = LANGUAGES[selected].rightToLeft !== LANGUAGES[currentLanguage()].rightToLeft;
     try {
-      const saved = await allSaved();
+      const saved = restart ? await allSaved() : true;
       if (!mounted.current) return;
       if (!saved) {
         setFailed(true);

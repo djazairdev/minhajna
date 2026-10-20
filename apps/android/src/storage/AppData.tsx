@@ -46,7 +46,7 @@ export interface AppData {
   readonly newId: () => string;
   /** Resolves once every change made so far is saved or refused. */
   readonly settled: () => Promise<void>;
-  /** Waits for queued changes; a failed write while waiting prevents an interface restart. */
+  /** Waits for queued changes; false when one of them failed while waiting, not before. */
   readonly allSaved: () => Promise<boolean>;
   /** True after a change failed to save, until the next one saves. */
   readonly unsaved: boolean;
@@ -85,18 +85,15 @@ export function AppDataProvider({
   const [state, setState] = useState(book.state);
   const [unsaved, setUnsaved] = useState(false);
   const queue = useRef<Promise<void>>(Promise.resolve());
-  const lastFailed = useRef(false);
   const failureCount = useRef(0);
   const actions = useMemo(() => {
     const save = (work: () => Promise<unknown>) => {
       queue.current = queue.current.then(work).then(
         () => {
-          lastFailed.current = false;
           setState(book.state);
           setUnsaved(false);
         },
         (error: unknown) => {
-          lastFailed.current = true;
           failureCount.current += 1;
           if (__DEV__) console.warn('A change was not saved', error);
           setUnsaved(true);
@@ -132,7 +129,7 @@ export function AppDataProvider({
           pending = queue.current;
           await pending;
         }
-        return !lastFailed.current && failureCount.current === started;
+        return failureCount.current === started;
       },
     };
   }, [book, profile, year, calendar, bells, packs, random, today]);

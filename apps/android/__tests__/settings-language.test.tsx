@@ -136,7 +136,7 @@ test('waits for a pending record write before changing direction', async () => {
   expect(restart).toHaveBeenCalledTimes(1);
 });
 
-test('does not restart when a queued edit failed to save', async () => {
+test('a write that failed before Save does not block the language change', async () => {
   const data = await withDay();
   jest.spyOn(console, 'warn').mockImplementation(() => undefined);
   jest.spyOn(data.book, 'record').mockRejectedValue(new Error('Synthetic write failure'));
@@ -151,8 +151,8 @@ test('does not restart when a queued edit failed to save', async () => {
   await pressSettings('synthetic-edit');
   await pressSettings('settings-language-fr');
   await pressSettings('settings-language-save');
-  expect(restart).not.toHaveBeenCalled();
-  expect(settingsTexts()).toContain(catalogues.ar.settings.failed);
+  expect(restart).toHaveBeenCalledTimes(1);
+  expect(settingsTexts()).not.toContain(catalogues.ar.settings.failed);
 });
 
 test('leaving the language screen while a write is pending cancels the language change, not the write', async () => {

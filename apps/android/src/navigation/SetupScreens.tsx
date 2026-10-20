@@ -79,6 +79,7 @@ export function PacksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       grade={route.params.grade}
       subject={route.params.subject}
       schoolId={route.params.schoolId}
+      classId={route.params.classId}
       onDone={() => navigation.goBack()}
     />
   );

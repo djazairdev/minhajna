@@ -17,6 +17,9 @@ import { Settings } from '../src/settings/Settings';
 import { countMinutes, setCountMinutes } from '../src/settings/preferences';
 import { catalogues, i18n, missingKeys } from '../src/text/i18n';
 import { screenKind } from '../src/lock/screen-guard';
+import arBase from '../src/text/ar.json';
+import enBase from '../src/text/en.json';
+import frBase from '../src/text/fr.json';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -120,4 +123,12 @@ test('reports a failed preference write without showing the change as saved', as
 test('damaged or future preference values do not turn minutes on', () => {
   NativeInterface.setSetting('count-minutes', 'unexpected');
   expect(countMinutes()).toBe(false);
+});
+
+test.each([
+  ['ar', arBase],
+  ['fr', frBase],
+  ['en', enBase],
+] as const)('keeps the settings texts in their own catalogue, never shadowed by the base one (%s)', (_, base) => {
+  expect(Object.keys(base)).not.toContain('settings');
 });

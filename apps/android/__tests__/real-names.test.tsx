@@ -17,6 +17,7 @@ import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData } from '../jest/app-data';
 import { AboutBuild } from '../src/help/BuildFacts';
 import { PrivacyNotice } from '../src/help/PrivacyNotice';
+import { WelcomeScreen } from '../src/navigation/SetupScreens';
 import { Welcome } from '../src/navigation/Welcome';
 import { buildDeclaration, realNamesDeclaration } from '../src/privacy/real-names';
 import { TypeList } from '../src/setup/TypeList';
@@ -94,6 +95,13 @@ test('the welcome waits for the PIN before taking real names, and says so once i
   expect(shown()).toEqual(expect.arrayContaining([text.realNames.badge, text.realNames.beforeLock]));
   expect(shown()).not.toContain(text.preview.short);
   await render(<Welcome lockSet />);
+  expect(shown()).toContain(text.realNames.setup);
+  expect(shown()).not.toContain(text.realNames.beforeLock);
+});
+
+test("the navigator's welcome is the one after the PIN", async () => {
+  const navigation = { navigate: jest.fn() } as unknown as Parameters<typeof WelcomeScreen>[0]['navigation'];
+  await render(<WelcomeScreen navigation={navigation} route={{ key: 'Welcome', name: 'Welcome' }} />);
   expect(shown()).toContain(text.realNames.setup);
   expect(shown()).not.toContain(text.realNames.beforeLock);
 });

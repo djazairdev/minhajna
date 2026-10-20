@@ -23,7 +23,7 @@ export type RootStackParamList = {
   WeekDraw: { slot?: Cell } | undefined;
   Times: { schoolId?: string } | undefined;
   Plan: undefined;
-  Packs: { grade: string; subject: string; schoolId?: string };
+  Packs: { grade: string; subject: string; schoolId?: string; classId?: string };
   Ready: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   Gallery: undefined;

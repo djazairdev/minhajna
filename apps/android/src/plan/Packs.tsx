@@ -5,10 +5,11 @@
 // its status, timing, release and source, the ones that apply best first, or
 // no pack and typed items, each a radio card as drawn. What each status
 // means is listed under them. The pack is pinned to the classes chosen, each
-// staying on that release until another is chosen (PRD §4.2). District
-// variants come later.
+// staying on that release until another is chosen (PRD §4.2). Opened for one
+// class, only that class is ticked, and its own release, even an older or
+// missing one, is offered first and chosen. District variants come later.
 
-import { packsFor, pinOf, STATUS_ORDER } from '@minhajna/core';
+import { courseOf, packsFor, pinOf, STATUS_ORDER, type PinnedPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -20,20 +21,23 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { groupName, packFacts, packSource } from './pack-labels';
-import { pinEvents, pinOfClass, planGroups } from './plan-rules';
+import { packOfPin, pinEvents, pinOfClass, planGroups } from './plan-rules';
 
 const NO_PACK = 'none';
+const CURRENT = 'current';
 
 /** The chooser for one grade and subject; `onDone` returns, pinned or not. */
 export function Packs({
   grade,
   subject,
   schoolId,
+  classId,
   onDone,
 }: {
   grade: string;
   subject: string;
   schoolId?: string;
+  classId?: string;
   onDone: () => void;
 }) {
   const insets = useSafeAreaInsets();
@@ -47,18 +51,37 @@ export function Packs({
     (schoolClass) => schoolId === undefined || schoolClass.schoolId === schoolId,
   );
   const offered = packsFor(packs, grade, subject);
-  const pinned = classes.map((schoolClass) => pinOfClass(state, schoolClass.id, subject, year.id, grade)).find(Boolean);
+  const pinOfOne = (id: string) => pinOfClass(state, id, subject, year.id, grade);
+  const pinned = classId !== undefined ? pinOfOne(classId) : classes.map((one) => pinOfOne(one.id)).find(Boolean);
+  const shared = (pin: PinnedPack | null) => pin?.id === pinned?.id && pin?.release === pinned?.release;
+  const onePin = classId !== undefined || classes.every((one) => shared(pinOfOne(one.id)));
+  const kept = onePin && pinned && !offered.some((pack) => pack.id === pinned.id && pack.release === pinned.release);
+  const keptPack = kept ? packOfPin(packs, pinned) : undefined;
   const [chosen, setChosen] = useState(() => {
+    if (kept) return CURRENT;
     const current = pinned && offered.find((pack) => pack.id === pinned.id);
     return current ? current.id : (offered[0]?.id ?? NO_PACK);
   });
-  const [forClasses, setForClasses] = useState<string[]>(() => classes.map((schoolClass) => schoolClass.id));
+  const [forClasses, setForClasses] = useState<string[]>(() =>
+    classId !== undefined ? [classId] : classes.map((schoolClass) => schoolClass.id),
+  );
   const [tried, setTried] = useState(false);
   const pin = () => {
     setTried(true);
     if (forClasses.length === 0) return;
     const pack = offered.find((candidate) => candidate.id === chosen);
-    recordAll(pinEvents(state, forClasses, subject, year.id, pack ? pinOf(pack) : null, newId, grade));
+    const target = chosen === CURRENT && pinned ? pinned : pack ? pinOf(pack) : null;
+    const same = (id: string) => {
+      const course = courseOf(state, id, subject, year.id, grade);
+      const now = course?.pack ?? null;
+      if (course === undefined) return false;
+      return (
+        now === target || (now !== null && target !== null && now.id === target.id && now.release === target.release)
+      );
+    };
+    const missing = chosen === CURRENT && keptPack === undefined;
+    const moved = missing ? [] : forClasses.filter((id) => !same(id));
+    if (moved.length > 0) recordAll(pinEvents(state, moved, subject, year.id, target, newId, grade));
     onDone();
   };
 
@@ -69,6 +92,19 @@ export function Packs({
           {t('plan.packsIntro', { group: groupName(t, profile, { grade, subject }) })}
         </Text>
         <View accessibilityRole="radiogroup" style={styles.list}>
+          {kept && pinned && (
+            <RadioCard
+              testID="pack-current"
+              label={t('plan.current')}
+              description={
+                keptPack
+                  ? `${packFacts(t, keptPack)}\n${packSource(t, keptPack)}`
+                  : t('settings.missingPack', { release: pinned.release })
+              }
+              selected={chosen === CURRENT}
+              onPress={() => setChosen(CURRENT)}
+            />
+          )}
           {offered.map((pack) => (
             <RadioCard
               key={pack.id}

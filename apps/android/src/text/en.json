@@ -361,6 +361,7 @@
     "packsTitle": "Change the pack",
     "packsIntro": "Each pack for {{group}}, with its status, edition and source.",
     "statuses": "What each status means",
+    "current": "Current release",
     "pinFor": "Pin for",
     "pinNote": "Each class stays on the pinned release until another is chosen.",
     "pinButton": "Pin the pack",
