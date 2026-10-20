@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState, type Ref } from 'react';
+import { Pressable, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { Icon } from '../design/Icon';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { controlStyles, type ControlIcon, type ControlProps } from './control';
@@ -13,6 +13,8 @@ export type RowLinkProps = ControlProps & {
   readonly icon: ControlIcon;
   readonly title: string;
   readonly description?: string;
+  /** The row itself, for a sheet it opens to hand focus back to. */
+  readonly ref?: Ref<ViewInstance>;
 };
 
 /** One growing navigation target, named by its title; its optional explanation is a spoken hint. */
@@ -24,12 +26,14 @@ export function RowLink({
   accessibilityHint,
   disabled = false,
   testID,
+  ref,
 }: RowLinkProps) {
   const { direction } = useLocale();
   const [focused, setFocused] = useState(false);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   return (
     <Pressable
+      ref={ref}
       testID={testID}
       accessible
       accessibilityRole="button"

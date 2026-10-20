@@ -57,6 +57,7 @@ export * from './exam-window.ts';
 export * from './plan-decisions.ts';
 export * from './plan-layer.ts';
 export * from './plan-changes.ts';
+export * from './plan-effects.ts';
 export * from './test-schedule.ts';
 export * from './pupil-moves.ts';
 export * from './seating.ts';
