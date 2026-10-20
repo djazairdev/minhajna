@@ -1,6 +1,8 @@
 # Code of conduct
 
-Minhajna brings together teachers, directors, inspectors, developers and everyone else who wants to help Algeria's schools. This code sets how we treat each other in the project's spaces. It is adapted from the Contributor Covenant ([below](#attribution)), with rules of our own on pupils' data and on keeping the project's spaces about the product ([PRD §1.11](docs/prd/PRD.md#111-community-transparency-and-building-in-public)). The [README](README.md) summarises it in Arabic.
+[العربية](#كيف-نشارك-باحترام) · [English](#code-of-conduct)
+
+Minhajna brings together teachers, directors, inspectors, developers and everyone else who wants to help Algeria's schools. This code sets how we treat each other in the project's spaces. It is adapted from the Contributor Covenant ([below](#attribution)), with rules of our own on pupils' data and on keeping the project's spaces about the product ([PRD §1.11](docs/prd/PRD.md#111-community-transparency-and-building-in-public)).
 
 ## Our pledge
 
@@ -44,7 +46,7 @@ The community moderators, the maintainers and the lead maintainer ([GOVERNANCE.m
 - **Never report in public,** and never put real pupil data in a report.
 - **Security problems** go through [SECURITY.md](SECURITY.md) instead.
 
-Every report is reviewed and answered promptly and fairly, and the privacy of the person who reported it is respected. The project will add an address of its own for reports when it has one.
+Every report is reviewed and answered promptly and fairly, and the privacy of the person who reported it is respected. You can also write privately to [contact@djazair.dev](mailto:contact@djazair.dev).
 
 ## What can happen
 
@@ -60,3 +62,28 @@ Posting real pupil data by mistake leads to its removal and a private explanatio
 ## Attribution
 
 This code of conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1, available at <https://www.contributor-covenant.org/version/2/1/code_of_conduct.html> and licensed under CC BY 4.0. Its enforcement steps were inspired by [Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
+
+---
+
+## كيف نشارك باحترام؟
+
+هذه خلاصة [قواعد السلوك الكاملة بالإنجليزية](#code-of-conduct).
+
+- ناقش العمل، لا صاحبه. لا تحرّش أو إهانة أو تهديد أو تجريح شخصي.
+- النقاش عن التطبيق، لا للدعاية السياسية أو النقابية أو الهجوم على أشخاص بأسمائهم.
+- لا تنشر بيانات تلاميذ حقيقيين أو صور تلاميذ أو موظفين، ولا معلومات شخصية عن أي شخص دون إذنه. استعمل القسم التجريبي في صور الشاشة.
+- إن نشرت بيانات تلاميذ بالخطأ، أبلغ المشرف بشكل خاص ليزيلها ويحميهم.
+
+### كيف أطلب المساعدة؟
+
+للملاحظات والاقتراحات: [صفحة التحميل والتجربة](https://djazair.dev/ar/minhajna/#feedback).
+
+للإبلاغ عن إساءة، تواصل مع المشرفين بشكل خاص:
+
+- في مجموعة فيسبوك: أبلغ مشرفي المجموعة.
+- على GitHub: استعمل «Report content» لإبلاغ مشرفي المشروع.
+- أو راسل [contact@djazair.dev](mailto:contact@djazair.dev) بشكل خاص.
+
+لا تنشر الاتهامات علنًا.
+
+لمشكلات الأمن والخصوصية: [الإبلاغ الخاص](SECURITY.md). لا تُرفق بيانات تلاميذ، حتى في رسالة خاصة.

@@ -21,7 +21,7 @@ The letter is drawn, not typed: it follows Ruqaa without copying any font, so it
 - **The wordmark** is «منهاجنا» set in Aref Ruqaa Bold (the `brand` style). In Latin letters it is "Minhajna" in Noto Sans SemiBold, never in a script face.
 - **The Arabic lockup** puts the icon on the right and the wordmark to its left, centred on the icon. The wordmark is about three quarters of the icon's height, and the gap is a quarter of the icon's width.
 - **The Latin lockup** mirrors it: the icon on the left, "Minhajna" on the right. It is still live text in Noto Sans SemiBold, until that font's file is part of the project too.
-- **The welcome hero** sets the wordmark in `chalk` on `board`, with the chalk underline beneath it and the tagline «من التدرّج إلى الحصّة» under that.
+- **The welcome hero** sets the wordmark in `chalk` on `board`, with the chalk underline beneath it and the tagline «من المخطط السنوي إلى درس اليوم» under that.
 - **On the web sidebar** the wordmark alone is set at 40px in `chalk`.
 - **The about rows** in Settings and Help show the icon beside the version.
 - **Screens** that set the name as text, such as the welcome hero, use the `brand` style. Files that leave the app, such as the website and the store listing, use the outlined files.
@@ -40,7 +40,7 @@ The letter is drawn, not typed: it follows Ruqaa without copying any font, so it
 
 ## The name and who may use it
 
-- **Spelling.** «منهاجنا» in Arabic, written «منهاجنا» in Arabic sentences; "Minhajna" in Latin letters, never "Minhadjna" or "Manhajna". The line under the name is «من التدرّج إلى الحصّة», in English "From the yearly plan to every lesson" (PRD [§1.9](https://github.com/djazairdev/minhajna/blob/main/docs/prd/PRD.md#19-official-builds-releases-the-name-and-security)).
+- **Spelling.** «منهاجنا» in Arabic, written «منهاجنا» in Arabic sentences; "Minhajna" in Latin letters, never "Minhadjna" or "Manhajna". The line under the name is «من المخطط السنوي إلى درس اليوم», in English "From the yearly plan to every lesson" (PRD [§1.9](https://github.com/djazairdev/minhajna/blob/main/docs/prd/PRD.md#19-official-builds-releases-the-name-and-security)).
 - **Not the state's.** Nothing in the logo suggests the Ministry or the state. Never place it beside the state's emblem or the Ministry's logo as if they were one, and never call the app official (PRD §1.9, principle 6).
 - **The Ministry's deployment** carries the Ministry's own name and icon, set as settings. Only the project's own builds are called Minhajna and carry this logo (PRD [§5.2](https://github.com/djazairdev/minhajna/blob/main/docs/prd/PRD.md#52-architecture)). Screens of the national system show the deployment's name where the canvas now shows «منهاجنا».
 - **Forks** may reuse the code, but under another name and another logo, with nothing that looks like this one (`TRADEMARKS.md`). The name and the logo are not registered trademarks.

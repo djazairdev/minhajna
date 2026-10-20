@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: مشكلة في التطبيق · App problem
+description: أخبرنا بما حدث بلغتك، دون بيانات تلاميذ حقيقيين.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **البلاغ علني.** لا ترسل بيانات تلاميذ حقيقيين أو معلومات شخصية. صور الشاشة من القسم التجريبي فقط، دون صور أشخاص.
+
+        للمساعدة أيضاً: [فيسبوك](https://www.facebook.com/djazairdev) أو [contact@djazair.dev](mailto:contact@djazair.dev). لمشكلة أمن أو خصوصية، [أبلغ بشكل خاص](https://github.com/djazairdev/minhajna/security/policy).
+
+        **Reports are public.** No real pupil data or personal details. Use demo screenshots, without photos of people. For help: Facebook or email above. [Report security problems privately](https://github.com/djazairdev/minhajna/security/policy).
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: قبل النشر · Before posting
+      options:
+        - label: لن أُرفق بيانات تلاميذ حقيقيين أو معلومات شخصية، وصور الشاشة من القسم التجريبي فقط. / No real pupil data or personal details; screenshots use the demo class only.
+          required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: ما الذي حدث؟ · What happened?
+      description: ما الذي جرّبته، وما الذي توقّعته، وما حدث فعلاً؟
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: كيف وصلت إلى المشكلة؟ · Steps
+      description: اذكر الصفحات والأزرار بالترتيب، إن تذكّرت.
+      placeholder: |
+        1. فتحت…
+        2. ضغطت على…
+        3. ظهر…
+  - type: input
+    id: version
+    attributes:
+      label: إصدار التطبيق · App version
+      description: اختياري؛ تجده في «المساعدة والخصوصية».
+  - type: input
+    id: device
+    attributes:
+      label: الهاتف ونسخة أندرويد · Phone and Android version
+      description: اختياري، إن كنت تعرفهما. لا تكتب رقم هاتفك أو الرقم التسلسلي للجهاز.
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: صورة من القسم التجريبي فقط · Optional demo screenshot
+      description: اختياري؛ دون بيانات حقيقية أو معلومات شخصية أو صور أشخاص.

@@ -113,7 +113,7 @@ The name and email address go into your sign-off ([commits.md](commits.md#sign-o
 - **screenshots or recordings,** if any, **from the demo class or made-up data only;**
 - **whether it is privacy-sensitive,** and which of the areas in [Review](#review) it touches;
 - **`NETWORK.md`,** updated in the same pull request if a network call is added or changed;
-- **the changelog:** a fragment in `changelog.d/`, or "no change teachers can see" ([releases.md](releases.md#changelog-fragments));
+- **the changelog:** an entry under `Unreleased` in `CHANGELOG.md`, or "no change teachers can see" ([releases.md](releases.md#adding-a-release-note));
 - **documents:** format specifications, test files, the PRD or a decision record, updated when the change affects them;
 - **credit:** how you'd like to be credited in the release notes, or whether you'd rather not be.
 

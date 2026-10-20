@@ -1,6 +1,6 @@
 # WelcomeHero
 
-The first thing a teacher sees: the name in chalk on the board, the chalk underline and the line «من التدرّج إلى الحصّة».
+The first thing a teacher sees: the name in chalk on the board, the chalk underline and the line «من المخطط السنوي إلى درس اليوم».
 
 - **Use** on the welcome screen, and as a board-coloured header on rare full-screen moments such as the ready screen and a holiday.
 - **Provide** the title (the `brand` style), the tagline (the `tagline` style) and one short sentence.

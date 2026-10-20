@@ -2,6 +2,17 @@
 
 What changes for teachers in each release of Minhajna, newest first. How these notes are written is in [releases.md](docs/contributing/releases.md#the-changelog).
 
+## Unreleased
+
+Not released yet. · لم تُنشر هذه التغييرات بعد.
+
+### Changed
+
+- The line under the name on the welcome screen now reads «من المخطط السنوي إلى درس اليوم».
+  - صار السطر تحت الاسم في شاشة الترحيب: «من المخطط السنوي إلى درس اليوم».
+- The preview's notice in Help now says that real pupils' records wait for the version the Ministry runs, not the pilot version. The project's own builds keep asking for made-up names only.
+  - صار إشعار المعاينة في المساعدة يذكر أن سجلات التلاميذ الحقيقيين تنتظر النسخة التي تشغّلها الوزارة، لا نسخة التجربة. وتبقى نسخ المشروع نفسه تطلب أسماء مختلَقة فقط.
+
 ## 0.2.0 (2026-10-20)
 
 The documents preview: the texts book, the daily journal, the roll-call book and the other paper books, printed from what you record, with the app lock, tests and exam weeks. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
