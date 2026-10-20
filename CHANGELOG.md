@@ -19,6 +19,9 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 - Settings now opens from Today. You can revisit your teacher card, schools, classes, timetable and packs without starting again, preview a language before saving it, and read each level's session lengths and their sources. Optional planning minutes appear beside session counts. Features not built yet are marked unavailable.
   - تُفتح الإعدادات من صفحة اليوم. يمكنك مراجعة بطاقة الأستاذ والمؤسسات والأقسام وجدول التوقيت والحزم دون البدء من جديد، ومعاينة اللغة قبل حفظها، والاطّلاع على مدة الحصص ومصادرها لكل طور. ويمكن إظهار دقائق التخطيط بجانب عدد الحصص. والميزات التي لم تُنجز بعد مبيّنة بأنها غير متاحة.
 
+- A class's plan now names the pack it follows: its status, release and timing, who keyed it and where it comes from. Pack details show the issuer as printed, the edition, the pack's ID, its source pages, where the file was found and its licence. A parallel class's plan is one tap away. In a link-only pack, each item's source opens in your browser only after you confirm.
+  - يذكر مخطط القسم الآن الحزمة التي يتبعها: حالتها وإصدارها وتوقيتها ومن أدخلها ومن أين جاءت. وتعرض تفاصيل الحزمة الجهة المصدرة كما طُبعت، والطبعة، ومعرّف الحزمة، وصفحات المصدر، وأين وُجد الملف، ونمط الترخيص. ومخطط القسم الموازي على بعد لمسة. وفي حزمة بالرابط وحده، لا يُفتح مصدر العنصر في المتصفّح إلا بعد موافقتك.
+
 ### Changed
 
 - The line under the name on the welcome screen now reads «من المخطط السنوي إلى درس اليوم».

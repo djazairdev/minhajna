@@ -16,7 +16,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
 import { useLayoutEffect, useMemo } from 'react';
 import { TextsBook } from '../book/TextsBook';
-import { ClassPlan } from '../classes/ClassPlan';
 import { ClassesTab } from '../classes/ClassesTab';
 import { Entry } from '../entry/Entry';
 import { usePilotTiming } from '../pilot/pilot-timing';
@@ -173,19 +172,6 @@ export function ClassesTabScreen({
     <ClassesTab
       onClass={(courseId) => navigation.navigate('Class', { courseId })}
       onBook={(courseId) => navigation.navigate('TextsBook', { courseId })}
-    />
-  );
-}
-
-/** A class's plan. */
-export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
-  const { courseId } = route.params;
-  return (
-    <ClassPlan
-      courseId={courseId}
-      onExtra={() => navigation.navigate('Extra', { courseId })}
-      onTests={() => navigation.navigate('TestSchedule', { courseId })}
-      onExamWindow={() => navigation.navigate('ExamWindow', { courseId })}
     />
   );
 }

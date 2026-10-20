@@ -133,7 +133,12 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
   await press(byTestID('privacy-connections'));
   expect(routes()).toEqual(['Welcome', 'Privacy', 'Connections']);
   expect(shown()).toEqual(
-    expect.arrayContaining([text.connections.none, text.connections.source, text.connections.register]),
+    expect.arrayContaining([
+      text.connections.none,
+      text.connections.source,
+      text.connections.packSource,
+      text.connections.register,
+    ]),
   );
   await press(byLabel(text.navigation.back));
   await press(byTestID('privacy-accept'));

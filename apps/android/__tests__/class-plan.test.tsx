@@ -67,12 +67,15 @@ const spoken = (id: string) =>
 
 test('where the class stands, with the sessions left before the exams and what the plan needs', async () => {
   await show(await withFirst());
-  expect(shown().slice(0, 5)).toEqual([
+  expect(shown().slice(0, 8)).toEqual([
     '4م1 · اللغة العربية',
+    text.plan.status.example,
+    'المخطط السنوي · الإصدار 2026.1',
+    text.plan.anchor.sessions,
+    text.plan.meaning.example,
     'لا تأخر · يحتاج المخطط 5 حصص أكثر مما بقي قبل الاختبارات',
     'حتى اختبارات الفصل الأول (06/12): 12 حصة للدرس، ويحتاج منها المخطط 17 حصة.',
     text.classPlan.reference,
-    'الحزمة 2026.1',
   ]);
   expect(accessibilityProblems(root())).toEqual([]);
 });

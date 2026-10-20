@@ -16,6 +16,10 @@ Only after the teacher selects Open file does Android's document picker select o
 
 Only after the teacher selects Scan QR code does an unexported app screen request camera permission and decode frames locally with ZXing Core 3.5.4. Frames remain in memory, are cleared after decoding and are not saved or sent. Leaving or backgrounding that screen closes the camera. Refusing access leaves file input available. No Google Play service, online decoder, identifier, upload, analytics or new network permission is involved. The founder approved this dependency and scan-only camera access for #222 (answer 288 in the project's decision record).
 
+## Optional pack source links
+
+A plan pack may name the address where its source file was found. Pack details show that address as text; reading them makes no request and launches nothing. Only when the teacher selects Open the source on an item, and confirms a notice that names the address's host, does Android hand the address to the user's browser, with the item's source page after `#page=`. The address opens only if it is a plain `https` address on a named host, in printable ASCII, with no user name, password or fragment of its own; any other address is shown and never opened. No record, identifier or query parameter is added. The browser may then contact that host under its own settings; this is not an in-app fetch or an embedded web view. Cancelling makes no hand-off (#225, answer 289).
+
 ## Optional source link in Help
 
 The source link is the fixed public address [github.com/djazairdev/minhajna](https://github.com/djazairdev/minhajna). Reading Help or a licence makes no request and does not launch another app. Only after the teacher selects the link and confirms a notice in their interface language does Android hand that address to the user's browser. No record, identifier, query parameter or other payload is attached. The browser may then contact GitHub under its own settings, revealing its normal connection/browser information to that site; this is not an in-app fetch or an embedded web view. Cancelling makes no hand-off. An unavailable browser does not prevent offline reading.

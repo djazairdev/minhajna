@@ -91,6 +91,7 @@
     "title": "Ce à quoi l’application se connecte, et pourquoi",
     "none": "Cette version ne se connecte pas à internet : elle n’en demande pas l’autorisation, n’envoie rien et ne reçoit rien.",
     "source": "Le lien vers le code source, dans la page des licences, ne s’ouvre qu’après votre confirmation. Votre navigateur l’ouvre hors de l’application, sans aucun dossier ni identifiant.",
+    "packSource": "L’adresse source d’un pack, dans ses détails, ne s’ouvre qu’après votre accord, et la question nomme le site. Votre navigateur l’ouvre hors de l’application, sans dossier ni identifiant.",
     "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application."
   },
   "setup": {
@@ -654,7 +655,6 @@
     "title": "Plan",
     "open": "Plan",
     "noPack": "Pas de pack pour cette classe : ce qui est fait est écrit, sans plan pour comparer.",
-    "pack": "Pack {{release}}",
     "reference": "La place que le plan donne à la classe n’est qu’un repère : elle ne déplace pas la classe et ne juge pas le travail.",
     "untilExams": "Jusqu’aux examens du trimestre {{term}} ({{day}}) : {{gives}} pour les leçons, dont le plan demande {{needs}}.",
     "untilEnd": "Jusqu’à la fin du trimestre {{term}} ({{day}}) : {{gives}} pour les leçons, dont le plan demande {{needs}}.",
@@ -671,7 +671,40 @@
     "postponed": "Après les examens",
     "td": "Travaux dirigés",
     "taughtSpoken": "Enseigné le {{days}}",
-    "aheadSpoken": "Atteint le {{day}} si rien ne change"
+    "aheadSpoken": "Atteint le {{day}} si rien ne change",
+    "parallel": "Classes parallèles",
+    "packTitle": "Plan annuel · version {{release}}",
+    "keyedBy": "Saisi par l’équipe éditoriale de Minhajna",
+    "details": "Détails du pack"
+  },
+  "planDetails": {
+    "title": "Détails du pack",
+    "issuer": "Émetteur, tel qu’imprimé",
+    "edition": "Édition",
+    "id": "Identifiant et version du pack",
+    "pages": "Pages sources",
+    "pagesRange": "Pages {{from}} à {{to}} du fichier du plan.",
+    "pagesNone": "Le pack n’indique pas de pages sources.",
+    "foundAt": "Où le fichier a été trouvé",
+    "notStated": "Non indiqué",
+    "licence": "Mode de licence",
+    "licences": {
+      "link-only": "Lien seul : les titres et séances des éléments s’affichent, et le texte de chaque élément s’ouvre depuis sa source. Le texte n’est pas copié dans l’application tant que ce n’est pas autorisé.",
+      "structure-only": "Structure : titres, types, séances et étapes des éléments tels qu’imprimés, sans le texte du plan.",
+      "full-text": "Texte intégral : le texte du plan tel qu’imprimé."
+    },
+    "timing": "Rythme",
+    "keyed": "Saisie",
+    "items": "Éléments",
+    "sessions_one": "{{count}} séance",
+    "sessions_many": "{{count}} de séances",
+    "sessions_other": "{{count}} séances",
+    "sourcePage": "{{sessions}} · source p. {{page}}",
+    "openSource": "Ouvrir la source",
+    "openSourceOf": "Ouvrir la source de « {{title}} »",
+    "sourceNotice": "{{host}} s’ouvrira dans le navigateur, hors de l’application. Le navigateur peut se connecter à Internet ; Minhajna ne lui transmet aucun dossier ni identifiant.",
+    "sourceRefused": "Le navigateur n’a pas pu s’ouvrir. L’adresse de la source figure sur cet écran.",
+    "linkNote": "La proposition de chaque séance fonctionne avec les seuls titres, et le titre va dans le cahier de textes. Ouvrir la source demande le réseau."
   },
   "tests": {
     "title": "Calendrier des devoirs",
