@@ -27,9 +27,10 @@ export function withMovements(pupil: Pupil, order: number, moved: readonly Movem
 }
 
 /**
- * Existing pupil.set history supplies dated membership; a taken roll call
- * also fixes its history cutoff. Before the list was first recorded, the
- * pupil is in the groups it was first recorded with.
+ * A roll call already taken keeps the groups as they stood when it was
+ * taken, from the dated pupil.set history up to its cutoff; before the
+ * list was first recorded, the groups it was first recorded with. Anything
+ * not yet taken, even on an earlier day, uses the pupil's current groups.
  */
 export function groupsOn(
   pupil: Pupil,
@@ -37,7 +38,7 @@ export function groupsOn(
   day: Day,
   cutoff = Infinity,
 ): readonly string[] {
-  if (history === undefined) return pupil.groups;
+  if (history === undefined || cutoff === Infinity) return pupil.groups;
   const known = history.filter((one) => one.order <= cutoff);
   return (known.filter((one) => one.day <= day).at(-1) ?? known[0])?.groups ?? [];
 }

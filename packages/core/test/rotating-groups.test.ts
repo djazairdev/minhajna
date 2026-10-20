@@ -216,3 +216,13 @@ test('a half-group keeps its pupils on days before the class list was recorded',
     on,
   );
 });
+
+test('a roll call not yet taken uses the current split, even for a day before it was saved', async () => {
+  const book = await rotatingBook();
+  const pupil = book.state.pupils.get('p01')!;
+  await book.record(d('2026-09-25'), { kind: 'pupil.set', pupil: { ...pupil, groups: ['g-2'] } });
+  const unit = rollCallUnits(contextOf(book), 'k-1am2', rotation.from, rotation.from)[0]!;
+  assert.equal(unit.groupId, 'g-1');
+  assert.ok(!pupilsFor(contextOf(book), unit).some((one) => one.id === pupil.id));
+  assert.doesNotThrow(() => takeRollCall(contextOf(book), unit, { absent: [], late: [] }));
+});
