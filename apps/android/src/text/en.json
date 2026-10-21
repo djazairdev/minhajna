@@ -1945,5 +1945,18 @@
     "empty": "No homework in this subject yet. Each homework you write in a session’s details appears here, with the day it comes back.",
     "printNote": "Only the two confirmed counts print; what is not counted stays blank. Counts only, never names.",
     "print": "Print the homework record"
+  },
+  "special": {
+    "line": "Special day: {{what}}",
+    "kinds": {
+      "training": "Seminar",
+      "duty": "Duty",
+      "event": "Event"
+    },
+    "notes": {
+      "training": "{{name}}. It goes on the journal's page for seminars and training.",
+      "duty": "{{name}}. It goes on the journal's page for seminars and training.",
+      "event": "{{name}}. It does not touch today's sessions, and it goes in the journal."
+    }
   }
 }

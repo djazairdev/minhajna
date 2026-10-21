@@ -15,7 +15,8 @@
 // took, counted apart, and the next session (#36). Every session card
 // carries its roll call, whatever its kind (#184), and the backlog a past
 // one's from the paper sheet (#38). A joint class's years share one card for
-// each slot, each on its own plan (#43, P-Multi).
+// each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a
+// school event makes a special day, with a line and a card (#224).
 
 import {
   addDays,
@@ -50,6 +51,7 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { Backlog } from './Backlog';
 import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from './DayMark';
+import { SpecialCards, specialEntries, specialLine, specialLost } from './SpecialDay';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
@@ -93,12 +95,11 @@ export function Today(props: {
   const view = useMemo(() => todayView(context, day), [context, day]);
   const backlog = useMemo(() => backlogOf(context, day), [context, day]);
   const mark = dayMarkOf(view);
+  const specials = specialEntries(view);
   const shown = mark === null ? view.sessions : view.sessions.filter((item) => item.status !== 'calendar');
-  const taken = view.sessions.length - shown.length;
-  const next = useMemo(
-    () => (mark === null || shown.length > 0 ? null : nextSession(context, day)),
-    [context, day, mark, shown.length],
-  );
+  const taken = mark === null ? specialLost(view, specials) : view.sessions.length - shown.length;
+  const noneLeft = (mark !== null || taken > 0) && (mark === null ? view.sessions.length - taken : shown.length) === 0;
+  const next = useMemo(() => (noneLeft ? nextSession(context, day) : null), [context, day, noneLeft]);
   const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
 
   const { done, confirm, confirmAll, keepReason, undo } = useTodayActions(context, t, record, recordAll);
@@ -216,7 +217,8 @@ export function Today(props: {
           testID="today-heading"
           title={t(`week.days.${weekday(day)}`)}
           scope={formatDayWithMonth(day, language, profile)}
-          fact={{ text: dayFacts(t, view, mark !== null), icon: controlIcon('check') }}
+          fact={{ text: dayFacts(t, view, mark !== null || taken > 0), icon: controlIcon('check') }}
+          special={specialLine(t, specials)}
           actions={<TodayHeadingActions onExtra={onExtra} onSettings={props.onSettings} onHelp={onHelp} />}
         />
         <View style={styles.list}>
@@ -244,12 +246,13 @@ export function Today(props: {
           {todayEntries(state, shown).map((entry) =>
             entry.kind === 'one' ? card(entry.item) : jointCard(entry.key, entry.items),
           )}
-          {mark !== null && mark.effect !== 'exam' && taken > 0 && (
+          {mark?.effect !== 'exam' && taken > 0 && (
             <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />
           )}
           {mark?.effect === 'exam' && (
             <DayNote testID="day-paused" title={t('daymark.paused')} note={t('daymark.pausedNote')} />
           )}
+          <SpecialCards entries={specials} state={state} />
           {next !== null && <NextSession line={nextLine(next)} />}
         </View>
       </ScrollView>
