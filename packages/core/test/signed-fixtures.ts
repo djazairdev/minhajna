@@ -3,9 +3,10 @@
 
 // Signing for tests: a fresh P-256 key made each run and never written
 // down, so no private key ever sits in the repository. Node checks the
-// signatures the way Android's platform crypto does on the phone.
+// signatures the way Android's platform crypto does on the phone, refusing
+// any key that is not on P-256.
 
-import { createHash, createPublicKey, generateKeyPairSync, sign, verify } from 'node:crypto';
+import { createHash, createPublicKey, generateKeyPairSync, sign, verify, type KeyObject } from 'node:crypto';
 import { SIGNED_FORMAT, type TrustedKey, type Verifier } from '../src/index.ts';
 
 export interface TestKey {
@@ -32,8 +33,14 @@ export function makeTestKey(id = 'example-ministry'): TestKey {
 /** Checks a signature with Node's crypto, as the app's native module does with Android's. */
 export const nodeVerifier: Verifier = (spki, payload, signature) => {
   const key = createPublicKey({ key: Buffer.from(spki, 'base64'), format: 'der', type: 'spki' });
+  if (!isP256(key)) return Promise.resolve(false);
   return Promise.resolve(verify('sha256', Buffer.from(payload, 'utf8'), key, Buffer.from(signature, 'base64')));
 };
+
+/** Whether a key is an EC key on P-256, the only kind the phone checks with. */
+export function isP256(key: KeyObject): boolean {
+  return key.asymmetricKeyType === 'ec' && key.asymmetricKeyDetails?.namedCurve === 'prime256v1';
+}
 
 /** A signed file holding `payload`, as the founder's signing tool writes it. */
 export function signedFile(key: TestKey, payload: unknown, minor = 0): string {

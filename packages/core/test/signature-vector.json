@@ -1,0 +1,5 @@
+{
+  "spki": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEymYpxgDXCIP8zaFcbyk2KP+JyaGt1nOFFIOB14l6CITa472mB5bY/99O9RX9LRsJmkwc/JT5UEAISIeTpVqEKw==",
+  "payload": "{\"example\":\"مثال تجريبي\",\"n\":1}",
+  "signature": "MEUCIQC0vcGyJbEQAbSCWkiGhomYCprwShCGqLCUbwyhgxCstAIgQ5h7q3l4dK48+TmctmXx/ZNZk8Slmvl30cDlAK7dXGA="
+}

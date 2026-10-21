@@ -6,14 +6,17 @@ import {
   parseCountryProfile,
   parsePlanPack,
   parseSchoolCalendar,
+  parseTrustedKeys,
   type BellData,
   type CountryProfile,
   type ParseProblem,
   type PlanPack,
   type SchoolCalendar,
+  type TrustedKey,
 } from '@minhajna/core';
 import bells from '@minhajna/data/dz/bells.json';
 import calendar from '@minhajna/data/dz/calendar-2026-2027.json';
+import keys from '@minhajna/data/dz/keys.json';
 import cem1Math from '@minhajna/data/dz/packs/dz.cem.1am.math.example.json';
 import cem4Arabic from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example.json';
 import primary5Arabic from '@minhajna/data/dz/packs/dz.primary.5ap.arabic.example.json';
@@ -22,7 +25,9 @@ import profile from '@minhajna/data/dz/profile.json';
 // Algeria's reference data, bundled from the repository's data folder, so the
 // app needs no network for it (PRD §4.8). Even bundled, a file is untrusted:
 // it goes through the core's readers like any file that comes in (PRD §5.9).
-// A refused plan pack is left out on its own, and the others are kept.
+// A refused plan pack is left out on its own, and the others are kept. A
+// refused key list leaves no key trusted, so no signed update applies
+// (#223), and the rest of the data is kept.
 
 /** The files as parsed JSON, before any check. */
 export interface ReferenceFiles {
@@ -30,6 +35,8 @@ export interface ReferenceFiles {
   readonly calendar: unknown;
   readonly bells: unknown;
   readonly packs: readonly unknown[];
+  /** The keys signed updates are checked with (#223). */
+  readonly keys: unknown;
 }
 
 export const bundledReference: ReferenceFiles = {
@@ -37,11 +44,12 @@ export const bundledReference: ReferenceFiles = {
   calendar,
   bells,
   packs: [cem1Math, cem4Arabic, primary5Arabic],
+  keys,
 };
 
 /** A problem, with the file it was found in. */
 export interface ReferenceProblem extends ParseProblem {
-  readonly file: Exclude<keyof ReferenceFiles, 'packs'>;
+  readonly file: Exclude<keyof ReferenceFiles, 'packs' | 'keys'>;
 }
 
 export type ReferenceResult =
@@ -54,6 +62,9 @@ export type ReferenceResult =
       readonly packs: readonly PlanPack[];
       /** How many pack files were refused. */
       readonly refusedPacks: number;
+      /** The keys signed updates are checked with; none when the list was refused. */
+      readonly keys: readonly TrustedKey[];
+      readonly refusedKeys: boolean;
     }
   | { readonly ok: false; readonly problems: readonly ReferenceProblem[] };
 
@@ -76,6 +87,7 @@ export function readReference(files: ReferenceFiles): ReferenceResult {
     return { ok: false, problems: readBells.problems.map((problem) => ({ ...problem, file: 'bells' })) };
   }
   const packs = files.packs.map((file) => parsePlanPack(file));
+  const trusted = parseTrustedKeys(files.keys);
   return {
     ok: true,
     profile: readProfile.value,
@@ -83,5 +95,7 @@ export function readReference(files: ReferenceFiles): ReferenceResult {
     bells: readBells.value,
     packs: packs.flatMap((read) => (read.ok ? [read.value] : [])),
     refusedPacks: packs.filter((read) => !read.ok).length,
+    keys: trusted.ok ? trusted.value : [],
+    refusedKeys: !trusted.ok,
   };
 }

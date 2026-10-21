@@ -11,6 +11,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 | `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
+| `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64) and the SHA-256 fingerprint of that public half. Empty until the first key is made |
 | `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
 | `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
 

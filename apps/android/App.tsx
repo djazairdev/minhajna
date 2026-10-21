@@ -61,6 +61,7 @@ export default function App({
     const result = readReference(files);
     if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
     if (result.ok && result.refusedPacks > 0 && __DEV__) console.warn('Plan packs refused', result.refusedPacks);
+    if (result.ok && result.refusedKeys && __DEV__) console.warn('The trusted key list was refused');
     return result;
   }, [files]);
   const lock = useLockPhase(storage);
