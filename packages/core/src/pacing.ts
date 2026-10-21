@@ -110,7 +110,8 @@ function tdTerm(pack: PlanPack, item: PackItem): number | undefined {
   return terms.length === 0 ? undefined : Math.max(...terms);
 }
 
-function nextExamTerm(context: Context, setup: CourseSetup, today: Day): number | undefined {
+/** The term whose exams come next on `today`, or the term `today` is in when no exam window is known. */
+export function nextExamTerm(context: Context, setup: CourseSetup, today: Day): number | undefined {
   const school = context.state.schools.get(setup.schoolClass.schoolId);
   if (school === undefined) return undefined;
   const exams = context.calendar

@@ -58,8 +58,8 @@ export function postponeOf(warning: PastWindow, id: string): PlanDecision {
   };
 }
 
-/** The leave-outs and merges a course's pack allows now, for the window's term, in plan order. */
-export function planChoices(context: Context, warning: PastWindow): PlanChoice[] {
+/** The leave-outs and merges a course's pack allows now, for a term's items, in plan order. */
+export function planChoices(context: Context, warning: Pick<PastWindow, 'courseId' | 'term'>): PlanChoice[] {
   const setup = courseSetup(context, warning.courseId);
   const pack = setup.pack;
   if (pack === null) return [];

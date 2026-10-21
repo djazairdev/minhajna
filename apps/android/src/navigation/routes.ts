@@ -82,6 +82,7 @@ export type RootStackParamList = {
   LayerExport: { courseId: string };
   PlanError: { courseId: string; itemId: string };
   PlanFree: { courseId: string };
+  CatchUp: { courseId: string };
   PlanOffer: { courseId: string };
   SeptCheck: { courseId: string };
   TestSchedule: { courseId: string };

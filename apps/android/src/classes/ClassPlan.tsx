@@ -13,9 +13,19 @@
 // would fall past the next exams, and items postponed past them are tagged
 // until taught. Under it, parallel classes drifting apart before a common
 // test or the exams, and aligning a class that is behind (#225). Under the
-// check line, the September check printed for an inspector (#225).
+// check line, the September check printed for an inspector (#225), and,
+// while the class has used buffers or is behind, its catch-up options (#228).
 
-import { courseSetup, formatDay, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
+import {
+  behindPlan,
+  courseSetup,
+  formatDay,
+  pace,
+  planView,
+  termCheck,
+  type PackItem,
+  type PlanRow,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -48,13 +58,14 @@ export type ClassPlanProps = {
   readonly onChanges?: () => void;
   readonly onLayers?: () => void;
   readonly onEditList?: () => void;
+  readonly onCatchUp?: () => void;
   readonly onItem?: (itemId: string) => void;
   readonly onCheck?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
-  const { onEditList } = props;
+  const { onEditList, onCatchUp } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -184,6 +195,9 @@ export function ClassPlan(props: ClassPlanProps) {
           <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
         )}
       </View>
+      {onCatchUp !== undefined && behindPlan(paced) && (
+        <RowLink testID="plan-catchup" icon={controlIcon('tune')} title={t('catchUp.open')} onPress={onCatchUp} />
+      )}
       {check !== null && onCheck !== undefined && (
         <RowLink testID="plan-sept-check" icon={controlIcon('print')} title={t('septCheck.open')} onPress={onCheck} />
       )}
