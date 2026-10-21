@@ -10,7 +10,8 @@
 // note on the teacher's own devices, never on the page. Saving keeps the class, the
 // kind and the day for the next one, and «تراجع» removes it with the
 // history kept. A second tap waits for the first save. A make-up, support
-// or revision day the school sets opens «إضافة حصص» instead.
+// or revision day the school sets opens «إضافة حصص» instead, and «تعويض»,
+// a cover for a colleague's class, opens its own form (#224, answer 332).
 
 import {
   extraRemoval,
@@ -50,10 +51,13 @@ type Said = { readonly id: string; readonly noted: boolean } | 'failed' | null;
 export function ExtraSession({
   courseId: initial,
   onAddDay,
+  onCover,
 }: {
   readonly courseId?: string;
   /** Opens «إضافة حصص», for a make-up, support or revision day the school sets. */
   readonly onAddDay?: () => void;
+  /** Opens the form of a cover the teacher gives a colleague's class. */
+  readonly onCover?: () => void;
 }) {
   const t = useText();
   const insets = useSafeAreaInsets();
@@ -163,9 +167,12 @@ export function ExtraSession({
         <ChipGroup
           testID="extra-kind"
           label={t('extra.kind')}
-          choices={EXTRA_KINDS.map((value) => ({ value, label: t(`extra.kinds.${value}`) }))}
+          choices={[
+            ...EXTRA_KINDS.map((value) => ({ value, label: t(`extra.kinds.${value}`) })),
+            ...(onCover === undefined ? [] : [{ value: 'cover' as const, label: t('duties.kinds.cover') }]),
+          ]}
           selected={kind}
-          onSelect={setKind}
+          onSelect={(next) => (next === 'cover' ? onCover?.() : setKind(next))}
         />
         <View style={styles.group}>
           <Text style={[styles.label, align]}>{t('extra.date')}</Text>

@@ -96,5 +96,6 @@ export type RootStackParamList = {
   DocOutput: { id: string; day?: string };
   PrintWeek: undefined;
   Extra: { courseId?: string } | undefined;
+  Cover: undefined;
   AddSessions: { schoolId?: string; calendar?: true } | undefined;
 };

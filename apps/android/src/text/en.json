@@ -977,7 +977,8 @@
     "kind": "Kind",
     "kinds": {
       "invigilation": "Invigilation",
-      "exam": "Class exam"
+      "exam": "Class exam",
+      "cover": "Cover"
     },
     "date": "Day",
     "time": "Time",
@@ -1959,21 +1960,40 @@
     "calendarNote": "Session lengths for each level, and their source",
     "hide": "Hide"
   },
+  "cover": {
+    "title": "Cover for a colleague",
+    "intro": "A session covering a colleague’s class, on the day and at the time the director set. It has no plan, is never counted and does not go in the texts book. Today shows it on its day, and it goes in the daily journal once you confirm it took place.",
+    "school": "School",
+    "class": "Class",
+    "classExample": "Example: 3M4",
+    "classWrong": "Write the class name.",
+    "date": "Day",
+    "save": "Save",
+    "refused": "The cover was not saved. Check the class and the times.",
+    "journal": "Covering a colleague’s class, without a plan"
+  },
   "special": {
     "line": "Special day: {{what}}",
     "kinds": {
       "training": "Seminar",
       "duty": "Duty",
       "event": "Event",
-      "council": "Council"
+      "council": "Council",
+      "cover": "Cover"
     },
     "notes": {
       "training": "{{name}}. It goes on the journal's page for seminars and training.",
       "duty": "{{name}}. It goes on the journal's page for seminars and training.",
       "event": "{{name}}. It does not touch today's sessions, and it goes in the journal.",
-      "council": "{{name}}. It takes none of today's sessions, and goes in the daily journal once confirmed."
+      "council": "{{name}}. It takes none of today's sessions, and goes in the daily journal once confirmed.",
+      "cover": "Covering {{class}}. It has no plan, and goes in the daily journal."
     },
     "held": "The council was held",
-    "kept": "Written in the daily journal, on the seminars, training and meetings page"
+    "kept": "Written in the daily journal, on the seminars, training and meetings page",
+    "done": "Done",
+    "written": "Written in the daily journal",
+    "remove": "Remove the cover",
+    "confirmRemove": "Confirm removal",
+    "keep": "Keep the cover"
   }
 }
