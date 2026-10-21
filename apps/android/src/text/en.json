@@ -2185,6 +2185,35 @@
     "buffersAllUsed": "{{used}} of the buffers used, none left before the term {{term}} exams.",
     "tdDone": "The directed work due before the exams is done; it keeps its own list.",
     "tdNone": "Directed work keeps its own list: no session left for it before the exams, and {{items}} still to do.",
-    "buffersOwn": "Buffers"
+    "buffersOwn": "Buffers",
+    "dues": "Sessions not held awaiting a make-up: {{sessions}}.",
+    "cancel": "Cancel",
+    "cancelled": "Catch-up session cancelled; «Undo» brings it back.",
+    "hidden": "The timetable has since taken this time, so it is not held and makes up no session. Cancel it here.",
+    "notRestored": "The catch-up session was not brought back: its time or the session it made up is taken."
+  },
+  "catchUpAdd": {
+    "title": "Catch-up session",
+    "heading": "Add a session · {{class}}",
+    "step": "Option 4 of the catch-up options",
+    "agreed": "The time is agreed with the administration: the room and the pupils’ attendance are the school’s.",
+    "free": "Free times in the next two weeks",
+    "freeLine": "I have no session at this time.",
+    "noFree": "No free time in the next two weeks. Choose «Another time».",
+    "other": "Another time",
+    "otherLine": "Any day from today to the end of the year, and any session that has a time.",
+    "slot": "Session",
+    "noTimes": "This school’s sessions have no times yet, so no time can be chosen until they are set.",
+    "clash": "I have a session with {{class}} at this time. Choose another time.",
+    "makesUp": "To make up the session of {{session}}, which was not held",
+    "which": "The session it makes up",
+    "linked": "It is linked to the session it makes up, which leaves the sessions awaiting a make-up.",
+    "unlinked": "A new catch-up session, not linked to a session that was not held.",
+    "effect": "It takes the next item of the {{class}} plan, like any session.",
+    "page": "It goes on the subject’s pages of the texts book with its date, and shows on Today.",
+    "extra": "A session outside the timetable goes on the texts book’s page for additional lessons, with its date and time, and does not move the plan.",
+    "extraOpen": "Log a session held outside the timetable",
+    "save": "Add the session",
+    "failed": "The session was not added. Try again."
   }
 }

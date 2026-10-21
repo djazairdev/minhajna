@@ -96,6 +96,10 @@ function currentRecords(state: State): RecordEvent[] {
     records.push({ kind: 'plan.decided', decision: undated });
   }
   for (const duty of [...state.duties.values()].sort(compareDuties)) records.push({ kind: 'duty.set', duty });
+  const catchUps = [...state.catchUps.values()].sort(
+    (a, b) => compareDays(a.day, b.day) || compareSlots(a.slot, b.slot) || compareText(a.id, b.id),
+  );
+  for (const catchUp of catchUps) records.push({ kind: 'catchup.set', catchUp });
   return records;
 }
 

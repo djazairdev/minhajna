@@ -2226,6 +2226,35 @@
     "buffersAllUsed": "Réserve utilisée : {{used}} ; il n’en reste plus avant les examens du trimestre {{term}}.",
     "tdDone": "Les travaux dirigés prévus avant les examens sont faits ; ils ont leur propre liste.",
     "tdNone": "Les travaux dirigés ont leur propre liste : plus de séance pour eux avant les examens, et {{items}} encore à faire.",
-    "buffersOwn": "Réserve"
+    "buffersOwn": "Réserve",
+    "dues": "Séances non tenues à rattraper : {{sessions}}.",
+    "cancel": "Retirer",
+    "cancelled": "Séance de rattrapage retirée ; « Annuler » la rétablit.",
+    "hidden": "L’emploi du temps a depuis pris ce créneau : elle n’a pas lieu et ne rattrape aucune séance. Elle se retire d’ici.",
+    "notRestored": "La séance de rattrapage n’a pas été rétablie : son créneau ou la séance rattrapée est déjà pris."
+  },
+  "catchUpAdd": {
+    "title": "Séance de rattrapage",
+    "heading": "Ajouter une séance · {{class}}",
+    "step": "Option 4 des options de rattrapage",
+    "agreed": "L’horaire se fixe avec l’administration : la salle et la présence des élèves relèvent de l’établissement.",
+    "free": "Créneaux libres des deux prochaines semaines",
+    "freeLine": "Je n’ai pas de séance à ce moment.",
+    "noFree": "Aucun créneau libre dans les deux prochaines semaines. Choisir « Autre moment ».",
+    "other": "Autre moment",
+    "otherLine": "N’importe quel jour d’aujourd’hui à la fin de l’année, et toute séance qui a un horaire.",
+    "slot": "Séance",
+    "noTimes": "Les séances de cet établissement n’ont pas encore d’horaire : aucun moment ne peut être choisi avant de les régler.",
+    "clash": "J’ai une séance avec {{class}} à ce moment. Choisir un autre moment.",
+    "makesUp": "Pour rattraper la séance du {{session}}, qui n’a pas eu lieu",
+    "which": "La séance rattrapée",
+    "linked": "Elle est liée à la séance qu’elle rattrape, qui quitte les séances à rattraper.",
+    "unlinked": "Une nouvelle séance de rattrapage, qui ne rattrape aucune séance non tenue.",
+    "effect": "Elle prend l’élément suivant de la progression de {{class}}, comme toute séance.",
+    "page": "Elle s’inscrit à sa date sur les pages de la matière du cahier de textes et apparaît sur la page du jour.",
+    "extra": "Séance hors emploi du temps : elle s’inscrit sur la page des séances supplémentaires du cahier de textes, avec sa date et son heure, et ne fait pas avancer la progression.",
+    "extraOpen": "Noter une séance tenue hors emploi du temps",
+    "save": "Ajouter la séance",
+    "failed": "La séance n’a pas été ajoutée. Réessayez."
   }
 }

@@ -7,6 +7,7 @@ import type { Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
+import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { ExamDuty } from './exam-duties.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
@@ -32,16 +33,10 @@ import type {
 import { eventOf } from './events.ts';
 import { withMovements, type Membership, type Movement } from './pupil-history.ts';
 import { addTimetable, type RecordedTimetable } from './timetable-history.ts';
+import type { Version } from './versions.ts';
 
 export type { RecordedTimetable } from './timetable-history.ts';
-
-/** One version of a record. Corrections add versions, and every version stays (PRD §3.1, rule 4). */
-export interface Version<T> {
-  readonly entry: string;
-  readonly day: Day;
-  readonly value: T;
-  readonly reason?: string;
-}
+export { current, type Version } from './versions.ts';
 
 export interface State {
   readonly teacher: TeacherCard | null;
@@ -91,6 +86,8 @@ export interface State {
   readonly decisions: ReadonlyMap<string, PlanDecision>;
   /** The teacher's invigilations and class exams on exam weeks, by ID (#221). */
   readonly duties: ReadonlyMap<string, ExamDuty>;
+  /** The catch-up sessions the teacher added and has not cancelled, by ID (#228). */
+  readonly catchUps: ReadonlyMap<string, CatchUpSession>;
 }
 
 function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
@@ -129,6 +126,7 @@ export function buildState(entries: readonly Entry[]): State {
   const tests = new Map<string, ScheduledTest>();
   const decisions = new Map<string, PlanDecision>();
   const duties = new Map<string, ExamDuty>();
+  const catchUps = new Map<string, CatchUpSession>();
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -254,6 +252,12 @@ export function buildState(entries: readonly Entry[]): State {
       case 'duty.removed':
         duties.delete(event.id);
         break;
+      case 'catchup.set':
+        catchUps.set(event.catchUp.id, event.catchUp);
+        break;
+      case 'catchup.removed':
+        catchUps.delete(event.id);
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -288,10 +292,6 @@ export function buildState(entries: readonly Entry[]): State {
     tests,
     decisions,
     duties,
+    catchUps,
   };
-}
-
-/** The current version of a record, or null. */
-export function current<T>(versions: readonly Version<T>[] | undefined): T | null {
-  return versions?.at(-1)?.value ?? null;
 }
