@@ -47,12 +47,14 @@ export type ClassPlanProps = {
   readonly onDetails?: () => void;
   readonly onChanges?: () => void;
   readonly onLayers?: () => void;
+  readonly onEditList?: () => void;
   readonly onItem?: (itemId: string) => void;
   readonly onCheck?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
+  const { onEditList } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -153,6 +155,7 @@ export function ClassPlan(props: ClassPlanProps) {
         {...(onDetails !== undefined && { onDetails })}
         {...(onChanges !== undefined && { onChanges })}
         {...(onLayers !== undefined && { onLayers })}
+        {...(onEditList !== undefined && { onEditList })}
       />
       {onExamWindow !== undefined && (
         <ExamWarnings context={context} day={day} courseId={courseId} onOpen={onExamWindow} />

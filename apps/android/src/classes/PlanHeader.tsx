@@ -8,7 +8,9 @@
 // own changes and its district and school layers (#226) a tap away. Until
 // the issuer publishes packs itself, the curators are named as a body,
 // without names (answer 291). An example pack says it is not a plan instead
-// of who keyed it.
+// of who keyed it. A class without a pack has its own list instead (#227):
+// its badge, items and sessions, and a link to edit it, or to begin it;
+// no pack details, newer release, class changes or layers apply to it.
 
 import { changesFor, parallelCourses, type Context, type PlanPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -20,6 +22,7 @@ import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { layersLine } from '../plan/layer-rules';
+import { listLine } from '../plan/free-rules';
 import { NewerRelease } from '../plan/NewerRelease';
 import { packSource, packTiming } from '../plan/pack-labels';
 import { settingsStyles as styles } from '../settings/styles';
@@ -36,6 +39,7 @@ export type PlanHeaderProps = {
   readonly onChanges?: () => void;
   readonly onLayers?: () => void;
   readonly onDetails?: () => void;
+  readonly onEditList?: () => void;
 };
 
 /** The class and its parallel classes, to switch between in place (R-4.7-36). */
@@ -69,10 +73,40 @@ export function ParallelClasses({
   );
 }
 
-export function PlanHeader({ context, courseId, pack, onCourse, onChanges, onLayers, onDetails }: PlanHeaderProps) {
+export function PlanHeader(props: PlanHeaderProps) {
+  const { context, courseId, pack, onCourse, onChanges, onLayers, onDetails, onEditList } = props;
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const list = context.state.lists.get(courseId);
+  const free = context.state.courses.get(courseId)?.pack === null;
+  if (pack?.status === 'own' || (pack === null && free)) {
+    return (
+      <>
+        {onCourse !== undefined && <ParallelClasses context={context} courseId={courseId} onCourse={onCourse} />}
+        {list !== undefined && pack !== null && (
+          <View testID="plan-own" style={[styles.card, { gap: spacing['space-8'] }]}>
+            <View style={{ flexDirection: 'row', direction }}>
+              <Badge label={t('plan.status.own')} />
+            </View>
+            <Text accessibilityRole="header" style={[styles.title, align]}>
+              {t('planFree.mine')}
+            </Text>
+            <Text style={[styles.sub, align]}>{listLine(t, list)}</Text>
+          </View>
+        )}
+        {onEditList !== undefined && (
+          <RowLink
+            testID="plan-edit-list"
+            icon={controlIcon(list === undefined ? 'plus' : 'tune')}
+            title={list === undefined ? t('plan.noPack') : t('planFree.open')}
+            {...(list === undefined && { description: t('plan.noPackSub') })}
+            onPress={onEditList}
+          />
+        )}
+      </>
+    );
+  }
   return (
     <>
       {onCourse !== undefined && <ParallelClasses context={context} courseId={courseId} onCourse={onCourse} />}

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { courseOf } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,6 +9,7 @@ import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
 import { SectionHeader } from '../components/SectionHeader';
 import { spacing } from '../design/tokens';
+import { listLine } from '../plan/free-rules';
 import { NewerRelease } from '../plan/NewerRelease';
 import { groupName, packFacts, packSource } from '../plan/pack-labels';
 import { packOfPin, pinOfClass, planGroups } from '../plan/plan-rules';
@@ -56,6 +58,9 @@ export function Plans({
             {offered.map(({ group, schoolClass }) => {
               const pin = pinOfClass(state, schoolClass.id, group.subject, year.id, group.grade);
               const pack = packOfPin(packs, pin);
+              const course =
+                pin === null ? courseOf(state, schoolClass.id, group.subject, year.id, group.grade) : undefined;
+              const list = course === undefined ? undefined : state.lists.get(course.id);
               return (
                 <View
                   key={`${group.key}/${schoolClass.id}`}
@@ -75,6 +80,11 @@ export function Plans({
                         packs={packs}
                         pinned={{ id: pack.id, release: pack.release }}
                       />
+                    </>
+                  ) : list !== undefined ? (
+                    <>
+                      <Badge label={t('plan.status.own')} />
+                      <Text style={[styles.body, align]}>{listLine(t, list)}</Text>
                     </>
                   ) : (
                     <Text style={[styles.body, align]}>

@@ -11,7 +11,9 @@
 // asks first (answer 284). An item the teacher added shows neither badge
 // nor IDs, being no item of the pack; a part of a split shows the pack
 // item's ID and its part. A pack item links to a report of an error in
-// it (R-4.3-01). Nothing recorded changes.
+// it (R-4.3-01). Nothing recorded changes. An item of the class's own list
+// (#227) has no badge, IDs, class changes or report: it links to the list,
+// where the teacher edits it.
 
 import { type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -37,9 +39,10 @@ export type PlanItemProps = {
   readonly itemId: string;
   readonly onChanges?: () => void;
   readonly onReport?: () => void;
+  readonly onEditList?: () => void;
 };
 
-export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProps) {
+export function PlanItem({ courseId, itemId, onChanges, onReport, onEditList }: PlanItemProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -107,6 +110,7 @@ export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProp
 
   const { row, pack, stages, sessions, next, answered } = page;
   const item = row.item;
+  const own = pack.status === 'own';
   const added = isAdded(item);
   const ids = shownId(item);
   const unit = pack.items.find((one) => one.id === item.unit);
@@ -117,7 +121,11 @@ export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProp
       : days !== null
         ? t('planItem.taught', { class: className, days: days.text })
         : t('planItem.classOnly', { class: className });
-  const kind = added ? t('planItem.kinds.added') : t(`planItem.kinds.${item.kind}`);
+  const kind = own
+    ? t(`planFree.kinds.${item.kind}`)
+    : added
+      ? t('planItem.kinds.added')
+      : t(`planItem.kinds.${item.kind}`);
   const source = [
     ...(item.sourcePage === undefined ? [] : [t('planItem.sourcePage', { page: item.sourcePage })]),
     ...(item.pages === undefined ? [] : [t('planItem.textbook', { pages: item.pages })]),
@@ -154,7 +162,9 @@ export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProp
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-8'], direction }}>
           <Badge label={kind} />
-          {!added && <Badge label={item.optional === true ? t('planItem.optional') : t('planItem.essential')} />}
+          {!added && !own && (
+            <Badge label={item.optional === true ? t('planItem.optional') : t('planItem.essential')} />
+          )}
         </View>
         <Text testID="item-sessions" style={[styles.body, align]}>
           {unit === undefined
@@ -173,7 +183,8 @@ export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProp
           </View>
         )}
         {source !== '' && <Text style={[styles.sub, align]}>{source}</Text>}
-        {!added && (
+        {own && onEditList !== undefined && action('list', 'tune', t('planFree.open'), onEditList)}
+        {!added && !own && (
           <View accessible style={styles.group}>
             <Text style={[styles.sub, align]}>{t('planItem.ids')}</Text>
             <Text selectable style={[styles.sub, { writingDirection: 'ltr', textAlign: 'left' }]}>
@@ -184,31 +195,33 @@ export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProp
             )}
           </View>
         )}
-        <View style={styles.group}>
-          <Text accessibilityRole="header" style={[styles.title, align]}>
-            {t('planItem.changeFor', { class: className })}
-          </Text>
-          {action('move', 'tune', t('planItem.move'), () => setSheet('move'))}
-          {next !== undefined &&
-            page.joinable &&
-            action('join', 'plus', t('planItem.join', { title: isolate(next.title) }), () =>
-              ask({ kind: 'join', items: [item.id, next.id] }),
-            )}
-          {action('budget', 'tune', t('planItem.budget'), () => setSheet('budget'))}
-          {answered ? (
-            <Text testID="item-split-blocked" style={[styles.sub, align]}>
-              {t('planItem.splitBlocked')}
+        {!own && (
+          <View style={styles.group}>
+            <Text accessibilityRole="header" style={[styles.title, align]}>
+              {t('planItem.changeFor', { class: className })}
             </Text>
-          ) : (
-            action('split', 'tune', t('planItem.split'), () => setSheet('split'))
-          )}
-          {row.status !== 'skipped' &&
-            action('skip', 'cross', t('planItem.skip'), () => ask({ kind: 'skip', item: item.id }))}
-          {item.kind !== 'td' && action('add', 'plus', t('planItem.add'), () => setSheet('add'))}
-        </View>
-        <Text style={[styles.sub, align]}>{t('planItem.layerNote')}</Text>
-        {onChanges !== undefined && action('changes', 'info', t('planItem.changes'), onChanges)}
-        {onReport !== undefined && !added && action('report', 'info', t('planItem.report'), onReport)}
+            {action('move', 'tune', t('planItem.move'), () => setSheet('move'))}
+            {next !== undefined &&
+              page.joinable &&
+              action('join', 'plus', t('planItem.join', { title: isolate(next.title) }), () =>
+                ask({ kind: 'join', items: [item.id, next.id] }),
+              )}
+            {action('budget', 'tune', t('planItem.budget'), () => setSheet('budget'))}
+            {answered ? (
+              <Text testID="item-split-blocked" style={[styles.sub, align]}>
+                {t('planItem.splitBlocked')}
+              </Text>
+            ) : (
+              action('split', 'tune', t('planItem.split'), () => setSheet('split'))
+            )}
+            {row.status !== 'skipped' &&
+              action('skip', 'cross', t('planItem.skip'), () => ask({ kind: 'skip', item: item.id }))}
+            {item.kind !== 'td' && action('add', 'plus', t('planItem.add'), () => setSheet('add'))}
+          </View>
+        )}
+        {!own && <Text style={[styles.sub, align]}>{t('planItem.layerNote')}</Text>}
+        {!own && onChanges !== undefined && action('changes', 'info', t('planItem.changes'), onChanges)}
+        {!own && onReport !== undefined && !added && action('report', 'info', t('planItem.report'), onReport)}
       </ScrollView>
       <ItemSheets
         key={item.id}
