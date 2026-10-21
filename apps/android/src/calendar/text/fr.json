@@ -78,6 +78,7 @@
       "training": "Formation ou séminaire",
       "duty": "Mission",
       "school-event": "Événement de l'établissement",
+      "council": "Conseil de classe",
       "added-day": "Rattrapage, soutien ou révision",
       "ab-reset": "Réglage des semaines A/B"
     },
@@ -343,5 +344,30 @@
       "older": "L'application contient une version plus récente de ce plan : celle-ci n'est pas ajoutée.",
       "apply": "Appliquer : ajouter la version {{release}}"
     }
+  },
+  "council": {
+    "open": "Conseil de classe",
+    "add": "Choisir la classe, le trimestre et l’heure",
+    "notice": "Un conseil de classe sur un seul jour. Il ne touche aucune séance, et s’écrit dans le cahier journal une fois que vous confirmez sur Aujourd’hui qu’il a eu lieu.",
+    "class": "Classe",
+    "term": "Trimestre",
+    "chips": {
+      "1": "1er trimestre",
+      "2": "2e trimestre",
+      "3": "3e trimestre"
+    },
+    "at": "Heure",
+    "atExample": "Exemple : 14:00",
+    "badTime": "Écrivez l’heure ainsi : 14:00.",
+    "noClass": "Cet établissement n’a pas encore de classe.",
+    "name": "Conseil de classe {{class}}, {{term}} trimestre",
+    "terms": {
+      "1": "premier",
+      "2": "deuxième",
+      "3": "troisième"
+    },
+    "row": "{{class}} · {{term}} trimestre · {{at}}",
+    "held": "Tenu, et écrit dans le cahier journal",
+    "notHeld": "S’écrit dans le cahier journal une fois que vous confirmez sur Aujourd’hui qu’il a eu lieu"
   }
 }

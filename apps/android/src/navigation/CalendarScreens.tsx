@@ -9,6 +9,7 @@ import { Calendar } from '../calendar/Calendar';
 import { CalendarEntry } from '../calendar/Entry';
 import { CalendarForm } from '../calendar/Form';
 import { AbReset } from '../calendar/AbReset';
+import { Council } from '../calendar/Council';
 import { Lunar, lunarText } from '../calendar/Lunar';
 import { Groups } from '../calendar/Groups';
 import { Receive } from '../calendar/Receive';
@@ -62,6 +63,7 @@ function CalendarEditScreen({ route, navigation }: NativeStackScreenProps<RootSt
   if (old?.effect === 'rotating-groups') return <Groups schoolId={schoolId} old={old} onSaved={done} />;
   if (old !== undefined && old !== null && isWeekReset(old))
     return <AbReset schoolId={schoolId} old={old} onSaved={done} />;
+  if (old?.council !== undefined) return <Council schoolId={schoolId} old={old} onSaved={done} />;
   if (old?.confirmedFrom !== undefined)
     return <Lunar base={data.calendar.find((one) => one.id === old.id)!} onSaved={done} />;
   return (
@@ -72,6 +74,7 @@ function CalendarEditScreen({ route, navigation }: NativeStackScreenProps<RootSt
       onSaved={done}
       onAddDay={(next) => navigation.replace('AddSessions', { schoolId: next, calendar: true })}
       onAddReset={(next) => navigation.replace('CalendarAb', { schoolId: next })}
+      onAddCouncil={(next) => navigation.replace('CalendarCouncil', { schoolId: next })}
     />
   );
 }
@@ -83,6 +86,19 @@ function CalendarAbScreen({ route, navigation }: NativeStackScreenProps<RootStac
   if (!data.state.schools.has(schoolId)) return <Text>{t('calendarView.edit.readOnly')}</Text>;
   return (
     <AbReset
+      schoolId={schoolId}
+      onSaved={(entry) => navigation.replace('CalendarEntry', { id: entry.id, origin: 'local', schoolId })}
+    />
+  );
+}
+
+function CalendarCouncilScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'CalendarCouncil'>) {
+  const data = useAppData();
+  const t = useText();
+  const { schoolId } = route.params;
+  if (!data.state.schools.has(schoolId)) return <Text>{t('calendarView.edit.readOnly')}</Text>;
+  return (
+    <Council
       schoolId={schoolId}
       onSaved={(entry) => navigation.replace('CalendarEntry', { id: entry.id, origin: 'local', schoolId })}
     />
@@ -190,6 +206,11 @@ export function calendarRoutes(
         name="CalendarAb"
         component={CalendarAbScreen}
         options={{ title: t('calendarView.abEdit.open'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="CalendarCouncil"
+        component={CalendarCouncilScreen}
+        options={{ title: t('calendarView.council.open'), statusBarStyle: 'dark' }}
       />
       <Stack.Screen
         name="CalendarLunar"

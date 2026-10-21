@@ -5,7 +5,8 @@
 // P-Journal-front), for the schools and classes a journal covers:
 // - seminars, training and meetings: the teacher's own calendar entries and
 //   the school's and zone's events, including one for a grade taught or a
-//   level of a multigrade class, an entry still to come in grey;
+//   level of a multigrade class, an entry still to come in grey; a class
+//   council once the teacher says it was held, or in grey until its day ends;
 // - holidays and national days: the days off of the national and zone
 //   calendar, each with its confidence (R-4.5-04).
 // Dates are day first, «01/11/2026», as the journal's pages are (R-3.8-59),
@@ -34,8 +35,9 @@ const OCCASION_CHARACTERS = 44;
 type TableKey =
   'events' | 'eventsNote' | 'date' | 'activity' | 'remarks' | 'holidays' | 'holidaysNote' | 'occasion' | 'status';
 
-/** Whether an entry belongs on the seminars page: the teacher's own, or the school's and zone's events. */
-function isEvent(entry: CalendarEntry): boolean {
+/** Whether an entry belongs on the seminars page on `day`: the teacher's own, or the school's and zone's events. */
+function isEvent(entry: CalendarEntry, day: Day): boolean {
+  if (entry.council !== undefined) return entry.council.held === true || entry.from >= day;
   if (entry.layer === 'teacher') return entry.effect !== 'adds-sessions';
   return (entry.layer === 'school' || entry.layer === 'zone') && entry.effect === 'marker';
 }
@@ -93,9 +95,9 @@ export function frontTables(
   };
   const events: FrontRow[] = blank
     ? []
-    : entries(isEvent, place).map((entry) => ({
+    : entries((entry) => isEvent(entry, data.day), place).map((entry) => ({
         cells: [dates(entry), place(entry), ''],
-        later: entry.from > data.day,
+        later: entry.from > data.day || (entry.council !== undefined && entry.council.held !== true),
         rules: wrappedRules(place(entry), EVENT_CHARACTERS),
       }));
   const holidays: FrontRow[] = blank

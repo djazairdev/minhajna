@@ -77,6 +77,7 @@
       "training": "Training or seminar",
       "duty": "Duty",
       "school-event": "School event",
+      "council": "Class council",
       "added-day": "Make-up, support or revision",
       "ab-reset": "A/B week reset"
     },
@@ -339,5 +340,30 @@
       "older": "The app holds a later release of this plan, so it is not added.",
       "apply": "Apply: add release {{release}}"
     }
+  },
+  "council": {
+    "open": "Class council",
+    "add": "Choose the class, term and time",
+    "notice": "One class council on one day. It takes no sessions, and goes in the daily journal once you confirm on Today that it was held.",
+    "class": "Class",
+    "term": "Term",
+    "chips": {
+      "1": "Term 1",
+      "2": "Term 2",
+      "3": "Term 3"
+    },
+    "at": "Time",
+    "atExample": "Example: 14:00",
+    "badTime": "Write the time like this: 14:00.",
+    "noClass": "This school has no class yet.",
+    "name": "Class council {{class}}, {{term}} term",
+    "terms": {
+      "1": "first",
+      "2": "second",
+      "3": "third"
+    },
+    "row": "{{class}} · {{term}} term · {{at}}",
+    "held": "Held, and written in the daily journal",
+    "notHeld": "Goes in the daily journal once you confirm on Today that it was held"
   }
 }

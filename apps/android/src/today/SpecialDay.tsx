@@ -1,30 +1,35 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Seminars, duties and school events on Today (#224, Today-special,
-// R-3.3-05, answer 335): a line under the day's name says what makes the day
-// special, then each has a card with its kind, its part of the day and its
-// school, and where the journal writes it: a school's or a wilaya's event,
-// as the journal's page for seminars takes them. A seminar or a duty takes only
-// the sessions of its part of the day, which show with its name; a school
-// event takes none. A holiday, a closure or an exam week keeps its banner,
-// and Ramadan has a card of its own.
+// Seminars, duties, class councils and school events on Today (#224,
+// Today-special, Today-council, R-3.3-05, answers 334 and 335): a line under
+// the day's name says what makes the day special, then each has a card with
+// its kind, its part of the day or its time, its school or its class, and
+// where the journal writes it: a school's or a wilaya's event, as the
+// journal's page for seminars takes them. A seminar or a duty takes only the
+// sessions of its part of the day, which show with its name; a council or a
+// school event takes none, and a council's card asks whether it was held. A
+// holiday, a closure or an exam week keeps its banner, and Ramadan has a card
+// of its own.
 
 import type { CalendarEntry, State, TodayView } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { entryKind } from '../calendar/edit-draft';
+import { bookClock } from '../entry/book-lines';
 import { Badge } from '../components/Badge';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { currentLanguage, useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
+import { CouncilAction } from './CouncilAction';
 
 type Translate = ReturnType<typeof useText>;
 
-type Special = 'training' | 'duty' | 'event';
+type Special = 'training' | 'duty' | 'event' | 'council';
 
 function specialOf(entry: CalendarEntry): Special | null {
+  if (entry.council !== undefined) return entry.layer === 'school' && entry.effect === 'marker' ? 'council' : null;
   if (entry.layer === 'teacher' && entry.effect === 'closure') return entryKind(entry) === 'duty' ? 'duty' : 'training';
   const local = entry.layer === 'school' || entry.layer === 'zone';
   return local && entry.effect === 'marker' && entry.times === undefined ? 'event' : null;
@@ -47,7 +52,11 @@ export function specialLine(t: Translate, entries: readonly CalendarEntry[]): st
   const what = entries.map((entry) =>
     [
       isolate(localized(entry.name)),
-      ...(entry.half === undefined ? [] : [t(`calendarView.periods.${entry.half}`)]),
+      ...(entry.council !== undefined
+        ? [bookClock(entry.council.at, t)]
+        : entry.half === undefined
+          ? []
+          : [t(`calendarView.periods.${entry.half}`)]),
     ].join(' · '),
   );
   return t('special.line', { what: what.join(currentLanguage() === 'ar' ? '، ' : ', ') });
@@ -60,14 +69,21 @@ export function SpecialCards({ entries, state }: { entries: readonly CalendarEnt
   return entries.map((entry) => {
     const kind = specialOf(entry) ?? 'event';
     const school = entry.schoolId === undefined ? undefined : state.schools.get(entry.schoolId)?.name;
-    const meta = [t(`calendarView.periods.${entry.half ?? 'all'}`), ...(school === undefined ? [] : [school])];
+    const council = entry.council;
+    const meta =
+      council === undefined
+        ? [t(`calendarView.periods.${entry.half ?? 'all'}`), ...(school === undefined ? [] : [school])]
+        : [bookClock(council.at, t), state.classes.get(council.classId)?.name ?? ''];
     return (
-      <View key={entry.id} testID={`special-${entry.id}`} accessible style={styles.card}>
-        <View style={[styles.meta, { direction }]}>
-          <Badge label={t(`special.kinds.${kind}`)} />
-          <Text style={[styles.sub, align]}>{meta.join(' · ')}</Text>
+      <View key={entry.id} testID={`special-${entry.id}`} style={styles.card}>
+        <View accessible style={styles.about}>
+          <View style={[styles.meta, { direction }]}>
+            <Badge label={t(`special.kinds.${kind}`)} />
+            <Text style={[styles.sub, align]}>{meta.join(' · ')}</Text>
+          </View>
+          <Text style={[styles.body, align]}>{t(`special.notes.${kind}`, { name: localized(entry.name) })}</Text>
         </View>
-        <Text style={[styles.body, align]}>{t(`special.notes.${kind}`, { name: localized(entry.name) })}</Text>
+        {council !== undefined && <CouncilAction entry={entry} />}
       </View>
     );
   });
@@ -82,6 +98,7 @@ const styles = StyleSheet.create({
     borderRadius: radius['radius-card'],
     backgroundColor: colors.sheet,
   },
+  about: { gap: spacing['space-8'] },
   meta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing['space-8'] },
   sub: { ...typography.caption, color: colors.ink2 },
   body: { ...typography.body, color: colors.ink },

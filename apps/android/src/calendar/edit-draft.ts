@@ -7,13 +7,14 @@ import type { AppData } from '../storage/AppData';
 import { currentLanguage, type Language } from '../text/i18n';
 import { calendarCatalogues } from './catalogues';
 
-/** Manual entries; added sessions and A/B resets open their own focused editors. */
+/** Manual entries; added sessions, councils and A/B resets open their own focused editors. */
 export const LOCAL_KINDS = [
   'school-closure',
   'zone-closure',
   'training',
   'duty',
   'school-event',
+  'council',
   'added-day',
   'ab-reset',
 ] as const;
@@ -33,6 +34,7 @@ export interface CalendarDraft {
 /** An existing name is preserved verbatim unless the teacher changes it. */
 export function entryKind(entry: CalendarEntry): LocalKind {
   if (entry.effect === 'adds-sessions') return 'added-day';
+  if (entry.council !== undefined) return 'council';
   if (entry.layer === 'zone') return 'zone-closure';
   if (entry.layer === 'school') return entry.effect === 'closure' ? 'school-closure' : 'school-event';
   return Object.values(calendarCatalogues).some((text) => Object.values(entry.name).includes(text.edit.kinds.duty))

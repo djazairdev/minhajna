@@ -196,7 +196,7 @@ export function readEntry(
   const sighted = (effect === 'no-school' && times === undefined) || (effect === 'marker' && times === 'ramadan');
   if (lunar !== undefined && (lunar !== true || layer !== 'national' || !sighted))
     reader.fail(at(path, 'lunar'), 'invalid');
-  for (const key of ['half', 'confirmedFrom', 'rotation', 'received'])
+  for (const key of ['half', 'confirmedFrom', 'rotation', 'council', 'received'])
     if (raw[key] !== undefined) reader.fail(at(path, key), 'invalid');
   const complete = layer !== undefined && span !== undefined && effect !== undefined && name !== undefined;
   if (!complete || confidence === undefined) return undefined;

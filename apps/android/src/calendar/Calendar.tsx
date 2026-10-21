@@ -26,6 +26,7 @@ import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
 import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
+import { councilLine } from './council-line';
 import { Month } from './Month';
 import { inMonth, schoolEntries, type CalendarOrigin } from './view';
 
@@ -127,7 +128,10 @@ export function Calendar({
                 t('calendarView.range', { from: formatDay(entry.from), to: formatDay(entry.to) }),
                 t(`calendarView.layer.${entry.layer}`),
                 ...(entry.rotation === undefined ? [] : [state.classes.get(entry.rotation.classId)?.name ?? '']),
-                ...(!isWeekReset(entry) ? [t(`calendarView.periods.${entry.half ?? 'all'}`)] : []),
+                ...(entry.council === undefined ? [] : [councilLine(t, state, entry)!]),
+                ...(!isWeekReset(entry) && entry.council === undefined
+                  ? [t(`calendarView.periods.${entry.half ?? 'all'}`)]
+                  : []),
                 t(`settings.confidence.${entry.confidence}`),
                 t('settings.source', { source: entry.source }),
                 ...(inactive ? [t('calendarView.lunarEdit.stale')] : []),

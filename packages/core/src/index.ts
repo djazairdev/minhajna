@@ -12,6 +12,7 @@ export * from './rotating-groups.ts';
 export { rotationCredits } from './rotation-sessions.ts';
 export * from './calendar-read.ts';
 export * from './calendar-edit.ts';
+export * from './council.ts';
 export * from './calendar-impact.ts';
 export * from './calendar-lunar.ts';
 export * from './calendar-notice-read.ts';

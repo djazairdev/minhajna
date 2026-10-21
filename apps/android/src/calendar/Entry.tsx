@@ -25,6 +25,7 @@ import { useText } from '../text/i18n';
 import { schoolEntries, type CalendarOrigin } from './view';
 import { coreContext } from '../storage/core-context';
 import { CancelEntry } from './Cancel';
+import { councilLine } from './council-line';
 import { GroupPreview } from './GroupPreview';
 import { lunarText } from './Lunar';
 import { RamadanHours } from './RamadanHours';
@@ -83,8 +84,17 @@ export function CalendarEntry({
             {t('calendarView.range', { from: formatDay(entry.from), to: formatDay(entry.to) })}
           </Text>
           <Badge label={t(`calendarView.layer.${entry.layer}`)} />
-          {!isWeekReset(entry) && (
-            <Text style={[styles.body, align]}>{t(`calendarView.periods.${entry.half ?? 'all'}`)}</Text>
+          {entry.council !== undefined ? (
+            <>
+              <Text style={[styles.body, align]}>{councilLine(t, data.state, entry)}</Text>
+              <Text testID="calendar-council-held" style={[styles.body, align]}>
+                {t(entry.council.held ? 'calendarView.council.held' : 'calendarView.council.notHeld')}
+              </Text>
+            </>
+          ) : (
+            !isWeekReset(entry) && (
+              <Text style={[styles.body, align]}>{t(`calendarView.periods.${entry.half ?? 'all'}`)}</Text>
+            )
           )}
           {entry.times === 'ramadan' ? (
             <RamadanHours entry={entry} />
