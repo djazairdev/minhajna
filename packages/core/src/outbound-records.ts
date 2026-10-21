@@ -42,6 +42,8 @@ function currentRecords(state: State): RecordEvent[] {
   for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });
   for (const applied of state.calendarUpdates) records.push({ kind: 'calendar.updated', applied });
   for (const added of state.addedPacks) records.push({ kind: 'pack.added', added });
+  for (const added of state.layers) records.push({ kind: 'layer.added', added });
+  for (const switched of state.layerSwitches.values()) records.push({ kind: 'layer.switched', switched });
   const sessions = [...state.sessions.values()]
     .flatMap((versions) => versions.slice(-1))
     .flatMap(({ value }) => (value === null ? [] : [value]))

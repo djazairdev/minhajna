@@ -105,9 +105,11 @@ export interface PlanPack {
   readonly merges: readonly (readonly string[])[];
   /** Never in a file: the items a class's changes made and it took back, kept for their titles (#225). */
   readonly retired?: readonly PackItem[];
+  /** Never in a file: the skips and joins of the layers the class has on (#226). */
+  readonly fromLayers?: { readonly skips: readonly string[]; readonly joins: readonly (readonly [string, string])[] };
 }
 
-const PACK_ID = /^[a-z]{2}(\.[a-z0-9-]+){4,5}$/;
+export const PACK_ID = /^[a-z]{2}(\.[a-z0-9-]+){4,5}$/;
 const ITEM_ID = /^[A-Za-z0-9._-]{1,64}$/;
 
 function readAnchor(reader: Reader, value: unknown): TimeAnchor | undefined {

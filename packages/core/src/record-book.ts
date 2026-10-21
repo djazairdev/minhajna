@@ -8,6 +8,7 @@ import type { Day } from './day.ts';
 import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './history.ts';
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
 import { buildState, type State } from './state.ts';
+import { layerKey, switchKey } from './variant-layers.ts';
 
 /**
  * Which record an event sets. Events with the same key are versions of one
@@ -39,6 +40,10 @@ function recordKey(event: RecordEvent): string {
       return `calendar-update:${event.applied.update.release}`;
     case 'pack.added':
       return `pack:${event.added.update.pack.id}@${event.added.update.pack.release}`;
+    case 'layer.added':
+      return `layer:${layerKey(event.added.layer)}`;
+    case 'layer.switched':
+      return `layer-switch:${switchKey(event.switched.courseId, event.switched.level)}`;
     case 'session.recorded':
       return `session:${event.record.session.key}`;
     case 'session.withdrawn':

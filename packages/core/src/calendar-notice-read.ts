@@ -32,7 +32,8 @@ export class CalendarNoticeError extends Error {
   }
 }
 
-function line(value: unknown, limit: number): value is string {
+/** A one-line text of at most `limit` characters, with no control, lone surrogate or bidi control. */
+export function isOneLine(value: unknown, limit: number): value is string {
   return (
     typeof value === 'string' &&
     value.trim().length > 0 &&
@@ -69,11 +70,11 @@ function entryOf(raw: Fields, profile: CountryProfile, year: SchoolYear): Calend
     from > to ||
     from < year.from ||
     to > year.to ||
-    !line(source, 200) ||
+    !isOneLine(source, 200) ||
     !isFields(name) ||
     Object.keys(name).length === 0 ||
     Object.keys(name).length > 8 ||
-    Object.entries(name).some(([key, value]) => !LANGUAGE.test(key) || !line(value, 160)) ||
+    Object.entries(name).some(([key, value]) => !LANGUAGE.test(key) || !isOneLine(value, 160)) ||
     (confidence !== 'announced' && confidence !== 'expected') ||
     (layer !== 'school' && layer !== 'zone') ||
     raw['effect'] !== 'closure'
@@ -131,7 +132,7 @@ function entryOf(raw: Fields, profile: CountryProfile, year: SchoolYear): Calend
 function schoolOf(value: unknown, profile: CountryProfile): CalendarNotice['school'] {
   if (
     !isFields(value) ||
-    !line(value['name'], 160) ||
+    !isOneLine(value['name'], 160) ||
     typeof value['zone'] !== 'string' ||
     !profile.zones?.some((one) => one.code === value['zone'])
   )
@@ -165,7 +166,7 @@ export function parseCalendarNotice(text: string, profile: CountryProfile, year:
   if (raw['country'] !== profile.code) throw new CalendarNoticeError('country');
   if (raw['year'] !== year.id) throw new CalendarNoticeError('year');
   if (
-    !line(raw['sender'], 160) ||
+    !isOneLine(raw['sender'], 160) ||
     !isFields(raw['entry']) ||
     raw['signature'] !== undefined ||
     raw['signed'] !== undefined ||

@@ -1,13 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the screens show is worked out from the history (PRD §5.5). A timetable
-// version saved again under its ID while the week is drawn replaces itself, so
-// drawing a week adds one version, not one for each change. A version recorded
-// later replaces any earlier one that has not started by its first day, such as
-// a week drawn during setup and corrected before the year begins.
+// What the screens show is worked out from the history (PRD §5.5).
 
-import { compareDays, maxDay, type Day } from './day.ts';
+import type { Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
 import type { Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
@@ -16,6 +12,7 @@ import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
 import type { AddedPack } from './pack-update.ts';
+import { layerKey, signedAsItsLevel, switchKey, type AddedLayer, type LayerSwitch } from './variant-layers.ts';
 import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -30,10 +27,12 @@ import type {
   SessionRecord,
   TeacherCard,
   TeacherPersonal,
-  TimetableVersion,
 } from './records.ts';
 import { eventOf } from './events.ts';
 import { withMovements, type Membership, type Movement } from './pupil-history.ts';
+import { addTimetable, type RecordedTimetable } from './timetable-history.ts';
+
+export type { RecordedTimetable } from './timetable-history.ts';
 
 /** One version of a record. Corrections add versions, and every version stays (PRD §3.1, rule 4). */
 export interface Version<T> {
@@ -41,15 +40,6 @@ export interface Version<T> {
   readonly day: Day;
   readonly value: T;
   readonly reason?: string;
-}
-
-/** A timetable version, the day it was recorded, and the first day it applies (PRD §4.6). */
-export interface RecordedTimetable {
-  readonly version: TimetableVersion;
-  /** The day of its history entry. */
-  readonly recorded: Day;
-  /** Its own `from` for the first version, and never earlier than `recorded` for a later one. */
-  readonly from: Day;
 }
 
 export interface State {
@@ -72,6 +62,10 @@ export interface State {
   readonly calendarUpdatedOn: ReadonlyMap<string, Day>;
   /** The signed plan packs the teacher added, one for each release of a pack, in the order added (#223). */
   readonly addedPacks: readonly AddedPack[];
+  /** The district and school layers taken in, in the order taken; the first under an ID stays (#226). */
+  readonly layers: readonly AddedLayer[];
+  /** Which layer each class has on at each level, by course and level. */
+  readonly layerSwitches: ReadonlyMap<string, LayerSwitch>;
   /** Every version of each session's record, by key; the last is current, null when a confirmation was undone. */
   readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
@@ -100,22 +94,6 @@ function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
   return { entry: entry.id, day: entry.day, value, ...(reason !== undefined && { reason }) };
 }
 
-/**
- * Adds a timetable version recorded on `day`. Saved again under the ID of the last one, it replaces it and keeps the
- * day that one was recorded. The first version, `firstId`, applies from its own day, so setup can fill in the weeks
- * already gone. A later one never reaches back before the day it was recorded, and it takes the place of every earlier
- * one that would start on its first day or later, none of which has applied before that day: the past never moves
- * (PRD §4.6).
- */
-function addTimetable(timetables: RecordedTimetable[], version: TimetableVersion, day: Day, firstId: string): void {
-  const redrawn = timetables.at(-1)?.version.id === version.id ? timetables.pop() : undefined;
-  const recorded = redrawn?.recorded ?? day;
-  const first = version.id === firstId && (redrawn !== undefined || timetables.length === 0);
-  const from = first ? version.from : maxDay(version.from, recorded);
-  const kept = timetables.filter((timetable) => compareDays(timetable.from, from) < 0);
-  timetables.splice(0, timetables.length, ...kept, { version, recorded, from });
-}
-
 /** Builds the state from the history entries. */
 export function buildState(entries: readonly Entry[]): State {
   let teacher: TeacherCard | null = null;
@@ -133,6 +111,8 @@ export function buildState(entries: readonly Entry[]): State {
   const calendarUpdates = new Map<string, AppliedUpdate>();
   const calendarUpdatedOn = new Map<string, Day>();
   const addedPacks = new Map<string, AddedPack>();
+  const layers = new Map<string, AddedLayer>();
+  const layerSwitches = new Map<string, LayerSwitch>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const extras = new Map<string, Version<ExtraSession | null>[]>();
@@ -193,6 +173,13 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'pack.added':
         addedPacks.set(packKey(event.added.update.pack.id, event.added.update.pack.release), event.added);
+        break;
+      case 'layer.added':
+        if (!layers.has(layerKey(event.added.layer)) && signedAsItsLevel(event.added))
+          layers.set(layerKey(event.added.layer), event.added);
+        break;
+      case 'layer.switched':
+        layerSwitches.set(switchKey(event.switched.courseId, event.switched.level), event.switched);
         break;
       case 'session.recorded': {
         const key = event.record.session.key;
@@ -279,6 +266,8 @@ export function buildState(entries: readonly Entry[]): State {
     calendarUpdates: [...calendarUpdates.values()],
     calendarUpdatedOn,
     addedPacks: [...addedPacks.values()],
+    layers: [...layers.values()],
+    layerSwitches,
     sessions,
     notes,
     extras,
