@@ -9,6 +9,7 @@ import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
+import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { ExamDuty } from './exam-duties.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
@@ -99,7 +100,10 @@ export type RecordEvent =
   | { readonly kind: 'plan.undecided'; readonly id: string }
   /** An invigilation or a class exam on an exam week, set or corrected, or removed (#221). */
   | { readonly kind: 'duty.set'; readonly duty: ExamDuty }
-  | { readonly kind: 'duty.removed'; readonly id: string };
+  | { readonly kind: 'duty.removed'; readonly id: string }
+  /** A catch-up session the teacher added, or cancelled before it was recorded (#228). */
+  | { readonly kind: 'catchup.set'; readonly catchUp: CatchUpSession }
+  | { readonly kind: 'catchup.removed'; readonly id: string };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -139,6 +143,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'plan.undecided': true,
   'duty.set': true,
   'duty.removed': true,
+  'catchup.set': true,
+  'catchup.removed': true,
 };
 
 /**
@@ -188,6 +194,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'plan.undecided':
     case 'duty.set':
     case 'duty.removed':
+    case 'catchup.set':
+    case 'catchup.removed':
       return 'lesson-record';
   }
 }

@@ -7,14 +7,23 @@
 // left before the next exams, and TD's own sessions and items. The merges
 // and optional items the pack proposes for that term, each confirmed alone
 // as the exam window records it, with «تراجع» at once and a take-back in
-// the list of decisions. Then adding catch-up sessions. Nothing applies
-// without the teacher's confirmation, and every change can be taken back.
+// the list of decisions. Then adding catch-up sessions, with the make-ups
+// due and the class's catch-up sessions not yet recorded, each cancelled
+// with «تراجع» at once while its time is still free (answers 357, 358); one
+// a later timetable took the time of says so. Nothing applies without the
+// teacher's confirmation, and every change can be taken back.
 
 import {
+  cancelCatchUp,
   catchUp,
   decisionOf,
+  makeUpsDue,
+  openCatchUps,
   pace,
+  restoreCatchUp,
   termCheck,
+  type CatchUpSession,
+  type Context,
   type PlanChoice,
   type PlanDecision,
   type RecordEvent,
@@ -24,7 +33,9 @@ import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { Notice } from '../components/Notice';
 import { Snackbar } from '../components/Snackbar';
+import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { paceLine } from '../classes/class-rules';
 import { courseLabel, termName } from '../exams/course-label';
@@ -33,11 +44,12 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
+import { courseSchool, meetsByBells, whenLine } from './catch-up-add-rules';
 import { buffersLine, tdLine } from './catch-up-rules';
 
 export type CatchUpProps = { readonly courseId: string; readonly onAdd?: () => void };
 
-type Said = { readonly undo: readonly RecordEvent[]; readonly message: string } | null;
+type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly message: string } | null;
 
 export function CatchUp({ courseId, onAdd }: CatchUpProps) {
   const t = useText();
@@ -53,7 +65,11 @@ export function CatchUp({ courseId, onAdd }: CatchUpProps) {
     () => paceLine(t, { pace: pace(context, courseId, day), check: termCheck(context, courseId, day) }),
     [t, context, courseId, day],
   );
+  const opened = useMemo(() => openCatchUps(context, courseId), [context, courseId]);
+  const dues = useMemo(() => makeUpsDue(context, courseId).length, [context, courseId]);
+  const school = courseSchool(state, courseId);
   const [said, setSaid] = useState<Said>(null);
+  const [refused, setRefused] = useState(false);
   const appliedFrom = useRef<typeof state | null>(null);
   const className = courseLabel(t, state, profile, courseId);
   const quoted = (title: string) => t('tests.quoted', { title: isolate(title) });
@@ -62,21 +78,36 @@ export function CatchUp({ courseId, onAdd }: CatchUpProps) {
     appliedFrom.current = state;
     recordAll([...events]);
     setSaid(next);
+    setRefused(false);
   };
   const confirm = (choice: PlanChoice) => {
     const decision = decisionOf(choice, newId(), courseId);
     once([{ kind: 'plan.decided', decision }], {
-      undo: [{ kind: 'plan.undecided', id: decision.id }],
+      undo: () => [{ kind: 'plan.undecided', id: decision.id }],
       message: t('catchUp.confirmed'),
     });
   };
   const takeBack = (decision: PlanDecision) =>
     once([{ kind: 'plan.undecided', id: decision.id }], {
-      undo: [{ kind: 'plan.decided', decision }],
+      undo: () => [{ kind: 'plan.decided', decision }],
       message: t('examWindow.takenBack'),
     });
+  const cancel = (session: CatchUpSession) =>
+    once([cancelCatchUp(context, session.id)], {
+      undo: (now) => [restoreCatchUp(now, session, meetsByBells(data))],
+      message: t('catchUp.cancelled'),
+    });
   const undo = () => {
-    if (said !== null) once(said.undo, null);
+    if (said === null || appliedFrom.current === state) return;
+    let events: readonly RecordEvent[];
+    try {
+      events = said.undo(context);
+    } catch {
+      setSaid(null);
+      setRefused(true);
+      return;
+    }
+    once(events, null);
   };
   const choiceLabel = (choice: PlanChoice) =>
     choice.kind === 'leave-out'
@@ -171,6 +202,34 @@ export function CatchUp({ courseId, onAdd }: CatchUpProps) {
           t('catchUp.add'),
           <>
             <Text style={[styles.sub, align]}>{t('catchUp.addLine')}</Text>
+            {dues > 0 && (
+              <Text testID="catchup-dues" style={[styles.sub, align]}>
+                {t('catchUp.dues', { sessions: t('count.sessions', { count: dues }) })}
+              </Text>
+            )}
+            {opened.map(({ catchUp: session, placed }) => {
+              const when = whenLine(t, data, school, session.day, session.slot, direction);
+              return (
+                <View key={session.id} style={styles.choice}>
+                  <Text style={[styles.body, align]}>{when}</Text>
+                  {!placed && (
+                    <Text testID={`catchup-hidden-${session.id}`} style={[styles.sub, align]}>
+                      {t('catchUp.hidden')}
+                    </Text>
+                  )}
+                  <Button
+                    testID={`catchup-cancel-${session.id}`}
+                    variant="line"
+                    label={t('catchUp.cancel')}
+                    accessibilityHint={when}
+                    onPress={() => cancel(session)}
+                  />
+                </View>
+              );
+            })}
+            {refused && (
+              <Notice testID="catchup-not-restored" icon={controlIcon('info')} message={t('catchUp.notRestored')} />
+            )}
             {onAdd !== undefined && (
               <Button testID="catchup-add" variant="line" label={t('catchUp.addOne')} onPress={onAdd} />
             )}

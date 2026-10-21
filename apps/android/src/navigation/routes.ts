@@ -83,6 +83,7 @@ export type RootStackParamList = {
   PlanError: { courseId: string; itemId: string };
   PlanFree: { courseId: string };
   CatchUp: { courseId: string };
+  CatchUpAdd: { courseId: string };
   PlanOffer: { courseId: string };
   SeptCheck: { courseId: string };
   TestSchedule: { courseId: string };

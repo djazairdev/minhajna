@@ -22,6 +22,7 @@ import { PlanLayers } from '../plan/PlanLayers';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
 import { CatchUp } from '../plan/CatchUp';
+import { CatchUpAdd } from '../plan/CatchUpAdd';
 import { PlanFree } from '../plan/PlanFree';
 import { PlanOffer } from '../plan/PlanOffer';
 import { SeptCheck } from '../plan/SeptCheck';
@@ -132,7 +133,20 @@ export function PlanOfferScreen({ navigation, route }: NativeStackScreenProps<Ro
 
 /** The catch-up options; rung 4 opens the make-up days. */
 export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUp'>) {
-  return <CatchUp courseId={route.params.courseId} onAdd={() => navigation.navigate('AddSessions')} />;
+  const { courseId } = route.params;
+  return <CatchUp courseId={courseId} onAdd={() => navigation.navigate('CatchUpAdd', { courseId })} />;
+}
+
+export function CatchUpAddScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUpAdd'>) {
+  const { courseId } = route.params;
+  return (
+    <CatchUpAdd
+      courseId={courseId}
+      onDone={() => navigation.goBack()}
+      onExtra={() => navigation.navigate('Extra', { courseId })}
+      onTimes={(schoolId) => navigation.navigate('Times', { schoolId })}
+    />
+  );
 }
 
 type Stack = ReturnType<typeof createNativeStackNavigator<RootStackParamList>>;
@@ -154,6 +168,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanFree" component={PlanFreeScreen} options={dark(t('planFree.screenTitle'))} />
       <Stack.Screen name="PlanOffer" component={PlanOfferScreen} options={dark(t('planOffer.title'))} />
       <Stack.Screen name="CatchUp" component={CatchUpScreen} options={dark(t('catchUp.title'))} />
+      <Stack.Screen name="CatchUpAdd" component={CatchUpAddScreen} options={dark(t('catchUpAdd.title'))} />
     </>
   );
 }

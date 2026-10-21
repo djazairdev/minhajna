@@ -82,6 +82,10 @@ function recordKey(event: RecordEvent): string {
       return `duty:${event.duty.id}`;
     case 'duty.removed':
       return `duty:${event.id}`;
+    case 'catchup.set':
+      return `catchup:${event.catchUp.id}`;
+    case 'catchup.removed':
+      return `catchup:${event.id}`;
   }
 }
 

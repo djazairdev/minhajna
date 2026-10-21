@@ -21,6 +21,9 @@
 // The sessions a day takes are kept by course, slot, group and A or B week, so redrawing
 // the week keeps them.
 //
+// A catch-up session the teacher adds is a plan session too, on the day and
+// slot chosen, and takes a session lost on that day in the same way (#228).
+//
 // A test on the teacher's schedule takes its session, which becomes a test
 // session and proposes no lesson, unless the calendar takes it first (#221).
 // Once recorded, the session is what was recorded: a test only if so.
@@ -30,10 +33,14 @@ import type { Context } from './context.ts';
 import { compareDays, eachDay, isWithin, maxDay, minDay, weekday, type Day } from './day.ts';
 import { courseGrade, entryCourses, forGrade } from './joint.ts';
 import type { AddedKind } from './reference.ts';
-import { compareSlots, slotKey, type Rotation, type Slot, type TimetableVersion } from './records.ts';
+import type { Rotation, Slot, TimetableVersion } from './records.ts';
+import { catchUpSessions } from './catch-up-sessions.ts';
+import { compareSessions, markOf, sessionKey, takeKey, takesPlace } from './session-keys.ts';
 import { rotatingSessions } from './rotation-sessions.ts';
 import { current, type RecordedTimetable } from './state.ts';
 import { TEST_SESSION_TYPE } from './test-schedule.ts';
+
+export { compareSessions, sessionKey, takeKey } from './session-keys.ts';
 
 /** Why a session cannot be taught as usual. */
 export type CalendarMark =
@@ -68,6 +75,8 @@ export interface Session {
   readonly scheduled: boolean;
   /** For a session a make-up day adds: that day's calendar entry. */
   readonly added?: string;
+  /** For a catch-up session the teacher added: its ID (#228). */
+  readonly catchUp?: string;
   /** For a session a test on the teacher's schedule takes: the test's ID (#221). */
   readonly test?: string;
   /** For a session a test takes: the session type the timetable gave it. */
@@ -80,42 +89,11 @@ export interface AddedSession {
   readonly kind: AddedKind;
 }
 
-/** A timetable session as a day that adds sessions takes it: its course, slot, group and weeks, whatever the entry's ID. */
-export function takeKey(
-  entry: Pick<TimetableVersion['entries'][number], 'courseId' | 'slot' | 'groupId' | 'weeks'>,
-): string {
-  return `${entry.courseId}/${slotKey(entry.slot)}/${entry.groupId}/${entry.weeks}`;
-}
-
-export function sessionKey(courseId: string, day: Day, slot: Slot, groupId: string): string {
-  return `${courseId}/${day}/${slotKey(slot)}/${groupId}`;
-}
-
-function compareIds(a: string, b: string): number {
-  if (a === b) return 0;
-  return a < b ? -1 : 1;
-}
-
-export function compareSessions(a: Session, b: Session): number {
-  return (
-    compareDays(a.day, b.day) ||
-    compareSlots(a.slot, b.slot) ||
-    compareIds(a.courseId, b.courseId) ||
-    compareIds(a.groupId, b.groupId)
-  );
-}
-
 /** The timetable version in force on `day`, from versions in the order they apply. */
 export function versionOn(timetables: readonly RecordedTimetable[], day: Day): TimetableVersion | null {
   let found: TimetableVersion | null = null;
   for (const timetable of timetables) if (compareDays(timetable.from, day) <= 0) found = timetable.version;
   return found;
-}
-
-function markOf(info: ReturnType<Context['calendar']['info']>): CalendarMark | null {
-  if (info.closure !== null) return 'closure';
-  if (info.exam !== null) return 'exam';
-  return info.teacher !== null ? 'teacher' : null;
 }
 
 /**
@@ -248,12 +226,13 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
   }
 
   for (const { session } of addedSessions(context, first, last, ['make-up'], courseIds)) {
-    const usual = sessions.get(session.key);
-    const taken = usual?.calendar === 'holiday' || (usual?.calendar != null && session.calendar === null);
-    if (usual === undefined || taken) sessions.set(session.key, session);
+    if (takesPlace(sessions.get(session.key), session)) sessions.set(session.key, session);
   }
 
   sessions = rotatingSessions(context, sessions);
+  for (const session of catchUpSessions(context, first, last, courseIds)) {
+    if (takesPlace(sessions.get(session.key), session)) sessions.set(session.key, session);
+  }
   for (const test of state.tests.values()) {
     const key = sessionKey(test.courseId, test.day, test.slot, test.groupId);
     const session = sessions.get(key);
