@@ -74,3 +74,5 @@ export * from './week.ts';
 export * from './calendar-update.ts';
 export * from './pack-update.ts';
 export * from './signed-read.ts';
+export * from './school-cover.ts';
+export * from './school-cover-book.ts';
