@@ -866,6 +866,56 @@
     "goneItem": "{{item}} (no longer in the plan)",
     "undone": "Undone"
   },
+  "planLayers": {
+    "title": "Plan layers",
+    "link": "Plan layers",
+    "intro": "A class’s plan is built in layers, from the bottom up. Each layer is operations over the ones below, not a copy: order, merges, splits, session counts, items left out and added. So every fix to the pack reaches every class.",
+    "step": "{{step}} · {{name}}",
+    "mine": "Top: my changes",
+    "pack": "Bottom: the pack",
+    "level": {
+      "district": "District layer",
+      "school": "School layer"
+    },
+    "empty": {
+      "district": "No district distribution for this class’s pack. One comes in a file signed by the Minhajna curators, opened from “Import a layer”.",
+      "school": "No school layer for this class’s pack. The subject coordinator shares one as a file or QR code, opened from “Import a layer”."
+    },
+    "variant": "Variant, not official",
+    "unverified": "Came from {{by}}. The sender is not verified.",
+    "signed": "{{by}} · Signed by: {{signer}}",
+    "apply": "Apply “{{title}}” to {{class}}",
+    "onLine": "Applied to {{class}}. Each class has its own switch.",
+    "offLine": "Not applied to {{class}}: it follows the layers below.",
+    "termOne": "Its operations fall in term {{term}}.",
+    "termTwo": "Its operations fall in terms {{first}} and {{second}}.",
+    "termAll": "Its operations fall in all three terms.",
+    "noneOn": "No layer applied: my changes sit on the pack",
+    "onOne": "Applied: {{layer}}",
+    "onTwo": "Applied: {{first}} and {{second}}",
+    "foot": "No layer is ever called “official”, even one from an inspector or a school. Switching a layer off brings its items back as they are below it, and leaves recorded sessions as they are.",
+    "import": "Import a layer",
+    "importIntro": "A district layer, in a file signed by the Minhajna curators, or a school layer from the subject coordinator, as a file or QR code. Taking a layer in applies it to no class: each class has its own switch in Plan layers.",
+    "file": "Open a file",
+    "qr": "Scan a QR code",
+    "scanTitle": "Scan a layer",
+    "reading": "Reading the layer…",
+    "take": "Take the layer in",
+    "held": "You already took this layer in.",
+    "clash": "You already took in another layer with this ID, so this one cannot be taken in. Ask its sender for a new copy.",
+    "otherPack": "This layer is for another pack than {{class}}’s. Open it from the plan of a class that follows that pack.",
+    "problems": {
+      "invalid": "This file cannot be read as a layer.",
+      "version": "This layer’s format is newer than this app. Update the app, then try again.",
+      "unknown-key": "The file is signed with a key the app does not know.",
+      "signature": "The signature does not match the file: it may have changed after it was signed.",
+      "payload": "Something in the layer does not fit its format, or it is for another country.",
+      "level": "A district layer only comes in a signed file, and a school layer never comes signed.",
+      "signer": "The key that signed the file does not sign packs or their layers.",
+      "input": "The file or code could not be read."
+    },
+    "refused": "The class’s layer could not be changed now."
+  },
   "planError": {
     "title": "Report a plan error",
     "kind": "Kind of error",

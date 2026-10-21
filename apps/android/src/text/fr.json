@@ -887,6 +887,56 @@
     "goneItem": "{{item}} (n’est plus dans le plan)",
     "undone": "Annulé"
   },
+  "planLayers": {
+    "title": "Couches du plan",
+    "link": "Couches du plan",
+    "intro": "Le plan d’une classe se construit en couches, de bas en haut. Chaque couche est faite d’opérations sur celles du dessous, pas d’une copie : ordre, fusions, divisions, nombre de séances, éléments mis de côté et ajoutés. Ainsi chaque correction du pack atteint chaque classe.",
+    "step": "{{step}} · {{name}}",
+    "mine": "En haut : mes changements",
+    "pack": "En bas : le pack",
+    "level": {
+      "district": "Couche de la circonscription",
+      "school": "Couche de l’établissement"
+    },
+    "empty": {
+      "district": "Aucune répartition de circonscription pour le pack de cette classe. Elle arrive dans un fichier signé par les curateurs de Minhajna, ouvert depuis « Importer une couche ».",
+      "school": "Aucune couche d’établissement pour le pack de cette classe. Le coordinateur de la matière la partage en fichier ou en code QR, ouvert depuis « Importer une couche »."
+    },
+    "variant": "Variante, non officielle",
+    "unverified": "Reçue de {{by}}. L’expéditeur n’est pas vérifié.",
+    "signed": "{{by}} · Signé par : {{signer}}",
+    "apply": "Appliquer « {{title}} » à {{class}}",
+    "onLine": "Appliquée à {{class}}. Chaque classe a son propre interrupteur.",
+    "offLine": "Non appliquée à {{class}} : elle suit les couches du dessous.",
+    "termOne": "Ses opérations tombent au trimestre {{term}}.",
+    "termTwo": "Ses opérations tombent aux trimestres {{first}} et {{second}}.",
+    "termAll": "Ses opérations tombent dans les trois trimestres.",
+    "noneOn": "Aucune couche appliquée : mes changements reposent sur le pack",
+    "onOne": "Appliquée : {{layer}}",
+    "onTwo": "Appliquées : {{first}} et {{second}}",
+    "foot": "Aucune couche n’est jamais dite « officielle », même venue d’un inspecteur ou d’un établissement. Désactiver une couche rend ses éléments tels qu’ils sont en dessous, sans toucher aux séances enregistrées.",
+    "import": "Importer une couche",
+    "importIntro": "Une couche de circonscription, dans un fichier signé par les curateurs de Minhajna, ou une couche d’établissement du coordinateur de la matière, en fichier ou en code QR. Prendre une couche ne l’applique à aucune classe : chaque classe a son interrupteur dans Couches du plan.",
+    "file": "Ouvrir un fichier",
+    "qr": "Scanner un code QR",
+    "scanTitle": "Scanner une couche",
+    "reading": "Lecture de la couche…",
+    "take": "Prendre la couche",
+    "held": "Vous avez déjà pris cette couche.",
+    "clash": "Vous avez déjà pris une autre couche avec cet identifiant, celle-ci ne peut donc pas être prise. Demandez une nouvelle copie à son expéditeur.",
+    "otherPack": "Cette couche est pour un autre pack que celui de {{class}}. Ouvrez-la depuis le plan d’une classe qui suit ce pack.",
+    "problems": {
+      "invalid": "Ce fichier ne se lit pas comme une couche.",
+      "version": "Le format de cette couche est plus récent que cette application. Mettez l’application à jour, puis réessayez.",
+      "unknown-key": "Le fichier est signé avec une clé que l’application ne connaît pas.",
+      "signature": "La signature ne correspond pas au fichier : il a peut-être changé après sa signature.",
+      "payload": "Quelque chose dans la couche ne respecte pas son format, ou elle est pour un autre pays.",
+      "level": "Une couche de circonscription n’arrive que dans un fichier signé, et une couche d’établissement n’arrive jamais signée.",
+      "signer": "La clé qui a signé le fichier ne signe ni les packs ni leurs couches.",
+      "input": "Le fichier ou le code n’a pas pu être lu."
+    },
+    "refused": "La couche de la classe n’a pas pu être changée."
+  },
   "planError": {
     "title": "Signaler une erreur dans le plan",
     "kind": "Type d’erreur",

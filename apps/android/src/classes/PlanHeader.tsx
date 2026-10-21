@@ -4,10 +4,11 @@
 // The head of a class's plan (#225, Plan, R-2.3-01, R-4.2-09): the parallel
 // classes to switch between, then the pack the class is pinned to, its status,
 // release and timing, a newer release when the app has one (answer 329), who
-// keyed it, and where it comes from, with the pack's details and the class's
-// own changes a tap away. Until the issuer publishes packs itself, the curators
-// are named as a body, without names (answer 291). An example pack says it is
-// not a plan instead of who keyed it.
+// keyed it, and where it comes from, with the pack's details, the class's
+// own changes and its district and school layers (#226) a tap away. Until
+// the issuer publishes packs itself, the curators are named as a body,
+// without names (answer 291). An example pack says it is not a plan instead
+// of who keyed it.
 
 import { changesFor, parallelCourses, type Context, type PlanPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -18,6 +19,7 @@ import { RowLink } from '../components/RowLink';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
+import { layersLine } from '../plan/layer-rules';
 import { NewerRelease } from '../plan/NewerRelease';
 import { packSource, packTiming } from '../plan/pack-labels';
 import { settingsStyles as styles } from '../settings/styles';
@@ -32,6 +34,7 @@ export type PlanHeaderProps = {
   readonly pack: PlanPack | null;
   readonly onCourse?: (courseId: string) => void;
   readonly onChanges?: () => void;
+  readonly onLayers?: () => void;
   readonly onDetails?: () => void;
 };
 
@@ -66,7 +69,7 @@ export function ParallelClasses({
   );
 }
 
-export function PlanHeader({ context, courseId, pack, onCourse, onChanges, onDetails }: PlanHeaderProps) {
+export function PlanHeader({ context, courseId, pack, onCourse, onChanges, onLayers, onDetails }: PlanHeaderProps) {
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -107,6 +110,15 @@ export function PlanHeader({ context, courseId, pack, onCourse, onChanges, onDet
           title={t('classPlan.changes')}
           description={changeCount(t, context, courseId)}
           onPress={onChanges}
+        />
+      )}
+      {pack !== null && onLayers !== undefined && (
+        <RowLink
+          testID="plan-layers"
+          icon={controlIcon('tune')}
+          title={t('planLayers.link')}
+          description={layersLine(t, context, courseId)}
+          onPress={onLayers}
         />
       )}
     </>
