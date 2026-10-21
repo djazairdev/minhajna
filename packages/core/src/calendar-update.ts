@@ -210,6 +210,18 @@ export async function appliedUpdateHolds(
   return read.ok && canonicalJson(read.value) === canonicalJson(applied.update);
 }
 
+/** The applied updates that still lie over the calendar, in the order of their releases. */
+export function appliedUpdates(context: Context): AppliedUpdate[] {
+  return laterUpdates(context.ref.calendarRelease ?? NO_RELEASE, context.state.calendarUpdates);
+}
+
+/** The applied update an entry of the calendar comes from: the latest release that sets it, or none. */
+export function entryUpdate(context: Context, id: string): AppliedUpdate | undefined {
+  return appliedUpdates(context)
+    .reverse()
+    .find(({ update }) => update.entries.some((entry) => entry.id === id) || update.removed.includes(id));
+}
+
 /** Whether an entry covers one of the teacher's schools, or a grade one of their classes there teaches. */
 export function concernsTeacher(context: Context, entry: CalendarEntry): boolean {
   const classes = [...context.state.classes.values()];

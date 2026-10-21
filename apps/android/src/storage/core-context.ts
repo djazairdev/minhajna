@@ -9,6 +9,15 @@
 import { makeContext, packKey, type Context } from '@minhajna/core';
 import type { AppData } from './AppData';
 
+/** The context as it was before one applied update, from the bundled calendar and the other updates. */
+export function contextWithout(
+  data: Pick<AppData, 'profile' | 'year' | 'bundledCalendar' | 'calendarRelease' | 'packs' | 'state'>,
+  release: string,
+): Context {
+  const calendarUpdates = data.state.calendarUpdates.filter((one) => one.update.release !== release);
+  return coreContext({ ...data, calendar: data.bundledCalendar, state: { ...data.state, calendarUpdates } });
+}
+
 export function coreContext(
   data: Pick<AppData, 'profile' | 'year' | 'calendar' | 'calendarRelease' | 'packs' | 'state'>,
 ): Context {

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import {
+  appliedUpdates,
   CalendarView,
   CALENDAR_LAYERS,
   formatDay,
@@ -24,6 +25,7 @@ import { spacing } from '../design/tokens';
 import { localized } from '../setup/names';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
+import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
 import { Month } from './Month';
 import { inMonth, schoolEntries, type CalendarOrigin } from './view';
@@ -36,6 +38,7 @@ export function Calendar({
   onGroups,
   onReceive,
   onImport,
+  onUpdate,
 }: {
   onEntry: (id: string, origin: CalendarOrigin, schoolId: string) => void;
   onAdd?: (schoolId: string) => void;
@@ -43,6 +46,7 @@ export function Calendar({
   onGroups?: (schoolId: string) => void;
   onReceive?: (schoolId: string) => void;
   onImport?: () => void;
+  onUpdate?: (release: string) => void;
 }) {
   const t = useText();
   const { direction } = useLocale();
@@ -54,6 +58,7 @@ export function Calendar({
   const [layer, setLayer] = useState<CalendarLayer | 'all'>('all');
   const [month, setMonth] = useState(() => monthOf(minDay(maxDay(today(), year.from), year.to)));
   const school = state.schools.get(schoolId);
+  const latest = useMemo(() => appliedUpdates(coreContext(data)).at(-1), [data]);
   const zone = profile.zones?.find((one) => one.code === school?.zone);
   const rows = inMonth(schoolEntries(data, schoolId), month).filter(
     ({ entry }) => layer === 'all' || entry.layer === layer,
@@ -136,6 +141,14 @@ export function Calendar({
       <Notice icon={controlIcon('info')} message={t('calendarView.readOnly')} />
       {school !== undefined && onReceive !== undefined && (
         <Button testID="calendar-receive" label={t('calendarView.receive.open')} onPress={() => onReceive(schoolId)} />
+      )}
+      {latest !== undefined && onUpdate !== undefined && (
+        <Button
+          testID="calendar-last-update"
+          variant="line"
+          label={t('calendarView.update.footnote', { day: formatDay(latest.update.published) })}
+          onPress={() => onUpdate(latest.update.release)}
+        />
       )}
       {onImport !== undefined && (
         <Button testID="calendar-import" variant="line" label={t('calendarView.update.open')} onPress={onImport} />

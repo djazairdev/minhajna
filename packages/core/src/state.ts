@@ -71,11 +71,9 @@ export interface State {
   readonly calendar: readonly CalendarEntry[];
   /** The signed calendar updates the teacher applied, one for each release, in the order applied (#223). */
   readonly calendarUpdates: readonly AppliedUpdate[];
-  /**
-   * Every version of each session's record, by session key. The last is the
-   * current one; null when a confirmation was undone and the session awaits
-   * confirmation again.
-   */
+  /** The day each release was first applied on this teacher's history; it never leaves with the records. */
+  readonly calendarUpdatedOn: ReadonlyMap<string, Day>;
+  /** Every version of each session's record, by key; the last is current, null when a confirmation was undone. */
   readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
   /** Every version of each homework's two counts, by the key of the session that set it; null once taken back. */
@@ -136,6 +134,7 @@ export function buildState(entries: readonly Entry[]): State {
   let firstTimetable: string | undefined;
   const calendar = new Map<string, CalendarEntry>();
   const calendarUpdates = new Map<string, AppliedUpdate>();
+  const calendarUpdatedOn = new Map<string, Day>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const extras = new Map<string, Version<ExtraSession | null>[]>();
@@ -191,6 +190,8 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'calendar.updated':
         calendarUpdates.set(event.applied.update.release, event.applied);
+        if (!calendarUpdatedOn.has(event.applied.update.release))
+          calendarUpdatedOn.set(event.applied.update.release, entry.day);
         break;
       case 'session.recorded': {
         const key = event.record.session.key;
@@ -275,6 +276,7 @@ export function buildState(entries: readonly Entry[]): State {
     timetables,
     calendar: [...calendar.values()],
     calendarUpdates: [...calendarUpdates.values()],
+    calendarUpdatedOn,
     sessions,
     notes,
     extras,

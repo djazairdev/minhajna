@@ -51,6 +51,7 @@ export function TodayTab({
         navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
       }
       onExtra={() => navigation.navigate('Extra')}
+      onCalendarUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
       onHomework={(item) =>
         navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
       }

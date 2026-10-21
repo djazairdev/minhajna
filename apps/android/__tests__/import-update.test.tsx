@@ -83,7 +83,7 @@ test.each(['ar', 'fr', 'en'] as const)('checks, previews and applies a signed up
   expect(missingKeys).toEqual([]);
   expect(data.book.state.calendarUpdates).toEqual([]);
   await pressSettings('update-apply');
-  expect(onApplied).toHaveBeenCalledTimes(1);
+  expect(onApplied).toHaveBeenCalledWith('2026.4');
   expect(data.book.state.calendarUpdates.map((one) => one.update.release)).toEqual(['2026.4']);
   expect(data.book.state.calendarUpdates[0]?.key).toBe(key.trusted.id);
 });

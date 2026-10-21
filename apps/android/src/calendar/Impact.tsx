@@ -10,7 +10,7 @@ import { settingsStyles as styles } from '../settings/styles';
 import { useText } from '../text/i18n';
 
 /** Before/after facts only; omitted packs and unknown exam dates are not filled with invented figures. */
-export function Impact({ impact }: { impact: CalendarImpact }) {
+export function Impact({ impact, heading }: { impact: CalendarImpact; heading?: string }) {
   const t = useText();
   const data = useAppData();
   const { direction } = useLocale();
@@ -27,7 +27,7 @@ export function Impact({ impact }: { impact: CalendarImpact }) {
   return (
     <View testID="calendar-impact" style={styles.card}>
       <Text accessibilityRole="header" style={[styles.title, align]}>
-        {t('calendarView.edit.preview')}
+        {heading ?? t('calendarView.edit.preview')}
       </Text>
       <Text style={[styles.body, align]}>{t('calendarView.edit.affected', { count: impact.changes.length })}</Text>
       {impact.changes.map(({ before, after }) => {

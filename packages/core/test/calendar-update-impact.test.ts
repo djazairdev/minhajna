@@ -79,6 +79,14 @@ test('previews the sessions an update takes, without applying it', async () => {
   const impact = updateImpact(context, update({ entries: [closure('mine', '16', day)] }), d('2026-10-13'));
   assert.ok(impact.changes.length > 0);
   assert.ok(impact.changes.every((change) => change.after?.calendar === 'closure' && change.before?.calendar === null));
+  const mine = update({ entries: [closure('mine', '16', day)] });
+  assert.deepEqual(updateImpact(context, mine, d(day), true).changes, impact.changes);
+  assert.deepEqual(updateImpact(context, mine, d('2026-10-20'), true), {
+    asOf: d('2026-10-20'),
+    changes: [],
+    recorded: 0,
+    courses: [],
+  });
   assert.equal(book.state.calendarUpdates.length, 0);
   const elsewhere = updateImpact(context, update({ entries: [closure('far', '31', day)] }), d('2026-10-13'));
   assert.deepEqual(elsewhere.changes, []);
