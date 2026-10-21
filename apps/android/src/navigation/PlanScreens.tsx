@@ -6,7 +6,8 @@
 // item with the class's changes to it, the class's changes, its layers and
 // their import and export, a report of an error in an item, and the
 // class's own list without a pack (#227), which asks before leaving it
-// with changes not saved, and its offer for review.
+// with changes not saved, and its offer for review; and the catch-up
+// options of a class behind its plan (#228).
 // `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
 
 import { usePreventRemove } from '@react-navigation/native';
@@ -20,6 +21,7 @@ import { PlanChanges } from '../plan/PlanChanges';
 import { PlanLayers } from '../plan/PlanLayers';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
+import { CatchUp } from '../plan/CatchUp';
 import { PlanFree } from '../plan/PlanFree';
 import { PlanOffer } from '../plan/PlanOffer';
 import { SeptCheck } from '../plan/SeptCheck';
@@ -41,6 +43,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onChanges={() => navigation.navigate('PlanChanges', { courseId })}
       onLayers={() => navigation.navigate('PlanLayers', { courseId })}
       onEditList={() => navigation.navigate('PlanFree', { courseId })}
+      onCatchUp={() => navigation.navigate('CatchUp', { courseId })}
       onItem={(itemId) => navigation.navigate('PlanItem', { courseId, itemId })}
       onCheck={() => navigation.navigate('SeptCheck', { courseId })}
     />
@@ -127,6 +130,11 @@ export function PlanOfferScreen({ navigation, route }: NativeStackScreenProps<Ro
   return <PlanOffer courseId={route.params.courseId} onDone={() => navigation.goBack()} />;
 }
 
+/** The catch-up options; rung 4 opens the make-up days. */
+export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUp'>) {
+  return <CatchUp courseId={route.params.courseId} onAdd={() => navigation.navigate('AddSessions')} />;
+}
+
 type Stack = ReturnType<typeof createNativeStackNavigator<RootStackParamList>>;
 
 /** The plan's routes, for the app's navigator. */
@@ -145,6 +153,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="SeptCheck" component={SeptCheckScreen} options={dark(t('septCheck.title'))} />
       <Stack.Screen name="PlanFree" component={PlanFreeScreen} options={dark(t('planFree.screenTitle'))} />
       <Stack.Screen name="PlanOffer" component={PlanOfferScreen} options={dark(t('planOffer.title'))} />
+      <Stack.Screen name="CatchUp" component={CatchUpScreen} options={dark(t('catchUp.title'))} />
     </>
   );
 }
