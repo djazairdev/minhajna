@@ -44,7 +44,15 @@ interface Prepared {
   readonly state: State;
 }
 
-export function ImportUpdate({ onApplied, onReport }: { onApplied: (release: string) => void; onReport: () => void }) {
+export function ImportUpdate({
+  onApplied,
+  onReport,
+  onPlan,
+}: {
+  onApplied: (release: string) => void;
+  onReport: () => void;
+  onPlan?: (courseId: string) => void;
+}) {
   const data = useAppData();
   const t = useText();
   const { direction } = useLocale();
@@ -126,7 +134,9 @@ export function ImportUpdate({ onApplied, onReport }: { onApplied: (release: str
           others={prepared.others}
         />
       )}
-      {prepared?.impact != null && prepared.mine.length > 0 && <Impact impact={prepared.impact} />}
+      {prepared?.impact != null && prepared.mine.length > 0 && (
+        <Impact impact={prepared.impact} {...(onPlan !== undefined && { onPlan })} />
+      )}
       <SaveProblem testID="update-save-failed" problem={writer.problem ?? (stale ? 'changed' : null)} />
       {prepared?.status === 'new' && (
         <Button testID="update-apply" label={t('calendarView.update.apply')} disabled={busy} onPress={apply} />

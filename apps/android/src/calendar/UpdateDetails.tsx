@@ -69,7 +69,7 @@ export function UpdateDetails({
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {t('calendarView.update.changes')}
           </Text>
-          <UpdateChangeList mine={mine} others={others} />
+          <UpdateChangeList mine={mine} others={others} published={update.published} />
         </>
       )}
       {status === 'held' && <Text style={[styles.body, align]}>{t('calendarView.update.held')}</Text>}

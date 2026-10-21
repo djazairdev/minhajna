@@ -17,7 +17,7 @@ import type { Context } from './context.ts';
 import { appliesTo } from './calendar.ts';
 import { readEntry } from './calendar-read.ts';
 import { canonicalJson } from './canonical.ts';
-import type { Day } from './day.ts';
+import { daysBetween, type Day } from './day.ts';
 import type { RecordEvent } from './events.ts';
 import { classGrades, forGrade } from './joint.ts';
 import { compareReleases } from './pack-catalogue.ts';
@@ -249,4 +249,29 @@ export function teacherChanges(context: Context, update: CalendarUpdate): { mine
 export function applyCalendarUpdate(context: Context, update: CalendarUpdate, key: string, file: string): RecordEvent {
   if (updateStatus(context, update) !== 'new') throw new RangeError('Not a calendar release the app can apply');
   return { kind: 'calendar.updated', applied: { update, key, file } };
+}
+
+/** Whether an update moved an exam window less than two weeks before its new first day (R-7.10-06, answer 325). */
+export function announcedLate(entry: CalendarEntry, published: Day): boolean {
+  return entry.effect === 'exam' && entry.moved !== undefined && daysBetween(published, entry.from) < 14;
+}
+
+/** Whether a change gives its entry a move it did not have before, so that the move is this update's news. */
+export function newMove(change: UpdateChange): boolean {
+  const { entry, before } = change;
+  if (change.kind === 'removed' || entry.moved === undefined) return false;
+  return before?.moved === undefined || canonicalJson(before.moved) !== canonicalJson(entry.moved);
+}
+
+/** When the applied update that first gave an entry its present move was published; undefined for no such move. */
+export function movePublished(context: Context, id: string): Day | undefined {
+  let move: { key: string; published: Day } | undefined;
+  for (const { update } of appliedUpdates(context)) {
+    if (update.removed.includes(id)) move = undefined;
+    const entry = update.entries.find((one) => one.id === id);
+    if (entry === undefined) continue;
+    const key = entry.moved === undefined ? undefined : canonicalJson(entry.moved);
+    if (key !== move?.key) move = key === undefined ? undefined : { key, published: update.published };
+  }
+  return move?.published;
 }

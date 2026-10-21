@@ -58,6 +58,14 @@
     "recorded": "Séances déjà enregistrées, conservées sans modification : {{count}}",
     "changeLine": "{{day}} · {{session}} : {{before}} → {{after}}",
     "capacity": "{{class}} · avant le {{day}} ({{basis}}) : séances disponibles {{before}} → {{after}} ; le plan en demande {{needs}}.",
+    "spare": "Séances de réserve avant {{until}} : {{before}} → {{after}}",
+    "itemsAfter_one": "{{count}} élément du plan ne tient plus avant {{until}}. Rien n'est repoussé sans votre décision.",
+    "itemsAfter_many": "{{count}} d'éléments du plan ne tiennent plus avant {{until}}. Rien n'est repoussé sans votre décision.",
+    "itemsAfter_other": "{{count}} éléments du plan ne tiennent plus avant {{until}}. Rien n'est repoussé sans votre décision.",
+    "until": { "exams": "les examens", "termEnd": "la fin du trimestre" },
+    "afterExams": "Séances après les examens jusqu'à la fin du trimestre : {{before}} → {{after}}",
+    "afterExamsNew": "Séances après les examens jusqu'à la fin du trimestre : {{after}}",
+    "openPlan": "Ouvrir le plan de la classe",
     "termEnd": "fin du trimestre, pas une date d'examens annoncée",
     "addSessions": "Choisir les séances",
     "needZone": "Renseignez d'abord la wilaya de l'établissement dans les paramètres.",
@@ -318,6 +326,7 @@
       "reason": "Motif du changement : {{reason}}"
     },
     "hours": "Durée des séances pendant le Ramadan ({{confidence}}) : {{lengths}}",
-    "hoursDropped": "Elle ne porte plus la durée des séances pendant le Ramadan : on revient aux durées provisoires des horaires, ou aux horaires habituels là où il n'y en a pas."
+    "hoursDropped": "Elle ne porte plus la durée des séances pendant le Ramadan : on revient aux durées provisoires des horaires, ou aux horaires habituels là où il n'y en a pas.",
+    "late": "Ce changement a été annoncé moins de deux semaines avant sa nouvelle date."
   }
 }

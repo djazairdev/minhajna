@@ -137,12 +137,19 @@ function ImportUpdateScreen({ navigation }: NativeStackScreenProps<RootStackPara
     <ImportUpdate
       onApplied={(release) => navigation.replace('CalendarUpdate', { release })}
       onReport={() => navigation.navigate('Help')}
+      onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })}
     />
   );
 }
 
 function CalendarUpdateScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'CalendarUpdate'>) {
-  return <UpdateChanges release={route.params.release} onCalendar={() => navigation.popTo('Calendar')} />;
+  return (
+    <UpdateChanges
+      release={route.params.release}
+      onCalendar={() => navigation.popTo('Calendar')}
+      onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })}
+    />
+  );
 }
 
 /** Register actual Screen elements so the root navigator stays within its file-size limit. */

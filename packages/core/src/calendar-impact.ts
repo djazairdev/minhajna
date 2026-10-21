@@ -4,7 +4,7 @@
 import type { CalendarMutation } from './calendar-edit.ts';
 import { isWeekReset } from './calendar-edit.ts';
 import { makeContext, type Context } from './context.ts';
-import { compareDays, maxDay, minDay, startOfWeek, type Day } from './day.ts';
+import { compareDays, isWithin, maxDay, minDay, startOfWeek, type Day } from './day.ts';
 import { termCheck, type TermCheck } from './pacing.ts';
 import { addedSessions, compareSessions, sessionsBetween, type Session } from './sessions.ts';
 import { updateChanges, type CalendarUpdate } from './calendar-update.ts';
@@ -122,10 +122,12 @@ function impactBetween(
     .map((key) => ({ before: before.get(key) ?? null, after: after.get(key) ?? null }))
     .sort((a, b) => compareSessions((a.after ?? a.before)!, (b.after ?? b.before)!));
   const asOf = maxDay(today, from);
+  const term = context.ref.year.terms.find((one) => isWithin(asOf, one.from, one.to))?.number;
   const courses = [...new Set([...before.values(), ...after.values()].map((session) => session.courseId))].flatMap(
     (courseId) => {
-      const a = termCheck(context, courseId, asOf);
-      const b = termCheck(next, courseId, asOf);
+      if (term === undefined) return [];
+      const a = termCheck(context, courseId, today, term);
+      const b = termCheck(next, courseId, today, term);
       return a === null || b === null ? [] : [{ courseId, before: a, after: b }];
     },
   );
