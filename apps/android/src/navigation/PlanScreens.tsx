@@ -6,7 +6,7 @@
 // item with the class's changes to it, the class's changes, its layers and
 // their import and export, a report of an error in an item, and the
 // class's own list without a pack (#227), which asks before leaving it
-// with changes not saved.
+// with changes not saved, and its offer for review.
 // `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
 
 import { usePreventRemove } from '@react-navigation/native';
@@ -21,6 +21,7 @@ import { PlanLayers } from '../plan/PlanLayers';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
 import { PlanFree } from '../plan/PlanFree';
+import { PlanOffer } from '../plan/PlanOffer';
 import { SeptCheck } from '../plan/SeptCheck';
 import { PlanItem } from '../plan/PlanItem';
 import { useText } from '../text/i18n';
@@ -115,7 +116,15 @@ export function PlanFreeScreen({ navigation, route }: NativeStackScreenProps<Roo
       { text: t('planFree.discard'), style: 'destructive', onPress: () => navigation.dispatch(data.action) },
     ]),
   );
-  return <PlanFree courseId={route.params.courseId} onDirty={setDirty} />;
+  const { courseId } = route.params;
+  return (
+    <PlanFree courseId={courseId} onDirty={setDirty} onOffer={() => navigation.navigate('PlanOffer', { courseId })} />
+  );
+}
+
+/** Offering the class's own list for review; done or cancelled, back to the list. */
+export function PlanOfferScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PlanOffer'>) {
+  return <PlanOffer courseId={route.params.courseId} onDone={() => navigation.goBack()} />;
 }
 
 type Stack = ReturnType<typeof createNativeStackNavigator<RootStackParamList>>;
@@ -135,6 +144,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanError" component={PlanErrorScreen} options={dark(t('planError.title'))} />
       <Stack.Screen name="SeptCheck" component={SeptCheckScreen} options={dark(t('septCheck.title'))} />
       <Stack.Screen name="PlanFree" component={PlanFreeScreen} options={dark(t('planFree.screenTitle'))} />
+      <Stack.Screen name="PlanOffer" component={PlanOfferScreen} options={dark(t('planOffer.title'))} />
     </>
   );
 }

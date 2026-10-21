@@ -9,7 +9,7 @@ export interface Spec extends TurboModule {
   readFile(): Promise<string | null>;
   scanQr(title: string, instruction: string, cancel: string, rtl: boolean): Promise<string | null>;
   cancel(): void;
-  /** Shares a small JSON file the app wrote, by its file name, through Android's share sheet. */
+  /** Shares a JSON file the app wrote, up to 1 MB, by its file name, through Android's share sheet. */
   shareText(name: string, text: string, title: string): Promise<void>;
 }
 

@@ -140,12 +140,13 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
   }
 
   /**
-   * Hands a small text file the app wrote, such as a school layer, to the app the teacher picks in the share sheet.
+   * Hands a text file the app wrote, such as a school layer or an offered list, to the app the teacher picks in the
+   * share sheet, at most as large as a file the app reads.
    * Only the last shared file stays in the app's cache, and only for the share sheet's read grant.
    */
   override fun shareText(name: String, text: String, title: String, promise: Promise) {
     val bytes = text.toByteArray(Charsets.UTF_8)
-    if (!SHARE_NAME.matches(name) || bytes.size > NoticeInput.MAX_BYTES || title.length > 500)
+    if (!SHARE_NAME.matches(name) || bytes.size > NoticeInput.FILE_BYTES || title.length > 500)
       return promise.reject("E_CALENDAR_SHARE", "The file could not be shared")
     val folder = File(context.cacheDir, "share")
     val file = File(folder, name)

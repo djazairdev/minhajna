@@ -7,8 +7,10 @@
 // class is with it. Items are selected to move them a place, to edit one,
 // or to remove them; a removed item a session was recorded under keeps its
 // title, and nothing recorded changes. Saving records the whole list, and
-// the plan, Today and the texts book follow it from then on. Leaving with
-// changes not saved asks first, through `onDirty`.
+// the plan, Today and the texts book follow it from then on, and keeps the
+// days it began and was offered. Leaving with changes not saved asks
+// first, through `onDirty`. Under its history, a saved list with nothing
+// left unsaved can be offered for review (answer 347).
 
 import {
   canonicalJson,
@@ -39,6 +41,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { rowTags } from '../classes/plan-labels';
 import { isolate } from '../week/grid-labels';
 import { FreeItemForm } from './FreeItemForm';
+import { FreeListHistory } from './FreeListHistory';
 import { EMPTY_DRAFT, draftOf, draftTyped, itemOf, listLine, shifted, type FreeDraft } from './free-rules';
 
 export type PlanFreeProps = {
@@ -64,7 +67,8 @@ export function PlanFree({ courseId, onDirty, onOffer }: PlanFreeProps) {
   const course = state.courses.get(courseId);
   const className = state.classes.get(course?.classId ?? '')?.name;
   const subject = data.profile.subjects.find((one) => one.code === course?.subject);
-  const dirty = canonicalJson(list) !== canonicalJson(kept ?? { ...list, items: [] });
+  const dirty =
+    canonicalJson([list.items, list.removed ?? []]) !== canonicalJson([kept?.items ?? [], kept?.removed ?? []]);
   const unsaved = dirty || editing !== null || draftTyped(draft);
   useEffect(() => onDirty?.(unsaved), [unsaved, onDirty]);
   const rows = useMemo(() => {
@@ -115,7 +119,16 @@ export function PlanFree({ courseId, onDirty, onOffer }: PlanFreeProps) {
     });
   const save = () => {
     try {
-      record(saveFreeList(state.courses, list));
+      const { items, removed } = list;
+      record(
+        saveFreeList(state.courses, {
+          courseId,
+          started: kept?.started ?? list.started,
+          ...(kept?.offered !== undefined && { offered: kept.offered }),
+          items,
+          ...(removed !== undefined && { removed }),
+        }),
+      );
       setOutcome('saved');
     } catch {
       setOutcome('refused');
@@ -223,7 +236,8 @@ export function PlanFree({ courseId, onDirty, onOffer }: PlanFreeProps) {
           {t(`planFree.${outcome}`)}
         </Text>
       )}
-      {onOffer !== undefined && kept !== undefined && (
+      {kept !== undefined && <FreeListHistory list={kept} />}
+      {onOffer !== undefined && kept !== undefined && !dirty && kept.items.length > 0 && (
         <RowLink
           testID="free-offer"
           icon={controlIcon('globe')}
