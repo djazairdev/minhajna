@@ -18,7 +18,6 @@ import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChipGroup } from '../components/Chip';
 import { Button } from '../components/Button';
-import { Notice } from '../components/Notice';
 import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
@@ -138,7 +137,6 @@ export function Calendar({
           ))}
         </>
       )}
-      <Notice icon={controlIcon('info')} message={t('calendarView.readOnly')} />
       {school !== undefined && onReceive !== undefined && (
         <Button testID="calendar-receive" label={t('calendarView.receive.open')} onPress={() => onReceive(schoolId)} />
       )}

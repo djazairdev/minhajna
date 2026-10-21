@@ -92,7 +92,6 @@
   "range": "Du {{from}} au {{to}}",
   "empty": "Aucune date ne correspond à votre choix ce mois-ci.",
   "missing": "Cette date ne figure pas dans le calendrier de l'établissement choisi.",
-  "readOnly": "Vous pouvez recevoir un avis de fermeture par fichier ou code QR. Les mises à jour officiellement signées viendront plus tard.",
   "origin": {
     "bundled": "Issue du calendrier fourni avec l'application. La source ci-dessus indique l'origine de la date ; cela ne signifie pas que cette autorité l'a envoyée par l'application.",
     "local": "Conservée sur cet appareil. La source est celle renseignée à l'ajout, sans attester l'identité de l'expéditeur."

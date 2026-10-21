@@ -1,6 +1,6 @@
 # Calendar: receiving, stage 5 of #222
 
-This extends the [stages 1–4 check](calendar-viewer.md) on the same branch. It implements the offline receive design and PRD §§4.5 and 5.9, not #223's signed-release importer.
+This extends the [stages 1–4 check](calendar-viewer.md) on the same branch. It implements the offline receive design and PRD §§4.5 and 5.9, not the [signed-update import](signed-updates.md).
 
 ## What changed
 
@@ -24,7 +24,7 @@ The dependency is an implementation of the already specified inbound file/QR flo
 
 Database version **5** protects the local received marker and read-only semantics. The migration changes the compatibility marker only, not history rows, hashes or timing rows. Versions 0–4 upgrade through the existing transactional migration; newer versions are refused. Format-1 reference readers refuse local-only `received`, as they already refuse half-days, lunar overlays and rotations.
 
-The bundled calendar is not replaced by a received notice. Stable-ID/scope matching prevents an identical received/reference entry from taking effect twice. Verified releases, reference withdrawal tombstones and update ordering remain #223; a removed reference can otherwise reveal its still-stored received copy.
+The bundled calendar is not replaced by a received notice. Stable-ID/scope matching prevents an identical received/reference entry from taking effect twice. Verified releases, removals and their order come with [signed calendar updates](signed-updates.md): a received copy whose ID an applied update sets or removes stops applying, so a removed entry cannot come back through it.
 
 Neither a QR nor an announced source proves origin. The preview deliberately omits the design's claim that a notice was unchanged since sending: there is no signature verification in this flow. No screen says a notice is an official app update. No generator, URL reader, archive importer or notice-sharing export is added.
 

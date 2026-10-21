@@ -11,7 +11,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 | `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
-| `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64) and the SHA-256 fingerprint of that public half. Empty until the first key is made |
+| `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64) and the SHA-256 fingerprint of that public half. Empty until the first key is made, with the [signing tools](../docs/checks/signed-updates.md) |
 | `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
 | `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
 
@@ -94,7 +94,7 @@ Calendar release `2026.3` adds `lunar: true` to the four expected lunar holidays
 
 Local confirmations keep the exact original reference entry, as canonical text, alongside the announced dates and the source the teacher entered. They replace the expected entry's effect only while that reference still matches. Cancelling restores the bundled dates; a changed reference makes the old confirmation inactive. No signature or issuer is verified here. Local `half`, `confirmedFrom`, `rotation` and `received` fields, and the `rotating-groups` effect, are not part of the format-1 reference exchange: its reader refuses them rather than silently discarding their meaning.
 
-Single-entry receiving uses its own [bounded closure-notice format](../docs/checks/calendar-notice-format.md), not this reference-release format. Received provenance stays in local history; it is not an issuer-verification claim. Signed reference imports remain #223.
+Single-entry receiving uses its own [bounded closure-notice format](../docs/checks/calendar-notice-format.md), not this reference-release format. Received provenance stays in local history; it is not an issuer-verification claim. Signed calendar updates have their own [format and tools](../docs/checks/signed-updates.md).
 
 - **A fix is a new release.** Raise `release` in the file that changes, for example from `2026.1` to `2026.2`, so that the app can tell the update apart ([PRD §4.10](../docs/prd/PRD.md#410-the-rest-of-the-reference-data)).
 - **Cite the official text** in the entry's `source`, with a link when there is one. A press article or a forum post can point to a text, but is never the source. When the moon is sighted, the lunar entry becomes announced and cites the announcement.
@@ -107,4 +107,4 @@ Single-entry receiving uses its own [bounded closure-notice format](../docs/chec
 - **The BEM and the baccalaureate,** whose dates are not announced yet.
 - **Wilaya and school entries,** such as weather closures. They come as calendar fixes, keyed with the wilaya codes above, or the teacher adds them ([PRD §4.5](../docs/prd/PRD.md#45-the-calendar)).
 - **Subjects by grade and by stream.** The profile lists the subjects each level teaches, and the teacher picks theirs at setup.
-- **Signed releases,** before the pilot (R-4.8-04, R-5.9-10).
+- **Signed plan packs,** in the second part of #223 (R-4.8-04, R-5.9-10). Calendar updates are signed already ([signed-updates.md](../docs/checks/signed-updates.md)).

@@ -53,7 +53,6 @@ test.each((['ar', 'fr', 'en'] as const).flatMap((language) => [1, 2].map((fontSc
     const before = [...data.book.entries];
     await showSettingsScreen(<Calendar onEntry={onEntry} />, data, language);
     expect(accessibilityProblems(settingsRoot())).toEqual([]);
-    expect(settingsTexts()).toContain(catalogues[language].calendarView.readOnly);
     expect(settingsTexts()).toContain(data.calendar[0].name[language]);
     expect(missingKeys).toEqual([]);
     for (const node of settingsRoot().findAllByType(Text)) {

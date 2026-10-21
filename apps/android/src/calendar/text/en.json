@@ -92,7 +92,6 @@
   "range": "From {{from}} to {{to}}",
   "empty": "No entries this month match your selection.",
   "missing": "This entry is not in the selected school's calendar.",
-  "readOnly": "You can receive a closure notice by file or QR code. Official signed updates will follow later.",
   "origin": {
     "bundled": "From the calendar bundled with the app. The source above explains where the date came from; it does not mean that authority sent it through the app.",
     "local": "Kept on this device. The source is what was recorded when it was added, not proof of the sender's identity."

@@ -77,4 +77,4 @@ Budget-phone performance and native visual/TalkBack acceptance remain pending un
 
 ## Later stages
 
-Offline single-entry receiving is covered by [stage 5](calendar-receiving.md). Signed reference-release imports remain in #223 and are not presented as working. No automatic networking, official adoption or issuer verification is implied.
+Offline single-entry receiving is covered by [stage 5](calendar-receiving.md). Signed calendar updates are imported as [signed-updates.md](signed-updates.md) describes. No automatic networking, official adoption or issuer verification is implied.
