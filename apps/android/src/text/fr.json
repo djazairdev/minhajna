@@ -1986,6 +1986,19 @@
     "printNote": "Seuls les deux nombres confirmés s'impriment ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms.",
     "print": "Imprimer le registre des devoirs"
   },
+  "ramadanToday": {
+    "first": "Premier jour du Ramadan",
+    "day": "Ramadan · jour {{day}} sur {{days}}",
+    "times": "Horaires du Ramadan à partir d’aujourd’hui",
+    "level": "{{level}} : {{said}}",
+    "rule": "Une séance raccourcie compte pour une séance",
+    "ruleNote": "Chaque classe garde son nombre de séances par semaine, comme hors Ramadan : la réserve, la place de chaque classe dans son plan et les séances avant les examens ne changent pas.",
+    "book": "Le cahier de textes aux heures réelles",
+    "bookNote": "Chaque séance s’y écrit à son heure du Ramadan, depuis Documents",
+    "calendar": "Horaires du Ramadan dans le calendrier",
+    "calendarNote": "Durée des séances pour chaque niveau, et sa source",
+    "hide": "Masquer"
+  },
   "special": {
     "line": "Jour particulier : {{what}}",
     "kinds": {

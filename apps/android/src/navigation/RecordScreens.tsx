@@ -36,12 +36,14 @@ import { coreContext } from '../storage/core-context';
 import { takenSlip } from '../documents/roll-slip';
 import { useText } from '../text/i18n';
 import { Today } from '../today/Today';
+import { schoolEntries } from '../calendar/view';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
 /** The day's sessions; the help button opens Help and the privacy notice. */
 export function TodayTab({
   navigation,
 }: CompositeScreenProps<BottomTabScreenProps<HomeTabParamList, 'Today'>, NativeStackScreenProps<RootStackParamList>>) {
+  const data = useAppData();
   return (
     <Today
       onHelp={() => navigation.navigate('Help')}
@@ -52,6 +54,17 @@ export function TodayTab({
       }
       onExtra={() => navigation.navigate('Extra')}
       onCalendarUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
+      onRamadan={{
+        calendar: (id, schoolId) =>
+          navigation.navigate('CalendarEntry', {
+            id,
+            origin: schoolEntries(data, schoolId).some((row) => row.origin === 'local' && row.entry.id === id)
+              ? 'local'
+              : 'bundled',
+            schoolId,
+          }),
+        book: () => navigation.navigate('Documents'),
+      }}
       onHomework={(item) =>
         navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
       }

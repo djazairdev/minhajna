@@ -100,14 +100,15 @@ test('a duty says it is a duty, and a school event takes no session', async () =
   expect(has('day-lost')).toBe(false);
 });
 
-test('a school closure still shows its banner, and Ramadan is not a special-day card', async () => {
+test('a school closure still shows its banner, and Ramadan has its own line, not a special-day card', async () => {
   await show(calendarEntry('closed', { layer: 'school', schoolId: 's-1', effect: 'closure' }));
   expect(has('day-mark')).toBe(true);
   expect(has('heading-special')).toBe(false);
   await closeSettingsScreen();
   await show(calendarEntry('ramadan', { effect: 'marker', times: 'ramadan', confidence: 'expected' }));
   expect(has('special-ramadan')).toBe(false);
-  expect(has('heading-special')).toBe(false);
+  const line = String(settingsRoot().find((node) => node.props.testID === 'heading-special').props.children);
+  expect(line).toBe(catalogues.ar.ramadanToday.first);
 });
 
 test('two special entries are joined in the language of the screen, and a national marker is not one', async () => {
