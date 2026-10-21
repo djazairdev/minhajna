@@ -8,16 +8,22 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.os.CancellationSignal
+import androidx.core.content.FileProvider
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.UiThreadUtil
 import dz.minhajna.preview.storage.NativeMinhajnaCalendarInputSpec
+import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
-/** User-initiated local reads only; one picker/scanner at a time, with explicit cancellation and bounded provider reads. */
+/**
+ * User-initiated local reads only; one picker/scanner at a time, with explicit cancellation and bounded provider reads.
+ * The one write is a small file the teacher chose to share, handed to the share sheet.
+ */
 class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) :
   NativeMinhajnaCalendarInputSpec(context), ActivityEventListener {
   private data class Waiting(val activity: Activity, val request: Int, val promise: Promise)
@@ -133,6 +139,37 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     Thread { runCatching { signal?.cancel() }; runCatching { input?.close() } }.start()
   }
 
+  /**
+   * Hands a small text file the app wrote, such as a school layer, to the app the teacher picks in the share sheet.
+   * Only the last shared file stays in the app's cache, and only for the share sheet's read grant.
+   */
+  override fun shareText(name: String, text: String, title: String, promise: Promise) {
+    val bytes = text.toByteArray(Charsets.UTF_8)
+    if (!SHARE_NAME.matches(name) || bytes.size > NoticeInput.MAX_BYTES || title.length > 500)
+      return promise.reject("E_CALENDAR_SHARE", "The file could not be shared")
+    val folder = File(context.cacheDir, "share")
+    val file = File(folder, name)
+    try {
+      folder.mkdirs()
+      folder.listFiles()?.forEach { it.delete() }
+      file.writeBytes(bytes)
+    } catch (error: IOException) {
+      return promise.reject("E_CALENDAR_SHARE", "The file could not be written", error)
+    }
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.documents", file)
+    val send = Intent(Intent.ACTION_SEND).apply {
+      type = "application/json"
+      putExtra(Intent.EXTRA_STREAM, uri)
+      addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    try {
+      context.startActivity(Intent.createChooser(send, title).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+      promise.resolve(null)
+    } catch (error: RuntimeException) {
+      promise.reject("E_CALENDAR_SHARE", "No app to share with", error)
+    }
+  }
+
   override fun onNewIntent(intent: Intent) = Unit
 
   override fun invalidate() {
@@ -145,5 +182,6 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
   companion object {
     private const val FILE_REQUEST = 8431
     private const val SCAN_REQUEST = 8432
+    private val SHARE_NAME = Regex("^[a-z0-9-]{1,64}\\.json$")
   }
 }
