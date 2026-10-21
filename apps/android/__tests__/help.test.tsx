@@ -11,6 +11,7 @@ import { TopBar } from '../src/navigation/NavigationChrome';
 import { HelpPage, HelpRow } from '../src/help/HelpPage';
 import { LicenceNoticeScreen, noticeTitle } from '../src/help/HelpScreens';
 import { sourceUrl } from '../src/help/SourceLink';
+import { ClassesTab } from '../src/classes/ClassesTab';
 import { sizes } from '../src/design/tokens';
 import text from '../src/text/ar.json';
 import { i18n } from '../src/text/i18n';
@@ -205,4 +206,18 @@ test('keeps offline notices usable when no browser can open the source', async (
   expect(alert).toHaveBeenLastCalledWith(text.help.source, text.help.browserRefused);
   await press('new-notice.txt');
   expect(shown()).toContain(fixture.notices[3].text);
+});
+
+test('says how to report a plan error, read aloud, and opens the class plans from Help (answer 301)', async () => {
+  await ReactTestRenderer.act(async () => {
+    tree = ReactTestRenderer.create(withData(navData, <AppNavigator initialRouteName="Home" direction="rtl" />));
+    await Promise.resolve();
+  });
+  await press(text.help.title);
+  const row = tree!.root.findAllByType(HelpRow).find((node) => node.props.testID === 'help-plan-error')!;
+  expect(row.props).toMatchObject({ label: text.help.planError, detail: text.help.planErrorHow });
+  expect(tree!.root.findAllByType(ClassesTab)).toHaveLength(0);
+  await press(text.help.planError);
+  expect(tree!.root.findAllByType(ClassesTab)).toHaveLength(1);
+  expect(tree!.root.findAllByType(HelpPage)).toHaveLength(0);
 });

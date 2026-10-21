@@ -39,7 +39,10 @@
       "react-native-jpeg.txt": "JPEG image libraries",
       "react-native-native.txt": "React Native native libraries",
       "zxing.txt": "ZXing"
-    }
+    },
+    "reports": "Reports",
+    "planError": "Report a plan error",
+    "planErrorHow": "From the item itself in the class's plan: open the class's plan, tap the item, then “Report an error in this item”. The report then carries the item's ID and the pack's release."
   },
   "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
   "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",

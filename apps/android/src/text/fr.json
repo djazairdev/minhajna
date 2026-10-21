@@ -39,7 +39,10 @@
       "react-native-jpeg.txt": "Bibliothèques d’images JPEG",
       "react-native-native.txt": "Bibliothèques natives de React Native",
       "zxing.txt": "ZXing"
-    }
+    },
+    "reports": "Signalements",
+    "planError": "Signaler une erreur dans le plan",
+    "planErrorHow": "Depuis l’élément lui-même, dans le plan de la classe : ouvrez le plan de la classe, touchez l’élément, puis « Signaler une erreur dans cet élément ». Le signalement porte alors l’identifiant de l’élément et la version du paquet."
   },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
   "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
