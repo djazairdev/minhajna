@@ -16,7 +16,7 @@ Only after the teacher selects Open file does Android's document picker select o
 
 Only after the teacher selects Scan QR code does an unexported app screen request camera permission and decode frames locally with ZXing Core 3.5.4. Frames remain in memory, are cleared after decoding and are not saved or sent. Leaving or backgrounding that screen closes the camera. Refusing access leaves file input available. No Google Play service, online decoder, identifier, upload, analytics or new network permission is involved. The founder approved this dependency and scan-only camera access for #222 (answer 288 in the project's decision record).
 
-Signed calendar updates (#223) come in through the same Open file and Scan QR code steps. The phone checks the signature itself, with Android's own platform crypto (ECDSA P-256), against the public keys bundled in the app's `data/dz/keys.json`; no key server, certificate list or revocation service is asked, and no new library or permission is involved (answers 303 and 316). Only an update the teacher applies is kept, in the local history; nothing is sent.
+Signed calendar updates (#223) come in through the same Open file and Scan QR code steps, and signed plan packs through Open file alone, up to 1 MB. The phone checks the signature itself, with Android's own platform crypto (ECDSA P-256), against the public keys bundled in the app's `data/dz/keys.json`; no key server, certificate list or revocation service is asked, and no new library or permission is involved (answers 303 and 316). Only an update or a pack the teacher applies is kept, in the local history; nothing is sent.
 
 ## Optional pack source links
 

@@ -41,6 +41,7 @@ function currentRecords(state: State): RecordEvent[] {
     records.push({ kind: 'timetable.set', version: { ...version, from } });
   for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });
   for (const applied of state.calendarUpdates) records.push({ kind: 'calendar.updated', applied });
+  for (const added of state.addedPacks) records.push({ kind: 'pack.added', added });
   const sessions = [...state.sessions.values()]
     .flatMap((versions) => versions.slice(-1))
     .flatMap(({ value }) => (value === null ? [] : [value]))

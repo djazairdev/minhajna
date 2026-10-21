@@ -27,12 +27,17 @@ class CalendarInputTest {
     assertEquals(text, NoticeInput.read(ByteArrayInputStream(text.toByteArray())))
     val exact = "x".repeat(NoticeInput.MAX_BYTES)
     assertEquals(exact, NoticeInput.read(ByteArrayInputStream(exact.toByteArray())))
+    val file = "x".repeat(NoticeInput.FILE_BYTES)
+    assertEquals(file, NoticeInput.read(ByteArrayInputStream(file.toByteArray()), NoticeInput.FILE_BYTES))
   }
 
   @Test
   fun refusesOversizedAndMalformedInput() {
     assertThrows(IllegalArgumentException::class.java) {
       NoticeInput.read(ByteArrayInputStream(ByteArray(NoticeInput.MAX_BYTES + 1)))
+    }
+    assertThrows(IllegalArgumentException::class.java) {
+      NoticeInput.read(ByteArrayInputStream(ByteArray(NoticeInput.FILE_BYTES + 1)), NoticeInput.FILE_BYTES)
     }
     assertThrows(java.nio.charset.CharacterCodingException::class.java) {
       NoticeInput.read(ByteArrayInputStream(byteArrayOf(0xc3.toByte(), 0x28)))

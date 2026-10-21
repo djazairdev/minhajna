@@ -6,7 +6,8 @@
 // that signed it, and the signature: ECDSA P-256 over SHA-256 of the
 // payload's UTF-8 bytes, in DER form, base64-encoded. The app trusts only
 // the keys its reference data lists, each with who holds it and its
-// published fingerprint. The platform checks the signature, Android's own
+// published fingerprint, and what it may sign: calendar updates, plan
+// packs, or both (answer 327). The platform checks the signature, Android's own
 // crypto on the phone and Node's in tests, before the payload is read at
 // all, so a file changed after signing is refused and nothing is applied.
 // The file is read strictly: other fields, another format or a newer major
@@ -21,6 +22,14 @@ export const SIGNED_FORMAT = 'minhajna.signed';
 /** The most a signed calendar update may weigh, in UTF-8 bytes, as a QR code still carries it. */
 export const SIGNED_BYTES = 16_384;
 
+/** The most a signed plan pack may weigh, in UTF-8 bytes; it travels as a file only (answer 328). */
+export const PACK_BYTES = 1_048_576;
+
+/** The kinds of data a key may sign (answer 327). */
+export const SIGNED_KINDS = ['calendar', 'packs'] as const;
+
+export type SignedKind = (typeof SIGNED_KINDS)[number];
+
 const KEY_ID = /^[a-z0-9][a-z0-9-]{0,39}$/;
 /** Padded base64 in whole four-character units, which every platform's decoder reads the same way. */
 const BASE64 = /^(?:[A-Za-z0-9+/]{4})+$|^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)$/;
@@ -33,6 +42,8 @@ export interface TrustedKey {
   readonly spki: string;
   /** SHA-256 of the public half, in hex, as published with the code. */
   readonly fingerprint: string;
+  /** What the key may sign; a file of another kind signed with it is refused. */
+  readonly signs: readonly SignedKind[];
 }
 
 /** Checks a signature over a payload's UTF-8 bytes with a public key; never throws for a bad signature. */
@@ -131,7 +142,8 @@ export function parseTrustedKeys(input: unknown): ParseResult<TrustedKey[]> {
       const spki = reader.requiredText(raw, 'spki', path, BASE64);
       if (spki.length > 200) reader.fail(at(path, 'spki'), 'invalid');
       const fingerprint = reader.requiredText(raw, 'fingerprint', path, FINGERPRINT);
-      return holder === undefined ? undefined : { id, holder, spki, fingerprint };
+      const signs = reader.codes(raw, 'signs', path, SIGNED_KINDS, true) as SignedKind[] | undefined;
+      return holder === undefined || signs === undefined ? undefined : { id, holder, spki, fingerprint, signs };
     },
     { nonEmpty: false },
   );

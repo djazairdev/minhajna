@@ -3,6 +3,7 @@
 
 import { CalendarView } from './calendar.ts';
 import { updatedReference } from './calendar-update.ts';
+import { withAddedPacks } from './pack-update.ts';
 import type { Reference } from './reference.ts';
 import type { State } from './state.ts';
 
@@ -14,6 +15,6 @@ export interface Context {
 }
 
 export function makeContext(ref: Reference, state: State): Context {
-  const updated = updatedReference(ref, state.calendarUpdates);
+  const updated = withAddedPacks(updatedReference(ref, state.calendarUpdates), state.addedPacks);
   return { ref: updated, state, calendar: new CalendarView(updated, state.calendar) };
 }

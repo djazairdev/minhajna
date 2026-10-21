@@ -378,7 +378,10 @@
     "pinFor": "Épingler pour",
     "pinNote": "Chaque classe reste sur la version épinglée jusqu'à ce qu'on en choisisse une autre.",
     "pinButton": "Épingler le pack",
-    "noClass": "Choisissez au moins une classe."
+    "noClass": "Choisissez au moins une classe.",
+    "importSigned": "Importer un plan signé",
+    "newerBadge": "Version {{release}} disponible",
+    "newerStays": "La classe reste sur {{current}} jusqu'à ce qu'elle soit déplacée."
   },
   "ready": {
     "title": "Tout est prêt",

@@ -205,7 +205,7 @@ export async function appliedUpdateHolds(
   year: SchoolYear,
 ): Promise<boolean> {
   const opened = await openSigned(applied.file, keys, verify);
-  if (!opened.ok || opened.key.id !== applied.key) return false;
+  if (!opened.ok || opened.key.id !== applied.key || !opened.key.signs.includes('calendar')) return false;
   const read = parseCalendarUpdate(opened.payload, profile, year);
   return read.ok && canonicalJson(read.value) === canonicalJson(applied.update);
 }

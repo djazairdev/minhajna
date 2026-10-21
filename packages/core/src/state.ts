@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the screens show is worked out from the history (PRD §5.5). A
-// timetable version saved again under its ID while the week is drawn replaces
-// itself, so drawing a week adds one version, not one for each change. A
-// version recorded later replaces any earlier one that has not started by its
-// first day, such as a week drawn during setup and corrected before the year
-// begins.
+// What the screens show is worked out from the history (PRD §5.5). A timetable
+// version saved again under its ID while the week is drawn replaces itself, so
+// drawing a week adds one version, not one for each change. A version recorded
+// later replaces any earlier one that has not started by its first day, such as
+// a week drawn during setup and corrected before the year begins.
 
 import { compareDays, maxDay, type Day } from './day.ts';
 import type { ExtraSession } from './extra-records.ts';
@@ -16,7 +15,8 @@ import type { ExamDuty } from './exam-duties.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
-import type { CalendarEntry } from './reference.ts';
+import type { AddedPack } from './pack-update.ts';
+import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type {
@@ -62,10 +62,7 @@ export interface State {
   readonly memberships?: ReadonlyMap<string, readonly Membership[]>;
   readonly rollCallOrders?: ReadonlyMap<string, number>;
   readonly courses: ReadonlyMap<string, Course>;
-  /**
-   * The timetable versions that apply on some day, in the order they were recorded, which is the order they apply.
-   * One recorded later takes the place of every earlier one that would start on its first day or later.
-   */
+  /** The timetable versions that apply on some day, in recorded order, the order they apply (see `addTimetable`). */
   readonly timetables: readonly RecordedTimetable[];
   /** The entries the teacher added to the calendar. */
   readonly calendar: readonly CalendarEntry[];
@@ -73,6 +70,8 @@ export interface State {
   readonly calendarUpdates: readonly AppliedUpdate[];
   /** The day each release was first applied on this teacher's history; it never leaves with the records. */
   readonly calendarUpdatedOn: ReadonlyMap<string, Day>;
+  /** The signed plan packs the teacher added, one for each release of a pack, in the order added (#223). */
+  readonly addedPacks: readonly AddedPack[];
   /** Every version of each session's record, by key; the last is current, null when a confirmation was undone. */
   readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
@@ -102,13 +101,11 @@ function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
 }
 
 /**
- * Adds a timetable version recorded on `day`. Saved again under the ID of the
- * last one, it replaces it and keeps the day that one was recorded. The first
- * version, `firstId`, applies from its own day, so setup can fill in the weeks
- * already gone. A later one never reaches back before the day it was
- * recorded, and it takes the place of every earlier one that would start on
- * its first day or later, none of which has applied before that day: the past
- * never moves (PRD §4.6).
+ * Adds a timetable version recorded on `day`. Saved again under the ID of the last one, it replaces it and keeps the
+ * day that one was recorded. The first version, `firstId`, applies from its own day, so setup can fill in the weeks
+ * already gone. A later one never reaches back before the day it was recorded, and it takes the place of every earlier
+ * one that would start on its first day or later, none of which has applied before that day: the past never moves
+ * (PRD §4.6).
  */
 function addTimetable(timetables: RecordedTimetable[], version: TimetableVersion, day: Day, firstId: string): void {
   const redrawn = timetables.at(-1)?.version.id === version.id ? timetables.pop() : undefined;
@@ -135,6 +132,7 @@ export function buildState(entries: readonly Entry[]): State {
   const calendar = new Map<string, CalendarEntry>();
   const calendarUpdates = new Map<string, AppliedUpdate>();
   const calendarUpdatedOn = new Map<string, Day>();
+  const addedPacks = new Map<string, AddedPack>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const extras = new Map<string, Version<ExtraSession | null>[]>();
@@ -192,6 +190,9 @@ export function buildState(entries: readonly Entry[]): State {
         calendarUpdates.set(event.applied.update.release, event.applied);
         if (!calendarUpdatedOn.has(event.applied.update.release))
           calendarUpdatedOn.set(event.applied.update.release, entry.day);
+        break;
+      case 'pack.added':
+        addedPacks.set(packKey(event.added.update.pack.id, event.added.update.pack.release), event.added);
         break;
       case 'session.recorded': {
         const key = event.record.session.key;
@@ -277,6 +278,7 @@ export function buildState(entries: readonly Entry[]): State {
     calendar: [...calendar.values()],
     calendarUpdates: [...calendarUpdates.values()],
     calendarUpdatedOn,
+    addedPacks: [...addedPacks.values()],
     sessions,
     notes,
     extras,

@@ -96,10 +96,10 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     reader.execute {
       val result = runCatching {
         context.contentResolver.openAssetFileDescriptor(uri, "r", signal).use { descriptor ->
-          require(descriptor != null && descriptor.declaredLength <= NoticeInput.MAX_BYTES && generation == readGeneration)
+          require(descriptor != null && descriptor.declaredLength <= NoticeInput.FILE_BYTES && generation == readGeneration)
           val input = descriptor.createInputStream()
           stream.set(input)
-          try { input.use { require(generation == readGeneration); NoticeInput.read(it) } } finally {
+          try { input.use { require(generation == readGeneration); NoticeInput.read(it, NoticeInput.FILE_BYTES) } } finally {
             stream.compareAndSet(input, null)
             cancellation.compareAndSet(signal, null)
           }

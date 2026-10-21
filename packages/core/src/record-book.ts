@@ -37,6 +37,8 @@ function recordKey(event: RecordEvent): string {
       return `calendar:${event.id}`;
     case 'calendar.updated':
       return `calendar-update:${event.applied.update.release}`;
+    case 'pack.added':
+      return `pack:${event.added.update.pack.id}@${event.added.update.pack.release}`;
     case 'session.recorded':
       return `session:${event.record.session.key}`;
     case 'session.withdrawn':

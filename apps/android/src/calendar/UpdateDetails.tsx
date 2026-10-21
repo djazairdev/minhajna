@@ -21,6 +21,33 @@ export function fingerprintText(fingerprint: string): string {
   return isolate(fingerprint.match(/.{1,4}/g)?.join(' ') ?? fingerprint);
 }
 
+/** How the file was opened, whether it is new, and who signed it with which key: the head of either kind of file. */
+export function SignedBy({ signer, status, via }: { signer: TrustedKey; status: UpdateStatus; via: string }) {
+  const t = useText();
+  const { direction } = useLocale();
+  const align = { writingDirection: direction, textAlign: 'start' } as const;
+  return (
+    <>
+      <Text style={[styles.body, align]}>{via}</Text>
+      <Badge
+        testID="update-status"
+        variant={status === 'new' ? 'done' : 'default'}
+        label={t(`calendarView.update.status.${status}`)}
+      />
+      <Text accessibilityRole="header" style={[styles.title, align]}>
+        {t('calendarView.update.signed')}
+      </Text>
+      <Text style={[styles.body, align]}>
+        {t('calendarView.update.signer', { holder: isolate(localized(signer.holder)) })}
+      </Text>
+      <Text style={[styles.body, align]}>{t('calendarView.update.fingerprint')}</Text>
+      <Text testID="update-fingerprint" selectable style={[styles.body, align]}>
+        {fingerprintText(signer.fingerprint)}
+      </Text>
+    </>
+  );
+}
+
 export function UpdateDetails({
   update,
   signer,
@@ -41,22 +68,7 @@ export function UpdateDetails({
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   return (
     <View testID="update-details" style={styles.card}>
-      <Text style={[styles.body, align]}>{via}</Text>
-      <Badge
-        testID="update-status"
-        variant={status === 'new' ? 'done' : 'default'}
-        label={t(`calendarView.update.status.${status}`)}
-      />
-      <Text accessibilityRole="header" style={[styles.title, align]}>
-        {t('calendarView.update.signed')}
-      </Text>
-      <Text style={[styles.body, align]}>
-        {t('calendarView.update.signer', { holder: isolate(localized(signer.holder)) })}
-      </Text>
-      <Text style={[styles.body, align]}>{t('calendarView.update.fingerprint')}</Text>
-      <Text testID="update-fingerprint" selectable style={[styles.body, align]}>
-        {fingerprintText(signer.fingerprint)}
-      </Text>
+      <SignedBy signer={signer} status={status} via={via} />
       <Text accessibilityRole="header" style={[styles.title, align]}>
         {t('calendarView.update.contents')}
       </Text>
