@@ -935,7 +935,28 @@
       "signer": "La clé qui a signé le fichier ne signe ni les packs ni leurs couches.",
       "input": "Le fichier ou le code n’a pas pu être lu."
     },
-    "refused": "La couche de la classe n’a pas pu être changée."
+    "refused": "La couche de la classe n’a pas pu être changée.",
+    "export": {
+      "action": "Partager mes changements comme couche d’établissement",
+      "title": "Partager une couche d’établissement",
+      "intro": "La couche d’établissement est faite des changements en vigueur de {{class}}, dans leur ordre, sans ceux que vous avez annulés. Les collègues de la matière la prennent depuis un fichier, l’appliquent à leurs classes et voient que son expéditeur n’est pas vérifié. Rien ne change dans vos classes.",
+      "none": "Cette classe n’a aucun changement en vigueur : il n’y a pas de couche à partager.",
+      "name": "Titre de la couche",
+      "namePlaceholder": "Par exemple : les classes parallèles de 4e année",
+      "by": "Préparée par",
+      "byPlaceholder": "Par exemple : la coordinatrice de la matière",
+      "note": "Note",
+      "optional": "facultative",
+      "notePlaceholder": "Par exemple : ce qu’a convenu le conseil de la matière",
+      "preview": "Vos collègues la verront ainsi",
+      "holds": "Le fichier ne contient ni noms d’élèves, ni notes, ni appels, ni rien de vos séances enregistrées.",
+      "needs": "Écrivez le titre de la couche et qui l’a préparée, chacun sur une ligne.",
+      "tooBig": "La couche dépasse ce que contient un fichier de couche : 16 Ko et 200 opérations au plus. Raccourcissez la note ou les titres.",
+      "share": "Partager le fichier",
+      "shareTitle": "Couche d’établissement",
+      "shared": "Le menu de partage est ouvert : choisissez l’application pour envoyer le fichier.",
+      "failed": "Le fichier n’a pas pu être partagé. Réessayez."
+    }
   },
   "planError": {
     "title": "Signaler une erreur dans le plan",

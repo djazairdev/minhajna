@@ -68,7 +68,9 @@ async function taken(): Promise<TestData> {
   );
   return data;
 }
-const layers = () => <PlanLayers courseId="c-1" onChanges={jest.fn()} onDetails={jest.fn()} onImport={jest.fn()} />;
+const layers = () => (
+  <PlanLayers courseId="c-1" onChanges={jest.fn()} onDetails={jest.fn()} onImport={jest.fn()} onExport={jest.fn()} />
+);
 
 beforeEach(() => {
   jest.clearAllMocks();

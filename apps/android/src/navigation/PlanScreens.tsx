@@ -4,11 +4,12 @@
 // A class's plan and the screens it opens, as routes (#225): the plan, where
 // a parallel class replaces the one shown in place, the pack's details, one
 // item with the class's changes to it, the class's changes, its layers and
-// their import, and a report of an error in an item.
+// their import and export, and a report of an error in an item.
 // `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ClassPlan } from '../classes/ClassPlan';
+import { LayerExport } from '../plan/LayerExport';
 import { LayerImport } from '../plan/LayerImport';
 import { PlanChanges } from '../plan/PlanChanges';
 import { PlanLayers } from '../plan/PlanLayers';
@@ -71,6 +72,7 @@ export function PlanLayersScreen({ navigation, route }: NativeStackScreenProps<R
       onChanges={() => navigation.navigate('PlanChanges', { courseId })}
       onDetails={() => navigation.navigate('PlanDetails', { courseId })}
       onImport={() => navigation.navigate('LayerImport', { courseId })}
+      onExport={() => navigation.navigate('LayerExport', { courseId })}
     />
   );
 }
@@ -78,6 +80,11 @@ export function PlanLayersScreen({ navigation, route }: NativeStackScreenProps<R
 /** Importing a district or school layer; taking one in goes back to the layers. */
 export function LayerImportScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'LayerImport'>) {
   return <LayerImport courseId={route.params.courseId} onTaken={() => navigation.goBack()} />;
+}
+
+/** A school layer from the class's changes, to share with colleagues. */
+export function LayerExportScreen({ route }: NativeStackScreenProps<RootStackParamList, 'LayerExport'>) {
+  return <LayerExport courseId={route.params.courseId} />;
 }
 
 /** A report of an error in one item of a class's plan. */
@@ -103,6 +110,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanChanges" component={PlanChangesScreen} options={dark(t('planChanges.title'))} />
       <Stack.Screen name="PlanLayers" component={PlanLayersScreen} options={dark(t('planLayers.title'))} />
       <Stack.Screen name="LayerImport" component={LayerImportScreen} options={dark(t('planLayers.import'))} />
+      <Stack.Screen name="LayerExport" component={LayerExportScreen} options={dark(t('planLayers.export.title'))} />
       <Stack.Screen name="PlanError" component={PlanErrorScreen} options={dark(t('planError.title'))} />
       <Stack.Screen name="SeptCheck" component={SeptCheckScreen} options={dark(t('septCheck.title'))} />
     </>

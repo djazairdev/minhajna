@@ -914,7 +914,28 @@
       "signer": "The key that signed the file does not sign packs or their layers.",
       "input": "The file or code could not be read."
     },
-    "refused": "The class’s layer could not be changed now."
+    "refused": "The class’s layer could not be changed now.",
+    "export": {
+      "action": "Share my changes as a school layer",
+      "title": "Share a school layer",
+      "intro": "The school layer is built from {{class}}’s changes in force, in their order, without the ones you undid. Subject colleagues take it in from a file, apply it to their own classes, and see that its sender is not verified. Nothing changes in your classes.",
+      "none": "This class has no change in force, so there is no layer to share.",
+      "name": "Layer title",
+      "namePlaceholder": "For example: the parallel 4th-year classes",
+      "by": "Made by",
+      "byPlaceholder": "For example: the subject coordinator",
+      "note": "Note",
+      "optional": "optional",
+      "notePlaceholder": "For example: what the subject council agreed",
+      "preview": "Your colleagues will see it like this",
+      "holds": "The file holds no pupil names, marks or roll calls, and nothing from your recorded sessions.",
+      "needs": "Write the layer’s title and who made it, each on one line.",
+      "tooBig": "The layer is larger than a layer file holds: 16 KB and 200 operations at most. Shorten the note or the titles.",
+      "share": "Share the file",
+      "shareTitle": "School layer",
+      "shared": "The share menu is open: pick the app to send the file with.",
+      "failed": "The file could not be shared. Try again."
+    }
   },
   "planError": {
     "title": "Report a plan error",
