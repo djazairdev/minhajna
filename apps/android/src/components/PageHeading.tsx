@@ -4,7 +4,7 @@
 import { useLocale } from '@react-navigation/native';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { colors, sizes, spacing, typography } from '../design/tokens';
+import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import type { ControlIcon } from './control';
 
 /** Screens supply translated, neutral wording; dates/scopes are already formatted, never inferred here. */
@@ -12,13 +12,15 @@ export type PageHeadingProps = {
   readonly title: string;
   readonly scope: string;
   readonly fact?: { readonly text: string; readonly icon: ControlIcon };
+  /** What makes the day special, as a highlighted line under the heading, such as «يوم خاص: ندوة تربوية». */
+  readonly special?: string | null;
   /** Independent labelled controls, not part of the heading's accessible group. */
   readonly actions?: ReactNode;
   readonly testID?: string;
 };
 
 /** A wrapping display heading, with enough line space for the bundled Ruqaa face rather than clipping its ink. */
-export function PageHeading({ title, scope, fact, actions, testID }: PageHeadingProps) {
+export function PageHeading({ title, scope, fact, special, actions, testID }: PageHeadingProps) {
   const { direction } = useLocale();
   const { fontScale } = useWindowDimensions();
   const textDirection = { writingDirection: direction, textAlign: 'start' } as const;
@@ -37,6 +39,11 @@ export function PageHeading({ title, scope, fact, actions, testID }: PageHeading
             {title}
           </Text>
           <Text style={[styles.scope, textDirection]}>{scope}</Text>
+          {special != null && (
+            <Text testID="heading-special" style={[styles.special, textDirection]}>
+              {special}
+            </Text>
+          )}
         </View>
         {actions != null && <View style={styles.actions}>{actions}</View>}
       </View>
@@ -71,6 +78,14 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   scope: { ...typography.fact, color: colors.ink2 },
+  special: {
+    ...typography.label,
+    color: colors.ink,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.hi,
+    borderRadius: radius['radius-badge'],
+    paddingHorizontal: spacing['space-10'],
+  },
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',

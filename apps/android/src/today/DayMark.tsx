@@ -21,10 +21,12 @@ type Translate = ReturnType<typeof useText>;
 
 /**
  * The entry that marks the whole day: a day that adds sessions unless the
- * day is closed, then a holiday, then a closure, then an exam.
+ * day is closed, then a holiday, then a closure, then an exam. A teacher's
+ * own seminar or duty is a special day instead (answer 335).
  */
 export function dayMarkOf(view: TodayView): CalendarEntry | null {
-  const find = (effect: CalendarEntry['effect']) => view.marks.find((mark) => mark.effect === effect);
+  const find = (effect: CalendarEntry['effect']) =>
+    view.marks.find((mark) => mark.effect === effect && mark.layer !== 'teacher');
   const closure = find('closure');
   return (
     (closure === undefined ? find('adds-sessions') : undefined) ?? find('no-school') ?? closure ?? find('exam') ?? null

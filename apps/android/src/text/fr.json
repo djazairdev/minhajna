@@ -1985,5 +1985,18 @@
     "empty": "Aucun devoir dans cette matière pour l'instant. Chaque devoir écrit dans le détail d'une séance s'y inscrit, avec sa date de retour.",
     "printNote": "Seuls les deux nombres confirmés s'impriment ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms.",
     "print": "Imprimer le registre des devoirs"
+  },
+  "special": {
+    "line": "Jour particulier : {{what}}",
+    "kinds": {
+      "training": "Séminaire",
+      "duty": "Mission",
+      "event": "Événement"
+    },
+    "notes": {
+      "training": "{{name}}. Il est inscrit à la page des séminaires et formations du cahier journal.",
+      "duty": "{{name}}. Elle est inscrite à la page des séminaires et formations du cahier journal.",
+      "event": "{{name}}. Il ne touche pas aux séances du jour, et il est inscrit au cahier journal."
+    }
   }
 }
