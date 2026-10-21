@@ -105,10 +105,10 @@ type RollProps = {
  * again from each new version recorded.
  */
 export function Roll(props: RollProps) {
-  const { state, profile, year, calendar, packs } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs } = useAppData();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const [unit] = useState(() => unitOf(context, props.sessionKey, props.day));
   const versions = unit === null ? 0 : (state.rollCalls.get(unit.key)?.length ?? 0);

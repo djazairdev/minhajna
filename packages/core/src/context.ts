@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { CalendarView } from './calendar.ts';
+import { updatedReference } from './calendar-update.ts';
 import type { Reference } from './reference.ts';
 import type { State } from './state.ts';
 
@@ -13,5 +14,6 @@ export interface Context {
 }
 
 export function makeContext(ref: Reference, state: State): Context {
-  return { ref, state, calendar: new CalendarView(ref, state.calendar) };
+  const updated = updatedReference(ref, state.calendarUpdates);
+  return { ref: updated, state, calendar: new CalendarView(updated, state.calendar) };
 }

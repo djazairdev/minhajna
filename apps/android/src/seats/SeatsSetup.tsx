@@ -49,10 +49,10 @@ export function SeatsSetup(props: { classId: string; groupId: string }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, today, record } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, record } = useAppData();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const [groupId, setGroupId] = useState(props.groupId);
   const [chosen, setChosen] = useState<string | null>(null);

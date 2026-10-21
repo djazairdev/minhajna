@@ -48,11 +48,11 @@ export function TestSchedule({ courseId, onCourse, onDuty }: TestScheduleProps) 
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useAppData();
-  const { state, profile, year, calendar, packs, today, record, newId } = data;
+  const { state, profile, year, calendar, calendarRelease, packs, today, record, newId } = data;
   const language = currentLanguage();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const [adding, setAdding] = useState(false);
   const [said, setSaid] = useState<Said>(null);

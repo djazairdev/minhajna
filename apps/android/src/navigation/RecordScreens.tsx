@@ -76,13 +76,13 @@ export function EntryScreen({ navigation, route }: NativeStackScreenProps<RootSt
 /** A session's roll call, back to where it was opened once saved; the print icon opens its blank sheet or its slip. */
 export function RollScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Roll'>) {
   const t = useText();
-  const { state, profile, year, calendar, packs } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs } = useAppData();
   const { key, day, courseId } = route.params;
   const pilot = usePilotTiming();
   const known = state.courses.has(courseId);
   const slip = useMemo(
-    () => takenSlip(coreContext({ profile, year, calendar, packs, state }), key, parseDay(day)),
-    [profile, year, calendar, packs, state, key, day],
+    () => takenSlip(coreContext({ profile, year, calendar, calendarRelease, packs, state }), key, parseDay(day)),
+    [profile, year, calendar, calendarRelease, packs, state, key, day],
   );
   useLayoutEffect(() => {
     navigation.setOptions({

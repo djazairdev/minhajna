@@ -40,6 +40,7 @@ function currentRecords(state: State): RecordEvent[] {
   for (const { version, from } of state.timetables)
     records.push({ kind: 'timetable.set', version: { ...version, from } });
   for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });
+  for (const applied of state.calendarUpdates) records.push({ kind: 'calendar.updated', applied });
   const sessions = [...state.sessions.values()]
     .flatMap((versions) => versions.slice(-1))
     .flatMap(({ value }) => (value === null ? [] : [value]))

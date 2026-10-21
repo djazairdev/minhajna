@@ -66,12 +66,12 @@ export function ClassPage(props: ClassPageProps) {
   const minutes = useCountMinutes();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, packs, bells, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, bells, today } = useAppData();
   const data = useDocumentData();
   const day = today();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const rows = useMemo(() => classRows(context, day), [context, day]);
   const row = rows.find((one) => one.course.id === props.courseId);

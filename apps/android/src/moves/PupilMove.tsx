@@ -23,11 +23,11 @@ export function PupilMove({ classId, onDone }: { classId: string; onDone: () => 
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
   const [mode, setMode] = useState<'join' | 'leave'>('join');
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const schoolClass = state.classes.get(classId);
   const pupils = [...state.pupils.values()].filter((pupil) => pupil.classId === classId);

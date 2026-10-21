@@ -55,13 +55,13 @@ export function ClassPlan(props: ClassPlanProps) {
   const { direction } = useLocale();
   const t = useText();
   const minutes = useCountMinutes();
-  const { state, profile, year, calendar, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
   const day = today();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const comma = currentLanguage() === 'ar' ? '، ' : ', ';
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const view = useMemo(() => planView(context, courseId, day), [context, courseId, day]);
   const check = useMemo(() => termCheck(context, courseId, day), [context, courseId, day]);

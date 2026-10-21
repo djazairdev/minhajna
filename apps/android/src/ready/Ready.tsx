@@ -33,7 +33,7 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, bells, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, bells, packs, today } = useAppData();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const language = currentLanguage();
@@ -41,7 +41,7 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
   const day = today();
 
   const { context, groups, checks, next } = useMemo(() => {
-    const made = coreContext({ profile, year, calendar, packs, state });
+    const made = coreContext({ profile, year, calendar, calendarRelease, packs, state });
     const start = startDay(year, day);
     const term = checkTerm(year, start);
     const all = planGroups(state);
@@ -51,7 +51,7 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
       checks: term === undefined ? [] : checkGroups(made, all, year.id, term),
       next: nextSession(made, start),
     };
-  }, [profile, year, calendar, packs, state, day]);
+  }, [profile, year, calendar, calendarRelease, packs, state, day]);
 
   const named = (on: Day) => `${t(`week.days.${weekday(on)}`)} ${formatDayWithMonth(on, language, profile)}`;
   const pupils = [...state.pupils.values()].filter((pupil) => state.classes.has(pupil.classId)).length;

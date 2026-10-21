@@ -38,11 +38,11 @@ export function PlanError({ courseId, itemId }: PlanErrorProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { state, profile, year, calendar, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
   const day: Day = today();
   const page = useMemo(
-    () => itemPage(coreContext({ profile, year, calendar, packs, state }), courseId, itemId, day),
-    [profile, year, calendar, packs, state, courseId, itemId, day],
+    () => itemPage(coreContext({ profile, year, calendar, calendarRelease, packs, state }), courseId, itemId, day),
+    [profile, year, calendar, calendarRelease, packs, state, courseId, itemId, day],
   );
   const [kind, setKind] = useState<ErrorKind>('title');
   const [note, setNote] = useState('');

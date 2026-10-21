@@ -6,7 +6,7 @@ import type { CalendarMutation } from './calendar-edit.ts';
 import type { Context } from './context.ts';
 import { addDays, daysBetween, isDay, type Day } from './day.ts';
 import type { CalendarEntry } from './reference.ts';
-import { replacesReceived } from './calendar-received-match.ts';
+import { receivedSuperseded } from './calendar-received-match.ts';
 
 /** Only explicitly marked, expected lunar holidays offer sighting confirmation. */
 export function isLunarHoliday(entry: CalendarEntry): boolean {
@@ -54,16 +54,18 @@ export function validLunarConfirmation(entry: CalendarEntry, reference: Calendar
 }
 
 /** Reference bytes stay intact; only an exact, valid local lunar confirmation replaces their effect. */
-export function effectiveCalendar(reference: readonly CalendarEntry[], own: readonly CalendarEntry[]): CalendarEntry[] {
+export function effectiveCalendar(
+  reference: readonly CalendarEntry[],
+  own: readonly CalendarEntry[],
+  updatedIds: readonly string[] = [],
+): CalendarEntry[] {
   const confirmations = own.filter(
     (entry) => entry.confirmedFrom !== undefined && reference.some((base) => validLunarConfirmation(entry, base)),
   );
   const replaced = new Set(confirmations.map((entry) => entry.id));
   return [
     ...reference.filter((entry) => !replaced.has(entry.id)),
-    ...own.filter(
-      (entry) => entry.confirmedFrom === undefined && !reference.some((base) => replacesReceived(base, entry)),
-    ),
+    ...own.filter((entry) => entry.confirmedFrom === undefined && !receivedSuperseded(entry, reference, updatedIds)),
     ...confirmations,
   ];
 }

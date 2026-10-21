@@ -62,14 +62,14 @@ export function AddSessions({
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useAppData();
-  const { state, profile, year, calendar, packs, today, newId, unsaved } = data;
+  const { state, profile, year, calendar, calendarRelease, packs, today, newId, unsaved } = data;
   const [initial] = useState(() =>
     entryId === undefined ? undefined : state.calendar.find((entry) => entry.id === entryId),
   );
   const writer = useCalendarSave();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const schools = taughtSchools(state);
   const [kind, setKind] = useState<AddedKind>(initial?.adds ?? 'make-up');

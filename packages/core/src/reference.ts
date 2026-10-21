@@ -191,6 +191,8 @@ export interface CalendarEntry {
   /** The text or notice it comes from. */
   readonly source: string;
   readonly confidence: Confidence;
+  /** For an entry an update moved: the dates it had before, and why it moved (R-7.10-06). */
+  readonly moved?: { readonly from: Day; readonly to: Day; readonly reason: string };
   /** A lunar holiday whose date is fixed by a sighting, not merely any expected entry. */
   readonly lunar?: true;
   /** Local confirmation only: the exact canonical reference entry it confirms, never a signature. */
@@ -216,6 +218,10 @@ export interface Reference {
   readonly year: SchoolYear;
   /** The national, zone and school layers, as received. */
   readonly calendar: readonly CalendarEntry[];
+  /** The release of the calendar the app was built with, which signed updates follow (#223). */
+  readonly calendarRelease?: string;
+  /** The IDs of the entries applied updates replaced or took out: a received copy of one no longer applies. */
+  readonly updatedIds?: readonly string[];
   /** Keyed by `packKey(id, release)`. */
   readonly packs: ReadonlyMap<string, PlanPack>;
 }

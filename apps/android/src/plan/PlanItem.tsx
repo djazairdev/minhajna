@@ -44,11 +44,11 @@ export function PlanItem({ courseId, itemId, onChanges, onReport }: PlanItemProp
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { state, profile, year, calendar, packs, today, record, newId } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, record, newId } = useAppData();
   const day: Day = today();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const page = useMemo(() => itemPage(context, courseId, itemId, day), [context, courseId, itemId, day]);
   const [openers] = useState(

@@ -36,11 +36,11 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { state, profile, year, calendar, packs, today, record, newId } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, record, newId } = useAppData();
   const day: Day = today();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const pin = state.courses.get(courseId)?.pack ?? null;
   const base = packOfPin(packs, pin);

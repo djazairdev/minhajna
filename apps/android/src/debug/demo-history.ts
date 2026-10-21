@@ -25,7 +25,8 @@ export interface DemoTimes {
 function bundled(): Reference {
   const read = readReference(bundledReference);
   if (!read.ok) throw new Error('The bundled reference data does not verify');
-  return { country: read.profile, year: read.calendar.year, calendar: read.calendar.entries, packs: new Map() };
+  const { year, entries: calendar, release: calendarRelease } = read.calendar;
+  return { country: read.profile, year, calendar, calendarRelease, packs: new Map() };
 }
 
 /** Writes a demo year to the app's own history, which must be empty, then times opening it. */

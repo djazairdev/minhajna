@@ -18,15 +18,15 @@ export const PLACE = /^[A-Za-z0-9._-]{1,64}$/;
 /** The teacher's own layer never comes in a file: it stays on the teacher's devices (PRD §4.5). */
 export const FILE_LAYERS = ['national', 'zone', 'school'] as const;
 
-export function readName(reader: Reader, fields: Fields, path: string): LocalizedText | undefined {
-  const value = fields['name'];
+export function readName(reader: Reader, fields: Fields, path: string, key = 'name'): LocalizedText | undefined {
+  const value = fields[key];
   const texts = isFields(value) ? Object.entries(value) : [];
   const valid = texts.every(
     ([language, text]) =>
       LANGUAGE.test(language) && typeof text === 'string' && text.trim() !== '' && !hasBidiControl(text),
   );
   if (texts.length === 0 || !valid) {
-    reader.fail(at(path, 'name'), value === undefined ? 'required' : 'invalid');
+    reader.fail(at(path, key), value === undefined ? 'required' : 'invalid');
     return undefined;
   }
   return Object.fromEntries(texts) as LocalizedText;

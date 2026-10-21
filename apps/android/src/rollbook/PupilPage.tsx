@@ -49,12 +49,13 @@ export function PupilPage(props: PupilPageProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, packs, bells, today, recordAll, unsaved, settled } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, bells, today, recordAll, unsaved, settled } =
+    useAppData();
   const language = currentLanguage();
   const day = today();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const row = useMemo(
     () => classRows(context, day).find((one) => one.course.id === props.courseId),

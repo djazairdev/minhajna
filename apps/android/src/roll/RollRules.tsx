@@ -38,14 +38,14 @@ export function RollRules() {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, today, record } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, record } = useAppData();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [choosing, setChoosing] = useState(false);
   const change = useRef<ViewInstance>(null);
   const rules = state.counting ?? DEFAULT_COUNTING;
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const kinds = new Set([...state.classes.values()].map((schoolClass) => unitKind(context, schoolClass)));
   const starts = useMemo(() => countingStarts(profile, year, today()), [profile, year, today]);

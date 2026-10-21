@@ -57,6 +57,7 @@ export function receiveCalendarNotice(
     received: { sender: notice.sender, ...(notice.school !== undefined && { school: notice.school }) },
   };
   const base = context.ref.calendar.find((one) => one.id === entry.id);
+  if (base === undefined && context.ref.updatedIds?.includes(entry.id)) throw new CalendarNoticeError('conflict');
   if (base !== undefined) {
     if (!replacesReceived(base, entry)) throw new CalendarNoticeError('conflict');
     return { status: 'duplicate', entry: base };
