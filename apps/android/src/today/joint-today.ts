@@ -5,11 +5,22 @@
 // sessions make one card, in the years' order. Every other session has its
 // own card.
 
-import { classGrades, courseGrade, isJoint, slotKey, type State, type TodaySession } from '@minhajna/core';
+import {
+  classGrades,
+  courseGrade,
+  isJoint,
+  slotKey,
+  type Session,
+  type State,
+  type TodaySession,
+} from '@minhajna/core';
 
 export type TodayEntry =
   | { readonly kind: 'one'; readonly item: TodaySession }
   | { readonly kind: 'joint'; readonly key: string; readonly items: readonly TodaySession[] };
+
+/** The sessions of a card's items. */
+export const sessionsOf = (items: readonly TodaySession[]): Session[] => items.map((item) => item.session);
 
 /** The day's sessions as cards, in order, a joint class's years together. */
 export function todayEntries(state: State, items: readonly TodaySession[]): TodayEntry[] {

@@ -6,11 +6,16 @@
 // course. Each support or «تدارك» session logged for the class takes the
 // first item it has not finished; the session keeps the item it took and
 // whether it finished it, so editing the list never rewrites the past. The
-// queue never moves the main plan nor counts in its buffers or delay.
+// queue never moves the main plan nor counts in its buffers or delay. The
+// support sessions the teacher scheduled and has not logged take the items
+// left in order, one each (answer 362).
 
 import { isOneLine } from './calendar-notice-read.ts';
+import type { CatchUpSession } from './catch-up-sessions.ts';
+import { compareDays } from './day.ts';
 import type { RecordEvent } from './events.ts';
 import { compareExtras, type ExtraKind, type ExtraSession } from './extra-records.ts';
+import { compareSlots } from './records.ts';
 import type { State } from './state-type.ts';
 import { current } from './versions.ts';
 
@@ -88,4 +93,33 @@ export function nextSupportItem(state: State, courseId: string, except?: string)
     takers(state, courseId, except).flatMap((extra) => (extra.finished === true ? [extra.item] : [])),
   );
   return state.supportQueues.get(courseId)?.items.find((item) => !finished.has(item.id)) ?? null;
+}
+
+/** A scheduled support session not yet logged, with the item it would take. */
+export interface ScheduledSupport {
+  readonly catchUp: CatchUpSession;
+  readonly item: SupportItem | null;
+}
+
+/** Whether a logged session other than `except` names the scheduled support session `id`, which ends it. */
+export function supportEnded(state: State, id: string, except?: string): boolean {
+  return [...state.extras.values()].some((versions) => {
+    const extra = current(versions);
+    return extra !== null && extra.scheduled === id && extra.id !== except;
+  });
+}
+
+/** The class's scheduled support sessions not yet logged, in order, each paired with the next item left. */
+export function scheduledSupport(state: State, courseId: string): ScheduledSupport[] {
+  const left = supportQueueRows(state, courseId).flatMap((row) => (row.finished ? [] : [row.item]));
+  return [...state.catchUps.values()]
+    .filter((one) => one.kind === 'support' && one.courseId === courseId && !supportEnded(state, one.id))
+    .sort((a, b) => compareDays(a.day, b.day) || compareSlots(a.slot, b.slot))
+    .map((catchUp, index) => ({ catchUp, item: left[index] ?? null }));
+}
+
+/** The item a support session takes: a scheduled one's paired item, or else the first item left. */
+export function supportItemFor(state: State, courseId: string, scheduled?: string): SupportItem | null {
+  const paired = scheduledSupport(state, courseId).find((one) => one.catchUp.id === scheduled);
+  return paired === undefined ? nextSupportItem(state, courseId) : paired.item;
 }

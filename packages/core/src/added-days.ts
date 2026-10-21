@@ -125,7 +125,10 @@ export function addedEntry(added: AddedDay): CalendarEntry {
   };
 }
 
-/** The slots the teacher already teaches on `day`, apart from the day `exceptId`, as `slotKey`s. */
+/**
+ * The slots the teacher already teaches or has a catch-up or support session
+ * at on `day`, apart from the day `exceptId`, as `slotKey`s.
+ */
 export function busySlots(context: Context, day: Day, exceptId?: string): Set<string> {
   const taught = sessionsBetween(context, day, day).filter(
     (session) => session.calendar === null && (exceptId === undefined || session.added !== exceptId),
@@ -133,7 +136,8 @@ export function busySlots(context: Context, day: Day, exceptId?: string): Set<st
   const supported = addedSessions(context, day, day, ['support', 'revision'])
     .map((one) => one.session)
     .filter((session) => session.calendar === null && session.added !== exceptId);
-  return new Set([...taught, ...supported].map((session) => slotKey(session.slot)));
+  const scheduled = [...context.state.catchUps.values()].filter((catchUp) => catchUp.day === day);
+  return new Set([...taught, ...supported, ...scheduled].map((one) => slotKey(one.slot)));
 }
 
 /** The event that takes back a day the teacher added; the history keeps it. */

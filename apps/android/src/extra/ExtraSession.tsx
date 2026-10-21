@@ -13,13 +13,15 @@
 // or revision day the school sets opens «إضافة حصص» instead, and «تعويض»,
 // a cover for a colleague's class, opens its own form (#224, answer 332).
 // A support or «تدارك» session takes the class's next support item, which
-// it finishes unless unticked (#228, answer 360).
+// it finishes unless unticked (#228, answer 360), and a support session
+// scheduled in a free time opens here filled in, which logging it ends
+// (answer 362).
 
 import {
   extraRemoval,
   formatTextsBookDay,
   logExtra,
-  nextSupportItem,
+  supportItemFor,
   supervisedRows,
   takesQueue,
   type Day,
@@ -47,6 +49,7 @@ import { readSpan } from '../times/times-rules';
 import { dayName } from '../today/DayMark';
 import { supportRows } from './add-sessions-rules';
 import { classChoices, courseOfChoice, loggableDays, monthOf, rowNumber, subjectName } from './extra-rules';
+import { ExtraClosed } from './ExtraClosed';
 import { ExtraPreview } from './ExtraPreview';
 import { MonthDays } from './MonthDays';
 import { SupportPick } from './SupportPick';
@@ -58,8 +61,11 @@ export function ExtraSession({
   onAddDay,
   onCover,
   onQueue,
+  scheduled,
 }: {
   readonly courseId?: string;
+  /** A scheduled support session to log, with its day and bell times filled in (answer 362). */
+  readonly scheduled?: { readonly id: string; readonly day: Day; readonly from: string; readonly to: string };
   /** Opens the class's support queue. */
   readonly onQueue?: (courseId: string) => void;
   /** Opens «إضافة حصص», for a make-up, support or revision day the school sets. */
@@ -85,11 +91,12 @@ export function ExtraSession({
     choices.find((one) => one.courseId !== undefined && one.courseId === initial)?.value ??
       (choices.length === 1 ? (choices[0]?.value ?? null) : null),
   );
-  const [kind, setKind] = useState<ExtraKind | null>(null);
-  const [day, setDay] = useState<Day>(days.last);
-  const [month, setMonth] = useState(monthOf(days.last));
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [kind, setKind] = useState<ExtraKind | null>(scheduled === undefined ? null : 'support');
+  const [day, setDay] = useState<Day>(scheduled?.day ?? days.last);
+  const [month, setMonth] = useState(monthOf(scheduled?.day ?? days.last));
+  const [from, setFrom] = useState(scheduled?.from ?? '');
+  const [to, setTo] = useState(scheduled?.to ?? '');
+  const [planned, setPlanned] = useState(scheduled?.id);
   const [topic, setTopic] = useState('');
   const [tried, setTried] = useState(false);
   const [finished, setFinished] = useState(true);
@@ -101,20 +108,10 @@ export function ExtraSession({
   const className = (choice && state.classes.get(choice.classId)?.name) ?? '';
   const times = readSpan(from, to);
   const queued = kind !== null && takesQueue(kind) ? choice?.courseId : undefined;
-  const item = queued === undefined ? null : nextSupportItem(state, queued);
+  const item = queued === undefined ? null : supportItemFor(state, queued, planned);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
 
-  if (choices.length === 0 || !days.open) {
-    return (
-      <View style={[styles.screen, styles.content]}>
-        <Notice
-          testID="extra-closed"
-          icon={controlIcon('info')}
-          message={t(choices.length === 0 ? 'extra.noClass' : 'extra.beforeYear')}
-        />
-      </View>
-    );
-  }
+  if (choices.length === 0 || !days.open) return <ExtraClosed noClass={choices.length === 0} />;
 
   const save = () => {
     if (busy.current) return;
@@ -126,7 +123,10 @@ export function ExtraSession({
       const { course, isNew } = courseOfChoice(state, choice, year.id, newId);
       const courses = new Map(state.courses).set(course.id, course);
       const context = coreContext({ profile, year, calendar, calendarRelease, packs, state: { ...state, courses } });
-      const taken = item === null ? {} : { item: item.id, ...(finished && { finished: true as const }) };
+      const taken = {
+        ...(item !== null && { item: item.id, ...(finished && { finished: true as const }) }),
+        ...(planned !== undefined && queued === course.id && { scheduled: planned }),
+      };
       const logged = logExtra(context, { id, courseId: course.id, kind, day, ...times, ...taken }, today(), topic);
       const made: RecordEvent[] = isNew ? [{ kind: 'course.set', course }] : [];
       noted = logged.some((event) => event.kind === 'session.noted');
@@ -144,6 +144,7 @@ export function ExtraSession({
     setTo('');
     setTopic('');
     setFinished(true);
+    setPlanned(undefined);
     setTried(false);
     setSaid({ id, noted });
   };

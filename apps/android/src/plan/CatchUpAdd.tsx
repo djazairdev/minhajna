@@ -10,8 +10,10 @@
 // When the class has make-ups due, it makes up the oldest by default. It
 // takes the plan's next item, goes on the subject's pages with its date and
 // shows on Today. Sessions that do not move the plan open their own form,
-// and a school without bell times opens its times.
-// The form saves once and goes back when the save has settled.
+// and a school without bell times opens its times. With «دعم أو تدارك»
+// (answers 361, 362) the same times hold a support session instead, which
+// moves no plan, makes up nothing and goes on the additional lessons page
+// once logged. The form saves once and goes back when the save has settled.
 
 import { addCatchUp, addDays, clashOf, freeSlots, makeUpsDue, slotKey, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -39,11 +41,15 @@ export type CatchUpAddProps = {
   readonly onDone: () => void;
   readonly onExtra?: () => void;
   readonly onTimes?: (schoolId: string) => void;
+  /** The kind it opens on: a catch-up session, or a support session from the queue. */
+  readonly kind?: Kind;
 };
+
+type Kind = 'catch-up' | 'support';
 
 const OTHER = -1;
 
-export function CatchUpAdd({ courseId, onDone, onExtra, onTimes }: CatchUpAddProps) {
+export function CatchUpAdd({ courseId, onDone, onExtra, onTimes, kind: initial = 'catch-up' }: CatchUpAddProps) {
   const t = useText();
   const data = useAppData();
   const { state, profile, year, today, record, newId, settled } = data;
@@ -68,7 +74,9 @@ export function CatchUpAdd({ courseId, onDone, onExtra, onTimes }: CatchUpAddPro
   const [linked, setLinked] = useState(true);
   const [dueKey, setDueKey] = useState<string | null>(dues[0]?.key ?? null);
   const [failed, setFailed] = useState(false);
+  const [kind, setKind] = useState<Kind>(initial);
   const busy = useRef(false);
+  const support = kind === 'support';
 
   const className = courseLabel(t, state, profile, courseId);
   const daySlots = school === undefined ? [] : timedSlots(data, school, day);
@@ -83,7 +91,8 @@ export function CatchUpAdd({ courseId, onDone, onExtra, onTimes }: CatchUpAddPro
   const save = () => {
     if (busy.current || chosen === null || clash !== null) return;
     try {
-      const event = addCatchUp(context, { id: newId(), courseId, ...chosen }, day0, due?.key, meets);
+      const input = { id: newId(), courseId, ...chosen, ...(support && { kind: 'support' as const }) };
+      const event = addCatchUp(context, input, day0, support ? undefined : due?.key, meets);
       busy.current = true;
       record(event);
       void settled().finally(onDone);
@@ -110,8 +119,18 @@ export function CatchUpAdd({ courseId, onDone, onExtra, onTimes }: CatchUpAddPro
       <Text accessibilityRole="header" style={[styles.title, align]}>
         {t('catchUpAdd.heading', { class: isolate(className) })}
       </Text>
-      <Text style={[styles.sub, align]}>{t('catchUpAdd.step')}</Text>
+      {!support && <Text style={[styles.sub, align]}>{t('catchUpAdd.step')}</Text>}
       <Text style={[styles.body, align]}>{t('catchUpAdd.agreed')}</Text>
+      <ChipGroup
+        testID="catchup-add-kind"
+        label={t('catchUpAdd.kind')}
+        selected={kind}
+        onSelect={setKind}
+        choices={[
+          { value: 'catch-up', label: t('catchUpAdd.kinds.catchUp') },
+          { value: 'support', label: t('catchUpAdd.kinds.support') },
+        ]}
+      />
       {noTimes ? (
         <>
           <Notice testID="catchup-add-no-times" icon={controlIcon('info')} message={t('catchUpAdd.noTimes')} />
@@ -184,7 +203,7 @@ export function CatchUpAdd({ courseId, onDone, onExtra, onTimes }: CatchUpAddPro
           )}
         </>
       )}
-      {shown !== undefined && (
+      {!support && shown !== undefined && (
         <>
           <CheckRow
             testID="catchup-add-link"
@@ -205,10 +224,12 @@ export function CatchUpAdd({ courseId, onDone, onExtra, onTimes }: CatchUpAddPro
         </>
       )}
       <View testID="catchup-add-effect" accessible style={styles.effect}>
-        <Text style={[styles.body, align]}>{t('catchUpAdd.effect', { class: isolate(className) })}</Text>
-        <Text style={[styles.body, align]}>{t('catchUpAdd.page')}</Text>
+        <Text style={[styles.body, align]}>
+          {t(support ? 'catchUpAdd.supportEffect' : 'catchUpAdd.effect', { class: isolate(className) })}
+        </Text>
+        <Text style={[styles.body, align]}>{t(support ? 'catchUpAdd.supportPage' : 'catchUpAdd.page')}</Text>
       </View>
-      {onExtra !== undefined && (
+      {!support && onExtra !== undefined && (
         <>
           <Text style={[styles.sub, align]}>{t('catchUpAdd.extra')}</Text>
           <Button testID="catchup-add-extra" variant="line" label={t('catchUpAdd.extraOpen')} onPress={onExtra} />

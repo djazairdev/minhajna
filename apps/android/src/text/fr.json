@@ -2259,7 +2259,14 @@
     "extra": "Séance hors emploi du temps : elle s’inscrit sur la page des séances supplémentaires du cahier de textes, avec sa date et son heure, et ne fait pas avancer la progression.",
     "extraOpen": "Noter une séance tenue hors emploi du temps",
     "save": "Ajouter la séance",
-    "failed": "La séance n’a pas été ajoutée. Réessayez."
+    "failed": "La séance n’a pas été ajoutée. Réessayez.",
+    "kind": "Type de séance",
+    "kinds": {
+      "catchUp": "Séance de rattrapage",
+      "support": "Soutien ou remédiation"
+    },
+    "supportEffect": "Elle ne fait pas avancer la progression de {{class}} et ne compte pas dans sa réserve : elle prend un élément de la liste de soutien.",
+    "supportPage": "Une fois notée, elle s’inscrit sur la page des séances supplémentaires du cahier de textes, avec sa date et son heure."
   },
   "supportQueue": {
     "title": "Liste de soutien",
@@ -2289,6 +2296,14 @@
     "finishedTick": "Élément terminé",
     "noItem": "Il ne reste aucun élément dans la liste de soutien de cette classe.",
     "counts": "{{items}} · terminés : {{done}}, restants : {{left}}",
-    "done": "Terminés"
+    "done": "Terminés",
+    "scheduled": "Séances de soutien programmées",
+    "noneScheduled": "Aucune séance de soutien programmée.",
+    "takesNothing": "Il ne reste aucun élément à prendre.",
+    "willTake": "Prendra : {{item}}",
+    "logThis": "Noter",
+    "agreed": "Leur horaire se fixe avec l’administration. Ce qui reste d’un élément est proposé à la séance de soutien suivante.",
+    "schedule": "Programmer une séance de soutien sur un créneau libre",
+    "badge": "Soutien programmé"
   }
 }
