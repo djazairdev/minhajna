@@ -22,7 +22,7 @@ import type { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 
 type Translate = ReturnType<typeof useText>;
-type Made = Exclude<PlanChange, { readonly kind: 'undo' }>;
+export type Made = Exclude<PlanChange, { readonly kind: 'undo' }>;
 
 export type ChangeLine = {
   readonly change: Made;
@@ -34,16 +34,17 @@ export type ChangeLine = {
   readonly sessions: number;
 };
 
-/** The class's changes, newest first, as lines. `base` is the release itself, without the class's changes. */
-export function changeLines(
+/**
+ * What a change does, in the plan's words, as its kind and a line: an item
+ * is named as `base` has it, the release without the class's changes and
+ * layers, or as the layered plan has or had it.
+ */
+export function changeText(
   t: Translate,
   context: Context,
-  courseId: string,
+  pack: PlanPack,
   base: PlanPack | undefined,
-): ChangeLine[] {
-  const { pack } = courseSetup(context, courseId);
-  if (pack === null) return [];
-  const effects = changeEffects(context, courseId);
+): (change: Made) => { readonly kind: string; readonly text: string } {
   const original = (id: string) => base?.items.find((item) => item.id === id) ?? findPackItem(pack, id);
   const name = (id: string) => {
     const title = original(id)?.title;
@@ -52,7 +53,7 @@ export function changeLines(
   };
   const count = (sessions: number) => t('planDetails.sessions', { count: sessions });
   const className = (classId: string) => isolate(context.state.classes.get(classId)?.name ?? classId);
-  const line = (change: Made): { readonly kind: string; readonly text: string } => {
+  return (change) => {
     switch (change.kind) {
       case 'move': {
         const at = { item: name(change.item), before: change.before === null ? '' : name(change.before) };
@@ -86,6 +87,19 @@ export function changeLines(
         };
     }
   };
+}
+
+/** The class's changes, newest first, as lines. `base` is the release itself, without the class's changes. */
+export function changeLines(
+  t: Translate,
+  context: Context,
+  courseId: string,
+  base: PlanPack | undefined,
+): ChangeLine[] {
+  const { pack } = courseSetup(context, courseId);
+  if (pack === null) return [];
+  const effects = changeEffects(context, courseId);
+  const line = changeText(t, context, pack, base);
   const made = [...context.state.decisions.values()]
     .filter((one): one is PlanChange => isChange(one) && one.courseId === courseId)
     .sort((a, b) => b.seq - a.seq || b.id.localeCompare(a.id));

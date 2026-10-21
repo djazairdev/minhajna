@@ -3,13 +3,15 @@
 
 // A class's plan and the screens it opens, as routes (#225): the plan, where
 // a parallel class replaces the one shown in place, the pack's details, one
-// item with the class's changes to it, the class's changes, and a report
-// of an error in an item.
+// item with the class's changes to it, the class's changes, its layers and
+// their import, and a report of an error in an item.
 // `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ClassPlan } from '../classes/ClassPlan';
+import { LayerImport } from '../plan/LayerImport';
 import { PlanChanges } from '../plan/PlanChanges';
+import { PlanLayers } from '../plan/PlanLayers';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
 import { SeptCheck } from '../plan/SeptCheck';
@@ -29,6 +31,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onCourse={(id) => navigation.setParams({ courseId: id })}
       onDetails={() => navigation.navigate('PlanDetails', { courseId })}
       onChanges={() => navigation.navigate('PlanChanges', { courseId })}
+      onLayers={() => navigation.navigate('PlanLayers', { courseId })}
       onItem={(itemId) => navigation.navigate('PlanItem', { courseId, itemId })}
       onCheck={() => navigation.navigate('SeptCheck', { courseId })}
     />
@@ -58,6 +61,25 @@ export function PlanChangesScreen({ navigation, route }: NativeStackScreenProps<
   return <PlanChanges courseId={route.params.courseId} onCourse={(id) => navigation.setParams({ courseId: id })} />;
 }
 
+/** The layers of a class's plan, each with the class's own switch. */
+export function PlanLayersScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PlanLayers'>) {
+  const { courseId } = route.params;
+  return (
+    <PlanLayers
+      courseId={courseId}
+      onCourse={(id) => navigation.setParams({ courseId: id })}
+      onChanges={() => navigation.navigate('PlanChanges', { courseId })}
+      onDetails={() => navigation.navigate('PlanDetails', { courseId })}
+      onImport={() => navigation.navigate('LayerImport', { courseId })}
+    />
+  );
+}
+
+/** Importing a district or school layer; taking one in goes back to the layers. */
+export function LayerImportScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'LayerImport'>) {
+  return <LayerImport courseId={route.params.courseId} onTaken={() => navigation.goBack()} />;
+}
+
 /** A report of an error in one item of a class's plan. */
 export function PlanErrorScreen({ route }: NativeStackScreenProps<RootStackParamList, 'PlanError'>) {
   return <PlanError courseId={route.params.courseId} itemId={route.params.itemId} />;
@@ -79,6 +101,8 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanDetails" component={PlanDetailsScreen} options={dark(t('planDetails.title'))} />
       <Stack.Screen name="PlanItem" component={PlanItemScreen} options={dark(t('planItem.title'))} />
       <Stack.Screen name="PlanChanges" component={PlanChangesScreen} options={dark(t('planChanges.title'))} />
+      <Stack.Screen name="PlanLayers" component={PlanLayersScreen} options={dark(t('planLayers.title'))} />
+      <Stack.Screen name="LayerImport" component={LayerImportScreen} options={dark(t('planLayers.import'))} />
       <Stack.Screen name="PlanError" component={PlanErrorScreen} options={dark(t('planError.title'))} />
       <Stack.Screen name="SeptCheck" component={SeptCheckScreen} options={dark(t('septCheck.title'))} />
     </>
