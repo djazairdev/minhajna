@@ -3,7 +3,8 @@
 
 // Setup-7-Ready (#31): what setup kept, the September check of each grade
 // and subject before its term's exams, and the next session with what the
-// plan proposes for it. The printed check for an inspector comes with #44.
+// plan proposes for it. Each check opens the printed one for an inspector,
+// counted from the print day (#225, answers 298 and 299).
 
 import { addDays, findSessionType, formatDayWithMonth, weekday, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -11,8 +12,9 @@ import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { RowLink } from '../components/RowLink';
 import { WelcomeHero } from '../components/WelcomeHero';
-import { Icon } from '../design/Icon';
+import { controlIcon, Icon } from '../design/Icon';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { groupName } from '../plan/pack-labels';
 import { pinOfClass, planGroups } from '../plan/plan-rules';
@@ -26,8 +28,8 @@ import { isolate } from '../week/grid-labels';
 import { CheckTable } from './CheckTable';
 import { startDay, checkGroups, checkTerm, nextSession, spareOf, weekMinutes, type CheckGroup } from './ready-rules';
 
-/** The end of setup; `onDone` opens the day's page. */
-export function Ready({ onDone }: { onDone: () => void }) {
+/** The end of setup; `onDone` opens the day's page, `onCheck` a subject's September check for an inspector. */
+export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (courseId: string) => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -111,6 +113,14 @@ export function Ready({ onDone }: { onDone: () => void }) {
         ))}
         {anySpare && <Text style={[styles.note, align]}>{t('ready.spareNote')}</Text>}
         {anyTd && <Text style={[styles.note, align]}>{t('ready.tdNote')}</Text>}
+        {onCheck !== undefined && rows[0] !== undefined && (
+          <RowLink
+            testID={`ready-sept-${group.key}`}
+            icon={controlIcon('print')}
+            title={t('septCheck.open')}
+            onPress={() => onCheck(rows[0].course.id)}
+          />
+        )}
       </View>
     );
   };

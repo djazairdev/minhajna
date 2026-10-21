@@ -12,7 +12,8 @@
 // class opens from the foot (#219). A warning card tops the plan while items
 // would fall past the next exams, and items postponed past them are tagged
 // until taught. Under it, parallel classes drifting apart before a common
-// test or the exams, and aligning a class that is behind (#225).
+// test or the exams, and aligning a class that is behind (#225). Under the
+// check line, the September check printed for an inspector (#225).
 
 import { courseSetup, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -20,6 +21,8 @@ import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
@@ -43,10 +46,11 @@ export type ClassPlanProps = {
   readonly onDetails?: () => void;
   readonly onChanges?: () => void;
   readonly onItem?: (itemId: string) => void;
+  readonly onCheck?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
-  const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onItem } = props;
+  const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onItem, onCheck } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -159,6 +163,9 @@ export function ClassPlan(props: ClassPlanProps) {
           <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
         )}
       </View>
+      {check !== null && onCheck !== undefined && (
+        <RowLink testID="plan-sept-check" icon={controlIcon('print')} title={t('septCheck.open')} onPress={onCheck} />
+      )}
       {view === null ? (
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>
       ) : (

@@ -12,6 +12,7 @@ import { ClassPlan } from '../classes/ClassPlan';
 import { PlanChanges } from '../plan/PlanChanges';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
+import { SeptCheck } from '../plan/SeptCheck';
 import { PlanItem } from '../plan/PlanItem';
 import type { useText } from '../text/i18n';
 import type { RootStackParamList } from './routes';
@@ -29,6 +30,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onDetails={() => navigation.navigate('PlanDetails', { courseId })}
       onChanges={() => navigation.navigate('PlanChanges', { courseId })}
       onItem={(itemId) => navigation.navigate('PlanItem', { courseId, itemId })}
+      onCheck={() => navigation.navigate('SeptCheck', { courseId })}
     />
   );
 }
@@ -61,6 +63,11 @@ export function PlanErrorScreen({ route }: NativeStackScreenProps<RootStackParam
   return <PlanError courseId={route.params.courseId} itemId={route.params.itemId} />;
 }
 
+/** The September check for an inspector. */
+export function SeptCheckScreen({ route }: NativeStackScreenProps<RootStackParamList, 'SeptCheck'>) {
+  return <SeptCheck courseId={route.params.courseId} />;
+}
+
 type Stack = ReturnType<typeof createNativeStackNavigator<RootStackParamList>>;
 
 /** The plan's routes, for the app's navigator. */
@@ -73,6 +80,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanItem" component={PlanItemScreen} options={dark(t('planItem.title'))} />
       <Stack.Screen name="PlanChanges" component={PlanChangesScreen} options={dark(t('planChanges.title'))} />
       <Stack.Screen name="PlanError" component={PlanErrorScreen} options={dark(t('planError.title'))} />
+      <Stack.Screen name="SeptCheck" component={SeptCheckScreen} options={dark(t('septCheck.title'))} />
     </>
   );
 }
