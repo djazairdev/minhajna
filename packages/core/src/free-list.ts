@@ -16,6 +16,7 @@ import { isDay, type Day } from './day.ts';
 import type { RecordEvent } from './events.ts';
 import { ITEM_KINDS, type ItemKind, type PackItem, type PlanPack, type StageTemplate } from './pack.ts';
 import type { Course, SchoolClass } from './records.ts';
+import type { State } from './state.ts';
 import { isOneLine } from './calendar-notice-read.ts';
 import type { CountryProfile } from './reference.ts';
 
@@ -48,7 +49,8 @@ const ITEM_ID = /^[A-Za-z0-9._-]{1,64}$/;
 
 const isKind = (kind: string): boolean => (ITEM_KINDS as readonly string[]).includes(kind);
 
-function itemFits(item: FreeItem): boolean {
+/** Whether one item keeps the rules: its ID, kind, one-line title, sessions and stages. */
+export function freeItemFits(item: FreeItem): boolean {
   const sessions = item.sessions;
   const stages = item.stages ?? [];
   return (
@@ -76,7 +78,7 @@ export function freeListFits(list: FreeList): boolean {
     list.items.length <= FREE_ITEMS_MAX &&
     removed.length <= FREE_ITEMS_MAX &&
     new Set(ids).size === ids.length &&
-    list.items.every(itemFits) &&
+    list.items.every(freeItemFits) &&
     removed.every((item) => ITEM_ID.test(item.id) && isKind(item.kind) && isOneLine(item.title, FREE_TITLE_MAX))
   );
 }
@@ -109,14 +111,27 @@ export function withMove(list: FreeList, id: string, before: string | null): Fre
   return withItem({ ...list, items: list.items.filter((one) => one.id !== id) }, item, before);
 }
 
-/** The list without the items named, each kept for its title. */
-export function withoutItems(list: FreeList, ids: readonly string[]): FreeList {
+/** The items any version of a course's recorded sessions names, taught, skipped or taught again. */
+export function recordedItems(state: Pick<State, 'sessions'>, courseId: string): Set<string> {
+  const items = new Set<string>();
+  for (const versions of state.sessions.values()) {
+    for (const { value } of versions) {
+      if (value?.session.courseId !== courseId) continue;
+      for (const coverage of value.coverage) items.add(coverage.item);
+    }
+  }
+  return items;
+}
+
+/** The list without the items named; those a recorded session names are kept for their titles. */
+export function withoutItems(list: FreeList, ids: readonly string[], recorded: ReadonlySet<string>): FreeList {
   const gone = list.items.filter((one) => ids.includes(one.id));
   if (gone.length === 0) return list;
+  const kept = gone.filter((one) => recorded.has(one.id)).map(({ id, kind, title }) => ({ id, kind, title }));
   return {
     ...list,
     items: list.items.filter((one) => !ids.includes(one.id)),
-    removed: [...(list.removed ?? []), ...gone.map(({ id, kind, title }) => ({ id, kind, title }))],
+    ...((list.removed ?? []).length + kept.length > 0 && { removed: [...(list.removed ?? []), ...kept] }),
   };
 }
 

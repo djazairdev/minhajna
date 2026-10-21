@@ -10,12 +10,14 @@ import { describe, it } from 'node:test';
 
 import {
   awaitingBetween,
+  confirmCourse,
   courseSetup,
   freeListFits,
   offerFreeList,
   ownPack,
   PACK_ID,
   queueItems,
+  recordedItems,
   recordsForRoute,
   saveFreeList,
   skippedBy,
@@ -127,18 +129,32 @@ describe('a class’s own list', () => {
     assert.ok(proposed.includes('l2'));
   });
 
-  it('keeps a removed item’s title, and the order the teacher gives', async () => {
-    const edited = withMove(withItem(withoutItems(list, ['l1']), list.items[1]!, 'u1'), 'u1', null);
+  it('keeps the order the teacher gives', () => {
+    const edited = withMove(withItem(withoutItems(list, ['l1'], new Set()), list.items[1]!, 'u1'), 'u1', null);
     assert.deepEqual(
       edited.items.map((item) => item.id),
       ['l1', 'l2', 'u1'],
     );
-    assert.equal(freeListFits(edited), false);
-    const removed = withoutItems(list, ['l1', 'missing']);
+    assert.equal(edited.removed, undefined);
+    assert.equal(freeListFits(edited), true);
+    assert.equal(withoutItems(list, ['missing'], new Set()), list);
+  });
+
+  it('keeps the title of a removed item a recorded session names, and drops one never taught', async () => {
+    const { book, context } = await saved();
+    const [session] = awaitingBetween(context, d('2026-09-14'), d('2026-09-30')).filter(
+      (one) => one.courseId === 'c-math',
+    );
+    assert.ok(session);
+    const [record] = confirmCourse(context, 'c-math', [{ sessionKey: session.key }], session.day);
+    assert.ok(record);
+    await book.record(session.day, { kind: 'session.recorded', record });
+    const recorded = recordedItems(book.state, 'c-math');
+    assert.deepEqual([...recorded], ['l1']);
+    const removed = withoutItems(list, ['l1', 'l2'], recorded);
     assert.deepEqual(removed.removed, [{ id: 'l1', kind: 'lesson', title: 'Made-up lesson one' }]);
-    assert.equal(withoutItems(list, ['missing']), list);
-    const { context } = await saved(removed);
-    assert.deepEqual(plan(context).retired, [{ id: 'l1', kind: 'lesson', title: 'Made-up lesson one' }]);
+    await book.record(session.day, saveFreeList(book.state.courses, removed));
+    assert.deepEqual(plan(contextOf(book)).retired, [{ id: 'l1', kind: 'lesson', title: 'Made-up lesson one' }]);
   });
 
   it('takes no class change, and the history ignores a list that breaks the rules', async () => {
