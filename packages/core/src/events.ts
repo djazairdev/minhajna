@@ -14,6 +14,7 @@ import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
 import type { AddedPack } from './pack-update.ts';
+import type { AddedLayer, LayerSwitch } from './variant-layers.ts';
 import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -58,6 +59,9 @@ export type RecordEvent =
   | { readonly kind: 'calendar.updated'; readonly applied: AppliedUpdate }
   /** A signed plan pack, checked and added to the catalogue, with its file to pass on as it came (#223). */
   | { readonly kind: 'pack.added'; readonly added: AddedPack }
+  /** A district or school layer of a plan, taken in; it changes no class until switched on (#226). */
+  | { readonly kind: 'layer.added'; readonly added: AddedLayer }
+  | { readonly kind: 'layer.switched'; readonly switched: LayerSwitch }
   // A session record never carries free text about why it changed: that is
   // private, and goes into the session's note (PRD §5.4). A correction may
   // carry a coded reason, which shows with it (PRD §5.5).
@@ -111,6 +115,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'calendar.removed': true,
   'calendar.updated': true,
   'pack.added': true,
+  'layer.added': true,
+  'layer.switched': true,
   'session.recorded': true,
   'session.withdrawn': true,
   'session.noted': true,
@@ -157,6 +163,8 @@ export function layerOf(event: RecordEvent): Layer {
       return event.layer === 'teacher' ? 'private' : 'lesson-record';
     case 'calendar.updated':
     case 'pack.added':
+    case 'layer.added':
+    case 'layer.switched':
       return 'lesson-record';
     case 'teacher.set':
     case 'school.set':

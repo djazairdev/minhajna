@@ -50,6 +50,10 @@ export function recordKey(entry: Entry): string | null {
       return `calendar-update/${event.applied.update.release}`;
     case 'pack.added':
       return `pack/${event.added.update.pack.id}@${event.added.update.pack.release}`;
+    case 'layer.added':
+      return `layer/${event.added.layer.level}:${event.added.layer.id}`;
+    case 'layer.switched':
+      return `layer-switch/${event.switched.courseId}/${event.switched.level}`;
     case 'session.recorded':
       return `session/${event.record.session.key}`;
     case 'session.withdrawn':

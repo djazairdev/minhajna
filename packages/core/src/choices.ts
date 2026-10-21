@@ -11,6 +11,7 @@ import type { Course, Coverage, Homework, SchoolClass, SessionRecord, SessionRef
 import type { Session } from './sessions.ts';
 import { mergesOf } from './plan-decisions.ts';
 import { layered } from './plan-layer.ts';
+import { courseLayers } from './variant-layers.ts';
 import { propose, proposedCoverage, type Progress, type Proposal } from './progress.ts';
 
 /** What the teacher chose for a session (PRD §3.3). */
@@ -83,7 +84,8 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
   return {
     course,
     schoolClass,
-    pack: pack === null ? null : layered(pack, state.decisions, courseId, sessionMinutes),
+    pack:
+      pack === null ? null : layered(pack, state.decisions, courseId, sessionMinutes, courseLayers(state, courseId)),
     packMissing: course.pack !== null && pack === null,
     sessionMinutes,
   };

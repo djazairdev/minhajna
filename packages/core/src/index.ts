@@ -73,4 +73,6 @@ export * from './backlog.ts';
 export * from './week.ts';
 export * from './calendar-update.ts';
 export * from './pack-update.ts';
+export * from './variant-layers.ts';
+export * from './variant-read.ts';
 export * from './signed-read.ts';

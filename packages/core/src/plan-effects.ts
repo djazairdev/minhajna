@@ -7,7 +7,8 @@
 // positive count is taken from the buffers, a negative one given back.
 // Every session counts, buffers too, and items left out count none. Two
 // items merged or joined are taught in one session, so the pair takes one.
-// The counts add up to what all the changes cost together.
+// The counts add up to what all the changes cost together, over the
+// district and school layers the class has on (#226).
 
 import type { Context } from './context.ts';
 import { budgetInSessions, queueItems, type PlanPack } from './pack.ts';
@@ -15,6 +16,7 @@ import { mergesOf, type PlanDecision } from './plan-decisions.ts';
 import { changesFor, isChange, layered, skippedBy } from './plan-layer.ts';
 import { packKey } from './reference.ts';
 import { courseSetup } from './choices.ts';
+import { courseLayers } from './variant-layers.ts';
 
 /** Each change in force, by its ID, with the sessions it takes from the buffers, or gives back when negative. */
 export function changeEffects(context: Context, courseId: string): ReadonlyMap<string, number> {
@@ -30,7 +32,8 @@ export function changeEffects(context: Context, courseId: string): ReadonlyMap<s
       ...others,
       ...changes.slice(0, count).map((one) => [one.id, one] as const),
     ]);
-    return sessionsOf(layered(pack, decisions, courseId, sessionMinutes), decisions, courseId, sessionMinutes);
+    const plan = layered(pack, decisions, courseId, sessionMinutes, courseLayers(context.state, courseId));
+    return sessionsOf(plan, decisions, courseId, sessionMinutes);
   };
   let before = total(0);
   changes.forEach((change, index) => {

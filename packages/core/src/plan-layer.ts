@@ -24,10 +24,14 @@
 //
 // Changes build on each other, so each carries its place in the course's
 // order, `seq`; every device applies them in that order, whatever order
-// the records travel in.
+// the records travel in. The district and school layers a class has on
+// apply first, in that order (#226); a layer's split of an item an
+// exam-window answer names is left out, as the class's own would be.
 
 import type { Day } from './day.ts';
 import { budgetInSessions, queueItems, stageNames, type PackItem, type PlanPack, type StageTemplate } from './pack.ts';
+import type { PlanDecision } from './plan-decisions.ts';
+import { layerChanges, layerKey, NO_LAYERS, type CourseLayers } from './variant-layers.ts';
 
 type Made = {
   readonly id: string;
@@ -65,7 +69,7 @@ export function addedId(change: string): string {
   return `add~${change}`;
 }
 
-type Decisions = ReadonlyMap<string, { readonly kind: string }>;
+type Decisions = ReadonlyMap<string, PlanDecision>;
 
 /** Every change of a course, undos and changes taken back included, in its order. */
 function madeFor(decisions: Decisions, courseId: string): PlanChange[] {
@@ -89,27 +93,50 @@ export function changesFor(decisions: Decisions, courseId: string): PlanChange[]
 const memo = new WeakMap<Decisions, WeakMap<PlanPack, Map<string, PlanPack>>>();
 
 /**
- * The pack with a course's changes applied, in their order. Budgets are
- * kept in the pack's own unit, turned from sessions with the class's
- * session length, so every reader of the pack counts them as before.
+ * The pack with a course's layers and changes applied, in their order.
+ * Budgets are kept in the pack's own unit, turned from sessions with the
+ * class's session length, so every reader of the pack counts them as before.
  */
-export function layered(pack: PlanPack, decisions: Decisions, courseId: string, sessionMinutes: number): PlanPack {
+export function layered(
+  pack: PlanPack,
+  decisions: Decisions,
+  courseId: string,
+  sessionMinutes: number,
+  layers: CourseLayers = NO_LAYERS,
+): PlanPack {
   const byPack = memo.get(decisions) ?? new WeakMap<PlanPack, Map<string, PlanPack>>();
   memo.set(decisions, byPack);
   const byCourse = byPack.get(pack) ?? new Map<string, PlanPack>();
   byPack.set(pack, byCourse);
-  const key = `${courseId}\n${sessionMinutes}`;
-  const known = byCourse.get(key);
+  const key = [courseId, sessionMinutes, ...[layers.on, layers.known].map((list) => list.map(layerKey).join(' '))];
+  const known = byCourse.get(key.join('\n'));
   if (known !== undefined) return known;
-  const result = apply(pack, decisions, courseId, sessionMinutes);
-  byCourse.set(key, result);
+  const result = apply(pack, decisions, courseId, sessionMinutes, layers);
+  byCourse.set(key.join('\n'), result);
   return result;
 }
 
-function apply(pack: PlanPack, decisions: Decisions, courseId: string, sessionMinutes: number): PlanPack {
-  const made = madeFor(decisions, courseId);
-  if (made.length === 0) return pack;
-  const changes = changesFor(decisions, courseId);
+function apply(
+  pack: PlanPack,
+  decisions: Decisions,
+  courseId: string,
+  sessionMinutes: number,
+  layers: CourseLayers,
+): PlanPack {
+  const own = madeFor(decisions, courseId);
+  if (own.length === 0 && layers.known.length === 0) return pack;
+  const answered = new Set(
+    [...decisions.values()].flatMap((one) =>
+      isChange(one) || one.courseId !== courseId ? [] : one.kind === 'leave-out' ? [one.item] : one.items,
+    ),
+  );
+  const fromLayers = layers.on
+    .flatMap((layer) => layerChanges(layer, courseId))
+    .filter((change) => change.kind !== 'split' || !answered.has(change.item));
+  const made = [...layers.known.flatMap((layer) => layerChanges(layer, courseId)), ...own];
+  const changes = [...fromLayers, ...changesFor(decisions, courseId)];
+  const layerSkips: string[] = [];
+  const layerJoins: [string, string][] = [];
   const items: PackItem[] = [...pack.items];
   const templates: StageTemplate[] = [...pack.stageTemplates];
   const current = (): PlanPack => ({ ...pack, items, stageTemplates: templates });
@@ -184,7 +211,11 @@ function apply(pack: PlanPack, decisions: Decisions, courseId: string, sessionMi
         break;
       }
       case 'skip':
+        if (fromLayers.includes(change)) layerSkips.push(change.item);
+        break;
       case 'join':
+        if (fromLayers.includes(change)) layerJoins.push([...change.items]);
+        break;
       case 'undo':
         break;
     }
@@ -214,6 +245,7 @@ function apply(pack: PlanPack, decisions: Decisions, courseId: string, sessionMi
     ...current(),
     merges: pack.merges.filter(holds),
     ...(retired.length > 0 && { retired }),
+    ...(layerSkips.length + layerJoins.length > 0 && { fromLayers: { skips: layerSkips, joins: layerJoins } }),
   };
 }
 
@@ -225,28 +257,26 @@ export function findPackItem(pack: PlanPack | null | undefined, id: string): Pac
   return pack?.items.find((item) => item.id === id) ?? pack?.retired?.find((item) => item.id === id);
 }
 
-/** The items a course's changes skip, among those its layered pack has. */
+/** The items a course's layers and changes skip, among those its layered pack has, each once. */
 export function skippedBy(pack: PlanPack, decisions: Decisions, courseId: string): string[] {
-  return changesFor(decisions, courseId).flatMap((change) =>
-    change.kind === 'skip' && pack.items.some((item) => item.id === change.item && item.kind !== 'unit')
-      ? [change.item]
-      : [],
-  );
+  const own = changesFor(decisions, courseId).flatMap((change) => (change.kind === 'skip' ? [change.item] : []));
+  const skips = new Set([...(pack.fromLayers?.skips ?? []), ...own]);
+  return [...skips].filter((id) => pack.items.some((item) => item.id === id && item.kind !== 'unit'));
 }
 
 /**
- * A course's joins that still fit: both items in the layered pack's same
- * queue, side by side. As with merges, an item takes part in one only.
+ * A course's joins that still fit, its layers' first: both items in the
+ * layered pack's same queue, side by side. As with merges, an item takes
+ * part in one only.
  */
 export function joinsOf(pack: PlanPack, decisions: Decisions, courseId: string): [string, string][] {
   const joins: [string, string][] = [];
-  for (const change of changesFor(decisions, courseId)) {
-    if (change.kind !== 'join') continue;
+  const own = changesFor(decisions, courseId).flatMap((change) => (change.kind === 'join' ? [change.items] : []));
+  for (const items of [...(pack.fromLayers?.joins ?? []), ...own]) {
     for (const queue of ['main', 'td'] as const) {
       const order = queueItems(pack, queue).map((item) => item.id);
-      const [a, b] = change.items.map((id) => order.indexOf(id)) as [number, number];
-      if (a >= 0 && b >= 0 && Math.abs(a - b) === 1)
-        joins.push(a < b ? [...change.items] : [change.items[1], change.items[0]]);
+      const [a, b] = items.map((id) => order.indexOf(id)) as [number, number];
+      if (a >= 0 && b >= 0 && Math.abs(a - b) === 1) joins.push(a < b ? [items[0], items[1]] : [items[1], items[0]]);
     }
   }
   return joins;
