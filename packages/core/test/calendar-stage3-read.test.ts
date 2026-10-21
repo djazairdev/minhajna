@@ -41,16 +41,16 @@ test('format 1 can carry safe lunar eligibility metadata, but never local partia
   assert.equal(parseSchoolCalendar(file({}), country).ok, true);
 });
 
-test('the prepared calendar release marks only the four expected lunar holidays; no bundled date is confirmed', () => {
+test('the prepared calendar release marks only Ramadan and the four expected lunar holidays; no date is confirmed', () => {
   const raw: unknown = JSON.parse(
     readFileSync(new URL('../../../data/dz/calendar-2026-2027.json', import.meta.url), 'utf8'),
   );
   const read = parseSchoolCalendar(raw, country);
   assert.ok(read.ok);
-  assert.equal(read.value.release, '2026.3');
+  assert.equal(read.value.release, '2026.4');
   assert.deepEqual(
     read.value.entries.filter((one) => one.lunar).map((one) => one.id),
-    ['eid-al-fitr', 'eid-al-adha', 'awal-muharram', 'ashura'],
+    ['ramadan', 'eid-al-fitr', 'eid-al-adha', 'awal-muharram', 'ashura'],
   );
   assert.ok(read.value.entries.filter((one) => one.lunar).every((one) => one.confidence === 'expected'));
   assert.ok(read.value.entries.every((one) => one.confirmedFrom === undefined && one.half === undefined));

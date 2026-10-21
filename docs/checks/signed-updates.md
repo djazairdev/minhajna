@@ -21,9 +21,9 @@ Any other field is refused. The signature is checked first, by Android's own cry
 The payload is a `minhajna.calendar-update`, version 1.0:
 
 - `country` and `year`: the bundled calendar's, `dz` and `2026-2027`.
-- `release`: later than the bundled calendar's release, which is now `2026.3`.
+- `release`: later than the bundled calendar's release, which is now `2026.4`.
 - `published`: the day it was published.
-- `entries`: calendar entries in the [reference format](../../data/README.md), any layer but `school`.
+- `entries`: calendar entries in the [reference format](../../data/README.md), any layer but `school`. The Ramadan entry may carry `hours`: the confidence of its times, apart from its first day's, and each level's session length in minutes, which then replace the bell data's (answer 318). While its first day is still expected, it keeps `lunar: true`, so teachers can confirm the day on the sighting. A teacher's earlier sighting stops applying when an update changes the Ramadan entry, and they confirm again; Ramadan ends on the eve of Eid al-Fitr (answer 330).
 - `removed`: the IDs of entries it takes away; it may be left out when there are none.
 
 It holds at least one entry or one removal. Applied updates lie over the bundled calendar in the order of their releases, one for each release. A release at or below the bundled one, or one already applied, is not offered again. A received closure notice whose ID an applied update sets or removes stops applying.

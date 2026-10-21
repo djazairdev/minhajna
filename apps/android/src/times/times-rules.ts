@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The rules behind Settings-times (#29): which school and level the times
-// are for, the teacher's shift, and a time as the teacher types it.
+// are for, the teacher's shift, and a time as the teacher types it. Ramadan
+// is the calendar's, with the first day the teacher confirmed on the
+// sighting and the lengths announced with it (answers 318, 319).
 
 import {
   bellTimes,
   CLOCK,
   clockMinutes,
-  hoursOn,
+  effectiveCalendar,
+  ramadanOn,
   type BellData,
   type BellTime,
   type CalendarEntry,
@@ -64,6 +67,28 @@ export function sessionTime(
   day: Day,
 ): BellTime | null {
   if (school === undefined) return null;
-  const hours = hoursOn([...data.calendar, ...data.state.calendar], day);
-  return bellTimes(data.bells, school, levelOf(school) ?? '', shiftOf(data.state), hours, [slot])[0] ?? null;
+  const ramadan = ramadanOn(calendarEntries(data), day);
+  const hours = ramadan === null ? 'usual' : 'ramadan';
+  return bellTimes(data.bells, school, levelOf(school) ?? '', shiftOf(data.state), hours, [slot], ramadan)[0] ?? null;
+}
+
+interface Kept {
+  readonly calendar: readonly CalendarEntry[];
+  readonly updatedIds: readonly string[] | undefined;
+  readonly entries: readonly CalendarEntry[];
+}
+
+const seen = new WeakMap<State, Kept>();
+
+/** The calendar's entries with the teacher's own, a confirmed lunar date in place of the expected one; kept per state. */
+export function calendarEntries(data: {
+  readonly calendar: readonly CalendarEntry[];
+  readonly state: State;
+  readonly updatedIds?: readonly string[];
+}): readonly CalendarEntry[] {
+  const kept = seen.get(data.state);
+  if (kept !== undefined && kept.calendar === data.calendar && kept.updatedIds === data.updatedIds) return kept.entries;
+  const entries = effectiveCalendar(data.calendar, data.state.calendar, data.updatedIds ?? []);
+  seen.set(data.state, { calendar: data.calendar, updatedIds: data.updatedIds, entries });
+  return entries;
 }

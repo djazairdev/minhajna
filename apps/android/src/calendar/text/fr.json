@@ -23,7 +23,12 @@
     "source": "L'annonce que vous avez consultée",
     "notice": "Après l'annonce de l'observation lunaire, choisissez le premier jour du congé et indiquez votre source. Sa durée reste inchangée. Il s'agit de votre confirmation locale, pas d'une vérification par une autorité.",
     "local": "Dates confirmées par vous sur cet appareil. La référence fournie reste inchangée. Annulez cette entrée pour retirer la confirmation.",
-    "stale": "La référence de cette confirmation a changé. Ses anciennes dates ne s'appliquent plus ; consultez de nouveau l'entrée fournie ou retirez la confirmation."
+    "stale": "L'entrée de cette confirmation a changé. Ses anciennes dates ne s'appliquent plus ; consultez de nouveau l'entrée ou retirez la confirmation.",
+    "ramadan": {
+      "open": "Confirmer le premier jour du Ramadan",
+      "day": "Premier jour du Ramadan annoncé",
+      "notice": "Après l'annonce de l'observation lunaire, choisissez le premier jour du Ramadan et indiquez votre source. Le Ramadan se termine la veille de l'Aïd el-Fitr, tel que le calendrier l'indique. Il s'agit de votre confirmation locale, pas d'une vérification par une autorité."
+    }
   },
   "edit": {
     "add": "Ajouter une date",
@@ -106,6 +111,14 @@
   "weekLetter": "Semaine du {{from}} : {{letter}}",
   "noLetter": "Sans lettre, hors des semaines d'enseignement",
   "ramadan": "Les horaires du Ramadan s'appliquent. Une séance raccourcie compte toujours pour une séance.",
+  "ramadanHours": {
+    "times": "Horaires : {{confidence}}",
+    "first": "Premier jour : {{confidence}}",
+    "title": "Durée des séances pendant le Ramadan, par niveau",
+    "lengthFrom": "Chaque séance garde sa place et son heure de début, et dure {{minutes}} minutes au lieu de {{usual}}.",
+    "length": "Chaque séance garde sa place et son heure de début, et dure {{minutes}} minutes.",
+    "none": "Pas encore annoncée : les séances gardent leur durée habituelle."
+  },
   "effect": {
     "no-school": "Congé : les séances n'ont pas lieu.",
     "closure": "Fermeture : les séances perdues au calendrier sont comptées à part.",
@@ -303,6 +316,8 @@
       "origin": "D'après la mise à jour du calendrier {{release}}, publiée le {{day}}, signée par {{holder}}. La source ci-dessus dit d'où vient la date.",
       "first": "Les premières dates : {{range}}",
       "reason": "Motif du changement : {{reason}}"
-    }
+    },
+    "hours": "Durée des séances pendant le Ramadan ({{confidence}}) : {{lengths}}",
+    "hoursDropped": "Elle ne porte plus la durée des séances pendant le Ramadan : on revient aux durées provisoires des horaires, ou aux horaires habituels là où il n'y en a pas."
   }
 }

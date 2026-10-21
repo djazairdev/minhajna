@@ -25,9 +25,9 @@ const applied = (release: string, removed: string): RecordEvent => ({
 
 test('every screen gets the calendar with the applied updates after the bundled release, and that release', async () => {
   const data = await openTestData();
-  expect(data.calendarRelease).toBe('2026.3');
+  expect(data.calendarRelease).toBe('2026.4');
   await data.book.recordAll(parseDay('2026-10-14'), [
-    applied('2026.4', 'spring-holidays'),
+    applied('2026.5', 'spring-holidays'),
     applied('2026.2', 'autumn-holidays'),
   ]);
   let seen: AppData | undefined;
@@ -43,10 +43,10 @@ test('every screen gets the calendar with the applied updates after the bundled 
   const ids = (seen?.calendar ?? []).map((entry) => entry.id);
   expect(ids).not.toContain('spring-holidays');
   expect(ids).toContain('autumn-holidays');
-  expect(seen?.calendarRelease).toBe('2026.3');
+  expect(seen?.calendarRelease).toBe('2026.4');
   expect(seen?.updatedIds).toEqual(['spring-holidays']);
   const context = coreContext(seen!);
   expect(context.ref.calendar.map((entry) => entry.id)).toEqual(ids);
-  expect(context.ref.calendarRelease).toBe('2026.3');
+  expect(context.ref.calendarRelease).toBe('2026.4');
   await ReactTestRenderer.act(() => tree?.unmount());
 });

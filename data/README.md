@@ -48,8 +48,8 @@ A timetable names slots, never clock times. Each slot's time comes from `dz/bell
 - **Templates,** one for each level and shift. Each lists a half-day's slots in order, each as `["08:00", "09:00"]`. A slot ends after it starts, and the next starts no earlier. A double shift uses its own template when the level has one; otherwise each half-day keeps its times.
 - **Middle and secondary schools** run 08:00 to 13:00 and 13:00 to 17:00 in one-hour sessions, a fifth morning slot included. No published text gives these hours, so their `source` says so. Each school sets its own bell, and the teacher matches it slot by slot, on the phone.
 - **Primary school** has no template yet. Its periods are not one-hour slots, and they come with the primary timetable.
-- **Ramadan's length.** In Ramadan, each session keeps its place and its start time and lasts `minutes`. It still counts as one session. The 45 minutes of middle and secondary schools follow the Ministry's [communiqué of 16 February 2026](https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg), which cut the one-hour session by fifteen minutes. They are `projected` until the year's own notice, which may also give new start times.
-- **Ramadan's days** come from the calendar. Calendar release `2026.2` gives the Ramadan entry `"times": "ramadan"`, so its days take Ramadan's times. The timetable never changes.
+- **Ramadan's length.** In Ramadan, each session keeps its place and its start time and lasts `minutes`. It still counts as one session. The 45 minutes of middle and secondary schools follow the Ministry's [communiqué of 16 February 2026](https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg), which cut the one-hour session by fifteen minutes. They are `projected` until the year's own notice, which may also give new start times. A signed calendar update brings the notice's lengths in the Ramadan entry's `hours`, with their own confidence, and they then replace these. Primary schools have no Ramadan length yet, so their sessions keep their usual times until one is announced (answer 320).
+- **Ramadan's days** come from the calendar. Calendar release `2026.2` gives the Ramadan entry `"times": "ramadan"`, so its days take Ramadan's times. The timetable never changes. Ramadan ends on the eve of Eid al-Fitr as the calendar has it, expected or confirmed (answer 330).
 
 ## Hijri months
 
@@ -90,7 +90,9 @@ Each entry carries one of three confidences ([PRD §4.5](../docs/prd/PRD.md#45-t
 
 ## Changing the data
 
-Calendar release `2026.3` adds `lunar: true` to the four expected lunar holidays: the two Eids, Awal Muharram and Ashura. All dates, durations, sources and confidence values stay unchanged. This optional metadata is safe for an older format-1 reader to leave out; it only identifies which entries may offer local sighting confirmation. An expected date alone never qualifies. Ramadan remains an expected month with its existing hours, not a holiday to confirm through this control.
+Calendar release `2026.4` adds `lunar: true` to Ramadan as well, so the teacher can confirm its first day on the sighting, as for the Eids (answer 319); its session lengths stay those of the bell data until an update announces them with the entry's `hours` (answer 318).
+
+Calendar release `2026.3` adds `lunar: true` to the four expected lunar holidays: the two Eids, Awal Muharram and Ashura. All dates, durations, sources and confidence values stay unchanged. This optional metadata is safe for an older format-1 reader to leave out; it only identifies which entries may offer local sighting confirmation. An expected date alone never qualifies. Ramadan joined them in `2026.4`.
 
 Local confirmations keep the exact original reference entry, as canonical text, alongside the announced dates and the source the teacher entered. They replace the expected entry's effect only while that reference still matches. Cancelling restores the bundled dates; a changed reference makes the old confirmation inactive. No signature or issuer is verified here. Local `half`, `confirmedFrom`, `rotation` and `received` fields, and the `rotating-groups` effect, are not part of the format-1 reference exchange: its reader refuses them rather than silently discarding their meaning.
 

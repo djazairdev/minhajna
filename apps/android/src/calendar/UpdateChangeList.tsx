@@ -3,21 +3,34 @@
 
 // The entries an update adds, changes or takes out for the teacher's own
 // schools and classes, each with its dates and, for one it moves, the dates
-// it had and why; the entries for others are only counted (answer 310).
+// it had and why, and Ramadan's announced lengths; the entries for others
+// are only counted (answer 310).
 
-import { formatDay, type Day, type UpdateChange } from '@minhajna/core';
+import { canonicalJson, formatDay, type Day, type RamadanHours, type UpdateChange } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Text, View } from 'react-native';
 import { localized } from '../setup/names';
 import { settingsStyles as styles } from '../settings/styles';
-import { useText } from '../text/i18n';
+import { useAppData } from '../storage/AppData';
+import { currentLanguage, useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 
 export function UpdateChangeList({ mine, others }: { mine: readonly UpdateChange[]; others: number }) {
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const { profile } = useAppData();
   const range = (from: Day, to: Day) => t('calendarView.range', { from: formatDay(from), to: formatDay(to) });
+  const lengths = (hours: RamadanHours) =>
+    hours.lengths
+      .map((one) => {
+        const level = profile.levels.find((candidate) => candidate.code === one.level);
+        return `${level === undefined ? one.level : localized(level.name)} ${t('settings.minutes', { count: one.minutes })}`;
+      })
+      .join(currentLanguage() === 'ar' ? '، ' : ', ');
+  const newHours = (change: UpdateChange) =>
+    change.entry.hours !== undefined &&
+    (change.before?.hours === undefined || canonicalJson(change.before.hours) !== canonicalJson(change.entry.hours));
   return (
     <>
       {mine.length === 0 && <Text style={[styles.body, align]}>{t('calendarView.update.none')}</Text>}
@@ -33,6 +46,19 @@ export function UpdateChangeList({ mine, others }: { mine: readonly UpdateChange
                 range: range(change.entry.moved.from, change.entry.moved.to),
                 reason: isolate(change.entry.moved.reason),
               })}
+            </Text>
+          )}
+          {change.kind !== 'removed' && change.entry.hours !== undefined && newHours(change) && (
+            <Text testID={`update-hours-${change.entry.id}`} style={[styles.body, align]}>
+              {t('calendarView.update.hours', {
+                confidence: t(`settings.confidence.${change.entry.hours.confidence}`),
+                lengths: lengths(change.entry.hours),
+              })}
+            </Text>
+          )}
+          {change.kind !== 'removed' && change.entry.hours === undefined && change.before?.hours !== undefined && (
+            <Text testID={`update-hours-${change.entry.id}`} style={[styles.body, align]}>
+              {t('calendarView.update.hoursDropped')}
             </Text>
           )}
           {change.kind !== 'removed' && (

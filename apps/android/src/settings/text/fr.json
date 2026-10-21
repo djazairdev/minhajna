@@ -61,7 +61,7 @@
   "reference": "Version des données de référence {{release}}",
   "source": "Source : {{source}}",
   "noTemplate": "Les données installées n’ont pas de modèle horaire pour ce niveau. Réglez les créneaux selon votre établissement.",
-  "noRamadan": "Aucune règle confirmée pour ce niveau. L’application n’invente pas de durée raccourcie.",
+  "noRamadan": "Les horaires du Ramadan ne sont pas encore annoncés pour ce cycle : ses séances gardent leur durée habituelle jusqu'à ce qu'une mise à jour les apporte.",
   "range": "Du {{from}} au {{to}}",
   "myLevel": "Un de mes niveaux",
   "confidence": {

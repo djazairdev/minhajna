@@ -13,6 +13,7 @@ import { spacing } from '../design/tokens';
 import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
+import { calendarEntries } from '../times/times-rules';
 import { settingsStyles as styles } from './styles';
 
 /** Reference data, never an editor: missing primary rules stay missing, and provisional sources say so. */
@@ -22,7 +23,7 @@ export function Lengths({ onTimes }: { onTimes: () => void }) {
   const insets = useSafeAreaInsets();
   const { profile, bells, calendar, state, today } = useAppData();
   const day = today();
-  const entries = [...calendar, ...state.calendar];
+  const entries = calendarEntries({ calendar, state });
   const ramadan = nextRamadan(entries, day);
   const levels = new Set([...state.schools.values()].flatMap((school) => school.levels));
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -48,7 +49,7 @@ export function Lengths({ onTimes }: { onTimes: () => void }) {
         .sort((a, b) => Number(levels.has(b.code)) - Number(levels.has(a.code)))
         .map((level) => {
           const template = templateFor(bells, level.code, 'single');
-          const shortened = ramadanLength(bells, level.code);
+          const shortened = ramadanLength(bells, level.code, ramadan);
           return (
             <View key={level.code} testID={`lengths-${level.code}`} style={styles.card}>
               <Text accessibilityRole="header" style={[styles.title, align]}>
@@ -75,7 +76,10 @@ export function Lengths({ onTimes }: { onTimes: () => void }) {
               ) : (
                 <>
                   <Text style={[styles.body, align]}>{t('settings.minutes', { count: shortened.minutes })}</Text>
-                  <Badge label={t(`settings.confidence.${shortened.confidence}`)} variant="warning" />
+                  <Badge
+                    label={t(`settings.confidence.${shortened.confidence}`)}
+                    variant={shortened.confidence === 'announced' ? 'done' : 'warning'}
+                  />
                   <Text style={[styles.sub, align]}>{t('settings.source', { source: shortened.source })}</Text>
                 </>
               )}

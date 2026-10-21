@@ -1,14 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import {
-  editableCalendarEntry,
-  entryUpdate,
-  formatDay,
-  isLunarHoliday,
-  isWeekReset,
-  validLunarConfirmation,
-} from '@minhajna/core';
+import { editableCalendarEntry, entryUpdate, formatDay, isLunarHoliday, isWeekReset } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +18,8 @@ import { schoolEntries, type CalendarOrigin } from './view';
 import { coreContext } from '../storage/core-context';
 import { CancelEntry } from './Cancel';
 import { GroupPreview } from './GroupPreview';
+import { lunarText } from './Lunar';
+import { RamadanHours } from './RamadanHours';
 import { holderOf } from './UpdateChanges';
 import { isolate } from '../week/grid-labels';
 
@@ -82,10 +77,14 @@ export function CalendarEntry({
           {!isWeekReset(entry) && (
             <Text style={[styles.body, align]}>{t(`calendarView.periods.${entry.half ?? 'all'}`)}</Text>
           )}
-          <Badge
-            label={t(`settings.confidence.${entry.confidence}`)}
-            variant={entry.confidence === 'announced' ? 'done' : 'warning'}
-          />
+          {entry.times === 'ramadan' ? (
+            <RamadanHours entry={entry} />
+          ) : (
+            <Badge
+              label={t(`settings.confidence.${entry.confidence}`)}
+              variant={entry.confidence === 'announced' ? 'done' : 'warning'}
+            />
+          )}
           <Text style={[styles.body, align]}>{t(`calendarView.effect.${entry.effect}`)}</Text>
           {entry.rotation !== undefined && data.state.classes.has(entry.rotation.classId) && (
             <GroupPreview entry={entry} />
@@ -132,13 +131,11 @@ export function CalendarEntry({
           {entry.confirmedFrom !== undefined && (
             <Notice
               icon={controlIcon('info')}
-              message={t(
-                `calendarView.lunarEdit.${base !== undefined && validLunarConfirmation(entry, base) ? 'local' : 'stale'}`,
-              )}
+              message={t(`calendarView.lunarEdit.${row?.inactive === true ? 'stale' : 'local'}`)}
             />
           )}
           {lunar && onLunar !== undefined && (
-            <Button testID="calendar-lunar" label={t('calendarView.lunarEdit.open')} onPress={onLunar} />
+            <Button testID="calendar-lunar" label={t(lunarText(base, 'open'))} onPress={onLunar} />
           )}
           {editable && onEdit !== undefined ? (
             <Button testID="calendar-edit" label={t('calendarView.edit.edit')} onPress={onEdit} />

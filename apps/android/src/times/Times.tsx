@@ -35,7 +35,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { gridLabels, isolate } from '../week/grid-labels';
 import { TimeTable } from './TimeTable';
 import { TimeSheet } from './TimeSheet';
-import { levelOf, shiftOf, timesSchools } from './times-rules';
+import { calendarEntries, levelOf, shiftOf, timesSchools } from './times-rules';
 
 /** The screen. */
 export function Times({ schoolId: initialSchoolId }: { schoolId?: string } = {}) {
@@ -47,9 +47,10 @@ export function Times({ schoolId: initialSchoolId }: { schoolId?: string } = {})
   const [schoolId, setSchoolId] = useState(initialSchoolId ?? schools[0]?.id ?? '');
   const school = state.schools.get(schoolId) ?? schools[0];
   const day = today();
-  const entries = [...calendar, ...state.calendar];
+  const entries = calendarEntries({ calendar, state });
   const [hours, setHours] = useState<Hours>(() => hoursOn(entries, day));
   const [open, setOpen] = useState<Slot | null>(null);
+  const ramadan = nextRamadan(entries, day);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   if (school === undefined) return <View style={styles.screen} />;
@@ -65,10 +66,10 @@ export function Times({ schoolId: initialSchoolId }: { schoolId?: string } = {})
     shift,
     hours,
     labels.slots.map((slot) => slot.slot),
+    ramadan,
   );
-  const length = level === undefined ? null : ramadanLength(bells, level);
+  const length = level === undefined ? null : ramadanLength(bells, level, ramadan);
   const now = hoursOn(entries, day);
-  const ramadan = nextRamadan(entries, day);
   const named = (on: Day) => `${t(`week.days.${weekday(on)}`)} ${formatDayWithMonth(on, currentLanguage(), profile)}`;
   const ramadanNote =
     ramadan === null
