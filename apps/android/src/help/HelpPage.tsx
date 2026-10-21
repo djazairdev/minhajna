@@ -34,16 +34,20 @@ export function HelpRow({
   detail,
   onPress,
   link = false,
+  testID,
 }: {
   label: string;
   detail?: string;
   onPress: () => void;
   link?: boolean;
+  testID?: string;
 }) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole={link ? 'link' : 'button'}
       accessibilityLabel={label}
+      accessibilityHint={detail}
       onPress={onPress}
       style={styles.row}
     >

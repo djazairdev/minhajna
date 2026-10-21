@@ -11,7 +11,10 @@ import { HelpPage, HelpRow, helpStyles } from './HelpPage';
 import { SourceLink } from './SourceLink';
 import { useAppLicences } from './useAppLicences';
 
-/** The preview and its checksums, the privacy notice, connections and licences; reports, settings and privacy controls remain later work. */
+/**
+ * The preview and its checksums, the privacy notice, connections and licences, and how to report an error in a
+ * plan, which opens the Classes tab (answer 301); other reports, settings and privacy controls remain later work.
+ */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
   const t = useText();
   return (
@@ -24,6 +27,15 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
       <HelpRow label={t('security.title')} onPress={() => navigation.navigate('Security')} />
       <HelpRow label={t('connections.title')} onPress={() => navigation.navigate('Connections')} />
       <HelpRow label={t('help.licences')} detail={t('help.offline')} onPress={() => navigation.navigate('Licences')} />
+      <Text accessibilityRole="header" style={helpStyles.heading}>
+        {t('help.reports')}
+      </Text>
+      <HelpRow
+        testID="help-plan-error"
+        label={t('help.planError')}
+        detail={t('help.planErrorHow')}
+        onPress={() => navigation.popTo('Home', { screen: 'Classes' })}
+      />
     </HelpPage>
   );
 }
