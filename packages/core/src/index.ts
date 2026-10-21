@@ -75,5 +75,6 @@ export * from './calendar-update.ts';
 export * from './pack-update.ts';
 export * from './variant-layers.ts';
 export * from './free-list.ts';
+export * from './free-list-offer.ts';
 export * from './variant-read.ts';
 export * from './signed-read.ts';
