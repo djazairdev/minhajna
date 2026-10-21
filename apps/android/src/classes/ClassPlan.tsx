@@ -11,7 +11,8 @@
 // which open «مواعيد الفروض» (#221). A session outside the timetable for the
 // class opens from the foot (#219). A warning card tops the plan while items
 // would fall past the next exams, and items postponed past them are tagged
-// until taught.
+// until taught. Under it, parallel classes drifting apart before a common
+// test or the exams, and aligning a class that is behind (#225).
 
 import { courseSetup, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -30,6 +31,7 @@ import { ExamWarnings } from '../exams/ExamWarnings';
 import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
 import { dayMonth, rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
+import { ParallelPanel } from './ParallelPanel';
 import { PlanHeader } from './PlanHeader';
 
 export type ClassPlanProps = {
@@ -148,6 +150,7 @@ export function ClassPlan(props: ClassPlanProps) {
       {onExamWindow !== undefined && (
         <ExamWarnings context={context} day={day} courseId={courseId} onOpen={onExamWindow} />
       )}
+      {view !== null && <ParallelPanel key={courseId} context={context} courseId={courseId} day={day} />}
       <View testID="plan-pace" accessible style={styles.card}>
         <Text style={[styles.title, align]}>{line}</Text>
         {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}

@@ -3,7 +3,7 @@
 
 // Parallel classes keep their own queues (PRD §4.7, R-4.7-36): the same
 // subject and grade in the same school and year, on the same pack.
-// «محاذاة مع القسم X» is offered only while this class is behind class X.
+// «مواءمة … مع X» is offered only while this class is behind class X.
 // It brings X's next item to this class's next place, as one move in the
 // class's layer, so the items passed follow it and none is dropped; it is
 // undone like any other change (answer 286).

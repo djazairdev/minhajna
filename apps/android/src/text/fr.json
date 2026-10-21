@@ -678,7 +678,20 @@
     "keyedBy": "Saisi par l’équipe éditoriale de Minhajna",
     "details": "Détails du pack",
     "changes": "Mes changements au plan de la classe",
-    "openItem": "Ouvre l’élément et ce que vous pouvez y changer pour cette classe"
+    "openItem": "Ouvre l’élément et ce que vous pouvez y changer pour cette classe",
+    "drift_one": "{{here}} et {{there}} ont une séance d’écart avant {{before}}, {{day}}.",
+    "drift_many": "{{here}} et {{there}} ont {{count}} de séances d’écart avant {{before}}, {{day}}.",
+    "drift_other": "{{here}} et {{there}} ont {{count}} séances d’écart avant {{before}}, {{day}}.",
+    "driftBadge": "Écart",
+    "driftExams": "les examens du trimestre {{term}}",
+    "driftEnd": "la fin du plan",
+    "driftWhere": "Selon la répartition actuelle, {{behind}} serait à {{behindAt}} et {{ahead}} à {{aheadAt}}.",
+    "driftDismiss": "Ignorer",
+    "driftHidden": "L’alerte d’écart est masquée. Elle revient si l’écart grandit.",
+    "alignTitle": "Aligner une autre classe sur {{class}}",
+    "alignOne": "Aligner {{other}} sur {{class}}",
+    "alignAsk": "{{other}} continue avec {{item}}, comme {{class}}, et les éléments passés viennent juste après : aucun n’est perdu. Rien d’enregistré ne change, ni l’écart en séances de contenu du plan entre les classes.",
+    "alignNote": "Seule la position est copiée ; rien d’enregistré dans le cahier de l’autre classe ne change. L’alignement figure dans les changements de cette classe, où il peut être annulé."
   },
   "planDetails": {
     "title": "Détails du pack",

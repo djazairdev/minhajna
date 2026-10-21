@@ -18,9 +18,9 @@
 // in that item's unit, or at the queue's end. A join teaches two items side
 // by side in one session, the first one's, as a merge does, and a merge the
 // pack proposes holds only while its items stay side by side. Added and
-// moved items take the unit and plan week of where they land. «محاذاة مع
-// القسم X» is a move that brings class X's next item before this class's
-// next item, so the items passed follow it (answer 286).
+// moved items take the unit and plan week of where they land. Aligning
+// with class X, «مواءمة … مع X», is a move that brings X's next item before
+// this class's next item, so the items passed follow it (answer 286).
 //
 // Changes build on each other, so each carries its place in the course's
 // order, `seq`; every device applies them in that order, whatever order

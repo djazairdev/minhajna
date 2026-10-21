@@ -732,7 +732,23 @@
     "keyedBy": "أدخله محرّرو «منهاجنا»",
     "details": "تفاصيل الحزمة",
     "changes": "تغييراتي على مخطط القسم",
-    "openItem": "يفتح العنصر وما يمكن تغييره فيه لهذا القسم"
+    "openItem": "يفتح العنصر وما يمكن تغييره فيه لهذا القسم",
+    "drift_zero": "{{here}} و{{there}} على الموقع نفسه قبل {{before}}، {{day}}.",
+    "drift_one": "{{here}} و{{there}} متباعدان بحصة واحدة قبل {{before}}، {{day}}.",
+    "drift_two": "{{here}} و{{there}} متباعدان بحصتين قبل {{before}}، {{day}}.",
+    "drift_few": "{{here}} و{{there}} متباعدان بـ{{count}} حصص قبل {{before}}، {{day}}.",
+    "drift_many": "{{here}} و{{there}} متباعدان بـ{{count}} حصة قبل {{before}}، {{day}}.",
+    "drift_other": "{{here}} و{{there}} متباعدان بـ{{count}} حصة قبل {{before}}، {{day}}.",
+    "driftBadge": "تباعد",
+    "driftExams": "اختبارات الفصل {{term}}",
+    "driftEnd": "آخر المخطط",
+    "driftWhere": "بحسب التوزيع الحالي، يكون {{behind}} عند {{behindAt}}، و{{ahead}} عند {{aheadAt}}.",
+    "driftDismiss": "تجاهل",
+    "driftHidden": "أُخفي تنبيه التباعد. ويعود إن زاد التباعد.",
+    "alignTitle": "مواءمة موقع قسم آخر مع {{class}}",
+    "alignOne": "مواءمة {{other}} مع {{class}}",
+    "alignAsk": "يواصل {{other}} بـ{{item}}، كما يواصل {{class}}، وتأتي بعده العناصر التي تجاوزها، فلا يسقط منها شيء. ولا يتغير ما سُجّل، ولا عدد الحصص التي بين القسمين من محتوى المخطط.",
+    "alignNote": "يُنسخ الموقع وحده، ولا يتغير ما سُجّل في دفتر القسم الآخر. وتظهر المواءمة في تغييرات ذلك القسم، ويُتراجع عنها هناك."
   },
   "planDetails": {
     "title": "تفاصيل الحزمة",
@@ -845,11 +861,11 @@
       "add": "إضافة",
       "skip": "ترك",
       "join": "دمج",
-      "align": "محاذاة"
+      "align": "مواءمة"
     },
     "move": "{{item}} قبل {{before}}",
     "moveEnd": "{{item}} في آخر القائمة",
-    "align": "{{item}} قبل {{before}}، محاذاةً مع {{class}}",
+    "align": "{{item}} قبل {{before}}، مواءمةً مع {{class}}",
     "budget": "{{item}}: {{sessions}}",
     "split": "{{item}} ← {{first}} و{{second}}",
     "add": "{{item}}، {{sessions}}، قبل {{before}}",
