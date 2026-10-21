@@ -9,35 +9,62 @@
 // under «أُنجز», with the queue's own counts on top. An item is selected to
 // move it up or down within its group or delete it, «تراجع» undoing a
 // delete; a new one is typed at the end, on one plain line. Every change is
-// saved at once. The queue never moves the main plan.
+// saved at once. The queue never moves the main plan. Below, the support
+// sessions scheduled in free times, each logged or cancelled (answer 362).
 
-import { SUPPORT_TITLE_MAX, saveSupportQueue, supportQueueRows, type SupportItem } from '@minhajna/core';
+import {
+  SUPPORT_TITLE_MAX,
+  cancelCatchUp,
+  restoreCatchUp,
+  saveSupportQueue,
+  supportQueueRows,
+  type CatchUpSession,
+  type RecordEvent,
+  type SupportItem,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { Notice } from '../components/Notice';
 import { OptionRow } from '../components/OptionRow';
 import { Snackbar } from '../components/Snackbar';
 import { TextField } from '../components/TextField';
+import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { courseLabel } from '../exams/course-label';
+import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
+import { meetsByBells } from './catch-up-add-rules';
 import { plain } from './error-report';
+import { SupportSchedule } from './SupportSchedule';
 
-export type SupportQueueProps = { readonly courseId: string; readonly onLog?: () => void };
+export type SupportQueueProps = {
+  readonly courseId: string;
+  readonly onLog?: () => void;
+  readonly onSchedule?: () => void;
+  readonly onLogScheduled?: (catchUp: CatchUpSession) => void;
+};
+
+type Said =
+  | { readonly kind: 'items'; readonly list: readonly SupportItem[] }
+  | { readonly kind: 'session'; readonly catchUp: CatchUpSession }
+  | null;
 
 /** The text with each control character, line breaks included, made a space. */
 function oneLine(text: string): string {
   return [...text].map((char) => ((char.codePointAt(0) ?? 32) < 32 || char === '\u007f' ? ' ' : char)).join('');
 }
 
-export function SupportQueue({ courseId, onLog }: SupportQueueProps) {
+export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: SupportQueueProps) {
   const t = useText();
-  const { state, profile, record, newId } = useAppData();
+  const data = useAppData();
+  const { state, profile, record, newId } = data;
+  const context = useMemo(() => coreContext(data), [data]);
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -46,7 +73,8 @@ export function SupportQueue({ courseId, onLog }: SupportQueueProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [tried, setTried] = useState(false);
-  const [removed, setRemoved] = useState<readonly SupportItem[] | null>(null);
+  const [said, setSaid] = useState<Said>(null);
+  const [refused, setRefused] = useState(false);
   const savedFrom = useRef<typeof state | null>(null);
   const items = rows.map((row) => row.item);
   const at = items.findIndex((item) => item.id === selected);
@@ -59,38 +87,52 @@ export function SupportQueue({ courseId, onLog }: SupportQueueProps) {
   const title = draft.trim();
   const tooLong = title.length > SUPPORT_TITLE_MAX;
 
-  const save = (list: readonly SupportItem[]): boolean => {
-    if (savedFrom.current === state) return false;
+  const apply = (make: () => RecordEvent): boolean => {
     try {
-      record(saveSupportQueue(state, { courseId, items: list }));
+      record(make());
     } catch (error: unknown) {
-      if (__DEV__) console.warn('A support list was refused', error);
+      if (__DEV__) console.warn('A support change was refused', error);
       return false;
     }
     savedFrom.current = state;
+    setRefused(false);
     return true;
+  };
+  const save = (list: readonly SupportItem[]): boolean =>
+    savedFrom.current !== state && apply(() => saveSupportQueue(state, { courseId, items: list }));
+  const cancel = (catchUp: CatchUpSession) => {
+    if (savedFrom.current !== state && apply(() => cancelCatchUp(context, catchUp.id))) {
+      setSaid({ kind: 'session', catchUp });
+    }
   };
   const move = (by: -1 | 1) => {
     const other = group[place + by]?.item;
     const item = items[at];
     if (other === undefined || item === undefined) return;
     const list = items.map((one) => (one.id === item.id ? other : one.id === other.id ? item : one));
-    if (save(list)) setRemoved(null);
+    if (save(list)) setSaid(null);
   };
   const remove = () => {
     if (at < 0 || !save(items.filter((item) => item.id !== selected))) return;
-    setRemoved(items);
+    setSaid({ kind: 'items', list: items });
     setSelected(null);
   };
   const undo = () => {
-    if (removed !== null && save(removed)) setRemoved(null);
+    if (said === null || savedFrom.current === state) return;
+    if (said.kind === 'items') {
+      if (save(said.list)) setSaid(null);
+      return;
+    }
+    const back = apply(() => restoreCatchUp(context, said.catchUp, meetsByBells(data)));
+    setSaid(null);
+    setRefused(!back);
   };
   const add = () => {
     setTried(true);
     if (title === '' || tooLong || !save([...items, { id: newId(), title }])) return;
     setDraft('');
     setTried(false);
-    setRemoved(null);
+    setSaid(null);
   };
   const status = (row: (typeof rows)[number]) => {
     const dates = row.sessions.map((one) => dayName(t, one.day, language, profile)).join(t('addSessions.separator'));
@@ -120,7 +162,7 @@ export function SupportQueue({ courseId, onLog }: SupportQueueProps) {
             direction,
             paddingLeft: insets.left + spacing['space-16'],
             paddingRight: insets.right + spacing['space-16'],
-            paddingBottom: insets.bottom + (removed === null ? spacing['space-24'] : 96),
+            paddingBottom: insets.bottom + (said === null ? spacing['space-24'] : 96),
           },
         ]}
       >
@@ -191,14 +233,23 @@ export function SupportQueue({ courseId, onLog }: SupportQueueProps) {
         <Text style={[styles.sub, align]}>{t('supportQueue.privacy')}</Text>
         <Button testID="support-add" variant="line" label={t('supportQueue.add')} onPress={add} />
         <Text style={[styles.sub, align]}>{t('supportQueue.page')}</Text>
+        <SupportSchedule
+          courseId={courseId}
+          onCancel={cancel}
+          {...(onSchedule !== undefined && { onSchedule })}
+          {...(onLogScheduled !== undefined && { onLog: onLogScheduled })}
+        />
+        {refused && (
+          <Notice testID="support-not-restored" icon={controlIcon('info')} message={t('catchUp.notRestored')} />
+        )}
         {onLog !== undefined && (
           <Button testID="support-log" variant="line" label={t('supportQueue.log')} onPress={onLog} />
         )}
       </ScrollView>
-      {removed !== null && (
+      {said !== null && (
         <Snackbar
           testID="support-removed"
-          message={t('supportQueue.removed')}
+          message={said.kind === 'items' ? t('supportQueue.removed') : t('catchUp.cancelled')}
           undoLabel={t('planItem.undo')}
           onUndo={undo}
           bottomOffset={insets.bottom}

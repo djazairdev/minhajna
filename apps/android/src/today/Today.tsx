@@ -17,7 +17,7 @@
 // one's from the paper sheet (#38). A joint class's years share one card for
 // each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a
 // school event makes a special day, with a line and a card, and so does
-// Ramadan, with its cards (#224).
+// Ramadan, with its cards (#224). Support sessions due show too (#228).
 
 import {
   addDays,
@@ -44,6 +44,7 @@ import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
 import { TodayUpdate } from './TodayUpdate';
+import { SupportToday } from './SupportToday';
 import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
@@ -59,14 +60,12 @@ import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
-import { todayEntries } from './joint-today';
+import { sessionsOf, todayEntries } from './joint-today';
 import { useTodayActions } from './today-actions';
 import { sessionMeta } from './today-meta';
 
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
-
-const sessionsOf = (items: readonly TodaySession[]) => items.map((item) => item.session);
 
 /** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call, `onHomework` the homework that comes back, `onCalendarUpdate` what a calendar update applied today changed. */
 export function Today(props: {
@@ -250,6 +249,7 @@ export function Today(props: {
           {todayEntries(state, shown).map((entry) =>
             entry.kind === 'one' ? card(entry.item) : jointCard(entry.key, entry.items),
           )}
+          {props.onExams?.support && <SupportToday day={day} onLog={props.onExams.support} />}
           {mark?.effect !== 'exam' && taken > 0 && (
             <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />
           )}

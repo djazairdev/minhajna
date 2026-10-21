@@ -13,7 +13,9 @@
 // is a make-up due until a catch-up session that takes place names it. A
 // catch-up session is cancelled only while it is not recorded; one a later
 // timetable hides behind a usual session stays cancellable, and makes up
-// nothing. A cancelled one comes back only if its time is still free.
+// nothing. A cancelled one comes back only if its time is still free. A
+// support session scheduled the same way (answer 362) is cancelled only
+// while no logged session names it.
 
 import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { Context } from './context.ts';
@@ -22,7 +24,8 @@ import type { RecordEvent } from './events.ts';
 import { courseGrade, forGrade } from './joint.ts';
 import { compareSlots, slotKey, wholeGroup, type School, type SessionRef, type Slot } from './records.ts';
 import { sessionKey } from './session-keys.ts';
-import { sessionsBetween, versionOn, type Session } from './sessions.ts';
+import { supportEnded } from './support-queue.ts';
+import { addedSessions, sessionsBetween, versionOn, type Session } from './sessions.ts';
 import { current } from './state.ts';
 import { blockCovers } from './week.ts';
 
@@ -59,10 +62,15 @@ function schoolOf(context: Context, courseId: string): School | undefined {
   return schoolClass && state.schools.get(schoolClass.schoolId);
 }
 
-/** The teacher's time taken from `first` to `last`, by day: sessions not lost to the calendar, and every catch-up. */
+/**
+ * The teacher's time taken from `first` to `last`, by day: sessions not lost
+ * to the calendar, those of the support and revision days added, and every
+ * catch-up or support session scheduled.
+ */
 function takenBetween(context: Context, first: Day, last: Day): Map<Day, Taken[]> {
+  const added = addedSessions(context, first, last, ['support', 'revision']).map((one) => one.session);
   const ones = [
-    ...sessionsBetween(context, first, last).filter((session) => session.calendar === null),
+    ...[...sessionsBetween(context, first, last), ...added].filter((session) => session.calendar === null),
     ...[...context.state.catchUps.values()].filter((catchUp) => isWithin(catchUp.day, first, last)),
   ];
   const taken = new Map<Day, Taken[]>();
@@ -174,21 +182,29 @@ function checkFree(context: Context, catchUp: CatchUpSession, meets: Meets): voi
 /**
  * The event that adds a catch-up session for a class on `day` at `slot`,
  * from `today` to the year's end, for the whole class or, when it makes up
- * a session, for that session's group and with its type.
+ * a session, for that session's group and with its type; or, with the kind
+ * `support`, a support session at that time, which makes up nothing.
  */
 export function addCatchUp(
   context: Context,
-  input: { readonly id: string; readonly courseId: string; readonly day: Day; readonly slot: Slot },
+  input: {
+    readonly id: string;
+    readonly courseId: string;
+    readonly day: Day;
+    readonly slot: Slot;
+    readonly kind?: 'support';
+  },
   today: Day,
   replaces?: string,
   meets: Meets = sameSlot,
 ): RecordEvent {
   const { ref, state } = context;
-  const { id, courseId, day, slot } = input;
+  const { id, courseId, day, slot, kind } = input;
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
   if (course === undefined || schoolClass === undefined) throw new RangeError('No such course');
   if (compareDays(day, today) < 0) throw new RangeError('A catch-up session is added from today on');
+  if (kind === 'support' && replaces !== undefined) throw new RangeError('A support session makes up no session');
   const made = replaces === undefined ? undefined : makeUpsDue(context, courseId).find((one) => one.key === replaces);
   if (replaces !== undefined && made === undefined) throw new RangeError('No such make-up due');
   const lesson = ref.country.sessionTypes.find((type) => type.queue === 'main');
@@ -202,6 +218,7 @@ export function addCatchUp(
     slot,
     sessionType,
     ...(made !== undefined && { replaces: made.key }),
+    ...(kind === 'support' && { kind }),
   };
   checkFree(context, catchUp, meets);
   return { kind: 'catchup.set', catchUp };
@@ -215,20 +232,23 @@ export function restoreCatchUp(context: Context, catchUp: CatchUpSession, meets:
 }
 
 function recorded(context: Context, catchUp: CatchUpSession, placed: ReadonlySet<string>): boolean {
+  if (catchUp.kind === 'support') return supportEnded(context.state, catchUp.id);
   const key = sessionKey(catchUp.courseId, catchUp.day, catchUp.slot, catchUp.groupId);
   return placed.has(catchUp.id) && current(context.state.sessions.get(key)) !== null;
 }
 
-/** A class's catch-up sessions not yet recorded, which can still be cancelled, in order. */
+/** A class's catch-up sessions not yet recorded, which can still be cancelled, in order, without support sessions. */
 export function openCatchUps(context: Context, courseId: string): OpenCatchUp[] {
   const placed = placedIds(context, courseId);
   return [...context.state.catchUps.values()]
-    .filter((catchUp) => catchUp.courseId === courseId && !recorded(context, catchUp, placed))
+    .filter(
+      (catchUp) => catchUp.courseId === courseId && catchUp.kind === undefined && !recorded(context, catchUp, placed),
+    )
     .sort((a, b) => compareDays(a.day, b.day) || compareSlots(a.slot, b.slot))
     .map((catchUp) => ({ catchUp, placed: placed.has(catchUp.id) }));
 }
 
-/** The event that cancels a catch-up session, refused once it is recorded. */
+/** The event that cancels a catch-up or support session, refused once it is recorded or logged. */
 export function cancelCatchUp(context: Context, id: string): RecordEvent {
   const catchUp = context.state.catchUps.get(id);
   if (catchUp === undefined) throw new RangeError('No such catch-up session');

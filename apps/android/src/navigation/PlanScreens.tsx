@@ -147,7 +147,14 @@ export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<Root
 
 export function SupportQueueScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'SupportQueue'>) {
   const { courseId } = route.params;
-  return <SupportQueue courseId={courseId} onLog={() => navigation.navigate('Extra', { courseId })} />;
+  return (
+    <SupportQueue
+      courseId={courseId}
+      onLog={() => navigation.navigate('Extra', { courseId })}
+      onSchedule={() => navigation.navigate('CatchUpAdd', { courseId, kind: 'support' })}
+      onLogScheduled={(catchUp) => navigation.navigate('Extra', { courseId, scheduled: catchUp.id })}
+    />
+  );
 }
 
 export function CatchUpAddScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUpAdd'>) {
@@ -158,6 +165,7 @@ export function CatchUpAddScreen({ navigation, route }: NativeStackScreenProps<R
       onDone={() => navigation.goBack()}
       onExtra={() => navigation.navigate('Extra', { courseId })}
       onTimes={(schoolId) => navigation.navigate('Times', { schoolId })}
+      {...(route.params.kind !== undefined && { kind: route.params.kind })}
     />
   );
 }

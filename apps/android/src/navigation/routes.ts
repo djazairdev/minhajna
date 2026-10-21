@@ -83,7 +83,7 @@ export type RootStackParamList = {
   PlanError: { courseId: string; itemId: string };
   PlanFree: { courseId: string };
   CatchUp: { courseId: string };
-  CatchUpAdd: { courseId: string };
+  CatchUpAdd: { courseId: string; kind?: 'support' };
   SupportQueue: { courseId: string };
   PlanOffer: { courseId: string };
   SeptCheck: { courseId: string };
@@ -103,7 +103,7 @@ export type RootStackParamList = {
   /** A document, for the month of `day` when given, else today's. */
   DocOutput: { id: string; day?: string };
   PrintWeek: undefined;
-  Extra: { courseId?: string } | undefined;
+  Extra: { courseId?: string; scheduled?: string } | undefined;
   Cover: undefined;
   AddSessions: { schoolId?: string; calendar?: true } | undefined;
 };

@@ -28,6 +28,8 @@ export interface ExtraSession {
   readonly item?: string;
   /** Whether the session finished that item. */
   readonly finished?: true;
+  /** The scheduled support session it logs, which it ends (answer 362). */
+  readonly scheduled?: string;
 }
 
 /** The key of a session's private note that holds its topic. */

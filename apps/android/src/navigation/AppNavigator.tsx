@@ -21,7 +21,6 @@ import {
   TestScheduleScreen,
   ExamWindowScreen,
   DutyScreen,
-  extraRoutes,
   ClassesTabScreen,
   CorrectScreen,
   EntryScreen,
@@ -32,6 +31,7 @@ import {
   HomeworkScreen,
   TodayTab,
 } from './RecordScreens';
+import { extraRoutes } from './ExtraScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
 import { ClassScreen } from './ClassScreens';
 import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens';

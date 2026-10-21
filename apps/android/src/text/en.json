@@ -2217,7 +2217,14 @@
     "extra": "A session outside the timetable goes on the texts book’s page for additional lessons, with its date and time, and does not move the plan.",
     "extraOpen": "Log a session held outside the timetable",
     "save": "Add the session",
-    "failed": "The session was not added. Try again."
+    "failed": "The session was not added. Try again.",
+    "kind": "Kind of session",
+    "kinds": {
+      "catchUp": "Catch-up session",
+      "support": "Support or remediation"
+    },
+    "supportEffect": "It does not move the {{class}} plan or count in its buffers: it takes an item from the support list.",
+    "supportPage": "Once logged, it goes on the texts book’s page for additional lessons, with its date and time."
   },
   "supportQueue": {
     "title": "Support list",
@@ -2247,6 +2254,14 @@
     "finishedTick": "Item finished",
     "noItem": "No item is left in this class’s support list.",
     "counts": "{{items}} · {{done}} finished, {{left}} left",
-    "done": "Finished"
+    "done": "Finished",
+    "scheduled": "Scheduled support sessions",
+    "noneScheduled": "No support session scheduled.",
+    "takesNothing": "No item left for it to take.",
+    "willTake": "Takes: {{item}}",
+    "logThis": "Log",
+    "agreed": "Their times are agreed with the administration. What is left of an item is proposed at the next support session.",
+    "schedule": "Schedule a support session in a free time",
+    "badge": "Scheduled support"
   }
 }

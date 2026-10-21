@@ -9,7 +9,8 @@
 // (§3.8, Decision 835). They are not the make-up sessions of the catch-up
 // ladder, which count as plan sessions (§4.7). A support or «تدارك» session
 // can take an item of the class's support queue, listed then or taken by
-// the version it corrects (answer 360).
+// the version it corrects (answer 360), and can log a support session the
+// teacher scheduled, which it ends (answer 362).
 
 import { CLOCK, clockMinutes } from './bells.ts';
 import type { Context } from './context.ts';
@@ -18,7 +19,7 @@ import { EXTRA_KINDS, compareExtras, extraNoteKey, type ExtraKind, type ExtraSes
 import type { RecordEvent } from './events.ts';
 import type { Course } from './records.ts';
 import { current, type State } from './state.ts';
-import { takesQueue } from './support-queue.ts';
+import { supportEnded, takesQueue } from './support-queue.ts';
 
 /** The longest topic, in characters. */
 export const EXTRA_TOPIC_MAX = 200;
@@ -40,7 +41,14 @@ export function logExtra(context: Context, extra: ExtraSession, today: Day, topi
   if (clockMinutes(extra.to) <= clockMinutes(extra.from)) throw new RangeError('The session ends after it starts');
   const typed = topic.trim();
   if (typed.length > EXTRA_TOPIC_MAX) throw new RangeError('The topic is too long');
-  const { id, courseId, kind, day, from, to, item, finished } = extra;
+  const { id, courseId, kind, day, from, to, item, finished, scheduled } = extra;
+  if (scheduled !== undefined) {
+    const planned = state.catchUps.get(scheduled);
+    if (planned?.kind !== 'support' || planned.courseId !== courseId) throw new RangeError('No such scheduled session');
+    if (!takesQueue(kind)) throw new RangeError('Only a support session logs a scheduled one');
+    if (supportEnded(state, scheduled, id)) throw new RangeError('The scheduled session is logged');
+    if (compareDays(day, planned.day) < 0) throw new RangeError('A scheduled session is logged from its day on');
+  }
   if (item !== undefined) {
     const before = current(state.extras.get(id))?.item;
     const listed = state.supportQueues.get(courseId)?.items.some((one) => one.id === item) === true;
@@ -55,7 +63,8 @@ export function logExtra(context: Context, extra: ExtraSession, today: Day, topi
         ? [{ kind: 'session.noted', note: { sessionKey } }]
         : [];
   const taken = item === undefined ? {} : { item, ...(finished === true && { finished }) };
-  return [{ kind: 'extra.logged', extra: { id, courseId, kind, day, from, to, ...taken } }, ...note];
+  const logs = scheduled === undefined ? {} : { scheduled };
+  return [{ kind: 'extra.logged', extra: { id, courseId, kind, day, from, to, ...taken, ...logs } }, ...note];
 }
 
 /** A session's topic, from its private note. */

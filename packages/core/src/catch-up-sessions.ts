@@ -9,7 +9,8 @@
 // subject's pages of the texts book with its date. It can name the session
 // not held that it makes up. A day off for the school does not mark it,
 // since the administration decides; a closure, an exam or the teacher's own
-// calendar still does, as for a make-up day.
+// calendar still does, as for a make-up day. A support session scheduled
+// the same way takes the teacher's time but is never a plan session.
 
 import type { Context } from './context.ts';
 import { isWithin, type Day } from './day.ts';
@@ -28,6 +29,8 @@ export interface CatchUpSession {
   readonly sessionType: string;
   /** The key of the session not held that it makes up. */
   readonly replaces?: string;
+  /** A support session the teacher scheduled: not a plan session, it takes only the teacher's time (answer 362). */
+  readonly kind?: 'support';
 }
 
 /** The catch-up sessions from `first` to `last` as sessions, with `courseIds` only those courses'. */
@@ -35,7 +38,7 @@ export function catchUpSessions(context: Context, first: Day, last: Day, courseI
   const { state, calendar } = context;
   const found: Session[] = [];
   for (const catchUp of state.catchUps.values()) {
-    if (!isWithin(catchUp.day, first, last)) continue;
+    if (catchUp.kind === 'support' || !isWithin(catchUp.day, first, last)) continue;
     if (courseIds !== undefined && !courseIds.has(catchUp.courseId)) continue;
     const course = state.courses.get(catchUp.courseId);
     const schoolClass = course && state.classes.get(course.classId);
