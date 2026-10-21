@@ -4,7 +4,7 @@
 import type { CalendarMutation } from './calendar-edit.ts';
 import { isWeekReset } from './calendar-edit.ts';
 import { makeContext, type Context } from './context.ts';
-import { maxDay, minDay, startOfWeek, type Day } from './day.ts';
+import { compareDays, maxDay, minDay, startOfWeek, type Day } from './day.ts';
 import { termCheck, type TermCheck } from './pacing.ts';
 import { addedSessions, compareSessions, sessionsBetween, type Session } from './sessions.ts';
 import { updateChanges, type CalendarUpdate } from './calendar-update.ts';
@@ -81,11 +81,13 @@ export function calendarImpact(context: Context, event: CalendarMutation, today:
 /**
  * What applying a signed calendar update would change, before it is applied:
  * over the days its entries cover, before and after, or from the week of the
- * first to the end of the year when one resets the A/B weeks.
+ * first to the end of the year when one resets the A/B weeks; with `fromToday`,
+ * only the days from `today` on.
  */
-export function updateImpact(context: Context, update: CalendarUpdate, today: Day): CalendarImpact {
+export function updateImpact(context: Context, update: CalendarUpdate, today: Day, fromToday = false): CalendarImpact {
   const entries = updateChanges(context, update).flatMap((one) => [one.entry, ...(one.before ? [one.before] : [])]);
-  if (entries.length === 0) return { asOf: today, changes: [], recorded: 0, courses: [] };
+  const none = { asOf: today, changes: [], recorded: 0, courses: [] };
+  if (entries.length === 0) return none;
   const next = makeContext(context.ref, {
     ...context.state,
     calendarUpdates: [...context.state.calendarUpdates, { update, key: '', file: '' }],
@@ -93,8 +95,10 @@ export function updateImpact(context: Context, update: CalendarUpdate, today: Da
   const first = entries.map((one) => one.from).reduce(minDay);
   const last = entries.map((one) => one.to).reduce(maxDay);
   const weeks = entries.some(isWeekReset);
-  const from = weeks ? maxDay(context.ref.year.from, startOfWeek(first, context.ref.country.weekStartsOn)) : first;
-  return impactBetween(context, next, from, weeks ? context.ref.year.to : last, false, today);
+  const start = weeks ? maxDay(context.ref.year.from, startOfWeek(first, context.ref.country.weekStartsOn)) : first;
+  const from = fromToday ? maxDay(start, today) : start;
+  const to = weeks ? context.ref.year.to : last;
+  return compareDays(from, to) > 0 ? none : impactBetween(context, next, from, to, false, today);
 }
 
 function impactBetween(

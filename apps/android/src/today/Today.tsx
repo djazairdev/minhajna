@@ -41,6 +41,7 @@ import { JointCard, type JointYear } from './JointCard';
 import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
+import { TodayUpdate } from './TodayUpdate';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
 import { localized, yearShort } from '../setup/names';
@@ -63,7 +64,7 @@ type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly bac
 
 const sessionsOf = (items: readonly TodaySession[]) => items.map((item) => item.session);
 
-/** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call, `onHomework` the homework that comes back. */
+/** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call, `onHomework` the homework that comes back, `onCalendarUpdate` what a calendar update applied today changed. */
 export function Today(props: {
   onHelp: () => void;
   onSettings?: () => void;
@@ -72,6 +73,7 @@ export function Today(props: {
   onRoll: (session: Session) => void;
   onHomework?: (item: HomeworkItem) => void;
   onExams?: TodayExamsOpen;
+  onCalendarUpdate?: (release: string) => void;
 }) {
   const { onHelp, onDetails, onRoll, onExtra, onHomework = () => undefined } = props;
   const insets = useSafeAreaInsets();
@@ -219,6 +221,7 @@ export function Today(props: {
         />
         <View style={styles.list}>
           {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
+          {props.onCalendarUpdate && <TodayUpdate day={day} open={props.onCalendarUpdate} />}
           {props.onExams && <TodayExams context={context} day={day} open={props.onExams} />}
           {backlog.days.length > 0 && (
             <Backlog

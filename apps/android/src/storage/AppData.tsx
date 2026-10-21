@@ -31,6 +31,8 @@ export interface AppData {
   readonly year: SchoolYear;
   /** The bundled calendar's entries with the signed updates the teacher applied, before the teacher's own. */
   readonly calendar: readonly CalendarEntry[];
+  /** The bundled calendar's entries alone, to show what an applied update changed (#223). */
+  readonly bundledCalendar: readonly CalendarEntry[];
   /** The bundled calendar's release, which signed updates follow (#223). */
   readonly calendarRelease: string;
   /** The IDs of the entries applied updates replaced or took out. */
@@ -157,8 +159,15 @@ export function AppDataProvider({
     [profile, year, calendar, calendarRelease, state.calendarUpdates],
   );
   const value = useMemo(
-    () => ({ ...actions, calendar: updated.calendar, updatedIds: updated.updatedIds ?? NONE_UPDATED, state, unsaved }),
-    [actions, updated, state, unsaved],
+    () => ({
+      ...actions,
+      calendar: updated.calendar,
+      bundledCalendar: calendar,
+      updatedIds: updated.updatedIds ?? NONE_UPDATED,
+      state,
+      unsaved,
+    }),
+    [actions, updated, calendar, state, unsaved],
   );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

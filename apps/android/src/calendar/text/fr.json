@@ -277,6 +277,33 @@
         "title": "Le contenu de la mise à jour est illisible : elle n'est pas appliquée",
         "body": "La signature est valide, mais le contenu ne suit pas le format du calendrier. Mettez l'application à jour, ou signalez-le."
       }
+    },
+    "changed": {
+      "title": "Ce qui a changé dans le calendrier",
+      "of": "Mise à jour du {{day}} · version {{release}}",
+      "applied": "Appliquée le {{day}}, signée par {{holder}}",
+      "bundled": "Cette version fait maintenant partie du calendrier fourni avec l'application : elle ne change plus rien.",
+      "sessions": "Ce qui change encore dans vos séances à partir d'aujourd'hui",
+      "recorded": "Les séances enregistrées ne changent pas. Si quelque chose change encore, une autre mise à jour arrive, et ce qu'elle a changé s'affiche sur sa propre page.",
+      "toCalendar": "Vers le calendrier"
+    },
+    "today": {
+      "title": "Une mise à jour du calendrier, reçue aujourd'hui",
+      "taken_one": "Elle prend {{count}} de vos séances, comptée dans « calendrier », pas comme un retard.",
+      "taken_many": "Elle prend {{count}} de vos séances, comptées dans « calendrier », pas comme un retard.",
+      "taken_other": "Elle prend {{count}} de vos séances, comptées dans « calendrier », pas comme un retard.",
+      "given_one": "Elle rend {{count}} séance.",
+      "given_many": "Elle rend {{count}} de séances.",
+      "given_other": "Elle rend {{count}} séances.",
+      "none": "Elle ne prend aucune de vos séances et n’en rend aucune.",
+      "open": "Ce qui a changé",
+      "hide": "Masquer"
+    },
+    "footnote": "Dernière mise à jour : {{day}}",
+    "entry": {
+      "origin": "D'après la mise à jour du calendrier {{release}}, publiée le {{day}}, signée par {{holder}}. La source ci-dessus dit d'où vient la date.",
+      "first": "Les premières dates : {{range}}",
+      "reason": "Motif du changement : {{reason}}"
     }
   }
 }

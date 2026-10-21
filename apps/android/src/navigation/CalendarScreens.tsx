@@ -12,6 +12,7 @@ import { Lunar } from '../calendar/Lunar';
 import { Groups } from '../calendar/Groups';
 import { Receive } from '../calendar/Receive';
 import { ImportUpdate } from '../calendar/ImportUpdate';
+import { UpdateChanges } from '../calendar/UpdateChanges';
 import { AddSessions } from '../extra/AddSessions';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -28,6 +29,7 @@ function CalendarScreen({ navigation }: NativeStackScreenProps<RootStackParamLis
       onGroups={(schoolId) => navigation.navigate('CalendarGroups', { schoolId })}
       onReceive={(schoolId) => navigation.navigate('CalendarReceive', { schoolId })}
       onImport={() => navigation.navigate('ImportUpdate')}
+      onUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
     />
   );
 }
@@ -126,7 +128,16 @@ function CalendarReceiveScreen({ route, navigation }: NativeStackScreenProps<Roo
 }
 
 function ImportUpdateScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'ImportUpdate'>) {
-  return <ImportUpdate onApplied={() => navigation.goBack()} onReport={() => navigation.navigate('Help')} />;
+  return (
+    <ImportUpdate
+      onApplied={(release) => navigation.replace('CalendarUpdate', { release })}
+      onReport={() => navigation.navigate('Help')}
+    />
+  );
+}
+
+function CalendarUpdateScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'CalendarUpdate'>) {
+  return <UpdateChanges release={route.params.release} onCalendar={() => navigation.popTo('Calendar')} />;
 }
 
 /** Register actual Screen elements so the root navigator stays within its file-size limit. */
@@ -178,6 +189,11 @@ export function calendarRoutes(
         name="ImportUpdate"
         component={ImportUpdateScreen}
         options={{ title: t('calendarView.update.open'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="CalendarUpdate"
+        component={CalendarUpdateScreen}
+        options={{ title: t('calendarView.update.changed.title'), statusBarStyle: 'dark' }}
       />
     </>
   );

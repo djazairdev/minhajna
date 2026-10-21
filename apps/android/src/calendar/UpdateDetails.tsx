@@ -6,20 +6,14 @@
 // holds, and, for a new release, what it changes for the teacher's own
 // schools and classes, with the others only counted (answer 310).
 
-import {
-  formatDay,
-  type CalendarUpdate,
-  type Day,
-  type TrustedKey,
-  type UpdateChange,
-  type UpdateStatus,
-} from '@minhajna/core';
+import { formatDay, type CalendarUpdate, type TrustedKey, type UpdateChange, type UpdateStatus } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Text, View } from 'react-native';
 import { Badge } from '../components/Badge';
 import { localized } from '../setup/names';
 import { settingsStyles as styles } from '../settings/styles';
 import { useText } from '../text/i18n';
+import { UpdateChangeList } from './UpdateChangeList';
 import { isolate } from '../week/grid-labels';
 
 /** The fingerprint in groups of four, read left to right inside any sentence. */
@@ -45,7 +39,6 @@ export function UpdateDetails({
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const range = (from: Day, to: Day) => t('calendarView.range', { from: formatDay(from), to: formatDay(to) });
   return (
     <View testID="update-details" style={styles.card}>
       <Text style={[styles.body, align]}>{via}</Text>
@@ -76,28 +69,7 @@ export function UpdateDetails({
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {t('calendarView.update.changes')}
           </Text>
-          {mine.length === 0 && <Text style={[styles.body, align]}>{t('calendarView.update.none')}</Text>}
-          {mine.map((change) => (
-            <View key={`${change.kind}-${change.entry.id}`} testID={`update-change-${change.entry.id}`}>
-              <Text style={[styles.body, align]}>
-                {`${t(`calendarView.update.kinds.${change.kind}`)} · ${localized(change.entry.name)}`}
-              </Text>
-              <Text style={[styles.body, align]}>{range(change.entry.from, change.entry.to)}</Text>
-              {change.kind !== 'removed' && change.entry.moved !== undefined && (
-                <Text style={[styles.body, align]}>
-                  {t('calendarView.update.moved', {
-                    range: range(change.entry.moved.from, change.entry.moved.to),
-                    reason: isolate(change.entry.moved.reason),
-                  })}
-                </Text>
-              )}
-            </View>
-          ))}
-          {others > 0 && (
-            <Text testID="update-others" style={[styles.body, align]}>
-              {t('calendarView.update.others', { count: others })}
-            </Text>
-          )}
+          <UpdateChangeList mine={mine} others={others} />
         </>
       )}
       {status === 'held' && <Text style={[styles.body, align]}>{t('calendarView.update.held')}</Text>}

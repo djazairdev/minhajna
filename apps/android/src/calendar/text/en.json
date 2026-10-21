@@ -276,6 +276,31 @@
         "title": "What the update holds cannot be read, so it was not applied",
         "body": "The signature is valid, but its content does not follow the calendar format. Update the app, or report it."
       }
+    },
+    "changed": {
+      "title": "What changed in the calendar",
+      "of": "Update of {{day}} · release {{release}}",
+      "applied": "Applied {{day}}, signed by {{holder}}",
+      "bundled": "This release is now in the calendar bundled with the app, so it changes nothing any more.",
+      "sessions": "What still changes in your sessions from today",
+      "recorded": "Recorded sessions do not change. If something changes again, another update arrives, and what it changed shows on its own page.",
+      "toCalendar": "To the calendar"
+    },
+    "today": {
+      "title": "A calendar update, received today",
+      "taken_one": "It takes {{count}} of your sessions, counted under “calendar”, not as delay.",
+      "taken_other": "It takes {{count}} of your sessions, counted under “calendar”, not as delay.",
+      "given_one": "It gives back {{count}} session.",
+      "given_other": "It gives back {{count}} sessions.",
+      "none": "It takes none of your sessions and gives none back.",
+      "open": "What changed",
+      "hide": "Hide"
+    },
+    "footnote": "Last update: {{day}}",
+    "entry": {
+      "origin": "From calendar update {{release}}, published {{day}}, signed by {{holder}}. The source above says where the date came from.",
+      "first": "The first dates: {{range}}",
+      "reason": "Why it changed: {{reason}}"
     }
   }
 }

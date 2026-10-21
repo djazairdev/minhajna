@@ -1,7 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { editableCalendarEntry, formatDay, isLunarHoliday, isWeekReset, validLunarConfirmation } from '@minhajna/core';
+import {
+  editableCalendarEntry,
+  entryUpdate,
+  formatDay,
+  isLunarHoliday,
+  isWeekReset,
+  validLunarConfirmation,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +25,8 @@ import { schoolEntries, type CalendarOrigin } from './view';
 import { coreContext } from '../storage/core-context';
 import { CancelEntry } from './Cancel';
 import { GroupPreview } from './GroupPreview';
+import { holderOf } from './UpdateChanges';
+import { isolate } from '../week/grid-labels';
 
 /** Route identifiers are resolved against the current school scope, never trusted as record contents. */
 export function CalendarEntry({
@@ -45,6 +54,7 @@ export function CalendarEntry({
   const base = data.calendar.find((one) => one.id === id);
   const lunar = base !== undefined && isLunarHoliday(base) && entry !== undefined;
   const editable = entry !== undefined && origin === 'local' && editableCalendarEntry(coreContext(data), id) !== null;
+  const fromUpdate = origin === 'bundled' ? entryUpdate(coreContext(data), id) : undefined;
   return (
     <ScrollView
       style={styles.screen}
@@ -88,7 +98,27 @@ export function CalendarEntry({
           )}
           {entry.times === 'ramadan' && <Text style={[styles.body, align]}>{t('calendarView.ramadan')}</Text>}
           <Text style={[styles.body, align]}>{t('settings.source', { source: entry.source })}</Text>
-          <Text style={[styles.sub, align]}>{t(`calendarView.origin.${origin}`)}</Text>
+          {entry.moved !== undefined && (
+            <>
+              <Text testID="calendar-entry-first" style={[styles.body, align]}>
+                {t('calendarView.update.entry.first', {
+                  range: t('calendarView.range', { from: formatDay(entry.moved.from), to: formatDay(entry.moved.to) }),
+                })}
+              </Text>
+              <Text style={[styles.body, align]}>
+                {t('calendarView.update.entry.reason', { reason: isolate(entry.moved.reason) })}
+              </Text>
+            </>
+          )}
+          <Text testID="calendar-entry-origin" style={[styles.sub, align]}>
+            {fromUpdate === undefined
+              ? t(`calendarView.origin.${origin}`)
+              : t('calendarView.update.entry.origin', {
+                  release: isolate(fromUpdate.update.release),
+                  day: formatDay(fromUpdate.update.published),
+                  holder: holderOf(data.keys, fromUpdate.key),
+                })}
+          </Text>
           {entry.received !== undefined && (
             <>
               <Notice icon={controlIcon('info')} message={t('calendarView.receive.received')} />

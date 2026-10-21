@@ -44,7 +44,7 @@ interface Prepared {
   readonly state: State;
 }
 
-export function ImportUpdate({ onApplied, onReport }: { onApplied: () => void; onReport: () => void }) {
+export function ImportUpdate({ onApplied, onReport }: { onApplied: (release: string) => void; onReport: () => void }) {
   const data = useAppData();
   const t = useText();
   const { direction } = useLocale();
@@ -78,7 +78,7 @@ export function ImportUpdate({ onApplied, onReport }: { onApplied: () => void; o
       setStale(true);
       return;
     }
-    if (await writer.save(event, prepared.state)) onApplied();
+    if (await writer.save(event, prepared.state)) onApplied(update.release);
   };
   const via = opened === null ? '' : t(`calendarView.update.via.${opened.via}`, { day: formatDay(opened.day) });
   return (
