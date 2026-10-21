@@ -1946,6 +1946,19 @@
     "printNote": "Only the two confirmed counts print; what is not counted stays blank. Counts only, never names.",
     "print": "Print the homework record"
   },
+  "ramadanToday": {
+    "first": "First day of Ramadan",
+    "day": "Ramadan · day {{day}} of {{days}}",
+    "times": "Ramadan times from today",
+    "level": "{{level}}: {{said}}",
+    "rule": "A shortened session counts as one session",
+    "ruleNote": "Each class keeps its number of sessions a week, as outside Ramadan, so the buffer, each class’s place in its plan and the sessions before the exams do not change.",
+    "book": "The texts book at the actual times",
+    "bookNote": "Each session is written at its Ramadan time, from Documents",
+    "calendar": "Ramadan times in the calendar",
+    "calendarNote": "Session lengths for each level, and their source",
+    "hide": "Hide"
+  },
   "special": {
     "line": "Special day: {{what}}",
     "kinds": {

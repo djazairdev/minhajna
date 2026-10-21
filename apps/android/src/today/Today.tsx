@@ -16,7 +16,8 @@
 // carries its roll call, whatever its kind (#184), and the backlog a past
 // one's from the paper sheet (#38). A joint class's years share one card for
 // each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a
-// school event makes a special day, with a line and a card (#224).
+// school event makes a special day, with a line and a card, and so does
+// Ramadan, with its cards (#224).
 
 import {
   addDays,
@@ -43,6 +44,7 @@ import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
 import { TodayUpdate } from './TodayUpdate';
+import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
 import { localized, yearShort } from '../setup/names';
@@ -76,6 +78,7 @@ export function Today(props: {
   onHomework?: (item: HomeworkItem) => void;
   onExams?: TodayExamsOpen;
   onCalendarUpdate?: (release: string) => void;
+  onRamadan?: RamadanOpen;
 }) {
   const { onHelp, onDetails, onRoll, onExtra, onHomework = () => undefined } = props;
   const insets = useSafeAreaInsets();
@@ -218,12 +221,13 @@ export function Today(props: {
           title={t(`week.days.${weekday(day)}`)}
           scope={formatDayWithMonth(day, language, profile)}
           fact={{ text: dayFacts(t, view, mark !== null || taken > 0), icon: controlIcon('check') }}
-          special={specialLine(t, specials)}
+          special={withRamadan(t, view, specialLine(t, specials))}
           actions={<TodayHeadingActions onExtra={onExtra} onSettings={props.onSettings} onHelp={onHelp} />}
         />
         <View style={styles.list}>
           {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
           {props.onCalendarUpdate && <TodayUpdate day={day} open={props.onCalendarUpdate} />}
+          <RamadanNotice view={view} />
           {props.onExams && <TodayExams context={context} day={day} open={props.onExams} />}
           {backlog.days.length > 0 && (
             <Backlog
@@ -253,6 +257,7 @@ export function Today(props: {
             <DayNote testID="day-paused" title={t('daymark.paused')} note={t('daymark.pausedNote')} />
           )}
           <SpecialCards entries={specials} state={state} />
+          {props.onRamadan && <RamadanRule view={view} open={props.onRamadan} />}
           {next !== null && <NextSession line={nextLine(next)} />}
         </View>
       </ScrollView>
