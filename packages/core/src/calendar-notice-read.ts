@@ -88,6 +88,7 @@ function entryOf(raw: Fields, profile: CountryProfile, year: SchoolYear): Calend
     'takes',
     'replaces',
     'rotation',
+    'council',
     'lunar',
     'confirmedFrom',
     'received',

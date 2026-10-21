@@ -35,6 +35,7 @@ test('format 1 can carry safe lunar eligibility metadata, but never local partia
     { lunar: true, effect: 'exam' },
     { half: 'morning' },
     { confirmedFrom: 'untrusted' },
+    { council: { classId: 'c-1', term: 1, at: '14:00' } },
   ]) {
     assert.equal(parseSchoolCalendar(file(fields), country).ok, false);
   }

@@ -173,6 +173,13 @@ export interface CalendarEntry {
   readonly effect: CalendarEffect;
   /** Local class rule; pupil identities and membership never belong in the calendar. */
   readonly rotation?: { readonly classId: string; readonly groups: readonly [string, string] };
+  /** A class council: its class, its term, its time, and whether the teacher says it was held. */
+  readonly council?: {
+    readonly classId: string;
+    readonly term: number;
+    readonly at: string;
+    readonly held?: true;
+  };
   /** Only these levels, if set. */
   readonly levels?: readonly string[];
   /** Only these grades, if set. */

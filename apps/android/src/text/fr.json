@@ -1991,12 +1991,16 @@
     "kinds": {
       "training": "Séminaire",
       "duty": "Mission",
-      "event": "Événement"
+      "event": "Événement",
+      "council": "Conseil"
     },
     "notes": {
       "training": "{{name}}. Il est inscrit à la page des séminaires et formations du cahier journal.",
       "duty": "{{name}}. Elle est inscrite à la page des séminaires et formations du cahier journal.",
-      "event": "{{name}}. Il ne touche pas aux séances du jour, et il est inscrit au cahier journal."
-    }
+      "event": "{{name}}. Il ne touche pas aux séances du jour, et il est inscrit au cahier journal.",
+      "council": "{{name}}. Il ne touche aucune séance du jour, et s’écrit dans le cahier journal une fois confirmé."
+    },
+    "held": "Le conseil a eu lieu",
+    "kept": "Écrit dans le cahier journal, page des séminaires, formations et réunions"
   }
 }

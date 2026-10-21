@@ -46,12 +46,14 @@ export function CalendarForm({
   onSaved,
   onAddDay,
   onAddReset,
+  onAddCouncil,
 }: {
   schoolId: string;
   old?: CalendarEntry;
   onSaved: (entry: CalendarEntry) => void;
   onAddDay: (schoolId: string) => void;
   onAddReset?: (schoolId: string) => void;
+  onAddCouncil?: (schoolId: string) => void;
 }) {
   const t = useText();
   const { direction } = useLocale();
@@ -128,6 +130,13 @@ export function CalendarForm({
           label={t('calendarView.abEdit.open')}
           onPress={() => onAddReset?.(draft.schoolId)}
           disabled={onAddReset === undefined}
+        />
+      ) : draft.kind === 'council' ? (
+        <Button
+          testID="calendar-add-council"
+          label={t('calendarView.council.add')}
+          onPress={() => onAddCouncil?.(draft.schoolId)}
+          disabled={onAddCouncil === undefined}
         />
       ) : draft.kind === 'added-day' ? (
         <Button

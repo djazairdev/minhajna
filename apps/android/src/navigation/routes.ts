@@ -34,6 +34,7 @@ export type RootStackParamList = {
   CalendarEntry: { id: string; origin: 'bundled' | 'local'; schoolId: string };
   CalendarEdit: { id?: string; schoolId: string };
   CalendarAb: { schoolId: string };
+  CalendarCouncil: { schoolId: string };
   CalendarGroups: { schoolId: string };
   CalendarReceive: { schoolId: string };
   CalendarLunar: { id: string; schoolId: string };

@@ -11,6 +11,7 @@ import { isDay } from './day.ts';
 import type { RecordEvent } from './events.ts';
 import type { CalendarEntry } from './reference.ts';
 import { validLunarConfirmation } from './calendar-lunar.ts';
+import { checkCouncil } from './council.ts';
 import { checkRotation } from './rotating-groups.ts';
 
 /** Existing history events only; no file or database format is added. */
@@ -81,7 +82,8 @@ export function setCalendarEntry(context: Context, entry: CalendarEntry): Calend
     if (isWeekReset(old) !== isWeekReset(entry)) throw new RangeError('An edit keeps its kind of entry');
     if (
       (old.effect === 'rotating-groups') !== (entry.effect === 'rotating-groups') ||
-      old.rotation?.classId !== entry.rotation?.classId
+      old.rotation?.classId !== entry.rotation?.classId ||
+      old.council?.classId !== entry.council?.classId
     )
       throw new RangeError('An edit keeps its class and kind');
   }
@@ -107,6 +109,10 @@ export function setCalendarEntry(context: Context, entry: CalendarEntry): Calend
     return { kind: 'calendar.set', entry: { ...entry, source: entry.source.trim() } };
   }
   if (entry.rotation !== undefined) throw new RangeError('Unexpected rotation rule');
+  if (entry.council !== undefined) {
+    checkCouncil(context, entry);
+    return { kind: 'calendar.set', entry: { ...entry, name: { ...entry.name }, source: entry.source.trim() } };
+  }
   if (isWeekReset(entry)) {
     if (
       entry.layer !== 'school' ||

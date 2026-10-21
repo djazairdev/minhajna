@@ -51,10 +51,12 @@ test('rejects wrong formats, majors, years, countries and unsafe semantics witho
       ...noticeFile,
       entry: { ...noticeFile.entry, effect },
     })),
-    ...['schoolId', 'times', 'term', 'adds', 'takes', 'rotation', 'lunar', 'confirmedFrom', 'received'].map((key) => ({
-      ...noticeFile,
-      entry: { ...noticeFile.entry, [key]: 'untrusted' },
-    })),
+    ...['schoolId', 'times', 'term', 'adds', 'takes', 'rotation', 'council', 'lunar', 'confirmedFrom', 'received'].map(
+      (key) => ({
+        ...noticeFile,
+        entry: { ...noticeFile.entry, [key]: 'untrusted' },
+      }),
+    ),
   ];
   for (const value of invalid)
     assert.throws(
