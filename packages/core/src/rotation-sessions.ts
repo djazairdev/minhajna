@@ -2,10 +2,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import type { Context } from './context.ts';
+import { addDays, weekday, type Day } from './day.ts';
 import { slotKey, type RollCall, type SessionRef } from './records.ts';
 import { rotationOn } from './rotating-groups.ts';
 import { compareSessions, type Session } from './sessions.ts';
 import { current } from './state.ts';
+
+/** The day whose turn a session takes: for a make-up day's, the weekday it follows in its week. */
+function turnOf(context: Context, session: Session): Day {
+  const school = context.state.schools.get(context.state.classes.get(session.classId)?.schoolId ?? '');
+  const follows =
+    session.added === undefined || school === undefined
+      ? undefined
+      : context.calendar.entriesFor(school).find((entry) => entry.id === session.added)?.follows;
+  if (follows === undefined) return session.day;
+  const start = context.ref.country.weekStartsOn;
+  const at = (one: number) => (one - start + 7) % 7;
+  return addDays(session.day, at(follows) - at(weekday(session.day)));
+}
 
 function place(session: SessionRef): string {
   return `${session.courseId}/${session.day}/${slotKey(session.slot)}`;
@@ -32,7 +46,7 @@ export function rotatingSessions(context: Context, sessions: ReadonlyMap<string,
   const found = new Map<string, Session>();
   for (const session of sessions.values()) {
     const schoolClass = context.state.classes.get(session.classId);
-    const active = schoolClass && rotationOn(context, schoolClass, session.day);
+    const active = schoolClass && rotationOn(context, schoolClass, session.day, turnOf(context, session));
     const saved = records.get(place(session));
     const roll = rolls.get(place(session)) ?? rolls.get(`${session.classId}/${session.day}/${session.slot.half}`);
     const locked = saved?.find((one) => one.rotation !== undefined) ?? saved?.[0];

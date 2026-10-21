@@ -54,11 +54,16 @@ export function checkRotation(context: Context, entry: CalendarEntry): void {
     throw new RangeError('Confirm one half-group for every pupil first');
 }
 
-/** The attending group on a working day, following the school A/B letter. */
+/**
+ * The attending group on a working day, following the school A/B letter.
+ * With `turn`, the group whose turn it is on that day instead, as a make-up
+ * day takes the turn of the weekday it follows in its week (answer 300).
+ */
 export function rotationOn(
   context: Context,
   schoolClass: SchoolClass,
   day: Day,
+  turn: Day = day,
 ): {
   readonly entry: CalendarEntry;
   readonly groupId: string;
@@ -72,14 +77,14 @@ export function rotationOn(
         one.effect === 'rotating-groups' && one.rotation?.classId === schoolClass.id && isWithin(day, one.from, one.to),
     );
   if (entry?.rotation === undefined) return null;
-  const latest = context.state.timetables.filter((one) => one.from <= day).at(-1);
+  const latest = context.state.timetables.filter((one) => one.from <= turn).at(-1);
   const days: Weekday[] = [...context.ref.country.workingDays];
   if (latest?.version.options?.saturday && !days.includes(6)) days.push(6);
   const start = context.ref.country.weekStartsOn;
   days.sort((a, b) => ((a - start + 7) % 7) - ((b - start + 7) % 7));
-  const index = days.indexOf(weekday(day));
+  const index = days.indexOf(weekday(turn));
   if (index < 0) return null;
-  const offset = context.calendar.parityOn(day, school) === 'B' ? 1 : 0;
+  const offset = context.calendar.parityOn(turn, school) === 'B' ? 1 : 0;
   return { entry, groupId: entry.rotation.groups[(index + offset) % 2]! };
 }
 

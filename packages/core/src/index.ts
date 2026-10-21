@@ -36,6 +36,7 @@ export * from './joint.ts';
 export * from './layers.ts';
 export * from './memory-store.ts';
 export * from './pacing.ts';
+export * from './term-check-detail.ts';
 export * from './plan-view.ts';
 export * from './pack.ts';
 export * from './pack-catalogue.ts';
