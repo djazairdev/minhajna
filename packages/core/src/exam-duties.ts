@@ -8,7 +8,10 @@
 // school's paper; they can be set only on a day an exam window of one of
 // the teacher's classes covers, and a class exam only for classes whose own
 // window covers it. Today shows them, and an invigilation has its own row
-// in the journal, never in the texts book; nothing counts them.
+// in the journal, never in the texts book; nothing counts them. A cover the
+// teacher gives a colleague's class, «تعويض» (#224, answer 332), is kept the
+// same way on any day of the year, with its school, the class as typed and
+// whether it took place; it is never an exam-week entry.
 
 import { CLOCK, clockMinutes } from './bells.ts';
 import { courseSetup } from './choices.ts';
@@ -19,12 +22,15 @@ import { courseGrade, forGrade } from './joint.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { State } from './state.ts';
 
-export const DUTY_KINDS = ['invigilation', 'exam'] as const;
+export const DUTY_KINDS = ['invigilation', 'exam', 'cover'] as const;
 
 export type DutyKind = (typeof DUTY_KINDS)[number];
 
 /** The longest room, in characters. */
 export const ROOM_MAX = 40;
+
+/** The longest class name of a cover, in characters. */
+export const COVER_CLASS_MAX = 20;
 
 export interface ExamDuty {
   readonly id: string;
@@ -36,6 +42,11 @@ export interface ExamDuty {
   readonly room?: string;
   /** For a class exam: the courses sitting it, in the order chosen. */
   readonly courseIds?: readonly string[];
+  /** For a cover: the school, and the colleague's class as typed, such as «3م4». */
+  readonly schoolId?: string;
+  readonly className?: string;
+  /** For a cover: the teacher said it took place. */
+  readonly done?: true;
 }
 
 function courseWindows(context: Context, courseId: string): CalendarEntry[] {
@@ -76,6 +87,9 @@ export function setDuty(context: Context, duty: ExamDuty): RecordEvent {
   const { state, ref } = context;
   if (!(DUTY_KINDS as readonly string[]).includes(duty.kind)) throw new RangeError('Unknown kind of entry');
   if (!isWithin(duty.day, ref.year.from, ref.year.to)) throw new RangeError('The day is outside the school year');
+  if (duty.kind === 'cover') return coverEvent(context, duty);
+  if (duty.schoolId !== undefined || duty.className !== undefined || duty.done !== undefined)
+    throw new RangeError('Only a cover names a school, a class or its outcome');
   if (!examDay(context, duty.day)) throw new RangeError('The day is outside the exam windows');
   if (!CLOCK.test(duty.from) || !CLOCK.test(duty.to)) throw new RangeError('A time is HH:MM');
   if (clockMinutes(duty.to) <= clockMinutes(duty.from)) throw new RangeError('The entry ends after it starts');
@@ -105,9 +119,29 @@ export function setDuty(context: Context, duty: ExamDuty): RecordEvent {
   };
 }
 
+/** The event that sets a cover: its school, a class name on one line, its times, and nothing of the exam week. */
+function coverEvent(context: Context, duty: ExamDuty): RecordEvent {
+  const className = duty.className?.trim() ?? '';
+  const schoolId = duty.schoolId ?? '';
+  if (!context.state.schools.has(schoolId)) throw new RangeError('No such school');
+  if (className === '' || className.length > COVER_CLASS_MAX || /[\r\n]/.test(className))
+    throw new RangeError('A cover names its class on one line');
+  if (!CLOCK.test(duty.from) || !CLOCK.test(duty.to)) throw new RangeError('A time is HH:MM');
+  if (clockMinutes(duty.to) <= clockMinutes(duty.from)) throw new RangeError('The entry ends after it starts');
+  if (duty.room !== undefined || duty.courseIds !== undefined) throw new RangeError('A cover has no room or classes');
+  if (duty.done !== undefined && duty.done !== true) throw new RangeError('Invalid outcome');
+  const { id, kind, day, from, to } = duty;
+  return { kind: 'duty.set', duty: { id, kind, day, from, to, schoolId, className, ...(duty.done && { done: true }) } };
+}
+
 /** A day's exam-week entries, by start, then end, then ID. */
 export function dutiesOn(state: State, day: Day): ExamDuty[] {
-  return [...state.duties.values()].filter((duty) => duty.day === day).sort(compareDuties);
+  return [...state.duties.values()].filter((duty) => duty.day === day && duty.kind !== 'cover').sort(compareDuties);
+}
+
+/** A day's covers, by start, then end, then ID. */
+export function coversOn(state: State, day: Day): ExamDuty[] {
+  return [...state.duties.values()].filter((duty) => duty.day === day && duty.kind === 'cover').sort(compareDuties);
 }
 
 export function compareDuties(a: ExamDuty, b: ExamDuty): number {

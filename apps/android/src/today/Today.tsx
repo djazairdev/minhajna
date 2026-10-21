@@ -256,7 +256,7 @@ export function Today(props: {
           {mark?.effect === 'exam' && (
             <DayNote testID="day-paused" title={t('daymark.paused')} note={t('daymark.pausedNote')} />
           )}
-          <SpecialCards entries={specials} state={state} />
+          <SpecialCards entries={specials} state={state} day={day} />
           {props.onRamadan && <RamadanRule view={view} open={props.onRamadan} />}
           {next !== null && <NextSession line={nextLine(next)} />}
         </View>

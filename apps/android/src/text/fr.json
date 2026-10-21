@@ -998,7 +998,8 @@
     "kind": "Type",
     "kinds": {
       "invigilation": "Surveillance",
-      "exam": "Examen de classe"
+      "exam": "Examen de classe",
+      "cover": "Remplacement"
     },
     "date": "Jour",
     "time": "Horaire",
@@ -1999,21 +2000,40 @@
     "calendarNote": "Durée des séances pour chaque niveau, et sa source",
     "hide": "Masquer"
   },
+  "cover": {
+    "title": "Remplacement d’un collègue",
+    "intro": "Une séance pour la classe d’un collègue, au jour et à l’heure fixés par le directeur. Elle n’a pas de plan, n’est jamais comptée et ne va pas dans le cahier de textes. Aujourd’hui l’affiche le jour venu, et elle s’écrit dans le cahier journal une fois que vous confirmez qu’elle a eu lieu.",
+    "school": "Établissement",
+    "class": "Classe",
+    "classExample": "Exemple : 3M4",
+    "classWrong": "Écrivez le nom de la classe.",
+    "date": "Jour",
+    "save": "Enregistrer",
+    "refused": "Le remplacement n’a pas été enregistré. Vérifiez la classe et les heures.",
+    "journal": "Surveillance de la classe d’un collègue, sans plan"
+  },
   "special": {
     "line": "Jour particulier : {{what}}",
     "kinds": {
       "training": "Séminaire",
       "duty": "Mission",
       "event": "Événement",
-      "council": "Conseil"
+      "council": "Conseil",
+      "cover": "Remplacement"
     },
     "notes": {
       "training": "{{name}}. Il est inscrit à la page des séminaires et formations du cahier journal.",
       "duty": "{{name}}. Elle est inscrite à la page des séminaires et formations du cahier journal.",
       "event": "{{name}}. Il ne touche pas aux séances du jour, et il est inscrit au cahier journal.",
-      "council": "{{name}}. Il ne touche aucune séance du jour, et s’écrit dans le cahier journal une fois confirmé."
+      "council": "{{name}}. Il ne touche aucune séance du jour, et s’écrit dans le cahier journal une fois confirmé.",
+      "cover": "Surveillance de {{class}}. Sans plan, elle s’écrit dans le cahier journal."
     },
     "held": "Le conseil a eu lieu",
-    "kept": "Écrit dans le cahier journal, page des séminaires, formations et réunions"
+    "kept": "Écrit dans le cahier journal, page des séminaires, formations et réunions",
+    "done": "Faite",
+    "written": "Écrite dans le cahier journal",
+    "remove": "Supprimer le remplacement",
+    "confirmRemove": "Confirmer la suppression",
+    "keep": "Garder le remplacement"
   }
 }

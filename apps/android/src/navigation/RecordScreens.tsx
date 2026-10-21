@@ -12,7 +12,7 @@
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
 import { useLayoutEffect, useMemo } from 'react';
 import { TextsBook } from '../book/TextsBook';
@@ -21,6 +21,8 @@ import { Entry } from '../entry/Entry';
 import { usePilotTiming } from '../pilot/pilot-timing';
 import { AddSessions } from '../extra/AddSessions';
 import { ExtraSession } from '../extra/ExtraSession';
+import { CoverEntry } from '../exams/CoverEntry';
+import { coverSchools } from '../exams/cover-schools';
 import { DutyEntry } from '../exams/DutyEntry';
 import { ExamWindow } from '../exams/ExamWindow';
 import { TestSchedule } from '../exams/TestSchedule';
@@ -248,11 +250,33 @@ export function HomeworkScreen({ navigation, route }: NativeStackScreenProps<Roo
 
 /** A session outside the timetable, for the class it was opened from, if any. */
 export function ExtraScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'Extra'>) {
+  const { state } = useAppData();
   return (
     <ExtraSession
       {...(route.params?.courseId !== undefined && { courseId: route.params.courseId })}
       onAddDay={() => navigation.navigate('AddSessions')}
+      {...(coverSchools(state).length > 0 && { onCover: () => navigation.replace('Cover') })}
     />
+  );
+}
+
+/** A cover the teacher gives a colleague's class, back to where «حصة» was opened from once saved. */
+export function CoverScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Cover'>) {
+  return <CoverEntry onDone={() => navigation.goBack()} />;
+}
+
+/** The routes «حصة» opens, for the app's navigator. */
+export function extraRoutes(
+  Stack: ReturnType<typeof createNativeStackNavigator<RootStackParamList>>,
+  t: ReturnType<typeof useText>,
+) {
+  const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
+  return (
+    <>
+      <Stack.Screen name="Extra" component={ExtraScreen} options={dark(t('extra.title'))} />
+      <Stack.Screen name="AddSessions" component={AddSessionsScreen} options={dark(t('addSessions.title'))} />
+      <Stack.Screen name="Cover" component={CoverScreen} options={dark(t('cover.title'))} />
+    </>
   );
 }
 

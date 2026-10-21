@@ -13,8 +13,12 @@
 // journal for all classes, an invigilation the teacher typed has its own
 // row among the sessions by its start, with its times and its room (#221,
 // answer 270); it belongs to no class, so a journal per class leaves it out.
+// A cover for a colleague's class does the same (#224, answer 332), named
+// after that class, in grey until the teacher says it took place; only one
+// at a school with a middle or secondary level, where it can be entered.
 
-import { courseSetup, dutiesOn, todayView, type TodaySession } from '@minhajna/core';
+import { courseSetup, coversOn, dutiesOn, todayView, type TodaySession } from '@minhajna/core';
+import { coverSchools } from '../exams/cover-schools';
 import { bookSpan } from '../entry/book-lines';
 import { coreContext } from '../storage/core-context';
 import { sessionTime } from '../times/times-rules';
@@ -76,15 +80,23 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
     start: start(item),
     entry: entry(item),
   }));
-  for (const duty of blank ? [] : dutiesOn(data.state, data.day)) {
-    if (duty.kind !== 'invigilation') continue;
+  const coverAt = new Set(coverSchools(data.state).map((school) => school.id));
+  const covers = coversOn(data.state, data.day).filter((cover) => coverAt.has(cover.schoolId ?? ''));
+  const typed = blank ? [] : [...dutiesOn(data.state, data.day), ...covers];
+  for (const duty of typed) {
+    if (duty.kind === 'exam') continue;
+    const cover = duty.kind === 'cover';
     const row = {
       start: duty.from,
       entry: {
         time: bookSpan(t, duty, data.dir) ?? '',
-        className: t('duties.kinds.invigilation'),
-        lines: duty.room === undefined ? [] : [{ text: t('duties.roomLine', { room: isolate(duty.room) }) }],
-        awaiting: false,
+        className: cover ? (duty.className ?? '') : t('duties.kinds.invigilation'),
+        lines: cover
+          ? [{ text: t('cover.journal') }]
+          : duty.room === undefined
+            ? []
+            : [{ text: t('duties.roomLine', { room: isolate(duty.room) }) }],
+        awaiting: cover && duty.done !== true,
       },
     };
     const after = combined.findIndex((one) => one.start !== null && one.start > duty.from);

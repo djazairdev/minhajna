@@ -10,19 +10,21 @@
 // sessions of its part of the day, which show with its name; a council or a
 // school event takes none, and a council's card asks whether it was held. A
 // holiday, a closure or an exam week keeps its banner, and Ramadan has a card
-// of its own.
+// of its own. A cover the teacher gives a colleague's class follows the
+// cards, with «تمّت» (answer 332).
 
-import type { CalendarEntry, State, TodayView } from '@minhajna/core';
+import type { CalendarEntry, Day, State, TodayView } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { entryKind } from '../calendar/edit-draft';
 import { bookClock } from '../entry/book-lines';
 import { Badge } from '../components/Badge';
-import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { currentLanguage, useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { CouncilAction } from './CouncilAction';
+import { CoverCards } from './CoverCards';
+import { specialStyles as styles } from './special-styles';
 
 type Translate = ReturnType<typeof useText>;
 
@@ -62,11 +64,11 @@ export function specialLine(t: Translate, entries: readonly CalendarEntry[]): st
   return t('special.line', { what: what.join(currentLanguage() === 'ar' ? '، ' : ', ') });
 }
 
-export function SpecialCards({ entries, state }: { entries: readonly CalendarEntry[]; state: State }) {
+export function SpecialCards({ entries, state, day }: { entries: readonly CalendarEntry[]; state: State; day: Day }) {
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  return entries.map((entry) => {
+  const cards = entries.map((entry) => {
     const kind = specialOf(entry) ?? 'event';
     const school = entry.schoolId === undefined ? undefined : state.schools.get(entry.schoolId)?.name;
     const council = entry.council;
@@ -87,19 +89,10 @@ export function SpecialCards({ entries, state }: { entries: readonly CalendarEnt
       </View>
     );
   });
+  return (
+    <>
+      {cards}
+      <CoverCards state={state} day={day} />
+    </>
+  );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    gap: spacing['space-8'],
-    padding: spacing['space-14'],
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius['radius-card'],
-    backgroundColor: colors.sheet,
-  },
-  about: { gap: spacing['space-8'] },
-  meta: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing['space-8'] },
-  sub: { ...typography.caption, color: colors.ink2 },
-  body: { ...typography.body, color: colors.ink },
-});
