@@ -310,7 +310,7 @@
     "template": "Source: the {{level}} template. To match the school's bell, tap a slot and change its time.",
     "noTemplate": "No template for this level yet. Tap a slot and enter its time from the school's bell.",
     "ramadanRule": "In Ramadan, each session keeps its slot and start time, lasts {{minutes}} minutes and counts as a full session",
-    "noRamadan": "Ramadan times for this level come when they are announced",
+    "noRamadan": "Ramadan times for this level are not announced yet, so sessions keep their usual times until they are",
     "rules": {
       "book": "The texts book prints each session's real time, from these bell times",
       "week": "Neither the timetable nor the number of sessions before the exams changes",

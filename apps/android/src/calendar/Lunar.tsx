@@ -19,6 +19,13 @@ import { useText } from '../text/i18n';
 import { PreviewActions } from './PreviewActions';
 import { useCalendarPreview } from './useCalendarPreview';
 
+/** The sighting text for a lunar holiday, or for Ramadan's first day. */
+export function lunarText<K extends 'open' | 'day' | 'notice'>(base: CalendarEntry, key: K) {
+  return base.times === 'ramadan'
+    ? (`calendarView.lunarEdit.ramadan.${key}` as const)
+    : (`calendarView.lunarEdit.${key}` as const);
+}
+
 /** A sighting confirmation is the teacher's local observation, tied to an exact reference entry. */
 export function Lunar({ base, onSaved }: { base: CalendarEntry; onSaved: (entry: CalendarEntry) => void }) {
   const data = useAppData();
@@ -50,10 +57,10 @@ export function Lunar({ base, onSaved }: { base: CalendarEntry; onSaved: (entry:
         {t('calendarView.range', { from: formatDay(base.from), to: formatDay(base.to) })}
       </Text>
       <Text style={[styles.sub, align]}>{t('settings.source', { source: base.source })}</Text>
-      <Notice icon={controlIcon('info')} message={t('calendarView.lunarEdit.notice')} />
+      <Notice icon={controlIcon('info')} message={t(lunarText(base, 'notice'))} />
       <ChipGroup
         testID="calendar-lunar-day"
-        label={t('calendarView.lunarEdit.day')}
+        label={t(lunarText(base, 'day'))}
         selected={day}
         choices={[-1, 0, 1]
           .map((shift) => addDays(base.from, shift))

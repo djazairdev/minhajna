@@ -60,7 +60,7 @@
   "reference": "Reference-data release {{release}}",
   "source": "Source: {{source}}",
   "noTemplate": "The installed data has no bell template for this level. Set the slots to match your school.",
-  "noRamadan": "No confirmed rule has been added for this level. The app does not invent a shortened duration.",
+  "noRamadan": "Ramadan times are not announced for this level yet, so its sessions keep their usual length until an update brings them.",
   "range": "From {{from}} to {{to}}",
   "myLevel": "One of my levels",
   "confidence": {

@@ -152,6 +152,12 @@ export const CONFIDENCES = ['announced', 'expected', 'projected'] as const;
 
 export type Confidence = (typeof CONFIDENCES)[number];
 
+/** Ramadan's announced hours: each level's session length, and how sure they are, apart from the first day's. */
+export interface RamadanHours {
+  readonly confidence: Confidence;
+  readonly lengths: readonly { readonly level: string; readonly minutes: number }[];
+}
+
 export interface CalendarEntry {
   readonly id: string;
   readonly layer: CalendarLayer;
@@ -175,6 +181,8 @@ export interface CalendarEntry {
   readonly term?: number;
   /** Ramadan: its days take Ramadan's bell times, and keep their sessions. */
   readonly times?: CalendarTimes;
+  /** Ramadan: the session lengths announced with it, and their own confidence (answers 318, 319). */
+  readonly hours?: RamadanHours;
   /** For a day that adds sessions: what they are for. */
   readonly adds?: AddedKind;
   /** For a day that adds sessions: the weekday whose timetable it follows. */
@@ -193,7 +201,7 @@ export interface CalendarEntry {
   readonly confidence: Confidence;
   /** For an entry an update moved: the dates it had before, and why it moved (R-7.10-06). */
   readonly moved?: { readonly from: Day; readonly to: Day; readonly reason: string };
-  /** A lunar holiday whose date is fixed by a sighting, not merely any expected entry. */
+  /** A lunar holiday or Ramadan, whose first day is fixed by a sighting, not merely any expected entry. */
   readonly lunar?: true;
   /** Local confirmation only: the exact canonical reference entry it confirms, never a signature. */
   readonly confirmedFrom?: string;

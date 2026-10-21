@@ -1,7 +1,7 @@
 {
   "format": 1,
   "country": "dz",
-  "release": "2026.3",
+  "release": "2026.4",
   "year": {
     "id": "2026-2027",
     "from": "2026-09-21",
@@ -97,7 +97,8 @@
       "times": "ramadan",
       "name": { "ar": "شهر رمضان", "fr": "Ramadan", "en": "Ramadan" },
       "source": "Date expected from the Umm al-Qura calendar, confirmed when the moon is sighted",
-      "confidence": "expected"
+      "confidence": "expected",
+      "lunar": true
     },
     {
       "id": "term-2-exams-part-1",

@@ -3,12 +3,13 @@
 
 import { editableCalendarEntry, isLunarHoliday, isWeekReset } from '@minhajna/core';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useLayoutEffect } from 'react';
 import { Text } from 'react-native';
 import { Calendar } from '../calendar/Calendar';
 import { CalendarEntry } from '../calendar/Entry';
 import { CalendarForm } from '../calendar/Form';
 import { AbReset } from '../calendar/AbReset';
-import { Lunar } from '../calendar/Lunar';
+import { Lunar, lunarText } from '../calendar/Lunar';
 import { Groups } from '../calendar/Groups';
 import { Receive } from '../calendar/Receive';
 import { ImportUpdate } from '../calendar/ImportUpdate';
@@ -107,6 +108,10 @@ function CalendarLunarScreen({ route, navigation }: NativeStackScreenProps<RootS
   const { id, schoolId } = route.params;
   const base = data.calendar.find((entry) => entry.id === id);
   const inScope = schoolEntries(data, schoolId).some((one) => one.entry.id === id);
+  const title = base === undefined ? null : t(lunarText(base, 'open'));
+  useLayoutEffect(() => {
+    if (title !== null) navigation.setOptions({ title });
+  }, [navigation, title]);
   if (!inScope || base === undefined || !isLunarHoliday(base)) return <Text>{t('calendarView.edit.readOnly')}</Text>;
   return <Lunar base={base} onSaved={() => navigation.popTo('CalendarEntry', { id, origin: 'local', schoolId })} />;
 }

@@ -42,7 +42,7 @@ const payload = {
   version: { major: 1, minor: 0 },
   country: 'dz',
   year: '2026-2027',
-  release: '2026.4',
+  release: '2026.5',
   published: '2026-10-15',
   entries: [closure('example-mine', '16'), closure('example-elsewhere', '31')],
   removed: [],
@@ -83,8 +83,8 @@ test.each(['ar', 'fr', 'en'] as const)('checks, previews and applies a signed up
   expect(missingKeys).toEqual([]);
   expect(data.book.state.calendarUpdates).toEqual([]);
   await pressSettings('update-apply');
-  expect(onApplied).toHaveBeenCalledWith('2026.4');
-  expect(data.book.state.calendarUpdates.map((one) => one.update.release)).toEqual(['2026.4']);
+  expect(onApplied).toHaveBeenCalledWith('2026.5');
+  expect(data.book.state.calendarUpdates.map((one) => one.update.release)).toEqual(['2026.5']);
   expect(data.book.state.calendarUpdates[0]?.key).toBe(key.trusted.id);
 });
 

@@ -6,6 +6,8 @@
 // checked, and only the format's fields are kept (PRD §5.9). A day that
 // adds sessions names what they are for and the weekday it follows; which of
 // that weekday's sessions it takes is the teacher's choice, never the file's.
+// Ramadan may carry its announced session lengths, and, like a lunar
+// holiday, a first day the teacher confirms on the sighting.
 
 import { compareDays } from './day.ts';
 import { at, isFields, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
@@ -16,6 +18,7 @@ import {
   CONFIDENCES,
   type CalendarEntry,
   type CountryProfile,
+  type RamadanHours,
   type SchoolCalendar,
   type SchoolYear,
 } from './reference.ts';
@@ -54,6 +57,38 @@ function readMoved(reader: Reader, value: unknown, path: string): CalendarEntry[
   const reason = reader.requiredText(value, 'reason', path);
   if (reason.length > 300) reader.fail(at(path, 'reason'), 'invalid');
   return span === undefined || reason === '' ? undefined : { from: span.from, to: span.to, reason };
+}
+
+/**
+ * Ramadan's announced hours: how sure they are, and at least one level's
+ * session length, each level once, in whole minutes from 10 to 120.
+ */
+function readHours(reader: Reader, value: unknown, path: string, profile: CountryProfile): RamadanHours | undefined {
+  if (!isFields(value)) {
+    reader.fail(path, 'invalid');
+    return undefined;
+  }
+  const confidence = reader.oneOf(value, 'confidence', path, CONFIDENCES);
+  const levels = new Set<string>();
+  const lengths = reader.list(
+    value,
+    'lengths',
+    path,
+    (raw, item) => {
+      if (!isFields(raw)) {
+        reader.fail(item, 'invalid');
+        return undefined;
+      }
+      const level = reader.oneOf(raw, 'level', item, levelCodes(profile));
+      const minutes = reader.requiredNumber(raw, 'minutes', item, true);
+      if (minutes !== undefined && (minutes < 10 || minutes > 120)) reader.fail(at(item, 'minutes'), 'invalid');
+      if (level !== undefined && levels.has(level)) reader.fail(at(item, 'level'), 'duplicate');
+      if (level !== undefined) levels.add(level);
+      return level === undefined || minutes === undefined ? undefined : { level, minutes };
+    },
+    { nonEmpty: true },
+  );
+  return confidence === undefined ? undefined : { confidence, lengths };
 }
 
 /**
@@ -155,8 +190,11 @@ export function readEntry(
   const source = reader.requiredText(raw, 'source', path);
   const confidence = reader.oneOf(raw, 'confidence', path, CONFIDENCES);
   const moved = raw['moved'] === undefined ? undefined : readMoved(reader, raw['moved'], at(path, 'moved'));
+  const hours = raw['hours'] === undefined ? undefined : readHours(reader, raw['hours'], at(path, 'hours'), profile);
+  if (hours !== undefined && times !== 'ramadan') reader.fail(at(path, 'hours'), 'invalid');
   const lunar = raw['lunar'];
-  if (lunar !== undefined && (lunar !== true || layer !== 'national' || effect !== 'no-school'))
+  const sighted = (effect === 'no-school' && times === undefined) || (effect === 'marker' && times === 'ramadan');
+  if (lunar !== undefined && (lunar !== true || layer !== 'national' || !sighted))
     reader.fail(at(path, 'lunar'), 'invalid');
   for (const key of ['half', 'confirmedFrom', 'rotation', 'received'])
     if (raw[key] !== undefined) reader.fail(at(path, key), 'invalid');
@@ -174,6 +212,7 @@ export function readEntry(
     ...(grades !== undefined && { grades }),
     ...(term !== undefined && { term }),
     ...(times !== undefined && { times }),
+    ...(hours !== undefined && { hours }),
     ...(added?.adds !== undefined && { adds: added.adds }),
     ...(added?.follows !== undefined && { follows: added.follows }),
     ...(added?.replaces !== undefined && { replaces: added.replaces }),

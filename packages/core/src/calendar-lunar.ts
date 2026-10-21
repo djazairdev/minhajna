@@ -8,14 +8,14 @@ import { addDays, daysBetween, isDay, type Day } from './day.ts';
 import type { CalendarEntry } from './reference.ts';
 import { receivedSuperseded } from './calendar-received-match.ts';
 
-/** Only explicitly marked, expected lunar holidays offer sighting confirmation. */
+/** Only explicitly marked, expected lunar holidays, and Ramadan when marked so, offer sighting confirmation. */
 export function isLunarHoliday(entry: CalendarEntry): boolean {
   return (
     entry.lunar === true &&
     entry.layer === 'national' &&
-    entry.effect === 'no-school' &&
     entry.confidence === 'expected' &&
-    entry.times === undefined &&
+    ((entry.effect === 'no-school' && entry.times === undefined) ||
+      (entry.effect === 'marker' && entry.times === 'ramadan')) &&
     entry.term === undefined &&
     entry.half === undefined
   );
@@ -53,6 +53,23 @@ export function validLunarConfirmation(entry: CalendarEntry, reference: Calendar
   );
 }
 
+/**
+ * Ramadan ends on the eve of Eid al-Fitr as the calendar has it, expected or
+ * confirmed (answer 330): the first national lunar holiday 27 to 32 days
+ * after Ramadan's first day.
+ */
+function endingOnEid(entries: readonly CalendarEntry[]): CalendarEntry[] {
+  return entries.map((entry) => {
+    if (entry.times !== 'ramadan') return entry;
+    const eid = entries
+      .filter((one) => one.lunar === true && one.effect === 'no-school' && one.layer === 'national')
+      .map((one) => daysBetween(entry.from, one.from))
+      .filter((days) => days >= 27 && days <= 32)
+      .sort((a, b) => a - b)[0];
+    return eid === undefined ? entry : { ...entry, to: addDays(entry.from, eid - 1) };
+  });
+}
+
 /** Reference bytes stay intact; only an exact, valid local lunar confirmation replaces their effect. */
 export function effectiveCalendar(
   reference: readonly CalendarEntry[],
@@ -63,11 +80,11 @@ export function effectiveCalendar(
     (entry) => entry.confirmedFrom !== undefined && reference.some((base) => validLunarConfirmation(entry, base)),
   );
   const replaced = new Set(confirmations.map((entry) => entry.id));
-  return [
+  return endingOnEid([
     ...reference.filter((entry) => !replaced.has(entry.id)),
     ...own.filter((entry) => entry.confirmedFrom === undefined && !receivedSuperseded(entry, reference, updatedIds)),
     ...confirmations,
-  ];
+  ]);
 }
 
 /** Records what the teacher says was announced, with a source, never an issuer-verification claim. */

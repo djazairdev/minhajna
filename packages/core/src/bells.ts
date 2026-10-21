@@ -101,7 +101,18 @@ export function templateFor(data: BellData, level: string, shift: Shift): BellTe
   );
 }
 
-export function ramadanLength(data: BellData, level: string): RamadanLength | null {
+/**
+ * A level's Ramadan session length: the one announced with the Ramadan entry,
+ * with the hours' own confidence and the source of the entry that announced
+ * them, never a sighting's, or the bell data's.
+ */
+export function ramadanLength(data: BellData, level: string, entry: CalendarEntry | null = null): RamadanLength | null {
+  const announced = entry?.hours?.lengths.find((length) => length.level === level);
+  if (entry?.hours !== undefined && announced !== undefined) {
+    const source =
+      entry.confirmedFrom === undefined ? entry.source : (JSON.parse(entry.confirmedFrom) as CalendarEntry).source;
+    return { level, minutes: announced.minutes, source, confidence: entry.hours.confidence };
+  }
   return data.ramadan.find((length) => length.level === level) ?? null;
 }
 
@@ -117,8 +128,9 @@ function usualTime(template: BellTemplate | null, school: School, slot: Slot): B
 }
 
 /**
- * Each slot's time at a school, for the level and shift, in the usual hours or Ramadan's. Null for a slot with no
- * time, such as one past the template's end, or in Ramadan when the level has no Ramadan length yet.
+ * Each slot's time at a school, for the level and shift, in the usual hours or Ramadan's, with the lengths announced
+ * with `ramadan` when it has them. Null for a slot with no time, such as one past the template's end. In Ramadan, a
+ * level with no Ramadan length yet keeps its usual times (answer 320).
  */
 export function bellTimes(
   data: BellData,
@@ -127,15 +139,16 @@ export function bellTimes(
   shift: Shift,
   hours: Hours,
   slots: readonly Slot[],
+  ramadan: CalendarEntry | null = null,
 ): (BellTime | null)[] {
   const template = templateFor(data, level, shift);
-  const length = ramadanLength(data, level);
+  const length = ramadanLength(data, level, ramadan);
   return slots.map((slot) => {
     if (hours === 'usual') return usualTime(template, school, slot);
     const own = timeAt(school.bells?.ramadan, slot);
     if (own !== undefined) return { slot, from: own.from, to: own.to, by: 'school' };
     const usual = usualTime(template, school, slot);
-    if (usual === null || length === null) return null;
+    if (usual === null || length === null) return usual;
     const end = Math.min(clockMinutes(usual.from) + length.minutes, clockMinutes(usual.to));
     return { slot, from: usual.from, to: clockOf(end), by: 'ramadan-rule' };
   });

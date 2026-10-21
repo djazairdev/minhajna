@@ -7,6 +7,7 @@ import {
   classGrades,
   compareDays,
   eachDay,
+  effectiveCalendar,
   forGrade,
   validLunarConfirmation,
   receivedSuperseded,
@@ -28,7 +29,10 @@ export interface CalendarRow {
   readonly inactive?: true;
 }
 
-/** Only entries that cover this school and, for grade-specific dates, one of its saved classes. */
+/**
+ * Only entries that cover this school and, for grade-specific dates, one of its saved classes. Ramadan shows the end
+ * it takes, the eve of Eid al-Fitr (answer 330), not the one recorded.
+ */
 export function schoolEntries(
   data: Pick<AppData, 'calendar' | 'updatedIds' | 'state' | 'year'>,
   schoolId: string,
@@ -49,7 +53,15 @@ export function schoolEntries(
           !data.calendar.some((base) => validLunarConfirmation(entry, base)) && { inactive: true as const }),
       })),
   ];
+  const effective = effectiveCalendar(data.calendar, data.state.calendar, data.updatedIds);
+  const ended = (row: CalendarRow): CalendarRow => {
+    const end = effective.find((one) => one.id === row.entry.id && one.times === 'ramadan')?.to;
+    return row.entry.times !== 'ramadan' || row.inactive === true || end === undefined
+      ? row
+      : { ...row, entry: { ...row.entry, to: end } };
+  };
   return rows
+    .map(ended)
     .filter(
       ({ entry }) =>
         entry.from <= data.year.to &&

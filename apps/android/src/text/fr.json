@@ -315,7 +315,7 @@
     "template": "Source : modèle {{level}}. Pour suivre la sonnerie de l'établissement, touchez une case et modifiez son heure.",
     "noTemplate": "Pas encore de modèle pour ce cycle. Touchez une case et saisissez son heure, comme la sonnerie de l'établissement.",
     "ramadanRule": "Pendant le Ramadan, chaque séance garde sa case et son heure de début, dure {{minutes}} minutes et compte comme une séance entière",
-    "noRamadan": "Les horaires du Ramadan de ce cycle arriveront avec leur annonce",
+    "noRamadan": "Les horaires du Ramadan de ce cycle ne sont pas encore annoncés : les séances gardent leurs horaires habituels jusque-là",
     "rules": {
       "book": "Le cahier de textes inscrit l'heure réelle de la séance, d'après ces horaires",
       "week": "Ni l'emploi du temps ni le nombre de séances avant les examens ne changent",

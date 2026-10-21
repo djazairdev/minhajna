@@ -55,7 +55,7 @@ const applied = (release: string, entries?: Parameters<typeof update>[1]): Recor
   applied: { update: update(release, entries), key: key.trusted.id, file: '{}' },
 });
 const has = (id: string) => settingsRoot().findAll((node) => node.props.testID === id).length > 0;
-const withUpdate = async (release = '2026.4') => {
+const withUpdate = async (release = '2026.5') => {
   const data = { ...(await withDay()), keys: [key.trusted] };
   await data.book.record(parseDay('2026-10-15'), applied(release));
   return data;
@@ -74,7 +74,7 @@ afterEach(async () => {
 test.each(['ar', 'fr', 'en'] as const)('shows what an applied update changed (%s)', async (language) => {
   const onCalendar = jest.fn();
   const data = await withUpdate();
-  await showSettingsScreen(<UpdateChanges release="2026.4" onCalendar={onCalendar} />, data, language);
+  await showSettingsScreen(<UpdateChanges release="2026.5" onCalendar={onCalendar} />, data, language);
   const own = catalogues[language].calendarView.update;
   expect(settingsTexts()).toContain(own.changed.title);
   expect(settingsTexts()).toContain(own.changed.sessions);
@@ -108,7 +108,7 @@ test('Today shows the card on the day the update is applied, until it is hidden'
   expect(settingsTexts()).toContain(text.today.title);
   expect(accessibilityProblems(settingsRoot())).toEqual([]);
   await pressSettings('today-update-open');
-  expect(open).toHaveBeenCalledWith('2026.4');
+  expect(open).toHaveBeenCalledWith('2026.5');
   await pressSettings('today-update-hide');
   expect(has('today-update')).toBe(false);
 });
@@ -140,10 +140,10 @@ test('the Calendar names its latest update, and an entry the update it comes fro
   await showSettingsScreen(<Calendar onEntry={jest.fn()} onUpdate={onUpdate} />, data);
   expect(settingsTexts()).toContain(text.footnote.replace('{{day}}', formatDay(parseDay('2026-10-15'))));
   await pressSettings('calendar-last-update');
-  expect(onUpdate).toHaveBeenCalledWith('2026.4');
+  expect(onUpdate).toHaveBeenCalledWith('2026.5');
   await showSettingsScreen(<CalendarEntry id="example-mine" origin="bundled" schoolId="s-1" />, data);
   const origin = settingsRoot().find((node) => node.props.testID === 'calendar-entry-origin');
-  expect(String(origin.props.children)).toContain('2026.4');
+  expect(String(origin.props.children)).toContain('2026.5');
   expect(String(origin.props.children)).toContain('Example holder');
   expect(has('calendar-entry-first')).toBe(true);
 });

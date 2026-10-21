@@ -23,7 +23,12 @@
     "source": "The announcement you consulted",
     "notice": "After the sighting is announced, choose the first holiday day and give the announcement's source. Its duration stays the same. This is your local confirmation, not verification by an authority.",
     "local": "Confirmed by you on this device. The bundled reference is unchanged. Cancel this entry to withdraw your confirmation.",
-    "stale": "The reference behind this confirmation changed. Its old dates no longer apply; review the bundled entry again or withdraw the old confirmation."
+    "stale": "The entry behind this confirmation changed. Its old dates no longer apply; review the entry again or withdraw the old confirmation.",
+    "ramadan": {
+      "open": "Confirm the first day of Ramadan",
+      "day": "First day of Ramadan in the announcement",
+      "notice": "After the sighting is announced, choose the first day of Ramadan and give the announcement's source. Ramadan ends on the eve of Eid al-Fitr, as the calendar has it. This is your local confirmation, not verification by an authority."
+    }
   },
   "edit": {
     "add": "Add entry",
@@ -106,6 +111,14 @@
   "weekLetter": "Week of {{from}}: {{letter}}",
   "noLetter": "No letter, outside the teaching weeks",
   "ramadan": "Ramadan bell times apply. A shortened session still counts as one session.",
+  "ramadanHours": {
+    "times": "Times: {{confidence}}",
+    "first": "First day: {{confidence}}",
+    "title": "Session length in Ramadan, by level",
+    "lengthFrom": "Each session keeps its slot and its start time, and lasts {{minutes}} minutes instead of {{usual}}.",
+    "length": "Each session keeps its slot and its start time, and lasts {{minutes}} minutes.",
+    "none": "Not announced yet: sessions keep their usual length."
+  },
   "effect": {
     "no-school": "Holiday: sessions are not held.",
     "closure": "Closure: calendar losses are counted separately.",
@@ -300,6 +313,8 @@
       "origin": "From calendar update {{release}}, published {{day}}, signed by {{holder}}. The source above says where the date came from.",
       "first": "The first dates: {{range}}",
       "reason": "Why it changed: {{reason}}"
-    }
+    },
+    "hours": "Ramadan session length ({{confidence}}): {{lengths}}",
+    "hoursDropped": "It no longer carries the Ramadan session lengths: they go back to the provisional lengths in the bell times, or to the usual times where there are none."
   }
 }
