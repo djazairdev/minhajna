@@ -22,7 +22,8 @@ export const SIGNED_FORMAT = 'minhajna.signed';
 export const SIGNED_BYTES = 16_384;
 
 const KEY_ID = /^[a-z0-9][a-z0-9-]{0,39}$/;
-const BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+/** Padded base64 in whole four-character units, which every platform's decoder reads the same way. */
+const BASE64 = /^(?:[A-Za-z0-9+/]{4})+$|^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)$/;
 const FINGERPRINT = /^[0-9a-f]{64}$/;
 
 /** A key the app trusts: who holds it, its public half (SubjectPublicKeyInfo, DER, base64) and its fingerprint. */
@@ -91,6 +92,7 @@ export async function openSigned(
     !KEY_ID.test(id) ||
     typeof payload !== 'string' ||
     payload === '' ||
+    utf8Length(payload) === null ||
     typeof signature !== 'string' ||
     signature.length > 200 ||
     !BASE64.test(signature)

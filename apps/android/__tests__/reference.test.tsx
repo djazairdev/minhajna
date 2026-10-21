@@ -55,6 +55,8 @@ test("reads Algeria's bundled profile, 2026/27 calendar, bell times and packs th
     'dz.primary.5ap.arabic.example',
   ]);
   expect(reference.refusedPacks).toBe(0);
+  expect(reference.keys).toEqual([]);
+  expect(reference.refusedKeys).toBe(false);
 });
 
 test('shows the navigation preview when the data and history read', async () => {
@@ -70,6 +72,15 @@ test('leaves out a refused plan pack on its own, and keeps the rest of the data'
   if (!reference.ok) return;
   expect(reference.packs).toHaveLength(2);
   expect(reference.refusedPacks).toBe(1);
+});
+
+test('trusts no key when the key list is refused, and keeps the rest of the data', () => {
+  const reference = readReference({ ...bundledReference, keys: { format: 2, keys: [] } });
+  expect(reference.ok).toBe(true);
+  if (!reference.ok) return;
+  expect(reference.keys).toEqual([]);
+  expect(reference.refusedKeys).toBe(true);
+  expect(reference.packs).toHaveLength(3);
 });
 
 describe('a refused file', () => {

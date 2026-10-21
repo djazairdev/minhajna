@@ -73,6 +73,11 @@ test('reads the file strictly', async () => {
     { ...file, payload: '' },
     { ...file, payload: payload },
     { ...file, signature: 'not base64!' },
+    { ...file, signature: 'AAAAA' },
+    { ...file, signature: 'AAA' },
+    { ...file, signature: 'AA=' },
+    { ...file, signature: 'AAAA=' },
+    { ...file, payload: '{"text":"\ud800"}' },
     { ...file, signature: 'A'.repeat(204) },
     [file],
   ];
