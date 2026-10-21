@@ -62,6 +62,17 @@ export function TodayUpdate({ day, open }: { day: Day; open: (release: string) =
             `${t(`calendarView.update.kinds.${change.kind}`)} · ${localized(change.entry.name)}`,
             t('calendarView.range', { from: formatDay(change.entry.from), to: formatDay(change.entry.to) }),
             t('settings.source', { source: isolate(change.entry.source) }),
+            ...(change.entry.moved === undefined
+              ? []
+              : [
+                  t('calendarView.update.moved', {
+                    range: t('calendarView.range', {
+                      from: formatDay(change.entry.moved.from),
+                      to: formatDay(change.entry.moved.to),
+                    }),
+                    reason: isolate(change.entry.moved.reason),
+                  }),
+                ]),
           ].join(' · ')}
         </Text>
       ))}

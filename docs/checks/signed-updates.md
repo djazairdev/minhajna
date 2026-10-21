@@ -73,6 +73,7 @@ The key's holder makes it, offline, on their own computer (answer 304). The priv
 - **After applying:** «ما تغيّر» shows what the update changed, and the sessions it still takes or gives back from today on (answers 312 and 314).
 - **On Today:** a card shows on the day an update that concerns the teacher is applied (answers 311 and 315).
 - **On the Calendar:** «آخر تحديث» names the latest update (answer 313), and an entry from an update names it.
+- **A moved exam window:** the class plan shows the new dates with the first ones struck and the reason, as does Today's card (answer 322). The preview and «ما تغيّر» show each class's spare sessions before the exams, counted from today, its sessions after them until the end of the term, and, when there are more of them, the plan items that no longer fit, with its plan to open (answers 323, 324). A move announced less than two weeks before its new first day is said to be late, dated by the release that first made the move, and nothing is blocked (answer 325).
 
 ## Checks
 

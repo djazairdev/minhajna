@@ -15,7 +15,7 @@
 // test or the exams, and aligning a class that is behind (#225). Under the
 // check line, the September check printed for an inspector (#225).
 
-import { courseSetup, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
+import { courseSetup, formatDay, pace, planView, termCheck, type PackItem, type PlanRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -34,6 +34,7 @@ import { ExamWarnings } from '../exams/ExamWarnings';
 import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
 import { dayMonth, rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
+import { isolate } from '../week/grid-labels';
 import { ParallelPanel } from './ParallelPanel';
 import { PlanHeader } from './PlanHeader';
 
@@ -158,6 +159,21 @@ export function ClassPlan(props: ClassPlanProps) {
       <View testID="plan-pace" accessible style={styles.card}>
         <Text style={[styles.title, align]}>{line}</Text>
         {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}
+        {check?.moved != null && (
+          <Text
+            testID="plan-exam-moved"
+            accessibilityLabel={t('calendarView.update.moved', {
+              range: t('calendarView.range', { from: formatDay(check.moved.from), to: formatDay(check.moved.to) }),
+              reason: check.moved.reason,
+            })}
+            style={[styles.note, align]}
+          >
+            <Text style={styles.struck}>
+              {t('calendarView.range', { from: formatDay(check.moved.from), to: formatDay(check.moved.to) })}
+            </Text>
+            {` · ${t('calendarView.update.entry.reason', { reason: isolate(check.moved.reason) })}`}
+          </Text>
+        )}
         {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
         {(paced?.lost.rotation ?? 0) > 0 && (
           <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
@@ -249,4 +265,5 @@ const styles = StyleSheet.create({
   title: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },
+  struck: { textDecorationLine: 'line-through' },
 });

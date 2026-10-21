@@ -111,14 +111,22 @@ test("an update's change list names the Ramadan lengths it announces, and only w
     hours: { confidence: 'projected', lengths: [{ level: 'cem', minutes: 45 }] },
   });
   await showSettingsScreen(
-    <UpdateChangeList mine={[{ kind: 'changed', entry: ramadan, before }]} others={0} />,
+    <UpdateChangeList
+      mine={[{ kind: 'changed', entry: ramadan, before }]}
+      others={0}
+      published={parseDay('2027-01-20')}
+    />,
     await withRamadan(),
     'en',
   );
   expect(text('update-hours-ramadan')).toContain('40');
   expect(text('update-hours-ramadan')).toContain(catalogues.en.settings.confidence.announced);
   await showSettingsScreen(
-    <UpdateChangeList mine={[{ kind: 'changed', entry: ramadan, before: ramadan }]} others={0} />,
+    <UpdateChangeList
+      mine={[{ kind: 'changed', entry: ramadan, before: ramadan }]}
+      others={0}
+      published={parseDay('2027-01-20')}
+    />,
     await withRamadan(),
     'en',
   );

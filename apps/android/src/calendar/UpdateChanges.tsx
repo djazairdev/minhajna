@@ -31,7 +31,15 @@ export function holderOf(keys: ReturnType<typeof useAppData>['keys'], id: string
   return isolate(key === undefined ? id : localized(key.holder));
 }
 
-export function UpdateChanges({ release, onCalendar }: { release: string; onCalendar: () => void }) {
+export function UpdateChanges({
+  release,
+  onCalendar,
+  onPlan,
+}: {
+  release: string;
+  onCalendar: () => void;
+  onPlan?: (courseId: string) => void;
+}) {
   const data = useAppData();
   const t = useText();
   const { direction } = useLocale();
@@ -85,9 +93,17 @@ export function UpdateChanges({ release, onCalendar }: { release: string; onCale
               <Text accessibilityRole="header" style={[styles.title, align]}>
                 {t('calendarView.update.changes')}
               </Text>
-              <UpdateChangeList mine={changes.mine} others={changes.others} />
+              <UpdateChangeList
+                mine={changes.mine}
+                others={changes.others}
+                published={changes.applied.update.published}
+              />
               {changes.mine.length > 0 && changes.impact.changes.length > 0 && (
-                <Impact impact={changes.impact} heading={t('calendarView.update.changed.sessions')} />
+                <Impact
+                  impact={changes.impact}
+                  heading={t('calendarView.update.changed.sessions')}
+                  {...(onPlan !== undefined && { onPlan })}
+                />
               )}
             </>
           )}

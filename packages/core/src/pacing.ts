@@ -11,13 +11,13 @@
 // is never an absence (PRD §2.3, rule 5).
 
 import type { Context } from './context.ts';
-import { addDays, compareDays, isWithin, type Day } from './day.ts';
+import { addDays, compareDays, isWithin, maxDay, type Day } from './day.ts';
 import { courseSetup, type CourseSetup } from './choices.ts';
 import { walkCourse } from './engine.ts';
 import { courseGrade, forGrade } from './joint.ts';
 import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
-import { findSessionType, type Confidence, type Queue } from './reference.ts';
+import { findSessionType, type CalendarEntry, type Confidence, type Queue } from './reference.ts';
 import { compareSessions, sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
 import { rotationCredits } from './rotation-sessions.ts';
@@ -207,6 +207,12 @@ export interface TermCheck {
   readonly needs: number;
   /** Sessions the timetable and the calendar give from `from` until then. */
   readonly gives: number;
+  /** Plan items before then that do not fit in the sessions it gives, in plan order; 0 once then is past. */
+  readonly itemsAfter: number;
+  /** Sessions given after the exam window's last part until the term's end (answer 323); null without a window. */
+  readonly afterExams: number | null;
+  /** The first moved part of the exam window: its dates before an update moved it, and why (R-7.10-06). */
+  readonly moved: CalendarEntry['moved'] | null;
   /**
    * TD has its own queue, counted apart: it never adds to the plan's
    * sessions nor to its spare ones (PRD §4.7). `items` are the TD items
@@ -236,29 +242,30 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
   if (term === undefined || !items.some((item) => item.term !== undefined)) return null;
 
   const school = state.schools.get(setup.schoolClass.schoolId);
-  const exam = school
-    ? calendar
-        .entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass)))
-        .filter((entry) => entry.effect === 'exam' && entry.term === term.number)
-        .sort((a, b) => compareDays(a.from, b.from))[0]
-    : undefined;
+  const parts = (
+    school ? calendar.entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass))) : []
+  )
+    .filter((entry) => entry.effect === 'exam' && entry.term === term.number)
+    .sort((a, b) => compareDays(a.from, b.from));
+  const exam = parts[0];
   const before = exam?.from ?? addDays(term.to, 1);
 
   const whole = setup.schoolClass.groups.find((group) => group.kind === 'whole')?.id ?? '';
   const progress = walkCourse(context, courseId, addDays(before, -1)).progress;
-  const needs = items
+  const left = items
     .filter((item) => item.term !== undefined && item.term <= term.number)
-    .reduce((sum, item) => {
+    .map((item) => {
       const budget = budgetInSessions(pack, item, setup.sessionMinutes);
-      return sum + budget * (1 - itemShare(pack, progress, item, whole, budget));
-    }, 0);
-  const open = (queue: Queue): number => {
-    if (compareDays(from, before) >= 0) return 0;
-    const all = queueSessions(context, setup, ref.year.from, addDays(before, -1), queue);
+      return budget * (1 - itemShare(pack, progress, item, whole, budget));
+    });
+  const needs = left.reduce((sum, rest) => sum + rest, 0);
+  const open = (queue: Queue, until = addDays(before, -1), start = from): number => {
+    if (compareDays(start, until) > 0) return 0;
+    const all = queueSessions(context, setup, ref.year.from, until, queue);
     const recorded = all.filter((session) => current(state.sessions.get(session.key)) !== null);
     const future = all.filter(
       (session) =>
-        session.day >= from && session.calendar === null && current(state.sessions.get(session.key)) === null,
+        session.day >= start && session.calendar === null && current(state.sessions.get(session.key)) === null,
     );
     return rotationCredits([...recorded, ...future]) - rotationCredits(recorded);
   };
@@ -268,13 +275,21 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
     return itemShare(pack, progress, item, whole, budgetInSessions(pack, item, setup.sessionMinutes)) < 1;
   });
 
+  const gives = open('main');
+  let planned = 0;
+  const itemsAfter = left.filter((rest) => rest > 1e-9 && (planned += rest) > gives + 1e-9).length;
   return {
     term: term.number,
     before,
     basis: exam === undefined ? 'term-end' : 'exam-window',
     confidence: exam?.confidence ?? null,
     needs: Math.ceil(needs - 1e-9),
-    gives: open('main'),
+    gives,
+    itemsAfter: compareDays(from, before) < 0 ? itemsAfter : 0,
+    afterExams: exam
+      ? open('main', term.to, maxDay(from, addDays(parts.map((part) => part.to).reduce(maxDay), 1)))
+      : null,
+    moved: parts.find((part) => part.moved !== undefined)?.moved ?? null,
     td: { gives: open('td'), items: tdItems.length },
   };
 }

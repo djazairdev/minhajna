@@ -1,7 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { editableCalendarEntry, entryUpdate, formatDay, isLunarHoliday, isWeekReset } from '@minhajna/core';
+import {
+  announcedLate,
+  editableCalendarEntry,
+  entryUpdate,
+  formatDay,
+  isLunarHoliday,
+  isWeekReset,
+  movePublished,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,6 +58,7 @@ export function CalendarEntry({
   const lunar = base !== undefined && isLunarHoliday(base) && entry !== undefined;
   const editable = entry !== undefined && origin === 'local' && editableCalendarEntry(coreContext(data), id) !== null;
   const fromUpdate = origin === 'bundled' ? entryUpdate(coreContext(data), id) : undefined;
+  const movedOn = origin === 'bundled' ? movePublished(coreContext(data), id) : undefined;
   return (
     <ScrollView
       style={styles.screen}
@@ -108,6 +117,11 @@ export function CalendarEntry({
                 {t('calendarView.update.entry.reason', { reason: isolate(entry.moved.reason) })}
               </Text>
             </>
+          )}
+          {movedOn !== undefined && announcedLate(entry, movedOn) && (
+            <Text testID="calendar-entry-late" style={[styles.body, align]}>
+              {t('calendarView.update.late')}
+            </Text>
           )}
           <Text testID="calendar-entry-origin" style={[styles.sub, align]}>
             {fromUpdate === undefined

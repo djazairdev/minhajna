@@ -40,6 +40,9 @@ describe('pacing', () => {
       confidence: 'announced',
       needs: 12,
       gives: 38,
+      itemsAfter: 0,
+      afterExams: 4,
+      moved: null,
       td: { gives: 10, items: 2 },
     });
     const primary = contextOf(await openBook(primaryEvents()));
@@ -50,6 +53,9 @@ describe('pacing', () => {
       confidence: null,
       needs: 11,
       gives: 94,
+      itemsAfter: 0,
+      afterExams: null,
+      moved: null,
       td: { gives: 0, items: 0 },
     });
   });

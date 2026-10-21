@@ -58,6 +58,13 @@
     "recorded": "Previously recorded sessions kept unchanged: {{count}}",
     "changeLine": "{{day}} · {{session}}: {{before}} → {{after}}",
     "capacity": "{{class}} · before {{day}} ({{basis}}): available sessions {{before}} → {{after}}; the plan needs {{needs}}.",
+    "spare": "Spare sessions before {{until}}: {{before}} → {{after}}",
+    "itemsAfter_one": "{{count}} plan item no longer fits before {{until}}. Nothing is moved later without your decision.",
+    "itemsAfter_other": "{{count}} plan items no longer fit before {{until}}. Nothing is moved later without your decision.",
+    "until": { "exams": "the exams", "termEnd": "the end of the term" },
+    "afterExams": "Sessions after the exams until the end of the term: {{before}} → {{after}}",
+    "afterExamsNew": "Sessions after the exams until the end of the term: {{after}}",
+    "openPlan": "Open the class's plan",
     "termEnd": "term end, not an announced exam date",
     "addSessions": "Choose sessions",
     "needZone": "Set the school's wilaya in Settings first.",
@@ -315,6 +322,7 @@
       "reason": "Why it changed: {{reason}}"
     },
     "hours": "Ramadan session length ({{confidence}}): {{lengths}}",
-    "hoursDropped": "It no longer carries the Ramadan session lengths: they go back to the provisional lengths in the bell times, or to the usual times where there are none."
+    "hoursDropped": "It no longer carries the Ramadan session lengths: they go back to the provisional lengths in the bell times, or to the usual times where there are none.",
+    "late": "This change was announced less than two weeks before its new date."
   }
 }

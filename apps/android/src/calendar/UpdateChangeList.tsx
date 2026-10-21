@@ -3,10 +3,19 @@
 
 // The entries an update adds, changes or takes out for the teacher's own
 // schools and classes, each with its dates and, for one it moves, the dates
-// it had and why, and Ramadan's announced lengths; the entries for others
-// are only counted (answer 310).
+// it had and why, said late when that move is new and under two weeks ahead
+// (answer 325), and Ramadan's announced lengths; the entries for others are
+// only counted (answer 310).
 
-import { canonicalJson, formatDay, type Day, type RamadanHours, type UpdateChange } from '@minhajna/core';
+import {
+  announcedLate,
+  canonicalJson,
+  formatDay,
+  newMove,
+  type Day,
+  type RamadanHours,
+  type UpdateChange,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Text, View } from 'react-native';
 import { localized } from '../setup/names';
@@ -15,7 +24,15 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 
-export function UpdateChangeList({ mine, others }: { mine: readonly UpdateChange[]; others: number }) {
+export function UpdateChangeList({
+  mine,
+  others,
+  published,
+}: {
+  mine: readonly UpdateChange[];
+  others: number;
+  published: Day;
+}) {
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -46,6 +63,11 @@ export function UpdateChangeList({ mine, others }: { mine: readonly UpdateChange
                 range: range(change.entry.moved.from, change.entry.moved.to),
                 reason: isolate(change.entry.moved.reason),
               })}
+            </Text>
+          )}
+          {newMove(change) && announcedLate(change.entry, published) && (
+            <Text testID={`update-late-${change.entry.id}`} style={[styles.body, align]}>
+              {t('calendarView.update.late')}
             </Text>
           )}
           {change.kind !== 'removed' && change.entry.hours !== undefined && newHours(change) && (
