@@ -12,6 +12,7 @@ import type { Session } from './sessions.ts';
 import { mergesOf } from './plan-decisions.ts';
 import { layered } from './plan-layer.ts';
 import { courseLayers } from './variant-layers.ts';
+import { ownPack } from './free-list.ts';
 import { propose, proposedCoverage, type Progress, type Proposal } from './progress.ts';
 
 /** What the teacher chose for a session (PRD §3.3). */
@@ -81,11 +82,16 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
   if (course === undefined || schoolClass === undefined) throw new RangeError(`Unknown course: ${courseId}`);
   const pack = course.pack === null ? null : (ref.packs.get(packKey(course.pack.id, course.pack.release)) ?? null);
   const sessionMinutes = course.sessionMinutes ?? findLevel(ref.country, schoolClass.level).sessionMinutes;
+  const list = course.pack === null ? state.lists.get(courseId) : undefined;
   return {
     course,
     schoolClass,
     pack:
-      pack === null ? null : layered(pack, state.decisions, courseId, sessionMinutes, courseLayers(state, courseId)),
+      list !== undefined
+        ? ownPack(list, course, schoolClass, ref.country)
+        : pack === null
+          ? null
+          : layered(pack, state.decisions, courseId, sessionMinutes, courseLayers(state, courseId)),
     packMissing: course.pack !== null && pack === null,
     sessionMinutes,
   };

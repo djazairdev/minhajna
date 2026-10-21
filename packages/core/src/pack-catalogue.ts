@@ -46,6 +46,8 @@ export function compareReleases(a: string, b: string): number {
   return yearA - yearB || fixA - fixB;
 }
 
+const rank = (status: PlanPack['status']): number => (STATUS_ORDER as readonly string[]).indexOf(status);
+
 /** The latest release of each edition for a grade and subject, the ones that apply best first. */
 export function packsFor(packs: Iterable<PlanPack>, grade: string, subject: string): PlanPack[] {
   const latest = new Map<string, PlanPack>();
@@ -55,9 +57,7 @@ export function packsFor(packs: Iterable<PlanPack>, grade: string, subject: stri
     const known = latest.get(pack.id);
     if (known === undefined || compareReleases(pack.release, known.release) > 0) latest.set(pack.id, pack);
   }
-  return [...latest.values()].sort(
-    (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) || a.id.localeCompare(b.id),
-  );
+  return [...latest.values()].sort((a, b) => rank(a.status) - rank(b.status) || a.id.localeCompare(b.id));
 }
 
 /** The pin for a pack's release. */

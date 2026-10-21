@@ -93,7 +93,8 @@ export interface PlanPack {
   readonly id: string;
   /** Such as `2026.1`. */
   readonly release: string;
-  readonly status: PackStatus;
+  /** `own` only for a class's own list, never in a file (#227). */
+  readonly status: PackStatus | 'own';
   readonly licence: LicenceMode;
   /** The subject's language, which the documents use. */
   readonly language: string;

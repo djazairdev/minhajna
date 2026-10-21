@@ -335,7 +335,8 @@
       "latest-found": "Latest edition found",
       "stale": "Stale plan",
       "community": "Community plan",
-      "example": "Example to try"
+      "example": "Example to try",
+      "own": "My list · not reviewed"
     },
     "meaning": {
       "official": "Published by the issuing authority itself, through Minhajna.",
@@ -343,7 +344,8 @@
       "latest-found": "The newest edition found, keyed and checked. Check with your inspector.",
       "stale": "A later decision changed the subject's hours or content: nothing is proposed from it, and typing the items still works.",
       "community": "A teacher's or a district's plan, reviewed before publishing, and credited with its authors' consent. Not official.",
-      "example": "A made-up pack to try the app, not a plan. Real plans come in Minhajna's packs."
+      "example": "A made-up pack to try the app, not a plan. Real plans come in Minhajna's packs.",
+      "own": "A list the teacher typed for this class, without a pack. Nobody has reviewed it."
     },
     "anchor": {
       "weeks": "Timing: by weeks",

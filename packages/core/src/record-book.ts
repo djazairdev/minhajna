@@ -44,6 +44,8 @@ function recordKey(event: RecordEvent): string {
       return `layer:${layerKey(event.added.layer)}`;
     case 'layer.switched':
       return `layer-switch:${switchKey(event.switched.courseId, event.switched.level)}`;
+    case 'list.set':
+      return `list:${event.list.courseId}`;
     case 'session.recorded':
       return `session:${event.record.session.key}`;
     case 'session.withdrawn':

@@ -54,6 +54,8 @@ export function recordKey(entry: Entry): string | null {
       return `layer/${event.added.layer.level}:${event.added.layer.id}`;
     case 'layer.switched':
       return `layer-switch/${event.switched.courseId}/${event.switched.level}`;
+    case 'list.set':
+      return `list/${event.list.courseId}`;
     case 'session.recorded':
       return `session/${event.record.session.key}`;
     case 'session.withdrawn':

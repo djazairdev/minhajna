@@ -259,7 +259,9 @@ export function findPackItem(pack: PlanPack | null | undefined, id: string): Pac
 
 /** The items a course's layers and changes skip, among those its layered pack has, each once. */
 export function skippedBy(pack: PlanPack, decisions: Decisions, courseId: string): string[] {
-  const own = changesFor(decisions, courseId).flatMap((change) => (change.kind === 'skip' ? [change.item] : []));
+  const own = (pack.status === 'own' ? [] : changesFor(decisions, courseId)).flatMap((change) =>
+    change.kind === 'skip' ? [change.item] : [],
+  );
   const skips = new Set([...(pack.fromLayers?.skips ?? []), ...own]);
   return [...skips].filter((id) => pack.items.some((item) => item.id === id && item.kind !== 'unit'));
 }
@@ -271,7 +273,9 @@ export function skippedBy(pack: PlanPack, decisions: Decisions, courseId: string
  */
 export function joinsOf(pack: PlanPack, decisions: Decisions, courseId: string): [string, string][] {
   const joins: [string, string][] = [];
-  const own = changesFor(decisions, courseId).flatMap((change) => (change.kind === 'join' ? [change.items] : []));
+  const own = (pack.status === 'own' ? [] : changesFor(decisions, courseId)).flatMap((change) =>
+    change.kind === 'join' ? [change.items] : [],
+  );
   for (const items of [...(pack.fromLayers?.joins ?? []), ...own]) {
     for (const queue of ['main', 'td'] as const) {
       const order = queueItems(pack, queue).map((item) => item.id);
