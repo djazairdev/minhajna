@@ -12,6 +12,7 @@ import {
   type PlanPack,
   type RecordBook,
   type SchoolYear,
+  type TrustedKey,
 } from '@minhajna/core';
 import type { ReactNode } from 'react';
 import { bundledReference, readReference } from '../src/reference';
@@ -30,6 +31,7 @@ export interface TestData {
   readonly updatedIds: readonly string[];
   readonly bells: BellData;
   readonly packs: readonly PlanPack[];
+  readonly keys: readonly TrustedKey[];
 }
 
 /** Opens an empty history, or the one in `storage`. */
@@ -47,6 +49,7 @@ export async function openTestData(storage = new FakeStorage()): Promise<TestDat
     updatedIds: [],
     bells: reference.bells,
     packs: reference.packs,
+    keys: reference.keys,
   };
 }
 
@@ -61,6 +64,7 @@ export function withData(data: TestData, children: ReactNode, day = '2026-10-15'
       calendarRelease={data.calendarRelease}
       bells={data.bells}
       packs={data.packs}
+      keys={data.keys}
       random={nativeDeps(data.storage.asSpec()).random}
       today={() => parseDay(day)}
     >

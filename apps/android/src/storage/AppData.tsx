@@ -20,6 +20,7 @@ import {
   type RecordEvent,
   type SchoolYear,
   type State,
+  type TrustedKey,
   updatedReference,
 } from '@minhajna/core';
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -34,6 +35,8 @@ export interface AppData {
   readonly calendarRelease: string;
   /** The IDs of the entries applied updates replaced or took out. */
   readonly updatedIds: readonly string[];
+  /** The keys signed updates are checked with (#223). */
+  readonly keys: readonly TrustedKey[];
   /** The bundled bell times (#29). */
   readonly bells: BellData;
   /** The bundled plan packs that read (#30). */
@@ -77,6 +80,7 @@ export function AppDataProvider({
   calendarRelease,
   bells,
   packs,
+  keys,
   random,
   today = todayOf,
   children,
@@ -88,6 +92,7 @@ export function AppDataProvider({
   calendarRelease: string;
   bells: BellData;
   packs: readonly PlanPack[];
+  keys: readonly TrustedKey[];
   random: RandomBytes;
   today?: () => Day;
   children: ReactNode;
@@ -117,6 +122,7 @@ export function AppDataProvider({
       calendarRelease,
       bells,
       packs,
+      keys,
       record: (event: RecordEvent) => save(() => book.record(today(), event)),
       recordAll: (events: readonly RecordEvent[]) => save(() => book.recordAll(today(), events)),
       erase: (match: (event: RecordEvent) => boolean) =>
@@ -144,7 +150,7 @@ export function AppDataProvider({
         return failureCount.current === started;
       },
     };
-  }, [book, profile, year, calendarRelease, bells, packs, random, today]);
+  }, [book, profile, year, calendarRelease, bells, packs, keys, random, today]);
   const updated = useMemo(
     () =>
       updatedReference({ country: profile, year, calendar, calendarRelease, packs: new Map() }, state.calendarUpdates),

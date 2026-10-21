@@ -178,5 +178,105 @@
       "acknowledge": "Vérifiez d’abord l’avis et confirmez qu’il concerne votre sélection.",
       "input": "Le fichier ou le code n’a pas pu être lu. Réessayez ou utilisez un fichier à la place de la caméra."
     }
+  },
+  "update": {
+    "open": "Importer une mise à jour",
+    "lead": "Un calendrier signé, sans réseau",
+    "hint": "Un fichier d'un collègue ou de l'établissement, par Bluetooth ou clé USB. Il est ouvert à part, et sa signature est vérifiée avant tout.",
+    "scanTitle": "Scanner une mise à jour signée",
+    "via": {
+      "file": "Ouvert depuis un fichier · {{day}}",
+      "qr": "Scanné depuis un code QR · {{day}}"
+    },
+    "status": {
+      "new": "Du nouveau",
+      "held": "Déjà présente",
+      "older": "Plus ancienne que la mienne"
+    },
+    "signed": "Signature valide",
+    "signer": "Signée par : {{holder}}. Rien n'a changé dans le fichier depuis sa signature.",
+    "fingerprint": "Empreinte de la clé",
+    "contents": "Ce qu'elle contient",
+    "calendar": "Calendrier national {{year}}",
+    "release": "Version {{release}} · publiée le {{day}}",
+    "changes": "Ce qui change pour mes classes",
+    "kinds": {
+      "added": "Ajouté",
+      "changed": "Modifié",
+      "removed": "Supprimé"
+    },
+    "moved": "Était {{range}} · motif : {{reason}}",
+    "none": "Rien ne concerne mes établissements et mes classes.",
+    "others_one": "Elle contient aussi {{count}} entrée qui ne me concerne pas, non affichée.",
+    "others_many": "Elle contient aussi {{count}} d'entrées qui ne me concernent pas, non affichées.",
+    "others_other": "Elle contient aussi {{count}} entrées qui ne me concernent pas, non affichées.",
+    "held": "Cette mise à jour est déjà dans le calendrier : rien ne change.",
+    "older": "Le calendrier contient une version plus récente : elle n'est pas appliquée.",
+    "apply": "Appliquer la mise à jour",
+    "another": "Ouvrir un autre fichier",
+    "refused": "Refusée",
+    "checked": "Ce qui a été vérifié",
+    "checks": {
+      "format": "Un fichier de mise à jour au format de Minhajna",
+      "key": "Nomme une clé à laquelle l'application fait confiance",
+      "keyOf": "Nomme la clé de {{holder}}, avec son empreinte publiée",
+      "signature": "La signature correspond au contenu du fichier",
+      "content": "Une mise à jour du calendrier de cette année et de ce pays"
+    },
+    "check": {
+      "passed": "{{check}} : oui",
+      "failed": "{{check}} : non",
+      "skipped": "{{check}} : non vérifié"
+    },
+    "source": "D'où il vient",
+    "unchanged": "Rien n'a changé",
+    "unchangedBody": "Rien n'a été appliqué : le calendrier et mes classes sont comme avant.",
+    "whatNow": "Que faire maintenant",
+    "whatNowBody": "Redemandez le fichier à qui l'a envoyé, ou scannez son code directement sur son téléphone.",
+    "report": "Signaler le fichier",
+    "reportHint": "L'aide dit quoi envoyer : le nom du fichier et la raison du refus, pas son contenu.",
+    "everyUpdate": "Chaque mise à jour est vérifiée ainsi avant d'être appliquée : si elle a été modifiée après sa signature, cela apparaît ici et elle n'est pas appliquée.",
+    "problems": {
+      "invalid": {
+        "title": "Ce n'est pas un fichier de mise à jour au format de Minhajna : il n'est pas appliqué",
+        "body": "C'est peut-être un autre fichier, ou une copie incomplète."
+      },
+      "version": {
+        "title": "Le format de ce fichier est plus récent que l'application : il n'est pas appliqué",
+        "body": "Mettez l'application à jour, puis rouvrez le fichier."
+      },
+      "update-version": {
+        "title": "Le format de ce fichier est plus récent que l'application : il n'est pas appliqué",
+        "body": "Mettez l'application à jour, puis rouvrez le fichier."
+      },
+      "unknown-key": {
+        "title": "Aucune clé de confiance ne l'a signé : il n'est pas appliqué",
+        "body": "La clé est peut-être plus récente que l'application : mettez-la à jour, ou demandez le fichier à sa source."
+      },
+      "signature": {
+        "title": "Ce fichier a changé après sa signature : il n'est pas appliqué",
+        "body": "La signature ne correspond pas au contenu : quelque chose a changé après la signature. C'est peut-être une copie incomplète, ou il a été modifié."
+      },
+      "payload": {
+        "title": "Le contenu du fichier est illisible : il n'est pas appliqué",
+        "body": "La signature est valide, mais le contenu ne suit pas le format. Mettez l'application à jour, ou signalez-le."
+      },
+      "kind": {
+        "title": "Cette mise à jour ne concerne pas le calendrier : elle n'est pas appliquée",
+        "body": "Les plans signés arrivent dans une version ultérieure de l'application."
+      },
+      "country": {
+        "title": "Cette mise à jour est pour un autre pays : elle n'est pas appliquée",
+        "body": "Elle ne concerne pas le calendrier de l'application."
+      },
+      "year": {
+        "title": "Cette mise à jour est pour une autre année scolaire : elle n'est pas appliquée",
+        "body": "Elle ne concerne pas le calendrier de l'application."
+      },
+      "content": {
+        "title": "Le contenu de la mise à jour est illisible : elle n'est pas appliquée",
+        "body": "La signature est valide, mais le contenu ne suit pas le format du calendrier. Mettez l'application à jour, ou signalez-le."
+      }
+    }
   }
 }
