@@ -65,7 +65,7 @@ function queueOf(context: Context, session: Session): string {
  * stages. One without runs as "in progress / done", so the sessions spent on
  * it are all there is.
  */
-function share(pack: PlanPack, progress: Progress, item: PackItem, groupId: string, budget: number): number {
+export function itemShare(pack: PlanPack, progress: Progress, item: PackItem, groupId: string, budget: number): number {
   if (progress.isFinished(pack, item, groupId)) return 1;
   const stages = stageCount(pack, item);
   if (stages > 1) return progress.covered(item.id, groupId) / stages;
@@ -141,7 +141,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
   const budgetOf = (item: PackItem): number => budgets.get(item.id) ?? 1;
   const total = items.reduce((sum, item) => sum + budgetOf(item), 0);
   const position = items.reduce(
-    (sum, item) => sum + budgetOf(item) * share(pack, progress, item, whole, budgetOf(item)),
+    (sum, item) => sum + budgetOf(item) * itemShare(pack, progress, item, whole, budgetOf(item)),
     0,
   );
 
@@ -170,7 +170,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
   const term = nextExamTerm(context, setup, today);
   const bufferLeft = items
     .filter((item) => item.buffer === true && (term === undefined || item.term === undefined || item.term === term))
-    .reduce((sum, item) => sum + budgetOf(item) * (1 - share(pack, progress, item, whole, budgetOf(item))), 0);
+    .reduce((sum, item) => sum + budgetOf(item) * (1 - itemShare(pack, progress, item, whole, budgetOf(item))), 0);
 
   const behind = expected - position;
   const delay = Math.max(0, behind - bufferLeft);
@@ -250,7 +250,7 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
     .filter((item) => item.term !== undefined && item.term <= term.number)
     .reduce((sum, item) => {
       const budget = budgetInSessions(pack, item, setup.sessionMinutes);
-      return sum + budget * (1 - share(pack, progress, item, whole, budget));
+      return sum + budget * (1 - itemShare(pack, progress, item, whole, budget));
     }, 0);
   const open = (queue: Queue): number => {
     if (compareDays(from, before) >= 0) return 0;
@@ -265,7 +265,7 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
   const tdItems = queueItems(pack, 'td').filter((item) => {
     const itemTerm = tdTerm(pack, item);
     if (itemTerm === undefined || itemTerm > term.number) return false;
-    return share(pack, progress, item, whole, budgetInSessions(pack, item, setup.sessionMinutes)) < 1;
+    return itemShare(pack, progress, item, whole, budgetInSessions(pack, item, setup.sessionMinutes)) < 1;
   });
 
   return {

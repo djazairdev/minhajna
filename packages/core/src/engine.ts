@@ -32,9 +32,15 @@ type Visitor = (session: Session, proposal: () => Proposal | null, progress: Pro
  * Goes through a course's sessions from the start of the year to `upTo`, in
  * order. Recorded sessions move the progress. For the others, `visit`
  * decides what to count: a proposal shown as if done, or a new record.
- * Returns the progress of the recorded sessions alone.
+ * Returns the progress of the recorded sessions alone, and with what was counted.
  */
-function walk(context: Context, setup: CourseSetup, upTo: Day, ignore: ReadonlySet<string>, visit: Visitor): Progress {
+function walk(
+  context: Context,
+  setup: CourseSetup,
+  upTo: Day,
+  ignore: ReadonlySet<string>,
+  visit: Visitor,
+): { readonly recorded: Progress; readonly counted: Progress } {
   const { ref, state } = context;
   const recorded = Progress.of(setup.schoolClass);
   const chain = Progress.of(setup.schoolClass);
@@ -57,7 +63,7 @@ function walk(context: Context, setup: CourseSetup, upTo: Day, ignore: ReadonlyS
     const counted = visit(session, () => proposalFor(context, setup, chain, session, session.sessionType), chain);
     if (counted !== null) chain.apply(counted);
   }
-  return recorded;
+  return { recorded, counted: chain };
 }
 
 export interface CourseWalk {
@@ -66,6 +72,8 @@ export interface CourseWalk {
   readonly proposals: ReadonlyMap<string, Proposal | null>;
   /** The progress of the recorded sessions alone. */
   readonly progress: Progress;
+  /** The progress with every proposal up to `upTo` counted as done, as the plan projects it. */
+  readonly projected: Progress;
 }
 
 /**
@@ -77,13 +85,13 @@ export interface CourseWalk {
 export function walkCourse(context: Context, courseId: string, upTo: Day): CourseWalk {
   const setup = courseSetup(context, courseId);
   const proposals = new Map<string, Proposal | null>();
-  const progress = walk(context, setup, upTo, new Set(), (session, proposal) => {
+  const { recorded: progress, counted: projected } = walk(context, setup, upTo, new Set(), (session, proposal) => {
     if (session.calendar !== null) return null;
     const p = proposal();
     proposals.set(session.key, p);
     return p === null ? null : recordOf(session, { outcome: 'done' }, proposedCoverage(p), {}, session.sessionType);
   });
-  return { setup, proposals, progress };
+  return { setup, proposals, progress, projected };
 }
 
 export interface Confirmation {

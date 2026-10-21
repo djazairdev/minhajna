@@ -72,11 +72,16 @@ export function rowSpoken(t: Translate, row: PlanRow, comma: string, postponed =
     .join(comma);
 }
 
+/** A term's name, «الأول», or its number when there is no name for it. */
+export function termName(t: Translate, term: number): string {
+  return term >= 1 && term <= 3 ? t(`classPlan.term${term as 1 | 2 | 3}`) : String(term);
+}
+
 /** «حتى اختبارات الفصل الأول (29/11): 32 حصة درس، ويحتاج منها المخطط 26.» */
 export function untilLine(t: Translate, check: TermCheck): string {
   const sessions = (count: number) => t('count.sessions', { count });
   return t(check.basis === 'exam-window' ? 'classPlan.untilExams' : 'classPlan.untilEnd', {
-    term: check.term >= 1 && check.term <= 3 ? t(`classPlan.term${check.term as 1 | 2 | 3}`) : check.term,
+    term: termName(t, check.term),
     day: dayMonth(check.before),
     gives: sessions(check.gives),
     needs: sessions(check.needs),

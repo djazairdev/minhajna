@@ -660,7 +660,19 @@
     "keyedBy": "Keyed by Minhajna’s curators",
     "details": "Pack details",
     "changes": "My changes to the class’s plan",
-    "openItem": "Opens the item and what you can change in it for this class"
+    "openItem": "Opens the item and what you can change in it for this class",
+    "drift_one": "{{here}} and {{there}} are one session apart before {{before}}, {{day}}.",
+    "drift_other": "{{here}} and {{there}} are {{count}} sessions apart before {{before}}, {{day}}.",
+    "driftBadge": "Drift",
+    "driftExams": "the term {{term}} exams",
+    "driftEnd": "the end of the plan",
+    "driftWhere": "As the plans stand, {{behind}} would be at {{behindAt}} and {{ahead}} at {{aheadAt}}.",
+    "driftDismiss": "Dismiss",
+    "driftHidden": "The drift warning is hidden. It comes back if the gap grows.",
+    "alignTitle": "Align another class with {{class}}",
+    "alignOne": "Align {{other}} with {{class}}",
+    "alignAsk": "{{other}} goes on with {{item}}, as {{class}} does, and the items it passes come right after it, so none is dropped. Nothing recorded changes, nor how many sessions of plan content apart the classes are.",
+    "alignNote": "Only the position is copied; nothing recorded in the other class’s book changes. The alignment shows in that class’s changes, where it can be undone."
   },
   "planDetails": {
     "title": "Pack details",
