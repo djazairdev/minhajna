@@ -70,6 +70,8 @@ export interface Session {
   readonly added?: string;
   /** For a session a test on the teacher's schedule takes: the test's ID (#221). */
   readonly test?: string;
+  /** For a session a test takes: the session type the timetable gave it. */
+  readonly took?: string;
 }
 
 /** A session a day that adds sessions gives, and what it is for. */
@@ -256,7 +258,7 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
     const key = sessionKey(test.courseId, test.day, test.slot, test.groupId);
     const session = sessions.get(key);
     if (session === undefined || session.calendar !== null) continue;
-    sessions.set(key, { ...session, sessionType: TEST_SESSION_TYPE, test: test.id });
+    sessions.set(key, { ...session, sessionType: TEST_SESSION_TYPE, test: test.id, took: session.sessionType });
   }
 
   for (const [key, versions] of state.sessions) {
@@ -278,12 +280,13 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
       scheduled: false,
       sessionType: record.sessionType,
     };
-    const { test, ...scheduled } = matched;
+    const { test, took, ...scheduled } = matched;
     sessions.set(key, {
       ...scheduled,
       sessionType: record.sessionType,
       ...(record.outcome !== 'not-held' && { calendar: null, calendarEntry: null }),
-      ...(test !== undefined && record.sessionType === TEST_SESSION_TYPE && { test }),
+      ...(test !== undefined &&
+        record.sessionType === TEST_SESSION_TYPE && { test, ...(took !== undefined && { took }) }),
     });
   }
 
