@@ -1,14 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Importing a signed calendar update without a network (#223, R-4.8-03 to
-// R-4.8-05, R-4.5-15), from Calendar or Settings (answer 309). A checked
-// update shows what it holds and what it changes before it is applied; a
-// refused one shows why, and nothing in the record or the calendar changes.
+// Importing a signed calendar update or plan pack without a network (#223,
+// R-4.8-03 to R-4.8-05, R-4.5-15), from Calendar, Settings or the pack list
+// (answers 309 and 326). A checked file shows what it holds and what it
+// changes before it is applied; a refused one shows why, and nothing in the
+// record, the calendar or the plans changes. A pack, once added, opens the
+// pack list for its grade and subject (answer 331).
 
 import {
+  addPack,
   applyCalendarUpdate,
   formatDay,
+  packAddStatus,
+  parsePackId,
   teacherChanges,
   updateImpact,
   updateStatus,
@@ -30,6 +35,7 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { Impact } from './Impact';
+import { PackDetails } from './PackDetails';
 import { SaveProblem } from './SaveProblem';
 import { UpdateDetails } from './UpdateDetails';
 import { UpdateRefused } from './UpdateRefused';
@@ -46,10 +52,12 @@ interface Prepared {
 
 export function ImportUpdate({
   onApplied,
+  onAdded,
   onReport,
   onPlan,
 }: {
   onApplied: (release: string) => void;
+  onAdded: (grade: string, subject: string) => void;
   onReport: () => void;
   onPlan?: (courseId: string) => void;
 }) {
@@ -63,20 +71,43 @@ export function ImportUpdate({
   const busy = input.busy || writer.busy;
   const opened = input.opened;
   const prepared = useMemo((): Prepared | null => {
-    if (opened?.read.ok !== true) return null;
+    if (opened?.read.ok !== true || opened.read.kind !== 'calendar') return null;
     const context = coreContext(data);
     const status = updateStatus(context, opened.read.update);
     const { mine, others } = teacherChanges(context, opened.read.update);
     const impact = status === 'new' ? updateImpact(context, opened.read.update, data.today()) : null;
     return { status, mine, others, impact, state: data.state };
   }, [opened, data]);
+  const packStatus = useMemo(
+    () =>
+      opened?.read.ok === true && opened.read.kind === 'packs'
+        ? { status: packAddStatus(coreContext(data), opened.read.pack.pack), state: data.state }
+        : null,
+    [opened, data],
+  );
   const read = (via: 'file' | 'qr') => {
     if (input.isBusy() || writer.isBusy()) return;
     setStale(false);
     void input.read(via);
   };
+  const add = async () => {
+    if (opened?.read.ok !== true || opened.read.kind !== 'packs' || packStatus?.status !== 'new') return;
+    if (input.isBusy() || writer.isBusy()) return;
+    const { pack: update, key, file } = opened.read;
+    const parts = parsePackId(update.pack.id);
+    setStale(false);
+    let event;
+    try {
+      event = addPack(coreContext(data), update, key.id, file);
+    } catch {
+      setStale(true);
+      return;
+    }
+    if ((await writer.save(event, packStatus.state)) && parts !== null) onAdded(parts.grade, parts.subject);
+  };
   const apply = async () => {
-    if (opened?.read.ok !== true || prepared?.status !== 'new' || input.isBusy() || writer.isBusy()) return;
+    if (opened?.read.ok !== true || opened.read.kind !== 'calendar' || prepared?.status !== 'new') return;
+    if (input.isBusy() || writer.isBusy()) return;
     const { update, key, file } = opened.read;
     setStale(false);
     let event;
@@ -124,7 +155,10 @@ export function ImportUpdate({
       {opened?.read.ok === false && (
         <UpdateRefused problem={opened.read.problem} signer={opened.read.key} via={via} onReport={onReport} />
       )}
-      {opened?.read.ok === true && prepared !== null && (
+      {opened?.read.ok === true && opened.read.kind === 'packs' && packStatus !== null && (
+        <PackDetails update={opened.read.pack} signer={opened.read.key} status={packStatus.status} via={via} />
+      )}
+      {opened?.read.ok === true && opened.read.kind === 'calendar' && prepared !== null && (
         <UpdateDetails
           update={opened.read.update}
           signer={opened.read.key}
@@ -140,6 +174,14 @@ export function ImportUpdate({
       <SaveProblem testID="update-save-failed" problem={writer.problem ?? (stale ? 'changed' : null)} />
       {prepared?.status === 'new' && (
         <Button testID="update-apply" label={t('calendarView.update.apply')} disabled={busy} onPress={apply} />
+      )}
+      {opened?.read.ok === true && opened.read.kind === 'packs' && packStatus?.status === 'new' && (
+        <Button
+          testID="update-apply"
+          label={t('calendarView.update.pack.apply', { release: opened.read.pack.pack.release })}
+          disabled={busy}
+          onPress={add}
+        />
       )}
     </ScrollView>
   );

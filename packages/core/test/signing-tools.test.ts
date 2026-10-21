@@ -3,11 +3,11 @@
 
 import assert from 'node:assert/strict';
 import { createHash, createPublicKey, generateKeyPairSync } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { CALENDAR_UPDATE_FORMAT, openSigned, parseTrustedKeys } from '../src/index.ts';
+import { CALENDAR_UPDATE_FORMAT, openSigned, PACK_BYTES, PACK_UPDATE_FORMAT, parseTrustedKeys } from '../src/index.ts';
 import {
   insideRepository,
   makeKey,
@@ -15,6 +15,7 @@ import {
   QR_BYTES,
   readBundled,
   REPOSITORY,
+  signPack,
   signUpdate,
 } from '../scripts/signing.ts';
 import { nodeVerifier } from './signed-fixtures.ts';
@@ -124,4 +125,60 @@ test('an update written without its empty removals signs, as the phone reads it 
   delete short['removed'];
   const signed = await signUpdate(short, openPrivateKey(made.privatePem, passphrase), 'example-ministry', bundled);
   assert.deepEqual(signed.update.removed, []);
+});
+
+const bundledPack = () =>
+  JSON.parse(
+    readFileSync(new URL('../../../data/dz/packs/dz.cem.4am.arabic.example.json', import.meta.url), 'utf8'),
+  ) as Record<string, unknown>;
+const packUpdate = (release: string, pack: Record<string, unknown> = bundledPack()) => ({
+  format: PACK_UPDATE_FORMAT,
+  version: { major: 1, minor: 0 },
+  country: 'dz',
+  published: '2026-10-03',
+  pack: { ...pack, release },
+});
+
+test("signs a pack's new release with a key that signs packs, as a file the phone opens", async () => {
+  const made = makeKey('example-igp', holder, passphrase, ['packs']);
+  assert.deepEqual(made.entry.signs, ['packs']);
+  assert.deepEqual(makeKey('example-ministry', holder, passphrase).entry.signs, ['calendar', 'packs']);
+  const bundled = { ...readBundled(), keys: [made.entry] };
+  const key = openPrivateKey(made.privatePem, passphrase);
+  const signed = await signPack(packUpdate('2026.2'), key, 'example-igp', bundled);
+  const opened = await openSigned(signed.file, bundled.keys, nodeVerifier, PACK_BYTES);
+  assert.ok(opened.ok);
+  assert.deepEqual(opened.payload, packUpdate('2026.2'));
+  assert.equal(signed.update.pack.release, '2026.2');
+  await assert.rejects(
+    signUpdate(update('2026.5'), key, 'example-igp', bundled),
+    /does not let example-igp sign calendar/,
+  );
+  const primary = JSON.parse(
+    readFileSync(new URL('../../../data/dz/packs/dz.primary.5ap.arabic.example.json', import.meta.url), 'utf8'),
+  ) as Record<string, unknown>;
+  assert.equal(
+    (await signPack(packUpdate('2026.2', primary), key, 'example-igp', bundled)).update.pack.release,
+    '2026.2',
+  );
+});
+
+test('refuses a pack the phone would refuse, or one a key may not sign', async () => {
+  const made = makeKey('example-ministry', holder, passphrase, ['calendar']);
+  const both = makeKey('example-both', holder, passphrase);
+  const bundled = { ...readBundled(), keys: [made.entry, both.entry] };
+  const key = openPrivateKey(both.privatePem, passphrase);
+  const sign = (input: unknown) => signPack(input, key, 'example-both', bundled);
+  await assert.rejects(
+    signPack(packUpdate('2026.2'), openPrivateKey(made.privatePem, passphrase), 'example-ministry', bundled),
+    /does not let example-ministry sign packs/,
+  );
+  await assert.rejects(sign(packUpdate('2026.1')), /is not after the bundled 2026.1/);
+  await assert.rejects(sign({ ...packUpdate('2026.2'), extra: true }), /misspelled field: extra$/);
+  await assert.rejects(
+    sign({ ...packUpdate('2026.2'), version: { major: 1, minor: 1 } }),
+    /misspelled field: version$/,
+  );
+  await assert.rejects(sign(packUpdate('2026.2', { ...bundledPack(), note: 'dropped' })), /misspelled field: pack$/);
+  await assert.rejects(sign({ ...packUpdate('2026.2'), country: 'tn' }), /does not read: country/);
 });

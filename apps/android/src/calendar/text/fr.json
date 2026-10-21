@@ -62,7 +62,10 @@
     "itemsAfter_one": "{{count}} élément du plan ne tient plus avant {{until}}. Rien n'est repoussé sans votre décision.",
     "itemsAfter_many": "{{count}} d'éléments du plan ne tiennent plus avant {{until}}. Rien n'est repoussé sans votre décision.",
     "itemsAfter_other": "{{count}} éléments du plan ne tiennent plus avant {{until}}. Rien n'est repoussé sans votre décision.",
-    "until": { "exams": "les examens", "termEnd": "la fin du trimestre" },
+    "until": {
+      "exams": "les examens",
+      "termEnd": "la fin du trimestre"
+    },
     "afterExams": "Séances après les examens jusqu'à la fin du trimestre : {{before}} → {{after}}",
     "afterExamsNew": "Séances après les examens jusqu'à la fin du trimestre : {{after}}",
     "openPlan": "Ouvrir le plan de la classe",
@@ -201,7 +204,7 @@
   },
   "update": {
     "open": "Importer une mise à jour",
-    "lead": "Un calendrier signé, sans réseau",
+    "lead": "Un plan ou un calendrier signé, sans réseau",
     "hint": "Un fichier d'un collègue ou de l'établissement, par Bluetooth ou clé USB. Il est ouvert à part, et sa signature est vérifiée avant tout.",
     "scanTitle": "Scanner une mise à jour signée",
     "via": {
@@ -241,7 +244,7 @@
       "key": "Nomme une clé à laquelle l'application fait confiance",
       "keyOf": "Nomme la clé de {{holder}}, avec son empreinte publiée",
       "signature": "La signature correspond au contenu du fichier",
-      "content": "Une mise à jour du calendrier de cette année et de ce pays"
+      "content": "Une mise à jour du calendrier ou un plan pour ce pays, d'un type que sa clé peut signer"
     },
     "check": {
       "passed": "{{check}} : oui",
@@ -282,8 +285,8 @@
         "body": "La signature est valide, mais le contenu ne suit pas le format. Mettez l'application à jour, ou signalez-le."
       },
       "kind": {
-        "title": "Cette mise à jour ne concerne pas le calendrier : elle n'est pas appliquée",
-        "body": "Les plans signés arrivent dans une version ultérieure de l'application."
+        "title": "Ce fichier ne contient ni mise à jour du calendrier ni plan : il n'est pas appliqué",
+        "body": "Il est peut-être destiné à une version plus récente : mettez l'application à jour, puis rouvrez-le."
       },
       "country": {
         "title": "Cette mise à jour est pour un autre pays : elle n'est pas appliquée",
@@ -295,7 +298,11 @@
       },
       "content": {
         "title": "Le contenu de la mise à jour est illisible : elle n'est pas appliquée",
-        "body": "La signature est valide, mais le contenu ne suit pas le format du calendrier. Mettez l'application à jour, ou signalez-le."
+        "body": "La signature est valide, mais le contenu ne suit pas son format. Mettez l'application à jour, ou signalez-le."
+      },
+      "key-kind": {
+        "title": "La clé qui l'a signé ne signe pas ce type de fichier : il n'est pas appliqué",
+        "body": "Chaque clé de confiance indique ce qu'elle signe : le calendrier, les plans, ou les deux. Signalez le fichier."
       }
     },
     "changed": {
@@ -327,6 +334,14 @@
     },
     "hours": "Durée des séances pendant le Ramadan ({{confidence}}) : {{lengths}}",
     "hoursDropped": "Elle ne porte plus la durée des séances pendant le Ramadan : on revient aux durées provisoires des horaires, ou aux horaires habituels là où il n'y en a pas.",
-    "late": "Ce changement a été annoncé moins de deux semaines avant sa nouvelle date."
+    "late": "Ce changement a été annoncé moins de deux semaines avant sa nouvelle date.",
+    "pack": {
+      "title": "Plan pour {{group}}",
+      "added": "La version {{release}} est ajoutée aux plans, pour les classes qui ne suivent pas encore ce plan.",
+      "stays": "{{class}} reste sur la version {{release}} jusqu'à ce qu'elle soit déplacée.",
+      "held": "Cette version du plan est déjà dans l'application : rien ne change.",
+      "older": "L'application contient une version plus récente de ce plan : celle-ci n'est pas ajoutée.",
+      "apply": "Appliquer : ajouter la version {{release}}"
+    }
   }
 }

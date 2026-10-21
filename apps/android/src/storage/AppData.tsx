@@ -11,6 +11,7 @@ import {
   type BellData,
   type CalendarEntry,
   newId,
+  packKey,
   parseDay,
   type CountryProfile,
   type PlanPack,
@@ -41,7 +42,7 @@ export interface AppData {
   readonly keys: readonly TrustedKey[];
   /** The bundled bell times (#29). */
   readonly bells: BellData;
-  /** The bundled plan packs that read (#30). */
+  /** The bundled plan packs that read (#30), then the signed ones the teacher added (#223). */
   readonly packs: readonly PlanPack[];
   readonly state: State;
   /** Saves one change. */
@@ -158,16 +159,24 @@ export function AppDataProvider({
       updatedReference({ country: profile, year, calendar, calendarRelease, packs: new Map() }, state.calendarUpdates),
     [profile, year, calendar, calendarRelease, state.calendarUpdates],
   );
+  const allPacks = useMemo(() => {
+    const held = new Set(packs.map((pack) => packKey(pack.id, pack.release)));
+    const added = state.addedPacks
+      .map((one) => one.update.pack)
+      .filter((pack) => !held.has(packKey(pack.id, pack.release)));
+    return added.length === 0 ? packs : [...packs, ...added];
+  }, [packs, state.addedPacks]);
   const value = useMemo(
     () => ({
       ...actions,
+      packs: allPacks,
       calendar: updated.calendar,
       bundledCalendar: calendar,
       updatedIds: updated.updatedIds ?? NONE_UPDATED,
       state,
       unsaved,
     }),
-    [actions, updated, calendar, state, unsaved],
+    [actions, allPacks, updated, calendar, state, unsaved],
   );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

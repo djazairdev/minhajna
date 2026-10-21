@@ -7,7 +7,10 @@
 // means is listed under them. The pack is pinned to the classes chosen, each
 // staying on that release until another is chosen (PRD §4.2). Opened for one
 // class, only that class is ticked, and its own release, even an older or
-// missing one, is offered first and chosen. District variants come later.
+// missing one, is offered first and chosen. A class on another release of
+// the pack chosen stays on it, and the card says so: moving to a newer
+// release waits for #322 (answer 329). A signed pack can be imported from
+// here (answer 326). District variants come later.
 
 import { courseOf, packsFor, pinOf, STATUS_ORDER, type PinnedPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -20,6 +23,7 @@ import { RadioCard } from '../components/RadioCard';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
+import { isolate } from '../week/grid-labels';
 import { groupName, packFacts, packSource } from './pack-labels';
 import { packOfPin, pinEvents, pinOfClass, planGroups } from './plan-rules';
 
@@ -32,12 +36,14 @@ export function Packs({
   subject,
   schoolId,
   classId,
+  onImport,
   onDone,
 }: {
   grade: string;
   subject: string;
   schoolId?: string;
   classId?: string;
+  onImport?: () => void;
   onDone: () => void;
 }) {
   const insets = useSafeAreaInsets();
@@ -66,6 +72,12 @@ export function Packs({
     classId !== undefined ? [classId] : classes.map((schoolClass) => schoolClass.id),
   );
   const [tried, setTried] = useState(false);
+  const staying = (packId: string, release: string) =>
+    forClasses.flatMap((id) => {
+      const now = pinOfOne(id);
+      const name = classes.find((one) => one.id === id)?.name ?? id;
+      return now?.id === packId && now.release !== release ? [{ id, name, release: now.release }] : [];
+    });
   const pin = () => {
     setTried(true);
     if (forClasses.length === 0) return;
@@ -80,7 +92,8 @@ export function Packs({
       );
     };
     const missing = chosen === CURRENT && keptPack === undefined;
-    const moved = missing ? [] : forClasses.filter((id) => !same(id));
+    const stays = new Set(target === null ? [] : staying(target.id, target.release).map((one) => one.id));
+    const moved = missing ? [] : forClasses.filter((id) => !same(id) && !stays.has(id));
     if (moved.length > 0) recordAll(pinEvents(state, moved, subject, year.id, target, newId, grade));
     onDone();
   };
@@ -110,7 +123,13 @@ export function Packs({
               key={pack.id}
               testID={`pack-${pack.id}`}
               label={t(`plan.status.${pack.status}`)}
-              description={`${packFacts(t, pack)}\n${packSource(t, pack)}`}
+              description={[
+                packFacts(t, pack),
+                packSource(t, pack),
+                ...staying(pack.id, pack.release).map((one) =>
+                  t('calendarView.update.pack.stays', { class: isolate(one.name), release: isolate(one.release) }),
+                ),
+              ].join('\n')}
               selected={chosen === pack.id}
               onPress={() => setChosen(pack.id)}
             />
@@ -123,6 +142,9 @@ export function Packs({
             onPress={() => setChosen(NO_PACK)}
           />
         </View>
+        {onImport !== undefined && (
+          <Button testID="pack-import" variant="line" label={t('plan.importSigned')} onPress={onImport} />
+        )}
         <View style={styles.legend}>
           <Text accessibilityRole="header" style={[styles.label, align]}>
             {t('plan.statuses')}

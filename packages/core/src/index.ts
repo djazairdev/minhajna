@@ -71,4 +71,5 @@ export * from './today.ts';
 export * from './backlog.ts';
 export * from './week.ts';
 export * from './calendar-update.ts';
+export * from './pack-update.ts';
 export * from './signed-read.ts';

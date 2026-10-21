@@ -172,6 +172,8 @@ test('a signed update is checked, previewed, applied once and travels with the r
   assert.equal(await holds({ ...applied, update: { ...update, removed: [] } }), false);
   assert.equal(await holds({ ...applied, key: 'example-other' }), false);
   assert.equal(await holds({ ...applied, file: file.replace('2026.4', '2026.5') }), false);
+  const packsOnly = [{ ...key.trusted, signs: ['packs' as const] }];
+  assert.equal(await appliedUpdateHolds(applied, packsOnly, nodeVerifier, ref.country, ref.year), false);
 });
 
 test('a missed update still applies under the later ones, and the built-in release is never laid again', async () => {

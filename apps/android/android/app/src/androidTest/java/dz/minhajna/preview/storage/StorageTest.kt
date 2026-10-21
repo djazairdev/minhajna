@@ -106,6 +106,21 @@ class StorageTest {
     assertThrows(KeyLostException::class.java) { key().getOrCreate(random) }
   }
 
+  /** A signed pack of 1 MB, kept with its parsed copy and escaped twice, makes a row of over 2 MB (#223). */
+  @Test
+  fun readsBackAnEntryTheSizeOfALargeSignedPack() {
+    val body = JSONObject().put("file", "تجربة\\\"x".repeat(150_000)).put("pack", "m".repeat(900_000)).toString()
+    val database = openDatabase()
+    database.append(row(0, body))
+    database.close()
+    val again = openDatabase()
+    try {
+      assertEquals(body, again.load().single().body)
+    } finally {
+      again.close()
+    }
+  }
+
   @Test
   fun keepsEntriesAcrossReopening() {
     openDatabase().apply {

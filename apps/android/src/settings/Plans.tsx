@@ -8,6 +8,7 @@ import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
 import { SectionHeader } from '../components/SectionHeader';
 import { spacing } from '../design/tokens';
+import { NewerRelease } from '../plan/NewerRelease';
 import { groupName, packFacts, packSource } from '../plan/pack-labels';
 import { packOfPin, pinOfClass, planGroups } from '../plan/plan-rules';
 import { useAppData } from '../storage/AppData';
@@ -69,6 +70,11 @@ export function Plans({
                       <Badge label={t(`plan.status.${pack.status}`)} />
                       <Text style={[styles.body, align]}>{packFacts(t, pack)}</Text>
                       <Text style={[styles.sub, align]}>{packSource(t, pack)}</Text>
+                      <NewerRelease
+                        testID={`settings-newer-${schoolClass.id}-${group.subject}-${group.grade}`}
+                        packs={packs}
+                        pinned={{ id: pack.id, release: pack.release }}
+                      />
                     </>
                   ) : (
                     <Text style={[styles.body, align]}>

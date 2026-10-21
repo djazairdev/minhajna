@@ -1,20 +1,20 @@
-# Signed calendar updates
+# Signed updates
 
-This is the first part of [#223](https://github.com/djazairdev/minhajna/issues/223), implementing PRD §4.8 (R-4.8-03 to R-4.8-05) and §4.5 (R-4.5-15). A calendar update is a signed file, opened from a file or a QR code. The phone checks its signature with a key the app trusts before it reads anything in it. Signed plan packs follow in the second part.
+This is [#223](https://github.com/djazairdev/minhajna/issues/223), implementing PRD §4.8 (R-4.8-03 to R-4.8-05) and §4.5 (R-4.5-15). A calendar update or a plan pack's release is a signed file. A calendar update opens from a file or a QR code; a pack, from a file only (answer 328). The phone checks the signature with a key the app trusts before it reads anything in the file.
 
 ## The signed file
 
-One UTF-8 JSON object, at most **16,384 bytes**:
+One UTF-8 JSON object, at most **16,384 bytes** for a calendar update and **1,048,576 bytes** (1 MB) for a pack:
 
 | Field | Requirement |
 |---|---|
 | `format` | Exactly `minhajna.signed` |
 | `version` | `{"major":1,"minor":0}`; another major is refused, and a newer minor is read as far as it is known |
 | `key` | The ID of a key in `data/dz/keys.json` |
-| `payload` | The update, as JSON text |
+| `payload` | The calendar update or the pack, as JSON text |
 | `signature` | ECDSA P-256 over SHA-256 of the payload's UTF-8 bytes, in DER form, base64 with padding |
 
-Any other field is refused. The signature is checked first, by Android's own crypto on the phone and by Node's in the tests. A file changed after signing, or signed by a key the app doesn't list, is refused, and nothing in it is read or applied.
+Any other field is refused. The signature is checked first, by Android's own crypto on the phone and by Node's in the tests. A file changed after signing, or signed by a key the app doesn't list, is refused, and nothing in it is read or applied. Once the signature checks, a file of a kind its key may not sign is refused too (answer 327).
 
 ## The calendar update
 
@@ -28,9 +28,19 @@ The payload is a `minhajna.calendar-update`, version 1.0:
 
 It holds at least one entry or one removal. Applied updates lie over the bundled calendar in the order of their releases, one for each release. A release at or below the bundled one, or one already applied, is not offered again. A received closure notice whose ID an applied update sets or removes stops applying.
 
+## The plan pack
+
+The payload is a `minhajna.plan-pack`, version 1.0 (answers 326 to 329):
+
+- `country`: `dz`, and the pack's ID starts with it.
+- `published`: the day the release was published.
+- `pack`: one release of a plan pack in the [pack format](../../data/README.md), as the bundled packs are written.
+
+Adding a release puts it beside the bundled packs. A new class can be pinned to it, and a class pinned to another release of the same pack stays on that release, with a badge on its plan and in Settings saying a newer one is in the app; moving a class waits for [#322](https://github.com/djazairdev/minhajna/issues/322). A release the app already has changes nothing. A release older than one the app has is not added, unless a class is pinned to that very release and the app doesn't have it.
+
 ## The keys
 
-`data/dz/keys.json` lists the keys the app trusts. For each one, it gives the ID, who holds it, the public half (SubjectPublicKeyInfo, DER, base64) and its SHA-256 fingerprint. The tests check that every key is on P-256 and that its fingerprint matches. The list stays empty until the project's key is made. The tests make a fresh key on each run and never write it down, and a release build trusts only the listed keys.
+`data/dz/keys.json` lists the keys the app trusts. For each one, it gives the ID, who holds it, the public half (SubjectPublicKeyInfo, DER, base64), its SHA-256 fingerprint, and `signs`: what it may sign, `calendar`, `packs` or both (answer 327). The project's key signs both; a key the IGP holds for its official packs would sign `packs` only. The tests check that every key is on P-256 and that its fingerprint matches. The list stays empty until the project's key is made. The tests make a fresh key on each run and never write it down, and a release build trusts only the listed keys.
 
 ## Making the project's key
 
@@ -43,33 +53,36 @@ The key's holder makes it, offline, on their own computer (answer 304). The priv
    node packages/core/scripts/make-key.ts --id <key-id> --out <folder> --holder-ar <name> --holder-fr <name> --holder-en <name>
    ```
 
+   The key signs both kinds unless `--signs calendar` or `--signs packs` says otherwise.
+
 3. Type a passphrase of at least 20 characters, twice; it isn't shown. Make it five random words or more: the PEM's key derivation is cheap, so the passphrase carries the protection. The tool writes `<key-id>.private.pem`, encrypted under the passphrase and readable by its owner only on macOS and Linux, and never overwrites a file.
 4. Keep the private file and the passphrase apart, both offline.
 5. The tool prints the key's entry. Add it to `data/dz/keys.json` in a pull request, and publish the fingerprint where teachers and inspectors can compare it with the one the import screen shows.
 
-## Signing an update
+## Signing an update or a pack
 
-1. Write the update as JSON, as above.
+1. Write the calendar update or the pack's payload as JSON, as above.
 2. Run the signing tool, and type the passphrase:
 
    ```sh
    node packages/core/scripts/sign-update.ts --key <key-id>.private.pem --id <key-id> --in <update.json> --out <signed.json>
    ```
 
-3. The tool refuses to sign, and writes nothing, when:
-   - the update doesn't read against the bundled calendar;
-   - its release isn't later than the bundled one;
+3. The tool reads the payload's `format` and refuses to sign, writing nothing, when:
+   - a calendar update doesn't read against the bundled calendar, or a pack doesn't read as a pack for `dz`;
+   - its release isn't later than the bundled calendar's, or than the bundled release of the same pack;
    - it holds a field that format 1.0 would drop or read otherwise, such as a misspelled one;
-   - the key isn't the one `data/dz/keys.json` lists under that ID;
-   - the signed file would weigh more than 16,384 bytes.
-4. Otherwise it signs the update, opens the result as the phone would, and only then writes it. The output must end in `.json`, the only kind the phone's file picker offers.
-5. The tool says whether the file also fits one QR code: at most 2,953 bytes, a version-40 code at the lowest error correction. Make the code with an offline encoder that keeps the file's bytes as they are, then scan it with the app before sending it.
+   - the key isn't the one `data/dz/keys.json` lists under that ID, or that key may not sign this kind;
+   - the signed file would weigh more than the phone reads: 16,384 bytes for a calendar update, 1 MB for a pack.
+4. Otherwise it signs the payload, opens the result as the phone would, and only then writes it. The output must end in `.json`, the only kind the phone's file picker offers.
+5. For a calendar update, the tool says whether the file also fits one QR code: at most 2,953 bytes, a version-40 code at the lowest error correction. Make the code with an offline encoder that keeps the file's bytes as they are, then scan it with the app before sending it.
 
 ## On the phone
 
-- **Opening an update:** «استيراد تحديث» on the Calendar and in Settings opens a file or scans a code.
+- **Opening an update:** «استيراد تحديث» on the Calendar and in Settings opens a file or scans a code. The pack list's «استيراد مخطط موقّع» opens the same screen (answer 326).
 - **Before applying:** the screen says how the update was opened and on which day, who signed it, the key's fingerprint and the release. For a new release, it shows what the update changes for the teacher's own schools and classes, with the others only counted, and the sessions it would take (answers 307 to 310).
 - **A refused file:** the screen says why, which checks passed, and that nothing changed.
+- **A pack:** the screen names the signer, the plan and its release, and which classes stay on their own release. «تطبيق: إضافة الإصدار …» adds it, and the pack list for its grade and subject opens (answer 331). There, choosing the new release pins the classes not yet on that pack; a class on another release of it stays, and its card says so (answer 329).
 - **After applying:** «ما تغيّر» shows what the update changed, and the sessions it still takes or gives back from today on (answers 312 and 314).
 - **On Today:** a card shows on the day an update that concerns the teacher is applied (answers 311 and 315).
 - **On the Calendar:** «آخر تحديث» names the latest update (answer 313), and an entry from an update names it.
@@ -79,7 +92,9 @@ The key's holder makes it, offline, on their own computer (answer 304). The priv
 
 - **Core tests:** they cover the signed reader, the update format, the order of updates, the preview and what changed. They also cover both tools: the key's entry reads, the private half is encrypted, a signed update opens, and each refusal above happens before anything is written.
 - **Shared vector:** `SignatureCheckTest` checks the same Node-signed vector with Android's crypto (`connectedDebugAndroidTest`). On 21 Oct 2026 its 4 tests passed on Android 15 (API 35) and Android 8.0 (API 26) emulators.
-- **Jest tests:** they cover the import, refused, what-changed and Today screens.
+- **Jest tests:** they cover the import, refused, what-changed and Today screens, and a pack's import, the pack list, the plan's badge and Settings.
+- **Native reader and history:** `CalendarInputTest` reads a file up to 1 MB and refuses one byte more, and a QR code stays at 16,384 bytes. `StorageTest` writes a history entry of over 2 MB, as large as a 1 MB pack makes once kept with its parsed copy, and reads it back after reopening. On 21 Oct 2026 both classes, 20 tests, passed on Android 15 (API 35) and Android 8.0 (API 26) emulators.
+- **From another device or a backup:** nothing brings records in yet. When something does, each applied update and added pack is checked again against its signed file, its key and the kinds that key may sign (`appliedUpdateHolds`, `addedPackHolds`).
 - **The two tools, 21 Oct 2026:** both ran in a pseudo-terminal with a made-up key written outside the repository.
   - The private file was readable by its owner only.
   - Both passphrases pasted at once, and an arrow key typed into one, were read as typed.

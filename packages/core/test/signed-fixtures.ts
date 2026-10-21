@@ -7,7 +7,7 @@
 // platform crypto does on the phone, refusing any key that is not on P-256.
 
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
-import { SIGNED_FORMAT, type TrustedKey } from '../src/index.ts';
+import { SIGNED_FORMAT, type SignedKind, type TrustedKey } from '../src/index.ts';
 
 export { isP256, nodeVerifier } from '../scripts/node-verify.ts';
 
@@ -17,8 +17,8 @@ export interface TestKey {
   readonly sign: (payload: string) => string;
 }
 
-/** A key pair made for one test run. */
-export function makeTestKey(id = 'example-ministry'): TestKey {
+/** A key pair made for one test run, which signs both kinds unless told otherwise. */
+export function makeTestKey(id = 'example-ministry', signs: readonly SignedKind[] = ['calendar', 'packs']): TestKey {
   const { privateKey, publicKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
   const der = publicKey.export({ type: 'spki', format: 'der' });
   return {
@@ -27,6 +27,7 @@ export function makeTestKey(id = 'example-ministry'): TestKey {
       holder: { en: 'Example holder' },
       spki: der.toString('base64'),
       fingerprint: createHash('sha256').update(der).digest('hex'),
+      signs,
     },
     sign: (payload) => sign('sha256', Buffer.from(payload, 'utf8'), privateKey).toString('base64'),
   };

@@ -373,7 +373,10 @@
     "pinFor": "Pin for",
     "pinNote": "Each class stays on the pinned release until another is chosen.",
     "pinButton": "Pin the pack",
-    "noClass": "Choose at least one class."
+    "noClass": "Choose at least one class.",
+    "importSigned": "Import a signed plan",
+    "newerBadge": "Release {{release}} available",
+    "newerStays": "The class stays on {{current}} until it is moved."
   },
   "ready": {
     "title": "All set",

@@ -3,10 +3,11 @@
 
 // The head of a class's plan (#225, Plan, R-2.3-01, R-4.2-09): the parallel
 // classes to switch between, then the pack the class is pinned to, its status,
-// release and timing, who keyed it, and where it comes from, with the pack's
-// details and the class's own changes a tap away. Until the issuer publishes
-// packs itself, the curators are named as a body, without names (answer 291).
-// An example pack says it is not a plan instead of who keyed it.
+// release and timing, a newer release when the app has one (answer 329), who
+// keyed it, and where it comes from, with the pack's details and the class's
+// own changes a tap away. Until the issuer publishes packs itself, the curators
+// are named as a body, without names (answer 291). An example pack says it is
+// not a plan instead of who keyed it.
 
 import { changesFor, parallelCourses, type Context, type PlanPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -17,6 +18,7 @@ import { RowLink } from '../components/RowLink';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
+import { NewerRelease } from '../plan/NewerRelease';
 import { packSource, packTiming } from '../plan/pack-labels';
 import { settingsStyles as styles } from '../settings/styles';
 import { useText } from '../text/i18n';
@@ -79,6 +81,11 @@ export function PlanHeader({ context, courseId, pack, onCourse, onChanges, onDet
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {t('classPlan.packTitle', { release: pack.release })}
           </Text>
+          <NewerRelease
+            testID="plan-newer"
+            packs={context.ref.packs.values()}
+            pinned={{ id: pack.id, release: pack.release }}
+          />
           <Text style={[styles.sub, align]}>
             {pack.status === 'example' ? packTiming(t, pack) : `${packTiming(t, pack)} · ${t('classPlan.keyedBy')}`}
           </Text>

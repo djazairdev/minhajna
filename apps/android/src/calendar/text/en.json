@@ -61,7 +61,10 @@
     "spare": "Spare sessions before {{until}}: {{before}} → {{after}}",
     "itemsAfter_one": "{{count}} plan item no longer fits before {{until}}. Nothing is moved later without your decision.",
     "itemsAfter_other": "{{count}} plan items no longer fit before {{until}}. Nothing is moved later without your decision.",
-    "until": { "exams": "the exams", "termEnd": "the end of the term" },
+    "until": {
+      "exams": "the exams",
+      "termEnd": "the end of the term"
+    },
     "afterExams": "Sessions after the exams until the end of the term: {{before}} → {{after}}",
     "afterExamsNew": "Sessions after the exams until the end of the term: {{after}}",
     "openPlan": "Open the class's plan",
@@ -200,7 +203,7 @@
   },
   "update": {
     "open": "Import an update",
-    "lead": "A signed calendar, without a network",
+    "lead": "A signed plan or calendar, without a network",
     "hint": "A file from a colleague or the school, by Bluetooth or a USB key. It is opened on its own, and its signature is checked before anything else.",
     "scanTitle": "Scan a signed update",
     "via": {
@@ -239,7 +242,7 @@
       "key": "Names a key the app trusts",
       "keyOf": "Names the key of {{holder}}, with its published fingerprint",
       "signature": "The signature matches what is in the file",
-      "content": "A calendar update for this year and country"
+      "content": "A calendar update or plan for this country, of a kind its key may sign"
     },
     "check": {
       "passed": "{{check}}: yes",
@@ -280,8 +283,8 @@
         "body": "The signature is valid, but its content does not follow the format. Update the app, or report it."
       },
       "kind": {
-        "title": "This update is not for the calendar, so it was not applied",
-        "body": "Signed plans come in a later version of the app."
+        "title": "This file holds neither a calendar update nor a plan, so it was not applied",
+        "body": "It may be meant for a newer version of the app: update the app, then open it again."
       },
       "country": {
         "title": "This update is for another country, so it was not applied",
@@ -293,7 +296,11 @@
       },
       "content": {
         "title": "What the update holds cannot be read, so it was not applied",
-        "body": "The signature is valid, but its content does not follow the calendar format. Update the app, or report it."
+        "body": "The signature is valid, but its content does not follow its format. Update the app, or report it."
+      },
+      "key-kind": {
+        "title": "The key that signed it may not sign this kind of file, so it was not applied",
+        "body": "Each key the app trusts says what it may sign: the calendar, plans, or both. Report the file."
       }
     },
     "changed": {
@@ -323,6 +330,14 @@
     },
     "hours": "Ramadan session length ({{confidence}}): {{lengths}}",
     "hoursDropped": "It no longer carries the Ramadan session lengths: they go back to the provisional lengths in the bell times, or to the usual times where there are none.",
-    "late": "This change was announced less than two weeks before its new date."
+    "late": "This change was announced less than two weeks before its new date.",
+    "pack": {
+      "title": "Plan for {{group}}",
+      "added": "Release {{release}} is added to the plans, for classes not yet on this plan.",
+      "stays": "{{class}} stays on {{release}} until it is moved.",
+      "held": "This release of the plan is already in the app, so nothing changes.",
+      "older": "The app holds a later release of this plan, so it is not added.",
+      "apply": "Apply: add release {{release}}"
+    }
   }
 }

@@ -53,7 +53,11 @@ const has = (id: string) => settingsRoot().findAll((node) => node.props.testID =
 const open = async (file: string, language: 'ar' | 'fr' | 'en' = 'ar') => {
   const data = { ...(await withDay()), keys: [key.trusted] };
   jest.mocked(NativeInput.readFile).mockResolvedValueOnce(file);
-  await showSettingsScreen(<ImportUpdate onApplied={onApplied} onReport={onReport} />, data, language);
+  await showSettingsScreen(
+    <ImportUpdate onApplied={onApplied} onAdded={jest.fn()} onReport={onReport} />,
+    data,
+    language,
+  );
   await pressSettings('update-file');
   return data;
 };

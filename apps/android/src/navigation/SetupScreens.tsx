@@ -85,6 +85,7 @@ export function PacksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       subject={route.params.subject}
       schoolId={route.params.schoolId}
       classId={route.params.classId}
+      onImport={() => navigation.navigate('ImportUpdate')}
       onDone={() => navigation.goBack()}
     />
   );
