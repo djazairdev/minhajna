@@ -43,10 +43,10 @@ Only then does the same calendar engine preview the affected unrecorded sessions
 
 A received entry is read-only but can be withdrawn. A correction requires withdrawal and a reviewed replacement; importing a changed notice under an existing ID never overwrites it. Repeating identical content is a no-op, even when its claimed sender differs. Ignoring, cancelling or refusing input appends nothing.
 
-A matching reference entry under the same ID, layer, effect and scope prevents a second active copy. A different reference under that ID is a conflict. This establishes identity matching only, not a release-update system: verified issuers, release revision ordering, withdrawal tombstones and preventing a removed reference from reviving a received copy remain in #223. No complete signed-update deduplication claim is made here.
+A matching reference entry under the same ID, layer, effect and scope prevents a second active copy. A different reference under that ID is a conflict. This establishes identity matching only, not a release-update system. [Signed calendar updates](signed-updates.md) carry the verified issuer, the release order and removals: a received notice whose ID an applied update sets or removes no longer applies, and a notice for an ID an update removed is refused as a conflict.
 
 ## Trust boundary
 
-Validation establishes a supported shape and scope. It does **not** authenticate the sender or prove the file is unchanged since sending. The preview says so; the design's stronger integrity sentence is deliberately not used. Signed official updates need the verification process from #223, not a checksum or a QR code.
+Validation establishes a supported shape and scope. It does **not** authenticate the sender or prove the file is unchanged since sending. The preview says so; the design's stronger integrity sentence is deliberately not used. Official updates are [signed](signed-updates.md) and checked with a key the app trusts; a checksum or a QR code proves nothing.
 
 Input is temporary. Only an explicitly accepted, allowlisted closure reaches encrypted history. This stage does not add a share/export path for that history or its provenance.
