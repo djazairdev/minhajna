@@ -20,6 +20,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
       case 'calendar':
         navigation.navigate('Calendar');
         break;
+      case 'updates':
+        navigation.navigate('ImportUpdate');
+        break;
       case 'card':
         navigation.navigate('SettingsCard');
         break;

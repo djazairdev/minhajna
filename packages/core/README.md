@@ -6,18 +6,18 @@ It is the first part of the field-check prototype: setup, Today and roll call ([
 
 ## What is here
 
-| Module | What it does | PRD |
-|---|---|---|
-| `day.ts` | Calendar days, without clock times | §5.5 |
-| `history.ts` | The history: only ever added to, with real deletion. It is chained, so an edit, a deletion or a reordering made without recomputing the chain shows, and a history that does not verify is never opened | §5.5 |
-| `layers.ts` | The record layers, and the routes each layer may travel. Only the teacher's own routes take history entries | §5.4 |
-| `state.ts` | The events the teacher records, each in one layer, and the state built from them. Routes that leave the teacher take the current version of each record, never the day it was made. Erasure takes whole records | §5.3, §5.4, §7.6 |
-| `reference.ts`, `pack.ts` | Reference data: the country profile, the school year, the calendar and plan packs, which are checked when read | §4.2, §4.5, §5.9 |
-| `calendar.ts`, `sessions.ts` | Teaching weeks, A/B weeks, and each class's dated sessions. A later timetable applies from the day it was recorded, and the teacher's own calendar marks only the teacher's sessions | §4.5, §4.6 |
-| `engine.ts` | Proposals, progress by stages, each stage kept on its own, and the six session outcomes | §3.3, §4.7 |
-| `today.ts` | The Today screen, and confirming a whole day or week at once | §3.3 |
-| `pacing.ts` | Delay in sessions, sessions lost to the calendar, buffers and the September check. Sessions lost to the teacher's own calendar are counted apart, for the teacher alone | §4.7 |
-| `roll-call.ts` | Roll call by half-day or by session, corrections, and the totals for each pupil. Every roll call taken counts, and those the rest of the record leaves out are listed for the teacher | §3.4 |
+| Module                       | What it does                                                                                                                                                                                                    | PRD              |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `day.ts`                     | Calendar days, without clock times                                                                                                                                                                              | §5.5             |
+| `history.ts`                 | The history: only ever added to, with real deletion. It is chained, so an edit, a deletion or a reordering made without recomputing the chain shows, and a history that does not verify is never opened         | §5.5             |
+| `layers.ts`                  | The record layers, and the routes each layer may travel. Only the teacher's own routes take history entries                                                                                                     | §5.4             |
+| `state.ts`                   | The events the teacher records, each in one layer, and the state built from them. Routes that leave the teacher take the current version of each record, never the day it was made. Erasure takes whole records | §5.3, §5.4, §7.6 |
+| `reference.ts`, `pack.ts`    | Reference data: the country profile, the school year, the calendar and plan packs, which are checked when read                                                                                                  | §4.2, §4.5, §5.9 |
+| `calendar.ts`, `sessions.ts` | Teaching weeks, A/B weeks, and each class's dated sessions. A later timetable applies from the day it was recorded, and the teacher's own calendar marks only the teacher's sessions                            | §4.5, §4.6       |
+| `engine.ts`                  | Proposals, progress by stages, each stage kept on its own, and the six session outcomes                                                                                                                         | §3.3, §4.7       |
+| `today.ts`                   | The Today screen, and confirming a whole day or week at once                                                                                                                                                    | §3.3             |
+| `pacing.ts`                  | Delay in sessions, sessions lost to the calendar, buffers and the September check. Sessions lost to the teacher's own calendar are counted apart, for the teacher alone                                         | §4.7             |
+| `roll-call.ts`               | Roll call by half-day or by session, corrections, and the totals for each pupil. Every roll call taken counts, and those the rest of the record leaves out are listed for the teacher                           | §3.4             |
 
 ## Running the tests
 
@@ -58,10 +58,14 @@ import { historyStoreTests } from '@minhajna/core/test-support';
 import { deps } from './support.ts';
 
 describe('MemoryStore contract', () => {
-  historyStoreTests(it, () => {
-    const store = new MemoryStore();
-    return { store, readCommitted: () => store.load() };
-  }, deps);
+  historyStoreTests(
+    it,
+    () => {
+      const store = new MemoryStore();
+      return { store, readCommitted: () => store.load() };
+    },
+    deps,
+  );
 });
 ```
 

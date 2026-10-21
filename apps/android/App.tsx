@@ -126,6 +126,7 @@ export default function App({
             calendarRelease={reference.calendar.release}
             bells={reference.bells}
             packs={reference.packs}
+            keys={reference.keys}
             random={random}
           >
             <LockStorage.Provider value={storage}>

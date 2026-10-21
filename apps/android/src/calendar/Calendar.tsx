@@ -35,12 +35,14 @@ export function Calendar({
   onReset,
   onGroups,
   onReceive,
+  onImport,
 }: {
   onEntry: (id: string, origin: CalendarOrigin, schoolId: string) => void;
   onAdd?: (schoolId: string) => void;
   onReset?: (schoolId: string) => void;
   onGroups?: (schoolId: string) => void;
   onReceive?: (schoolId: string) => void;
+  onImport?: () => void;
 }) {
   const t = useText();
   const { direction } = useLocale();
@@ -134,6 +136,9 @@ export function Calendar({
       <Notice icon={controlIcon('info')} message={t('calendarView.readOnly')} />
       {school !== undefined && onReceive !== undefined && (
         <Button testID="calendar-receive" label={t('calendarView.receive.open')} onPress={() => onReceive(schoolId)} />
+      )}
+      {onImport !== undefined && (
+        <Button testID="calendar-import" variant="line" label={t('calendarView.update.open')} onPress={onImport} />
       )}
       {school !== undefined && onAdd !== undefined && (
         <Button testID="calendar-add" label={t('calendarView.edit.add')} onPress={() => onAdd(schoolId)} />

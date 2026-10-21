@@ -37,6 +37,7 @@ export type RootStackParamList = {
   CalendarGroups: { schoolId: string };
   CalendarReceive: { schoolId: string };
   CalendarLunar: { id: string; schoolId: string };
+  ImportUpdate: undefined;
   SettingsCard: undefined;
   SettingsSchools: undefined;
   SettingsClasses: undefined;

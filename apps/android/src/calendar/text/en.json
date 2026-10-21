@@ -178,5 +178,104 @@
       "acknowledge": "Review the notice and confirm that it applies to the selected school or zone first.",
       "input": "The file or code could not be read. Try again or use a file instead of the camera."
     }
+  },
+  "update": {
+    "open": "Import an update",
+    "lead": "A signed calendar, without a network",
+    "hint": "A file from a colleague or the school, by Bluetooth or a USB key. It is opened on its own, and its signature is checked before anything else.",
+    "scanTitle": "Scan a signed update",
+    "via": {
+      "file": "Opened from a file · {{day}}",
+      "qr": "Scanned from a QR code · {{day}}"
+    },
+    "status": {
+      "new": "Something new",
+      "held": "Already have it",
+      "older": "Older than mine"
+    },
+    "signed": "Signature valid",
+    "signer": "Signed by: {{holder}}. Nothing in the file has changed since it was signed.",
+    "fingerprint": "Key fingerprint",
+    "contents": "What it holds",
+    "calendar": "National calendar {{year}}",
+    "release": "Release {{release}} · published {{day}}",
+    "changes": "What changes for my classes",
+    "kinds": {
+      "added": "Added",
+      "changed": "Changed",
+      "removed": "Removed"
+    },
+    "moved": "Was {{range}} · reason: {{reason}}",
+    "none": "Nothing in it concerns my schools and classes.",
+    "others_one": "It also holds {{count}} entry that does not concern me, not shown.",
+    "others_other": "It also holds {{count}} entries that do not concern me, not shown.",
+    "held": "This update is already in the calendar, so nothing changes.",
+    "older": "The calendar holds a later release than this one, so it is not applied.",
+    "apply": "Apply the update",
+    "another": "Open another file",
+    "refused": "Refused",
+    "checked": "What was checked",
+    "checks": {
+      "format": "An update file in Minhajna's format",
+      "key": "Names a key the app trusts",
+      "keyOf": "Names the key of {{holder}}, with its published fingerprint",
+      "signature": "The signature matches what is in the file",
+      "content": "A calendar update for this year and country"
+    },
+    "check": {
+      "passed": "{{check}}: yes",
+      "failed": "{{check}}: no",
+      "skipped": "{{check}}: not checked"
+    },
+    "source": "Where it came from",
+    "unchanged": "Nothing changed",
+    "unchangedBody": "None of it was applied: the calendar and my classes are as they were.",
+    "whatNow": "What to do now",
+    "whatNowBody": "Ask whoever sent it for the file again, or scan its code straight from their phone.",
+    "report": "Report the file",
+    "reportHint": "Help says what to send: the file's name and why it was refused, not its content.",
+    "everyUpdate": "Every update is checked like this before it is applied: if it was changed after signing, it shows here and is not applied.",
+    "problems": {
+      "invalid": {
+        "title": "Not an update file in Minhajna's format, so it was not applied",
+        "body": "It may be another file, or an incomplete copy."
+      },
+      "version": {
+        "title": "This file's format is newer than the app reads, so it was not applied",
+        "body": "Update the app, then open the file again."
+      },
+      "update-version": {
+        "title": "This file's format is newer than the app reads, so it was not applied",
+        "body": "Update the app, then open the file again."
+      },
+      "unknown-key": {
+        "title": "No key the app trusts signed it, so it was not applied",
+        "body": "The key may be newer than this app: update the app, or ask for the file from its source."
+      },
+      "signature": {
+        "title": "This file changed after it was signed, so it was not applied",
+        "body": "The signature does not match what is in the file: something in it changed after it was signed. It may be an incomplete copy, or it was edited."
+      },
+      "payload": {
+        "title": "What the file holds cannot be read, so it was not applied",
+        "body": "The signature is valid, but its content does not follow the format. Update the app, or report it."
+      },
+      "kind": {
+        "title": "This update is not for the calendar, so it was not applied",
+        "body": "Signed plans come in a later version of the app."
+      },
+      "country": {
+        "title": "This update is for another country, so it was not applied",
+        "body": "It does not concern the calendar in the app."
+      },
+      "year": {
+        "title": "This update is for another school year, so it was not applied",
+        "body": "It does not concern the calendar in the app."
+      },
+      "content": {
+        "title": "What the update holds cannot be read, so it was not applied",
+        "body": "The signature is valid, but its content does not follow the calendar format. Update the app, or report it."
+      }
+    }
   }
 }

@@ -13,7 +13,8 @@ import { useAppLicences } from './useAppLicences';
 
 /**
  * The preview and its checksums, the privacy notice, connections and licences, and how to report an error in a
- * plan, which opens the Classes tab (answer 301); other reports, settings and privacy controls remain later work.
+ * plan, which opens the Classes tab (answer 301), or a refused update file, by hand (answer 307); other reports,
+ * settings and privacy controls remain later work.
  */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
   const t = useText();
@@ -36,6 +37,12 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
         detail={t('help.planErrorHow')}
         onPress={() => navigation.popTo('Home', { screen: 'Classes' })}
       />
+      <Text accessibilityRole="header" style={helpStyles.heading}>
+        {t('help.updateRefused')}
+      </Text>
+      <Text testID="help-update-refused" selectable style={helpStyles.body}>
+        {t('help.updateRefusedHow')}
+      </Text>
     </HelpPage>
   );
 }

@@ -14,10 +14,12 @@
 // was built with, or one before it, no longer applies.
 
 import type { Context } from './context.ts';
+import { appliesTo } from './calendar.ts';
 import { readEntry } from './calendar-read.ts';
 import { canonicalJson } from './canonical.ts';
 import type { Day } from './day.ts';
 import type { RecordEvent } from './events.ts';
+import { classGrades, forGrade } from './joint.ts';
 import { compareReleases } from './pack-catalogue.ts';
 import { at, isFields, Reader, RELEASE, type ParseResult } from './read.ts';
 import type { CalendarEntry, CountryProfile, Reference, SchoolYear } from './reference.ts';
@@ -206,6 +208,29 @@ export async function appliedUpdateHolds(
   if (!opened.ok || opened.key.id !== applied.key) return false;
   const read = parseCalendarUpdate(opened.payload, profile, year);
   return read.ok && canonicalJson(read.value) === canonicalJson(applied.update);
+}
+
+/** Whether an entry covers one of the teacher's schools, or a grade one of their classes there teaches. */
+export function concernsTeacher(context: Context, entry: CalendarEntry): boolean {
+  const classes = [...context.state.classes.values()];
+  return [...context.state.schools.values()].some(
+    (school) =>
+      appliesTo(entry, school) ||
+      classes.some(
+        (one) =>
+          one.schoolId === school.id &&
+          classGrades(one).some((grade) => appliesTo(entry, school, forGrade(one, grade))),
+      ),
+  );
+}
+
+/** An update's changes split into those that concern the teacher, listed, and how many others it holds. */
+export function teacherChanges(context: Context, update: CalendarUpdate): { mine: UpdateChange[]; others: number } {
+  const changes = updateChanges(context, update);
+  const mine = changes.filter(
+    (one) => concernsTeacher(context, one.entry) || (one.before !== undefined && concernsTeacher(context, one.before)),
+  );
+  return { mine, others: changes.length - mine.length };
 }
 
 /** The record of applying a checked update; refused unless the app can still apply it. */

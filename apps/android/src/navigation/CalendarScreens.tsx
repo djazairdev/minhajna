@@ -11,6 +11,7 @@ import { AbReset } from '../calendar/AbReset';
 import { Lunar } from '../calendar/Lunar';
 import { Groups } from '../calendar/Groups';
 import { Receive } from '../calendar/Receive';
+import { ImportUpdate } from '../calendar/ImportUpdate';
 import { AddSessions } from '../extra/AddSessions';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -26,6 +27,7 @@ function CalendarScreen({ navigation }: NativeStackScreenProps<RootStackParamLis
       onReset={(schoolId) => navigation.navigate('CalendarAb', { schoolId })}
       onGroups={(schoolId) => navigation.navigate('CalendarGroups', { schoolId })}
       onReceive={(schoolId) => navigation.navigate('CalendarReceive', { schoolId })}
+      onImport={() => navigation.navigate('ImportUpdate')}
     />
   );
 }
@@ -123,6 +125,10 @@ function CalendarReceiveScreen({ route, navigation }: NativeStackScreenProps<Roo
   );
 }
 
+function ImportUpdateScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'ImportUpdate'>) {
+  return <ImportUpdate onApplied={() => navigation.goBack()} onReport={() => navigation.navigate('Help')} />;
+}
+
 /** Register actual Screen elements so the root navigator stays within its file-size limit. */
 export function calendarRoutes(
   Stack: ReturnType<typeof createNativeStackNavigator<RootStackParamList>>,
@@ -167,6 +173,11 @@ export function calendarRoutes(
         name="CalendarReceive"
         component={CalendarReceiveScreen}
         options={{ title: t('calendarView.receive.open'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="ImportUpdate"
+        component={ImportUpdateScreen}
+        options={{ title: t('calendarView.update.open'), statusBarStyle: 'dark' }}
       />
     </>
   );

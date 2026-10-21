@@ -7,6 +7,7 @@ import { makeContext, type Context } from './context.ts';
 import { maxDay, minDay, startOfWeek, type Day } from './day.ts';
 import { termCheck, type TermCheck } from './pacing.ts';
 import { addedSessions, compareSessions, sessionsBetween, type Session } from './sessions.ts';
+import { updateChanges, type CalendarUpdate } from './calendar-update.ts';
 import { current } from './state.ts';
 import { slotKey } from './records.ts';
 
@@ -74,6 +75,36 @@ export function calendarImpact(context: Context, event: CalendarMutation, today:
     calendar: event.kind === 'calendar.set' ? [...calendar, event.entry] : calendar,
   });
   const physical = entry.rotation !== undefined || old?.rotation !== undefined;
+  return impactBetween(context, next, from, to, physical, today);
+}
+
+/**
+ * What applying a signed calendar update would change, before it is applied:
+ * over the days its entries cover, before and after, or from the week of the
+ * first to the end of the year when one resets the A/B weeks.
+ */
+export function updateImpact(context: Context, update: CalendarUpdate, today: Day): CalendarImpact {
+  const entries = updateChanges(context, update).flatMap((one) => [one.entry, ...(one.before ? [one.before] : [])]);
+  if (entries.length === 0) return { asOf: today, changes: [], recorded: 0, courses: [] };
+  const next = makeContext(context.ref, {
+    ...context.state,
+    calendarUpdates: [...context.state.calendarUpdates, { update, key: '', file: '' }],
+  });
+  const first = entries.map((one) => one.from).reduce(minDay);
+  const last = entries.map((one) => one.to).reduce(maxDay);
+  const weeks = entries.some(isWeekReset);
+  const from = weeks ? maxDay(context.ref.year.from, startOfWeek(first, context.ref.country.weekStartsOn)) : first;
+  return impactBetween(context, next, from, weeks ? context.ref.year.to : last, false, today);
+}
+
+function impactBetween(
+  context: Context,
+  next: Context,
+  from: Day,
+  to: Day,
+  physical: boolean,
+  today: Day,
+): CalendarImpact {
   const before = rows(context, from, to, physical);
   const after = rows(next, from, to, physical);
   const keys = new Set([...before.keys(), ...after.keys()]);

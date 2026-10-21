@@ -42,7 +42,9 @@
     },
     "reports": "Signalements",
     "planError": "Signaler une erreur dans le plan",
-    "planErrorHow": "Depuis l’élément lui-même, dans le plan de la classe : ouvrez le plan de la classe, touchez l’élément, puis « Signaler une erreur dans cet élément ». Le signalement porte alors l’identifiant de l’élément et la version du paquet."
+    "planErrorHow": "Depuis l’élément lui-même, dans le plan de la classe : ouvrez le plan de la classe, touchez l’élément, puis « Signaler une erreur dans cet élément ». Le signalement porte alors l’identifiant de l’élément et la version du paquet.",
+    "updateRefused": "Un fichier de mise à jour refusé",
+    "updateRefusedHow": "Depuis l'écran « Importer une mise à jour » : envoyez le nom du fichier et la raison du refus, pas son contenu, à contact@djazair.dev, en disant d'où il vient."
   },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
   "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
