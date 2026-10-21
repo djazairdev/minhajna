@@ -23,6 +23,7 @@ import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
 import { CatchUp } from '../plan/CatchUp';
 import { CatchUpAdd } from '../plan/CatchUpAdd';
+import { SupportQueue } from '../plan/SupportQueue';
 import { PlanFree } from '../plan/PlanFree';
 import { PlanOffer } from '../plan/PlanOffer';
 import { SeptCheck } from '../plan/SeptCheck';
@@ -45,6 +46,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onLayers={() => navigation.navigate('PlanLayers', { courseId })}
       onEditList={() => navigation.navigate('PlanFree', { courseId })}
       onCatchUp={() => navigation.navigate('CatchUp', { courseId })}
+      onSupport={() => navigation.navigate('SupportQueue', { courseId })}
       onItem={(itemId) => navigation.navigate('PlanItem', { courseId, itemId })}
       onCheck={() => navigation.navigate('SeptCheck', { courseId })}
     />
@@ -134,7 +136,18 @@ export function PlanOfferScreen({ navigation, route }: NativeStackScreenProps<Ro
 /** The catch-up options; rung 4 opens the make-up days. */
 export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUp'>) {
   const { courseId } = route.params;
-  return <CatchUp courseId={courseId} onAdd={() => navigation.navigate('CatchUpAdd', { courseId })} />;
+  return (
+    <CatchUp
+      courseId={courseId}
+      onAdd={() => navigation.navigate('CatchUpAdd', { courseId })}
+      onSupport={() => navigation.navigate('SupportQueue', { courseId })}
+    />
+  );
+}
+
+export function SupportQueueScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'SupportQueue'>) {
+  const { courseId } = route.params;
+  return <SupportQueue courseId={courseId} onLog={() => navigation.navigate('Extra', { courseId })} />;
 }
 
 export function CatchUpAddScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUpAdd'>) {
@@ -169,6 +182,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanOffer" component={PlanOfferScreen} options={dark(t('planOffer.title'))} />
       <Stack.Screen name="CatchUp" component={CatchUpScreen} options={dark(t('catchUp.title'))} />
       <Stack.Screen name="CatchUpAdd" component={CatchUpAddScreen} options={dark(t('catchUpAdd.title'))} />
+      <Stack.Screen name="SupportQueue" component={SupportQueueScreen} options={dark(t('supportQueue.title'))} />
     </>
   );
 }

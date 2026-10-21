@@ -50,7 +50,9 @@
   "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",
   "count": {
     "sessions_one": "{{count}} session",
-    "sessions_other": "{{count}} sessions"
+    "sessions_other": "{{count}} sessions",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items"
   },
   "bottomSheet": {
     "close": "Close"
@@ -2190,7 +2192,8 @@
     "cancel": "Cancel",
     "cancelled": "Catch-up session cancelled; «Undo» brings it back.",
     "hidden": "The timetable has since taken this time, so it is not held and makes up no session. Cancel it here.",
-    "notRestored": "The catch-up session was not brought back: its time or the session it made up is taken."
+    "notRestored": "The catch-up session was not brought back: its time or the session it made up is taken.",
+    "supportLine": "Support or remediation sessions have their own list and do not move the plan."
   },
   "catchUpAdd": {
     "title": "Catch-up session",
@@ -2215,5 +2218,35 @@
     "extraOpen": "Log a session held outside the timetable",
     "save": "Add the session",
     "failed": "The session was not added. Try again."
+  },
+  "supportQueue": {
+    "title": "Support list",
+    "open": "Support list",
+    "heading": "Support list · {{class}}",
+    "intro": "Support sessions have their own list, like TD: each support or remediation session takes the first item not finished. It does not move the main plan or count in its buffers.",
+    "empty": "No items yet. Write the first one below.",
+    "next": "Next: the coming support session takes it",
+    "nextTaken": "Next, not finished yet: {{dates}}",
+    "finished": "Finished: {{dates}}",
+    "taken": "Not finished yet: {{dates}}",
+    "notYet": "No session has taken it yet",
+    "up": "Up",
+    "down": "Down",
+    "delete": "Delete",
+    "editLine": "Select an item to move or delete it. Logged sessions do not change: each keeps the item it took.",
+    "newItem": "New item",
+    "newPlaceholder": "Free text",
+    "add": "Add",
+    "missing": "Write the item’s title.",
+    "tooLong": "The title is too long: {{max}} characters at most.",
+    "privacy": "Please do not write pupils’ names or health or discipline details about them.",
+    "removed": "Item deleted.",
+    "page": "Support sessions go on the texts book’s page for additional lessons, not on the subject’s pages.",
+    "log": "Log a support session held, with its date and time",
+    "takes": "This session takes from the support list: {{item}}",
+    "finishedTick": "Item finished",
+    "noItem": "No item is left in this class’s support list.",
+    "counts": "{{items}} · {{done}} finished, {{left}} left",
+    "done": "Finished"
   }
 }

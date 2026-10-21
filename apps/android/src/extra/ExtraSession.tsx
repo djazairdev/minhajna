@@ -12,12 +12,16 @@
 // history kept. A second tap waits for the first save. A make-up, support
 // or revision day the school sets opens «إضافة حصص» instead, and «تعويض»,
 // a cover for a colleague's class, opens its own form (#224, answer 332).
+// A support or «تدارك» session takes the class's next support item, which
+// it finishes unless unticked (#228, answer 360).
 
 import {
   extraRemoval,
   formatTextsBookDay,
   logExtra,
+  nextSupportItem,
   supervisedRows,
+  takesQueue,
   type Day,
   type ExtraKind,
   type RecordEvent,
@@ -45,6 +49,7 @@ import { supportRows } from './add-sessions-rules';
 import { classChoices, courseOfChoice, loggableDays, monthOf, rowNumber, subjectName } from './extra-rules';
 import { ExtraPreview } from './ExtraPreview';
 import { MonthDays } from './MonthDays';
+import { SupportPick } from './SupportPick';
 
 type Said = { readonly id: string; readonly noted: boolean } | 'failed' | null;
 
@@ -52,8 +57,11 @@ export function ExtraSession({
   courseId: initial,
   onAddDay,
   onCover,
+  onQueue,
 }: {
   readonly courseId?: string;
+  /** Opens the class's support queue. */
+  readonly onQueue?: (courseId: string) => void;
   /** Opens «إضافة حصص», for a make-up, support or revision day the school sets. */
   readonly onAddDay?: () => void;
   /** Opens the form of a cover the teacher gives a colleague's class. */
@@ -84,6 +92,7 @@ export function ExtraSession({
   const [to, setTo] = useState('');
   const [topic, setTopic] = useState('');
   const [tried, setTried] = useState(false);
+  const [finished, setFinished] = useState(true);
   const [said, setSaid] = useState<Said>(null);
   const busy = useRef(false);
   const undone = useRef<string | null>(null);
@@ -91,6 +100,8 @@ export function ExtraSession({
   const choice = choices.find((one) => one.value === choiceId);
   const className = (choice && state.classes.get(choice.classId)?.name) ?? '';
   const times = readSpan(from, to);
+  const queued = kind !== null && takesQueue(kind) ? choice?.courseId : undefined;
+  const item = queued === undefined ? null : nextSupportItem(state, queued);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
 
   if (choices.length === 0 || !days.open) {
@@ -115,7 +126,8 @@ export function ExtraSession({
       const { course, isNew } = courseOfChoice(state, choice, year.id, newId);
       const courses = new Map(state.courses).set(course.id, course);
       const context = coreContext({ profile, year, calendar, calendarRelease, packs, state: { ...state, courses } });
-      const logged = logExtra(context, { id, courseId: course.id, kind, day, ...times }, today(), topic);
+      const taken = item === null ? {} : { item: item.id, ...(finished && { finished: true as const }) };
+      const logged = logExtra(context, { id, courseId: course.id, kind, day, ...times, ...taken }, today(), topic);
       const made: RecordEvent[] = isNew ? [{ kind: 'course.set', course }] : [];
       noted = logged.some((event) => event.kind === 'session.noted');
       busy.current = true;
@@ -131,6 +143,7 @@ export function ExtraSession({
     setFrom('');
     setTo('');
     setTopic('');
+    setFinished(true);
     setTried(false);
     setSaid({ id, noted });
   };
@@ -174,6 +187,14 @@ export function ExtraSession({
           selected={kind}
           onSelect={(next) => (next === 'cover' ? onCover?.() : setKind(next))}
         />
+        {queued !== undefined && (
+          <SupportPick
+            item={item}
+            finished={finished}
+            onFinished={setFinished}
+            {...(onQueue !== undefined && { onQueue: () => onQueue(queued) })}
+          />
+        )}
         <View style={styles.group}>
           <Text style={[styles.label, align]}>{t('extra.date')}</Text>
           <MonthDays

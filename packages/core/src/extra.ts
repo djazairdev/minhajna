@@ -7,7 +7,9 @@
 // paper; the app never records when they tapped. They do not move the plan,
 // and they fill the texts book's page for supervised or additional lessons
 // (§3.8, Decision 835). They are not the make-up sessions of the catch-up
-// ladder, which count as plan sessions (§4.7).
+// ladder, which count as plan sessions (§4.7). A support or «تدارك» session
+// can take an item of the class's support queue, listed then or taken by
+// the version it corrects (answer 360).
 
 import { CLOCK, clockMinutes } from './bells.ts';
 import type { Context } from './context.ts';
@@ -16,6 +18,7 @@ import { EXTRA_KINDS, compareExtras, extraNoteKey, type ExtraKind, type ExtraSes
 import type { RecordEvent } from './events.ts';
 import type { Course } from './records.ts';
 import { current, type State } from './state.ts';
+import { takesQueue } from './support-queue.ts';
 
 /** The longest topic, in characters. */
 export const EXTRA_TOPIC_MAX = 200;
@@ -37,7 +40,13 @@ export function logExtra(context: Context, extra: ExtraSession, today: Day, topi
   if (clockMinutes(extra.to) <= clockMinutes(extra.from)) throw new RangeError('The session ends after it starts');
   const typed = topic.trim();
   if (typed.length > EXTRA_TOPIC_MAX) throw new RangeError('The topic is too long');
-  const { id, courseId, kind, day, from, to } = extra;
+  const { id, courseId, kind, day, from, to, item, finished } = extra;
+  if (item !== undefined) {
+    const before = current(state.extras.get(id))?.item;
+    const listed = state.supportQueues.get(courseId)?.items.some((one) => one.id === item) === true;
+    if (!takesQueue(kind)) throw new RangeError('Only a support session takes an item');
+    if (!listed && item !== before) throw new RangeError('No such support item');
+  } else if (finished !== undefined) throw new RangeError('Only a session with an item finishes it');
   const sessionKey = extraNoteKey(id);
   const note: RecordEvent[] =
     typed !== ''
@@ -45,7 +54,8 @@ export function logExtra(context: Context, extra: ExtraSession, today: Day, topi
       : state.notes.get(sessionKey)?.note !== undefined
         ? [{ kind: 'session.noted', note: { sessionKey } }]
         : [];
-  return [{ kind: 'extra.logged', extra: { id, courseId, kind, day, from, to } }, ...note];
+  const taken = item === undefined ? {} : { item, ...(finished === true && { finished }) };
+  return [{ kind: 'extra.logged', extra: { id, courseId, kind, day, from, to, ...taken } }, ...note];
 }
 
 /** A session's topic, from its private note. */

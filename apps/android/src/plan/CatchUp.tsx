@@ -10,8 +10,9 @@
 // the list of decisions. Then adding catch-up sessions, with the make-ups
 // due and the class's catch-up sessions not yet recorded, each cancelled
 // with «تراجع» at once while its time is still free (answers 357, 358); one
-// a later timetable took the time of says so. Nothing applies without the
-// teacher's confirmation, and every change can be taken back.
+// a later timetable took the time of says so, and the support queue for
+// support sessions (answer 359). Nothing applies without the teacher's
+// confirmation, and every change can be taken back.
 
 import {
   cancelCatchUp,
@@ -47,11 +48,15 @@ import { isolate } from '../week/grid-labels';
 import { courseSchool, meetsByBells, whenLine } from './catch-up-add-rules';
 import { buffersLine, tdLine } from './catch-up-rules';
 
-export type CatchUpProps = { readonly courseId: string; readonly onAdd?: () => void };
+export type CatchUpProps = {
+  readonly courseId: string;
+  readonly onAdd?: () => void;
+  readonly onSupport?: () => void;
+};
 
 type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly message: string } | null;
 
-export function CatchUp({ courseId, onAdd }: CatchUpProps) {
+export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
   const t = useText();
   const data = useAppData();
   const { state, profile, recordAll, newId, today } = data;
@@ -232,6 +237,12 @@ export function CatchUp({ courseId, onAdd }: CatchUpProps) {
             )}
             {onAdd !== undefined && (
               <Button testID="catchup-add" variant="line" label={t('catchUp.addOne')} onPress={onAdd} />
+            )}
+            {onSupport !== undefined && (
+              <>
+                <Text style={[styles.sub, align]}>{t('catchUp.supportLine')}</Text>
+                <Button testID="catchup-support" variant="line" label={t('supportQueue.open')} onPress={onSupport} />
+              </>
             )}
           </>,
         )}

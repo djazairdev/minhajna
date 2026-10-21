@@ -255,6 +255,7 @@ export function ExtraScreen({ route, navigation }: NativeStackScreenProps<RootSt
     <ExtraSession
       {...(route.params?.courseId !== undefined && { courseId: route.params.courseId })}
       onAddDay={() => navigation.navigate('AddSessions')}
+      onQueue={(courseId) => navigation.navigate('SupportQueue', { courseId })}
       {...(coverSchools(state).length > 0 && { onCover: () => navigation.replace('Cover') })}
     />
   );
