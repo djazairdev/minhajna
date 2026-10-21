@@ -1,0 +1,35 @@
+{
+  "board": {
+    "title": "Affecter un remplacement",
+    "notice": "Choisissez une séance dans l’emploi du temps de l’établissement, puis sa prise en charge. Aucun motif n’est enregistré.",
+    "session": "Séance",
+    "kind": "Prise en charge",
+    "arrangement": "Collègue ou séance de remplacement",
+    "save": "Enregistrer l’affectation",
+    "saved": "Modification enregistrée.",
+    "failed": "La modification demandée n’a pas été enregistrée. Vérifiez l’affectation affichée, puis réessayez.",
+    "denied": "Cette page est réservée au directeur ou à son adjoint dans l’espace de l’établissement.",
+    "cancel": "Annuler l’affectation",
+    "cancelNotice": "Annuler cette affectation ? Ses versions précédentes restent conservées.",
+    "confirmCancel": "Confirmer l’annulation",
+    "keep": "Conserver l’affectation"
+  },
+  "cover": {
+    "given": "Remplacement que j’assure",
+    "received": "Remplacement pour ma classe",
+    "slot": "{{half}} · créneau {{index}}",
+    "assigned": "Affecté par l’établissement",
+    "needed": "En attente d’affectation",
+    "completed": "Confirmé par l’enseignant désigné",
+    "school": "Selon l’affectation de l’établissement. Aucun motif de remplacement n’est enregistré.",
+    "kinds": {
+      "supervision": "Surveillance de la classe",
+      "study-room": "Salle d’étude",
+      "colleague": "Remplacement par un collègue libre",
+      "merge": "Regroupement avec une autre classe",
+      "swap": "Échange de séances",
+      "move": "Déplacement de séance",
+      "release": "Sortie des élèves après la dernière séance"
+    }
+  }
+}
