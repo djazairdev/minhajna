@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Setup-7-Ready (#31): what setup kept, the September check of each class
-// with a pinned pack, TD counted apart, the next session with what the plan
-// proposes, a class with no pack, and every control named and 48dp. Made-up
-// schools, classes and timetables only.
+// with a pinned pack, TD counted apart, the printed check it opens (#225),
+// the next session with what the plan proposes, a class with no pack, and
+// every control named and 48dp. Made-up schools, classes and timetables only.
 
 import { parseDay, type RecordEvent, type TimetableEntry } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -24,6 +24,7 @@ jest.mock(
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const onDone = jest.fn();
+const onCheck = jest.fn();
 const example = { id: 'dz.cem.4am.arabic.example', release: '2026.1' };
 
 afterEach(async () => {
@@ -31,6 +32,7 @@ afterEach(async () => {
   tree = undefined;
   await i18n.changeLanguage('ar');
   onDone.mockReset();
+  onCheck.mockReset();
 });
 
 const schoolClass = (id: string, name: string): RecordEvent => ({
@@ -94,7 +96,7 @@ async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Ready onDone={onDone} />)}
+        {withData(data, <Ready onDone={onDone} onCheck={onCheck} />)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -140,6 +142,11 @@ test('shows what setup kept, the check before the term-1 exams with TD apart, an
   expect(label('ready-row-k-2')).toBe('4م2: حصص المخطط 44 متاحة و18 يحتاجها، والأعمال الموجهة 0 متاحة و0 عناصرها');
   await press('ready-today');
   expect(onDone).toHaveBeenCalledTimes(1);
+  const sept = root().find(
+    (node) => /^ready-sept-/.test(String(node.props.testID)) && typeof node.props.onPress === 'function',
+  );
+  await press(sept.props.testID as string);
+  expect(onCheck).toHaveBeenCalledWith('c-1');
 });
 
 test('has nothing to check while no class has a pack, and the next session is typed', async () => {

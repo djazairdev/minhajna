@@ -69,7 +69,12 @@ export function PlanScreen({ navigation }: NativeStackScreenProps<RootStackParam
 
 /** The end of setup; «إلى صفحة اليوم» opens the tabs, with nothing to go back to. */
 export function ReadyScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Ready'>) {
-  return <Ready onDone={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })} />;
+  return (
+    <Ready
+      onDone={() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] })}
+      onCheck={(courseId) => navigation.navigate('SeptCheck', { courseId })}
+    />
+  );
 }
 
 /** A grade and subject's packs; pinning or cancelling returns to the plan. */
