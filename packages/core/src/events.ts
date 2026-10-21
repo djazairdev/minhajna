@@ -15,6 +15,7 @@ import type { PrintRecord } from './prints.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
 import type { AddedPack } from './pack-update.ts';
 import type { AddedLayer, LayerSwitch } from './variant-layers.ts';
+import type { FreeList } from './free-list.ts';
 import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -62,6 +63,8 @@ export type RecordEvent =
   /** A district or school layer of a plan, taken in; it changes no class until switched on (#226). */
   | { readonly kind: 'layer.added'; readonly added: AddedLayer }
   | { readonly kind: 'layer.switched'; readonly switched: LayerSwitch }
+  /** A class's own list, without a pack (#227). */
+  | { readonly kind: 'list.set'; readonly list: FreeList }
   // A session record never carries free text about why it changed: that is
   // private, and goes into the session's note (PRD §5.4). A correction may
   // carry a coded reason, which shows with it (PRD §5.5).
@@ -117,6 +120,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'pack.added': true,
   'layer.added': true,
   'layer.switched': true,
+  'list.set': true,
   'session.recorded': true,
   'session.withdrawn': true,
   'session.noted': true,
@@ -165,6 +169,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'pack.added':
     case 'layer.added':
     case 'layer.switched':
+    case 'list.set':
       return 'lesson-record';
     case 'teacher.set':
     case 'school.set':

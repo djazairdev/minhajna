@@ -51,9 +51,12 @@ export function decisionsFor(decisions: ReadonlyMap<string, PlanDecision>, cours
   );
 }
 
-/** Whether a course's pack allows a decision: an optional item, two items it lets merge, items it has. */
+/**
+ * Whether a course's pack allows a decision: an optional item, two items
+ * it lets merge, items it has. A class's own list allows none.
+ */
 export function allowedBy(pack: PlanPack, decision: PlanDecision): boolean {
-  if (isChange(decision)) return false;
+  if (isChange(decision) || pack.status === 'own') return false;
   const has = (id: string): boolean => pack.items.some((item) => item.id === id && item.kind !== 'unit');
   switch (decision.kind) {
     case 'leave-out':

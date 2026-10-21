@@ -93,7 +93,7 @@ export function alignChange(
 /** The event that records one of the class's own changes, once checked against its plan. */
 export function recordChange(context: Context, change: PlanChange): RecordEvent {
   const pack = courseSetup(context, change.courseId).pack;
-  if (pack === null) throw new RangeError('A class without a pack has no plan to change');
+  if (pack === null || pack.status === 'own') throw new RangeError('Only a class on a pack has changes to its plan');
   const { decisions } = context.state;
   if (decisions.has(change.id) || change.seq !== nextSeq(decisions, change.courseId)) {
     throw new RangeError('This change is already recorded, or out of order');

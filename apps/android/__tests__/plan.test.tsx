@@ -6,7 +6,7 @@
 // class, a grade with no pack, the built-in calendar, and every control named
 // and 48dp. Made-up schools, classes and packs only.
 
-import { parseDay, type RecordEvent } from '@minhajna/core';
+import { PACK_STATUSES, parseDay, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Text } from 'react-native';
 import type { PressableProps } from 'react-native';
@@ -123,7 +123,7 @@ test("pins the example pack to the grade's classes, keeping a course already mad
         (node.props as PressableProps).accessibilityState?.checked === true,
     ),
   ).not.toHaveLength(0);
-  expect(shown()).toEqual(expect.arrayContaining(Object.values(text.plan.meaning)));
+  expect(shown()).toEqual(expect.arrayContaining(PACK_STATUSES.map((status) => text.plan.meaning[status])));
   await press('pack-pin');
   await settle();
   expect(onDone).toHaveBeenCalledTimes(1);

@@ -12,6 +12,7 @@ import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
 import type { AddedPack } from './pack-update.ts';
+import { freeListFits, type FreeList } from './free-list.ts';
 import { layerKey, signedAsItsLevel, switchKey, type AddedLayer, type LayerSwitch } from './variant-layers.ts';
 import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
@@ -66,6 +67,8 @@ export interface State {
   readonly layers: readonly AddedLayer[];
   /** Which layer each class has on at each level, by course and level. */
   readonly layerSwitches: ReadonlyMap<string, LayerSwitch>;
+  /** Each class's own list without a pack, by course (#227). */
+  readonly lists: ReadonlyMap<string, FreeList>;
   /** Every version of each session's record, by key; the last is current, null when a confirmation was undone. */
   readonly sessions: ReadonlyMap<string, readonly Version<SessionRecord | null>[]>;
   readonly notes: ReadonlyMap<string, PrivateNote>;
@@ -113,6 +116,7 @@ export function buildState(entries: readonly Entry[]): State {
   const addedPacks = new Map<string, AddedPack>();
   const layers = new Map<string, AddedLayer>();
   const layerSwitches = new Map<string, LayerSwitch>();
+  const lists = new Map<string, FreeList>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const extras = new Map<string, Version<ExtraSession | null>[]>();
@@ -180,6 +184,9 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'layer.switched':
         layerSwitches.set(switchKey(event.switched.courseId, event.switched.level), event.switched);
+        break;
+      case 'list.set':
+        if (freeListFits(event.list)) lists.set(event.list.courseId, event.list);
         break;
       case 'session.recorded': {
         const key = event.record.session.key;
@@ -268,6 +275,7 @@ export function buildState(entries: readonly Entry[]): State {
     addedPacks: [...addedPacks.values()],
     layers: [...layers.values()],
     layerSwitches,
+    lists,
     sessions,
     notes,
     extras,

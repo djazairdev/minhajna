@@ -340,7 +340,8 @@
       "latest-found": "Dernière édition trouvée",
       "stale": "Progression dépassée",
       "community": "Progression communautaire",
-      "example": "Exemple d'essai"
+      "example": "Exemple d'essai",
+      "own": "Ma liste · non relue"
     },
     "meaning": {
       "official": "Publiée par l'autorité émettrice elle-même, via Minhajna.",
@@ -348,7 +349,8 @@
       "latest-found": "La dernière édition trouvée, saisie et relue. Mieux vaut vérifier avec l'inspecteur.",
       "stale": "Une décision plus récente a changé les heures ou le contenu de la matière : rien n'en est proposé, et la saisie des éléments reste possible.",
       "community": "La progression d'un enseignant ou d'une circonscription, relue avant publication, et créditée avec l'accord de ses auteurs. Non officielle.",
-      "example": "Un pack inventé pour essayer l'application, pas une progression. Les vraies progressions viendront dans les packs de Minhajna."
+      "example": "Un pack inventé pour essayer l'application, pas une progression. Les vraies progressions viendront dans les packs de Minhajna.",
+      "own": "Une liste que l’enseignant a saisie pour cette classe, sans pack. Personne ne l’a relue."
     },
     "anchor": {
       "weeks": "Rythme : par semaines",
