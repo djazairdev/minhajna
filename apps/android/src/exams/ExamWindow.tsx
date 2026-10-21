@@ -56,13 +56,13 @@ export function ExamWindow({ courseId, onMakeUp, onLater }: ExamWindowProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, packs, today, recordAll, newId } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, recordAll, newId } = useAppData();
   const language = currentLanguage();
   const comma = language === 'ar' ? '، ' : ', ';
   const day = today();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const warning = useMemo(() => pastWindow(context, courseId, day), [context, courseId, day]);
   const choices = useMemo(() => (warning === null ? [] : planChoices(context, warning)), [context, warning]);

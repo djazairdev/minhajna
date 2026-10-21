@@ -11,7 +11,10 @@ import type { useText } from '../text/i18n';
 
 export type Translate = ReturnType<typeof useText>;
 
-export type DocumentData = Pick<AppData, 'state' | 'profile' | 'year' | 'calendar' | 'packs' | 'bells'> & {
+export type DocumentData = Pick<
+  AppData,
+  'state' | 'profile' | 'year' | 'calendar' | 'calendarRelease' | 'packs' | 'bells'
+> & {
   readonly day: Day;
   /** Today, which counts stop at; the end of the period when not given. */
   readonly today?: Day;

@@ -25,6 +25,9 @@ export interface TestData {
   readonly profile: CountryProfile;
   readonly year: SchoolYear;
   readonly calendar: readonly CalendarEntry[];
+  readonly calendarRelease: string;
+  /** None: a fresh history has applied no calendar update. */
+  readonly updatedIds: readonly string[];
   readonly bells: BellData;
   readonly packs: readonly PlanPack[];
 }
@@ -40,6 +43,8 @@ export async function openTestData(storage = new FakeStorage()): Promise<TestDat
     profile: reference.profile,
     year: reference.calendar.year,
     calendar: reference.calendar.entries,
+    calendarRelease: reference.calendar.release,
+    updatedIds: [],
     bells: reference.bells,
     packs: reference.packs,
   };
@@ -53,6 +58,7 @@ export function withData(data: TestData, children: ReactNode, day = '2026-10-15'
       profile={data.profile}
       year={data.year}
       calendar={data.calendar}
+      calendarRelease={data.calendarRelease}
       bells={data.bells}
       packs={data.packs}
       random={nativeDeps(data.storage.asSpec()).random}

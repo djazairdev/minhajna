@@ -49,11 +49,11 @@ export function DutyEntry({ day: asked }: { readonly day?: Day }) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, packs, today, record, newId } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, record, newId } = useAppData();
   const language = currentLanguage();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const days = useMemo(() => examDays(context), [context]);
   const sorted = [...days].sort();

@@ -33,11 +33,11 @@ export function SeptCheck({ courseId }: SeptCheckProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { state, profile, year, calendar, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
   const day = today();
   const sheet = useMemo(
-    () => septSheet(coreContext({ profile, year, calendar, packs, state }), t, courseId, day),
-    [profile, year, calendar, packs, state, t, courseId, day],
+    () => septSheet(coreContext({ profile, year, calendar, calendarRelease, packs, state }), t, courseId, day),
+    [profile, year, calendar, calendarRelease, packs, state, t, courseId, day],
   );
   const { busy, said, print, save } = useOutputRun();
   const html = () => septCheckHtml(t, sheet!, currentLanguage(), direction);

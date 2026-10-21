@@ -77,7 +77,7 @@ export function Today(props: {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, bells, today, record, recordAll } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, bells, today, record, recordAll } = useAppData();
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const other = useRef<ViewInstance>(null);
   const backlogOther = useRef<ViewInstance>(null);
@@ -85,8 +85,8 @@ export function Today(props: {
   const language = currentLanguage();
   const comma = language === 'ar' ? '، ' : ', ';
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const view = useMemo(() => todayView(context, day), [context, day]);
   const backlog = useMemo(() => backlogOf(context, day), [context, day]);

@@ -44,6 +44,18 @@ function readAdded(reader: Reader, raw: Fields, path: string, profile: CountryPr
   return { adds, follows, replaces };
 }
 
+/** The dates an entry had before an update moved it, and why. */
+function readMoved(reader: Reader, value: unknown, path: string): CalendarEntry['moved'] {
+  if (!isFields(value)) {
+    reader.fail(path, 'invalid');
+    return undefined;
+  }
+  const span = reader.span(value, path);
+  const reason = reader.requiredText(value, 'reason', path);
+  if (reason.length > 300) reader.fail(at(path, 'reason'), 'invalid');
+  return span === undefined || reason === '' ? undefined : { from: span.from, to: span.to, reason };
+}
+
 /**
  * Reads the school year. Its terms are numbered from 1, lie within the
  * year, and each starts after the one before it ends.
@@ -91,10 +103,11 @@ function readYear(reader: Reader, value: unknown): SchoolYear | undefined {
 }
 
 /**
- * Reads one calendar entry. When it names levels as well as grades, every
- * grade belongs to one of those levels.
+ * Reads one calendar entry, of a reference calendar file or of a calendar
+ * update. When it names levels as well as grades, every grade belongs to one
+ * of those levels.
  */
-function readEntry(
+export function readEntry(
   reader: Reader,
   raw: unknown,
   path: string,
@@ -141,6 +154,7 @@ function readEntry(
   const name = readName(reader, raw, path);
   const source = reader.requiredText(raw, 'source', path);
   const confidence = reader.oneOf(raw, 'confidence', path, CONFIDENCES);
+  const moved = raw['moved'] === undefined ? undefined : readMoved(reader, raw['moved'], at(path, 'moved'));
   const lunar = raw['lunar'];
   if (lunar !== undefined && (lunar !== true || layer !== 'national' || effect !== 'no-school'))
     reader.fail(at(path, 'lunar'), 'invalid');
@@ -166,6 +180,7 @@ function readEntry(
     name,
     source,
     confidence,
+    ...(moved !== undefined && { moved }),
     ...(lunar === true && { lunar }),
   };
 }

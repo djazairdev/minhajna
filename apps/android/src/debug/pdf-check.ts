@@ -47,6 +47,7 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
     country: read.profile,
     year: read.calendar.year,
     calendar: read.calendar.entries,
+    calendarRelease: read.calendar.release,
     packs: new Map(),
   };
   const year = await makeDemoYear(reference, deps, 'cem');
@@ -103,6 +104,7 @@ export async function makeDemoPdfs(t: Translate, deps: HistoryDeps): Promise<Pdf
       profile: read.profile,
       year: read.calendar.year,
       calendar: read.calendar.entries,
+      calendarRelease: read.calendar.release,
       packs: [],
       bells: read.bells,
       day: DAYS[0],

@@ -46,7 +46,7 @@ export function Calendar({
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const data = useAppData();
-  const { profile, year, state, calendar, today } = data;
+  const { profile, year, state, calendar, updatedIds, today } = data;
   const schools = [...state.schools.values()];
   const [schoolId, setSchool] = useState(schools[0]?.id ?? '');
   const [layer, setLayer] = useState<CalendarLayer | 'all'>('all');
@@ -57,8 +57,8 @@ export function Calendar({
     ({ entry }) => layer === 'all' || entry.layer === layer,
   );
   const view = useMemo(
-    () => new CalendarView({ country: profile, year, calendar, packs: new Map() }, state.calendar),
-    [profile, year, calendar, state.calendar],
+    () => new CalendarView({ country: profile, year, calendar, updatedIds, packs: new Map() }, state.calendar),
+    [profile, year, calendar, updatedIds, state.calendar],
   );
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   return (

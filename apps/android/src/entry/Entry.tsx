@@ -54,11 +54,11 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, bells, today, recordAll } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, bells, today, recordAll } = useAppData();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const item = useMemo(
     () => todayView(context, day).sessions.find((one) => one.session.key === sessionKey),

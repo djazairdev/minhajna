@@ -9,7 +9,7 @@ import {
   eachDay,
   forGrade,
   validLunarConfirmation,
-  replacesReceived,
+  receivedSuperseded,
   monthRange,
   startOfWeek,
   type CalendarEntry,
@@ -29,7 +29,10 @@ export interface CalendarRow {
 }
 
 /** Only entries that cover this school and, for grade-specific dates, one of its saved classes. */
-export function schoolEntries(data: Pick<AppData, 'calendar' | 'state' | 'year'>, schoolId: string): CalendarRow[] {
+export function schoolEntries(
+  data: Pick<AppData, 'calendar' | 'updatedIds' | 'state' | 'year'>,
+  schoolId: string,
+): CalendarRow[] {
   const school = data.state.schools.get(schoolId);
   if (school === undefined) return [];
   const classes = [...data.state.classes.values()].filter((one) => one.schoolId === schoolId);
@@ -38,7 +41,7 @@ export function schoolEntries(data: Pick<AppData, 'calendar' | 'state' | 'year'>
       .filter((entry) => !data.state.calendar.some((own) => validLunarConfirmation(own, entry)))
       .map((entry) => ({ entry, origin: 'bundled' as const })),
     ...data.state.calendar
-      .filter((entry) => !data.calendar.some((base) => replacesReceived(base, entry)))
+      .filter((entry) => !receivedSuperseded(entry, data.calendar, data.updatedIds))
       .map((entry) => ({
         entry,
         origin: 'local' as const,

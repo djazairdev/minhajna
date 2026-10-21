@@ -8,9 +8,9 @@
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { parseDay } from '@minhajna/core';
+import { MemoryStore, parseDay, RecordBook, type CalendarUpdate, type RecordEvent } from '@minhajna/core';
 import { conflictNotice, findConflicts, recordKey } from '../src/conflicts.ts';
-import { demoYear, twoDevices } from '../src/demo.ts';
+import { demoYear, deps, twoDevices } from '../src/demo.ts';
 
 const year = await demoYear('cem');
 const devices = await twoDevices(year, parseDay('2026-10-14'));
@@ -44,4 +44,35 @@ test('the notice counts the records waiting for a choice, by kind', () => {
 test('no conflict when only one side changed, or both made the same change', () => {
   assert.deepEqual(findConflicts(devices.computer, []), []);
   assert.deepEqual(findConflicts(devices.computer.slice(1), devices.phone.slice(1)), []);
+});
+
+test('two different files of one calendar release conflict; the same file on both does not', async () => {
+  const update: CalendarUpdate = {
+    country: 'dz',
+    year: '2026-2027',
+    release: '2026.4',
+    published: parseDay('2026-10-13'),
+    entries: [],
+    removed: ['example-entry'],
+  };
+  const applied = (file: string): RecordEvent => ({
+    kind: 'calendar.updated',
+    applied: { update, key: 'example-ministry', file },
+  });
+  const entries = async (event: RecordEvent) => {
+    const book = await RecordBook.open(new MemoryStore(), deps);
+    await book.record(parseDay('2026-10-14'), event);
+    return book.entries;
+  };
+  const [one, same, other] = await Promise.all([
+    entries(applied('example file')),
+    entries(applied('example file')),
+    entries(applied('another example file')),
+  ]);
+  assert.equal(recordKey(one[0]!), 'calendar-update/2026.4');
+  assert.deepEqual(findConflicts(one, same), []);
+  assert.deepEqual(
+    findConflicts(one, other).map((conflict) => conflict.kind),
+    ['calendar.updated'],
+  );
 });

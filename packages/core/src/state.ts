@@ -15,6 +15,7 @@ import type { HomeworkCount } from './homework.ts';
 import type { ExamDuty } from './exam-duties.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
+import type { AppliedUpdate } from './calendar-update.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -68,6 +69,8 @@ export interface State {
   readonly timetables: readonly RecordedTimetable[];
   /** The entries the teacher added to the calendar. */
   readonly calendar: readonly CalendarEntry[];
+  /** The signed calendar updates the teacher applied, one for each release, in the order applied (#223). */
+  readonly calendarUpdates: readonly AppliedUpdate[];
   /**
    * Every version of each session's record, by session key. The last is the
    * current one; null when a confirmation was undone and the session awaits
@@ -132,6 +135,7 @@ export function buildState(entries: readonly Entry[]): State {
   const timetables: RecordedTimetable[] = [];
   let firstTimetable: string | undefined;
   const calendar = new Map<string, CalendarEntry>();
+  const calendarUpdates = new Map<string, AppliedUpdate>();
   const sessions = new Map<string, Version<SessionRecord | null>[]>();
   const notes = new Map<string, PrivateNote>();
   const extras = new Map<string, Version<ExtraSession | null>[]>();
@@ -184,6 +188,9 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'calendar.removed':
         calendar.delete(event.id);
+        break;
+      case 'calendar.updated':
+        calendarUpdates.set(event.applied.update.release, event.applied);
         break;
       case 'session.recorded': {
         const key = event.record.session.key;
@@ -267,6 +274,7 @@ export function buildState(entries: readonly Entry[]): State {
     courses,
     timetables,
     calendar: [...calendar.values()],
+    calendarUpdates: [...calendarUpdates.values()],
     sessions,
     notes,
     extras,

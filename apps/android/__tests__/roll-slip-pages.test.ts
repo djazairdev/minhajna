@@ -33,6 +33,7 @@ const documentData = (data: TestData): DocumentData => ({
   profile: data.profile,
   year: data.year,
   calendar: data.calendar,
+  calendarRelease: data.calendarRelease,
   packs: data.packs,
   bells: data.bells,
   day: parseDay('2026-10-01'),

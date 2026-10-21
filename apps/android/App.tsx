@@ -122,6 +122,7 @@ export default function App({
             profile={reference.profile}
             year={reference.calendar.year}
             calendar={reference.calendar.entries}
+            calendarRelease={reference.calendar.release}
             bells={reference.bells}
             packs={reference.packs}
             random={random}

@@ -91,6 +91,7 @@ function entryOf(raw: Fields, profile: CountryProfile, year: SchoolYear): Calend
     'lunar',
     'confirmedFrom',
     'received',
+    'moved',
   ])
     if (raw[key] !== undefined) throw new CalendarNoticeError('invalid');
   const half = raw['half'];

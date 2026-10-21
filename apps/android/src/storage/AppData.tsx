@@ -20,6 +20,7 @@ import {
   type RecordEvent,
   type SchoolYear,
   type State,
+  updatedReference,
 } from '@minhajna/core';
 import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
@@ -27,8 +28,12 @@ export interface AppData {
   readonly profile: CountryProfile;
   /** The bundled calendar's school year. */
   readonly year: SchoolYear;
-  /** The bundled calendar's entries, before the teacher's own. */
+  /** The bundled calendar's entries with the signed updates the teacher applied, before the teacher's own. */
   readonly calendar: readonly CalendarEntry[];
+  /** The bundled calendar's release, which signed updates follow (#223). */
+  readonly calendarRelease: string;
+  /** The IDs of the entries applied updates replaced or took out. */
+  readonly updatedIds: readonly string[];
   /** The bundled bell times (#29). */
   readonly bells: BellData;
   /** The bundled plan packs that read (#30). */
@@ -55,6 +60,7 @@ export interface AppData {
 }
 
 const AppDataContext = createContext<AppData | null>(null);
+const NONE_UPDATED: readonly string[] = [];
 
 /** The phone's local date, as the day a change is recorded on. */
 export function todayOf(now: Date = new Date()): Day {
@@ -68,6 +74,7 @@ export function AppDataProvider({
   profile,
   year,
   calendar,
+  calendarRelease,
   bells,
   packs,
   random,
@@ -78,6 +85,7 @@ export function AppDataProvider({
   profile: CountryProfile;
   year: SchoolYear;
   calendar: readonly CalendarEntry[];
+  calendarRelease: string;
   bells: BellData;
   packs: readonly PlanPack[];
   random: RandomBytes;
@@ -106,7 +114,7 @@ export function AppDataProvider({
     return {
       profile,
       year,
-      calendar,
+      calendarRelease,
       bells,
       packs,
       record: (event: RecordEvent) => save(() => book.record(today(), event)),
@@ -136,8 +144,16 @@ export function AppDataProvider({
         return failureCount.current === started;
       },
     };
-  }, [book, profile, year, calendar, bells, packs, random, today]);
-  const value = useMemo(() => ({ ...actions, state, unsaved }), [actions, state, unsaved]);
+  }, [book, profile, year, calendarRelease, bells, packs, random, today]);
+  const updated = useMemo(
+    () =>
+      updatedReference({ country: profile, year, calendar, calendarRelease, packs: new Map() }, state.calendarUpdates),
+    [profile, year, calendar, calendarRelease, state.calendarUpdates],
+  );
+  const value = useMemo(
+    () => ({ ...actions, calendar: updated.calendar, updatedIds: updated.updatedIds ?? NONE_UPDATED, state, unsaved }),
+    [actions, updated, state, unsaved],
+  );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
 

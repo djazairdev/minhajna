@@ -53,11 +53,11 @@ export function Correct(props: {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, bells, today, record } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, bells, today, record } = useAppData();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const unit = useMemo(() => unitByKey(context, props.unitKey, props.day), [context, props.unitKey, props.day]);
   const versions = state.rollCalls.get(props.unitKey);

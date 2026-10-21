@@ -17,3 +17,14 @@ export function replacesReceived(reference: CalendarEntry, own: CalendarEntry): 
     canonicalJson(reference.grades ?? []) === canonicalJson(own.grades ?? [])
   );
 }
+
+/** Whether a received copy gives way: to a reference that replaces it, or to an update that replaced or took out its ID. */
+export function receivedSuperseded(
+  own: CalendarEntry,
+  reference: readonly CalendarEntry[],
+  updatedIds: readonly string[] = [],
+): boolean {
+  return (
+    own.received !== undefined && (updatedIds.includes(own.id) || reference.some((base) => replacesReceived(base, own)))
+  );
+}

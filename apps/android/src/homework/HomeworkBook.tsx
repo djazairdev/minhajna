@@ -57,12 +57,12 @@ export function HomeworkBook({ courseId, sessionKey, onPrint }: HomeworkBookProp
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, year, calendar, packs, today, recordAll } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, recordAll } = useAppData();
   const day = today();
   const lang = currentLanguage();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const items = useMemo(() => homeworkRecord(context, courseId), [context, courseId]);
   const [chosen, setChosen] = useState<string | null>(sessionKey ?? null);

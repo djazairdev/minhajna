@@ -59,10 +59,10 @@ export function ExtraSession({
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useAppData();
-  const { state, profile, year, calendar, packs, today, recordAll, newId, settled } = data;
+  const { state, profile, year, calendar, calendarRelease, packs, today, recordAll, newId, settled } = data;
   const dayRows = useMemo(
-    () => supportRows(data, coreContext({ profile, year, calendar, packs, state })),
-    [data, profile, year, calendar, packs, state],
+    () => supportRows(data, coreContext({ profile, year, calendar, calendarRelease, packs, state })),
+    [data, profile, year, calendar, calendarRelease, packs, state],
   );
   const days = loggableDays(year, today());
   const choices = useMemo(
@@ -110,7 +110,7 @@ export function ExtraSession({
     try {
       const { course, isNew } = courseOfChoice(state, choice, year.id, newId);
       const courses = new Map(state.courses).set(course.id, course);
-      const context = coreContext({ profile, year, calendar, packs, state: { ...state, courses } });
+      const context = coreContext({ profile, year, calendar, calendarRelease, packs, state: { ...state, courses } });
       const logged = logExtra(context, { id, courseId: course.id, kind, day, ...times }, today(), topic);
       const made: RecordEvent[] = isNew ? [{ kind: 'course.set', course }] : [];
       noted = logged.some((event) => event.kind === 'session.noted');

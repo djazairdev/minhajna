@@ -30,10 +30,10 @@ export function PlanDetails({ courseId }: { readonly courseId: string }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { state, profile, year, calendar, packs } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs } = useAppData();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const { pack, sessionMinutes } = courseSetup(context, courseId);
   if (pack === null) return null;

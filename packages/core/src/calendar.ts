@@ -64,7 +64,7 @@ export class CalendarView {
   /** `own` holds the entries the teacher added: closures and their own layer. */
   constructor(ref: Reference, own: readonly CalendarEntry[]) {
     this.#ref = ref;
-    this.#entries = effectiveCalendar(ref.calendar, own);
+    this.#entries = effectiveCalendar(ref.calendar, own, ref.updatedIds);
   }
 
   /** Every entry that covers a school, and a class there if one is given. */

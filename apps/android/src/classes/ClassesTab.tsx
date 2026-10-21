@@ -36,11 +36,11 @@ export function ClassesTab({
   const { direction } = useLocale();
   const t = useText();
   const minutes = useCountMinutes();
-  const { state, profile, year, calendar, packs, bells, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, bells, today } = useAppData();
   const day = today();
   const context = useMemo(
-    () => coreContext({ profile, year, calendar, packs, state }),
-    [profile, year, calendar, packs, state],
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
   const rows = useMemo(() => classRows(context, day), [context, day]);
   const subjects = [...new Set(rows.map((row) => row.course.subject))];
