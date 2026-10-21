@@ -59,13 +59,14 @@ export type ClassPlanProps = {
   readonly onLayers?: () => void;
   readonly onEditList?: () => void;
   readonly onCatchUp?: () => void;
+  readonly onSupport?: () => void;
   readonly onItem?: (itemId: string) => void;
   readonly onCheck?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
-  const { onEditList, onCatchUp } = props;
+  const { onEditList, onCatchUp, onSupport } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -197,6 +198,9 @@ export function ClassPlan(props: ClassPlanProps) {
       </View>
       {onCatchUp !== undefined && behindPlan(paced) && (
         <RowLink testID="plan-catchup" icon={controlIcon('tune')} title={t('catchUp.open')} onPress={onCatchUp} />
+      )}
+      {onSupport !== undefined && (
+        <RowLink testID="plan-support" icon={controlIcon('tune')} title={t('supportQueue.open')} onPress={onSupport} />
       )}
       {check !== null && onCheck !== undefined && (
         <RowLink testID="plan-sept-check" icon={controlIcon('print')} title={t('septCheck.open')} onPress={onCheck} />

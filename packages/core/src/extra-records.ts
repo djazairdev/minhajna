@@ -24,6 +24,10 @@ export interface ExtraSession {
   /** As typed, HH:MM on a 24-hour clock. */
   readonly from: string;
   readonly to: string;
+  /** For a support or «تدارك» session: the support item it took (#228). */
+  readonly item?: string;
+  /** Whether the session finished that item. */
+  readonly finished?: true;
 }
 
 /** The key of a session's private note that holds its topic. */

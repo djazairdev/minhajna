@@ -86,6 +86,8 @@ function recordKey(event: RecordEvent): string {
       return `catchup:${event.catchUp.id}`;
     case 'catchup.removed':
       return `catchup:${event.id}`;
+    case 'support.set':
+      return `support:${event.queue.courseId}`;
   }
 }
 

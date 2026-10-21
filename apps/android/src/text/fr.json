@@ -51,7 +51,10 @@
   "count": {
     "sessions_one": "{{count}} séance",
     "sessions_many": "{{count}} de séances",
-    "sessions_other": "{{count}} séances"
+    "sessions_other": "{{count}} séances",
+    "items_one": "{{count}} élément",
+    "items_many": "{{count}} d’éléments",
+    "items_other": "{{count}} éléments"
   },
   "bottomSheet": {
     "close": "Fermer"
@@ -2231,7 +2234,8 @@
     "cancel": "Retirer",
     "cancelled": "Séance de rattrapage retirée ; « Annuler » la rétablit.",
     "hidden": "L’emploi du temps a depuis pris ce créneau : elle n’a pas lieu et ne rattrape aucune séance. Elle se retire d’ici.",
-    "notRestored": "La séance de rattrapage n’a pas été rétablie : son créneau ou la séance rattrapée est déjà pris."
+    "notRestored": "La séance de rattrapage n’a pas été rétablie : son créneau ou la séance rattrapée est déjà pris.",
+    "supportLine": "Les séances de soutien ou de remédiation ont leur propre liste et ne font pas avancer la progression."
   },
   "catchUpAdd": {
     "title": "Séance de rattrapage",
@@ -2256,5 +2260,35 @@
     "extraOpen": "Noter une séance tenue hors emploi du temps",
     "save": "Ajouter la séance",
     "failed": "La séance n’a pas été ajoutée. Réessayez."
+  },
+  "supportQueue": {
+    "title": "Liste de soutien",
+    "open": "Liste de soutien",
+    "heading": "Liste de soutien · {{class}}",
+    "intro": "Les séances de soutien ont leur liste, comme celle des TD : chaque séance de soutien ou de remédiation prend le premier élément non terminé. Elle ne fait pas avancer la progression principale et ne compte pas dans sa réserve.",
+    "empty": "Aucun élément pour l’instant. Le premier s’écrit ci-dessous.",
+    "next": "Suivant : la prochaine séance de soutien le prend",
+    "nextTaken": "Suivant, pas encore terminé : {{dates}}",
+    "finished": "Terminé : {{dates}}",
+    "taken": "Pas encore terminé : {{dates}}",
+    "notYet": "Aucune séance ne l’a encore pris",
+    "up": "Monter",
+    "down": "Descendre",
+    "delete": "Supprimer",
+    "editLine": "Sélectionner un élément pour le déplacer ou le supprimer. Les séances notées ne changent pas : chacune garde l’élément qu’elle a pris.",
+    "newItem": "Nouvel élément",
+    "newPlaceholder": "Texte libre",
+    "add": "Ajouter",
+    "missing": "Écrivez le titre de l’élément.",
+    "tooLong": "Titre trop long : {{max}} caractères au plus.",
+    "privacy": "Merci de ne pas écrire le nom des élèves ni de détails de santé ou de discipline les concernant.",
+    "removed": "Élément supprimé.",
+    "page": "Les séances de soutien s’inscrivent sur la page des séances supplémentaires du cahier de textes, pas sur les pages de la matière.",
+    "log": "Noter une séance de soutien tenue, avec sa date et son heure",
+    "takes": "Cette séance prend dans la liste de soutien : {{item}}",
+    "finishedTick": "Élément terminé",
+    "noItem": "Il ne reste aucun élément dans la liste de soutien de cette classe.",
+    "counts": "{{items}} · terminés : {{done}}, restants : {{left}}",
+    "done": "Terminés"
   }
 }

@@ -11,6 +11,7 @@ import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
 import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { ExamDuty } from './exam-duties.ts';
+import type { SupportQueue } from './support-queue.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
@@ -103,7 +104,9 @@ export type RecordEvent =
   | { readonly kind: 'duty.removed'; readonly id: string }
   /** A catch-up session the teacher added, or cancelled before it was recorded (#228). */
   | { readonly kind: 'catchup.set'; readonly catchUp: CatchUpSession }
-  | { readonly kind: 'catchup.removed'; readonly id: string };
+  | { readonly kind: 'catchup.removed'; readonly id: string }
+  /** A class's support queue, saved whole (#228). */
+  | { readonly kind: 'support.set'; readonly queue: SupportQueue };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -145,6 +148,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'duty.removed': true,
   'catchup.set': true,
   'catchup.removed': true,
+  'support.set': true,
 };
 
 /**
@@ -196,6 +200,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'duty.removed':
     case 'catchup.set':
     case 'catchup.removed':
+    case 'support.set':
       return 'lesson-record';
   }
 }
