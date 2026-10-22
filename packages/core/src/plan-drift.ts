@@ -66,7 +66,7 @@ function placeOn(context: Context, courseId: string, day: Day): { at: number; it
   const pin = setup.course.pack;
   const raw: PlanPack | undefined = pin === null ? undefined : context.ref.packs.get(packKey(pin.id, pin.release));
   const plan = setup.pack;
-  if (raw === undefined || plan === null) return null;
+  if (raw === undefined || plan === null || setup.packStale) return null;
   const progress = walkCourse(context, courseId, day).projected;
   const whole = wholeGroup(setup.schoolClass).id;
   const sessionsOf = (pack: PlanPack, item: PackItem): number => budgetInSessions(pack, item, setup.sessionMinutes);

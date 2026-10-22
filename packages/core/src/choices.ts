@@ -73,6 +73,8 @@ export interface CourseSetup {
   readonly pack: PlanPack | null;
   /** True when the course pins a pack release that is not installed. */
   readonly packMissing: boolean;
+  /** True when the pinned release is stale: it proposes nothing, and no buffer or delay is counted from it. */
+  readonly packStale: boolean;
   readonly sessionMinutes: number;
 }
 
@@ -94,6 +96,7 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
           ? null
           : layered(pack, state.decisions, courseId, sessionMinutes, courseLayers(state, courseId)),
     packMissing: course.pack !== null && pack === null,
+    packStale: pack?.status === 'stale',
     sessionMinutes,
   };
 }
@@ -105,7 +108,7 @@ export function proposalFor(
   session: Session,
   sessionType: string,
 ): Proposal | null {
-  if (setup.pack === null) return null;
+  if (setup.pack === null || setup.packStale) return null;
   return propose(setup.pack, progress, {
     queue: findSessionType(context.ref.country, sessionType).queue,
     groupId: session.groupId,

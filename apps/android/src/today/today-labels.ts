@@ -73,7 +73,14 @@ export function lessonOf(
   pack: PlanPack | null = null,
 ): { lesson: string; note?: string } {
   const { proposal } = item;
-  if (proposal === null) return { lesson: t(item.packMissing ? 'today.packMissing' : 'today.noProposal') };
+  if (proposal === null) {
+    const why = item.packMissing
+      ? 'today.packMissing'
+      : pack?.status === 'stale'
+        ? 'today.packStale'
+        : 'today.noProposal';
+    return { lesson: t(why) };
+  }
   const named =
     proposal.with === undefined
       ? proposal.item.title

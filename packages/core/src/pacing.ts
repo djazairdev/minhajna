@@ -112,7 +112,7 @@ export function nextExamTerm(context: Context, setup: CourseSetup, today: Day): 
 export function pace(context: Context, courseId: string, today: Day): Pace | null {
   const setup = courseSetup(context, courseId);
   const pack = setup.pack;
-  if (pack === null) return null;
+  if (pack === null || setup.packStale) return null;
   const { calendar, ref, state } = context;
   const whole = setup.schoolClass.groups.find((group) => group.kind === 'whole')?.id ?? '';
   const progress = walkCourse(context, courseId, today).progress;
@@ -219,7 +219,7 @@ export interface TermCheck {
 export function termCheck(context: Context, courseId: string, from: Day, termNumber?: number): TermCheck | null {
   const setup = courseSetup(context, courseId);
   const pack = setup.pack;
-  if (pack === null) return null;
+  if (pack === null || setup.packStale) return null;
   const { ref, state, calendar } = context;
   const term = ref.year.terms.find((candidate) =>
     termNumber === undefined ? isWithin(from, candidate.from, candidate.to) : candidate.number === termNumber,

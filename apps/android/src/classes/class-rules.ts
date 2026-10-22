@@ -8,11 +8,13 @@
 // before the next exams are given. Progress belongs to the class, the
 // subject and the year, not to the teacher, and the words state facts
 // (PRD §2.3, §3.1 rule 8, §4.7). A session awaiting confirmation never
-// reads as a delay. Each year of a joint class has its own row (#43).
+// reads as a delay. Each year of a joint class has its own row (#43). A
+// class on a stale pack says so, since nothing is counted from it (#230).
 
 import {
   classGrades,
   courseGrade,
+  courseSetup,
   isEnrolled,
   isJoint,
   levelGroups,
@@ -41,6 +43,8 @@ export interface ClassRow {
   readonly today: Session | null;
   readonly pace: Pace | null;
   readonly check: TermCheck | null;
+  /** Pinned to a stale pack, which proposes nothing and counts no pace (#230). */
+  readonly stale?: boolean;
 }
 
 /** Every course of the teacher's classes, by class name, then subject. */
@@ -66,6 +70,7 @@ export function classRows(context: Context, day: Day): ClassRow[] {
       today: sessions.find((item) => item.course.id === course.id)?.session ?? null,
       pace: pace(context, course.id, day),
       check: termCheck(context, course.id, day),
+      ...(courseSetup(context, course.id).packStale && { stale: true }),
     });
   }
   return rows.sort(
@@ -77,9 +82,13 @@ export function classRows(context: Context, day: Day): ClassRow[] {
 }
 
 /** Where the class stands: behind beyond the buffers, buffers used, or the spare sessions before the exams. */
-export function paceLine(t: Translate, row: Pick<ClassRow, 'pace' | 'check'>, sessionMinutes?: number): string {
+export function paceLine(
+  t: Translate,
+  row: Pick<ClassRow, 'pace' | 'check' | 'stale'>,
+  sessionMinutes?: number,
+): string {
   const { pace: p, check } = row;
-  if (p === null) return t('classes.noPack');
+  if (p === null) return t(row.stale === true ? 'classes.stale' : 'classes.noPack');
   const withMinutes = (sessions: string, count: number) =>
     sessionMinutes === undefined
       ? sessions

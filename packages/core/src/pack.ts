@@ -8,7 +8,8 @@
 
 import { ITEM_ID, ITEM_KINDS, readActivities, readAnchor, readItem, type PackActivity } from './pack-fields.ts';
 import { hasBidiControl, isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
-import type { Queue } from './reference.ts';
+import type { LocalizedText, Queue } from './reference.ts';
+import { readName } from './reference-fields.ts';
 
 export { ITEM_KINDS, type PackActivity } from './pack-fields.ts';
 
@@ -93,6 +94,8 @@ export interface PlanPack {
   readonly merges: readonly (readonly string[])[];
   /** A week pack's weekly model: its activity types in the order of the week (pack-fields.ts). */
   readonly activities?: readonly PackActivity[];
+  /** A stale pack's reason, such as the decision that changed the subject's hours (#230, answer 382). */
+  readonly staleReason?: LocalizedText;
   /** Never in a file: the items a class's changes made and it took back, kept for their titles (#225). */
   readonly retired?: readonly PackItem[];
   /** Never in a file: the skips and joins of the layers the class has on (#226). */
@@ -189,6 +192,8 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
   }
 
   const activities = readActivities(reader, input['activities'], anchor, items);
+  const staleReason = input['staleReason'] === undefined ? undefined : readName(reader, input, '', 'staleReason');
+  if (staleReason !== undefined && status !== 'stale') reader.fail('staleReason', 'invalid');
   if (reader.problems.length > 0 || status === undefined || licence === undefined || anchor === undefined) {
     return { ok: false, problems: reader.problems };
   }
@@ -205,7 +210,14 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
     items,
     merges,
   };
-  return { ok: true, value: activities === undefined ? value : { ...value, activities } };
+  return {
+    ok: true,
+    value: {
+      ...value,
+      ...(activities !== undefined && { activities }),
+      ...(staleReason !== undefined && { staleReason }),
+    },
+  };
 }
 
 /** The item's stages, or none when it has no template and runs as "in progress / done". */

@@ -51,7 +51,7 @@ export function pastWindow(context: Context, courseId: string, today: Day): Past
   const setup = courseSetup(context, courseId);
   const pack = setup.pack;
   const exam = nextExams(context, courseId, today);
-  if (pack === null || exam?.term === undefined || compareDays(exam.from, today) <= 0) return null;
+  if (pack === null || setup.packStale || exam?.term === undefined || compareDays(exam.from, today) <= 0) return null;
   const term = exam.term;
 
   const postponed = new Set(
