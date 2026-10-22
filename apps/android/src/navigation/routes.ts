@@ -113,8 +113,10 @@ export type RootStackParamList = {
   SeatsSetup: { classId: string; groupId: string };
   Security: { done?: SecurityDone; at?: number } | undefined;
   LockPin: { mode: LockPinMode };
-  /** A document, for the month of `day` when given, else today's. */
-  DocOutput: { id: string; day?: string };
+  /** A document, for the month of `day` when given, else today's, in `layout` when given. */
+  DocOutput: { id: string; day?: string; layout?: string };
+  /** «التوزيعات» for one class and subject, the first with a plan when not given. */
+  Dist: { courseId?: string } | undefined;
   PrintWeek: undefined;
   Extra: { courseId?: string; scheduled?: string } | undefined;
   Cover: undefined;

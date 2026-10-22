@@ -37,6 +37,7 @@ import { classRoutes } from './ClassScreens';
 import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens';
 import {
   BookFixesScreen,
+  DistScreen,
   DocOutputScreen,
   DocumentsTabScreen,
   PilotTimingsScreen,
@@ -211,6 +212,7 @@ export function AppNavigator({
           options={({ route }) => dark(documentKind(route.params.id)?.title(t) ?? '')}
         />
         <Stack.Screen name="PrintWeek" component={PrintWeekScreen} options={dark(t('documents.printWeek.name'))} />
+        <Stack.Screen name="Dist" component={DistScreen} options={dark(t('distributions.name'))} />
         <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
         <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
         <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />

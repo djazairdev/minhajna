@@ -3,14 +3,16 @@
 
 // The documents as navigation routes (#212): the Documents tab, a
 // document's output above the tabs, and «طباعة الأسبوع» (#215). The
-// roll-call book opens Roll-print (#217), and «المذكرات» a lesson note
-// (#237). In a pilot build, the tab's last row opens «توقيتاتي» (#220).
+// roll-call book opens Roll-print (#217), «المذكرات» a lesson note and
+// «التوزيعات» its screen, which prints in the tab it shows (#237). In a pilot
+// build, the tab's last row opens «توقيتاتي» (#220).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { parseDay } from '@minhajna/core';
 import { BookFixes } from '../book/BookFixes';
+import { Dist } from '../distributions/Dist';
 import { documentKind } from '../documents/catalogue';
 import { DocumentOutput } from '../documents/DocumentOutput';
 import { DocumentsTab } from '../documents/DocumentsTab';
@@ -28,7 +30,13 @@ export function DocumentsTabScreen({
 >) {
   return (
     <DocumentsTab
-      onOpen={(id) => (id === 'roll' ? navigation.navigate('RollPrint') : navigation.navigate('DocOutput', { id }))}
+      onOpen={(id) =>
+        id === 'roll'
+          ? navigation.navigate('RollPrint')
+          : id === 'distributions'
+            ? navigation.navigate('Dist')
+            : navigation.navigate('DocOutput', { id })
+      }
       onPrintWeek={() => navigation.navigate('PrintWeek')}
       onFixes={() => navigation.navigate('BookFixes')}
       onNote={(key, day) => navigation.navigate('Note', { key, day })}
@@ -40,6 +48,17 @@ export function DocumentsTabScreen({
 /** «تصحيحات دفتر النصوص», above the tabs, on the month and class given. */
 export function BookFixesScreen({ route }: NativeStackScreenProps<RootStackParamList, 'BookFixes'>) {
   return <BookFixes {...route.params} />;
+}
+
+/** «التوزيعات», above the tabs, on the class and subject given; its button opens the output in the tab shown. */
+export function DistScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Dist'>) {
+  const courseId = route.params?.courseId;
+  return (
+    <Dist
+      {...(courseId !== undefined && { courseId })}
+      onPrint={(layout, day) => navigation.navigate('DocOutput', { id: 'distributions', layout, day })}
+    />
+  );
 }
 
 /** «توقيتاتي في التجربة», above the tabs; nothing outside a pilot build. */
@@ -56,11 +75,12 @@ export function PrintWeekScreen({ navigation }: NativeStackScreenProps<RootStack
 /** A document's output, for the month of the day given, if any; a document this version does not make shows nothing. */
 export function DocOutputScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DocOutput'>) {
   const kind = documentKind(route.params.id);
-  const { day } = route.params;
+  const { day, layout } = route.params;
   return kind === undefined ? null : (
     <DocumentOutput
       kind={kind}
       {...(day !== undefined && { day: parseDay(day) })}
+      {...(layout !== undefined && { layout })}
       onSignature={() => navigation.navigate('SettingsSignature')}
     />
   );

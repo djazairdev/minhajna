@@ -75,7 +75,7 @@ export function termName(t: Translate, term: number): string {
 const contexts = new WeakMap<DocumentData, Context>();
 
 /** The core's view of the data, made once for the same data, as the output asks for its line, state and pages. */
-function contextOf(data: DocumentData): Context {
+export function distContext(data: DocumentData): Context {
   const known = contexts.get(data);
   if (known !== undefined) return known;
   const context = coreContext(data);
@@ -85,7 +85,7 @@ function contextOf(data: DocumentData): Context {
 
 /** The classes and subjects with a plan this school year, each with it, in the order of the Classes tab. */
 export function plannedCourses(data: DocumentData) {
-  const context = contextOf(data);
+  const context = distContext(data);
   return bookCourses(data).flatMap(({ course, schoolClass }) => {
     const pack = courseSetup(context, course.id).pack;
     return pack === null ? [] : [{ course, schoolClass, pack }];
@@ -155,7 +155,7 @@ function page(
   blank: boolean,
   { course, schoolClass, pack }: ReturnType<typeof plannedCourses>[number],
 ): string {
-  const context = contextOf(data);
+  const context = distContext(data);
   const year = blank ? [] : distributionSessions(context, course.id);
   const term = termOf(data, data.day);
   const sessions =
@@ -265,5 +265,6 @@ export const DIST_KIND: DocumentKind = {
   emptyLine: (t) => t('distributions.print.noPlan'),
   byDay: true,
   layouts: distLayouts,
+  layoutLabel: (t) => t('distributions.screen.tabs'),
   pages: distPages,
 };

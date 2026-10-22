@@ -71,6 +71,8 @@ export interface DocumentKind {
   readonly byDay?: true;
   /** The ways the document can be kept, the first by default, such as one journal or one per class. */
   readonly layouts?: (t: Translate) => readonly DocumentLayout[];
+  /** What the choice of layout is called, such as «التوزيع»; «الدفتر» when not given. */
+  readonly layoutLabel?: (t: Translate) => string;
   /** The whole document as HTML, as recorded or blank with its headings, in the chosen layout. */
   readonly pages: (data: DocumentData, t: Translate, blank: boolean, layout?: string) => string;
 }
