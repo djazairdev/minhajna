@@ -17,6 +17,7 @@ import { canonicalJson } from './canonical.ts';
 import { isDay, type Day } from './day.ts';
 import { newId, toHex, type RandomBytes } from './id.ts';
 import type { Layer } from './layers.ts';
+import { contentText, headerText } from './history-text.ts';
 
 /**
  * SHA-256 of a text's UTF-8 bytes, as lowercase hex. Each app passes in its
@@ -102,15 +103,6 @@ function checkDay(day: Day): void {
   if (!isDay(day)) throw new RangeError('The day of a change is written YYYY-MM-DD');
 }
 
-function contentText(salt: string, bodyText: string): string {
-  return `minhajna/content/1\n${salt}\n${bodyText}`;
-}
-
-function headerText(entry: Omit<Entry, 'hash' | 'content'>): string {
-  const { id, seq, day, layer, kind, digest, previous } = entry;
-  return `minhajna/entry/1\n${canonicalJson({ id, seq, day, layer, kind, digest, previous })}`;
-}
-
 interface EntryInput {
   readonly day: Day;
   readonly layer: Layer;
@@ -149,7 +141,7 @@ export function erasedIds(entry: Entry): readonly string[] | null {
   return ids;
 }
 
-/** Checks the whole chain. An empty list means nothing was changed outside the app. */
+/** Checks chain consistency, not authenticity or completeness; an unsigned full rewrite or tail truncation needs an independent anchor. */
 export async function verifyHistory(digest: Digest, entries: readonly Entry[]): Promise<HistoryProblem[]> {
   const problems: HistoryProblem[] = [];
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
