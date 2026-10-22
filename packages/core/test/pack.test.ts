@@ -100,6 +100,33 @@ describe('plan packs', () => {
     assert.deepEqual(problemsOf(source), [{ path: 'items[0].week', problem: 'required' }]);
   });
 
+  it('reads a week pack’s weekly model and refuses activities outside it (#230)', () => {
+    const reading = { code: 'reading', name: { ar: 'قراءة', en: 'Reading' }, sessions: 3 };
+    const weeks = (activities: unknown, activity = 'reading') => ({
+      ...mathPackSource,
+      anchor: { kind: 'weeks' },
+      items: [{ id: 'x', kind: 'lesson', title: 'Read', week: 1, activity }],
+      merges: [],
+      activities,
+    });
+    const read = parsePlanPack(weeks([reading]));
+    assert.ok(read.ok);
+    assert.deepEqual(read.value.activities, [reading]);
+    assert.equal(mathPack.activities, undefined);
+    assert.deepEqual(problemsOf(weeks([reading], 'writing')), [
+      { path: 'items[0].activity', problem: 'unknown-reference' },
+    ]);
+    assert.deepEqual(problemsOf(weeks([reading, reading])), [{ path: 'activities[1].code', problem: 'duplicate' }]);
+    assert.deepEqual(problemsOf(weeks([{ ...reading, sessions: 0 }])), [
+      { path: 'activities[0].sessions', problem: 'invalid' },
+      { path: 'items[0].activity', problem: 'unknown-reference' },
+    ]);
+    assert.deepEqual(problemsOf(weeks([])), [{ path: 'activities', problem: 'invalid' }]);
+    assert.deepEqual(problemsOf({ ...mathPackSource, activities: [reading] }), [
+      { path: 'activities', problem: 'invalid' },
+    ]);
+  });
+
   // Two hours of 45-minute sessions round to three sessions.
   it('counts stages and budgets in sessions', () => {
     assert.equal(stageCount(mathPack, item('l1')), 4);

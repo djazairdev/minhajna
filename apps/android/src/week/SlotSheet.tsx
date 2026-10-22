@@ -4,7 +4,8 @@
 // One slot of the week (#28, Week-slot), over the drawing: what the slot
 // holds every week, or in A weeks and in B weeks, a warning when it clashes,
 // and «حذف الخانة» and «حفظ». Saving makes any course and half-group the
-// slot needs, and hands the drawing its new version; closing keeps nothing.
+// slot needs, keeps an activity type only on a session of the main plan,
+// and hands the drawing its new version; closing keeps nothing.
 
 import type { TimetableVersion } from '@minhajna/core';
 import { weekClashes } from '@minhajna/core';
@@ -19,7 +20,7 @@ import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { gridCell, slotSpoken } from './grid-labels';
 import { ItemEditor } from './ItemEditor';
-import { itemsAt, otherWeek, setItems, type SlotItem } from './slot-rules';
+import { itemsAt, otherWeek, setItems, withActivity, type SlotItem } from './slot-rules';
 import type { useWeekRecords } from './useWeekRecords';
 import type { Cell } from './week-rules';
 
@@ -49,7 +50,7 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, newId } = useAppData();
+  const { state, profile, newId } = useAppData();
   const [items, setItemsState] = useState<SlotItem[]>(() => itemsAt(version, records.lookup, cell).slice(0, 2));
   const classes = [...state.classes.values()].filter((schoolClass) => state.schools.has(schoolClass.schoolId));
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -69,7 +70,9 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
   };
   const save = (chosen: readonly SlotItem[]) => {
     const names = [t('week.halfName', { n: 1 }), t('week.halfName', { n: 2 })] as const;
-    const resolved = chosen.map((item): SlotItem => {
+    const main = (type: string) => profile.sessionTypes.find((one) => one.code === type)?.queue === 'main';
+    const resolved = chosen.map((chose): SlotItem => {
+      const item = chose.kind === 'class' && !main(chose.sessionType) ? withActivity(chose, undefined) : chose;
       if (item.kind !== 'class' || !item.groupId.startsWith('half-')) return item;
       const halves = records.halves(item.classId, names)?.groups.filter((group) => group.kind === 'half') ?? [];
       return { ...item, groupId: halves[item.groupId === 'half-1' ? 0 : 1]?.id ?? item.groupId };
@@ -107,10 +110,17 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         {clashes.length > 0 && <Notice testID="slot-clash" variant="notice" badge={t('week.clash')} message={named} />}
-        <ItemEditor testID="slot-0" item={first ?? null} onChange={(item) => change(0, item)} classes={classes} />
+        <ItemEditor
+          testID="slot-0"
+          cell={cell}
+          item={first ?? null}
+          onChange={(item) => change(0, item)}
+          classes={classes}
+        />
         {pair !== null && (
           <ItemEditor
             testID="slot-1"
+            cell={cell}
             item={second ?? null}
             onChange={(item) => change(1, item && { ...item, weeks: otherWeek(pair) })}
             classes={classes}

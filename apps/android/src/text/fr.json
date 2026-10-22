@@ -282,7 +282,14 @@
     "doubleShift": "Double vacation : le matin une semaine, l’après-midi la suivante",
     "shiftA": "En semaine A, les classes ont cours le",
     "shiftNote": "Une classe dessinée dans une demi-journée est placée dans l’autre pour l’autre semaine.",
-    "times": "Horaires"
+    "times": "Horaires",
+    "sessionType": "Type de séance",
+    "activity": "Type d’activité, selon le modèle hebdomadaire du pack",
+    "activityHint": "Le plan propose dans ce créneau la leçon de ce type pour la semaine du plan.",
+    "noActivity": "Sans type",
+    "noModel": "Le pack de cette matière n’a pas de modèle hebdomadaire : le plan propose la leçon suivante.",
+    "outsidePlan": "Séance hors du plan principal : elle ne fait pas avancer le plan et a sa propre liste.",
+    "bellLine": "Horaires selon la sonnerie de l’école : {{time}}, soit {{minutes}}."
   },
   "times": {
     "title": "Horaires",

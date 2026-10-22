@@ -8,7 +8,9 @@
 // not have yet are offered as «الفوج 1» and «الفوج 2», and made on saving.
 // The item's kind, group and weeks are segmented controls, as Week-slot
 // draws them, with «الفوج» and «الأسابيع» shown above theirs; classes,
-// subjects and kinds of own time are chips.
+// subjects and kinds of own time are chips. A primary session also has its
+// session and activity types, and every session its bell times
+// (SlotTypes); a new subject drops the activity of the old one's pack.
 
 import { BLOCK_KINDS, wholeGroup, type SchoolClass, type Weeks } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -22,7 +24,9 @@ import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { isolate } from './grid-labels';
-import type { OwnItem, SessionItem, SlotItem } from './slot-rules';
+import { withActivity, type OwnItem, type SessionItem, type SlotItem } from './slot-rules';
+import { SlotTypes } from './SlotTypes';
+import type { Cell } from './week-rules';
 
 type GroupChoice = { readonly id: string; readonly half: 1 | 2 | null };
 
@@ -37,6 +41,7 @@ type ItemKind = SlotItem['kind'] | 'nothing';
 
 export type ItemEditorProps = {
   readonly testID: string;
+  readonly cell: Cell;
   readonly item: SlotItem | null;
   readonly onChange: (item: SlotItem | null) => void;
   readonly classes: readonly SchoolClass[];
@@ -45,7 +50,7 @@ export type ItemEditorProps = {
 };
 
 /** The fields of one item. */
-export function ItemEditor({ testID, item, onChange, classes, week }: ItemEditorProps) {
+export function ItemEditor({ testID, cell, item, onChange, classes, week }: ItemEditorProps) {
   const t = useText();
   const { direction } = useLocale();
   const { profile, state } = useAppData();
@@ -127,9 +132,12 @@ export function ItemEditor({ testID, item, onChange, classes, week }: ItemEditor
                 return { value: code, label: subject ? localized(subject.name) : code };
               })}
               selected={item.subject}
-              onSelect={(subject) => onChange({ ...item, subject })}
+              onSelect={(subject) =>
+                onChange(subject === item.subject ? item : { ...withActivity(item, undefined), subject })
+              }
             />
           )}
+          <SlotTypes testID={testID} cell={cell} item={item} schoolClass={schoolClass} onChange={onChange} />
           <Segments
             testID={`${testID}-group`}
             label={t('week.group')}

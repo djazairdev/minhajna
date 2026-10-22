@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The checks that the profile and calendar readers share. The index does not
-// export them: they are not part of the core's interface.
+// The checks that the profile, calendar and pack readers share. The index
+// does not export them: they are not part of the core's interface.
 
 import type { Weekday } from './day.ts';
 import { at, hasBidiControl, isFields, LANGUAGE, Reader, type Fields } from './read.ts';
