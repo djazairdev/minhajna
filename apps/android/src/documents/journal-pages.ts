@@ -25,6 +25,7 @@ import { sessionTime } from '../times/times-rules';
 import { sessionMeta } from '../today/today-meta';
 import type { DocumentLayout } from './catalogue';
 import { dayTitle, schoolNames, yearShown, type DocumentData, type Translate } from './document-data';
+import { documentSignature, drawnMark } from './drawn-mark';
 import { journalHtml, type JournalDay, type JournalEntry } from './journal-html';
 import { journalLines, proposedRecord, type JournalNames } from './journal-lines';
 import { bookClasses } from './texts-book-pages';
@@ -127,6 +128,7 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
       director: t('documents.director'),
       empty: blank ? '' : t('documents.empty'),
       colon: t('documents.journalLines.colon'),
+      mark: drawnMark(documentSignature(data, blank)),
     },
     days.length === 0 ? [{ title: blank ? '' : title(data.day), entries: [] }] : days,
   );

@@ -51,6 +51,7 @@ import {
 import { printDocument } from './print-html';
 import { specialistCourses } from './specialists';
 import { directionOf, subjectLanguage, wordsFor } from './texts-book-pages';
+import { documentSignature, drawnMark } from './drawn-mark';
 
 /** The columns: the time, the class, the activity, the content, the indicator, and the domain with the note. */
 const WIDTHS = ['28mm', '24mm', '30mm', 'auto', '44mm', '38mm'];
@@ -160,6 +161,7 @@ export function specialistJournalPages(data: DocumentData, _t: Translate, blank:
         director: tl('documents.director'),
         empty: tl('documents.empty'),
         colon: tl('documents.journalLines.colon'),
+        mark: drawnMark(documentSignature(data, blank)),
       },
       days,
       none: { title, className: '', bands: [], visas: [''] },

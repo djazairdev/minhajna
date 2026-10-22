@@ -7,12 +7,14 @@
 // second the number, days 21 to the month's end, then «غ», «ح-ف», «ح-ك» when
 // pupils differ, each pupil's absence dates and their late arrivals' dates,
 // the month's totals and the signature boxes of the teacher, the director and
-// the inspector, the last two dated. Both pages share their head, the month
-// and the Hijri months it spans, so their rows line up. Weekends, national
-// days and holidays are solid grey; days with none of the teacher's sessions
-// with the class are dotted, so a white cell means present. The rows run to
-// 50, empty ones numbered for a newcomer written in by hand, and shrink to
-// keep the class on one spread. Every page carries «داخلي · سري» (R-5.9-15).
+// the inspector, the last two dated; the teacher's carries the drawn
+// signature while it is in use (#236, answer 412). Both pages share their
+// head, the month and the Hijri months it spans, so their rows line up.
+// Weekends, national days and holidays are solid grey; days with none of the
+// teacher's sessions with the class are dotted, so a white cell means
+// present. The rows run to 50, empty ones numbered for a newcomer written in
+// by hand, and shrink to keep the class on one spread. Every page carries
+// «داخلي · سري» (R-5.9-15).
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -63,6 +65,8 @@ export interface SpreadTexts {
   readonly off: string;
   readonly none: string;
   readonly teacher: string;
+  /** The drawn signature for the teacher's box, when the book carries it. */
+  readonly mark?: string;
   readonly director: string;
   readonly inspector: string;
   readonly date: string;
@@ -88,7 +92,8 @@ const CSS =
   '.foot{font-size:8pt;margin-top:2mm}.legend{font-size:7.5pt;margin-top:2mm;line-height:1.5}' +
   '.swatch{display:inline-block;width:3mm;height:3mm;border:0.5pt solid #000;vertical-align:middle;margin:0 1mm}' +
   'table.signs{width:100%;border-collapse:collapse;margin-top:3mm;font-size:8pt;break-inside:avoid}' +
-  'table.signs td{border:0.5pt solid #000;height:14mm;vertical-align:top;padding:1mm;width:33.3%}';
+  'table.signs td{border:0.5pt solid #000;height:14mm;vertical-align:top;padding:1mm;width:33.3%}' +
+  'table.signs .drawn{height:7mm;margin:.5mm auto 0}';
 
 const day = (index: number) => String(index + 1).padStart(2, '0');
 
@@ -160,7 +165,8 @@ function secondPage(texts: SpreadTexts, sheet: RollSpread, height: string): stri
     .join('');
   const dated = (who: string) => `${escapeHtml(who)}<br>${escapeHtml(texts.date)}`;
   const signs =
-    `<table class="signs"><tr><td>${escapeHtml(texts.teacher)}</td><td>${dated(texts.director)}</td>` +
+    `<table class="signs"><tr><td>${escapeHtml(texts.teacher)}${texts.mark ?? ''}</td>` +
+    `<td>${dated(texts.director)}</td>` +
     `<td>${dated(texts.inspector)}</td></tr></table>`;
   const foot = sheet.footer === '' ? '' : `<div class="foot">${escapeHtml(sheet.footer)}</div>`;
   return `${head(sheet)}<table class="book">${cols}<thead>${top}</thead><tbody>${rows}</tbody></table>${foot}${signs}`;

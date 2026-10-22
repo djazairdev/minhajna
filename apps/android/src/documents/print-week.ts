@@ -44,6 +44,17 @@ export function weekEntries(data: DocumentData): WeekEntry[] {
   ).map((kind) => ({ kind, news: covered(data, data.state, kind.id, { kind: 'new' }) }));
 }
 
+/** A journal's layout: the one kept on this phone, if it still exists, or its first. */
+export function chosenLayout(
+  entries: readonly WeekEntry[],
+  kept: Readonly<Record<string, string>>,
+  t: Translate,
+  id: DocumentId,
+): string | undefined {
+  const layouts = entries.find((entry) => entry.kind.id === id)?.kind.layouts?.(t) ?? [];
+  return layouts.some((one) => one.value === kept[id]) ? kept[id] : layouts[0]?.value;
+}
+
 /** The ticked documents' copies for their ranges, with their blank versions when `blank`. */
 export function weekSet(data: DocumentData, t: Translate, choices: readonly WeekChoice[], blank: boolean): WeekSet {
   const ids: DocumentId[] = [];

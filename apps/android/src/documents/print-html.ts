@@ -57,7 +57,8 @@ export const BASE_CSS =
   'table.frame{width:100%;border-collapse:collapse;table-layout:auto;font-size:inherit}' +
   'table.frame>*>tr{break-inside:auto}table.frame>*>tr>td{border:0;padding:0;height:auto;overflow:visible;text-align:start}' +
   'table.frame>thead{display:table-header-group}table.frame>tfoot{display:table-footer-group}' +
-  'table.frame>*>tr>td.mark{text-align:center;font-size:9pt;font-weight:700;padding:2mm 0}';
+  'table.frame>*>tr>td.mark{text-align:center;font-size:9pt;font-weight:700;padding:2mm 0}' +
+  '.drawn{display:block;height:14mm;width:auto;max-width:100%;margin:1mm auto 0}';
 
 /** The head of an HTML document of A4 pages, with its language, direction, title and styles. */
 export function documentHead(lang: string, dir: 'rtl' | 'ltr', title: string, css: string, own: string): string {

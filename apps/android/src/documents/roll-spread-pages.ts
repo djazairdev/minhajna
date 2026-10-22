@@ -30,6 +30,7 @@ import { bookUnits, monthView, percent, totals } from '../rollbook/month-rules';
 import { coreContext } from '../storage/core-context';
 import { monthLabel, type DocumentData, type Translate } from './document-data';
 import { rollSpreadHtml, type DayShade, type RollSpread, type SpreadRow } from './roll-spread-html';
+import { documentSignature, drawnMark } from './drawn-mark';
 
 /** A roll-call book: a class, the group its courses are taught to, and the subject when it has one course. */
 export interface RollBook {
@@ -208,6 +209,7 @@ export function rollSpreadPages(
       off: t('rollPrint.off'),
       none: t('rollPrint.none'),
       teacher: t('rollPrint.teacher'),
+      mark: drawnMark(documentSignature(data, blank)),
       director: t('rollPrint.director'),
       inspector: t('rollPrint.inspector'),
       date: t('rollPrint.date'),

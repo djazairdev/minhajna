@@ -56,6 +56,11 @@ export interface DocumentKind {
   readonly blankLine: (t: Translate) => string | null;
   /** What is left to sign by hand. */
   readonly signatureLine: (t: Translate) => string;
+  /**
+   * Where it carries the drawn signature (#236, answer 412): in the teacher's box or column of what is confirmed
+   * only, or in the teacher's box of the whole document; nowhere when not given.
+   */
+  readonly drawn?: 'confirmed' | 'box';
   /** Why there is nothing to print, when `empty` says so. */
   readonly emptyLine: (t: Translate) => string;
   /** A document of a day: the output chooses the day, within the school year. */
@@ -82,6 +87,7 @@ const bookClassCount = (data: DocumentData, t: Translate) =>
 export const DOCUMENTS: readonly DocumentKind[] = [
   {
     id: 'journal',
+    drawn: 'confirmed',
     icon: 'homework',
     pupils: false,
     landscape: false,
@@ -114,6 +120,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
   },
   {
     id: 'primary-journal',
+    drawn: 'confirmed',
     icon: 'homework',
     pupils: false,
     landscape: true,
@@ -145,6 +152,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
   },
   {
     id: 'specialist-journal',
+    drawn: 'confirmed',
     icon: 'homework',
     pupils: false,
     landscape: true,
@@ -165,6 +173,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
   },
   {
     id: 'timetable',
+    drawn: 'box',
     icon: 'homework',
     pupils: false,
     landscape: false,
@@ -180,6 +189,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
   },
   {
     id: 'roll',
+    drawn: 'box',
     icon: 'pupils',
     pupils: true,
     landscape: false,
@@ -194,6 +204,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
   },
   {
     id: 'texts',
+    drawn: 'confirmed',
     icon: 'homework',
     pupils: false,
     landscape: false,
@@ -236,6 +247,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
   },
   {
     id: 'strip',
+    drawn: 'confirmed',
     icon: 'homework',
     pupils: false,
     landscape: false,

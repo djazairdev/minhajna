@@ -7,8 +7,9 @@
 // the columns and the rows in the subject's, with its direction (R-3.1-18,
 // R-3.8-63). A subject whose language the app does not speak yet, such as
 // German, keeps the book's words and direction, each line of its own text
-// running in its own. The blank version gives each class and subject a page
-// with its head filled and its rules empty.
+// running in its own. Each row's signature column carries the drawn
+// signature while it is in use (#236, answer 412). The blank version gives
+// each class and subject a page with its head filled and its rules empty.
 
 import {
   addDays,
@@ -24,6 +25,7 @@ import { coreContext } from '../storage/core-context';
 import { i18n, isLanguage, type Language } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { taughtClasses, yearShown, type DocumentData, type Translate } from './document-data';
+import { documentSignature, drawnMark } from './drawn-mark';
 import { printDocument } from './print-html';
 import { TEXTS_BOOK_CSS, textsBookPage, type TextsBookPage } from './texts-book-html';
 import { bookRows, pageRules, pagesBefore, paginate, type Direction } from './texts-book-rows';
@@ -69,6 +71,7 @@ function monthName(data: DocumentData, month: string, language: Language): strin
 /** The whole document: the month of `data.day`, as recorded or blank. */
 export function textsBookPages(data: DocumentData, t: Translate, blank: boolean): string {
   const context = coreContext(data);
+  const mark = drawnMark(documentSignature(data, blank));
   const month = data.day.slice(0, 7);
   const first = `${month}-01` as Day;
   const from = first < data.year.from ? data.year.from : first;
@@ -123,6 +126,7 @@ export function textsBookPages(data: DocumentData, t: Translate, blank: boolean)
         ],
         rows,
         used,
+        mark,
         ...(note !== undefined && { note }),
       });
     if (blank) {

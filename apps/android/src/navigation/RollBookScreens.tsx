@@ -68,6 +68,6 @@ export function PupilScreen({ navigation, route }: NativeStackScreenProps<RootSt
 }
 
 /** Printing the roll-call book, on a class and a month or the yearly summary when given. */
-export function RollPrintScreen({ route }: NativeStackScreenProps<RootStackParamList, 'RollPrint'>) {
-  return <RollPrint {...route.params} />;
+export function RollPrintScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'RollPrint'>) {
+  return <RollPrint {...route.params} onSignature={() => navigation.navigate('SettingsSignature')} />;
 }

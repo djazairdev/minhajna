@@ -36,6 +36,7 @@ import { gridCell, isolate, slotSpoken, weekMarks } from '../week/grid-labels';
 import { yearShown, type DocumentData, type Translate } from './document-data';
 import { frontDate } from './front-tables';
 import { timetableHtml, type TimetableRow } from './timetable-html';
+import { documentSignature, drawnMark } from './drawn-mark';
 
 type Key = 'title' | 'teacher' | 'subject' | 'subjects' | 'classes' | 'teacherBox' | 'inspector' | 'date';
 
@@ -167,6 +168,7 @@ export function timetablePages(data: DocumentData, t: Translate, blank: boolean)
           ].join(' · '),
     from: inForce(t, blank ? undefined : printed?.from),
     boxes: [key('teacherBox'), t('documents.director'), key('inspector')],
+    mark: drawnMark(documentSignature(data, blank)),
     date: key('date'),
   });
 }

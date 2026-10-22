@@ -30,6 +30,7 @@ import {
 } from './primary-journal-html';
 import { sessionCells } from './primary-cells';
 import { bySpecialist, classTeacherClasses } from './specialists';
+import { documentSignature, drawnMark } from './drawn-mark';
 
 /** The primary journal's pages for `data.day`, or blank ones with their heads filled. */
 export function primaryJournalPages(data: DocumentData, t: Translate, blank: boolean): string {
@@ -95,6 +96,7 @@ export function primaryJournalPages(data: DocumentData, t: Translate, blank: boo
       director: t('documents.director'),
       empty: t('documents.empty'),
       colon: t('documents.journalLines.colon'),
+      mark: drawnMark(documentSignature(data, blank)),
     },
     days.length === 0 ? [empty] : days,
     blank,

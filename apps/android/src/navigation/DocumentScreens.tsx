@@ -48,13 +48,19 @@ export function PilotTimingsScreen() {
 }
 
 /** «طباعة الأسبوع», above the tabs. */
-export function PrintWeekScreen() {
-  return <PrintWeek />;
+export function PrintWeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'PrintWeek'>) {
+  return <PrintWeek onSignature={() => navigation.navigate('SettingsSignature')} />;
 }
 
 /** A document's output, for the month of the day given, if any; a document this version does not make shows nothing. */
-export function DocOutputScreen({ route }: NativeStackScreenProps<RootStackParamList, 'DocOutput'>) {
+export function DocOutputScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'DocOutput'>) {
   const kind = documentKind(route.params.id);
   const { day } = route.params;
-  return kind === undefined ? null : <DocumentOutput kind={kind} {...(day !== undefined && { day: parseDay(day) })} />;
+  return kind === undefined ? null : (
+    <DocumentOutput
+      kind={kind}
+      {...(day !== undefined && { day: parseDay(day) })}
+      onSignature={() => navigation.navigate('SettingsSignature')}
+    />
+  );
 }

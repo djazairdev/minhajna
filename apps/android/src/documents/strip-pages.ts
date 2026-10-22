@@ -11,8 +11,9 @@
 // says where it goes: the page the book's pages give it, after the rule the
 // entries before it end on as written, counted on the safe side, or from
 // the first rule of the next page when the day runs on to it. The
-// signature column is left blank, to sign by hand. There is no blank
-// version: a strip is the entries.
+// signature column carries the drawn signature while it is in use (#236,
+// answer 412), and is otherwise left blank, to sign by hand. There is no
+// blank version: a strip is the entries.
 
 import { compareDays, courseGrade, isJoint, type Day } from '@minhajna/core';
 import { yearShort } from '../setup/names';
@@ -20,6 +21,7 @@ import { coreContext } from '../storage/core-context';
 import { i18n, isLanguage, type Language } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import type { DocumentData, Translate } from './document-data';
+import { documentSignature, drawnMark } from './drawn-mark';
 import { escapeHtml, printDocument } from './print-html';
 import { BOOK_COLUMNS, TEXTS_BOOK_CSS, entryRows } from './texts-book-html';
 import { bookCourses, directionOf, subjectLanguage, wordsFor } from './texts-book-pages';
@@ -94,25 +96,26 @@ function pieces(data: DocumentData): Piece[] {
   });
 }
 
-function pieceHtml(piece: Piece): string {
+function pieceHtml(piece: Piece, mark: string): string {
   const latin = piece.dir === 'ltr' ? ' latin' : '';
   return (
     `<div class="strip"><p class="cut" lang="${escapeHtml(piece.lang)}" dir="${piece.dir}">✂ ${escapeHtml(piece.label)}</p>` +
     '<div class="box"><span class="m tl"></span><span class="m tr"></span><span class="m bl"></span><span class="m br"></span>' +
     `<table class="book${latin}" lang="${escapeHtml(piece.lang)}" dir="${piece.dir}">${BOOK_COLUMNS}` +
-    `<tbody>${entryRows(piece.rows, piece.textLang)}</tbody></table></div></div>`
+    `<tbody>${entryRows(piece.rows, piece.textLang, mark)}</tbody></table></div></div>`
   );
 }
 
 /** The whole document: the day's pieces, one after another on as many pages as they take. */
 export function stripPages(data: DocumentData, t: Translate): string {
   const all = pieces(data);
+  const mark = drawnMark(documentSignature(data, false));
   return printDocument({
     lang: data.lang,
     dir: data.dir,
     title: t('documents.strip.name'),
     landscape: false,
     css: CSS,
-    pages: [all.map(pieceHtml).join('')],
+    pages: [all.map((piece) => pieceHtml(piece, mark)).join('')],
   });
 }
