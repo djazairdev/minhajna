@@ -44,6 +44,7 @@ import { bookMonths } from './month-rules';
 import { bookKey, bookName, firstBook } from './roll-print-book';
 import { blankLine, choiceNote, whatChoices } from './roll-print-choices';
 import { RollPrintDay } from './RollPrintDay';
+import { useOutputLog } from '../log/output-log';
 
 export type { RollPrintChoice };
 
@@ -82,6 +83,7 @@ export function RollPrint(props: RollPrintProps) {
   const [drawn, setDrawn] = useState(true);
   const inUse = useSignatureInUse();
   const { busy, said, print, save, clear } = useOutputRun();
+  const logged = useOutputLog();
   const book = books.find((one) => bookKey(one) === chosen) ?? books[0];
   const span = useMemo(() => {
     if (book === undefined) return [];
@@ -118,6 +120,7 @@ export function RollPrint(props: RollPrintProps) {
           ...(unit !== undefined && { unit }),
           ...(only !== undefined && { plan: only }),
         });
+  const log = output === null ? null : logged('roll', output.period, blank);
   const signed = choice === 'spread' || choice === 'year';
   const change =
     <T,>(set: (value: T) => void) =>
@@ -270,14 +273,14 @@ export function RollPrint(props: RollPrintProps) {
           testID="roll-print-print"
           label={t('documents.output.print')}
           disabled={busy || output === null}
-          onPress={() => output !== null && print(output.html, output.title, output.landscape)}
+          onPress={() => output !== null && print(output.html, output.title, output.landscape, log?.printed)}
         />
         <Button
           testID="roll-print-save"
           variant="line"
           label={t('documents.output.save')}
           disabled={busy || output === null}
-          onPress={() => output !== null && save(output.html, output.made, output.file, output.landscape)}
+          onPress={() => output !== null && save(output.html, output.made, output.file, output.landscape, log?.saved)}
         />
       </View>
       <CopyWarning testID="roll-print-copy" shown={signed && inUse && drawn && !blank} />

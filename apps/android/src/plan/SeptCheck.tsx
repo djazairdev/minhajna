@@ -28,6 +28,7 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { figure, septSheet, type SeptSheet } from './sept-check';
+import { useOutputLog } from '../log/output-log';
 
 export type SeptCheckProps = {
   readonly courseId: string;
@@ -48,6 +49,7 @@ export function SeptCheck({ courseId, onSignature }: SeptCheckProps) {
   );
   const output = useOutputRun();
   const { busy, said, print, save } = output;
+  const logged = useOutputLog();
   const signing = useSheetSignature('sept-signature', output, onSignature);
   const html = () => septCheckHtml(t, sheet!, currentLanguage(), direction, signing.mark);
   const file = `${t('septCheck.file')} ${formatDay(day)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
@@ -85,14 +87,14 @@ export function SeptCheck({ courseId, onSignature }: SeptCheckProps) {
               testID="sept-print"
               label={t('septCheck.print')}
               disabled={busy}
-              onPress={() => print(html, t('septCheck.title'), false)}
+              onPress={() => print(html, t('septCheck.title'), false, logged('sept-check', day).printed)}
             />
             <Button
               testID="sept-save"
               variant="line"
               label={t('septCheck.save')}
               disabled={busy}
-              onPress={() => save(html, 'sept-check', file, false)}
+              onPress={() => save(html, 'sept-check', file, false, logged('sept-check', day).saved)}
             />
           </View>
           {signing.warning}

@@ -2819,5 +2819,65 @@
       "print": "Exporter ou imprimer",
       "none": "Aucune classe n’a encore de plan cette année. Les répartitions viennent du plan d’une classe ajusté à son emploi du temps."
     }
+  },
+  "log": {
+    "sub": "Ce qui est corrigé, imprimé, exporté et supprimé",
+    "tabsLabel": "Type de changement",
+    "tabs": {
+      "all": "Tout",
+      "corrections": "Corrections",
+      "files": "Fichiers et impressions",
+      "erasures": "Suppressions"
+    },
+    "intact": "La chaîne est intacte : aucune modification ni suppression hors de l’application",
+    "sector": "Aucun envoi au système du secteur : en mode enseignant, les absences ne sont pas envoyées. Dans le système national, si l’établissement choisit de les envoyer, chaque envoi est noté ici avec son jour.",
+    "kept": "Le journal est gardé aussi longtemps que les dossiers qu’il décrit. Il contient les jours et leur ordre, sans heures.",
+    "empty": "Rien dans le journal pour l’instant : chaque correction, impression et suppression y est notée, avec son jour.",
+    "emptyTab": "Rien de ce type pour l’instant.",
+    "unchecked": "Non vérifiable",
+    "textsBook": "Cahier de textes",
+    "rollCall": "Appel",
+    "fields": {
+      "outcome": "Résultat de la séance",
+      "coverage": "Sujet de la séance",
+      "unplanned": "Contenu hors progression",
+      "homework": "Devoir",
+      "due": "Date du devoir",
+      "test": "Devoir surveillé",
+      "factual": "Ligne factuelle",
+      "type": "Type de séance",
+      "make-up": "Rattrapage",
+      "list-item": "Élément de la liste"
+    },
+    "recordedAgain": "Notée de nouveau après le retrait de sa confirmation",
+    "withdrawn": "Confirmation de la séance retirée",
+    "reason": "Raison : {{reason}}",
+    "pupil": "Élève {{number}} : de {{from}} à {{to}}",
+    "pupilGone": "Un élève qui n’est plus sur la liste : de {{from}} à {{to}}",
+    "marks": {
+      "present": "présent",
+      "late": "retard",
+      "justified": "absence justifiée",
+      "unjustified": "absence non justifiée"
+    },
+    "printed": "Impression de la semaine : {{documents}}",
+    "document": "Document",
+    "print": "Impression",
+    "blank": "vierge",
+    "calendar": "Mise à jour signée du calendrier, version {{release}}",
+    "pack": "Progression signée : {{pack}}, version {{release}}",
+    "layer": "Couche sur la progression : {{title}}",
+    "erased": "Suppression : {{what}}. Il reste qu’elle a eu lieu, sans son contenu",
+    "unverified": "Changement : {{what}}",
+    "kinds": {
+      "session": "une séance du cahier de textes",
+      "privateNote": "une note privée",
+      "rollCall": "un appel",
+      "lessonNote": "une fiche de préparation",
+      "pupil": "un élève",
+      "homework": "un devoir",
+      "print": "une impression",
+      "other": "un autre dossier"
+    }
   }
 }

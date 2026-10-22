@@ -64,10 +64,12 @@ export function useOutputRun() {
       return null;
     });
 
-  const save = (html: () => string, made: string, fileName: string, landscape: boolean) =>
+  const save = (html: () => string, made: string, fileName: string, landscape: boolean, saved?: () => void) =>
     run(async () => {
       const file = await pdf.makePdf(html(), made, landscape);
-      return (await pdf.savePdf(file.name, fileName)) ? 'saved' : null;
+      if (!(await pdf.savePdf(file.name, fileName))) return null;
+      saved?.();
+      return 'saved';
     });
 
   return { busy, said, print, save, clear: () => setSaid(null) };

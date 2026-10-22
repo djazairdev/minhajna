@@ -48,6 +48,9 @@ export type RootStackParamList = {
   SettingsLengths: undefined;
   SettingsNotify: undefined;
   SettingsSignature: undefined;
+  /** «سجل النشاط» and «مدة الحفظ» (#235). */
+  Log: undefined;
+  SettingsRetention: undefined;
   Language: undefined;
   PrivacyNotice: undefined;
   Connections: undefined;

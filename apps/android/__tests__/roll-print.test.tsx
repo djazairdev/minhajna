@@ -11,10 +11,11 @@
 // alone; no signature choice while none is in use; the front pages print the
 // cover's counts and legend, the list and the two confidential pages; the
 // blank sheet steps through session days (answer 262); and the Roll screen's
-// print icon opens it. 4م1 has 45 made-up pupils and two sessions on
+// print icon opens it. Each print and saved PDF goes into the activity log
+// with its period (#235). 4م1 has 45 made-up pupils and two sessions on
 // Thursdays from 11 October 2026; today is Sunday 18 October.
 
-import { parseDay, type Day } from '@minhajna/core';
+import { eventOf, parseDay, type Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Text, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
@@ -97,6 +98,13 @@ const taken = (slot: number, absent: string[], late: string[]) => ({
   },
 });
 
+/** What the activity log holds of the outputs made: the document, the period and how. */
+const logged = (data: TestData) =>
+  data.book.entries.flatMap((entry) => {
+    const event = eventOf(entry);
+    return event?.kind === 'output.recorded' ? [[event.output.document, event.output.period, event.output.how]] : [];
+  });
+
 async function printed(): Promise<string[]> {
   await press('roll-print-print');
   const [html] = printHtml.mock.calls[0];
@@ -158,6 +166,7 @@ test('the yearly summary saves on A4 landscape, and the month chips go', async (
   expect(html.match(/<section class="page"/g)).toHaveLength(1);
   expect(html).toContain('<tr class="total">');
   expect(savePdf).toHaveBeenCalledWith('roll-year', `${text.documents.rollBook} 4م1 ${data.year.id}.pdf`);
+  expect(logged(data)).toEqual([['roll', data.year.id, 'pdf']]);
 });
 
 test('the blank spread keeps the names and the shading over 50 rows, with no marks or figures', async () => {

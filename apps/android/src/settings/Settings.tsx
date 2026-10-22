@@ -15,6 +15,7 @@ import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { signatureStatus } from '../drawn/DrawnSignature';
+import { retentionLine } from './Retention';
 import { setCountMinutes, useCountMinutes } from './preferences';
 import { settingsStyles as styles } from './styles';
 
@@ -34,6 +35,8 @@ const AVAILABLE = [
   'notifications',
   'security',
   'language',
+  'log',
+  'retention',
   'help',
   'privacy',
 ] as const;
@@ -68,6 +71,8 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
     times: t('settings.timesLine'),
     plans: t('settings.plansLine'),
     signature: signatureStatus(t, state.personal),
+    log: t('settings.logLine'),
+    retention: retentionLine(t, state),
   };
   const schools = [...state.schools.values()];
   return (

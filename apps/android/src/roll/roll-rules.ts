@@ -62,7 +62,7 @@ export function unitByKey(context: Context, key: string, day: Day): RollCallUnit
  * roll-call book: a pupil who leaves keeps theirs, and one who joins takes
  * the next.
  */
-export function listNumbers(context: Context, classId: string): Map<string, number> {
+export function listNumbers(context: Pick<Context, 'state'>, classId: string): Map<string, number> {
   const pupils = [...context.state.pupils.values()].filter((pupil) => pupil.classId === classId);
   return new Map(pupils.map((pupil, index) => [pupil.id, index + 1]));
 }

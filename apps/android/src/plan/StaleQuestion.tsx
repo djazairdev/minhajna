@@ -25,6 +25,7 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { staleSheet, type StaleSheet } from './stale-question';
+import { useOutputLog } from '../log/output-log';
 
 export type StaleQuestionProps = {
   readonly courseId: string;
@@ -45,6 +46,7 @@ export function StaleQuestion({ courseId, onSignature }: StaleQuestionProps) {
   );
   const output = useOutputRun();
   const { busy, said, print, save } = output;
+  const logged = useOutputLog();
   const signing = useSheetSignature('stale-question-signature', output, onSignature);
   const html = () => staleQuestionHtml(t, sheet!, currentLanguage(), direction, signing.mark);
   const file = `${t('staleQuestion.file')} ${formatDay(day)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
@@ -82,14 +84,14 @@ export function StaleQuestion({ courseId, onSignature }: StaleQuestionProps) {
               testID="stale-question-print"
               label={t('septCheck.print')}
               disabled={busy}
-              onPress={() => print(html, t('staleQuestion.title'), false)}
+              onPress={() => print(html, t('staleQuestion.title'), false, logged('stale-question', day).printed)}
             />
             <Button
               testID="stale-question-save"
               variant="line"
               label={t('septCheck.save')}
               disabled={busy}
-              onPress={() => save(html, 'stale-question', file, false)}
+              onPress={() => save(html, 'stale-question', file, false, logged('stale-question', day).saved)}
             />
           </View>
           {signing.warning}
