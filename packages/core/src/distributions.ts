@@ -128,7 +128,7 @@ function sequencesOf(pack: PlanPack | null, one: DistributionSession): Sequence[
 export function annualDistribution(
   context: Context,
   courseId: string,
-  sessions = distributionSessions(context, courseId),
+  sessions: readonly DistributionSession[] = distributionSessions(context, courseId),
 ): AnnualRow[] {
   const pack = packOf(context, courseId);
   const rows = new Map<
@@ -162,7 +162,7 @@ export function monthlyDistribution(
   context: Context,
   courseId: string,
   month: string,
-  sessions = distributionSessions(context, courseId),
+  sessions: readonly DistributionSession[] = distributionSessions(context, courseId),
 ): WeekRow[] {
   const weeks = new Map<Day, { from: Day; to: Day; resources: Map<string, string>; sessions: number }>();
   for (const one of sessions) {
@@ -190,7 +190,7 @@ export function monthlyDistribution(
 export function termlyDistribution(
   context: Context,
   courseId: string,
-  sessions = distributionSessions(context, courseId),
+  sessions: readonly DistributionSession[] = distributionSessions(context, courseId),
 ): TermRow[] {
   const pack = packOf(context, courseId);
   return context.ref.year.terms.flatMap((term) => {

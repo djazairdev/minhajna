@@ -2799,12 +2799,25 @@
       "confirmed": "Dont faites",
       "week": "Semaine",
       "resources": "Ressources",
-      "total": "Total"
+      "total": "Total",
+      "term": "Trimestre"
     },
     "print": {
       "empty": "Aucune séance du plan dans cette période.",
       "noPlan": "Aucune classe n’a encore de plan cette année : pas de répartition à imprimer.",
       "blank": "Les classes, les matières et les en-têtes des colonnes, avec des lignes vides à remplir à la main."
+    },
+    "screen": {
+      "title": "Répartitions · {{name}}",
+      "course": "Classe et matière",
+      "tabs": "Répartition",
+      "year": "Année scolaire {{year}}, d’après le plan de la classe ajusté à son emploi du temps et au calendrier.",
+      "month": "Elle suit les séances que vous confirmez ; les autres sont telles que le plan les prévoit.",
+      "term": "La répartition que le cahier de textes demande pour chaque trimestre.",
+      "monthBefore": "Mois précédent",
+      "monthAfter": "Mois suivant",
+      "print": "Exporter ou imprimer",
+      "none": "Aucune classe n’a encore de plan cette année. Les répartitions viennent du plan d’une classe ajusté à son emploi du temps."
     }
   }
 }

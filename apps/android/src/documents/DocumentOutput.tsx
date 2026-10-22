@@ -15,8 +15,9 @@
 // opened for, as the texts book's pages in the app open it (#213), or else
 // the current one; the screen says which. The journal chooses its day,
 // starting on the school year's nearest day when today is outside it, and
-// whether it is kept for all classes or one per class (#216). What was said
-// of the last file goes once a choice changes.
+// whether it is kept for all classes or one per class (#216); a screen that
+// opens it can start it on a layout, such as «التوزيعات»'s tab (#237). What
+// was said of the last file goes once a choice changes.
 
 import { useState } from 'react';
 import type { Day } from '@minhajna/core';
@@ -40,10 +41,13 @@ import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from './Si
 export function DocumentOutput({
   kind,
   day,
+  layout: chosen,
   onSignature,
 }: {
   readonly kind: DocumentKind;
   readonly day?: Day;
+  /** The layout to start on, such as the tab a screen opened it from; the first when not given or unknown. */
+  readonly layout?: string;
   readonly onSignature?: () => void;
 }) {
   const t = useText();
@@ -57,7 +61,7 @@ export function DocumentOutput({
   });
   const data = useDocumentData(on);
   const layouts = kind.layouts?.(t) ?? [];
-  const [layout, setLayout] = useState(layouts[0]?.value);
+  const [layout, setLayout] = useState(layouts.find((one) => one.value === chosen)?.value ?? layouts[0]?.value);
   const [blank, setBlank] = useState(false);
   const [drawn, setDrawn] = useState(true);
   const inUse = useSignatureInUse();
@@ -99,7 +103,7 @@ export function DocumentOutput({
       {layout !== undefined && (
         <RadioCardGroup
           testID="output-layout"
-          label={t('documents.output.layout')}
+          label={kind.layoutLabel?.(t) ?? t('documents.output.layout')}
           selected={layout}
           disabled={busy}
           onSelect={(next) => {

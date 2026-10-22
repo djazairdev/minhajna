@@ -2750,12 +2750,25 @@
       "confirmed": "Of which done",
       "week": "Week",
       "resources": "Resources",
-      "total": "Total"
+      "total": "Total",
+      "term": "Term"
     },
     "print": {
       "empty": "No session from the plan in this period.",
       "noPlan": "No class has a plan this year yet, so there is no distribution to print.",
       "blank": "The classes, subjects and column heads, with empty rows to fill in by hand."
+    },
+    "screen": {
+      "title": "Distributions · {{name}}",
+      "course": "Class and subject",
+      "tabs": "Distribution",
+      "year": "School year {{year}}, from the class’s plan fitted to its timetable and the calendar.",
+      "month": "It moves with the sessions you confirm; the rest are as the plan projects them.",
+      "term": "The distribution the texts book asks for each term.",
+      "monthBefore": "Previous month",
+      "monthAfter": "Next month",
+      "print": "Export or print",
+      "none": "No class has a plan this year yet. The distributions come from a class’s plan fitted to its timetable."
     }
   }
 }
