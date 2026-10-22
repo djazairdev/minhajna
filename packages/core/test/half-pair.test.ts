@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Today's half-group pair (#231, R-4.7-15, answer 387): a half's session
-// names the other half's turn at its item, its day and, with A and B
-// weeks, its week letter, the
-// whole class's session that takes it first, or that it has had it; a
-// whole-class session and a half alone in the main plan have no pair.
-// Made-up classes only.
+// Today's half-group pair (#231, R-4.7-15, answer 387): a half's session names
+// the other half's turn at its item, its day and, with A and B weeks, its week
+// letter, the whole class's session that takes it first, or that it has had it;
+// a whole-class session, a half's TD and a half alone in the main plan have no
+// pair. Made-up classes only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -40,7 +39,7 @@ const from = d('2026-09-20');
 const to = d('2026-10-20');
 
 describe('the half-group pair', () => {
-  it('names the other half’s session for the same item, with its day and no letter in a weekly timetable', async () => {
+  it('names the other half’s session for the same item, its day, and no letter every week', async () => {
     const context = contextOf(await openBook(weeklyEvents()));
     const proposals = walkCourse(context, 'c-math', to).proposals;
     const [first, second] = awaitingBetween(context, from, to).filter((one) => one.groupId !== 'g-all');
@@ -96,7 +95,7 @@ describe('the half-group pair', () => {
     }
   });
 
-  it('has no pair for a whole-class session, a half alone or an unknown item', async () => {
+  it('has no pair for a whole-class session, a half’s TD, a half alone or an unknown item', async () => {
     const context = contextOf(await openBook(labEvents()));
     const awaiting = awaitingBetween(context, from, to);
     const proposals = walkCourse(context, 'c-math', to).proposals;
@@ -104,6 +103,32 @@ describe('the half-group pair', () => {
     assert.equal(halfPair(context, whole, proposals.get(whole.key)!.item.id), null);
     const half = awaiting.find((one) => one.groupId === 'g-1')!;
     assert.equal(halfPair(context, half, 'no-such-item'), null);
+
+    const td = contextOf(
+      await openBook(
+        labEvents().map((event) =>
+          event.kind === 'timetable.set'
+            ? {
+                ...event,
+                version: {
+                  ...event.version,
+                  entries: [
+                    ...event.version.entries,
+                    {
+                      ...event.version.entries.find((entry) => entry.id === 'e-tue-1')!,
+                      id: 'e-wed-1',
+                      weekday: 3 as const,
+                      sessionType: 'td',
+                    },
+                  ],
+                },
+              }
+            : event,
+        ),
+      ),
+    );
+    const lab = awaitingBetween(td, from, to).find((one) => one.groupId === 'g-1' && one.sessionType === 'td')!;
+    assert.equal(halfPair(td, lab, proposals.get(half.key)!.item.id), null);
 
     const alone = contextOf(await openBook(labEvents(true)));
     const lone = awaitingBetween(alone, from, to).find((one) => one.groupId === 'g-1')!;

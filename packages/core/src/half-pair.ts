@@ -34,7 +34,7 @@ export interface HalfTurn {
   readonly letter: Parity | null;
 }
 
-/** Each half's turn at `itemId`, the session's own half first; null unless the session is one of two halves or more. */
+/** Each half's turn at `itemId`, its own half first; null unless a main-plan session of two halves or more. */
 export function halfPair(context: Context, session: Session, itemId: string): readonly HalfTurn[] | null {
   return halfPairs(context, [{ session, itemId }]).get(session.key) ?? null;
 }
@@ -49,7 +49,8 @@ export function halfPairs(
   const pairs = new Map<string, readonly HalfTurn[]>();
   for (const { session, itemId } of wanted) {
     const groups = turns(session);
-    if (groups === undefined) continue;
+    const type = context.ref.country.sessionTypes.find((one) => one.code === session.sessionType);
+    if (groups === undefined || type?.queue !== 'main') continue;
     const at = `${session.courseId}/${session.day}`;
     const walked = walks.get(at) ?? walk(context, session);
     walks.set(at, walked);
