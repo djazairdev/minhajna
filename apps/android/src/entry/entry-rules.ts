@@ -17,7 +17,6 @@ import {
   confirmSessions,
   findSessionType,
   listOfType,
-  listPairs,
   sessionsBetween,
   type Context,
   type CountryProfile,
@@ -100,14 +99,6 @@ export function confirmationOf(
     },
     ...(note !== '' && { privateNote: note }),
   };
-}
-
-/** The item of its list a «معالجة» or «دعم» session awaiting confirmation takes; null for any other. */
-export function pairedItem(context: Context, session: Session): SupportItem | null {
-  const kind = listOfType(session.sessionType);
-  if (kind === null) return null;
-  const pairs = listPairs(context, session.courseId, kind, session.day, 1);
-  return pairs.find((pair) => pair.session?.key === session.key)?.item ?? null;
 }
 
 /** The record «تأكيد الحصة» would write, worked out without recording it. */

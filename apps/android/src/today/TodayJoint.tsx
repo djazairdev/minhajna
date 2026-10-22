@@ -34,6 +34,8 @@ export type TodayJointProps = {
   readonly onDetails: (session: Session) => void;
   readonly onRoll: (session: Session) => void;
   readonly onHomework: (item: HomeworkItem) => void;
+  /** False when the day's band shows the class's half-day roll call instead. */
+  readonly roll: boolean;
 };
 
 export function TodayJoint(props: TodayJointProps) {
@@ -65,7 +67,7 @@ export function TodayJoint(props: TodayJointProps) {
       testID={`today-${slotKey}`}
       meta={{ ...metaOf(first, true), className: schoolClass.name }}
       years={years}
-      due={dueStrips(t, context, sessionsOf(items), props.onRoll, props.onHomework)}
+      due={dueStrips(t, context, sessionsOf(items), props.onRoll, props.onHomework, props.roll)}
       {...(onFocus && {
         confirm: {
           label: t('joint.confirm', { count: ready.length }),

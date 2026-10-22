@@ -573,7 +573,16 @@
     "activityLine": "{{activity}}، الحصة {{session}} من {{of}}",
     "activityLesson": "{{activity}}: {{title}}",
     "tagWeek": "مقترح من المخطط · الأسبوع {{week}}",
-    "tagWeekContinued": "مقترح من المخطط · الأسبوع {{week}} · يتابع من الحصة السابقة"
+    "tagWeekContinued": "مقترح من المخطط · الأسبوع {{week}} · يتابع من الحصة السابقة",
+    "band": {
+      "morning": "الصبيحة",
+      "afternoon": "المساء"
+    },
+    "bandRoll": "مناداة {{band}}: {{fact}}",
+    "bandRollClass": "مناداة {{band}} · {{name}}: {{fact}}",
+    "afternoonRoll": "تُسجَّل وحدها، فالغياب يُحسب بنصف اليوم",
+    "confirmDay": "تأكيد اليوم كله كما هو مقترح",
+    "journal": "الكراس اليومي"
   },
   "outcome": {
     "other": "نتيجة أخرى",

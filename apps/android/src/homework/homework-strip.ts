@@ -5,8 +5,8 @@
 // PRD §3.3): «يُسلَّم اليوم» with the homework's own words until the teacher
 // counts it, then the two counts, and «إحصاء», which opens the record. It
 // shows on the day's first session of the course's group that is held,
-// since the homework comes back once. A card's strips are its homework, then its roll
-// call.
+// since the homework comes back once. A card's strips are its homework,
+// then its roll call, unless the day's band shows it (#230).
 
 import { current, homeworkDue, sessionsBetween, type Context, type HomeworkItem, type Session } from '@minhajna/core';
 import type { DueStripProps } from '../components/DueStrip';
@@ -15,19 +15,20 @@ import type { useText } from '../text/i18n';
 import { rollStrip } from '../today/roll-strip';
 import { isolate } from '../week/grid-labels';
 
-/** A card's strips: the homework that comes back in its sessions, then the roll call of the first. */
+/** A card's strips: the homework coming back in its sessions, then the first one's roll call unless `roll` is false. */
 export function dueStrips(
   t: ReturnType<typeof useText>,
   context: Context,
   sessions: readonly Session[],
   onRoll: (session: Session) => void,
   onHomework: (item: HomeworkItem) => void,
+  roll = true,
 ): DueStripProps[] {
   const [first] = sessions;
   if (first === undefined) return [];
   return [
     ...sessions.flatMap((session) => homeworkStrips(t, context, session, onHomework)),
-    ...rollStrip(t, context, first, onRoll),
+    ...(roll ? rollStrip(t, context, first, onRoll) : []),
   ];
 }
 

@@ -18,6 +18,7 @@ import {
   courseSetup,
   formatDay,
   formatTextsBookDay,
+  pairedItem,
   todayView,
   weekday,
   type CorrectionReason,
@@ -43,7 +44,7 @@ import { sessionTime } from '../times/times-rules';
 import { shortDay } from '../today/outcome-rules';
 import { BookRow } from './BookRow';
 import { bookLines, bookSpan } from './book-lines';
-import { confirmationOf, dueDays, pairedItem, previewOf, stagesShown, type EntryDraft } from './entry-rules';
+import { confirmationOf, dueDays, previewOf, stagesShown, type EntryDraft } from './entry-rules';
 import { correctionOf, fixChanges, startOf } from './fix-rules';
 import { FixFoot, FixHead } from './FixPart';
 import { LessonSheet } from './LessonSheet';

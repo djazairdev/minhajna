@@ -75,6 +75,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - في الابتدائي، يفتح مخطط القسم «قائمة المعالجة»: عناصر المعالجة للقسم بكلماتك، مرتبة، ومنفصلة عن «قائمة الدعم». ولا تُحرّك أيٌّ منهما المخطط الرئيسي.
 - On Today, a «معالجة» or «دعم» session shows its list, with the items paired with today's and the coming sessions: «اليوم», «الحصة القادمة», «بعدها». «تمّت كما هو مقترح» marks its item finished; «نتيجة أخرى» keeps the item for the next session. Week-slot opens the list too.
   - في «اليوم»، تَعرض حصة «معالجة» أو «دعم» قائمتها، وعناصرها مقرونة بحصة اليوم والحصص القادمة: «اليوم»، «الحصة القادمة»، «بعدها». تُسجّل «تمّت كما هو مقترح» عنصرها منجزاً، وتُبقي «نتيجة أخرى» العنصر للحصة القادمة. وتُفتح القائمة من الخانة في الأسبوع أيضاً.
+- A primary day on Today comes in two bands, «الصبيحة» and «المساء», each with one roll call for each class's half day. «تأكيد اليوم كله كما هو مقترح» records every session still awaiting at once, and «الكراس اليومي» opens the day's journal.
+  - يأتي يوم الابتدائي في «اليوم» على فترتين، «الصبيحة» و«المساء»، وفي كل فترة مناداة واحدة لكل قسم. ويُسجّل زر «تأكيد اليوم كله كما هو مقترح» كل الحصص المنتظرة دفعة واحدة، ويفتح «الكراس اليومي» كراس اليوم.
 
 ### Changed
 

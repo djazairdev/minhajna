@@ -529,7 +529,16 @@
     "activityLine": "{{activity}}, session {{session}} of {{of}}",
     "activityLesson": "{{activity}}: {{title}}",
     "tagWeek": "Proposed by the plan · week {{week}}",
-    "tagWeekContinued": "Proposed by the plan · week {{week}} · continues from last session"
+    "tagWeekContinued": "Proposed by the plan · week {{week}} · continues from last session",
+    "band": {
+      "morning": "Morning",
+      "afternoon": "Afternoon"
+    },
+    "bandRoll": "{{band}} roll call: {{fact}}",
+    "bandRollClass": "{{band}} roll call · {{name}}: {{fact}}",
+    "afternoonRoll": "taken on its own, as absence counts by the half day",
+    "confirmDay": "Confirm the whole day as proposed",
+    "journal": "Daily journal"
   },
   "outcome": {
     "other": "Another outcome",
