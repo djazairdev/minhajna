@@ -9,9 +9,17 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { confirmRepace, pace, queueItems, repaceDraft, sessionsBetween } from '../src/index.ts';
+import {
+  confirmRepace,
+  pace,
+  pastWindow,
+  queueItems,
+  repaceDraft,
+  repaceOffered,
+  sessionsBetween,
+} from '../src/index.ts';
 import { cemEvents, contextOf as fixtureContext, d, primaryEvents } from './fixtures.ts';
-import { contextOf, itemIds, late, pack, plan, today } from './repace-fixtures.ts';
+import { contextOf, itemIds, late, nearExams, pack, plan, today } from './repace-fixtures.ts';
 import { rotatingBook } from './rotation-fixtures.ts';
 
 describe('re-pacing cases', () => {
@@ -75,5 +83,14 @@ describe('re-pacing cases', () => {
       const halves = sessions.filter((one) => one.rotation !== undefined && one.sessionType !== 'td');
       assert.equal(halves.length, straddles ? 6 : 8);
     }
+  });
+
+  it('is offered for items past the exams only while the class is behind its distribution', async () => {
+    const book = await late(cemEvents(), nearExams);
+    assert.ok(repaceOffered(contextOf(book), 'c-math', nearExams));
+    const input = { courseId: 'c-math', ticked: [], ids: { repace: 'rp-1', decisions: [] } };
+    await book.recordAll(nearExams, confirmRepace(contextOf(book), input, nearExams));
+    assert.ok(pastWindow(contextOf(book), 'c-math', nearExams));
+    assert.equal(repaceOffered(contextOf(book), 'c-math', nearExams), false);
   });
 });

@@ -85,6 +85,7 @@ export type RootStackParamList = {
   CatchUp: { courseId: string };
   CatchUpAdd: { courseId: string; kind?: 'support' };
   SupportQueue: { courseId: string };
+  Repace: { courseId: string };
   PlanOffer: { courseId: string };
   SeptCheck: { courseId: string };
   TestSchedule: { courseId: string };

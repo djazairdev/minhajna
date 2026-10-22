@@ -4,9 +4,18 @@
 // What the teacher decided for a class's exam windows (#221, answer 268):
 // each item left out, each merge and each postponement, in the order made,
 // with a button that takes it back, so a decision never stays for good once
-// the «تراجع» of the moment has gone. Nothing shows without a decision.
+// the «تراجع» of the moment has gone. On the catch-up options, the class's
+// newest re-pace too (#229, answer 366). Nothing shows without a decision.
 
-import { courseSetup, decisionsFor, findPackItem, type Context, type ExamDecision } from '@minhajna/core';
+import {
+  courseSetup,
+  decisionsFor,
+  findPackItem,
+  repacesOf,
+  type Context,
+  type ExamDecision,
+  type Repace,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { IconButton } from '../components/IconButton';
@@ -14,6 +23,7 @@ import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { currentLanguage, useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
+import { dayName } from '../today/DayMark';
 import { termName } from './course-label';
 
 export type DecisionsProps = {
@@ -21,14 +31,18 @@ export type DecisionsProps = {
   readonly courseId: string;
   readonly className: string;
   readonly onTakeBack: (decision: ExamDecision) => void;
+  /** Takes back the class's newest re-pace, which then shows in the list (#229). */
+  readonly onTakeBackRepace?: (repace: Repace) => void;
 };
 
-export function Decisions({ context, courseId, className, onTakeBack }: DecisionsProps) {
+export function Decisions({ context, courseId, className, onTakeBack, onTakeBackRepace }: DecisionsProps) {
   const t = useText();
   const { direction } = useLocale();
-  const comma = currentLanguage() === 'ar' ? '، ' : ', ';
+  const language = currentLanguage();
+  const comma = language === 'ar' ? '، ' : ', ';
   const decisions = decisionsFor(context.state.decisions, courseId);
-  if (decisions.length === 0) return null;
+  const repace = onTakeBackRepace === undefined ? undefined : repacesOf(context.state, courseId).at(-1);
+  if (decisions.length === 0 && repace === undefined) return null;
   const pack = courseSetup(context, courseId).pack;
   const quoted = (id: string) => t('tests.quoted', { title: isolate(findPackItem(pack, id)?.title ?? id) });
   const said = (decision: ExamDecision): string => {
@@ -44,6 +58,11 @@ export function Decisions({ context, courseId, className, onTakeBack }: Decision
         });
     }
   };
+  const repaced = (one: Repace) =>
+    t('repace.decision', {
+      on: dayName(t, one.on, language, context.ref.country),
+      to: dayName(t, one.to, language, context.ref.country),
+    });
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   return (
     <View testID="exam-decisions" style={styles.group}>
@@ -61,6 +80,17 @@ export function Decisions({ context, courseId, className, onTakeBack }: Decision
           />
         </View>
       ))}
+      {repace !== undefined && onTakeBackRepace !== undefined && (
+        <View style={styles.row}>
+          <Text style={[styles.body, styles.grow, align]}>{repaced(repace)}</Text>
+          <IconButton
+            testID={`exam-decision-${repace.id}`}
+            icon={controlIcon('cross')}
+            accessibilityLabel={t('examWindow.takeBack', { decision: repaced(repace) })}
+            onPress={() => onTakeBackRepace(repace)}
+          />
+        </View>
+      )}
     </View>
   );
 }
