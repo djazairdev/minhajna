@@ -19,7 +19,7 @@ import {
   sessionsBetween,
 } from '../src/index.ts';
 import { cemEvents, contextOf as fixtureContext, d, primaryEvents } from './fixtures.ts';
-import { contextOf, itemIds, late, nearExams, pack, plan, today } from './repace-fixtures.ts';
+import { contextOf, itemIds, late, nearExams, pack, plan, printed, today } from './repace-fixtures.ts';
 import { rotatingBook } from './rotation-fixtures.ts';
 
 describe('re-pacing cases', () => {
@@ -36,7 +36,8 @@ describe('re-pacing cases', () => {
     assert.equal(draft.behind.weeks, pace(context, 'c-lang', day)?.planWeeksBehind);
     const ids = { repace: 'rp-1', decisions: ['dc-1'] };
     const input = { courseId: 'c-lang', ticked: [leave], ids, approved: day };
-    await book.recordAll(day, confirmRepace(context, input, day));
+    await printed(book, day, 'c-lang', ['leave-out:w2']);
+    await book.recordAll(day, confirmRepace(contextOf(book), input, day));
     const paced = pace(contextOf(book), 'c-lang', day);
     assert.deepEqual([paced?.delay, paced?.ahead, paced?.bufferUsed, paced?.weeksBehind], [0, 0, 0, 0]);
   });

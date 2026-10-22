@@ -14,7 +14,7 @@ import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Badge } from '../components/Badge';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useText, type Language } from '../text/i18n';
-import { endRow, entryWords, planWeekWords, weekDates, weekProposes } from './repace-rules';
+import { weekRows, type WeekRow } from './repace-rules';
 
 export type RepaceWeeksProps = {
   readonly draft: RepaceDraft;
@@ -29,30 +29,22 @@ export function RepaceWeeks({ draft, language, profile }: RepaceWeeksProps) {
   const { fontScale } = useWindowDimensions();
   const stacked = fontScale >= 1.5;
   const weekPack = draft.weeks.some((week) => week.planWeeks.length > 0);
-  const row = (key: string, when: string, what: string, count: string, label: string, badge?: string) => (
+  const row = (one: WeekRow) => (
     <View
-      key={key}
-      testID={`repace-${key}`}
+      key={one.key}
+      testID={`repace-${one.key}`}
       accessible
-      accessibilityLabel={label}
+      accessibilityLabel={one.label}
       style={[styles.row, stacked && styles.stacked]}
     >
-      <Text style={[styles.when, !stacked && styles.narrow, align]}>{when}</Text>
+      <Text style={[styles.when, !stacked && styles.narrow, align]}>{one.when}</Text>
       <View style={styles.what}>
-        <Text style={[styles.body, align]}>{what}</Text>
-        {badge !== undefined && <Badge label={badge} />}
+        <Text style={[styles.body, align]}>{one.what}</Text>
+        {one.badge !== undefined && <Badge label={one.badge} />}
       </View>
-      <Text style={styles.count}>{count}</Text>
+      <Text style={styles.count}>{one.count}</Text>
     </View>
   );
-  const td =
-    draft.td === null
-      ? null
-      : t('repace.tdRow', {
-          items: t('count.items', { count: draft.td.items }),
-          sessions: t('count.sessions', { count: draft.td.gives }),
-        });
-  const end = endRow(t, draft, language, profile);
   return (
     <View testID="repace-weeks" style={styles.table}>
       <View
@@ -63,17 +55,7 @@ export function RepaceWeeks({ draft, language, profile }: RepaceWeeksProps) {
         <Text style={[styles.what, styles.label, align]}>{t(weekPack ? 'repace.planWeeks' : 'repace.items')}</Text>
         <Text style={[styles.count, styles.label]}>{t('repace.sessions')}</Text>
       </View>
-      {draft.weeks.map((week) => {
-        const when = weekDates(week, language, profile);
-        const items = week.entries.map((entry) => entryWords(t, entry, language, profile));
-        const what = [weekPack ? planWeekWords(t, week.planWeeks) : '', ...items].filter(Boolean).join(' · ');
-        const badge = weekProposes(draft, week) ? t('repace.proposed') : undefined;
-        const sessions = t('count.sessions', { count: week.plan });
-        const label = [when, what, sessions, badge].filter(Boolean).join(t('repace.comma'));
-        return row(`week-${week.start}`, when, what, String(week.plan), label, badge);
-      })}
-      {td !== null && row('td', t('repace.tdWhen'), td, String(draft.td?.gives ?? 0), td)}
-      {row('end', '', end, '—', end)}
+      {weekRows(t, draft, language, profile).map(row)}
     </View>
   );
 }

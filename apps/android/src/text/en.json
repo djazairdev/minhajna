@@ -2316,7 +2316,7 @@
     "tdRow": "TD: {{items}} for {{sessions}}",
     "confirm": "Adopt the distribution",
     "confirmed": "New distribution adopted; «Undo» or the list of decisions takes it back.",
-    "primary": "In primary, the draft is printed for the director to approve, and it applies only once its approval date is entered. The current distribution still applies.",
+    "primary": "In primary, the new distribution applies only once its approval date is entered.",
     "notOffered": "No need to re-pace now: the class is on its current distribution, and what lands after the exams is handled from «Merge items or leave out optional ones».",
     "applied": "Last distribution adopted on {{day}}.",
     "failed": "Could not adopt it: the records changed since the draft opened. Check it, then try again.",
@@ -2324,6 +2324,27 @@
     "rungLine": "A draft of a new distribution up to the exams, around tests, TD and holidays, to check before you adopt it.",
     "open": "Draft distribution",
     "decision": "Rest re-paced up to {{to}}, on {{on}}",
-    "takenBack": "New distribution taken back; «Undo» brings it back."
+    "takenBack": "New distribution taken back; «Undo» brings it back.",
+    "print": "Print the draft",
+    "printForApproval": "Print the draft for approval",
+    "record": "Enter the approval",
+    "edit": "Not approved: edit the draft",
+    "approvedWhen": "The director’s approval date, as on the signed draft",
+    "statusDraft": "Draft not sent to print yet. The current distribution still applies.",
+    "statusPrinted": "Sent to print on {{day}}, not approved yet. The current distribution applies until the approval date is entered.",
+    "statusChanged": "The proposed choices changed since the draft was sent to print on {{day}}; print it again for the director to approve. The current distribution still applies.",
+    "statusEditing": "The draft sent to print on {{day}} is being edited; print it again for the director to approve. The current distribution still applies.",
+    "approvedDone": "The director’s approval of {{day}} is entered; the new distribution applies from today.",
+    "appliedApproved": "Last distribution entered on {{day}}, approved by the director on {{approved}}.",
+    "sheet": {
+      "title": "Draft for the rest of term {{term}}",
+      "school": "{{school}} · School year {{year}}",
+      "date": "Printed: {{day}}",
+      "who": "Name: {{name}} · Subject: {{subject}} · Class: {{class}}",
+      "prepared": "Signature of whoever prepared the draft: ....................",
+      "director": "School director’s approval",
+      "directorDate": "Date: ..... / ..... / ..........",
+      "stamp": "Stamp and signature:"
+    }
   }
 }

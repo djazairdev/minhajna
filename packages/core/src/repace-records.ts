@@ -8,8 +8,8 @@
 // the reference moves back by that much. It never changes what a session
 // proposes. Each re-pace is measured on the ones before it, so their shifts
 // add up. It applies from the day it is recorded, in primary too, where the
-// director's approval date is kept with it (Decision 839 Art. 12, answer
-// 369).
+// director's approval date is kept with it, with the printed draft the
+// director approved (Decision 839 Art. 12, answers 369 and 372).
 
 import { compareDays, type Day } from './day.ts';
 import type { State } from './state-type.ts';
@@ -30,6 +30,8 @@ export interface Repace {
   readonly decisions: readonly string[];
   /** In primary, the day the director approved it. */
   readonly approved?: Day;
+  /** In primary, the ID of the print the director approved, so later drafts count only later prints. */
+  readonly print?: string;
 }
 
 /** A course's re-paces, oldest first, in the order recorded. */

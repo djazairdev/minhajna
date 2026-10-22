@@ -58,6 +58,7 @@ export * from './exam-answers.ts';
 export * from './catch-up.ts';
 export * from './repace.ts';
 export * from './repace-confirm.ts';
+export * from './repace-print.ts';
 export * from './repace-records.ts';
 export * from './catch-up-add.ts';
 export * from './catch-up-sessions.ts';

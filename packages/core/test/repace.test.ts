@@ -32,7 +32,7 @@ import {
   type Context,
 } from '../src/index.ts';
 import { cemEvents, d, openBook, primaryEvents } from './fixtures.ts';
-import { contextOf, itemIds, late, nearExams, pack, plan, ref, today } from './repace-fixtures.ts';
+import { contextOf, itemIds, late, nearExams, pack, plan, printed, ref, today } from './repace-fixtures.ts';
 
 describe('re-pacing', () => {
   it('lays the rest of the term out by week, up to the exams, around holidays', async () => {
@@ -189,8 +189,11 @@ describe('re-pacing', () => {
     assert.ok(draft.weeks.every((week) => week.planWeeks.every((n, i, all) => i === 0 || n >= (all[i - 1] ?? 0))));
     const input = { courseId: 'c-lang', ticked: [], ids: { repace: 'rp-1', decisions: [] } };
     assert.throws(() => confirmRepace(context, input, day), /director approves/);
-    assert.throws(() => confirmRepace(context, { ...input, approved: d('2026-10-18') }, day), /after today/);
-    await book.recordAll(day, confirmRepace(context, { ...input, approved: d('2026-10-14') }, day));
+    assert.throws(() => confirmRepace(context, { ...input, approved: day }, day), /not printed/);
+    await printed(book, d('2026-10-13'), 'c-lang');
+    const later = contextOf(book);
+    assert.throws(() => confirmRepace(later, { ...input, approved: d('2026-10-18') }, day), /after today/);
+    await book.recordAll(day, confirmRepace(later, { ...input, approved: d('2026-10-14') }, day));
     assert.equal(book.state.repaces.get('rp-1')?.approved, d('2026-10-14'));
     assert.equal(repaceShift(book.state, 'c-lang', d('2026-10-13')).gap, 0);
     assert.equal(repaceShift(book.state, 'c-lang', day).weeks, draft.behind.weeks ?? 0);

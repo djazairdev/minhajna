@@ -8,7 +8,9 @@
 // made, as days printed ahead may still change, and a reprint of older days
 // never moves a document's last printed day back. A document printed whole,
 // such as the front pages before the year starts, counts as far as it went.
-// The record is the teacher's own and stays private (PRD §5.4).
+// A primary re-pace draft printed for the director is kept too, with the
+// choices ticked on it (#229, repace-print.ts). The record is the teacher's
+// own and stays private (PRD §5.4).
 
 import { compareDays, minDay, type Day } from './day.ts';
 import type { State } from './state.ts';
@@ -18,6 +20,8 @@ export interface PrintedDocument {
   readonly id: string;
   readonly from: Day;
   readonly to: Day;
+  /** For a re-pace draft, the keys of the choices ticked on it. */
+  readonly choices?: readonly string[];
 }
 
 /** One print of the set. */
