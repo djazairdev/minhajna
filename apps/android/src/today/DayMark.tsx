@@ -9,13 +9,27 @@
 // support or revision day (#219) names the weekday whose timetable it
 // follows, and takes the place of a holiday's mark: its make-up sessions
 // are held as any other, while support and revision sessions show only there.
+// On a day in two or more schools, a mark that leaves another school's
+// sessions to teach marks only the cards it takes, in its school's band,
+// as does every other mark taking sessions; an exam window there pauses the
+// plan rather than losing sessions (#232, answers 395 and 396).
 
-import { eachDay, weekday, type CalendarEntry, type CountryProfile, type Day, type TodayView } from '@minhajna/core';
+import {
+  eachDay,
+  weekday,
+  type CalendarEntry,
+  type CountryProfile,
+  type Day,
+  type State,
+  type TodaySession,
+  type TodayView,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { useText, type Language } from '../text/i18n';
+import { isolate } from '../week/grid-labels';
 
 type Translate = ReturnType<typeof useText>;
 
@@ -31,6 +45,57 @@ export function dayMarkOf(view: TodayView): CalendarEntry | null {
   return (
     (closure === undefined ? find('adds-sessions') : undefined) ?? find('no-school') ?? closure ?? find('exam') ?? null
   );
+}
+
+export interface DayMarks {
+  readonly mark: CalendarEntry | null;
+  /** The no-school days, closures and exam windows that take only some schools' sessions, each marking its cards. */
+  readonly partial: readonly CalendarEntry[];
+  /** Those of `partial` that are exam windows, whose sessions pause the plan rather than go untaught. */
+  readonly paused: readonly CalendarEntry[];
+}
+
+/**
+ * The mark for the whole day, or, on a day in two or more schools whose chosen mark leaves sessions to teach in a
+ * school it does not touch, none: every mark that takes sessions is then `partial`. A day that adds sessions always
+ * marks the whole day.
+ */
+export function dayMarks(view: TodayView, state: Pick<State, 'classes'>): DayMarks {
+  const mark = dayMarkOf(view);
+  const whole = { mark, partial: [], paused: [] };
+  if (mark === null || mark.effect === 'adds-sessions') return whole;
+  const schoolOf = (item: TodaySession) => state.classes.get(item.course.classId)?.schoolId;
+  const touched = new Set(view.sessions.filter((item) => item.session.calendarEntry === mark.id).map(schoolOf));
+  const left = view.sessions.some((item) => item.status !== 'calendar' && !touched.has(schoolOf(item)));
+  if (new Set(view.sessions.map(schoolOf)).size < 2 || !left) return whole;
+  const partial = view.marks.filter(
+    (entry) =>
+      ['no-school', 'closure', 'exam'].includes(entry.effect) &&
+      entry.layer !== 'teacher' &&
+      view.sessions.some((item) => item.session.calendarEntry === entry.id),
+  );
+  return { mark: null, partial, paused: partial.filter((entry) => entry.effect === 'exam') };
+}
+
+/** The paused note, naming the schools whose exam windows take sessions on a day the others teach. */
+export function pausedNote(
+  t: Translate,
+  state: Pick<State, 'classes' | 'schools'>,
+  view: TodayView,
+  paused: readonly CalendarEntry[],
+): { title: string; note: string } {
+  if (paused.length === 0) return { title: t('daymark.paused'), note: t('daymark.pausedNote') };
+  const ids = new Set(paused.map((entry) => entry.id));
+  const schools = new Set(
+    view.sessions
+      .filter((item) => ids.has(item.session.calendarEntry ?? ''))
+      .map((item) => state.classes.get(item.course.classId)?.schoolId ?? ''),
+  );
+  const names = [...schools].map((id) => isolate(state.schools.get(id)?.name ?? ''));
+  return {
+    title: t('daymark.pausedAt', { school: names.join(t('daymark.andNames')) }),
+    note: t('daymark.pausedAtNote'),
+  };
 }
 
 /** «2 نوفمبر», without the year. */

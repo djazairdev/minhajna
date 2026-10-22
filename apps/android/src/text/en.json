@@ -54,7 +54,9 @@
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
     "weeks_one": "{{count}} week",
-    "weeks_other": "{{count}} weeks"
+    "weeks_other": "{{count}} weeks",
+    "schools_one": "{{count}} school",
+    "schools_other": "{{count}} schools"
   },
   "bottomSheet": {
     "close": "Close"
@@ -576,7 +578,8 @@
     "tagWeekContinued": "Proposed by the plan · week {{week}} · continues from last session",
     "band": {
       "morning": "Morning",
-      "afternoon": "Afternoon"
+      "afternoon": "Afternoon",
+      "school": "{{school}} · {{half}}"
     },
     "bandRoll": "{{band}} roll call: {{fact}}",
     "bandRollClass": "{{band}} roll call · {{name}}: {{fact}}",
@@ -740,6 +743,9 @@
     "lostNote": "They are counted apart in the weekly summary, so they never read as slow teaching. The lessons move to the next sessions, and none is dropped.",
     "paused": "The plan pauses during the exams",
     "pausedNote": "The exams take the week’s sessions: no lesson is proposed, and no session counts as not held or as delay. Each class keeps its position.",
+    "pausedAt": "The plan pauses during the exams at {{school}}",
+    "pausedAtNote": "The exams take the sessions they cover: no lesson is proposed for the classes sitting them, and none of those sessions counts as not held or as delay; each of those classes keeps its position. Your other classes go on as usual.",
+    "andNames": " and ",
     "next": "Next session",
     "makeUp": "Make-up sessions on {{weekday}}’s timetable.",
     "support": "Support sessions on {{weekday}}’s timetable; the plan does not move.",

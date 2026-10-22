@@ -57,7 +57,7 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { Backlog } from './Backlog';
-import { DayBanner, DayNote, NextSession, dayMarkOf, markLine } from './DayMark';
+import { DayBanner, DayNote, NextSession, dayMarks, markLine, pausedNote } from './DayMark';
 import { SpecialCards, specialEntries, specialLine, specialLost } from './SpecialDay';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
@@ -65,7 +65,7 @@ import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
 import { dayFacts, lessonOf, proposalOf, withOffDay, writtenOf } from './today-labels';
 import { todayEntries, type TodayEntry } from './joint-today';
-import { bandRoll, DayBands, DayEnd, isPrimaryDay } from './DayBands';
+import { bandRoll, DayBands, DayEnd, isBandedDay, isPrimaryDay, taughtSchools } from './DayBands';
 import { ListCard, listDetails, listOfSession, listWritten } from './ListCard';
 import { useTodayActions } from './today-actions';
 import { nextLine, sessionMeta } from './today-meta';
@@ -109,15 +109,16 @@ export function Today(props: {
   const view = useMemo(() => todayView(context, day), [context, day]);
   const extrasOf = useCardExtras(context, view.sessions, day);
   const backlog = useMemo(() => backlogOf(context, day), [context, day]);
-  const mark = dayMarkOf(view);
+  const { mark, partial, paused } = dayMarks(view, state);
   const specials = specialEntries(view);
   const shown = mark === null ? view.sessions : view.sessions.filter((item) => item.status !== 'calendar');
-  const taken = mark === null ? specialLost(view, specials) : view.sessions.length - shown.length;
+  const taken = mark === null ? specialLost(view, [...specials, ...partial]) : view.sessions.length - shown.length;
+  const lost = taken - specialLost(view, paused);
   const noneLeft = (mark !== null || taken > 0) && (mark === null ? view.sessions.length - taken : shown.length) === 0;
   const next = useMemo(() => (noneLeft ? nextSession(context, day) : null), [context, day, noneLeft]);
   const ready = shown.filter((item) => item.proposal !== null || listOfSession(item) !== null);
   const [focus] = ready;
-  const banded = isPrimaryDay(state, shown);
+  const banded = isBandedDay(state, shown);
   const { done, confirm, confirmAll, keepReason, undo } = useTodayActions(context, t, record, recordAll);
   const metaOf = (item: TodaySession, withSubject: boolean) =>
     sessionMeta({ state, profile, bells, calendar }, t, direction, item, withSubject);
@@ -206,7 +207,10 @@ export function Today(props: {
           testID="today-heading"
           title={t(`week.days.${weekday(day)}`)}
           scope={formatDayWithMonth(day, language, profile)}
-          fact={{ text: dayFacts(t, view, mark !== null || taken > 0), icon: controlIcon('check') }}
+          fact={{
+            text: dayFacts(t, view, mark !== null || taken > 0, taughtSchools(state, shown)),
+            icon: controlIcon('check'),
+          }}
           special={withOffDay(t, profile, view, day, withRamadan(t, view, specialLine(t, specials)))}
           actions={<TodayHeadingActions onExtra={onExtra} onSettings={props.onSettings} onHelp={onHelp} />}
         />
@@ -241,14 +245,14 @@ export function Today(props: {
           )}
           <DayEnd
             {...(ready.length > 1 && { onConfirmDay: () => confirmAll(ready, 'day', listDetails(context)) })}
-            {...(banded && props.onJournal && { onJournal: () => props.onJournal?.(day) })}
+            {...(isPrimaryDay(state, shown) && props.onJournal && { onJournal: () => props.onJournal?.(day) })}
           />
           {props.onExams?.support && <SupportToday day={day} onLog={props.onExams.support} />}
-          {mark?.effect !== 'exam' && taken > 0 && (
-            <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />
+          {mark?.effect !== 'exam' && lost > 0 && (
+            <DayNote testID="day-lost" title={t('daymark.lost', { count: lost })} note={t('daymark.lostNote')} />
           )}
-          {mark?.effect === 'exam' && (
-            <DayNote testID="day-paused" title={t('daymark.paused')} note={t('daymark.pausedNote')} />
+          {(mark?.effect === 'exam' || paused.length > 0) && (
+            <DayNote testID="day-paused" {...pausedNote(t, state, view, paused)} />
           )}
           <SpecialCards entries={specials} state={state} day={day} />
           {props.onRamadan && <RamadanRule view={view} open={props.onRamadan} />}

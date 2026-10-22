@@ -114,11 +114,12 @@ export function writtenOf(t: Translate, pack: PlanPack | null, record: SessionRe
 }
 
 /**
- * The day's facts: whether earlier sessions await confirmation, and how many
- * of today's are confirmed. On a day a holiday, a closure or an exam marks,
- * the sessions it took are not counted, and with none left the mark says it.
+ * The day's facts: whether earlier sessions await confirmation, in how many
+ * schools when two or more (#232), and how many of today's are confirmed. On
+ * a day a holiday, a closure or an exam marks, the sessions it took are not
+ * counted, and with none left the mark says it.
  */
-export function dayFacts(t: Translate, view: TodayView, marked = false): string {
+export function dayFacts(t: Translate, view: TodayView, marked = false, schools = 1): string {
   const earlier =
     view.awaitingEarlier === 0 ? t('today.allConfirmed') : t('today.earlier', { count: view.awaitingEarlier });
   const sessions = marked ? view.sessions.filter((item) => item.status !== 'calendar') : view.sessions;
@@ -132,7 +133,7 @@ export function dayFacts(t: Translate, view: TodayView, marked = false): string 
           confirmed: t('today.confirmed', { count: confirmed }),
           sessions: t('today.total', { count }),
         });
-  return `${earlier} · ${today}`;
+  return schools > 1 ? `${earlier} · ${t('count.schools', { count: schools })} · ${today}` : `${earlier} · ${today}`;
 }
 
 /** `special`, with «السبت يوم دراسة في استعمال الزمن الساري» on a day off the week that the timetable fills. */

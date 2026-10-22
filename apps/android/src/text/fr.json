@@ -57,7 +57,10 @@
     "items_other": "{{count}} éléments",
     "weeks_one": "{{count}} semaine",
     "weeks_many": "{{count}} de semaines",
-    "weeks_other": "{{count}} semaines"
+    "weeks_other": "{{count}} semaines",
+    "schools_one": "{{count}} école",
+    "schools_many": "{{count}} d’écoles",
+    "schools_other": "{{count}} écoles"
   },
   "bottomSheet": {
     "close": "Fermer"
@@ -589,7 +592,8 @@
     "tagWeekContinued": "Proposé par le plan · semaine {{week}} · suite de la séance précédente",
     "band": {
       "morning": "Matinée",
-      "afternoon": "Après-midi"
+      "afternoon": "Après-midi",
+      "school": "{{school}} · {{half}}"
     },
     "bandRoll": "Appel ({{band}}) : {{fact}}",
     "bandRollClass": "Appel ({{band}}) · {{name}} : {{fact}}",
@@ -758,6 +762,9 @@
     "lostNote": "Elles sont comptées à part dans le résumé de la semaine : elles ne se lisent jamais comme un retard. Les leçons passent aux séances suivantes, sans qu’aucune ne tombe.",
     "paused": "Le plan s’arrête pendant les examens",
     "pausedNote": "Les examens remplacent les séances de la semaine : aucune leçon n’est proposée, et aucune séance ne compte comme non tenue ni comme retard. Chaque classe garde sa position.",
+    "pausedAt": "Le plan s’arrête pendant les examens à {{school}}",
+    "pausedAtNote": "Les examens remplacent les séances qu’ils couvrent : aucune leçon n’est proposée aux classes concernées, et aucune de ces séances ne compte comme non tenue ni comme retard ; chacune de ces classes garde sa position. Vos autres classes continuent normalement.",
+    "andNames": " et ",
     "next": "Prochaine séance",
     "makeUp": "Séances de rattrapage selon l’emploi du temps du {{weekday}}.",
     "support": "Séances de soutien selon l’emploi du temps du {{weekday}}, sans avancer le plan.",
