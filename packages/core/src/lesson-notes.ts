@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Lesson notes, «المذكرة» (#237, PRD §3.8, R-3.8-32 to R-3.8-34, answer 416,
-// 417). A note is kept for a plan item of a class's subject and numbered for
-// that subject in the order the notes are made. It is the teacher's own
-// preparation: it syncs, backs up and prints, and leaves the teacher on no
-// other route. Its head comes from the plan: the sequence, the domain, the
-// resource and the duration. Its paragraphs are the competence indicator, the
-// objectives and the resources, then one for each stage of the item's stage
-// template. The plan proposes them; the packs carry no text for them yet, so
-// they come empty, and the draft gives the item's textbook pages for the
-// resources paragraph. A proposed paragraph is kept in the note once the
-// teacher accepts or writes it, and the teacher's own paragraphs follow, each
-// with its title. A written note kept for the same item of the same pack in an
-// earlier year's class of the same subject and grade can be reused.
+// Lesson notes, «المذكرة» (#237, PRD §3.8, R-3.8-32 to R-3.8-34, answers 416
+// to 418). A note is kept for a plan item of a class's subject and numbered
+// for the class, across its subjects, in the order the notes are made. It is
+// the teacher's own preparation: it syncs, backs up and prints, and leaves the
+// teacher on no other route. Its head comes from the plan: the sequence, the
+// domain, the resource and the duration. Its paragraphs are the competence
+// indicator, the objectives and the resources, then one for each stage of the
+// item's stage template. The plan proposes them; the packs carry no text for
+// them yet, so they come empty, and the draft gives the item's textbook pages
+// for the resources paragraph. A proposed paragraph is kept in the note once
+// the teacher accepts or writes it, and the teacher's own paragraphs follow,
+// each with its title. A written note kept for the same item of the same pack
+// in an earlier year's class of the same subject and grade can be reused.
 
 import { courseSetup } from './choices.ts';
 import type { Context } from './context.ts';
@@ -100,24 +100,35 @@ export function noteDraft(context: Context, courseId: string, itemId: string): N
   };
 }
 
-/** The notes of the course's subject, those of the courses it continues included, by number. */
+/** The courses whose notes share the course's numbering: its class's courses this year, and those they continue. */
+function classCourses(state: Pick<State, 'courses'>, courseId: string): Set<string> {
+  const course = state.courses.get(courseId);
+  const own =
+    course === undefined
+      ? []
+      : [...state.courses.values()].filter((one) => one.classId === course.classId && one.year === course.year);
+  return new Set([...lineageIds(state, courseId), ...own.flatMap((one) => lineageIds(state, one.id))]);
+}
+
+/** The notes of the course's class this year, every subject's and its earlier courses' included, by number. */
 export function notesOf(state: Pick<State, 'courses' | 'lessonNotes'>, courseId: string): LessonNote[] {
-  const courses = new Set(lineageIds(state, courseId));
+  const courses = classCourses(state, courseId);
   return [...state.lessonNotes.values()]
     .filter((note) => courses.has(note.courseId))
     .sort((a, b) => a.number - b.number || compareText(a.id, b.id));
 }
 
-/** The note for `itemId` of the course's subject, if one is kept. */
+/** The course's note for `itemId`, one kept by a course it continues included, if one is kept. */
 export function noteFor(
   state: Pick<State, 'courses' | 'lessonNotes'>,
   courseId: string,
   itemId: string,
 ): LessonNote | undefined {
-  return notesOf(state, courseId).find((note) => note.itemId === itemId);
+  const courses = new Set(lineageIds(state, courseId));
+  return notesOf(state, courseId).find((note) => courses.has(note.courseId) && note.itemId === itemId);
 }
 
-/** The number a new note of the course's subject takes: one more than its highest. */
+/** The number a new note of the course takes: one more than the highest of its class this year. */
 export function nextNoteNumber(state: Pick<State, 'courses' | 'lessonNotes'>, courseId: string): number {
   return notesOf(state, courseId).reduce((highest, note) => Math.max(highest, note.number), 0) + 1;
 }

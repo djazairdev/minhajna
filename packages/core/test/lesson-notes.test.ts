@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Lesson notes (#237, answers 416 and 417): the head and the proposed
-// paragraphs the plan gives a note, the notes of a subject numbered in the
-// order made and read across the courses it continues, the newest written
-// note of an earlier year's class of the same subject, grade and pack, the
-// plan paragraphs kept in the plan's order before the teacher's own, and the
-// notes kept private, printed by the teacher and sent nowhere else. Made-up
-// records only.
+// Lesson notes (#237, answers 416 to 418): the head and the proposed paragraphs
+// the plan gives a note, the notes of a class numbered across its subjects in
+// the order made and read across the courses it continues, the newest written
+// note of an earlier year's class of the same subject, grade and pack, the plan
+// paragraphs kept in the plan's order before the teacher's own, and the notes
+// kept private, printed by the teacher and sent nowhere else. Made-up records
+// only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -105,7 +105,37 @@ describe('lesson notes', () => {
     assert.equal(draft?.unit, undefined);
   });
 
-  it('numbers the notes of a subject and reads those of the courses it continues', async () => {
+  it('numbers the notes across the class’s subjects this year, each subject keeping its own', async () => {
+    const book = await openBook([
+      ...cemEvents(),
+      {
+        kind: 'course.set',
+        course: { id: 'c-sci', classId: 'k-1am2', subject: 'science', year: '2026-2027', pack: null },
+      },
+      ...earlierClass('other', '2026-2027', '1am'),
+      {
+        kind: 'course.set',
+        course: { id: 'c-next', classId: 'k-1am2', subject: 'math', year: '2027-2028', pack: null },
+      },
+      set(note('n-math', 'c-math', 'l1', 1)),
+      set(note('n-sci', 'c-sci', 'l1', 2)),
+      set(note('n-other', 'c-other', 'l2', 7)),
+      set(note('n-next', 'c-next', 'l2', 9)),
+    ]);
+    assert.deepEqual(
+      notesOf(book.state, 'c-sci').map((one) => one.id),
+      ['n-math', 'n-sci'],
+    );
+    assert.equal(nextNoteNumber(book.state, 'c-math'), 3);
+    assert.equal(nextNoteNumber(book.state, 'c-sci'), 3);
+    assert.equal(nextNoteNumber(book.state, 'c-other'), 8);
+    assert.equal(nextNoteNumber(book.state, 'c-next'), 10);
+    assert.equal(noteFor(book.state, 'c-math', 'l1')?.id, 'n-math');
+    assert.equal(noteFor(book.state, 'c-sci', 'l1')?.id, 'n-sci');
+    assert.equal(noteFor(book.state, 'c-math', 'l2'), undefined);
+  });
+
+  it('reads the notes of the courses a class’s courses continue', async () => {
     const book = await openBook([
       ...cemEvents(),
       ...earlierClass('old', '2026-2027', '1am'),
