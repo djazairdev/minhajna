@@ -10,13 +10,13 @@
 // the clash's slot edits nothing else, and a move stays once its session is
 // recorded. Made-up schools and classes only.
 
-import { confirmSessions, parseDay, sessionsBetween, versionOn, weekClashes, type RecordEvent } from '@minhajna/core';
+import { confirmSessions, parseDay, sessionsBetween, versionOn, weekClashes } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Text } from 'react-native';
 import ReactTestRenderer, { type ReactTestInstance } from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { withData, type TestData } from '../jest/app-data';
-import { thursday, withSpecialist } from '../jest/specialist-classes';
+import { withClash } from '../jest/clash-schools';
 import { coreContext } from '../src/storage/core-context';
 import { catalogues, i18n, missingKeys } from '../src/text/i18n';
 import { Today } from '../src/today/Today';
@@ -38,27 +38,6 @@ afterEach(async () => {
   tree = undefined;
   await i18n.changeLanguage('ar');
 });
-
-/** مدرسة الرياض with a second afternoon slot, and 5 ابتدائي أ also on Thursday's first morning slot. */
-async function clashing(): Promise<TestData> {
-  const riadh: RecordEvent = {
-    kind: 'school.set',
-    school: {
-      id: 's-2',
-      name: 'مدرسة الرياض',
-      levels: ['primary'],
-      subjects: ['french'],
-      zone: '16',
-      bells: {
-        usual: [
-          { half: 'afternoon', index: 1, from: '13:00', to: '13:45' },
-          { half: 'afternoon', index: 2, from: '15:15', to: '16:00' },
-        ],
-      },
-    },
-  };
-  return withSpecialist([riadh], [thursday('e-4', 'morning', 1, 'f-3', 'k-3')]);
-}
 
 async function render(data: TestData, element: React.ReactElement, on = '2026-10-15') {
   await ReactTestRenderer.act(() => {
@@ -82,7 +61,7 @@ const shown = () =>
 
 test('a clash is kept, opened again, and one session moved for one day, then back', async () => {
   missingKeys.length = 0;
-  const data = await clashing();
+  const data = await withClash();
   await render(data, <WeekDraw onDone={jest.fn()} openAt={{ weekday: 4, slot: m1 }} />);
   expect(exists('clash-panel')).toBe(true);
   expect(shown()).toEqual(
@@ -118,7 +97,7 @@ test('a clash is kept, opened again, and one session moved for one day, then bac
 });
 
 test('Today says which sessions meet, and that a moved one moved', async () => {
-  const data = await clashing();
+  const data = await withClash();
   await render(data, <Today onHelp={jest.fn()} onDetails={jest.fn()} onRoll={jest.fn()} />);
   const sameAs = (name: string, school: string) => i18n.t('today.sameTime', { class: iso(name), school: iso(school) });
   expect(shown()).toEqual(
@@ -136,7 +115,7 @@ test('Today says which sessions meet, and that a moved one moved', async () => {
 });
 
 test('a clash kept on a later day is kept against the recorded week, and the slot edits nothing else', async () => {
-  const data = await clashing();
+  const data = await withClash();
   await render(data, <WeekDraw onDone={jest.fn()} openAt={{ weekday: 4, slot: m1 }} />, '2026-10-20');
   expect(exists('slot-0')).toBe(false);
   expect(exists('slot-save')).toBe(false);
@@ -150,7 +129,7 @@ test('a clash kept on a later day is kept against the recorded week, and the slo
 });
 
 test('a move stays once its session is recorded', async () => {
-  const data = await clashing();
+  const data = await withClash();
   const day = parseDay('2026-10-15');
   const move = {
     id: 'mv-1',
