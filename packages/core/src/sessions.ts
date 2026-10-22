@@ -38,6 +38,7 @@ import type { Rotation, Slot, TimetableVersion } from './records.ts';
 import { catchUpSessions } from './catch-up-sessions.ts';
 import { compareSessions, markOf, sessionKey, takeKey, takesPlace } from './session-keys.ts';
 import { rotatingSessions } from './rotation-sessions.ts';
+import { movedSessions } from './session-moves.ts';
 import { current, type RecordedTimetable } from './state.ts';
 import { TEST_SESSION_TYPE } from './test-schedule.ts';
 
@@ -82,6 +83,8 @@ export interface Session {
   readonly test?: string;
   /** For a session a test takes: the session type the timetable gave it. */
   readonly took?: string;
+  /** For a session moved for one day: the slot the timetable gives it (#232). */
+  readonly movedFrom?: Slot;
 }
 
 /** A session a day that adds sessions gives, and what it is for. */
@@ -230,6 +233,7 @@ export function sessionsBetween(context: Context, from: Day, to: Day, wanted?: R
     }
   }
 
+  sessions = movedSessions(context, sessions, first, last);
   for (const { session } of addedSessions(context, first, last, ['make-up'], courseIds)) {
     if (takesPlace(sessions.get(session.key), session)) sessions.set(session.key, session);
   }

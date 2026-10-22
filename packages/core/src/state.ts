@@ -18,6 +18,7 @@ import { layerKey, signedAsItsLevel, switchKey, type AddedLayer, type LayerSwitc
 import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
+import type { KeptClash, SessionMove } from './session-moves.ts';
 import { kindOf, listKey, type SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type {
@@ -81,6 +82,8 @@ export function buildState(entries: readonly Entry[]): State {
   const catchUps = new Map<string, CatchUpSession>();
   const supportQueues = new Map<string, SupportQueue>();
   const repaces = new Map<string, Repace>();
+  const keptClashes = new Map<string, KeptClash>();
+  const moves = new Map<string, SessionMove>();
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -221,6 +224,18 @@ export function buildState(entries: readonly Entry[]): State {
       case 'repace.removed':
         repaces.delete(event.id);
         break;
+      case 'clash.kept':
+        keptClashes.set(event.kept.id, event.kept);
+        break;
+      case 'clash.reopened':
+        keptClashes.delete(event.id);
+        break;
+      case 'move.set':
+        moves.set(event.move.id, event.move);
+        break;
+      case 'move.removed':
+        moves.delete(event.id);
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -258,5 +273,7 @@ export function buildState(entries: readonly Entry[]): State {
     catchUps,
     supportQueues,
     repaces,
+    keptClashes,
+    moves,
   };
 }

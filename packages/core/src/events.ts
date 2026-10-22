@@ -12,6 +12,7 @@ import type { Layer } from './layers.ts';
 import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { ExamDuty } from './exam-duties.ts';
 import type { Repace } from './repace-records.ts';
+import type { KeptClash, SessionMove } from './session-moves.ts';
 import type { SupportQueue } from './support-queue.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
@@ -110,7 +111,13 @@ export type RecordEvent =
   | { readonly kind: 'support.set'; readonly queue: SupportQueue }
   /** A re-pace of the rest of a term the teacher confirmed, or took back (#229). */
   | { readonly kind: 'repace.set'; readonly repace: Repace }
-  | { readonly kind: 'repace.removed'; readonly id: string };
+  | { readonly kind: 'repace.removed'; readonly id: string }
+  /** A clash between two schools the teacher kept, or opened again (#232). */
+  | { readonly kind: 'clash.kept'; readonly kept: KeptClash }
+  | { readonly kind: 'clash.reopened'; readonly id: string }
+  /** A session moved for one day, or moved back (#232). */
+  | { readonly kind: 'move.set'; readonly move: SessionMove }
+  | { readonly kind: 'move.removed'; readonly id: string };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -155,6 +162,10 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'support.set': true,
   'repace.set': true,
   'repace.removed': true,
+  'clash.kept': true,
+  'clash.reopened': true,
+  'move.set': true,
+  'move.removed': true,
 };
 
 /**
@@ -209,6 +220,10 @@ export function layerOf(event: RecordEvent): Layer {
     case 'support.set':
     case 'repace.set':
     case 'repace.removed':
+    case 'clash.kept':
+    case 'clash.reopened':
+    case 'move.set':
+    case 'move.removed':
       return 'lesson-record';
   }
 }

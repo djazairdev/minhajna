@@ -106,6 +106,13 @@ function currentRecords(state: State): RecordEvent[] {
     (a, b) => compareText(a.courseId, b.courseId) || compareDays(a.on, b.on) || compareText(a.id, b.id),
   );
   for (const repace of repaces) records.push({ kind: 'repace.set', repace });
+  for (const kept of [...state.keptClashes.values()].sort((a, b) => compareText(a.id, b.id))) {
+    records.push({ kind: 'clash.kept', kept });
+  }
+  const moves = [...state.moves.values()].sort(
+    (a, b) => compareDays(a.day, b.day) || compareSlots(a.from, b.from) || compareText(a.id, b.id),
+  );
+  for (const move of moves) records.push({ kind: 'move.set', move });
   return records;
 }
 
