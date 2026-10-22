@@ -7,7 +7,8 @@
 // each session written freely and no buffer or delay counted from it.
 // «كتابة العناصر», once confirmed, leaves the pack for the class's own list,
 // which proposes the next item in each session; «تغيير الحزمة» can pin a
-// release again.
+// release again. «سؤال المفتش» prints a sheet with the pack, its release
+// and its reason, to show the inspector.
 // A release in force, once published, shows in «تغيير الحزمة».
 
 import type { PackItem, PlanPack, PlanRow } from '@minhajna/core';
@@ -27,9 +28,11 @@ export type StalePlanProps = {
   readonly heads: readonly PackItem[];
   /** Leaves the pack and opens the class's own list, once confirmed. */
   readonly onWrite?: () => void;
+  /** Opens «سؤال المفتش», the sheet to print for the inspector. */
+  readonly onAsk?: () => void;
 };
 
-export function StalePlan({ pack, rows, heads, onWrite }: StalePlanProps) {
+export function StalePlan({ pack, rows, heads, onWrite, onAsk }: StalePlanProps) {
   const t = useText();
   const { direction } = useLocale();
   const [care, setCare] = useState(false);
@@ -67,6 +70,14 @@ export function StalePlan({ pack, rows, heads, onWrite }: StalePlanProps) {
                 { text: t('classPlan.stale.writeConfirm'), onPress: onWrite },
               ])
             }
+          />
+        )}
+        {onAsk !== undefined && (
+          <OptionRow
+            testID="plan-stale-ask"
+            label={t('staleQuestion.title')}
+            sub={t('staleQuestion.openSub')}
+            onPress={onAsk}
           />
         )}
         <Text style={[styles.note, align]}>{t('classPlan.stale.newer')}</Text>

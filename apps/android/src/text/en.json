@@ -490,6 +490,25 @@
     "row": "{{label}}, by class: {{values}}",
     "value": "{{value}} for {{name}}"
   },
+  "staleQuestion": {
+    "title": "Question for the inspector",
+    "subtitle": "Stale plan · A4 portrait",
+    "intro": "A sheet to print and show the inspector: the pack, its release and why it is stale, and a question about which plan to follow. Nothing is sent.",
+    "openSub": "Prints a sheet with the pack, its release and why it is stale, to show the inspector. Nothing is sent.",
+    "none": "No question for this class: its pack is not stale.",
+    "classes_one": "Class: {{classes}}",
+    "classes_other": "Classes: {{classes}}",
+    "packHead": "The pack",
+    "foundAt": "File found at: {{place}}",
+    "reasonHead": "Why it is stale",
+    "noReason": "The pack does not say why it is stale.",
+    "questionHead": "The question",
+    "question": "Which plan should this class follow until an edition in force comes out for this level?",
+    "meanwhile": "Until the answer, each session is written with what was taught, and no buffer or delay is counted from this plan.",
+    "inspectorSign": "Inspector’s answer and stamp",
+    "privacy": "The sheet holds no data about pupils, and nothing from it is sent.",
+    "file": "Question for the inspector"
+  },
   "today": {
     "help": "Help and privacy",
     "allConfirmed": "Every earlier session is confirmed",
