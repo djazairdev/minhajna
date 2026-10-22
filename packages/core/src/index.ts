@@ -46,6 +46,7 @@ export * from './format.ts';
 export * from './hijri.ts';
 export * from './hijri-read.ts';
 export * from './history.ts';
+export * from './history-inspection.ts';
 export * from './homework.ts';
 export * from './id.ts';
 export * from './joint.ts';
