@@ -322,7 +322,8 @@
     "noModel": "Le pack de cette matière n’a pas de modèle hebdomadaire : le plan propose la leçon suivante.",
     "outsidePlan": "Séance hors du plan principal : elle ne fait pas avancer le plan et a sa propre liste.",
     "listLink": "Le créneau est gardé dans le tracé, puis la liste s’ouvre.",
-    "bellLine": "Horaires selon la sonnerie de l’école : {{time}}, soit {{minutes}}."
+    "bellLine": "Horaires selon la sonnerie de l’école : {{time}}, soit {{minutes}}.",
+    "clashKept": "Conflit gardé"
   },
   "times": {
     "title": "Horaires",
@@ -626,7 +627,9 @@
       "placeholder": "Ce qui a été enseigné aujourd’hui, comme dans le cahier",
       "save": "Enregistrer la séance",
       "empty": "Écrivez ce qui a été enseigné avant d’enregistrer."
-    }
+    },
+    "sameTime": "En même temps que {{class}} · {{school}}",
+    "movedFrom": "Déplacée de {{time}} pour ce jour"
   },
   "outcome": {
     "other": "Autre résultat",
@@ -2630,5 +2633,23 @@
     "askOne": "{{olds}} sera archivée à partir du {{day}}, et {{pupils}} la quittent pour leurs nouvelles classes. Une recomposition appliquée ne s’annule pas en une seule fois.",
     "andNames": " et ",
     "day": "S’applique à partir d’aujourd’hui, {{day}} : ouvrez-la le jour où les nouvelles listes vous parviennent."
+  },
+  "clash": {
+    "title": "Les deux séances en conflit",
+    "session": "{{class}} · {{school}}",
+    "keep": "Garder les deux",
+    "keptNote": "Les deux sont gardées : Aujourd’hui montre les deux séances, vous confirmez celle qui a eu lieu et notez l’autre comme non tenue.",
+    "reopen": "Rouvrir le conflit",
+    "move": "Changer un seul jour",
+    "day": "Pour un seul jour",
+    "to": "Ce jour-là, l’une des deux passe à",
+    "toOption": "{{school}} · {{time}}",
+    "none": "Aucun créneau libre ce jour-là.",
+    "agree": "L’heure se décide avec l’école concernée.",
+    "save": "Enregistrer le changement",
+    "moved": "{{class}} · {{day}} : de {{from}} à {{to}}",
+    "unmove": "Annuler le changement",
+    "saveFirst": "La semaine s’enregistre dans un instant ; le conflit pourra ensuite être gardé.",
+    "recorded": "La séance est enregistrée : le changement reste."
   }
 }

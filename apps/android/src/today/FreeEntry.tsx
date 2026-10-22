@@ -11,7 +11,7 @@
 
 import { courseSetup, findSessionType, isJoint, type Context, type Details, type TodaySession } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { DueStripProps } from '../components/DueStrip';
 import { SessionCard, type SessionMeta } from '../components/SessionCard';
@@ -52,12 +52,14 @@ export interface FreeEntryProps {
   readonly why: 'missing' | 'none' | 'stale';
   readonly meta: SessionMeta;
   readonly due: readonly DueStripProps[];
+  /** What the card says of its time, such as «يتزامن مع …». */
+  readonly extra?: ReactNode;
   readonly onRecord: (details: Details) => void;
   readonly onDetails: () => void;
 }
 
 /** The focus card of a session written freely. */
-export function FreeEntry({ testID, item, why, meta, due, onRecord, onDetails }: FreeEntryProps) {
+export function FreeEntry({ testID, item, why, meta, due, extra: before, onRecord, onDetails }: FreeEntryProps) {
   const t = useText();
   const { direction } = useLocale();
   const { profile } = useAppData();
@@ -67,6 +69,7 @@ export function FreeEntry({ testID, item, why, meta, due, onRecord, onDetails }:
   const language = subjectLanguage(profile, item.course.subject, currentLanguage());
   const extra = (
     <View style={styles.extra}>
+      {before}
       <Text style={[styles.why, { writingDirection: direction, textAlign: 'start' }]}>{t(`today.free.${why}`)}</Text>
       <TextField
         testID={`${testID}-free`}

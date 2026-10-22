@@ -209,7 +209,11 @@ export function WeekDraw({
           slots={labels.slots}
           cell={(day, slot) => {
             const cell = labels.cellOf(day, slot);
-            return gridCell(t, version, records.lookup, cell, { schools: marks.schools, clash: marks.clashAt(cell) });
+            return gridCell(t, version, records.lookup, cell, {
+              schools: marks.schools,
+              clash: marks.clashAt(cell),
+              kept: marks.keptAt(cell),
+            });
           }}
           cellName={labels.cellName}
           cellHint={pen === 'details' ? t('week.detailsHint') : t('week.cellHint')}

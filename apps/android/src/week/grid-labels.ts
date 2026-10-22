@@ -81,6 +81,8 @@ export function gridCell(
   marks: {
     readonly schools?: (schoolId: string) => string | undefined;
     readonly clash?: boolean;
+    /** The clash is kept, «الإبقاء على الاثنين»: still outlined, read as kept (#232). */
+    readonly kept?: boolean;
     /** Isolates the names in `spoken`, for text shown on screen rather than read out. */
     readonly shown?: boolean;
   } = {},
@@ -127,7 +129,8 @@ export function gridCell(
   const spoken = parts.map((part) => part.spoken).join(comma);
   return {
     label: parts.map((part) => part.short).join('\n'),
-    spoken: marks.clash === true ? `${t('week.clash')}${comma}${spoken}` : spoken,
+    spoken:
+      marks.clash === true ? `${t(marks.kept === true ? 'week.clashKept' : 'week.clash')}${comma}${spoken}` : spoken,
     kind: items.some((item) => item.kind === 'class') ? 'class' : 'own',
     ...(marks.clash === true && { clash: true }),
   };
@@ -135,14 +138,33 @@ export function gridCell(
 
 const cellKey = (cell: Cell) => `${cell.weekday}:${cell.slot.half}:${cell.slot.index}`;
 
-/** The marks of a week: school names when it holds classes of two schools or more, and its clashing slots. */
+/**
+ * The version the drawing's marks are kept against: itself once recorded, or the recorded version whose week it has
+ * not changed, under that version's ID; null while the drawing has changes not yet recorded.
+ */
+export function markedVersion(state: Pick<State, 'timetables'>, version: TimetableVersion): TimetableVersion | null {
+  if (state.timetables.some((one) => one.version.id === version.id)) return version;
+  const week = (one: TimetableVersion) => JSON.stringify([one.entries, one.blocks]);
+  const same = [...state.timetables].reverse().find((one) => week(one.version) === week(version));
+  return same === undefined ? null : { ...version, id: same.version.id };
+}
+
+/**
+ * The marks of a week: school names when it holds classes of two schools or more, its clashing slots, and those the
+ * teacher kept (#232), against the recorded week the drawing belongs to, which `clashes`, the open ones, leaves out.
+ */
 export function weekMarks(version: TimetableVersion, state: State, classes: readonly SchoolClass[]) {
   const schoolIds = new Set(classes.map((schoolClass) => schoolClass.schoolId));
-  const clashes = new Map(weekClashes(version, state).map((clash) => [cellKey(clash), clash]));
+  const clashes = new Map(
+    weekClashes(markedVersion(state, version) ?? version, state).map((one) => [cellKey(one), one]),
+  );
   return {
     schools: schoolIds.size > 1 ? (schoolId: string) => state.schools.get(schoolId)?.name : undefined,
     clashAt: (cell: Cell) => clashes.has(cellKey(cell)),
-    clashes: [...clashes.values()].map((clash): Cell => ({ weekday: clash.weekday, slot: clash.slot })),
+    keptAt: (cell: Cell) => clashes.get(cellKey(cell))?.kept === true,
+    clashes: [...clashes.values()]
+      .filter((clash) => !clash.kept)
+      .map((clash): Cell => ({ weekday: clash.weekday, slot: clash.slot })),
   };
 }
 

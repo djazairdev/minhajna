@@ -7,7 +7,9 @@
 // slot needs, keeps an activity type only on a session of the main plan,
 // and hands the drawing its new version; closing keeps nothing. Opening a
 // class's list keeps the slot in the drawing first.
-// A class archived after a reorientation is not offered (#231).
+// A class archived after a reorientation is not offered (#231). A clash of
+// two schools in the drawn week is kept or moved for one day there, the
+// sheet then editing nothing else, so neither session is lost (#232).
 
 import type { ListKind, TimetableVersion } from '@minhajna/core';
 import { weekClashes } from '@minhajna/core';
@@ -21,6 +23,8 @@ import { colors, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { gridCell, slotSpoken } from './grid-labels';
+import { ClashPanel } from './ClashPanel';
+import { schoolsClash } from './clash-rules';
 import { ItemEditor } from './ItemEditor';
 import { itemsAt, otherWeek, setItems, withActivity, type SlotItem } from './slot-rules';
 import type { useWeekRecords } from './useWeekRecords';
@@ -65,7 +69,9 @@ function SlotEditor({
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
-  const { state, profile, newId } = useAppData();
+  const data = useAppData();
+  const { state, profile, newId } = data;
+  const schools = schoolsClash(version, data, cell) !== undefined;
   const [items, setItemsState] = useState<SlotItem[]>(() => itemsAt(version, records.lookup, cell).slice(0, 2));
   const classes = [...state.classes.values()].filter(
     (schoolClass) => state.schools.has(schoolClass.schoolId) && schoolClass.archivedFrom === undefined,
@@ -136,16 +142,19 @@ function SlotEditor({
       </View>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         {clashes.length > 0 && <Notice testID="slot-clash" variant="notice" badge={t('week.clash')} message={named} />}
-        <ItemEditor
-          testID="slot-0"
-          cell={cell}
-          item={first ?? null}
-          onChange={(item) => change(0, item)}
-          classes={classes}
-          {...(fresh !== undefined && { fresh })}
-          {...list}
-        />
-        {pair !== null && (
+        <ClashPanel version={version} cell={cell} />
+        {!schools && (
+          <ItemEditor
+            testID="slot-0"
+            cell={cell}
+            item={first ?? null}
+            onChange={(item) => change(0, item)}
+            classes={classes}
+            {...(fresh !== undefined && { fresh })}
+            {...list}
+          />
+        )}
+        {!schools && pair !== null && (
           <ItemEditor
             testID="slot-1"
             cell={cell}
@@ -157,14 +166,16 @@ function SlotEditor({
           />
         )}
       </ScrollView>
-      <View style={[styles.foot, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <View style={styles.action}>
-          <Button testID="slot-remove" variant="line" label={t('week.removeSlot')} onPress={() => save([])} />
+      {!schools && (
+        <View style={[styles.foot, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
+          <View style={styles.action}>
+            <Button testID="slot-remove" variant="line" label={t('week.removeSlot')} onPress={() => save([])} />
+          </View>
+          <View style={styles.action}>
+            <Button testID="slot-save" label={t('week.saveSlot')} onPress={() => save(kept)} />
+          </View>
         </View>
-        <View style={styles.action}>
-          <Button testID="slot-save" label={t('week.saveSlot')} onPress={() => save(kept)} />
-        </View>
-      </View>
+      )}
     </View>
   );
 }

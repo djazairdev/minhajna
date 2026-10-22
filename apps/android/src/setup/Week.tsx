@@ -96,6 +96,7 @@ export function Week({
                 return gridCell(t, timetable.version, lookup, cell, {
                   schools: marks?.schools,
                   clash: marks?.clashAt(cell),
+                  kept: marks?.keptAt(cell),
                 });
               }}
               cellName={labels.cellName}

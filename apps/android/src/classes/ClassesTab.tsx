@@ -68,7 +68,7 @@ export function ClassesTab({
   const many = sections.length > 1;
   const comma = currentLanguage() === 'ar' ? '، ' : ', ';
   const version = versionOn(state.timetables, day);
-  const clashes = version === null ? 0 : weekClashes(version, state).length;
+  const clashes = version === null ? 0 : weekClashes(version, state).filter((clash) => !clash.kept).length;
   const specialist = rows.some((row) => specialistRoll(context, row.schoolClass));
   const schools = many
     ? [t('count.groups', { count: groups(rows) }), t('count.schools', { count: sections.length })].join(' · ')

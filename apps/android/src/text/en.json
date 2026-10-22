@@ -313,7 +313,8 @@
     "noModel": "This subject’s pack has no weekly model, so the plan proposes the next lesson.",
     "outsidePlan": "A session outside the main plan: it does not move the plan, and it has its own list.",
     "listLink": "The slot is kept in the drawing, then the list opens.",
-    "bellLine": "Times from the school’s bells: {{time}}, that is {{minutes}}."
+    "bellLine": "Times from the school’s bells: {{time}}, that is {{minutes}}.",
+    "clashKept": "Kept clash"
   },
   "times": {
     "title": "Bell times",
@@ -611,7 +612,9 @@
       "placeholder": "What was taught today, as it goes in the book",
       "save": "Record the session",
       "empty": "Write what was taught before recording."
-    }
+    },
+    "sameTime": "At the same time as {{class}} · {{school}}",
+    "movedFrom": "Moved from {{time}} for this day"
   },
   "outcome": {
     "other": "Another outcome",
@@ -2583,5 +2586,23 @@
     "askOne": "{{olds}} will be archived from {{day}}, and {{pupils}} leave it for their new classes. A reshaping can’t be undone in one step once applied.",
     "andNames": " and ",
     "day": "Applies from today, {{day}}: open it on the day the new class lists reach you."
+  },
+  "clash": {
+    "title": "The two clashing sessions",
+    "session": "{{class}} · {{school}}",
+    "keep": "Keep both",
+    "keptNote": "Both kept: Today shows both sessions, so you confirm the one held and record the other as not held.",
+    "reopen": "Reopen the clash",
+    "move": "Change one day",
+    "day": "For one day",
+    "to": "That day, one of them moves to",
+    "toOption": "{{school}} · {{time}}",
+    "none": "No free time that day.",
+    "agree": "Agree the time with the school concerned.",
+    "save": "Save the move",
+    "moved": "{{class}} · {{day}}: from {{from}} to {{to}}",
+    "unmove": "Move it back",
+    "saveFirst": "The week saves in a moment; then the clash can be kept.",
+    "recorded": "The session is recorded: the move stays."
   }
 }
