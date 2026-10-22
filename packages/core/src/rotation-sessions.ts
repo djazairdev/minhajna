@@ -120,14 +120,21 @@ export function halfTurns(context: Context): Turns {
  * the activity each half has.
  */
 export function rotationCredits(sessions: readonly Session[], turns?: Turns): number {
-  let credits = 0;
+  return sessionCredits(sessions, turns).reduce((sum, credit) => sum + credit, 0);
+}
+
+/** Each session's part of `rotationCredits`, in the order given: 1 when it ends a round or stands alone. */
+export function sessionCredits(sessions: readonly Session[], turns?: Turns): number[] {
+  const credits = sessions.map(() => 0);
   const cohorts = new Map<string, Map<string, number>>();
-  for (const session of [...sessions].sort(compareSessions)) {
+  const order = sessions.map((_, index) => index).sort((a, b) => compareSessions(sessions[a]!, sessions[b]!));
+  for (const index of order) {
+    const session = sessions[index]!;
     const scope = `${session.courseId}/${session.activity ?? ''}/`;
     const halves = session.rotation === undefined ? turns?.(session) : undefined;
     const groups = session.rotation?.groups ?? halves;
     if (groups === undefined) {
-      credits += 1;
+      credits[index] = 1;
       for (const key of cohorts.keys()) if (key.startsWith(scope)) cohorts.delete(key);
       continue;
     }
@@ -135,7 +142,7 @@ export function rotationCredits(sessions: readonly Session[], turns?: Turns): nu
     const cohort = cohorts.get(key) ?? new Map<string, number>();
     cohort.set(session.groupId, (cohort.get(session.groupId) ?? 0) + 1);
     if (groups.every((id) => (cohort.get(id) ?? 0) > 0)) {
-      credits += 1;
+      credits[index] = 1;
       for (const id of groups) cohort.set(id, cohort.get(id)! - 1);
     }
     cohorts.set(key, cohort);
