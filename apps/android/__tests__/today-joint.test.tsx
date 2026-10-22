@@ -3,7 +3,8 @@
 
 // A joint class on Today (#43, P-Multi): one card for each slot with every
 // year on its own plan, one tap confirming every year's proposal or a tap on
-// one confirming it alone, its undo, and one roll call for the class.
+// one confirming it alone, its undo, and one roll call for the class's half
+// day, in its band (#230).
 // Made-up schools, classes and timetables only.
 
 import { current, parseDay, type TimetableEntry } from '@minhajna/core';
@@ -116,7 +117,7 @@ const shown = () =>
     .map((node) => [node.props.children as unknown].flat().join(''));
 const recorded = (data: TestData, key: string) => current(data.book.state.sessions.get(key));
 
-test('shows each slot once, each year on its own plan, with one roll call', async () => {
+test('shows each slot once, each year on its own plan, with one roll call for the half day', async () => {
   await show(await withJoint());
   expect(has(`${card(1)}-year-5ap`)).toBe(true);
   expect(has(`${card(1)}-details-4ap`)).toBe(true);
@@ -129,7 +130,7 @@ test('shows each slot once, each year on its own plan, with one roll call', asyn
       .findAll((node) => String(node.props.testID).endsWith('-roll-open'))
       .map((node) => String(node.props.testID)),
   );
-  expect(rolls.size).toBe(2);
+  expect([...rolls]).toEqual(['today-band-morning-roll-open']);
   expect(accessibilityProblems(root())).toEqual([]);
 });
 

@@ -100,11 +100,18 @@ export function useTodayActions(
     setDone({ key, undo, message });
   };
 
-  const confirmAll = (items: readonly TodaySession[], key = 'backlog') => {
+  const confirmAll = (
+    items: readonly TodaySession[],
+    key = 'backlog',
+    detailsOf: (item: TodaySession) => Details | undefined = () => undefined,
+  ) => {
     recordAll(
       confirmSessions(
         context,
-        items.map((item) => ({ session: item.session })),
+        items.map((item) => {
+          const details = detailsOf(item);
+          return { session: item.session, ...(details !== undefined && { details }) };
+        }),
       ),
     );
     hold(pilot.timings('session', items.length, pilot.lap(), true));

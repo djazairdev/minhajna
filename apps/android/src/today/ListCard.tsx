@@ -14,6 +14,7 @@ import {
   listKey,
   listOfType,
   listPairs,
+  pairedItem,
   type Choice,
   type Context,
   type Details,
@@ -159,6 +160,14 @@ export function ListCard({ testID, meta, item, kind, context, focus, due, onReco
       </BottomSheet>
     </View>
   );
+}
+
+/** The details that record a session as proposed: for a list session, its paired item, finished. */
+export function listDetails(context: Context): (item: TodaySession) => Details | undefined {
+  return (item) => {
+    const taken = pairedItem(context, item.session);
+    return taken === null ? undefined : { listItem: { id: taken.id, finished: true } };
+  };
 }
 
 /** The list a session awaiting confirmation takes, or null for one of the main plan. */

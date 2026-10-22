@@ -92,3 +92,11 @@ export function supportItemFor(context: Context, courseId: string, from: Day, sc
   const paired = scheduledSupport(context, courseId, from).find((one) => one.catchUp.id === scheduled);
   return paired === undefined ? nextSupportItem(context.state, courseId) : paired.item;
 }
+
+/** The item of its list a «معالجة» or «دعم» session awaiting confirmation takes; null for any other. */
+export function pairedItem(context: Context, session: Session): SupportItem | null {
+  const kind = listOfType(session.sessionType);
+  if (kind === null) return null;
+  const pairs = listPairs(context, session.courseId, kind, session.day, 1);
+  return pairs.find((pair) => pair.session?.key === session.key)?.item ?? null;
+}

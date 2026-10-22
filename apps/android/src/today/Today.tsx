@@ -29,6 +29,7 @@ import {
   todayView,
   weekday,
   type Choice,
+  type Day,
   type Details,
   type HomeworkItem,
   type Session,
@@ -61,15 +62,20 @@ import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
-import { todayEntries } from './joint-today';
-import { ListCard, listOfSession, listWritten } from './ListCard';
+import { todayEntries, type TodayEntry } from './joint-today';
+import { bandRoll, DayBands, isPrimaryDay } from './DayBands';
+import { ListCard, listDetails, listOfSession, listWritten } from './ListCard';
 import { useTodayActions } from './today-actions';
 import { sessionMeta } from './today-meta';
 
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
 
-/** The Today tab; `onHelp` opens Help and the privacy notice, `onExtra` a session outside the timetable, `onDetails` a session's details, `onRoll` its roll call, `onHomework` the homework that comes back, `onCalendarUpdate` what a calendar update applied today changed. */
+/**
+ * The Today tab; `onHelp` opens Help, `onExtra` a session outside the timetable, `onDetails` a session's details,
+ * `onRoll` its roll call, `onHomework` the homework that comes back, `onCalendarUpdate` what an update changed,
+ * and `onJournal` a primary day's journal.
+ */
 export function Today(props: {
   onHelp: () => void;
   onSettings?: () => void;
@@ -80,6 +86,7 @@ export function Today(props: {
   onExams?: TodayExamsOpen;
   onCalendarUpdate?: (release: string) => void;
   onRamadan?: RamadanOpen;
+  onJournal?: (day: Day) => void;
 }) {
   const { onHelp, onDetails, onRoll, onExtra, onHomework = () => undefined } = props;
   const insets = useSafeAreaInsets();
@@ -104,10 +111,10 @@ export function Today(props: {
   const taken = mark === null ? specialLost(view, specials) : view.sessions.length - shown.length;
   const noneLeft = (mark !== null || taken > 0) && (mark === null ? view.sessions.length - taken : shown.length) === 0;
   const next = useMemo(() => (noneLeft ? nextSession(context, day) : null), [context, day, noneLeft]);
-  const focus = view.sessions.find((item) => item.proposal !== null || listOfSession(item) !== null);
-
+  const ready = shown.filter((item) => item.proposal !== null || listOfSession(item) !== null);
+  const [focus] = ready;
+  const banded = isPrimaryDay(state, shown);
   const { done, confirm, confirmAll, keepReason, undo } = useTodayActions(context, t, record, recordAll);
-
   const metaOf = (item: TodaySession, withSubject: boolean) =>
     sessionMeta({ state, profile, bells, calendar }, t, direction, item, withSubject);
 
@@ -123,7 +130,7 @@ export function Today(props: {
     const key = item.session.key;
     const testID = `today-${key}`;
     const pack = courseSetup(context, item.course.id).pack;
-    const due = dueStrips(t, context, [item.session], onRoll, onHomework);
+    const due = dueStrips(t, context, [item.session], onRoll, onHomework, !banded || !bandRoll(context, item.session));
     if (item.status === 'recorded' && item.record !== null) {
       return (
         <SessionCard
@@ -176,6 +183,19 @@ export function Today(props: {
     return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lesson} due={due} />;
   };
 
+  const entry = (one: TodayEntry) =>
+    one.kind === 'one' ? (
+      card(one.item)
+    ) : (
+      <TodayJoint
+        key={one.key}
+        slotKey={one.key}
+        items={one.items}
+        roll={!banded || !one.items.some((item) => bandRoll(context, item.session))}
+        {...{ focus, context, metaOf, confirm, confirmAll, onDetails, onRoll, onHomework }}
+      />
+    );
+
   return (
     <View style={[styles.screen, { direction, paddingTop: insets.top }]}>
       <ScrollView
@@ -216,17 +236,17 @@ export function Today(props: {
               paper={<PaperRolls context={context} from={backlog.week ?? day} to={addDays(day, -1)} onRoll={onRoll} />}
             />
           )}
-          {todayEntries(state, shown).map((entry) =>
-            entry.kind === 'one' ? (
-              card(entry.item)
-            ) : (
-              <TodayJoint
-                key={entry.key}
-                slotKey={entry.key}
-                items={entry.items}
-                {...{ focus, context, metaOf, confirm, confirmAll, onDetails, onRoll, onHomework }}
-              />
-            ),
+          {banded ? (
+            <DayBands
+              entries={todayEntries(state, shown)}
+              render={entry}
+              context={context}
+              onRoll={onRoll}
+              {...(ready.length > 1 && { onConfirmDay: () => confirmAll(ready, 'day', listDetails(context)) })}
+              {...(props.onJournal && { onJournal: () => props.onJournal?.(day) })}
+            />
+          ) : (
+            todayEntries(state, shown).map(entry)
           )}
           {props.onExams?.support && <SupportToday day={day} onLog={props.onExams.support} />}
           {mark?.effect !== 'exam' && taken > 0 && (
