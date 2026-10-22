@@ -2420,7 +2420,8 @@
   "listToday": {
     "heading": {
       "support": "Liste de soutien de la classe",
-      "remediation": "Liste de remédiation de la classe"
+      "remediation": "Liste de remédiation de la classe",
+      "td": "Liste de TD de la classe"
     },
     "empty": {
       "support": "Aucun élément de la liste de soutien pour cette séance.",
@@ -2428,7 +2429,8 @@
     },
     "note": {
       "support": "Les séances de soutien ont leur liste et ne font pas avancer le plan principal. La place de la classe dans le plan de {{subject}} reste la même.",
-      "remediation": "Les séances de remédiation ont leur liste et ne font pas avancer le plan principal. La place de la classe dans le plan de {{subject}} reste la même."
+      "remediation": "Les séances de remédiation ont leur liste et ne font pas avancer le plan principal. La place de la classe dans le plan de {{subject}} reste la même.",
+      "td": "Les séances de TD ont leur liste et ne font pas avancer le plan principal."
     },
     "today": "Aujourd’hui",
     "next": "Séance suivante",
@@ -2438,7 +2440,10 @@
     "heldOpenSub": "{{item}} reste pour la séance suivante.",
     "notHeldSub": "{{item}} revient à la séance suivante.",
     "writtenOpen": "{{title}}, non terminé",
-    "removed": "Élément retiré de la liste"
+    "removed": "Élément retiré de la liste",
+    "afterTest": "Après le devoir",
+    "tdMain": "{{name}} en est à {{title}}, séance {{n}} sur {{of}}.",
+    "tdSession": "{{title}}, séance {{n}} sur {{of}}"
   },
   "repace": {
     "title": "Répartir de nouveau le reste du trimestre",

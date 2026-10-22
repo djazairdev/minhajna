@@ -18,7 +18,8 @@
 // each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a
 // school event makes a special day, with a line and a card, and so does
 // Ramadan, with its cards (#224). Support sessions due show too (#228).
-// A half-group's session shows each half's turn at its item (#231).
+// A half-group's session shows each half's turn at its item, and a TD
+// session the TD queue's next items (#231).
 
 import {
   addDays,
@@ -68,7 +69,7 @@ import { bandRoll, DayBands, DayEnd, isPrimaryDay } from './DayBands';
 import { ListCard, listDetails, listOfSession, listWritten } from './ListCard';
 import { useTodayActions } from './today-actions';
 import { nextLine, sessionMeta } from './today-meta';
-import { HalfPair, useHalfPairs } from './HalfPair';
+import { useCardExtras } from './card-extras';
 
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
@@ -106,7 +107,7 @@ export function Today(props: {
     [profile, year, calendar, calendarRelease, packs, state],
   );
   const view = useMemo(() => todayView(context, day), [context, day]);
-  const pairs = useHalfPairs(context, view.sessions, day);
+  const extrasOf = useCardExtras(context, view.sessions, day);
   const backlog = useMemo(() => backlogOf(context, day), [context, day]);
   const mark = dayMarkOf(view);
   const specials = specialEntries(view);
@@ -126,8 +127,7 @@ export function Today(props: {
     const testID = `today-${key}`;
     const pack = courseSetup(context, item.course.id).pack;
     const due = dueStrips(t, context, [item.session], onRoll, onHomework, !banded || !bandRoll(context, item.session));
-    const pair = pairs.get(key) ?? null;
-    const extra = pair && <HalfPair data={pair} testID={`${testID}-pair`} />;
+    const { td, half, extra } = extrasOf(item, testID, metaOf(item, false).className);
     if (item.status === 'recorded' && item.record !== null) {
       return (
         <SessionCard
@@ -165,9 +165,9 @@ export function Today(props: {
           testID={testID}
           kind="focus"
           meta={metaOf(item, true)}
-          proposal={proposalOf(t, pack, item.proposal)}
+          {...(!td && { proposal: proposalOf(t, pack, item.proposal) })}
           {...{ due, extra }}
-          confirm={pair === null ? t('today.confirm') : t('today.confirmHalf', { n: pair.number })}
+          confirm={half === undefined ? t('today.confirm') : t('today.confirmHalf', { n: half })}
           onConfirm={() => confirm(item)}
           more={[
             { id: 'other', label: t('outcome.other'), onPress: () => setSheet({ item, open: true }), ref: other },
@@ -177,9 +177,8 @@ export function Today(props: {
       );
     }
     const lesson = lessonOf(t, item, pack);
-    return (
-      <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...{ ...lesson, due, extra }} />
-    );
+    const mini = { ...(!td && lesson), due, extra };
+    return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...mini} />;
   };
 
   const entry = (one: TodayEntry) =>

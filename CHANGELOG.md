@@ -91,6 +91,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يأتي «تأكيد اليوم كله كما هو مقترح» بعد بطاقات اليوم في كل الأطوار، لا في الابتدائي وحده. ويقول السبت الذي فيه حصص في استعمال الزمن إنه يوم دراسة. والفوجان اللذان يأخذان درس المخطط بالتناوب يُحسبان مرة واحدة للقسم، يوم يأخذه الفوج الثاني.
 - A half-group's session on Today shows both halves' turns at its lesson: its own today, and the other half's day and week letter, the whole class's session that takes it first, or that it has had it. The lesson is done for the class once both halves have had it, and the card's tap says which half it records: «تمّت للفوج 1».
   - تعرض حصة الفوج في «اليوم» دور الفوجين في درسها: دورها اليوم، ويوم الفوج الآخر وحرف أسبوعه، أو حصة القسم كله التي تأخذه قبله، أو أنه أنجزه. ويُعدّ الدرس منجزاً للقسم حين يمرّ به الفوجان، ويذكر زر البطاقة الفوج الذي يسجّله: «تمّت للفوج 1».
+- A directed-work session on Today shows the class's next three directed-work items in place of the proposal, with «اليوم», «الحصة القادمة» and «بعدها», or «بعد الفرض» after a test of the class. Its card says directed work never moves the main plan, and where the main plan stands.
+  - تعرض حصة الأعمال الموجهة في «اليوم» العناصر الثلاثة الموالية من قائمة الأعمال الموجهة للقسم بدل الاقتراح، مع «اليوم» و«الحصة القادمة» و«بعدها»، أو «بعد الفرض» بعد فرض القسم. وتذكر البطاقة أن الأعمال الموجهة لا يتقدّم بها المخطط الرئيسي، وأين يقف.
 
 ### Changed
 
