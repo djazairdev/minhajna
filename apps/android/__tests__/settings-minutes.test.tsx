@@ -31,7 +31,12 @@ test.each(['ar', 'fr', 'en'] as const)(
     const before = pace(context, 'c-1', parseDay('2026-10-15'));
     const history = [...data.book.entries];
     await showSettingsScreen(
-      <ClassesTab onClass={() => undefined} onBook={() => undefined} onWeek={() => undefined} />,
+      <ClassesTab
+        onClass={() => undefined}
+        onBook={() => undefined}
+        onWeek={() => undefined}
+        onDigest={() => undefined}
+      />,
       data,
       language,
     );

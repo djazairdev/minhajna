@@ -10,8 +10,9 @@
 // counting the groups, archived ones aside, and the schools, and a card for the
 // merged week saying whether a clash is open, which opens the week. A
 // specialist, in one school or more, is told that each class's register counts
-// only their sessions, called one by one. The year switch, the weekly digest,
-// the attendance and the roll call button come with their own issues.
+// only their sessions, called one by one. «ملخص الأسبوع» opens the weekly
+// digest (#234). The year switch, the attendance and the roll call button
+// come with their own issues.
 
 import { courseSetup, versionOn, weekClashes } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -34,15 +35,17 @@ import { isolate } from '../week/grid-labels';
 import { bySchool, classRows, paceLine, specialistRoll, type ClassRow } from './class-rules';
 import { useCountMinutes } from '../settings/preferences';
 
-/** The tab; `onClass` opens a class's page, `onBook` its texts book, and `onWeek` the week. */
+/** The tab; `onClass` opens a class's page, `onBook` its texts book, `onWeek` the week and `onDigest` the digest. */
 export function ClassesTab({
   onClass,
   onBook,
   onWeek,
+  onDigest,
 }: {
   onClass: (courseId: string) => void;
   onBook: (courseId: string) => void;
   onWeek: () => void;
+  onDigest: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -111,6 +114,15 @@ export function ClassesTab({
             .join(' · ')}
         />
         <View style={styles.list}>
+          {rows.length > 0 && (
+            <RowLink
+              testID="classes-digest"
+              icon={controlIcon('info')}
+              title={t('digest.title')}
+              description={t('digest.rowNote')}
+              onPress={onDigest}
+            />
+          )}
           {specialist && (
             <Notice testID="classes-register" icon={controlIcon('pupils')} message={t('classes.register')} />
           )}

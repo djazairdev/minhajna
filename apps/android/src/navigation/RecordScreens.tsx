@@ -175,7 +175,7 @@ export function CorrectScreen({ navigation, route }: NativeStackScreenProps<Root
   );
 }
 
-/** The Classes tab; a class's «المخطط» opens its plan, and the merged week's card the week. */
+/** The Classes tab: a class's page, its texts book, the merged week and «ملخص الأسبوع». */
 export function ClassesTabScreen({
   navigation,
 }: CompositeScreenProps<
@@ -187,6 +187,7 @@ export function ClassesTabScreen({
       onClass={(courseId) => navigation.navigate('Class', { courseId })}
       onBook={(courseId) => navigation.navigate('TextsBook', { courseId })}
       onWeek={() => navigation.navigate('SettingsWeek')}
+      onDigest={() => navigation.navigate('Digest')}
     />
   );
 }

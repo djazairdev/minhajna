@@ -12,6 +12,7 @@ import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-
 import { useLayoutEffect, useRef, useState } from 'react';
 import { View, type ViewInstance } from 'react-native';
 import { ClassPage } from '../classes/ClassPage';
+import { Digest } from '../digest/Digest';
 import { courseGroup } from '../classes/class-page-rules';
 import { Reorient } from '../reorient/Reorient';
 import { IconButton } from '../components/IconButton';
@@ -81,7 +82,19 @@ export function ReorientScreen({ navigation, route }: NativeStackScreenProps<Roo
   return <Reorient classId={route.params.classId} onDone={() => navigation.navigate('Home', { screen: 'Classes' })} />;
 }
 
-/** The Class page and the screens only it opens, for the app's navigator. */
+/** The weekly digest: its rows open Today's list, a make-up, the catch-up options or a class's plan. */
+export function DigestScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Digest'>) {
+  return (
+    <Digest
+      onBacklog={() => navigation.navigate('Home', { screen: 'Today' })}
+      onMakeUp={(courseId) => navigation.navigate('CatchUpAdd', { courseId })}
+      onCatchUp={(courseId) => navigation.navigate('CatchUp', { courseId })}
+      onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })}
+    />
+  );
+}
+
+/** The Class page, the weekly digest and the screens only they open, for the app's navigator. */
 export function classRoutes(
   Stack: ReturnType<typeof createNativeStackNavigator<RootStackParamList>>,
   t: ReturnType<typeof useText>,
@@ -91,6 +104,7 @@ export function classRoutes(
     <>
       <Stack.Screen name="Class" component={ClassScreen} options={dark(t('classPage.title'))} />
       <Stack.Screen name="Reorient" component={ReorientScreen} options={dark(t('reorient.title'))} />
+      <Stack.Screen name="Digest" component={DigestScreen} options={dark(t('digest.title'))} />
     </>
   );
 }
