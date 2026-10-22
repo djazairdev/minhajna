@@ -9,6 +9,7 @@
 // read as untrusted: every field is checked, only the format's fields are
 // kept, and a problem is a fixed code, never the file's own text.
 
+import { courseDecisions } from './lineage.ts';
 import { isOneLine } from './calendar-notice-read.ts';
 import { canonicalJson } from './canonical.ts';
 import type { Context } from './context.ts';
@@ -179,7 +180,7 @@ export interface LayerAbout {
  */
 export function layerFromChanges(context: Context, courseId: string, about: LayerAbout): PlanLayer {
   const pack = context.state.courses.get(courseId)?.pack?.id;
-  const changes = changesFor(context.state.decisions, courseId);
+  const changes = changesFor(courseDecisions(context.state, courseId), courseId);
   if (pack === undefined || changes.length === 0)
     throw new RangeError('A layer needs a class with changes to its pack');
   const level: LayerLevel = 'school';

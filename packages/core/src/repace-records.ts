@@ -11,6 +11,7 @@
 // director's approval date is kept with it, with the printed draft the
 // director approved (Decision 839 Art. 12, answers 369 and 372).
 
+import { lineageIds } from './lineage.ts';
 import { compareDays, type Day } from './day.ts';
 import type { State } from './state-type.ts';
 
@@ -36,8 +37,9 @@ export interface Repace {
 
 /** A course's re-paces, oldest first, in the order recorded. */
 export function repacesOf(state: State, courseId: string): Repace[] {
+  const courses = new Set(lineageIds(state, courseId));
   return [...state.repaces.values()]
-    .filter((repace) => repace.courseId === courseId)
+    .filter((repace) => courses.has(repace.courseId))
     .sort((a, b) => compareDays(a.on, b.on));
 }
 

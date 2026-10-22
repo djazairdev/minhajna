@@ -5,7 +5,9 @@
 // confirms new sessions against the proposals (PRD §4.7). Items the teacher
 // decided to leave out count as skipped from the start, when the pack
 // marks them optional (#221), and so do the items the class's own changes
-// skip (#225).
+// skip (#225). A course that continues an old class's course after the
+// school reshaped its classes starts from that class's recorded progress,
+// as a whole, its halves together included (#231).
 
 import type { Context } from './context.ts';
 import type { Day } from './day.ts';
@@ -15,6 +17,7 @@ import { checkListItem, keptListItem } from './support-queue.ts';
 import { current } from './state.ts';
 import { allowedBy, decisionsFor } from './plan-decisions.ts';
 import { skippedBy } from './plan-layer.ts';
+import { courseDecisions } from './lineage.ts';
 import { Progress, proposedCoverage, type Proposal } from './progress.ts';
 import {
   courseSetup,
@@ -45,17 +48,35 @@ function walk(
   const { ref, state } = context;
   const recorded = Progress.of(setup.schoolClass);
   const chain = Progress.of(setup.schoolClass);
-  for (const decision of decisionsFor(state.decisions, setup.course.id)) {
+  const decisions = courseDecisions(state, setup.course.id);
+  for (const decision of decisionsFor(decisions, setup.course.id)) {
     if (decision.kind !== 'leave-out' || setup.pack === null || !allowedBy(setup.pack, decision)) continue;
     recorded.leaveOut(decision.item);
     chain.leaveOut(decision.item);
   }
-  for (const item of setup.pack === null ? [] : skippedBy(setup.pack, state.decisions, setup.course.id)) {
+  for (const item of setup.pack === null ? [] : skippedBy(setup.pack, decisions, setup.course.id)) {
     recorded.leaveOut(item);
     chain.leaveOut(item);
   }
+  const older = new Map<string, Progress>();
+  const fold = () => {
+    for (const progress of older.values()) {
+      recorded.inherit(progress);
+      chain.inherit(progress);
+    }
+    older.clear();
+  };
   for (const session of sessionsBetween(context, ref.year.from, upTo, new Set([setup.course.id]))) {
     const record = ignore.has(session.key) ? null : current(state.sessions.get(session.key));
+    if (session.courseId !== setup.course.id) {
+      const schoolClass = state.classes.get(session.classId);
+      if (record === null || schoolClass === undefined) continue;
+      const progress = older.get(schoolClass.id) ?? Progress.of(schoolClass);
+      older.set(schoolClass.id, progress);
+      progress.apply(record);
+      continue;
+    }
+    fold();
     if (record !== null) {
       recorded.apply(record);
       chain.apply(record);
@@ -64,6 +85,7 @@ function walk(
     const counted = visit(session, () => proposalFor(context, setup, chain, session, session.sessionType), chain);
     if (counted !== null) chain.apply(counted);
   }
+  fold();
   return { recorded, counted: chain };
 }
 

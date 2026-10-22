@@ -18,8 +18,8 @@
 // a holiday, or any calendar mark they are free of, took on that day. Its
 // support and revision sessions are not plan sessions: only the texts book's
 // page for additional lessons lists them, and Today shows the day's mark.
-// The sessions a day takes are kept by course, slot, group and A or B week, so redrawing
-// the week keeps them.
+// The sessions a day takes are kept by course, slot, group and A or B week,
+// so redrawing the week keeps them.
 //
 // A catch-up session the teacher adds is a plan session too, on the day and
 // slot chosen, and takes a session lost on that day in the same way (#228).
@@ -32,6 +32,7 @@ import { appliesTo } from './calendar.ts';
 import type { Context } from './context.ts';
 import { compareDays, eachDay, isWithin, maxDay, minDay, weekday, type Day } from './day.ts';
 import { courseGrade, entryCourses, forGrade } from './joint.ts';
+import { ancestors } from './lineage.ts';
 import type { AddedKind } from './reference.ts';
 import type { Rotation, Slot, TimetableVersion } from './records.ts';
 import { catchUpSessions } from './catch-up-sessions.ts';
@@ -175,10 +176,14 @@ export function addedSessions(
 /**
  * The teacher's sessions from `from` to `to`, in order, with the make-up
  * sessions days adding sessions give. With `courseIds`, only those courses'
- * sessions.
+ * sessions, and the recorded sessions of the courses they continue before
+ * they took over (#231). An archived class has none from its archive day.
  */
-export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?: ReadonlySet<string>): Session[] {
+export function sessionsBetween(context: Context, from: Day, to: Day, wanted?: ReadonlySet<string>): Session[] {
   const { ref, state, calendar } = context;
+  const until = new Map<string, Day>();
+  for (const id of wanted ?? []) for (const one of ancestors(state, id)) until.set(one.courseId, one.until);
+  const courseIds = wanted === undefined ? undefined : new Set([...wanted, ...until.keys()]);
   let sessions = new Map<string, Session>();
   const first = maxDay(from, ref.year.from);
   const last = minDay(to, ref.year.to);
@@ -269,5 +274,14 @@ export function sessionsBetween(context: Context, from: Day, to: Day, courseIds?
     });
   }
 
-  return [...sessions.values()].sort(compareSessions);
+  return [...sessions.values()]
+    .filter((session) => {
+      const archived = state.classes.get(session.classId)?.archivedFrom;
+      if (archived !== undefined && compareDays(session.day, archived) >= 0) return false;
+      const ends = wanted?.has(session.courseId) === false ? until.get(session.courseId) : undefined;
+      return (
+        ends === undefined || (compareDays(session.day, ends) < 0 && current(state.sessions.get(session.key)) !== null)
+      );
+    })
+    .sort(compareSessions);
 }

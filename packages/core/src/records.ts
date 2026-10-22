@@ -76,6 +76,8 @@ export interface SchoolClass {
   readonly rollCallUnit?: RollCallUnitKind;
   /** The demo class, whose pupils are made up (PRD §1.5). */
   readonly demo?: true;
+  /** Archived from this day, when the school reshaped its classes: no sessions from it on, read and print only. */
+  readonly archivedFrom?: Day;
 }
 
 export interface PinnedPack {
@@ -95,6 +97,8 @@ export interface Course {
   readonly grade?: string;
   /** Overrides the level's usual session length. */
   readonly sessionMinutes?: number;
+  /** The old class's course whose history it takes, from the day the school reshaped its classes (#231). */
+  readonly continues?: { readonly courseId: string; readonly from: Day };
 }
 
 export type Half = 'morning' | 'afternoon';

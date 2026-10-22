@@ -8,6 +8,7 @@
 // and is never a judgement (PRD §3.1, rule 8). Progress belongs to the
 // class, the subject and the year (PRD §2.3).
 
+import { ancestors } from './lineage.ts';
 import { courseSetup } from './choices.ts';
 import type { Context } from './context.ts';
 import { compareDays, type Day } from './day.ts';
@@ -59,9 +60,12 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
   const progress = walkCourse(context, courseId, today).progress;
 
   const taught = new Map<string, { from: Day; to: Day }>();
+  const until = new Map(ancestors(state, courseId).map((one) => [one.courseId, one.until]));
+  const ours = (id: string, day: Day) => id === courseId || compareDays(day, until.get(id) ?? day) < 0;
   for (const versions of state.sessions.values()) {
     const record = current(versions);
-    if (record === null || record.session.courseId !== courseId || compareDays(record.session.day, today) > 0) continue;
+    if (record === null || !ours(record.session.courseId, record.session.day)) continue;
+    if (compareDays(record.session.day, today) > 0) continue;
     for (const cover of record.coverage) {
       if (cover.op === 'skipped') continue;
       const known = taught.get(cover.item);

@@ -9,6 +9,7 @@
 // not verified.
 
 import {
+  courseDecisions,
   courseLayers,
   courseSetup,
   findPackItem,
@@ -55,7 +56,8 @@ export function layerModel(
 ): LayerModel {
   const { pack, sessionMinutes } = courseSetup(context, courseId);
   const { on, known } = courseLayers(context.state, courseId);
-  const decisions = known.includes(layer) ? context.state.decisions : new Map(context.state.decisions);
+  const own = courseDecisions(context.state, courseId);
+  const decisions = known.includes(layer) ? own : new Map(own);
   const clash = known.some((one) => one !== layer && layerKey(one) === layerKey(layer));
   const withIt = {
     on: [...on.filter((one) => one.level !== layer.level), layer].sort(

@@ -11,6 +11,7 @@
 import {
   addedId,
   changeEffects,
+  courseDecisions,
   courseSetup,
   findPackItem,
   isChange,
@@ -100,7 +101,7 @@ export function changeLines(
   if (pack === null) return [];
   const effects = changeEffects(context, courseId);
   const line = changeText(t, context, pack, base);
-  const made = [...context.state.decisions.values()]
+  const made = [...courseDecisions(context.state, courseId).values()]
     .filter((one): one is PlanChange => isChange(one) && one.courseId === courseId)
     .sort((a, b) => b.seq - a.seq || b.id.localeCompare(a.id));
   const undone = new Set(made.flatMap((one) => (one.kind === 'undo' ? [one.change] : [])));

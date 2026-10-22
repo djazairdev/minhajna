@@ -10,6 +10,7 @@
 // The counts add up to what all the changes cost together, over the
 // district and school layers the class has on (#226).
 
+import { courseDecisions } from './lineage.ts';
 import type { Context } from './context.ts';
 import { budgetInSessions, queueItems, type PlanPack } from './pack.ts';
 import { mergesOf, type PlanDecision } from './plan-decisions.ts';
@@ -25,8 +26,9 @@ export function changeEffects(context: Context, courseId: string): ReadonlyMap<s
   const pin = course.pack;
   const pack = pin === null ? undefined : context.ref.packs.get(packKey(pin.id, pin.release));
   if (pack === undefined) return effects;
-  const others = [...context.state.decisions].filter(([, one]) => !isChange(one) || one.courseId !== courseId);
-  const changes = changesFor(context.state.decisions, courseId);
+  const own = courseDecisions(context.state, courseId);
+  const others = [...own].filter(([, one]) => !isChange(one) || one.courseId !== courseId);
+  const changes = changesFor(own, courseId);
   const total = (count: number): number => {
     const decisions = new Map<string, PlanDecision>([
       ...others,

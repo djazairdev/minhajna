@@ -9,7 +9,16 @@
 // no recorded session changes (answer 285). Under the changes lies the
 // pack's release, which every fix still reaches.
 
-import { courseSetup, formatDay, pace, recordChange, nextSeq, termCheck, type Day } from '@minhajna/core';
+import {
+  courseDecisions,
+  courseSetup,
+  formatDay,
+  nextSeq,
+  pace,
+  recordChange,
+  termCheck,
+  type Day,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
@@ -61,7 +70,7 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
         text: t('planChanges.undoGo'),
         onPress: () => {
           try {
-            const seq = nextSeq(context.state.decisions, courseId);
+            const seq = nextSeq(courseDecisions(context.state, courseId), courseId);
             record(recordChange(context, { id: newId(), courseId, day, seq, kind: 'undo', change: id }));
           } catch {
             Alert.alert(t('planChanges.title'), t('planItem.refused'));

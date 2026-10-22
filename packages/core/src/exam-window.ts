@@ -13,6 +13,7 @@
 // not TD, which the September check counts apart too. The window is the
 // course's own grade's, in a joint class as anywhere.
 
+import { courseDecisions } from './lineage.ts';
 import { courseSetup } from './choices.ts';
 import type { Context } from './context.ts';
 import { compareDays, type Day } from './day.ts';
@@ -55,7 +56,7 @@ export function pastWindow(context: Context, courseId: string, today: Day): Past
   const term = exam.term;
 
   const postponed = new Set(
-    decisionsFor(context.state.decisions, courseId).flatMap((decision) =>
+    decisionsFor(courseDecisions(context.state, courseId), courseId).flatMap((decision) =>
       decision.kind === 'postpone' && decision.term === term ? decision.items : [],
     ),
   );

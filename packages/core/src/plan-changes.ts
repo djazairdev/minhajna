@@ -16,6 +16,7 @@
 // exam-window answer names is not split, so that answer keeps its meaning.
 // Taking a change back records an `undo`; nothing is deleted.
 
+import { courseDecisions } from './lineage.ts';
 import { courseSetup } from './choices.ts';
 import type { Context } from './context.ts';
 import type { Day } from './day.ts';
@@ -82,7 +83,7 @@ export function alignChange(
     id,
     courseId,
     day: today,
-    seq: nextSeq(context.state.decisions, courseId),
+    seq: nextSeq(courseDecisions(context.state, courseId), courseId),
     kind: 'move',
     item: target,
     before: view.main[here]!.item.id,
@@ -94,7 +95,7 @@ export function alignChange(
 export function recordChange(context: Context, change: PlanChange): RecordEvent {
   const pack = courseSetup(context, change.courseId).pack;
   if (pack === null || pack.status === 'own') throw new RangeError('Only a class on a pack has changes to its plan');
-  const { decisions } = context.state;
+  const decisions = courseDecisions(context.state, change.courseId);
   if (decisions.has(change.id) || change.seq !== nextSeq(decisions, change.courseId)) {
     throw new RangeError('This change is already recorded, or out of order');
   }
