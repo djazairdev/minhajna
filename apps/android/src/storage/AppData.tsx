@@ -16,6 +16,7 @@ import {
   type CountryProfile,
   type PlanPack,
   type Day,
+  type Entry,
   type RandomBytes,
   type RecordBook,
   type RecordEvent,
@@ -61,6 +62,8 @@ export interface AppData {
   readonly settled: () => Promise<void>;
   /** Waits for queued changes; false when one of them failed while waiting, not before. */
   readonly allSaved: () => Promise<boolean>;
+  /** The history's entries as saved so far, for the activity log (#235). */
+  readonly entries: () => readonly Entry[];
   /** The durable book's current state, including queued writes that have settled before React redraws. */
   readonly latestState: () => State;
   /** True after a change failed to save, until the next one saves. */
@@ -149,6 +152,7 @@ export function AppDataProvider({
       newId: () => newId(random),
       settled: () => queue.current,
       latestState: () => book.state,
+      entries: () => book.entries,
       allSaved: async () => {
         const started = failureCount.current;
         let pending = queue.current;

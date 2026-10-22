@@ -50,6 +50,7 @@ import { isolate } from '../week/grid-labels';
 import { RepaceApproval } from './RepaceApproval';
 import { changeLines, choiceWords, countLines, rangeWords } from './repace-rules';
 import { RepaceWeeks } from './RepaceWeeks';
+import { useOutputLog } from '../log/output-log';
 
 type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly message: string } | null;
 
@@ -85,6 +86,7 @@ export function Repace({ courseId, onSignature }: { readonly courseId: string; r
   const [said, setSaid] = useState<Said>(null);
   const [failed, setFailed] = useState(false);
   const output = useOutputRun();
+  const logged = useOutputLog();
   const signing = useSheetSignature('repace-signature', output, onSignature);
   const appliedFrom = useRef<typeof state | null>(null);
   const className = courseLabel(t, state, profile, courseId);
@@ -129,7 +131,7 @@ export function Repace({ courseId, onSignature }: { readonly courseId: string; r
       () => repaceHtml(t, shown, header, language, profile, direction, signing.mark),
       t('repace.sheet.title', { term: termName(t, shown.term) }),
       false,
-      shown.primary ? kept : undefined,
+      shown.primary ? kept : logged(repaceDocument(courseId), day).printed,
     );
   };
   const undo = () => {
@@ -151,7 +153,6 @@ export function Repace({ courseId, onSignature }: { readonly courseId: string; r
     });
     setTicks(on ? [...current, key] : current.filter((one) => one !== key));
   };
-
   if (draft === null) {
     return (
       <View style={styles.screen}>

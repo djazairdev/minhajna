@@ -17,7 +17,10 @@
 // starting on the school year's nearest day when today is outside it, and
 // whether it is kept for all classes or one per class (#216); a screen that
 // opens it can start it on a layout, such as «التوزيعات»'s tab (#237). What
-// was said of the last file goes once a choice changes.
+// was said of the last file goes once a choice changes. Each print, and each
+// PDF saved, goes into the activity log with the period it covered and
+// whether it was blank, never its content or where it went (#235, answer
+// 426).
 
 import { useState } from 'react';
 import type { Day } from '@minhajna/core';
@@ -35,6 +38,7 @@ import { DayStep } from './DayStep';
 import { useDocumentData } from './useDocumentData';
 import { useAppData } from '../storage/AppData';
 import { useOutputRun } from './output-run';
+import { useOutputLog } from '../log/output-log';
 import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
 
 /** Prints or saves one document, for the period of `day` when given, else today's. */
@@ -54,6 +58,7 @@ export function DocumentOutput({
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { today, year } = useAppData();
+  const logged = useOutputLog();
   const [on, setOn] = useState(() => {
     const start = day ?? today();
     if (!kind.byDay) return start;
@@ -70,6 +75,7 @@ export function DocumentOutput({
   const empty = kind.empty(data);
   const blankLine = kind.blankLine(t);
   const html = () => kind.pages({ ...data, drawn }, t, blank, layout);
+  const made = () => logged(kind.id, kind.period(data), blank);
 
   return (
     <ScrollView
@@ -172,14 +178,16 @@ export function DocumentOutput({
           testID="output-print"
           label={t('documents.output.print')}
           disabled={busy || empty}
-          onPress={() => print(html, kind.title(t), kind.landscape)}
+          onPress={() => print(html, kind.title(t), kind.landscape, made().printed)}
         />
         <Button
           testID="output-save"
           variant="line"
           label={t('documents.output.save')}
           disabled={busy || empty}
-          onPress={() => save(html, `document-${kind.id}`, fileName(kind, data, t, blank, layout), kind.landscape)}
+          onPress={() =>
+            save(html, `document-${kind.id}`, fileName(kind, data, t, blank, layout), kind.landscape, made().saved)
+          }
         />
       </View>
       <CopyWarning testID="output-copy" shown={signs} />

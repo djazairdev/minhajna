@@ -1,0 +1,119 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The activity log's words (#235, answers 425 to 427): a period as its file
+// is named, a document by its title or «وثيقة», a re-pace draft, a class
+// that has gone as a dash, a pupil no longer on the list without a number,
+// signed files with their plan's subject and year, an erasure's kinds each
+// named once, a withdrawn session and one recorded again, and a change that
+// cannot be checked by its kind, with each language's own comma. Made-up
+// records only.
+
+import { parseDay, type LogLine, type SessionRef } from '@minhajna/core';
+import { openTestData } from '../jest/app-data';
+import { withDay } from '../jest/today-day';
+import { categoryLabel, kindLabel, lineText, logDay, periodLabel, type LogNames } from '../src/log/log-text';
+import { i18n, missingKeys } from '../src/text/i18n';
+
+afterEach(async () => {
+  await i18n.changeLanguage('ar');
+});
+
+async function names(): Promise<LogNames> {
+  const data = await withDay();
+  return { state: data.book.state, profile: data.profile, lang: 'ar' };
+}
+
+const t = i18n.t.bind(i18n);
+const session: SessionRef = {
+  key: 'c-1/2026-10-15/m1/k-1-w',
+  courseId: 'c-1',
+  groupId: 'k-1-w',
+  day: parseDay('2026-10-15'),
+  slot: { half: 'morning', index: 1 },
+};
+const output = (document: string, period: string): LogLine => ({
+  kind: 'output',
+  output: { id: 'o', document, period, how: 'print', blank: false },
+});
+
+test('a period reads as a day, a month in the profile’s names, or a school year', async () => {
+  const shown = await names();
+  expect(logDay(parseDay('2026-10-04'))).toBe('04/10/2026');
+  expect(periodLabel(shown, '2026-10-04')).toBe('04/10/2026');
+  expect(periodLabel(shown, '2027-01')).toBe('جانفي 2027');
+  expect(periodLabel(shown, '2026-2027')).toBe('2026-2027');
+});
+
+test('documents by their title, a re-pace draft by its own, anything else as «وثيقة»', async () => {
+  const shown = await names();
+  expect(lineText(t, shown, output('journal', '2026-10-15'))).toBe('الدفتر اليومي · 15/10/2026 · طباعة');
+  expect(lineText(t, shown, output('sept-check', '2026-10-15'))).toBe('فحص سبتمبر · 15/10/2026 · طباعة');
+  expect(lineText(t, shown, output('made-up', '2026-10'))).toBe('وثيقة · أكتوبر 2026 · طباعة');
+  expect(lineText(t, shown, { kind: 'printed', documents: ['repace:c-1', 'texts'] })).toBe(
+    'طباعة الأسبوع: إعادة توزيع بقية الفصل، دفتر النصوص',
+  );
+});
+
+test('a class that has gone shows as a dash, and a pupil off the list has no number', async () => {
+  const data = await openTestData();
+  const shown: LogNames = { state: data.book.state, profile: data.profile, lang: 'ar' };
+  expect(lineText(t, shown, { kind: 'session-withdrawn', session })).toBe(
+    'دفتر النصوص · — · الخميس 15/10 · سحب تأكيد الحصة',
+  );
+  const roll: LogLine = {
+    kind: 'roll-call-corrected',
+    classId: 'k-gone',
+    groupId: 'k-gone-w',
+    day: session.day,
+    half: 'morning',
+    changes: [{ pupilId: 'p-gone', from: 'unjustified', to: 'justified' }],
+  };
+  expect(lineText(t, shown, roll)).toBe(
+    'المناداة · — · الخميس 15/10 · تلميذ لم يعد في القائمة: من غياب غير مبرر إلى غياب مبرر',
+  );
+});
+
+test('signed files, a session recorded again, and a change that cannot be checked', async () => {
+  const shown = await names();
+  expect(lineText(t, shown, { kind: 'calendar-update', release: '2026.2' })).toBe(
+    'تحديث موقّع للرزنامة، الإصدار 2026.2',
+  );
+  expect(lineText(t, shown, { kind: 'pack-added', pack: 'dz.cem.4am.arabic.example', release: '2026.2' })).toBe(
+    'مخطط موقّع: اللغة العربية · السنة الرابعة متوسط، الإصدار 2026.2',
+  );
+  expect(lineText(t, shown, { kind: 'pack-added', pack: 'made-up', release: '2026.2' })).toBe(
+    'مخطط موقّع: made-up، الإصدار 2026.2',
+  );
+  expect(lineText(t, shown, { kind: 'erased', kinds: ['session.recorded', 'session.withdrawn', 'pupil.set'] })).toBe(
+    'حذف حصة من دفتر النصوص، تلميذ. يبقى أنه حُذف، دون محتواه',
+  );
+  expect(lineText(t, shown, { kind: 'layer-added', title: 'طبقة (مثال)' })).toBe('طبقة على المخطط: طبقة (مثال)');
+  expect(lineText(t, shown, { kind: 'session-corrected', session, fields: [] })).toBe(
+    'دفتر النصوص · \u20684م1\u2069 · الخميس 15/10 · سُجّلت من جديد بعد سحب تأكيدها',
+  );
+  expect(lineText(t, shown, { kind: 'unverified', entryKind: 'roll-call.taken' })).toBe('تغيير: مناداة');
+  expect(kindLabel(t, 'class.set')).toBe('سجل آخر');
+  expect(categoryLabel(t, null)).toBe('لا يُتحقق منه');
+});
+
+test.each(['fr', 'en'] as const)('every line has its words in %s', async (language) => {
+  missingKeys.length = 0;
+  await i18n.changeLanguage(language);
+  const shown = { ...(await names()), lang: language };
+  for (const line of [
+    output('texts', '2026-10'),
+    { kind: 'erased', kinds: ['session.noted', 'lesson-note.set'] } as LogLine,
+    { kind: 'session-corrected', session, fields: ['outcome', 'list-item'], reason: 'entry-error' } as LogLine,
+  ]) {
+    expect(lineText(t, shown, line)).not.toMatch(/log\.|[؀-ۿ]{3}/);
+  }
+  expect(periodLabel(shown, '2027-01')).toBe(language === 'fr' ? 'janvier 2027' : 'January 2027');
+  const erased: LogLine = { kind: 'erased', kinds: ['roll-call.taken', 'pupil.set'] };
+  expect(lineText(t, shown, erased)).toBe(
+    language === 'fr'
+      ? 'Suppression : un appel, un élève. Il reste qu’elle a eu lieu, sans son contenu'
+      : 'Deleted: a roll call, a pupil. The fact stays, without its content',
+  );
+  expect(missingKeys).toEqual([]);
+});

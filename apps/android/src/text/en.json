@@ -2770,5 +2770,65 @@
       "print": "Export or print",
       "none": "No class has a plan this year yet. The distributions come from a class’s plan fitted to its timetable."
     }
+  },
+  "log": {
+    "sub": "What is corrected, printed, exported and deleted",
+    "tabsLabel": "Kind of change",
+    "tabs": {
+      "all": "All",
+      "corrections": "Corrections",
+      "files": "Files and printing",
+      "erasures": "Deletions"
+    },
+    "intact": "The chain is intact: nothing changed or deleted outside the app",
+    "sector": "Nothing is sent to the sector’s system: in teacher mode, absences are not sent. In the national system, if the school chooses to send them, each sending is written here with its day.",
+    "kept": "The log is kept as long as the records it describes. It holds the days and their order, never times.",
+    "empty": "Nothing in the log yet: each correction, print and deletion is written here, with its day.",
+    "emptyTab": "Nothing of this kind yet.",
+    "unchecked": "Cannot be checked",
+    "textsBook": "Texts book",
+    "rollCall": "Roll call",
+    "fields": {
+      "outcome": "Session outcome",
+      "coverage": "Session topic",
+      "unplanned": "Content outside the plan",
+      "homework": "Homework",
+      "due": "Homework due day",
+      "test": "Test",
+      "factual": "Factual line",
+      "type": "Session type",
+      "make-up": "Make-up",
+      "list-item": "List item"
+    },
+    "recordedAgain": "Recorded again after its confirmation was withdrawn",
+    "withdrawn": "Session confirmation withdrawn",
+    "reason": "Reason: {{reason}}",
+    "pupil": "Pupil {{number}}: from {{from}} to {{to}}",
+    "pupilGone": "A pupil no longer on the list: from {{from}} to {{to}}",
+    "marks": {
+      "present": "present",
+      "late": "late",
+      "justified": "justified absence",
+      "unjustified": "unjustified absence"
+    },
+    "printed": "Week printed: {{documents}}",
+    "document": "Document",
+    "print": "Print",
+    "blank": "blank",
+    "calendar": "Signed calendar update, release {{release}}",
+    "pack": "Signed plan: {{pack}}, release {{release}}",
+    "layer": "Layer on the plan: {{title}}",
+    "erased": "Deleted: {{what}}. The fact stays, without its content",
+    "unverified": "Changed: {{what}}",
+    "kinds": {
+      "session": "a texts-book session",
+      "privateNote": "a private note",
+      "rollCall": "a roll call",
+      "lessonNote": "a lesson note",
+      "pupil": "a pupil",
+      "homework": "a homework record",
+      "print": "a print",
+      "other": "another record"
+    }
   }
 }

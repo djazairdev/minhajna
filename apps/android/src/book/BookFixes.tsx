@@ -26,6 +26,7 @@ import { monthLabel } from '../documents/document-data';
 import { useOutputRun } from '../documents/output-run';
 import { useDocumentData } from '../documents/useDocumentData';
 import { useText } from '../text/i18n';
+import { useOutputLog } from '../log/output-log';
 
 export type BookFixesProps = {
   /** A month written YYYY-MM; today's when not given. */
@@ -62,6 +63,7 @@ export function BookFixes(props: BookFixesProps) {
     props.classId !== undefined && classes.some((one) => one.id === props.classId) ? props.classId : ALL,
   );
   const { busy, said, print, save, clear } = useOutputRun();
+  const logged = useOutputLog();
   const classId = chosen === ALL ? null : chosen;
   const items = useMemo(() => bookFixes(data, t, month, classId), [data, t, month, classId]);
   const named = monthLabel(data, `${month}-01` as Day);
@@ -134,14 +136,14 @@ export function BookFixes(props: BookFixesProps) {
           testID="fixes-print"
           label={t('documents.output.print')}
           disabled={busy}
-          onPress={() => print(html, t('bookFixes.title'), false)}
+          onPress={() => print(html, t('bookFixes.title'), false, logged('book-fixes', month).printed)}
         />
         <Button
           testID="fixes-save"
           variant="line"
           label={t('documents.output.save')}
           disabled={busy}
-          onPress={() => save(html, `book-fixes-${month}`, file, false)}
+          onPress={() => save(html, `book-fixes-${month}`, file, false, logged('book-fixes', month).saved)}
         />
         <Text style={styles.note}>{t('bookFixes.foot')}</Text>
       </View>

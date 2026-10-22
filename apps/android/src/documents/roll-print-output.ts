@@ -28,6 +28,8 @@ export interface RollOutput {
   /** The name offered when saving. */
   readonly file: string;
   readonly landscape: boolean;
+  /** What it covers, for the activity log: the month, the day, or the school year. */
+  readonly period: string;
 }
 
 /** The output of `choice` for `book`, for `month`, `day` or the slip's `unit` where it takes one. */
@@ -59,6 +61,7 @@ export function rollOutput(
         made: 'roll-year',
         file: file(data.year.id),
         landscape: true,
+        period: data.year.id,
       };
     case 'front':
       return {
@@ -67,6 +70,7 @@ export function rollOutput(
         made: 'roll-front',
         file: file(`${t('rollPrint.front.name')} ${data.year.id}`),
         landscape: false,
+        period: data.year.id,
       };
     case 'day':
       return {
@@ -75,6 +79,7 @@ export function rollOutput(
         made: `roll-day-${day}`,
         file: file(`${t('rollPrint.day.name')} ${day}`),
         landscape: false,
+        period: day,
       };
     case 'slip': {
       if (unit === undefined) throw new RangeError('A slip needs its roll call');
@@ -86,6 +91,7 @@ export function rollOutput(
         made: `roll-slip-${unit.day}-${unit.half}-${unit.sessions[0]?.slot.index ?? 0}-${group}`.slice(0, 64),
         file: file(`${t('rollPrint.slip.name')} ${unit.day} ${time}`),
         landscape: false,
+        period: unit.day,
       };
     }
     case 'seats': {
@@ -98,6 +104,7 @@ export function rollOutput(
         made: 'roll-seats',
         file: file(group === undefined ? t('rollPrint.seats.name') : `${t('rollPrint.seats.name')} ${group}`),
         landscape: seatsLandscape(seatPlans(data, book.classId, plan)),
+        period: data.year.id,
       };
     }
     default:
@@ -107,6 +114,7 @@ export function rollOutput(
         made: `roll-${month}`,
         file: file(month),
         landscape: false,
+        period: month,
       };
   }
 }

@@ -7,10 +7,12 @@ import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
 import { Teaching } from '../setup/Teaching';
 import { Week } from '../setup/Week';
+import { Log } from '../log/Log';
 import { Language } from '../settings/Language';
 import { Lengths } from '../settings/Lengths';
 import { Notify } from '../settings/Notify';
 import { Plans } from '../settings/Plans';
+import { Retention } from '../settings/Retention';
 import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
 import type { useText } from '../text/i18n';
@@ -64,6 +66,12 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
         break;
       case 'security':
         navigation.navigate('Security');
+        break;
+      case 'log':
+        navigation.navigate('Log');
+        break;
+      case 'retention':
+        navigation.navigate('SettingsRetention');
         break;
       case 'help':
         navigation.navigate('Help');
@@ -171,6 +179,8 @@ export function settingsRoutes(
       <Stack.Screen name="Language" component={LanguageScreen} options={dark(t('settings.rows.language'))} />
       <Stack.Screen name="SettingsNotify" component={Notify} options={dark(t('settings.rows.notifications'))} />
       <Stack.Screen name="SettingsSignature" component={DrawnSignature} options={dark(t('settings.rows.signature'))} />
+      <Stack.Screen name="Log" component={Log} options={dark(t('settings.rows.log'))} />
+      <Stack.Screen name="SettingsRetention" component={Retention} options={dark(t('settings.rows.retention'))} />
     </>
   );
 }
