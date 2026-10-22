@@ -89,6 +89,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - عند أستاذ الابتدائي، يصير الدوام المزدوج «الدوامان»: القسم وقاعته، والفترة التي يدرس فيها في الأسبوع أ، واسم القسم الآخر في القاعة، وهذا الأسبوع والقادم بحرفيهما، وما يترتب على صفحة اليوم والمناداة، مع رابطين إلى حرف الأسبوع في الرزنامة وقواعد عدّ الغياب.
 - «تأكيد اليوم كله كما هو مقترح» now ends the day's cards at every level, not only in primary. A Saturday the timetable fills says it is a school day. Half-groups that take a main-plan lesson in turn count once for the class, on the day the second half has it.
   - يأتي «تأكيد اليوم كله كما هو مقترح» بعد بطاقات اليوم في كل الأطوار، لا في الابتدائي وحده. ويقول السبت الذي فيه حصص في استعمال الزمن إنه يوم دراسة. والفوجان اللذان يأخذان درس المخطط بالتناوب يُحسبان مرة واحدة للقسم، يوم يأخذه الفوج الثاني.
+- A half-group's session on Today shows both halves' turns at its lesson: its own today, and the other half's day and week letter, the whole class's session that takes it first, or that it has had it. The lesson is done for the class once both halves have had it, and the card's tap says which half it records: «تمّت للفوج 1».
+  - تعرض حصة الفوج في «اليوم» دور الفوجين في درسها: دورها اليوم، ويوم الفوج الآخر وحرف أسبوعه، أو حصة القسم كله التي تأخذه قبله، أو أنه أنجزه. ويُعدّ الدرس منجزاً للقسم حين يمرّ به الفوجان، ويذكر زر البطاقة الفوج الذي يسجّله: «تمّت للفوج 1».
 
 ### Changed
 

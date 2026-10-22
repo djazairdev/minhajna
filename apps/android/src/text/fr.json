@@ -597,7 +597,19 @@
     "confirmDay": "Confirmer toute la journée comme proposé",
     "offDay": "{{day}} : jour de classe dans l’emploi du temps en vigueur",
     "journal": "Cahier journal",
-    "packStale": "Pas de proposition : le plan est périmé. Ce qui a été fait s’écrit dans le détail de la séance."
+    "packStale": "Pas de proposition : le plan est périmé. Ce qui a été fait s’écrit dans le détail de la séance.",
+    "confirmHalf": "Fait avec le groupe {{n}}",
+    "half": {
+      "today": "Aujourd’hui",
+      "done": "Fait",
+      "withClass": "Avec toute la classe",
+      "none": "Aucune séance dans les semaines à venir",
+      "note": "L’élément est fait pour la classe quand les deux groupes l’ont eu.",
+      "noteMany": "L’élément est fait pour la classe quand tous les groupes l’ont eu.",
+      "label": "{{group}} : {{turn}}",
+      "awaiting": "en attente de confirmation",
+      "labelOwn": "{{group}}, cette séance : {{turn}}"
+    }
   },
   "outcome": {
     "other": "Autre résultat",

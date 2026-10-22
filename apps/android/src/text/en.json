@@ -584,7 +584,19 @@
     "confirmDay": "Confirm the whole day as proposed",
     "offDay": "{{day}} is a school day in the timetable in force",
     "journal": "Daily journal",
-    "packStale": "No proposal: the plan is stale. Write what was taught in the session's details."
+    "packStale": "No proposal: the plan is stale. Write what was taught in the session's details.",
+    "confirmHalf": "Done with group {{n}}",
+    "half": {
+      "today": "Today",
+      "done": "Done",
+      "withClass": "With the whole class",
+      "none": "No session in the weeks ahead",
+      "note": "The item is done for the class once both groups have had it.",
+      "noteMany": "The item is done for the class once every group has had it.",
+      "label": "{{group}}: {{turn}}",
+      "awaiting": "awaiting confirmation",
+      "labelOwn": "{{group}}, this session: {{turn}}"
+    }
   },
   "outcome": {
     "other": "Another outcome",

@@ -18,6 +18,7 @@
 // each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a
 // school event makes a special day, with a line and a card, and so does
 // Ramadan, with its cards (#224). Support sessions due show too (#228).
+// A half-group's session shows each half's turn at its item (#231).
 
 import {
   addDays,
@@ -55,7 +56,7 @@ import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { Backlog } from './Backlog';
-import { DayBanner, DayNote, NextSession, dayMarkOf, dayName, markLine } from './DayMark';
+import { DayBanner, DayNote, NextSession, dayMarkOf, markLine } from './DayMark';
 import { SpecialCards, specialEntries, specialLine, specialLost } from './SpecialDay';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
@@ -66,7 +67,8 @@ import { todayEntries, type TodayEntry } from './joint-today';
 import { bandRoll, DayBands, DayEnd, isPrimaryDay } from './DayBands';
 import { ListCard, listDetails, listOfSession, listWritten } from './ListCard';
 import { useTodayActions } from './today-actions';
-import { sessionMeta } from './today-meta';
+import { nextLine, sessionMeta } from './today-meta';
+import { HalfPair, useHalfPairs } from './HalfPair';
 
 /** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
 type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
@@ -104,6 +106,7 @@ export function Today(props: {
     [profile, year, calendar, calendarRelease, packs, state],
   );
   const view = useMemo(() => todayView(context, day), [context, day]);
+  const pairs = useHalfPairs(context, view.sessions, day);
   const backlog = useMemo(() => backlogOf(context, day), [context, day]);
   const mark = dayMarkOf(view);
   const specials = specialEntries(view);
@@ -118,19 +121,13 @@ export function Today(props: {
   const metaOf = (item: TodaySession, withSubject: boolean) =>
     sessionMeta({ state, profile, bells, calendar }, t, direction, item, withSubject);
 
-  const nextLine = (session: Session) => {
-    const course = state.courses.get(session.courseId);
-    const meta =
-      course &&
-      metaOf({ session, course, status: 'awaiting', proposal: null, record: null, packMissing: false }, false);
-    return [meta?.className, meta?.slot, dayName(t, session.day, language, profile)].filter(Boolean).join(' · ');
-  };
-
   const card = (item: TodaySession) => {
     const key = item.session.key;
     const testID = `today-${key}`;
     const pack = courseSetup(context, item.course.id).pack;
     const due = dueStrips(t, context, [item.session], onRoll, onHomework, !banded || !bandRoll(context, item.session));
+    const pair = pairs.get(key) ?? null;
+    const extra = pair && <HalfPair data={pair} testID={`${testID}-pair`} />;
     if (item.status === 'recorded' && item.record !== null) {
       return (
         <SessionCard
@@ -169,8 +166,8 @@ export function Today(props: {
           kind="focus"
           meta={metaOf(item, true)}
           proposal={proposalOf(t, pack, item.proposal)}
-          due={due}
-          confirm={t('today.confirm')}
+          {...{ due, extra }}
+          confirm={pair === null ? t('today.confirm') : t('today.confirmHalf', { n: pair.number })}
           onConfirm={() => confirm(item)}
           more={[
             { id: 'other', label: t('outcome.other'), onPress: () => setSheet({ item, open: true }), ref: other },
@@ -180,7 +177,9 @@ export function Today(props: {
       );
     }
     const lesson = lessonOf(t, item, pack);
-    return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lesson} due={due} />;
+    return (
+      <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...{ ...lesson, due, extra }} />
+    );
   };
 
   const entry = (one: TodayEntry) =>
@@ -254,7 +253,9 @@ export function Today(props: {
           )}
           <SpecialCards entries={specials} state={state} day={day} />
           {props.onRamadan && <RamadanRule view={view} open={props.onRamadan} />}
-          {next !== null && <NextSession line={nextLine(next)} />}
+          {next !== null && (
+            <NextSession line={nextLine({ state, profile, bells, calendar }, t, direction, language, next)} />
+          )}
         </View>
       </ScrollView>
       {sheet?.item.proposal != null && (

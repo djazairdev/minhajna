@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { useLocale } from '@react-navigation/native';
-import type { Ref } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { controlIcon, Icon } from '../design/Icon';
 import { colors, radius, shadows, sizes, spacing, typography } from '../design/tokens';
@@ -26,6 +26,8 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
   | {
       readonly kind: 'focus';
       readonly proposal: ProposalProps;
+      /** What follows the proposal, such as a half-group's pair. */
+      readonly extra?: ReactNode;
       readonly due?: readonly DueStripProps[];
       /** «تمّت كما هو مقترح»: the one tap that records the proposal. */
       readonly confirm: string;
@@ -37,6 +39,8 @@ export type SessionCardProps = { readonly meta: SessionMeta; readonly testID?: s
       readonly kind: 'mini';
       readonly lesson: string;
       readonly note?: string;
+      /** What follows the lesson, such as a half-group's pair. */
+      readonly extra?: ReactNode;
       /** A soft button under the lesson, such as the class's «المخطط». */
       readonly show?: MoreAction;
       /** A line button beside it, such as the class's «دفتر النصوص». */
@@ -98,6 +102,7 @@ export function SessionCard(props: SessionCardProps) {
       <View testID={testID} style={[styles.card, styles.focus, { direction }]}>
         {metaLine}
         <Proposal {...props.proposal} />
+        {props.extra}
         {props.due?.map((strip, index) => (
           <DueStrip key={index} {...strip} />
         ))}
@@ -126,6 +131,7 @@ export function SessionCard(props: SessionCardProps) {
         {metaLine}
         <Text style={[styles.lesson, align]}>{props.lesson}</Text>
         {props.note !== undefined && <Text style={[styles.note, align]}>{props.note}</Text>}
+        {props.extra}
         {(props.show !== undefined || props.also !== undefined) && (
           <View style={styles.buttons}>
             {props.show !== undefined && (
