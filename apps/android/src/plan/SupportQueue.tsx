@@ -240,7 +240,7 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
           {...(onLogScheduled !== undefined && { onLog: onLogScheduled })}
         />
         {refused && (
-          <Notice testID="support-not-restored" icon={controlIcon('info')} message={t('catchUp.notRestored')} />
+          <Notice testID="support-not-restored" icon={controlIcon('info')} message={t('supportQueue.notRestored')} />
         )}
         {onLog !== undefined && (
           <Button testID="support-log" variant="line" label={t('supportQueue.log')} onPress={onLog} />
@@ -249,7 +249,7 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
       {said !== null && (
         <Snackbar
           testID="support-removed"
-          message={said.kind === 'items' ? t('supportQueue.removed') : t('catchUp.cancelled')}
+          message={said.kind === 'items' ? t('supportQueue.removed') : t('supportQueue.cancelled')}
           undoLabel={t('planItem.undo')}
           onUndo={undo}
           bottomOffset={insets.bottom}
