@@ -582,6 +582,7 @@
     "bandRollClass": "{{band}} roll call · {{name}}: {{fact}}",
     "afternoonRoll": "taken on its own, as absence counts by the half day",
     "confirmDay": "Confirm the whole day as proposed",
+    "offDay": "{{day}} is a school day in the timetable in force",
     "journal": "Daily journal",
     "packStale": "No proposal: the plan is stale. Write what was taught in the session's details."
   },

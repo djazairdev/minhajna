@@ -87,6 +87,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - في الدوامين، تُنسخ الخانة المحفوظة من تفاصيلها إلى الخانة نفسها في الفترة الأخرى للأسبوع الآخر، بنشاطها وقاعتها، وحذفها يحذفهما معاً. ويأخذ المساء خانة خامسة مع الصبيحة.
 - For a primary teacher, the double shift is «الدوامان»: the class and its room, the half-day it is taught in A weeks, the other class in the room by name, this week and next week by letter, what follows for Today and the roll call, and links to the calendar's week letter and the roll-call rules.
   - عند أستاذ الابتدائي، يصير الدوام المزدوج «الدوامان»: القسم وقاعته، والفترة التي يدرس فيها في الأسبوع أ، واسم القسم الآخر في القاعة، وهذا الأسبوع والقادم بحرفيهما، وما يترتب على صفحة اليوم والمناداة، مع رابطين إلى حرف الأسبوع في الرزنامة وقواعد عدّ الغياب.
+- «تأكيد اليوم كله كما هو مقترح» now ends the day's cards at every level, not only in primary. A Saturday the timetable fills says it is a school day. Half-groups that take a main-plan lesson in turn count once for the class, on the day the second half has it.
+  - يأتي «تأكيد اليوم كله كما هو مقترح» بعد بطاقات اليوم في كل الأطوار، لا في الابتدائي وحده. ويقول السبت الذي فيه حصص في استعمال الزمن إنه يوم دراسة. والفوجان اللذان يأخذان درس المخطط بالتناوب يُحسبان مرة واحدة للقسم، يوم يأخذه الفوج الثاني.
 
 ### Changed
 

@@ -88,6 +88,7 @@ test("lists the day's sessions in order, with the plan's proposal in pencil on t
     '4م2',
     '⁧10:00 – 11:00⁩',
     text.today.noProposal,
+    text.today.confirmDay,
   ]);
   expect(pressable(`today-${key(1)}-confirm`).length).toBeGreaterThan(0);
   expect(pressable(`today-${key(2)}-confirm`)).toHaveLength(0);

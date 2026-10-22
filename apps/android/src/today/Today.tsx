@@ -61,9 +61,9 @@ import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
-import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
+import { dayFacts, lessonOf, proposalOf, withOffDay, writtenOf } from './today-labels';
 import { todayEntries, type TodayEntry } from './joint-today';
-import { bandRoll, DayBands, isPrimaryDay } from './DayBands';
+import { bandRoll, DayBands, DayEnd, isPrimaryDay } from './DayBands';
 import { ListCard, listDetails, listOfSession, listWritten } from './ListCard';
 import { useTodayActions } from './today-actions';
 import { sessionMeta } from './today-meta';
@@ -209,7 +209,7 @@ export function Today(props: {
           title={t(`week.days.${weekday(day)}`)}
           scope={formatDayWithMonth(day, language, profile)}
           fact={{ text: dayFacts(t, view, mark !== null || taken > 0), icon: controlIcon('check') }}
-          special={withRamadan(t, view, specialLine(t, specials))}
+          special={withOffDay(t, profile, view, day, withRamadan(t, view, specialLine(t, specials)))}
           actions={<TodayHeadingActions onExtra={onExtra} onSettings={props.onSettings} onHelp={onHelp} />}
         />
         <View style={styles.list}>
@@ -237,17 +237,14 @@ export function Today(props: {
             />
           )}
           {banded ? (
-            <DayBands
-              entries={todayEntries(state, shown)}
-              render={entry}
-              context={context}
-              onRoll={onRoll}
-              {...(ready.length > 1 && { onConfirmDay: () => confirmAll(ready, 'day', listDetails(context)) })}
-              {...(props.onJournal && { onJournal: () => props.onJournal?.(day) })}
-            />
+            <DayBands entries={todayEntries(state, shown)} render={entry} context={context} onRoll={onRoll} />
           ) : (
             todayEntries(state, shown).map(entry)
           )}
+          <DayEnd
+            {...(ready.length > 1 && { onConfirmDay: () => confirmAll(ready, 'day', listDetails(context)) })}
+            {...(banded && props.onJournal && { onJournal: () => props.onJournal?.(day) })}
+          />
           {props.onExams?.support && <SupportToday day={day} onLog={props.onExams.support} />}
           {mark?.effect !== 'exam' && taken > 0 && (
             <DayNote testID="day-lost" title={t('daymark.lost', { count: taken })} note={t('daymark.lostNote')} />

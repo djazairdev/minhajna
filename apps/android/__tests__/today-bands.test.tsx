@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A primary day on Today (#230, P-Today, answers 379 and 380): the sessions
-// in «الصبيحة» and «المساء», one roll call for each class's half day and
-// none on the cards, named by class when a band has two, the afternoon's
-// showing its marks once taken; «الكراس اليومي»; and «تأكيد اليوم كله كما
-// هو مقترح» recording every session still awaiting, a «معالجة» one with its
-// item, which «تراجع» takes back. A day with only an afternoon, or whose
-// morning was not held, does not say its roll call is taken on its own
-// (answer 385). A class called session by
-// session keeps its roll call on its cards, and a secondary or mixed day
-// keeps its cards as they were. Made-up data only.
+// A primary day on Today (#230, P-Today, answers 379 and 380): the sessions in
+// «الصبيحة» and «المساء», one roll call for each class's half day and none on
+// the cards, named by class when a band has two, the afternoon's showing its
+// marks once taken; «الكراس اليومي»; and «تأكيد اليوم كله كما هو مقترح»
+// recording every session still awaiting, a «معالجة» one with its item, which
+// «تراجع» takes back. A day with only an afternoon, or whose morning was not
+// held, does not say its roll call is taken on its own (answer 385). A class
+// called session by session keeps its roll call on its cards, and a secondary
+// or mixed day, which can be confirmed whole too (answer 387), keeps its cards
+// as they were. Made-up data only.
 
 import {
   awaitingBetween,
@@ -136,10 +136,10 @@ test('«تأكيد اليوم كله» records every session awaiting, the remed
   expect([...data.book.state.sessions.values()].map(current)).toEqual([null, null, null]);
 });
 
-test('a secondary day keeps the roll call on its cards and has no bands', async () => {
+test('a secondary day keeps the roll call on its cards, has no bands, and can be confirmed whole', async () => {
   await render(await secondary());
   expect(exists('today-band-morning')).toBe(false);
-  expect(exists('today-confirm-day')).toBe(false);
+  expect(exists('today-confirm-day')).toBe(true);
   expect(root().findAll((node) => /^today-.*-roll$/.test(String(node.props.testID))).length).toBeGreaterThan(0);
 });
 
@@ -202,10 +202,10 @@ test('names each class when a band has two, and shows the afternoon’s marks on
   expect(new Set(ids).size).toBe(2);
 });
 
-test('a mixed day keeps the roll call on its cards and has no bands', async () => {
+test('a mixed day keeps the roll call on its cards, has no bands and no journal', async () => {
   await render(await withSecond(await withPupils(), 'cem'));
   expect(exists('today-band-morning')).toBe(false);
-  expect(exists('today-confirm-day')).toBe(false);
+  expect(exists('today-confirm-day')).toBe(true);
   expect(exists('today-journal')).toBe(false);
   expect(exists(`today-${keys[0]}-roll`)).toBe(true);
 });

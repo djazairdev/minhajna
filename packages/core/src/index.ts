@@ -9,7 +9,7 @@ export * from './bells.ts';
 export * from './bells-read.ts';
 export * from './calendar.ts';
 export * from './rotating-groups.ts';
-export { rotationCredits } from './rotation-sessions.ts';
+export { halfTurns, rotationCredits, type Turns } from './rotation-sessions.ts';
 export * from './calendar-read.ts';
 export * from './calendar-edit.ts';
 export * from './council.ts';
