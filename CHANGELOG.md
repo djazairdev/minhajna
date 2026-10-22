@@ -101,6 +101,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - في يوم تدرّس فيه في مؤسستين أو أكثر، تجمع صفحة اليوم حصصك حسب المؤسسة ونصف اليوم، مثل «مدرسة الفتح · الصبيحة»، بترتيب تدريسها، ويذكر سطر اليوم عدد المؤسسات. وإغلاق مؤسسة واحدة أو عطلتها أو فترة اختباراتها يُعلَّم على حصصها وحدها، في مجموعتها.
 - In two or more schools, the Classes tab shows a section per school, such as «مدرسة الفتح · 7 أفواج», and a card for the merged week that says whether a clash is open and opens the week. A primary French, English or Tamazight specialist takes each class's roll call session by session, counting only their own sessions; the half-day roll call stays the class teacher's.
   - في مؤسستين أو أكثر، تعرض صفحة الأقسام قسماً لكل مؤسسة، مثل «مدرسة الفتح · 7 أفواج»، وبطاقة للأسبوع المدمج تقول هل فيه تعارض وتفتحه. ويأخذ أستاذ الفرنسية أو الإنجليزية أو الأمازيغية في الابتدائي مناداة كل قسم حصةً بحصة، فلا تُحسب إلا حصصه، وتبقى مناداة نصف اليوم لمعلم القسم.
+- On Today, a session of a class with no plan pack, or a stale one, is written freely on its card: what was taught, typed in the subject's own direction, then «تسجيل الحصة». The texts book prints it as written.
+  - في صفحة اليوم، تُكتب حصة القسم الذي لا حزمة له، أو حزمته متقادمة، كتابة حرة على بطاقتها: ما دُرّس، بلغة المادة واتجاهها، ثم «تسجيل الحصة». ويطبعها دفتر النصوص كما كُتبت.
 
 ### Changed
 

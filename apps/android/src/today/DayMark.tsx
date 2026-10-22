@@ -98,6 +98,13 @@ export function pausedNote(
   };
 }
 
+/** What a session a calendar entry takes says in place of its lesson: the entry's name, or the kind of day. */
+export function takenBy(t: Translate, view: TodayView, item: TodaySession): string {
+  const entry = view.marks.find((mark) => mark.id === item.session.calendarEntry);
+  if (item.session.calendar === 'rotation') return t('calendarView.groups.off');
+  return entry !== undefined ? localized(entry.name) : t(`today.calendar.${item.session.calendar ?? 'holiday'}`);
+}
+
 /** «2 نوفمبر», without the year. */
 export function dayAndMonth(day: Day, language: Language, profile: Pick<CountryProfile, 'months'>): string {
   const month = profile.months?.[Number(day.slice(5, 7)) - 1]?.[language] ?? day.slice(5, 7);

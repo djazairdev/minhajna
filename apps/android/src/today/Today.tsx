@@ -52,12 +52,12 @@ import { SupportToday } from './SupportToday';
 import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
-import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { Backlog } from './Backlog';
-import { DayBanner, DayNote, NextSession, dayMarks, markLine, pausedNote } from './DayMark';
+import { DayBanner, DayNote, NextSession, dayMarks, markLine, pausedNote, takenBy } from './DayMark';
+import { FreeEntry, focusable, freeEntry, proposed } from './FreeEntry';
 import { SpecialCards, specialEntries, specialLine, specialLost } from './SpecialDay';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
 import { OutcomeSheet } from './OutcomeSheet';
@@ -116,8 +116,8 @@ export function Today(props: {
   const lost = taken - specialLost(view, paused);
   const noneLeft = (mark !== null || taken > 0) && (mark === null ? view.sessions.length - taken : shown.length) === 0;
   const next = useMemo(() => (noneLeft ? nextSession(context, day) : null), [context, day, noneLeft]);
-  const ready = shown.filter((item) => item.proposal !== null || listOfSession(item) !== null);
-  const [focus] = ready;
+  const ready = shown.filter(proposed);
+  const [focus] = shown.filter((item) => focusable(context, item));
   const banded = isBandedDay(state, shown);
   const { done, confirm, confirmAll, keepReason, undo } = useTodayActions(context, t, record, recordAll);
   const metaOf = (item: TodaySession, withSubject: boolean) =>
@@ -144,20 +144,21 @@ export function Today(props: {
       );
     }
     if (item.status === 'calendar') {
-      const entry = view.marks.find((mark) => mark.id === item.session.calendarEntry);
-      const lesson =
-        item.session.calendar === 'rotation'
-          ? t('calendarView.groups.off')
-          : entry !== undefined
-            ? localized(entry.name)
-            : t(`today.calendar.${item.session.calendar ?? 'holiday'}`);
-      return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} lesson={lesson} />;
+      return (
+        <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} lesson={takenBy(t, view, item)} />
+      );
     }
     const list = listOfSession(item);
     if (list !== null) {
       const onRecord = (choice?: Choice, details?: Details) => confirm(item, choice, details);
       const show = { meta: metaOf(item, true), focus: item === focus, onDetails: () => onDetails(item.session) };
       return <ListCard key={key} testID={testID} {...{ item, context, due, onRecord, ...show }} kind={list} />;
+    }
+    const why = item === focus ? freeEntry(context, item) : null;
+    if (why !== null) {
+      const onRecord = (details: Details) => confirm(item, { outcome: 'changed' }, details);
+      const free = { item, why, due, onRecord, onDetails: () => onDetails(item.session) };
+      return <FreeEntry key={key} testID={testID} meta={metaOf(item, true)} {...free} />;
     }
     if (item === focus && item.proposal !== null) {
       return (
