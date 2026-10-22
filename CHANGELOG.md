@@ -77,6 +77,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - في «اليوم»، تَعرض حصة «معالجة» أو «دعم» قائمتها، وعناصرها مقرونة بحصة اليوم والحصص القادمة: «اليوم»، «الحصة القادمة»، «بعدها». تُسجّل «تمّت كما هو مقترح» عنصرها منجزاً، وتُبقي «نتيجة أخرى» العنصر للحصة القادمة. وتُفتح القائمة من الخانة في الأسبوع أيضاً.
 - A primary day on Today comes in two bands, «الصبيحة» and «المساء», each with one roll call for each class's half day. «تأكيد اليوم كله كما هو مقترح» records every session still awaiting at once, and «الكراس اليومي» opens the day's journal.
   - يأتي يوم الابتدائي في «اليوم» على فترتين، «الصبيحة» و«المساء»، وفي كل فترة مناداة واحدة لكل قسم. ويُسجّل زر «تأكيد اليوم كله كما هو مقترح» كل الحصص المنتظرة دفعة واحدة، ويفتح «الكراس اليومي» كراس اليوم.
+- A week pack's plan comes by plan week, «أسبوع المخطط 5», with its days and sequence. It says the class's plan week and the plan's, the sessions the calendar took, counted apart, the weekly model, and the weeks behind beyond the buffers. «إعادة توزيع بقية الفصل» opens from the plan while it is offered.
+  - يأتي مخطط الحزمة الأسبوعية بأسابيع المخطط، «أسبوع المخطط 5»، بأيامه ومقطعه. ويذكر أسبوع القسم في المخطط وأسبوع المخطط اليوم، وما أخذته الرزنامة من حصص محسوباً وحده، ونموذج الأسبوع، والأسابيع المتأخرة بعد الاحتياط. وتُفتح «إعادة توزيع بقية الفصل» من المخطط ما دامت مقترحة.
 
 ### Changed
 

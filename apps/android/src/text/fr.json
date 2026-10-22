@@ -54,7 +54,10 @@
     "sessions_other": "{{count}} séances",
     "items_one": "{{count}} élément",
     "items_many": "{{count}} d’éléments",
-    "items_other": "{{count}} éléments"
+    "items_other": "{{count}} éléments",
+    "weeks_one": "{{count}} semaine",
+    "weeks_many": "{{count}} de semaines",
+    "weeks_other": "{{count}} semaines"
   },
   "bottomSheet": {
     "close": "Fermer"
@@ -784,7 +787,13 @@
     "alignTitle": "Aligner une autre classe sur {{class}}",
     "alignOne": "Aligner {{other}} sur {{class}}",
     "alignAsk": "{{other}} continue avec {{item}}, comme {{class}}, et les éléments passés viennent juste après : aucun n’est perdu. Rien d’enregistré ne change, ni l’écart en séances de contenu du plan entre les classes.",
-    "alignNote": "Seule la position est copiée ; rien d’enregistré dans le cahier de l’autre classe ne change. L’alignement figure dans les changements de cette classe, où il peut être annulé."
+    "alignNote": "Seule la position est copiée ; rien d’enregistré dans le cahier de l’autre classe ne change. L’alignement figure dans les changements de cette classe, où il peut être annulé.",
+    "weeksBehind": "{{weeks}} de retard sur le plan, après toute la réserve",
+    "weekHead": "Semaine du plan {{week}}",
+    "weekPosition": "Position : semaine du plan {{week}} ; le plan est aujourd’hui à sa semaine {{expected}}.",
+    "weekPositionSame": "Position : semaine du plan {{week}}, là où est le plan aujourd’hui.",
+    "calendarLost": "Perdu à cause du calendrier : {{sessions}}. Compté à part, cela ne se lit pas comme un retard d’enseignement.",
+    "weekModel": "Modèle de la semaine : {{activities}}"
   },
   "planDetails": {
     "title": "Détails du pack",
