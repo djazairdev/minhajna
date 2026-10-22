@@ -6,7 +6,9 @@
 // item every week, or one in A weeks and another in B weeks, such as two
 // half-groups taking turns (R-3.2-19, R-3.2-20). A session names its class,
 // its subject, which gives its course, so a teacher of two subjects in one
-// class keeps a plan and a book for each (R-4.7-01), its group and a room.
+// class keeps a plan and a book for each (R-4.7-01), its group, a room, its
+// session type and, in primary, its activity type, which a slot keeps when
+// it is edited (#230, answer 374).
 // The teacher's own time has a kind and may take the whole half-day
 // (R-4.6-07). Saving a slot replaces what it held and nothing else.
 
@@ -30,6 +32,8 @@ export type SessionItem = {
   readonly weeks: Weeks;
   readonly sessionType: string;
   readonly room?: string;
+  /** In primary, the activity type from the pack's weekly model, such as `reading`. */
+  readonly activity?: string;
 };
 
 export type OwnItem = {
@@ -63,6 +67,7 @@ export function itemsAt(version: TimetableVersion, lookup: Lookup, cell: Cell): 
         weeks: entry.weeks,
         sessionType: entry.sessionType,
         ...(entry.room !== undefined && { room: entry.room }),
+        ...(entry.activity !== undefined && { activity: entry.activity }),
       },
     ];
   });
@@ -76,6 +81,13 @@ export function itemsAt(version: TimetableVersion, lookup: Lookup, cell: Cell): 
       label: block.label,
     }));
   return [...sessions, ...own];
+}
+
+/** The session with `activity` as its activity type, or with none. */
+export function withActivity(item: SessionItem, activity: string | undefined): SessionItem {
+  const rest: { -readonly [Key in keyof SessionItem]: SessionItem[Key] } = { ...item };
+  delete rest.activity;
+  return activity === undefined ? rest : { ...rest, activity };
 }
 
 /** The other week of an A/B pair. */
@@ -104,6 +116,7 @@ export function setItems(
         weeks: item.weeks,
         sessionType: item.sessionType,
         ...(room !== undefined && room !== '' && { room }),
+        ...(item.activity !== undefined && { activity: item.activity }),
       });
       continue;
     }

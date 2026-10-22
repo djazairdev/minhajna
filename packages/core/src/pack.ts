@@ -4,26 +4,13 @@
 // A plan pack holds one official plan as data (PRD §4.2). Packs travel as
 // files, from the data repository or from a colleague's phone, so every pack
 // is read as untrusted: it is checked against the format, and fields outside
-// the format are dropped (PRD §5.9).
+// the format are dropped (PRD §5.9). Its fields are read in pack-fields.ts.
 
+import { ITEM_ID, ITEM_KINDS, readActivities, readAnchor, readItem, type PackActivity } from './pack-fields.ts';
 import { hasBidiControl, isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
 import type { Queue } from './reference.ts';
 
-/** The closed list of item kinds (PRD §4.2). */
-export const ITEM_KINDS = [
-  'diagnostic',
-  /** A sequence or unit: it groups the items that follow and is never taught itself. */
-  'unit',
-  /** A lesson or learning resource. */
-  'lesson',
-  'launch-situation',
-  'integration',
-  'launch-situation-solution',
-  'assessment-remediation',
-  'project',
-  'term-assessment',
-  'td',
-] as const;
+export { ITEM_KINDS, type PackActivity } from './pack-fields.ts';
 
 export type ItemKind = (typeof ITEM_KINDS)[number];
 
@@ -104,6 +91,8 @@ export interface PlanPack {
   readonly items: readonly PackItem[];
   /** Merges the plan proposes, each a list of item IDs. Only ever proposals to the teacher. */
   readonly merges: readonly (readonly string[])[];
+  /** A week pack's weekly model: its activity types in the order of the week (pack-fields.ts). */
+  readonly activities?: readonly PackActivity[];
   /** Never in a file: the items a class's changes made and it took back, kept for their titles (#225). */
   readonly retired?: readonly PackItem[];
   /** Never in a file: the skips and joins of the layers the class has on (#226). */
@@ -111,55 +100,6 @@ export interface PlanPack {
 }
 
 export const PACK_ID = /^[a-z]{2}(\.[a-z0-9-]+){4,5}$/;
-const ITEM_ID = /^[A-Za-z0-9._-]{1,64}$/;
-
-function readAnchor(reader: Reader, value: unknown): TimeAnchor | undefined {
-  if (!isFields(value)) {
-    reader.fail('anchor', value === undefined ? 'required' : 'invalid');
-    return undefined;
-  }
-  const kind = reader.oneOf(value, 'kind', 'anchor', ['weeks', 'budgets', 'hybrid'] as const);
-  if (kind === undefined) return undefined;
-  if (kind === 'weeks') return { kind };
-  const unit = reader.oneOf(value, 'unit', 'anchor', ['hours', 'sessions'] as const);
-  return unit === undefined ? undefined : { kind, unit };
-}
-
-function readItem(reader: Reader, value: unknown, path: string): PackItem | undefined {
-  if (!isFields(value)) {
-    reader.fail(path, 'invalid');
-    return undefined;
-  }
-  const id = reader.requiredText(value, 'id', path, ITEM_ID);
-  const kind = reader.oneOf(value, 'kind', path, ITEM_KINDS);
-  const title = reader.requiredText(value, 'title', path);
-  if (kind === undefined) return undefined;
-  const unit = reader.text(value, 'unit', path, ITEM_ID);
-  const term = reader.number(value, 'term', path, true);
-  const week = reader.number(value, 'week', path, true);
-  const budget = reader.number(value, 'budget', path, false);
-  const activity = reader.text(value, 'activity', path);
-  const optional = reader.flag(value, 'optional', path);
-  const buffer = reader.flag(value, 'buffer', path);
-  const stages = reader.text(value, 'stages', path, ITEM_ID);
-  const pages = reader.text(value, 'pages', path);
-  const sourcePage = reader.number(value, 'sourcePage', path, true);
-  return {
-    id,
-    kind,
-    title,
-    ...(unit !== undefined && { unit }),
-    ...(term !== undefined && { term }),
-    ...(week !== undefined && { week }),
-    ...(budget !== undefined && { budget }),
-    ...(activity !== undefined && { activity }),
-    ...(optional !== undefined && { optional }),
-    ...(buffer !== undefined && { buffer }),
-    ...(stages !== undefined && { stages }),
-    ...(pages !== undefined && { pages }),
-    ...(sourcePage !== undefined && { sourcePage }),
-  };
-}
 
 /** Reads a plan pack from parsed JSON, keeping only the format's fields. */
 export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
@@ -248,13 +188,24 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
     reader.fail('merges', 'invalid');
   }
 
+  const activities = readActivities(reader, input['activities'], anchor, items);
   if (reader.problems.length > 0 || status === undefined || licence === undefined || anchor === undefined) {
     return { ok: false, problems: reader.problems };
   }
-  return {
-    ok: true,
-    value: { format: 1, id, release, status, licence, language, anchor, provenance, stageTemplates, items, merges },
+  const value: PlanPack = {
+    format: 1,
+    id,
+    release,
+    status,
+    licence,
+    language,
+    anchor,
+    provenance,
+    stageTemplates,
+    items,
+    merges,
   };
+  return { ok: true, value: activities === undefined ? value : { ...value, activities } };
 }
 
 /** The item's stages, or none when it has no template and runs as "in progress / done". */

@@ -241,6 +241,7 @@
     { "code": "integration", "queue": "main", "name": { "ar": "إدماج", "fr": "Intégration", "en": "Integration" } },
     { "code": "td", "queue": "td", "name": { "ar": "أعمال موجهة", "fr": "Travaux dirigés", "en": "Guided work" } },
     { "code": "remediation", "queue": "none", "name": { "ar": "معالجة", "fr": "Remédiation", "en": "Remediation" } },
+    { "code": "support", "queue": "none", "name": { "ar": "دعم", "fr": "Soutien", "en": "Support" } },
     { "code": "reception", "queue": "none", "name": { "ar": "استقبال", "fr": "Accueil", "en": "Reception" } },
     { "code": "free", "queue": "none", "name": { "ar": "فراغ", "fr": "Heure libre", "en": "Free period" } },
     { "code": "test", "queue": "none", "name": { "ar": "فرض", "fr": "Devoir", "en": "Test" } },

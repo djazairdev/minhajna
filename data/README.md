@@ -65,7 +65,8 @@ The roll-call book prints, beside each month, the Hijri months it spans, such as
 A plan pack holds one plan as data, for one level, grade, subject, stream and edition. Its ID reads `dz.<level>.<grade>.<subject>[.<stream>].<edition>` ([PRD §4.2](../docs/prd/PRD.md#42-plan-packs)). A class pins one release and stays on it until the teacher moves it.
 
 - **The real packs** for the field check are keyed in [#23](https://github.com/djazairdev/minhajna/issues/23). They stay private, and ship only in field-check builds, until counsel answers on the plans' copyright.
-- **Until then,** `dz/packs/` holds three made-up examples, so a class can be set up and tried: 1AM maths (budgets in hours), 4AM Arabic (budgets in sessions) and 5AP Arabic (weeks). Their status is `example`, their titles say «مثال», and their issuer says they are not a plan. They copy no official plan.
+- **Until then,** `dz/packs/` holds three made-up examples, so a class can be set up and tried: 1AM maths (budgets in hours), 4AM Arabic (budgets in sessions) and 5AP Arabic (weeks, with a weekly model of reading and writing). Their status is `example`, their titles say «مثال», and their issuer says they are not a plan. They copy no official plan.
+- **A week pack may carry its weekly model** in `activities`: each activity type with its code, its name in Arabic, French and English, and its sessions a week, in the order of the week. Its items name their activity by code, and a code outside the model is refused.
 - **A test checks** that every file reads, is named by its ID, is an example, and names a grade and subject the profile has.
 
 ## Sources

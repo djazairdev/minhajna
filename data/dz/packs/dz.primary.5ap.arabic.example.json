@@ -12,6 +12,26 @@
     "issuer": "Minhajna example, made up to try the app; not a plan",
     "edition": "example"
   },
+  "activities": [
+    {
+      "code": "reading",
+      "name": {
+        "ar": "قراءة",
+        "fr": "Lecture",
+        "en": "Reading"
+      },
+      "sessions": 1
+    },
+    {
+      "code": "writing",
+      "name": {
+        "ar": "كتابة",
+        "fr": "Écriture",
+        "en": "Writing"
+      },
+      "sessions": 1
+    }
+  ],
   "items": [
     {
       "id": "w1-1",

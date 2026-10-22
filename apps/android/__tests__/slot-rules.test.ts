@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // One slot of the week (#28, Week-slot): what it holds, A/B pairs, the
-// teacher's own time for a slot or a half-day, and half-groups made once.
+// teacher's own time for a slot or a half-day, half-groups made once, and a
+// primary slot's activity type kept (#230).
 // Made-up classes only.
 
 import { parseDay, type Course, type SchoolClass, type TimetableVersion } from '@minhajna/core';
-import { itemsAt, otherWeek, setItems, withHalves, type SlotItem } from '../src/week/slot-rules';
+import { itemsAt, otherWeek, setItems, withActivity, withHalves, type SlotItem } from '../src/week/slot-rules';
 import type { Cell } from '../src/week/week-rules';
 
 const day = parseDay('2026-10-15');
@@ -93,6 +94,19 @@ test("draws the teacher's own time over the whole half-day, and clears it from a
   const first: Cell = { weekday: 2, slot: { half: 'morning', index: 1 } };
   expect(itemsAt(halfDay, lookup, first).map((item) => item.kind)).toEqual(['class', 'own']);
   expect(setItems(halfDay, { weekday: 2, slot: { half: 'morning', index: 4 } }, [], make).blocks).toEqual([]);
+});
+
+test('keeps a primary slot’s activity type through reading and saving, and takes it off when asked (#230)', () => {
+  const reading = {
+    ...base,
+    entries: [{ ...base.entries[0], weeks: 'every' as const, sessionType: 'lesson', activity: 'reading' }],
+  };
+  const [item] = itemsAt(reading, lookup, tue2);
+  expect(item).toMatchObject({ kind: 'class', activity: 'reading' });
+  expect(setItems(reading, tue2, [item], make).entries[0]?.activity).toBe('reading');
+  const plain = item?.kind === 'class' ? withActivity(item, undefined) : item;
+  expect(plain).not.toHaveProperty('activity');
+  expect(setItems(reading, tue2, [plain], make).entries[0]).not.toHaveProperty('activity');
 });
 
 test('gives a class two half-groups once, keeping its whole group', () => {
