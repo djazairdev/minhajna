@@ -46,6 +46,7 @@ export type RootStackParamList = {
   SettingsWeek: undefined;
   SettingsPlans: { schoolId?: string } | undefined;
   SettingsLengths: undefined;
+  SettingsNotify: undefined;
   Language: undefined;
   PrivacyNotice: undefined;
   Connections: undefined;

@@ -69,5 +69,21 @@
     "projected": "Provisional, awaiting this year’s notice"
   },
   "lengthsRule": "A shortened session still counts as one. Buffers and lesson order do not change; the texts book prints its actual times.",
-  "pinned": "Each class stays on its release until you choose to change it. Recorded sessions do not change."
+  "pinned": "Each class stays on its release until you choose to change it. Recorded sessions do not change.",
+  "notify": {
+    "intro": "Few, and for you alone",
+    "digest": "Weekly digest",
+    "digestLine": "Sunday morning, for each class",
+    "digestLineSaturday": "Saturday morning, for each class",
+    "preview": "Daily preview",
+    "previewLine": "Tomorrow’s sessions, before quiet hours",
+    "saturday": "Working on Saturdays",
+    "saturdayLine": "Shortens the weekend’s quiet hours",
+    "quiet": "Quiet hours",
+    "quietDaily": "Every day from 20:00 to 07:00",
+    "quietWeekend": "And from Thursday 20:00 to Sunday 07:00",
+    "quietWeekendSaturday": "And from Thursday 20:00 to Saturday 07:00",
+    "quietNone": "No notification arrives during them.",
+    "noNames": "No notification shows a name or a mark."
+  }
 }
