@@ -123,6 +123,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يعرض «سجل النشاط» في الإعدادات ما صحّحته وطبعته وحفظته وحذفته، باليوم ودون ساعة: الحقول المصحّحة في الحصة وسببها، وتغييرات المناداة برقم كل تلميذ في القائمة، وكل وثيقة طُبعت أو حُفظت PDF مع الفترة التي تغطيها، والملفات الموقّعة التي أخذتها، وكل حذف، لا يبقى منه إلا أنه حدث ويومه. وتعرض الألسنة نوعاً واحداً في كل مرة.
 - «Retention» in Settings shows the default period for lesson records, pupil data, private notes and the activity log, and lets you change the first three. It shows the month each school year's pupil data would be offered for erasing. Nothing is erased from there.
   - تعرض «مدة الحفظ» في الإعدادات المدة الأصلية لسجلات الحصص وبيانات التلاميذ والملاحظات الخاصة وسجل النشاط، ويمكنك تغيير الثلاثة الأولى. وتبيّن الشهر الذي يُعرض فيه مسح بيانات تلاميذ كل سنة دراسية. ولا يُمسح شيء من هناك.
+- If the app's records were changed outside the app, it no longer just refuses to open: after the lock, it shows what happened, the first day that cannot be checked, how many changes since then cannot be checked, and the log as far as it can be trusted. It only reads them; nothing is changed or erased.
+  - إذا غُيّرت سجلات التطبيق من خارجه، لم يعد يكتفي برفض الفتح: بعد القفل، يبيّن ما حدث، وأول يوم لا يمكن التحقق منه، وعدد التغييرات التي لا يمكن التحقق منها منذ ذلك اليوم، والسجل إلى حيث يمكن الوثوق به. ويقرؤها فقط، فلا يُغيَّر شيء ولا يُمحى.
 
 ### Changed
 
