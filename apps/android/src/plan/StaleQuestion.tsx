@@ -92,6 +92,7 @@ export function StaleQuestion({ courseId, onSignature }: StaleQuestionProps) {
               onPress={() => save(html, 'stale-question', file, false)}
             />
           </View>
+          {signing.warning}
         </>
       )}
     </ScrollView>

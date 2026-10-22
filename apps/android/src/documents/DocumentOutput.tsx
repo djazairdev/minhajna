@@ -7,7 +7,9 @@
 // with pupils' data says that «داخلي · سري» is on every page (R-5.9-15). The
 // teacher's box carries the drawn signature while it is in use, unless the
 // teacher picks «فارغة» for this output; otherwise it stays blank, to sign
-// by hand (R-3.8-42, #236, answer 412). A password on the PDF comes later.
+// by hand (R-3.8-42, #236, answer 412); while it carries the signature, a
+// line under the buttons says whoever gets the PDF can copy it (R-3.8-46,
+// answer 415). A password on the PDF comes later.
 // The pages are made from the record book when a button is pressed, so they
 // hold the latest entries. A document of a month prints the month it was
 // opened for, as the texts book's pages in the app open it (#213), or else
@@ -32,7 +34,7 @@ import { DayStep } from './DayStep';
 import { useDocumentData } from './useDocumentData';
 import { useAppData } from '../storage/AppData';
 import { useOutputRun } from './output-run';
-import { drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
+import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
 
 /** Prints or saves one document, for the period of `day` when given, else today's. */
 export function DocumentOutput({
@@ -176,6 +178,7 @@ export function DocumentOutput({
           onPress={() => save(html, `document-${kind.id}`, fileName(kind, data, t, blank, layout), kind.landscape)}
         />
       </View>
+      <CopyWarning testID="output-copy" shown={signs} />
     </ScrollView>
   );
 }

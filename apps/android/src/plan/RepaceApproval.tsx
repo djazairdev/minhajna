@@ -7,12 +7,13 @@
 // again after it was; the print for approval; then, while it waits, the
 // approval date on the month's grid, from the print day to today,
 // «تسجيل الاعتماد», and «لم تُعتمد: تعديل المسودة» to tick again, from the
-// choices printed, and print anew. The current distribution applies until
-// the approval is recorded.
+// choices printed, and print anew. Under the print button, the screen's line
+// on copying the drawn signature, when the draft carries it (answer 415).
+// The current distribution applies until the approval is recorded.
 
 import type { CountryProfile, Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useState, type ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
@@ -33,12 +34,14 @@ export type RepaceApprovalProps = {
   readonly busy: boolean;
   readonly profile: Pick<CountryProfile, 'months'>;
   readonly onPrint: () => void;
+  /** The line under the print button saying whoever gets the PDF can copy the drawn signature it carries. */
+  readonly warning?: ReactElement;
   readonly onRecord: (approved: Day) => void;
   readonly onEdit: () => void;
 };
 
 export function RepaceApproval(props: RepaceApprovalProps) {
-  const { status, printed, today, busy, profile, onPrint, onRecord, onEdit } = props;
+  const { status, printed, today, busy, profile, onPrint, warning, onRecord, onEdit } = props;
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -70,13 +73,16 @@ export function RepaceApproval(props: RepaceApprovalProps) {
           <Button testID="repace-edit" variant="line" label={t('repace.edit')} onPress={onEdit} />
         </>
       ) : (
-        <Button
-          testID="repace-print"
-          label={t('repace.printForApproval')}
-          icon={controlIcon('print')}
-          disabled={busy}
-          onPress={onPrint}
-        />
+        <>
+          <Button
+            testID="repace-print"
+            label={t('repace.printForApproval')}
+            icon={controlIcon('print')}
+            disabled={busy}
+            onPress={onPrint}
+          />
+          {warning}
+        </>
       )}
       <Text style={[styles.sub, align]}>{t('repace.primary')}</Text>
     </View>

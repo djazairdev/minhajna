@@ -1836,6 +1836,8 @@
       "drawnNote": "Dans la case de l’enseignant seulement, et seulement sur ce qui est confirmé. Les cases du directeur et de l’inspecteur restent toujours vides.",
       "drawnNoteBox": "Dans la case de l’enseignant seulement. Les cases du directeur et de l’inspecteur restent toujours vides.",
       "signatureSettings": "Réglages de la signature",
+      "copy": "Toute personne qui reçoit le PDF peut copier la signature.",
+      "copyShop": "Toute personne qui reçoit le PDF peut copier la signature, y compris l’imprimerie.",
       "signatureRoll": "Les cases de l’enseignant, du directeur et de l’inspecteur restent vides, à signer à la main.",
       "print": "Imprimer",
       "save": "Enregistrer en PDF",

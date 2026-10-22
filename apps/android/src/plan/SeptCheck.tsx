@@ -95,6 +95,7 @@ export function SeptCheck({ courseId, onSignature }: SeptCheckProps) {
               onPress={() => save(html, 'sept-check', file, false)}
             />
           </View>
+          {signing.warning}
         </>
       )}
     </ScrollView>

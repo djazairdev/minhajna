@@ -1802,6 +1802,8 @@
       "drawnNote": "In the teacher’s box only, and only on what is confirmed. The director’s and inspector’s boxes always stay blank.",
       "drawnNoteBox": "In the teacher’s box only. The director’s and inspector’s boxes always stay blank.",
       "signatureSettings": "Signature settings",
+      "copy": "Anyone who receives the PDF can copy the signature.",
+      "copyShop": "Anyone who receives the PDF can copy the signature, the print shop included.",
       "signatureRoll": "The teacher's, the director's and the inspector's boxes stay blank, to sign by hand.",
       "print": "Print",
       "save": "Save PDF",

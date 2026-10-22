@@ -243,6 +243,7 @@ export function Repace({ courseId, onSignature }: { readonly courseId: string; r
             busy={output.busy}
             profile={profile}
             onPrint={() => print(draft)}
+            warning={signing.warning}
             onRecord={confirm}
             onEdit={() => {
               setEditing(true);
@@ -259,6 +260,7 @@ export function Repace({ courseId, onSignature }: { readonly courseId: string; r
               disabled={output.busy}
               onPress={() => print(draft)}
             />
+            {signing.warning}
           </View>
         )}
       </ScrollView>

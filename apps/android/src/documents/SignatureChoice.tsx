@@ -5,7 +5,9 @@
 // while the drawn signature is in use, the teacher picks «بتوقيعي المرسوم»,
 // the first, or «فارغة» for this output only, and «إعدادات التوقيع» opens
 // the signature. When it is not in use, nothing shows here and the screen
-// keeps its line about signing by hand.
+// keeps its line about signing by hand. While the output carries it, a line
+// under the print and save buttons says that whoever gets the PDF can copy
+// it (R-3.8-46, answer 415).
 
 import { signatureInUse } from '@minhajna/core';
 import { StyleSheet, Text, View } from 'react-native';
@@ -23,11 +25,29 @@ export function useSignatureInUse(): boolean {
   return signatureInUse(state.personal) !== null;
 }
 
+/** Whether any of the documents has a teacher's box or column that can carry the signature. */
+export function carriesSignature(ids: readonly DocumentId[]): boolean {
+  return DOCUMENTS.some((kind) => ids.includes(kind.id) && kind.drawn !== undefined);
+}
+
 /** The note under the choice: on what is confirmed only when one of the documents signs only that. */
 export function drawnNote(t: Translate, ids: readonly DocumentId[]): string {
   const confirmed = DOCUMENTS.some((kind) => ids.includes(kind.id) && kind.drawn === 'confirmed');
   return t(confirmed ? 'documents.output.drawnNote' : 'documents.output.drawnNoteBox');
 }
+
+/** «من يستلم ملف PDF يمكنه نسخ التوقيع.» while `shown`; naming the print shop when one PDF goes there. */
+export function CopyWarning({ testID, shown, printShop = false }: CopyWarningProps) {
+  const t = useText();
+  if (!shown) return null;
+  return (
+    <Text testID={testID} style={styles.note}>
+      {t(printShop ? 'documents.output.copyShop' : 'documents.output.copy')}
+    </Text>
+  );
+}
+
+export type CopyWarningProps = { readonly testID: string; readonly shown: boolean; readonly printShop?: boolean };
 
 export type SignatureChoiceProps = {
   readonly testID: string;
