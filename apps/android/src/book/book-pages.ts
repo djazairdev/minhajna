@@ -10,7 +10,9 @@
 // awaiting sessions only is named by its month alone (R-2.3-14). The awaiting sessions are
 // worked out together, each as if those before it were confirmed as
 // proposed, in one pass over the year. A course of another school year has
-// no pages here, as it has none in print.
+// no pages here, as it has none in print. A class reshaped after
+// reorientation opens its first confirmed row with the reshaping, as in
+// print (#231).
 
 import {
   compareDays,
@@ -24,7 +26,7 @@ import {
   type Session,
 } from '@minhajna/core';
 import type { DocumentData, Translate } from '../documents/document-data';
-import { bookRow, paginate, type BookRow, type Direction } from '../documents/texts-book-rows';
+import { bookRow, paginate, withReshape, type BookRow, type Direction } from '../documents/texts-book-rows';
 
 export interface ViewRow extends BookRow {
   readonly session: Session;
@@ -83,10 +85,11 @@ export function bookViewPages(
     return [{ ...bookRow(data, where, session, preview, t, dir), session, awaiting: true, proposed }];
   });
   const order = new Map(rows.map((row, index) => [row.key, index]));
+  const shown = withReshape(rows, (row) => !row.awaiting && row.session.courseId === course.id, course, t, dir);
   const pages: ViewPage[] = [];
   let numbered = 0;
   for (let month = data.year.from.slice(0, 7); month <= last.slice(0, 7); month = monthAfter(month)) {
-    const inMonth = rows.filter((row) => row.day.startsWith(month));
+    const inMonth = shown.filter((row) => row.day.startsWith(month));
     const printed = paginate(
       inMonth.filter((row) => !row.awaiting),
       dir,

@@ -233,7 +233,7 @@ export function ClassPage(props: ClassPageProps) {
         onClose={() => props.onSettings(false)}
         onSeats={props.onSeats}
         onRules={props.onRules}
-        onMove={props.onMove}
+        {...(row.archived === undefined && { onMove: props.onMove })}
         {...(reshapedWith(context, row.schoolClass.id).length > 0 && { onReorient: props.onReorient })}
       />
     </ScrollView>

@@ -22,7 +22,8 @@ export type ClassSettingsProps = {
   readonly onClose: () => void;
   readonly onSeats: () => void;
   readonly onRules: () => void;
-  readonly onMove: () => void;
+  /** Opens the pupils' moves; no row without it, as for an archived class. */
+  readonly onMove?: () => void;
   /** Opens the reorientation; no row without it. */
   readonly onReorient?: () => void;
 };
@@ -65,12 +66,14 @@ export function ClassSettings({
           title={t('rules.open')}
           onPress={open(onRules)}
         />
-        <RowLink
-          testID="class-settings-move"
-          icon={controlIcon('plus')}
-          title={t('move.open')}
-          onPress={open(onMove)}
-        />
+        {onMove !== undefined && (
+          <RowLink
+            testID="class-settings-move"
+            icon={controlIcon('plus')}
+            title={t('move.open')}
+            onPress={open(onMove)}
+          />
+        )}
         {onReorient !== undefined && (
           <RowLink
             testID="class-settings-reorient"

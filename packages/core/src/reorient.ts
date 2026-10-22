@@ -11,9 +11,10 @@
 // teach; their roll calls stay with the old class. The timetable's
 // sessions of an old class's courses go to the new class that takes its
 // history, from that day; a second new class taking the same history starts
-// with none, to draw. The day is never one gone by when the reshaping is
-// recorded, since a timetable never reaches back before the day it is
-// recorded (PRD §4.6): the sessions in between would belong to no class.
+// with none, to draw. The day is the one the reshaping is recorded on: never
+// one gone by, since a timetable never reaches back before the day it is
+// recorded (PRD §4.6) and the sessions in between would belong to no class;
+// never one to come, so an old class is never left waiting for its archive.
 // Tests and added sessions of the old classes on or after the day are moved
 // or cancelled first; homework that comes back on or
 // after it stays with the old class, uncounted, its list gone. Nothing is
@@ -64,6 +65,7 @@ export type ReorientRefusal =
   | 'archived'
   | 'day'
   | 'past'
+  | 'future'
   | 'no-name'
   | 'same-name'
   | 'other-history'
@@ -84,6 +86,7 @@ export function reorientRefusal(context: Context, plan: Reorientation, today: Da
   if (olds.some((one) => one?.archivedFrom !== undefined)) return 'archived';
   if (!isWithin(plan.day, addDays(ref.year.from, 1), ref.year.to)) return 'day';
   if (compareDays(plan.day, today) < 0) return 'past';
+  if (compareDays(plan.day, today) > 0) return 'future';
   const names = plan.classes.map((one) => one.name.trim());
   if (names.length === 0 || names.some((name) => name === '')) return 'no-name';
   if (new Set(names).size !== names.length) return 'same-name';
