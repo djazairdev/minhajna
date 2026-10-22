@@ -6,8 +6,9 @@
 // draft. While it is in use, each screen offers «بتوقيعي المرسوم», chosen
 // first, with the note on where it goes and «إعدادات التوقيع», or
 // «فارغة»; the sheet carries it in the teacher's box alone, never in the
-// inspector's or the director's. Without it, nothing is offered and the box
-// stays blank. Made-up data only.
+// inspector's or the director's, and a line under the buttons says whoever
+// gets the PDF can copy it (answer 415). Without it, nothing is offered and
+// the box stays blank. Made-up data only.
 
 import { parseDay } from '@minhajna/core';
 import type React from 'react';
@@ -97,6 +98,11 @@ const note = (id: string) =>
     .findAll((node) => node.props.testID === `${id}-note`)
     .map((node) => node.props.children as unknown);
 
+const copy = (id: string) =>
+  settingsRoot()
+    .findAll((node) => node.props.testID === `${id}-copy` && typeof node.props.children === 'string')
+    .map((node) => node.props.children as unknown);
+
 async function printed(testID: string): Promise<string> {
   printHtml.mockClear();
   await pressSettings(testID);
@@ -108,11 +114,13 @@ test.each(SHEETS)('$name carries it in the teacher’s box, or not with «فار
   await showSettingsScreen(sheet.screen(onSignature), await signed(await sheet.data()));
   expect(choice(sheet.id)[0]?.props).toMatchObject({ selected: 'drawn' });
   expect(note(sheet.id)).toContain(text.documents.output.drawnNoteBox);
+  expect(copy(sheet.id)).toContain(text.documents.output.copy);
   const html = await printed(sheet.print);
   expect(html.split(MARK)).toHaveLength(2);
   expect(html).toContain(`${sheet.teacher}${MARK}`);
   await ReactTestRenderer.act(() => (choice(sheet.id)[0].props.onSelect as (value: string) => void)('blank'));
   expect(note(sheet.id)).toEqual([]);
+  expect(copy(sheet.id)).toEqual([]);
   expect(await printed(sheet.print)).not.toContain(MARK);
   await pressSettings(`${sheet.id}-settings`);
   expect(onSignature).toHaveBeenCalledTimes(1);
@@ -122,11 +130,13 @@ test.each(SHEETS)('$name carries it in the teacher’s box, or not with «فار
 test.each(SHEETS)('$name offers nothing and keeps the box blank while it is not in use', async (sheet) => {
   await showSettingsScreen(sheet.screen(jest.fn()), await signed(await sheet.data(), false));
   expect(choice(sheet.id)).toHaveLength(0);
+  expect(copy(sheet.id)).toEqual([]);
   expect(await printed(sheet.print)).not.toContain(MARK);
 });
 
 test('a primary re-pace draft never carries it in the director’s box', async () => {
   await showSettingsScreen(<Repace courseId="c-1" />, await signed(await behindInPrimary()));
+  expect(copy('repace-signature')).toContain(text.documents.output.copy);
   const html = await printed('repace-print');
   expect(html.split(MARK)).toHaveLength(2);
   const director = html.slice(html.indexOf(text.repace.sheet.director));

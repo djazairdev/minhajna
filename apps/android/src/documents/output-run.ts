@@ -9,24 +9,29 @@
 // print can be kept once it has gone to the print screen, as a primary
 // re-pace draft keeps its day (#229).
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import pdf from '../native/NativeMinhajnaPdf';
 
 export type Said = 'saved' | 'failed' | null;
 
-/** One document's print and save, with whether one is running and what was said of the last. */
-export function useOutputRun() {
-  const [busy, setBusy] = useState(false);
-  const [said, setSaid] = useState<Said>(null);
+/** Whether the screen is still shown, so a print that ends after it closed says nothing. */
+export function useMounted(): RefObject<boolean> {
   const mounted = useRef(true);
-  const running = useRef(false);
-
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
     };
   }, []);
+  return mounted;
+}
+
+/** One document's print and save, with whether one is running and what was said of the last. */
+export function useOutputRun() {
+  const [busy, setBusy] = useState(false);
+  const [said, setSaid] = useState<Said>(null);
+  const mounted = useMounted();
+  const running = useRef(false);
 
   const run = (work: () => Promise<Said>) => {
     if (running.current) return;

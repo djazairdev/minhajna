@@ -8,12 +8,14 @@
 // drawn signature is in use (#236, answer 412), else blank with its line;
 // the documents' template, the default until #237, shown and disabled;
 // binding margins and a blank copy of each; then the pages, sheets and
-// cost, and «طباعة» or one PDF for the print shop. The choices stay on this
-// phone; a print counts once Android's print screen opens or the PDF is
-// saved, and leaves its record in the history.
+// cost, and «طباعة» or one PDF for the print shop, saying that whoever gets
+// the PDF, the print shop too, can copy the signature it carries (R-3.8-46,
+// answer 415). The choices stay on this phone; a print counts once Android's
+// print screen opens or the PDF is saved, and leaves its record in the
+// history.
 
 import { useLocale } from '@react-navigation/native';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
@@ -30,8 +32,9 @@ import type { DocumentId } from './catalogue';
 import { PrintEntry } from './PrintEntry';
 import { countsForPrint, useBookCounts } from './print-count';
 import type { PrintRange } from './print-ranges';
+import { useMounted } from './output-run';
 import { PrintRangeSheet } from './PrintRangeSheet';
-import { drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
+import { carriesSignature, CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
 import { printSetHtml, printSummary, setLandscape, type SetLayout } from './print-set';
 import { usePrintSettings, type PrintSettingsChange } from './print-settings';
 import { yearShown } from './document-data';
@@ -60,15 +63,8 @@ export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<Said>(null);
   const opener = useRef<ViewInstance | null>(null);
-  const mounted = useRef(true);
+  const mounted = useMounted();
   const running = useRef(false);
-
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
 
   const update = (next: PrintSettingsChange) => {
     change(next);
@@ -95,6 +91,7 @@ export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }
   const pages = counts === null ? undefined : documentPages(set, counts);
   const summary = counts === null ? null : printSummary(counts, settings.twoSided);
   const empty = set.documents.length === 0;
+  const signs = inUse && drawn && carriesSignature(set.ids);
 
   const run = (how: 'print' | 'pdf') => {
     if (running.current) return;
@@ -194,7 +191,7 @@ export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }
         onSettings={onSignature}
       />
       <Text testID="print-signature-line" style={styles.line}>
-        {inUse && drawn ? drawnNote(t, set.ids) : t('documents.printWeek.signatureLine')}
+        {signs ? drawnNote(t, set.ids) : t('documents.printWeek.signatureLine')}
       </Text>
       <View style={styles.card}>
         <Switch
@@ -266,6 +263,7 @@ export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }
           onPress={() => run('pdf')}
         />
       </View>
+      <CopyWarning testID="print-copy" shown={signs} printShop />
       <PrintRangeSheet
         kind={openKind}
         data={data}

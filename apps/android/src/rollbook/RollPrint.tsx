@@ -13,8 +13,10 @@
 // screen's plan alone, or from the Documents tab on the first class and the
 // latest month. While the drawn signature is in use, «خانة توقيعي» offers it
 // or a blank box for the spread and the summary (#236, answers 412 and 413);
-// otherwise, or for a blank version, the line says the box prints blank. A
-// file with pupils' data says «داخلي · سري» is on every page.
+// otherwise, or for a blank version, the line says the box prints blank.
+// While it is printed, a line under the buttons says whoever gets the PDF
+// can copy it (R-3.8-46, answer 415). A file with pupils' data says
+// «داخلي · سري» is on every page.
 
 import { useLocale } from '@react-navigation/native';
 import { compareDays, countYear, parseDay, type Day } from '@minhajna/core';
@@ -34,7 +36,7 @@ import { seatPlans } from '../documents/roll-seats';
 import { slipDays, slipsOffered, slipLabel, slipUnits } from '../documents/roll-slip';
 import { rollOutput, type RollPrintChoice } from '../documents/roll-print-output';
 import { rollBooks, type RollBook } from '../documents/roll-spread-pages';
-import { drawnNote, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
+import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
 import { useDocumentData } from '../documents/useDocumentData';
 import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
@@ -278,6 +280,7 @@ export function RollPrint(props: RollPrintProps) {
           onPress={() => output !== null && save(output.html, output.made, output.file, output.landscape)}
         />
       </View>
+      <CopyWarning testID="roll-print-copy" shown={signed && inUse && drawn && !blank} />
     </ScrollView>
   );
 }
