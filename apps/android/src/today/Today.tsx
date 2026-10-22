@@ -23,12 +23,13 @@ import {
   addDays,
   backlogOf,
   carryTo,
-  courseGrade,
   courseSetup,
   formatDayWithMonth,
   nextSession,
   todayView,
   weekday,
+  type Choice,
+  type Details,
   type HomeworkItem,
   type Session,
   type TodaySession,
@@ -39,7 +40,7 @@ import { ScrollView, StyleSheet, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TodayHeadingActions } from './TodayHeadingActions';
 import { PageHeading } from '../components/PageHeading';
-import { JointCard, type JointYear } from './JointCard';
+import { TodayJoint } from './TodayJoint';
 import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
@@ -48,7 +49,7 @@ import { SupportToday } from './SupportToday';
 import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
-import { localized, yearShort } from '../setup/names';
+import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
@@ -60,7 +61,8 @@ import { OutcomeSheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
 import { dayFacts, lessonOf, proposalOf, writtenOf } from './today-labels';
-import { sessionsOf, todayEntries } from './joint-today';
+import { todayEntries } from './joint-today';
+import { ListCard, listOfSession, listWritten } from './ListCard';
 import { useTodayActions } from './today-actions';
 import { sessionMeta } from './today-meta';
 
@@ -102,7 +104,7 @@ export function Today(props: {
   const taken = mark === null ? specialLost(view, specials) : view.sessions.length - shown.length;
   const noneLeft = (mark !== null || taken > 0) && (mark === null ? view.sessions.length - taken : shown.length) === 0;
   const next = useMemo(() => (noneLeft ? nextSession(context, day) : null), [context, day, noneLeft]);
-  const focus = view.sessions.find((item) => item.status === 'awaiting' && item.proposal !== null);
+  const focus = view.sessions.find((item) => item.proposal !== null || listOfSession(item) !== null);
 
   const { done, confirm, confirmAll, keepReason, undo } = useTodayActions(context, t, record, recordAll);
 
@@ -129,7 +131,7 @@ export function Today(props: {
           testID={testID}
           kind="done"
           meta={metaOf(item, true)}
-          written={writtenOf(t, pack, item.record, comma)}
+          written={listWritten(t, state, item.record) ?? writtenOf(t, pack, item.record, comma)}
           where={t('today.recorded')}
           show={{ id: 'fix', label: t('fix.open'), onPress: () => onDetails(item.session) }}
           due={due}
@@ -145,6 +147,12 @@ export function Today(props: {
             ? localized(entry.name)
             : t(`today.calendar.${item.session.calendar ?? 'holiday'}`);
       return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} lesson={lesson} />;
+    }
+    const list = listOfSession(item);
+    if (list !== null) {
+      const onRecord = (choice?: Choice, details?: Details) => confirm(item, choice, details);
+      const show = { meta: metaOf(item, true), focus: item === focus, onDetails: () => onDetails(item.session) };
+      return <ListCard key={key} testID={testID} {...{ item, context, due, onRecord, ...show }} kind={list} />;
     }
     if (item === focus && item.proposal !== null) {
       return (
@@ -166,45 +174,6 @@ export function Today(props: {
     }
     const lesson = lessonOf(t, item, pack);
     return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lesson} due={due} />;
-  };
-
-  const jointCard = (key: string, items: readonly TodaySession[]) => {
-    const schoolClass = state.classes.get(items[0]?.course.classId ?? '');
-    const first = items[0];
-    if (schoolClass === undefined || first === undefined) return null;
-    const ready = items.filter((item) => item.status === 'awaiting' && item.proposal !== null);
-    const onFocus = focus !== undefined && items.includes(focus);
-    const years = items.map((item): JointYear => {
-      const grade = courseGrade(item.course, schoolClass);
-      const pack = courseSetup(context, item.course.id).pack;
-      const head = { id: grade, badge: grade.replace(/\D/g, ''), name: yearShort(t, grade) };
-      if (item.status === 'recorded' && item.record !== null) {
-        const show = { id: `fix-${grade}`, label: t('fix.open'), onPress: () => onDetails(item.session) };
-        return { ...head, kind: 'done', written: writtenOf(t, pack, item.record, comma), show };
-      }
-      if (onFocus && item.proposal !== null && ready.includes(item)) {
-        const proposal = proposalOf(t, pack, item.proposal);
-        return { ...head, kind: 'proposal', proposal, onConfirm: () => confirm(item), hint: t('joint.alone') };
-      }
-      const show = { id: `details-${grade}`, label: t('entry.open'), onPress: () => onDetails(item.session) };
-      return { ...head, kind: 'lesson', lesson: lessonOf(t, item, pack).lesson, ...(onFocus && { show }) };
-    });
-    return (
-      <JointCard
-        key={key}
-        testID={`today-${key}`}
-        meta={{ ...metaOf(first, true), className: schoolClass.name }}
-        years={years}
-        due={dueStrips(t, context, sessionsOf(items), onRoll, onHomework)}
-        {...(onFocus && {
-          confirm: {
-            label: t('joint.confirm', { count: ready.length }),
-            note: t('joint.confirmNote'),
-            onConfirm: () => confirmAll(ready, key),
-          },
-        })}
-      />
-    );
   };
 
   return (
@@ -248,7 +217,16 @@ export function Today(props: {
             />
           )}
           {todayEntries(state, shown).map((entry) =>
-            entry.kind === 'one' ? card(entry.item) : jointCard(entry.key, entry.items),
+            entry.kind === 'one' ? (
+              card(entry.item)
+            ) : (
+              <TodayJoint
+                key={entry.key}
+                slotKey={entry.key}
+                items={entry.items}
+                {...{ focus, context, metaOf, confirm, confirmAll, onDetails, onRoll, onHomework }}
+              />
+            ),
           )}
           {props.onExams?.support && <SupportToday day={day} onLog={props.onExams.support} />}
           {mark?.effect !== 'exam' && taken > 0 && (

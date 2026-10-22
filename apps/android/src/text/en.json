@@ -283,6 +283,7 @@
     "noActivity": "No type",
     "noModel": "This subject’s pack has no weekly model, so the plan proposes the next lesson.",
     "outsidePlan": "A session outside the main plan: it does not move the plan, and it has its own list.",
+    "listLink": "The slot is kept in the drawing, then the list opens.",
     "bellLine": "Times from the school’s bells: {{time}}, that is {{minutes}}."
   },
   "times": {
@@ -2282,6 +2283,29 @@
     "remediationIntro": "The timetable’s remediation sessions have their own list: each takes the first item not finished. The main plan does not move with them, and the class keeps its place in it.",
     "remediationEmpty": "The list is empty for now; it is filled from the assessments’ results. Type the first item below.",
     "remediationNext": "Next: the next remediation session takes it"
+  },
+  "listToday": {
+    "heading": {
+      "support": "The class’s support list",
+      "remediation": "The class’s remediation list"
+    },
+    "empty": {
+      "support": "No support list item for this session.",
+      "remediation": "No remediation list item for this session; the list is filled from the assessments’ results."
+    },
+    "note": {
+      "support": "Support sessions have their own list and do not move the main plan. The class’s place in the {{subject}} plan stays as it is.",
+      "remediation": "Remediation sessions have their own list and do not move the main plan. The class’s place in the {{subject}} plan stays as it is."
+    },
+    "today": "Today",
+    "next": "Next session",
+    "after": "After that",
+    "row": "{{n}}, {{title}}, {{place}}",
+    "heldOpen": "Held, item not finished",
+    "heldOpenSub": "{{item}} stays for the next session.",
+    "notHeldSub": "{{item}} goes back to the next session.",
+    "writtenOpen": "{{title}}, not finished",
+    "removed": "An item removed from the list"
   },
   "repace": {
     "title": "Re-pace the rest of the term",

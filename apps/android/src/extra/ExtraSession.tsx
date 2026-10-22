@@ -78,10 +78,11 @@ export function ExtraSession({
   const { direction } = useLocale();
   const data = useAppData();
   const { state, profile, year, calendar, calendarRelease, packs, today, recordAll, newId, settled } = data;
-  const dayRows = useMemo(
-    () => supportRows(data, coreContext({ profile, year, calendar, calendarRelease, packs, state })),
-    [data, profile, year, calendar, calendarRelease, packs, state],
+  const context = useMemo(
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
   );
+  const dayRows = useMemo(() => supportRows(data, context), [data, context]);
   const days = loggableDays(year, today());
   const choices = useMemo(
     () => classChoices(state, profile, year.id, (grade) => yearShort(t, grade)),
@@ -108,7 +109,7 @@ export function ExtraSession({
   const className = (choice && state.classes.get(choice.classId)?.name) ?? '';
   const times = readSpan(from, to);
   const queued = kind !== null && takesQueue(kind) ? choice?.courseId : undefined;
-  const item = queued === undefined ? null : supportItemFor(state, queued, planned);
+  const item = queued === undefined ? null : supportItemFor(context, queued, today(), planned);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
 
   if (choices.length === 0 || !days.open) return <ExtraClosed noClass={choices.length === 0} />;

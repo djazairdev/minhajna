@@ -196,3 +196,24 @@ export function primaryEvents(): RecordEvent[] {
     },
   ];
 }
+
+/** The primary class with Tuesday's slot a remediation session and Thursday's a support one. */
+export function listEvents(): RecordEvent[] {
+  return primaryEvents().map((event) =>
+    event.kind === 'timetable.set'
+      ? {
+          ...event,
+          version: {
+            ...event.version,
+            entries: event.version.entries.map((entry) =>
+              entry.id === 'f-tue-1'
+                ? { ...entry, sessionType: 'remediation' }
+                : entry.id === 'f-thu-1'
+                  ? { ...entry, sessionType: 'support' }
+                  : entry,
+            ),
+          },
+        }
+      : event,
+  );
+}

@@ -5,9 +5,10 @@
 // holds every week, or in A weeks and in B weeks, a warning when it clashes,
 // and «حذف الخانة» and «حفظ». Saving makes any course and half-group the
 // slot needs, keeps an activity type only on a session of the main plan,
-// and hands the drawing its new version; closing keeps nothing.
+// and hands the drawing its new version; closing keeps nothing. Opening a
+// class's list keeps the slot in the drawing first.
 
-import type { TimetableVersion } from '@minhajna/core';
+import type { ListKind, TimetableVersion } from '@minhajna/core';
 import { weekClashes } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
@@ -33,6 +34,8 @@ export type SlotSheetProps = {
   readonly records: Records;
   readonly onClose: () => void;
   readonly onSave: (version: TimetableVersion) => void;
+  /** Opens a class's list, once the slot is kept in the drawing. */
+  readonly onList?: (courseId: string, kind: ListKind) => void;
 };
 
 /** The sheet, open while `cell` is set. */
@@ -46,7 +49,15 @@ export function SlotSheet({ cell, ...props }: SlotSheetProps) {
   );
 }
 
-function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotSheetProps & { readonly cell: Cell }) {
+function SlotEditor({
+  cell,
+  title,
+  version,
+  records,
+  onClose,
+  onSave,
+  onList,
+}: SlotSheetProps & { readonly cell: Cell }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -80,6 +91,15 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
     const courseId = (classId: string, subject: string) => records.courseOfClass(classId, subject)?.id ?? '';
     onSave(setItems(version, cell, resolved, { courseId, newId }));
   };
+  const list =
+    onList === undefined
+      ? {}
+      : {
+          onList: (courseId: string, kind: ListKind) => {
+            save(kept);
+            onList(courseId, kind);
+          },
+        };
   const named = clashes
     .map((clash) =>
       t('week.clashAt', {
@@ -116,6 +136,7 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
           item={first ?? null}
           onChange={(item) => change(0, item)}
           classes={classes}
+          {...list}
         />
         {pair !== null && (
           <ItemEditor
@@ -125,6 +146,7 @@ function SlotEditor({ cell, title, version, records, onClose, onSave }: SlotShee
             onChange={(item) => change(1, item && { ...item, weeks: otherWeek(pair) })}
             classes={classes}
             week={otherWeek(pair)}
+            {...list}
           />
         )}
       </ScrollView>

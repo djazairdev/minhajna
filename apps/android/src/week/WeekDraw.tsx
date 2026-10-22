@@ -16,7 +16,16 @@
 // school, counts each school's sessions, and outlines clashing slots. A
 // clash on Setup-5-Week opens here with its slot on Week-slot.
 
-import { SATURDAY, formatDay, weekGrid, type Half, type Slot, type WeekOptions, type Weekday } from '@minhajna/core';
+import {
+  SATURDAY,
+  formatDay,
+  weekGrid,
+  type Half,
+  type ListKind,
+  type Slot,
+  type WeekOptions,
+  type Weekday,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -41,8 +50,16 @@ const OPTION_SLOTS: Record<Option, (weekday: Weekday, slot: Slot) => boolean> = 
   fifthMorning: (_, slot) => slot.half === 'morning' && slot.index === 5,
 };
 
-/** The drawing screen; `openAt` opens one slot on Week-slot at once, and `onDone` returns once the week is saved. */
-export function WeekDraw({ openAt, onDone }: { openAt?: Cell; onDone: () => void }) {
+/** The drawing screen: `openAt` opens a slot at once, `onDone` follows the save, `onList` opens a class's list. */
+export function WeekDraw({
+  openAt,
+  onDone,
+  onList,
+}: {
+  openAt?: Cell;
+  onDone: () => void;
+  onList?: (courseId: string, kind: ListKind) => void;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -199,6 +216,7 @@ export function WeekDraw({ openAt, onDone }: { openAt?: Cell; onDone: () => void
           draft.change(next);
           setOpen(null);
         }}
+        {...(onList !== undefined && { onList })}
       />
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button

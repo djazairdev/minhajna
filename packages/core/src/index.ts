@@ -63,6 +63,7 @@ export * from './repace-records.ts';
 export * from './catch-up-add.ts';
 export * from './catch-up-sessions.ts';
 export * from './support-queue.ts';
+export * from './list-pairs.ts';
 export * from './exam-duties.ts';
 export * from './exam-window.ts';
 export * from './plan-decisions.ts';

@@ -12,7 +12,7 @@
 // session and activity types, and every session its bell times
 // (SlotTypes); a new subject drops the activity of the old one's pack.
 
-import { BLOCK_KINDS, wholeGroup, type SchoolClass, type Weeks } from '@minhajna/core';
+import { BLOCK_KINDS, wholeGroup, type ListKind, type SchoolClass, type Weeks } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { CheckRow } from '../components/CheckRow';
@@ -47,10 +47,12 @@ export type ItemEditorProps = {
   readonly classes: readonly SchoolClass[];
   /** Set for the second item of an A/B slot. */
   readonly week?: 'A' | 'B';
+  /** Opens the class's list from a slot that takes one. */
+  readonly onList?: (courseId: string, kind: ListKind) => void;
 };
 
 /** The fields of one item. */
-export function ItemEditor({ testID, cell, item, onChange, classes, week }: ItemEditorProps) {
+export function ItemEditor({ testID, cell, item, onChange, classes, week, onList }: ItemEditorProps) {
   const t = useText();
   const { direction } = useLocale();
   const { profile, state } = useAppData();
@@ -137,7 +139,7 @@ export function ItemEditor({ testID, cell, item, onChange, classes, week }: Item
               }
             />
           )}
-          <SlotTypes testID={testID} cell={cell} item={item} schoolClass={schoolClass} onChange={onChange} />
+          <SlotTypes {...{ testID, cell, item, schoolClass, onChange }} {...(onList !== undefined && { onList })} />
           <Segments
             testID={`${testID}-group`}
             label={t('week.group')}

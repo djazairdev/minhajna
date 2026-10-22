@@ -93,7 +93,15 @@ export function PacksScreen({ navigation, route }: NativeStackScreenProps<RootSt
 
 /** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */
 export function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
-  return <WeekDraw openAt={route.params?.slot} onDone={() => navigation.goBack()} />;
+  return (
+    <WeekDraw
+      openAt={route.params?.slot}
+      onDone={() => navigation.goBack()}
+      onList={(courseId, kind) =>
+        navigation.navigate('SupportQueue', { courseId, ...(kind === 'remediation' && { kind }) })
+      }
+    />
+  );
 }
 
 /** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */

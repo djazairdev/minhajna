@@ -76,7 +76,7 @@ describe('scheduled support sessions', () => {
     assert.equal(clashOf(context, 'c-math', d('2026-10-06'), m2)?.courseId, 'c-math');
     assert.deepEqual(openCatchUps(context, 'c-math'), []);
     assert.deepEqual(
-      scheduledSupport(book.state, 'c-math').map((one) => [one.catchUp.id, one.item?.id ?? null]),
+      scheduledSupport(contextOf(book), 'c-math', today).map((one) => [one.catchUp.id, one.item?.id ?? null]),
       [
         ['u-1', 's1'],
         ['u-2', 's2'],
@@ -92,7 +92,7 @@ describe('scheduled support sessions', () => {
     assert.throws(() => logExtra(contextOf(book), logged('u-9'), tuesday), /No such scheduled/);
     await book.recordAll(today, logExtra(contextOf(book), { ...logged('u-1'), item: 's1', finished: true }, tuesday));
     assert.deepEqual(
-      scheduledSupport(book.state, 'c-math').map((one) => [one.catchUp.id, one.item?.id ?? null]),
+      scheduledSupport(contextOf(book), 'c-math', today).map((one) => [one.catchUp.id, one.item?.id ?? null]),
       [['u-2', 's2']],
     );
     assert.throws(() => logExtra(contextOf(book), logged('u-1', 'support', 'x2'), tuesday), /is logged/);
@@ -100,7 +100,7 @@ describe('scheduled support sessions', () => {
     assert.deepEqual(cancelCatchUp(contextOf(book), 'u-2'), { kind: 'catchup.removed', id: 'u-2' });
     await book.recordAll(today, extraRemoval('x1', false));
     assert.deepEqual(
-      scheduledSupport(book.state, 'c-math').map((one) => [one.catchUp.id, one.item?.id ?? null]),
+      scheduledSupport(contextOf(book), 'c-math', today).map((one) => [one.catchUp.id, one.item?.id ?? null]),
       [
         ['u-1', 's1'],
         ['u-2', 's2'],
@@ -123,12 +123,12 @@ describe('scheduled support sessions', () => {
     const book = await scheduled();
     const later = { ...logged('u-2'), item: 's2' };
     assert.throws(() => logExtra(contextOf(book), later, tuesday), /from its day on/);
-    assert.equal(supportItemFor(book.state, 'c-math', 'u-2')?.id, 's2');
-    assert.equal(supportItemFor(book.state, 'c-math')?.id, 's1');
+    assert.equal(supportItemFor(contextOf(book), 'c-math', today, 'u-2')?.id, 's2');
+    assert.equal(supportItemFor(contextOf(book), 'c-math', today)?.id, 's1');
     const wednesday = d('2026-10-07');
     await book.recordAll(wednesday, logExtra(contextOf(book), { ...later, day: wednesday }, wednesday));
     assert.deepEqual(
-      scheduledSupport(book.state, 'c-math').map((one) => [one.catchUp.id, one.item?.id ?? null]),
+      scheduledSupport(contextOf(book), 'c-math', today).map((one) => [one.catchUp.id, one.item?.id ?? null]),
       [['u-1', 's1']],
     );
   });

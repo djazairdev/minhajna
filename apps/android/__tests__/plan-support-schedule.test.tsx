@@ -128,7 +128,7 @@ test('the form opens filled in from it, and logging it ends it', async () => {
   await pressSettings('extra-save');
   const [logged] = extraSessions(data.book.state);
   expect(logged).toMatchObject({ kind: 'support', day, from: '11:00', to: '12:00', scheduled: 'u-1', item: 's1' });
-  expect(scheduledSupport(data.book.state, 'c-1')).toEqual([]);
+  expect(scheduledSupport(contextOf(data), 'c-1', day)).toEqual([]);
 });
 
 test('Today reminds the day’s scheduled support session and opens its form', async () => {
