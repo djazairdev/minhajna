@@ -70,7 +70,7 @@ async function show(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', today = '2
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <ClassesTab onClass={onClass} onBook={onBook} />, today)}
+        {withData(data, <ClassesTab onClass={onClass} onBook={onBook} onWeek={jest.fn()} />, today)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -88,6 +88,7 @@ const shown = () =>
 
 test('one card per class, with its pupils, its first session today and where it stands', async () => {
   await show(await withPupils());
+  expect(root().findAll((node) => /^classes-(week|register|school-)/.test(String(node.props.testID)))).toEqual([]);
   expect(shown()).toEqual([
     text.navigation.classes,
     'اللغة العربية · متوسطة النجاح · 3 تلاميذ',

@@ -11,19 +11,22 @@
 // reads as a delay. Each year of a joint class has its own row (#43). A
 // class on a stale pack says so, since nothing is counted from it (#230). A
 // class archived after a reorientation comes last and says since when; it
-// has no pace (#231).
+// has no pace (#231). A teacher in two schools or more sees a section per
+// school, and a specialist's class is called session by session (#232).
 
 import {
   classGrades,
   compareDays,
   courseGrade,
   courseSetup,
+  findLevel,
   isEnrolled,
   isJoint,
   levelGroups,
   pace,
   termCheck,
   todayView,
+  unitKind,
   type Context,
   type Course,
   type Day,
@@ -123,4 +126,18 @@ export function paceLine(
   return spare >= 0
     ? t('classes.onPlanSpare', { spare: withMinutes(t('classes.spare', { count: spare }), spare) })
     : t('classes.onPlanShort', { sessions: sessions(-spare) });
+}
+
+/** The rows by school, in the order each school's first row comes. */
+export function bySchool<T extends { readonly schoolClass: SchoolClass }>(rows: readonly T[]): [string, T[]][] {
+  const sections = new Map<string, T[]>();
+  for (const row of rows)
+    sections.set(row.schoolClass.schoolId, [...(sections.get(row.schoolClass.schoolId) ?? []), row]);
+  return [...sections];
+}
+
+/** Whether the class is called session by session because the teacher teaches it only as a specialist (answer 397). */
+export function specialistRoll(context: Context, schoolClass: SchoolClass): boolean {
+  const level = findLevel(context.ref.country, schoolClass.level).rollCallUnit;
+  return schoolClass.rollCallUnit === undefined && level === 'half-day' && unitKind(context, schoolClass) === 'session';
 }

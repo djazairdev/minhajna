@@ -72,7 +72,13 @@
     "schools_two": "مؤسستان",
     "schools_few": "{{count}} مؤسسات",
     "schools_many": "{{count}} مؤسسة",
-    "schools_other": "{{count}} مؤسسة"
+    "schools_other": "{{count}} مؤسسة",
+    "groups_zero": "لا فوج",
+    "groups_one": "فوج واحد",
+    "groups_two": "فوجان",
+    "groups_few": "{{count}} أفواج",
+    "groups_many": "{{count}} فوجاً",
+    "groups_other": "{{count}} فوج"
   },
   "bottomSheet": {
     "close": "إغلاق"
@@ -843,7 +849,11 @@
     "spare_many": "{{count}} حصة احتياطية",
     "spare_other": "{{count}} حصة احتياطية",
     "stale": "مخطط متقادم: لا مقارنة بالمخطط",
-    "archived": "مؤرشف منذ {{day}} · يُقرأ ويُطبع"
+    "archived": "مؤرشف منذ {{day}} · يُقرأ ويُطبع",
+    "school": "{{school}} · {{groups}}",
+    "week": "استعمال الزمن: {{schools}}",
+    "weekNote": "أسبوع واحد يجمع حصص المؤسسات، مرسوم على هذا الهاتف. {{clashes}}",
+    "register": "سجل لكل قسم: لا تُحسب فيه إلا حصصك، بمناداة في كل حصة، وتبقى مناداة نصف اليوم لمعلم القسم."
   },
   "classPage": {
     "title": "القسم",

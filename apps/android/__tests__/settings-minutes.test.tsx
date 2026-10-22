@@ -30,7 +30,11 @@ test.each(['ar', 'fr', 'en'] as const)(
     const context = coreContext({ ...data, state: data.book.state });
     const before = pace(context, 'c-1', parseDay('2026-10-15'));
     const history = [...data.book.entries];
-    await showSettingsScreen(<ClassesTab onClass={() => undefined} onBook={() => undefined} />, data, language);
+    await showSettingsScreen(
+      <ClassesTab onClass={() => undefined} onBook={() => undefined} onWeek={() => undefined} />,
+      data,
+      language,
+    );
     const words = settingsTexts();
     await ReactTestRenderer.act(() => setCountMinutes(true));
     expect(settingsTexts()).not.toEqual(words);
