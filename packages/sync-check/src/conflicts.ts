@@ -98,6 +98,10 @@ export function recordKey(entry: Entry): string | null {
       return `catchup/${event.id}`;
     case 'support.set':
       return `support/${event.queue.courseId}`;
+    case 'repace.set':
+      return `repace/${event.repace.id}`;
+    case 'repace.removed':
+      return `repace/${event.id}`;
   }
 }
 

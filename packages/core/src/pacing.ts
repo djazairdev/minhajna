@@ -18,8 +18,9 @@ import { courseGrade, forGrade } from './joint.ts';
 import type { Progress } from './progress.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findSessionType, type CalendarEntry, type Confidence, type Queue } from './reference.ts';
-import { compareSessions, sessionsBetween, type Session } from './sessions.ts';
+import { sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
+import { repaceShift } from './repace-records.ts';
 import { rotationCredits } from './rotation-sessions.ts';
 
 export interface Pace {
@@ -50,11 +51,14 @@ export interface Pace {
   readonly ahead: number;
   /** For week packs: plan weeks behind, beyond the buffers. Null for other packs. */
   readonly weeksBehind: number | null;
+  /** For week packs: plan weeks behind before the buffers are taken off. Null for other packs. */
+  readonly planWeeksBehind: number | null;
   /** Sessions still awaiting confirmation. They do not move the position. */
   readonly awaiting: number;
 }
 
-function queueOf(context: Context, session: Session): string {
+/** The queue a session's kind feeds, as recorded or as scheduled. */
+export function queueOf(context: Context, session: Session): string {
   const record = current(context.state.sessions.get(session.key));
   return findSessionType(context.ref.country, record?.sessionType ?? session.sessionType).queue;
 }
@@ -76,29 +80,6 @@ function queueSessions(context: Context, setup: CourseSetup, from: Day, to: Day,
   return sessionsBetween(context, from, to, new Set([setup.course.id])).filter(
     (session) => queueOf(context, session) === queue,
   );
-}
-
-/** Where what is left of a session's item goes on. */
-export interface CarryTo {
-  /** The next session of the same class, group and subject in the same queue. */
-  readonly next: Session | null;
-  /** The first session of another kind before it, such as a test, which the item passes over. */
-  readonly passed: Session | null;
-}
-
-/**
- * Where what is left of this session's item goes on (PRD §4.7): the next
- * session of the same class, group and subject in the same queue, never a
- * TD, remediation or exam session in between, nor one the calendar takes.
- * Looks eight weeks ahead.
- */
-export function carryTo(context: Context, session: Session): CarryTo {
-  const queue = queueOf(context, session);
-  const later = sessionsBetween(context, session.day, addDays(session.day, 56), new Set([session.courseId])).filter(
-    (other) => other.groupId === session.groupId && other.calendar === null && compareSessions(other, session) > 0,
-  );
-  const at = later.findIndex((other) => queueOf(context, other) === queue);
-  return { next: later[at] ?? null, passed: at > 0 ? (later[0] ?? null) : null };
 }
 
 /** A TD item's term: its own, or else the last term its unit's lessons fall in. */
@@ -125,7 +106,8 @@ export function nextExamTerm(context: Context, setup: CourseSetup, today: Day): 
  * Where a course stands against its plan on `today`. Null without a pack.
  *
  * Week packs place the class by the teaching week: the weeks so far in
- * which the class had a recorded session of this subject.
+ * which the class had a recorded session of this subject. A confirmed
+ * re-pace moves the reference back by the gap it absorbed (#229).
  */
 export function pace(context: Context, courseId: string, today: Day): Pace | null {
   const setup = courseSetup(context, courseId);
@@ -146,6 +128,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     0,
   );
 
+  const shift = repaceShift(state, courseId, today);
   let expected = Math.min(total, rotationCredits(recorded));
   let weeksBehind: number | null = null;
   if (pack.anchor.kind === 'weeks') {
@@ -165,8 +148,9 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     const during = items.filter((item) => item.week === planWeek).reduce((sum, item) => sum + budgetOf(item), 0);
     expected = Math.max(0, before + Math.min(during, thisWeek) - (recorded.length - rotationCredits(recorded)));
     const firstOpen = items.find((item) => !progress.isFinished(pack, item, whole));
-    weeksBehind = firstOpen?.week === undefined ? 0 : Math.max(0, planWeek - firstOpen.week);
+    weeksBehind = firstOpen?.week === undefined ? 0 : Math.max(0, planWeek - firstOpen.week - shift.weeks);
   }
+  expected = Math.max(0, expected - shift.gap);
 
   const term = nextExamTerm(context, setup, today);
   const bufferLeft = items
@@ -193,6 +177,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     delay,
     ahead: Math.max(0, -behind),
     weeksBehind: weeksBehind === null ? null : delay > 0 ? weeksBehind : 0,
+    planWeeksBehind: weeksBehind,
     awaiting: ordinary.length - recorded.length,
   };
 }
