@@ -9,7 +9,7 @@
 // and switches nothing on; a class with changes can share them as a school
 // layer (answer 342). No layer is ever called official.
 
-import { changesFor, switchLayer, type LayerLevel } from '@minhajna/core';
+import { changesFor, courseDecisions, switchLayer, type LayerLevel } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
@@ -99,7 +99,7 @@ export function PlanLayers({ courseId, onCourse, onChanges, onDetails, onImport,
           description={changeCount(t, context, courseId)}
           onPress={onChanges}
         />
-        {changesFor(state.decisions, courseId).length > 0 && (
+        {changesFor(courseDecisions(state, courseId), courseId).length > 0 && (
           <Button testID="layers-export" variant="line" label={t('planLayers.export.action')} onPress={onExport} />
         )}
       </View>

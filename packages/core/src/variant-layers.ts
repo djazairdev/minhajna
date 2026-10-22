@@ -18,6 +18,7 @@
 // ID. Its operations take IDs from the layer and their place in it, so an
 // item one adds or splits has the same ID on every device.
 
+import { inherited } from './lineage.ts';
 import { canonicalJson } from './canonical.ts';
 import type { Day } from './day.ts';
 import type { RecordEvent } from './events.ts';
@@ -94,7 +95,7 @@ export function courseLayers(state: LayerState, courseId: string): CourseLayers 
   if (pack === undefined) return NO_LAYERS;
   const known = state.layers.flatMap(({ layer }) => (layer.pack === pack ? [layer] : []));
   const on = LAYER_LEVELS.flatMap((level) => {
-    const key = state.layerSwitches.get(switchKey(courseId, level))?.layer;
+    const key = inherited(state, courseId, (id) => state.layerSwitches.get(switchKey(id, level)))?.layer;
     return known.filter((layer) => layer.level === level && layerKey(layer) === key);
   });
   return { on, known };

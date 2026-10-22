@@ -10,6 +10,7 @@
 // postpones the items past the window. Each answer can be previewed first,
 // as can a test before it is added: the same projection, with the change.
 
+import { courseDecisions } from './lineage.ts';
 import { courseSetup } from './choices.ts';
 import { makeContext, type Context } from './context.ts';
 import type { Day } from './day.ts';
@@ -69,7 +70,7 @@ export function planChoices(context: Context, warning: Pick<PastWindow, 'courseI
     item !== undefined && item.buffer !== true && !progress.isFinished(pack, item, whole);
   const due = (item: PackItem): boolean => item.term !== undefined && item.term <= warning.term;
   const leftOut = new Set(
-    decisionsFor(context.state.decisions, warning.courseId).flatMap((decision) =>
+    decisionsFor(courseDecisions(context.state, warning.courseId), warning.courseId).flatMap((decision) =>
       decision.kind === 'leave-out' ? [decision.item] : [],
     ),
   );
@@ -82,7 +83,7 @@ export function planChoices(context: Context, warning: Pick<PastWindow, 'courseI
     if (
       open(next) &&
       !leftOut.has(next.id) &&
-      mayMerge(pack, context.state.decisions, warning.courseId, [item.id, next.id])
+      mayMerge(pack, courseDecisions(context.state, warning.courseId), warning.courseId, [item.id, next.id])
     ) {
       choices.push({ kind: 'merge', items: [item, next] });
     }

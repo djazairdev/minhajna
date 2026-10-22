@@ -8,6 +8,7 @@
 // newest re-pace too (#229, answer 366). Nothing shows without a decision.
 
 import {
+  courseDecisions,
   courseSetup,
   decisionsFor,
   findPackItem,
@@ -40,7 +41,7 @@ export function Decisions({ context, courseId, className, onTakeBack, onTakeBack
   const { direction } = useLocale();
   const language = currentLanguage();
   const comma = language === 'ar' ? '، ' : ', ';
-  const decisions = decisionsFor(context.state.decisions, courseId);
+  const decisions = decisionsFor(courseDecisions(context.state, courseId), courseId);
   const repace = onTakeBackRepace === undefined ? undefined : repacesOf(context.state, courseId).at(-1);
   if (decisions.length === 0 && repace === undefined) return null;
   const pack = courseSetup(context, courseId).pack;

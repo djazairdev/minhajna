@@ -4,6 +4,7 @@
 // What the teacher chose for a session, and the record it makes (PRD §3.3).
 // The index exports only the public names; the helpers serve the engine.
 
+import { courseDecisions, inherited } from './lineage.ts';
 import type { Context } from './context.ts';
 import { stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findLevel, findSessionType, packKey } from './reference.ts';
@@ -13,7 +14,8 @@ import { mergesOf } from './plan-decisions.ts';
 import { layered } from './plan-layer.ts';
 import { courseLayers } from './variant-layers.ts';
 import { ownPack } from './free-list.ts';
-import { propose, proposedCoverage, type Progress, type Proposal } from './progress.ts';
+import { proposedCoverage, type Progress, type Proposal } from './progress.ts';
+import { propose } from './propose.ts';
 
 /** What the teacher chose for a session (PRD §3.3). */
 export type Choice =
@@ -85,7 +87,7 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
   if (course === undefined || schoolClass === undefined) throw new RangeError(`Unknown course: ${courseId}`);
   const pack = course.pack === null ? null : (ref.packs.get(packKey(course.pack.id, course.pack.release)) ?? null);
   const sessionMinutes = course.sessionMinutes ?? findLevel(ref.country, schoolClass.level).sessionMinutes;
-  const list = course.pack === null ? state.lists.get(courseId) : undefined;
+  const list = course.pack === null ? inherited(state, courseId, (id) => state.lists.get(id)) : undefined;
   return {
     course,
     schoolClass,
@@ -94,7 +96,7 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
         ? ownPack(list, course, schoolClass, ref.country)
         : pack === null
           ? null
-          : layered(pack, state.decisions, courseId, sessionMinutes, courseLayers(state, courseId)),
+          : layered(pack, courseDecisions(state, courseId), courseId, sessionMinutes, courseLayers(state, courseId)),
     packMissing: course.pack !== null && pack === null,
     packStale: pack?.status === 'stale',
     sessionMinutes,
@@ -114,7 +116,7 @@ export function proposalFor(
     groupId: session.groupId,
     ...(session.activity !== undefined && { activity: session.activity }),
     sessionMinutes: setup.sessionMinutes,
-    merges: mergesOf(setup.pack, context.state.decisions, setup.course.id),
+    merges: mergesOf(setup.pack, courseDecisions(context.state, setup.course.id), setup.course.id),
   });
 }
 

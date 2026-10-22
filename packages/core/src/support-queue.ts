@@ -13,6 +13,7 @@
 // timetabled «معالجة» session the remediation list; the session's record
 // keeps the item and whether it finished it.
 
+import { inherited, lineageIds } from './lineage.ts';
 import { isOneLine } from './calendar-notice-read.ts';
 import { compareDays, type Day } from './day.ts';
 import type { RecordEvent } from './events.ts';
@@ -103,13 +104,14 @@ export function saveSupportQueue(state: State, queue: SupportQueue): RecordEvent
  * on each day the timetabled ones recorded.
  */
 function takers(state: State, courseId: string, kind: ListKind, except?: string): ListTaker[] {
+  const courses = new Set(lineageIds(state, courseId));
   const extras =
     kind !== 'support'
       ? []
       : [...state.extras.values()]
           .flatMap((versions) => {
             const extra = current(versions);
-            return extra !== null && extra.courseId === courseId && extra.item !== undefined && extra.id !== except
+            return extra !== null && courses.has(extra.courseId) && extra.item !== undefined && extra.id !== except
               ? [extra]
               : [];
           })
@@ -124,7 +126,7 @@ function takers(state: State, courseId: string, kind: ListKind, except?: string)
     .flatMap((versions): SessionRecord[] => {
       const record = current(versions);
       return record !== null &&
-        record.session.courseId === courseId &&
+        courses.has(record.session.courseId) &&
         record.listItem !== undefined &&
         listOfType(record.sessionType) === kind &&
         record.session.key !== except
@@ -163,16 +165,19 @@ export function checkListItem(state: State, record: SessionRecord, before: Sessi
   const kind = listOfType(record.sessionType);
   if (kind === null) throw new RangeError('Only a support or remediation session takes a list item');
   const kept = before !== null && taken.id === before.listItem?.id && listOfType(before.sessionType) === kind;
-  const listed = state.supportQueues
-    .get(listKey(record.session.courseId, kind))
-    ?.items.some((one) => one.id === taken.id);
+  const listed = supportListOf(state, record.session.courseId, kind)?.items.some((one) => one.id === taken.id);
   if (listed !== true && !kept) throw new RangeError('No such list item');
+}
+
+/** The class's list, or that of the class whose history it took (#231). */
+export function supportListOf(state: State, courseId: string, kind: ListKind): SupportQueue | undefined {
+  return inherited(state, courseId, (id) => state.supportQueues.get(listKey(id, kind)));
 }
 
 /** The class's list, each item with the sessions that took it. */
 export function supportQueueRows(state: State, courseId: string, kind: ListKind = 'support'): SupportRow[] {
   const taken = takers(state, courseId, kind);
-  return (state.supportQueues.get(listKey(courseId, kind))?.items ?? []).map((item) => {
+  return (supportListOf(state, courseId, kind)?.items ?? []).map((item) => {
     const sessions = taken.filter((one) => one.item === item.id);
     return { item, sessions, finished: sessions.some((one) => one.finished) };
   });
@@ -189,7 +194,7 @@ export function nextSupportItem(
   kind: ListKind = 'support',
 ): SupportItem | null {
   const finished = new Set(takers(state, courseId, kind, except).flatMap((one) => (one.finished ? [one.item] : [])));
-  return state.supportQueues.get(listKey(courseId, kind))?.items.find((item) => !finished.has(item.id)) ?? null;
+  return supportListOf(state, courseId, kind)?.items.find((item) => !finished.has(item.id)) ?? null;
 }
 
 /** Whether a logged session other than `except` names the scheduled support session `id`, which ends it. */

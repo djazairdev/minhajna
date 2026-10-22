@@ -60,7 +60,7 @@ export function rollCallUnits(context: Context, classId: string, from: Day, to: 
     [...context.state.courses.values()].filter((course) => course.classId === classId).map((course) => course.id),
   );
   const sessions = sessionsBetween(context, from, to, courseIds).filter(
-    (session) => session.calendar === null || session.calendar === 'teacher',
+    (session) => session.classId === classId && (session.calendar === null || session.calendar === 'teacher'),
   );
 
   const bySession = unitKind(context, schoolClass) === 'session';
