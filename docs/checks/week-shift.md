@@ -15,7 +15,7 @@ Checks of 17 October 2026 for the fourth pull request of [#28](https://github.co
   - Under the warning, «فتح الخانة لحلّ التعارض» opens the drawing with the first clashing slot already on Week-slot.
 - **Bidi.** School names are isolated in the cells, and class and school names in the clash lines that are shown, so a Latin name keeps an Arabic line right to left. What TalkBack reads stays plain.
 
-The primary double shift, two classes sharing one room (Week-draw-primary), comes with the primary timetable.
+The primary double shift, two classes sharing one room (Week-draw-primary), came with [#230](https://github.com/djazairdev/minhajna/issues/230); see [primary.md](primary.md).
 
 ## Checks
 
