@@ -11,8 +11,10 @@
 // due and the class's catch-up sessions not yet recorded, each cancelled
 // with «تراجع» at once while its time is still free (answers 357, 358); one
 // a later timetable took the time of says so, and the support queue for
-// support sessions (answer 359). Nothing applies without the teacher's
-// confirmation, and every change can be taken back.
+// support sessions (answer 359). Re-pacing the rest of the term opens its
+// draft while it is offered, and a re-pace is taken back from the list of
+// decisions (#229, answers 363 and 366). Nothing applies without the
+// teacher's confirmation, and every change can be taken back.
 
 import {
   cancelCatchUp,
@@ -21,6 +23,7 @@ import {
   makeUpsDue,
   openCatchUps,
   pace,
+  removeRepace,
   restoreCatchUp,
   termCheck,
   type CatchUpSession,
@@ -28,6 +31,7 @@ import {
   type PlanChoice,
   type PlanDecision,
   type RecordEvent,
+  type Repace,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState, type ReactNode } from 'react';
@@ -37,7 +41,7 @@ import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { Snackbar } from '../components/Snackbar';
 import { controlIcon } from '../design/Icon';
-import { colors, radius, spacing, typography } from '../design/tokens';
+import { colors, spacing, typography } from '../design/tokens';
 import { paceLine } from '../classes/class-rules';
 import { courseLabel, termName } from '../exams/course-label';
 import { Decisions } from '../exams/Decisions';
@@ -47,16 +51,18 @@ import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { courseSchool, meetsByBells, whenLine } from './catch-up-add-rules';
 import { buffersLine, tdLine } from './catch-up-rules';
+import { Rung } from './Rung';
 
 export type CatchUpProps = {
   readonly courseId: string;
   readonly onAdd?: () => void;
   readonly onSupport?: () => void;
+  readonly onRepace?: () => void;
 };
 
 type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly message: string } | null;
 
-export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
+export function CatchUp({ courseId, onAdd, onSupport, onRepace }: CatchUpProps) {
   const t = useText();
   const data = useAppData();
   const { state, profile, recordAll, newId, today } = data;
@@ -97,6 +103,15 @@ export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
       undo: () => [{ kind: 'plan.decided', decision }],
       message: t('examWindow.takenBack'),
     });
+  const takeBackRepace = (repace: Repace) => {
+    let events: RecordEvent[];
+    try {
+      events = removeRepace(context, repace.id);
+    } catch {
+      return;
+    }
+    once(events, { undo: () => [{ kind: 'repace.set', repace }], message: t('repace.takenBack') });
+  };
   const cancel = (session: CatchUpSession) =>
     once([cancelCatchUp(context, session.id)], {
       undo: (now) => [restoreCatchUp(now, session, meetsByBells(data))],
@@ -119,15 +134,9 @@ export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
       ? t('examWindow.leaveOut', { item: quoted(choice.item.title) })
       : t('examWindow.mergeItems', { first: quoted(choice.items[0].title), second: quoted(choice.items[1].title) });
   const rung = (number: number, title: string, children: ReactNode) => (
-    <View testID={`catchup-rung-${number}`} style={styles.rung}>
-      <Text style={styles.number}>{number}</Text>
-      <View style={styles.grow}>
-        <Text accessibilityRole="header" style={[styles.title, align]}>
-          {title}
-        </Text>
-        {children}
-      </View>
-    </View>
+    <Rung number={number} title={title}>
+      {children}
+    </Rung>
   );
 
   if (options === null) {
@@ -201,7 +210,13 @@ export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
             )}
           </>,
         )}
-        <Decisions context={context} courseId={courseId} className={className} onTakeBack={takeBack} />
+        <Decisions
+          context={context}
+          courseId={courseId}
+          className={className}
+          onTakeBack={takeBack}
+          onTakeBackRepace={takeBackRepace}
+        />
         {rung(
           4,
           t('catchUp.add'),
@@ -246,6 +261,17 @@ export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
             )}
           </>,
         )}
+        {options.repace &&
+          rung(
+            5,
+            t('repace.title'),
+            <>
+              <Text style={[styles.sub, align]}>{t('repace.rungLine')}</Text>
+              {onRepace !== undefined && (
+                <Button testID="catchup-repace" variant="line" label={t('repace.open')} onPress={onRepace} />
+              )}
+            </>,
+          )}
         <Text style={[styles.sub, align]}>{t('catchUp.never')}</Text>
       </ScrollView>
       {said !== null && (
@@ -264,17 +290,6 @@ export function CatchUp({ courseId, onAdd, onSupport }: CatchUpProps) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: { gap: spacing['space-16'], paddingTop: spacing['space-16'] },
-  rung: {
-    flexDirection: 'row',
-    gap: spacing['space-12'],
-    padding: spacing['space-14'],
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius['radius-card'],
-    backgroundColor: colors.sheet,
-  },
-  number: { ...typography.label, color: colors.ink2, minWidth: 20 },
-  grow: { flex: 1, gap: spacing['space-8'] },
   choice: { gap: spacing['space-6'] },
   title: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink },

@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Confirming a re-pace and taking it back (#229, PRD §4.7, R-4.7-29,
-// R-4.7-30, R-4.7-35, answers 363, 366 and 367). Rung 5 is offered when the
-// class is behind beyond its buffers, or when items would land after the
-// next exams, and only then recorded. Confirming records each ticked choice
+// R-4.7-30, R-4.7-35, answers 363, 366, 367 and 370). Rung 5 is offered
+// when the class is behind beyond its buffers, or behind its current
+// distribution with items that would land after the next exams, and only
+// then recorded. Confirming records each ticked choice
 // as its own decision, then the re-pace with the gap it absorbs; in primary
 // only with the day the director approved it. «تراجع» right after takes all
 // of it back; the decisions list takes back the re-pace alone, leaving its
@@ -18,10 +19,15 @@ import { pace } from './pacing.ts';
 import { repacesOf, type Repace } from './repace-records.ts';
 import { repaceDraft, tickedDecisions } from './repace.ts';
 
-/** Whether rung 5 is offered on `today`: behind beyond the buffers, or items past the next exams. */
+/**
+ * Whether rung 5 is offered on `today`: behind beyond the buffers, or
+ * behind the current distribution with items past the next exams.
+ */
 export function repaceOffered(context: Context, courseId: string, today: Day): boolean {
   const paced = pace(context, courseId, today);
-  if (paced === null || (paced.delay <= 0 && pastWindow(context, courseId, today) === null)) return false;
+  if (paced === null) return false;
+  const behind = paced.expected - paced.position > 1e-9;
+  if (paced.delay <= 0 && !(behind && pastWindow(context, courseId, today) !== null)) return false;
   return repaceDraft(context, courseId, today, []) !== null;
 }
 

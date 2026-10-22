@@ -67,8 +67,7 @@ test.each(['ar', 'fr', 'en'] as const)('lists the options in order, applying non
   expect(settingsTexts()).toEqual(
     expect.arrayContaining([text.intro, text.compress, text.buffers, text.choices, text.add, text.never]),
   );
-  for (const rung of [1, 2, 3, 4]) expect(has(`catchup-rung-${rung}`)).toBe(true);
-  expect(has('catchup-rung-5')).toBe(false);
+  for (const rung of [1, 2, 3, 4, 5]) expect(has(`catchup-rung-${rung}`)).toBe(true);
   expect(has('catchup-confirm-0')).toBe(true);
   expect(accessibilityProblems(settingsRoot())).toEqual([]);
   expect(missingKeys).toEqual([]);

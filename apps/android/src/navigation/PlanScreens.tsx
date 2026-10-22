@@ -22,6 +22,7 @@ import { PlanLayers } from '../plan/PlanLayers';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
 import { CatchUp } from '../plan/CatchUp';
+import { Repace } from '../plan/Repace';
 import { CatchUpAdd } from '../plan/CatchUpAdd';
 import { SupportQueue } from '../plan/SupportQueue';
 import { PlanFree } from '../plan/PlanFree';
@@ -133,7 +134,7 @@ export function PlanOfferScreen({ navigation, route }: NativeStackScreenProps<Ro
   return <PlanOffer courseId={route.params.courseId} onDone={() => navigation.goBack()} />;
 }
 
-/** The catch-up options; rung 4 opens the make-up days. */
+/** The catch-up options; rung 4 adds a catch-up session, and rung 5 opens the re-pace draft. */
 export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'CatchUp'>) {
   const { courseId } = route.params;
   return (
@@ -141,8 +142,14 @@ export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<Root
       courseId={courseId}
       onAdd={() => navigation.navigate('CatchUpAdd', { courseId })}
       onSupport={() => navigation.navigate('SupportQueue', { courseId })}
+      onRepace={() => navigation.navigate('Repace', { courseId })}
     />
   );
+}
+
+/** The draft of a re-pace of the rest of the term (#229). */
+export function RepaceScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Repace'>) {
+  return <Repace courseId={route.params.courseId} />;
 }
 
 export function SupportQueueScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'SupportQueue'>) {
@@ -191,6 +198,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="CatchUp" component={CatchUpScreen} options={dark(t('catchUp.title'))} />
       <Stack.Screen name="CatchUpAdd" component={CatchUpAddScreen} options={dark(t('catchUpAdd.title'))} />
       <Stack.Screen name="SupportQueue" component={SupportQueueScreen} options={dark(t('supportQueue.title'))} />
+      <Stack.Screen name="Repace" component={RepaceScreen} options={dark(t('repace.title'))} />
     </>
   );
 }
