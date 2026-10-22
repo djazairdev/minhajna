@@ -499,6 +499,26 @@
     "row": "{{label}}, par classe : {{values}}",
     "value": "{{value}} pour {{name}}"
   },
+  "staleQuestion": {
+    "title": "Question à l’inspecteur",
+    "subtitle": "Plan périmé · A4 portrait",
+    "intro": "Une feuille à imprimer et à montrer à l’inspecteur : le pack, son édition et la raison de sa péremption, et une question sur le plan à suivre. Rien n’est envoyé.",
+    "openSub": "Imprime une feuille avec le pack, son édition et la raison de sa péremption, à lui montrer. Rien n’est envoyé.",
+    "none": "Pas de question pour cette classe : son pack n’est pas périmé.",
+    "classes_one": "Classe : {{classes}}",
+    "classes_many": "Classes : {{classes}}",
+    "classes_other": "Classes : {{classes}}",
+    "packHead": "Le pack",
+    "foundAt": "Fichier trouvé à : {{place}}",
+    "reasonHead": "Raison de la péremption",
+    "noReason": "Le pack ne donne pas la raison de sa péremption.",
+    "questionHead": "La question",
+    "question": "Quel plan suivre pour cette classe jusqu’à la parution d’une édition en vigueur pour ce niveau ?",
+    "meanwhile": "D’ici la réponse, chaque séance s’écrit avec ce qui a été enseigné, et aucune réserve ni aucun retard ne se compte d’après ce plan.",
+    "inspectorSign": "Réponse et visa de l’inspecteur",
+    "privacy": "La feuille ne porte aucune donnée sur les élèves, et rien n’en est envoyé.",
+    "file": "Question à l’inspecteur"
+  },
   "today": {
     "help": "Aide et confidentialité",
     "allConfirmed": "Toutes les séances passées sont confirmées",

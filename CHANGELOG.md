@@ -81,6 +81,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يأتي مخطط الحزمة الأسبوعية بأسابيع المخطط، «أسبوع المخطط 5»، بأيامه ومقطعه. ويذكر أسبوع القسم في المخطط وأسبوع المخطط اليوم، وما أخذته الرزنامة من حصص محسوباً وحده، ونموذج الأسبوع، والأسابيع المتأخرة بعد الاحتياط. وتُفتح «إعادة توزيع بقية الفصل» من المخطط ما دامت مقترحة.
 - A stale plan pack proposes nothing in the sessions, and no buffer or delay is counted from it. The plan says why and offers two ways: use it with care, as printed, or leave it and write the class's own items.
   - لا يقترح المخطط المتقادم شيئاً في الحصص، ولا يُحسب منه احتياط ولا تأخر. ويذكر المخطط السبب، ويعرض طريقتين: استعماله بحذر كما طُبع، أو تركه وكتابة عناصر القسم.
+- «سؤال المفتش» prints a sheet for the inspector about a stale plan: the pack, its release and why it is stale, and which plan to follow until an edition in force comes out. Nothing is sent.
+  - تُطبع من «سؤال المفتش» ورقة للمفتش عن المخطط المتقادم: الحزمة وطبعتها وسبب تقادمها، وسؤال عن المخطط الذي يُعتمد إلى أن تصدر طبعة سارية. ولا يُرسل منها شيء.
 
 ### Changed
 

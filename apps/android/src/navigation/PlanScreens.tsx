@@ -7,7 +7,8 @@
 // their import and export, a report of an error in an item, and the
 // class's own list without a pack (#227), which asks before leaving it
 // with changes not saved, and its offer for review; and the catch-up
-// options of a class behind its plan (#228).
+// options of a class behind its plan (#228); and «سؤال المفتش» about a
+// stale pack (#230).
 // `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
 
 import { usePreventRemove } from '@react-navigation/native';
@@ -28,6 +29,7 @@ import { SupportQueue } from '../plan/SupportQueue';
 import { PlanFree } from '../plan/PlanFree';
 import { PlanOffer } from '../plan/PlanOffer';
 import { SeptCheck } from '../plan/SeptCheck';
+import { StaleQuestion } from '../plan/StaleQuestion';
 import { PlanItem } from '../plan/PlanItem';
 import { useText } from '../text/i18n';
 import type { RootStackParamList } from './routes';
@@ -52,6 +54,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onRemediation={() => navigation.navigate('SupportQueue', { courseId, kind: 'remediation' })}
       onItem={(itemId) => navigation.navigate('PlanItem', { courseId, itemId })}
       onCheck={() => navigation.navigate('SeptCheck', { courseId })}
+      onAsk={() => navigation.navigate('StaleQuestion', { courseId })}
     />
   );
 }
@@ -113,6 +116,11 @@ export function PlanErrorScreen({ route }: NativeStackScreenProps<RootStackParam
 /** The September check for an inspector. */
 export function SeptCheckScreen({ route }: NativeStackScreenProps<RootStackParamList, 'SeptCheck'>) {
   return <SeptCheck courseId={route.params.courseId} />;
+}
+
+/** «سؤال المفتش» about a stale pack, to print. */
+export function StaleQuestionScreen({ route }: NativeStackScreenProps<RootStackParamList, 'StaleQuestion'>) {
+  return <StaleQuestion courseId={route.params.courseId} />;
 }
 
 /** The class's own list; leaving with changes not saved asks first. */
@@ -196,6 +204,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="LayerExport" component={LayerExportScreen} options={dark(t('planLayers.export.title'))} />
       <Stack.Screen name="PlanError" component={PlanErrorScreen} options={dark(t('planError.title'))} />
       <Stack.Screen name="SeptCheck" component={SeptCheckScreen} options={dark(t('septCheck.title'))} />
+      <Stack.Screen name="StaleQuestion" component={StaleQuestionScreen} options={dark(t('staleQuestion.title'))} />
       <Stack.Screen name="PlanFree" component={PlanFreeScreen} options={dark(t('planFree.screenTitle'))} />
       <Stack.Screen name="PlanOffer" component={PlanOfferScreen} options={dark(t('planOffer.title'))} />
       <Stack.Screen name="CatchUp" component={CatchUpScreen} options={dark(t('catchUp.title'))} />

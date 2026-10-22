@@ -8,12 +8,10 @@
 // class list and the plan's changes say the plan is stale. Made-up packs and
 // data only.
 
-import { parseDay, type PlanPack } from '@minhajna/core';
+import { parseDay } from '@minhajna/core';
 import { Alert, useWindowDimensions, type AlertButton } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
-import type { TestData } from '../jest/app-data';
-import { withPrimary } from '../jest/primary-class';
 import {
   pressSettings,
   settingsRoot,
@@ -21,6 +19,7 @@ import {
   showSettingsScreen,
   closeSettingsScreen,
 } from '../jest/settings-screen';
+import { staleReason as reason, withStale } from '../jest/stale-pack';
 import { classRows, paceLine } from '../src/classes/class-rules';
 import { ClassPlan } from '../src/classes/ClassPlan';
 import { PlanChanges } from '../src/plan/PlanChanges';
@@ -35,27 +34,7 @@ jest.mock(
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({ __esModule: true, default: jest.fn() }));
 
 const day = parseDay('2026-10-15');
-const reason = {
-  ar: 'غيّر قرار لاحق ساعات المادة (مثال)',
-  fr: 'Une décision a changé les heures (exemple)',
-  en: 'A decision changed the hours (example)',
-};
 const has = (id: string) => settingsRoot().findAll((node) => node.props.testID === id).length > 0;
-
-/** 5 ابتدائي أ with its Arabic pinned to a stale release of the example pack. */
-async function withStale(): Promise<TestData> {
-  const data = await withPrimary();
-  const example = data.packs.find((one) => one.id === 'dz.primary.5ap.arabic.example');
-  if (example === undefined) throw new Error('No example pack');
-  const stale: PlanPack = { ...example, release: '2022.1', status: 'stale', staleReason: reason };
-  const arabic = data.book.state.courses.get('a-1');
-  if (arabic !== undefined)
-    await data.book.record(day, {
-      kind: 'course.set',
-      course: { ...arabic, pack: { id: stale.id, release: '2022.1' } },
-    });
-  return { ...data, packs: [...data.packs, stale] };
-}
 
 beforeEach(() => {
   missingKeys.length = 0;

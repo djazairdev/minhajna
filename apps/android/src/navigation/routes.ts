@@ -88,6 +88,7 @@ export type RootStackParamList = {
   Repace: { courseId: string };
   PlanOffer: { courseId: string };
   SeptCheck: { courseId: string };
+  StaleQuestion: { courseId: string };
   TestSchedule: { courseId: string };
   ExamWindow: { courseId: string };
   Duty: { day?: string } | undefined;

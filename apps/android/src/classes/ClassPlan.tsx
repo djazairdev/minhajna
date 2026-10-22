@@ -63,11 +63,13 @@ export type ClassPlanProps = {
   readonly onRepace?: () => void;
   readonly onItem?: (itemId: string) => void;
   readonly onCheck?: () => void;
+  /** «سؤال المفتش», on a stale pack (#230). */
+  readonly onAsk?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
-  const { onEditList, onCatchUp, onSupport, onRemediation, onRepace } = props;
+  const { onEditList, onCatchUp, onSupport, onRemediation, onRepace, onAsk } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -173,6 +175,7 @@ export function ClassPlan(props: ClassPlanProps) {
           pack={view.pack}
           rows={view.main}
           heads={view.units}
+          {...(onAsk !== undefined && { onAsk })}
           {...(onEditList !== undefined &&
             course !== undefined && {
               onWrite: () => {
