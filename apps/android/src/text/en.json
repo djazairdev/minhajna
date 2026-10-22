@@ -2624,6 +2624,8 @@
     "exams": "{{exams}} from {{day}}; the plan pauses during them",
     "examsAt": "{{exams}} at {{school}} from {{day}}; the plan pauses during them",
     "position": "Position: {{item}}",
+    "planWeek": "In plan week {{week}}; the plan is at its week {{expected}} today",
+    "planWeekSame": "In plan week {{week}}, where the plan is today",
     "classLost": "{{lost}}: {{what}}, {{day}}",
     "align": "Align",
     "footer": "The digest comes on Sunday morning, once quiet hours end.",

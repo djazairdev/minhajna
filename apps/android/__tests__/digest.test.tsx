@@ -1,13 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The Digest screen (#234, answers 402 and 405): the week before Sunday,
-// its sessions awaiting confirmation opening Today's list, the confirmed
-// ones, a make-up due with «جدولتها», a closure's sessions apart, the next
-// exams, a class behind a parallel one until «تجاهل», and each class's
-// card with «خيارات الاستدراك» while it is behind; in two schools, the
-// school a closure or the exams take; Saturday's digest for a teacher who
-// works then; and the Classes tab's row that opens it. Made-up data only.
+// The Digest screen (#234, answers 402, 405, 409 and 410): the week before
+// Sunday, its sessions awaiting confirmation opening Today's list, the
+// confirmed ones, a make-up due with «جدولتها», a closure's sessions apart,
+// the next exams, a class behind a parallel one until «تجاهل», and each
+// class's card with «المخطط», and «خيارات الاستدراك» while it is behind,
+// with no plan week for a secondary pack; in two schools, the school a
+// closure or the exams take; Saturday's digest for a teacher who works
+// then; a primary class's plan week, and minutes beside its losses when
+// «العدّ بالدقائق» is on; and the Classes tab's row that opens it. Made-up
+// data only.
 
 import { awaitingBetween, confirmSessions, driftBefore, parseDay, type Drift, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -19,10 +22,12 @@ import { calendarEntry } from '../jest/calendar-data';
 import { behind, repaceContext, repaceDay } from '../jest/repace-data';
 import { withDay } from '../jest/today-day';
 import { withClash } from '../jest/clash-schools';
+import { withPrimary } from '../jest/primary-class';
 import { ClassesTab } from '../src/classes/ClassesTab';
 import { Digest } from '../src/digest/Digest';
 import { dismissDrift } from '../src/plan/drift-dismissal';
 import { setNotifyPrefs } from '../src/settings/notify-prefs';
+import { setCountMinutes } from '../src/settings/preferences';
 import { catalogues, i18n, missingKeys } from '../src/text/i18n';
 
 jest.mock(
@@ -47,6 +52,7 @@ afterEach(async () => {
   tree = undefined;
   clearDismissals();
   setNotifyPrefs({ digest: true, preview: false, saturday: false });
+  setCountMinutes(false);
   jest.clearAllMocks();
   await i18n.changeLanguage('ar');
 });
@@ -132,6 +138,9 @@ test('Sunday’s digest covers the week before, its sessions awaiting, no losses
   expect(exists('digest-class-c-1')).toBe(true);
   expect(exists('digest-class-c-2')).toBe(true);
   expect(exists('digest-catchup-c-1')).toBe(false);
+  expect(shown().some((line) => line.startsWith('في أسبوع المخطط'))).toBe(false);
+  await press('digest-plan-c-2');
+  expect(calls.plan).toHaveBeenCalledWith('c-2');
   await press('digest-awaiting');
   expect(calls.backlog).toHaveBeenCalledTimes(1);
   await press('digest-notify');
@@ -248,4 +257,31 @@ test('the Classes tab opens the digest', async () => {
 test('there is no digest before the year’s first day has passed', async () => {
   await render(await withDay(), '2026-09-20');
   expect(shown()).toEqual([text.digest.empty]);
+});
+
+test('a primary week pack shows its plan week, and minutes beside the losses when counting in minutes', async () => {
+  setCountMinutes(true);
+  const data = await withPrimary();
+  const closure: RecordEvent = {
+    kind: 'calendar.set',
+    entry: calendarEntry('storm', { layer: 'school', schoolId: 's-1', effect: 'closure' }),
+  };
+  await data.book.record(parseDay('2026-10-15'), closure);
+  await render(data);
+  const what = iso('موعد تجريبي storm');
+  const day = 'الخميس 15 أكتوبر';
+  const withMinutes = (sessions: string, count: number) =>
+    i18n.t('settings.withMinutes', { sessions, minutes: i18n.t('settings.minutes', { count }) });
+  expect(shown()).toEqual(
+    expect.arrayContaining([
+      withMinutes(i18n.t('daymark.lost', { count: 3 }), 135),
+      i18n.t('digest.lostDay', { what, day, sessions: withMinutes(i18n.t('count.sessions', { count: 3 }), 135) }),
+      i18n.t('digest.classLost', { lost: withMinutes(i18n.t('daymark.lost', { count: 2 }), 90), what, day }),
+      i18n.t('digest.classLost', { lost: withMinutes(i18n.t('daymark.lost', { count: 1 }), 45), what, day }),
+      i18n.t('digest.planWeekSame', { week: 1 }),
+    ]),
+  );
+  await ReactTestRenderer.act(() => setCountMinutes(false));
+  expect(shown()).toContain(i18n.t('daymark.lost', { count: 3 }));
+  expect(shown().some((line) => line.includes('دقيقة'))).toBe(false);
 });
