@@ -10,6 +10,8 @@
 // Then the pupils, each with the month's absences and lateness so far, and
 // «إضافة أو نقل». The settings button in the top bar opens the class's settings
 // that exist (answer 256). The page reads the record and adds nothing to it.
+// A class archived after a reorientation says so, and offers no session
+// outside the timetable and no pupil move (#231).
 
 import { courseSetup, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -24,6 +26,7 @@ import { RowLink } from '../components/RowLink';
 import { SectionHeader } from '../components/SectionHeader';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
+import { frontDate } from '../documents/front-tables';
 import { useDocumentData } from '../documents/useDocumentData';
 import { bookSpan } from '../entry/book-lines';
 import { localized, yearShort } from '../setup/names';
@@ -33,6 +36,8 @@ import { useCountMinutes } from '../settings/preferences';
 import { useText } from '../text/i18n';
 import { sessionTime } from '../times/times-rules';
 import { rollStrip } from '../today/roll-strip';
+import { isolate } from '../week/grid-labels';
+import { reshapedWith } from '../reorient/reorient-rules';
 import { ClassSettings } from './ClassSettings';
 import { bookLine, homeworkLine, monthSoFar, pupilLines, rollLine, supervisedLine, tdLine } from './class-page-rules';
 import { classRows, paceLine } from './class-rules';
@@ -59,6 +64,8 @@ export type ClassPageProps = {
   readonly onMove: () => void;
   readonly onSeats: () => void;
   readonly onRules: () => void;
+  /** Opens the reorientation; offered only for a lycée class that can be reshaped. */
+  readonly onReorient: () => void;
 };
 
 export function ClassPage(props: ClassPageProps) {
@@ -175,6 +182,11 @@ export function ClassPage(props: ClassPageProps) {
           pupils: t('setup.pupils', { count: row.pupils }),
         })}
       </Text>
+      {row.archived !== undefined && (
+        <Text testID="class-archived" style={[styles.line, align]}>
+          {t('classPage.archived', { day: isolate(frontDate(row.archived)) })}
+        </Text>
+      )}
       {siblings.length > 1 && (
         <ChipGroup
           testID="class-switch"
@@ -198,14 +210,16 @@ export function ClassPage(props: ClassPageProps) {
         {link('roll', 'pupils', t('classPage.roll'), lines.roll, props.onMonth)}
         {link('roll-print', 'print', t('rollPrint.classRow'), t('rollPrint.classRowLine'), props.onRollPrint)}
         {link('homework', 'homework', t('homework.open'), lines.homework, props.onHomework)}
-        {link('extra', 'plus', t('extra.title'), t('classPage.extraLine'), props.onExtra)}
+        {row.archived === undefined && link('extra', 'plus', t('extra.title'), t('classPage.extraLine'), props.onExtra)}
         {link('supervised', 'school', t('documents.supervised.name'), lines.supervised, props.onSupervised)}
         {link('marks', 'check', t('classPage.marks'), t('classPage.marksLater'))}
       </View>
       <SectionHeader
         testID="class-pupils"
         label={t('classPage.pupils')}
-        action={<Button testID="class-move" variant="line" label={t('move.open')} onPress={props.onMove} />}
+        {...(row.archived === undefined && {
+          action: <Button testID="class-move" variant="line" label={t('move.open')} onPress={props.onMove} />,
+        })}
       />
       {pupils.length === 0 ? (
         <Text style={[styles.line, align]}>{t('setup.pupils', { count: 0 })}</Text>
@@ -220,6 +234,7 @@ export function ClassPage(props: ClassPageProps) {
         onSeats={props.onSeats}
         onRules={props.onRules}
         onMove={props.onMove}
+        {...(reshapedWith(context, row.schoolClass.id).length > 0 && { onReorient: props.onReorient })}
       />
     </ScrollView>
   );

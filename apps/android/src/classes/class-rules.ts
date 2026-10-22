@@ -9,10 +9,13 @@
 // subject and the year, not to the teacher, and the words state facts
 // (PRD §2.3, §3.1 rule 8, §4.7). A session awaiting confirmation never
 // reads as a delay. Each year of a joint class has its own row (#43). A
-// class on a stale pack says so, since nothing is counted from it (#230).
+// class on a stale pack says so, since nothing is counted from it (#230). A
+// class archived after a reorientation comes last and says since when; it
+// has no pace (#231).
 
 import {
   classGrades,
+  compareDays,
   courseGrade,
   courseSetup,
   isEnrolled,
@@ -30,6 +33,8 @@ import {
   type TermCheck,
 } from '@minhajna/core';
 import type { useText } from '../text/i18n';
+import { isolate } from '../week/grid-labels';
+import { dayMonth } from './plan-labels';
 
 type Translate = ReturnType<typeof useText>;
 
@@ -45,6 +50,8 @@ export interface ClassRow {
   readonly check: TermCheck | null;
   /** Pinned to a stale pack, which proposes nothing and counts no pace (#230). */
   readonly stale?: boolean;
+  /** Archived from this day, reached, after a reorientation (#231). */
+  readonly archived?: Day;
 }
 
 /** Every course of the teacher's classes, by class name, then subject. */
@@ -57,6 +64,8 @@ export function classRows(context: Context, day: Day): ClassRow[] {
     if (schoolClass === undefined) continue;
     const grade = isJoint(schoolClass) ? courseGrade(course, schoolClass) : undefined;
     const year = levelGroups(schoolClass).find((group) => group.grade === grade)?.id;
+    const archived = schoolClass.archivedFrom;
+    const gone = archived !== undefined && compareDays(day, archived) >= 0;
     rows.push({
       course,
       schoolClass,
@@ -68,13 +77,15 @@ export function classRows(context: Context, day: Day): ClassRow[] {
           (year === undefined || pupil.groups.includes(year)),
       ).length,
       today: sessions.find((item) => item.course.id === course.id)?.session ?? null,
-      pace: pace(context, course.id, day),
-      check: termCheck(context, course.id, day),
+      pace: gone ? null : pace(context, course.id, day),
+      check: gone ? null : termCheck(context, course.id, day),
+      ...(gone && { archived }),
       ...(courseSetup(context, course.id).packStale && { stale: true }),
     });
   }
   return rows.sort(
     (a, b) =>
+      Number(a.archived !== undefined) - Number(b.archived !== undefined) ||
       a.schoolClass.name.localeCompare(b.schoolClass.name, 'ar') ||
       classGrades(a.schoolClass).indexOf(a.grade ?? '') - classGrades(b.schoolClass).indexOf(b.grade ?? '') ||
       a.course.subject.localeCompare(b.course.subject),
@@ -84,10 +95,11 @@ export function classRows(context: Context, day: Day): ClassRow[] {
 /** Where the class stands: behind beyond the buffers, buffers used, or the spare sessions before the exams. */
 export function paceLine(
   t: Translate,
-  row: Pick<ClassRow, 'pace' | 'check' | 'stale'>,
+  row: Pick<ClassRow, 'pace' | 'check' | 'stale' | 'archived'>,
   sessionMinutes?: number,
 ): string {
   const { pace: p, check } = row;
+  if (row.archived !== undefined) return t('classes.archived', { day: isolate(dayMonth(row.archived)) });
   if (p === null) return t(row.stale === true ? 'classes.stale' : 'classes.noPack');
   const withMinutes = (sessions: string, count: number) =>
     sessionMinutes === undefined

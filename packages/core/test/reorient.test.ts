@@ -59,7 +59,7 @@ async function reoriented() {
     decision: { id: 'x-skip', courseId: 'c-math', kind: 'skip', item: 'l7', seq: 1 },
   });
   const before = contextOf(book);
-  const events = reorient(before, plan, ids());
+  const events = reorient(before, plan, day, ids());
   await book.recordAll(day, events);
   const context = contextOf(book);
   const course = (classId: string) =>
@@ -130,7 +130,7 @@ describe('reorientation', () => {
       },
     });
     const old = rollCallUnits(contextOf(book), 'k-1am2', d('2026-09-20'), d('2026-10-07')).length;
-    await book.recordAll(day, reorient(contextOf(book), plan, ids()));
+    await book.recordAll(day, reorient(contextOf(book), plan, day, ids()));
     const context = contextOf(book);
     const first = [...context.state.classes.values()].find((one) => one.name === '1AM2 new')!;
     const math = [...context.state.courses.values()].find((one) => one.classId === first.id)!;
@@ -166,7 +166,7 @@ describe('reorientation', () => {
       ],
       pupils: new Map(),
     };
-    await book.recordAll(day, reorient(contextOf(book), twice, ids()));
+    await book.recordAll(day, reorient(contextOf(book), twice, day, ids()));
     const context = contextOf(book);
     const courses = [...context.state.courses.values()].filter((one) => one.continues?.courseId === 'c-math');
     assert.equal(courses.length, 2);
@@ -179,15 +179,17 @@ describe('reorientation', () => {
     const book = await openBook(twoClasses());
     await teach(book, 'c-math', '2026-10-12');
     const context = contextOf(book);
-    assert.throws(() => reorient(context, plan, ids()), /recorded on or after/);
+    assert.throws(() => reorient(context, plan, day, ids()), /^RangeError: recorded$/);
     const fresh = contextOf(await openBook(twoClasses()));
-    assert.throws(() => reorient(fresh, { ...plan, olds: ['nope'] }, ids()), /Unknown class/);
+    assert.throws(() => reorient(fresh, { ...plan, olds: ['nope'] }, day, ids()), /unknown-class/);
     const blank = { ...plan, classes: [{ name: ' ', takes: 'k-1am2' }] };
-    assert.throws(() => reorient(fresh, blank, ids()), /needs a name/);
+    assert.throws(() => reorient(fresh, blank, day, ids()), /no-name/);
     const twice = { ...plan, classes: [plan.classes[0]!, plan.classes[0]!] };
-    assert.throws(() => reorient(fresh, twice, ids()), /one name/);
-    assert.throws(() => reorient(fresh, { ...plan, classes: [{ name: 'X', takes: 'k-5apb' }] }, ids()), /another/);
-    assert.throws(() => reorient(fresh, { ...plan, pupils: new Map([['p01', 5]]) }, ids()), /unknown class/);
+    assert.throws(() => reorient(fresh, twice, day, ids()), /same-name/);
+    const other = { ...plan, classes: [{ name: 'X', takes: 'k-5apb' }] };
+    assert.throws(() => reorient(fresh, other, day, ids()), /other-history/);
+    assert.throws(() => reorient(fresh, plan, d('2026-10-09'), ids()), /^RangeError: past$/);
+    assert.throws(() => reorient(fresh, { ...plan, pupils: new Map([['p01', 5]]) }, day, ids()), /unknown-target/);
     const tested = await openBook(twoClasses());
     await tested.record(d('2026-10-01'), {
       kind: 'test.set',
@@ -200,6 +202,6 @@ describe('reorientation', () => {
         title: 'Test',
       },
     });
-    assert.throws(() => reorient(contextOf(tested), plan, ids()), /test is scheduled/);
+    assert.throws(() => reorient(contextOf(tested), plan, day, ids()), /^RangeError: test$/);
   });
 });

@@ -99,6 +99,7 @@ export type RootStackParamList = {
   Correct: { unit: string; day: string; pupilId: string };
   RollRules: undefined;
   PupilMove: { classId: string };
+  Reorient: { classId: string };
   SeatsSetup: { classId: string; groupId: string };
   Security: { done?: SecurityDone; at?: number } | undefined;
   LockPin: { mode: LockPinMode };

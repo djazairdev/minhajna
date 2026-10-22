@@ -3,7 +3,9 @@
 
 // «إعدادات القسم» (#279, answer 256): the class's settings that exist,
 // each opening its own screen: the seating plan, the counting rules and
-// the pupils' moves. Renaming a class or changing its groups comes later.
+// the pupils' moves, and for a lycée class the reshaping of its level's
+// classes after reorientation (#231). Renaming a class or changing its
+// groups comes later.
 
 import type { RefObject } from 'react';
 import { View, type ViewInstance } from 'react-native';
@@ -21,6 +23,8 @@ export type ClassSettingsProps = {
   readonly onSeats: () => void;
   readonly onRules: () => void;
   readonly onMove: () => void;
+  /** Opens the reorientation; no row without it. */
+  readonly onReorient?: () => void;
 };
 
 export function ClassSettings({
@@ -31,6 +35,7 @@ export function ClassSettings({
   onSeats,
   onRules,
   onMove,
+  onReorient,
 }: ClassSettingsProps) {
   const t = useText();
   const open = (go: () => void) => () => {
@@ -66,6 +71,14 @@ export function ClassSettings({
           title={t('move.open')}
           onPress={open(onMove)}
         />
+        {onReorient !== undefined && (
+          <RowLink
+            testID="class-settings-reorient"
+            icon={controlIcon('school')}
+            title={t('reorient.open')}
+            onPress={open(onReorient)}
+          />
+        )}
       </View>
     </BottomSheet>
   );

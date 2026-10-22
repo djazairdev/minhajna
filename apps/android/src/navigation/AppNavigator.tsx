@@ -33,7 +33,7 @@ import {
 } from './RecordScreens';
 import { extraRoutes } from './ExtraScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
-import { ClassScreen } from './ClassScreens';
+import { classRoutes } from './ClassScreens';
 import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens';
 import {
   BookFixesScreen,
@@ -243,7 +243,7 @@ export function AppNavigator({
         <Stack.Screen name="RollRules" component={RollRules} options={dark(t('rules.title'))} />
         <Stack.Screen name="PupilMove" component={PupilMoveScreen} options={dark(t('move.title'))} />
         <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
-        <Stack.Screen name="Class" component={ClassScreen} options={dark(t('classPage.title'))} />
+        {classRoutes(Stack, t)}
         <Stack.Screen name="RollMonth" component={RollMonthScreen} options={dark(t('classPage.roll'))} />
         <Stack.Screen name="Pupil" component={PupilScreen} options={dark(t('classPage.roll'))} />
         <Stack.Screen name="RollPrint" component={RollPrintScreen} options={dark(t('rollPrint.title'))} />

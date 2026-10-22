@@ -11,8 +11,11 @@
 // teach; their roll calls stay with the old class. The timetable's
 // sessions of an old class's courses go to the new class that takes its
 // history, from that day; a second new class taking the same history starts
-// with none, to draw. Tests and added sessions of the old classes on or
-// after the day are moved or cancelled first; homework that comes back on or
+// with none, to draw. The day is never one gone by when the reshaping is
+// recorded, since a timetable never reaches back before the day it is
+// recorded (PRD §4.6): the sessions in between would belong to no class.
+// Tests and added sessions of the old classes on or after the day are moved
+// or cancelled first; homework that comes back on or
 // after it stays with the old class, uncounted, its list gone. Nothing is
 // recorded until the events are.
 
@@ -54,40 +57,70 @@ export function reorientedPupils(context: Context, plan: Reorientation): { pupil
   );
 }
 
-/** The events that reshape the classes; throws when the reorientation does not hold. */
-export function reorient(context: Context, plan: Reorientation, newId: () => string): RecordEvent[] {
+/** Why a reorientation cannot be applied, as the screen names it. */
+export type ReorientRefusal =
+  | 'unknown-class'
+  | 'mixed-classes'
+  | 'archived'
+  | 'day'
+  | 'past'
+  | 'no-name'
+  | 'same-name'
+  | 'other-history'
+  | 'recorded'
+  | 'test'
+  | 'added'
+  | 'timetable'
+  | 'unknown-target';
+
+/** Why the reorientation, recorded on `today`, does not hold, or null when it does. */
+export function reorientRefusal(context: Context, plan: Reorientation, today: Day): ReorientRefusal | null {
   const { state, ref } = context;
   const olds = plan.olds.map((id) => state.classes.get(id));
   const first = olds[0];
-  if (first === undefined || olds.some((one) => one === undefined)) throw new RangeError('Unknown class');
+  if (first === undefined || olds.some((one) => one === undefined)) return 'unknown-class';
   const same = (one: SchoolClass | undefined) => one?.schoolId === first.schoolId && one.grade === first.grade;
-  if (!olds.every(same)) throw new RangeError('The classes are of one school and grade');
-  if (olds.some((one) => one?.archivedFrom !== undefined)) throw new RangeError('A class is already archived');
-  if (!isWithin(plan.day, addDays(ref.year.from, 1), ref.year.to)) throw new RangeError('The day is outside the year');
+  if (!olds.every(same)) return 'mixed-classes';
+  if (olds.some((one) => one?.archivedFrom !== undefined)) return 'archived';
+  if (!isWithin(plan.day, addDays(ref.year.from, 1), ref.year.to)) return 'day';
+  if (compareDays(plan.day, today) < 0) return 'past';
   const names = plan.classes.map((one) => one.name.trim());
-  if (names.length === 0 || names.some((name) => name === '')) throw new RangeError('Each new class needs a name');
-  if (new Set(names).size !== names.length) throw new RangeError('Two new classes have one name');
-  if (plan.classes.some((one) => !plan.olds.includes(one.takes))) throw new RangeError('A class takes another history');
-  const oldCourses = [...state.courses.values()].filter(
-    (course) => plan.olds.includes(course.classId) && course.year === ref.year.id,
-  );
-  const ids = new Set(oldCourses.map((course) => course.id));
+  if (names.length === 0 || names.some((name) => name === '')) return 'no-name';
+  if (new Set(names).size !== names.length) return 'same-name';
+  if (plan.classes.some((one) => !plan.olds.includes(one.takes))) return 'other-history';
+  const ids = new Set(oldCourses(context, plan).map((course) => course.id));
   const late = [...state.sessions.values()].some((versions) => {
     const record = current(versions);
     return record !== null && ids.has(record.session.courseId) && compareDays(record.session.day, plan.day) >= 0;
   });
-  if (late) throw new RangeError('A session is recorded on or after the day');
+  if (late) return 'recorded';
   const ahead = (one: { readonly courseId: string; readonly day: Day }) =>
     ids.has(one.courseId) && compareDays(one.day, plan.day) >= 0;
-  if ([...state.tests.values()].some(ahead)) throw new RangeError('A test is scheduled on or after the day');
-  if ([...state.catchUps.values()].some(ahead)) throw new RangeError('A session is added on or after the day');
-  if (state.timetables.some((one) => compareDays(one.from, plan.day) > 0)) {
-    throw new RangeError('A timetable starts after the day');
-  }
+  if ([...state.tests.values()].some(ahead)) return 'test';
+  if ([...state.catchUps.values()].some(ahead)) return 'added';
+  if (state.timetables.some((one) => compareDays(one.from, plan.day) > 0)) return 'timetable';
   const moved = reorientedPupils(context, plan);
-  if (moved.some(({ to }) => to !== null && (to < 0 || to >= plan.classes.length))) {
-    throw new RangeError('A pupil goes to an unknown class');
-  }
+  if (moved.some(({ to }) => to !== null && (to < 0 || to >= plan.classes.length))) return 'unknown-target';
+  return null;
+}
+
+/** The old classes' courses of the school year. */
+function oldCourses(context: Context, plan: Reorientation): Course[] {
+  return [...context.state.courses.values()].filter(
+    (course) => plan.olds.includes(course.classId) && course.year === context.ref.year.id,
+  );
+}
+
+/** The events, to record on `today`, that reshape the classes; throws, with the refusal, when they do not hold. */
+export function reorient(context: Context, plan: Reorientation, today: Day, newId: () => string): RecordEvent[] {
+  const refusal = reorientRefusal(context, plan, today);
+  if (refusal !== null) throw new RangeError(refusal);
+  const { state } = context;
+  const olds = plan.olds.map((id) => state.classes.get(id)!);
+  const names = plan.classes.map((one) => one.name.trim());
+  const before = oldCourses(context, plan);
+  const ids = new Set(before.map((course) => course.id));
+  const moved = reorientedPupils(context, plan);
 
   const made = plan.classes.map((one, index) => {
     const old = state.classes.get(one.takes)!;
@@ -102,7 +135,7 @@ export function reorient(context: Context, plan: Reorientation, newId: () => str
       groups: [{ id: whole, kind: 'whole', name: names[index]! }],
       ...(old.rollCallUnit !== undefined && { rollCallUnit: old.rollCallUnit }),
     };
-    const courses = oldCourses
+    const courses = before
       .filter((course) => course.classId === old.id)
       .map((course): Course => ({
         ...course,
@@ -117,7 +150,7 @@ export function reorient(context: Context, plan: Reorientation, newId: () => str
     { kind: 'class.set', schoolClass } as const,
     ...courses.map((course) => ({ kind: 'course.set', course }) as const),
   ]);
-  for (const old of olds) events.push({ kind: 'class.set', schoolClass: { ...old!, archivedFrom: plan.day } });
+  for (const old of olds) events.push({ kind: 'class.set', schoolClass: { ...old, archivedFrom: plan.day } });
   for (const { pupil, to } of moved) {
     events.push({
       kind: 'pupil.moved',
@@ -150,7 +183,7 @@ export function reorient(context: Context, plan: Reorientation, newId: () => str
         if (!successor.has(old)) successor.set(old, { courseId: course.id, whole: wholeGroup(schoolClass).id });
       }
     }
-    const wholes = new Set(olds.map((one) => wholeGroup(one!).id));
+    const wholes = new Set(olds.map((one) => wholeGroup(one).id));
     const entries = version.entries.flatMap((entry) => {
       if (!ids.has(entry.courseId)) return [entry];
       const next = successor.get(entry.courseId);
