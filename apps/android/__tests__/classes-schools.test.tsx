@@ -41,7 +41,11 @@ async function show(data: TestData, language: Language = 'ar') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={language === 'ar' ? 'rtl' : 'ltr'}>
-        {withData(data, <ClassesTab onClass={jest.fn()} onBook={jest.fn()} onWeek={onWeek} />, '2026-10-15')}
+        {withData(
+          data,
+          <ClassesTab onClass={jest.fn()} onBook={jest.fn()} onWeek={onWeek} onDigest={jest.fn()} />,
+          '2026-10-15',
+        )}
       </LocaleDirContext.Provider>,
     );
   });

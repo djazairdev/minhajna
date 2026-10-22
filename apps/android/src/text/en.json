@@ -2604,5 +2604,32 @@
     "unmove": "Move it back",
     "saveFirst": "The week saves in a moment; then the clash can be kept.",
     "recorded": "The session is recorded: the move stays."
+  },
+  "digest": {
+    "title": "Weekly digest",
+    "range": "{{from}} – {{to}} · for you alone",
+    "awaiting_one": "{{count}} session awaiting confirmation",
+    "awaiting_other": "{{count}} sessions awaiting confirmation",
+    "confirmed_one": "{{count}} session confirmed of {{total}}",
+    "confirmed_other": "{{count}} sessions confirmed of {{total}}",
+    "allConfirmed": "Every session of the week confirmed: {{count}} of {{count}}",
+    "noSessions": "No sessions this week",
+    "earlier": "And from earlier weeks: {{sessions}}",
+    "makeUp": "Make-up session due: {{class}}, {{day}}",
+    "schedule": "Schedule it",
+    "noLost": "No sessions lost to the calendar",
+    "lostDay": "{{what}}, {{day}}: {{sessions}}",
+    "lostDayAt": "{{what}} at {{school}}, {{day}}: {{sessions}}",
+    "lostNote": "They are counted apart, so they never read as slow teaching.",
+    "exams": "{{exams}} from {{day}}; the plan pauses during them",
+    "examsAt": "{{exams}} at {{school}} from {{day}}; the plan pauses during them",
+    "position": "Position: {{item}}",
+    "classLost": "{{lost}}: {{what}}, {{day}}",
+    "align": "Align",
+    "footer": "The digest comes on Sunday morning, once quiet hours end.",
+    "footerSaturday": "The digest comes on Saturday morning, once quiet hours end.",
+    "off": "The digest notification is off; the digest stays here whenever you open it.",
+    "empty": "No digest until the school year’s first day has passed.",
+    "rowNote": "Where each class stands, the sessions awaiting confirmation, and those lost to the calendar"
   }
 }

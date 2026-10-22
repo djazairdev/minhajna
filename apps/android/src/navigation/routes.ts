@@ -53,6 +53,8 @@ export type RootStackParamList = {
   LicenceNotice: { name: string };
   Entry: { key: string; day: string };
   Class: { courseId: string };
+  /** The weekly digest, worked out when it opens (#234). */
+  Digest: undefined;
   /** The roll-call book of a class's course, on a month written YYYY-MM or `year`; the latest month when none. */
   RollMonth: { courseId: string; month?: string };
   /** A pupil in the roll-call book of a class's course, on a month written YYYY-MM or `year`. */

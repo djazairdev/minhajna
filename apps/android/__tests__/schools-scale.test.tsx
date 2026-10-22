@@ -61,7 +61,11 @@ test.each(cases)('Today’s bands and the Classes tab by school scale ($language
   expect(has('today-band-s-1-morning')).toBe(true);
   expect(shownLines()).toEqual(['today-f-1/2026-10-15/m1/k-1-w-time', 'today-f-3/2026-10-15/m1/k-3-w-time']);
   expectScales();
-  await showSettingsScreen(<ClassesTab onClass={jest.fn()} onBook={jest.fn()} onWeek={jest.fn()} />, data, language);
+  await showSettingsScreen(
+    <ClassesTab onClass={jest.fn()} onBook={jest.fn()} onWeek={jest.fn()} onDigest={jest.fn()} />,
+    data,
+    language,
+  );
   expect(['classes-school-s-1', 'classes-school-s-2', 'classes-week', 'classes-register'].every(has)).toBe(true);
   expectScales();
 });

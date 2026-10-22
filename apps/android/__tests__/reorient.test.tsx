@@ -240,7 +240,11 @@ test('offers the reshaping in a lycée class’s settings only, and shows an arc
   expect(root().findAll((node) => node.props.testID === 'class-move')).toHaveLength(0);
   expect(root().findAll((node) => node.props.testID === 'class-settings-move')).toHaveLength(0);
   expect(shown()).toContain(`أُعيد تشكيل هذا القسم: مؤرشف منذ ${iso('08/10/2026')}، يُقرأ ويُطبع ولا تُضاف إليه حصص.`);
-  await mount(data, <ClassesTab onClass={jest.fn()} onBook={jest.fn()} onWeek={jest.fn()} />, '2026-10-11');
+  await mount(
+    data,
+    <ClassesTab onClass={jest.fn()} onBook={jest.fn()} onWeek={jest.fn()} onDigest={jest.fn()} />,
+    '2026-10-11',
+  );
   const lines = shown();
   const archived = lines.indexOf(`مؤرشف منذ ${iso('08/10')} · يُقرأ ويُطبع`);
   expect(archived).toBeGreaterThan(lines.lastIndexOf(text.classes.onPlan));
