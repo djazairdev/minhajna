@@ -110,6 +110,8 @@ export function recordKey(entry: Entry): string | null {
       return `move/${event.move.id}`;
     case 'move.removed':
       return `move/${event.id}`;
+    case 'lesson-note.set':
+      return `lesson-note/${event.note.id}`;
   }
 }
 

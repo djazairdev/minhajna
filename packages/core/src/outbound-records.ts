@@ -113,6 +113,10 @@ function currentRecords(state: State): RecordEvent[] {
     (a, b) => compareDays(a.day, b.day) || compareSlots(a.from, b.from) || compareText(a.id, b.id),
   );
   for (const move of moves) records.push({ kind: 'move.set', move });
+  const lessonNotes = [...state.lessonNotes.values()].sort(
+    (a, b) => compareText(a.courseId, b.courseId) || a.number - b.number || compareText(a.id, b.id),
+  );
+  for (const note of lessonNotes) records.push({ kind: 'lesson-note.set', note });
   return records;
 }
 

@@ -31,6 +31,7 @@ import type {
 import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
 import type { KeptClash, SessionMove } from './session-moves.ts';
+import type { LessonNote } from './lesson-notes.ts';
 import type { SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type { RecordedTimetable } from './timetable-history.ts';
@@ -95,4 +96,6 @@ export interface State {
   readonly keptClashes: ReadonlyMap<string, KeptClash>;
   /** The one-day moves of sessions the teacher recorded and has not taken back, by ID (#232). */
   readonly moves: ReadonlyMap<string, SessionMove>;
+  /** The lesson notes, by ID (#237). */
+  readonly lessonNotes: ReadonlyMap<string, LessonNote>;
 }

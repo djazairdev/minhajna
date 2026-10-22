@@ -101,6 +101,8 @@ function recordKey(event: RecordEvent): string {
       return `move:${event.move.id}`;
     case 'move.removed':
       return `move:${event.id}`;
+    case 'lesson-note.set':
+      return `lesson-note:${event.note.id}`;
   }
 }
 

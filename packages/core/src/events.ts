@@ -13,6 +13,7 @@ import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { ExamDuty } from './exam-duties.ts';
 import type { Repace } from './repace-records.ts';
 import type { KeptClash, SessionMove } from './session-moves.ts';
+import type { LessonNote } from './lesson-notes.ts';
 import type { SupportQueue } from './support-queue.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
@@ -117,7 +118,9 @@ export type RecordEvent =
   | { readonly kind: 'clash.reopened'; readonly id: string }
   /** A session moved for one day, or moved back (#232). */
   | { readonly kind: 'move.set'; readonly move: SessionMove }
-  | { readonly kind: 'move.removed'; readonly id: string };
+  | { readonly kind: 'move.removed'; readonly id: string }
+  /** A lesson note made or changed (#237). */
+  | { readonly kind: 'lesson-note.set'; readonly note: LessonNote };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -166,13 +169,15 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'clash.reopened': true,
   'move.set': true,
   'move.removed': true,
+  'lesson-note.set': true,
 };
 
 /**
  * The layer of every event. Sync, exports and shares check it (PRD §5.4).
  *
  * The teacher's own calendar layer holds training days, seminars and duties,
- * which stay private (PRD §4.5).
+ * which stay private (PRD §4.5). A lesson note is the teacher's own
+ * preparation, kept private (answer 417).
  */
 export function layerOf(event: RecordEvent): Layer {
   switch (event.kind) {
@@ -187,6 +192,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'seating.set':
     case 'setup.finished':
     case 'print.recorded':
+    case 'lesson-note.set':
       return 'private';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
