@@ -75,7 +75,9 @@ async function withRemediation(morning = false, type: ListKind = 'remediation', 
   return data;
 }
 
+/** Renders Today over `data`, unmounting the tree a test rendered before. */
 async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
+  await ReactTestRenderer.act(() => tree?.unmount());
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
