@@ -6,8 +6,9 @@
 // «ح-ك», «غ», «ح-ف» and the rate for each month of the school year, then for
 // the year, and the class's totals in the last row. Months still to come stay
 // empty. The rows shrink to keep the class on one page, under the signature
-// boxes of the teacher, the director and the inspector, the last two dated.
-// Every page carries «داخلي · سري» (R-5.9-15).
+// boxes of the teacher, the director and the inspector, the last two dated;
+// the teacher's carries the drawn signature while it is in use (#236,
+// answer 412). Every page carries «داخلي · سري» (R-5.9-15).
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -40,6 +41,8 @@ export interface YearTexts {
   readonly heads: readonly string[];
   readonly year: string;
   readonly teacher: string;
+  /** The drawn signature for the teacher's box, when the summary carries it. */
+  readonly mark?: string;
   readonly director: string;
   readonly inspector: string;
   readonly date: string;
@@ -59,7 +62,8 @@ const CSS =
   'text-overflow:ellipsis}table.year tr{break-inside:avoid}table.year .m{border-inline-start-width:1.2pt}' +
   'table.year tr.total td{font-weight:700;background:#e6e6e6}.note{font-size:7.5pt;margin-top:1.5mm}' +
   'table.signs{width:100%;border-collapse:collapse;margin-top:2mm;font-size:8pt;break-inside:avoid}' +
-  'table.signs td{border:0.5pt solid #000;height:12mm;vertical-align:top;padding:1mm;width:33.3%}';
+  'table.signs td{border:0.5pt solid #000;height:12mm;vertical-align:top;padding:1mm;width:33.3%}' +
+  'table.signs .drawn{height:6mm;margin:.3mm auto 0}';
 
 function line(row: YearLine, height: string, total: boolean): string {
   const cells = row.figures
@@ -95,7 +99,8 @@ function page(texts: YearTexts, sheet: YearSheet): string {
     `<div class="head"><h1>${escapeHtml(sheet.title)}</h1><p class="scope">${escapeHtml(sheet.scope)}</p></div>` +
     `<table class="year">${cols}<thead>${top}</thead><tbody>${body}</tbody></table>` +
     (sheet.note === '' ? '' : `<div class="note">${escapeHtml(sheet.note)}</div>`) +
-    `<table class="signs"><tr><td>${escapeHtml(texts.teacher)}</td><td>${dated(texts.director)}</td>` +
+    `<table class="signs"><tr><td>${escapeHtml(texts.teacher)}${texts.mark ?? ''}</td>` +
+    `<td>${dated(texts.director)}</td>` +
     `<td>${dated(texts.inspector)}</td></tr></table>`
   );
 }

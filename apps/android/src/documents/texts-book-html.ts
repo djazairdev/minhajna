@@ -39,6 +39,8 @@ export interface TextsBookPage {
   readonly used: number;
   /** Said under the caption when the page has no row, such as no session confirmed in the month. */
   readonly note?: string;
+  /** The drawn signature for each row's signature column, when the book carries it (#236). */
+  readonly mark?: string;
 }
 
 export const TEXTS_BOOK_CSS =
@@ -49,6 +51,7 @@ export const TEXTS_BOOK_CSS =
   'table.book{width:100%;border-collapse:collapse;table-layout:fixed;border:.4mm solid #000}' +
   'table.book th{border:.3mm solid #000;font-weight:700;font-size:10.5pt;height:10mm;padding:0 1mm;text-align:center}' +
   'table.book td{border-inline:.3mm solid #000;vertical-align:top;padding:0 1.5mm;line-height:7.3mm;font-size:10.5pt}' +
+  'table.book td .drawn{height:6.5mm;margin:.4mm auto 0}' +
   'table.book tr.rule td{height:7mm;border-bottom:.3mm solid #9a9a9a}' +
   'table.book tr{break-inside:avoid;page-break-inside:avoid}table.book tr.entry td{border-bottom:.3mm solid #000}' +
   'table.book td.when{text-align:center;white-space:nowrap;font-size:9.5pt}' +
@@ -76,20 +79,20 @@ export function bookHead(page: TextsBookHead): string {
   );
 }
 
-/** The rows of the book's entries, its signature column left blank. */
-export function entryRows(rows: readonly BookRow[], textLang: string | undefined): string {
+/** The rows of the book's entries, each a confirmed session, with `mark` in the signature column or left blank. */
+export function entryRows(rows: readonly BookRow[], textLang: string | undefined, mark = ''): string {
   return rows
     .map(
       (row) =>
         `<tr class="entry"><td class="when">${escapeHtml(row.date)}</td><td class="when">${escapeHtml(row.time)}</td>` +
-        `<td class="what">${row.lines.map((entry) => line(entry, textLang)).join('')}</td><td></td></tr>`,
+        `<td class="what">${row.lines.map((entry) => line(entry, textLang)).join('')}</td><td>${mark}</td></tr>`,
     )
     .join('');
 }
 
 /** One page's content, for `printDocument`. */
 export function textsBookPage(page: TextsBookPage): string {
-  const rows = entryRows(page.rows ?? [], page.textLang);
+  const rows = entryRows(page.rows ?? [], page.textLang, page.mark);
   const left = Math.max(0, PAGE_RULES - page.used);
   const fill = '<tr class="rule"><td></td><td></td><td></td><td></td></tr>'.repeat(left);
   const latin = page.dir === 'ltr' ? ' latin' : '';

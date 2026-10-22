@@ -4,13 +4,13 @@
 // «طباعة الأسبوع» (#215, R-3.8-51 to R-3.8-56): the Documents tab's first
 // row and what is new; the documents with something new ticked, each
 // line with its pages once counted; the pages, sheets and cost, with a
-// blank page before a book that would start on a sheet's back; the
-// signature and template shown and disabled; «طباعة» and the PDF, each
-// leaving its record, a cancelled save none; a journal's range and layout,
-// a range ticking its document; the choices kept on this phone, two quick
-// changes both, the sides and margins counting nothing again; the school
-// year in the formats notice; and printing still working when the pages
-// cannot be counted. The web engine's counting pass is faked: each
+// blank page before a book that would start on a sheet's back; no signature
+// choice while none is in use, and the template disabled; «طباعة» and the
+// PDF, each leaving its record, a cancelled save none; a journal's range and
+// layout, a range ticking its document; the choices kept on this phone, two
+// quick changes both, the sides and margins counting nothing again; the
+// school year in the formats notice; and printing still working when the
+// pages cannot be counted. The web engine's counting pass is faked: each
 // book takes three pages. The teacher has 4م1 and 4م2 on Thursdays from
 // 11 October 2026. Made-up records only.
 
@@ -132,7 +132,10 @@ test('ticks what is new, counts its pages once, and says what the set costs', as
   expect(said('print-journal-line')).toBe(`${words.new} · من 15 أكتوبر 2026 إلى 22 أكتوبر 2026 · 3 صفحات`);
   expect(said('print-roll-line')).toContain('· 6 صفحات');
   expect(tree!.root.findAllByProps({ testID: 'print-confidential' }).length).toBeGreaterThan(0);
-  expect(node('print-signature').props).toMatchObject({ selected: 'blank', disabled: true });
+  expect(tree!.root.findAll((one) => one.props.testID === 'print-signature' && 'selected' in one.props)).toHaveLength(
+    0,
+  );
+  expect(said('print-signature-line')).toBe(words.signatureLine);
   expect(node('print-template').props).toMatchObject({ disabled: true });
   const year = (one: ReactTestRenderer.ReactTestInstance) =>
     typeof one.props.message === 'string' && one.props.message.includes('\u20682026-2027\u2069');

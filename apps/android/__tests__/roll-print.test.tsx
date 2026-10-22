@@ -8,11 +8,11 @@
 // morning of two sessions missed counts once; the yearly summary saves on A4
 // landscape; the blank spread keeps the names and the shading over 50 rows;
 // from the Documents tab it opens on the first class, and another prints
-// alone; the drawn signature is disabled; the front pages print the cover's
-// counts and legend, the list and the two confidential pages; the blank
-// sheet steps through session days (answer 262); and the Roll screen's print
-// icon opens it. 4م1 has 45 made-up pupils and two
-// sessions on Thursdays from 11 October 2026; today is Sunday 18 October.
+// alone; no signature choice while none is in use; the front pages print the
+// cover's counts and legend, the list and the two confidential pages; the
+// blank sheet steps through session days (answer 262); and the Roll screen's
+// print icon opens it. 4م1 has 45 made-up pupils and two sessions on
+// Thursdays from 11 October 2026; today is Sunday 18 October.
 
 import { parseDay, type Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -186,13 +186,12 @@ test('from the Documents tab it opens on the first class and the latest month, a
   expect(pages[0]).toContain('4م2 · اللغة العربية');
 });
 
-test('the drawn signature is disabled, so the boxes print blank', async () => {
+test('with no drawn signature in use, nothing is offered and the boxes print blank', async () => {
   await mount(await withPupils());
-  const signature = tree!.root.findByProps({ testID: 'roll-print-signature' }).props as {
-    selected: string;
-    disabled: boolean;
-  };
-  expect([signature.selected, signature.disabled]).toEqual(['blank', true]);
+  const choices = tree!.root.findAll(
+    (node) => node.props.testID === 'roll-print-signature' && 'selected' in node.props,
+  );
+  expect(choices).toHaveLength(0);
   expect(texts()).toContain(text.rollPrint.signatureNote);
 });
 
@@ -200,7 +199,7 @@ test('the front pages print the cover with the counts and the legend, the list, 
   await mount(await withPupils());
   await select('roll-print-what', 'front');
   expect(texts()).toContain(text.rollPrint.front.note);
-  expect(tree!.root.findAllByProps({ testID: 'roll-print-signature' })).toHaveLength(0);
+  expect(tree!.root.findAllByProps({ testID: 'roll-print-signature-line' })).toHaveLength(0);
   const pages = await printed();
   expect(printHtml.mock.calls[0][2]).toBe(false);
   expect(pages).toHaveLength(4);

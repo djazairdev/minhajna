@@ -7,8 +7,10 @@
 // three columns, from–to, the class, and the session's journal lines; ruled
 // lines for the rest of the page; and the teacher's signature and the
 // director's visa at the foot. A session still awaiting confirmation prints
-// in grey. Times and class codes are isolated, so they keep their order in
-// any language.
+// in grey. The teacher's box carries the drawn signature on a page whose
+// sessions are all confirmed (#236, answer 412, Journal-signed); the
+// director's never does. Times and class codes are isolated, so they keep
+// their order in any language.
 
 import type { BookLine } from '../entry/book-lines';
 import { escapeHtml, printDocument } from './print-html';
@@ -44,6 +46,13 @@ export interface JournalTexts {
   readonly empty: string;
   /** Between a line's label and its text: «: », or « : » in French. */
   readonly colon: string;
+  /** The drawn signature, when the journal carries it. */
+  readonly mark?: string;
+}
+
+/** Whether a page's entries are all confirmed, so it may carry the drawn signature; an empty page is not. */
+export function allConfirmed(entries: readonly { readonly awaiting: boolean }[]): boolean {
+  return entries.length > 0 && entries.every((entry) => !entry.awaiting);
 }
 
 const CSS =
@@ -87,7 +96,8 @@ export function journalHtml(texts: JournalTexts, days: readonly JournalDay[]): s
       (day.entries.length === 0
         ? `<div class="row"><div></div><div></div><div>${escapeHtml(texts.empty)}</div></div>`
         : day.entries.map((entry) => entryHtml(entry, texts.colon)).join('')) +
-      `<div class="blank"></div><div class="visa"><div>${escapeHtml(texts.teacher)}</div>` +
+      `<div class="blank"></div><div class="visa"><div>${escapeHtml(texts.teacher)}` +
+      `${allConfirmed(day.entries) ? (texts.mark ?? '') : ''}</div>` +
       `<div>${escapeHtml(texts.director)}</div></div></div>`,
   );
   return printDocument({

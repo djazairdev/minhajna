@@ -13,6 +13,7 @@ import { coreContext } from '../storage/core-context';
 import { yearShown, type DocumentData, type Translate } from './document-data';
 import { bookScope, rollBooks, type RollBook } from './roll-spread-pages';
 import { rollYearHtml, type YearLine, type YearSheet } from './roll-year-html';
+import { documentSignature, drawnMark } from './drawn-mark';
 
 type Figures = Pick<PupilCount, 'possible' | 'absent' | 'present' | 'rate'>;
 
@@ -65,6 +66,7 @@ export function rollYearPages(
       heads: [t('rollBook.possible'), t('rollBook.absent'), t('rollBook.present'), t('rollBook.rate')],
       year: t('rollBook.yearTotal'),
       teacher: t('rollPrint.teacher'),
+      mark: drawnMark(documentSignature(data, blank)),
       director: t('rollPrint.director'),
       inspector: t('rollPrint.inspector'),
       date: t('rollPrint.date'),

@@ -8,7 +8,8 @@
 // afternoon, and in each cell what the slot holds; each class's hours and
 // the week's total; the day the version applies from (R-4.6-04); and boxes
 // for the teacher's signature and the director's and the inspector's visas,
-// each with a line for its date, all left for the pen.
+// each with a line for its date, left for the pen; the teacher's carries the
+// drawn signature while it is in use (#236, answer 412).
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -36,6 +37,8 @@ export interface TimetablePage {
   readonly from: string;
   /** The teacher's, the director's and the inspector's boxes. */
   readonly boxes: readonly string[];
+  /** The drawn signature for the teacher's box, the first, when the page carries it. */
+  readonly mark?: string;
   /** Such as «التاريخ:». */
   readonly date: string;
 }
@@ -75,7 +78,11 @@ export function timetableHtml(page: TimetablePage): string {
     page.afternoon.map(rowHtml).join('') +
     `</tbody></table><div class="hours">${escapeHtml(page.hours)}</div><div class="from">${escapeHtml(page.from)}</div>` +
     `<div class="boxes">${page.boxes
-      .map((box) => `<div><b>${escapeHtml(box)}</b><small>${escapeHtml(page.date)}</small></div>`)
+      .map(
+        (box, index) =>
+          `<div><b>${escapeHtml(box)}</b>${index === 0 ? (page.mark ?? '') : ''}` +
+          `<small>${escapeHtml(page.date)}</small></div>`,
+      )
       .join('')}</div>`;
   return printDocument({
     lang: page.lang,

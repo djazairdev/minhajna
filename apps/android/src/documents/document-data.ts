@@ -20,6 +20,8 @@ export type DocumentData = Pick<
   readonly today?: Day;
   readonly lang: 'ar' | 'fr' | 'en';
   readonly dir: 'rtl' | 'ltr';
+  /** False when the teacher chose «فارغة» for this output, so the drawn signature stays off it. */
+  readonly drawn?: boolean;
 };
 
 /** The school year as printed, such as «2026-2027». */

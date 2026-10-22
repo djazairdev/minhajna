@@ -5,15 +5,16 @@
 // blank with its headings (R-3.1-10), then Android's print screen, or a PDF
 // saved where the teacher picks through the system's file picker. A document
 // with pupils' data says that «داخلي · سري» is on every page (R-5.9-15). The
-// teacher's box stays blank, to sign by hand (R-3.8-42); the drawn signature
-// and a password on the PDF come later. The pages are made from the record
-// book when a button is pressed, so they hold the latest entries. A
-// document of a month prints the month it was opened for, as the texts
-// book's pages in the app open it (#213), or else the current one; the
-// screen says which. The journal chooses its day, starting on the school
-// year's nearest day when today is outside it, and whether it is kept for
-// all classes or one per class (#216). What was said of the last file goes
-// once a choice changes.
+// teacher's box carries the drawn signature while it is in use, unless the
+// teacher picks «فارغة» for this output; otherwise it stays blank, to sign
+// by hand (R-3.8-42, #236, answer 412). A password on the PDF comes later.
+// The pages are made from the record book when a button is pressed, so they
+// hold the latest entries. A document of a month prints the month it was
+// opened for, as the texts book's pages in the app open it (#213), or else
+// the current one; the screen says which. The journal chooses its day,
+// starting on the school year's nearest day when today is outside it, and
+// whether it is kept for all classes or one per class (#216). What was said
+// of the last file goes once a choice changes.
 
 import { useState } from 'react';
 import type { Day } from '@minhajna/core';
@@ -31,9 +32,18 @@ import { DayStep } from './DayStep';
 import { useDocumentData } from './useDocumentData';
 import { useAppData } from '../storage/AppData';
 import { useOutputRun } from './output-run';
+import { drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
 
 /** Prints or saves one document, for the period of `day` when given, else today's. */
-export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; readonly day?: Day }) {
+export function DocumentOutput({
+  kind,
+  day,
+  onSignature,
+}: {
+  readonly kind: DocumentKind;
+  readonly day?: Day;
+  readonly onSignature?: () => void;
+}) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -47,10 +57,13 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
   const layouts = kind.layouts?.(t) ?? [];
   const [layout, setLayout] = useState(layouts[0]?.value);
   const [blank, setBlank] = useState(false);
+  const [drawn, setDrawn] = useState(true);
+  const inUse = useSignatureInUse();
+  const signs = kind.drawn !== undefined && inUse && drawn && !blank;
   const { busy, said, print, save, clear } = useOutputRun();
   const empty = kind.empty(data);
   const blankLine = kind.blankLine(t);
-  const html = () => kind.pages(data, t, blank, layout);
+  const html = () => kind.pages({ ...data, drawn }, t, blank, layout);
 
   return (
     <ScrollView
@@ -122,7 +135,24 @@ export function DocumentOutput({ kind, day }: { readonly kind: DocumentKind; rea
           message={t('documents.output.confidentialLine')}
         />
       )}
-      <Notice icon={controlIcon('info')} message={kind.signatureLine(t)} />
+      {kind.drawn !== undefined && (
+        <SignatureChoice
+          testID="output-signature"
+          label={t('documents.output.signatureChoice')}
+          drawn={drawn}
+          disabled={busy}
+          onDrawn={(next) => {
+            setDrawn(next);
+            clear();
+          }}
+          onSettings={onSignature}
+        />
+      )}
+      <Notice
+        testID="output-signature-line"
+        icon={controlIcon('info')}
+        message={signs ? drawnNote(t, [kind.id]) : kind.signatureLine(t)}
+      />
       {empty && <Notice testID="output-empty" icon={controlIcon('info')} message={kind.emptyLine(t)} />}
       {said !== null && (
         <Notice

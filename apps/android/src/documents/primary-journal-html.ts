@@ -8,6 +8,8 @@
 // class, the activity, the content, the competence indicator, and the
 // domain with the lesson note's number; then the teacher's signature and a
 // director's visa for each school, which the paper forms leave out. The
+// teacher's box carries the drawn signature on a page whose sessions are all
+// confirmed (#236, answer 412); a visa never does. The
 // class teacher's journal has a morning and an afternoon band; a
 // specialist's has one for each school and half-day, and its pages are in
 // the subject's language and direction, set in the Latin face when they
@@ -18,6 +20,7 @@
 // sheet.
 
 import type { BookLine } from '../entry/book-lines';
+import { allConfirmed } from './journal-html';
 import { escapeHtml, printDocument } from './print-html';
 
 export interface PrimaryEntry {
@@ -68,6 +71,8 @@ export interface PrimaryTexts {
   readonly empty: string;
   /** Between a line's label and its text: «: », or « : » in French. */
   readonly colon: string;
+  /** The drawn signature, when the journal carries it. */
+  readonly mark?: string;
 }
 
 /** Empty rows a band keeps in the blank version: the morning's sessions, then the afternoon's. */
@@ -87,7 +92,7 @@ export const PRIMARY_CSS =
   'table.day tr.blank td{height:9mm}.awaiting{color:#555}' +
   '.foot{display:grid;gap:6mm;margin-top:4mm;break-inside:avoid}' +
   '.foot div{border:1.2pt solid #000;border-radius:4pt;height:14mm;padding:3pt 8pt;font-family:Ruqaa,Naskh}' +
-  '.foot small{font-family:Naskh,Sans,serif;font-size:9pt}' +
+  '.foot small{font-family:Naskh,Sans,serif;font-size:9pt}.foot .drawn{height:7mm;margin:.5mm auto 0}' +
   '.latin .head .book,.latin table.day th,.latin table.day td.band,.latin .foot div' +
   '{font-family:Sans,Naskh,sans-serif;font-weight:700}.latin .head .book{font-size:16pt}';
 
@@ -118,6 +123,7 @@ function bandHtml(band: PrimaryBand, columns: number, colon: string): string {
 export function primaryPageHtml(texts: PrimaryTexts, day: PrimaryDay, blank: boolean): string {
   const columns = texts.widths.length;
   const none = !blank && day.bands.every((band) => band.entries.length === 0);
+  const signed = allConfirmed(day.bands.flatMap((band) => band.entries));
   const visas = day.visas.map(
     (school) =>
       `<div>${escapeHtml(texts.director)}${school === '' ? '' : `<br><small>${escapeHtml(school)}</small>`}</div>`,
@@ -132,7 +138,7 @@ export function primaryPageHtml(texts: PrimaryTexts, day: PrimaryDay, blank: boo
       ? `<tr><td class="c" colspan="${columns}">${escapeHtml(texts.empty)}</td></tr>`
       : day.bands.map((band) => bandHtml(band, columns, texts.colon)).join('')) +
     `</tbody></table><div class="foot" style="grid-template-columns:repeat(${visas.length + 1},1fr)">` +
-    `<div>${escapeHtml(texts.teacher)}</div>${visas.join('')}</div>`
+    `<div>${escapeHtml(texts.teacher)}${signed ? (texts.mark ?? '') : ''}</div>${visas.join('')}</div>`
   );
 }
 

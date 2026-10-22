@@ -4,12 +4,13 @@
 // «طباعة الأسبوع» (#215, Print-set, R-3.8-51 to R-3.8-56, answers 251 and
 // 252): the documents the set can hold, those with something new since
 // their last print ticked, each with its range and its pages once counted;
-// one or two sides; the signature boxes, blank until the drawn signature
-// (#236), and the documents' template, the default until #237, both shown
-// and disabled; binding margins and a blank copy of each; then the pages,
-// sheets and cost, and «طباعة» or one PDF for the print shop. The choices
-// stay on this phone; a print counts once Android's print screen opens or
-// the PDF is saved, and leaves its record in the history.
+// one or two sides; the teacher's signature box, drawn or blank once the
+// drawn signature is in use (#236, answer 412), else blank with its line;
+// the documents' template, the default until #237, shown and disabled;
+// binding margins and a blank copy of each; then the pages, sheets and
+// cost, and «طباعة» or one PDF for the print shop. The choices stay on this
+// phone; a print counts once Android's print screen opens or the PDF is
+// saved, and leaves its record in the history.
 
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -30,28 +31,26 @@ import { PrintEntry } from './PrintEntry';
 import { countsForPrint, useBookCounts } from './print-count';
 import type { PrintRange } from './print-ranges';
 import { PrintRangeSheet } from './PrintRangeSheet';
+import { drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
 import { printSetHtml, printSummary, setLandscape, type SetLayout } from './print-set';
-import { usePrintSettings, type PrintSettings, type PrintSettingsChange } from './print-settings';
-import { yearShown, type Translate } from './document-data';
-import { documentPages, entryLine, weekEntries, weekSet, type WeekEntry } from './print-week';
+import { usePrintSettings, type PrintSettingsChange } from './print-settings';
+import { yearShown } from './document-data';
+import { chosenLayout, documentPages, entryLine, weekEntries, weekSet } from './print-week';
 import { useDocumentData } from './useDocumentData';
 
 type Said = 'saved' | 'failed' | null;
 const NEW: PrintRange = { kind: 'new' };
 
-/** A journal's layout: the one kept on this phone, if it still exists, or its first. */
-function chosenLayout(entries: readonly WeekEntry[], kept: PrintSettings['layouts'], t: Translate, id: DocumentId) {
-  const layouts = entries.find((entry) => entry.kind.id === id)?.kind.layouts?.(t) ?? [];
-  return layouts.some((one) => one.value === kept[id]) ? kept[id] : layouts[0]?.value;
-}
-
-export function PrintWeek() {
+export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { record, newId } = useAppData();
-  const data = useDocumentData();
-  const entries = useMemo(() => weekEntries(data), [data]);
+  const shown = useDocumentData();
+  const [drawn, setDrawn] = useState(true);
+  const inUse = useSignatureInUse();
+  const data = useMemo(() => ({ ...shown, drawn }), [shown, drawn]);
+  const entries = useMemo(() => weekEntries(shown), [shown]);
   const [settings, change] = usePrintSettings();
   const [ticked, setTicked] = useState<ReadonlySet<DocumentId>>(
     () => new Set(entries.filter((entry) => entry.news !== null).map((entry) => entry.kind.id)),
@@ -183,19 +182,20 @@ export function PrintWeek() {
           { value: 'two', label: t('documents.printWeek.twoSides') },
         ]}
       />
-      <Text style={styles.label}>{t('documents.printWeek.signature')}</Text>
-      <SegmentedControl
+      <SignatureChoice
         testID="print-signature"
         label={t('documents.printWeek.signature')}
-        selected="blank"
-        disabled
-        onSelect={() => undefined}
-        choices={[
-          { value: 'drawn', label: t('documents.printWeek.drawn') },
-          { value: 'blank', label: t('documents.printWeek.blankBox') },
-        ]}
+        drawn={drawn}
+        disabled={busy}
+        onDrawn={(next) => {
+          setDrawn(next);
+          setSaid(null);
+        }}
+        onSettings={onSignature}
       />
-      <Text style={styles.line}>{t('documents.printWeek.signatureLine')}</Text>
+      <Text testID="print-signature-line" style={styles.line}>
+        {inUse && drawn ? drawnNote(t, set.ids) : t('documents.printWeek.signatureLine')}
+      </Text>
       <View style={styles.card}>
         <Switch
           testID="print-binding"

@@ -11,9 +11,10 @@
 // and month, the yearly summary's, the Class page's class, the Roll screen's
 // day for the blank sheet or its roll call for the slip, the seating setup
 // screen's plan alone, or from the Documents tab on the first class and the
-// latest month. «خانة توقيعي» shows for the spread and the summary, with the
-// drawn signature disabled until #236, so the boxes print blank, and a file
-// with pupils' data says «داخلي · سري» is on every page.
+// latest month. While the drawn signature is in use, «خانة توقيعي» offers it
+// or a blank box for the spread and the summary (#236, answers 412 and 413);
+// otherwise, or for a blank version, the line says the box prints blank. A
+// file with pupils' data says «داخلي · سري» is on every page.
 
 import { useLocale } from '@react-navigation/native';
 import { compareDays, countYear, parseDay, type Day } from '@minhajna/core';
@@ -24,7 +25,6 @@ import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
-import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { monthLabel } from '../documents/document-data';
@@ -34,6 +34,7 @@ import { seatPlans } from '../documents/roll-seats';
 import { slipDays, slipsOffered, slipLabel, slipUnits } from '../documents/roll-slip';
 import { rollOutput, type RollPrintChoice } from '../documents/roll-print-output';
 import { rollBooks, type RollBook } from '../documents/roll-spread-pages';
+import { drawnNote, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
 import { useDocumentData } from '../documents/useDocumentData';
 import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
@@ -58,6 +59,8 @@ export type RollPrintProps = {
   /** The one seating plan to print, by its group, while that class is chosen. */
   readonly plan?: string;
   readonly choice?: RollPrintChoice;
+  /** Opens the drawn signature from «إعدادات التوقيع». */
+  readonly onSignature?: () => void;
 };
 
 export function RollPrint(props: RollPrintProps) {
@@ -74,6 +77,8 @@ export function RollPrint(props: RollPrintProps) {
   const [unitKey, setUnitKey] = useState<string | null>(props.unit ?? null);
   const [picked, setChoice] = useState<RollPrintChoice>(props.choice ?? 'spread');
   const [blank, setBlank] = useState(false);
+  const [drawn, setDrawn] = useState(true);
+  const inUse = useSignatureInUse();
   const { busy, said, print, save, clear } = useOutputRun();
   const book = books.find((one) => bookKey(one) === chosen) ?? books[0];
   const span = useMemo(() => {
@@ -101,7 +106,7 @@ export function RollPrint(props: RollPrintProps) {
   const output =
     book === undefined || (choice === 'day' && sheetDay === undefined) || (choice === 'slip' && unit === undefined)
       ? null
-      : rollOutput(data, t, {
+      : rollOutput({ ...data, drawn }, t, {
           choice,
           book,
           name: className(book),
@@ -225,19 +230,17 @@ export function RollPrint(props: RollPrintProps) {
       />
       {signed && (
         <>
-          <Text style={styles.label}>{t('rollPrint.signature')}</Text>
-          <SegmentedControl
+          <SignatureChoice
             testID="roll-print-signature"
             label={t('rollPrint.signature')}
-            selected="blank"
-            disabled
-            onSelect={() => undefined}
-            choices={[
-              { value: 'drawn', label: t('documents.printWeek.drawn') },
-              { value: 'blank', label: t('documents.printWeek.blankBox') },
-            ]}
+            drawn={drawn}
+            disabled={busy}
+            onDrawn={change(setDrawn)}
+            onSettings={props.onSignature}
           />
-          <Text style={styles.line}>{t('rollPrint.signatureNote')}</Text>
+          <Text testID="roll-print-signature-line" style={styles.line}>
+            {inUse && drawn && !blank ? drawnNote(t, ['roll']) : t('rollPrint.signatureNote')}
+          </Text>
         </>
       )}
       {output === null && (
@@ -283,6 +286,5 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: { gap: spacing['space-16'], paddingTop: spacing['space-16'] },
   line: { ...typography.body, color: colors.pencil },
-  label: { ...typography.label, color: colors.ink2, marginBottom: -spacing['space-8'] },
   actions: { gap: spacing['space-10'], paddingTop: spacing['space-8'] },
 });
