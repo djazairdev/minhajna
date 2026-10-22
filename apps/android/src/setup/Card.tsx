@@ -6,12 +6,17 @@
 // optional, and it never leaves the phone (PRD §3.2, §5.6). The rank is
 // printed and travels with the lesson record. The subjects, schools and school
 // year come from step 1 and the calendar, so they are shown here, not typed
-// again. The drawn signature comes with the documents (R-3.8-41).
+// again. «التوقيع المرسوم» opens the drawn signature, off until the teacher
+// turns it on (#236, R-3.8-41); changing the name keeps it.
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { personalWith } from '@minhajna/core';
 import { Button } from '../components/Button';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
+import { signatureStatus } from '../drawn/DrawnSignature';
 import { SetupSteps } from '../components/SetupSteps';
 import { TextField } from '../components/TextField';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
@@ -25,8 +30,7 @@ import { useDraft } from './useDraft';
 function useCard() {
   const { state, record } = useAppData();
   const name = useDraft(state.personal?.name ?? '', (value) => {
-    const trimmed = value.trim();
-    record({ kind: 'teacher.personal.set', personal: trimmed === '' ? {} : { name: trimmed } });
+    record({ kind: 'teacher.personal.set', personal: personalWith(state.personal, { name: value }) });
   });
   const rank = useDraft(state.teacher?.rank ?? '', (value) => {
     record({ kind: 'teacher.set', card: { rank: value.trim() } });
@@ -49,7 +53,15 @@ function Shown({ label, value, testID }: { label: string; value: string; testID:
 }
 
 /** The second step of setup; `onNext` leads on, with or without the card filled in. */
-export function Card({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
+export function Card({
+  onNext,
+  onSignature,
+  editing = false,
+}: {
+  onNext: () => void;
+  onSignature: () => void;
+  editing?: boolean;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -107,6 +119,17 @@ export function Card({ onNext, editing = false }: { onNext: () => void; editing?
           value={schools.map((school) => school.name).join(comma)}
         />
         <Text style={[styles.sub, align]}>{t(editing ? 'settings.cardFromSchools' : 'setup.fromStepOne')}</Text>
+        <RowLink
+          testID="card-signature"
+          icon={controlIcon('tune')}
+          title={t('settings.rows.signature')}
+          description={signatureStatus(t, state.personal)}
+          onPress={() => {
+            name.flush();
+            rank.flush();
+            onSignature();
+          }}
+        />
         {unsaved && (
           <Text testID="not-saved" accessibilityLiveRegion="polite" style={[styles.unsaved, align]}>
             {t('setup.notSaved')}

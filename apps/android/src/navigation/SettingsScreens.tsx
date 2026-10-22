@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { DrawnSignature } from '../drawn/DrawnSignature';
 import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
 import { Teaching } from '../setup/Teaching';
@@ -58,6 +59,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
       case 'print':
         navigation.navigate('PrintWeek');
         break;
+      case 'signature':
+        navigation.navigate('SettingsSignature');
+        break;
       case 'security':
         navigation.navigate('Security');
         break;
@@ -74,7 +78,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
 
 /** The teacher card, saved as it is edited, without resetting setup or the navigation stack. */
 export function SettingsCardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'SettingsCard'>) {
-  return <Card editing onNext={() => navigation.goBack()} />;
+  return (
+    <Card editing onSignature={() => navigation.navigate('SettingsSignature')} onNext={() => navigation.goBack()} />
+  );
 }
 
 /** Schools can be added or corrected; a school that owns records is not erased here. */
@@ -164,6 +170,7 @@ export function settingsRoutes(
       />
       <Stack.Screen name="Language" component={LanguageScreen} options={dark(t('settings.rows.language'))} />
       <Stack.Screen name="SettingsNotify" component={Notify} options={dark(t('settings.rows.notifications'))} />
+      <Stack.Screen name="SettingsSignature" component={DrawnSignature} options={dark(t('settings.rows.signature'))} />
     </>
   );
 }

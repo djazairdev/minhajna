@@ -14,6 +14,7 @@ import { spacing } from '../design/tokens';
 import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
+import { signatureStatus } from '../drawn/DrawnSignature';
 import { setCountMinutes, useCountMinutes } from './preferences';
 import { settingsStyles as styles } from './styles';
 
@@ -29,6 +30,7 @@ const AVAILABLE = [
   'updates',
   'rules',
   'print',
+  'signature',
   'notifications',
   'security',
   'language',
@@ -65,6 +67,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
     week: t('settings.weekLine'),
     times: t('settings.timesLine'),
     plans: t('settings.plansLine'),
+    signature: signatureStatus(t, state.personal),
   };
   const schools = [...state.schools.values()];
   return (

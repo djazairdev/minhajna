@@ -86,5 +86,23 @@
     "quietWeekendSaturday": "Et du jeudi 20:00 au samedi 07:00",
     "quietNone": "Aucune notification n’arrive pendant ces heures.",
     "noNames": "Aucune notification ne montre ni nom ni note."
+  },
+  "signature": {
+    "intro": "Dessinée une fois à l’écran, puis placée dans les cases de signature de l’enseignant à l’impression.",
+    "pad": "Zone de dessin de la signature",
+    "padHint": "Dessinez avec le doigt ; chaque trait est gardé quand vous levez le doigt. Avec TalkBack, touchez deux fois en maintenant, puis glissez.",
+    "empty": "Dessinez votre signature ici",
+    "tooLong": "La signature est plus longue que ce qui peut être gardé. Effacez-la et dessinez-la avec moins de traits.",
+    "redraw": "Effacer et redessiner",
+    "use": "Utiliser la signature sur les impressions et les PDF",
+    "drawFirst": "Dessinez d’abord la signature pour l’activer.",
+    "phoneOnly": "Elle reste sur ce téléphone seulement : elle n’est ni synchronisée ni sauvegardée.",
+    "shapeOnly": "Seule sa forme est gardée, sans la vitesse, la pression ni le rythme des traits.",
+    "where": "Elle va dans les cases de l’enseignant pour les séances confirmées seulement, jamais dans celles du directeur ou de l’inspecteur, ni dans les fichiers DOCX.",
+    "legal": "Ce n’est pas une signature légale ; elle vaut là où l’établissement l’accepte.",
+    "statusOn": "Activée",
+    "statusOff": "Désactivée",
+    "drawn": "Dessinée",
+    "statusNone": "Non dessinée"
   }
 }
