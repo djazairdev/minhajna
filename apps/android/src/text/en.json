@@ -2704,7 +2704,16 @@
       "name": "Lesson notes",
       "awaiting": "Note {{number}} for {{className}}’s session {{day}}, to complete",
       "done": "Note {{number}} for {{className}}’s session {{day}}, complete",
-      "fresh": "A new note for {{className}}’s session {{day}}"
+      "fresh": "A new note for {{className}}’s session {{day}}",
+      "none": "No session ahead has a lesson from the plan · print a day’s notes"
+    },
+    "print": {
+      "visa": "Director’s or inspector’s visa",
+      "none": "No session on this day has a lesson from the plan.",
+      "blank": "Each note’s head from the plan, and its paragraphs’ titles over lines to fill in by hand.",
+      "signature": "A lesson note has no teacher’s box, so the drawn signature does not print on it. The director’s or inspector’s visa is always blank.",
+      "noClasses": "No class taught yet, so there is no lesson note to print.",
+      "action": "Print the notes"
     }
   }
 }

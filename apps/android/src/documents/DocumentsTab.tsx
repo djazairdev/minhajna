@@ -72,7 +72,7 @@ export function DocumentsTab({
               onPress={() => onOpen(kind.id)}
             />
           ))}
-          {onNote !== undefined && <NotesRow data={data} onOpen={onNote} />}
+          {onNote !== undefined && <NotesRow data={data} onOpen={onNote} onPrint={() => onOpen('notes')} />}
           <RowLink
             testID="documents-fixes"
             icon={controlIcon('check')}

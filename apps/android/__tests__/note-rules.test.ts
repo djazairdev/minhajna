@@ -5,8 +5,9 @@
 // lesson a session's note is for, the paragraphs in grey or in ink with
 // their titles and the textbook's pages, and whether a note has text.
 
-import type { LessonNote, NoteDraft, SessionRecord } from '@minhajna/core';
-import { hasText, noteBlocks, planTitle, proposedText, sessionItem } from '../src/notes/note-rules';
+import type { Course, LessonNote, NoteDraft, SchoolClass, SessionRecord } from '@minhajna/core';
+import { hasText, noteBlocks, noteSubject, planTitle, proposedText, sessionItem } from '../src/notes/note-rules';
+import { bundledReference, readReference } from '../src/reference';
 import { i18n } from '../src/text/i18n';
 
 const t = i18n.t.bind(i18n);
@@ -103,4 +104,23 @@ test('words the paragraphs in French and English', async () => {
   expect(proposedText(t, 'resources', draft)).toBe('Manuel p. 12–13');
   await i18n.changeLanguage('en');
   expect(planTitle(t, 'stage-3', draft)).toBe('Stage 3');
+});
+
+test('names the subject, with the level a joint class’s course follows', () => {
+  const reference = readReference(bundledReference);
+  if (!reference.ok) throw new Error('The bundled reference data is refused');
+  const plain: SchoolClass = { id: 'k-1', schoolId: 's-1', level: 'cem', grade: '4am', name: '4م1', groups: [] };
+  const joint: SchoolClass = {
+    ...plain,
+    groups: [
+      { id: 'k-1-3', kind: 'level', name: '3م', grade: '3am' },
+      { id: 'k-1-4', kind: 'level', name: '4م', grade: '4am' },
+    ],
+  };
+  const course: Course = { id: 'c-1', classId: 'k-1', subject: 'arabic', year: '2026-2027', pack: null, grade: '3am' };
+  expect(noteSubject(t, reference.profile, 'ar', course, plain)).toBe('اللغة العربية');
+  expect(noteSubject(t, reference.profile, 'ar', course, joint)).toBe(
+    `اللغة العربية · ${t('joint.short', { n: '3' })}`,
+  );
+  expect(noteSubject(t, reference.profile, 'ar', { ...course, subject: 'unknown' }, plain)).toBe('unknown');
 });

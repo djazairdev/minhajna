@@ -20,6 +20,7 @@ export function NoteScreen({ navigation, route }: NativeStackScreenProps<RootSta
       day={parseDay(day)}
       onWrite={(paragraph) => navigation.navigate('NoteEdit', { key, day, paragraph })}
       onOwn={(index) => navigation.navigate('NoteOwn', { key, day, ...(index !== undefined && { index }) })}
+      onPrint={() => navigation.navigate('DocOutput', { id: 'notes', day })}
     />
   );
 }

@@ -4,7 +4,8 @@
 // «المذكرات» in «الوثائق» (#237, Docs, answer 419): the note of the next
 // session from today still awaiting confirmation that has a lesson, with
 // its number and whether every plan paragraph is kept, or a new one. A tap
-// opens that note. With no such session the row is not shown.
+// opens that note. With no such session, the row says so and opens the
+// notes' print (answer 420).
 
 import { courseSetup, noteDraft } from '@minhajna/core';
 import { useMemo } from 'react';
@@ -17,7 +18,15 @@ import { shortDay } from '../today/outcome-rules';
 import { isolate } from '../week/grid-labels';
 import { nextNoted, noteBlocks } from './note-rules';
 
-export function NotesRow({ data, onOpen }: { data: DocumentData; onOpen: (key: string, day: string) => void }) {
+export function NotesRow({
+  data,
+  onOpen,
+  onPrint,
+}: {
+  data: DocumentData;
+  onOpen: (key: string, day: string) => void;
+  onPrint: () => void;
+}) {
   const t = useText();
   const line = useMemo(() => {
     const context = coreContext(data);
@@ -34,14 +43,13 @@ export function NotesRow({ data, onOpen }: { data: DocumentData; onOpen: (key: s
         : t(done ? 'notes.row.done' : 'notes.row.awaiting', { ...words, number: note.number });
     return { text, key: session.key, day: session.day };
   }, [data, t]);
-  if (line === null) return null;
   return (
     <RowLink
       testID="documents-notes"
       icon={controlIcon('pencil')}
       title={t('notes.row.name')}
-      description={line.text}
-      onPress={() => onOpen(line.key, line.day)}
+      description={line === null ? t('notes.row.none') : line.text}
+      onPress={() => (line === null ? onPrint() : onOpen(line.key, line.day))}
     />
   );
 }

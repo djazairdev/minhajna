@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A session's lesson note for the note screens (#237, answer 419): the
-// session, its class and time, the plan's draft and the note kept, and a
-// change kept at once. The first change makes the note, with the next number
-// of its class. Each change is made from the note as saved after every
-// earlier change, so two quick taps never make two notes or lose one.
+// A session's lesson note for the note screens (#237, answers 419 and 420): the
+// session, its class, subject and time, the plan's draft and the note kept, and
+// a change kept at once. The first change makes the note, with the next number
+// of its class. Each change is made from the note as saved after every earlier
+// change, so two quick taps never make two notes or lose one.
 
 import {
   courseSetup,
@@ -25,10 +25,10 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { currentLanguage, useText } from '../text/i18n';
 import { span } from '../times/TimeTable';
 import { sessionTime } from '../times/times-rules';
-import { sessionItem } from './note-rules';
+import { noteSubject, sessionItem } from './note-rules';
 
 export interface NoteSession {
   readonly item: TodaySession;
@@ -60,7 +60,7 @@ export function useNote(sessionKey: string, day: Day): NoteSession | null {
     const courseId = item?.session.courseId;
     const draft = courseId === undefined || itemId === null ? null : noteDraft(context, courseId, itemId);
     if (item === undefined || courseId === undefined || itemId === null || draft === null) return null;
-    const { schoolClass } = courseSetup(context, courseId);
+    const { schoolClass, course } = courseSetup(context, courseId);
     const school = state.schools.get(schoolClass.schoolId);
     const time = sessionTime({ bells, calendar, state }, school, item.session.slot, day);
     const note = noteFor(state, courseId, itemId);
@@ -83,6 +83,7 @@ export function useNote(sessionKey: string, day: Day): NoteSession | null {
       number: note?.number ?? nextNoteNumber(state, courseId),
       scope: [
         schoolClass.name,
+        noteSubject(t, profile, currentLanguage(), course, schoolClass),
         `${t(`week.days.${weekday(day)}`)} ${formatDay(day)}`,
         time === null ? null : span(time.from, time.to, direction),
       ]
@@ -91,5 +92,5 @@ export function useNote(sessionKey: string, day: Day): NoteSession | null {
       earlier: earlierNote(state, courseId, itemId),
       keep,
     };
-  }, [context, day, sessionKey, state, bells, calendar, t, direction, recordFrom, newId]);
+  }, [context, day, sessionKey, state, bells, calendar, profile, t, direction, recordFrom, newId]);
 }

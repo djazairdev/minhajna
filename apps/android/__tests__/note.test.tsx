@@ -34,8 +34,10 @@ afterEach(async () => {
   jest.clearAllMocks();
 });
 
+const onPrint = jest.fn();
+
 const show = (data: Awaited<ReturnType<typeof withDay>>, sessionKey = staged, day = '2026-10-22') =>
-  mount(data, <Note sessionKey={sessionKey} day={parseDay(day)} onWrite={onWrite} onOwn={onOwn} />);
+  mount(data, <Note sessionKey={sessionKey} day={parseDay(day)} onWrite={onWrite} onOwn={onOwn} onPrint={onPrint} />);
 
 const tag = (id: string) =>
   String(
@@ -60,13 +62,15 @@ test('shows the head from the plan and every paragraph in grey, the pencil openi
       'إضافة فقرة',
     ]),
   );
-  expect(texts().some((one) => one.startsWith('4م1 · الخميس 22/10/2026'))).toBe(true);
+  expect(texts().some((one) => one.startsWith('4م1 · اللغة العربية · الخميس 22/10/2026'))).toBe(true);
   expect(texts()).not.toContain('الميدان: ');
   expect(control('note-objectives')).toBeUndefined();
   await press('note-stage-2-write');
   expect(onWrite).toHaveBeenCalledWith('stage-2');
   await press('note-add');
   expect(onOwn).toHaveBeenCalledWith();
+  await press('note-print');
+  expect(onPrint).toHaveBeenCalledTimes(1);
   expect(accessibilityProblems(root())).toEqual([]);
   expect(data.book.state.lessonNotes.size).toBe(0);
 });
