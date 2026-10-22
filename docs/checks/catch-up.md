@@ -9,7 +9,7 @@ Checks of 22 October 2026 for [#228](https://github.com/djazairdev/minhajna/issu
   - Rung 2 states the buffers used and left before the next exams. The class's TD line states its own sessions and items left.
   - Rung 3 lists the pack's merges and the optional items, among the items not yet taught that the next exams' term needs. None is ticked. Each has its own «تأكيد», with «تراجع» at once and a take-back in the list of decisions.
   - Rung 4 opens «إضافة حصة».
-  - Rung 5, re-pacing, comes with [#229](https://github.com/djazairdev/minhajna/issues/229) and is not shown until then.
+  - Rung 5, re-pacing the rest of the term, came with [#229](https://github.com/djazairdev/minhajna/issues/229); see [repace.md](repace.md).
   - The closing line says nothing is dropped or pushed past the exams without the teacher knowing, and that every change can be taken back from the history.
 - **Catch-up sessions** (answers 353 to 358, [Catchup-add](../design/screens/Catchup-add.png)): one session for one class, on a day and a bell slot, never a clock time.
   - The screen offers the next six free times of the two weeks from tomorrow, or «موعد آخر»: any day to the year's end and its slots with a time. A slot where the teacher already teaches, in any school, is refused with the class it clashes with. Two schools' slots meet when their bell times overlap.
