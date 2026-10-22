@@ -19,6 +19,7 @@ import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
 import type { KeptClash, SessionMove } from './session-moves.ts';
+import type { LessonNote } from './lesson-notes.ts';
 import { readPersonal } from './signature.ts';
 import { kindOf, listKey, type SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -85,6 +86,7 @@ export function buildState(entries: readonly Entry[]): State {
   const repaces = new Map<string, Repace>();
   const keptClashes = new Map<string, KeptClash>();
   const moves = new Map<string, SessionMove>();
+  const lessonNotes = new Map<string, LessonNote>();
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -237,6 +239,9 @@ export function buildState(entries: readonly Entry[]): State {
       case 'move.removed':
         moves.delete(event.id);
         break;
+      case 'lesson-note.set':
+        lessonNotes.set(event.note.id, event.note);
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -276,5 +281,6 @@ export function buildState(entries: readonly Entry[]): State {
     repaces,
     keptClashes,
     moves,
+    lessonNotes,
   };
 }

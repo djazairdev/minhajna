@@ -72,9 +72,12 @@ const ALLOWED: Readonly<Record<Route, readonly Layer[]>> = {
 // A route may take one kind of record from a layer it otherwise refuses. The
 // seating-plan printout takes no whole layer: only the plan, the pupils'
 // names and the class they sit in. Roll calls, movements and everything else
-// private stay off it (PRD §3.4).
+// private stay off it (PRD §3.4). The documents the teacher makes take the
+// lesson notes, which stay off statements, handovers and the school's copy
+// (answer 417).
 const ALLOWED_KINDS: Readonly<Partial<Record<Route, readonly string[]>>> = {
   'seating-plan-printout': ['seating.set', 'pupil.set', 'class.set'],
+  documents: ['lesson-note.set'],
 };
 
 /** Whether a whole layer may travel on `route`. A route that does not exist takes nothing. */
