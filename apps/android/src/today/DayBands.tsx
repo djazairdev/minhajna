@@ -6,8 +6,9 @@
 // each with one roll call for each class's half day, and the afternoon's taken
 // on its own, said so only when the class has a morning roll call that day too
 // (answer 385); a class called session by session keeps its roll call on its
-// cards. Then «تأكيد اليوم كله كما هو مقترح», which records every session still
-// awaiting as proposed, and «الكراس اليومي».
+// cards. After the cards, at every level, «تأكيد اليوم كله كما هو مقترح», which
+// records every session still awaiting as proposed, and on a primary day
+// «الكراس اليومي» (#231, answer 387).
 
 import {
   type Context,
@@ -49,12 +50,9 @@ export type DayBandsProps = {
   readonly render: (entry: TodayEntry) => ReactNode;
   readonly context: Context;
   readonly onRoll: (session: Session) => void;
-  /** Records every session still awaiting as proposed; set when two or more are. */
-  readonly onConfirmDay?: () => void;
-  readonly onJournal?: () => void;
 };
 
-export function DayBands({ entries, render, context, onRoll, onConfirmDay, onJournal }: DayBandsProps) {
+export function DayBands({ entries, render, context, onRoll }: DayBandsProps) {
   const t = useText();
   const bands = HALVES.map((half) => ({
     half,
@@ -111,6 +109,22 @@ export function DayBands({ entries, render, context, onRoll, onConfirmDay, onJou
           {band.entries.map(render)}
         </View>
       ))}
+    </>
+  );
+}
+
+export type DayEndProps = {
+  /** Records every session still awaiting as proposed; set when two or more are. */
+  readonly onConfirmDay?: () => void;
+  /** On a primary day, opens the day's journal. */
+  readonly onJournal?: () => void;
+};
+
+/** After the day's cards, at every level: «تأكيد اليوم كله كما هو مقترح», then «الكراس اليومي» (answer 387). */
+export function DayEnd({ onConfirmDay, onJournal }: DayEndProps) {
+  const t = useText();
+  return (
+    <>
       {onConfirmDay !== undefined && (
         <Button
           testID="today-confirm-day"

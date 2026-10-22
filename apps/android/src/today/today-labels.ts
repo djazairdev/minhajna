@@ -6,11 +6,15 @@
 // recorded session wrote, and the day's facts; with an item merged into
 // the session by the teacher's decision, both (#221). In a week pack, the
 // plan week, and for an activity of the weekly model, which of the week's
-// sessions of it this is (#230, answer 375). The words state facts and
-// never judge (PRD §3.1, rule 8).
+// sessions of it this is (#230, answer 375). A day outside the country's
+// working days that the timetable fills, such as a Saturday, says so (#231,
+// answer 387). The words state facts and never judge (PRD §3.1, rule 8).
 
 import {
   findPackItem,
+  weekday,
+  type CountryProfile,
+  type Day,
   type PlanPack,
   type Proposal,
   type SessionRecord,
@@ -126,4 +130,21 @@ export function dayFacts(t: Translate, view: TodayView, marked = false): string 
           sessions: t('today.total', { count }),
         });
   return `${earlier} · ${today}`;
+}
+
+/** `special`, with «السبت يوم دراسة في استعمال الزمن الساري» on a day off the week that the timetable fills. */
+export function withOffDay(
+  t: Translate,
+  country: CountryProfile,
+  view: TodayView,
+  day: Day,
+  special: string | null,
+): string | null {
+  const off =
+    !country.workingDays.includes(weekday(day)) &&
+    view.sessions.some((item) => item.status !== 'calendar' && item.session.added === undefined);
+  if (!off) return special;
+  return [special, t('today.offDay', { day: t(`week.days.${weekday(day)}`) })]
+    .filter((one) => one !== null)
+    .join(' · ');
 }

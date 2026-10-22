@@ -19,7 +19,7 @@ import { addDays, compareDays, type Day } from './day.ts';
 import { entryCourses } from './joint.ts';
 import { termCheck, type TermCheck } from './pacing.ts';
 import { findSessionType, QUEUES, type Queue } from './reference.ts';
-import { rotationCredits } from './rotation-sessions.ts';
+import { halfTurns, rotationCredits } from './rotation-sessions.ts';
 import { sessionsBetween, versionOn, type CalendarMark, type Session } from './sessions.ts';
 import { current } from './state.ts';
 
@@ -96,8 +96,10 @@ export function termCheckDetail(
   const open = all.filter((session) => compareDays(session.day, from) >= 0 && !isRecorded(session));
 
   const detail = (queue: Queue): QueueDetail => {
+    const turns = queue === 'main' ? halfTurns(context) : undefined;
     const recorded = all.filter((session) => isRecorded(session) && queueOf(session.sessionType) === queue);
-    const count = (list: readonly Session[]) => rotationCredits([...recorded, ...list]) - rotationCredits(recorded);
+    const count = (list: readonly Session[]) =>
+      rotationCredits([...recorded, ...list], turns) - rotationCredits(recorded, turns);
     const mine = open.filter(
       (session) => session.calendar !== 'rotation' && queueOf(session.took ?? session.sessionType) === queue,
     );

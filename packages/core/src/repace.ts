@@ -22,7 +22,7 @@ import { courseGrade, forGrade } from './joint.ts';
 import type { PackItem } from './pack.ts';
 import { nextExamTerm, pace, queueOf, termCheck } from './pacing.ts';
 import type { CalendarEntry, Confidence } from './reference.ts';
-import { rotationCredits } from './rotation-sessions.ts';
+import { halfTurns, rotationCredits } from './rotation-sessions.ts';
 import { sessionsBetween, type CalendarMark, type Session } from './sessions.ts';
 import { current } from './state.ts';
 
@@ -161,7 +161,8 @@ function laidOut(context: Context, courseId: string, start: Day, to: Day): { fro
   const recorded = (session: Session): boolean => current(state.sessions.get(session.key)) !== null;
   const sessions = all.filter((session) => session.day >= start && !recorded(session));
   const counted = all.filter((session) => recorded(session) && queueOf(context, session) === 'main');
-  let credits = rotationCredits(counted);
+  const turns = halfTurns(context);
+  let credits = rotationCredits(counted, turns);
   const weeks: { start: Day; end: Day; entries: RepaceEntry[]; plan: number }[] = [];
   for (const session of sessions) {
     const weekStart = (school && calendar.weekOf(session.day, school)?.start) ?? null;
@@ -180,7 +181,7 @@ function laidOut(context: Context, courseId: string, start: Day, to: Day): { fro
       if (test !== undefined) week.entries.push({ kind: 'test', id: test.id, title: test.title, day: session.day });
     } else if (queueOf(context, session) === 'main') {
       counted.push(session);
-      const now = rotationCredits(counted);
+      const now = rotationCredits(counted, turns);
       if (now === credits) continue;
       credits = now;
       week.plan += 1;

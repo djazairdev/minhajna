@@ -21,7 +21,7 @@ import { findSessionType, type CalendarEntry, type Confidence, type Queue } from
 import { sessionsBetween, type Session } from './sessions.ts';
 import { current } from './state.ts';
 import { repaceShift } from './repace-records.ts';
-import { rotationCredits } from './rotation-sessions.ts';
+import { halfTurns, rotationCredits } from './rotation-sessions.ts';
 
 export interface Pace {
   /** Ordinary sessions of the main plan recorded so far, held or not. */
@@ -129,7 +129,8 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
   );
 
   const shift = repaceShift(state, courseId, today);
-  let expected = Math.min(total, rotationCredits(recorded));
+  const turns = halfTurns(context);
+  let expected = Math.min(total, rotationCredits(recorded, turns));
   let weeksBehind: number | null = null;
   if (pack.anchor.kind === 'weeks') {
     const school = state.schools.get(setup.schoolClass.schoolId);
@@ -146,7 +147,7 @@ export function pace(context: Context, courseId: string, today: Day): Pace | nul
     }).length;
     const before = items.filter((item) => (item.week ?? 0) < planWeek).reduce((sum, item) => sum + budgetOf(item), 0);
     const during = items.filter((item) => item.week === planWeek).reduce((sum, item) => sum + budgetOf(item), 0);
-    expected = Math.max(0, before + Math.min(during, thisWeek) - (recorded.length - rotationCredits(recorded)));
+    expected = Math.max(0, before + Math.min(during, thisWeek) - (recorded.length - rotationCredits(recorded, turns)));
     const firstOpen = items.find((item) => !progress.isFinished(pack, item, whole));
     weeksBehind = firstOpen?.week === undefined ? 0 : Math.max(0, planWeek - firstOpen.week - shift.weeks);
   }
@@ -253,7 +254,8 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
       (session) =>
         session.day >= start && session.calendar === null && current(state.sessions.get(session.key)) === null,
     );
-    return rotationCredits([...recorded, ...future]) - rotationCredits(recorded);
+    const turns = queue === 'main' ? halfTurns(context) : undefined;
+    return rotationCredits([...recorded, ...future], turns) - rotationCredits(recorded, turns);
   };
   const tdItems = queueItems(pack, 'td').filter((item) => {
     const itemTerm = tdTerm(pack, item);

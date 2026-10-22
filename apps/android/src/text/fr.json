@@ -595,6 +595,7 @@
     "bandRollClass": "Appel ({{band}}) · {{name}} : {{fact}}",
     "afternoonRoll": "pris à part, car l’absence se compte par demi-journée",
     "confirmDay": "Confirmer toute la journée comme proposé",
+    "offDay": "{{day}} : jour de classe dans l’emploi du temps en vigueur",
     "journal": "Cahier journal",
     "packStale": "Pas de proposition : le plan est périmé. Ce qui a été fait s’écrit dans le détail de la séance."
   },

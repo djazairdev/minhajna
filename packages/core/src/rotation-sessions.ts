@@ -80,24 +80,63 @@ export function rotatingSessions(context: Context, sessions: ReadonlyMap<string,
   return found;
 }
 
-/** Effective whole-class opportunities for one course and one queue; repeats are calendar cost. */
-export function rotationCredits(sessions: readonly Session[]): number {
+/** The groups that take a session's item in turn, when it is one of them; see `halfTurns`. */
+export type Turns = (session: Session) => readonly string[] | undefined;
+
+/**
+ * The half-groups a session's course is timetabled for in the main plan, when its group is one of two or more of
+ * them: they take each main-plan item in turn, so a pair counts once for the class, on the day the second half has
+ * it (#231, R-4.7-15, answer 387). TD keeps counting each half's session, as the September check does.
+ */
+export function halfTurns(context: Context): Turns {
+  const known = new Map<string, readonly string[]>();
+  return (session) => {
+    let halves = known.get(session.courseId);
+    if (halves === undefined) {
+      const { state } = context;
+      const course = state.courses.get(session.courseId);
+      const groups = state.classes.get(course?.classId ?? '')?.groups ?? [];
+      const ids = new Set(groups.filter((group) => group.kind === 'half').map((group) => group.id));
+      const used = state.timetables
+        .flatMap((one) => one.version.entries)
+        .filter(
+          (entry) =>
+            entry.courseId === session.courseId &&
+            ids.has(entry.groupId) &&
+            context.ref.country.sessionTypes.find((type) => type.code === entry.sessionType)?.queue === 'main',
+        )
+        .map((entry) => entry.groupId);
+      halves = [...new Set(used)].sort();
+      known.set(session.courseId, halves);
+    }
+    return halves.length > 1 && halves.includes(session.groupId) ? halves : undefined;
+  };
+}
+
+/**
+ * Effective whole-class opportunities for one course and one queue; repeats are calendar cost. A rotation's groups,
+ * and with `turns` a class's half-groups, count once for each round in which every group has had a session. A
+ * whole-class session ends a rotation's round, but not the halves', which take the item in alternate weeks, whatever
+ * the activity each half has.
+ */
+export function rotationCredits(sessions: readonly Session[], turns?: Turns): number {
   let credits = 0;
   const cohorts = new Map<string, Map<string, number>>();
   for (const session of [...sessions].sort(compareSessions)) {
     const scope = `${session.courseId}/${session.activity ?? ''}/`;
-    if (session.rotation === undefined) {
+    const halves = session.rotation === undefined ? turns?.(session) : undefined;
+    const groups = session.rotation?.groups ?? halves;
+    if (groups === undefined) {
       credits += 1;
       for (const key of cohorts.keys()) if (key.startsWith(scope)) cohorts.delete(key);
       continue;
     }
-    const rule = session.rotation;
-    const key = `${scope}${[...rule.groups].sort().join('/')}`;
+    const key = `${halves === undefined ? scope : `halves:${session.courseId}/`}${[...groups].sort().join('/')}`;
     const cohort = cohorts.get(key) ?? new Map<string, number>();
     cohort.set(session.groupId, (cohort.get(session.groupId) ?? 0) + 1);
-    if (rule.groups.every((id) => (cohort.get(id) ?? 0) > 0)) {
+    if (groups.every((id) => (cohort.get(id) ?? 0) > 0)) {
       credits += 1;
-      for (const id of rule.groups) cohort.set(id, cohort.get(id)! - 1);
+      for (const id of groups) cohort.set(id, cohort.get(id)! - 1);
     }
     cohorts.set(key, cohort);
   }
