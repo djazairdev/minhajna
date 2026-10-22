@@ -26,7 +26,6 @@ import {
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
-import { Badge } from '../components/Badge';
 import { BottomSheet } from '../components/BottomSheet';
 import { Button } from '../components/Button';
 import { DueStrip, type DueStripProps } from '../components/DueStrip';
@@ -38,8 +37,7 @@ import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
-
-const PLACES = ['today', 'next', 'after'] as const;
+import { LIST_ROWS, ListRows, placesOf } from './ListRows';
 
 export type ListCardProps = {
   readonly testID: string;
@@ -67,14 +65,14 @@ export function ListCard({ testID, meta, item, kind, context, focus, due, onReco
     [context, session.courseId, session.day, kind],
   );
   const taken = pairs.find((pair) => pair.session?.key === session.key)?.item ?? null;
-  const rows = pairs
+  const shown = pairs
     .filter((pair) => pair.item !== null && compareDays(pair.day, session.day) >= 0)
-    .slice(0, PLACES.length)
-    .map((pair, index, all) => {
-      const later = all.slice(0, index).filter((one) => one.day !== session.day).length;
-      const place = pair.day === session.day ? 'today' : (PLACES[later + 1] ?? 'after');
-      return { title: pair.item?.title ?? '', place };
-    });
+    .slice(0, LIST_ROWS);
+  const places = placesOf(
+    shown.map((pair) => pair.day),
+    session.day,
+  );
+  const rows = shown.map((pair, index) => ({ title: pair.item?.title ?? '', place: places[index] ?? 'after' }));
   const type = profile.sessionTypes.find((one) => one.code === session.sessionType);
   const head = { ...meta, subject: [type && localized(type.name), meta.subject].filter(Boolean).join(' · ') };
   const quoted = taken === null ? '' : t('tests.quoted', { title: isolate(taken.title) });
@@ -89,23 +87,7 @@ export function ListCard({ testID, meta, item, kind, context, focus, due, onReco
         {t(`listToday.heading.${kind}`)}
       </Text>
       {rows.length === 0 && <Text style={[styles.body, align]}>{t(`listToday.empty.${kind}`)}</Text>}
-      {rows.map((row, index) => (
-        <View
-          key={index}
-          testID={`${testID}-row-${index}`}
-          accessible
-          accessibilityLabel={t('listToday.row', {
-            n: index + 1,
-            title: isolate(row.title),
-            place: t(`listToday.${row.place}`),
-          })}
-          style={styles.row}
-        >
-          <Text style={styles.number}>{index + 1}</Text>
-          <Text style={[styles.body, styles.title, align]}>{row.title}</Text>
-          <Badge label={t(`listToday.${row.place}`)} variant={row.place === 'today' ? 'done' : 'default'} />
-        </View>
-      ))}
+      <ListRows testID={testID} rows={rows} />
       <Text style={[styles.note, align]}>{t(`listToday.note.${kind}`, { subject: meta.subject ?? '' })}</Text>
       {due.map((strip, index) => (
         <DueStrip key={index} {...strip} />
@@ -199,9 +181,6 @@ const styles = StyleSheet.create({
   },
   focus: { borderColor: colors.rule, boxShadow: shadows['shadow-focus-card'] },
   label: { ...typography.label, color: colors.ink },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'] },
-  number: { ...typography.label, color: colors.ink2, minWidth: 16 },
-  title: { flex: 1 },
   body: { ...typography.body, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },
   buttons: { flexDirection: 'row', gap: spacing['space-8'] },

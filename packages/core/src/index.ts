@@ -10,6 +10,7 @@ export * from './bells-read.ts';
 export * from './calendar.ts';
 export * from './rotating-groups.ts';
 export { halfPair, halfPairs, type HalfTurn } from './half-pair.ts';
+export { tdList, tdLists, type TdList, type TdRow } from './td-list.ts';
 export { halfTurns, rotationCredits, type Turns } from './rotation-sessions.ts';
 export * from './calendar-read.ts';
 export * from './calendar-edit.ts';

@@ -2376,7 +2376,8 @@
   "listToday": {
     "heading": {
       "support": "The class’s support list",
-      "remediation": "The class’s remediation list"
+      "remediation": "The class’s remediation list",
+      "td": "The class’s directed-work list"
     },
     "empty": {
       "support": "No support list item for this session.",
@@ -2384,7 +2385,8 @@
     },
     "note": {
       "support": "Support sessions have their own list and do not move the main plan. The class’s place in the {{subject}} plan stays as it is.",
-      "remediation": "Remediation sessions have their own list and do not move the main plan. The class’s place in the {{subject}} plan stays as it is."
+      "remediation": "Remediation sessions have their own list and do not move the main plan. The class’s place in the {{subject}} plan stays as it is.",
+      "td": "Directed-work sessions have their own list and never move the main plan."
     },
     "today": "Today",
     "next": "Next session",
@@ -2394,7 +2396,10 @@
     "heldOpenSub": "{{item}} stays for the next session.",
     "notHeldSub": "{{item}} goes back to the next session.",
     "writtenOpen": "{{title}}, not finished",
-    "removed": "An item removed from the list"
+    "removed": "An item removed from the list",
+    "afterTest": "After the test",
+    "tdMain": "{{name}} stays at {{title}}, session {{n}} of {{of}}.",
+    "tdSession": "{{title}}, session {{n}} of {{of}}"
   },
   "repace": {
     "title": "Re-pace the rest of the term",
