@@ -4,14 +4,22 @@
 // The weekly digest's facts (#234, answers 402 and 405): the week before
 // the digest day or so far, Saturday to Friday for a teacher who works on
 // Saturdays, within the year; its sessions confirmed and awaiting, earlier
-// weeks' apart, losses to the calendar apart and never an exam, make-ups
-// due, this year's classes' next exam windows, and each class behind a
-// parallel class, named once.
+// weeks' apart, losses to the calendar apart, the teacher's own days too,
+// and never an exam, make-ups due, the next exam windows of this year's
+// classes not archived, and each class behind a parallel class, named once.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { awaitingBetween, confirmSessions, nextSeq, recordChange, weekDigest, type RecordBook } from '../src/index.ts';
+import {
+  awaitingBetween,
+  confirmSessions,
+  nextSeq,
+  recordChange,
+  setCalendarEntry,
+  weekDigest,
+  type RecordBook,
+} from '../src/index.ts';
 import { cemEvents, contextOf, d, openBook } from './fixtures.ts';
 import { twoClasses } from './parallel-fixtures.ts';
 
@@ -72,6 +80,26 @@ describe('The weekly digest', () => {
     assert.deepEqual([exams?.lost, exams?.sessions], [[], 0]);
   });
 
+  it('counts a day of the teacher’s own calendar apart too', async () => {
+    const book = await openBook(cemEvents());
+    const seminar = {
+      id: 'seminar',
+      layer: 'teacher' as const,
+      from: d('2026-10-14'),
+      to: d('2026-10-14'),
+      effect: 'closure' as const,
+      name: { ar: 'ندوة تجريبية', en: 'Made-up seminar' },
+      source: 'Made-up notice',
+      confidence: 'announced' as const,
+    };
+    await book.record(d('2026-10-12'), setCalendarEntry(contextOf(book), seminar));
+    const digest = weekDigest(contextOf(book), d('2026-10-18'));
+    assert.deepEqual(
+      digest?.lost.map((one) => [one.day, one.calendar]),
+      [['2026-10-14', 'teacher']],
+    );
+  });
+
   it('lists the make-ups due and each class’s next exam window', async () => {
     const book = await openBook(cemEvents());
     await confirm(book, '2026-09-20', '2026-09-20', 1, true);
@@ -90,6 +118,18 @@ describe('The weekly digest', () => {
     const old = { ...course, course: { ...course.course, id: 'c-old', year: '2025-2026' } };
     const digest = weekDigest(contextOf(await openBook([...events, old])), d('2026-09-27'));
     assert.deepEqual([...(digest?.exams.keys() ?? [])], ['c-math']);
+  });
+
+  it('leaves out a class archived by the digest day, not one archived later', async () => {
+    const events = cemEvents();
+    const archive = (day: string) =>
+      events.map((one) =>
+        one.kind === 'class.set' ? { ...one, schoolClass: { ...one.schoolClass, archivedFrom: d(day) } } : one,
+      );
+    const gone = weekDigest(contextOf(await openBook(archive('2026-09-27'))), d('2026-09-27'));
+    assert.deepEqual([...(gone?.exams.keys() ?? [])], []);
+    const later = weekDigest(contextOf(await openBook(archive('2026-09-28'))), d('2026-09-27'));
+    assert.deepEqual([...(later?.exams.keys() ?? [])], ['c-math']);
   });
 
   it('covers Saturday to Friday for a teacher who works on Saturdays', async () => {
