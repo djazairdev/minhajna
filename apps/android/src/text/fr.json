@@ -2317,7 +2317,13 @@
     "schedule": "Programmer une séance de soutien sur un créneau libre",
     "badge": "Soutien programmé",
     "cancelled": "Séance de soutien retirée ; « Annuler » la rétablit.",
-    "notRestored": "La séance de soutien n’a pas été rétablie : son créneau est déjà pris."
+    "notRestored": "La séance de soutien n’a pas été rétablie : son créneau est déjà pris.",
+    "remediationTitle": "Liste de remédiation",
+    "openRemediation": "Liste de remédiation",
+    "remediationHeading": "Liste de remédiation · {{class}}",
+    "remediationIntro": "Les séances de remédiation de l’emploi du temps ont leur liste : chacune prend le premier élément non achevé. Le plan principal n’avance pas avec elles, et la position de la classe y reste la même.",
+    "remediationEmpty": "La liste est encore vide ; elle se remplit d’après les résultats de l’évaluation. Écrivez le premier élément ci-dessous.",
+    "remediationNext": "Suivant : pris par la prochaine séance de remédiation"
   },
   "repace": {
     "title": "Répartir de nouveau le reste du trimestre",

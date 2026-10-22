@@ -11,7 +11,7 @@
 // device and day, and until the teacher chooses, this device's version
 // shows.
 
-import { canonicalJson, eventOf, type Entry, type RecordEvent } from '@minhajna/core';
+import { canonicalJson, eventOf, kindOf, listKey, type Entry, type RecordEvent } from '@minhajna/core';
 
 export interface Conflict {
   /** The record both devices changed, such as `roll-call/<unit>`. */
@@ -97,7 +97,7 @@ export function recordKey(entry: Entry): string | null {
     case 'catchup.removed':
       return `catchup/${event.id}`;
     case 'support.set':
-      return `support/${event.queue.courseId}`;
+      return `support/${listKey(event.queue.courseId, kindOf(event.queue))}`;
     case 'repace.set':
       return `repace/${event.repace.id}`;
     case 'repace.removed':

@@ -202,6 +202,14 @@ export interface SessionRecord {
   readonly unplanned?: string;
   /** The factual line, which can go into the texts book and into statements (PRD §3.3). */
   readonly factual?: string;
+  /** For a timetabled support or remediation session, the item of its list it took and whether it finished it. */
+  readonly listItem?: ListItemTaken;
+}
+
+/** The item of a support or remediation list a timetabled session took (#230, answer 376). */
+export interface ListItemTaken {
+  readonly id: string;
+  readonly finished: boolean;
 }
 
 /** The reasons a session was not held or an item skipped. None names collective action (PRD §3.3). */

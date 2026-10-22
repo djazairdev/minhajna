@@ -71,6 +71,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - في الابتدائي، صار لخانة الأسبوع نوع حصتها، «درس» أو «معالجة» أو «دعم»، وللدرس نوع نشاطه من النموذج الأسبوعي لمخطط المادة، كالقراءة أو الكتابة. وتعرض كل خانة لقسم، في أي مستوى، مواقيتها من جدول جرس المدرسة. ولمخطط اللغة العربية للسنة الخامسة ابتدائي التجريبي نموذج أسبوعي.
 - In primary, with a plan in weeks, Today names the plan week in the proposal, «مقترح من المخطط · الأسبوع 3», and for an activity of the weekly model which of the week's sessions it is, such as «قراءة، الحصة 1 من 3». A slot now takes its lessons from the class's plan week only, so the week is finished before the next begins.
   - في الابتدائي، مع مخطط بالأسابيع، تذكر صفحة اليوم أسبوع المخطط في الاقتراح، «مقترح من المخطط · الأسبوع 3»، ولنشاط من النموذج الأسبوعي رقم حصته في الأسبوع، مثل «قراءة، الحصة 1 من 3». وصارت الخانة تأخذ دروسها من أسبوع المخطط الذي بلغه القسم وحده، فيُتمّ الأسبوع قبل أن يبدأ الذي يليه.
+- In primary, the class plan opens «قائمة المعالجة»: the class's remediation items in your own words, in order, kept apart from «قائمة الدعم». Neither list moves the main plan.
+  - في الابتدائي، يفتح مخطط القسم «قائمة المعالجة»: عناصر المعالجة للقسم بكلماتك، مرتبة، ومنفصلة عن «قائمة الدعم». ولا تُحرّك أيٌّ منهما المخطط الرئيسي.
 
 ### Changed
 

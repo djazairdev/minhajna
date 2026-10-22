@@ -32,7 +32,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { RowLink } from '../components/RowLink';
-import { controlIcon } from '../design/Icon';
+import { controlIcon, type IconName } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
@@ -60,13 +60,15 @@ export type ClassPlanProps = {
   readonly onEditList?: () => void;
   readonly onCatchUp?: () => void;
   readonly onSupport?: () => void;
+  /** In primary, the class's remediation list (#230). */
+  readonly onRemediation?: () => void;
   readonly onItem?: (itemId: string) => void;
   readonly onCheck?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
-  const { onEditList, onCatchUp, onSupport } = props;
+  const { onEditList, onCatchUp, onSupport, onRemediation } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -74,6 +76,9 @@ export function ClassPlan(props: ClassPlanProps) {
   const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
   const day = today();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const link = (testID: string, title: string, onPress: () => void, icon: IconName = 'tune') => (
+    <RowLink testID={testID} icon={controlIcon(icon)} title={title} onPress={onPress} />
+  );
   const comma = currentLanguage() === 'ar' ? '، ' : ', ';
   const context = useMemo(
     () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
@@ -196,15 +201,12 @@ export function ClassPlan(props: ClassPlanProps) {
           <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
         )}
       </View>
-      {onCatchUp !== undefined && behindPlan(paced) && (
-        <RowLink testID="plan-catchup" icon={controlIcon('tune')} title={t('catchUp.open')} onPress={onCatchUp} />
-      )}
-      {onSupport !== undefined && (
-        <RowLink testID="plan-support" icon={controlIcon('tune')} title={t('supportQueue.open')} onPress={onSupport} />
-      )}
-      {check !== null && onCheck !== undefined && (
-        <RowLink testID="plan-sept-check" icon={controlIcon('print')} title={t('septCheck.open')} onPress={onCheck} />
-      )}
+      {onCatchUp !== undefined && behindPlan(paced) && link('plan-catchup', t('catchUp.open'), onCatchUp)}
+      {onSupport !== undefined && link('plan-support', t('supportQueue.open'), onSupport)}
+      {onRemediation !== undefined &&
+        schoolClass?.level === 'primary' &&
+        link('plan-remediation', t('supportQueue.openRemediation'), onRemediation)}
+      {check !== null && onCheck !== undefined && link('plan-sept-check', t('septCheck.open'), onCheck, 'print')}
       {view === null ? (
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>
       ) : (

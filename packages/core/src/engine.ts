@@ -11,6 +11,7 @@ import type { Context } from './context.ts';
 import type { Day } from './day.ts';
 import type { SessionRecord } from './records.ts';
 import { sessionsBetween, type Session } from './sessions.ts';
+import { checkListItem, keptListItem } from './support-queue.ts';
 import { current } from './state.ts';
 import { allowedBy, decisionsFor } from './plan-decisions.ts';
 import { skippedBy } from './plan-layer.ts';
@@ -155,14 +156,15 @@ export function confirmCourse(
       const p = proposal();
       return p === null ? null : recordOf(session, { outcome: 'done' }, proposedCoverage(p), {}, session.sessionType);
     }
-    const details = confirmation.details ?? {};
+    const given = confirmation.details ?? {};
     const recorded = current(context.state.sessions.get(session.key));
     let record: SessionRecord;
     if (confirmation.choice === undefined && recorded !== null) {
-      record = withDetails(recorded, details);
+      record = withDetails(recorded, keptListItem(given, recorded, given.sessionType ?? recorded.sessionType));
     } else {
       const choice = confirmation.choice ?? { outcome: 'done' };
-      const sessionType = details.sessionType ?? session.sessionType;
+      const sessionType = given.sessionType ?? session.sessionType;
+      const details = keptListItem(given, recorded, sessionType);
       const p = proposalFor(context, setup, progress, session, sessionType);
       record = recordOf(
         session,
@@ -172,6 +174,7 @@ export function confirmCourse(
         sessionType,
       );
     }
+    checkListItem(context.state, record, recorded);
     records.push(record);
     wanted.delete(session.key);
     return record;

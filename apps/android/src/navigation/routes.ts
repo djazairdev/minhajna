@@ -84,7 +84,7 @@ export type RootStackParamList = {
   PlanFree: { courseId: string };
   CatchUp: { courseId: string };
   CatchUpAdd: { courseId: string; kind?: 'support' };
-  SupportQueue: { courseId: string };
+  SupportQueue: { courseId: string; kind?: 'remediation' };
   Repace: { courseId: string };
   PlanOffer: { courseId: string };
   SeptCheck: { courseId: string };

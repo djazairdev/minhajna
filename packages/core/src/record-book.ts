@@ -8,6 +8,7 @@ import type { Day } from './day.ts';
 import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './history.ts';
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
 import { buildState, type State } from './state.ts';
+import { kindOf, listKey } from './support-queue.ts';
 import { layerKey, switchKey } from './variant-layers.ts';
 
 /**
@@ -87,7 +88,7 @@ function recordKey(event: RecordEvent): string {
     case 'catchup.removed':
       return `catchup:${event.id}`;
     case 'support.set':
-      return `support:${event.queue.courseId}`;
+      return `support:${listKey(event.queue.courseId, kindOf(event.queue))}`;
     case 'repace.set':
       return `repace:${event.repace.id}`;
     case 'repace.removed':
