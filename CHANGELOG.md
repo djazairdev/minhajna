@@ -107,6 +107,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - إذا تعارضت حصتان من مؤسستين في أسبوعك، تعرض الخانة «الإبقاء على الاثنين»، فلا يعدّ الأسبوع التعارض مفتوحاً وتعرض صفحة اليوم الحصتين مع «يتزامن مع …»، أو «تغيير يوم واحد» الذي ينقل إحداهما إلى وقت فارغ في مؤسستها ليوم واحد فقط، دون تغيير الأسبوع المرسوم. ويمكن إلغاء النقل ما لم تُسجَّل تلك الحصة.
 - «ملخص الأسبوع» on the Classes tab sums up the week just ended, for you alone. It shows the sessions still awaiting confirmation, which open Today's list, and those confirmed. Each make-up due comes with «جدولتها», and the sessions lost to a closure or holiday are counted apart, so they never read as slow teaching. It also gives the next exams, and a class falling behind a parallel one before a common test. Each class's card says where it stands and what it is on, with «خيارات الاستدراك» when it is behind.
   - يلخّص «ملخص الأسبوع» في صفحة الأقسام الأسبوع المنتهي، لك وحدك. يعرض الحصص التي تنتظر التأكيد، ويفتح قائمتها في صفحة اليوم، والحصص المؤكّدة. وتأتي كل حصة تعويض مستحقة مع «جدولتها»، وتُعدّ الحصص التي لم تُعقد بسبب غلق أو عطلة وحدها، فلا تُقرأ تأخراً في التدريس. ويذكر كذلك الاختبارات القادمة، والقسم الذي يتأخر عن قسم موازٍ قبل فرض مشترك. وتقول بطاقة كل قسم أين وصل وعند أي عنصر هو، مع «خيارات الاستدراك» إن تأخر.
+- «ملخص الأسبوع» now reaches you as a notification on Sunday morning, or Saturday if you work then, within the hour after quiet hours end at 07:00. A daily preview of the next day's sessions can be turned on in Settings › «الإشعارات». No notification comes from 20:00 to 07:00, nor from Thursday evening to Sunday morning (Saturday morning if you work then), and none shows a name or a mark.
+  - يصلك «ملخص الأسبوع» الآن إشعاراً صباح الأحد، أو السبت إن كنت تعمل فيه، في الساعة التي تلي انتهاء ساعات الهدوء عند الساعة 07:00. ويمكن تشغيل معاينة يومية لحصص اليوم التالي من الإعدادات › «الإشعارات». ولا يصل أي إشعار من 20:00 إلى 07:00، ولا من مساء الخميس إلى صباح الأحد (أو صباح السبت إن كنت تعمل فيه)، ولا يُظهر أي إشعار اسماً ولا نقطة.
 
 ### Changed
 
@@ -124,6 +126,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 - The app now has the camera permission, used only when you choose to scan a calendar QR code. Its frames are read in the phone's memory and never saved or sent. Opening a file reads only the file you pick, with no lasting access.
   - أصبح للتطبيق إذن الكاميرا، ولا يستعملها إلا حين تختار مسح رمز QR لموعد في الرزنامة. تُقرأ صورها في ذاكرة الهاتف، ولا تُحفظ ولا تُرسل. وفتح ملف لا يقرأ إلا الملف الذي تختاره، دون إذن دائم.
+- The app now asks, once, to show notifications, for the weekly digest and the preview you turn on. Their words are set on the phone; nothing is received from or sent to a server. When your phone hides sensitive content on the lock screen, only their title shows there.
+  - يطلب التطبيق الآن، مرة واحدة، إذن الإشعارات، لملخص الأسبوع وللمعاينة التي تشغّلها. تُكتب كلماتها على الهاتف، فلا يُستقبل شيء من خادم ولا يُرسل إليه. وحين يخفي هاتفك المحتوى الحساس على شاشة القفل، لا يظهر منها هناك إلا عنوانها.
 
 ### Security
 

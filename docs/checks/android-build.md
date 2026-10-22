@@ -40,8 +40,11 @@ React Native's app template is the starting point. These changes make it follow 
 
 - **No proprietary library.** `android/build.gradle` stops the build when a library from a proprietary group is resolved, anywhere in the build. The groups cover Google Play services, Firebase, Play Core, Google's ads, consent and ML Kit libraries, Play billing and install referrer, Crashlytics, Facebook's SDKs, and Huawei's and Amazon's services.
 - **Release builds** come out unsigned, so that two builds can be compared. They carry no version-control information and no dependency block. Google Play asks for that block, encrypted for Google alone, and F-Droid refuses it.
-- **No permission but the lock's.**
-  - The app lock asks for `USE_BIOMETRIC`, to show the phone's own fingerprint or face prompt ([#210](https://github.com/djazairdev/minhajna/issues/210)). Android grants it at install without asking, and the app receives no biometric data. CI fails on any other permission.
+- **No permission but these four.**
+  - The app lock asks for `USE_BIOMETRIC`, to show the phone's own fingerprint or face prompt ([#210](https://github.com/djazairdev/minhajna/issues/210)). Android grants it at install without asking, and the app receives no biometric data.
+  - The camera, `CAMERA`, is asked for only when the teacher chooses to scan a calendar QR code ([#222](https://github.com/djazairdev/minhajna/issues/222)).
+  - The weekly digest and the daily preview ([#234](https://github.com/djazairdev/minhajna/issues/234)) ask for `POST_NOTIFICATIONS`, which Android 13 and later ask the teacher for once. They also need `RECEIVE_BOOT_COMPLETED`, granted at install, to set their alarms again after a restart.
+  - CI fails on any other permission.
   - androidx adds a permission of the app's own, for receivers registered through `ContextCompat.registerReceiver`. Nothing in the app calls it, so the manifest removes the permission.
   - CI fails if a library starts to call it, since the call would then throw on Android 12 and earlier.
 - **No request to another app.** At start-up, androidx's emoji support asks the phone's font provider for a newer emoji font, which it may download. On most phones that provider is Google Play services. The manifest turns this off, and emoji use the phone's own font.

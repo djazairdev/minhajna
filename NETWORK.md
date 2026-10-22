@@ -18,6 +18,10 @@ Only after the teacher selects Scan QR code does an unexported app screen reques
 
 Signed calendar updates (#223) come in through the same Open file and Scan QR code steps, and signed plan packs through Open file alone, up to 1 MB. The phone checks the signature itself, with Android's own platform crypto (ECDSA P-256), against the public keys bundled in the app's `data/dz/keys.json`; no key server, certificate list or revocation service is asked, and no new library or permission is involved (answers 303 and 316). Only an update or a pack the teacher applies is kept, in the local history; nothing is sent.
 
+## Notifications
+
+The weekly digest and the daily preview (#234) are notifications Android shows at times the app sets while it is open, with words it sets then. Android 13 and later ask the teacher for the notification permission once. No push service, server, Firebase or Google Play service is involved: nothing arrives from outside the phone and nothing is sent. A notification never shows a pupil's name or a mark, and when the phone hides sensitive content on the lock screen, only its title shows there. After a restart, the app sets the alarms still to come again, which needs Android's boot permission and no network (answer 406 in the project's decision record).
+
 ## Optional pack source links
 
 A plan pack may name the address where its source file was found. Pack details show that address as text; reading them makes no request and launches nothing. Only when the teacher selects Open the source on an item, and confirms a notice that names the address's host, does Android hand the address to the user's browser, with the item's source page after `#page=`. The address opens only if it is a plain `https` address on a named host, in printable ASCII, with no user name, password or fragment of its own; any other address is shown and never opened. No record, identifier or query parameter is added. The browser may then contact that host under its own settings; this is not an in-app fetch or an embedded web view. Cancelling makes no hand-off (#225, answer 289).

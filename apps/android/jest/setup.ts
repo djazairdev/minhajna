@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Jest has no native side: the app's storage, lock-settings, interface-language,
-// licence and signature modules, and React Native's developer menu, are Node
-// fakes, fresh for each test file.
+// licence, notification and signature modules, and React Native's developer
+// menu, are Node fakes, fresh for each test file.
 jest.mock('../src/native/NativeMinhajnaStorage', () => {
   const { FakeStorage } = jest.requireActual<typeof import('./fake-storage')>('./fake-storage');
   return { __esModule: true, default: new FakeStorage().asSpec() };
@@ -51,6 +51,11 @@ jest.mock('../src/native/NativeMinhajnaBuild', () => ({
     ),
   },
 }));
+
+jest.mock('../src/native/NativeMinhajnaNotify', () => {
+  const { fakeNotify } = jest.requireActual<typeof import('./fake-notify')>('./fake-notify');
+  return { __esModule: true, default: fakeNotify.asSpec() };
+});
 
 jest.mock('../src/native/NativeMinhajnaSignature', () => {
   const { fakeSignature } = jest.requireActual<typeof import('./fake-signature')>('./fake-signature');

@@ -4,10 +4,12 @@
 
 // Screens restores its fragments before the activity restores its views,
 // and the window starts secure until the app names the screen in front
-// (#210).
+// (#210). A tapped notification's intent replaces the one the activity
+// started with, so the app can read which screen it asks for (#234).
 
 package dz.minhajna.preview
 
+import android.content.Intent
 import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -22,6 +24,11 @@ class MainActivity : ReactActivity() {
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
     ScreenGuard.start(this)
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    setIntent(intent)
+    super.onNewIntent(intent)
   }
 
   /** The main component registered from JavaScript, in index.js. */
