@@ -50,6 +50,7 @@ const callbacks = () => ({
   onMove: jest.fn(),
   onSeats: jest.fn(),
   onRules: jest.fn(),
+  onReorient: jest.fn(),
 });
 
 async function mount(data: TestData, props: Partial<ClassPageProps> = {}) {

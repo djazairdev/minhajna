@@ -13,7 +13,7 @@ export { halfPair, halfPairs, type HalfTurn } from './half-pair.ts';
 export { tdList, tdLists, type TdList, type TdRow } from './td-list.ts';
 export { targetWeekOf, weekTargets, type WeekTarget } from './week-targets.ts';
 export { ancestors, courseDecisions, lineageIds, type Ancestor } from './lineage.ts';
-export { reorient, reorientedPupils, type Reorientation } from './reorient.ts';
+export { reorient, reorientedPupils, reorientRefusal, type Reorientation, type ReorientRefusal } from './reorient.ts';
 export { halfTurns, rotationCredits, type Turns } from './rotation-sessions.ts';
 export * from './calendar-read.ts';
 export * from './calendar-edit.ts';

@@ -3,14 +3,17 @@
 
 // The Class page as a route (#279): the class's name in the top bar, with the
 // settings button that opens its settings, and each of its rows opening its own
-// screen. Another class of the subject replaces it in place.
+// screen. Another class of the subject replaces it in place. A lycée class's
+// settings open the reorientation, which goes back to the Classes tab once
+// applied (#231).
 
 import { courseGrade, isJoint } from '@minhajna/core';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { View, type ViewInstance } from 'react-native';
 import { ClassPage } from '../classes/ClassPage';
 import { courseGroup } from '../classes/class-page-rules';
+import { Reorient } from '../reorient/Reorient';
 import { IconButton } from '../components/IconButton';
 import { controlIcon } from '../design/Icon';
 import { useAppData } from '../storage/AppData';
@@ -63,11 +66,31 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onExtra={() => navigation.navigate('Extra', { courseId })}
       onSupervised={() => navigation.navigate('DocOutput', { id: 'supervised' })}
       onMove={() => navigation.navigate('PupilMove', { classId: schoolClass.id })}
+      onReorient={() => navigation.navigate('Reorient', { classId: schoolClass.id })}
       onSeats={() => navigation.navigate('SeatsSetup', { classId: schoolClass.id, groupId })}
       onRules={() => navigation.navigate('RollRules')}
       onMonth={() => navigation.navigate('RollMonth', { courseId })}
       onRollPrint={() => navigation.navigate('RollPrint', { courseId })}
       onPupil={(pupilId) => navigation.navigate('Pupil', { courseId, pupilId })}
     />
+  );
+}
+
+/** The reshaping of a lycée level's classes, from a class's settings. */
+export function ReorientScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Reorient'>) {
+  return <Reorient classId={route.params.classId} onDone={() => navigation.navigate('Home', { screen: 'Classes' })} />;
+}
+
+/** The Class page and the screens only it opens, for the app's navigator. */
+export function classRoutes(
+  Stack: ReturnType<typeof createNativeStackNavigator<RootStackParamList>>,
+  t: ReturnType<typeof useText>,
+) {
+  const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
+  return (
+    <>
+      <Stack.Screen name="Class" component={ClassScreen} options={dark(t('classPage.title'))} />
+      <Stack.Screen name="Reorient" component={ReorientScreen} options={dark(t('reorient.title'))} />
+    </>
   );
 }
