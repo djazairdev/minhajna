@@ -6,15 +6,25 @@
 // reference, under its unit. A week pack's rows come by plan week instead
 // (#230, Plan-primary, answer 381): «أسبوع المخطط 5» with its days and its
 // sequence, and its pace card says the class's plan week and the plan's,
-// the sessions the calendar took, counted apart, and the weekly model.
+// the sessions the calendar took, counted apart, and the weekly model. A
+// hybrid pack's weekly targets each follow their item (#231).
 
-import { compareDays, type Day, type Pace, type PackItem, type PlanPack, type PlanRow } from '@minhajna/core';
+import {
+  compareDays,
+  type Day,
+  type Pace,
+  type PackItem,
+  type PlanPack,
+  type PlanRow,
+  type WeekTarget,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayMonth, rowDays, rowSpoken, rowTags } from './plan-labels';
+import { TargetRow } from './WeekTargets';
 
 export type PlanRowsProps = {
   readonly rows: readonly PlanRow[];
@@ -25,9 +35,12 @@ export type PlanRowsProps = {
   readonly onItem?: (itemId: string) => void;
   /** By unit, by plan week for a week pack, or in one list, as TD items are. */
   readonly by?: 'unit' | 'week' | 'none';
+  /** A hybrid pack's weekly targets, each shown after its item. */
+  readonly targets?: readonly WeekTarget[];
+  readonly pack?: PlanPack;
 };
 
-export function PlanRows({ rows, heads, later, onItem, by = 'unit' }: PlanRowsProps) {
+export function PlanRows({ rows, heads, later, onItem, by = 'unit', targets = [], pack }: PlanRowsProps) {
   const weeks = by === 'week';
   const t = useText();
   const { direction } = useLocale();
@@ -82,7 +95,12 @@ export function PlanRows({ rows, heads, later, onItem, by = 'unit' }: PlanRowsPr
             {head}
           </Text>
         )}
-        {group.rows.map(row)}
+        {group.rows.flatMap((one) => {
+          const target = pack === undefined ? undefined : targets.find((each) => each.item.id === one.item.id);
+          return target === undefined || pack === undefined
+            ? [row(one)]
+            : [row(one), <TargetRow key={`target-${target.week}`} pack={pack} target={target} />];
+        })}
       </View>
     );
   });
