@@ -8,7 +8,8 @@
 // with «جدولتها»; the sessions lost to the calendar, apart, so a closure
 // never reads as slow teaching; the next exam windows; each class behind a
 // parallel one, with «مواءمة» on its plan, «خيارات الاستدراك» and «تجاهل»;
-// then a card for each class. The footer says when the digest comes.
+// then a card for each class. The footer says when the digest comes, and
+// opens «الإشعارات».
 
 import { weekDigest, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -40,9 +41,10 @@ export type DigestProps = {
   readonly onMakeUp: (courseId: string) => void;
   readonly onCatchUp: (courseId: string) => void;
   readonly onPlan: (courseId: string) => void;
+  readonly onNotify: () => void;
 };
 
-export function Digest({ onBacklog, onMakeUp, onCatchUp, onPlan }: DigestProps) {
+export function Digest({ onBacklog, onMakeUp, onCatchUp, onPlan, onNotify }: DigestProps) {
   const t = useText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -192,6 +194,12 @@ export function Digest({ onBacklog, onMakeUp, onCatchUp, onPlan }: DigestProps) 
       ))}
       {text(t(prefs.saturday ? 'digest.footerSaturday' : 'digest.footer'), 'digest-footer')}
       {!prefs.digest && text(t('digest.off'), 'digest-off')}
+      <RowLink
+        testID="digest-notify"
+        icon={controlIcon('tune')}
+        title={t('settings.rows.notifications')}
+        onPress={onNotify}
+      />
     </ScrollView>
   );
 }

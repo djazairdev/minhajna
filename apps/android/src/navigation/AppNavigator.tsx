@@ -43,17 +43,7 @@ import {
   PrintWeekScreen,
 } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
-import {
-  SettingsScreen,
-  SettingsCardScreen,
-  SettingsSchoolsScreen,
-  SettingsClassesScreen,
-  SettingsWeekScreen,
-  SettingsPlansScreen,
-  SettingsLengthsScreen,
-  LanguageScreen,
-  TimesScreen,
-} from './SettingsScreens';
+import { SettingsScreen, TimesScreen, settingsRoutes } from './SettingsScreens';
 import {
   CardScreen,
   ClassesScreen,
@@ -211,25 +201,7 @@ export function AppNavigator({
         <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={dark(t('settings.title'))} />
         {calendarRoutes(Stack, t)}
-        <Stack.Screen name="SettingsCard" component={SettingsCardScreen} options={dark(t('settings.rows.card'))} />
-        <Stack.Screen
-          name="SettingsSchools"
-          component={SettingsSchoolsScreen}
-          options={dark(t('settings.rows.schools'))}
-        />
-        <Stack.Screen
-          name="SettingsClasses"
-          component={SettingsClassesScreen}
-          options={dark(t('settings.rows.classes'))}
-        />
-        <Stack.Screen name="SettingsWeek" component={SettingsWeekScreen} options={dark(t('settings.rows.week'))} />
-        <Stack.Screen name="SettingsPlans" component={SettingsPlansScreen} options={dark(t('settings.rows.plans'))} />
-        <Stack.Screen
-          name="SettingsLengths"
-          component={SettingsLengthsScreen}
-          options={dark(t('settings.rows.lengths'))}
-        />
-        <Stack.Screen name="Language" component={LanguageScreen} options={dark(t('settings.rows.language'))} />
+        {settingsRoutes(Stack, t)}
         <Stack.Screen name="LockPin" component={LockPinScreen} options={{ headerShown: false }} />
         <Stack.Screen
           name="DocOutput"

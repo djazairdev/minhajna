@@ -70,5 +70,21 @@
     "projected": "Provisoire, en attendant le communiqué de l’année"
   },
   "lengthsRule": "Une séance raccourcie compte toujours pour une séance. Les réserves et l’ordre des leçons ne changent pas ; le cahier de textes imprime son horaire réel.",
-  "pinned": "Chaque classe garde sa version jusqu’à votre choix de la changer. Les séances enregistrées ne changent pas."
+  "pinned": "Chaque classe garde sa version jusqu’à votre choix de la changer. Les séances enregistrées ne changent pas.",
+  "notify": {
+    "intro": "Peu nombreuses, et pour vous uniquement",
+    "digest": "Résumé de la semaine",
+    "digestLine": "Le dimanche matin, pour chaque classe",
+    "digestLineSaturday": "Le samedi matin, pour chaque classe",
+    "preview": "Aperçu quotidien",
+    "previewLine": "Les séances du lendemain, avant les heures calmes",
+    "saturday": "Travail le samedi",
+    "saturdayLine": "Raccourcit les heures calmes du week-end",
+    "quiet": "Heures calmes",
+    "quietDaily": "Chaque jour de 20:00 à 07:00",
+    "quietWeekend": "Et du jeudi 20:00 au dimanche 07:00",
+    "quietWeekendSaturday": "Et du jeudi 20:00 au samedi 07:00",
+    "quietNone": "Aucune notification n’arrive pendant ces heures.",
+    "noNames": "Aucune notification ne montre ni nom ni note."
+  }
 }

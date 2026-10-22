@@ -1,16 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
 import { Teaching } from '../setup/Teaching';
 import { Week } from '../setup/Week';
 import { Language } from '../settings/Language';
 import { Lengths } from '../settings/Lengths';
+import { Notify } from '../settings/Notify';
 import { Plans } from '../settings/Plans';
 import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
+import type { useText } from '../text/i18n';
 import type { RootStackParamList } from './routes';
 
 /** Settings use their own routes, so leaving an editor returns here rather than continuing setup. */
@@ -46,6 +48,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
         break;
       case 'language':
         navigation.navigate('Language');
+        break;
+      case 'notifications':
+        navigation.navigate('SettingsNotify');
         break;
       case 'rules':
         navigation.navigate('RollRules');
@@ -129,4 +134,36 @@ export function LanguageScreen({ navigation }: NativeStackScreenProps<RootStackP
 /** Bell times may open already scoped to a school. */
 export function TimesScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Times'>) {
   return <Times schoolId={route.params?.schoolId} />;
+}
+
+/** The settings' own screens, for the app's navigator. */
+export function settingsRoutes(
+  Stack: ReturnType<typeof createNativeStackNavigator<RootStackParamList>>,
+  t: ReturnType<typeof useText>,
+) {
+  const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
+  return (
+    <>
+      <Stack.Screen name="SettingsCard" component={SettingsCardScreen} options={dark(t('settings.rows.card'))} />
+      <Stack.Screen
+        name="SettingsSchools"
+        component={SettingsSchoolsScreen}
+        options={dark(t('settings.rows.schools'))}
+      />
+      <Stack.Screen
+        name="SettingsClasses"
+        component={SettingsClassesScreen}
+        options={dark(t('settings.rows.classes'))}
+      />
+      <Stack.Screen name="SettingsWeek" component={SettingsWeekScreen} options={dark(t('settings.rows.week'))} />
+      <Stack.Screen name="SettingsPlans" component={SettingsPlansScreen} options={dark(t('settings.rows.plans'))} />
+      <Stack.Screen
+        name="SettingsLengths"
+        component={SettingsLengthsScreen}
+        options={dark(t('settings.rows.lengths'))}
+      />
+      <Stack.Screen name="Language" component={LanguageScreen} options={dark(t('settings.rows.language'))} />
+      <Stack.Screen name="SettingsNotify" component={Notify} options={dark(t('settings.rows.notifications'))} />
+    </>
+  );
 }

@@ -34,7 +34,7 @@ let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
 const text = catalogues.ar;
 const iso = (value: string) => `\u2068${value}\u2069`;
-const calls = { backlog: jest.fn(), makeUp: jest.fn(), catchUp: jest.fn(), plan: jest.fn() };
+const calls = { backlog: jest.fn(), makeUp: jest.fn(), catchUp: jest.fn(), plan: jest.fn(), notify: jest.fn() };
 
 /** Drops every dismissal kept so far: those for days before the one given go, and the one kept is for no class. */
 function clearDismissals(): void {
@@ -54,7 +54,13 @@ afterEach(async () => {
 async function render(data: TestData, on = '2026-10-18') {
   missingKeys.length = 0;
   const digest = (
-    <Digest onBacklog={calls.backlog} onMakeUp={calls.makeUp} onCatchUp={calls.catchUp} onPlan={calls.plan} />
+    <Digest
+      onBacklog={calls.backlog}
+      onMakeUp={calls.makeUp}
+      onCatchUp={calls.catchUp}
+      onPlan={calls.plan}
+      onNotify={calls.notify}
+    />
   );
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
@@ -128,6 +134,8 @@ test('Sunday’s digest covers the week before, its sessions awaiting, no losses
   expect(exists('digest-catchup-c-1')).toBe(false);
   await press('digest-awaiting');
   expect(calls.backlog).toHaveBeenCalledTimes(1);
+  await press('digest-notify');
+  expect(calls.notify).toHaveBeenCalledTimes(1);
   expect(accessibilityProblems(root())).toEqual([]);
   expect(missingKeys).toEqual([]);
 });

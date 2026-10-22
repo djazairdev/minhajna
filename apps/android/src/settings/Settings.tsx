@@ -29,6 +29,7 @@ const AVAILABLE = [
   'updates',
   'rules',
   'print',
+  'notifications',
   'security',
   'language',
   'help',

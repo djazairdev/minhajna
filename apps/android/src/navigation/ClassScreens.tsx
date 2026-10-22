@@ -82,7 +82,7 @@ export function ReorientScreen({ navigation, route }: NativeStackScreenProps<Roo
   return <Reorient classId={route.params.classId} onDone={() => navigation.navigate('Home', { screen: 'Classes' })} />;
 }
 
-/** The weekly digest: its rows open Today's list, a make-up, the catch-up options or a class's plan. */
+/** The weekly digest: its rows open Today's list, a make-up, the catch-up options, a plan or «الإشعارات». */
 export function DigestScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Digest'>) {
   return (
     <Digest
@@ -90,6 +90,7 @@ export function DigestScreen({ navigation }: NativeStackScreenProps<RootStackPar
       onMakeUp={(courseId) => navigation.navigate('CatchUpAdd', { courseId })}
       onCatchUp={(courseId) => navigation.navigate('CatchUp', { courseId })}
       onPlan={(courseId) => navigation.navigate('ClassPlan', { courseId })}
+      onNotify={() => navigation.navigate('SettingsNotify')}
     />
   );
 }
