@@ -49,6 +49,8 @@ export interface AppData {
   readonly record: (event: RecordEvent) => void;
   /** Saves several changes together, such as a class and its pupils. */
   readonly recordAll: (events: readonly RecordEvent[]) => void;
+  /** Saves the change `make` builds from the state once every earlier change is saved, or none when it gives null. */
+  readonly recordFrom: (make: (state: State) => RecordEvent | null) => void;
   /** Erases every version of the records that `match` picks, such as a school and its changes (PRD §5.5). */
   readonly erase: (match: (event: RecordEvent) => boolean) => void;
   /** The phone's day, which changes are recorded on. */
@@ -128,6 +130,11 @@ export function AppDataProvider({
       keys,
       record: (event: RecordEvent) => save(() => book.record(today(), event)),
       recordAll: (events: readonly RecordEvent[]) => save(() => book.recordAll(today(), events)),
+      recordFrom: (make: (state: State) => RecordEvent | null) =>
+        save(async () => {
+          const event = make(book.state);
+          if (event !== null) await book.record(today(), event);
+        }),
       erase: (match: (event: RecordEvent) => boolean) =>
         save(async () => {
           const ids = book.entries

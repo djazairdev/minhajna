@@ -2696,5 +2696,64 @@
     "today": "Aujourd’hui : {{sessions}}, la première à {{time}} avec {{class}}",
     "off": "Les notifications de cette application sont désactivées sur le téléphone : ni le résumé ni l’aperçu n’arrivent.",
     "allow": "Autoriser les notifications"
+  },
+  "notes": {
+    "title": "Fiche de préparation",
+    "number": "Fiche {{number}}",
+    "unavailable": "Cette séance n’a pas de fiche : elle n’a pas de leçon du plan.",
+    "keys": {
+      "indicator": "Indicateur de compétence",
+      "objectives": "Objectifs",
+      "resources": "Supports"
+    },
+    "stage": "Étape {{number}}",
+    "pages": "Manuel p. {{pages}}",
+    "head": {
+      "unit": "Séquence",
+      "domain": "Domaine",
+      "resource": "Ressource",
+      "duration": "Durée"
+    },
+    "minutes": "{{minutes}} min",
+    "proposed": "{{title}} · du plan",
+    "accepted": "{{title}} · accepté",
+    "written": "{{title}} · écrit",
+    "empty": "Pas encore de texte dans le plan. Le crayon l’ouvre pour l’écrire.",
+    "write": "Écrire le paragraphe : {{title}}",
+    "toggle": "L’accepte ou le rend au plan",
+    "add": "Ajouter un paragraphe",
+    "hint": "En gris, ce qui vient du plan ; à l’encre, ce qui a été accepté ou écrit. Touchez un paragraphe du plan pour l’accepter ou le rendre, et le crayon ouvre tout paragraphe pour l’écrire.",
+    "earlier": "Votre fiche de l’an dernier pour cette ressource est disponible",
+    "use": "L’utiliser",
+    "edit": {
+      "title": "Modifier un paragraphe",
+      "heading": "Fiche {{number}} · modifier un paragraphe",
+      "fromPlan": "Du plan",
+      "label": "Texte du paragraphe",
+      "placeholder": "Le texte tel que la fiche le portera",
+      "note": "Le texte vient du plan et se modifie ici à votre guise. Le plan ne change pas.",
+      "reset": "Reprendre le texte du plan"
+    },
+    "own": {
+      "title": "Nouveau paragraphe",
+      "heading": "Fiche {{number}} · nouveau paragraphe",
+      "editHeading": "Fiche {{number}} · votre paragraphe",
+      "titleLabel": "Titre du paragraphe",
+      "titlePlaceholder": "Par exemple : devoirs",
+      "note": "Le paragraphe s’ajoute à l’encre à la fin de la fiche, et s’imprime avec elle.",
+      "remove": "Supprimer le paragraphe",
+      "confirmRemove": "Confirmer la suppression du paragraphe",
+      "keep": "Garder le paragraphe",
+      "removeNote": "Le paragraphe quitte la fiche et ne s’imprime plus avec elle."
+    },
+    "save": "Enregistrer le paragraphe",
+    "cancel": "Annuler",
+    "link": "La fiche de la leçon",
+    "row": {
+      "name": "Fiches de préparation",
+      "awaiting": "Fiche {{number}} pour la séance de {{className}} {{day}}, à compléter",
+      "done": "Fiche {{number}} pour la séance de {{className}} {{day}}, complète",
+      "fresh": "Une nouvelle fiche pour la séance de {{className}} {{day}}"
+    }
   }
 }

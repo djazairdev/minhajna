@@ -2647,5 +2647,64 @@
     "today": "Today: {{sessions}}, the first at {{time}} with {{class}}",
     "off": "Notifications are off for this app on the phone, so neither the digest nor the preview arrives.",
     "allow": "Allow notifications"
+  },
+  "notes": {
+    "title": "Lesson note",
+    "number": "Lesson note {{number}}",
+    "unavailable": "This session has no lesson note: it has no lesson from the plan.",
+    "keys": {
+      "indicator": "Competence indicator",
+      "objectives": "Objectives",
+      "resources": "Resources"
+    },
+    "stage": "Stage {{number}}",
+    "pages": "Textbook p. {{pages}}",
+    "head": {
+      "unit": "Sequence",
+      "domain": "Domain",
+      "resource": "Resource",
+      "duration": "Duration"
+    },
+    "minutes": "{{minutes}} min",
+    "proposed": "{{title}} · from the plan",
+    "accepted": "{{title}} · accepted",
+    "written": "{{title}} · written",
+    "empty": "No text in the plan yet. The pencil opens it for writing.",
+    "write": "Write the paragraph: {{title}}",
+    "toggle": "Accepts it or returns it to the plan",
+    "add": "Add a paragraph",
+    "hint": "In grey, what came from the plan; in ink, what was accepted or written. Tap a paragraph from the plan to accept it or return it, and the pencil opens any paragraph for writing.",
+    "earlier": "Your note for this resource from last year is available",
+    "use": "Use it",
+    "edit": {
+      "title": "Edit a paragraph",
+      "heading": "Lesson note {{number}} · editing a paragraph",
+      "fromPlan": "From the plan",
+      "label": "Paragraph text",
+      "placeholder": "The text as the note will read",
+      "note": "The text comes from the plan and can be changed here as you like. The plan does not change.",
+      "reset": "Restore the plan’s text"
+    },
+    "own": {
+      "title": "New paragraph",
+      "heading": "Lesson note {{number}} · new paragraph",
+      "editHeading": "Lesson note {{number}} · your paragraph",
+      "titleLabel": "Paragraph title",
+      "titlePlaceholder": "For example: homework",
+      "note": "The paragraph is added in ink at the end of the note, and printed with it.",
+      "remove": "Delete the paragraph",
+      "confirmRemove": "Confirm deleting the paragraph",
+      "keep": "Keep the paragraph",
+      "removeNote": "The paragraph leaves the note and is no longer printed with it."
+    },
+    "save": "Save the paragraph",
+    "cancel": "Cancel",
+    "link": "The lesson’s note",
+    "row": {
+      "name": "Lesson notes",
+      "awaiting": "Note {{number}} for {{className}}’s session {{day}}, to complete",
+      "done": "Note {{number}} for {{className}}’s session {{day}}, complete",
+      "fresh": "A new note for {{className}}’s session {{day}}"
+    }
   }
 }

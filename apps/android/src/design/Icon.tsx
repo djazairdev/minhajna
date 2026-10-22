@@ -26,6 +26,7 @@ export const ICONS = [
   'plus',
   'tune',
   'print',
+  'pencil',
 ] as const;
 export type IconName = (typeof ICONS)[number];
 

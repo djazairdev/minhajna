@@ -84,7 +84,14 @@ export function EntryScreen({ navigation, route }: NativeStackScreenProps<RootSt
     if (first) pilot.keep(pilot.timings('session', 1, tenths, false));
     navigation.goBack();
   };
-  return <Entry sessionKey={route.params.key} day={parseDay(route.params.day)} onDone={done} />;
+  return (
+    <Entry
+      sessionKey={route.params.key}
+      day={parseDay(route.params.day)}
+      onDone={done}
+      onNote={() => navigation.navigate('Note', route.params)}
+    />
+  );
 }
 
 /** A session's roll call, back to where it was opened once saved; the print icon opens its blank sheet or its slip. */
