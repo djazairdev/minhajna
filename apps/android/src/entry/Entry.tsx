@@ -43,7 +43,7 @@ import { sessionTime } from '../times/times-rules';
 import { shortDay } from '../today/outcome-rules';
 import { BookRow } from './BookRow';
 import { bookLines, bookSpan } from './book-lines';
-import { confirmationOf, dueDays, previewOf, stagesShown, type EntryDraft } from './entry-rules';
+import { confirmationOf, dueDays, pairedItem, previewOf, stagesShown, type EntryDraft } from './entry-rules';
 import { correctionOf, fixChanges, startOf } from './fix-rules';
 import { FixFoot, FixHead } from './FixPart';
 import { LessonSheet } from './LessonSheet';
@@ -90,7 +90,13 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
   const school = schoolClass && state.schools.get(schoolClass.schoolId);
   const time = sessionTime({ bells, calendar, state }, school, session.slot, session.day);
   const timeText = time === null ? null : span(time.from, time.to, direction);
-  const entered = confirmationOf(profile, session, proposal, draft);
+  const entered = confirmationOf(
+    profile,
+    session,
+    proposal,
+    draft,
+    record === null ? pairedItem(context, session) : null,
+  );
   const confirmation =
     record === null ? entered : correctionOf(entered, record, start.draft, draft, reason, reasonText);
   const preview = previewOf(context, confirmation);

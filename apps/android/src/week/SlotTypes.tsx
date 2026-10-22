@@ -8,14 +8,25 @@
 // first. A subject whose pack has no model says so, and the plan proposes
 // the next lesson. A type the slot already has stays offered, so editing
 // the slot never drops it, and it is kept while another session type is
-// tried; the sheet drops it on saving outside the main plan. Then, for any
-// class session, the slot's times from the school's bells and their
-// minutes.
+// tried; the sheet drops it on saving outside the main plan. A «معالجة» or
+// «دعم» slot of a class and subject already set up opens its list (answer
+// 376). Then, for any class session, the slot's times from the school's
+// bells and their minutes.
 
-import { bellTimes, clockMinutes, type Course, type PlanPack, type SchoolClass } from '@minhajna/core';
+import {
+  bellTimes,
+  clockMinutes,
+  listOfType,
+  type Course,
+  type ListKind,
+  type PlanPack,
+  type SchoolClass,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { ChipGroup } from '../components/Chip';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
@@ -35,9 +46,11 @@ export type SlotTypesProps = {
   readonly item: SessionItem;
   readonly schoolClass: SchoolClass;
   readonly onChange: (item: SessionItem) => void;
+  /** Opens the class's list for a session outside the main plan that takes one. */
+  readonly onList?: (courseId: string, kind: ListKind) => void;
 };
 
-export function SlotTypes({ testID, cell, item, schoolClass, onChange }: SlotTypesProps) {
+export function SlotTypes({ testID, cell, item, schoolClass, onChange, onList }: SlotTypesProps) {
   const t = useText();
   const { direction } = useLocale();
   const { profile, state, packs, bells } = useAppData();
@@ -52,7 +65,9 @@ export function SlotTypes({ testID, cell, item, schoolClass, onChange }: SlotTyp
     ...(PRIMARY_TYPES.some((code) => code === item.sessionType) ? [] : [item.sessionType]),
   ];
   const main = profile.sessionTypes.find((one) => one.code === item.sessionType)?.queue === 'main';
-  const pack = packOf(state.courses.values(), packs, item);
+  const course = courseOf(state.courses.values(), item);
+  const pack = packOf(course, packs);
+  const list = listOfType(item.sessionType);
   const model = pack?.activities ?? [];
   const kept = item.activity !== undefined && !model.some((one) => one.code === item.activity) ? [item.activity] : [];
   const activities = [
@@ -93,6 +108,15 @@ export function SlotTypes({ testID, cell, item, schoolClass, onChange }: SlotTyp
         <Text style={[styles.note, align]}>{t('week.noModel')}</Text>
       )}
       {primary && !main && <Text style={[styles.note, align]}>{t('week.outsidePlan')}</Text>}
+      {primary && list !== null && course !== undefined && onList !== undefined && (
+        <RowLink
+          testID={`${testID}-list`}
+          icon={controlIcon('tune')}
+          title={t(list === 'support' ? 'supportQueue.open' : 'supportQueue.openRemediation')}
+          description={t('week.listLink')}
+          onPress={() => onList(course.id, list)}
+        />
+      )}
       {time !== null && (
         <Text testID={`${testID}-time`} style={[styles.note, align]}>
           {t('week.bellLine', {
@@ -105,9 +129,13 @@ export function SlotTypes({ testID, cell, item, schoolClass, onChange }: SlotTyp
   );
 }
 
-/** The pinned pack of the class and subject's course, if it has one. */
-function packOf(courses: Iterable<Course>, packs: readonly PlanPack[], item: SessionItem): PlanPack | undefined {
-  const course = [...courses].find((one) => one.classId === item.classId && one.subject === item.subject);
+/** The class and subject's course, once set up. */
+function courseOf(courses: Iterable<Course>, item: SessionItem): Course | undefined {
+  return [...courses].find((one) => one.classId === item.classId && one.subject === item.subject);
+}
+
+/** The course's pinned pack, if it has one. */
+function packOf(course: Course | undefined, packs: readonly PlanPack[]): PlanPack | undefined {
   const pin = course?.pack ?? null;
   return pin === null ? undefined : packs.find((one) => one.id === pin.id && one.release === pin.release);
 }

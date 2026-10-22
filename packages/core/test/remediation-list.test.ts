@@ -21,9 +21,9 @@ import {
   saveSupportQueue,
   supportQueueRows,
   type RecordBook,
-  type RecordEvent,
 } from '../src/index.ts';
-import { contextOf, d, openBook, primaryEvents } from './fixtures.ts';
+import { listEvents } from './demo-class.ts';
+import { contextOf, d, openBook } from './fixtures.ts';
 
 const day = d('2026-10-15');
 const items = [
@@ -31,29 +31,8 @@ const items = [
   { id: 'm2', title: 'همزة الوصل (مثال)' },
 ];
 
-/** The primary class with Tuesday's slot a remediation session and Thursday's a support one. */
-function events(): RecordEvent[] {
-  return primaryEvents().map((event) =>
-    event.kind === 'timetable.set'
-      ? {
-          ...event,
-          version: {
-            ...event.version,
-            entries: event.version.entries.map((entry) =>
-              entry.id === 'f-tue-1'
-                ? { ...entry, sessionType: 'remediation' }
-                : entry.id === 'f-thu-1'
-                  ? { ...entry, sessionType: 'support' }
-                  : entry,
-            ),
-          },
-        }
-      : event,
-  );
-}
-
 async function withLists(): Promise<RecordBook> {
-  const book = await openBook(events());
+  const book = await openBook(listEvents());
   await book.record(day, saveSupportQueue(book.state, { courseId: 'c-lang', kind: 'remediation', items }));
   await book.record(
     day,

@@ -5,7 +5,8 @@
 // a slot keeps its activity type when saved again, the activity comes from
 // the weekly model of the subject's pack with «بلا نوع» first, it stays
 // while another type is tried, «معالجة» and «دعم» drop it on saving and
-// say they are outside the plan, a subject with no plan has no types, one
+// say they are outside the plan and open their list once the slot is kept
+// in the drawing (answer 376), a subject with no plan has no types, one
 // whose plan has no model says so, and a slot with bell times shows them.
 // Made-up data only.
 
@@ -34,11 +35,11 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
-async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
+async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl', onList?: jest.Mock) {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <WeekDraw onDone={jest.fn()} />)}
+        {withData(data, <WeekDraw onDone={jest.fn()} {...(onList !== undefined && { onList })} />)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -173,4 +174,17 @@ test.each(
   expect(accessibilityProblems(root())).toEqual([]);
   expect(shown()).toContain(catalogues[language].week.sessionType);
   expect(missingKeys).toEqual([]);
+});
+
+test('opens a remediation slot’s list once the slot is kept in the drawing', async () => {
+  const data = await withPrimary();
+  const onList = jest.fn();
+  await render(data, 'rtl', onList);
+  await open('4-m1');
+  expect(exists('slot-0-list')).toBe(false);
+  await press('slot-0-type-remediation');
+  await press('slot-0-list');
+  expect(onList).toHaveBeenCalledWith('a-1', 'remediation');
+  expect(exists('slot-save')).toBe(false);
+  expect(entryAt(await saved(data))?.sessionType).toBe('remediation');
 });

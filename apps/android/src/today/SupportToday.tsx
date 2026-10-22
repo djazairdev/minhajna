@@ -15,22 +15,22 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { courseLabel } from '../exams/course-label';
 import { courseSchool, whenLine } from '../plan/catch-up-add-rules';
 import { useAppData } from '../storage/AppData';
+import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 
 export function SupportToday({ day, onLog }: { readonly day: Day; readonly onLog: (catchUp: CatchUpSession) => void }) {
   const t = useText();
   const data = useAppData();
-  const { state, profile } = data;
+  const { state, profile, year, calendar, calendarRelease, packs } = data;
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const rows = useMemo(
-    () =>
-      [...new Set([...state.catchUps.values()].map((one) => one.courseId))]
-        .flatMap((courseId) => scheduledSupport(state, courseId))
-        .filter((one) => one.catchUp.day === day),
-    [state, day],
-  );
+  const rows = useMemo(() => {
+    const context = coreContext({ profile, year, calendar, calendarRelease, packs, state });
+    return [...new Set([...state.catchUps.values()].map((one) => one.courseId))]
+      .flatMap((courseId) => scheduledSupport(context, courseId, day))
+      .filter((one) => one.catchUp.day === day);
+  }, [profile, year, calendar, calendarRelease, packs, state, day]);
   return rows.map(({ catchUp, item }) => {
     const when = whenLine(t, data, courseSchool(state, catchUp.courseId), day, catchUp.slot, direction);
     const className = courseLabel(t, state, profile, catchUp.courseId);

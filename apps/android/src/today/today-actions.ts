@@ -19,6 +19,7 @@ import {
   refOf,
   type Choice,
   type Context,
+  type Details,
   type Reason,
   type RecordEvent,
   type TodaySession,
@@ -73,7 +74,7 @@ export function useTodayActions(
     held.current = timings;
   };
 
-  const confirm = (item: TodaySession, choice?: Choice) => {
+  const confirm = (item: TodaySession, choice?: Choice, details?: Details) => {
     const key = item.session.key;
     const before = current(state.sessions.get(key));
     const undo: readonly RecordEvent[] =
@@ -84,7 +85,8 @@ export function useTodayActions(
               ? { kind: 'session.withdrawn', session: refOf(item.session) }
               : { kind: 'session.recorded', record: before },
           ];
-    recordAll(confirmSessions(context, [{ session: item.session, ...(choice !== undefined && { choice }) }]));
+    const given = { ...(choice !== undefined && { choice }), ...(details !== undefined && { details }) };
+    recordAll(confirmSessions(context, [{ session: item.session, ...given }]));
     const tenths = pilot.lap();
     if (done?.key === key) {
       held.current = held.current.map((one) => ({ ...one, tenths: one.tenths + tenths, oneTap: false }));

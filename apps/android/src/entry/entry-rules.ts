@@ -6,13 +6,18 @@
 // the texts book will take. The preview is the core's own confirmation,
 // worked out without recording, so it shows exactly what «تأكيد الحصة»
 // writes. Nothing is recorded until then (PRD §2.3); the session is its date
-// and slot, never a clock time (PRD §3.3).
+// and slot, never a clock time (PRD §3.3). A «معالجة» or «دعم» session
+// confirmed for the first time takes its list's paired item, as on Today's
+// card (answers 376 to 378): finished when held as proposed, left open when
+// another lesson took its place.
 
 import {
   addDays,
   compareDays,
   confirmSessions,
   findSessionType,
+  listOfType,
+  listPairs,
   sessionsBetween,
   type Context,
   type CountryProfile,
@@ -21,6 +26,7 @@ import {
   type Session,
   type SessionConfirmation,
   type SessionRecord,
+  type SupportItem,
 } from '@minhajna/core';
 import { choiceOf, type Lesson } from './lesson-rules';
 
@@ -72,7 +78,9 @@ export function confirmationOf(
   session: Session,
   proposal: Proposal | null,
   draft: EntryDraft,
+  listItem: SupportItem | null = null,
 ): SessionConfirmation {
+  const sameList = listItem !== null && listOfType(draft.sessionType) === listOfType(session.sessionType);
   const partial = stagesShown(profile, session, proposal, draft) && draft.reached !== proposal?.to;
   const homework = draft.homework.trim();
   const unplanned = draft.unplanned?.trim() ?? '';
@@ -88,9 +96,18 @@ export function confirmationOf(
       ...(draft.test && { test: TEST_TYPE }),
       ...(unplanned !== '' && { unplanned }),
       ...(factual !== '' && { factual }),
+      ...(sameList && { listItem: { id: listItem.id, finished: draft.lesson.kind === 'proposed' } }),
     },
     ...(note !== '' && { privateNote: note }),
   };
+}
+
+/** The item of its list a «معالجة» or «دعم» session awaiting confirmation takes; null for any other. */
+export function pairedItem(context: Context, session: Session): SupportItem | null {
+  const kind = listOfType(session.sessionType);
+  if (kind === null) return null;
+  const pairs = listPairs(context, session.courseId, kind, session.day, 1);
+  return pairs.find((pair) => pair.session?.key === session.key)?.item ?? null;
 }
 
 /** The record «تأكيد الحصة» would write, worked out without recording it. */

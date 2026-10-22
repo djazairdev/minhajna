@@ -14,6 +14,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { colors, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
+import { coreContext } from '../storage/core-context';
 import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { courseSchool, whenLine } from './catch-up-add-rules';
@@ -28,12 +29,15 @@ export type SupportScheduleProps = {
 export function SupportSchedule({ courseId, onCancel, onSchedule, onLog }: SupportScheduleProps) {
   const t = useText();
   const data = useAppData();
-  const { state, today } = data;
+  const { state, profile, year, calendar, calendarRelease, packs, today } = data;
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const rows = useMemo(() => scheduledSupport(state, courseId), [state, courseId]);
-  const school = courseSchool(state, courseId);
   const day = today();
+  const rows = useMemo(
+    () => scheduledSupport(coreContext({ profile, year, calendar, calendarRelease, packs, state }), courseId, day),
+    [profile, year, calendar, calendarRelease, packs, state, courseId, day],
+  );
+  const school = courseSchool(state, courseId);
   return (
     <View testID="support-schedule" style={styles.box}>
       <Text accessibilityRole="header" style={[styles.label, align]}>

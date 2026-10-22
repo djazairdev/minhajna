@@ -289,6 +289,7 @@
     "noActivity": "Sans type",
     "noModel": "Le pack de cette matière n’a pas de modèle hebdomadaire : le plan propose la leçon suivante.",
     "outsidePlan": "Séance hors du plan principal : elle ne fait pas avancer le plan et a sa propre liste.",
+    "listLink": "Le créneau est gardé dans le tracé, puis la liste s’ouvre.",
     "bellLine": "Horaires selon la sonnerie de l’école : {{time}}, soit {{minutes}}."
   },
   "times": {
@@ -2324,6 +2325,29 @@
     "remediationIntro": "Les séances de remédiation de l’emploi du temps ont leur liste : chacune prend le premier élément non achevé. Le plan principal n’avance pas avec elles, et la position de la classe y reste la même.",
     "remediationEmpty": "La liste est encore vide ; elle se remplit d’après les résultats de l’évaluation. Écrivez le premier élément ci-dessous.",
     "remediationNext": "Suivant : pris par la prochaine séance de remédiation"
+  },
+  "listToday": {
+    "heading": {
+      "support": "Liste de soutien de la classe",
+      "remediation": "Liste de remédiation de la classe"
+    },
+    "empty": {
+      "support": "Aucun élément de la liste de soutien pour cette séance.",
+      "remediation": "Aucun élément de la liste de remédiation pour cette séance ; la liste se remplit d’après les résultats de l’évaluation."
+    },
+    "note": {
+      "support": "Les séances de soutien ont leur liste et ne font pas avancer le plan principal. La place de la classe dans le plan de {{subject}} reste la même.",
+      "remediation": "Les séances de remédiation ont leur liste et ne font pas avancer le plan principal. La place de la classe dans le plan de {{subject}} reste la même."
+    },
+    "today": "Aujourd’hui",
+    "next": "Séance suivante",
+    "after": "Ensuite",
+    "row": "{{n}}, {{title}}, {{place}}",
+    "heldOpen": "Tenue, élément non terminé",
+    "heldOpenSub": "{{item}} reste pour la séance suivante.",
+    "notHeldSub": "{{item}} revient à la séance suivante.",
+    "writtenOpen": "{{title}}, non terminé",
+    "removed": "Élément retiré de la liste"
   },
   "repace": {
     "title": "Répartir de nouveau le reste du trimestre",
