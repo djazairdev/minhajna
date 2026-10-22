@@ -14,21 +14,14 @@
 // until taught. Under it, parallel classes drifting apart before a common
 // test or the exams, and aligning a class that is behind (#225). Under the
 // check line, the September check printed for an inspector (#225), and,
-// while the class has used buffers or is behind, its catch-up options (#228).
+// while the class has used buffers or is behind, its catch-up options (#228),
+// and «إعادة توزيع بقية الفصل» while it is offered (#229). A week pack's plan
+// comes by plan week, its pace in plan weeks (#230, PlanRows.tsx).
 
-import {
-  behindPlan,
-  courseSetup,
-  formatDay,
-  pace,
-  planView,
-  termCheck,
-  type PackItem,
-  type PlanRow,
-} from '@minhajna/core';
+import { behindPlan, courseSetup, formatDay, pace, planView, repaceOffered, termCheck } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { RowLink } from '../components/RowLink';
@@ -38,12 +31,13 @@ import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { useCountMinutes } from '../settings/preferences';
-import { currentLanguage, useText } from '../text/i18n';
+import { useText } from '../text/i18n';
 import { paceLine } from './class-rules';
 import { ExamWarnings } from '../exams/ExamWarnings';
 import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
-import { dayMonth, rowDays, rowSpoken, rowTags, untilLine } from './plan-labels';
+import { dayMonth, untilLine } from './plan-labels';
+import { PlanRows, PlanWeekLines, weekPack, weeksBehindLine } from './PlanRows';
 import { isolate } from '../week/grid-labels';
 import { ParallelPanel } from './ParallelPanel';
 import { PlanHeader } from './PlanHeader';
@@ -62,13 +56,15 @@ export type ClassPlanProps = {
   readonly onSupport?: () => void;
   /** In primary, the class's remediation list (#230). */
   readonly onRemediation?: () => void;
+  /** «إعادة توزيع بقية الفصل», while the plan offers it (#229, #230). */
+  readonly onRepace?: () => void;
   readonly onItem?: (itemId: string) => void;
   readonly onCheck?: () => void;
 };
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
-  const { onEditList, onCatchUp, onSupport, onRemediation } = props;
+  const { onEditList, onCatchUp, onSupport, onRemediation, onRepace } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -79,7 +75,6 @@ export function ClassPlan(props: ClassPlanProps) {
   const link = (testID: string, title: string, onPress: () => void, icon: IconName = 'tune') => (
     <RowLink testID={testID} icon={controlIcon(icon)} title={title} onPress={onPress} />
   );
-  const comma = currentLanguage() === 'ar' ? '، ' : ', ';
   const context = useMemo(
     () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
     [profile, year, calendar, calendarRelease, packs, state],
@@ -92,59 +87,15 @@ export function ClassPlan(props: ClassPlanProps) {
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
   const paced = useMemo(() => (view === null ? null : pace(context, courseId, day)), [view, context, courseId, day]);
-  const line = paceLine(
-    t,
-    { pace: paced, check },
-    minutes && view !== null ? courseSetup(context, courseId).sessionMinutes : undefined,
-  );
-
-  const row = (one: PlanRow, later = false) => {
-    const days = rowDays(one);
-    return (
-      <Pressable
-        key={one.item.id}
-        testID={`plan-${one.item.id}`}
-        accessible
-        accessibilityLabel={rowSpoken(t, one, comma, later)}
-        {...(onItem !== undefined && {
-          accessibilityRole: 'button' as const,
-          accessibilityHint: t('classPlan.openItem'),
-          onPress: () => onItem(one.item.id),
-        })}
-        style={({ pressed }) => [
-          styles.row,
-          one.position && styles.here,
-          pressed && onItem !== undefined && styles.pressed,
-        ]}
-      >
-        <Text style={[styles.day, days?.ahead === true && styles.ahead]}>{days?.text ?? ''}</Text>
-        <View style={styles.grow}>
-          <Text style={[styles.title, one.status === 'open' && styles.ahead, align]}>{one.item.title}</Text>
-          <View style={styles.tags}>
-            {rowTags(t, one, later).map((tag) => (
-              <Text key={tag.id} style={[styles.tag, tag.id === 'position' && styles.tagHere]}>
-                {tag.label}
-              </Text>
-            ))}
-          </View>
-        </View>
-      </Pressable>
+  const offered = useMemo(() => repaceOffered(context, courseId, day), [context, courseId, day]);
+  const item = onItem === undefined ? {} : { onItem };
+  const line =
+    weeksBehindLine(t, paced) ??
+    paceLine(
+      t,
+      { pace: paced, check },
+      minutes && view !== null ? courseSetup(context, courseId).sessionMinutes : undefined,
     );
-  };
-  const units = (rows: readonly PlanRow[], heads: readonly PackItem[], later: ReadonlySet<string>) => {
-    const unitOf = (one: PlanRow) => one.item.unit ?? '';
-    const ids = [...new Set(rows.map(unitOf))];
-    return ids.map((id) => (
-      <View key={id || 'none'} style={styles.group}>
-        {id !== '' && (
-          <Text accessibilityRole="header" style={[styles.label, align]}>
-            {heads.find((unit) => unit.id === id)?.title ?? id}
-          </Text>
-        )}
-        {rows.filter((one) => unitOf(one) === id).map((one) => row(one, later.has(one.item.id)))}
-      </View>
-    ));
-  };
 
   return (
     <ScrollView
@@ -196,12 +147,14 @@ export function ClassPlan(props: ClassPlanProps) {
             {` · ${t('calendarView.update.entry.reason', { reason: isolate(check.moved.reason) })}`}
           </Text>
         )}
+        {view !== null && weekPack(view.pack) && <PlanWeekLines rows={view.main} pack={view.pack} paced={paced} />}
         {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
         {(paced?.lost.rotation ?? 0) > 0 && (
           <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
         )}
       </View>
       {onCatchUp !== undefined && behindPlan(paced) && link('plan-catchup', t('catchUp.open'), onCatchUp)}
+      {onRepace !== undefined && offered && link('plan-repace', t('repace.title'), onRepace)}
       {onSupport !== undefined && link('plan-support', t('supportQueue.open'), onSupport)}
       {onRemediation !== undefined &&
         schoolClass?.level === 'primary' &&
@@ -211,13 +164,19 @@ export function ClassPlan(props: ClassPlanProps) {
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>
       ) : (
         <>
-          {units(view.main, view.units, postponed)}
+          <PlanRows
+            rows={view.main}
+            heads={view.units}
+            later={postponed}
+            by={weekPack(view.pack) ? 'week' : 'unit'}
+            {...item}
+          />
           {view.td.length > 0 && (
             <View style={styles.group}>
               <Text accessibilityRole="header" style={[styles.label, align]}>
                 {t('classPlan.td')}
               </Text>
-              {view.td.map((one) => row(one))}
+              <PlanRows rows={view.td} heads={view.units} later={new Set()} by="none" {...item} />
             </View>
           )}
         </>
@@ -270,11 +229,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
-  pressed: { backgroundColor: colors.sheet },
-  here: { backgroundColor: colors.sheet, borderRadius: radius['radius-control'] },
   grow: { flex: 1, gap: spacing['space-4'] },
   day: { ...typography.caption, color: colors.ink, minWidth: 76 },
-  ahead: { color: colors.ink2 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-6'] },
   tag: {
     ...typography.caption,
@@ -285,7 +241,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  tagHere: { color: colors.ink, borderColor: colors.ink },
   label: { ...typography.label, color: colors.ink },
   title: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink },

@@ -52,7 +52,9 @@
     "sessions_one": "{{count}} session",
     "sessions_other": "{{count}} sessions",
     "items_one": "{{count}} item",
-    "items_other": "{{count}} items"
+    "items_other": "{{count}} items",
+    "weeks_one": "{{count}} week",
+    "weeks_other": "{{count}} weeks"
   },
   "bottomSheet": {
     "close": "Close"
@@ -764,7 +766,13 @@
     "alignTitle": "Align another class with {{class}}",
     "alignOne": "Align {{other}} with {{class}}",
     "alignAsk": "{{other}} goes on with {{item}}, as {{class}} does, and the items it passes come right after it, so none is dropped. Nothing recorded changes, nor how many sessions of plan content apart the classes are.",
-    "alignNote": "Only the position is copied; nothing recorded in the other class’s book changes. The alignment shows in that class’s changes, where it can be undone."
+    "alignNote": "Only the position is copied; nothing recorded in the other class’s book changes. The alignment shows in that class’s changes, where it can be undone.",
+    "weeksBehind": "{{weeks}} behind the plan, after all the buffers",
+    "weekHead": "Plan week {{week}}",
+    "weekPosition": "Position: plan week {{week}}; the plan is at its week {{expected}} today.",
+    "weekPositionSame": "Position: plan week {{week}}, where the plan is today.",
+    "calendarLost": "Lost to the calendar: {{sessions}}. Counted apart, so it never reads as a delay in teaching.",
+    "weekModel": "Weekly model: {{activities}}"
   },
   "planDetails": {
     "title": "Pack details",

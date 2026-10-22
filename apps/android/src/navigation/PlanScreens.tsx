@@ -47,6 +47,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onLayers={() => navigation.navigate('PlanLayers', { courseId })}
       onEditList={() => navigation.navigate('PlanFree', { courseId })}
       onCatchUp={() => navigation.navigate('CatchUp', { courseId })}
+      onRepace={() => navigation.navigate('Repace', { courseId })}
       onSupport={() => navigation.navigate('SupportQueue', { courseId })}
       onRemediation={() => navigation.navigate('SupportQueue', { courseId, kind: 'remediation' })}
       onItem={(itemId) => navigation.navigate('PlanItem', { courseId, itemId })}
