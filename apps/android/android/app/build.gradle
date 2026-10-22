@@ -35,10 +35,10 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // A preview build. The code follows the version
-        // (docs/contributing/versioning.md): 0.2.0 is 20099. Each APK's own
+        // (docs/contributing/versioning.md): 0.3.0 is 30099. Each APK's own
         // code adds its processor's digit, below.
-        versionCode 20099
-        versionName "0.2.0"
+        versionCode 30099
+        versionName "0.3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         externalNativeBuild {
