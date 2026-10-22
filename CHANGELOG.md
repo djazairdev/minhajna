@@ -83,6 +83,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - لا يقترح المخطط المتقادم شيئاً في الحصص، ولا يُحسب منه احتياط ولا تأخر. ويذكر المخطط السبب، ويعرض طريقتين: استعماله بحذر كما طُبع، أو تركه وكتابة عناصر القسم.
 - «سؤال المفتش» prints a sheet for the inspector about a stale plan: the pack, its release and why it is stale, and which plan to follow until an edition in force comes out. Nothing is sent.
   - تُطبع من «سؤال المفتش» ورقة للمفتش عن المخطط المتقادم: الحزمة وطبعتها وسبب تقادمها، وسؤال عن المخطط الذي يُعتمد إلى أن تصدر طبعة سارية. ولا يُرسل منها شيء.
+- Under a double shift, a slot saved from its details goes into the same slot of the other half-day for the other week, with its activity and room, and removing it clears both. The afternoon gets a fifth slot with the morning's.
+  - في الدوامين، تُنسخ الخانة المحفوظة من تفاصيلها إلى الخانة نفسها في الفترة الأخرى للأسبوع الآخر، بنشاطها وقاعتها، وحذفها يحذفهما معاً. ويأخذ المساء خانة خامسة مع الصبيحة.
 
 ### Changed
 

@@ -1,20 +1,22 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Drawing the week by hand (#28, Week-draw): a pen for each class, one for
-// the teacher's own time and an eraser, then taps on the grid. Saturday and a
-// fifth morning slot are options, kept on the version; one cannot be removed
-// while its slots hold something. Under the grid, each class's sessions, the
-// total and the clashes. Each change is saved once the taps pause, and «حفظ
-// الأسبوع» saves at once; the version starts on the day shown and never
-// changes a recorded session (PRD §4.6). The «تفاصيل الخانة» pen opens a
-// slot on Week-slot, for its group, A/B weeks, subject, room, or kind of own
-// time. Class names in the totals are isolated, so a Latin name at the
-// start does not turn an Arabic line around. With a double shift, the half
-// taught in A weeks is chosen, and a class drawn in one half-day goes in the
-// other for the other week. A week of two schools tags each class with its
-// school, counts each school's sessions, and outlines clashing slots. A
-// clash on Setup-5-Week opens here with its slot on Week-slot.
+// Drawing the week by hand (#28, Week-draw): a pen for each class, one for the
+// teacher's own time and an eraser, then taps on the grid. Saturday and a fifth
+// morning slot are options, kept on the version; one cannot be removed while
+// its slots hold something. Under the grid, each class's sessions, the total
+// and the clashes. Each change is saved once the taps pause, and «حفظ الأسبوع»
+// saves at once; the version starts on the day shown and never changes a
+// recorded session (PRD §4.6). The «تفاصيل الخانة» pen opens a slot on
+// Week-slot, for its group, A/B weeks, subject, room, or kind of own time.
+// Class names in the totals are isolated, so a Latin name at the start does not
+// turn an Arabic line around. With a double shift, the half taught in A weeks
+// is chosen, and a class drawn in one half-day goes in the other for the other
+// week, as does a slot saved from Week-slot; the afternoon then gets a fifth
+// slot with the morning's, and the double shift stays on while that slot holds
+// something (#230, answer 385). A week of two schools tags each class with its
+// school, counts each school's sessions, and outlines clashing slots. A clash
+// on Setup-5-Week opens here with its slot on Week-slot.
 
 import {
   SATURDAY,
@@ -41,13 +43,13 @@ import { useText } from '../text/i18n';
 import { gridCell, gridLabels, isolate, schoolShort, schoolTally, weekMarks } from './grid-labels';
 import { SlotSheet } from './SlotSheet';
 import { useWeekRecords } from './useWeekRecords';
-import { classLoads, holds, mirrorOf, paint, versionToDraw, type Brush, type Cell } from './week-rules';
+import { classLoads, holds, mirrorOf, paint, versionToDraw, withMirror, type Brush, type Cell } from './week-rules';
 
 type Option = keyof Omit<WeekOptions, 'doubleShift'>;
 
 const OPTION_SLOTS: Record<Option, (weekday: Weekday, slot: Slot) => boolean> = {
   saturday: (weekday) => weekday === SATURDAY,
-  fifthMorning: (_, slot) => slot.half === 'morning' && slot.index === 5,
+  fifthMorning: (_, slot) => slot.index === 5,
 };
 
 /** The drawing screen: `openAt` opens a slot at once, `onDone` follows the save, `onList` opens a class's list. */
@@ -76,6 +78,8 @@ export function WeekDraw({
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
 
+  const inGrid = (cell: Cell) =>
+    labels.slots.some((slot) => slot.slot.half === cell.slot.half && slot.slot.index === cell.slot.index);
   const tap = (cell: Cell) => {
     if (pen === 'details') {
       setOpen(cell);
@@ -85,9 +89,6 @@ export function WeekDraw({
     const schoolClass = brush.kind === 'class' ? records.lookup.schoolClass(brush.classId) : undefined;
     const course = schoolClass && records.courseOfClass(schoolClass.id);
     const mirror = mirrorOf(cell);
-    const inGrid = labels.slots.some(
-      (slot) => slot.slot.half === mirror.slot.half && slot.slot.index === mirror.slot.index,
-    );
     const shift = options.doubleShift;
     draft.change(
       paint(version, records.classOf, cell, brush, {
@@ -95,7 +96,7 @@ export function WeekDraw({
         course,
         ownLabel: t('week.ownTime'),
         newId,
-        ...(shift !== undefined && { shift, ...(inGrid && { mirror }) }),
+        ...(shift !== undefined && { shift, ...(inGrid(mirror) && { mirror }) }),
       }),
     );
   };
@@ -119,6 +120,10 @@ export function WeekDraw({
     return t('week.slotTitle', { day: day?.label ?? '', slot: slot?.spoken ?? '' });
   };
   const locked = (option: Option) => options[option] === true && holds(version, OPTION_SLOTS[option]);
+  const shiftLocked =
+    options.doubleShift !== undefined &&
+    options.fifthMorning === true &&
+    holds(version, (_, slot) => slot.half === 'afternoon' && slot.index === 5);
   const marks = weekMarks(version, state, classes);
   const { loads, total } = classLoads(version, records.classOf, classes);
   const tally = [
@@ -166,6 +171,8 @@ export function WeekDraw({
             testID="option-doubleShift"
             label={t('week.doubleShift')}
             checked={options.doubleShift !== undefined}
+            disabled={shiftLocked}
+            accessibilityHint={shiftLocked ? t('week.optionLocked') : undefined}
             onCheckedChange={(on) => setShift(on ? 'morning' : null)}
           />
           {options.doubleShift !== undefined && (
@@ -212,8 +219,17 @@ export function WeekDraw({
         version={version}
         records={records}
         onClose={() => setOpen(null)}
+        {...(open !== null &&
+          options.doubleShift !== undefined &&
+          inGrid(mirrorOf(open)) && { fresh: open.slot.half === options.doubleShift ? 'A' : 'B' })}
         onSave={(next) => {
-          draft.change(next);
+          const shift = options.doubleShift;
+          const mirror = open === null ? null : mirrorOf(open);
+          draft.change(
+            shift !== undefined && open !== null && mirror !== null && inGrid(mirror)
+              ? withMirror(version, next, open, shift, mirror, newId)
+              : next,
+          );
           setOpen(null);
         }}
         {...(onList !== undefined && { onList })}

@@ -10,7 +10,8 @@
 // is drawn, so the past never moves (PRD §4.6). A version not in force yet,
 // such as the week drawn during setup before the year begins, is drawn
 // again rather than followed by a new one. With a double shift, a class
-// drawn in one half-day also goes in the other, in the other week.
+// drawn in one half-day also goes in the other, in the other week, and a
+// slot saved from its sheet is copied there the same way (#230).
 
 import {
   blockCovers,
@@ -149,6 +150,35 @@ export function paint(
   const weeks: Weeks = cell.slot.half === made.shift ? 'A' : 'B';
   const added = [entry(cell, weeks), ...(mirror === undefined ? [] : [entry(mirror, weeks === 'A' ? 'B' : 'A')])];
   return { ...cleared, entries: [...entries, ...added] };
+}
+
+/**
+ * Under a double shift, `saved` with the slot's sessions of its own week copied into `mirror`, the same place in the
+ * other half-day, for the other week, in place of its sessions of that week or of every week, as a tap does. A slot
+ * saved without them clears them there too, as the eraser does; one that held none and holds none leaves `mirror`.
+ */
+export function withMirror(
+  before: TimetableVersion,
+  saved: TimetableVersion,
+  cell: Cell,
+  shift: Half,
+  mirror: Cell,
+  newId: () => string,
+): TimetableVersion {
+  const own: Weeks = cell.slot.half === shift ? 'A' : 'B';
+  const other: Weeks = own === 'A' ? 'B' : 'A';
+  const mine = (version: TimetableVersion) => version.entries.filter((entry) => at(cell)(entry) && entry.weeks === own);
+  const kept = mine(saved);
+  if (mine(before).length === 0 && kept.length === 0) return saved;
+  const entries = saved.entries.filter((entry) => !(at(mirror)(entry) && entry.weeks !== own));
+  const copies = kept.map((entry) => ({
+    ...entry,
+    id: newId(),
+    weekday: mirror.weekday,
+    slot: mirror.slot,
+    weeks: other,
+  }));
+  return { ...saved, entries: [...entries, ...copies] };
 }
 
 /** The same place in the other half-day, for a double shift. */

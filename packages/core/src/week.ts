@@ -4,7 +4,9 @@
 // The teacher's week as they draw it (PRD §3.2, §4.6). The grid holds slots
 // by half-day, never clock times: bell times come from templates (#29). It
 // shows the country's working days, Saturday when the teacher has Saturday
-// classes, four slots in each half-day and a fifth morning slot when asked.
+// classes, four slots in each half-day and a fifth morning slot when asked,
+// with a fifth afternoon slot too under a double shift, so that a session
+// drawn there keeps its other week (#230, answer 385).
 // Two things clash when they take the same slot in a week they share: two
 // sessions, or a session and time that belongs to the teacher. Sessions of
 // two schools are kept apart, since a hand-drawn week can only be fixed by
@@ -43,7 +45,7 @@ export function weekGrid(country: CountryProfile, options: WeekOptions = {}): We
   days.sort((a, b) => order(a) - order(b));
   const halves: [Half, number][] = [
     ['morning', SLOTS_PER_HALF + (options.fifthMorning ? 1 : 0)],
-    ['afternoon', SLOTS_PER_HALF],
+    ['afternoon', SLOTS_PER_HALF + (options.fifthMorning && options.doubleShift !== undefined ? 1 : 0)],
   ];
   const slots = halves.flatMap(([half, count]) => Array.from({ length: count }, (_, at) => ({ half, index: at + 1 })));
   return { days, slots };

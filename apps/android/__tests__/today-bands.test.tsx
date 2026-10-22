@@ -6,11 +6,15 @@
 // none on the cards, named by class when a band has two, the afternoon's
 // showing its marks once taken; «الكراس اليومي»; and «تأكيد اليوم كله كما
 // هو مقترح» recording every session still awaiting, a «معالجة» one with its
-// item, which «تراجع» takes back. A class called session by session keeps
-// its roll call on its cards, and a secondary or mixed day keeps its cards
-// as they were. Made-up data only.
+// item, which «تراجع» takes back. A day with only an afternoon, or whose
+// morning was not held, does not say its roll call is taken on its own
+// (answer 385). A class called session by
+// session keeps its roll call on its cards, and a secondary or mixed day
+// keeps its cards as they were. Made-up data only.
 
 import {
+  awaitingBetween,
+  confirmSessions,
   current,
   parseDay,
   saveSupportQueue,
@@ -215,4 +219,34 @@ test('a class called session by session keeps its roll call on its cards', async
   expect(exists('today-band-morning')).toBe(true);
   expect(exists('today-band-morning-roll')).toBe(false);
   for (const key of keys) expect(exists(`today-${key}-roll`)).toBe(true);
+});
+
+test('a day with only an afternoon does not say its roll call is taken on its own', async () => {
+  const data = await withPupils();
+  const [version] = data.book.state.timetables;
+  const entries = version.version.entries.filter((entry) => entry.slot.half === 'afternoon');
+  await data.book.record(day, { kind: 'timetable.set', version: { ...version.version, entries } });
+  await render(data);
+  const text = catalogues.ar;
+  expect(exists('today-band-morning')).toBe(false);
+  expect(shown()).toContain(
+    text.today.bandRoll.replace('{{band}}', text.today.band.afternoon).replace('{{fact}}', text.roll.none),
+  );
+  expect(shown()).not.toContain(
+    text.today.bandRoll.replace('{{band}}', text.today.band.afternoon).replace('{{fact}}', text.today.afternoonRoll),
+  );
+});
+
+test('a day whose morning was not held does not say the afternoon’s roll call is taken on its own', async () => {
+  const data = await withPupils();
+  const context = coreContext({ ...data, state: data.book.state });
+  const mornings = awaitingBetween(context, day, day).filter((session) => session.slot.half === 'morning');
+  expect(mornings).toHaveLength(2);
+  const notHeld = mornings.map((session) => ({ session, choice: { outcome: 'not-held' as const } }));
+  await data.book.recordAll(day, confirmSessions(context, notHeld));
+  await render(data);
+  const text = catalogues.ar;
+  expect(shown()).not.toContain(
+    text.today.bandRoll.replace('{{band}}', text.today.band.afternoon).replace('{{fact}}', text.today.afternoonRoll),
+  );
 });
