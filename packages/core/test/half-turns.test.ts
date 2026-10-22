@@ -19,34 +19,10 @@ import {
   rotationCredits,
   sessionsBetween,
   termCheck,
-  type RecordEvent,
 } from '../src/index.ts';
 import { cemEvents, contextOf, d, openBook } from './fixtures.ts';
+import { labEvents } from './half-fixtures.ts';
 import { rotatingBook, rotation } from './rotation-fixtures.ts';
-
-/**
- * The class's Tuesday TD, taken by each half in turn, made a lesson; `only` keeps the first half alone, and `apart`
- * gives each half its own activity.
- */
-function labEvents(only = false, apart = false): RecordEvent[] {
-  return cemEvents().map((event) =>
-    event.kind === 'timetable.set'
-      ? {
-          ...event,
-          version: {
-            ...event.version,
-            entries: event.version.entries
-              .filter((entry) => !only || entry.id !== 'e-tue-2')
-              .map((entry) =>
-                entry.id.startsWith('e-tue')
-                  ? { ...entry, sessionType: 'lesson', ...(apart && { activity: entry.id.endsWith('1') ? 'a' : 'b' }) }
-                  : entry,
-              ),
-          },
-        }
-      : event,
-  );
-}
 
 const from = d('2026-09-20');
 
