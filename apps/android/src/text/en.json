@@ -2275,7 +2275,13 @@
     "schedule": "Schedule a support session in a free time",
     "badge": "Scheduled support",
     "cancelled": "Support session cancelled; «Undo» brings it back.",
-    "notRestored": "The support session was not brought back: its time is taken."
+    "notRestored": "The support session was not brought back: its time is taken.",
+    "remediationTitle": "Remediation list",
+    "openRemediation": "Remediation list",
+    "remediationHeading": "Remediation list · {{class}}",
+    "remediationIntro": "The timetable’s remediation sessions have their own list: each takes the first item not finished. The main plan does not move with them, and the class keeps its place in it.",
+    "remediationEmpty": "The list is empty for now; it is filled from the assessments’ results. Type the first item below.",
+    "remediationNext": "Next: the next remediation session takes it"
   },
   "repace": {
     "title": "Re-pace the rest of the term",

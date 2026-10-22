@@ -18,7 +18,7 @@ import { layerKey, signedAsItsLevel, switchKey, type AddedLayer, type LayerSwitc
 import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
-import type { SupportQueue } from './support-queue.ts';
+import { kindOf, listKey, type SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type {
   Course,
@@ -213,7 +213,7 @@ export function buildState(entries: readonly Entry[]): State {
         catchUps.delete(event.id);
         break;
       case 'support.set':
-        supportQueues.set(event.queue.courseId, event.queue);
+        supportQueues.set(listKey(event.queue.courseId, kindOf(event.queue)), event.queue);
         break;
       case 'repace.set':
         repaces.set(event.repace.id, event.repace);

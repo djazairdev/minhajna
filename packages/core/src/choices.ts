@@ -7,7 +7,7 @@
 import type { Context } from './context.ts';
 import { stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findLevel, findSessionType, packKey } from './reference.ts';
-import type { Course, Coverage, Homework, SchoolClass, SessionRecord, SessionRef } from './records.ts';
+import type { Course, Coverage, Homework, ListItemTaken, SchoolClass, SessionRecord, SessionRef } from './records.ts';
 import type { Session } from './sessions.ts';
 import { mergesOf } from './plan-decisions.ts';
 import { layered } from './plan-layer.ts';
@@ -51,6 +51,7 @@ export interface Details {
   readonly test?: string | null;
   readonly unplanned?: string | null;
   readonly factual?: string | null;
+  readonly listItem?: ListItemTaken | null;
 }
 
 export function findItem(pack: PlanPack | null, id: string): PackItem {
@@ -209,5 +210,6 @@ export function recordOf(
     ...(details.test != null && { test: details.test }),
     ...(details.unplanned != null && { unplanned: details.unplanned }),
     ...(details.factual != null && { factual: details.factual }),
+    ...(details.listItem != null && choice.outcome !== 'not-held' && { listItem: details.listItem }),
   };
 }

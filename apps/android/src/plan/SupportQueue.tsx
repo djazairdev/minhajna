@@ -11,6 +11,8 @@
 // delete; a new one is typed at the end, on one plain line. Every change is
 // saved at once. The queue never moves the main plan. Below, the support
 // sessions scheduled in free times, each logged or cancelled (answer 362).
+// «قائمة المعالجة» is the same list for the class's timetabled «معالجة»
+// sessions (#230, answer 376), with no sessions outside the timetable.
 
 import {
   SUPPORT_TITLE_MAX,
@@ -19,6 +21,7 @@ import {
   saveSupportQueue,
   supportQueueRows,
   type CatchUpSession,
+  type ListKind,
   type RecordEvent,
   type SupportItem,
 } from '@minhajna/core';
@@ -45,6 +48,8 @@ import { SupportSchedule } from './SupportSchedule';
 
 export type SupportQueueProps = {
   readonly courseId: string;
+  /** The remediation list instead of the support list. */
+  readonly kind?: ListKind;
   readonly onLog?: () => void;
   readonly onSchedule?: () => void;
   readonly onLogScheduled?: (catchUp: CatchUpSession) => void;
@@ -60,7 +65,7 @@ function oneLine(text: string): string {
   return [...text].map((char) => ((char.codePointAt(0) ?? 32) < 32 || char === '\u007f' ? ' ' : char)).join('');
 }
 
-export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: SupportQueueProps) {
+export function SupportQueue({ courseId, kind = 'support', onLog, onSchedule, onLogScheduled }: SupportQueueProps) {
   const t = useText();
   const data = useAppData();
   const { state, profile, record, newId } = data;
@@ -69,7 +74,8 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const language = currentLanguage();
-  const rows = useMemo(() => supportQueueRows(state, courseId), [state, courseId]);
+  const rows = useMemo(() => supportQueueRows(state, courseId, kind), [state, courseId, kind]);
+  const support = kind === 'support';
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [tried, setTried] = useState(false);
@@ -99,7 +105,8 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
     return true;
   };
   const save = (list: readonly SupportItem[]): boolean =>
-    savedFrom.current !== state && apply(() => saveSupportQueue(state, { courseId, items: list }));
+    savedFrom.current !== state &&
+    apply(() => saveSupportQueue(state, { courseId, ...(!support && { kind: 'remediation' }), items: list }));
   const cancel = (catchUp: CatchUpSession) => {
     if (savedFrom.current !== state && apply(() => cancelCatchUp(context, catchUp.id))) {
       setSaid({ kind: 'session', catchUp });
@@ -137,7 +144,8 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
   const status = (row: (typeof rows)[number]) => {
     const dates = row.sessions.map((one) => dayName(t, one.day, language, profile)).join(t('addSessions.separator'));
     if (row.finished) return t('supportQueue.finished', { dates });
-    if (row.item.id === next) return dates === '' ? t('supportQueue.next') : t('supportQueue.nextTaken', { dates });
+    if (row.item.id === next && dates === '') return t(support ? 'supportQueue.next' : 'supportQueue.remediationNext');
+    if (row.item.id === next) return t('supportQueue.nextTaken', { dates });
     return dates === '' ? t('supportQueue.notYet') : t('supportQueue.taken', { dates });
   };
 
@@ -167,12 +175,12 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
         ]}
       >
         <Text accessibilityRole="header" style={[styles.title, align]}>
-          {t('supportQueue.heading', { class: isolate(className) })}
+          {t(support ? 'supportQueue.heading' : 'supportQueue.remediationHeading', { class: isolate(className) })}
         </Text>
-        <Text style={[styles.body, align]}>{t('supportQueue.intro')}</Text>
+        <Text style={[styles.body, align]}>{t(support ? 'supportQueue.intro' : 'supportQueue.remediationIntro')}</Text>
         <Text testID="support-count" style={[styles.sub, align]}>
           {rows.length === 0
-            ? t('supportQueue.empty')
+            ? t(support ? 'supportQueue.empty' : 'supportQueue.remediationEmpty')
             : t('supportQueue.counts', {
                 items: t('count.items', { count: rows.length }),
                 done: done.length,
@@ -232,17 +240,19 @@ export function SupportQueue({ courseId, onLog, onSchedule, onLogScheduled }: Su
         />
         <Text style={[styles.sub, align]}>{t('supportQueue.privacy')}</Text>
         <Button testID="support-add" variant="line" label={t('supportQueue.add')} onPress={add} />
-        <Text style={[styles.sub, align]}>{t('supportQueue.page')}</Text>
-        <SupportSchedule
-          courseId={courseId}
-          onCancel={cancel}
-          {...(onSchedule !== undefined && { onSchedule })}
-          {...(onLogScheduled !== undefined && { onLog: onLogScheduled })}
-        />
+        {support && <Text style={[styles.sub, align]}>{t('supportQueue.page')}</Text>}
+        {support && (
+          <SupportSchedule
+            courseId={courseId}
+            onCancel={cancel}
+            {...(onSchedule !== undefined && { onSchedule })}
+            {...(onLogScheduled !== undefined && { onLog: onLogScheduled })}
+          />
+        )}
         {refused && (
           <Notice testID="support-not-restored" icon={controlIcon('info')} message={t('supportQueue.notRestored')} />
         )}
-        {onLog !== undefined && (
+        {support && onLog !== undefined && (
           <Button testID="support-log" variant="line" label={t('supportQueue.log')} onPress={onLog} />
         )}
       </ScrollView>

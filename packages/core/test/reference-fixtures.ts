@@ -60,6 +60,7 @@ export const country: CountryProfile = {
     { code: 'integration', queue: 'main', name: { en: 'Integration' } },
     { code: 'td', queue: 'td', name: { en: 'Guided work' } },
     { code: 'remediation', queue: 'none', name: { en: 'Remediation' } },
+    { code: 'support', queue: 'none', name: { en: 'Support' } },
     { code: 'reception', queue: 'none', name: { en: 'Reception' } },
     { code: 'free', queue: 'none', name: { en: 'Free slot' } },
     { code: 'test', queue: 'none', name: { en: 'Test' } },
