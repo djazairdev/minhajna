@@ -24,7 +24,7 @@ import {
   type TodaySession,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { BottomSheet } from '../components/BottomSheet';
 import { Button } from '../components/Button';
@@ -47,12 +47,14 @@ export type ListCardProps = {
   readonly context: Context;
   readonly focus: boolean;
   readonly due: readonly DueStripProps[];
+  /** What the card says of its time, such as «يتزامن مع …» (#232). */
+  readonly extra?: ReactNode;
   /** Records the session: done or not held, with the item it took. */
   readonly onRecord: (choice: Choice | undefined, details: Details | undefined) => void;
   readonly onDetails: () => void;
 };
 
-export function ListCard({ testID, meta, item, kind, context, focus, due, onRecord, onDetails }: ListCardProps) {
+export function ListCard({ testID, meta, item, kind, context, focus, due, extra, onRecord, onDetails }: ListCardProps) {
   const t = useText();
   const { profile } = useAppData();
   const { direction } = useLocale();
@@ -83,6 +85,7 @@ export function ListCard({ testID, meta, item, kind, context, focus, due, onReco
   return (
     <View testID={testID} style={[styles.card, focus && styles.focus, { direction }]}>
       <MetaLine meta={head} />
+      {extra}
       <Text accessibilityRole="header" style={[styles.label, align]}>
         {t(`listToday.heading.${kind}`)}
       </Text>

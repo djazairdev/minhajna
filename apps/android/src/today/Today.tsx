@@ -152,12 +152,12 @@ export function Today(props: {
     if (list !== null) {
       const onRecord = (choice?: Choice, details?: Details) => confirm(item, choice, details);
       const show = { meta: metaOf(item, true), focus: item === focus, onDetails: () => onDetails(item.session) };
-      return <ListCard key={key} testID={testID} {...{ item, context, due, onRecord, ...show }} kind={list} />;
+      return <ListCard key={key} testID={testID} {...{ item, context, due, extra, onRecord, ...show }} kind={list} />;
     }
     const why = item === focus ? freeEntry(context, item) : null;
     if (why !== null) {
       const onRecord = (details: Details) => confirm(item, { outcome: 'changed' }, details);
-      const free = { item, why, due, onRecord, onDetails: () => onDetails(item.session) };
+      const free = { item, why, due, extra, onRecord, onDetails: () => onDetails(item.session) };
       return <FreeEntry key={key} testID={testID} meta={metaOf(item, true)} {...free} />;
     }
     if (item === focus && item.proposal !== null) {
