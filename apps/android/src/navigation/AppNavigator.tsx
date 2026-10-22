@@ -64,6 +64,7 @@ import { Connections } from '../help/PrivacyNotice';
 import type { HomeTabParamList, RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
 import { planRoutes } from './PlanScreens';
+import { noteRoutes } from './NoteScreens';
 
 /** Each tab's label in the catalogue. */
 export const tabLabels = {
@@ -229,6 +230,7 @@ export function AppNavigator({
         <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
         <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />
         {extraRoutes(Stack, t)}
+        {noteRoutes(Stack, t)}
         <Stack.Screen
           name="PrivacyNotice"
           component={HelpNotice}

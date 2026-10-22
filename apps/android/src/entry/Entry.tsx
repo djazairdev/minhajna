@@ -10,7 +10,8 @@
 // before (PRD §2.3, §3.3). «تغيير الدرس» takes another lesson from the plan,
 // or content from outside it (Entry-lesson). A recorded session opens as
 // «تصحيح الحصة» (Entry-fix): the same form from what was recorded, saved as
-// a correction that keeps the first version.
+// a correction that keeps the first version. A row opens the lesson's note
+// (#237).
 
 import {
   carryTo,
@@ -49,9 +50,12 @@ import { correctionOf, fixChanges, startOf } from './fix-rules';
 import { FixFoot, FixHead } from './FixPart';
 import { LessonSheet } from './LessonSheet';
 import { lessonGroups, type Lesson } from './lesson-rules';
+import { NoteLink } from '../notes/NoteLink';
 
-/** The session's details; `onDone` goes back once it is recorded, saying whether it was its first confirmation. */
-export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Day; onDone: (first: boolean) => void }) {
+type EntryActions = { readonly onDone: (first: boolean) => void; readonly onNote?: () => void };
+
+/** The session's details; `onDone` goes back once recorded, saying if it was the first; `onNote` opens its note. */
+export function Entry({ sessionKey, day, onDone, onNote }: { sessionKey: string; day: Day } & EntryActions) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -152,6 +156,7 @@ export function Entry({ sessionKey, day, onDone }: { sessionKey: string; day: Da
             lines={bookLines(t, pack, preview, dayName)}
           />
         )}
+        {onNote !== undefined && <NoteLink sessionKey={sessionKey} day={day} onOpen={onNote} />}
         <ChipGroup
           testID="entry-type"
           label={t('entry.type')}

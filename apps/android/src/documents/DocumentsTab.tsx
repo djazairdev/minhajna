@@ -5,7 +5,8 @@
 // covers now. A document opens its output: print, or save a PDF, as
 // recorded or blank with its headings. «طباعة الأسبوع» comes first, with
 // how many documents have something new since their last print (#215).
-// In a pilot build, the last row opens «توقيتاتي في التجربة» (#220).
+// «المذكرات» opens the next session's lesson note (#237). In a pilot build,
+// the last row opens «توقيتاتي في التجربة» (#220).
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
@@ -16,6 +17,7 @@ import { PageHeading } from '../components/PageHeading';
 import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
+import { NotesRow } from '../notes/NotesRow';
 import { useTimingStore } from '../pilot/timing-store';
 import { useText } from '../text/i18n';
 import { DOCUMENTS, type DocumentId } from './catalogue';
@@ -24,18 +26,20 @@ import { useDocumentData } from './useDocumentData';
 
 /**
  * The Documents tab; `onOpen` opens a document's output, `onPrintWeek`
- * «طباعة الأسبوع», `onFixes` the texts book's corrections, and `onTimings`
- * «توقيتاتي» in a pilot build.
+ * «طباعة الأسبوع», `onFixes` the texts book's corrections, `onNote` a
+ * session's lesson note, and `onTimings` «توقيتاتي» in a pilot build.
  */
 export function DocumentsTab({
   onOpen,
   onPrintWeek,
   onFixes,
+  onNote,
   onTimings,
 }: {
   readonly onOpen: (id: DocumentId) => void;
   readonly onPrintWeek: () => void;
   readonly onFixes: () => void;
+  readonly onNote?: (key: string, day: string) => void;
   readonly onTimings?: () => void;
 }) {
   const t = useText();
@@ -68,6 +72,7 @@ export function DocumentsTab({
               onPress={() => onOpen(kind.id)}
             />
           ))}
+          {onNote !== undefined && <NotesRow data={data} onOpen={onNote} />}
           <RowLink
             testID="documents-fixes"
             icon={controlIcon('check')}

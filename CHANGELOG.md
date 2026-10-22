@@ -113,6 +113,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يمكن الآن رسم «التوقيع المرسوم» مرة واحدة على الشاشة، من بطاقة الأستاذ أو من الإعدادات، ومسحه بـ«مسح وإعادة الرسم». ويبقى غير مفعّل حتى تشغّل «استعمال التوقيع في المطبوعات وملفات PDF»، وليس توقيعاً قانونياً: يُعتمد حيث تقبله المؤسسة.
 - While the drawn signature is in use, it prints in your box: in the texts book and «Strip to paste» for confirmed sessions, at the foot of a journal page once none of its sessions awaits confirmation, and on the timetable, the roll-call book's month and year, «September check», «Question for the inspector» and the re-pace draft. Each print screen offers «With my drawn signature» or «Blank» for that print only, with «Signature settings», and while the print carries it, a line under the buttons says that anyone who receives the PDF can copy it. It never goes in the director's, inspector's or supervisor's box, nor on a blank version.
   - ما دام «التوقيع المرسوم» مفعّلاً، يُطبع في خانتك: في دفتر النصوص و«شريط للّصق» للحصص المؤكّدة، وأسفل صفحة الكراس اليومي متى لم تبقَ فيها حصة تنتظر التأكيد، وفي استعمال الزمن ودفتر المناداة للشهر وللسنة و«فحص سبتمبر» و«سؤال المفتش» ومسودة إعادة التوزيع. وتعرض كل شاشة طباعة «بتوقيعي المرسوم» أو «فارغة» لتلك الطباعة وحدها، مع «إعدادات التوقيع»، وما دامت الطباعة تحمله يذكّر سطر تحت الأزرار بأن من يستلم ملف PDF يمكنه نسخه. ولا يوضع أبداً في خانة المدير أو المفتش أو المشرف، ولا في النسخة الفارغة.
+- Each lesson now has a lesson note, opened from a session's details or from «Lesson notes» in Documents, which names your next session's note. The plan fills its head: the sequence, the domain, the resource and the duration. Its paragraphs, the competence indicator, the objectives, the resources and one per stage, come in grey: tap one that has the plan's text to accept it, or use the pencil to write it. Add your own paragraphs at the end. Each change is kept at once, and a class's notes are numbered in the order you make them. «Use it» copies last year's note for the same lesson.
+  - صار لكل درس مذكرة، تُفتح من تفاصيل الحصة أو من «المذكرات» في الوثائق، التي تذكر مذكرة حصتك القادمة. يملأ المخطط رأسها: المقطع والميدان والمورد والمدة. وتأتي فقراتها، مؤشر الكفاءة والأهداف والسندات وفقرة لكل مرحلة، بالرمادي: نقرة على فقرة فيها نص المخطط تقبلها، والقلم يفتحها للكتابة. وتضيف فقراتك في آخرها. يُحفظ كل تغيير فوراً، وتُرقَّم مذكرات القسم بترتيب كتابتها. و«استعمالها» تنسخ مذكرتك للدرس نفسه من السنة الماضية.
 
 ### Changed
 
@@ -134,6 +136,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يطلب التطبيق الآن، مرة واحدة، إذن الإشعارات، لملخص الأسبوع وللمعاينة التي تشغّلها. تُكتب كلماتها على الهاتف، فلا يُستقبل شيء من خادم ولا يُرسل إليه. وحين يخفي هاتفك المحتوى الحساس على شاشة القفل، لا يظهر منها هناك إلا عنوانها.
 - The drawn signature stays on this phone with the teacher card: it is never synced, backed up or exported. Only its shape is kept, not the speed, pressure or timing of the strokes.
   - يبقى التوقيع المرسوم على هذا الهاتف مع بطاقة الأستاذ: لا يُزامَن ولا يُنسخ احتياطياً ولا يُصدَّر. ويُحفظ شكله وحده، دون سرعة الرسم أو ضغطه أو توقيته.
+- Lesson notes are yours: they sync to your own devices, go into your backups and full export, and print in your documents, but never go into a progress statement, a handover or the school's copy.
+  - المذكرات لك: تُزامَن مع أجهزتك وتدخل نسخك الاحتياطية وتصديرك الكامل وتُطبع في وثائقك، ولا تدخل أبداً بيان التقدم ولا ملف التسليم ولا نسخة المؤسسة.
 
 ### Security
 

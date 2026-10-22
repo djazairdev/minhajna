@@ -54,6 +54,12 @@ export type RootStackParamList = {
   Licences: undefined;
   LicenceNotice: { name: string };
   Entry: { key: string; day: string };
+  /** A session's lesson note, by the session's key and day (#237). */
+  Note: { key: string; day: string };
+  /** One plan paragraph of the note, by its key such as `objectives` or `stage-2`. */
+  NoteEdit: { key: string; day: string; paragraph: string };
+  /** The teacher's own paragraph at `index`, or a new one. */
+  NoteOwn: { key: string; day: string; index?: number };
   Class: { courseId: string };
   /** The weekly digest, worked out when it opens (#234). */
   Digest: undefined;

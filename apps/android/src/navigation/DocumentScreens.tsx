@@ -3,8 +3,8 @@
 
 // The documents as navigation routes (#212): the Documents tab, a
 // document's output above the tabs, and «طباعة الأسبوع» (#215). The
-// roll-call book opens Roll-print (#217). In a pilot build, the tab's last
-// row opens «توقيتاتي» (#220).
+// roll-call book opens Roll-print (#217), and «المذكرات» a lesson note
+// (#237). In a pilot build, the tab's last row opens «توقيتاتي» (#220).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -31,6 +31,7 @@ export function DocumentsTabScreen({
       onOpen={(id) => (id === 'roll' ? navigation.navigate('RollPrint') : navigation.navigate('DocOutput', { id }))}
       onPrintWeek={() => navigation.navigate('PrintWeek')}
       onFixes={() => navigation.navigate('BookFixes')}
+      onNote={(key, day) => navigation.navigate('Note', { key, day })}
       onTimings={() => navigation.navigate('PilotTimings')}
     />
   );
