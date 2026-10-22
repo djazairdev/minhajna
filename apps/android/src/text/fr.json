@@ -617,7 +617,16 @@
       "awaiting": "en attente de confirmation",
       "labelOwn": "{{group}}, cette séance : {{turn}}"
     },
-    "tagTarget": "Objectif semaine {{week}}"
+    "tagTarget": "Objectif semaine {{week}}",
+    "free": {
+      "stale": "Plan périmé : rien n’est proposé. La séance s’écrit en saisie libre.",
+      "none": "Pas de paquet de plan : rien n’est proposé. La séance s’écrit en saisie libre.",
+      "missing": "La version épinglée du paquet manque : rien n’est proposé. La séance s’écrit en saisie libre.",
+      "label": "Séance du jour, en saisie libre",
+      "placeholder": "Ce qui a été enseigné aujourd’hui, comme dans le cahier",
+      "save": "Enregistrer la séance",
+      "empty": "Écrivez ce qui a été enseigné avant d’enregistrer."
+    }
   },
   "outcome": {
     "other": "Autre résultat",

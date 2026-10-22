@@ -602,7 +602,16 @@
       "awaiting": "awaiting confirmation",
       "labelOwn": "{{group}}, this session: {{turn}}"
     },
-    "tagTarget": "Week {{week}} target"
+    "tagTarget": "Week {{week}} target",
+    "free": {
+      "stale": "Stale plan: nothing is proposed. Write today’s session freely.",
+      "none": "No plan pack: nothing is proposed. Write today’s session freely.",
+      "missing": "The pinned pack release is missing: nothing is proposed. Write today’s session freely.",
+      "label": "Today’s session, written freely",
+      "placeholder": "What was taught today, as it goes in the book",
+      "save": "Record the session",
+      "empty": "Write what was taught before recording."
+    }
   },
   "outcome": {
     "other": "Another outcome",
