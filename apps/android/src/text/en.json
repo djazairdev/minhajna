@@ -2715,5 +2715,47 @@
       "noClasses": "No class taught yet, so there is no lesson note to print.",
       "action": "Print the notes"
     }
+  },
+  "distributions": {
+    "name": "Distributions",
+    "line": "annual, monthly and termly",
+    "layouts": {
+      "year": {
+        "label": "Annual",
+        "description": "Each sequence with its months and sessions, for the whole year."
+      },
+      "month": {
+        "label": "Monthly",
+        "description": "Each week of the chosen day’s month with its days, resources and sessions."
+      },
+      "term": {
+        "label": "Termly",
+        "description": "Each sequence of the chosen day’s term with its days and sessions in it."
+      }
+    },
+    "titles": {
+      "year": "Annual distribution",
+      "month": "Monthly distribution",
+      "term": "Termly distribution"
+    },
+    "term": "Term {{term}}",
+    "termLine": "{{term}}: {{days}}",
+    "months": "{{from}} to {{to}}",
+    "days": "{{from}} to {{to}}",
+    "week": "Week {{week}}",
+    "columns": {
+      "sequence": "Sequence",
+      "period": "Period",
+      "sessions": "Sessions",
+      "confirmed": "Of which done",
+      "week": "Week",
+      "resources": "Resources",
+      "total": "Total"
+    },
+    "print": {
+      "empty": "No session from the plan in this period.",
+      "noPlan": "No class has a plan this year yet, so there is no distribution to print.",
+      "blank": "The classes, subjects and column heads, with empty rows to fill in by hand."
+    }
   }
 }

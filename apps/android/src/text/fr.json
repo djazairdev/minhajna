@@ -2764,5 +2764,47 @@
       "noClasses": "Aucune classe enseignée pour l’instant : pas de fiche à imprimer.",
       "action": "Imprimer les fiches"
     }
+  },
+  "distributions": {
+    "name": "Répartitions",
+    "line": "annuelle, mensuelle et trimestrielle",
+    "layouts": {
+      "year": {
+        "label": "Annuelle",
+        "description": "Chaque séquence avec ses mois et ses séances, pour toute l’année."
+      },
+      "month": {
+        "label": "Mensuelle",
+        "description": "Chaque semaine du mois du jour choisi avec ses jours, ses ressources et ses séances."
+      },
+      "term": {
+        "label": "Trimestrielle",
+        "description": "Chaque séquence du trimestre du jour choisi avec ses jours et ses séances."
+      }
+    },
+    "titles": {
+      "year": "Répartition annuelle",
+      "month": "Répartition mensuelle",
+      "term": "Répartition trimestrielle"
+    },
+    "term": "Trimestre {{term}}",
+    "termLine": "{{term}} : {{days}}",
+    "months": "{{from}} – {{to}}",
+    "days": "du {{from}} au {{to}}",
+    "week": "Semaine {{week}}",
+    "columns": {
+      "sequence": "Séquence",
+      "period": "Période",
+      "sessions": "Séances",
+      "confirmed": "Dont faites",
+      "week": "Semaine",
+      "resources": "Ressources",
+      "total": "Total"
+    },
+    "print": {
+      "empty": "Aucune séance du plan dans cette période.",
+      "noPlan": "Aucune classe n’a encore de plan cette année : pas de répartition à imprimer.",
+      "blank": "Les classes, les matières et les en-têtes des colonnes, avec des lignes vides à remplir à la main."
+    }
   }
 }

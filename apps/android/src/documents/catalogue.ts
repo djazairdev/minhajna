@@ -24,6 +24,7 @@ import { supervisedPages } from './supervised-pages';
 import { bookDate } from './texts-book-rows';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 import { NOTES_KIND } from './notes-pages';
+import { DIST_KIND } from './dist-pages';
 
 export type DocumentId =
   | 'journal'
@@ -37,7 +38,8 @@ export type DocumentId =
   | 'supervised'
   | 'homework'
   | 'strip'
-  | 'notes';
+  | 'notes'
+  | 'distributions';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -174,6 +176,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     pages: specialistJournalPages,
   },
   NOTES_KIND,
+  DIST_KIND,
   {
     id: 'timetable',
     drawn: 'box',
