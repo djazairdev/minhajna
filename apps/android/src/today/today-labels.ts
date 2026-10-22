@@ -4,8 +4,10 @@
 // What a session card on Today says (#32): the plan's proposal as the book
 // will take it, the lesson of a session further down the day, what a
 // recorded session wrote, and the day's facts; with an item merged into
-// the session by the teacher's decision, both (#221). The words state facts
-// and never judge (PRD §3.1, rule 8).
+// the session by the teacher's decision, both (#221). In a week pack, the
+// plan week, and for an activity of the weekly model, which of the week's
+// sessions of it this is (#230, answer 375). The words state facts and
+// never judge (PRD §3.1, rule 8).
 
 import {
   findPackItem,
@@ -16,6 +18,7 @@ import {
   type TodayView,
 } from '@minhajna/core';
 import type { ProposalProps } from '../components/Proposal';
+import { localized } from '../setup/names';
 import type { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 
@@ -34,13 +37,28 @@ function stageLines(t: Translate, proposal: Proposal): string[] {
   return proposal.budget > 1 ? [t('today.sessionOf', { session: proposal.session, budget: proposal.budget })] : [];
 }
 
-/** The proposal in pencil: its tag, the unit, the item, and the stages. */
+/** «قراءة، الحصة 1 من 3», for an activity of the pack's weekly model; null otherwise. */
+export function activityLine(t: Translate, pack: PlanPack | null, proposal: Proposal): string | null {
+  const place = proposal.planWeek?.activity;
+  const activity = place && pack?.activities?.find((one) => one.code === place.code);
+  if (place === undefined || activity === undefined) return null;
+  return t('today.activityLine', { activity: localized(activity.name), session: place.session, of: place.of });
+}
+
+/** The proposal in pencil: its tag with the plan week, the unit, the activity, the item, and the stages. */
 export function proposalOf(t: Translate, pack: PlanPack | null, proposal: Proposal): ProposalProps {
   const unit = pack?.items.find((item) => item.id === proposal.item.unit);
+  const week = proposal.planWeek?.week;
+  const tag =
+    week === undefined
+      ? t(proposal.continued ? 'today.tagContinued' : 'today.tag')
+      : t(proposal.continued ? 'today.tagWeekContinued' : 'today.tagWeek', { week });
+  const activity = activityLine(t, pack, proposal);
   return {
-    tag: t(proposal.continued ? 'today.tagContinued' : 'today.tag'),
+    tag,
     lines: [
       ...(unit === undefined ? [] : [{ label: t('today.unit'), text: unit.title }]),
+      ...(activity === null ? [] : [{ text: activity }]),
       { label: t(proposal.continued ? 'today.continued' : 'today.topic'), text: proposal.item.title },
       ...(proposal.with === undefined ? [] : [{ label: t('today.merged'), text: proposal.with.item.title }]),
       ...stageLines(t, proposal).map((text) => ({ text })),
@@ -48,14 +66,20 @@ export function proposalOf(t: Translate, pack: PlanPack | null, proposal: Propos
   };
 }
 
-/** A later session's lesson, with where it goes on from when it continues. */
-export function lessonOf(t: Translate, item: TodaySession): { lesson: string; note?: string } {
+/** A later session's lesson, after its activity, with where it goes on from when it continues. */
+export function lessonOf(
+  t: Translate,
+  item: TodaySession,
+  pack: PlanPack | null = null,
+): { lesson: string; note?: string } {
   const { proposal } = item;
   if (proposal === null) return { lesson: t(item.packMissing ? 'today.packMissing' : 'today.noProposal') };
-  const title =
+  const named =
     proposal.with === undefined
       ? proposal.item.title
       : t('today.mergedLesson', { title: isolate(proposal.item.title), with: isolate(proposal.with.item.title) });
+  const activity = activityLine(t, pack, proposal);
+  const title = activity === null ? named : t('today.activityLesson', { activity, title: isolate(named) });
   if (!proposal.continued) return { lesson: title };
   const stage = proposal.stageNames[proposal.from];
   return {

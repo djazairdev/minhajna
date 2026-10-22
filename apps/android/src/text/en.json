@@ -524,7 +524,11 @@
       "closure": "Classes suspended",
       "exam": "Exam",
       "teacher": "Your own time"
-    }
+    },
+    "activityLine": "{{activity}}, session {{session}} of {{of}}",
+    "activityLesson": "{{activity}}: {{title}}",
+    "tagWeek": "Proposed by the plan · week {{week}}",
+    "tagWeekContinued": "Proposed by the plan · week {{week}} · continues from last session"
   },
   "outcome": {
     "other": "Another outcome",

@@ -568,7 +568,11 @@
       "closure": "توقّف الدراسة",
       "exam": "اختبار",
       "teacher": "من وقتك الخاص"
-    }
+    },
+    "activityLine": "{{activity}}، الحصة {{session}} من {{of}}",
+    "activityLesson": "{{activity}}: {{title}}",
+    "tagWeek": "مقترح من المخطط · الأسبوع {{week}}",
+    "tagWeekContinued": "مقترح من المخطط · الأسبوع {{week}} · يتابع من الحصة السابقة"
   },
   "outcome": {
     "other": "نتيجة أخرى",

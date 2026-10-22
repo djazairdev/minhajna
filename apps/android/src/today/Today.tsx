@@ -164,7 +164,7 @@ export function Today(props: {
         />
       );
     }
-    const lesson = lessonOf(t, item);
+    const lesson = lessonOf(t, item, pack);
     return <SessionCard key={key} testID={testID} kind="mini" meta={metaOf(item, false)} {...lesson} due={due} />;
   };
 
@@ -187,7 +187,7 @@ export function Today(props: {
         return { ...head, kind: 'proposal', proposal, onConfirm: () => confirm(item), hint: t('joint.alone') };
       }
       const show = { id: `details-${grade}`, label: t('entry.open'), onPress: () => onDetails(item.session) };
-      return { ...head, kind: 'lesson', lesson: lessonOf(t, item).lesson, ...(onFocus && { show }) };
+      return { ...head, kind: 'lesson', lesson: lessonOf(t, item, pack).lesson, ...(onFocus && { show }) };
     });
     return (
       <JointCard
@@ -234,7 +234,8 @@ export function Today(props: {
                 title: `${t(`week.days.${weekday(one.day)}`)} ${formatDayWithMonth(one.day, language, profile)}`,
                 rows: one.sessions.map((item) => {
                   const meta = metaOf(item, false);
-                  return { item, label: [meta.slot, meta.className, lessonOf(t, item).lesson].join(' · ') };
+                  const lesson = lessonOf(t, item, courseSetup(context, item.course.id).pack).lesson;
+                  return { item, label: [meta.slot, meta.className, lesson].join(' · ') };
                 }),
               }))}
               later={backlog.awaiting > backlog.days.reduce((sum, one) => sum + one.sessions.length, 0)}
