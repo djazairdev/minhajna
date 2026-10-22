@@ -16,6 +16,7 @@ import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { Membership } from './pupil-history.ts';
 import type { CalendarEntry } from './reference.ts';
+import type { Retention } from './retention.ts';
 import type {
   Course,
   PrivateNote,
@@ -98,4 +99,6 @@ export interface State {
   readonly moves: ReadonlyMap<string, SessionMove>;
   /** The lesson notes, by ID (#237). */
   readonly lessonNotes: ReadonlyMap<string, LessonNote>;
+  /** How long records are kept, as the teacher chose; null for the defaults (#235). */
+  readonly retention: Retention | null;
 }

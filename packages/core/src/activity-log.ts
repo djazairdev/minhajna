@@ -1,0 +1,227 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// «سجل النشاط» (#235, Log, R-5.5-06, answer 425): worked out from the
+// history, never kept apart. It lists corrections to the books (a later
+// version of a session or a roll call, or a session withdrawn), files and
+// printing, and deletions, by the day each was made and in the history's
+// order, never a clock time (R-5.5-05). A line says what changed, never the
+// content: no pupil's name, note or text. Past a damaged stretch (#399,
+// answer 427) a change shows as its kind and day only, unchecked.
+
+import { canonicalJson } from './canonical.ts';
+import { compareDays, type Day } from './day.ts';
+import { CORRECTION_REASONS, eventOf, type CorrectionReason, type RecordEvent } from './events.ts';
+import { ERASURE, erasedIds, type Entry } from './history.ts';
+import type { OutputRecord } from './prints.ts';
+import type { Half, SessionRecord, SessionRef } from './records.ts';
+import { markOf, ROLL_CALL_REASONS, type PupilMark, type RollCallReason } from './roll-call-fix.ts';
+import type { RollCall } from './attendance-records.ts';
+
+/** A field of a session record a correction changed, in the order the texts book shows them. */
+export const SESSION_FIELDS = [
+  'outcome',
+  'coverage',
+  'unplanned',
+  'homework',
+  'due',
+  'test',
+  'factual',
+  'type',
+  'make-up',
+  'list-item',
+] as const;
+
+export type SessionField = (typeof SESSION_FIELDS)[number];
+
+/** One pupil's mark before and after a roll call's correction. */
+export interface PupilMarkChange {
+  readonly pupilId: string;
+  readonly from: PupilMark;
+  readonly to: PupilMark;
+}
+
+export type LogLine =
+  | {
+      readonly kind: 'session-corrected';
+      readonly session: SessionRef;
+      /** Empty when a withdrawn session was recorded again. */
+      readonly fields: readonly SessionField[];
+      readonly reason?: CorrectionReason;
+    }
+  | { readonly kind: 'session-withdrawn'; readonly session: SessionRef }
+  | {
+      readonly kind: 'roll-call-corrected';
+      readonly classId: string;
+      readonly groupId: string;
+      readonly day: Day;
+      readonly half: Half;
+      readonly changes: readonly PupilMarkChange[];
+      /** Only a known code: an older or other device's history may hold words, which never show. */
+      readonly reason?: RollCallReason;
+    }
+  /** The week's print set, by the documents it held. */
+  | { readonly kind: 'printed'; readonly documents: readonly string[] }
+  | { readonly kind: 'output'; readonly output: OutputRecord }
+  | { readonly kind: 'calendar-update'; readonly release: string }
+  | { readonly kind: 'pack-added'; readonly pack: string; readonly release: string }
+  | { readonly kind: 'layer-added'; readonly title: string }
+  /** The kinds of the records an erasure removed: only the fact and the day stay (R-5.5-13). */
+  | { readonly kind: 'erased'; readonly kinds: readonly string[] }
+  /** A change past a damaged stretch: its kind and day, never its content. */
+  | { readonly kind: 'unverified'; readonly entryKind: string };
+
+export type LogCategory = 'corrections' | 'files' | 'erasures';
+
+export interface LogItem {
+  /** The entry's place in the history. */
+  readonly seq: number;
+  readonly day: Day;
+  /** Null for an unchecked change, which shows only under «الكل». */
+  readonly category: LogCategory | null;
+  readonly line: LogLine;
+}
+
+export interface LogDay {
+  readonly day: Day;
+  /** Newest first. */
+  readonly items: readonly LogItem[];
+}
+
+const known = <T extends string>(codes: readonly T[], value: string | undefined): value is T =>
+  (codes as readonly (string | undefined)[]).includes(value);
+
+const same = (a: unknown, b: unknown) => canonicalJson(a ?? null) === canonicalJson(b ?? null);
+
+const FIELD_VALUES: Readonly<Record<SessionField, (record: SessionRecord) => unknown>> = {
+  outcome: (record) => record.outcome,
+  coverage: (record) => record.coverage,
+  unplanned: (record) => record.unplanned,
+  homework: (record) => record.homework?.text,
+  due: (record) => record.homework?.due,
+  test: (record) => record.test,
+  factual: (record) => record.factual,
+  type: (record) => record.sessionType,
+  'make-up': (record) => record.makeUp,
+  'list-item': (record) => record.listItem,
+};
+
+/** The fields that differ between two versions of a session record. */
+export function changedFields(before: SessionRecord, after: SessionRecord): SessionField[] {
+  return SESSION_FIELDS.filter((field) => !same(FIELD_VALUES[field](before), FIELD_VALUES[field](after)));
+}
+
+/** Every pupil whose mark differs between two versions of a roll call, in the order they are marked. */
+export function changedMarks(before: RollCall, after: RollCall): PupilMarkChange[] {
+  const pupils = new Set<string>();
+  for (const rollCall of [before, after]) {
+    for (const absence of rollCall.absent) pupils.add(absence.pupilId);
+    for (const id of rollCall.late) pupils.add(id);
+  }
+  return [...pupils]
+    .map((pupilId) => ({ pupilId, from: markOf(before, pupilId), to: markOf(after, pupilId) }))
+    .filter((change) => change.from !== change.to);
+}
+
+/** The books' records the log follows, each by its last version; null once a session was withdrawn. */
+interface Seen {
+  readonly sessions: Map<string, SessionRecord | null>;
+  readonly rollCalls: Map<string, RollCall>;
+}
+
+/** The line one event makes, given the versions seen before it; null for an event the log leaves out. */
+function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
+  switch (event.kind) {
+    case 'session.recorded': {
+      const { key } = event.record.session;
+      const before = seen.sessions.get(key);
+      seen.sessions.set(key, event.record);
+      if (before === undefined) return null;
+      const fields = before === null ? [] : changedFields(before, event.record);
+      if (before !== null && fields.length === 0) return null;
+      return {
+        kind: 'session-corrected',
+        session: event.record.session,
+        fields,
+        ...(known(CORRECTION_REASONS, event.correction) && { reason: event.correction }),
+      };
+    }
+    case 'session.withdrawn':
+      seen.sessions.set(event.session.key, null);
+      return { kind: 'session-withdrawn', session: event.session };
+    case 'roll-call.taken': {
+      const { rollCall } = event;
+      const before = seen.rollCalls.get(rollCall.unit);
+      seen.rollCalls.set(rollCall.unit, rollCall);
+      if (before === undefined) return null;
+      const changes = changedMarks(before, rollCall);
+      if (changes.length === 0) return null;
+      const { classId, groupId, day, half } = rollCall;
+      return {
+        kind: 'roll-call-corrected',
+        classId,
+        groupId,
+        day,
+        half,
+        changes,
+        ...(known(ROLL_CALL_REASONS, event.reason) && { reason: event.reason }),
+      };
+    }
+    case 'print.recorded':
+      return { kind: 'printed', documents: event.print.documents.map((document) => document.id) };
+    case 'output.recorded':
+      return { kind: 'output', output: event.output };
+    case 'calendar.updated':
+      return { kind: 'calendar-update', release: event.applied.update.release };
+    case 'pack.added':
+      return { kind: 'pack-added', pack: event.added.update.pack.id, release: event.added.update.pack.release };
+    case 'layer.added':
+      return { kind: 'layer-added', title: event.added.layer.title };
+    default:
+      return null;
+  }
+}
+
+const categoryOf = (line: LogLine): LogCategory | null => {
+  switch (line.kind) {
+    case 'session-corrected':
+    case 'session-withdrawn':
+    case 'roll-call-corrected':
+      return 'corrections';
+    case 'erased':
+      return 'erasures';
+    case 'unverified':
+      return null;
+    default:
+      return 'files';
+  }
+};
+
+/**
+ * The log, newest day first, a day's changes newest first; the phone's date can go back, so days are sorted.
+ * Entries from `trusted` on lie past a damaged stretch: each shows as its kind and day, unchecked, and an
+ * unreadable row is left out. An erased record's own versions show only through their erasure, as their content
+ * is gone.
+ */
+export function activityLog(entries: readonly (Entry | null)[], trusted: number = entries.length): LogDay[] {
+  const seen: Seen = { sessions: new Map(), rollCalls: new Map() };
+  const kinds = new Map<string, string>();
+  const items: LogItem[] = [];
+  entries.forEach((entry, position) => {
+    if (entry === null) return;
+    kinds.set(entry.id, entry.kind);
+    let line: LogLine | null;
+    if (position >= trusted) line = { kind: 'unverified', entryKind: entry.kind };
+    else if (entry.kind === ERASURE) {
+      const ids = erasedIds(entry) ?? [];
+      line = { kind: 'erased', kinds: [...new Set(ids.flatMap((id) => kinds.get(id) ?? []))] };
+    } else {
+      const event = eventOf(entry);
+      line = event === null ? null : lineOf(event, seen);
+    }
+    if (line !== null) items.push({ seq: entry.seq, day: entry.day, category: categoryOf(line), line });
+  });
+  const days = new Map<Day, LogItem[]>();
+  for (const item of items.reverse()) days.set(item.day, [...(days.get(item.day) ?? []), item]);
+  return [...days].sort(([a], [b]) => compareDays(b, a)).map(([day, dayItems]) => ({ day, items: dayItems }));
+}
