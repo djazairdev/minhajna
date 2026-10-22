@@ -8,7 +8,9 @@
 // (answer 385); a class called session by session keeps its roll call on its
 // cards. After the cards, at every level, «تأكيد اليوم كله كما هو مقترح», which
 // records every session still awaiting as proposed, and on a primary day
-// «الكراس اليومي» (#231, answer 387).
+// «الكراس اليومي» (#231, answer 387). A day in two or more schools, at any
+// level, comes in bands by school and half day, «مدرسة الفتح · الصبيحة», in
+// the order of each band's first session (#232, answer 394).
 
 import {
   type Context,
@@ -38,6 +40,25 @@ export function isPrimaryDay(state: State, items: readonly TodaySession[]): bool
   return items.length > 0 && items.every((item) => state.classes.get(item.course.classId)?.level === 'primary');
 }
 
+/** The schools of the day's sessions, in the order of their first session. */
+export function daySchools(state: State, items: readonly TodaySession[]): string[] {
+  const schools = items.flatMap((item) => state.classes.get(item.course.classId)?.schoolId ?? []);
+  return [...new Set(schools)];
+}
+
+/** How many schools teach the day's sessions, those a calendar entry takes aside, as the day's line counts. */
+export function taughtSchools(state: State, items: readonly TodaySession[]): number {
+  return daySchools(
+    state,
+    items.filter((item) => item.status !== 'calendar'),
+  ).length;
+}
+
+/** Whether Today shows the day in bands: a primary day, or a day in two or more schools. */
+export function isBandedDay(state: State, items: readonly TodaySession[]): boolean {
+  return isPrimaryDay(state, items) || daySchools(state, items).length > 1;
+}
+
 const itemsOf = (entry: TodayEntry) => (entry.kind === 'one' ? [entry.item] : entry.items);
 
 /** Whether the session's roll call is a half day's, which a band shows instead of its card. */
@@ -54,10 +75,29 @@ export type DayBandsProps = {
 
 export function DayBands({ entries, render, context, onRoll }: DayBandsProps) {
   const t = useText();
-  const bands = HALVES.map((half) => ({
-    half,
-    entries: entries.filter((entry) => itemsOf(entry)[0]?.session.slot.half === half),
-  })).filter((band) => band.entries.length > 0);
+  const { state } = context;
+  const schools = daySchools(state, entries.flatMap(itemsOf));
+  const schoolOf = (entry: TodayEntry) => state.classes.get(itemsOf(entry)[0]?.course.classId ?? '')?.schoolId ?? '';
+  const first = (band: { readonly entries: readonly TodayEntry[] }) => entries.indexOf(band.entries[0]);
+  const bands = (schools.length > 1 ? schools : [null])
+    .flatMap((school) =>
+      HALVES.map((half) => ({
+        half,
+        id: school === null ? half : `${school}-${half}`,
+        label:
+          school === null
+            ? t(`today.band.${half}`)
+            : t('today.band.school', {
+                school: isolate(state.schools.get(school)?.name ?? ''),
+                half: t(`today.band.${half}`),
+              }),
+        entries: entries.filter(
+          (entry) => itemsOf(entry)[0]?.session.slot.half === half && (school === null || schoolOf(entry) === school),
+        ),
+      })),
+    )
+    .filter((band) => band.entries.length > 0)
+    .sort((a, b) => first(a) - first(b));
   const mornings = new Set(
     bands
       .filter((band) => band.half === 'morning')
@@ -68,7 +108,7 @@ export function DayBands({ entries, render, context, onRoll }: DayBandsProps) {
         return shown ? [unit.classId] : [];
       }),
   );
-  const strips = (half: Half, sessions: readonly Session[]): DueStripProps[] => {
+  const strips = (half: Half, id: string, sessions: readonly Session[]): DueStripProps[] => {
     const units = new Map<string, { readonly unit: RollCallUnit; readonly session: Session }>();
     for (const session of sessions) {
       const unit = unitOf(context, session.key, session.day);
@@ -90,7 +130,7 @@ export function DayBands({ entries, render, context, onRoll }: DayBandsProps) {
             name: isolate(named),
             fact,
           }),
-          testID: `today-band-${half}-roll${units.size > 1 ? `-${unit.key}` : ''}`,
+          testID: `today-band-${id}-roll${units.size > 1 ? `-${unit.key}` : ''}`,
         };
       }),
     );
@@ -98,10 +138,11 @@ export function DayBands({ entries, render, context, onRoll }: DayBandsProps) {
   return (
     <>
       {bands.map((band) => (
-        <View key={band.half} style={styles.band}>
-          <SectionHeader testID={`today-band-${band.half}`} label={t(`today.band.${band.half}`)} />
+        <View key={band.id} style={styles.band}>
+          <SectionHeader testID={`today-band-${band.id}`} label={band.label} />
           {strips(
             band.half,
+            band.id,
             band.entries.flatMap((entry) => itemsOf(entry).map((item) => item.session)),
           ).map((strip) => (
             <DueStrip key={strip.testID} {...strip} />
