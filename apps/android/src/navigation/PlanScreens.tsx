@@ -129,13 +129,18 @@ export function PlanErrorScreen({ route }: NativeStackScreenProps<RootStackParam
 }
 
 /** The September check for an inspector. */
-export function SeptCheckScreen({ route }: NativeStackScreenProps<RootStackParamList, 'SeptCheck'>) {
-  return <SeptCheck courseId={route.params.courseId} />;
+export function SeptCheckScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'SeptCheck'>) {
+  return <SeptCheck courseId={route.params.courseId} onSignature={() => navigation.navigate('SettingsSignature')} />;
 }
 
 /** «سؤال المفتش» about a stale pack, to print. */
-export function StaleQuestionScreen({ route }: NativeStackScreenProps<RootStackParamList, 'StaleQuestion'>) {
-  return <StaleQuestion courseId={route.params.courseId} />;
+export function StaleQuestionScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, 'StaleQuestion'>) {
+  return (
+    <StaleQuestion courseId={route.params.courseId} onSignature={() => navigation.navigate('SettingsSignature')} />
+  );
 }
 
 /** The class's own list; leaving with changes not saved asks first. */
@@ -173,8 +178,8 @@ export function CatchUpScreen({ navigation, route }: NativeStackScreenProps<Root
 }
 
 /** The draft of a re-pace of the rest of the term (#229). */
-export function RepaceScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Repace'>) {
-  return <Repace courseId={route.params.courseId} />;
+export function RepaceScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Repace'>) {
+  return <Repace courseId={route.params.courseId} onSignature={() => navigation.navigate('SettingsSignature')} />;
 }
 
 export function SupportQueueScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'SupportQueue'>) {

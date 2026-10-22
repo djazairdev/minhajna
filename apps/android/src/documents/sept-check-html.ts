@@ -5,8 +5,9 @@
 // Sept-check, R-4.11-06): the school, the year and the date, the title, the
 // teacher and the subject, the days counted, the table with a column for
 // each class, the notes, the pack, where the figures come from, and a box
-// for the teacher's signature and one for the inspector's notes and stamp,
-// both signed by hand. It holds no pupils' data, so it has no confidential
+// for the teacher's signature, which carries the drawn signature when chosen
+// (#236, answer 414), and one for the inspector's notes and stamp, signed by
+// hand. It holds no pupils' data, so it has no confidential
 // mark. Black and white, as every printed document.
 
 import { figure, type SeptSheet } from '../plan/sept-check';
@@ -29,7 +30,7 @@ const CSS =
   '.privacy{font-size:9pt;margin-top:3mm}';
 
 /** The page's content. */
-function content(t: Translate, sheet: SeptSheet): string {
+function content(t: Translate, sheet: SeptSheet, mark: string): string {
   const e = escapeHtml;
   const head = `<tr><th></th>${sheet.classes.map((name) => `<th class="n">${e(name)}</th>`).join('')}</tr>`;
   const rows = sheet.rows
@@ -41,7 +42,8 @@ function content(t: Translate, sheet: SeptSheet): string {
           '</tr>',
     )
     .join('');
-  const sign = (label: string) => `<div class="sign">${e(label)}<span>${e(t('septCheck.signDate'))}</span></div>`;
+  const sign = (label: string, drawn = '') =>
+    `<div class="sign">${e(label)}${drawn}<span>${e(t('septCheck.signDate'))}</span></div>`;
   return (
     `<div class="head"><span>${e(sheet.school)}</span><span>${e(sheet.date)}</span></div>` +
     `<h1>${e(t('septCheck.title'))}</h1>` +
@@ -53,19 +55,19 @@ function content(t: Translate, sheet: SeptSheet): string {
       .map((pack) => `<p><b>${e(pack.title)}</b><br>${pack.lines.map((line) => e(line)).join('<br>')}</p>`)
       .join('') +
     `<h2>${e(t('septCheck.sourcesHead'))}</h2><p>${e(sheet.sources)}</p>` +
-    `<div class="signs">${sign(t('septCheck.teacherSign'))}${sign(t('septCheck.inspectorSign'))}</div>` +
+    `<div class="signs">${sign(t('septCheck.teacherSign'), mark)}${sign(t('septCheck.inspectorSign'))}</div>` +
     `<div class="privacy">${e(t('septCheck.privacy'))}</div>`
   );
 }
 
-/** The whole printed document, in the interface's language and direction. */
-export function septCheckHtml(t: Translate, sheet: SeptSheet, lang: string, dir: 'rtl' | 'ltr'): string {
+/** The whole printed document, in the interface's language and direction, with the drawn signature's `mark` if any. */
+export function septCheckHtml(t: Translate, sheet: SeptSheet, lang: string, dir: 'rtl' | 'ltr', mark = ''): string {
   return printDocument({
     lang,
     dir,
     title: t('septCheck.title'),
     landscape: false,
     css: CSS,
-    pages: [content(t, sheet)],
+    pages: [content(t, sheet, mark)],
   });
 }

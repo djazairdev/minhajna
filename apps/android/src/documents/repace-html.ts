@@ -5,9 +5,10 @@
 // 371): one A4 portrait page with the school and the year, the print day,
 // the title, the teacher, the subject and the class, the draft's dates and
 // counts, its weeks as the screen lists them, what changes, and the line
-// for the signature of whoever prepared it; in primary, the director's box
-// for the date, the stamp and the signature. It holds no pupils' data, so
-// it has no confidential mark. Black and white, as every printed document.
+// for the signature of whoever prepared it, with the drawn signature under
+// it when chosen (#236, answer 414); in primary, the director's box for the
+// date, the stamp and the signature. It holds no pupils' data, so it has no
+// confidential mark. Black and white, as every printed document.
 
 import { formatDay, type Context, type CountryProfile, type Day, type RepaceDraft } from '@minhajna/core';
 import { courseLabel, termName } from '../exams/course-label';
@@ -39,11 +40,18 @@ const CSS =
   'table.weeks td.n,table.weeks th.n{text-align:center;width:14mm}table.weeks th{background:#e6e6e6}' +
   'table.weeks td.when{width:34mm}tr{break-inside:avoid}' +
   'p{margin:0 0 1.5mm}h2{font-size:11pt;margin:3mm 0 1mm}ul{margin:0;padding-inline-start:6mm}' +
-  '.prepared{margin-top:6mm}' +
+  '.prepared{margin-top:6mm}.prepared .drawn{margin:1mm 0 0}' +
   '.box{border:0.3mm solid #000;margin-top:4mm;padding:2mm;height:32mm;display:flex;flex-direction:column;gap:3mm}';
 
 /** The page's content. */
-function content(t: Translate, draft: RepaceDraft, header: RepaceHeader, language: Language, profile: Months) {
+function content(
+  t: Translate,
+  draft: RepaceDraft,
+  header: RepaceHeader,
+  language: Language,
+  profile: Months,
+  mark: string,
+) {
   const e = escapeHtml;
   const weekPack = draft.weeks.some((week) => week.planWeeks.length > 0);
   const head =
@@ -74,7 +82,7 @@ function content(t: Translate, draft: RepaceDraft, header: RepaceHeader, languag
     `<h2>${e(t('repace.changed'))}</h2><ul>${changeLines(t, draft)
       .map((line) => `<li>${e(line)}</li>`)
       .join('')}</ul>` +
-    `<p class="prepared">${e(t('repace.sheet.prepared'))}</p>${director}`
+    `<p class="prepared">${e(t('repace.sheet.prepared'))}${mark}</p>${director}`
   );
 }
 
@@ -94,7 +102,7 @@ export function repaceHeader(t: Translate, context: Context, profile: CountryPro
   };
 }
 
-/** The whole printed draft, in the interface's language and direction. */
+/** The whole printed draft, in the interface's language and direction, with the drawn signature's `mark` if any. */
 export function repaceHtml(
   t: Translate,
   draft: RepaceDraft,
@@ -102,6 +110,7 @@ export function repaceHtml(
   language: Language,
   profile: Months,
   dir: 'rtl' | 'ltr',
+  mark = '',
 ): string {
   return printDocument({
     lang: language,
@@ -109,6 +118,6 @@ export function repaceHtml(
     title: t('repace.sheet.title', { term: termName(t, draft.term) }),
     landscape: false,
     css: CSS,
-    pages: [content(t, draft, header, language, profile)],
+    pages: [content(t, draft, header, language, profile, mark)],
   });
 }

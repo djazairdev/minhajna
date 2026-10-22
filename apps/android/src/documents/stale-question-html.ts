@@ -4,9 +4,10 @@
 // «سؤال المفتش»'s A4 portrait page (#230, Plan-stale, answer 384): the
 // school, the year and the date, the title, the teacher and the subject,
 // the classes, the pack, the reason it is stale, the question and what the
-// class does meanwhile, and a box for the teacher's signature and one for
-// the inspector's answer and stamp, both by hand. It holds no pupils' data,
-// so it has no confidential mark. Black and white, as every printed page.
+// class does meanwhile, and a box for the teacher's signature, which carries
+// the drawn signature when chosen (#236, answer 414), and one for the
+// inspector's answer and stamp, by hand. It holds no pupils' data, so it has
+// no confidential mark. Black and white, as every printed page.
 
 import type { StaleSheet } from '../plan/stale-question';
 import { escapeHtml, printDocument } from './print-html';
@@ -23,9 +24,10 @@ const CSS =
   '.privacy{font-size:9pt;margin-top:3mm}';
 
 /** The page's content. */
-function content(t: Translate, sheet: StaleSheet): string {
+function content(t: Translate, sheet: StaleSheet, mark: string): string {
   const e = escapeHtml;
-  const sign = (label: string) => `<div class="sign">${e(label)}<span>${e(t('septCheck.signDate'))}</span></div>`;
+  const sign = (label: string, drawn = '') =>
+    `<div class="sign">${e(label)}${drawn}<span>${e(t('septCheck.signDate'))}</span></div>`;
   return (
     `<div class="head"><span>${e(sheet.school)}</span><span>${e(sheet.date)}</span></div>` +
     `<h1>${e(t('staleQuestion.title'))}</h1>` +
@@ -34,19 +36,25 @@ function content(t: Translate, sheet: StaleSheet): string {
     `<h2>${e(t('staleQuestion.reasonHead'))}</h2><p>${e(sheet.reason)}</p>` +
     `<h2>${e(t('staleQuestion.questionHead'))}</h2>` +
     `<p class="question">${e(t('staleQuestion.question'))}</p><p>${e(t('staleQuestion.meanwhile'))}</p>` +
-    `<div class="signs">${sign(t('septCheck.teacherSign'))}${sign(t('staleQuestion.inspectorSign'))}</div>` +
+    `<div class="signs">${sign(t('septCheck.teacherSign'), mark)}${sign(t('staleQuestion.inspectorSign'))}</div>` +
     `<div class="privacy">${e(t('staleQuestion.privacy'))}</div>`
   );
 }
 
-/** The whole printed document, in the interface's language and direction. */
-export function staleQuestionHtml(t: Translate, sheet: StaleSheet, lang: string, dir: 'rtl' | 'ltr'): string {
+/** The whole printed document, in the interface's language and direction, with the drawn signature's `mark` if any. */
+export function staleQuestionHtml(
+  t: Translate,
+  sheet: StaleSheet,
+  lang: string,
+  dir: 'rtl' | 'ltr',
+  mark = '',
+): string {
   return printDocument({
     lang,
     dir,
     title: t('staleQuestion.title'),
     landscape: false,
     css: CSS,
-    pages: [content(t, sheet)],
+    pages: [content(t, sheet, mark)],
   });
 }

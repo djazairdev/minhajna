@@ -3,8 +3,10 @@
 
 // «سؤال المفتش» (#230, Plan-stale, answers 382 and 384), opened from the
 // plan of a class on a stale pack: the sheet as it prints, then «طباعة» on
-// Android's print screen or «حفظ PDF» where the teacher picks. Nothing is
-// sent: the teacher shows the printed page to the inspector.
+// Android's print screen or «حفظ PDF» where the teacher picks, the teacher's
+// box carrying the drawn signature unless «فارغة» is chosen while it is in
+// use (#236, answer 414). Nothing is sent: the teacher shows the printed page
+// to the inspector.
 
 import { formatDay } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -16,6 +18,7 @@ import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useOutputRun } from '../documents/output-run';
+import { useSheetSignature } from '../documents/sheet-signature';
 import { staleQuestionHtml } from '../documents/stale-question-html';
 import { settingsStyles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
@@ -23,9 +26,13 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { staleSheet, type StaleSheet } from './stale-question';
 
-export type StaleQuestionProps = { readonly courseId: string };
+export type StaleQuestionProps = {
+  readonly courseId: string;
+  /** Opens the drawn signature from «إعدادات التوقيع». */
+  readonly onSignature?: () => void;
+};
 
-export function StaleQuestion({ courseId }: StaleQuestionProps) {
+export function StaleQuestion({ courseId, onSignature }: StaleQuestionProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -36,8 +43,10 @@ export function StaleQuestion({ courseId }: StaleQuestionProps) {
     () => staleSheet(coreContext({ profile, year, calendar, calendarRelease, packs, state }), t, courseId, day),
     [profile, year, calendar, calendarRelease, packs, state, t, courseId, day],
   );
-  const { busy, said, print, save } = useOutputRun();
-  const html = () => staleQuestionHtml(t, sheet!, currentLanguage(), direction);
+  const output = useOutputRun();
+  const { busy, said, print, save } = output;
+  const signing = useSheetSignature('stale-question-signature', output, onSignature);
+  const html = () => staleQuestionHtml(t, sheet!, currentLanguage(), direction, signing.mark);
   const file = `${t('staleQuestion.file')} ${formatDay(day)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
 
   return (
@@ -60,6 +69,7 @@ export function StaleQuestion({ courseId }: StaleQuestionProps) {
       ) : (
         <>
           <Sheet sheet={sheet} />
+          {signing.choice}
           {said !== null && (
             <Notice
               testID="stale-question-said"
