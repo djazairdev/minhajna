@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A class's card on the Digest screen (#234, Digest, Digest-primary, answer
-// 402): its short name and where it stands, as its plan says it, in plan
-// weeks for a week pack and with minutes beside when «العدّ بالدقائق» is on;
-// this week's sessions lost to the calendar, apart; the item it is on; TD's
-// own list before the exams; and «خيارات الاستدراك» while it has used
-// buffers or is behind beyond them. Facts only, for the teacher alone.
+// A class's card on the Digest screen (#234, Digest, Digest-primary,
+// answers 402, 409 and 410): its short name and where it stands, as on the
+// Classes tab, in whole plan weeks for a week pack behind beyond its
+// buffers; this week's sessions lost to the calendar, apart; a week pack's
+// plan week beside the plan's; the item it is on; TD's own list before the
+// exams; «المخطط», which opens its plan; and «خيارات الاستدراك» while it is
+// behind. With «العدّ بالدقائق» on, minutes go beside the sessions and the
+// losses. Facts only, for the teacher alone.
 
 import { courseSetup, type Context } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -21,9 +23,16 @@ import { localized } from '../setup/names';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
-import type { DigestClass as Card, LostGroup } from './digest-rules';
+import { lostMinutes, type DigestClass as Card, type LostGroup } from './digest-rules';
 
 type Translate = ReturnType<typeof useText>;
+
+/** A count of sessions with its usual minutes beside, when the teacher counts in minutes. */
+export function withMinutes(t: Translate, sessions: string, minutes: number | undefined): string {
+  return minutes === undefined
+    ? sessions
+    : t('settings.withMinutes', { sessions, minutes: t('settings.minutes', { count: minutes }) });
+}
 
 /** What a lost group was: its calendar entry's name, or the kind of day. */
 export function lostWhat(t: Translate, group: LostGroup): string {
@@ -35,9 +44,10 @@ export type DigestClassProps = {
   readonly card: Card;
   readonly minutes: boolean;
   readonly onCatchUp: (courseId: string) => void;
+  readonly onPlan: (courseId: string) => void;
 };
 
-export function DigestClass({ context, card, minutes, onCatchUp }: DigestClassProps) {
+export function DigestClass({ context, card, minutes, onCatchUp, onPlan }: DigestClassProps) {
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -49,11 +59,22 @@ export function DigestClass({ context, card, minutes, onCatchUp }: DigestClassPr
   const lines = [
     ...card.lost.map(({ group, count }) =>
       t('digest.classLost', {
-        lost: t('daymark.lost', { count }),
+        lost: withMinutes(
+          t,
+          t('daymark.lost', { count }),
+          minutes ? lostMinutes(context, new Map([[id, count]])) : undefined,
+        ),
         what: isolate(lostWhat(t, group)),
         day: dayName(t, group.day, currentLanguage(), profile),
       }),
     ),
+    ...(card.week === undefined
+      ? []
+      : [
+          card.week.at === card.week.expected
+            ? t('digest.planWeekSame', { week: card.week.at })
+            : t('digest.planWeek', { week: card.week.at, expected: card.week.expected }),
+        ]),
     ...(card.at === undefined
       ? []
       : [
@@ -74,6 +95,7 @@ export function DigestClass({ context, card, minutes, onCatchUp }: DigestClassPr
           </Text>
         ))}
       </View>
+      <Button testID={`digest-plan-${id}`} variant="plain" label={t('classPlan.open')} onPress={() => onPlan(id)} />
       {card.behind && (
         <Button
           testID={`digest-catchup-${id}`}

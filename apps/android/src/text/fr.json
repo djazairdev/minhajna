@@ -2673,6 +2673,8 @@
     "exams": "{{exams}} à partir du {{day}} ; le plan s’arrête pendant les examens",
     "examsAt": "{{exams}} à {{school}} à partir du {{day}} ; le plan s’arrête pendant les examens",
     "position": "Position : {{item}}",
+    "planWeek": "En semaine du plan {{week}} ; le plan est aujourd’hui à sa semaine {{expected}}",
+    "planWeekSame": "En semaine du plan {{week}}, là où est le plan aujourd’hui",
     "classLost": "{{lost}} : {{what}}, {{day}}",
     "align": "Aligner",
     "footer": "Le résumé arrive le dimanche matin, à la fin des heures calmes.",

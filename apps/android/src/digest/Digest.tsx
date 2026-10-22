@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The weekly digest (#234, Digest, Digest-closure, Digest-primary, answers
-// 402 and 405), for the teacher alone, worked out when it opens: the days
-// it covers; the sessions awaiting confirmation, which open Today's list,
-// with the week's confirmed and the earlier weeks' apart; each make-up due
-// with «جدولتها»; the sessions lost to the calendar, apart, so a closure
-// never reads as slow teaching; the next exam windows; each class behind a
+// 402, 405, 409 and 410), for the teacher alone, worked out when it opens:
+// the days it covers; the sessions awaiting confirmation, which open
+// Today's list, with the week's confirmed and the earlier weeks' apart;
+// each make-up due with «جدولتها»; the sessions lost to the calendar,
+// apart, so a closure never reads as slow teaching, with their minutes when
+// «العدّ بالدقائق» is on; the next exam windows; each class behind a
 // parallel one, with «مواءمة» on its plan, «خيارات الاستدراك» and «تجاهل»;
-// then a card for each class. The footer says when the digest comes, and
-// opens «الإشعارات».
+// then a card for each class, which opens its plan. The footer says when
+// the digest comes, and opens «الإشعارات».
 
 import { weekDigest, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -33,8 +34,8 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayAndMonth, dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
-import { DigestClass, lostWhat } from './DigestClass';
-import { digestClasses, examGroups, lastWorking, lostGroups, shownDrifts } from './digest-rules';
+import { DigestClass, lostWhat, withMinutes } from './DigestClass';
+import { digestClasses, examGroups, lastWorking, lostGroups, lostMinutes, shownDrifts } from './digest-rules';
 
 export type DigestProps = {
   readonly onBacklog: () => void;
@@ -98,6 +99,11 @@ export function Digest({ onBacklog, onMakeUp, onCatchUp, onPlan, onNotify }: Dig
   const earlier =
     digest.earlier === 0 ? [] : [t('digest.earlier', { sessions: t('count.sessions', { count: digest.earlier }) })];
   const drifts = shownDrifts(digest.drifts, dismissed);
+  const lostOf = (courses: ReadonlyMap<string, number>) => (minutes ? lostMinutes(context, courses) : undefined);
+  const allLost = new Map<string, number>();
+  for (const group of groups) {
+    for (const [id, count] of group.courses) allLost.set(id, (allLost.get(id) ?? 0) + count);
+  }
 
   return (
     <ScrollView
@@ -144,10 +150,17 @@ export function Digest({ onBacklog, onMakeUp, onCatchUp, onPlan, onNotify }: Dig
         {groups.length === 0
           ? text(t('digest.noLost'))
           : [
-              text(t('daymark.lost', { count: groups.reduce((sum, one) => sum + one.count, 0) })),
+              text(
+                withMinutes(
+                  t,
+                  t('daymark.lost', { count: groups.reduce((sum, one) => sum + one.count, 0) }),
+                  lostOf(allLost),
+                ),
+              ),
               ...groups.map((one, index) => {
                 const what = isolate(lostWhat(t, one));
-                const at = { day: on(one.day), sessions: t('count.sessions', { count: one.count }) };
+                const sessions = withMinutes(t, t('count.sessions', { count: one.count }), lostOf(one.courses));
+                const at = { day: on(one.day), sessions };
                 const line = many
                   ? t('digest.lostDayAt', { ...at, what, school: schoolsOf(one.courses.keys()) })
                   : t('digest.lostDay', { ...at, what });
@@ -190,7 +203,14 @@ export function Digest({ onBacklog, onMakeUp, onCatchUp, onPlan, onNotify }: Dig
         </View>
       ))}
       {cards.map((card) => (
-        <DigestClass key={card.row.course.id} context={context} card={card} minutes={minutes} onCatchUp={onCatchUp} />
+        <DigestClass
+          key={card.row.course.id}
+          context={context}
+          card={card}
+          minutes={minutes}
+          onCatchUp={onCatchUp}
+          onPlan={onPlan}
+        />
       ))}
       {text(t(prefs.saturday ? 'digest.footerSaturday' : 'digest.footer'), 'digest-footer')}
       {!prefs.digest && text(t('digest.off'), 'digest-off')}

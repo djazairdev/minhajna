@@ -7,14 +7,16 @@
 // next exam window once, with the schools it covers; the drifts not
 // dismissed on either class's plan; and a card for each of this year's
 // classes not archived: its pace and plan check as on the Classes tab, its
-// position in the plan, TD's own list before the exams, this week's losses,
-// and whether the catch-up options apply.
+// position in the plan, and for a week pack its plan week and the plan's
+// (answer 409), TD's own list before the exams, this week's losses, and
+// whether the catch-up options apply.
 
 import {
   addDays,
   behindPlan,
   catchUp,
   compareDays,
+  courseSetup,
   planView,
   type CalendarEntry,
   type CalendarMark,
@@ -23,6 +25,7 @@ import {
   type Day,
   type Drift,
   type PackItem,
+  type PlanRow,
   type Session,
   type WeekDigest,
   weekday,
@@ -47,6 +50,8 @@ export interface DigestClass {
   readonly row: ClassRow;
   /** The item the class is on, null at the plan's end; undefined without a plan. */
   readonly at: PackItem | null | undefined;
+  /** A week pack's plan week the class is in, and the one the plan is in today. */
+  readonly week: { readonly at: number; readonly expected: number } | undefined;
   readonly td: { readonly gives: number; readonly items: number } | null;
   /** This week's losses of the class, with its own count of sessions. */
   readonly lost: readonly { readonly group: LostGroup; readonly count: number }[];
@@ -60,6 +65,19 @@ function entryOf(context: Context, session: Session): CalendarEntry | undefined 
   const school = schoolClass && state.schools.get(schoolClass.schoolId);
   if (school === undefined || session.calendarEntry === null) return undefined;
   return calendar.entriesFor(school, schoolClass).find((entry) => entry.id === session.calendarEntry);
+}
+
+/** The plan week of the class's position and of the plan's, from a week pack's rows. */
+export function planWeek(rows: readonly PlanRow[]): DigestClass['week'] {
+  const at = rows.find((one) => one.position)?.item.week;
+  return at === undefined ? undefined : { at, expected: rows.find((one) => one.expected)?.item.week ?? at };
+}
+
+/** The usual planning minutes of sessions lost, by course, from each course's session length. */
+export function lostMinutes(context: Context, courses: ReadonlyMap<string, number>): number {
+  let minutes = 0;
+  for (const [courseId, count] of courses) minutes += count * courseSetup(context, courseId).sessionMinutes;
+  return Math.round(minutes);
 }
 
 /** The last day of the digest's days that is a working day, Saturday too for a teacher who works then. */
@@ -121,6 +139,7 @@ export function digestClasses(context: Context, groups: readonly LostGroup[], to
       return {
         row,
         at,
+        week: view?.pack.anchor.kind === 'weeks' ? planWeek(view.main) : undefined,
         td: row.pace === null ? null : (catchUp(context, id, today)?.td ?? null),
         lost: groups.flatMap((group) => {
           const count = group.courses.get(id) ?? 0;
