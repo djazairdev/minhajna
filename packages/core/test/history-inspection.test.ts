@@ -133,7 +133,7 @@ test('a digest-service failure is not reported as damaged data and leaks no exce
   );
 });
 
-test('a fully recomputed unsigned chain is only self-consistent, never proof of authenticity or completeness', async () => {
+test('a fully recomputed unsigned chain is only self-consistent, never authentic or complete', async () => {
   const replacement = await inspectionEntry([]);
   const result = await inspectHistory(deps.digest, [replacement]);
   assert.equal(result.integrity, 'intact');
@@ -191,7 +191,7 @@ test('invalid envelope fields and non-JSON bodies never enter the readable prefi
   }
 });
 
-test('snapshotting preserves every array position, ignoring a custom iterator and exposing sparse rows as unreadable', async () => {
+test('a snapshot keeps every row position, ignores a custom iterator and shows sparse rows as unreadable', async () => {
   const { entries } = await inspectionSample();
   Object.defineProperty(entries, Symbol.iterator, {
     value: function* () {
@@ -206,4 +206,22 @@ test('snapshotting preserves every array position, ignoring a custom iterator an
   assert.equal(result.rows.length, 3);
   assert.equal(result.consistentPrefixLength, 1);
   assert.equal(result.rows[1]!.status, 'unreadable');
+});
+
+test('a row is copied before it is checked, so a getter cannot pass one salt and supply another', async () => {
+  const { entries } = await inspectionSample();
+  const first = entries[0]!;
+  let reads = 0;
+  const content = {
+    body: first.content!.body,
+    get salt() {
+      reads += 1;
+      return reads === 1 ? first.content!.salt : 'not a salt';
+    },
+  };
+  const result = await inspectHistory(deps.digest, [{ ...first, content }, ...entries.slice(1)]);
+  const row = result.rows[0]!;
+  const shown = row.entry?.content?.salt;
+  assert.ok(shown === undefined || shown === first.content!.salt);
+  assert.equal(row.status === 'consistent', shown === first.content!.salt);
 });

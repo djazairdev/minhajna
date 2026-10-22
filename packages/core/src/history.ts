@@ -141,7 +141,10 @@ export function erasedIds(entry: Entry): readonly string[] | null {
   return ids;
 }
 
-/** Checks chain consistency, not authenticity or completeness; an unsigned full rewrite or tail truncation needs an independent anchor. */
+/**
+ * Checks chain consistency, not authenticity or completeness; an unsigned full rewrite or tail truncation needs an
+ * independent anchor.
+ */
 export async function verifyHistory(digest: Digest, entries: readonly Entry[]): Promise<HistoryProblem[]> {
   const problems: HistoryProblem[] = [];
   const byId = new Map(entries.map((entry) => [entry.id, entry]));

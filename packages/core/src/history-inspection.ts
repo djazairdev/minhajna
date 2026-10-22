@@ -11,8 +11,11 @@ import { freezeInspection, inspectionEntries } from './history-inspection-read.t
 import { contentText, headerText } from './history-text.ts';
 import { ERASURE, erasedIds, type Digest, type Entry, type HistoryProblemKind } from './history.ts';
 
-/** Structure and duplicate-identity faults join the existing integrity problems, without payload details. */
-export type HistoryInspectionProblemKind = HistoryProblemKind | 'structure' | 'identity';
+/**
+ * Structure and duplicate-identity faults join the existing integrity problems, without payload details;
+ * 'unverified-erasure' marks a body an erasure removed when that erasure lies past the consistent prefix.
+ */
+export type HistoryInspectionProblemKind = HistoryProblemKind | 'structure' | 'identity' | 'unverified-erasure';
 
 /** Unchecked bodies and salts are withheld; an erased body is never reconstructed from an older copy. */
 export interface HistoryInspectionRow {
@@ -106,7 +109,7 @@ export async function inspectHistory(digest: Digest, input: unknown): Promise<Hi
     if (entry?.content !== null) continue;
     const erasure = erasedAt.get(entry.id);
     if (erasure === undefined || erasure >= boundary) {
-      problems[position]!.push('missing-content');
+      problems[position]!.push(erasure === undefined ? 'missing-content' : 'unverified-erasure');
       boundary = Math.min(boundary, position);
     }
   }

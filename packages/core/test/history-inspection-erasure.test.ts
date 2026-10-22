@@ -93,11 +93,11 @@ test('an erasure after a broken link cannot justify missing earlier content', as
   entries[2] = { ...entries[2]!, content: { ...entries[2]!.content!, body: { value: 'changed' } } };
   const result = await inspectHistory(deps.digest, entries);
   assert.equal(result.consistentPrefixLength, 1);
-  assert.ok(result.rows[1]!.problems.includes('missing-content'));
+  assert.ok(result.rows[1]!.problems.includes('unverified-erasure'));
   assert.equal(result.rows[1]!.contentStatus, 'withheld');
 });
 
-test('missing-content dependencies move the safe boundary backwards until every earlier erasure is justified', async () => {
+test('erasure dependencies move the safe boundary back until every earlier erasure is justified', async () => {
   const { log } = await inspectionSample();
   await log.erase(d('2026-10-22'), [log.entries[0]!.id]);
   await log.erase(d('2026-10-22'), [log.entries[1]!.id]);
@@ -105,8 +105,8 @@ test('missing-content dependencies move the safe boundary backwards until every 
   entries[4] = { ...entries[4]!, day: d('2026-10-21') };
   const result = await inspectHistory(deps.digest, entries);
   assert.equal(result.consistentPrefixLength, 0);
-  assert.ok(result.rows[0]!.problems.includes('missing-content'));
-  assert.ok(result.rows[1]!.problems.includes('missing-content'));
+  assert.ok(result.rows[0]!.problems.includes('unverified-erasure'));
+  assert.ok(result.rows[1]!.problems.includes('unverified-erasure'));
   assert.ok(result.rows.every((row) => row.entry?.content === null));
 });
 

@@ -23,11 +23,13 @@ export function freezeInspection<T>(value: T): T {
   return value;
 }
 
-/** Validate and detach a JSON entry; unknown envelope fields and unreadable payloads never escape. */
+/** Detach a JSON entry, then validate the copy; unknown envelope fields and unreadable payloads never escape. */
 export function inspectionEntry(value: unknown): Entry | null {
   try {
     if (!plain(value)) return null;
-    const { id, seq, day, layer, kind, digest, previous, hash, content } = value;
+    const copy: unknown = JSON.parse(canonicalJson(value));
+    if (!plain(copy)) return null;
+    const { id, seq, day, layer, kind, digest, previous, hash, content } = copy;
     if (
       !hex(id, 32) ||
       typeof seq !== 'number' ||
