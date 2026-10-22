@@ -9,19 +9,25 @@
 
 import {
   addDays,
+  courseGrade,
   current,
+  isJoint,
   noteFor,
   sessionsBetween,
   walkCourse,
   type Context,
+  type CountryProfile,
+  type Course,
   type Day,
   type LessonNote,
   type NoteDraft,
   type NoteKey,
+  type SchoolClass,
   type Session,
   type TodaySession,
 } from '@minhajna/core';
 import type { Translate } from '../documents/document-data';
+import { yearShort } from '../setup/names';
 
 export const NOTE_TITLE_MAX = 80;
 export const NOTE_TEXT_MAX = 2000;
@@ -56,6 +62,18 @@ export function planTitle(t: Translate, key: NoteKey, draft: NoteDraft): string 
 export function proposedText(t: Translate, key: NoteKey, draft: NoteDraft): string {
   if (key === 'resources' && draft.pages !== undefined) return t('notes.pages', { pages: draft.pages });
   return draft.proposals.find((one) => one.key === key)?.text ?? '';
+}
+
+/** The subject a note is for, with the level a joint class's course follows, so its pages can be told apart. */
+export function noteSubject(
+  t: Translate,
+  profile: CountryProfile,
+  lang: string,
+  course: Course,
+  schoolClass: SchoolClass,
+): string {
+  const subject = profile.subjects.find((one) => one.code === course.subject)?.name[lang] ?? course.subject;
+  return isJoint(schoolClass) ? `${subject} · ${yearShort(t, courseGrade(course, schoolClass))}` : subject;
 }
 
 /** The plan's keys in its order, for keeping a paragraph in place. */

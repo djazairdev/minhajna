@@ -2753,7 +2753,16 @@
       "name": "Fiches de préparation",
       "awaiting": "Fiche {{number}} pour la séance de {{className}} {{day}}, à compléter",
       "done": "Fiche {{number}} pour la séance de {{className}} {{day}}, complète",
-      "fresh": "Une nouvelle fiche pour la séance de {{className}} {{day}}"
+      "fresh": "Une nouvelle fiche pour la séance de {{className}} {{day}}",
+      "none": "Aucune séance à venir n’a de leçon du plan · imprimer les fiches d’un jour"
+    },
+    "print": {
+      "visa": "Visa du directeur ou de l’inspecteur",
+      "none": "Aucune séance de ce jour n’a de leçon du plan.",
+      "blank": "L’en-tête de chaque fiche, tiré du plan, et les titres de ses paragraphes sur des lignes à remplir à la main.",
+      "signature": "La fiche n’a pas de case de l’enseignant : la signature dessinée ne s’y imprime pas. Le visa du directeur ou de l’inspecteur reste toujours vide.",
+      "noClasses": "Aucune classe enseignée pour l’instant : pas de fiche à imprimer.",
+      "action": "Imprimer les fiches"
     }
   }
 }

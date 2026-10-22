@@ -11,6 +11,9 @@ import { confirmSessions, parseDay, todayView, type RecordEvent } from '@minhajn
 import { accessibilityProblems } from '../jest/accessibility';
 import { control, mount, press, root, texts, unmount } from '../jest/note-screens';
 import { key, withDay } from '../jest/today-day';
+import { documentKind } from '../src/documents/catalogue';
+import { DayStep } from '../src/documents/DayStep';
+import { DocumentOutput } from '../src/documents/DocumentOutput';
 import { DocumentsTab } from '../src/documents/DocumentsTab';
 import { Entry } from '../src/entry/Entry';
 import { coreContext } from '../src/storage/core-context';
@@ -94,7 +97,7 @@ test('names the next session’s note in «المذكرات», new, to complete 
   expect(texts()).toContain('المذكرات');
 });
 
-test('shows no «المذكرات» row with no session ahead that has a lesson, nor without a way to open it', async () => {
+test('opens the notes’ print when no session ahead has a lesson; no row without a way to open notes', async () => {
   const data = await withDay();
   await mount(data, <DocumentsTab onOpen={none} onPrintWeek={none} onFixes={none} />);
   expect(control('documents-notes')).toBeUndefined();
@@ -102,6 +105,25 @@ test('shows no «المذكرات» row with no session ahead that has a lesson,
     kind: 'course.set',
     course: { id: 'c-1', classId: 'k-1', subject: 'arabic', year: '2026-2027', pack: null },
   });
-  await mount(data, <DocumentsTab onOpen={none} onPrintWeek={none} onFixes={none} onNote={onNote} />);
-  expect(control('documents-notes')).toBeUndefined();
+  const onOpen = jest.fn();
+  await mount(data, <DocumentsTab onOpen={onOpen} onPrintWeek={none} onFixes={none} onNote={onNote} />);
+  expect(texts()).toContain('لا حصة قادمة لها درس من المخطط · طباعة مذكرات يوم');
+  await press('documents-notes');
+  expect(onOpen).toHaveBeenCalledWith('notes');
+  expect(onNote).not.toHaveBeenCalled();
+});
+
+test('prints the notes from their own output, a day at a time, with no drawn signature', async () => {
+  const data = await withDay();
+  await mount(data, <DocumentOutput kind={documentKind('notes')!} day={parseDay('2026-10-22')} />);
+  expect(root().findAllByType(DayStep)).toHaveLength(1);
+  expect(control('output-signature')).toBeUndefined();
+  expect(texts()).toEqual(
+    expect.arrayContaining([
+      'الخميس 22 أكتوبر 2026',
+      'لا خانة للأستاذ في المذكرة، فلا يُطبع فيها التوقيع المرسوم. وتبقى خانة تأشيرة المدير أو المفتش فارغة دائماً.',
+    ]),
+  );
+  expect(control('output-print')).toBeDefined();
+  expect(accessibilityProblems(root())).toEqual([]);
 });

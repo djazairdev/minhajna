@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «المذكرة» (#237, Note, R-3.8-32 to R-3.8-34, answers 416 to 419): a
-// session's lesson note. Its number, the class, the day and the time; when
+// «المذكرة» (#237, Note, R-3.8-32 to R-3.8-34, answers 416 to 420): a session's
+// lesson note. Its number, the class, the subject, the day and the time; when
 // an earlier year's note for the same lesson exists and this one has no text
 // yet, «استعمالها» copies it in ink. Then the head from the plan, the
-// paragraphs in grey or in ink, «إضافة فقرة» and what grey and ink mean. A
-// tap accepts a grey paragraph with text, or reverts one accepted as the
-// plan wrote it; a paragraph the teacher wrote changes only with the pencil,
-// so a stray tap never loses it. Each change is kept at once, so the screen
-// has no save button.
+// paragraphs in grey or in ink, «إضافة فقرة» and what grey and ink mean; the
+// printer opens the notes' print on the session's day. A tap accepts a grey
+// paragraph with text, or reverts one accepted as the plan wrote it; a
+// paragraph the teacher wrote changes only with the pencil, so a stray tap
+// never loses it. Each change is kept at once, so the screen has no save
+// button.
 
 import type { Day, NoteKey } from '@minhajna/core';
 import { noteWithoutPlan, noteWithPlan } from '@minhajna/core';
@@ -18,6 +19,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { DueStrip } from '../components/DueStrip';
+import { IconButton } from '../components/IconButton';
 import { PageHeading } from '../components/PageHeading';
 import { controlIcon } from '../design/Icon';
 import { fontFamilyForWeight } from '../design/fonts';
@@ -35,9 +37,11 @@ export type NoteProps = {
   readonly onWrite: (key: NoteKey) => void;
   /** Opens the teacher's own paragraph at `index`, or a new one. */
   readonly onOwn: (index?: number) => void;
+  /** Opens the notes' print on the session's day. */
+  readonly onPrint?: () => void;
 };
 
-export function Note({ sessionKey, day, onWrite, onOwn }: NoteProps) {
+export function Note({ sessionKey, day, onWrite, onOwn, onPrint }: NoteProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -75,7 +79,21 @@ export function Note({ sessionKey, day, onWrite, onOwn }: NoteProps) {
           { paddingBottom: insets.bottom + spacing['space-16'] },
         ]}
       >
-        <PageHeading testID="note-heading" title={t('notes.number', { number: note.number })} scope={note.scope} />
+        <PageHeading
+          testID="note-heading"
+          title={t('notes.number', { number: note.number })}
+          scope={note.scope}
+          actions={
+            onPrint === undefined ? undefined : (
+              <IconButton
+                testID="note-print"
+                icon={controlIcon('print')}
+                accessibilityLabel={t('notes.print.action')}
+                onPress={onPrint}
+              />
+            )
+          }
+        />
         {earlier !== undefined && !hasText(note.note) && (
           <DueStrip
             testID="note-earlier"
