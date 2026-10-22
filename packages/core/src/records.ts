@@ -22,6 +22,17 @@ export interface TeacherCard {
 /** The card's personal fields: optional, and they never leave the device (PRD §3.2, §5.6). */
 export interface TeacherPersonal {
   readonly name?: string;
+  /** The drawn signature, its shape only (#236, R-3.8-48). */
+  readonly signature?: Signature;
+  /** Whether the documents carry it; off unless the teacher turns it on (R-3.8-41). */
+  readonly signatureOn?: boolean;
+}
+
+/** A drawn signature: an SVG path of moves and lines, in whole units of a fixed box. */
+export interface Signature {
+  readonly width: number;
+  readonly height: number;
+  readonly path: string;
 }
 
 export interface School {

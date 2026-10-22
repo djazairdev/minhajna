@@ -25,7 +25,9 @@ export function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackP
 
 /** Setup's second step, which leads to the classes. */
 export function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
-  return <Card onNext={() => navigation.navigate('Classes')} />;
+  return (
+    <Card onSignature={() => navigation.navigate('SettingsSignature')} onNext={() => navigation.navigate('Classes')} />
+  );
 }
 
 /** Setup's third step, which leads to the week. */

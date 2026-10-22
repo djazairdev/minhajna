@@ -85,5 +85,23 @@
     "quietWeekendSaturday": "And from Thursday 20:00 to Saturday 07:00",
     "quietNone": "No notification arrives during them.",
     "noNames": "No notification shows a name or a mark."
+  },
+  "signature": {
+    "intro": "Drawn once on the screen, then placed in the teacher’s signature boxes when printing.",
+    "pad": "Signature drawing area",
+    "padHint": "Draw with your finger; each line is kept when you lift it. With TalkBack, double-tap and hold, then drag.",
+    "empty": "Draw your signature here",
+    "tooLong": "The signature is longer than can be kept. Clear it and draw it with fewer lines.",
+    "redraw": "Clear and draw again",
+    "use": "Use the signature on printouts and PDFs",
+    "drawFirst": "Draw the signature first to turn it on.",
+    "phoneOnly": "It stays on this phone only: it is not synced or backed up.",
+    "shapeOnly": "Only its shape is kept, not the speed, pressure or timing of the strokes.",
+    "where": "It goes in the teacher’s boxes for confirmed sessions only, never in the director’s or inspector’s boxes, and never in DOCX files.",
+    "legal": "It is not a legal signature, and counts where the school accepts it.",
+    "statusOn": "On",
+    "statusOff": "Off",
+    "drawn": "Drawn",
+    "statusNone": "Not drawn"
   }
 }

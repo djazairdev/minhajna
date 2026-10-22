@@ -109,6 +109,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يلخّص «ملخص الأسبوع» في صفحة الأقسام الأسبوع المنتهي، لك وحدك. يعرض الحصص التي تنتظر التأكيد، ويفتح قائمتها في صفحة اليوم، والحصص المؤكّدة. وتأتي كل حصة تعويض مستحقة مع «جدولتها»، وتُعدّ الحصص التي لم تُعقد بسبب غلق أو عطلة وحدها، فلا تُقرأ تأخراً في التدريس. ويذكر كذلك الاختبارات القادمة، والقسم الذي يتأخر عن قسم موازٍ قبل فرض مشترك. وتقول بطاقة كل قسم أين وصل وعند أي عنصر هو، وتفتح مخططه بـ«المخطط»، وتعرض «خيارات الاستدراك» إن تأخر. ولمخطط بالأسابيع، كما في الابتدائي، تذكر أيضاً أسبوع المخطط الذي بلغه القسم بجانب أسبوع المخطط اليوم، ومع «العدّ بالدقائق» تظهر الدقائق بجانب الحصص التي لم تُعقد.
 - «ملخص الأسبوع» now reaches you as a notification on Sunday morning, or Saturday if you work then, within the hour after quiet hours end at 07:00. A daily preview of the next day's sessions can be turned on in Settings › «الإشعارات». No notification comes from 20:00 to 07:00, nor from Thursday evening to Sunday morning (Saturday morning if you work then), and none shows a name or a mark.
   - يصلك «ملخص الأسبوع» الآن إشعاراً صباح الأحد، أو السبت إن كنت تعمل فيه، في الساعة التي تلي انتهاء ساعات الهدوء عند الساعة 07:00. ويمكن تشغيل معاينة يومية لحصص اليوم التالي من الإعدادات › «الإشعارات». ولا يصل أي إشعار من 20:00 إلى 07:00، ولا من مساء الخميس إلى صباح الأحد (أو صباح السبت إن كنت تعمل فيه)، ولا يُظهر أي إشعار اسماً ولا نقطة.
+- «التوقيع المرسوم» can be drawn once on the screen, from the teacher card or from Settings, and cleared with «مسح وإعادة الرسم». It is off until you turn on «استعمال التوقيع في المطبوعات وملفات PDF», and it is not a legal signature: it counts where the school accepts it.
+  - يمكن الآن رسم «التوقيع المرسوم» مرة واحدة على الشاشة، من بطاقة الأستاذ أو من الإعدادات، ومسحه بـ«مسح وإعادة الرسم». ويبقى غير مفعّل حتى تشغّل «استعمال التوقيع في المطبوعات وملفات PDF»، وليس توقيعاً قانونياً: يُعتمد حيث تقبله المؤسسة.
 
 ### Changed
 
@@ -128,6 +130,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - أصبح للتطبيق إذن الكاميرا، ولا يستعملها إلا حين تختار مسح رمز QR لموعد في الرزنامة. تُقرأ صورها في ذاكرة الهاتف، ولا تُحفظ ولا تُرسل. وفتح ملف لا يقرأ إلا الملف الذي تختاره، دون إذن دائم.
 - The app now asks, once, to show notifications, for the weekly digest and the preview you turn on. Their words are set on the phone; nothing is received from or sent to a server. When your phone hides sensitive content on the lock screen, only their title shows there.
   - يطلب التطبيق الآن، مرة واحدة، إذن الإشعارات، لملخص الأسبوع وللمعاينة التي تشغّلها. تُكتب كلماتها على الهاتف، فلا يُستقبل شيء من خادم ولا يُرسل إليه. وحين يخفي هاتفك المحتوى الحساس على شاشة القفل، لا يظهر منها هناك إلا عنوانها.
+- The drawn signature stays on this phone with the teacher card: it is never synced, backed up or exported. Only its shape is kept, not the speed, pressure or timing of the strokes.
+  - يبقى التوقيع المرسوم على هذا الهاتف مع بطاقة الأستاذ: لا يُزامَن ولا يُنسخ احتياطياً ولا يُصدَّر. ويُحفظ شكله وحده، دون سرعة الرسم أو ضغطه أو توقيته.
 
 ### Security
 

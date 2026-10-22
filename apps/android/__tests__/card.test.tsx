@@ -52,7 +52,7 @@ async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Card onNext={onNext} />)}
+        {withData(data, <Card onNext={onNext} onSignature={jest.fn()} />)}
       </LocaleDirContext.Provider>,
     );
   });

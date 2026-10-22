@@ -19,6 +19,7 @@ import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
 import type { KeptClash, SessionMove } from './session-moves.ts';
+import { readPersonal } from './signature.ts';
 import { kindOf, listKey, type SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type {
@@ -93,7 +94,7 @@ export function buildState(entries: readonly Entry[]): State {
         teacher = event.card;
         break;
       case 'teacher.personal.set':
-        personal = event.personal;
+        personal = readPersonal(event.personal);
         break;
       case 'school.set':
         schools.set(event.school.id, event.school);

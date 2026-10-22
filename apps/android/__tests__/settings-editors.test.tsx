@@ -36,7 +36,7 @@ test('the card editor saves without continuing setup, and keeps history append-o
   const data = await settingsData();
   await data.book.record(parseDay('2026-10-15'), { kind: 'setup.finished' });
   const before = [...data.book.entries];
-  await showSettingsScreen(<Card editing onNext={onDone} />, data);
+  await showSettingsScreen(<Card editing onNext={onDone} onSignature={jest.fn()} />, data);
   expect(settingsRoot().findAllByProps({ testID: 'setup-steps' })).toHaveLength(0);
   expect(settingsRoot().findAllByProps({ testID: 'card-later' })).toHaveLength(0);
   await typeSettings('card-name', 'أستاذة مختلقة');

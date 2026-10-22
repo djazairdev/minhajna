@@ -91,7 +91,7 @@ test('opens existing screens and each school’s own bell times and packs', asyn
 
 test('does not offer insights, money or a pretend action for unfinished features', async () => {
   await showSettingsScreen(<Settings onOpen={onOpen} />, await settingsData());
-  for (const target of ['signature', 'backup', 'log', 'export', 'retention']) {
+  for (const target of ['backup', 'log', 'export', 'retention']) {
     expect(settingsControl(`settings-${target}`).accessibilityState?.disabled).toBe(true);
     await pressSettings(`settings-${target}`);
   }
