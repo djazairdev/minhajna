@@ -15,6 +15,15 @@ export { targetWeekOf, weekTargets, type WeekTarget } from './week-targets.ts';
 export { ancestors, courseDecisions, lineageIds, type Ancestor } from './lineage.ts';
 export { reorient, reorientedPupils, reorientRefusal, type Reorientation, type ReorientRefusal } from './reorient.ts';
 export { halfTurns, rotationCredits, type Turns } from './rotation-sessions.ts';
+export { keptClashAt, type KeptClash, type SessionMove } from './session-moves.ts';
+export {
+  keepClash,
+  moveRefusal,
+  moveSession,
+  reopenClash,
+  unmoveSession,
+  type MoveRefusal,
+} from './session-move-add.ts';
 export * from './calendar-read.ts';
 export * from './calendar-edit.ts';
 export * from './council.ts';

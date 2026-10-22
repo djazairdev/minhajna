@@ -12,6 +12,7 @@
 // two schools are kept apart, since a hand-drawn week can only be fixed by
 // the teacher, while a school's package is settled by a new version (§3.2).
 
+import { keptClashAt } from './session-moves.ts';
 import type { Weekday } from './day.ts';
 import {
   compareSlots,
@@ -74,6 +75,8 @@ export interface Clash {
   readonly items: readonly WeekItem[];
   /** The distinct schools of the clashing sessions: two or more when the week of two schools clashes. */
   readonly schools: readonly string[];
+  /** Whether the teacher kept it, «الإبقاء على الاثنين», so it is no longer open (#232, answer 400). */
+  readonly kept: boolean;
 }
 
 function weeksOf(item: WeekItem): Weeks {
@@ -118,7 +121,14 @@ export function weekClashes(version: TimetableVersion, state: State): Clash[] {
     const schools = [
       ...new Set(sessions.flatMap((item) => (item.kind === 'entry' && item.schoolId !== null ? [item.schoolId] : []))),
     ];
-    clashes.push({ weekday, slot, items: [...sessions, ...meeting.filter((item) => item.kind === 'block')], schools });
+    const kept = keptClashAt(state, version.id, weekday, slot) !== undefined;
+    clashes.push({
+      weekday,
+      slot,
+      items: [...sessions, ...meeting.filter((item) => item.kind === 'block')],
+      schools,
+      kept,
+    });
   }
   return clashes.sort((a, b) => a.weekday - b.weekday || compareSlots(a.slot, b.slot));
 }

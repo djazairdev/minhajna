@@ -102,6 +102,14 @@ export function recordKey(entry: Entry): string | null {
       return `repace/${event.repace.id}`;
     case 'repace.removed':
       return `repace/${event.id}`;
+    case 'clash.kept':
+      return `clash/${event.kept.id}`;
+    case 'clash.reopened':
+      return `clash/${event.id}`;
+    case 'move.set':
+      return `move/${event.move.id}`;
+    case 'move.removed':
+      return `move/${event.id}`;
   }
 }
 
