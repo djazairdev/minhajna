@@ -29,6 +29,7 @@ import type {
   TeacherPersonal,
 } from './records.ts';
 import type { CountingRules } from './roll-call-counts.ts';
+import type { Repace } from './repace-records.ts';
 import type { SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type { RecordedTimetable } from './timetable-history.ts';
@@ -87,4 +88,6 @@ export interface State {
   readonly catchUps: ReadonlyMap<string, CatchUpSession>;
   /** Each class's support queue, by course (#228). */
   readonly supportQueues: ReadonlyMap<string, SupportQueue>;
+  /** The re-paces the teacher confirmed and has not taken back, by ID (#229). */
+  readonly repaces: ReadonlyMap<string, Repace>;
 }

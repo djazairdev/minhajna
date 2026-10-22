@@ -102,6 +102,10 @@ function currentRecords(state: State): RecordEvent[] {
   for (const catchUp of catchUps) records.push({ kind: 'catchup.set', catchUp });
   const queues = [...state.supportQueues.values()].sort((a, b) => compareText(a.courseId, b.courseId));
   for (const queue of queues) records.push({ kind: 'support.set', queue });
+  const repaces = [...state.repaces.values()].sort(
+    (a, b) => compareText(a.courseId, b.courseId) || compareDays(a.on, b.on) || compareText(a.id, b.id),
+  );
+  for (const repace of repaces) records.push({ kind: 'repace.set', repace });
   return records;
 }
 

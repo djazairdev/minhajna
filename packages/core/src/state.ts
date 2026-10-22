@@ -17,6 +17,7 @@ import { freeListFits, type FreeList } from './free-list.ts';
 import { layerKey, signedAsItsLevel, switchKey, type AddedLayer, type LayerSwitch } from './variant-layers.ts';
 import { packKey, type CalendarEntry } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
+import type { Repace } from './repace-records.ts';
 import type { SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type {
@@ -79,6 +80,7 @@ export function buildState(entries: readonly Entry[]): State {
   const duties = new Map<string, ExamDuty>();
   const catchUps = new Map<string, CatchUpSession>();
   const supportQueues = new Map<string, SupportQueue>();
+  const repaces = new Map<string, Repace>();
 
   for (const [order, entry] of entries.entries()) {
     const event = eventOf(entry);
@@ -213,6 +215,12 @@ export function buildState(entries: readonly Entry[]): State {
       case 'support.set':
         supportQueues.set(event.queue.courseId, event.queue);
         break;
+      case 'repace.set':
+        repaces.set(event.repace.id, event.repace);
+        break;
+      case 'repace.removed':
+        repaces.delete(event.id);
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -249,5 +257,6 @@ export function buildState(entries: readonly Entry[]): State {
     duties,
     catchUps,
     supportQueues,
+    repaces,
   };
 }

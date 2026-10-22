@@ -122,6 +122,7 @@ test('words every zero case of the buffers and TD as facts', () => {
     own: false,
     td: null,
     choices: [],
+    repace: false,
   };
   const key = (options: Partial<Options>) => buffersLine(t, { ...base, ...options }).split(' ')[0];
   expect(key({})).toBe('catchUp.buffersLine');
