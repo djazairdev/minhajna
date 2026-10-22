@@ -14,6 +14,10 @@
 // An item the teacher decided to leave out counts as skipped, and two items
 // the teacher decided to merge are proposed together, in the first one's
 // session, each to its last stage (#221).
+//
+// In a week pack, the class's plan week is the week of its first item not
+// finished, and a session takes its items from that week only, so the week
+// is finished before the next begins (#230, answer 375).
 
 import { budgetInSessions, queueItems, stageCount, stageNames, type PackItem, type PlanPack } from './pack.ts';
 import type { Queue } from './reference.ts';
@@ -195,6 +199,14 @@ export interface Proposal {
   readonly continued: boolean;
   /** The item merged into this session by the teacher's decision, taught to its last stage. */
   readonly with?: { readonly item: PackItem; readonly from: number; readonly to: number };
+  /** In a week pack, the plan week, and for an activity of the weekly model which of its sessions this is. */
+  readonly planWeek?: PlanWeekPlace;
+}
+
+/** «الأسبوع 3», and «قراءة، الحصة 1 من 3»: the week's sessions of the activity, counted in budgeted sessions. */
+export interface PlanWeekPlace {
+  readonly week: number;
+  readonly activity?: { readonly code: string; readonly session: number; readonly of: number };
 }
 
 export interface ProposalInput {
@@ -209,7 +221,9 @@ export interface ProposalInput {
 /**
  * The next unfinished item and its stages. When a slot names an activity,
  * as primary activity slots do, it takes the next item of that activity, and
- * a slot without one takes the next item that has none (PRD §4.7).
+ * a slot without one takes the next item that has none (PRD §4.7). In a week
+ * pack, both look only in the class's plan week, and take the week's first
+ * item when it has none of theirs left.
  *
  * The stages are spread evenly over the item's budget. Once the budget is
  * used up, the proposal is to finish the item.
@@ -218,10 +232,12 @@ export function propose(pack: PlanPack, progress: Progress, input: ProposalInput
   if (input.queue === 'none') return null;
   const items = queueItems(pack, input.queue);
   const open = items.filter((item) => !progress.isFinished(pack, item, input.groupId));
+  const week = pack.anchor.kind === 'weeks' ? open[0]?.week : undefined;
+  const scope = week === undefined ? open : open.filter((item) => item.week === week);
   const usesActivity = input.activity !== undefined && items.some((item) => item.activity === input.activity);
   const item = usesActivity
-    ? open.find((candidate) => candidate.activity === input.activity)
-    : (open.find((candidate) => candidate.activity === undefined) ?? open[0]);
+    ? (scope.find((candidate) => candidate.activity === input.activity) ?? (week === undefined ? undefined : scope[0]))
+    : (scope.find((candidate) => candidate.activity === undefined) ?? scope[0]);
   if (item === undefined) return null;
 
   const stages = stageCount(pack, item);
@@ -244,10 +260,30 @@ export function propose(pack: PlanPack, progress: Progress, input: ProposalInput
     session,
     budget,
     continued: progress.covered(item.id, input.groupId) > 0 || spent > 0,
+    ...(week !== undefined && item.week === week && { planWeek: placeInWeek(pack, items, item, session, input) }),
     ...(joins && {
       with: { item: merged, from: progress.firstOpen(merged.id, input.groupId), to: stageCount(pack, merged) },
     }),
   };
+}
+
+/** The item's plan week, and for an activity of the weekly model, which of the week's sessions of it this one is. */
+function placeInWeek(
+  pack: PlanPack,
+  items: readonly PackItem[],
+  item: PackItem,
+  session: number,
+  input: ProposalInput,
+): PlanWeekPlace {
+  const week = item.week ?? 0;
+  if (item.activity === undefined || !(pack.activities ?? []).some((one) => one.code === item.activity))
+    return { week };
+  const same = items.filter((one) => one.week === week && one.activity === item.activity);
+  const sessions = (list: readonly PackItem[]) =>
+    list.reduce((sum, one) => sum + budgetInSessions(pack, one, input.sessionMinutes), 0);
+  const before = sessions(same.slice(0, same.indexOf(item)));
+  const own = Math.min(session, budgetInSessions(pack, item, input.sessionMinutes));
+  return { week, activity: { code: item.activity, session: before + own, of: sessions(same) } };
 }
 
 /** What a session covers when it goes as proposed: the item's stages, and the merged item's. */

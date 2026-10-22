@@ -69,6 +69,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يقدّم زر «حصة» في صفحة اليوم الآن «تعويض»: لقسم زميل في متوسطة أو ثانوية، تختار المؤسسة واليوم، وتكتب القسم والوقت الذي حدده المدير. وفي ذلك اليوم تعرض صفحة اليوم بطاقته؛ فإذا ضغطت «تمّت» كُتب في الدفتر اليومي، وقبل ذلك يُطبع فيه بالرمادي، ويمكن حذف تعويض أُدخل خطأً، ولو بعد «تمّت»، فيُطلب منك تأكيد الحذف. لا مخطط للتعويض، ولا يُحسب، ولا يُكتب في دفتر النصوص.
 - In primary, a slot of the week now has its session type, «درس», «معالجة» or «دعم», and for a lesson its activity type from the weekly model of the subject's plan, such as reading or writing. Every class slot, at any level, also shows its times from the school's bells. The 5AP Arabic example plan has a weekly model.
   - في الابتدائي، صار لخانة الأسبوع نوع حصتها، «درس» أو «معالجة» أو «دعم»، وللدرس نوع نشاطه من النموذج الأسبوعي لمخطط المادة، كالقراءة أو الكتابة. وتعرض كل خانة لقسم، في أي مستوى، مواقيتها من جدول جرس المدرسة. ولمخطط اللغة العربية للسنة الخامسة ابتدائي التجريبي نموذج أسبوعي.
+- In primary, with a plan in weeks, Today names the plan week in the proposal, «مقترح من المخطط · الأسبوع 3», and for an activity of the weekly model which of the week's sessions it is, such as «قراءة، الحصة 1 من 3». A slot now takes its lessons from the class's plan week only, so the week is finished before the next begins.
+  - في الابتدائي، مع مخطط بالأسابيع، تذكر صفحة اليوم أسبوع المخطط في الاقتراح، «مقترح من المخطط · الأسبوع 3»، ولنشاط من النموذج الأسبوعي رقم حصته في الأسبوع، مثل «قراءة، الحصة 1 من 3». وصارت الخانة تأخذ دروسها من أسبوع المخطط الذي بلغه القسم وحده، فيُتمّ الأسبوع قبل أن يبدأ الذي يليه.
 
 ### Changed
 

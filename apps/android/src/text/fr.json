@@ -535,7 +535,11 @@
       "closure": "Cours suspendus",
       "exam": "Composition",
       "teacher": "Votre propre temps"
-    }
+    },
+    "activityLine": "{{activity}}, séance {{session}} sur {{of}}",
+    "activityLesson": "{{activity}} : {{title}}",
+    "tagWeek": "Proposé par le plan · semaine {{week}}",
+    "tagWeekContinued": "Proposé par le plan · semaine {{week}} · suite de la séance précédente"
   },
   "outcome": {
     "other": "Autre résultat",
