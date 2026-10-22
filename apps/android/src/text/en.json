@@ -540,7 +540,8 @@
     "bandRollClass": "{{band}} roll call · {{name}}: {{fact}}",
     "afternoonRoll": "taken on its own, as absence counts by the half day",
     "confirmDay": "Confirm the whole day as proposed",
-    "journal": "Daily journal"
+    "journal": "Daily journal",
+    "packStale": "No proposal: the plan is stale. Write what was taught in the session's details."
   },
   "outcome": {
     "other": "Another outcome",
@@ -698,7 +699,8 @@
     "onPlanSpare": "No delay · {{spare}}",
     "onPlanShort": "No delay · the plan needs {{sessions}} more than are left before the exams",
     "spare_one": "{{count}} spare session",
-    "spare_other": "{{count}} spare sessions"
+    "spare_other": "{{count}} spare sessions",
+    "stale": "Stale plan: no comparison with the plan"
   },
   "classPage": {
     "title": "Class",
@@ -772,7 +774,22 @@
     "weekPosition": "Position: plan week {{week}}; the plan is at its week {{expected}} today.",
     "weekPositionSame": "Position: plan week {{week}}, where the plan is today.",
     "calendarLost": "Lost to the calendar: {{sessions}}. Counted apart, so it never reads as a delay in teaching.",
-    "weekModel": "Weekly model: {{activities}}"
+    "weekModel": "Weekly model: {{activities}}",
+    "stale": {
+      "title": "This plan proposes nothing for the sessions",
+      "reason": "Why: {{reason}}",
+      "check": "Best to check with the inspector.",
+      "ways": "Ways to work with this class",
+      "care": "Use it with care",
+      "careSub": "Shown as printed, for reference, with no proposal in the sessions.",
+      "careNote": "Each session is written freely. No buffer or delay is counted from this plan.",
+      "write": "Write the items",
+      "writeSub": "The stale plan is left and the class’s items are written: the book works as with a pack, each session proposing the next item. Go back to it from “Change pack”.",
+      "newer": "When an edition in force comes out for this level, it shows in “Change pack” with its status, and you choose when to move the class to it.",
+      "writeAsk": "The stale plan is left for this class and its items are written. Go back to it from “Change pack”.",
+      "writeConfirm": "Leave the plan",
+      "cancel": "Cancel"
+    }
   },
   "planDetails": {
     "title": "Pack details",

@@ -79,6 +79,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - يأتي يوم الابتدائي في «اليوم» على فترتين، «الصبيحة» و«المساء»، وفي كل فترة مناداة واحدة لكل قسم. ويُسجّل زر «تأكيد اليوم كله كما هو مقترح» كل الحصص المنتظرة دفعة واحدة، ويفتح «الكراس اليومي» كراس اليوم.
 - A week pack's plan comes by plan week, «أسبوع المخطط 5», with its days and sequence. It says the class's plan week and the plan's, the sessions the calendar took, counted apart, the weekly model, and the weeks behind beyond the buffers. «إعادة توزيع بقية الفصل» opens from the plan while it is offered.
   - يأتي مخطط الحزمة الأسبوعية بأسابيع المخطط، «أسبوع المخطط 5»، بأيامه ومقطعه. ويذكر أسبوع القسم في المخطط وأسبوع المخطط اليوم، وما أخذته الرزنامة من حصص محسوباً وحده، ونموذج الأسبوع، والأسابيع المتأخرة بعد الاحتياط. وتُفتح «إعادة توزيع بقية الفصل» من المخطط ما دامت مقترحة.
+- A stale plan pack proposes nothing in the sessions, and no buffer or delay is counted from it. The plan says why and offers two ways: use it with care, as printed, or leave it and write the class's own items.
+  - لا يقترح المخطط المتقادم شيئاً في الحصص، ولا يُحسب منه احتياط ولا تأخر. ويذكر المخطط السبب، ويعرض طريقتين: استعماله بحذر كما طُبع، أو تركه وكتابة عناصر القسم.
 
 ### Changed
 

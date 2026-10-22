@@ -103,7 +103,7 @@ export function repaceDraft(
 ): RepaceDraft | null {
   const setup = courseSetup(context, courseId);
   const exam = nextExams(context, courseId, today);
-  if (setup.pack === null || (exam !== null && compareDays(exam.from, today) <= 0)) return null;
+  if (setup.pack === null || setup.packStale || (exam !== null && compareDays(exam.from, today) <= 0)) return null;
   const term = exam?.term ?? nextExamTerm(context, setup, today);
   const termDays = context.ref.year.terms.find((one) => one.number === term);
   if (term === undefined || termDays === undefined) return null;

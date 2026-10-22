@@ -552,7 +552,8 @@
     "bandRollClass": "Appel ({{band}}) · {{name}} : {{fact}}",
     "afternoonRoll": "pris à part, car l’absence se compte par demi-journée",
     "confirmDay": "Confirmer toute la journée comme proposé",
-    "journal": "Cahier journal"
+    "journal": "Cahier journal",
+    "packStale": "Pas de proposition : le plan est périmé. Ce qui a été fait s’écrit dans le détail de la séance."
   },
   "outcome": {
     "other": "Autre résultat",
@@ -716,7 +717,8 @@
     "onPlanShort": "Pas de retard · le plan demande {{sessions}} de plus qu’il n’en reste avant les examens",
     "spare_one": "{{count}} séance de réserve",
     "spare_many": "{{count}} de séances de réserve",
-    "spare_other": "{{count}} séances de réserve"
+    "spare_other": "{{count}} séances de réserve",
+    "stale": "Plan périmé : pas de comparaison avec le plan"
   },
   "classPage": {
     "title": "Classe",
@@ -793,7 +795,22 @@
     "weekPosition": "Position : semaine du plan {{week}} ; le plan est aujourd’hui à sa semaine {{expected}}.",
     "weekPositionSame": "Position : semaine du plan {{week}}, là où est le plan aujourd’hui.",
     "calendarLost": "Perdu à cause du calendrier : {{sessions}}. Compté à part, cela ne se lit pas comme un retard d’enseignement.",
-    "weekModel": "Modèle de la semaine : {{activities}}"
+    "weekModel": "Modèle de la semaine : {{activities}}",
+    "stale": {
+      "title": "Ce plan ne propose rien pour les séances",
+      "reason": "Raison : {{reason}}",
+      "check": "Mieux vaut vérifier avec l’inspecteur.",
+      "ways": "Façons de travailler avec cette classe",
+      "care": "L’utiliser avec prudence",
+      "careSub": "Affiché comme imprimé, pour référence, sans proposition dans les séances.",
+      "careNote": "Chaque séance s’écrit librement. Aucune réserve ni aucun retard ne se compte d’après ce plan.",
+      "write": "Écrire les éléments",
+      "writeSub": "Le plan périmé est laissé et les éléments de la classe s’écrivent : le cahier fonctionne comme avec un pack, chaque séance propose l’élément suivant. On y revient par « Changer de pack ».",
+      "newer": "Quand une édition en vigueur paraîtra pour ce niveau, elle apparaîtra dans « Changer de pack » avec son statut, et vous choisirez quand y passer la classe.",
+      "writeAsk": "Le plan périmé est laissé pour cette classe et ses éléments s’écrivent. On y revient par « Changer de pack ».",
+      "writeConfirm": "Laisser le plan",
+      "cancel": "Annuler"
+    }
   },
   "planDetails": {
     "title": "Détails du pack",

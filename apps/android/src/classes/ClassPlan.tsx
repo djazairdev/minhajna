@@ -16,7 +16,9 @@
 // check line, the September check printed for an inspector (#225), and,
 // while the class has used buffers or is behind, its catch-up options (#228),
 // and «إعادة توزيع بقية الفصل» while it is offered (#229). A week pack's plan
-// comes by plan week, its pace in plan weeks (#230, PlanRows.tsx).
+// comes by plan week, its pace in plan weeks (#230, PlanRows.tsx). A stale
+// pack shows its reason and the ways to work with the class instead of its
+// pace and rows (StalePlan.tsx).
 
 import { behindPlan, courseSetup, formatDay, pace, planView, repaceOffered, termCheck } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -38,6 +40,7 @@ import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
 import { dayMonth, untilLine } from './plan-labels';
 import { PlanRows, PlanWeekLines, weekPack, weeksBehindLine } from './PlanRows';
+import { StalePlan } from './StalePlan';
 import { isolate } from '../week/grid-labels';
 import { ParallelPanel } from './ParallelPanel';
 import { PlanHeader } from './PlanHeader';
@@ -69,7 +72,7 @@ export function ClassPlan(props: ClassPlanProps) {
   const { direction } = useLocale();
   const t = useText();
   const minutes = useCountMinutes();
-  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, record } = useAppData();
   const day = today();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const link = (testID: string, title: string, onPress: () => void, icon: IconName = 'tune') => (
@@ -84,6 +87,7 @@ export function ClassPlan(props: ClassPlanProps) {
   const tests = courseTests(context, courseId);
   const postponed = useMemo(() => postponedItems(context, courseId), [context, courseId]);
   const course = state.courses.get(courseId);
+  const stale = view !== null && courseSetup(context, courseId).packStale;
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
   const paced = useMemo(() => (view === null ? null : pace(context, courseId, day)), [view, context, courseId, day]);
@@ -129,30 +133,32 @@ export function ClassPlan(props: ClassPlanProps) {
         <ExamWarnings context={context} day={day} courseId={courseId} onOpen={onExamWindow} />
       )}
       {view !== null && <ParallelPanel key={courseId} context={context} courseId={courseId} day={day} />}
-      <View testID="plan-pace" accessible style={styles.card}>
-        <Text style={[styles.title, align]}>{line}</Text>
-        {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}
-        {check?.moved != null && (
-          <Text
-            testID="plan-exam-moved"
-            accessibilityLabel={t('calendarView.update.moved', {
-              range: t('calendarView.range', { from: formatDay(check.moved.from), to: formatDay(check.moved.to) }),
-              reason: check.moved.reason,
-            })}
-            style={[styles.note, align]}
-          >
-            <Text style={styles.struck}>
-              {t('calendarView.range', { from: formatDay(check.moved.from), to: formatDay(check.moved.to) })}
+      {!stale && (
+        <View testID="plan-pace" accessible style={styles.card}>
+          <Text style={[styles.title, align]}>{line}</Text>
+          {check !== null && <Text style={[styles.body, align]}>{untilLine(t, check)}</Text>}
+          {check?.moved != null && (
+            <Text
+              testID="plan-exam-moved"
+              accessibilityLabel={t('calendarView.update.moved', {
+                range: t('calendarView.range', { from: formatDay(check.moved.from), to: formatDay(check.moved.to) }),
+                reason: check.moved.reason,
+              })}
+              style={[styles.note, align]}
+            >
+              <Text style={styles.struck}>
+                {t('calendarView.range', { from: formatDay(check.moved.from), to: formatDay(check.moved.to) })}
+              </Text>
+              {` · ${t('calendarView.update.entry.reason', { reason: isolate(check.moved.reason) })}`}
             </Text>
-            {` · ${t('calendarView.update.entry.reason', { reason: isolate(check.moved.reason) })}`}
-          </Text>
-        )}
-        {view !== null && weekPack(view.pack) && <PlanWeekLines rows={view.main} pack={view.pack} paced={paced} />}
-        {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
-        {(paced?.lost.rotation ?? 0) > 0 && (
-          <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
-        )}
-      </View>
+          )}
+          {view !== null && weekPack(view.pack) && <PlanWeekLines rows={view.main} pack={view.pack} paced={paced} />}
+          {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
+          {(paced?.lost.rotation ?? 0) > 0 && (
+            <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
+          )}
+        </View>
+      )}
       {onCatchUp !== undefined && behindPlan(paced) && link('plan-catchup', t('catchUp.open'), onCatchUp)}
       {onRepace !== undefined && offered && link('plan-repace', t('repace.title'), onRepace)}
       {onSupport !== undefined && link('plan-support', t('supportQueue.open'), onSupport)}
@@ -162,6 +168,19 @@ export function ClassPlan(props: ClassPlanProps) {
       {check !== null && onCheck !== undefined && link('plan-sept-check', t('septCheck.open'), onCheck, 'print')}
       {view === null ? (
         <Text style={[styles.body, align]}>{t('classPlan.noPack')}</Text>
+      ) : stale ? (
+        <StalePlan
+          pack={view.pack}
+          rows={view.main}
+          heads={view.units}
+          {...(onEditList !== undefined &&
+            course !== undefined && {
+              onWrite: () => {
+                record({ kind: 'course.set', course: { ...course, pack: null } });
+                onEditList();
+              },
+            })}
+        />
       ) : (
         <>
           <PlanRows

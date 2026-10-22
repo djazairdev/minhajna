@@ -46,7 +46,12 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
   const base = packOfPin(packs, pin);
   const lines = useMemo(() => changeLines(t, context, courseId, base), [t, context, courseId, base]);
   const line = useMemo(
-    () => paceLine(t, { pace: pace(context, courseId, day), check: termCheck(context, courseId, day) }),
+    () =>
+      paceLine(t, {
+        pace: pace(context, courseId, day),
+        check: termCheck(context, courseId, day),
+        stale: courseSetup(context, courseId).packStale,
+      }),
     [t, context, courseId, day],
   );
   const takeBack = (id: string) =>
