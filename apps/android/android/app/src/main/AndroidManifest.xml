@@ -4,8 +4,10 @@
   SPDX-FileCopyrightText: 2026 The Minhajna contributors
   SPDX-License-Identifier: MIT
 
-  Biometrics for the app lock (#210), and the camera only when the teacher
-  starts a foreground QR scan (#222). No network or storage permission.
+  Biometrics for the app lock (#210), the camera only when the teacher
+  starts a foreground QR scan (#222), and the notifications set ahead, with
+  their alarms set again after a restart (#234). No network or storage
+  permission.
   Debug builds add the network for Metro, in src/debug.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,6 +15,8 @@
 
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
@@ -59,6 +63,23 @@
       <activity
         android:name=".calendar.CalendarScanActivity"
         android:exported="false" />
+
+      <!--
+        The notifications set ahead (#234): one shows each when its alarm
+        goes off, and the other sets their alarms again after a restart or
+        an update. Neither is reachable by another app.
+      -->
+      <receiver
+        android:name=".notify.NotifyReceiver"
+        android:exported="false" />
+      <receiver
+        android:name=".notify.BootReceiver"
+        android:exported="false">
+        <intent-filter>
+          <action android:name="android.intent.action.BOOT_COMPLETED" />
+          <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        </intent-filter>
+      </receiver>
 
       <!--
         Hands a PDF the app made to the app the teacher picks in Android's

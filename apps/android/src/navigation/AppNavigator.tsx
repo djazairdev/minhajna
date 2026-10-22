@@ -43,6 +43,7 @@ import {
   PrintWeekScreen,
 } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
+import { useNotifyOpen, useNotifyPlan } from '../notify/useNotify';
 import { SettingsScreen, TimesScreen, settingsRoutes } from './SettingsScreens';
 import {
   CardScreen,
@@ -255,6 +256,8 @@ export function AppNavigator({
 
 function HomeTabs() {
   const t = useText();
+  useNotifyPlan();
+  useNotifyOpen();
   return (
     <Tabs.Navigator
       backBehavior="history"

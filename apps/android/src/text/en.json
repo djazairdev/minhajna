@@ -2631,5 +2631,13 @@
     "off": "The digest notification is off; the digest stays here whenever you open it.",
     "empty": "No digest until the school year’s first day has passed.",
     "rowNote": "Where each class stands, the sessions awaiting confirmation, and those lost to the calendar"
+  },
+  "notify": {
+    "digestText": "Your weekly digest is ready. Open it to see where each class stands.",
+    "previewTitle": "Daily preview",
+    "tomorrow": "Tomorrow: {{sessions}}, the first at {{time}} with {{class}}",
+    "today": "Today: {{sessions}}, the first at {{time}} with {{class}}",
+    "off": "Notifications are off for this app on the phone, so neither the digest nor the preview arrives.",
+    "allow": "Allow notifications"
   }
 }

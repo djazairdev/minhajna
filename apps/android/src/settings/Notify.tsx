@@ -6,17 +6,22 @@
 // by default; «العمل يوم السبت», which moves the digest to Saturday morning
 // and shortens the weekend's quiet hours; then the quiet hours themselves,
 // and that no notification shows a pupil's name or a mark. Each choice is
-// kept on this phone the moment it changes. The year-end prompts and the
-// 30-day reminder come with their own screens (answer 404).
+// kept on this phone the moment it changes. When Android does not let the
+// app notify, the screen says so, and «السماح بالإشعارات» asks again or
+// opens the app's notification settings (answer 406). The year-end prompts
+// and the 30-day reminder come with their own screens (answer 404).
 
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { Switch } from '../components/Switch';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
+import notify from '../native/NativeMinhajnaNotify';
+import { askPermission, recheckEnabled, useNotifyEnabled } from '../notify/useNotify';
 import { useText } from '../text/i18n';
 import { setNotifyPrefs, useNotifyPrefs } from './notify-prefs';
 import { settingsStyles as styles } from './styles';
@@ -27,6 +32,7 @@ export function Notify() {
   const insets = useSafeAreaInsets();
   const prefs = useNotifyPrefs();
   const [failed, setFailed] = useState(false);
+  const enabled = useNotifyEnabled();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const change = (key: keyof typeof prefs) => (value: boolean) => {
     try {
@@ -35,6 +41,11 @@ export function Notify() {
     } catch {
       setFailed(true);
     }
+  };
+  const allow = async () => {
+    const granted = await askPermission().catch(() => false);
+    if (!granted || !notify.enabled()) notify.openSettings();
+    recheckEnabled();
   };
   return (
     <ScrollView
@@ -50,6 +61,12 @@ export function Notify() {
       ]}
     >
       <Text style={[styles.sub, align]}>{t('settings.notify.intro')}</Text>
+      {!enabled && (prefs.digest || prefs.preview) && (
+        <View testID="notify-off" style={styles.group}>
+          <Notice icon={controlIcon('info')} message={t('notify.off')} />
+          <Button testID="notify-allow" label={t('notify.allow')} onPress={() => void allow()} />
+        </View>
+      )}
       {failed && <Notice testID="notify-failed" icon={controlIcon('info')} message={t('settings.failed')} />}
       <View style={styles.group}>
         <Switch

@@ -13,11 +13,13 @@ import dz.minhajna.preview.about.MinhajnaBuildModule
 import dz.minhajna.preview.language.MinhajnaInterfaceModule
 import dz.minhajna.preview.licences.MinhajnaLicencesModule
 import dz.minhajna.preview.lock.MinhajnaLockModule
+import dz.minhajna.preview.notify.MinhajnaNotifyModule
 import dz.minhajna.preview.storage.MinhajnaStorageModule
 import dz.minhajna.preview.storage.NativeMinhajnaBuildSpec
 import dz.minhajna.preview.storage.NativeMinhajnaInterfaceSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLockSpec
+import dz.minhajna.preview.storage.NativeMinhajnaNotifySpec
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
 import dz.minhajna.preview.calendar.MinhajnaCalendarInputModule
@@ -38,6 +40,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaLockSpec.NAME -> MinhajnaLockModule(reactContext)
       NativeMinhajnaCalendarInputSpec.NAME -> MinhajnaCalendarInputModule(reactContext)
       NativeMinhajnaSignatureSpec.NAME -> MinhajnaSignatureModule(reactContext)
+      NativeMinhajnaNotifySpec.NAME -> MinhajnaNotifyModule(reactContext)
       else -> DebugModules.create(name, reactContext)
     }
 
@@ -51,6 +54,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaLockSpec.NAME, MinhajnaLockModule::class.java.name),
       info(NativeMinhajnaCalendarInputSpec.NAME, MinhajnaCalendarInputModule::class.java.name),
       info(NativeMinhajnaSignatureSpec.NAME, MinhajnaSignatureModule::class.java.name),
+      info(NativeMinhajnaNotifySpec.NAME, MinhajnaNotifyModule::class.java.name),
     ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 

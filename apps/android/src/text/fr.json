@@ -2680,5 +2680,13 @@
     "off": "La notification du résumé est désactivée ; le résumé reste ici chaque fois que vous l’ouvrez.",
     "empty": "Pas de résumé avant que le premier jour de l’année scolaire soit passé.",
     "rowNote": "La position de chaque classe, les séances à confirmer et celles perdues à cause du calendrier"
+  },
+  "notify": {
+    "digestText": "Votre résumé de la semaine est prêt. Ouvrez-le pour voir où en est chaque classe.",
+    "previewTitle": "Aperçu quotidien",
+    "tomorrow": "Demain : {{sessions}}, la première à {{time}} avec {{class}}",
+    "today": "Aujourd’hui : {{sessions}}, la première à {{time}} avec {{class}}",
+    "off": "Les notifications de cette application sont désactivées sur le téléphone : ni le résumé ni l’aperçu n’arrivent.",
+    "allow": "Autoriser les notifications"
   }
 }
