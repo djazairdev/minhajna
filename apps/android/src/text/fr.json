@@ -609,7 +609,8 @@
       "label": "{{group}} : {{turn}}",
       "awaiting": "en attente de confirmation",
       "labelOwn": "{{group}}, cette séance : {{turn}}"
-    }
+    },
+    "tagTarget": "Objectif semaine {{week}}"
   },
   "outcome": {
     "other": "Autre résultat",
@@ -866,6 +867,17 @@
       "writeAsk": "Le plan périmé est laissé pour cette classe et ses éléments s’écrivent. On y revient par « Changer de pack ».",
       "writeConfirm": "Laisser le plan",
       "cancel": "Annuler"
+    },
+    "target": {
+      "title": "Objectif semaine {{week}}",
+      "end": "Fin de {{title}}",
+      "tag": "Objectif",
+      "reached": "Atteint",
+      "onTime": "Atteint à temps, {{day}}.",
+      "late": "Pas atteint à temps, {{day}}, à ce rythme.",
+      "missed": "Échéance passée, {{day}}, pas encore atteint.",
+      "count": "Il reste {{left}} d’ici là, et ses éléments en demandent {{needed}}.",
+      "countNone": "Aucune séance d’ici là, et ses éléments en demandent {{needed}}."
     }
   },
   "planDetails": {

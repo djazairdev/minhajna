@@ -93,6 +93,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - تعرض حصة الفوج في «اليوم» دور الفوجين في درسها: دورها اليوم، ويوم الفوج الآخر وحرف أسبوعه، أو حصة القسم كله التي تأخذه قبله، أو أنه أنجزه. ويُعدّ الدرس منجزاً للقسم حين يمرّ به الفوجان، ويذكر زر البطاقة الفوج الذي يسجّله: «تمّت للفوج 1».
 - A directed-work session on Today shows the class's next three directed-work items in place of the proposal, with «اليوم», «الحصة القادمة» and «بعدها», or «بعد الفرض» after a test of the class. Its card says directed work never moves the main plan, and where the main plan stands.
   - تعرض حصة الأعمال الموجهة في «اليوم» العناصر الثلاثة الموالية من قائمة الأعمال الموجهة للقسم بدل الاقتراح، مع «اليوم» و«الحصة القادمة» و«بعدها»، أو «بعد الفرض» بعد فرض القسم. وتذكر البطاقة أن الأعمال الموجهة لا يتقدّم بها المخطط الرئيسي، وأين يقف.
+- A plan with weekly targets now shows each target after its item, with its day. The class's plan says whether the next target will be reached in time, with the sessions left beside those still needed, or that its day has passed. Today's proposal names the target it counts toward: «هدف الأسبوع 6».
+  - يعرض المخطط ذو الأهداف الأسبوعية كل هدف بعد عنصره، مع يومه. ويذكر مخطط القسم هل يُبلغ الهدف القادم في موعده، مع الحصص المتبقية إليه وما تحتاجه عناصره، أو أن موعده فات. ويذكر اقتراح «اليوم» الهدف الذي يُحسب له: «هدف الأسبوع 6».
 
 ### Changed
 

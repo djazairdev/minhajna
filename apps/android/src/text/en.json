@@ -596,7 +596,8 @@
       "label": "{{group}}: {{turn}}",
       "awaiting": "awaiting confirmation",
       "labelOwn": "{{group}}, this session: {{turn}}"
-    }
+    },
+    "tagTarget": "Week {{week}} target"
   },
   "outcome": {
     "other": "Another outcome",
@@ -844,6 +845,17 @@
       "writeAsk": "The stale plan is left for this class and its items are written. Go back to it from “Change pack”.",
       "writeConfirm": "Leave the plan",
       "cancel": "Cancel"
+    },
+    "target": {
+      "title": "Week {{week}} target",
+      "end": "End of {{title}}",
+      "tag": "Target",
+      "reached": "Reached",
+      "onTime": "Reached in time, {{day}}.",
+      "late": "Not reached in time, {{day}}, at this pace.",
+      "missed": "Its day, {{day}}, has passed and it is not reached yet.",
+      "count": "{{left}} left until then, and its items need {{needed}}.",
+      "countNone": "No session is left until then, and its items need {{needed}}."
     }
   },
   "planDetails": {

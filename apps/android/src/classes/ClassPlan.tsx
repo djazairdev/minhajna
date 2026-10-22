@@ -18,9 +18,19 @@
 // and «إعادة توزيع بقية الفصل» while it is offered (#229). A week pack's plan
 // comes by plan week, its pace in plan weeks (#230, PlanRows.tsx). A stale
 // pack shows its reason and the ways to work with the class instead of its
-// pace and rows (StalePlan.tsx).
+// pace and rows (StalePlan.tsx). A hybrid pack's weekly targets show on the
+// pace card and after their items (#231, WeekTargets.tsx).
 
-import { behindPlan, courseSetup, formatDay, pace, planView, repaceOffered, termCheck } from '@minhajna/core';
+import {
+  behindPlan,
+  courseSetup,
+  formatDay,
+  pace,
+  planView,
+  repaceOffered,
+  termCheck,
+  weekTargets,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -40,6 +50,7 @@ import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
 import { dayMonth, untilLine } from './plan-labels';
 import { PlanRows, PlanWeekLines, weekPack, weeksBehindLine } from './PlanRows';
+import { TargetLines } from './WeekTargets';
 import { StalePlan } from './StalePlan';
 import { isolate } from '../week/grid-labels';
 import { ParallelPanel } from './ParallelPanel';
@@ -94,6 +105,7 @@ export function ClassPlan(props: ClassPlanProps) {
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
   const paced = useMemo(() => (view === null ? null : pace(context, courseId, day)), [view, context, courseId, day]);
   const offered = useMemo(() => repaceOffered(context, courseId, day), [context, courseId, day]);
+  const targets = useMemo(() => weekTargets(context, courseId, day), [context, courseId, day]);
   const item = onItem === undefined ? {} : { onItem };
   const line =
     weeksBehindLine(t, paced) ??
@@ -155,6 +167,7 @@ export function ClassPlan(props: ClassPlanProps) {
             </Text>
           )}
           {view !== null && weekPack(view.pack) && <PlanWeekLines rows={view.main} pack={view.pack} paced={paced} />}
+          {view !== null && <TargetLines pack={view.pack} targets={targets} today={day} />}
           {view !== null && <Text style={[styles.note, align]}>{t('classPlan.reference')}</Text>}
           {(paced?.lost.rotation ?? 0) > 0 && (
             <Text style={[styles.note, align]}>{t('calendarView.groups.cost', { count: paced!.lost.rotation })}</Text>
@@ -191,6 +204,8 @@ export function ClassPlan(props: ClassPlanProps) {
             heads={view.units}
             later={postponed}
             by={weekPack(view.pack) ? 'week' : 'unit'}
+            targets={targets}
+            pack={view.pack}
             {...item}
           />
           {view.td.length > 0 && (

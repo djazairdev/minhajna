@@ -1,17 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What a session card on Today says (#32): the plan's proposal as the book
-// will take it, the lesson of a session further down the day, what a
-// recorded session wrote, and the day's facts; with an item merged into
-// the session by the teacher's decision, both (#221). In a week pack, the
-// plan week, and for an activity of the weekly model, which of the week's
-// sessions of it this is (#230, answer 375). A day outside the country's
-// working days that the timetable fills, such as a Saturday, says so (#231,
-// answer 387). The words state facts and never judge (PRD §3.1, rule 8).
+// What a session card on Today says (#32): the plan's proposal as the book will
+// take it, the lesson of a session further down the day, what a recorded
+// session wrote, and the day's facts; with an item merged into the session by
+// the teacher's decision, both (#221). In a week pack, the plan week, and for
+// an activity of the weekly model, which of the week's sessions of it this is
+// (#230, answer 375); in a hybrid pack, «هدف الأسبوع N», the target the item
+// counts toward (#231). A day outside the country's working days that the
+// timetable fills, such as a Saturday, says so (#231, answer 387). The words
+// state facts and never judge (PRD §3.1, rule 8).
 
 import {
   findPackItem,
+  targetWeekOf,
   weekday,
   type CountryProfile,
   type Day,
@@ -49,7 +51,7 @@ export function activityLine(t: Translate, pack: PlanPack | null, proposal: Prop
   return t('today.activityLine', { activity: localized(activity.name), session: place.session, of: place.of });
 }
 
-/** The proposal in pencil: its tag with the plan week, the unit, the activity, the item, and the stages. */
+/** The proposal in pencil: its tag with the plan week or target, the unit, the activity, the item, and the stages. */
 export function proposalOf(t: Translate, pack: PlanPack | null, proposal: Proposal): ProposalProps {
   const unit = pack?.items.find((item) => item.id === proposal.item.unit);
   const week = proposal.planWeek?.week;
@@ -58,8 +60,9 @@ export function proposalOf(t: Translate, pack: PlanPack | null, proposal: Propos
       ? t(proposal.continued ? 'today.tagContinued' : 'today.tag')
       : t(proposal.continued ? 'today.tagWeekContinued' : 'today.tagWeek', { week });
   const activity = activityLine(t, pack, proposal);
+  const target = targetWeekOf(pack, proposal.item.id);
   return {
-    tag,
+    tag: target === null ? tag : `${tag} · ${t('today.tagTarget', { week: target })}`,
     lines: [
       ...(unit === undefined ? [] : [{ label: t('today.unit'), text: unit.title }]),
       ...(activity === null ? [] : [{ text: activity }]),
