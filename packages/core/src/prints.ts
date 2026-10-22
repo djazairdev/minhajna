@@ -9,8 +9,10 @@
 // never moves a document's last printed day back. A document printed whole,
 // such as the front pages before the year starts, counts as far as it went.
 // A primary re-pace draft printed for the director is kept too, with the
-// choices ticked on it (#229, repace-print.ts). The record is the teacher's
-// own and stays private (PRD §5.4).
+// choices ticked on it (#229, repace-print.ts). A document printed or saved
+// as a PDF from its own output is kept apart, for the activity log only
+// (#235, answer 426). The records are the teacher's own and stay private
+// (PRD §5.4).
 
 import { compareDays, minDay, type Day } from './day.ts';
 import type { State } from './state.ts';
@@ -28,6 +30,17 @@ export interface PrintedDocument {
 export interface PrintRecord {
   readonly id: string;
   readonly documents: readonly PrintedDocument[];
+}
+
+/** A document printed or saved as a PDF from its output: never its content, file name or recipient. */
+export interface OutputRecord {
+  readonly id: string;
+  /** The document's name, as the app calls it, such as `journal`. */
+  readonly document: string;
+  /** What it covered, as its file is named: a day, a month such as `2026-10`, or a school year such as `2026-2027`. */
+  readonly period: string;
+  readonly how: 'print' | 'pdf';
+  readonly blank: boolean;
 }
 
 /** A document's last print: its day, the last day its prints covered up to each one's day, and the last at all. */

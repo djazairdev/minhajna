@@ -112,6 +112,10 @@ export function recordKey(entry: Entry): string | null {
       return `move/${event.id}`;
     case 'lesson-note.set':
       return `lesson-note/${event.note.id}`;
+    case 'output.recorded':
+      return null;
+    case 'retention.set':
+      return 'retention';
   }
 }
 

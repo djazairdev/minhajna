@@ -20,6 +20,7 @@ import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
 import type { KeptClash, SessionMove } from './session-moves.ts';
 import type { LessonNote } from './lesson-notes.ts';
+import type { Retention } from './retention.ts';
 import { readPersonal } from './signature.ts';
 import { kindOf, listKey, type SupportQueue } from './support-queue.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -77,6 +78,7 @@ export function buildState(entries: readonly Entry[]): State {
   const seating = new Map<string, SeatingPlan>();
   let counting: CountingRules | null = null;
   let setupFinished = false;
+  let retention: Retention | null = null;
   const prints: Version<PrintRecord>[] = [];
   const tests = new Map<string, ScheduledTest>();
   const decisions = new Map<string, PlanDecision>();
@@ -242,6 +244,9 @@ export function buildState(entries: readonly Entry[]): State {
       case 'lesson-note.set':
         lessonNotes.set(event.note.id, event.note);
         break;
+      case 'retention.set':
+        retention = event.retention;
+        break;
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -282,5 +287,6 @@ export function buildState(entries: readonly Entry[]): State {
     keptClashes,
     moves,
     lessonNotes,
+    retention,
   };
 }

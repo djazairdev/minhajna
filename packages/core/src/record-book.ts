@@ -103,6 +103,10 @@ function recordKey(event: RecordEvent): string {
       return `move:${event.id}`;
     case 'lesson-note.set':
       return `lesson-note:${event.note.id}`;
+    case 'output.recorded':
+      return `output:${event.output.id}`;
+    case 'retention.set':
+      return 'retention';
   }
 }
 

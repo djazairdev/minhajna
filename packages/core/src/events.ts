@@ -16,7 +16,8 @@ import type { KeptClash, SessionMove } from './session-moves.ts';
 import type { LessonNote } from './lesson-notes.ts';
 import type { SupportQueue } from './support-queue.ts';
 import type { PlanDecision } from './plan-decisions.ts';
-import type { PrintRecord } from './prints.ts';
+import type { OutputRecord, PrintRecord } from './prints.ts';
+import type { Retention } from './retention.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
 import type { AddedPack } from './pack-update.ts';
 import type { AddedLayer, LayerSwitch } from './variant-layers.ts';
@@ -120,7 +121,11 @@ export type RecordEvent =
   | { readonly kind: 'move.set'; readonly move: SessionMove }
   | { readonly kind: 'move.removed'; readonly id: string }
   /** A lesson note made or changed (#237). */
-  | { readonly kind: 'lesson-note.set'; readonly note: LessonNote };
+  | { readonly kind: 'lesson-note.set'; readonly note: LessonNote }
+  /** A document printed or saved from its output (#235). */
+  | { readonly kind: 'output.recorded'; readonly output: OutputRecord }
+  /** How long records are kept (#235). */
+  | { readonly kind: 'retention.set'; readonly retention: Retention };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -170,6 +175,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'move.set': true,
   'move.removed': true,
   'lesson-note.set': true,
+  'output.recorded': true,
+  'retention.set': true,
 };
 
 /**
@@ -193,6 +200,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'setup.finished':
     case 'print.recorded':
     case 'lesson-note.set':
+    case 'output.recorded':
+    case 'retention.set':
       return 'private';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
