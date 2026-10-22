@@ -7,10 +7,11 @@
 // changes against the current distribution, and the weeks. A tick follows
 // its choice, not its place in the list. «اعتماد التوزيع» records it with
 // its ticked decisions, and «تراجع» takes all of it back at once. The
-// draft can be printed (answer 371). In primary the director approves it
-// first, so it waits for the printed draft, shown with the choices printed
-// on it, and its approval date (RepaceApproval). Nothing applies before the
-// teacher confirms.
+// draft can be printed (answer 371), signed with the drawn signature
+// unless «فارغة» is chosen while it is in use (#236, answer 414). In
+// primary the director approves it first, so it waits for the printed
+// draft, shown with the choices printed on it, and its approval date
+// (RepaceApproval). Nothing applies before the teacher confirms.
 
 import {
   choiceKey,
@@ -40,6 +41,7 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { courseLabel, termName } from '../exams/course-label';
 import { useOutputRun } from '../documents/output-run';
 import { repaceHeader, repaceHtml } from '../documents/repace-html';
+import { useSheetSignature } from '../documents/sheet-signature';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
@@ -51,7 +53,7 @@ import { RepaceWeeks } from './RepaceWeeks';
 
 type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly message: string } | null;
 
-export function Repace({ courseId }: { readonly courseId: string }) {
+export function Repace({ courseId, onSignature }: { readonly courseId: string; readonly onSignature?: () => void }) {
   const t = useText();
   const data = useAppData();
   const { state, profile, record, recordAll, newId, today } = data;
@@ -83,6 +85,7 @@ export function Repace({ courseId }: { readonly courseId: string }) {
   const [said, setSaid] = useState<Said>(null);
   const [failed, setFailed] = useState(false);
   const output = useOutputRun();
+  const signing = useSheetSignature('repace-signature', output, onSignature);
   const appliedFrom = useRef<typeof state | null>(null);
   const className = courseLabel(t, state, profile, courseId);
   const once = (events: readonly RecordEvent[], next: Said) => {
@@ -123,7 +126,7 @@ export function Repace({ courseId }: { readonly courseId: string }) {
       setTicks(null);
     };
     output.print(
-      () => repaceHtml(t, shown, header, language, profile, direction),
+      () => repaceHtml(t, shown, header, language, profile, direction, signing.mark),
       t('repace.sheet.title', { term: termName(t, shown.term) }),
       false,
       shown.primary ? kept : undefined,
@@ -229,6 +232,7 @@ export function Repace({ courseId }: { readonly courseId: string }) {
         {output.said === 'failed' && (
           <Notice testID="repace-print-failed" icon={controlIcon('info')} message={t('documents.output.failed')} />
         )}
+        {offered && signing.choice}
         {!offered ? (
           <Notice testID="repace-not-offered" icon={controlIcon('info')} message={t('repace.notOffered')} />
         ) : draft.primary ? (

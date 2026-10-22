@@ -35,11 +35,13 @@ export type SignatureChoiceProps = {
   readonly drawn: boolean;
   readonly onDrawn: (drawn: boolean) => void;
   readonly disabled?: boolean;
+  /** Where the signature goes, under the choice. */
+  readonly note?: string;
   /** Opens the signature; without it, «إعدادات التوقيع» does not show. */
   readonly onSettings?: () => void;
 };
 
-export function SignatureChoice({ testID, label, drawn, onDrawn, disabled, onSettings }: SignatureChoiceProps) {
+export function SignatureChoice({ testID, label, drawn, onDrawn, disabled, note, onSettings }: SignatureChoiceProps) {
   const t = useText();
   if (!useSignatureInUse()) return null;
   return (
@@ -56,6 +58,11 @@ export function SignatureChoice({ testID, label, drawn, onDrawn, disabled, onSet
           { value: 'blank', label: t('documents.printWeek.blankBox') },
         ]}
       />
+      {note !== undefined && (
+        <Text testID={`${testID}-note`} style={styles.note}>
+          {note}
+        </Text>
+      )}
       {onSettings !== undefined && (
         <Button
           testID={`${testID}-settings`}
@@ -72,4 +79,5 @@ export function SignatureChoice({ testID, label, drawn, onDrawn, disabled, onSet
 const styles = StyleSheet.create({
   group: { gap: spacing['space-8'] },
   label: { ...typography.label, color: colors.ink2 },
+  note: { ...typography.body, color: colors.pencil },
 });

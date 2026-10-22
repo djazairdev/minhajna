@@ -4,9 +4,11 @@
 // The September check for an inspector (#225, Sept-check, R-4.11-06,
 // answers 296 to 299), opened from a class's plan or from Ready: the sheet
 // as it prints, then «طباعة» on Android's print screen or «حفظ PDF» where
-// the teacher picks. TalkBack reads each line of the table as one, with
-// each class's figure, and the table scrolls sideways when many classes
-// leave its lines too narrow. The QR code waits for signing (#223).
+// the teacher picks, the teacher's box carrying the drawn signature unless
+// «فارغة» is chosen while it is in use (#236, answer 414). TalkBack reads
+// each line of the table as one, with each class's figure, and the table
+// scrolls sideways when many classes leave its lines too narrow. The QR code
+// waits for signing (#223).
 
 import { formatDay } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -19,6 +21,7 @@ import { controlIcon } from '../design/Icon';
 import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, spacing, typography } from '../design/tokens';
 import { useOutputRun } from '../documents/output-run';
+import { useSheetSignature } from '../documents/sheet-signature';
 import { septCheckHtml } from '../documents/sept-check-html';
 import { settingsStyles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
@@ -26,9 +29,13 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { figure, septSheet, type SeptSheet } from './sept-check';
 
-export type SeptCheckProps = { readonly courseId: string };
+export type SeptCheckProps = {
+  readonly courseId: string;
+  /** Opens the drawn signature from «إعدادات التوقيع». */
+  readonly onSignature?: () => void;
+};
 
-export function SeptCheck({ courseId }: SeptCheckProps) {
+export function SeptCheck({ courseId, onSignature }: SeptCheckProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -39,8 +46,10 @@ export function SeptCheck({ courseId }: SeptCheckProps) {
     () => septSheet(coreContext({ profile, year, calendar, calendarRelease, packs, state }), t, courseId, day),
     [profile, year, calendar, calendarRelease, packs, state, t, courseId, day],
   );
-  const { busy, said, print, save } = useOutputRun();
-  const html = () => septCheckHtml(t, sheet!, currentLanguage(), direction);
+  const output = useOutputRun();
+  const { busy, said, print, save } = output;
+  const signing = useSheetSignature('sept-signature', output, onSignature);
+  const html = () => septCheckHtml(t, sheet!, currentLanguage(), direction, signing.mark);
   const file = `${t('septCheck.file')} ${formatDay(day)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
 
   return (
@@ -63,6 +72,7 @@ export function SeptCheck({ courseId }: SeptCheckProps) {
       ) : (
         <>
           <Sheet sheet={sheet} />
+          {signing.choice}
           {said !== null && (
             <Notice
               testID="sept-said"
