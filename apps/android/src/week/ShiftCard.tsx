@@ -9,12 +9,12 @@
 // is left, this week and next week by letter with the half each class takes,
 // with no «هذا الأسبوع» in a holiday week, what follows for the sessions, Today
 // and the roll call, and links to the calendar's week letter and to the
-// roll-call rules. Classes in two schools follow the first one's letter (answer
-// 386).
+// roll-call rules. At large text each week's row stacks its parts. Classes in
+// two schools follow the first one's letter (answer 386).
 
 import type { Half, SchoolClass, TimetableVersion } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { ChipGroup } from '../components/Chip';
 import { OptionRow } from '../components/OptionRow';
 import { TextField } from '../components/TextField';
@@ -42,6 +42,7 @@ export function ShiftCard({ version, classes, onShift, onShared, onLetter, onRul
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
+  const large = useWindowDimensions().fontScale >= 1.5;
   const shift = version.options?.doubleShift;
   if (shift === undefined) return null;
   const chips = (
@@ -109,11 +110,11 @@ export function ShiftCard({ version, classes, onShift, onShared, onLetter, onRul
             accessibilityLabel={[week.head, ...week.cells.map((cell) => `${band(cell.half)}: ${cell.who}`)].join(
               t('week.shiftSeparator'),
             )}
-            style={[styles.row, { direction }]}
+            style={[styles.row, { direction }, large && styles.stacked]}
           >
-            <Text style={[styles.head, align]}>{week.head}</Text>
+            <Text style={[styles.head, align, large && styles.unflexed]}>{week.head}</Text>
             {week.cells.map((cell) => (
-              <View key={cell.half} style={[styles.cell, cell.mine && styles.mine]}>
+              <View key={cell.half} style={[styles.cell, cell.mine && styles.mine, large && styles.unflexed]}>
                 <Text style={styles.small}>{band(cell.half)}</Text>
                 <Text style={[styles.who, cell.mine && styles.strong]}>{cell.who}</Text>
               </View>
@@ -159,6 +160,8 @@ const styles = StyleSheet.create({
   note: { ...typography.caption, color: colors.ink2 },
   table: { gap: spacing['space-6'] },
   row: { flexDirection: 'row', alignItems: 'stretch', gap: spacing['space-6'] },
+  stacked: { flexDirection: 'column' },
+  unflexed: { flex: 0, alignSelf: 'stretch' },
   head: { ...typography.caption, color: colors.ink, flex: 1.2, alignSelf: 'center' },
   cell: {
     flex: 1,
