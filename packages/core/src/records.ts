@@ -145,6 +145,8 @@ export interface WeekOptions {
   readonly fifthMorning?: true;
   /** Mornings one week and afternoons the next, drawn as A and B weeks: the half-day taught in A weeks. */
   readonly doubleShift?: Half;
+  /** With a double shift in primary, the other class in the same room, by name only (#230, answer 385). */
+  readonly sharedWith?: string;
 }
 
 export interface TimetableVersion {
