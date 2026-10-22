@@ -34,6 +34,8 @@ export type SlotSheetProps = {
   readonly records: Records;
   readonly onClose: () => void;
   readonly onSave: (version: TimetableVersion) => void;
+  /** Under a double shift, the week a new session takes in this slot. */
+  readonly fresh?: 'A' | 'B';
   /** Opens a class's list, once the slot is kept in the drawing. */
   readonly onList?: (courseId: string, kind: ListKind) => void;
 };
@@ -57,6 +59,7 @@ function SlotEditor({
   onClose,
   onSave,
   onList,
+  fresh,
 }: SlotSheetProps & { readonly cell: Cell }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -136,6 +139,7 @@ function SlotEditor({
           item={first ?? null}
           onChange={(item) => change(0, item)}
           classes={classes}
+          {...(fresh !== undefined && { fresh })}
           {...list}
         />
         {pair !== null && (

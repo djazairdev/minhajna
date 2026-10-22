@@ -3,10 +3,11 @@
 
 // A primary day on Today (#230, P-Today, answers 373, 379 and 380): the
 // sessions in a morning band and an afternoon band, «الصبيحة» and «المساء»,
-// each with one roll call for each class's half day, and the afternoon's
-// taken on its own; a class called session by session keeps its roll call on
-// its cards. Then «تأكيد اليوم كله كما هو مقترح», which records every
-// session still awaiting as proposed, and «الكراس اليومي».
+// each with one roll call for each class's half day, and the afternoon's taken
+// on its own, said so only when the class has a morning roll call that day too
+// (answer 385); a class called session by session keeps its roll call on its
+// cards. Then «تأكيد اليوم كله كما هو مقترح», which records every session still
+// awaiting as proposed, and «الكراس اليومي».
 
 import {
   type Context,
@@ -59,6 +60,16 @@ export function DayBands({ entries, render, context, onRoll, onConfirmDay, onJou
     half,
     entries: entries.filter((entry) => itemsOf(entry)[0]?.session.slot.half === half),
   })).filter((band) => band.entries.length > 0);
+  const mornings = new Set(
+    bands
+      .filter((band) => band.half === 'morning')
+      .flatMap((band) => band.entries.flatMap(itemsOf))
+      .flatMap(({ session }) => {
+        const unit = unitOf(context, session.key, session.day);
+        const shown = unit !== null && bandRoll(context, session) && rollStrip(t, context, session, onRoll).length > 0;
+        return shown ? [unit.classId] : [];
+      }),
+  );
   const strips = (half: Half, sessions: readonly Session[]): DueStripProps[] => {
     const units = new Map<string, { readonly unit: RollCallUnit; readonly session: Session }>();
     for (const session of sessions) {
@@ -68,8 +79,8 @@ export function DayBands({ entries, render, context, onRoll, onConfirmDay, onJou
     const classes = new Set([...units.values()].map(({ unit }) => unit.classId));
     return [...units.values()].flatMap(({ unit, session }) =>
       rollStrip(t, context, session, onRoll).map((strip) => {
-        const fact =
-          recordedMarks(context, unit) !== null || half === 'morning' ? strip.fact : t('today.afternoonRoll');
+        const alone = half === 'afternoon' && mornings.has(unit.classId) && recordedMarks(context, unit) === null;
+        const fact = alone ? t('today.afternoonRoll') : strip.fact;
         const schoolClass = context.state.classes.get(unit.classId);
         const group =
           unit.rotation === undefined ? undefined : schoolClass?.groups.find((one) => one.id === unit.groupId);

@@ -15,6 +15,7 @@ import {
   mirrorOf,
   paint,
   versionToDraw,
+  withMirror,
   type Brush,
   type Cell,
 } from '../src/week/week-rules';
@@ -190,4 +191,57 @@ test('draws a double shift: a class in one half-day goes in the other for the ot
     },
   );
   expect(noMirror.entries.map((entry) => entry.weeks)).toEqual(['B']);
+});
+
+test('copies a slot saved under a double shift into the other half-day for the other week', () => {
+  const sun1: Cell = { weekday: 0, slot: { half: 'morning', index: 1 } };
+  const mirror = mirrorOf(sun1);
+  const drawn = paint(
+    empty,
+    classOf,
+    sun1,
+    { kind: 'class', classId: 'k-1' },
+    {
+      schoolClass: classes[0],
+      course: courses['k-1'],
+      ownLabel: '',
+      newId,
+      shift: 'morning',
+      mirror,
+    },
+  );
+  const [own] = drawn.entries.filter((entry) => entry.slot.half === 'morning');
+  const edited = {
+    ...drawn,
+    entries: drawn.entries.map((entry) => (entry === own ? { ...entry, room: '3', activity: 'reading' } : entry)),
+  };
+  const copied = withMirror(drawn, edited, sun1, 'morning', mirror, newId);
+  const there = copied.entries.filter((entry) => entry.slot.half === 'afternoon');
+  expect(there).toHaveLength(1);
+  expect(there[0]).toMatchObject({
+    weekday: 0,
+    slot: { half: 'afternoon', index: 1 },
+    weeks: 'B',
+    room: '3',
+    activity: 'reading',
+  });
+  expect(there[0]?.id).not.toBe(own?.id);
+  const removed = { ...copied, entries: copied.entries.filter((entry) => entry.slot.half !== 'morning') };
+  expect(withMirror(copied, removed, sun1, 'morning', mirror, newId).entries).toEqual([]);
+  const fromB = withMirror(drawn, drawn, mirror, 'morning', sun1, newId);
+  expect(fromB.entries.map((entry) => [entry.slot.half, entry.weeks])).toEqual([
+    ['afternoon', 'B'],
+    ['morning', 'A'],
+  ]);
+  const every = {
+    ...drawn,
+    entries: drawn.entries.map((entry) => (entry === own ? entry : { ...entry, weeks: 'every' as const })),
+  };
+  const replaced = withMirror(every, every, sun1, 'morning', mirror, newId).entries;
+  expect(replaced.map((entry) => [entry.slot.half, entry.weeks])).toEqual([
+    ['morning', 'A'],
+    ['afternoon', 'B'],
+  ]);
+  const elsewhere: Cell = { weekday: 1, slot: { half: 'morning', index: 2 } };
+  expect(withMirror(drawn, drawn, elsewhere, 'morning', mirrorOf(elsewhere), newId)).toBe(drawn);
 });

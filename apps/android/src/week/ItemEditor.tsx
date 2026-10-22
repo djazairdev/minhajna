@@ -47,12 +47,14 @@ export type ItemEditorProps = {
   readonly classes: readonly SchoolClass[];
   /** Set for the second item of an A/B slot. */
   readonly week?: 'A' | 'B';
+  /** The week a new session takes, such as a double shift's letter for the slot's half-day (#230). */
+  readonly fresh?: 'A' | 'B';
   /** Opens the class's list from a slot that takes one. */
   readonly onList?: (courseId: string, kind: ListKind) => void;
 };
 
 /** The fields of one item. */
-export function ItemEditor({ testID, cell, item, onChange, classes, week, onList }: ItemEditorProps) {
+export function ItemEditor({ testID, cell, item, onChange, classes, week, fresh, onList }: ItemEditorProps) {
   const t = useText();
   const { direction } = useLocale();
   const { profile, state } = useAppData();
@@ -67,7 +69,7 @@ export function ItemEditor({ testID, cell, item, onChange, classes, week, onList
           classId: schoolClass.id,
           subject: subjectsOf(schoolClass)[0] ?? '',
           groupId: wholeGroup(schoolClass).id,
-          weeks,
+          weeks: week ?? (item?.kind === 'class' ? item.weeks : undefined) ?? fresh ?? 'every',
           sessionType: 'lesson',
         };
   const own: OwnItem = { kind: 'own', halfDay: false, weeks, label: t('week.ownTime') };

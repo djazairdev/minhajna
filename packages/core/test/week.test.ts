@@ -81,7 +81,7 @@ const version = (entries: TimetableEntry[], blocks: TeacherBlock[] = [], from = 
 });
 
 describe('the week the teacher draws', () => {
-  it('holds the working days and four slots a half-day, with Saturday and a fifth morning slot when asked', () => {
+  it('holds the working days and four slots a half-day, with Saturday and a fifth slot when asked', () => {
     const plain = weekGrid(country);
     assert.deepEqual(plain.days, [0, 1, 2, 3, 4]);
     assert.deepEqual(
@@ -91,6 +91,11 @@ describe('the week the teacher draws', () => {
     const full = weekGrid(country, { saturday: true, fifthMorning: true });
     assert.deepEqual(full.days, [0, 1, 2, 3, 4, 6]);
     assert.equal(full.slots.filter((slot) => slot.half === 'morning').length, 5);
+    assert.equal(full.slots.filter((slot) => slot.half === 'afternoon').length, 4);
+    const shifted = (fifthMorning: boolean) =>
+      weekGrid(country, { doubleShift: 'morning', ...(fifthMorning && { fifthMorning: true as const }) });
+    assert.equal(shifted(true).slots.filter((slot) => slot.half === 'afternoon').length, 5);
+    assert.equal(shifted(false).slots.filter((slot) => slot.half === 'afternoon').length, 4);
   });
 
   it('meets in a shared week only: A and B weeks never clash', () => {
