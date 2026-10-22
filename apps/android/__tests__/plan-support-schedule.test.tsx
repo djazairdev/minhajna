@@ -44,6 +44,16 @@ const slot = { half: 'morning', index: 4 } as const;
 const contextOf = (data: TestData) => coreContext({ ...data, state: data.book.state });
 const has = (id: string) => settingsRoot().findAll((node) => node.props.testID === id).length > 0;
 
+/** Presses the snackbar's «تراجع». */
+async function pressUndo(): Promise<void> {
+  const [undo] = settingsRoot().findAll(
+    (node) => node.props.accessibilityLabel === catalogues.ar.planItem.undo && typeof node.props.onPress === 'function',
+  );
+  await ReactTestRenderer.act(async () => {
+    await (undo.props as PressableProps).onPress?.({} as never);
+  });
+}
+
 /** The demo day with 4م1's support list and a support session scheduled at its fourth slot. */
 async function scheduled(): Promise<TestData> {
   const data = await withDay();
@@ -91,13 +101,22 @@ test('the queue lists it with its item, logs it from its day, and cancels it wit
   expect(onLogScheduled).toHaveBeenCalledWith(expect.objectContaining({ id: 'u-1' }));
   await pressSettings('support-cancel-u-1');
   expect(data.book.state.catchUps.size).toBe(0);
-  const [undo] = settingsRoot().findAll(
-    (node) => node.props.accessibilityLabel === catalogues.ar.planItem.undo && typeof node.props.onPress === 'function',
-  );
-  await ReactTestRenderer.act(async () => {
-    await (undo.props as PressableProps).onPress?.({} as never);
-  });
+  expect(settingsTexts()).toContain(catalogues.ar.supportQueue.cancelled);
+  await pressUndo();
   expect(data.book.state.catchUps.get('u-1')).toMatchObject({ kind: 'support' });
+});
+
+test('brings a cancelled support session back only while its time is free', async () => {
+  const data = await scheduled();
+  await showSettingsScreen(<SupportQueue courseId="c-1" />, data);
+  const event = addCatchUp(contextOf(data), { id: 'u-2', courseId: 'c-2', day, slot: { ...slot, index: 5 } }, day);
+  if (event.kind !== 'catchup.set') throw new Error('A catch-up session is set');
+  await data.book.record(day, { ...event, catchUp: { ...event.catchUp, slot } });
+  await pressSettings('support-cancel-u-1');
+  await pressUndo();
+  expect(has('support-not-restored')).toBe(true);
+  expect(settingsTexts()).toContain(catalogues.ar.supportQueue.notRestored);
+  expect([...data.book.state.catchUps.keys()]).toEqual(['u-2']);
 });
 
 test('the form opens filled in from it, and logging it ends it', async () => {

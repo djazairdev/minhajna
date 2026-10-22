@@ -2262,6 +2262,8 @@
     "logThis": "Log",
     "agreed": "Their times are agreed with the administration. What is left of an item is proposed at the next support session.",
     "schedule": "Schedule a support session in a free time",
-    "badge": "Scheduled support"
+    "badge": "Scheduled support",
+    "cancelled": "Support session cancelled; «Undo» brings it back.",
+    "notRestored": "The support session was not brought back: its time is taken."
   }
 }

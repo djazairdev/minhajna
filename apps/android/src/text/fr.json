@@ -2304,6 +2304,8 @@
     "logThis": "Noter",
     "agreed": "Leur horaire se fixe avec l’administration. Ce qui reste d’un élément est proposé à la séance de soutien suivante.",
     "schedule": "Programmer une séance de soutien sur un créneau libre",
-    "badge": "Soutien programmé"
+    "badge": "Soutien programmé",
+    "cancelled": "Séance de soutien retirée ; « Annuler » la rétablit.",
+    "notRestored": "La séance de soutien n’a pas été rétablie : son créneau est déjà pris."
   }
 }
