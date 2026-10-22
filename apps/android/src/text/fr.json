@@ -2878,6 +2878,26 @@
       "homework": "un devoir",
       "print": "une impression",
       "other": "un autre dossier"
+    },
+    "broken": {
+      "title": "Quelque chose a changé hors de l’application",
+      "why": "Chaque changement est lié au précédent, donc toute modification ou suppression qui n’est pas passée par l’application se voit. Cela arrive si une partie de la mémoire du téléphone est abîmée, ou si un autre programme a modifié les fichiers de l’application.",
+      "days": "Jours",
+      "from": "Depuis le {{day}} : aucun changement depuis ce jour ne peut être vérifié",
+      "fromUnknown": "Le jour du premier changement non vérifiable est inconnu",
+      "changes": "Changements non vérifiables",
+      "counts": {
+        "texts-book": "Cahier de textes : {{count}}",
+        "roll-call": "Appel : {{count}}",
+        "notes": "Notes et fiches : {{count}}",
+        "other": "Autres changements : {{count}}"
+      },
+      "trusted": "Toujours fiable",
+      "trustedUntil": "Tout ce qui a été noté jusqu’au {{day}}, avant le premier changement non vérifiable",
+      "trustedNone": "Rien : le premier changement du journal ne peut pas être vérifié",
+      "safe": "Rien n’a été modifié ni effacé : l’application lit seulement ce journal, sans y écrire.",
+      "restore": "Restaurer depuis une copie : arrive avec les sauvegardes et le transfert depuis un autre appareil, pour que ces jours reviennent tels qu’ils ont été notés.",
+      "report": "Signaler un problème : arrive avec les rapports de problème, où les noms des élèves sont remplacés et le rapport est montré avant l’envoi."
     }
   }
 }

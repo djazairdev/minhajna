@@ -7,7 +7,8 @@
 // then the first PIN; afterwards the lock asks for the PIN or the phone's
 // prompt. Only then does the encrypted history (#19) open, and with
 // Algeria's reference data (#87) it must verify before navigation opens. On
-// a refusal, the offline welcome page shows, with no record contents. It
+// a refusal, the offline welcome page shows, with no record contents; a
+// history whose chain breaks shows, read-only, what still checks (#235). It
 // starts from the insets known at launch, so the first frame is drawn at
 // once. Once both are open, the screens reach the record book and the
 // profile through AppData, and the app opens on Today once setup has been
@@ -21,7 +22,7 @@
 // In development every problem in the reference data is logged, for whoever
 // keys it; teachers see one short message.
 
-import type { RecordBook } from '@minhajna/core';
+import type { CountryProfile, RecordBook } from '@minhajna/core';
 import { LocaleDirContext, type InitialState, type NavigationState } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { I18nManager, StatusBar, StyleSheet, View } from 'react-native';
@@ -44,6 +45,8 @@ import { Welcome } from './src/navigation/Welcome';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
 import { AppDataProvider } from './src/storage/AppData';
 import { nativeDeps, openRecordBook } from './src/storage/history';
+import { readBroken, type BrokenHistory } from './src/storage/broken-history';
+import { LogBroken } from './src/log/LogBroken';
 
 /** Shows the lock, then verifies the bundled reference data and private history before opening the preview. */
 export default function App({
@@ -66,7 +69,7 @@ export default function App({
   }, [files]);
   const lock = useLockPhase(storage);
   const { phase } = lock;
-  const { status: history, book } = useHistory(storage, phase.kind === 'open' ? phase.opening : null);
+  const { status: history, book, broken } = useHistory(storage, phase.kind === 'open' ? phase.opening : null);
   const random = useMemo(() => nativeDeps(storage).random, [storage]);
   const weekStartsOn = reference.ok ? reference.profile.weekStartsOn : null;
   const pilot = useMemo(
@@ -85,11 +88,11 @@ export default function App({
     setRoute(undefined);
     lockNow();
   }, [lockNow, firstState]);
-  useAutoLock(book !== null, lockMinutes, lockAway);
+  useAutoLock(book !== null || broken !== null, lockMinutes, lockAway);
   const open = phase.kind === 'open' && reference.ok && book !== null;
   const front = route ?? focusedRoute(firstState) ?? (book?.state.setupFinished ? 'Home' : 'Welcome');
   const refused = !reference.ok || phase.kind === 'refused' || history === 'refused';
-  const kind = open ? screenKind(front) : gateKind(phase, refused);
+  const kind = open ? screenKind(front) : broken !== null ? 'records' : gateKind(phase, refused);
   const [actions, setActions] = useState(0);
   const shown = useRef(kind);
   const raiseGuard = useCallback(() => {
@@ -151,7 +154,8 @@ export default function App({
               lock={lock}
               lockMinutes={lockMinutes}
               referenceRefused={!reference.ok}
-              historyRefused={phase.kind === 'refused' || history === 'refused'}
+              historyRefused={phase.kind === 'refused' || history === 'refused' || history === 'broken'}
+              broken={reference.ok && broken !== null ? { history: broken, profile: reference.profile } : null}
             />
           </LocaleDirContext.Provider>
         )}
@@ -173,6 +177,7 @@ function Gate({
   lockMinutes,
   referenceRefused,
   historyRefused,
+  broken,
 }: {
   phase: LockPhase;
   storage: Storage;
@@ -180,6 +185,8 @@ function Gate({
   lockMinutes: number;
   referenceRefused: boolean;
   historyRefused: boolean;
+  /** A history whose chain breaks, with the profile its log is named in. */
+  broken: { history: BrokenHistory; profile: CountryProfile } | null;
 }) {
   if (referenceRefused) return <Welcome referenceRefused historyRefused={historyRefused} />;
   switch (phase.kind) {
@@ -211,23 +218,32 @@ function Gate({
         />
       );
     default:
+      if (broken !== null) return <LogBroken broken={broken.history} profile={broken.profile} />;
       return <Welcome referenceRefused={referenceRefused} historyRefused={historyRefused} />;
   }
 }
 
-type HistoryStatus = 'opening' | 'open' | 'refused';
+type HistoryStatus = 'opening' | 'open' | 'refused' | 'broken';
+
+interface History {
+  readonly status: HistoryStatus;
+  readonly book: RecordBook | null;
+  readonly broken: BrokenHistory | null;
+}
 
 /**
  * Opens the history each time the lock opens it, and lets it go when the
  * lock closes it, so no record stays in memory behind the lock. A history
  * that does not verify, or whose key is gone, is never opened: the teacher
  * sees one short line, which names no pupil, and nothing from it is used
- * (PRD §5.5).
+ * (PRD §5.5). One whose rows still read but whose chain breaks is inspected
+ * read-only, to show what still checks (answer 427).
  */
-function useHistory(storage: Storage, opening: number | null): { status: HistoryStatus; book: RecordBook | null } {
-  const [history, setHistory] = useState<{ status: HistoryStatus; book: RecordBook | null; opening: number | null }>({
+function useHistory(storage: Storage, opening: number | null): History {
+  const [history, setHistory] = useState<History & { opening: number | null }>({
     status: 'opening',
     book: null,
+    broken: null,
     opening: null,
   });
   useEffect(() => {
@@ -235,19 +251,21 @@ function useHistory(storage: Storage, opening: number | null): { status: History
     let current = true;
     openRecordBook(storage).then(
       (book) => {
-        if (current) setHistory({ status: 'open', book, opening });
+        if (current) setHistory({ status: 'open', book, broken: null, opening });
       },
       (error: unknown) => {
         if (__DEV__) console.warn('History refused', error);
-        if (current) setHistory({ status: 'refused', book: null, opening });
+        void readBroken(storage).then((broken) => {
+          if (current) setHistory({ status: broken === null ? 'refused' : 'broken', book: null, broken, opening });
+        });
       },
     );
     return () => {
       current = false;
-      setHistory({ status: 'opening', book: null, opening: null });
+      setHistory({ status: 'opening', book: null, broken: null, opening: null });
     };
   }, [storage, opening]);
-  if (opening === null || history.opening !== opening) return { status: 'opening', book: null };
+  if (opening === null || history.opening !== opening) return { status: 'opening', book: null, broken: null };
   return history;
 }
 

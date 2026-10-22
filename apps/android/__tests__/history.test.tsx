@@ -126,7 +126,7 @@ describe('at start', () => {
     await ReactTestRenderer.act(() => tree!.unmount());
   });
 
-  test('says the first screen is drawn once when the history is refused too', async () => {
+  test('says the first screen is drawn once when the history does not verify too', async () => {
     const storage = FakeStorage.unlocked();
     storage.rows.push({
       seq: 0,
@@ -148,7 +148,7 @@ describe('at start', () => {
     });
     await typePin(tree!);
     expect(tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children)).toContain(
-      text.historyRefused,
+      text.log.broken.title,
     );
     expect(reportDrawn).toHaveBeenCalledTimes(1);
     await ReactTestRenderer.act(() => tree!.unmount());
@@ -175,28 +175,19 @@ describe('at start', () => {
     expect(storage.created).toBe(false);
   });
 
-  test('shows one line, and nothing from the history, when it does not verify', async () => {
+  test('shows what still checks, and nothing past the break, when the chain breaks', async () => {
     const storage = new FakeStorage();
     const log = await openLog(storage);
     await log.append(day, 'private', 'note', { text: 'kept' });
     storage.rows[0].hash = '0'.repeat(64);
     storage.pin = '1234';
+    const before = JSON.stringify(storage.rows);
 
-    expect(await shown(storage)).toEqual([
-      text.name,
-      text.tagline,
-      text.welcome.line,
-      text.historyRefused,
-      text.preview.badge,
-      text.preview.short,
-      text.language.label,
-      text.language.ar,
-      text.language.fr,
-      text.language.en,
-      text.welcome.noAccount,
-      text.welcome.offline,
-      text.welcome.onPhone,
-    ]);
+    const texts = await shown(storage);
+    expect(texts).toEqual(expect.arrayContaining([text.log.broken.title, text.log.broken.trustedNone]));
+    expect(texts).not.toContain(text.historyRefused);
+    expect(JSON.stringify(texts)).not.toContain('kept');
+    expect(JSON.stringify(storage.rows)).toBe(before);
     expect(warn).toHaveBeenCalledWith('History refused', expect.any(HistoryError));
   });
 
