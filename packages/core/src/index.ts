@@ -17,6 +17,7 @@ export { reorient, reorientedPupils, reorientRefusal, type Reorientation, type R
 export { halfTurns, rotationCredits, type Turns } from './rotation-sessions.ts';
 export { keptClashAt, type KeptClash, type SessionMove } from './session-moves.ts';
 export * from './lesson-notes.ts';
+export * from './distributions.ts';
 export {
   keepClash,
   moveRefusal,
