@@ -4,7 +4,8 @@
 // The words of a re-pace draft (#229, Repace, answers 364 and 365), as
 // facts: the counts, what changes against the current distribution, and
 // each week's row: its dates, its items with their stages or sessions as
-// fractions, tests in their place and the days the calendar takes.
+// fractions, tests in their place and the days the calendar takes, as the
+// screen and the printed draft both show them.
 
 import type { CountryProfile, PlanChoice, RepaceDraft, RepaceEntry, RepaceWeek } from '@minhajna/core';
 import { termName } from '../exams/course-label';
@@ -17,12 +18,6 @@ type Translate = ReturnType<typeof useText>;
 type Months = Pick<CountryProfile, 'months'>;
 
 const quoted = (t: Translate, title: string) => t('tests.quoted', { title: isolate(title) });
-
-/** What a choice is, whatever its place in the list: its kind and its items. */
-export function choiceKey(choice: PlanChoice): string {
-  const items = choice.kind === 'leave-out' ? [choice.item] : choice.items;
-  return `${choice.kind}:${items.map((item) => item.id).join('+')}`;
-}
 
 /** A choice in the words of the exam-window answer. */
 export function choiceWords(t: Translate, choice: PlanChoice): string {
@@ -141,4 +136,44 @@ export function rangeWords(t: Translate, draft: Pick<RepaceDraft, 'from' | 'to'>
     from: dayName(t, draft.from, language, profile),
     to: dayName(t, draft.to, language, profile),
   });
+}
+
+/** A row of the draft's weeks: its dates, what it takes, its plan sessions, and how it is read aloud. */
+export interface WeekRow {
+  readonly key: string;
+  readonly when: string;
+  readonly what: string;
+  readonly count: string;
+  readonly label: string;
+  readonly badge?: string;
+}
+
+/** The draft's rows: its weeks, TD on its own, then the exams or the term's end. */
+export function weekRows(t: Translate, draft: RepaceDraft, language: Language, profile: Months): WeekRow[] {
+  const weekPack = draft.weeks.some((week) => week.planWeeks.length > 0);
+  const rows: WeekRow[] = draft.weeks.map((week) => {
+    const when = weekDates(week, language, profile);
+    const items = week.entries.map((entry) => entryWords(t, entry, language, profile));
+    const what = [weekPack ? planWeekWords(t, week.planWeeks) : '', ...items].filter(Boolean).join(' · ');
+    const badge = weekProposes(draft, week) ? t('repace.proposed') : undefined;
+    const label = [when, what, t('count.sessions', { count: week.plan }), badge]
+      .filter(Boolean)
+      .join(t('repace.comma'));
+    return {
+      key: `week-${week.start}`,
+      when,
+      what,
+      count: String(week.plan),
+      label,
+      ...(badge !== undefined && { badge }),
+    };
+  });
+  if (draft.td !== null) {
+    const items = t('count.items', { count: draft.td.items });
+    const td = t('repace.tdRow', { items, sessions: t('count.sessions', { count: draft.td.gives }) });
+    rows.push({ key: 'td', when: t('repace.tdWhen'), what: td, count: String(draft.td.gives), label: td });
+  }
+  const end = endRow(t, draft, language, profile);
+  rows.push({ key: 'end', when: '', what: end, count: '—', label: end });
+  return rows;
 }

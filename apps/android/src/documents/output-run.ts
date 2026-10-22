@@ -5,7 +5,9 @@
 // it (#212, #217): the system's print screen, or a PDF saved where the
 // teacher picks; one at a time, a second tap ignored while the first runs;
 // then whether the file was saved or the document was not made. Nothing is
-// said once the screen has closed, or after a print or a cancelled save.
+// said once the screen has closed, or after a print or a cancelled save. A
+// print can be kept once it has gone to the print screen, as a primary
+// re-pace draft keeps its day (#229).
 
 import { useEffect, useRef, useState } from 'react';
 import pdf from '../native/NativeMinhajnaPdf';
@@ -50,9 +52,10 @@ export function useOutputRun() {
       );
   };
 
-  const print = (html: () => string, title: string, landscape: boolean) =>
+  const print = (html: () => string, title: string, landscape: boolean, printed?: () => void) =>
     run(async () => {
       await pdf.printHtml(html(), title, landscape);
+      printed?.();
       return null;
     });
 

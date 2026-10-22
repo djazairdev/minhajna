@@ -6,18 +6,26 @@
 // draft as ticks the teacher can take off while re-pacing is offered, what
 // changes against the current distribution, and the weeks. A tick follows
 // its choice, not its place in the list. «اعتماد التوزيع» records it with
-// its ticked decisions, and «تراجع» takes all of it back at once. In
-// primary the director approves it first, so it waits for the printed draft
-// and its approval date. Nothing applies before the teacher confirms.
+// its ticked decisions, and «تراجع» takes all of it back at once. The
+// draft can be printed (answer 371). In primary the director approves it
+// first, so it waits for the printed draft, shown with the choices printed
+// on it, and its approval date (RepaceApproval). Nothing applies before the
+// teacher confirms.
 
 import {
+  choiceKey,
   confirmRepace,
+  printedTicks,
   removeRepace,
+  repaceDocument,
   repaceDraft,
   repaceOffered,
+  repacePrinted,
   repacesOf,
   type Context,
+  type Day,
   type RecordEvent,
+  type RepaceDraft,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
@@ -29,13 +37,16 @@ import { Notice } from '../components/Notice';
 import { Snackbar } from '../components/Snackbar';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
-import { courseLabel } from '../exams/course-label';
+import { courseLabel, termName } from '../exams/course-label';
+import { useOutputRun } from '../documents/output-run';
+import { repaceHeader, repaceHtml } from '../documents/repace-html';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
-import { changeLines, choiceKey, choiceWords, countLines, rangeWords } from './repace-rules';
+import { RepaceApproval } from './RepaceApproval';
+import { changeLines, choiceWords, countLines, rangeWords } from './repace-rules';
 import { RepaceWeeks } from './RepaceWeeks';
 
 type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly message: string } | null;
@@ -43,7 +54,7 @@ type Said = { readonly undo: (now: Context) => readonly RecordEvent[]; readonly 
 export function Repace({ courseId }: { readonly courseId: string }) {
   const t = useText();
   const data = useAppData();
-  const { state, profile, recordAll, newId, today } = data;
+  const { state, profile, record, recordAll, newId, today } = data;
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const language = currentLanguage();
@@ -51,16 +62,27 @@ export function Repace({ courseId }: { readonly courseId: string }) {
   const day = today();
   const context = useMemo(() => coreContext(data), [data]);
   const [ticks, setTicks] = useState<readonly string[] | null>(null);
+  const [editing, setEditing] = useState(false);
+  const printed = useMemo(() => repacePrinted(state, courseId), [state, courseId]);
+  const suggested = useMemo(() => repaceDraft(context, courseId, day), [context, courseId, day]);
+  const onPaper = useMemo(
+    () => (suggested?.primary === true && printed !== null ? printedTicks(suggested, printed) : null),
+    [suggested, printed],
+  );
+  const waiting = onPaper !== null && !editing;
+  const status = printed === null ? 'draft' : waiting ? 'printed' : onPaper === null ? 'changed' : 'editing';
   const draft = useMemo(() => {
-    const suggested = repaceDraft(context, courseId, day);
-    if (ticks === null || suggested === null) return suggested;
+    if (suggested === null) return null;
+    if (waiting) return repaceDraft(context, courseId, day, onPaper);
+    if (ticks === null) return suggested;
     const picked = suggested.choices.flatMap((choice, index) => (ticks.includes(choiceKey(choice)) ? [index] : []));
     return repaceDraft(context, courseId, day, picked);
-  }, [context, courseId, day, ticks]);
+  }, [context, courseId, day, suggested, waiting, onPaper, ticks]);
   const offered = useMemo(() => repaceOffered(context, courseId, day), [context, courseId, day]);
   const newest = repacesOf(state, courseId).at(-1);
   const [said, setSaid] = useState<Said>(null);
   const [failed, setFailed] = useState(false);
+  const output = useOutputRun();
   const appliedFrom = useRef<typeof state | null>(null);
   const className = courseLabel(t, state, profile, courseId);
   const once = (events: readonly RecordEvent[], next: Said) => {
@@ -70,18 +92,42 @@ export function Repace({ courseId }: { readonly courseId: string }) {
     setSaid(next);
     setFailed(false);
   };
-  const confirm = () => {
+  const confirm = (approved?: Day) => {
     if (draft === null) return;
     const ids = { repace: newId(), decisions: draft.ticked.map(() => newId()) };
     let events: RecordEvent[];
     try {
-      events = confirmRepace(context, { courseId, ticked: draft.ticked, ids }, day);
+      events = confirmRepace(
+        context,
+        { courseId, ticked: draft.ticked, ids, ...(approved !== undefined && { approved }) },
+        day,
+      );
     } catch {
       setFailed(true);
       return;
     }
-    once(events, { undo: (now) => removeRepace(now, ids.repace, true), message: t('repace.confirmed') });
+    const message =
+      approved === undefined
+        ? t('repace.confirmed')
+        : t('repace.approvedDone', { day: dayName(t, approved, language, profile) });
+    once(events, { undo: (now) => removeRepace(now, ids.repace, true), message });
     setTicks(null);
+  };
+  const print = (shown: RepaceDraft) => {
+    const choices = shown.ticked.flatMap((index) => shown.choices[index] ?? []).map(choiceKey);
+    const header = repaceHeader(t, context, profile, courseId, day);
+    const kept = () => {
+      const documents = [{ id: repaceDocument(courseId), from: shown.from, to: shown.to, choices }];
+      record({ kind: 'print.recorded', print: { id: newId(), documents } });
+      setEditing(false);
+      setTicks(null);
+    };
+    output.print(
+      () => repaceHtml(t, shown, header, language, profile, direction),
+      t('repace.sheet.title', { term: termName(t, shown.term) }),
+      false,
+      shown.primary ? kept : undefined,
+    );
   };
   const undo = () => {
     if (said === null || appliedFrom.current === state) return;
@@ -141,7 +187,7 @@ export function Repace({ courseId }: { readonly courseId: string }) {
             </Text>
           ))}
         </View>
-        {offered && draft.choices.length > 0 && (
+        {offered && !waiting && draft.choices.length > 0 && (
           <View style={styles.group}>
             <Text accessibilityRole="header" style={[styles.label, align]}>
               {t('repace.choices')}
@@ -169,16 +215,47 @@ export function Repace({ courseId }: { readonly courseId: string }) {
           <Notice
             testID="repace-applied"
             icon={controlIcon('info')}
-            message={t('repace.applied', { day: dayName(t, newest.on, language, profile) })}
+            message={
+              newest.approved === undefined
+                ? t('repace.applied', { day: dayName(t, newest.on, language, profile) })
+                : t('repace.appliedApproved', {
+                    day: dayName(t, newest.on, language, profile),
+                    approved: dayName(t, newest.approved, language, profile),
+                  })
+            }
           />
         )}
         {failed && <Notice testID="repace-failed" icon={controlIcon('info')} message={t('repace.failed')} />}
-        {draft.primary ? (
-          <Notice testID="repace-primary" icon={controlIcon('info')} message={t('repace.primary')} />
-        ) : offered ? (
-          <Button testID="repace-confirm" label={t('repace.confirm')} onPress={confirm} />
-        ) : (
+        {output.said === 'failed' && (
+          <Notice testID="repace-print-failed" icon={controlIcon('info')} message={t('documents.output.failed')} />
+        )}
+        {!offered ? (
           <Notice testID="repace-not-offered" icon={controlIcon('info')} message={t('repace.notOffered')} />
+        ) : draft.primary ? (
+          <RepaceApproval
+            status={status}
+            printed={printed?.day ?? null}
+            today={day}
+            busy={output.busy}
+            profile={profile}
+            onPrint={() => print(draft)}
+            onRecord={confirm}
+            onEdit={() => {
+              setEditing(true);
+              setTicks(printed?.choices ?? null);
+            }}
+          />
+        ) : (
+          <View style={styles.group}>
+            <Button testID="repace-confirm" label={t('repace.confirm')} onPress={() => confirm()} />
+            <Button
+              testID="repace-print"
+              variant="line"
+              label={t('repace.print')}
+              disabled={output.busy}
+              onPress={() => print(draft)}
+            />
+          </View>
         )}
       </ScrollView>
       {said !== null && (

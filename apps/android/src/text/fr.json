@@ -2359,7 +2359,7 @@
     "tdRow": "TD : {{items}} pour {{sessions}}",
     "confirm": "Adopter la répartition",
     "confirmed": "Nouvelle répartition adoptée ; « Annuler » ou la liste des décisions la retire.",
-    "primary": "Au primaire, le projet est imprimé pour que le directeur l’approuve, et il ne s’applique qu’une fois la date d’approbation saisie. La répartition actuelle reste en vigueur.",
+    "primary": "Au primaire, la nouvelle répartition ne s’applique qu’une fois sa date d’approbation saisie.",
     "notOffered": "Pas besoin de répartir de nouveau pour l’instant : la classe suit sa répartition actuelle, et ce qui tombe après les examens se traite depuis « Fusionner des éléments ou laisser les optionnels ».",
     "applied": "Dernière répartition adoptée le {{day}}.",
     "failed": "Adoption impossible : les registres ont changé depuis l’ouverture du projet. Relisez-le puis réessayez.",
@@ -2367,6 +2367,27 @@
     "rungLine": "Un projet de nouvelle répartition jusqu’aux examens, autour des devoirs, des TD et des congés, à relire avant de l’adopter.",
     "open": "Projet de répartition",
     "decision": "Reste réparti de nouveau jusqu’au {{to}}, le {{on}}",
-    "takenBack": "Nouvelle répartition retirée ; « Annuler » la rétablit."
+    "takenBack": "Nouvelle répartition retirée ; « Annuler » la rétablit.",
+    "print": "Imprimer le projet",
+    "printForApproval": "Imprimer le projet pour approbation",
+    "record": "Saisir l’approbation",
+    "edit": "Non approuvé : modifier le projet",
+    "approvedWhen": "Date d’approbation du directeur, comme sur le projet signé",
+    "statusDraft": "Projet pas encore envoyé à l’impression. La répartition actuelle reste en vigueur.",
+    "statusPrinted": "Envoyé à l’impression le {{day}}, pas encore approuvé. La répartition actuelle reste en vigueur jusqu’à la saisie de la date d’approbation.",
+    "statusChanged": "Les choix proposés ont changé depuis l’envoi à l’impression du {{day}} : réimprimez le projet pour que le directeur l’approuve. La répartition actuelle reste en vigueur.",
+    "statusEditing": "Le projet envoyé à l’impression le {{day}} est en cours de modification ; réimprimez-le pour que le directeur l’approuve. La répartition actuelle reste en vigueur.",
+    "approvedDone": "Approbation du directeur du {{day}} saisie ; la nouvelle répartition s’applique dès aujourd’hui.",
+    "appliedApproved": "Dernière répartition saisie le {{day}}, approuvée par le directeur le {{approved}}.",
+    "sheet": {
+      "title": "Projet de répartition du reste du trimestre {{term}}",
+      "school": "{{school}} · Année scolaire {{year}}",
+      "date": "Date d’impression : {{day}}",
+      "who": "Nom et prénom : {{name}} · Matière : {{subject}} · Classe : {{class}}",
+      "prepared": "Signature de qui a préparé le projet : ....................",
+      "director": "Approbation du directeur de l’école",
+      "directorDate": "Date : ..... / ..... / ..........",
+      "stamp": "Cachet et signature :"
+    }
   }
 }

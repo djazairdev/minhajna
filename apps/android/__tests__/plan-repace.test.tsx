@@ -7,11 +7,11 @@
 // it back; the decisions list taking back the re-pace alone; and primary
 // waiting for the director. Made-up data only.
 
-import { awaitingBetween, confirmSessions, parseDay, repaceDraft, type Day } from '@minhajna/core';
+import { repaceDraft, type Day } from '@minhajna/core';
 import { useWindowDimensions, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
-import type { TestData } from '../jest/app-data';
+import { behind, behindInPrimary, repaceContext, repaceDay } from '../jest/repace-data';
 import {
   closeSettingsScreen,
   pressSettings,
@@ -23,7 +23,6 @@ import { withDay } from '../jest/today-day';
 import { CatchUp } from '../src/plan/CatchUp';
 import { Repace } from '../src/plan/Repace';
 import { entryWords, weekDates } from '../src/plan/repace-rules';
-import { coreContext } from '../src/storage/core-context';
 import { catalogues, i18n, missingKeys, useText } from '../src/text/i18n';
 
 jest.mock(
@@ -32,25 +31,9 @@ jest.mock(
 );
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({ __esModule: true, default: jest.fn() }));
 
-const day = parseDay('2026-10-15');
-const contextOf = (data: TestData) => coreContext({ ...data, state: data.book.state });
+const day = repaceDay;
+const contextOf = repaceContext;
 const has = (id: string) => settingsRoot().findAll((node) => node.props.testID === id).length > 0;
-
-/** The demo day with c-1's sessions not held, so items would land after the exams. */
-async function behind(): Promise<TestData> {
-  const data = await withDay();
-  const sessions = awaitingBetween(contextOf(data), parseDay('2026-10-11'), day).filter(
-    (one) => one.courseId === 'c-1',
-  );
-  await data.book.recordAll(
-    day,
-    confirmSessions(
-      contextOf(data),
-      sessions.map((session) => ({ session, choice: { outcome: 'not-held' } })),
-    ),
-  );
-  return data;
-}
 
 async function pressUndo(): Promise<void> {
   const [undo] = settingsRoot().findAll(
@@ -130,14 +113,9 @@ test('the decisions list takes back the re-pace alone, and «تراجع» brings
 });
 
 test('waits for the director in primary, and is not offered to a class on its plan', async () => {
-  const data = await behind();
-  const primary = { id: 'k-1', schoolId: 's-1', level: 'primary', grade: '4am', name: '4م1' } as const;
-  await data.book.record(day, {
-    kind: 'class.set',
-    schoolClass: { ...primary, groups: [{ id: 'k-1-w', kind: 'whole', name: '4م1' }] },
-  });
+  const data = await behindInPrimary();
   await showSettingsScreen(<Repace courseId="c-1" />, data);
-  expect(has('repace-primary')).toBe(true);
+  expect(has('repace-status')).toBe(true);
   expect(has('repace-confirm')).toBe(false);
 
   const onPlan = await withDay();

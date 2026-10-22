@@ -3,13 +3,15 @@
 
 // The re-pace tests' made-up setup (#229): the demo maths pack with
 // «Subtracting whole numbers» optional, the demo language pack with
-// «Writing 2» optional, and a book late on its plan.
+// «Writing 2» optional, a book late on its plan, and a draft printed for
+// the director.
 
 import {
   awaitingBetween,
   confirmSessions,
   makeContext,
   packKey,
+  repaceDocument,
   type Context,
   type Day,
   type RecordBook,
@@ -56,3 +58,9 @@ export const contextOf = (book: RecordBook): Context => makeContext(ref, book.st
 export const itemIds = (draft: RepaceDraft): string[] =>
   draft.weeks.flatMap((week) => week.entries.flatMap((entry) => (entry.kind === 'item' ? [entry.item.id] : [])));
 export const plan = (draft: RepaceDraft): number => draft.weeks.reduce((sum, week) => sum + week.plan, 0);
+
+/** Records the class's draft as printed on `day`, with the keys of the choices ticked on it. */
+export async function printed(book: RecordBook, day: Day, courseId: string, choices: readonly string[] = []) {
+  const documents = [{ id: repaceDocument(courseId), from: day, to: day, choices }];
+  await book.record(day, { kind: 'print.recorded', print: { id: `pr-${day}`, documents } });
+}
