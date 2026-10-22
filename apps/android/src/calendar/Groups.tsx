@@ -22,7 +22,10 @@ import { GroupPreview } from './GroupPreview';
 import { PreviewActions } from './PreviewActions';
 import { useCalendarPreview } from './useCalendarPreview';
 
-/** Local school rules for one class, with separately reviewed roster preparation. */
+/**
+ * Local school rules for one class, with separately reviewed roster preparation. A class archived after a
+ * reorientation is offered only for its own rotation already set (#231).
+ */
 export function Groups({
   schoolId,
   old,
@@ -36,7 +39,9 @@ export function Groups({
   const t = useText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
-  const classes = [...data.state.classes.values()].filter((one) => one.schoolId === schoolId);
+  const classes = [...data.state.classes.values()].filter(
+    (one) => one.schoolId === schoolId && (one.archivedFrom === undefined || one.id === old?.rotation?.classId),
+  );
   const [classId, setClass] = useState(old?.rotation?.classId ?? classes[0]?.id ?? '');
   const schoolClass = classes.find((one) => one.id === classId);
   return (

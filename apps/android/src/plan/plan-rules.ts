@@ -27,10 +27,11 @@ export interface PlanGroup {
   readonly classes: readonly SchoolClass[];
 }
 
-/** Each grade and subject the teacher teaches, in the order the classes were added. */
+/** Each grade and subject the teacher teaches, in the order the classes were added; archived classes aside (#231). */
 export function planGroups(state: State): PlanGroup[] {
   const groups = new Map<string, { grade: string; subject: string; classes: SchoolClass[] }>();
   for (const schoolClass of state.classes.values()) {
+    if (schoolClass.archivedFrom !== undefined) continue;
     for (const grade of classGrades(schoolClass)) {
       for (const subject of state.schools.get(schoolClass.schoolId)?.subjects ?? []) {
         const key = `${grade}/${subject}`;

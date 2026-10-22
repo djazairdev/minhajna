@@ -6,6 +6,8 @@
 // day until the teacher picks one. Its name is written from the class and the
 // term in each of the app's languages; moving it to another day forgets that
 // it was held.
+// A class archived after a reorientation is offered only for its own
+// council already set (#231).
 
 import { maxDay, minDay, setCalendarEntry, type CalendarEntry, type Day, type Term } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -63,7 +65,9 @@ export function Council({
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const context = coreContext(data);
-  const classes = [...data.state.classes.values()].filter((one) => one.schoolId === schoolId);
+  const classes = [...data.state.classes.values()].filter(
+    (one) => one.schoolId === schoolId && (one.archivedFrom === undefined || one.id === old?.council?.classId),
+  );
   const terms = data.year.terms.map((one) => one.number);
   const [id] = useState(() => old?.id ?? data.newId());
   const [classId, setClass] = useState(old?.council?.classId ?? classes[0]?.id ?? '');

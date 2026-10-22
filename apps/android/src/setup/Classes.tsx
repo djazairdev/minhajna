@@ -9,6 +9,7 @@
 // (#43). There is no limit on a class's size (R-3.2-12). Until
 // there is a demo class, «إضافة القسم التجريبي» offers one: 45 made-up pupils
 // for trying the app (PRD §1.5), which the field check uses (choice F1, #49).
+// A class archived after a reorientation is not listed (#231).
 
 import { isJoint, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -100,7 +101,9 @@ export function Classes({
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const schools = [...state.schools.values()];
-  const classes = [...state.classes.values()].filter((schoolClass) => state.schools.has(schoolClass.schoolId));
+  const classes = [...state.classes.values()].filter(
+    (schoolClass) => state.schools.has(schoolClass.schoolId) && schoolClass.archivedFrom === undefined,
+  );
   const sizeOf = (id: string) => [...state.pupils.values()].filter((pupil) => pupil.classId === id).length;
   const yearsOf = (schoolClass: SchoolClass) =>
     isJoint(schoolClass)

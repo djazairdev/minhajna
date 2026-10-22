@@ -19,10 +19,12 @@
 // comes by plan week, its pace in plan weeks (#230, PlanRows.tsx). A stale
 // pack shows its reason and the ways to work with the class instead of its
 // pace and rows (StalePlan.tsx). A hybrid pack's weekly targets show on the
-// pace card and after their items (#231, WeekTargets.tsx).
+// pace card and after their items (#231, WeekTargets.tsx). An archived
+// class has no pace: the card says since when it is archived (#231).
 
 import {
   behindPlan,
+  compareDays,
   courseSetup,
   formatDay,
   pace,
@@ -103,7 +105,12 @@ export function ClassPlan(props: ClassPlanProps) {
   const stale = view !== null && courseSetup(context, courseId).packStale;
   const schoolClass = course && state.classes.get(course.classId);
   const subject = profile.subjects.find((candidate) => candidate.code === course?.subject);
-  const paced = useMemo(() => (view === null ? null : pace(context, courseId, day)), [view, context, courseId, day]);
+  const from = schoolClass?.archivedFrom;
+  const archived = from !== undefined && compareDays(day, from) >= 0 ? from : undefined;
+  const paced = useMemo(
+    () => (view === null || archived !== undefined ? null : pace(context, courseId, day)),
+    [view, archived, context, courseId, day],
+  );
   const offered = useMemo(() => repaceOffered(context, courseId, day), [context, courseId, day]);
   const targets = useMemo(() => weekTargets(context, courseId, day), [context, courseId, day]);
   const item = onItem === undefined ? {} : { onItem };
@@ -111,7 +118,7 @@ export function ClassPlan(props: ClassPlanProps) {
     weeksBehindLine(t, paced) ??
     paceLine(
       t,
-      { pace: paced, check },
+      { pace: paced, check, ...(archived !== undefined && { archived }) },
       minutes && view !== null ? courseSetup(context, courseId).sessionMinutes : undefined,
     );
 

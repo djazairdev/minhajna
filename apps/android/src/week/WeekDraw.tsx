@@ -17,6 +17,7 @@
 // something (#230, answer 385). A week of two schools tags each class with its
 // school, counts each school's sessions, and outlines clashing slots. A clash
 // on Setup-5-Week opens here with its slot on Week-slot.
+// A class archived after a reorientation is not offered (#231).
 
 import {
   SATURDAY,
@@ -79,7 +80,9 @@ export function WeekDraw({
   const records = useWeekRecords();
   const [open, setOpen] = useState<Cell | null>(openAt ?? null);
   const version = draft.value;
-  const classes = [...state.classes.values()].filter((schoolClass) => state.schools.has(schoolClass.schoolId));
+  const classes = [...state.classes.values()].filter(
+    (schoolClass) => state.schools.has(schoolClass.schoolId) && schoolClass.archivedFrom === undefined,
+  );
   const [pen, setPen] = useState(classes[0]?.id ?? 'own');
   const options = version.options ?? {};
   const labels = gridLabels(t, weekGrid(profile, options));

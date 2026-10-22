@@ -1858,7 +1858,8 @@
       "rotationGroup": "{{class}} · {{group}}",
       "topic": "Thème",
       "signature": "Émargement",
-      "none": "Aucune séance confirmée ce mois-ci."
+      "none": "Aucune séance confirmée ce mois-ci.",
+      "reshaped": "Classe recomposée le {{day}}"
     },
     "supervised": {
       "name": "Séances surveillées ou supplémentaires",
@@ -2588,14 +2589,15 @@
       "mixed-classes": "Les anciennes classes sont d’établissements ou de niveaux différents.",
       "archived": "Une des classes est déjà archivée.",
       "day": "Ce jour est hors de l’année scolaire.",
-      "past": "Ce jour est passé : la recomposition s’applique à partir d’aujourd’hui ou d’un jour suivant.",
+      "past": "Le jour où cet écran a été ouvert est passé : rouvrez-le.",
+      "future": "Une recomposition s’applique le jour où elle commence, pas avant.",
       "no-name": "Chaque nouvelle classe a besoin d’un nom.",
       "same-name": "Deux nouvelles classes ont le même nom.",
       "other-history": "Une nouvelle classe reprend l’historique d’une classe non choisie.",
-      "recorded": "Des séances d’une ancienne classe sont enregistrées ce jour-là ou après : choisissez un jour après la dernière enregistrée.",
-      "test": "Un devoir surveillé d’une ancienne classe est prévu ce jour-là ou après : déplacez-le ou annulez-le d’abord.",
-      "added": "Une séance ajoutée d’une ancienne classe est prévue ce jour-là ou après : déplacez-la ou annulez-la d’abord.",
-      "timetable": "Un emploi du temps commence après ce jour : choisissez un jour qui ne le précède pas.",
+      "recorded": "Une séance d’une ancienne classe est enregistrée aujourd’hui : ouvrez la recomposition demain, avant d’enregistrer ses séances.",
+      "test": "Un devoir surveillé d’une ancienne classe est prévu aujourd’hui ou après : déplacez-le ou annulez-le d’abord.",
+      "added": "Une séance ajoutée d’une ancienne classe est prévue aujourd’hui ou après : déplacez-la ou annulez-la d’abord.",
+      "timetable": "Un emploi du temps commence après aujourd’hui : revenez à la recomposition le jour où il commence.",
       "unknown-target": "Un élève va vers une classe retirée."
     },
     "ask": "{{olds}} seront archivées à partir du {{day}}, et {{pupils}} les quittent pour leurs nouvelles classes. Une recomposition appliquée ne s’annule pas en une seule fois.",
@@ -2603,6 +2605,7 @@
     "confirm": "Appliquer",
     "untaken": "Aucune nouvelle classe ne reprend son historique : son plan et son cahier de textes restent avec elle, archivés.",
     "askOne": "{{olds}} sera archivée à partir du {{day}}, et {{pupils}} la quittent pour leurs nouvelles classes. Une recomposition appliquée ne s’annule pas en une seule fois.",
-    "andNames": " et "
+    "andNames": " et ",
+    "day": "S’applique à partir d’aujourd’hui, {{day}} : ouvrez-la le jour où les nouvelles listes vous parviennent."
   }
 }

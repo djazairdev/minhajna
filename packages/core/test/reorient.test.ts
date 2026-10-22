@@ -189,6 +189,7 @@ describe('reorientation', () => {
     const other = { ...plan, classes: [{ name: 'X', takes: 'k-5apb' }] };
     assert.throws(() => reorient(fresh, other, day, ids()), /other-history/);
     assert.throws(() => reorient(fresh, plan, d('2026-10-09'), ids()), /^RangeError: past$/);
+    assert.throws(() => reorient(fresh, plan, d('2026-10-07'), ids()), /^RangeError: future$/);
     assert.throws(() => reorient(fresh, { ...plan, pupils: new Map([['p01', 5]]) }, day, ids()), /unknown-target/);
     const tested = await openBook(twoClasses());
     await tested.record(d('2026-10-01'), {

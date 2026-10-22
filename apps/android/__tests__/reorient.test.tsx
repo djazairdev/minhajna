@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Reshaping classes after reorientation (#231, Reorient, answer 391): the
-// screen starts on 8 October for 2AS with the class's level, each old class
+// screen starts on the day it is opened with the class's level, each old class
 // becoming a new class of its name; it previews each new class and where the
-// pupils go, applies the reshaping in one step and says so; a pupil sent to
-// a class the teacher does not teach leaves only; a reshaping that does not
-// hold is refused with its reason; applying asks first; an old class whose
-// history no new class takes says so; the row shows only in a lycée class's
-// settings; an archived class reads as such; and every text in each
-// language. Made-up classes only.
+// pupils go, applies the reshaping in one step and says so; a pupil sent to a
+// class the teacher does not teach leaves only; a reshaping that does not hold
+// is refused with its reason; applying asks first; an old class whose history
+// no new class takes says so; the row shows only in a lycée class's settings;
+// an archived class reads as such; and every text in each language. Made-up
+// classes only.
 
 import { parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -47,7 +47,7 @@ afterEach(async () => {
   onDone.mockReset();
 });
 
-async function mount(data: TestData, element: React.ReactElement, today = '2026-10-06') {
+async function mount(data: TestData, element: React.ReactElement, today = '2026-10-08') {
   await ReactTestRenderer.act(() => tree?.unmount());
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
@@ -104,10 +104,10 @@ const iso = (value: string) => `\u2068${value}\u2069`;
 test('starts on 8 October with the level, previews the new classes and applies in one step', async () => {
   const data = await withReshape();
   await reshape(data);
-  expect(root().findAll((node) => node.props.testID === 'reorient-day-2026-10-08').length).toBeGreaterThan(0);
   const lines = shown();
   expect(lines).toEqual(
     expect.arrayContaining([
+      `تُطبَّق ابتداءً من اليوم، ${iso('08/10/2026')}: افتحها يوم تصلك قوائم الأقسام الجديدة.`,
       `${iso('2 ع ت 1')} الجديد · 6 تلاميذ`,
       `تلاميذه: 6 من ${iso('2 ع ت 1')} القديم.`,
       `يتابع دفتر نصوص ${iso('2 ع ت 1')} القديم، بسطر «أُعيد تشكيل القسم يوم ${iso('08/10/2026')}».`,
@@ -183,22 +183,16 @@ test('refuses a reshaping that does not hold, with its reason', async () => {
   expect(shown()).toContain(text.reorient.refused['same-name']);
   await type('reorient-name-1', '2 ع ت 2');
   expect(disabled('reorient-apply')).toBe(false);
-  await press('reorient-day-2026-10-06');
-  expect(disabled('reorient-apply')).toBe(false);
   await press('reorient-olds-k-b');
   const spy = alert();
   await press('reorient-apply');
   expect(spy.mock.calls.at(-1)?.[1]).toBe(
-    `يُؤرشف ${iso('2 ع ت 1')} ابتداءً من ${iso('06/10/2026')}، ويغادره 6 تلاميذ إلى أقسامهم الجديدة. ` +
+    `يُؤرشف ${iso('2 ع ت 1')} ابتداءً من ${iso('08/10/2026')}، ويغادره 6 تلاميذ إلى أقسامهم الجديدة. ` +
       'ولا يُتراجع عن إعادة التشكيل دفعة واحدة بعد تطبيقها.',
   );
   spy.mockRestore();
   await press('reorient-olds-k-a');
   expect(shown()).toContain(text.reorient.refused.none);
-  await reshape(data, '2026-10-09');
-  await press('reorient-day-more');
-  await press('reorient-day-2026-10-08');
-  expect(shown()).toContain(text.reorient.refused.past);
   await data.book.record(parseDay('2026-10-06'), {
     kind: 'test.set',
     test: {
@@ -244,6 +238,7 @@ test('offers the reshaping in a lycée class’s settings only, and shows an arc
   await mount(data, page('c-k-a'), '2026-10-11');
   expect(root().findAll((node) => node.props.testID === 'class-settings-reorient')).toHaveLength(0);
   expect(root().findAll((node) => node.props.testID === 'class-move')).toHaveLength(0);
+  expect(root().findAll((node) => node.props.testID === 'class-settings-move')).toHaveLength(0);
   expect(shown()).toContain(`أُعيد تشكيل هذا القسم: مؤرشف منذ ${iso('08/10/2026')}، يُقرأ ويُطبع ولا تُضاف إليه حصص.`);
   await mount(data, <ClassesTab onClass={jest.fn()} onBook={jest.fn()} />, '2026-10-11');
   const lines = shown();

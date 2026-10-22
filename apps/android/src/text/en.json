@@ -1826,7 +1826,8 @@
       "rotationGroup": "{{class}} · {{group}}",
       "topic": "Topic or work set",
       "signature": "Signature",
-      "none": "No session confirmed this month yet."
+      "none": "No session confirmed this month yet.",
+      "reshaped": "Class reshaped on {{day}}"
     },
     "supervised": {
       "name": "Supervised or additional lessons",
@@ -2543,14 +2544,15 @@
       "mixed-classes": "The old classes are of different schools or years.",
       "archived": "One of the classes is already archived.",
       "day": "This day is outside the school year.",
-      "past": "This day has gone by: the reshaping applies from today or a later day.",
+      "past": "The day this screen was opened has passed: open it again.",
+      "future": "A reshaping applies on the day it starts, not before.",
       "no-name": "Each new class needs a name.",
       "same-name": "Two new classes have the same name.",
       "other-history": "A new class takes the history of a class not chosen.",
-      "recorded": "Sessions of an old class are recorded on or after this day: choose a day after the last one recorded.",
-      "test": "A test of an old class is set on or after this day: move or cancel it first.",
-      "added": "An added session of an old class is set on or after this day: move or cancel it first.",
-      "timetable": "A timetable starts after this day: choose a day not before it.",
+      "recorded": "A session of an old class is recorded today: open the reshaping tomorrow, before recording its sessions.",
+      "test": "A test of an old class is set for today or later: move or cancel it first.",
+      "added": "An added session of an old class is set for today or later: move or cancel it first.",
+      "timetable": "A timetable starts after today: come back to the reshaping on its first day.",
       "unknown-target": "A pupil goes to a removed class."
     },
     "ask": "{{olds}} will be archived from {{day}}, and {{pupils}} leave them for their new classes. A reshaping can’t be undone in one step once applied.",
@@ -2558,6 +2560,7 @@
     "confirm": "Apply",
     "untaken": "No new class takes its history: its plan and texts book stay with it, archived.",
     "askOne": "{{olds}} will be archived from {{day}}, and {{pupils}} leave it for their new classes. A reshaping can’t be undone in one step once applied.",
-    "andNames": " and "
+    "andNames": " and ",
+    "day": "Applies from today, {{day}}: open it on the day the new class lists reach you."
   }
 }

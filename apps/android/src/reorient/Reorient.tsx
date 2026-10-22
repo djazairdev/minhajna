@@ -3,12 +3,13 @@
 
 // «إعادة تشكيل الأقسام» (#231, Reorient, R-4.7-39, answer 391): from a lycée
 // class's settings, the teacher reshapes its level's classes after
-// reorientation. The day, 8 October for 2AS; the old classes, archived from
-// it; the new classes, each with the old class whose history it takes and a
-// preview of where its plan and lists stand; where each pupil goes; and what
-// stays with the old classes. Nothing changes before «تطبيق إعادة التشكيل» is
-// confirmed, naming the classes archived, the day and the pupils who leave
-// them; it is refused, with the reason, while the reshaping does not hold.
+// reorientation, on the day the new class lists come, from that day: the old
+// classes, archived from it; the new classes, each with the old class whose
+// history it takes and a preview of where its plan and lists stand; where each
+// pupil goes; and what stays with the old classes. Nothing changes before
+// «تطبيق إعادة التشكيل» is confirmed, naming the classes archived, the day and
+// the pupils who leave them; it is refused, with the reason, while the
+// reshaping does not hold.
 
 import {
   addDays,
@@ -29,7 +30,6 @@ import { SectionHeader } from '../components/SectionHeader';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { frontDate } from '../documents/front-tables';
-import { DayChoice } from '../moves/DayChoice';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
@@ -87,7 +87,9 @@ export function Reorient({ classId, onDone }: { classId: string; onDone: () => v
     <View style={[styles.screen, { direction }]}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, padding]}>
         <Text style={[styles.note, align]}>{t('reorient.note')}</Text>
-        <DayChoice testID="reorient-day" day={plan.day} onDay={(day) => setPlan({ ...plan, day })} />
+        <Text testID="reorient-day" style={[styles.body, align]}>
+          {t('reorient.day', { day: date(plan.day) })}
+        </Text>
         <ChipGroup
           testID="reorient-olds"
           label={t('reorient.olds')}

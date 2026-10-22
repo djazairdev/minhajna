@@ -10,7 +10,8 @@
 // back with «تراجع». Under the exams, «إضافة حراسة أو اختبار» opens the
 // form for the school's paper before the week starts (answer 270). Tests
 // come from the teacher only, so there is no «من رزنامة المؤسسة» badge
-// until the school's calendar exists.
+// until the school's calendar exists. A class archived after a
+// reorientation shows its tests but takes no new one (#231).
 
 import { nextExams, type ScheduledTest } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -62,7 +63,10 @@ export function TestSchedule({ courseId, onCourse, onDuty }: TestScheduleProps) 
 
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
-  const courses = [...state.courses.values()].filter((one) => state.classes.has(one.classId));
+  const courses = [...state.courses.values()].filter((one) => {
+    const room = state.classes.get(one.classId);
+    return room !== undefined && (room.archivedFrom === undefined || one.id === courseId);
+  });
   const label = (id: string): string => courseLabel(t, state, profile, id);
   const tests = courseTests(context, courseId);
   const exams = course === undefined ? null : nextExams(context, courseId, today());
@@ -155,7 +159,7 @@ export function TestSchedule({ courseId, onCourse, onDuty }: TestScheduleProps) 
         {exams !== null && onDuty !== undefined && (
           <Button testID="tests-duty" variant="line" label={t('duties.open')} onPress={() => onDuty(exams.from)} />
         )}
-        {schoolClass === undefined ? null : adding ? (
+        {schoolClass === undefined || schoolClass.archivedFrom !== undefined ? null : adding ? (
           <AddTest
             context={context}
             courseId={courseId}

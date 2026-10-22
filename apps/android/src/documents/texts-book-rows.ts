@@ -10,9 +10,12 @@
 // its real length (R-4.5-14), and is written as by hand too, «08سا – 09سا».
 // Each month starts a page, and the pages of a course are numbered from the
 // school year's first, so a month printed later carries on where the one
-// before stopped.
+// before stopped. A class reshaped after reorientation carries on the book
+// of the class whose history it takes, its own first row opening with
+// «أُعيد تشكيل القسم يوم …» (#231, answer 391).
 
 import {
+  compareDays,
   courseSetup,
   current,
   formatTextsBookDay,
@@ -133,6 +136,21 @@ export function bookRow(
   };
 }
 
+/** The rows with the course's first own row, after a reorientation, opening with the day the class was reshaped. */
+export function withReshape<Row extends BookRow>(
+  rows: readonly Row[],
+  own: (row: Row) => boolean,
+  course: Course,
+  t: Translate,
+  dir: Direction,
+): Row[] {
+  const from = course.continues?.from;
+  const first = from === undefined ? -1 : rows.findIndex(own);
+  if (from === undefined || first < 0) return [...rows];
+  const line = { text: t('documents.textsBook.reshaped', { day: bookDate(from, dir) }) };
+  return rows.map((row, index) => (index === first ? { ...row, lines: [line, ...row.lines] } : row));
+}
+
 /** The course's confirmed sessions from `from` to `to`, as the book's rows. */
 export function bookRows(
   data: DocumentData,
@@ -147,10 +165,14 @@ export function bookRows(
   const pack = courseSetup(context, course.id).pack;
   const schoolClass = state.classes.get(course.classId);
   const school = schoolClass && state.schools.get(schoolClass.schoolId);
-  return sessionsBetween(context, from, to, new Set([course.id])).flatMap((session) => {
+  const start = course.continues === undefined ? from : data.year.from;
+  const rows = sessionsBetween(context, start, to, new Set([course.id])).flatMap((session) => {
     const record = current(state.sessions.get(session.key));
-    return record === null ? [] : [bookRow(data, { school, pack }, session, record, t, dir)];
+    return record === null ? [] : [{ ...bookRow(data, { school, pack }, session, record, t, dir), session }];
   });
+  return withReshape(rows, (row) => row.session.courseId === course.id, course, t, dir).filter(
+    (row) => compareDays(row.day, from) >= 0,
+  );
 }
 
 /** The pages a course's confirmed sessions fill from the year's first day to the day before `month` starts. */

@@ -8,7 +8,9 @@
 // class's own list without a pack (#227), which asks before leaving it
 // with changes not saved, and its offer for review; and the catch-up
 // options of a class behind its plan (#228); and «سؤال المفتش» about a
-// stale pack (#230).
+// stale pack (#230). An archived class's plan reads only: its pack's
+// details and its tests, with no change, list, catch-up or item to open, so
+// nothing it records reaches the class that took its history (#231).
 // `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
 
 import { usePreventRemove } from '@react-navigation/native';
@@ -16,6 +18,7 @@ import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { ClassPlan } from '../classes/ClassPlan';
+import { useAppData } from '../storage/AppData';
 import { LayerExport } from '../plan/LayerExport';
 import { LayerImport } from '../plan/LayerImport';
 import { PlanChanges } from '../plan/PlanChanges';
@@ -37,6 +40,18 @@ import type { RootStackParamList } from './routes';
 /** A class's plan. */
 export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ClassPlan'>) {
   const { courseId } = route.params;
+  const { state } = useAppData();
+  const archived = state.classes.get(state.courses.get(courseId)?.classId ?? '')?.archivedFrom !== undefined;
+  if (archived) {
+    return (
+      <ClassPlan
+        courseId={courseId}
+        onTests={() => navigation.navigate('TestSchedule', { courseId })}
+        onCourse={(id) => navigation.setParams({ courseId: id })}
+        onDetails={() => navigation.navigate('PlanDetails', { courseId })}
+      />
+    );
+  }
   return (
     <ClassPlan
       courseId={courseId}

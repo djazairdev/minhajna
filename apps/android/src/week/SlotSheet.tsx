@@ -7,6 +7,7 @@
 // slot needs, keeps an activity type only on a session of the main plan,
 // and hands the drawing its new version; closing keeps nothing. Opening a
 // class's list keeps the slot in the drawing first.
+// A class archived after a reorientation is not offered (#231).
 
 import type { ListKind, TimetableVersion } from '@minhajna/core';
 import { weekClashes } from '@minhajna/core';
@@ -66,7 +67,9 @@ function SlotEditor({
   const t = useText();
   const { state, profile, newId } = useAppData();
   const [items, setItemsState] = useState<SlotItem[]>(() => itemsAt(version, records.lookup, cell).slice(0, 2));
-  const classes = [...state.classes.values()].filter((schoolClass) => state.schools.has(schoolClass.schoolId));
+  const classes = [...state.classes.values()].filter(
+    (schoolClass) => state.schools.has(schoolClass.schoolId) && schoolClass.archivedFrom === undefined,
+  );
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [first, second] = items;
   const pair = first !== undefined && first.weeks !== 'every' ? first.weeks : null;

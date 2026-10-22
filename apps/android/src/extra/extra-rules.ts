@@ -5,6 +5,7 @@
 // the teacher's classes in each subject as choices and their courses, the
 // days a session can be dated, the number its row takes on the page, and
 // the month's days on a grid that starts on Sunday.
+// A class archived after a reorientation is not offered (#231).
 
 import {
   addDays,
@@ -64,7 +65,8 @@ export function classChoices(
   year: string,
   levelLabel: (grade: string) => string,
 ): ClassChoice[] {
-  const pairs = [...state.classes.values()].flatMap((schoolClass) => {
+  const live = [...state.classes.values()].filter((schoolClass) => schoolClass.archivedFrom === undefined);
+  const pairs = live.flatMap((schoolClass) => {
     const taught = [...state.courses.values()].filter((course) => course.classId === schoolClass.id);
     const subjects = new Set([
       ...taught.map((course) => course.subject),

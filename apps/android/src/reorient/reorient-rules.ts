@@ -3,15 +3,13 @@
 
 // What the reorientation screen works from (#231, Reorient, R-4.7-39,
 // answer 391): the classes a lycée class is reshaped with, the plan the
-// screen starts from, on 8 October for 2AS, and each new class as it would
+// screen starts from, on the day it is applied, and each new class as it would
 // be: how many pupils it gets and from where, and, for each of its subjects,
 // where the plan and the TD list it takes stand. The old classes' plans are
 // read as of the day before, since nothing is recorded on or after it.
 
 import {
   addDays,
-  isWithin,
-  parseDay,
   planView,
   reorientedPupils,
   type Context,
@@ -44,20 +42,11 @@ export function reshapedWith(context: Context, classId: string): SchoolClass[] {
   return [one, ...others];
 }
 
-/** The day the screen starts on: 8 October for 2AS, from two months before it until the day itself; else today. */
-export function reshapeDay(context: Context, grade: string, today: Day): Day {
-  const october = parseDay(`${context.ref.year.from.slice(0, 4)}-10-08`);
-  const near = isWithin(today, addDays(october, -60), october);
-  return grade === '2as' && near && isWithin(october, addDays(context.ref.year.from, 1), context.ref.year.to)
-    ? october
-    : today;
-}
-
-/** The plan the screen starts from: each old class becomes a new class of its name that takes its history. */
+/** The plan the screen starts from, today: each old class becomes a new class of its name that takes its history. */
 export function startPlan(context: Context, classId: string, today: Day): Reorientation {
   const olds = reshapedWith(context, classId);
   return {
-    day: reshapeDay(context, olds[0]?.grade ?? '', today),
+    day: today,
     olds: olds.map((one) => one.id),
     classes: olds.map((one) => ({ name: one.name, takes: one.id })),
     pupils: new Map(),
