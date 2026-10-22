@@ -2,23 +2,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Reshaping a level's classes after reorientation (#231, Reorient, R-4.7-39,
-// answer 391), such as 2AS on 8 October: from the day the teacher picks,
-// the old classes are archived, read and print only, and each new class's
-// course continues the course of the old class it names, taking its
-// recorded sessions, plan position and changes, layers and lists. Every
-// pupil of the old classes leaves on that day, «تغيير القسم», and joins the
-// new class chosen for them, or none for a class the teacher does not
-// teach; their roll calls stay with the old class. The timetable's
-// sessions of an old class's courses go to the new class that takes its
-// history, from that day; a second new class taking the same history starts
-// with none, to draw. The day is the one the reshaping is recorded on: never
-// one gone by, since a timetable never reaches back before the day it is
-// recorded (PRD §4.6) and the sessions in between would belong to no class;
-// never one to come, so an old class is never left waiting for its archive.
-// Tests and added sessions of the old classes on or after the day are moved
-// or cancelled first; homework that comes back on or
-// after it stays with the old class, uncounted, its list gone. Nothing is
-// recorded until the events are.
+// answers 391 and 393), on the day the new class lists come, such as 8 October
+// for 2AS: from that day, the old classes are archived, read and print only,
+// and each new class's course continues the course of the old class it names,
+// taking its recorded sessions, plan position and changes, layers and lists.
+// Every pupil of the old classes leaves on that day, changing class, and joins
+// the new class chosen for them, or none for a class the teacher does not
+// teach; their roll calls stay with the old class. The timetable's sessions of
+// an old class's courses go to the new class that takes its history, from that
+// day; a second new class taking the same history starts with none, to draw.
+// The day is the one the reshaping is recorded on: never one gone by, since a
+// timetable never reaches back before the day it is recorded (PRD §4.6) and the
+// sessions in between would belong to no class; never one to come, so an old
+// class is never left waiting for its archive. Tests and added sessions of the
+// old classes on or after the day are moved or cancelled first; homework that
+// comes back on or after it stays with the old class, uncounted, its list gone.
+// Nothing is recorded until the events are.
 
 import type { Context } from './context.ts';
 import { addDays, compareDays, isWithin, type Day } from './day.ts';

@@ -14,7 +14,7 @@ import { LocaleDirContext } from '@react-navigation/native';
 import { Text, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { withData, type TestData } from '../jest/app-data';
-import { withDay } from '../jest/today-day';
+import { withHalves } from '../jest/halves-class';
 import { i18n, type Language } from '../src/text/i18n';
 import { Today } from '../src/today/Today';
 
@@ -55,50 +55,6 @@ async function press(id: string) {
   await ReactTestRenderer.act(() => {
     (control?.props as PressableProps).onPress?.({} as never);
   });
-}
-
-/**
- * 4م1 in two halves from `from`: the whole class at 08:00 on Thursday, the first half at 09:00 every week, the
- * second on Sunday at 08:00 in `weeks`.
- */
-async function withHalves(from = '2026-10-15', weeks: 'every' | 'A' = 'A'): Promise<TestData> {
-  const data = await withDay();
-  const [timetable] = data.book.state.timetables;
-  const half = (id: string, weekday: 0 | 4, index: number, groupId: string, weeks: 'every' | 'A'): TimetableEntry => ({
-    id,
-    weekday,
-    slot: { half: 'morning', index },
-    courseId: 'c-1',
-    groupId,
-    weeks,
-    sessionType: 'lesson',
-  });
-  await data.book.recordAll(parseDay('2026-10-15'), [
-    {
-      kind: 'class.set',
-      schoolClass: {
-        ...data.book.state.classes.get('k-1')!,
-        groups: [
-          { id: 'k-1-w', kind: 'whole', name: '4م1' },
-          { id: 'k-1-a', kind: 'half', name: 'الفوج 1' },
-          { id: 'k-1-b', kind: 'half', name: 'الفوج 2' },
-        ],
-      },
-    },
-    {
-      kind: 'timetable.set',
-      version: {
-        ...timetable.version,
-        from: parseDay(from),
-        entries: [
-          ...timetable.version.entries.filter((entry) => entry.id !== 'e-2'),
-          half('e-2a', 4, 2, 'k-1-a', 'every'),
-          half('e-2b', 0, 1, 'k-1-b', weeks),
-        ],
-      },
-    },
-  ]);
-  return data;
 }
 
 const whole = 'today-c-1/2026-10-15/m1/k-1-w';
