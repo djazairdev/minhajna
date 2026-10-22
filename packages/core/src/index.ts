@@ -86,6 +86,8 @@ export * from './plan-layer.ts';
 export * from './plan-changes.ts';
 export * from './plan-effects.ts';
 export * from './plan-drift.ts';
+export * from './digest.ts';
+export * from './notify-times.ts';
 export * from './test-schedule.ts';
 export * from './pupil-moves.ts';
 export * from './seating.ts';
