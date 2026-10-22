@@ -99,6 +99,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - بعد إعادة التوجيه، تتيح إعدادات قسم الثانوي إعادة تشكيل أقسام مستواه يوم تصلك قوائم الأقسام الجديدة، كيوم 8 أكتوبر للسنة الثانية. يأخذ كل قسم جديد تاريخ قسم قديم: حصصه المسجّلة وموقعه في المخطط وتغييراته وقوائمه. تختار أين يذهب كل تلميذ، ومنها قسم لا تدرّسه، وتعاين كل قسم جديد قبل التطبيق. تُؤرشف الأقسام القديمة ولا تُحذف: تُقرأ وتُطبع، وتحتفظ بصفحات دفتر النصوص والمناداة. ويتابع دفتر نصوص كل قسم جديد صفحات قسمه القديم بسطر «أُعيد تشكيل القسم يوم …».
 - On a day you teach in two or more schools, Today groups your sessions by school and half day, such as «مدرسة الفتح · الصبيحة», in the order you teach them, and the day's line says how many schools. A closure, holiday or exam window of one school marks only its sessions, in its band.
   - في يوم تدرّس فيه في مؤسستين أو أكثر، تجمع صفحة اليوم حصصك حسب المؤسسة ونصف اليوم، مثل «مدرسة الفتح · الصبيحة»، بترتيب تدريسها، ويذكر سطر اليوم عدد المؤسسات. وإغلاق مؤسسة واحدة أو عطلتها أو فترة اختباراتها يُعلَّم على حصصها وحدها، في مجموعتها.
+- In two or more schools, the Classes tab shows a section per school, such as «مدرسة الفتح · 7 أفواج», and a card for the merged week that says whether a clash is open and opens the week. A primary French, English or Tamazight specialist takes each class's roll call session by session, counting only their own sessions; the half-day roll call stays the class teacher's.
+  - في مؤسستين أو أكثر، تعرض صفحة الأقسام قسماً لكل مؤسسة، مثل «مدرسة الفتح · 7 أفواج»، وبطاقة للأسبوع المدمج تقول هل فيه تعارض وتفتحه. ويأخذ أستاذ الفرنسية أو الإنجليزية أو الأمازيغية في الابتدائي مناداة كل قسم حصةً بحصة، فلا تُحسب إلا حصصه، وتبقى مناداة نصف اليوم لمعلم القسم.
 
 ### Changed
 

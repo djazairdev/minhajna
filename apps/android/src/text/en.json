@@ -56,7 +56,9 @@
     "weeks_one": "{{count}} week",
     "weeks_other": "{{count}} weeks",
     "schools_one": "{{count}} school",
-    "schools_other": "{{count}} schools"
+    "schools_other": "{{count}} schools",
+    "groups_one": "{{count}} group",
+    "groups_other": "{{count}} groups"
   },
   "bottomSheet": {
     "close": "Close"
@@ -763,7 +765,11 @@
     "spare_one": "{{count}} spare session",
     "spare_other": "{{count}} spare sessions",
     "stale": "Stale plan: no comparison with the plan",
-    "archived": "Archived since {{day}} · read and print only"
+    "archived": "Archived since {{day}} · read and print only",
+    "school": "{{school}} · {{groups}}",
+    "week": "Timetable: {{schools}}",
+    "weekNote": "One week holds every school’s sessions, drawn on this phone. {{clashes}}",
+    "register": "One register per class: it counts only your sessions, with a roll call at each, while the half-day roll call stays the class teacher’s."
   },
   "classPage": {
     "title": "Class",

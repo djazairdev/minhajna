@@ -11,6 +11,8 @@ import {
   pupilsFor,
   rollCallUnits,
   takeRollCall,
+  unitKind,
+  type Context,
   type RecordEvent,
 } from '../src/index.ts';
 import { cemEvents, contextOf, d, openBook, primaryEvents } from './fixtures.ts';
@@ -43,6 +45,42 @@ describe('roll call', () => {
       units.map((unit) => `${unit.half} ${unit.sessions.length}`),
       ['morning 2', 'afternoon 1'],
     );
+  });
+
+  it('calls a primary specialist’s class per session, unless the other kind is on record', async () => {
+    const asSpecialist = (context: Context): Context => {
+      const { country } = context.ref;
+      const subjects = country.subjects.map((one) =>
+        one.code === 'language' ? { ...one, specialist: ['primary'] } : one,
+      );
+      return { ...context, ref: { ...context.ref, country: { ...country, subjects } } };
+    };
+    const context = asSpecialist(contextOf(await openBook(primaryEvents())));
+    const units = rollCallUnits(context, 'k-5apb', d('2026-09-20'), d('2026-09-20'));
+    assert.deepEqual(
+      units.map((unit) => `${unit.half} ${unit.sessions.length}`),
+      ['morning 1', 'morning 1', 'afternoon 1'],
+    );
+    const maths: RecordEvent = {
+      kind: 'course.set',
+      course: { id: 'c-maths', classId: 'k-5apb', subject: 'math', year: '2026-2027', pack: null },
+    };
+    const both = asSpecialist(contextOf(await openBook([...primaryEvents(), maths])));
+    assert.equal(unitKind(both, both.state.classes.get('k-5apb')!), 'half-day');
+    const book = await openBook(primaryEvents());
+    const [halfDay] = rollCallUnits(contextOf(book), 'k-5apb', d('2026-09-20'), d('2026-09-20'));
+    assert.ok(halfDay);
+    await book.record(d('2026-09-20'), takeRollCall(contextOf(book), halfDay, { absent: [], late: [] }));
+    const kept = asSpecialist(contextOf(book));
+    assert.equal(unitKind(kept, kept.state.classes.get('k-5apb')!), 'half-day');
+    const called = await openBook(primaryEvents());
+    const [one] = rollCallUnits(asSpecialist(contextOf(called)), 'k-5apb', d('2026-09-20'), d('2026-09-20'));
+    assert.ok(one);
+    await called.record(d('2026-09-20'), takeRollCall(asSpecialist(contextOf(called)), one, { absent: [], late: [] }));
+    await called.record(d('2026-09-21'), maths);
+    const still = asSpecialist(contextOf(called));
+    assert.equal(unitKind(still, still.state.classes.get('k-5apb')!), 'session');
+    assert.ok(rollCallUnits(still, 'k-5apb', d('2026-09-20'), d('2026-09-20')).some((unit) => unit.key === one.key));
   });
 
   it('needs a reason to correct a roll call, and keeps every version', async () => {

@@ -60,7 +60,10 @@
     "weeks_other": "{{count}} semaines",
     "schools_one": "{{count}} école",
     "schools_many": "{{count}} d’écoles",
-    "schools_other": "{{count}} écoles"
+    "schools_other": "{{count}} écoles",
+    "groups_one": "{{count}} groupe",
+    "groups_many": "{{count}} de groupes",
+    "groups_other": "{{count}} groupes"
   },
   "bottomSheet": {
     "close": "Fermer"
@@ -783,7 +786,11 @@
     "spare_many": "{{count}} de séances de réserve",
     "spare_other": "{{count}} séances de réserve",
     "stale": "Plan périmé : pas de comparaison avec le plan",
-    "archived": "Archivée depuis le {{day}} · lecture et impression"
+    "archived": "Archivée depuis le {{day}} · lecture et impression",
+    "school": "{{school}} · {{groups}}",
+    "week": "Emploi du temps : {{schools}}",
+    "weekNote": "Une semaine réunit les séances de chaque école, dessinée sur ce téléphone. {{clashes}}",
+    "register": "Un registre par classe : il ne compte que vos séances, avec un appel à chacune, et l’appel par demi-journée reste celui de l’enseignant de la classe."
   },
   "classPage": {
     "title": "Classe",

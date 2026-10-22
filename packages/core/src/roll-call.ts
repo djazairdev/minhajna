@@ -23,6 +23,7 @@ import {
 import { sessionsBetween, type Session } from './sessions.ts';
 import type { RecordEvent } from './events.ts';
 import { current } from './state.ts';
+import type { State } from './state-type.ts';
 import { groupsOn } from './pupil-history.ts';
 
 /** One roll call's place: a half-day of a class, or one session of a group. */
@@ -43,9 +44,40 @@ function findClass(context: Context, classId: string): SchoolClass {
   return schoolClass;
 }
 
-/** Per half-day or per session, from the class's own setting or its level (PRD §3.4). */
+const calledAs = new WeakMap<State['rollCalls'], ReadonlyMap<string, RollCallUnitKind | null>>();
+
+/** The kind of roll call each class has on record, rotations aside; null for a class with both. */
+function kindsOnRecord(rollCalls: State['rollCalls']): ReadonlyMap<string, RollCallUnitKind | null> {
+  const known = calledAs.get(rollCalls);
+  if (known !== undefined) return known;
+  const kinds = new Map<string, RollCallUnitKind | null>();
+  for (const versions of rollCalls.values()) {
+    const saved = current(versions);
+    if (saved === null || saved.rotation !== undefined) continue;
+    const kind = saved.unit.startsWith('half-day:') ? 'half-day' : 'session';
+    const before = kinds.get(saved.classId);
+    kinds.set(saved.classId, before === undefined || before === kind ? kind : null);
+  }
+  calledAs.set(rollCalls, kinds);
+  return kinds;
+}
+
+/**
+ * Per half-day or per session, from the class's own setting; else as the class's roll calls on record were taken, so
+ * none is hidden; else per session when the teacher teaches the class only subjects a specialist teaches at its
+ * level, such as French in primary school, whose half-day roll call is the class teacher's (R-3.4-08, answers 397 and
+ * 398); else its level's (PRD §3.4).
+ */
 export function unitKind(context: Context, schoolClass: SchoolClass): RollCallUnitKind {
-  return schoolClass.rollCallUnit ?? findLevel(context.ref.country, schoolClass.level).rollCallUnit;
+  if (schoolClass.rollCallUnit !== undefined) return schoolClass.rollCallUnit;
+  const recorded = kindsOnRecord(context.state.rollCalls).get(schoolClass.id);
+  if (recorded !== undefined && recorded !== null) return recorded;
+  const { country, year } = context.ref;
+  const subjects = [...context.state.courses.values()]
+    .filter((course) => course.classId === schoolClass.id && course.year === year.id)
+    .map((course) => country.subjects.find((one) => one.code === course.subject));
+  const specialist = subjects.length > 0 && subjects.every((one) => one?.specialist?.includes(schoolClass.level));
+  return specialist ? 'session' : findLevel(country, schoolClass.level).rollCallUnit;
 }
 
 /**

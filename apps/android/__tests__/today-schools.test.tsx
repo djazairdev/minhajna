@@ -1,17 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Today across schools (#232, PS-Today, answer 394): a day in two schools
-// comes in bands by school and half day, in the order of each band's first
-// session, and the day's line counts the schools; a primary specialist's
-// bands keep their half-day roll calls and «الكراس اليومي»; a CEM teacher in
-// two schools gets the bands too, with no journal and roll calls on the
-// cards; a school whose sessions a calendar entry takes is not counted,
-// and the entry marks only its cards there unless it takes the whole day,
-// an exam window pausing the plan at that school by name; a
-// class's afternoon roll call says it is taken alone inside its school's
-// band; and a day in one school keeps its bands or none. Made-up classes
-// only.
+// Today across schools (#232, PS-Today, answers 394 to 397): a day in two
+// schools comes in bands by school and half day, in the order of each band's
+// first session, and the day's line counts the schools; a primary specialist's
+// bands keep «الكراس اليومي», with a roll call on each card, session by
+// session; a CEM teacher in two schools gets the bands too, with no journal; a
+// school whose sessions a calendar entry takes is not counted, and the entry
+// marks only its cards there unless it takes the whole day, an exam window
+// pausing the plan at that school by name; a class teacher's afternoon roll
+// call says it is taken alone inside its school's band; and a day in one school
+// keeps its bands or none. Made-up classes only.
 
 import { parseDay, type RecordEvent, type TimetableEntry } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -20,7 +19,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData, type TestData } from '../jest/app-data';
 import { calendarEntry } from '../jest/calendar-data';
-import { withSpecialist } from '../jest/specialist-classes';
+import { course, withSpecialist } from '../jest/specialist-classes';
 import { i18n, missingKeys, type Language } from '../src/text/i18n';
 import { Today } from '../src/today/Today';
 
@@ -112,7 +111,7 @@ async function withTwoCems(): Promise<TestData> {
   return data;
 }
 
-test('a primary specialist’s day comes in bands by school and half day, counting the schools', async () => {
+test('a primary specialist’s day comes in bands by school and half day, a roll call on each card', async () => {
   missingKeys.length = 0;
   const pupils = ['k-1', 'k-3'].map((classId): RecordEvent => ({
     kind: 'pupil.set',
@@ -123,8 +122,9 @@ test('a primary specialist’s day comes in bands by school and half day, counti
   expect(label('today-band-s-1-morning')).toBe(`${iso('مدرسة الفتح')} · الصبيحة`);
   expect(label('today-band-s-2-afternoon')).toBe(`${iso('مدرسة الرياض')} · المساء`);
   expect(shown().some((line) => line.includes(' · مؤسستان · '))).toBe(true);
-  expect(ids().some((id) => id.startsWith('today-band-s-1-morning-roll'))).toBe(true);
-  expect(ids().some((id) => id.startsWith('today-band-s-2-afternoon-roll'))).toBe(true);
+  expect(ids().some((id) => id.includes('-roll'))).toBe(false);
+  const cards = root().findAll((node) => /^today-(?!band-).*-roll$/.test(String(node.props.testID ?? '')));
+  expect(new Set(cards.map((node) => node.props.testID as string)).size).toBe(2);
   expect(exists('today-journal')).toBe(true);
   expect(accessibilityProblems(root())).toEqual([]);
   expect(missingKeys).toEqual([]);
@@ -181,7 +181,7 @@ test('a holiday that takes both schools’ sessions still marks the whole day', 
   expect(bands()).toEqual([]);
 });
 
-test('an afternoon roll call taken alone says so inside its school’s band', async () => {
+test('a class teacher’s afternoon roll call taken alone says so inside its school’s band', async () => {
   const pupil: RecordEvent = {
     kind: 'pupil.set',
     pupil: { id: 'x-1', classId: 'k-1', name: 'تلميذ (مثال)', sex: 'm', groups: [], movements: [] },
@@ -195,7 +195,7 @@ test('an afternoon roll call taken alone says so inside its school’s band', as
     weeks: 'every',
     sessionType: 'lesson',
   };
-  await render(await withSpecialist([pupil], [afternoon]));
+  await render(await withSpecialist([pupil, course('m-1', 'k-1', 'math')], [afternoon]));
   expect(bands()).toEqual(['today-band-s-1-morning', 'today-band-s-1-afternoon', 'today-band-s-2-afternoon']);
   const strip = root().findAll((node) => node.props.testID === 'today-band-s-1-afternoon-roll')[0];
   const words = strip?.findAllByType(Text).map((node) => [node.props.children as unknown].flat().join('')) ?? [];
