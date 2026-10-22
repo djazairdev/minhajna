@@ -42,25 +42,33 @@ import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { gridCell, gridLabels, isolate, schoolShort, schoolTally, weekMarks } from './grid-labels';
 import { SlotSheet } from './SlotSheet';
+import { ShiftCard } from './ShiftCard';
 import { useWeekRecords } from './useWeekRecords';
 import { classLoads, holds, mirrorOf, paint, versionToDraw, withMirror, type Brush, type Cell } from './week-rules';
 
-type Option = keyof Omit<WeekOptions, 'doubleShift'>;
+type Option = keyof Omit<WeekOptions, 'doubleShift' | 'sharedWith'>;
 
 const OPTION_SLOTS: Record<Option, (weekday: Weekday, slot: Slot) => boolean> = {
   saturday: (weekday) => weekday === SATURDAY,
   fifthMorning: (_, slot) => slot.index === 5,
 };
 
-/** The drawing screen: `openAt` opens a slot at once, `onDone` follows the save, `onList` opens a class's list. */
+/**
+ * The drawing screen: `openAt` opens a slot at once, `onDone` follows the save, `onList` opens a class's list, and
+ * `onLetter` and `onRules` open the calendar's week letter and the roll-call rules from «الدوامان».
+ */
 export function WeekDraw({
   openAt,
   onDone,
   onList,
+  onLetter,
+  onRules,
 }: {
   openAt?: Cell;
   onDone: () => void;
   onList?: (courseId: string, kind: ListKind) => void;
+  onLetter?: (schoolId: string) => void;
+  onRules?: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -102,8 +110,16 @@ export function WeekDraw({
   };
   const setShift = (shift: Half | null) => {
     const next: { -readonly [Key in keyof WeekOptions]: WeekOptions[Key] } = { ...options };
-    if (shift === null) delete next.doubleShift;
-    else next.doubleShift = shift;
+    if (shift === null) {
+      delete next.doubleShift;
+      delete next.sharedWith;
+    } else next.doubleShift = shift;
+    draft.change({ ...version, options: next });
+  };
+  const setShared = (name: string) => {
+    const next: { -readonly [Key in keyof WeekOptions]: WeekOptions[Key] } = { ...options };
+    if (name.trim() === '') delete next.sharedWith;
+    else next.sharedWith = name;
     draft.change({ ...version, options: next });
   };
   const toggle = (option: Option, on: boolean) => {
@@ -175,19 +191,14 @@ export function WeekDraw({
             accessibilityHint={shiftLocked ? t('week.optionLocked') : undefined}
             onCheckedChange={(on) => setShift(on ? 'morning' : null)}
           />
-          {options.doubleShift !== undefined && (
-            <ChipGroup
-              testID="shift"
-              label={t('week.shiftA')}
-              hint={t('week.shiftNote')}
-              choices={[
-                { value: 'morning' as const, label: t('week.morning') },
-                { value: 'afternoon' as const, label: t('week.afternoon') },
-              ]}
-              selected={options.doubleShift}
-              onSelect={setShift}
-            />
-          )}
+          <ShiftCard
+            version={version}
+            classes={classes}
+            onShift={setShift}
+            onShared={setShared}
+            {...(onLetter !== undefined && { onLetter })}
+            {...(onRules !== undefined && { onRules })}
+          />
         </View>
         <WeekGrid
           testID="draw"

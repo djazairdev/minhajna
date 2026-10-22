@@ -100,6 +100,8 @@ export function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<Roo
       onList={(courseId, kind) =>
         navigation.navigate('SupportQueue', { courseId, ...(kind === 'remediation' && { kind }) })
       }
+      onLetter={(schoolId) => navigation.navigate('CalendarAb', { schoolId })}
+      onRules={() => navigation.navigate('RollRules')}
     />
   );
 }
