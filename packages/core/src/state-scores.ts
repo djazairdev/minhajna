@@ -4,12 +4,13 @@
 // The assessment records of the state (#238 to #241): each course's setups in
 // recorded order, the last mark, capture, descriptive observation and
 // appreciation for each cell, the last averaging formula recorded for each
-// course, and every correction after the term with its day (#243). The state
-// passes every event it does not keep itself here, and the others are left
-// alone.
+// course, every correction after the term with its day (#243), and the last
+// class-council thresholds (#244). The state passes every event it does not
+// keep itself here, and the others are left alone.
 
 import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import { captureKey, type SessionCapture } from './captures.ts';
+import type { CouncilThresholds } from './council-pack.ts';
 import type { RecordEvent } from './events.ts';
 import type { Entry } from './history.ts';
 import type { MarkFix } from './mark-fix.ts';
@@ -26,6 +27,7 @@ export interface Scores {
   readonly observations: Map<string, ObservationEntry>;
   readonly appreciations: Map<string, AppreciationEntry>;
   readonly markFixes: Version<MarkFix>[];
+  councilThresholds: CouncilThresholds | null;
 }
 
 export function newScores(): Scores {
@@ -37,12 +39,13 @@ export function newScores(): Scores {
     observations: new Map(),
     appreciations: new Map(),
     markFixes: [],
+    councilThresholds: null,
   };
 }
 
 /**
- * Keeps a setup, a mark, a correction, a capture, a formula, an observation or
- * an appreciation; any other changes nothing.
+ * Keeps a setup, a mark, a correction, a capture, a formula, an observation,
+ * an appreciation or the council thresholds; any other changes nothing.
  */
 export function addScore(scores: Scores, event: RecordEvent, entry: Pick<Entry, 'id' | 'day'>): void {
   if (event.kind === 'assessment.set') {
@@ -62,4 +65,5 @@ export function addScore(scores: Scores, event: RecordEvent, entry: Pick<Entry, 
   if (event.kind === 'appreciation.set') {
     scores.appreciations.set(appreciationKey(event.appreciation), event.appreciation);
   }
+  if (event.kind === 'council-thresholds.set') scores.councilThresholds = event.thresholds;
 }

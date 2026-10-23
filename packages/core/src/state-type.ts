@@ -23,6 +23,7 @@ import type { MarkEntry } from './marks.ts';
 import type { MarkFix } from './mark-fix.ts';
 import type { ObservationEntry } from './observations.ts';
 import type { Retention } from './retention.ts';
+import type { CouncilThresholds } from './council-pack.ts';
 import type {
   Course,
   PrivateNote,
@@ -107,6 +108,8 @@ export interface State {
   readonly lessonNotes: ReadonlyMap<string, LessonNote>;
   /** How long records are kept, as the teacher chose; null for the defaults (#235). */
   readonly retention: Retention | null;
+  /** The class-council thresholds the teacher set, on 20; null for the defaults (#244). */
+  readonly councilThresholds: CouncilThresholds | null;
   /** Each course's continuous-assessment setups, in recorded order; the last for a term counts (#238). */
   readonly assessment: ReadonlyMap<string, readonly AssessmentSetup[]>;
   /** The last mark for each course, term, target and pupil, by `markKey` (#239). */

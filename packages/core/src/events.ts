@@ -24,6 +24,7 @@ import type { SupportQueue } from './support-queue.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { OutputRecord, PrintRecord } from './prints.ts';
 import type { Retention } from './retention.ts';
+import type { CouncilThresholds } from './council-pack.ts';
 import type { AppliedUpdate } from './calendar-update.ts';
 import type { AddedPack } from './pack-update.ts';
 import type { AddedLayer, LayerSwitch } from './variant-layers.ts';
@@ -132,6 +133,8 @@ export type RecordEvent =
   | { readonly kind: 'output.recorded'; readonly output: OutputRecord }
   /** How long records are kept (#235). */
   | { readonly kind: 'retention.set'; readonly retention: Retention }
+  /** The teacher's council thresholds, on 20 (#244). */
+  | { readonly kind: 'council-thresholds.set'; readonly thresholds: CouncilThresholds }
   /** A class and subject's continuous-assessment components, from a term on (#238). */
   | { readonly kind: 'assessment.set'; readonly setup: AssessmentSetup }
   /** A pupil's mark for a test, the exam or a component, or its absence (#239). */
@@ -197,6 +200,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'lesson-note.set': true,
   'output.recorded': true,
   'retention.set': true,
+  'council-thresholds.set': true,
   'assessment.set': true,
   'mark.set': true,
   'mark.corrected': true,
@@ -236,6 +240,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'lesson-note.set':
     case 'output.recorded':
     case 'retention.set':
+    case 'council-thresholds.set':
       return 'private';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
