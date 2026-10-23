@@ -18,7 +18,7 @@ Give teachers the [Arabic download and testing page](https://djazair.dev/ar/minh
 - **The signed preview:** the latest from the project's [releases page](https://github.com/djazairdev/minhajna/releases/latest), or handed over by the organiser.
 - **Made-up data only:** use «إضافة القسم التجريبي» in setup, or invented names. Keep using official school records.
 - **Offline:** entries stay on the phone. Opening the source link asks before launching the browser; no app record or identifier is attached.
-- **Included:** the demo class and the 2026/27 calendar, and from 0.2.0 the app lock and the paper books printed from what is recorded. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
+- **Included:** the demo class and the 2026/27 calendar, from 0.2.0 the app lock and the paper books printed from what is recorded, and from 0.3.0 the full class plan, the calendar with its signed updates, and notifications. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
 - **Compatible Android 8-or-later phones.**
 
 ## Before the session
@@ -63,7 +63,7 @@ Project signing certificate SHA-256, the same for every release and file / بص�
 Updates are manual, announced on [Facebook](https://www.facebook.com/djazairdev). Use the new download link in the announcement, or the [download page](https://djazair.dev/en/minhajna/).
 
 1. Leave the current app installed. Download the new version and open its installer.
-2. Choose **Update**, reopen Minhajna and check the entries are still there. Updating from 0.1.0, the app first asks for a new 4-digit PIN. Turn installation permission off again if you enabled it.
+2. Choose **Update**, reopen Minhajna and check the entries are still there. Updating from 0.1.0, the app first asks for a new 4-digit PIN. Updating to 0.3.0, Android asks once whether Minhajna may show notifications; either answer keeps the entries. Turn installation permission off again if you enabled it.
 
 **Never uninstall or clear storage to update: that deletes the entries.** If Android refuses the update, stop, do not install an older version, and [ask for help](https://djazair.dev/en/minhajna/#feedback).
 
