@@ -1,6 +1,6 @@
 # The term export (#242)
 
-Checks of 23 October 2026 for [#242](https://github.com/djazairdev/minhajna/issues/242), on `feat/242-export-core`. Made-up classes and records only.
+Checks of 23 October 2026 for [#242](https://github.com/djazairdev/minhajna/issues/242), on `feat/242-export-core` and `feat/242-export-screen`. Made-up classes and records only.
 
 Filling the school's own workbook waits for the blank templates of [#45](https://github.com/djazairdev/minhajna/issues/45), since its cells cannot be guessed (answer 466). Everything else is built in four pull requests: this core first, then the Export screen with the ostad view, the printed sheet, and saving and sharing with the check before signing.
 
@@ -22,3 +22,28 @@ Filling the school's own workbook waits for the blank templates of [#45](https:/
 | Core tests | The sheet not ready with parts and appreciations missing, then ready, an absent exam counting as a value; no sheet for an unknown course; the CSV text in full, with its byte-order mark, semicolons, decimal commas, marking line, header, two decimals, «غائب», quoted cells, and a name that would run as a formula made safe; files read back with semicolons, commas, tabs, quoted line breaks, CRLF and a one-cell title line; the check with every row the same, a comma file with a comma decimal and extra spaces in a name, a value that differs, a third decimal, a name that differs, a line missing, a number not on the list and one there twice, and a column missing. |
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator | Not run: nothing on screen changes until the screen's pull request. |
+
+## Part 2: «التصدير الفصلي» and the ostad view
+
+- **The hub** (Export, answer 466): after «التقديرات», «التصدير الفصلي» reads «جاهز للتصدير», or «نقاط ناقصة: 0 · تقديرات ناقصة: 3». A term whose marks observations replace has no such row. «اكتملت التقديرات» also leads to the export.
+- **The screen:**
+  - The line, «التصدير الفصلي · 4م1 · اللغة العربية · الفصل الأول».
+  - What is complete: «النقاط كاملة: التقويم والفرض والاختبار», or «خانات نقاط ناقصة: 3 · التلاميذ المعنيون: 1 من 4»; the averages by the formula and its release; the appreciations, «التقديرات: 0 من 3», with the list's note.
+  - While anything is missing, a notice says nothing is exported until the marks and appreciations are complete (R-3.6-07).
+- **The route:** «ملف Excel من الإدارة» or «شبكة ostad», recorded with the school, so it holds for all the teacher's classes there.
+  - **The workbook** says that filling it waits for the blank templates being collected from schools, and asks for no file yet.
+  - **The ostad view**, once everything is complete, lists each pupil in the grid's order with their parts in large numbers to copy by hand, an absence as «غائب». TalkBack reads each pupil as one line.
+- **Never:** the screen says Minhajna never asks for the ostad or amatti password, never goes into those platforms for the teacher, and never makes report cards.
+
+| Check | Result |
+|---|---|
+| Android tests | The hub's row before and after the appreciations; the screen's lines and its notice; the route recorded with the school; the workbook's notice; the ostad view, each pupil's spoken line and an absence; a missing mark counted; «إلى التصدير الفصلي»; no row in 1AP's first term, a row in its second; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, the only class on the emulator, on Friday 23 October:<br>• «التقويم والنقاط» showed «التصدير الفصلي», «نقاط ناقصة: 132 · تقديرات ناقصة: 45», after «التقديرات».<br>• The screen read «التصدير الفصلي · القسم التجريبي · اللغة العربية · الفصل الأول», then «خانات نقاط ناقصة: 132 · التلاميذ المعنيون: 45 من 45», «المعدلات بالصيغة الرسمية، الإصدار 2026.1», «التقديرات: 0 من 45» and the list's note, then the notice «لا تصدير بعد».<br>• «شبكة ostad» was recorded as checked, and showed no view since nothing is complete. «ملف Excel من الإدارة» showed the notice that it waits for the templates, and was still chosen after the app was stopped and opened again.<br>• No pupil of the demo class has all their marks, so the ostad view was checked in the tests only. |
+
+## Still to do by a person
+
+These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
+- **TalkBack in Arabic:** the hub's row, the status card, the route choice, and each pupil of the ostad view read as one line.
+- **On a phone in French and English:** the screen and the ostad view.
+- **With a teacher:** copying a real term's marks from the ostad view into the ostad grid, and saying whether the numbers are large enough and the order matches the grid.

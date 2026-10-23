@@ -31,6 +31,7 @@ import {
   type AssessmentData,
   type Context,
   type CountryProfile,
+  type GradeBook,
   type TermConduct,
 } from '@minhajna/core';
 import bundled from '@minhajna/data/dz/appreciations.json';
@@ -67,15 +68,16 @@ export interface AppreciationSheet {
   readonly gaps: readonly string[];
 }
 
-/** A course's term's sheet, from its grade book; null without one, or for a term observations replace. */
+/** A course's term's sheet, from its grade book, given when built already; null without one, or when observed. */
 export function appreciationSheet(
   context: Context,
   data: AssessmentData,
   courseId: string,
   term: number,
+  built?: GradeBook | null,
 ): AppreciationSheet | null {
   if (courseObserved(context.state, data, courseId, term)) return null;
-  const book = gradeBook(context, data, courseId, term);
+  const book = built === undefined ? gradeBook(context, data, courseId, term) : built;
   if (book === null) return null;
   const rows = book.rows.map(({ pupilId, number, average }) => ({ pupilId, number, average }));
   const chosen = appreciationsFor(context.state, courseId, term);

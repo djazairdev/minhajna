@@ -3152,6 +3152,34 @@
       "archived": "This class was archived after the reshaping: its appreciations show, but no new ones can be chosen.",
       "noPupils": "No pupil in this term’s grade book.",
       "unavailable": "No appreciations for this term: it has no grade book, or the list of appreciations bundled with the app could not be read."
+    },
+    "export": {
+      "title": "Term export",
+      "line": "Term export · {{class}} · {{term}}",
+      "ready": "Ready to export",
+      "missing": "Missing marks: {{marks}} · Missing appreciations: {{appreciations}}",
+      "noPupils": "No pupil in this term’s grade book, so nothing to export.",
+      "marksDone": "Marks complete: {{parts}}",
+      "and": ", ",
+      "marksMissing": "Mark cells missing: {{count}} · Pupils concerned: {{pupils}} of {{total}}",
+      "averages": "Averages by the official formula, release {{release}}",
+      "noAverage": "Continuous assessment only, with no term average",
+      "appreciations": "Appreciations: {{done}} of {{total}}",
+      "notReadyBadge": "No export yet",
+      "notReady": "Nothing is exported until the marks and appreciations are complete: complete them from “Assessment and marks”, then come back here.",
+      "route": "The route the school uses",
+      "workbook": "The administration’s Excel file",
+      "workbookFrom": "Extracted from amatti",
+      "ostad": "The ostad grid",
+      "ostadView": "A view ready to copy",
+      "routeNote": "The school’s route is kept for all your classes there.",
+      "workbookWaits": "Filling the administration’s file waits for the blank templates being collected from schools, so the file is not asked of you yet. Until then, use the ostad grid view.",
+      "ostadOrder": "In the grid’s order",
+      "ostadNote": "Large numbers to copy by hand, without logging in to the grid.",
+      "absent": "Absent",
+      "never": "Minhajna never asks for the ostad or amatti password, never goes into those platforms for me, and never makes report cards for parents.",
+      "unavailable": "No export for this term: it has no grade book, or the files bundled with the app could not be read.",
+      "toExport": "To the term export"
     }
   }
 }

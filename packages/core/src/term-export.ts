@@ -11,7 +11,7 @@
 import { appreciationGaps, appreciationsFor } from './appreciations.ts';
 import type { AssessmentData, AveragePart } from './assessment.ts';
 import type { Context } from './context.ts';
-import { gradeBook } from './grade-book.ts';
+import { gradeBook, type GradeBook } from './grade-book.ts';
 import { courseObserved } from './observations.ts';
 
 export type ExportValue = number | 'absent' | null;
@@ -41,10 +41,16 @@ export interface TermExport {
   readonly ready: boolean;
 }
 
-/** A course's term export; null without a grade book, or for a term observations replace. */
-export function termExport(context: Context, data: AssessmentData, courseId: string, term: number): TermExport | null {
+/** A course's term export, from its grade book when already built; null without one, or for an observed term. */
+export function termExport(
+  context: Context,
+  data: AssessmentData,
+  courseId: string,
+  term: number,
+  built?: GradeBook | null,
+): TermExport | null {
   if (courseObserved(context.state, data, courseId, term)) return null;
-  const book = gradeBook(context, data, courseId, term);
+  const book = built === undefined ? gradeBook(context, data, courseId, term) : built;
   if (book === null) return null;
   const chosen = appreciationsFor(context.state, courseId, term);
   const rows = book.rows.map((row) => ({

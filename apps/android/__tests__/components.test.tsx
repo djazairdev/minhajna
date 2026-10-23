@@ -73,6 +73,7 @@ const hubProps = () => ({
   onPart: jest.fn(),
   onObservations: jest.fn(),
   onAppreciations: jest.fn(),
+  onExport: jest.fn(),
 });
 
 test('the hub’s row counts the term’s cells, and the components list each with its points', async () => {

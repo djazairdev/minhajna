@@ -8,9 +8,9 @@
 // stay in the route, and its justification; the grade book, whose rows open a
 // pupil's justification (#240); the descriptive observations of a term whose
 // marks they replace, whose subject chips stay in the route; the term's
-// appreciations (#241), each recorded as it is chosen; and the entry of a
-// test's, the exam's or a component's marks, each recorded as it is typed or
-// tapped, so leaving loses nothing.
+// appreciations (#241), each recorded as it is chosen, and its export (#242);
+// and the entry of a test's, the exam's or a component's marks, each recorded
+// as it is typed or tapped, so leaving loses nothing.
 
 import { usePreventRemove } from '@react-navigation/native';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -22,6 +22,7 @@ import { MarksBook } from '../marks/MarksBook';
 import { MarksComponents } from '../marks/MarksComponents';
 import { MarksEntry } from '../marks/MarksEntry';
 import { MarksAppreciations } from '../marks/MarksAppreciations';
+import { MarksExport } from '../marks/MarksExport';
 import { MarksJustify } from '../marks/MarksJustify';
 import { MarksObservations } from '../marks/MarksObservations';
 import { MarksSetup } from '../marks/MarksSetup';
@@ -42,6 +43,7 @@ export function MarksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onBook={(chosen) => navigation.navigate('MarksBook', { courseId, term: chosen })}
       onObservations={(chosen) => navigation.navigate('MarksObservations', { courseId, term: chosen })}
       onAppreciations={(chosen) => navigation.navigate('MarksAppreciations', { courseId, term: chosen })}
+      onExport={(chosen) => navigation.navigate('MarksExport', { courseId, term: chosen })}
       onEntry={(chosen, testId) =>
         navigation.navigate('MarksEntry', { courseId, term: chosen, ...(testId !== undefined && { testId }) })
       }
@@ -134,8 +136,15 @@ export function MarksObservationsScreen({
   );
 }
 
-export function MarksAppreciationsScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksAppreciations'>) {
-  return <MarksAppreciations {...route.params} />;
+export function MarksAppreciationsScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, 'MarksAppreciations'>) {
+  return <MarksAppreciations {...route.params} onExport={() => navigation.navigate('MarksExport', route.params)} />;
+}
+
+export function MarksExportScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksExport'>) {
+  return <MarksExport {...route.params} />;
 }
 
 export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
@@ -170,6 +179,7 @@ export function marksRoutes(
         component={MarksAppreciationsScreen}
         options={dark(t('marks.appreciations.title'))}
       />
+      <Stack.Screen name="MarksExport" component={MarksExportScreen} options={dark(t('marks.export.title'))} />
       <Stack.Screen
         name="MarksComponents"
         component={MarksComponentsScreen}
