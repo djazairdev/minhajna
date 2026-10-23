@@ -5,8 +5,7 @@
 // lists them. Each one gives its title, what it covers, whether it holds
 // pupils' data, its page orientation, and its pages as recorded or blank
 // with their headings, and for some the day and the layout to choose; the
-// output screen does the rest. A later document, such as the grade book,
-// plugs in here.
+// output screen does the rest. A later document plugs in here.
 
 import type { IconName } from '../design/Icon';
 import { dayTitle, monthLabel, taughtClasses, yearShown, type DocumentData, type Translate } from './document-data';
@@ -25,6 +24,7 @@ import { bookDate } from './texts-book-rows';
 import { bookClasses, bookCourses, textsBookPages } from './texts-book-pages';
 import { NOTES_KIND } from './notes-pages';
 import { DIST_KIND } from './dist-pages';
+import { BOOK_KIND } from './grade-book-pages';
 
 export type DocumentId =
   | 'journal'
@@ -39,7 +39,8 @@ export type DocumentId =
   | 'homework'
   | 'strip'
   | 'notes'
-  | 'distributions';
+  | 'distributions'
+  | 'grade-book';
 
 export interface DocumentKind {
   readonly id: DocumentId;
@@ -53,6 +54,8 @@ export interface DocumentKind {
   readonly empty: (data: DocumentData) => boolean;
   /** What a saved file is named after: the day, or the month for a document of a month. */
   readonly period: (data: DocumentData) => string;
+  /** What a saved file names the period, such as «الفصل الأول 2026-2027»; `period` when not given. */
+  readonly fileTitle?: (data: DocumentData, t: Translate) => string;
   readonly title: (t: Translate) => string;
   /** What it covers now, under its title in the list. */
   readonly line: (data: DocumentData, t: Translate) => string;
@@ -210,6 +213,7 @@ export const DOCUMENTS: readonly DocumentKind[] = [
     emptyLine: (t) => t('documents.output.noClasses'),
     pages: (data, t, blank) => rollSpreadPages(data, t, blank),
   },
+  BOOK_KIND,
   {
     id: 'texts',
     drawn: 'confirmed',
@@ -289,5 +293,6 @@ export function fileName(
   const layouts = kind.layouts?.(t) ?? [];
   const other = layouts.find((one) => one.value === layout && one !== layouts[0]);
   const version = `${other === undefined ? '' : ` - ${other.label}`}${blank ? ` - ${t('documents.output.blank')}` : ''}`;
-  return `${kind.title(t)} ${kind.period(data)}${version}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+  const period = kind.fileTitle?.(data, t) ?? kind.period(data);
+  return `${kind.title(t)} ${period}${version}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
 }

@@ -7,18 +7,29 @@
 // the class's figures, the note that thresholds and ranks compare the full
 // value, and a line for each pupil shown at the threshold whose full value is
 // below it. A row opens the pupil's value sheet, and from it their
-// justification.
+// justification. «طباعة» and «حفظ PDF» make this class and subject's page of
+// the printed grade book, each going into the activity log with the term
+// (answer 461); a middle-school page offers «خانة التوقيع» while the drawn
+// signature is in use, with «إعدادات التوقيع», and the line on where it goes
+// (answer 462).
 
 import { gradeBook, type BookRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
+import { yearLabel } from '../documents/document-data';
+import { gradeBookPages } from '../documents/grade-book-pages';
+import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
+import { useOutputRun } from '../documents/output-run';
+import { useDocumentData } from '../documents/useDocumentData';
 import { courseLabel } from '../exams/course-label';
+import { useOutputLog } from '../log/output-log';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
@@ -32,9 +43,11 @@ export type MarksBookProps = {
   readonly term: number;
   /** Opens the pupil's justification. */
   readonly onJustify: (pupilId: string) => void;
+  /** Opens the signature's settings. */
+  readonly onSignature: () => void;
 };
 
-export function MarksBook({ courseId, term, onJustify }: MarksBookProps) {
+export function MarksBook({ courseId, term, onJustify, onSignature }: MarksBookProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -51,6 +64,11 @@ export function MarksBook({ courseId, term, onJustify }: MarksBookProps) {
   const [order, setOrder] = useState<BookOrder>('list');
   const [open, setOpen] = useState<BookRow | null>(null);
   const opener = useRef<ViewInstance | null>(null);
+  const documents = useDocumentData();
+  const { busy, said, print, save, clear } = useOutputRun();
+  const [drawn, setDrawn] = useState(true);
+  const inUse = useSignatureInUse();
+  const logged = useOutputLog();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   if (book === null) {
     return <Text style={[styles.empty, align]}>{t('marks.book.none')}</Text>;
@@ -58,6 +76,13 @@ export function MarksBook({ courseId, term, onJustify }: MarksBookProps) {
   const nameOf = (pupilId: string) => state.pupils.get(pupilId)?.name ?? pupilId;
   const below = atThresholdLines(t, book, nameOf);
   const formula = book.formula === null ? null : formulaText(t, book.formula);
+  const label = courseLabel(t, state, profile, courseId, true);
+  const room = state.classes.get(state.courses.get(courseId)?.classId ?? '');
+  const signable = room?.level === 'cem';
+  const html = () => gradeBookPages({ ...documents, drawn }, t, false, { courseId, term });
+  const title = t('documents.gradeBook.name');
+  const file = `${title} ${label} ${termWord(t, term)} ${yearLabel(documents)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+  const log = logged('grade-book', `term-${term}`);
   return (
     <ScrollView
       style={styles.screen}
@@ -72,7 +97,7 @@ export function MarksBook({ courseId, term, onJustify }: MarksBookProps) {
       ]}
     >
       <Text testID="book-line" style={[styles.heading, align]}>
-        {t('marks.book.line', { class: courseLabel(t, state, profile, courseId, true), term: termWord(t, term) })}
+        {t('marks.book.line', { class: label, term: termWord(t, term) })}
       </Text>
       <View testID="book-formula" accessible style={styles.card}>
         <Text style={[styles.body, align]}>
@@ -124,6 +149,47 @@ export function MarksBook({ courseId, term, onJustify }: MarksBookProps) {
           )}
         </>
       )}
+      {said !== null && (
+        <Notice
+          testID="book-said"
+          icon={controlIcon(said === 'saved' ? 'check' : 'info')}
+          message={t(said === 'saved' ? 'documents.output.saved' : 'documents.output.failed')}
+        />
+      )}
+      {signable && (
+        <SignatureChoice
+          testID="book-signature"
+          label={t('documents.output.signatureChoice')}
+          drawn={drawn}
+          disabled={busy}
+          onDrawn={(next) => {
+            setDrawn(next);
+            clear();
+          }}
+          onSettings={onSignature}
+        />
+      )}
+      <Notice
+        testID="book-signature-line"
+        icon={controlIcon('info')}
+        message={signable && inUse && drawn ? drawnNote(t, ['grade-book']) : t('documents.output.signatureGradeBook')}
+      />
+      <View style={styles.actions}>
+        <Button
+          testID="book-print"
+          label={t('documents.output.print')}
+          disabled={busy}
+          onPress={() => print(html, title, false, log.printed)}
+        />
+        <Button
+          testID="book-save"
+          variant="line"
+          label={t('documents.output.save')}
+          disabled={busy}
+          onPress={() => save(html, 'document-grade-book', file, false, log.saved)}
+        />
+        <CopyWarning testID="book-copy" shown={signable && inUse && drawn} />
+      </View>
       <BookValue
         book={book}
         row={open}
@@ -153,6 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sheet,
   },
   notes: { gap: spacing['space-4'] },
+  actions: { gap: spacing['space-10'] },
   label: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink },
   note: { ...typography.caption, color: colors.ink2 },

@@ -107,6 +107,7 @@ export function MarksBookScreen({ navigation, route }: NativeStackScreenProps<Ro
       courseId={courseId}
       term={term}
       onJustify={(pupilId) => navigation.navigate('MarksJustify', { courseId, term, pupilId })}
+      onSignature={() => navigation.navigate('SettingsSignature')}
     />
   );
 }
