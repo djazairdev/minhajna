@@ -6,6 +6,8 @@
 // session record (PRD §5.4, §5.5).
 
 import type { AssessmentSetup } from './assessment.ts';
+import type { SessionCapture } from './captures.ts';
+import type { MarkEntry } from './marks.ts';
 import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
@@ -128,7 +130,11 @@ export type RecordEvent =
   /** How long records are kept (#235). */
   | { readonly kind: 'retention.set'; readonly retention: Retention }
   /** A class and subject's continuous-assessment components, from a term on (#238). */
-  | { readonly kind: 'assessment.set'; readonly setup: AssessmentSetup };
+  | { readonly kind: 'assessment.set'; readonly setup: AssessmentSetup }
+  /** A pupil's mark for a test, the exam or a component, or its absence (#239). */
+  | { readonly kind: 'mark.set'; readonly mark: MarkEntry }
+  /** What the teacher tapped for a pupil during a session (#239). */
+  | { readonly kind: 'capture.set'; readonly capture: SessionCapture };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -181,6 +187,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'output.recorded': true,
   'retention.set': true,
   'assessment.set': true,
+  'mark.set': true,
+  'capture.set': true,
 };
 
 /**
@@ -199,6 +207,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'roll-call.taken':
     case 'counting.set':
     case 'assessment.set':
+    case 'mark.set':
+    case 'capture.set':
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':

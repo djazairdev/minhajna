@@ -7,6 +7,8 @@
 import type { Day } from './day.ts';
 import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './history.ts';
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
+import { captureKey } from './captures.ts';
+import { markKey } from './marks.ts';
 import { buildState, type State } from './state.ts';
 import { kindOf, listKey } from './support-queue.ts';
 import { layerKey, switchKey } from './variant-layers.ts';
@@ -109,6 +111,10 @@ function recordKey(event: RecordEvent): string {
       return 'retention';
     case 'assessment.set':
       return `assessment:${event.setup.courseId}:${event.setup.term}`;
+    case 'mark.set':
+      return `mark:${markKey(event.mark)}`;
+    case 'capture.set':
+      return `capture:${captureKey(event.capture)}`;
   }
 }
 

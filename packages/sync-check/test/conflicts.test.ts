@@ -3,12 +3,22 @@
 
 // Conflicts: two devices that change the same record differently before
 // they sync give one conflict and a notice that counts it; the same
-// change made on both, or changes to different records, give none.
-// Made-up records only.
+// change made on both, or changes to different records, give none. A
+// pupil's mark or capture is one record per cell. Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { MemoryStore, parseDay, RecordBook, type CalendarUpdate, type RecordEvent } from '@minhajna/core';
+import {
+  MemoryStore,
+  parseDay,
+  RecordBook,
+  setCapture,
+  setMark,
+  type CalendarUpdate,
+  type Entry,
+  type RecordEvent,
+  type SessionRef,
+} from '@minhajna/core';
 import { conflictNotice, findConflicts, recordKey } from '../src/conflicts.ts';
 import { demoYear, deps, twoDevices } from '../src/demo.ts';
 
@@ -44,6 +54,39 @@ test('the notice counts the records waiting for a choice, by kind', () => {
 test('no conflict when only one side changed, or both made the same change', () => {
   assert.deepEqual(findConflicts(devices.computer, []), []);
   assert.deepEqual(findConflicts(devices.computer.slice(1), devices.phone.slice(1)), []);
+});
+
+const recorded = async (...events: RecordEvent[]): Promise<Entry[]> => {
+  const book = await RecordBook.open(new MemoryStore(), deps);
+  for (const event of events) await book.record(parseDay('2026-11-08'), event);
+  return [...book.entries];
+};
+
+test('a mark or a capture typed differently on two devices conflicts in its own cell only', async () => {
+  const mark = (pupilId: string, value: number) =>
+    setMark({ courseId: 'c-1', term: 1, target: { kind: 'test', testId: 't-1' }, pupilId }, value, 20);
+  const session: SessionRef = {
+    key: 'c-1/2026-11-08/m1/g-all',
+    courseId: 'c-1',
+    groupId: 'g-all',
+    day: parseDay('2026-11-08'),
+    slot: { half: 'morning', index: 1 },
+  };
+  const [mine, theirs, same] = await Promise.all([
+    recorded(mark('p-1', 12), mark('p-2', 8), setCapture(session, 'p-1', 'participation', 2)),
+    recorded(mark('p-1', 13), mark('p-3', 8), setCapture(session, 'p-1', 'participation', 3)),
+    recorded(mark('p-1', 12), mark('p-2', 8), setCapture(session, 'p-1', 'participation', 2)),
+  ]);
+  assert.deepEqual(mine.map(recordKey), [
+    'mark/c-1/1/test:t-1/p-1',
+    'mark/c-1/1/test:t-1/p-2',
+    'capture/c-1/2026-11-08/m1/g-all/p-1/participation',
+  ]);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['mark/c-1/1/test:t-1/p-1', 'capture/c-1/2026-11-08/m1/g-all/p-1/participation'],
+  );
+  assert.deepEqual(findConflicts(mine, same), []);
 });
 
 test('two different files of one calendar release conflict; the same file on both does not', async () => {

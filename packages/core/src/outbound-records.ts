@@ -87,6 +87,14 @@ function currentRecords(state: State): RecordEvent[] {
     for (const setup of [...last.values()].sort((a, b) => a.term - b.term))
       records.push({ kind: 'assessment.set', setup });
   }
+  for (const key of [...state.marks.keys()].sort(compareText)) {
+    const mark = state.marks.get(key)!;
+    if (mark.value !== null) records.push({ kind: 'mark.set', mark });
+  }
+  for (const key of [...state.captures.keys()].sort(compareText)) {
+    const capture = state.captures.get(key)!;
+    if (capture.value !== 0) records.push({ kind: 'capture.set', capture });
+  }
   if (state.setupFinished) records.push({ kind: 'setup.finished' });
   for (const print of state.prints) records.push({ kind: 'print.recorded', print: print.value });
   for (const test of [...state.tests.values()].sort((a, b) => compareDays(a.day, b.day) || compareText(a.id, b.id))) {
