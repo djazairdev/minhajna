@@ -1979,6 +1979,13 @@
       "heading": "Relevé des notes et des moyennes",
       "scope": "Classe : {{class}} · Matière : {{subject}} · {{term}}",
       "formula": "{{formula}}, sur {{scale}} · version {{release}}"
+    },
+    "markSheet": {
+      "name": "Relevé des notes et appréciations",
+      "heading": "Relevé des notes et appréciations",
+      "scope": "Classe : {{class}} · Matière : {{subject}} · {{term}}",
+      "scopeNamed": "Classe : {{class}} · Matière : {{subject}} · {{term}} · Enseignant : {{teacher}}",
+      "appreciation": "Appréciation"
     }
   },
   "preview": {
@@ -3230,6 +3237,11 @@
       "workbookWaits": "Le remplissage du fichier de l’administration attend les modèles vides recueillis auprès des établissements ; le fichier ne vous est donc pas encore demandé. D’ici là, utilisez la vue de la grille ostad.",
       "ostadOrder": "Dans l’ordre de la grille",
       "ostadNote": "De grands chiffres à recopier à la main, sans se connecter à la grille.",
+      "others": "Autres fichiers",
+      "printTitle": "Relevé imprimé",
+      "printNote": "Dans l’ordre de la grille de l’établissement : les notes, la moyenne et l’appréciation de chaque élève, sur une page A4 portrait marquée « Interne · confidentiel ».",
+      "signatureLine": "La case de l’enseignant porte sa signature dessinée sur le relevé du collège seulement, et peut rester vide pour signer à la main.",
+      "drawnLine": "Ma signature dessinée dans ma case, à l’impression et dans le PDF seulement ; elle peut rester vide pour signer à la main.",
       "absent": "Absent",
       "never": "Minhajna ne demande jamais le mot de passe d’ostad ou d’amatti, n’entre pas dans ces plateformes à ma place et ne produit pas de bulletins pour les parents.",
       "unavailable": "Pas d’export pour ce trimestre : il n’a pas de relevé de notes, ou les fichiers fournis avec l’application n’ont pas pu être lus.",

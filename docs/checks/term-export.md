@@ -1,6 +1,6 @@
 # The term export (#242)
 
-Checks of 23 October 2026 for [#242](https://github.com/djazairdev/minhajna/issues/242), on `feat/242-export-core` and `feat/242-export-screen`. Made-up classes and records only.
+Checks of 23 October 2026 for [#242](https://github.com/djazairdev/minhajna/issues/242), on `feat/242-export-core`, `feat/242-export-screen` and `feat/242-mark-sheet`. Made-up classes and records only.
 
 Filling the school's own workbook waits for the blank templates of [#45](https://github.com/djazairdev/minhajna/issues/45), since its cells cannot be guessed (answer 466). Everything else is built in four pull requests: this core first, then the Export screen with the ostad view, the printed sheet, and saving and sharing with the check before signing.
 
@@ -41,9 +41,25 @@ Filling the school's own workbook waits for the blank templates of [#45](https:/
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, the only class on the emulator, on Friday 23 October:<br>• «التقويم والنقاط» showed «التصدير الفصلي», «نقاط ناقصة: 132 · تقديرات ناقصة: 45», after «التقديرات».<br>• The screen read «التصدير الفصلي · القسم التجريبي · اللغة العربية · الفصل الأول», then «خانات نقاط ناقصة: 132 · التلاميذ المعنيون: 45 من 45», «المعدلات بالصيغة الرسمية، الإصدار 2026.1», «التقديرات: 0 من 45» and the list's note, then the notice «لا تصدير بعد».<br>• «شبكة ostad» was recorded as checked, and showed no view since nothing is complete. «ملف Excel من الإدارة» showed the notice that it waits for the templates, and was still chosen after the app was stopped and opened again.<br>• No pupil of the demo class has all their marks, so the ostad view was checked in the tests only. |
 
+## Part 3: the printed mark sheet
+
+- **Where** (Marks-sheet, answer 466): once the export is ready, «التصدير الفصلي» shows «ملفات أخرى» with «كشف النقاط المطبوع», what it holds, and «طباعة» and «حفظ PDF». Each goes into the activity log as «كشف النقاط والتقديرات» with the term.
+- **The page:**
+  - It is A4 portrait, framed «داخلي · سري», with the class's school and the school year, «كشف النقاط والتقديرات», and the class, subject, term and the teacher's name when the card has it.
+  - Each pupil is in the grid's order, with their number, name, each part and the average to two decimals, «غ» for a part missed, and the appreciation chosen in its own wide column.
+  - Then comes the teacher's box, dated.
+- **The signature:** a middle-school page offers «خانة التوقيع» while the drawn signature is in use, as the grade book does (answer 462). Left blank, the page carries none, and a primary or lycée page never carries it.
+
+| Check | Result |
+|---|---|
+| Android tests | Not offered before the export is ready; the page printed and saved, with the teacher's name, a pupil's parts, average and appreciation, «داخلي · سري» and the signature, the file's name, and both logged with the term; no signature when left blank; the log's line for a printed sheet; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, on Friday 23 October: «التصدير الفصلي» showed its lines, the notice «لا تصدير بعد», the route still on «ملف Excel من الإدارة» with its notice, and the closing line, with no «ملفات أخرى», since no pupil of the demo class has all their marks. The page itself was checked in the tests. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
 - **TalkBack in Arabic:** the hub's row, the status card, the route choice, and each pupil of the ostad view read as one line.
 - **On a phone in French and English:** the screen and the ostad view.
+- **On paper:** the printed mark sheet on a real A4 printer, with a 45-pupil class and long appreciations.
 - **With a teacher:** copying a real term's marks from the ostad view into the ostad grid, and saying whether the numbers are large enough and the order matches the grid.

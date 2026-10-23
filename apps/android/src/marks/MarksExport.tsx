@@ -8,8 +8,9 @@
 // المؤسسة», the school's workbook or the ostad grid, kept with the school; for
 // the workbook, that filling it waits for the school's blank templates; for the
 // ostad grid, each pupil in the grid's order with large numbers to copy by
-// hand; and what Minhajna never does: ask for a platform's password, open it
-// for the teacher, or make a report card.
+// hand; once everything is complete, «ملفات أخرى» with the printed mark sheet;
+// and what Minhajna never does: ask for a platform's password, open it for the
+// teacher, or make a report card.
 
 import { EXPORT_ROUTES, type ExportRoute } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,6 +26,7 @@ import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { appreciationList, listNote } from './appreciation-rules';
+import { ExportPrint } from './ExportPrint';
 import { courseExport, courseSchool, marksLine, ostadValue, partName } from './export-rules';
 import { courseMarks, assessmentData, termWord } from './marks-rules';
 
@@ -36,9 +38,11 @@ const ROUTE_TEXTS: Readonly<Record<ExportRoute, { readonly label: string; readon
 export type MarksExportProps = {
   readonly courseId: string;
   readonly term: number;
+  /** Opens the signature's settings. */
+  readonly onSignature: () => void;
 };
 
-export function MarksExport({ courseId, term }: MarksExportProps) {
+export function MarksExport({ courseId, term, onSignature }: MarksExportProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -144,6 +148,12 @@ export function MarksExport({ courseId, term }: MarksExportProps) {
             );
           })}
         </View>
+      )}
+      {sheet.ready && (
+        <>
+          <Text style={[styles.title, align]}>{t('marks.export.others')}</Text>
+          <ExportPrint courseId={courseId} term={term} sheet={sheet} onSignature={onSignature} />
+        </>
       )}
       <Text testID="export-never" style={[styles.note, align]}>
         {t('marks.export.never')}
