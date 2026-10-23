@@ -18,6 +18,23 @@ import { documentSignature, drawnMark } from './drawn-mark';
 import { isolate } from '../week/grid-labels';
 import { markSheetHtml } from './mark-sheet-html';
 
+/** The course's class, with its year in a joint class, and its subject, as the sheet and its CSV file name them. */
+export function sheetNames(
+  data: Pick<DocumentData, 'state' | 'profile'>,
+  t: Translate,
+  courseId: string,
+): { readonly className: string; readonly subject: string } {
+  const course = data.state.courses.get(courseId);
+  const room = course && data.state.classes.get(course.classId);
+  const className =
+    room === undefined || course === undefined
+      ? ''
+      : isJoint(room)
+        ? `${room.name} · ${yearShort(t, courseGrade(course, room))}`
+        : room.name;
+  return { className, subject: course === undefined ? '' : subjectName(data.profile, course.subject) };
+}
+
 /** The mark sheet of a course's term export as HTML. */
 export function markSheetPages(
   data: DocumentData,
@@ -26,16 +43,9 @@ export function markSheetPages(
   term: number,
   sheet: TermExport,
 ): string {
-  const { state, profile } = data;
-  const course = state.courses.get(courseId);
-  const room = course && state.classes.get(course.classId);
-  const className =
-    room === undefined || course === undefined
-      ? ''
-      : isJoint(room)
-        ? `${room.name} · ${yearShort(t, courseGrade(course, room))}`
-        : room.name;
-  const subject = course === undefined ? '' : subjectName(profile, course.subject);
+  const { state } = data;
+  const room = state.classes.get(state.courses.get(courseId)?.classId ?? '');
+  const { className, subject } = sheetNames(data, t, courseId);
   const teacher = state.personal?.name?.trim() ?? '';
   const where = { class: className, subject, term: termWord(t, term) };
   const scope =

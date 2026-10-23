@@ -72,5 +72,5 @@ export function useOutputRun() {
       return 'saved';
     });
 
-  return { busy, said, print, save, clear: () => setSaid(null) };
+  return { busy, said, run, print, save, clear: () => setSaid(null) };
 }

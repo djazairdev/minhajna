@@ -15,7 +15,6 @@ import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
-import { yearLabel } from '../documents/document-data';
 import { markSheetPages } from '../documents/mark-sheet-pages';
 import { CopyWarning, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
 import { useOutputRun } from '../documents/output-run';
@@ -24,7 +23,7 @@ import { courseLabel } from '../exams/course-label';
 import { useOutputLog } from '../log/output-log';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
-import { termWord } from './marks-rules';
+import { sheetFileName } from './export-file-rules';
 
 export type ExportPrintProps = {
   readonly courseId: string;
@@ -49,7 +48,7 @@ export function ExportPrint({ courseId, term, sheet, onSignature }: ExportPrintP
   const html = () => markSheetPages({ ...documents, drawn }, t, courseId, term, sheet);
   const title = t('documents.markSheet.name');
   const label = courseLabel(t, state, profile, courseId, true);
-  const file = `${title} ${label} ${termWord(t, term)} ${yearLabel(documents)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+  const file = sheetFileName(t, label, term, documents, 'pdf');
   const log = logged('mark-sheet', `term-${term}`);
   return (
     <View testID="export-print" style={styles.group}>

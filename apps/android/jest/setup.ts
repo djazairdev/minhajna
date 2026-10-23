@@ -42,6 +42,19 @@ jest.mock('../src/native/NativeMinhajnaPdf', () => ({
   },
 }));
 
+// No file picker or share screen exists in Jest; a made file is a token,
+// saving is picked, and no file is opened.
+jest.mock('../src/native/NativeMinhajnaFiles', () => ({
+  __esModule: true,
+  default: {
+    makeText: jest.fn(() => Promise.resolve('0123456789abcdef')),
+    adoptPdf: jest.fn(() => Promise.resolve('fedcba9876543210')),
+    saveFile: jest.fn(() => Promise.resolve(true)),
+    shareFile: jest.fn(() => Promise.resolve()),
+    openText: jest.fn(() => Promise.resolve(null)),
+  },
+}));
+
 // No installed APK exists in Jest; the build is described with made-up checksums.
 jest.mock('../src/native/NativeMinhajnaBuild', () => ({
   __esModule: true,

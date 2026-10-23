@@ -12,7 +12,18 @@ import { noteUse } from '../lock/activity';
 /** Controlled text, with translated labels/examples supplied by the screen's catalogue. */
 export type TextFieldProps = Pick<
   TextInputProps,
-  'keyboardType' | 'inputMode' | 'maxLength' | 'editable' | 'onSubmitEditing' | 'returnKeyType' | 'onFocus' | 'onBlur'
+  | 'keyboardType'
+  | 'inputMode'
+  | 'maxLength'
+  | 'editable'
+  | 'onSubmitEditing'
+  | 'returnKeyType'
+  | 'onFocus'
+  | 'onBlur'
+  | 'autoCapitalize'
+  | 'autoCorrect'
+  | 'autoComplete'
+  | 'importantForAutofill'
 > & {
   readonly label: string;
   /** Decorative only; the translated label must carry its meaning. */

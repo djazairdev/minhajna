@@ -22,6 +22,8 @@ import { MarksBook } from '../marks/MarksBook';
 import { MarksComponents } from '../marks/MarksComponents';
 import { MarksEntry } from '../marks/MarksEntry';
 import { MarksAppreciations } from '../marks/MarksAppreciations';
+import { ExportFile } from '../marks/ExportFile';
+import { MarksCheck } from '../marks/MarksCheck';
 import { MarksExport } from '../marks/MarksExport';
 import { MarksJustify } from '../marks/MarksJustify';
 import { MarksObservations } from '../marks/MarksObservations';
@@ -144,7 +146,31 @@ export function MarksAppreciationsScreen({
 }
 
 export function MarksExportScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksExport'>) {
-  return <MarksExport {...route.params} onSignature={() => navigation.navigate('SettingsSignature')} />;
+  return (
+    <MarksExport
+      {...route.params}
+      onSignature={() => navigation.navigate('SettingsSignature')}
+      onFile={() => navigation.navigate('MarksExportFile', route.params)}
+      onCheck={() => navigation.navigate('MarksCheck', route.params)}
+    />
+  );
+}
+
+export function MarksExportFileScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, 'MarksExportFile'>) {
+  return <ExportFile {...route.params} onSignature={() => navigation.navigate('SettingsSignature')} />;
+}
+
+export function MarksCheckScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksCheck'>) {
+  return (
+    <MarksCheck
+      {...route.params}
+      onBook={() => navigation.navigate('MarksBook', route.params)}
+      onFile={() => navigation.navigate('MarksExportFile', route.params)}
+    />
+  );
 }
 
 export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
@@ -180,6 +206,12 @@ export function marksRoutes(
         options={dark(t('marks.appreciations.title'))}
       />
       <Stack.Screen name="MarksExport" component={MarksExportScreen} options={dark(t('marks.export.title'))} />
+      <Stack.Screen
+        name="MarksExportFile"
+        component={MarksExportFileScreen}
+        options={dark(t('marks.export.file.title'))}
+      />
+      <Stack.Screen name="MarksCheck" component={MarksCheckScreen} options={dark(t('marks.export.check.title'))} />
       <Stack.Screen
         name="MarksComponents"
         component={MarksComponentsScreen}

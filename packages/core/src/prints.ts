@@ -32,14 +32,14 @@ export interface PrintRecord {
   readonly documents: readonly PrintedDocument[];
 }
 
-/** A document printed or saved as a PDF from its output: never its content, file name or recipient. */
+/** A document printed, or saved or shared as a PDF or CSV file: never its content, file name, password or recipient. */
 export interface OutputRecord {
   readonly id: string;
   /** The document's name, as the app calls it, such as `journal`. */
   readonly document: string;
   /** What it covered, as its file is named: a day, a month such as `2026-10`, or a school year such as `2026-2027`. */
   readonly period: string;
-  readonly how: 'print' | 'pdf';
+  readonly how: 'print' | 'pdf' | 'csv';
   readonly blank: boolean;
 }
 

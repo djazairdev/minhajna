@@ -59,7 +59,7 @@ async function complete(): Promise<TestData> {
   ]);
   return data;
 }
-const screen = <MarksExport courseId="c-1" term={1} onSignature={jest.fn()} />;
+const screen = <MarksExport courseId="c-1" term={1} onSignature={jest.fn()} onFile={jest.fn()} onCheck={jest.fn()} />;
 const has = (testID: string) => root().findAll((node) => node.props.testID === testID).length > 0;
 
 test('the printed sheet is offered once the export is ready', async () => {
