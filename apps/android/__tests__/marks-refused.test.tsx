@@ -93,6 +93,7 @@ test('the hub shows no formula, its setup row disabled, and still opens the test
       onAppreciations={jest.fn()}
       onExport={jest.fn()}
       onFix={jest.fn()}
+      onCouncil={jest.fn()}
     />,
   );
   expect(texts()).toContain(text.marks.unavailable);

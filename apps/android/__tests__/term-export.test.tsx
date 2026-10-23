@@ -71,6 +71,7 @@ const hub = (onExport = jest.fn()) => (
     onAppreciations={jest.fn()}
     onExport={onExport}
     onFix={jest.fn()}
+    onCouncil={jest.fn()}
   />
 );
 

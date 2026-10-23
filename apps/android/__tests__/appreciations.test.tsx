@@ -64,6 +64,7 @@ const hub = (onAppreciations = jest.fn()) => (
     onAppreciations={onAppreciations}
     onExport={jest.fn()}
     onFix={jest.fn()}
+    onCouncil={jest.fn()}
   />
 );
 

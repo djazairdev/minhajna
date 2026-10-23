@@ -10,7 +10,8 @@
 // marks they replace, whose subject chips stay in the route; the term's
 // appreciations (#241), each recorded as it is chosen, and its export (#242);
 // the corrections after the term (#243), whose file row opens the export's
-// file; and the entry of a test's, the exam's or a component's marks, each
+// file; the class-council pack (#244), whose term chips stay in the route; and
+// the entry of a test's, the exam's or a component's marks, each
 // recorded as it is typed or tapped, so leaving loses nothing.
 
 import { usePreventRemove } from '@react-navigation/native';
@@ -27,6 +28,7 @@ import { ExportFile } from '../marks/ExportFile';
 import { MarksCheck } from '../marks/MarksCheck';
 import { MarksExport } from '../marks/MarksExport';
 import { MarksFix } from '../marks/MarksFix';
+import { MarksCouncil } from '../marks/MarksCouncil';
 import { MarksJustify } from '../marks/MarksJustify';
 import { MarksObservations } from '../marks/MarksObservations';
 import { MarksSetup } from '../marks/MarksSetup';
@@ -49,6 +51,7 @@ export function MarksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onAppreciations={(chosen) => navigation.navigate('MarksAppreciations', { courseId, term: chosen })}
       onExport={(chosen) => navigation.navigate('MarksExport', { courseId, term: chosen })}
       onFix={(chosen) => navigation.navigate('MarksFix', { courseId, term: chosen })}
+      onCouncil={(chosen) => navigation.navigate('MarksCouncil', { courseId, term: chosen })}
       onEntry={(chosen, testId) =>
         navigation.navigate('MarksEntry', { courseId, term: chosen, ...(testId !== undefined && { testId }) })
       }
@@ -187,6 +190,10 @@ export function MarksFixScreen({ navigation, route }: NativeStackScreenProps<Roo
   );
 }
 
+export function MarksCouncilScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksCouncil'>) {
+  return <MarksCouncil {...route.params} onTerm={(chosen) => navigation.setParams({ term: chosen })} />;
+}
+
 export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
   return <MarksJustify {...route.params} />;
 }
@@ -227,6 +234,7 @@ export function marksRoutes(
       />
       <Stack.Screen name="MarksCheck" component={MarksCheckScreen} options={dark(t('marks.export.check.title'))} />
       <Stack.Screen name="MarksFix" component={MarksFixScreen} options={dark(t('marks.fix.title'))} />
+      <Stack.Screen name="MarksCouncil" component={MarksCouncilScreen} options={dark(t('marks.council.title'))} />
       <Stack.Screen
         name="MarksComponents"
         component={MarksComponentsScreen}

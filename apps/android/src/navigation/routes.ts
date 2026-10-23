@@ -85,6 +85,8 @@ export type RootStackParamList = {
   MarksCheck: { courseId: string; term: number };
   /** The corrections of a course's ended term (#243). */
   MarksFix: { courseId: string; term: number };
+  /** The class-council pack of a course's term (#244). */
+  MarksCouncil: { courseId: string; term: number };
   /** The term's component marks, by `month` in primary (#239). */
   MarksComponents: { courseId: string; term: number; month?: string };
   /** Entering a course's test's, component's, lycée's practical work's or oral's, or else the exam's marks (#239). */

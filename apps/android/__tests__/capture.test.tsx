@@ -188,6 +188,7 @@ test('the hub’s row names today’s session, and is disabled on a day without 
       onAppreciations={jest.fn()}
       onExport={jest.fn()}
       onFix={jest.fn()}
+      onCouncil={jest.fn()}
     />
   );
   await mount(data, hub);
