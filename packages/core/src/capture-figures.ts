@@ -7,16 +7,17 @@
 // held; the one it opens on, the first not yet recorded, else the last; the
 // pupils it shows, the session's group's enrolled that day, of the course's
 // level only in a joint class; and the homework counts a piece of
-// homework's captures propose, from the first session of its course and
-// group on its due day that has any, counting only the pupils on the
-// homework's list.
+// homework's captures propose, from the first session of its course on its
+// due day, held by its group or the whole class, that has any, counting only
+// the pupils on the homework's list (answer 453); that session is also where
+// a pupil's homework evidence is read (answer 452).
 
 import { homeworkProposal } from './captures.ts';
 import { refOf } from './choices.ts';
 import type { Context } from './context.ts';
 import type { Day } from './day.ts';
 import { coursePupils, type HomeworkItem } from './homework.ts';
-import type { SessionRef } from './records.ts';
+import { wholeGroup, type SessionRef } from './records.ts';
 import { sessionsBetween } from './sessions.ts';
 import { current } from './versions.ts';
 
@@ -45,19 +46,30 @@ export function captureList(context: Context, session: SessionRef): string[] {
   return course === undefined ? [] : coursePupils(context, course, session.groupId, session.day);
 }
 
+/** The session a piece of homework's taps are read on, with its list; null when none was captured. */
+export function homeworkSession(
+  context: Context,
+  item: Pick<HomeworkItem, 'session' | 'due'>,
+): { readonly session: SessionRef; readonly listed: readonly string[] } | null {
+  const { courseId, groupId } = item.session;
+  const course = context.state.courses.get(courseId);
+  const room = course && context.state.classes.get(course.classId);
+  if (course === undefined || room === undefined) return null;
+  const listed = coursePupils(context, course, groupId, item.due);
+  const groups = new Set([groupId, wholeGroup(room).id]);
+  for (const session of sessionsBetween(context, item.due, item.due, new Set([courseId]))) {
+    if (session.courseId !== courseId || !groups.has(session.groupId)) continue;
+    const proposal = homeworkProposal(context.state, session.key, listed);
+    if (proposal.notDone + proposal.reliedOn > 0) return { session: refOf(session), listed };
+  }
+  return null;
+}
+
 /** The counts a piece of homework's captures propose; null when none was captured. */
 export function homeworkCaptured(
   context: Context,
   item: Pick<HomeworkItem, 'session' | 'due'>,
 ): { readonly notDone: number; readonly reliedOn: number } | null {
-  const { courseId, groupId } = item.session;
-  const course = context.state.courses.get(courseId);
-  if (course === undefined) return null;
-  const listed = coursePupils(context, course, groupId, item.due);
-  for (const session of sessionsBetween(context, item.due, item.due, new Set([courseId]))) {
-    if (session.courseId !== courseId || session.groupId !== groupId) continue;
-    const proposal = homeworkProposal(context.state, session.key, listed);
-    if (proposal.notDone + proposal.reliedOn > 0) return proposal;
-  }
-  return null;
+  const found = homeworkSession(context, item);
+  return found === null ? null : homeworkProposal(context.state, found.session.key, found.listed);
 }

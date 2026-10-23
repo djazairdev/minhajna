@@ -3136,6 +3136,7 @@
       "summary": "أُدخلت النقاط",
       "counts": "النقاط: {{entered}} · الغياب: {{absent}}",
       "noneOver": "لا نقطة فوق {{max}}",
+      "overCells": "نقاط فوق {{max}}: {{count}}",
       "emptyCells": "خانات فارغة: {{count}}",
       "noEmpty": "لا خانة فارغة",
       "allListed": "كل التلاميذ من قائمة القسم",
@@ -3182,6 +3183,23 @@
       "sessions": "حصص اليوم",
       "sessionAt": "{{from}} – {{to}}",
       "sessionN": "الحصة {{n}}"
+    },
+    "componentMarks": {
+      "title": "نقاط التقويم المستمر",
+      "rowLine": "الخانات المملوءة: {{done}} من {{total}}",
+      "months": "الشهر",
+      "note": "لا يحوّل التطبيق النقرات إلى نقاط: النقطة تضعها أنت، وما سُجّل يظهر تحت كل تلميذ.",
+      "line": "على {{points}} · {{done}} من {{total}}",
+      "period": "{{period}} · على {{max}}",
+      "participation": "نقرات المشاركة: {{n}}",
+      "homework": "الواجبات: {{set}} · لم يُنجز: {{notDone}} · بمساعدة الغير: {{helped}}",
+      "notebook": "كراس غير مكتمل: {{n}}",
+      "attendance": "أنصاف الأيام: {{possible}} · غياب غير مبرر: {{unjustified}} · غياب مبرر: {{justified}} · تأخر: {{late}} · ملاحظات السلوك: {{behaviour}}",
+      "nothing": "لا يُسجَّل لهذا العنصر شيء في التطبيق",
+      "proposed": "المقترح من دفتر المناداة: {{mark}}",
+      "useProposal": "اعتماد المقترح",
+      "counts": "النقاط: {{entered}}",
+      "none": "لا عناصر للتقويم المستمر في هذا الفصل"
     }
   }
 }

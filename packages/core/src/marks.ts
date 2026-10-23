@@ -6,8 +6,9 @@
 // term or, in primary, a month. A mark has two decimals at most and lies
 // from 0 to its maximum; a pupil can be absent instead, and a mark can be
 // cleared. The last one recorded counts. The entry check counts what was
-// entered, the empty cells of the pupils on the list, and the marks of
-// pupils not on it, which stay out of the averages.
+// entered, the marks above a maximum since lowered, the empty cells of the
+// pupils on the list, and the marks of pupils not on it, which stay out of
+// the averages (answer 452).
 
 import type { RecordEvent } from './events.ts';
 import type { State } from './state.ts';
@@ -80,8 +81,10 @@ export function marksFor(
 }
 
 export interface EntryCheck {
-  /** Pupils on the list with a mark. */
+  /** Pupils on the list with a mark, within the maximum when one is given. */
   readonly entered: number;
+  /** Pupils on the list whose mark is above the maximum given, in list order. */
+  readonly over: readonly string[];
   /** Pupils on the list marked absent. */
   readonly absent: number;
   /** Pupils on the list with neither, in list order. */
@@ -91,11 +94,20 @@ export interface EntryCheck {
 }
 
 /** What an entry holds against the list of pupils it is for (R-3.5-10, R-3.5-11). */
-export function entryCheck(listed: readonly string[], marks: ReadonlyMap<string, MarkValue>): EntryCheck {
+export function entryCheck(
+  listed: readonly string[],
+  marks: ReadonlyMap<string, MarkValue>,
+  max = Number.POSITIVE_INFINITY,
+): EntryCheck {
   const onList = new Set(listed);
   const values = listed.map((pupilId) => marks.get(pupilId));
+  const over = listed.filter((pupilId) => {
+    const value = marks.get(pupilId);
+    return typeof value === 'number' && markProblem(value, max) === 'over';
+  });
   return {
-    entered: values.filter((value) => typeof value === 'number').length,
+    entered: values.filter((value) => typeof value === 'number').length - over.length,
+    over,
     absent: values.filter((value) => value === 'absent').length,
     empty: listed.filter((pupilId) => !marks.has(pupilId)),
     notOnList: [...marks.keys()].filter((pupilId) => !onList.has(pupilId)).sort(),

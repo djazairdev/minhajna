@@ -180,6 +180,7 @@ test('the hub’s row names today’s session, and is disabled on a day without 
       onSetup={jest.fn()}
       onTests={jest.fn()}
       onCapture={onCapture}
+      onComponents={jest.fn()}
       onEntry={jest.fn()}
     />
   );

@@ -5,8 +5,8 @@
 // on, the first not yet recorded, else the last, and none on a day off, on
 // the teacher's own calendar day or for a session not held; the pupils of
 // the session's group; and the homework counts proposed from the captures
-// of the due day's session of the homework's own group, for the pupils on
-// its list only. Made-up records only.
+// of the due day's session of the homework's own group or the whole class,
+// for the pupils on its list only (answer 453). Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -125,7 +125,7 @@ test('homework counts are proposed from the due day’s captures', async () => {
   assert.deepEqual(homeworkCaptured(contextOf(book), item), { notDone: 2, reliedOn: 1 });
   const half = captureSession(contextOf(book), 'c-math', d('2026-09-22'))!;
   const halfItem = { session: half, due: d('2026-09-23') };
-  assert.equal(homeworkCaptured(contextOf(book), halfItem), null);
+  assert.deepEqual(homeworkCaptured(contextOf(book), halfItem), { notDone: 2, reliedOn: 1 });
   assert.equal(homeworkCaptured(contextOf(book), { ...item, due: d('2026-09-24') }), null);
 });
 

@@ -2983,6 +2983,7 @@
       "summary": "Notes saisies",
       "counts": "Notes : {{entered}} · Absences : {{absent}}",
       "noneOver": "Aucune note au-dessus de {{max}}",
+      "overCells": "Notes au-dessus de {{max}} : {{count}}",
       "emptyCells": "Cases vides : {{count}}",
       "noEmpty": "Aucune case vide",
       "allListed": "Tous les élèves sont sur la liste de la classe",
@@ -3029,6 +3030,23 @@
       "sessions": "Séances du jour",
       "sessionAt": "{{from}} – {{to}}",
       "sessionN": "Séance {{n}}"
+    },
+    "componentMarks": {
+      "title": "Notes d’évaluation continue",
+      "rowLine": "Cases remplies : {{done}} sur {{total}}",
+      "months": "Mois",
+      "note": "L’application ne transforme jamais les appuis en notes : c’est vous qui notez, et ce qui a été relevé s’affiche sous chaque élève.",
+      "line": "sur {{points}} · {{done}} sur {{total}}",
+      "period": "{{period}} · sur {{max}}",
+      "participation": "Appuis de participation : {{n}}",
+      "homework": "Devoirs : {{set}} · non faits : {{notDone}} · faits avec aide : {{helped}}",
+      "notebook": "Cahier incomplet : {{n}}",
+      "attendance": "Demi-journées : {{possible}} · absences non justifiées : {{unjustified}} · justifiées : {{justified}} · retards : {{late}} · remarques de comportement : {{behaviour}}",
+      "nothing": "Rien n’est relevé dans l’application pour cette composante",
+      "proposed": "Proposé d’après le registre d’appel : {{mark}}",
+      "useProposal": "Reprendre la proposition",
+      "counts": "Notes : {{entered}}",
+      "none": "Aucune composante d’évaluation continue pour ce trimestre"
     }
   }
 }

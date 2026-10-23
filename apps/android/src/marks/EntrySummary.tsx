@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The end of an entry (#239, Marks-test, Marks-exam, answers 440 and 447):
-// «أُدخلت النقاط», how many marks and absences, the three checks, no mark
-// above the maximum, the empty cells, and every mark's pupil on the list,
-// or each one who is not with «ليس في قائمة القسم يومها» and a button to
-// clear it, since it stays out of the averages until cleared. A test says
-// its marks stay with the teacher. Every mark is already recorded, so «تم»
-// only goes back; «مراجعة من البداية» goes back to the first pupil.
+// «أُدخلت النقاط», how many marks and absences, the three checks, no mark above
+// the maximum, the empty cells, and every mark's pupil on the list, or each one
+// who is not with «ليس في قائمة القسم يومها» and a button to clear it, since it
+// stays out of the averages until cleared. A test says its marks stay with the
+// teacher, and a component counts no absences; a mark above a component's
+// points since lowered is counted (answer 452). Every mark is already recorded,
+// so «تم» only goes back; «مراجعة من البداية» goes back to the first pupil.
 
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
@@ -19,7 +20,10 @@ import { isolate } from '../week/grid-labels';
 
 export type EntrySummaryProps = {
   readonly max: number;
-  readonly test: boolean;
+  /** Marks above the maximum, given before it was lowered. */
+  readonly over: number;
+  /** What was entered: a test's marks stay with the teacher; a component has no absences. */
+  readonly kind: 'test' | 'exam' | 'component';
   readonly entered: number;
   readonly absent: number;
   readonly empty: number;
@@ -32,7 +36,8 @@ export type EntrySummaryProps = {
 
 export function EntrySummary({
   max,
-  test,
+  over,
+  kind,
   entered,
   absent,
   empty,
@@ -56,10 +61,16 @@ export function EntrySummary({
         {t('marks.entry.summary')}
       </Text>
       <Text testID="entry-counts" style={[styles.body, align]}>
-        {t('marks.entry.counts', { entered, absent })}
+        {kind === 'component'
+          ? t('marks.componentMarks.counts', { entered })
+          : t('marks.entry.counts', { entered, absent })}
       </Text>
       <View style={styles.checks}>
-        {check('entry-check-over', t('marks.entry.noneOver', { max }), true)}
+        {check(
+          'entry-check-over',
+          over === 0 ? t('marks.entry.noneOver', { max }) : t('marks.entry.overCells', { max, count: over }),
+          over === 0,
+        )}
         {check(
           'entry-check-empty',
           empty === 0 ? t('marks.entry.noEmpty') : t('marks.entry.emptyCells', { count: empty }),
@@ -87,7 +98,7 @@ export function EntrySummary({
           ))}
         </View>
       )}
-      {test && <Text style={[styles.note, align]}>{t('marks.entry.stays')}</Text>}
+      {kind === 'test' && <Text style={[styles.note, align]}>{t('marks.entry.stays')}</Text>}
       <Button testID="entry-done" label={t('marks.entry.done')} onPress={onDone} />
       <Button testID="entry-restart" variant="line" label={t('marks.entry.restart')} onPress={onRestart} />
     </View>

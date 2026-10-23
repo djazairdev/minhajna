@@ -6,11 +6,12 @@
 // whose dates hold today, then the card naming the formula its averages follow,
 // with the release and the rules year, and the rows built so far: «التقويم
 // المستمر», with the setup in force for the term; «تقويم أثناء الحصة», with
-// today's session, disabled with none; one row for each of the term's tests,
-// with its day and how many of its pupils are done, or «لا فرض في هذا الفصل
-// بعد» opening «مواعيد الفروض»; «الاختبار», with its window's first day, for a
-// subject with a term exam (#239, answer 444); and «مواعيد الفروض». A subject
-// with no continuous assessment says so, and a class archived after a
+// today's session, disabled with none; «نقاط التقويم المستمر», with how many of
+// the term's component cells are filled (answer 451); one row for each of the
+// term's tests, with its day and how many of its pupils are done, or «لا فرض في
+// هذا الفصل بعد» opening «مواعيد الفروض»; «الاختبار», with its window's first
+// day, for a subject with a term exam (#239, answer 444); and «مواعيد الفروض».
+// A subject with no continuous assessment says so, and a class archived after a
 // reorientation shows its setup and marks but takes no new ones (#231). The
 // rows of the grade book, appreciations and the export come with their own
 // issues.
@@ -30,6 +31,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { courseLabel } from '../exams/course-label';
 import { dayName } from '../today/DayMark';
 import { captureLine } from './capture-rules';
+import { componentProgress } from './component-rules';
 import { entryDone, entrySheet, levelScale, termTests, type EntrySheet } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
 
@@ -42,11 +44,14 @@ export type MarksProps = {
   readonly onTests: () => void;
   /** Opens capture during today's session. */
   readonly onCapture: () => void;
+  /** Opens the term's component marks. */
+  readonly onComponents: (term: number) => void;
   /** Opens the entry of a test's marks, or of the exam's without a test. */
   readonly onEntry: (term: number, testId?: string) => void;
 };
 
-export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onEntry }: MarksProps) {
+export function Marks(props: MarksProps) {
+  const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onEntry } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -138,6 +143,16 @@ export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onCapt
             description={session === null ? t('marks.during.noSession') : captureLine(t, app, session)}
             disabled={archived || session === null}
             onPress={onCapture}
+          />
+        )}
+        {entering && assessment !== null && (
+          <RowLink
+            testID="marks-components"
+            icon={controlIcon('pencil')}
+            title={t('marks.componentMarks.title')}
+            description={t('marks.componentMarks.rowLine', componentProgress(context, data, courseId, term, today()))}
+            disabled={archived}
+            onPress={() => onComponents(term)}
           />
         )}
         {entering && tests.length === 0 && (
