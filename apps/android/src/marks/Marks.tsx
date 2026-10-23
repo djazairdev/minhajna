@@ -13,12 +13,15 @@
 // هذا الفصل بعد» opening «مواعيد الفروض»; «الاختبار», with its window's first
 // day, for a subject with a term exam (#239, answer 444); in lycée, «الأعمال
 // التطبيقية» or «الشفهي» when the formula the administration chose weighs it
-// (#240, answer 463); and «مواعيد الفروض». A subject with no continuous
+// (#240, answer 463); and «مواعيد الفروض». In a term whose marks descriptive
+// observations replace, such as 1AP's first, the card says so and «ملاحظات
+// وصفية», with how many pupils have one, takes the place of the rows of marks,
+// tests, the exam and «كشف النقاط» (answer 464). A subject with no continuous
 // assessment says so, and a class archived after a reorientation shows its
 // setup and marks but takes no new ones (#231). The rows of appreciations and
 // the export come with their own issues.
 
-import { captureSession, gradeBook, termNumberOn, termTests } from '@minhajna/core';
+import { captureSession, courseObserved, gradeBook, termNumberOn, termTests } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -36,6 +39,7 @@ import { captureLine } from './capture-rules';
 import { componentProgress } from './component-rules';
 import { entryDone, entrySheet, levelScale, SHEET_TEXTS, type EntrySheet, type SatPart } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
+import { observationSheet } from './observation-rules';
 
 const PARTS = [
   { part: 'P', kind: 'practical' },
@@ -59,10 +63,13 @@ export type MarksProps = {
   readonly onEntry: (term: number, testId?: string) => void;
   /** Opens the entry of lycée's practical work or oral. */
   readonly onPart: (term: number, part: 'practical' | 'oral') => void;
+  /** Opens the term's descriptive observations. */
+  readonly onObservations: (term: number) => void;
 };
 
 export function Marks(props: MarksProps) {
   const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry, onPart } = props;
+  const { onObservations } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -102,7 +109,10 @@ export function Marks(props: MarksProps) {
   const exams = sheetOf();
   const entering = data !== null && marks !== null && levelScale(data, room.level) !== null;
   const session = captureSession(context, courseId, today());
-  const book = entering ? gradeBook(context, data, courseId, term) : null;
+  const observed = entering && courseObserved(state, data, courseId, term);
+  const marking = entering && !observed;
+  const book = marking ? gradeBook(context, data, courseId, term) : null;
+  const noted = observed ? observationSheet(context, courseId, term, today()) : null;
   const parts = PARTS.filter(({ part }) => (marks?.formula?.weights[part] ?? 0) > 0);
   return (
     <ScrollView
@@ -132,7 +142,9 @@ export function Marks(props: MarksProps) {
       {marks !== null && (
         <View testID="marks-formula" accessible style={styles.card}>
           <Text style={[styles.title, align]}>{t('marks.formulaTitle')}</Text>
-          <Text style={[styles.body, align]}>{formulaText(t, marks.formula)}</Text>
+          <Text style={[styles.body, align]}>
+            {observed ? t('marks.observations.instead', { term: termWord(t, term) }) : formulaText(t, marks.formula)}
+          </Text>
           <Text style={[styles.note, align]}>
             {marks.preset === undefined
               ? t('marks.release', { release: marks.release })
@@ -159,7 +171,19 @@ export function Marks(props: MarksProps) {
             onPress={onCapture}
           />
         )}
-        {entering && assessment !== null && (
+        {noted !== null && (
+          <RowLink
+            testID="marks-observations"
+            icon={controlIcon('pencil')}
+            title={t('marks.observations.title')}
+            description={t('marks.observations.rowLine', {
+              done: noted.listed.length - noted.counts.missing,
+              total: noted.listed.length,
+            })}
+            onPress={() => onObservations(term)}
+          />
+        )}
+        {marking && assessment !== null && (
           <RowLink
             testID="marks-components"
             icon={controlIcon('pencil')}
@@ -178,7 +202,7 @@ export function Marks(props: MarksProps) {
             onPress={() => onBook(term)}
           />
         )}
-        {entering && tests.length === 0 && (
+        {marking && tests.length === 0 && (
           <RowLink
             testID="marks-no-tests"
             icon={controlIcon('pencil')}
@@ -187,7 +211,7 @@ export function Marks(props: MarksProps) {
             onPress={onTests}
           />
         )}
-        {entering &&
+        {marking &&
           tests.map((test) => {
             const sheet = sheetOf(test.id);
             return (
@@ -202,7 +226,7 @@ export function Marks(props: MarksProps) {
               />
             );
           })}
-        {entering && marks.formula !== undefined && (
+        {marking && marks.formula !== undefined && (
           <RowLink
             testID="marks-exam"
             icon={controlIcon('pencil')}
@@ -212,7 +236,7 @@ export function Marks(props: MarksProps) {
             onPress={() => onEntry(term)}
           />
         )}
-        {entering &&
+        {marking &&
           parts.map(({ kind }) => {
             const sheet = sheetOf(undefined, kind);
             return (

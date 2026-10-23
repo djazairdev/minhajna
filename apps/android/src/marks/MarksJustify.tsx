@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «تبرير التقويم المستمر» (#239, Marks-pupil, answers 443 and 454): chips for
-// the class and subject, the term and, in primary, the month; the previous
-// and next pupil with «3 من 45»; the pupil's page; then «لهذا التلميذ» or
-// «للقسم كله», the note that «داخلي · سري» is on every page, «طباعة» and
-// «حفظ PDF». The whole class prints one page per pupil on the list. Each print
-// and saved PDF goes into the activity log with its period, never a name;
-// a saved PDF is named by the class, the list number and the period (answer
-// 455), never the pupil. Opened from the grade book on a pupil who is not on
-// the period's list, it adds them after the list for that visit, and the whole
-// class still prints the list alone (answer 460).
+// the class and subject, the term and, in primary, the month; the previous and
+// next pupil with «3 من 45»; the pupil's page; then «لهذا التلميذ» or «للقسم
+// كله», the note that «داخلي · سري» is on every page, «طباعة» and «حفظ PDF».
+// The whole class prints one page per pupil on the list. Each print and saved
+// PDF goes into the activity log with its period, never a name; a saved PDF is
+// named by the class, the list number and the period (answer 455), never the
+// pupil. Opened from the grade book on a pupil who is not on the period's list,
+// it adds them after the list for that visit, and the whole class still prints
+// the list alone (answer 460). A term whose marks descriptive observations
+// replace, such as 1AP's first, has no justification: it says so in place of
+// the pages (answer 464).
 
-import { termNumberOn } from '@minhajna/core';
+import { courseObserved, termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -84,7 +86,8 @@ export function MarksJustify(props: MarksJustifyProps) {
   const at = Math.min(index, Math.max(pupils.length - 1, 0));
   const pageOf = (pupilId: string) =>
     justifyPage(t, context, data, { courseId, term, month, pupilId, today: today(), profile });
-  const page = pupils[at] === undefined ? null : pageOf(pupils[at]);
+  const observed = courseObserved(state, data, courseId, term);
+  const page = pupils[at] === undefined || observed ? null : pageOf(pupils[at]);
   const terms = [...year.terms].map((one) => one.number).sort((a, b) => a - b);
   const monthName = (one: string) => profile.months?.[Number(one.slice(5, 7)) - 1]?.[currentLanguage()] ?? one;
   const change = (step: () => void) => {
@@ -143,7 +146,13 @@ export function MarksJustify(props: MarksJustifyProps) {
         />
       )}
       {page === null ? (
-        <Notice icon={controlIcon('info')} message={t('marks.justify.noPupils')} />
+        <Notice
+          testID="justify-empty"
+          icon={controlIcon('info')}
+          message={
+            observed ? t('marks.observations.instead', { term: termWord(t, term) }) : t('marks.justify.noPupils')
+          }
+        />
       ) : (
         <>
           <View testID="justify-step" style={styles.step}>

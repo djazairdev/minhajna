@@ -6,9 +6,10 @@
 // term, which asks before a draft is lost and goes back to the hub once saved;
 // capture during today's session; the term's component marks, whose month chips
 // stay in the route, and its justification; the grade book, whose rows open a
-// pupil's justification (#240); and the entry of a test's, the
-// exam's or a component's marks, each recorded as it is typed or tapped, so
-// leaving loses nothing.
+// pupil's justification (#240); the descriptive observations of a term whose
+// marks they replace, whose subject chips stay in the route; and the entry of a
+// test's, the exam's or a component's marks, each recorded as it is typed or
+// tapped, so leaving loses nothing.
 
 import { usePreventRemove } from '@react-navigation/native';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -20,6 +21,7 @@ import { MarksBook } from '../marks/MarksBook';
 import { MarksComponents } from '../marks/MarksComponents';
 import { MarksEntry } from '../marks/MarksEntry';
 import { MarksJustify } from '../marks/MarksJustify';
+import { MarksObservations } from '../marks/MarksObservations';
 import { MarksSetup } from '../marks/MarksSetup';
 import { useText } from '../text/i18n';
 import type { RootStackParamList } from './AppNavigator';
@@ -36,6 +38,7 @@ export function MarksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onCapture={() => navigation.navigate('MarksCapture', { courseId })}
       onComponents={(chosen) => navigation.navigate('MarksComponents', { courseId, term: chosen })}
       onBook={(chosen) => navigation.navigate('MarksBook', { courseId, term: chosen })}
+      onObservations={(chosen) => navigation.navigate('MarksObservations', { courseId, term: chosen })}
       onEntry={(chosen, testId) =>
         navigation.navigate('MarksEntry', { courseId, term: chosen, ...(testId !== undefined && { testId }) })
       }
@@ -114,6 +117,20 @@ export function MarksBookScreen({ navigation, route }: NativeStackScreenProps<Ro
   );
 }
 
+export function MarksObservationsScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, 'MarksObservations'>) {
+  const { courseId, term } = route.params;
+  return (
+    <MarksObservations
+      courseId={courseId}
+      term={term}
+      onCourse={(chosen) => navigation.setParams({ courseId: chosen })}
+    />
+  );
+}
+
 export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
   return <MarksJustify {...route.params} />;
 }
@@ -136,6 +153,11 @@ export function marksRoutes(
       <Stack.Screen name="MarksCapture" component={MarksCaptureScreen} options={dark(t('marks.during.title'))} />
       <Stack.Screen name="MarksBook" component={MarksBookScreen} options={dark(t('marks.book.title'))} />
       <Stack.Screen name="MarksJustify" component={MarksJustifyScreen} options={dark(t('marks.justify.title'))} />
+      <Stack.Screen
+        name="MarksObservations"
+        component={MarksObservationsScreen}
+        options={dark(t('marks.observations.title'))}
+      />
       <Stack.Screen
         name="MarksComponents"
         component={MarksComponentsScreen}

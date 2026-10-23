@@ -48,6 +48,7 @@ async function mount(data: TestData, props: Partial<MarksProps> = {}) {
     onBook: jest.fn(),
     onEntry: jest.fn(),
     onPart: jest.fn(),
+    onObservations: jest.fn(),
     ...props,
   };
   await ReactTestRenderer.act(async () => {

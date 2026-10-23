@@ -184,6 +184,7 @@ test('the hub’s row names today’s session, and is disabled on a day without 
       onBook={jest.fn()}
       onEntry={jest.fn()}
       onPart={jest.fn()}
+      onObservations={jest.fn()}
     />
   );
   await mount(data, hub);

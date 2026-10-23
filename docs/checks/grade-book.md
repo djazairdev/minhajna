@@ -1,6 +1,6 @@
 # The grade book (#240)
 
-Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print`, `feat/240-lycee-core`, `feat/240-lycee-screens` and `feat/240-observations-core`. Made-up classes and records only.
+Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print`, `feat/240-lycee-core`, `feat/240-lycee-screens`, `feat/240-observations-core` and `feat/240-observations-screen`. Made-up classes and records only.
 
 ## Part 1: the averages (#414)
 
@@ -79,7 +79,7 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, the only class on the emulator, on Friday 23 October:<br>• The hub's formula card still read CEM's formula, and the rows were the same as before, ending «Fard1», «الاختبار» and «مواعيد الفروض», with no practical work or oral row.<br>• The book showed no formula choice, and its head read «الاسم واللقب · التقويم · الفرض · الاختبار · المعدل».<br>• The first pupil's value sheet showed each part as before.<br>• The emulator has no lycée class, so the lycée screens were checked in the tests only. |
 
-## Part 5a: descriptive observations, the core
+## Part 5a: descriptive observations, the core (#419)
 
 - **The terms observed** (R-3.5-06, answer 464): `data/dz/assessment.json` names the grades, terms and subjects whose marks circular 270 replaces, as the press reported it: 1AP term 1 for every subject, 3AP French and English term 1, and 4AP Tamazight term 1, each with its source. A joint class's course is read by its own grade.
 - **The observation:** «مكتسب», «في طور الاكتساب» or «غير مكتسب», one for each pupil, subject and term, chosen by hand. The last one recorded counts and it can be cleared. It travels with the pupil records, and two devices that chose differently conflict for that pupil only.
@@ -91,6 +91,18 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator | Not run: nothing on screen changes until the screen's pull request. |
 
+## Part 5b: descriptive observations on the screens
+
+- **The hub** (P-Obs, answer 464): in a term observed instead of marked, the card reads «الفصل الأول: ملاحظات بدل النقاط», and «ملاحظات وصفية», with how many pupils on the term's list have one, takes the place of the rows of component marks, tests, the exam and «كشف النقاط». The setup, capture during the session and «مواعيد الفروض» stay, for the later terms.
+- **The screen:** «ملاحظات وصفية · 1 ابتدائي ب · اللغة العربية», the note, chips for the class's subjects observed that term when there are several, the counts «مكتسب 0 · في طور الاكتساب 0 · غير مكتسب 0 · لم تُسجَّل 3», and each pupil with «مكتسب», «في طور الاكتساب» and «غير مكتسب». A tap records the choice, a second tap clears it, and nothing is filled in for the teacher. An archived class shows each pupil's observation without choices.
+- **Documents:** the printed grade book leaves out an observed term, and the justification says the term has none instead of showing empty components.
+
+| Check | Result |
+|---|---|
+| Android tests | The hub in 1AP's first term and its second; the screen's line, counts, choices recorded and cleared, and subject chips; an archived class; no printed grade book and no justification for the observed term, both there for the next; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, the only class on the emulator, on Friday 23 October:<br>• The hub's card still read CEM's formula, and its rows were the same as before, with no observations row.<br>• The Documents tab still listed «كشف النقاط», «قسم واحد · الفصل الأول».<br>• The emulator has no 1AP, 3AP or 4AP class, so the observations were checked in the tests only. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
@@ -99,4 +111,5 @@ These are added to the list in [#206](https://github.com/djazairdev/minhajna/iss
 - **On a phone in French and English:** the book, the value sheet, and the printed book.
 - **On paper:** the printed grade book on a real printer, A4, with a 45-pupil class on one page or running onto a second.
 - **Lycée on a phone:** a lycée class's formula choice, the practical work's and the oral's rows and entry, and the book with «التطبيقي» or «الشفهي», with TalkBack in Arabic.
+- **Observations on a phone:** a 1AP class's first term, the hub's row and the three choices for each pupil with TalkBack in Arabic, including clearing a choice with a second tap.
 - **With a teacher:** checking a real class's averages against their own grade book, and saying whether the full value and the line for a pupil shown at 10.00 are clear.

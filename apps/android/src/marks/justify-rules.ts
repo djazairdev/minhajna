@@ -9,12 +9,14 @@
 // average by the class and subject's formula, each once the term has it; and
 // each component with what was recorded, as component entry says it, and its
 // mark. The classes and subjects it can be made for are those with continuous
-// assessment, by class name.
+// assessment, by class name; a term whose marks descriptive observations
+// replace has none (answer 464).
 
 import {
   componentList,
   componentPeriod,
   componentTotal,
+  courseObserved,
   marksFor,
   shownMark,
   termAverage,
@@ -112,7 +114,7 @@ function partsLine(
   return said.length === 0 ? null : said.join(' · ');
 }
 
-/** A pupil's page; null for a course or period the justification is not made for. */
+/** A pupil's page; null for a course or period the justification is not made for, or a term observed instead. */
 export function justifyPage(
   t: Translate,
   context: Context,
@@ -133,6 +135,7 @@ export function justifyPage(
   const scale = room === undefined ? null : levelScale(data, room.level);
   const { lines } = termLines(context, data, courseId, term);
   if (scale === null || lines.length === 0 || componentPeriod(context, term, month) === null) return null;
+  if (courseObserved(state, data, courseId, term)) return null;
   const counted = componentTotal(state, courseId, term, lines, pupilId, month);
   const rows = counted.marks.map(({ line, mark }) => {
     const sheet = componentSheet(context, data, courseId, term, line.id, month, today);
