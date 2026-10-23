@@ -49,7 +49,8 @@ export interface ExamDuty {
   readonly done?: true;
 }
 
-function courseWindows(context: Context, courseId: string): CalendarEntry[] {
+/** A course's exam windows, from its own grade's calendar. */
+export function courseWindows(context: Context, courseId: string): CalendarEntry[] {
   const { state, calendar } = context;
   const course = state.courses.get(courseId);
   if (course === undefined || !state.classes.has(course.classId)) return [];

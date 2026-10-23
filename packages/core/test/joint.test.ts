@@ -3,7 +3,7 @@
 
 // Joint primary classes (#43): one class, two or three levels, each on its
 // own plan, sharing the room's slot and its roll call, each with its own
-// grade's exams. Made-up data only.
+// grade's exams, sat by that level's pupils. Made-up data only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -11,6 +11,7 @@ import { describe, it } from 'node:test';
 import {
   classGrades,
   courseOf,
+  examList,
   isJoint,
   jointProblems,
   makeContext,
@@ -166,6 +167,9 @@ describe('Joint classes', () => {
     assert.equal(nextExams(context, 'c-lang', sunday)?.id, 'exams-5');
     assert.equal(nextExams(context, 'c-lang-4', sunday), null);
     assert.equal(termCheck(context, 'c-lang', sunday)?.basis, 'exam-window');
+    const sitting = (courseId: string) => examList(context, courseId, exams.from);
+    assert.deepEqual(sitting('c-lang-4'), ['q01', 'q02']);
+    assert.ok(sitting('c-lang').length > 0 && !sitting('c-lang').some((id) => ['q01', 'q02'].includes(id)));
   });
 
   it('holds two or three different levels of its own, in order', () => {

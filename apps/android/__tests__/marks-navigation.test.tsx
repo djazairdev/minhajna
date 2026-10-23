@@ -4,11 +4,14 @@
 // The Marks routes (#238, answers 431 and 436): the Class page's row opens
 // the hub on today's term, whose setup row opens the setup for it; Back with
 // a draft asks first, staying keeps it and leaving drops it; a save goes back
-// to the hub, which says the setup is now the teacher's. Made-up records only.
+// to the hub, which says the setup is now the teacher's. A test's row opens
+// its entry (#239), whose «تم» goes back to the hub with the marks counted.
+// Made-up records only.
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Alert, type AlertButton } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
+import { withTest } from '../jest/marks-class';
 import { withDay } from '../jest/today-day';
 import {
   closeSettingsScreen,
@@ -82,4 +85,25 @@ test('the hub opens the setup, Back with a draft asks first, and a save goes bac
   expect(alert).toHaveBeenCalledTimes(2);
   expect(data.book.state.assessment.get('c-1')).toHaveLength(1);
   expect(settingsTexts()).toContain('6 عناصر على 20 · إعدادك منذ الفصل الأول');
+});
+
+test('a test’s row opens its entry, and «تم» goes back to the hub', async () => {
+  const data = await withTest();
+  await showSettingsScreen(<AppNavigator initialRouteName="Home" direction="rtl" />, data);
+  await pressSettings('tab-Classes');
+  await pressSettings('classes-c-1-class');
+  await pressSettings('class-marks');
+  await pressSettings('marks-test-t-1');
+  expect([header().route.name, header().route.params]).toEqual([
+    'MarksEntry',
+    { courseId: 'c-1', term: 1, testId: 't-1' },
+  ]);
+  await pressSettings('entry-absent');
+  await back();
+  expect(header().route.name).toBe('Marks');
+  expect(settingsTexts()).toContain('الأحد 8 نوفمبر · 1 من 3');
+  await pressSettings('marks-exam');
+  expect(header().route.params).toEqual({ courseId: 'c-1', term: 1 });
+  for (const id of ['entry-next', 'entry-next', 'entry-next', 'entry-done']) await pressSettings(id);
+  expect(header().route.name).toBe('Marks');
 });

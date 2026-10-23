@@ -1,16 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The Marks routes (#238): «التقويم والنقاط» for a class and subject, whose
-// term chips stay in the route, and its continuous-assessment setup for a
+// The Marks routes (#238, #239): «التقويم والنقاط» for a class and subject,
+// whose term chips stay in the route; its continuous-assessment setup for a
 // term, which asks before a draft is lost and goes back to the hub once
-// saved.
+// saved; and the entry of a test's or the exam's marks, each recorded as it
+// is typed, so leaving it loses nothing.
 
 import { usePreventRemove } from '@react-navigation/native';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { Marks } from '../marks/Marks';
+import { MarksEntry } from '../marks/MarksEntry';
 import { MarksSetup } from '../marks/MarksSetup';
 import { useText } from '../text/i18n';
 import type { RootStackParamList } from './AppNavigator';
@@ -24,6 +26,9 @@ export function MarksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onTerm={(chosen) => navigation.setParams({ term: chosen })}
       onSetup={(chosen) => navigation.navigate('MarksSetup', { courseId, term: chosen })}
       onTests={() => navigation.navigate('TestSchedule', { courseId })}
+      onEntry={(chosen, testId) =>
+        navigation.navigate('MarksEntry', { courseId, term: chosen, ...(testId !== undefined && { testId }) })
+      }
     />
   );
 }
@@ -45,6 +50,18 @@ export function MarksSetupScreen({ navigation, route }: NativeStackScreenProps<R
   return <MarksSetup courseId={courseId} term={term} onDirty={setDirty} onSaved={() => setSaved(true)} />;
 }
 
+export function MarksEntryScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksEntry'>) {
+  const { courseId, term, testId } = route.params;
+  return (
+    <MarksEntry
+      courseId={courseId}
+      term={term}
+      {...(testId !== undefined && { testId })}
+      onDone={() => navigation.goBack()}
+    />
+  );
+}
+
 /** The Marks routes, for the app's navigator. */
 export function marksRoutes(
   Stack: ReturnType<typeof createNativeStackNavigator<RootStackParamList>>,
@@ -55,6 +72,7 @@ export function marksRoutes(
     <>
       <Stack.Screen name="Marks" component={MarksScreen} options={dark(t('classPage.marks'))} />
       <Stack.Screen name="MarksSetup" component={MarksSetupScreen} options={dark(t('marks.setupTitle'))} />
+      <Stack.Screen name="MarksEntry" component={MarksEntryScreen} options={dark(t('marks.entry.title'))} />
     </>
   );
 }
