@@ -67,6 +67,7 @@ export * from './history-inspection.ts';
 export * from './history-damage.ts';
 export * from './activity-log.ts';
 export * from './retention.ts';
+export * from './council-pack.ts';
 export * from './homework.ts';
 export * from './id.ts';
 export * from './joint.ts';

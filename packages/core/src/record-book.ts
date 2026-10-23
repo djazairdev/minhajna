@@ -111,6 +111,8 @@ function recordKey(event: RecordEvent): string {
       return `output:${event.output.id}`;
     case 'retention.set':
       return 'retention';
+    case 'council-thresholds.set':
+      return 'council-thresholds';
     case 'assessment.set':
       return `assessment:${event.setup.courseId}:${event.setup.term}`;
     case 'mark.set':

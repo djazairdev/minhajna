@@ -82,6 +82,9 @@ function currentRecords(state: State): RecordEvent[] {
   for (const plan of state.seating.values()) records.push({ kind: 'seating.set', plan });
   if (state.counting !== null) records.push({ kind: 'counting.set', rules: state.counting });
   if (state.retention !== null) records.push({ kind: 'retention.set', retention: state.retention });
+  if (state.councilThresholds !== null) {
+    records.push({ kind: 'council-thresholds.set', thresholds: state.councilThresholds });
+  }
   for (const setups of state.assessment.values()) {
     const last = new Map(setups.map((setup) => [setup.term, setup]));
     for (const setup of [...last.values()].sort((a, b) => a.term - b.term))
