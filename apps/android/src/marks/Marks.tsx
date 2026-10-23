@@ -11,10 +11,12 @@
 // many pupils have an average (#240, answer 458); one row for each of the
 // term's tests, with its day and how many of its pupils are done, or «لا فرض في
 // هذا الفصل بعد» opening «مواعيد الفروض»; «الاختبار», with its window's first
-// day, for a subject with a term exam (#239, answer 444); and «مواعيد الفروض».
-// A subject with no continuous assessment says so, and a class archived after a
-// reorientation shows its setup and marks but takes no new ones (#231). The
-// rows of appreciations and the export come with their own issues.
+// day, for a subject with a term exam (#239, answer 444); in lycée, «الأعمال
+// التطبيقية» or «الشفهي» when the formula the administration chose weighs it
+// (#240, answer 463); and «مواعيد الفروض». A subject with no continuous
+// assessment says so, and a class archived after a reorientation shows its
+// setup and marks but takes no new ones (#231). The rows of appreciations and
+// the export come with their own issues.
 
 import { captureSession, gradeBook, termNumberOn, termTests } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -32,8 +34,13 @@ import { courseLabel } from '../exams/course-label';
 import { dayName } from '../today/DayMark';
 import { captureLine } from './capture-rules';
 import { componentProgress } from './component-rules';
-import { entryDone, entrySheet, levelScale, type EntrySheet } from './entry-rules';
+import { entryDone, entrySheet, levelScale, SHEET_TEXTS, type EntrySheet, type SatPart } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
+
+const PARTS = [
+  { part: 'P', kind: 'practical' },
+  { part: 'O', kind: 'oral' },
+] as const;
 
 export type MarksProps = {
   readonly courseId: string;
@@ -50,10 +57,12 @@ export type MarksProps = {
   readonly onBook: (term: number) => void;
   /** Opens the entry of a test's marks, or of the exam's without a test. */
   readonly onEntry: (term: number, testId?: string) => void;
+  /** Opens the entry of lycée's practical work or oral. */
+  readonly onPart: (term: number, part: 'practical' | 'oral') => void;
 };
 
 export function Marks(props: MarksProps) {
-  const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry } = props;
+  const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry, onPart } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -81,7 +90,8 @@ export function Marks(props: MarksProps) {
     return archived ? { line } : { line, press: () => onSetup(term) };
   };
   const row = setup();
-  const sheetOf = (testId?: string) => (data === null ? null : entrySheet(context, data, courseId, term, testId));
+  const sheetOf = (testId?: string, part?: SatPart) =>
+    data === null ? null : entrySheet(context, data, courseId, term, testId, part);
   const entryLine = (sheet: EntrySheet) =>
     t('marks.entry.rowLine', {
       day: dayName(t, sheet.day, currentLanguage(), profile),
@@ -93,6 +103,7 @@ export function Marks(props: MarksProps) {
   const entering = data !== null && marks !== null && levelScale(data, room.level) !== null;
   const session = captureSession(context, courseId, today());
   const book = entering ? gradeBook(context, data, courseId, term) : null;
+  const parts = PARTS.filter(({ part }) => (marks?.formula?.weights[part] ?? 0) > 0);
   return (
     <ScrollView
       style={styles.screen}
@@ -201,6 +212,21 @@ export function Marks(props: MarksProps) {
             onPress={() => onEntry(term)}
           />
         )}
+        {entering &&
+          parts.map(({ kind }) => {
+            const sheet = sheetOf(undefined, kind);
+            return (
+              <RowLink
+                key={kind}
+                testID={`marks-${kind}`}
+                icon={controlIcon('pencil')}
+                title={t(SHEET_TEXTS[kind].title)}
+                description={sheet === null ? t('marks.entry.noExam') : entryLine(sheet)}
+                disabled={archived || sheet === null}
+                onPress={() => onPart(term, kind)}
+              />
+            );
+          })}
         <RowLink
           testID="marks-tests"
           icon={controlIcon('check')}

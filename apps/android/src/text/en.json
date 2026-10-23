@@ -2955,7 +2955,11 @@
       "noExam": "The calendar has no exam date this term",
       "rowLine": "{{day}} · {{done}} of {{total}}",
       "emptySpoken": "empty",
-      "absentSpoken": "absent"
+      "absentSpoken": "absent",
+      "practical": "Practical work",
+      "oral": "Oral",
+      "absentPractical": "Absent from the practical work",
+      "absentOral": "Absent from the oral"
     },
     "during": {
       "title": "Assessment during the session",
@@ -3035,7 +3039,11 @@
       "none": "No class with continuous assessment yet",
       "noPupils": "No pupil on the list for this period",
       "file": "Continuous-assessment justification",
-      "fileOne": "pupil {{n}}"
+      "fileOne": "pupil {{n}}",
+      "practical": "Practical work {{mark}}",
+      "practicalAbsent": "Practical work: absent",
+      "oral": "Oral {{mark}}",
+      "oralAbsent": "Oral: absent"
     },
     "book": {
       "title": "Grade book",
@@ -3081,7 +3089,14 @@
         "none": "No average until all its parts are in.",
         "justify": "Justify the assessment mark"
       },
-      "comma": ", "
+      "comma": ", ",
+      "formulaChoice": "Average formula, as the administration sets it for the subject",
+      "formulaNote": "It applies to this class and subject for the whole year. Marks already entered are kept if you change it."
+    },
+    "formulaName": {
+      "lycee": "Without practical work or an oral",
+      "lyceePractical": "With practical work",
+      "lyceeOral": "With an oral"
     }
   }
 }

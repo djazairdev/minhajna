@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What entering a test's or the exam's marks reads (#239, Marks-test,
-// Marks-exam, answers 439, 440 and 447): the sheet, with its title, day,
+// Marks-exam, answers 439, 440 and 447), or lycée's practical work's or oral's,
+// entered like the exam (#240, answer 463): the sheet, with its title, day,
 // maximum, the level's scale, and the pupils on its list in class-list order,
 // for a test of the course's in the term its day falls in; the keypad's typing,
 // two digits at most before the point and two after, the quick quarters keeping
@@ -26,9 +27,24 @@ import {
   type MarkValue,
 } from '@minhajna/core';
 
+/** What is sat once a term, on the exam's list: the exam, and lycée's practical work and oral. */
+export type SatPart = 'exam' | 'practical' | 'oral';
+
+/**
+ * The keys of an untitled sheet's name and of its «غائب», by what its marks are for. A test's or component's sheet
+ * has its own title and a component's no «غائب», so their exam keys are never shown.
+ */
+export const SHEET_TEXTS = {
+  test: { title: 'marks.entry.exam', absent: 'marks.entry.absentTest' },
+  exam: { title: 'marks.entry.exam', absent: 'marks.entry.absentExam' },
+  practical: { title: 'marks.entry.practical', absent: 'marks.entry.absentPractical' },
+  oral: { title: 'marks.entry.oral', absent: 'marks.entry.absentOral' },
+  component: { title: 'marks.entry.exam', absent: 'marks.entry.absentExam' },
+} as const satisfies Record<MarkTarget['kind'], { readonly title: string; readonly absent: string }>;
+
 export interface EntrySheet {
   readonly target: MarkTarget;
-  /** The test's own name, or null for the term's exam. */
+  /** The test's own name, or null for the term's exam, practical work or oral. */
   readonly title: string | null;
   /** The test's day, or the exam window's first day. */
   readonly day: Day;
@@ -42,13 +58,14 @@ export function levelScale(data: AssessmentData, level: string): number | null {
   return data.presets.find((preset) => preset.level === level)?.scale ?? null;
 }
 
-/** The sheet for a test of the course's, or for the term's exam without one; null when it cannot be entered. */
+/** The sheet for a test of the course's, or without one for the term's exam or part; null when it cannot be entered. */
 export function entrySheet(
   context: Context,
   data: AssessmentData,
   courseId: string,
   term: number,
   testId?: string,
+  part: SatPart = 'exam',
 ): EntrySheet | null {
   const { state } = context;
   const course = state.courses.get(courseId);
@@ -66,7 +83,7 @@ export function entrySheet(
   const exams = termExams(context, courseId, term);
   if (exams === null) return null;
   return {
-    target: { kind: 'exam' },
+    target: { kind: part },
     title: null,
     day: exams.from,
     max,

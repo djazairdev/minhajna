@@ -88,6 +88,7 @@ test('the hub shows no formula, its setup row disabled, and still opens the test
       onComponents={jest.fn()}
       onBook={jest.fn()}
       onEntry={jest.fn()}
+      onPart={jest.fn()}
     />,
   );
   expect(texts()).toContain(text.marks.unavailable);

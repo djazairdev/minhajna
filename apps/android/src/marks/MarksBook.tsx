@@ -3,15 +3,15 @@
 
 // «كشف النقاط» for a class, subject and term (#240, Marks-book, P-Marks,
 // answers 457 to 459): the line «كشف النقاط · 4م2 · اللغة العربية · الفصل
-// الأول», the formula and the scale, «حسب القائمة» or «حسب المعدل», the rows,
-// the class's figures, the note that thresholds and ranks compare the full
-// value, and a line for each pupil shown at the threshold whose full value is
-// below it. A row opens the pupil's value sheet, and from it their
-// justification. «طباعة» and «حفظ PDF» make this class and subject's page of
-// the printed grade book, each going into the activity log with the term
-// (answer 461); a middle-school page offers «خانة التوقيع» while the drawn
-// signature is in use, with «إعدادات التوقيع», and the line on where it goes
-// (answer 462).
+// الأول», the formula and the scale, in lycée the choice of the formula the
+// administration set (answer 463), «حسب القائمة» or «حسب المعدل», the rows, the
+// class's figures, the note that thresholds and ranks compare the full value,
+// and a line for each pupil shown at the threshold whose full value is below
+// it. A row opens the pupil's value sheet, and from it their justification.
+// «طباعة» and «حفظ PDF» make this class and subject's page of the printed grade
+// book, each going into the activity log with the term (answer 461); a
+// middle-school page offers «خانة التوقيع» while the drawn signature is in use,
+// with «إعدادات التوقيع», and the line on where it goes (answer 462).
 
 import { gradeBook, type BookRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -36,6 +36,7 @@ import { useText } from '../text/i18n';
 import { atThresholdLines, figuresLine, monthsLine, orderedRows, type BookOrder } from './book-rules';
 import { BookTable } from './BookTable';
 import { BookValue } from './BookValue';
+import { FormulaChoice } from './FormulaChoice';
 import { assessmentData, formulaText, termWord } from './marks-rules';
 
 export type MarksBookProps = {
@@ -110,6 +111,7 @@ export function MarksBook({ courseId, term, onJustify, onSignature }: MarksBookP
           ].join(' · ')}
         </Text>
       </View>
+      <FormulaChoice courseId={courseId} />
       {book.rows.length === 0 ? (
         <Notice icon={controlIcon('info')} message={t('marks.book.noPupils')} />
       ) : (
