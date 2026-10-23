@@ -1986,6 +1986,16 @@
       "scope": "Classe : {{class}} · Matière : {{subject}} · {{term}}",
       "scopeNamed": "Classe : {{class}} · Matière : {{subject}} · {{term}} · Enseignant : {{teacher}}",
       "appreciation": "Appréciation"
+    },
+    "markFix": {
+      "name": "Rapport de correction de note",
+      "course": "Classe, matière et trimestre",
+      "pupil": "Élève",
+      "registration": "Matricule",
+      "mark": "Note",
+      "value": "Valeur",
+      "reason": "Motif",
+      "day": "Date de la correction"
     }
   },
   "preview": {
@@ -3217,12 +3227,59 @@
       "unavailable": "Pas d’appréciations pour ce trimestre : il n’a pas de relevé de notes, ou la liste d’appréciations fournie avec l’application n’a pas pu être lue."
     },
     "fix": {
+      "title": "Correction après le trimestre",
+      "ended": "{{term}} terminé : ses notes ne changent plus que par une correction après le trimestre, avec le rapport de l’enseignant.",
+      "rowLine_one": "{{count}} correction",
+      "rowLine_many": "{{count}} de corrections",
+      "rowLine_other": "{{count}} corrections",
+      "window": "L’administration annonce la période des corrections après le trimestre ; Minhajna ne la garde pas et ne l’impose pas.",
+      "openBadge": "Trimestre en cours",
+      "open": "Ce trimestre n’est pas encore terminé : ses notes se saisissent et se modifient depuis « Évaluation et notes ».",
+      "unavailable": "Aucune correction ici : ce trimestre n’a pas de relevé de notes, ou les réglages d’évaluation n’ont pas pu être lus.",
+      "pupil": "L’élève",
+      "registration": "Matricule {{number}}",
+      "changePupil": "Changer d’élève",
+      "target": "La note corrigée",
+      "recorded": "Enregistrée : {{value}}",
+      "becomes": "Devient",
+      "aMark": "Une note",
+      "becomesOut": "La nouvelle note sur {{max}}",
+      "valueExample": "Exemple : 12,5",
+      "valueRule": "Saisissez une note de 0 à {{max}}, avec au plus deux chiffres après la virgule.",
+      "same": "C’est la valeur déjà enregistrée : rien à corriger.",
       "reasons": {
         "sum-error": "Erreur dans le total de la copie",
         "transcription-error": "Erreur de report",
         "appeal": "Révision après un recours",
         "other": "Autre raison"
-      }
+      },
+      "reason": "Le motif",
+      "reasonNotes": {
+        "sum-error": "Les points de la copie ont été mal additionnés",
+        "transcription-error": "La note a été mal reportée depuis la copie",
+        "appeal": "Après un recours de l’élève ou de son tuteur",
+        "other": "Précisé dans le détail"
+      },
+      "reasonRule": "Choisissez le motif de la correction.",
+      "note": "Le détail",
+      "noteExample": "Exemple : le troisième exercice n’avait pas été compté",
+      "optional": "Facultatif",
+      "average": "Moyenne de l’élève au trimestre : de {{from}} à {{to}}",
+      "noAverage": "Cet élève n’a de moyenne du trimestre ni avant ni après la correction : des notes manquent.",
+      "classLine": "Moyenne de la classe : de {{from}} à {{to}} · {{threshold}} ou plus : de {{reachedFrom}} à {{reachedTo}} sur {{total}}",
+      "noClass": "Pas encore de moyenne dans la classe.",
+      "bandBadge": "Appréciation",
+      "band": "La moyenne change de tranche : revoir l’appréciation",
+      "toAppreciations": "Vers « Appréciations »",
+      "keep": "Enregistrer la correction",
+      "saved": "La correction est enregistrée ; l’historique garde la note d’avant.",
+      "listTitle": "Corrections · {{term}}",
+      "change": "{{part}} : de {{from}} à {{to}}",
+      "fromTo": "De {{from}} à {{to}}",
+      "print": "Imprimer le rapport",
+      "filePupil": "élève {{number}}",
+      "file": "Mettre à jour le fichier",
+      "fileLine": "Le relevé est refait depuis le registre corrigé, et la vue de la grille ostad suit d’elle-même."
     },
     "export": {
       "title": "Export du trimestre",

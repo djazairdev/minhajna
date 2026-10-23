@@ -1948,6 +1948,16 @@
       "scope": "Class: {{class}} · Subject: {{subject}} · {{term}}",
       "scopeNamed": "Class: {{class}} · Subject: {{subject}} · {{term}} · Teacher: {{teacher}}",
       "appreciation": "Appreciation"
+    },
+    "markFix": {
+      "name": "Mark correction report",
+      "course": "Class, subject and term",
+      "pupil": "Pupil",
+      "registration": "Registration number",
+      "mark": "Mark",
+      "value": "Value",
+      "reason": "Reason",
+      "day": "Day of the correction"
     }
   },
   "preview": {
@@ -3163,12 +3173,58 @@
       "unavailable": "No appreciations for this term: it has no grade book, or the list of appreciations bundled with the app could not be read."
     },
     "fix": {
+      "title": "Correction after the term",
+      "ended": "{{term}} has ended: its marks change only through a correction after the term, with the teacher’s report.",
+      "rowLine_one": "{{count}} correction",
+      "rowLine_other": "{{count}} corrections",
+      "window": "The administration announces the window for corrections after the term; Minhajna neither keeps nor enforces it.",
+      "openBadge": "Term under way",
+      "open": "This term has not ended yet: its marks are entered and changed from “Assessment and marks”.",
+      "unavailable": "No correction here: this term has no grade book, or the assessment setups could not be read.",
+      "pupil": "The pupil",
+      "registration": "Registration number {{number}}",
+      "changePupil": "Change pupil",
+      "target": "The mark corrected",
+      "recorded": "Recorded: {{value}}",
+      "becomes": "Becomes",
+      "aMark": "A mark",
+      "becomesOut": "The new mark out of {{max}}",
+      "valueExample": "Example: 12.5",
+      "valueRule": "Type a mark from 0 to {{max}}, with at most two decimals.",
+      "same": "This is the value already recorded, so there is nothing to correct.",
       "reasons": {
         "sum-error": "Error adding up the paper",
         "transcription-error": "Error copying the mark",
         "appeal": "Review after an appeal",
         "other": "Another reason"
-      }
+      },
+      "reason": "The reason",
+      "reasonNotes": {
+        "sum-error": "The paper’s points were added up wrongly",
+        "transcription-error": "The mark was copied wrongly from the paper",
+        "appeal": "After an appeal by the pupil or their guardian",
+        "other": "Given in the detail"
+      },
+      "reasonRule": "Choose the reason for the correction.",
+      "note": "The detail",
+      "noteExample": "Example: the third exercise was not counted",
+      "optional": "Optional",
+      "average": "The pupil’s term average: from {{from}} to {{to}}",
+      "noAverage": "This pupil has no term average before or after the correction: marks are missing.",
+      "classLine": "Class average: from {{from}} to {{to}} · {{threshold}} or above: from {{reachedFrom}} to {{reachedTo}} of {{total}}",
+      "noClass": "No average in the class yet.",
+      "bandBadge": "Appreciation",
+      "band": "The average moves to another band: review the appreciation",
+      "toAppreciations": "To “Appreciations”",
+      "keep": "Record the correction",
+      "saved": "The correction is recorded; the history keeps the mark it replaced.",
+      "listTitle": "{{term}} corrections",
+      "change": "{{part}}: from {{from}} to {{to}}",
+      "fromTo": "From {{from}} to {{to}}",
+      "print": "Print the report",
+      "filePupil": "pupil {{number}}",
+      "file": "Update the file",
+      "fileLine": "The mark sheet is made again from the corrected register, and the ostad grid view follows by itself."
     },
     "export": {
       "title": "Term export",

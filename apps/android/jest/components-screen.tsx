@@ -3,7 +3,8 @@
 
 // Mounting the component marks screens for their tests (#239): the screen, its
 // texts and controls, the components and a component's entry, its kept marks,
-// and a term setup with a column of the teacher's. Made-up records only.
+// the hub's handlers, and a term setup with a column of the teacher's.
+// Made-up records only.
 
 import { marksFor, parseDay, type MarkTarget, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -68,6 +69,21 @@ export const entry = (componentId: string, more: { courseId?: string; month?: st
 export const componentsScreen = (props: Partial<MarksComponentsProps> = {}) => (
   <MarksComponents courseId="c-1" term={1} onMonth={jest.fn()} onEntry={jest.fn()} onJustify={jest.fn()} {...props} />
 );
+
+/** The hub's handlers, for a test that uses none or replaces one. */
+export const hubProps = () => ({
+  onTerm: jest.fn(),
+  onSetup: jest.fn(),
+  onTests: jest.fn(),
+  onCapture: jest.fn(),
+  onBook: jest.fn(),
+  onEntry: jest.fn(),
+  onPart: jest.fn(),
+  onObservations: jest.fn(),
+  onAppreciations: jest.fn(),
+  onExport: jest.fn(),
+  onFix: jest.fn(),
+});
 
 export const kept = (data: TestData, target: MarkTarget, courseId = 'c-1') =>
   Object.fromEntries(marksFor(data.book.state, courseId, 1, target));

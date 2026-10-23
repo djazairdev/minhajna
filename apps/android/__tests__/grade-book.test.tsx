@@ -100,6 +100,7 @@ test('the hub’s row says how many pupils have an average, and opens the book',
     onObservations: jest.fn(),
     onAppreciations: jest.fn(),
     onExport: jest.fn(),
+    onFix: jest.fn(),
   };
   await mount(await marked(), <Marks courseId="c-1" onComponents={jest.fn()} onBook={onBook} {...hub} />);
   expect(texts()).toContain('المعدلات: 3 من 3');

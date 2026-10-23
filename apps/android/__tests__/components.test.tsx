@@ -34,6 +34,7 @@ import {
   control,
   DAY,
   entry,
+  hubProps,
   kept,
   mount,
   press,
@@ -60,20 +61,6 @@ jest.mock(
 afterEach(async () => {
   await unmount();
   await i18n.changeLanguage('ar');
-});
-
-/** The hub's other handlers, unused here. */
-const hubProps = () => ({
-  onTerm: jest.fn(),
-  onSetup: jest.fn(),
-  onTests: jest.fn(),
-  onCapture: jest.fn(),
-  onBook: jest.fn(),
-  onEntry: jest.fn(),
-  onPart: jest.fn(),
-  onObservations: jest.fn(),
-  onAppreciations: jest.fn(),
-  onExport: jest.fn(),
 });
 
 test('the hub’s row counts the term’s cells, and the components list each with its points', async () => {

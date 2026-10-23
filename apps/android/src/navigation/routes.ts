@@ -83,6 +83,8 @@ export type RootStackParamList = {
   MarksExportFile: { courseId: string; term: number };
   /** The check before signing: the register beside a file read back (#242). */
   MarksCheck: { courseId: string; term: number };
+  /** The corrections of a course's ended term (#243). */
+  MarksFix: { courseId: string; term: number };
   /** The term's component marks, by `month` in primary (#239). */
   MarksComponents: { courseId: string; term: number; month?: string };
   /** Entering a course's test's, component's, lycée's practical work's or oral's, or else the exam's marks (#239). */
