@@ -6,7 +6,7 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
-## 0.3.0 (2026-10-22)
+## 0.3.0 (2026-10-23)
 
 The plan and calendar preview: the school calendar and its signed updates, the class plan in full with its layers, catch-up and re-pacing, Today for primary, lycée and teachers in several schools, the weekly digest, the drawn signature, lesson notes and distributions, and the activity log. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
 
