@@ -2165,7 +2165,8 @@
     "noList": "This class has no pupil list yet. Add it in setup to count.",
     "empty": "No homework in this subject yet. Each homework you write in a session’s details appears here, with the day it comes back.",
     "printNote": "Only the two confirmed counts print; what is not counted stays blank. Counts only, never names.",
-    "print": "Print the homework record"
+    "print": "Print the homework record",
+    "proposed": "From the session’s taps: {{notDone}} not done, {{reliedOn}} done with help. The two counts are written only once you confirm."
   },
   "ramadanToday": {
     "first": "First day of Ramadan",
@@ -2945,6 +2946,38 @@
       "rowLine": "{{day}} · {{done}} of {{total}}",
       "emptySpoken": "empty",
       "absentSpoken": "absent"
+    },
+    "during": {
+      "title": "Assessment during the session",
+      "today": "Today’s session",
+      "todayAt": "Today’s session · {{from}} – {{to}}",
+      "noSession": "No session with this class today",
+      "items": "What you record",
+      "item": {
+        "participation": "Participation",
+        "homework": "Homework",
+        "notebook": "Notebook",
+        "behaviour": "Behaviour"
+      },
+      "hint": {
+        "participation": "One tap for each contribution; the total feeds the assessment mark at the end of the term.",
+        "homework": "One tap: not done; two taps: done with help. They propose the two counts in the homework record (p. 67), which are written only once you confirm them.",
+        "notebook": "One tap: notebook incomplete.",
+        "behaviour": "One tap for each remark, with no detail."
+      },
+      "state": {
+        "notDone": "Not done",
+        "helped": "Done with help",
+        "incomplete": "Incomplete"
+      },
+      "taps": "+{{n}}",
+      "tile": "{{n}}, {{name}}, {{value}}",
+      "nothing": "nothing",
+      "undo": "Undo",
+      "done": "Done",
+      "sessions": "Today’s sessions",
+      "sessionAt": "{{from}} – {{to}}",
+      "sessionN": "Session {{n}}"
     }
   }
 }

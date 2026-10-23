@@ -3,15 +3,19 @@
 
 // Joint primary classes (#43): one class, two or three levels, each on its
 // own plan, sharing the room's slot and its roll call, each with its own
-// grade's exams, sat by that level's pupils. Made-up data only.
+// grade's exams, sat by that level's pupils, and each level's captures and
+// homework counts for its own pupils only. Made-up data only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
+  captureList,
+  captureSession,
   classGrades,
   courseOf,
   examList,
+  homeworkCaptured,
   isJoint,
   jointProblems,
   makeContext,
@@ -19,6 +23,7 @@ import {
   pupilGrade,
   rollCallUnits,
   sessionsBetween,
+  setCapture,
   termCheck,
   todayView,
   type RecordEvent,
@@ -170,6 +175,16 @@ describe('Joint classes', () => {
     const sitting = (courseId: string) => examList(context, courseId, exams.from);
     assert.deepEqual(sitting('c-lang-4'), ['q01', 'q02']);
     assert.ok(sitting('c-lang').length > 0 && !sitting('c-lang').some((id) => ['q01', 'q02'].includes(id)));
+  });
+
+  it('captures for a level’s own pupils, and proposes its homework counts from them only', async () => {
+    const book = await openBook(jointEvents());
+    const session = captureSession(contextOf(book), 'c-lang-4', sunday);
+    assert.ok(session);
+    assert.deepEqual(captureList(contextOf(book), session), ['q01', 'q02']);
+    await book.record(sunday, setCapture(session, 'q01', 'homework', 1));
+    await book.record(sunday, setCapture(session, 'q03', 'homework', 2));
+    assert.deepEqual(homeworkCaptured(contextOf(book), { session, due: sunday }), { notDone: 1, reliedOn: 0 });
   });
 
   it('holds two or three different levels of its own, in order', () => {

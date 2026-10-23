@@ -59,14 +59,16 @@ export function countOf(state: State, sessionKey: string): HomeworkCount | null 
   return count !== null && homework !== undefined && compareDays(count.due, homework.due) === 0 ? count : null;
 }
 
-/** The pupils on the list for a session's group on `day`; in a joint class, of the course's level only. */
-function listed(context: Context, course: Course, groupId: string, day: Day): number {
+/** The pupils on the list for a course's group on `day`, in list order; in a joint class, of its level only. */
+export function coursePupils(context: Context, course: Course, groupId: string, day: Day): string[] {
   const schoolClass = context.state.classes.get(course.classId);
-  if (schoolClass === undefined) return 0;
+  if (schoolClass === undefined) return [];
   const pupils = pupilsOn(context, schoolClass.id, groupId, day);
-  if (!isJoint(schoolClass)) return pupils.length;
   const level = levelGroups(schoolClass).find((group) => group.grade === courseGrade(course, schoolClass))?.id;
-  return level === undefined ? 0 : pupils.filter((pupil) => pupil.groups.includes(level)).length;
+  const kept = isJoint(schoolClass)
+    ? pupils.filter((pupil) => level !== undefined && pupil.groups.includes(level))
+    : pupils;
+  return kept.map((pupil) => pupil.id);
 }
 
 /** A course's homework, in the order it was set. */
@@ -84,7 +86,7 @@ export function homeworkRecord(context: Context, courseId: string): HomeworkItem
       text: homework.text,
       set: session.day,
       due: homework.due,
-      listed: listed(context, course, session.groupId, homework.due),
+      listed: coursePupils(context, course, session.groupId, homework.due).length,
       count: countOf(state, session.key),
     });
   }

@@ -5,8 +5,8 @@
 // its day and how many of its pupils are done, and «الاختبار» with its
 // window's first day, each opening its entry; a term with no test saying so
 // and opening «مواعيد الفروض»; a subject with no term exam showing no exam
-// row; and an archived class's rows shown but disabled. Made-up records
-// only.
+// row; and an archived class's rows shown but disabled, capture's too.
+// Made-up records only.
 
 import { parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -39,6 +39,7 @@ async function mount(data: TestData, props: Partial<MarksProps> = {}) {
     onTerm: jest.fn(),
     onSetup: jest.fn(),
     onTests: jest.fn(),
+    onCapture: jest.fn(),
     onEntry: jest.fn(),
     ...props,
   };
@@ -119,9 +120,11 @@ test('an archived class shows its rows but takes no new marks', async () => {
   const room = data.book.state.classes.get('k-1')!;
   await data.book.record(parseDay('2026-10-15'), {
     kind: 'class.set',
-    schoolClass: { ...room, archivedFrom: parseDay('2026-10-15') },
+    schoolClass: { ...room, archivedFrom: parseDay('2026-10-16') },
   });
   await mount(data);
   expect(control('marks-test-t-1')?.props.disabled).toBe(true);
   expect(control('marks-exam')?.props.disabled).toBe(true);
+  expect(texts()).toContain('حصة اليوم · 08:00 – 09:00');
+  expect(control('marks-capture')?.props.disabled).toBe(true);
 });

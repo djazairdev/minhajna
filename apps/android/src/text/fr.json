@@ -2210,7 +2210,8 @@
     "noList": "Cette classe n'a pas encore de liste d'élèves. Ajoutez-la dans la configuration pour compter.",
     "empty": "Aucun devoir dans cette matière pour l'instant. Chaque devoir écrit dans le détail d'une séance s'y inscrit, avec sa date de retour.",
     "printNote": "Seuls les deux nombres confirmés s'impriment ; ce qui n'est pas compté reste vide. Des nombres seulement, sans noms.",
-    "print": "Imprimer le registre des devoirs"
+    "print": "Imprimer le registre des devoirs",
+    "proposed": "D’après la séance : {{notDone}} non fait, {{reliedOn}} fait avec aide. Les deux nombres ne sont écrits qu’après confirmation."
   },
   "ramadanToday": {
     "first": "Premier jour du Ramadan",
@@ -2996,6 +2997,38 @@
       "rowLine": "{{day}} · {{done}} sur {{total}}",
       "emptySpoken": "vide",
       "absentSpoken": "absent"
+    },
+    "during": {
+      "title": "Évaluation pendant la séance",
+      "today": "Séance du jour",
+      "todayAt": "Séance du jour · {{from}} – {{to}}",
+      "noSession": "Pas de séance avec cette classe aujourd’hui",
+      "items": "Ce que vous notez",
+      "item": {
+        "participation": "Participation",
+        "homework": "Devoir",
+        "notebook": "Cahier",
+        "behaviour": "Comportement"
+      },
+      "hint": {
+        "participation": "Un appui par participation ; le total sert à la note d’évaluation en fin de trimestre.",
+        "homework": "Un appui : non fait ; deux appuis : fait avec aide. Les deux nombres du registre des devoirs (p. 67) en sont proposés, et ne sont écrits qu’après confirmation.",
+        "notebook": "Un appui : cahier incomplet.",
+        "behaviour": "Un appui par remarque, sans détail."
+      },
+      "state": {
+        "notDone": "Non fait",
+        "helped": "Fait avec aide",
+        "incomplete": "Incomplet"
+      },
+      "taps": "+{{n}}",
+      "tile": "{{n}}, {{name}}, {{value}}",
+      "nothing": "rien",
+      "undo": "Annuler",
+      "done": "Terminé",
+      "sessions": "Séances du jour",
+      "sessionAt": "{{from}} – {{to}}",
+      "sessionN": "Séance {{n}}"
     }
   }
 }

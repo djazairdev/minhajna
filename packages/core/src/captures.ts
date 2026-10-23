@@ -8,8 +8,9 @@
 // keeps no detail, and the last one for a pupil and item counts. The app
 // never turns captures into points: it shows them as evidence, and proposes
 // the homework counts of the session's homework record (P67), confirmed by
-// the teacher. A session withdrawn or recorded as not held keeps its
-// captures in the history, but they no longer count.
+// the teacher. A session recorded as not held keeps its captures in the
+// history, but they no longer count; a withdrawn one's still do, as for a
+// session not yet recorded (answer 450).
 
 import { compareDays, type Day } from './day.ts';
 import type { RecordEvent } from './events.ts';
@@ -51,12 +52,9 @@ export function setCapture(session: SessionRef, pupilId: string, item: CaptureIt
   return { kind: 'capture.set', capture: { session, pupilId, item, value } };
 }
 
-/** Whether a session's captures count: not withdrawn, nor recorded as not held. */
+/** Whether a session's captures count: unless it is recorded as not held. */
 function counts(state: Pick<State, 'sessions'>, sessionKey: string): boolean {
-  const versions = state.sessions.get(sessionKey);
-  if (versions === undefined) return true;
-  const record = current(versions);
-  return record !== null && record.outcome !== 'not-held';
+  return current(state.sessions.get(sessionKey))?.outcome !== 'not-held';
 }
 
 /** A session's captures, by pupil and item. */
@@ -73,12 +71,14 @@ export function sessionCaptures(
   return found;
 }
 
-/** The homework counts a session's captures propose for the homework that comes back in it. */
+/** The homework counts a session's captures propose for the homework that comes back in it, among `listed`. */
 export function homeworkProposal(
   state: Pick<State, 'captures' | 'sessions'>,
   sessionKey: string,
+  listed: readonly string[],
 ): { readonly notDone: number; readonly reliedOn: number } {
-  const states = [...sessionCaptures(state, sessionKey).values()].map((one) => one.homework);
+  const captured = sessionCaptures(state, sessionKey);
+  const states = listed.map((pupilId) => captured.get(pupilId)?.homework);
   return { notDone: states.filter((one) => one === 1).length, reliedOn: states.filter((one) => one === 2).length };
 }
 

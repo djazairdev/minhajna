@@ -68,6 +68,8 @@ export type RootStackParamList = {
   Marks: { courseId: string; term?: number };
   /** The course's continuous-assessment setup, applying from `term` on. */
   MarksSetup: { courseId: string; term: number };
+  /** Capture during today's session of a course (#239). */
+  MarksCapture: { courseId: string };
   /** Entering the marks of a course's test, or of the term's exam without `testId` (#239). */
   MarksEntry: { courseId: string; term: number; testId?: string };
   /** The weekly digest, worked out when it opens (#234). */
