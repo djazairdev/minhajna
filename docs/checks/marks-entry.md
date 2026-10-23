@@ -1,6 +1,6 @@
 # Entering marks (#239)
 
-Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issues/239), on `feat/239-marks-core`, `feat/239-marks-entry`, `feat/239-capture` and `feat/239-components`. Made-up classes and records only.
+Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issues/239), on `feat/239-marks-core`, `feat/239-marks-entry`, `feat/239-capture`, `feat/239-components` and `feat/239-justify`. Made-up classes and records only.
 
 ## Part 1: marks and captures in the history (#409)
 
@@ -99,9 +99,28 @@ Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils and the teacher's own setup, on Friday 23 October:<br>• The hub read «الخانات المملوءة: 0 من 270», six components for 45 pupils.<br>• The components showed each with its points, such as «الانضباط والمواظبة» and «على 3 · 0 من 45», and «البحوث والمشاريع» on 5.<br>• Attendance opened on the first pupil with «أنصاف الأيام: 0 · غياب غير مبرر: 0 · …» under the mark, also in the card's TalkBack label, and no «غائب» button. The demo has no roll call taken, so no proposal showed.<br>• 2.5 was recorded with «التالي», and 4 showed «النقطة أكبر من 3، ولا تُحفظ.».<br>• Participation said «نقرات المشاركة: 0».<br>• The row then read «على 3 · 1 من 45», and the hub «الخانات المملوءة: 1 من 270», still so after the app was closed and opened again. |
 
+## Part 3c: the justification of a pupil's mark
+
+- **Where it opens** (answers 443 and 454): a row «تبرير التقويم المستمر» on «نقاط التقويم المستمر», on its term or month, and a row in the Documents tab, on the first class and subject with continuous assessment.
+- **The screen** (Marks-pupil):
+  - chips for the class and subject, the term and, in primary, the month;
+  - the previous and next pupil with «3 من 45»;
+  - the pupil, the class and subject with «التقويم المستمر» and the period;
+  - T out of the scale, once every component has a mark, else «—» with «عناصر بلا نقطة: 2»; a mark above points since lowered counts as empty;
+  - for a term, «الفرض 12.00 · الاختبار 10.00 · المعدل 11.67»: the test mean, the exam and the average by the level's formula, Σ weight × part ÷ Σ weights, each once the term has it, the average only when every part it weighs has one. Primary's page is a month's, with none of them;
+  - each component with what was recorded, as component entry says it, and its mark out of its points, then the total and the board's two notes.
+- **Output:** «لهذا التلميذ» or «للقسم كله», then «طباعة» or «حفظ PDF». The whole class prints one A4 page per pupil on the list, each framed «داخلي · سري». Each print and saved PDF goes into the activity log as «تبرير التقويم المستمر · الفصل الأول», never with a pupil's name. A saved PDF is named by the class and subject, «التلميذ 3» for one pupil, and the term or month, never the pupil's name (answer 455).
+
+| Check | Result |
+|---|---|
+| Core tests | T once every component has a mark, a mark above points since lowered counted as empty, and a month's marks apart; the term average by CEM's and primary's formulas, none while a weighted part is missing. |
+| Android tests | A pupil's page with T, the test, the exam and the average beside what was recorded; the next pupil with components still empty; an exam marked absent, with no average; one pupil and the whole class printed, framed «داخلي · سري», and saved under the class and list number; the four outputs in the activity log with the term; primary's month page with no average, saved under the month's name; a subject with no continuous assessment not offered; the rows on the components and in the Documents tab; the log's words for a term and a month; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils and the teacher's own setup, on Friday 23 October:<br>• The Documents tab showed the row «تبرير التقويم المستمر». It opened on the class's only subject, so no class chip, with the three term chips and «1 من 45».<br>• The first pupil's page read the class with «التقويم المستمر · الفصل الأول», T «—» on «/ 20» with «عناصر بلا نقطة: 5», «الفرض 14.00 · الاختبار 16.75» with no average yet, and the six components with what was recorded: «الانضباط والمواظبة» «2.50 / 3» from part 3b, the others «— / 3» and «— / 5», then «المجموع — / 20» and the notes.<br>• «التلميذ التالي» showed «2 من 45» with that pupil's test only, and «التلميذ السابق» went back.<br>• «للقسم كله» read «الأوراق: 45».<br>• «طباعة» for one pupil opened Android's print screen on A4 with «Page 1 of 1», and back returned to the screen.<br>• The row on «نقاط التقويم المستمر» opened the same screen on «الفصل الأول». |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
-- **TalkBack in Arabic:** the hub's test, exam, capture and component rows, the components' month chips and rows, the evidence and «اعتماد المقترح», the keypad, the current pupil announced after «التالي», the over-maximum message, the summary's clear buttons, and capture's session and item chips and pupil tiles.
-- **On a phone in French and English:** the entry and its summary, capture, and component entry. The emulator check was in Arabic.
-- **With a teacher:** entering a real test's marks in one sitting, and saying whether one pupil at a time is quick enough; tapping during a real session, and saying whether the tiles are quick enough to use while teaching; giving a term's component marks with what was recorded beside each pupil, and saying whether the attendance proposal matches the mark they would give.
+- **TalkBack in Arabic:** the hub's test, exam, capture and component rows, the components' month chips and rows, the evidence and «اعتماد المقترح», the keypad, the current pupil announced after «التالي», the over-maximum message, the summary's clear buttons, capture's session and item chips and pupil tiles, and the justification's pupil step, page and output choices.
+- **On a phone in French and English:** the entry and its summary, capture, component entry, and the justification, printed and saved. The emulator check was in Arabic.
+- **With a teacher:** entering a real test's marks in one sitting, and saying whether one pupil at a time is quick enough; tapping during a real session, and saying whether the tiles are quick enough to use while teaching; giving a term's component marks with what was recorded beside each pupil, and saying whether the attendance proposal matches the mark they would give; a justification printed on paper, and whether it would answer a parent's appeal.

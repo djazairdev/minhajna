@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The activity log's words (#235, answers 425 to 427): a period as its file
-// is named, a document by its title or «وثيقة», a re-pace draft, a class
-// that has gone as a dash, a pupil no longer on the list without a number,
-// signed files with their plan's subject and year, an erasure's kinds each
-// named once, a withdrawn session and one recorded again, and a change that
-// cannot be checked by its kind, with each language's own comma. Made-up
-// records only.
+// The activity log's words (#235, answers 425 to 427): a period as its file is
+// named, or a term by its name (#239), a document by its title or «وثيقة», a
+// re-pace draft, a class that has gone as a dash, a pupil no longer on the list
+// without a number, signed files with their plan's subject and year, an
+// erasure's kinds each named once, a withdrawn session and one recorded again,
+// and a change that cannot be checked by its kind, with each language's own
+// comma. Made-up records only.
 
 import { parseDay, type LogLine, type SessionRef } from '@minhajna/core';
 import { openTestData } from '../jest/app-data';
@@ -50,6 +50,8 @@ test('documents by their title, a re-pace draft by its own, anything else as «�
   expect(lineText(t, shown, output('journal', '2026-10-15'))).toBe('الدفتر اليومي · 15/10/2026 · طباعة');
   expect(lineText(t, shown, output('sept-check', '2026-10-15'))).toBe('فحص سبتمبر · 15/10/2026 · طباعة');
   expect(lineText(t, shown, output('made-up', '2026-10'))).toBe('وثيقة · أكتوبر 2026 · طباعة');
+  expect(lineText(t, shown, output('marks-justify', 'term-1'))).toBe('تبرير التقويم المستمر · الفصل الأول · طباعة');
+  expect(lineText(t, shown, output('marks-justify', '2026-10'))).toBe('تبرير التقويم المستمر · أكتوبر 2026 · طباعة');
   expect(lineText(t, shown, { kind: 'printed', documents: ['repace:c-1', 'texts'] })).toBe(
     'طباعة الأسبوع: إعادة توزيع بقية الفصل، دفتر النصوص',
   );

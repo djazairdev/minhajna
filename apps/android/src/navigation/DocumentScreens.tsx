@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The documents as navigation routes (#212): the Documents tab, a
-// document's output above the tabs, and «طباعة الأسبوع» (#215). The
-// roll-call book opens Roll-print (#217), «المذكرات» a lesson note and
-// «التوزيعات» its screen, which prints in the tab it shows (#237). In a pilot
-// build, the tab's last row opens «توقيتاتي» (#220).
+// The documents as navigation routes (#212): the Documents tab, a document's
+// output above the tabs, and «طباعة الأسبوع» (#215). The roll-call book opens
+// Roll-print (#217), «المذكرات» a lesson note and «التوزيعات» its screen, which
+// prints in the tab it shows (#237), and «تبرير التقويم المستمر» its own
+// (#239). In a pilot build, the tab's last row opens «توقيتاتي» (#220).
 
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { CompositeScreenProps } from '@react-navigation/native';
@@ -41,6 +41,7 @@ export function DocumentsTabScreen({
       onFixes={() => navigation.navigate('BookFixes')}
       onNote={(key, day) => navigation.navigate('Note', { key, day })}
       onTimings={() => navigation.navigate('PilotTimings')}
+      onJustify={() => navigation.navigate('MarksJustify')}
     />
   );
 }

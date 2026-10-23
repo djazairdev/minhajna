@@ -3047,6 +3047,37 @@
       "useProposal": "Reprendre la proposition",
       "counts": "Notes : {{entered}}",
       "none": "Aucune composante d’évaluation continue pour ce trimestre"
+    },
+    "justify": {
+      "title": "Justification de l’évaluation continue",
+      "line": "{{class}} · évaluation continue · {{period}}",
+      "row": "Une feuille par élève : ses composantes, ce qui a été relevé pour chacune, et sa note",
+      "outOf": "/ {{scale}}",
+      "emptyCount": "Composantes sans note : {{count}}",
+      "test": "Devoir {{mark}}",
+      "exam": "Examen {{mark}}",
+      "examAbsent": "Examen : absent",
+      "average": "Moyenne {{mark}}",
+      "component": "Composante",
+      "recorded": "Relevé",
+      "mark": "Note",
+      "total": "Total",
+      "noteBook": "Cette feuille sert de registre d’évaluation continue et de réponse au recours d’un parent.",
+      "noteReasons": "Elle ne mentionne ni les motifs d’absence ni le détail du comportement.",
+      "course": "Classe et matière",
+      "step": "{{n}} sur {{total}}",
+      "previous": "Élève précédent",
+      "next": "Élève suivant",
+      "scope": "À imprimer",
+      "one": "Pour cet élève",
+      "oneLine": "Une feuille",
+      "all": "Pour toute la classe",
+      "allLine": "Une feuille par élève de la liste · feuilles : {{count}}",
+      "confidential": "« Interne · confidentiel » en haut et en bas de chaque page, car elles contiennent des notes d’élèves.",
+      "none": "Aucune classe avec évaluation continue pour l’instant",
+      "noPupils": "Aucun élève sur la liste pour cette période",
+      "file": "Justification de l’évaluation continue",
+      "fileOne": "élève {{n}}"
     }
   }
 }

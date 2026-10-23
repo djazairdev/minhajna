@@ -105,8 +105,8 @@ export interface ComponentEvidenceLine {
   readonly proposed: number | null;
 }
 
-/** What was recorded for a pupil that a component is set beside, in words. */
-export function evidenceLine(
+/** What was recorded for a pupil that a component is set beside, in words, and the attendance proposal apart. */
+export function recordedFor(
   t: Translate,
   context: Context,
   courseId: string,
@@ -128,11 +128,22 @@ export function evidenceLine(
     const classId = context.state.courses.get(courseId)?.classId ?? '';
     const counted = attendanceProposal(context, classId, pupilId, from, to, sheet.max);
     const text = t('marks.componentMarks.attendance', { ...counted, behaviour: taps.behaviour });
-    const proposed = sheet.rollCall ? counted.proposed : null;
-    const line = proposed === null ? '' : `\n${t('marks.componentMarks.proposed', { mark: proposed })}`;
-    return { text: text + line, proposed };
+    return { text, proposed: sheet.rollCall ? counted.proposed : null };
   }
   return { text: t('marks.componentMarks.nothing'), proposed: null };
+}
+
+/** What was recorded, then the attendance proposal on a line of its own, as the entry says them. */
+export function evidenceLine(
+  t: Translate,
+  context: Context,
+  courseId: string,
+  sheet: ComponentSheet,
+  pupilId: string,
+): ComponentEvidenceLine {
+  const { text, proposed } = recordedFor(t, context, courseId, sheet, pupilId);
+  const line = proposed === null ? '' : `\n${t('marks.componentMarks.proposed', { mark: proposed })}`;
+  return { text: text + line, proposed };
 }
 
 /** The current pupil's evidence on a component's sheet, worked out again only when they or the records change. */
