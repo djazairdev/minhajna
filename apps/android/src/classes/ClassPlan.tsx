@@ -26,6 +26,7 @@ import {
   behindPlan,
   compareDays,
   courseSetup,
+  courseTests,
   formatDay,
   pace,
   planView,
@@ -48,7 +49,6 @@ import { useCountMinutes } from '../settings/preferences';
 import { useText } from '../text/i18n';
 import { paceLine } from './class-rules';
 import { ExamWarnings } from '../exams/ExamWarnings';
-import { courseTests } from '../exams/test-rules';
 import { postponedItems } from '../exams/window-rules';
 import { dayMonth, untilLine } from './plan-labels';
 import { PlanRows, PlanWeekLines, weekPack, weeksBehindLine } from './PlanRows';

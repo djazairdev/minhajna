@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The figures marks are read with (#239, answers 439, 440 and 442): the list of
-// pupils a test is for, those of its group enrolled on its day; the term's exam
-// window, from the course's own grade's calendar, and the list of pupils
+// The figures marks are read with (#239, answers 439, 440 and 442): a course's
+// tests by day, and those of a term, the one whose dates hold the day; the list
+// of pupils a test is for, those of its group enrolled on its day; the term's
+// exam window, from the course's own grade's calendar, and the list of pupils
 // sitting it, the class's, or the level's in a joint class, enrolled on its
 // first day; F, the mean of the tests the pupil sat while on their list, so a
 // mark typed for a pupil not on it stays out until cleared; and the attendance
@@ -12,16 +13,29 @@
 // points times the share of the half-days the pupil could attend and did not
 // miss without a justification, rounded down to a quarter point.
 
+import { termNumberOn } from './assessment.ts';
 import type { Context } from './context.ts';
 import { compareDays, type Day } from './day.ts';
 import { courseWindows } from './exam-duties.ts';
 import { courseGrade, levelGroups } from './joint.ts';
 import { marksFor } from './marks.ts';
-import { wholeGroup } from './records.ts';
+import { compareSlots, wholeGroup } from './records.ts';
 import type { CalendarEntry } from './reference.ts';
 import { countRollCalls } from './roll-call-counts.ts';
 import { pupilsOn } from './roll-call.ts';
 import type { ScheduledTest } from './test-schedule.ts';
+
+/** A course's tests, by day, then slot. */
+export function courseTests(context: Context, courseId: string): ScheduledTest[] {
+  return [...context.state.tests.values()]
+    .filter((test) => test.courseId === courseId)
+    .sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : compareSlots(a.slot, b.slot)));
+}
+
+/** The course's tests whose day falls in the term, by day. */
+export function termTests(context: Context, courseId: string, term: number): ScheduledTest[] {
+  return courseTests(context, courseId).filter((test) => termNumberOn(context.ref.year, test.day) === term);
+}
 
 /** The pupils a test is for, in list order: its group's, enrolled on its day. */
 export function testList(context: Context, test: ScheduledTest): string[] {

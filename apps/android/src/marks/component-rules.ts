@@ -16,6 +16,7 @@ import {
   componentPeriod,
   evidence,
   homeworkEvidence,
+  monthlyLevel,
   monthOf,
   termMonths,
   type AssessmentData,
@@ -53,7 +54,7 @@ export function periodName(t: Translate, months: CountryProfile['months'], targe
 
 /** Whether a level keeps its component marks month by month: primary does. */
 export function monthly(level: string): boolean {
-  return level === 'primary';
+  return monthlyLevel(level);
 }
 
 /** The months a course's component marks are kept by in a term; none when by the term. */

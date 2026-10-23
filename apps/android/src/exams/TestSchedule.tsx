@@ -13,7 +13,7 @@
 // until the school's calendar exists. A class archived after a
 // reorientation shows its tests but takes no new one (#231).
 
-import { nextExams, type ScheduledTest } from '@minhajna/core';
+import { courseTests, nextExams, type ScheduledTest } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -33,7 +33,6 @@ import { dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
 import { AddTest } from './AddTest';
 import { courseLabel, termName } from './course-label';
-import { courseTests } from './test-rules';
 
 type Said = { readonly kind: 'added' | 'removed'; readonly test: ScheduledTest } | null;
 

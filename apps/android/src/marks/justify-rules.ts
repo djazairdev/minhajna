@@ -15,7 +15,9 @@ import {
   componentPeriod,
   componentTotal,
   marksFor,
+  shownMark,
   termAverage,
+  termTests,
   testMean,
   type AssessmentData,
   type AveragePart,
@@ -26,7 +28,7 @@ import {
 import { courseLabel } from '../exams/course-label';
 import type { useText } from '../text/i18n';
 import { componentSheet, periodName, recordedFor, termLines } from './component-rules';
-import { levelScale, termTests } from './entry-rules';
+import { levelScale } from './entry-rules';
 import { courseMarks } from './marks-rules';
 
 type Translate = ReturnType<typeof useText>;
@@ -50,8 +52,6 @@ export interface JustifyPage {
   readonly parts: string | null;
   readonly rows: readonly JustifyRow[];
 }
-
-const shown = (value: number) => value.toFixed(2);
 
 /** The courses a justification can be made for: with continuous assessment and a mark scale, by class name. */
 export function justifyCourses(context: Context, data: AssessmentData): string[] {
@@ -92,11 +92,11 @@ function partsLine(
   const exam = weighs('E') ? marksFor(context.state, courseId, term, { kind: 'exam' }).get(pupilId) : undefined;
   const average = termAverage(formula, { T: total, F: test, E: typeof exam === 'number' ? exam : null });
   const said = [
-    ...(test === null ? [] : [t('marks.justify.test', { mark: shown(test) })]),
+    ...(test === null ? [] : [t('marks.justify.test', { mark: shownMark(test) })]),
     ...(exam === undefined
       ? []
-      : [exam === 'absent' ? t('marks.justify.examAbsent') : t('marks.justify.exam', { mark: shown(exam) })]),
-    ...(average === null ? [] : [t('marks.justify.average', { mark: shown(average) })]),
+      : [exam === 'absent' ? t('marks.justify.examAbsent') : t('marks.justify.exam', { mark: shownMark(exam) })]),
+    ...(average === null ? [] : [t('marks.justify.average', { mark: shownMark(average) })]),
   ];
   return said.length === 0 ? null : said.join(' · ');
 }
@@ -129,7 +129,7 @@ export function justifyPage(
       id: line.id,
       name: sheet?.title ?? line.id,
       recorded: sheet === null ? '' : recordedFor(t, context, courseId, sheet, pupilId).text,
-      mark: `${mark === null ? '—' : shown(mark)} / ${line.points}`,
+      mark: `${mark === null ? '—' : shownMark(mark)} / ${line.points}`,
     };
   });
   const period = periodName(
@@ -141,7 +141,7 @@ export function justifyPage(
   return {
     pupil: state.pupils.get(pupilId)?.name ?? pupilId,
     line: t('marks.justify.line', { class: courseLabel(t, state, profile, courseId, true), period }),
-    total: counted.total === null ? '—' : shown(counted.total),
+    total: counted.total === null ? '—' : shownMark(counted.total),
     scale,
     empty: counted.empty,
     parts: month === undefined ? partsLine(t, context, data, courseId, term, pupilId, counted.total) : null,

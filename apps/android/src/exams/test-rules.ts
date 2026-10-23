@@ -1,19 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What «مواعيد الفروض» reads (#221, Test-schedule, answers 268 and 269): a
-// course's tests in date order; the days a new test can take, those with a
-// session of the course the calendar leaves, not yet recorded and not
-// already a test's; a day's sessions to choose from; and what a test would
-// change before it is saved: the sessions it takes from the term, the item
-// whose session it takes, and the items it would push past the exams. The
-// sessions left are counted in the test's own term, from today or the
-// term's first day, up to its exams or its end; a test after them counts
+// What «مواعيد الفروض» reads (#221, Test-schedule, answers 268 and 269),
+// besides the course's tests in date order from the core: the days a new test
+// can take, those with a session of the course the calendar leaves, not yet
+// recorded and not already a test's; a day's sessions to choose from; and what
+// a test would change before it is saved: the sessions it takes from the
+// term, the item whose session it takes, and the items it would push past the
+// exams. The sessions left are counted in the test's own term, from today or
+// the term's first day, up to its exams or its end; a test after them counts
 // none.
 
 import {
   TEST_SESSION_TYPE,
-  compareSlots,
   current,
   findSessionType,
   pastWindow,
@@ -28,13 +27,6 @@ import {
   type ScheduledTest,
   type Session,
 } from '@minhajna/core';
-
-/** A course's tests, by day, then slot. */
-export function courseTests(context: Context, courseId: string): ScheduledTest[] {
-  return [...context.state.tests.values()]
-    .filter((test) => test.courseId === courseId)
-    .sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : compareSlots(a.slot, b.slot)));
-}
 
 /** The course's sessions from `from` to `to` a test can take. */
 export function openSessions(context: Context, courseId: string, from: Day, to: Day): Session[] {
