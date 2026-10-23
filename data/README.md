@@ -11,6 +11,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 | `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
+| `dz/assessment.json` | Each level's continuous-assessment presets: their components, points and ranges, and the formulas its averages follow |
 | `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64), the SHA-256 fingerprint of that public half, and `signs`, what it may sign: `calendar`, `packs` or both. Empty until the first key is made, with the [signing tools](../docs/checks/signed-updates.md) |
 | `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
 | `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
@@ -50,6 +51,19 @@ A timetable names slots, never clock times. Each slot's time comes from `dz/bell
 - **Primary school** has no template yet. Its periods are not one-hour slots, and they come with the primary timetable.
 - **Ramadan's length.** In Ramadan, each session keeps its place and its start time and lasts `minutes`. It still counts as one session. The 45 minutes of middle and secondary schools follow the Ministry's [communiqué of 16 February 2026](https://www.education.gov.dz/wp-content/uploads/2026/02/COM-16.02.2026.jpg), which cut the one-hour session by fifteen minutes. They are `projected` until the year's own notice, which may also give new start times. A signed calendar update brings the notice's lengths in the Ramadan entry's `hours`, with their own confidence, and they then replace these. Primary schools have no Ramadan length yet, so their sessions keep their usual times until one is announced (answer 320).
 - **Ramadan's days** come from the calendar. Calendar release `2026.2` gives the Ramadan entry `"times": "ramadan"`, so its days take Ramadan's times. The timetable never changes. Ramadan ends on the eve of Eid al-Fitr as the calendar has it, expected or confirmed (answer 330).
+
+## Continuous assessment
+
+Each level's continuous-assessment presets come from `dz/assessment.json` ([PRD §3.5](../docs/prd/PRD.md#35-continuous-assessment-marks-and-averages), answers 430, 437 and 438). A preset may name the subjects it is for (`subjects`); a level has one preset at most for every other subject, and a class takes the preset naming its subject:
+
+- **Components:** each with its name in Arabic, French and English, how its marks are gathered (`capture`), its points, and the range a teacher may set it in. The points add up to the level's scale, 20, or 10 in primary. One component at most comes from the roll-call book.
+- **The points and ranges are the curators'.** No text sets points per component, so every preset's `source` says the figures are not official. The teacher sets their own within the ranges, and adds columns of their own.
+- **One circular a year sets the rules for every level.** Until the 2026/27 one is out, every preset keeps 2025/26's, circular 270 of 11 November 2025 (`circular`, `rulesYear`):
+  - Middle school: 270 names discipline and attendance, oral and written quizzes, homework and research projects; participation and the notebook are captured in the session (PRD §3.5).
+  - Lycée: 270 lists no lycée components, so the lycée takes middle school's until a list is found.
+  - Primary: continuous assessment covers languages and mathematics, month by month. 270 left its averaging unchanged, so their components are circular 272's list of 2023/24, the latest that names them.
+  - Primary music, visual arts and physical education: 270 assesses them by continuous assessment and observation alone, so they have a preset of their own: participation, practical work, and expressive or motor ability. Primary's other subjects have no continuous assessment and no preset.
+- **Formulas:** each level's averages as whole-number weights of their parts (T, F, E, and P and O in the lycée), such as middle school's ((T + F)/2 + 2E)/3 as T 1, F 1, E 4, listed apart from the presets under `formulas`, each with its `level`. A formula may name the subjects it is for, and a level has one formula at most for every other subject. Primary's music, visual arts and physical education have no term exam and no formula yet. The lycée's formulas with practical work or an oral come with the grade book (#240).
 
 ## Hijri months
 
