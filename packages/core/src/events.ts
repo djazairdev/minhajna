@@ -5,7 +5,7 @@
 // layer, so a session's private note is its own event, apart from the
 // session record (PRD §5.4, §5.5).
 
-import type { AssessmentSetup } from './assessment.ts';
+import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
 import type { MarkEntry } from './marks.ts';
 import type { ExtraSession } from './extra-records.ts';
@@ -134,7 +134,9 @@ export type RecordEvent =
   /** A pupil's mark for a test, the exam or a component, or its absence (#239). */
   | { readonly kind: 'mark.set'; readonly mark: MarkEntry }
   /** What the teacher tapped for a pupil during a session (#239). */
-  | { readonly kind: 'capture.set'; readonly capture: SessionCapture };
+  | { readonly kind: 'capture.set'; readonly capture: SessionCapture }
+  /** The averaging formula the administration set for a class and subject, among its level's (#240). */
+  | { readonly kind: 'formula.set'; readonly courseId: string; readonly formula: FormulaId };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -189,6 +191,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'assessment.set': true,
   'mark.set': true,
   'capture.set': true,
+  'formula.set': true,
 };
 
 /**
@@ -209,6 +212,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'assessment.set':
     case 'mark.set':
     case 'capture.set':
+    case 'formula.set':
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':

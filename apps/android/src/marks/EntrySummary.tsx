@@ -10,6 +10,7 @@
 // points since lowered is counted (answer 452). Every mark is already recorded,
 // so «تم» only goes back; «مراجعة من البداية» goes back to the first pupil.
 
+import type { MarkTarget } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
@@ -23,7 +24,7 @@ export type EntrySummaryProps = {
   /** Marks above the maximum, given before it was lowered. */
   readonly over: number;
   /** What was entered: a test's marks stay with the teacher; a component has no absences. */
-  readonly kind: 'test' | 'exam' | 'component';
+  readonly kind: MarkTarget['kind'];
   readonly entered: number;
   readonly absent: number;
   readonly empty: number;

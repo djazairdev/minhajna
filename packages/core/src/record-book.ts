@@ -115,6 +115,8 @@ function recordKey(event: RecordEvent): string {
       return `mark:${markKey(event.mark)}`;
     case 'capture.set':
       return `capture:${captureKey(event.capture)}`;
+    case 'formula.set':
+      return `formula:${event.courseId}`;
   }
 }
 

@@ -1,22 +1,24 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Marks (#239, PRD §3.5, answers 439 and 440): a pupil's mark for one of
-// the term's tests, its exam, or a component of the setup in a period, the
-// term or, in primary, a month. A mark has two decimals at most and lies
-// from 0 to its maximum; a pupil can be absent instead, and a mark can be
-// cleared. The last one recorded counts. The entry check counts what was
-// entered, the marks above a maximum since lowered, the empty cells of the
-// pupils on the list, and the marks of pupils not on it, which stay out of
-// the averages (answer 452).
+// Marks (#239, PRD §3.5, answers 439 and 440): a pupil's mark for one of the
+// term's tests, its exam, lycée's practical work or oral (#240, answer 463), or
+// a component of the setup in a period, the term or, in primary, a month. A
+// mark has two decimals at most and lies from 0 to its maximum; a pupil can be
+// absent instead, and a mark can be cleared. The last one recorded counts. The
+// entry check counts what was entered, the marks above a maximum since lowered,
+// the empty cells of the pupils on the list, and the marks of pupils not on it,
+// which stay out of the averages (answer 452).
 
 import type { RecordEvent } from './events.ts';
 import type { State } from './state.ts';
 
-/** What a mark is for: a scheduled test, the term's exam, or a component, by the month in primary. */
+/** What a mark is for: a test, the exam, lycée's practical work or oral, or a component, by the month in primary. */
 export type MarkTarget =
   | { readonly kind: 'test'; readonly testId: string }
   | { readonly kind: 'exam' }
+  | { readonly kind: 'practical' }
+  | { readonly kind: 'oral' }
   | { readonly kind: 'component'; readonly componentId: string; readonly month?: string };
 
 export type MarkValue = number | 'absent';
@@ -30,10 +32,10 @@ export interface MarkEntry {
   readonly value: MarkValue | null;
 }
 
-/** A target as a key, such as `test:t-1`, `exam` or `component:participation:2026-10`. */
+/** A target as a key, such as `test:t-1`, `exam`, `practical` or `component:participation:2026-10`. */
 export function targetKey(target: MarkTarget): string {
   if (target.kind === 'test') return `test:${target.testId}`;
-  if (target.kind === 'exam') return 'exam';
+  if (target.kind === 'exam' || target.kind === 'practical' || target.kind === 'oral') return target.kind;
   return target.month === undefined
     ? `component:${target.componentId}`
     : `component:${target.componentId}:${target.month}`;

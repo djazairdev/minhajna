@@ -4,7 +4,8 @@
 // Conflicts: two devices that change the same record differently before
 // they sync give one conflict and a notice that counts it; the same
 // change made on both, or changes to different records, give none. A
-// pupil's mark or capture is one record per cell. Made-up records only.
+// pupil's mark or capture is one record per cell, and a class and subject's
+// formula one record per course (#240). Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -87,6 +88,25 @@ test('a mark or a capture typed differently on two devices conflicts in its own 
     ['mark/c-1/1/test:t-1/p-1', 'capture/c-1/2026-11-08/m1/g-all/p-1/participation'],
   );
   assert.deepEqual(findConflicts(mine, same), []);
+});
+
+test('a formula chosen differently on two devices conflicts for that course only', async () => {
+  const chosen = (courseId: string, formula: 'lycee' | 'lycee-oral'): RecordEvent => ({
+    kind: 'formula.set',
+    courseId,
+    formula,
+  });
+  const [mine, theirs, same] = await Promise.all([
+    recorded(chosen('c-1', 'lycee-oral'), chosen('c-2', 'lycee')),
+    recorded(chosen('c-1', 'lycee'), chosen('c-3', 'lycee')),
+    recorded(chosen('c-1', 'lycee-oral')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), ['formula/c-1', 'formula/c-2']);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['formula/c-1'],
+  );
+  assert.deepEqual(findConflicts(mine.slice(0, 1), same), []);
 });
 
 test('two different files of one calendar release conflict; the same file on both does not', async () => {
