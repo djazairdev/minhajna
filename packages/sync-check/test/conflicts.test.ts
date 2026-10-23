@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Conflicts: two devices that change the same record differently before
-// they sync give one conflict and a notice that counts it; the same
-// change made on both, or changes to different records, give none. A
-// pupil's mark or capture is one record per cell, and a class and subject's
-// formula one record per course (#240). Made-up records only.
+// Conflicts: two devices that change the same record differently before they
+// sync give one conflict and a notice that counts it; the same change made on
+// both, or changes to different records, give none. A pupil's mark or capture
+// is one record per cell, and a class and subject's formula one record per
+// course, and a descriptive observation one per pupil, course and term (#240).
+// Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -15,6 +16,7 @@ import {
   RecordBook,
   setCapture,
   setMark,
+  setObservation,
   type CalendarUpdate,
   type Entry,
   type RecordEvent,
@@ -107,6 +109,20 @@ test('a formula chosen differently on two devices conflicts for that course only
     ['formula/c-1'],
   );
   assert.deepEqual(findConflicts(mine.slice(0, 1), same), []);
+});
+
+test('an observation chosen differently on two devices conflicts for that pupil only', async () => {
+  const observe = (pupilId: string, value: 'acquired' | 'in-progress') =>
+    setObservation({ courseId: 'c-1', term: 1, pupilId }, value);
+  const [mine, theirs] = await Promise.all([
+    recorded(observe('p-1', 'acquired'), observe('p-2', 'acquired')),
+    recorded(observe('p-1', 'in-progress'), observe('p-2', 'acquired')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), ['observation/c-1/1/p-1', 'observation/c-1/1/p-2']);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['observation/c-1/1/p-1'],
+  );
 });
 
 test('two different files of one calendar release conflict; the same file on both does not', async () => {

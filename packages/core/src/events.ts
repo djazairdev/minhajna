@@ -8,6 +8,7 @@
 import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
 import type { MarkEntry } from './marks.ts';
+import type { ObservationEntry } from './observations.ts';
 import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
@@ -136,7 +137,9 @@ export type RecordEvent =
   /** What the teacher tapped for a pupil during a session (#239). */
   | { readonly kind: 'capture.set'; readonly capture: SessionCapture }
   /** The averaging formula the administration set for a class and subject, among its level's (#240). */
-  | { readonly kind: 'formula.set'; readonly courseId: string; readonly formula: FormulaId };
+  | { readonly kind: 'formula.set'; readonly courseId: string; readonly formula: FormulaId }
+  /** A pupil's descriptive observation for a course and term, or its clearing (#240). */
+  | { readonly kind: 'observation.set'; readonly observation: ObservationEntry };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -192,6 +195,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'mark.set': true,
   'capture.set': true,
   'formula.set': true,
+  'observation.set': true,
 };
 
 /**
@@ -213,6 +217,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'mark.set':
     case 'capture.set':
     case 'formula.set':
+    case 'observation.set':
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':

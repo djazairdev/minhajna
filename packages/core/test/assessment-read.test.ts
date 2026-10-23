@@ -71,7 +71,7 @@ test('a preset file is refused field by field, and only the format’s fields ar
     profile,
   );
   assert.ok(extra.ok);
-  assert.deepEqual(Object.keys(extra.value), ['country', 'release', 'presets', 'formulas']);
+  assert.deepEqual(Object.keys(extra.value), ['country', 'release', 'presets', 'formulas', 'observations']);
   assert.equal('note' in extra.value.presets[0]!, false);
   assert.equal('note' in extra.value.formulas[0]!, false);
 });

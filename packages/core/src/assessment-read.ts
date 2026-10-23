@@ -1,18 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Reads a country's continuous-assessment presets and averaging formulas
-// from parsed JSON, against its profile (#238, answers 430, 437, 438). It
-// comes in as a file, so it is untrusted: every field is checked and only
-// the format's fields are kept (PRD §5.9). A preset is out of 20 or 10; each
-// component's points lie in its range and add up to the scale; one component
-// at most comes from the roll-call book; a level's presets share a scale.
-// Presets and formulas name subjects known at their level; at a level, no
-// subject is named twice and one entry at most stands for every other
-// subject, as primary's music, visual arts and PE have no formula. A level's
-// formulas have distinct ids, each its level's own, such as cem or lycee-oral;
-// an alternative, which the administration can choose for a subject in place
-// of its level's, is marked so and stands beside them (#240, answer 463).
+// Reads a country's continuous-assessment presets and averaging formulas from
+// parsed JSON, against its profile (#238, answers 430, 437, 438). It comes in
+// as a file, so it is untrusted: every field is checked and only the format's
+// fields are kept (PRD §5.9). A preset is out of 20 or 10; each component's
+// points lie in its range and add up to the scale; one component at most comes
+// from the roll-call book; a level's presets share a scale. Presets and
+// formulas name subjects known at their level; at a level, no subject is named
+// twice and one entry at most stands for every other subject, as primary's
+// music, visual arts and PE have no formula. A level's formulas have distinct
+// ids, each its level's own, such as cem or lycee-oral; an alternative, which
+// the administration can choose for a subject in place of its level's, is
+// marked so and stands beside them (#240, answer 463). The terms whose marks
+// descriptive observations replace name a known grade, a term from 1 and, if
+// not every subject, subjects known at the grade's level, a grade's term naming
+// each subject once, and their source (answer 464).
 
 import {
   AVERAGE_PARTS,
@@ -23,6 +26,7 @@ import {
   type Formula,
   type PresetComponent,
 } from './assessment.ts';
+import type { ObservedTerm } from './observations.ts';
 import { at, isFields, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
 import type { CountryProfile } from './reference.ts';
 import { CODE, COUNTRY, levelCodes, readName, YEAR_ID } from './reference-fields.ts';
@@ -168,6 +172,43 @@ function levelCheck(reader: Reader) {
   };
 }
 
+/** A grade's term observed instead of marked, for every subject or those named. */
+function readObserved(reader: Reader, raw: unknown, path: string, profile: CountryProfile) {
+  if (!isFields(raw)) {
+    reader.fail(path, 'invalid');
+    return undefined;
+  }
+  const grade = reader.requiredText(raw, 'grade', path);
+  const level = profile.levels.find((one) => one.grades.some((known) => known.code === grade));
+  if (grade !== '' && level === undefined) reader.fail(at(path, 'grade'), 'unknown-reference');
+  const term = reader.requiredNumber(raw, 'term', path, true);
+  if (term !== undefined && term < 1) reader.fail(at(path, 'term'), 'invalid');
+  const known = profile.subjects.filter((one) => one.levels.includes(level?.code ?? '')).map((one) => one.code);
+  const named = reader.codes(raw, 'subjects', path, known, false);
+  const source = reader.requiredText(raw, 'source', path);
+  if (level === undefined || term === undefined || term < 1 || (raw['subjects'] !== undefined && !named)) {
+    return undefined;
+  }
+  return { grade, term, ...(named !== undefined && { subjects: named }), source } satisfies ObservedTerm;
+}
+
+/** The observed terms, a grade's term naming each subject once and standing for every subject at most once. */
+function observedCheck(reader: Reader) {
+  const seen = new Map<string, Set<string> | 'all'>();
+  return (entry: ObservedTerm | undefined, path: string): ObservedTerm | undefined => {
+    if (entry === undefined) return undefined;
+    const key = `${entry.grade}/${entry.term}`;
+    const before = seen.get(key);
+    const clash =
+      before === 'all' ||
+      (before !== undefined && (entry.subjects === undefined || entry.subjects.some((one) => before.has(one))));
+    if (clash) reader.fail(path, 'duplicate');
+    if (entry.subjects === undefined) seen.set(key, 'all');
+    else if (before !== 'all') seen.set(key, new Set([...(before ?? []), ...entry.subjects]));
+    return entry;
+  };
+}
+
 /** Reads a country's assessment presets and formulas, keeping only the format's fields. */
 export function parseAssessmentData(input: unknown, profile: CountryProfile): ParseResult<AssessmentData> {
   const reader = new Reader();
@@ -182,6 +223,15 @@ export function parseAssessmentData(input: unknown, profile: CountryProfile): Pa
   const formulaLevels = levelCheck(reader);
   const formula = (raw: unknown, path: string) => formulaLevels(readFormula(reader, raw, path, profile), path);
   const formulas = reader.list(input, 'formulas', '', formula, { nonEmpty: true });
+  const observedOnce = observedCheck(reader);
+  const observed = (raw: unknown, path: string) => observedOnce(readObserved(reader, raw, path, profile), path);
+  const observations =
+    input['observations'] === undefined
+      ? undefined
+      : reader.list(input, 'observations', '', observed, { nonEmpty: false });
   if (reader.problems.length > 0) return { ok: false, problems: reader.problems };
-  return { ok: true, value: { country, release, presets, formulas } };
+  return {
+    ok: true,
+    value: { country, release, presets, formulas, ...(observations !== undefined && { observations }) },
+  };
 }

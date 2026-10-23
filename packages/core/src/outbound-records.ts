@@ -98,6 +98,10 @@ function currentRecords(state: State): RecordEvent[] {
   for (const courseId of [...state.formulas.keys()].sort(compareText)) {
     records.push({ kind: 'formula.set', courseId, formula: state.formulas.get(courseId)! });
   }
+  for (const key of [...state.observations.keys()].sort(compareText)) {
+    const observation = state.observations.get(key)!;
+    if (observation.value !== null) records.push({ kind: 'observation.set', observation });
+  }
   if (state.setupFinished) records.push({ kind: 'setup.finished' });
   for (const print of state.prints) records.push({ kind: 'print.recorded', print: print.value });
   for (const test of [...state.tests.values()].sort((a, b) => compareDays(a.day, b.day) || compareText(a.id, b.id))) {
