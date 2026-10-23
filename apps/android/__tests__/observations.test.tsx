@@ -76,6 +76,7 @@ const hub = (term?: number) => (
     onObservations={onObservations}
     onAppreciations={jest.fn()}
     onExport={jest.fn()}
+    onFix={jest.fn()}
   />
 );
 const onCourse = jest.fn();

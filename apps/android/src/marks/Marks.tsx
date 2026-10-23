@@ -21,9 +21,11 @@
 // setup and marks but takes no new ones (#231). «التقديرات», with how many
 // pupils have a phrase, follows «كشف النقاط» (#241, answer 465), then «التصدير
 // الفصلي», ready or with how many marks and appreciations are missing (#242,
-// answer 466).
+// answer 466). Once the term's last day has passed, a line says its marks
+// change only through «تصحيح بعد الفصل», whose row takes the place of the rows
+// that enter marks (#243, answer 468).
 
-import { captureSession, courseObserved, gradeBook, termNumberOn } from '@minhajna/core';
+import { captureSession, courseObserved, gradeBook, termEnded, termFixes, termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -68,11 +70,13 @@ export type MarksProps = {
   readonly onAppreciations: (term: number) => void;
   /** Opens the term's export. */
   readonly onExport: (term: number) => void;
+  /** Opens the corrections after the term. */
+  readonly onFix: (term: number) => void;
 };
 
 export function Marks(props: MarksProps) {
   const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry, onPart } = props;
-  const { onObservations, onAppreciations, onExport } = props;
+  const { onObservations, onAppreciations, onExport, onFix } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -104,6 +108,7 @@ export function Marks(props: MarksProps) {
   const session = captureSession(context, courseId, today());
   const observed = entering && courseObserved(state, data, courseId, term);
   const marking = entering && !observed;
+  const ended = marking && termEnded(year, term, today());
   const book = marking ? gradeBook(context, data, courseId, term) : null;
   const phrases = marking && book !== null && appreciationList(profile) !== null;
   const apprec = phrases ? appreciationSheet(context, data, courseId, term, book) : null;
@@ -178,7 +183,21 @@ export function Marks(props: MarksProps) {
             onPress={() => onObservations(term)}
           />
         )}
-        {marking && assessment !== null && (
+        {ended && (
+          <>
+            <Text testID="marks-ended" style={[styles.note, align]}>
+              {t('marks.fix.ended', { term: termWord(t, term) })}
+            </Text>
+            <RowLink
+              testID="marks-fix"
+              icon={controlIcon('pencil')}
+              title={t('marks.fix.title')}
+              description={t('marks.fix.rowLine', { count: termFixes(state, courseId, term).length })}
+              onPress={() => onFix(term)}
+            />
+          </>
+        )}
+        {marking && !ended && assessment !== null && (
           <RowLink
             testID="marks-components"
             icon={controlIcon('pencil')}
@@ -215,7 +234,7 @@ export function Marks(props: MarksProps) {
             onPress={() => onExport(term)}
           />
         )}
-        {marking && (
+        {marking && !ended && (
           <EntryRows
             context={context}
             data={data}

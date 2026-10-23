@@ -51,6 +51,7 @@ async function mount(data: TestData, props: Partial<MarksProps> = {}) {
     onObservations: jest.fn(),
     onAppreciations: jest.fn(),
     onExport: jest.fn(),
+    onFix: jest.fn(),
     ...props,
   };
   await ReactTestRenderer.act(async () => {

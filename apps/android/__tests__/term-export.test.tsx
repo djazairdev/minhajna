@@ -70,6 +70,7 @@ const hub = (onExport = jest.fn()) => (
     onObservations={jest.fn()}
     onAppreciations={jest.fn()}
     onExport={onExport}
+    onFix={jest.fn()}
   />
 );
 
