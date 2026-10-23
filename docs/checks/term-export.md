@@ -56,10 +56,27 @@ Filling the school's own workbook waits for the blank templates of [#45](https:/
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, on Friday 23 October: «التصدير الفصلي» showed its lines, the notice «لا تصدير بعد», the route still on «ملف Excel من الإدارة» with its notice, and the closing line, with no «ملفات أخرى», since no pupil of the demo class has all their marks. The page itself was checked in the tests. |
 
+## Part 4a: the files the export keeps or sends (Android)
+
+- **Making a file:** the CSV text is written as UTF-8, or a made PDF is moved, under the name the teacher will see. Each goes in its own folder of the app's cache, named by a random token, and only the token crosses to the screens.
+- **With a password** (R-5.9-15): the file goes into a ZIP archive encrypted with AES-256, the WinZip AE-2 format, made for 7-Zip, WinRAR and WPS to open with the password; that is still to be checked on Windows. The password is taken as UTF-8, and the archive keeps no CRC of the plain file.
+- **Keeping and sending:**
+  - Saving goes through the system's file picker, and sending through Android's share screen (R-5.9-17), so the app asks for no storage permission.
+  - A saved or cancelled file is deleted at once. A shared file stays until the app's next start, which empties the folder.
+- **Reading back:** a file the teacher picks gives its text: as UTF-16 after its byte-order mark, as Excel saves Unicode text, else as UTF-8, or else as Arabic Windows' code page, as Excel saves a CSV file there. A file over 2 MB is refused, and so is a file that is not text: a ZIP archive, such as one made under a password or an .xlsx workbook, an old .xls workbook, or a PDF.
+- The screens that use all this come in part 4b.
+
+| Check | Result |
+|---|---|
+| Instrumented tests on the emulator (`AesZipTest`, 2 tests) | Pass. They cover the archive's headers (AES method, AE-2 field, sizes, UTF-8 name), that the plain text never shows in it, and that two archives of the same file differ. They also cover the file-name rules, the types, files known not to be text, and text read as UTF-16, UTF-8 or Windows-1256. |
+| The archive opened on a Mac | The archive the test left was pulled from the emulator and opened with bsdtar 3.5.3 (libarchive 3.7.4) and the password. It gave back the exact bytes of the made-up CSV file; a wrong password was refused. |
+| Release build, type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
 - **TalkBack in Arabic:** the hub's row, the status card, the route choice, and each pupil of the ostad view read as one line.
 - **On a phone in French and English:** the screen and the ostad view.
+- **On Windows:** a password-protected CSV file and PDF, opened with 7-Zip, WinRAR and WPS, with a Latin and an Arabic password. If one refuses the Arabic password, part 4b keeps passwords to Latin letters and digits.
 - **On paper:** the printed mark sheet on a real A4 printer, with a 45-pupil class and long appreciations.
 - **With a teacher:** copying a real term's marks from the ostad view into the ostad grid, and saying whether the numbers are large enough and the order matches the grid.

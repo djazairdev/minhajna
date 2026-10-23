@@ -9,6 +9,7 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.module.model.ReactModuleInfo
 import com.facebook.react.module.model.ReactModuleInfoProvider
 import dz.minhajna.preview.documents.MinhajnaPdfModule
+import dz.minhajna.preview.files.MinhajnaFilesModule
 import dz.minhajna.preview.about.MinhajnaBuildModule
 import dz.minhajna.preview.language.MinhajnaInterfaceModule
 import dz.minhajna.preview.licences.MinhajnaLicencesModule
@@ -21,6 +22,7 @@ import dz.minhajna.preview.storage.NativeMinhajnaLicencesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaLockSpec
 import dz.minhajna.preview.storage.NativeMinhajnaNotifySpec
 import dz.minhajna.preview.storage.NativeMinhajnaPdfSpec
+import dz.minhajna.preview.storage.NativeMinhajnaFilesSpec
 import dz.minhajna.preview.storage.NativeMinhajnaStorageSpec
 import dz.minhajna.preview.calendar.MinhajnaCalendarInputModule
 import dz.minhajna.preview.storage.NativeMinhajnaCalendarInputSpec
@@ -36,6 +38,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaInterfaceSpec.NAME -> MinhajnaInterfaceModule(reactContext)
       NativeMinhajnaLicencesSpec.NAME -> MinhajnaLicencesModule(reactContext)
       NativeMinhajnaPdfSpec.NAME -> MinhajnaPdfModule(reactContext)
+      NativeMinhajnaFilesSpec.NAME -> MinhajnaFilesModule(reactContext)
       NativeMinhajnaBuildSpec.NAME -> MinhajnaBuildModule(reactContext)
       NativeMinhajnaLockSpec.NAME -> MinhajnaLockModule(reactContext)
       NativeMinhajnaCalendarInputSpec.NAME -> MinhajnaCalendarInputModule(reactContext)
@@ -50,6 +53,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaInterfaceSpec.NAME, MinhajnaInterfaceModule::class.java.name),
       info(NativeMinhajnaLicencesSpec.NAME, MinhajnaLicencesModule::class.java.name),
       info(NativeMinhajnaPdfSpec.NAME, MinhajnaPdfModule::class.java.name),
+      info(NativeMinhajnaFilesSpec.NAME, MinhajnaFilesModule::class.java.name),
       info(NativeMinhajnaBuildSpec.NAME, MinhajnaBuildModule::class.java.name),
       info(NativeMinhajnaLockSpec.NAME, MinhajnaLockModule::class.java.name),
       info(NativeMinhajnaCalendarInputSpec.NAME, MinhajnaCalendarInputModule::class.java.name),

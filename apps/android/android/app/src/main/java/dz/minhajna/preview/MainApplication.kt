@@ -12,6 +12,7 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import dz.minhajna.preview.documents.MinhajnaPdfModule
+import dz.minhajna.preview.files.MinhajnaFilesModule
 import dz.minhajna.preview.language.InterfaceLanguage
 
 class MainApplication : Application(), ReactApplication {
@@ -28,6 +29,7 @@ class MainApplication : Application(), ReactApplication {
     super.onCreate()
     registerFonts()
     MinhajnaPdfModule.clearCache(this)
+    MinhajnaFilesModule.clearCache(this)
     InterfaceLanguage.applyDirection(this)
     loadReactNative(this)
   }
