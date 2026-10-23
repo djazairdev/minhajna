@@ -3284,7 +3284,17 @@
       "cancel": "Cancel",
       "attendanceTitle": "Attendance",
       "attendance": "Half-days missed this term: {{absent}} · Late arrivals: {{late}}, from the roll-call book.",
-      "noAttendance": "No roll call recorded for this class this term yet."
+      "noAttendance": "No roll call recorded for this class this term yet.",
+      "figures": "Figures",
+      "figure": "Figure",
+      "value": "Value",
+      "band": "Band",
+      "rank": "Rank",
+      "pupil": "Pupil",
+      "before": "Before",
+      "changeHead": "Change",
+      "print": "Print the pack",
+      "saveNote": "Before saving: the pack is confidential and holds the pupils’ names and averages. The file picker opens for you to choose where to keep it; printing and saving go into the activity log."
     },
     "export": {
       "title": "Term export",

@@ -46,12 +46,16 @@ export function sheetFileName(
   data: DocumentData,
   format: FileFormat,
 ): string {
-  const name = `${t('documents.markSheet.name')} ${label} ${termWord(t, term)} ${yearLabel(data)}`;
+  return safeFileName(`${t('documents.markSheet.name')} ${label} ${termWord(t, term)} ${yearLabel(data)}`, format);
+}
+
+/** A file's name with the characters a file system refuses replaced, and at most 100 before its extension. */
+export function safeFileName(name: string, extension: string): string {
   const safe = name
     .replace(/[\\/:*?"<>|]/g, '-')
     .slice(0, 100)
     .trim();
-  return `${safe}.${format}`;
+  return `${safe}.${extension}`;
 }
 
 /** The export as CSV text, marked «داخلي · سري» with the class, subject, term and year. */
