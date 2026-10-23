@@ -5,23 +5,30 @@
 // 436): the class and subject, chips for the year's terms, open on the term
 // whose dates hold today, then the card naming the formula its averages
 // follow, with the release and the rules year, and the rows built so far:
-// «التقويم المستمر», with the setup in force for the term, and «مواعيد
-// الفروض». A subject with no continuous assessment says so, and a class
-// archived after a reorientation shows its setup but takes no new one
-// (#231). The rows of the grade book, appreciations and the export come
-// with their own issues.
+// «التقويم المستمر», with the setup in force for the term; one row for each
+// of the term's tests, with its day and how many of its pupils are done, or
+// «لا فرض في هذا الفصل بعد» opening «مواعيد الفروض»; «الاختبار», with its
+// window's first day, for a subject with a term exam (#239, answer 444);
+// and «مواعيد الفروض». A subject with no continuous assessment says so, and
+// a class archived after a reorientation shows its setup and marks but
+// takes no new ones (#231). The rows of the grade book, appreciations and
+// the export come with their own issues.
 
 import { termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
+import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChipGroup } from '../components/Chip';
 import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
+import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { currentLanguage, useText } from '../text/i18n';
 import { courseLabel } from '../exams/course-label';
+import { dayName } from '../today/DayMark';
+import { entryDone, entrySheet, levelScale, termTests, type EntrySheet } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
 
 export type MarksProps = {
@@ -31,13 +38,19 @@ export type MarksProps = {
   readonly onTerm: (term: number) => void;
   readonly onSetup: (term: number) => void;
   readonly onTests: () => void;
+  /** Opens the entry of a test's marks, or of the exam's without a test. */
+  readonly onEntry: (term: number, testId?: string) => void;
 };
 
-export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests }: MarksProps) {
+export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onEntry }: MarksProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
+  const context = useMemo(
+    () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
+    [profile, year, calendar, calendarRelease, packs, state],
+  );
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const data = assessmentData(profile);
   const course = state.courses.get(courseId);
@@ -56,6 +69,16 @@ export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests }: Mark
     return archived ? { line } : { line, press: () => onSetup(term) };
   };
   const row = setup();
+  const sheetOf = (testId?: string) => (data === null ? null : entrySheet(context, data, courseId, term, testId));
+  const entryLine = (sheet: EntrySheet) =>
+    t('marks.entry.rowLine', {
+      day: dayName(t, sheet.day, currentLanguage(), profile),
+      done: entryDone(context, courseId, term, sheet).done,
+      total: sheet.listed.length,
+    });
+  const tests = termTests(context, courseId, term);
+  const exams = sheetOf();
+  const entering = data !== null && marks !== null && levelScale(data, room.level) !== null;
   return (
     <ScrollView
       style={styles.screen}
@@ -101,6 +124,40 @@ export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests }: Mark
           disabled={row.press === undefined}
           onPress={row.press ?? (() => undefined)}
         />
+        {entering && tests.length === 0 && (
+          <RowLink
+            testID="marks-no-tests"
+            icon={controlIcon('pencil')}
+            title={t('marks.entry.noTests')}
+            description={t('tests.openLine')}
+            onPress={onTests}
+          />
+        )}
+        {entering &&
+          tests.map((test) => {
+            const sheet = sheetOf(test.id);
+            return (
+              <RowLink
+                key={test.id}
+                testID={`marks-test-${test.id}`}
+                icon={controlIcon('pencil')}
+                title={test.title}
+                description={sheet === null ? '' : entryLine(sheet)}
+                disabled={archived || sheet === null}
+                onPress={() => onEntry(term, test.id)}
+              />
+            );
+          })}
+        {entering && marks.formula !== undefined && (
+          <RowLink
+            testID="marks-exam"
+            icon={controlIcon('pencil')}
+            title={t('marks.entry.exam')}
+            description={exams === null ? t('marks.entry.noExam') : entryLine(exams)}
+            disabled={archived || exams === null}
+            onPress={() => onEntry(term)}
+          />
+        )}
         <RowLink
           testID="marks-tests"
           icon={controlIcon('check')}

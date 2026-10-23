@@ -1,19 +1,24 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The figures marks are read with (#239, answers 439, 440 and 442): the
-// list of pupils a test is for, those of its group enrolled on its day; F,
-// the mean of the tests the pupil sat while on their list, so a mark typed
-// for a pupil not on it stays out until cleared; and the attendance
-// component proposed from the roll-call book's own totals for the period,
-// under the teacher's counting rules, so the proposal and the printed book
-// agree: its points times the share of the half-days the pupil could attend
-// and did not miss without a justification, rounded down to a quarter
-// point.
+// The figures marks are read with (#239, answers 439, 440 and 442): the list of
+// pupils a test is for, those of its group enrolled on its day; the term's exam
+// window, from the course's own grade's calendar, and the list of pupils
+// sitting it, the class's, or the level's in a joint class, enrolled on its
+// first day; F, the mean of the tests the pupil sat while on their list, so a
+// mark typed for a pupil not on it stays out until cleared; and the attendance
+// component proposed from the roll-call book's own totals for the period, under
+// the teacher's counting rules, so the proposal and the printed book agree: its
+// points times the share of the half-days the pupil could attend and did not
+// miss without a justification, rounded down to a quarter point.
 
 import type { Context } from './context.ts';
-import type { Day } from './day.ts';
+import { compareDays, type Day } from './day.ts';
+import { courseWindows } from './exam-duties.ts';
+import { courseGrade, levelGroups } from './joint.ts';
 import { marksFor } from './marks.ts';
+import { wholeGroup } from './records.ts';
+import type { CalendarEntry } from './reference.ts';
 import { countRollCalls } from './roll-call-counts.ts';
 import { pupilsOn } from './roll-call.ts';
 import type { ScheduledTest } from './test-schedule.ts';
@@ -23,6 +28,21 @@ export function testList(context: Context, test: ScheduledTest): string[] {
   const course = context.state.courses.get(test.courseId);
   if (course === undefined) return [];
   return pupilsOn(context, course.classId, test.groupId, test.day).map((pupil) => pupil.id);
+}
+
+/** A course's exam window in a term; null when the calendar has none. */
+export function termExams(context: Context, courseId: string, term: number): CalendarEntry | null {
+  const windows = courseWindows(context, courseId).filter((entry) => entry.term === term);
+  return windows.sort((a, b) => compareDays(a.from, b.from))[0] ?? null;
+}
+
+/** The pupils sitting a course's exam, in list order: its class's, or its level's, enrolled on `day`. */
+export function examList(context: Context, courseId: string, day: Day): string[] {
+  const course = context.state.courses.get(courseId);
+  const room = course && context.state.classes.get(course.classId);
+  if (course === undefined || room === undefined) return [];
+  const group = levelGroups(room).find((one) => one.grade === courseGrade(course, room)) ?? wholeGroup(room);
+  return pupilsOn(context, room.id, group.id, day).map((pupil) => pupil.id);
 }
 
 /** F: the mean of the pupil's marks in the tests given, where they were on the list; null when they sat none. */

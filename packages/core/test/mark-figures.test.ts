@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The figures marks are read with (#239, answers 439, 440 and 442): a
-// test's list, its group's pupils enrolled on its day; F, the mean of the
-// tests sat while on the list, a mark typed for a pupil not on it left out;
-// and the attendance component proposed from the roll-call book's own
-// totals, justified absences counting as attended, roll calls of the other
-// half group left out, a corrected roll call read as corrected, and the
-// teacher's counting rules applied. Made-up records only.
+// The figures marks are read with (#239, answers 439, 440 and 442): a test's
+// list, its group's pupils enrolled on its day; the term's exam window and the
+// list sitting it; F, the mean of the tests sat while on the list, a mark typed
+// for a pupil not on it left out; and the attendance component proposed from
+// the roll-call book's own totals, justified absences counting as attended,
+// roll calls of the other half group left out, a corrected roll call read as
+// corrected, and the teacher's counting rules applied. Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -15,10 +15,12 @@ import {
   attendanceProposal,
   countRollCalls,
   DEFAULT_COUNTING,
+  examList,
   joinPupil,
   rollCallUnits,
   setMark,
   takeRollCall,
+  termExams,
   testList,
   testMean,
   type MarkValue,
@@ -68,6 +70,18 @@ test('F is the mean of the tests the pupil sat while on their list', async () =>
   const mean = (pupilId: string) => testMean(contextOf(book), 1, tests, pupilId);
   assert.deepEqual(['p01', 'p02', 'p03', 'p04', 'p06', 'p11'].map(mean), [13.75, 9, null, null, 14, 10]);
   assert.equal(testMean(contextOf(book), 2, tests, 'p01'), null);
+});
+
+test('the term’s exam comes from the calendar, sat by the pupils listed on its first day', async () => {
+  const book = await openBook(cemEvents());
+  const joining = { id: 'p11', classId: 'k-1am2', name: 'Made-up Pupil', sex: 'm', reason: 'transfer' } as const;
+  await book.record(d('2026-12-07'), joinPupil(contextOf(book), { ...joining, day: d('2026-12-07') }));
+  const exams = termExams(contextOf(book), 'c-math', 1);
+  assert.deepEqual([exams?.id, exams?.from], ['exams-1', '2026-12-06']);
+  assert.equal(termExams(contextOf(book), 'c-math', 2), null);
+  assert.equal(examList(contextOf(book), 'c-math', d('2026-12-06')).length, 10);
+  assert.equal(examList(contextOf(book), 'c-math', d('2026-12-07')).at(-1), 'p11');
+  assert.deepEqual(examList(contextOf(book), 'c-none', d('2026-12-06')), []);
 });
 
 test('attendance is proposed from the roll-call book’s own totals', async () => {

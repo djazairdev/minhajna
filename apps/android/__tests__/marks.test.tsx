@@ -37,7 +37,14 @@ afterEach(async () => {
 const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 async function mount(data: TestData, props: Partial<MarksProps> = {}) {
-  const all = { courseId: 'c-1', onTerm: jest.fn(), onSetup: jest.fn(), onTests: jest.fn(), ...props };
+  const all = {
+    courseId: 'c-1',
+    onTerm: jest.fn(),
+    onSetup: jest.fn(),
+    onTests: jest.fn(),
+    onEntry: jest.fn(),
+    ...props,
+  };
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">{withData(data, <Marks {...all} />)}</LocaleDirContext.Provider>,
