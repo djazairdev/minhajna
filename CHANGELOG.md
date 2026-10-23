@@ -6,6 +6,12 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+## 0.4.0 (2026-10-23)
+
+The marks preview: continuous assessment from your level's official setup, in-class assessment taps, entering marks for tests and the exam, the grade book and term averages for every level, descriptive observations, appreciations, the term export with the ostad view and its files, corrections after the term, and the class-council pack. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
+
+معاينة التقويم والنقاط: التقويم المستمر من الإعداد الرسمي لطورك، والتقويم أثناء الحصة، وإدخال نقاط الفروض والاختبار، وكشف النقاط والمعدلات الفصلية لكل الأطوار، والملاحظات الوصفية، والتقديرات، والتصدير الفصلي مع شبكة ostad وملفاته، والتصحيح بعد الفصل، وملف مجلس القسم. وتبقى لتجربة التطبيق بأسماء تلاميذ مختلَقة فقط، وتُسلَّم مباشرة ملفَّ APK، لا عبر متجر.
+
 ### New
 
 - «التقويم والنقاط» now opens from the class page, on the term holding today or one you choose. It names the official formula your term averages follow, and opens «مواعيد الفروض». Continuous assessment starts from your level's official setup: share its points within each component's range, add columns of your own, take attendance and discipline from the roll-call book if you wish, and save once the total reaches 20, or 10 in primary. A saved setup applies from its term on, and earlier terms keep theirs.
@@ -38,6 +44,17 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
   - حين ينتهي الفصل، لا تتغيّر نقاطه إلا عبر «تصحيح بعد الفصل»، التي تفتحها «التقويم والنقاط» بدل الأسطر التي تُدخل النقاط. اختر التلميذ والنقطة، واكتب ما تصبح عليه أو «غائب»، واذكر السبب، مع تفصيل إن شئت. وقبل التسجيل ترى معدل التلميذ في الفصل ومعدل القسم وعدد من يبلغ 10، أو 5 في الابتدائي، قبل التصحيح وبعده، وتذكيراً بمراجعة التقدير إن تغيّرت فئة المعدل. ويحفظ السجل القيمة السابقة، ويذكر سجل النشاط التصحيح دون تفصيله. اطبع «تقرير تصحيح نقطة» لكل تصحيح أو احفظه PDF، صفحة A4 تحمل «داخلي · سري» وفيها خانتا توقيعك وتأشيرة المدير، ثم أعد إعداد الكشف من «تحديث الملف». أما مدة التصحيحات فتعلنها الإدارة: لا يحفظها التطبيق ولا يفرضها.
 - «ملف مجلس القسم» opens from «التقويم والنقاط» for a term with a grade book. It gives the class average, the highest and lowest averages, the standard deviation, how many reach 10, or 5 in primary, and the term's attendance from the roll-call book; the distribution by band; boys and girls apart; and every pupil's rank. From term 2, it compares the class average and the pass rate with the previous term, and shows each pupil's earlier rank and how it changed. Pupils who may need remediation and those in line for a distinction follow, with thresholds you set for all your classes, 8 and 15 by default, since none are official. Every figure compares the full value, so an average shown as 10.00 but worth 9.995 does not count. «طباعة الملف» prints it on A4 marked «داخلي · سري», and «حفظ PDF» keeps it where you choose, under a password by default, named for the class, subject, term and year. Each print and save goes into the activity log.
   - تُفتح «ملف مجلس القسم» من «التقويم والنقاط» للفصل الذي له كشف نقاط. وفيه معدل القسم وأعلى معدل وأدناه والانحراف المعياري وعدد من يبلغ 10، أو 5 في الابتدائي، والحضور في الفصل من دفتر المناداة؛ والتوزيع حسب الفئات؛ والذكور والإناث كلٌّ على حدة؛ وترتيب كل تلميذ. ومن الفصل الثاني يقارن معدل القسم ونسبة النجاح بالفصل السابق، ويعرض مرتبة كل تلميذ السابقة وتغيّرها. ثم يأتي المقترحون للمعالجة والمرشّحون للتنويه، بعتبتين تحددهما لكل أقسامك، 8 و15 افتراضياً، إذ لا عتبات رسمية. وتُقارن كل الأرقام بالقيمة الكاملة، فلا يُحسب معدل يظهر 10.00 وقيمته 9.995. وتطبعه «طباعة الملف» على ورق A4 بعلامة «داخلي · سري»، ويحفظه «حفظ PDF» حيث تختار، بكلمة سر افتراضياً، باسم يذكر القسم والمادة والفصل والسنة. وتُكتب كل طباعة وكل حفظ في سجل النشاط.
+
+### Privacy
+
+- Marks, appreciations and the documents made from them leave the phone only when you print, save or share them. A file is saved through your phone's file picker or shared through its share menu, after a reminder of professional secrecy, and never as a link. Every printed page and file is marked «داخلي · سري».
+  - لا تغادر النقاط والتقديرات والوثائق المصنوعة منها الهاتف إلا حين تطبعها أو تحفظها أو تشاركها. يُحفظ الملف عبر منتقي الملفات في هاتفك، أو يُشارك عبر قائمة المشاركة بعد تذكير بالسر المهني، ولا روابط أبداً. وتحمل كل صفحة مطبوعة وكل ملف «داخلي · سري».
+- The term's mark sheet and the class-council pack can be kept under a password you choose, on by default: the file goes into an encrypted ZIP archive, and the password is never kept or filled in by the phone.
+  - يمكن حفظ كشف نقاط الفصل وملف مجلس القسم بكلمة سر تختارها، مفعّلة افتراضياً: يوضع الملف في ملف ZIP مشفّر، ولا تُحفظ كلمة السر ولا يملؤها الهاتف.
+- The activity log records each print of these documents and each file saved or shared: the document, its term or month, and PDF or CSV. It never records the file's content, its name, its password or where it went.
+  - يسجّل سجل النشاط كل طباعة لهذه الوثائق وكل ملف حُفظ أو شورك: الوثيقة، وفصلها أو شهرها، وPDF أو CSV. ولا يسجّل أبداً محتوى الملف ولا اسمه ولا كلمة سره ولا وجهته.
+- In-class taps keep no detail and never become marks by themselves. Appreciation suggestions take the term's unjustified absences, lateness and behaviour taps into account only when you choose, and only as counts.
+  - لا تحفظ نقرات التقويم أثناء الحصة أي تفاصيل، ولا تصير نقاطاً من تلقاء نفسها. ولا تراعي التقديرات المقترحة الغيابات غير المبررة في الفصل وتأخراته ونقرات السلوك إلا إن اخترت ذلك، وأعداداً فقط.
 
 ## 0.3.0 (2026-10-23)
 
