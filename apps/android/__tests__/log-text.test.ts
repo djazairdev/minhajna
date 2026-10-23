@@ -51,6 +51,7 @@ test('documents by their title, a re-pace draft by its own, anything else as «�
   expect(lineText(t, shown, output('sept-check', '2026-10-15'))).toBe('فحص سبتمبر · 15/10/2026 · طباعة');
   expect(lineText(t, shown, output('made-up', '2026-10'))).toBe('وثيقة · أكتوبر 2026 · طباعة');
   expect(lineText(t, shown, output('marks-justify', 'term-1'))).toBe('تبرير التقويم المستمر · الفصل الأول · طباعة');
+  expect(lineText(t, shown, output('mark-sheet', 'term-1'))).toBe('كشف النقاط والتقديرات · الفصل الأول · طباعة');
   expect(lineText(t, shown, output('marks-justify', '2026-10'))).toBe('تبرير التقويم المستمر · أكتوبر 2026 · طباعة');
   expect(lineText(t, shown, output('grade-book', 'term-2'))).toBe('كشف النقاط · الفصل الثاني · طباعة');
   expect(lineText(t, shown, { kind: 'printed', documents: ['repace:c-1', 'texts'] })).toBe(

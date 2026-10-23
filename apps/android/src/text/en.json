@@ -1941,6 +1941,13 @@
       "heading": "Marks and averages",
       "scope": "Class: {{class}} · Subject: {{subject}} · {{term}}",
       "formula": "{{formula}}, out of {{scale}} · release {{release}}"
+    },
+    "markSheet": {
+      "name": "Marks and appreciations sheet",
+      "heading": "Marks and appreciations sheet",
+      "scope": "Class: {{class}} · Subject: {{subject}} · {{term}}",
+      "scopeNamed": "Class: {{class}} · Subject: {{subject}} · {{term}} · Teacher: {{teacher}}",
+      "appreciation": "Appreciation"
     }
   },
   "preview": {
@@ -3176,6 +3183,11 @@
       "workbookWaits": "Filling the administration’s file waits for the blank templates being collected from schools, so the file is not asked of you yet. Until then, use the ostad grid view.",
       "ostadOrder": "In the grid’s order",
       "ostadNote": "Large numbers to copy by hand, without logging in to the grid.",
+      "others": "Other files",
+      "printTitle": "Printed mark sheet",
+      "printNote": "In the school grid’s order: each pupil’s marks, average and appreciation, on an A4 portrait page marked “Internal · confidential”.",
+      "signatureLine": "The teacher’s box carries the drawn signature on a middle-school sheet only, and can stay blank to sign by hand.",
+      "drawnLine": "My drawn signature in my box, in the print and the PDF only; it can stay blank to sign by hand.",
       "absent": "Absent",
       "never": "Minhajna never asks for the ostad or amatti password, never goes into those platforms for me, and never makes report cards for parents.",
       "unavailable": "No export for this term: it has no grade book, or the files bundled with the app could not be read.",

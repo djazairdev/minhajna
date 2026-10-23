@@ -143,8 +143,8 @@ export function MarksAppreciationsScreen({
   return <MarksAppreciations {...route.params} onExport={() => navigation.navigate('MarksExport', route.params)} />;
 }
 
-export function MarksExportScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksExport'>) {
-  return <MarksExport {...route.params} />;
+export function MarksExportScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksExport'>) {
+  return <MarksExport {...route.params} onSignature={() => navigation.navigate('SettingsSignature')} />;
 }
 
 export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
