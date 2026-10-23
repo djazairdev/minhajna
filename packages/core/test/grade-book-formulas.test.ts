@@ -122,7 +122,7 @@ test('the book shows P when the formula weighs it, and «غ» leaves the average
   ]);
   const sheet = gradeBook(contextOf(book), data, 'c-math', 1);
   assert.ok(sheet);
-  assert.deepEqual([sheet.formula?.id, sheet.parts], ['lycee-practical', ['T', 'F', 'E', 'P']]);
+  assert.deepEqual([sheet.formula?.id, sheet.parts], ['lycee-practical', ['T', 'F', 'P', 'E']]);
   const row = (id: string) => sheet.rows.find((one) => one.pupilId === id);
   assert.deepEqual(
     ['p01', 'p02', 'p03'].map((id) => [row(id)?.P, row(id)?.O, row(id)?.average]),

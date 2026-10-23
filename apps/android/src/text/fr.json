@@ -3006,7 +3006,11 @@
       "noExam": "Le calendrier n’a pas de date d’examen ce trimestre",
       "rowLine": "{{day}} · {{done}} sur {{total}}",
       "emptySpoken": "vide",
-      "absentSpoken": "absent"
+      "absentSpoken": "absent",
+      "practical": "Travaux pratiques",
+      "oral": "Oral",
+      "absentPractical": "Absent aux travaux pratiques",
+      "absentOral": "Absent à l’oral"
     },
     "during": {
       "title": "Évaluation pendant la séance",
@@ -3086,7 +3090,11 @@
       "none": "Aucune classe avec évaluation continue pour l’instant",
       "noPupils": "Aucun élève sur la liste pour cette période",
       "file": "Justification de l’évaluation continue",
-      "fileOne": "élève {{n}}"
+      "fileOne": "élève {{n}}",
+      "practical": "Travaux pratiques {{mark}}",
+      "practicalAbsent": "Travaux pratiques : absent",
+      "oral": "Oral {{mark}}",
+      "oralAbsent": "Oral : absent"
     },
     "book": {
       "title": "Relevé de notes",
@@ -3132,7 +3140,14 @@
         "none": "Pas de moyenne tant que ses parties manquent.",
         "justify": "Justifier la note d’évaluation"
       },
-      "comma": ", "
+      "comma": ", ",
+      "formulaChoice": "Formule de la moyenne, fixée par l’administration pour la matière",
+      "formulaNote": "Elle vaut pour cette classe et cette matière toute l’année. Les notes déjà saisies sont gardées si vous la changez."
+    },
+    "formulaName": {
+      "lycee": "Sans travaux pratiques ni oral",
+      "lyceePractical": "Avec travaux pratiques",
+      "lyceeOral": "Avec un oral"
     }
   }
 }

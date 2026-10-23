@@ -16,7 +16,6 @@
 // many reach the threshold.
 
 import {
-  AVERAGE_PARTS,
   assessmentFor,
   courseFormula,
   presetFor,
@@ -30,6 +29,9 @@ import type { Context } from './context.ts';
 import { componentTotal, termAverage } from './justification.ts';
 import { examList, termExams, termTests, testMean } from './mark-figures.ts';
 import { marksFor, type MarkValue } from './marks.ts';
+
+/** The book's columns in the formulas' order: practical work and the oral before the exam. */
+const BOOK_ORDER: readonly AveragePart[] = ['T', 'F', 'P', 'O', 'E'];
 
 /** The tolerance values are compared and rounded with, so a computed 9.9999999999 is 10. */
 const TOLERANCE = 1e-9;
@@ -68,7 +70,7 @@ export interface GradeBook {
   readonly scale: number;
   /** The pass threshold, half the scale: 10 on 20, 5 on 10. */
   readonly threshold: number;
-  /** The parts shown: those the formula weighs, in order, or T alone without a formula. */
+  /** The parts shown: those the formula weighs, in its order with the exam last, or T alone without a formula. */
   readonly parts: readonly AveragePart[];
   /** In primary, the term's months the teacher marked for the course, in order. */
   readonly months: readonly string[];
@@ -141,7 +143,7 @@ export function gradeBook(context: Context, data: AssessmentData, courseId: stri
   const formula = courseFormula(state, data, courseId) ?? null;
   const scale = data.presets.find((one) => one.level === room.level)?.scale;
   if (scale === undefined || (preset === undefined && formula === null)) return null;
-  const weighed = AVERAGE_PARTS.filter((part) => (formula?.weights[part] ?? 0) > 0);
+  const weighed = BOOK_ORDER.filter((part) => (formula?.weights[part] ?? 0) > 0);
   const parts: AveragePart[] = formula === null ? ['T'] : weighed;
   const lines: readonly SetupLine[] = preset === undefined ? [] : assessmentFor(state, preset, courseId, term).lines;
   const months = preset !== undefined && monthlyLevel(room.level) ? markedMonths(context, courseId, term, lines) : [];

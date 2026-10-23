@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What «كشف النقاط» says (#240, Marks-book, Marks-book-value, P-Marks, answers
-// 457 to 459): each part's cell, two decimals, «غ» for an exam missed and «—»
-// for a part not in yet; primary's months under the pupil's name; the rows by
-// the list or by the average, highest first, those with none after in list
-// order; the class's figures; the pupils shown at the threshold whose full
-// value is below it; and, for one pupil, the formula with their values in full
-// and whether the average reaches the threshold, with its rank.
+// 457 to 459): each part's cell, two decimals, «غ» for an exam, practical work
+// or oral missed (answer 463) and «—» for a part not in yet; primary's months
+// under the pupil's name; the rows by the list or by the average, highest
+// first, those with none after in list order; the class's figures; the pupils
+// shown at the threshold whose full value is below it; and, for one pupil, the
+// formula with their values in full and whether the average reaches the
+// threshold, with its rank.
 
 import {
   fullMark,
@@ -50,7 +51,7 @@ export function partLabel(t: Translate, part: AveragePart): string {
   return t(PART_LABELS[part]);
 }
 
-/** A cell: two decimals, «غ» for an exam missed, «—» while it is not in. */
+/** A cell: two decimals, «غ» for a part missed, «—» while it is not in. */
 export function cellText(t: Translate, value: number | 'absent' | null): string {
   if (value === null) return '—';
   return value === 'absent' ? t('marks.book.absent') : shownMark(value);
@@ -61,7 +62,7 @@ export function partValue(row: BookRow, part: AveragePart): number | 'absent' | 
   if (part === 'T') return row.T;
   if (part === 'F') return row.F;
   if (part === 'E') return row.E;
-  return null;
+  return part === 'P' ? row.P : row.O;
 }
 
 /** Primary's months under the pupil's name, such as «أكتوبر 8.00 · نوفمبر 6.00»; empty elsewhere. */
@@ -130,8 +131,8 @@ export function formulaWith(t: Translate, book: GradeBook, row: BookRow): string
     T: full(row.T),
     F: full(row.F),
     E: full(row.E),
-    P: '—',
-    O: '—',
+    P: full(row.P),
+    O: full(row.O),
     average: fullMark(row.average),
   });
 }

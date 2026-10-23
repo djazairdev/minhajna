@@ -39,6 +39,7 @@ export function MarksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onEntry={(chosen, testId) =>
         navigation.navigate('MarksEntry', { courseId, term: chosen, ...(testId !== undefined && { testId }) })
       }
+      onPart={(chosen, part) => navigation.navigate('MarksEntry', { courseId, term: chosen, part })}
     />
   );
 }
@@ -61,12 +62,13 @@ export function MarksSetupScreen({ navigation, route }: NativeStackScreenProps<R
 }
 
 export function MarksEntryScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksEntry'>) {
-  const { courseId, term, testId, componentId, month } = route.params;
+  const { courseId, term, testId, part, componentId, month } = route.params;
   return (
     <MarksEntry
       courseId={courseId}
       term={term}
       {...(testId !== undefined && { testId })}
+      {...(part !== undefined && { part })}
       {...(componentId !== undefined && { componentId })}
       {...(month !== undefined && { month })}
       onDone={() => navigation.goBack()}

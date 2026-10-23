@@ -2,20 +2,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Entering a test's, the exam's or a component's marks (#239, Marks-test,
-// Marks-exam, answers 440, 447 and 451): the test's name, «الاختبار» or the
-// component's with the class, its day or period and maximum, how many of its
-// pupils are done and a bar; then one pupil at a time in class-list order, the
-// previous one above, a tap going back to them, and the next one below; the
-// mark typed on the app's keypad, with «النقطة أكبر من 20، ولا تُحفظ.» while it
-// is above the maximum; «غائب عن الفرض» or «غائب عن الاختبار», and «التالي»,
-// which records the mark at once and moves on. An empty cell is skipped, a mark
-// erased is cleared, and «مسح» on an empty cell clears «غائب». A component has
-// no «غائب»: under the pupil comes what was recorded for it in the period, and
-// the attendance proposal with «اعتماد المقترح», which puts it on the keypad,
-// both heard with the pupil; a mark above points since lowered must be retyped.
-// What was just recorded shows at once, before the history's write ends. The
-// current pupil is a live region, so TalkBack says who comes next, and that a
-// mark is above the maximum. After the last pupil comes the summary.
+// Marks-exam, answers 440, 447 and 451), or lycée's practical work's or oral's
+// (#240, answer 463): the test's name, «الاختبار», «الأعمال التطبيقية»,
+// «الشفهي» or the component's with the class, its day or period and maximum,
+// how many of its pupils are done and a bar; then one pupil at a time in
+// class-list order, the previous one above, a tap going back to them, and the
+// next one below; the mark typed on the app's keypad, with «النقطة أكبر من 20،
+// ولا تُحفظ.» while it is above the maximum; «غائب عن الفرض» or «غائب عن
+// الاختبار», or about the part, and «التالي», which records the mark at once
+// and moves on. An empty cell is skipped, a mark erased is cleared, and «مسح»
+// on an empty cell clears «غائب». A component has no «غائب»: under the pupil
+// comes what was recorded for it in the period, and the attendance proposal
+// with «اعتماد المقترح», which puts it on the keypad, both heard with the
+// pupil; a mark above points since lowered must be retyped. What was just
+// recorded shows at once, before the history's write ends. The current pupil is
+// a live region, so TalkBack says who comes next, and that a mark is above the
+// maximum. After the last pupil comes the summary.
 
 import { entryCheck, marksFor, setMark, type MarkValue } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -30,7 +32,7 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { isolate } from '../week/grid-labels';
-import { entrySheet, nextStep, pressKey, startBuffer, withQuarter } from './entry-rules';
+import { entrySheet, nextStep, pressKey, SHEET_TEXTS, startBuffer, withQuarter, type SatPart } from './entry-rules';
 import { EntrySummary } from './EntrySummary';
 import { MarkPad } from './MarkPad';
 import { assessmentData } from './marks-rules';
@@ -42,13 +44,15 @@ export type MarksEntryProps = {
   readonly term: number;
   /** The test to enter; the term's exam when neither it nor a component is given. */
   readonly testId?: string;
+  /** Lycée's practical work or oral to enter instead of the exam. */
+  readonly part?: Exclude<SatPart, 'exam'>;
   /** The component to enter, by the month in primary. */
   readonly componentId?: string;
   readonly month?: string;
   readonly onDone: () => void;
 };
 
-export function MarksEntry({ courseId, term, testId, componentId, month, onDone }: MarksEntryProps) {
+export function MarksEntry({ courseId, term, testId, part, componentId, month, onDone }: MarksEntryProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -61,9 +65,9 @@ export function MarksEntry({ courseId, term, testId, componentId, month, onDone 
   const data = assessmentData(profile);
   const sheet = useMemo(() => {
     if (data === null) return null;
-    if (componentId === undefined) return entrySheet(context, data, courseId, term, testId);
+    if (componentId === undefined) return entrySheet(context, data, courseId, term, testId, part);
     return componentSheet(context, data, courseId, term, componentId, month, today());
-  }, [context, data, courseId, term, testId, componentId, month, today]);
+  }, [context, data, courseId, term, testId, part, componentId, month, today]);
   const [typed, setTyped] = useState<ReadonlyMap<string, MarkValue | null>>(new Map());
   const marks = useMemo(() => {
     const found = sheet === null ? new Map<string, MarkValue>() : marksFor(state, courseId, term, sheet.target);
@@ -141,7 +145,7 @@ export function MarksEntry({ courseId, term, testId, componentId, month, onDone 
     >
       <EntryHead
         heading={t('marks.entry.heading', {
-          title: isolate(sheet.title ?? t('marks.entry.exam')),
+          title: isolate(sheet.title ?? t(SHEET_TEXTS[target.kind].title)),
           class: isolate(courseLabel(t, state, profile, courseId, true)),
         })}
         line={
@@ -232,7 +236,7 @@ export function MarksEntry({ courseId, term, testId, componentId, month, onDone 
               <Button
                 testID="entry-absent"
                 variant="line"
-                label={t(target.kind === 'test' ? 'marks.entry.absentTest' : 'marks.entry.absentExam')}
+                label={t(SHEET_TEXTS[target.kind].absent)}
                 onPress={absent}
               />
             ) : (

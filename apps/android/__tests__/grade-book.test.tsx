@@ -90,7 +90,14 @@ const order = () =>
 
 test('the hub’s row says how many pupils have an average, and opens the book', async () => {
   const onBook = jest.fn();
-  const hub = { onTerm: jest.fn(), onSetup: jest.fn(), onTests: jest.fn(), onCapture: jest.fn(), onEntry: jest.fn() };
+  const hub = {
+    onTerm: jest.fn(),
+    onSetup: jest.fn(),
+    onTests: jest.fn(),
+    onCapture: jest.fn(),
+    onEntry: jest.fn(),
+    onPart: jest.fn(),
+  };
   await mount(await marked(), <Marks courseId="c-1" onComponents={jest.fn()} onBook={onBook} {...hub} />);
   expect(texts()).toContain('المعدلات: 3 من 3');
   await press('marks-book');

@@ -1,6 +1,6 @@
 # The grade book (#240)
 
-Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print` and `feat/240-lycee-core`. Made-up classes and records only.
+Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print`, `feat/240-lycee-core` and `feat/240-lycee-screens`. Made-up classes and records only.
 
 ## Part 1: the averages (#414)
 
@@ -54,7 +54,7 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils, on Friday 23 October, with no drawn signature set:<br>• The Documents tab showed «كشف النقاط» with «قسم واحد · الفصل الأول».<br>• Its output screen read «A4 عمودي», the day chooser on Friday 23 October, «كما سُجّلت» and «فارغة بعناوينها» with its line, «داخلي · سري» and the signature line for middle school.<br>• «طباعة» opened Android's print screen on ISO A4 with «Page 1 of 2»: 45 rows run onto a second page.<br>• On «كشف النقاط», «طباعة» and «حفظ PDF» sit under the figures with the signature line; «طباعة» opened the same two-page preview.<br>• The signature choice was checked in the tests only, since no signature was drawn on the emulator. |
 
-## Part 4: lycée's practical work and oral, the core
+## Part 4a: lycée's practical work and oral, the core (#417)
 
 - **The formulas** (answer 463): lycée's (T + F + P + 2E)/5 with practical work and (T + F + O + 2E)/5 with an oral are alternatives to its (T + F + 2E)/4, which stays the level's formula.
 - **The choice:** the administration's, which the teacher records for the class and subject and the whole year. The last one recorded counts while it is still among the subject's choices, and a reshaped class keeps the one of the class it continues. The choice travels with the pupil records, and two devices that chose differently conflict for that course only.
@@ -66,6 +66,19 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator | Not run: nothing on screen changes until the screens' pull request. |
 
+## Part 4b: lycée's practical work and oral on the screens
+
+- **The choice** (L-Marks, answer 463): on «كشف النقاط» of a subject with more than one formula, «صيغة المعدل، كما تحددها الإدارة للمادة» offers «دون أعمال تطبيقية ولا شفهي», «مع الأعمال التطبيقية» and «مع الشفهي», each with its formula. The note says it applies to the class and subject for the whole year, and that marks already entered are kept. Choosing the formula already followed records nothing, and an archived class shows the choice but takes none.
+- **The hub:** the formula card names the formula followed, and «الأعمال التطبيقية» or «الشفهي» has its row when that formula weighs it, with the exam's day and how many are done, or «لا موعد للاختبار في رزنامة هذا الفصل».
+- **Entry:** like the exam's, on the exam's list, with «غائب عن الأعمال التطبيقية» or «غائب عن الشفهي».
+- **The book, its print and the justification:** «التطبيقي» or «الشفهي» before the exam, as in the formula, «غ» leaving the average empty, and the value sheet's formula with the pupil's values.
+
+| Check | Result |
+|---|---|
+| Android tests | The choice and what it records; the hub's formula card and rows, opening the entry; the entry's title and «غائب» recorded on the part; the book's row read as one line, the value sheet's formula and the printed columns; the justification's line with practical work and with the oral; the row disabled with no exam window; a middle-school class with no choice; an archived class; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, the only class on the emulator, on Friday 23 October:<br>• The hub's formula card still read CEM's formula, and the rows were the same as before, ending «Fard1», «الاختبار» and «مواعيد الفروض», with no practical work or oral row.<br>• The book showed no formula choice, and its head read «الاسم واللقب · التقويم · الفرض · الاختبار · المعدل».<br>• The first pupil's value sheet showed each part as before.<br>• The emulator has no lycée class, so the lycée screens were checked in the tests only. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
@@ -73,4 +86,5 @@ These are added to the list in [#206](https://github.com/djazairdev/minhajna/iss
 - **Text at 200% on a phone:** the parts under each name, and the value sheet.
 - **On a phone in French and English:** the book, the value sheet, and the printed book.
 - **On paper:** the printed grade book on a real printer, A4, with a 45-pupil class on one page or running onto a second.
+- **Lycée on a phone:** a lycée class's formula choice, the practical work's and the oral's rows and entry, and the book with «التطبيقي» or «الشفهي», with TalkBack in Arabic.
 - **With a teacher:** checking a real class's averages against their own grade book, and saying whether the full value and the line for a pupil shown at 10.00 are clear.

@@ -1,19 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the Marks screens say (#238, answers 430 to 438): Algeria's presets
-// and formulas, bundled and read against the profile like any file, so a
-// refused file leaves the screens with nothing to offer; a course's preset,
-// formula and setup in force for a term; the preset's title, naming its
-// subjects when a level has several presets; each line's caption and name;
-// the formula in words; how far the total is from the scale; and the Class
-// page's line for the hub.
+// What the Marks screens say (#238, answers 430 to 438): Algeria's presets and
+// formulas, bundled and read against the profile like any file, so a refused
+// file leaves the screens with nothing to offer; a course's preset, the
+// formulas it can follow and the one it follows (#240, answer 463), and the
+// setup in force for a term; the preset's title, naming its subjects when a
+// level has several presets; each line's caption and name; the formula in
+// words; how far the total is from the scale; and the Class page's line for the
+// hub.
 
 import {
   assessmentFor,
   parseAssessmentData,
+  courseFormula,
+  formulaChoices,
   presetFor,
-  formulaFor,
   type Assessment,
   type AssessmentData,
   type AssessmentPreset,
@@ -50,7 +52,10 @@ export interface CourseMarks {
   readonly release: string;
   /** The subject's preset; none when it has no continuous assessment. */
   readonly preset: AssessmentPreset | undefined;
+  /** The formula the class and subject follows: the level's, or the one the administration chose. */
   readonly formula: Formula | undefined;
+  /** The formulas it can follow, the level's first; more than one in lycée. */
+  readonly choices: readonly Formula[];
   /** The setup in force for the term, or the preset's; null with no preset. */
   readonly assessment: Assessment | null;
 }
@@ -66,7 +71,8 @@ export function courseMarks(state: State, data: AssessmentData, courseId: string
     subject: course.subject,
     release: data.release,
     preset,
-    formula: formulaFor(data, room.level, course.subject),
+    formula: courseFormula(state, data, courseId),
+    choices: formulaChoices(data, room.level, course.subject),
     assessment: preset === undefined ? null : assessmentFor(state, preset, courseId, term),
   };
 }
