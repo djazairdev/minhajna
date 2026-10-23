@@ -20,7 +20,6 @@ import type { CountingRules } from './roll-call-counts.ts';
 import type { Repace } from './repace-records.ts';
 import type { KeptClash, SessionMove } from './session-moves.ts';
 import type { LessonNote } from './lesson-notes.ts';
-import type { AssessmentSetup } from './assessment.ts';
 import type { Retention } from './retention.ts';
 import { readPersonal } from './signature.ts';
 import { kindOf, listKey, type SupportQueue } from './support-queue.ts';
@@ -40,6 +39,7 @@ import type {
 import { eventOf } from './events.ts';
 import { withMovements, type Membership, type Movement } from './pupil-history.ts';
 import { addTimetable, type RecordedTimetable } from './timetable-history.ts';
+import { addScore, newScores } from './state-scores.ts';
 import type { State } from './state-type.ts';
 import type { Version } from './versions.ts';
 
@@ -80,7 +80,7 @@ export function buildState(entries: readonly Entry[]): State {
   let counting: CountingRules | null = null;
   let setupFinished = false;
   let retention: Retention | null = null;
-  const assessment = new Map<string, AssessmentSetup[]>();
+  const scores = newScores();
   const prints: Version<PrintRecord>[] = [];
   const tests = new Map<string, ScheduledTest>();
   const decisions = new Map<string, PlanDecision>();
@@ -249,9 +249,8 @@ export function buildState(entries: readonly Entry[]): State {
       case 'retention.set':
         retention = event.retention;
         break;
-      case 'assessment.set':
-        assessment.set(event.setup.courseId, [...(assessment.get(event.setup.courseId) ?? []), event.setup]);
-        break;
+      default:
+        addScore(scores, event);
     }
   }
   const pupils = new Map<string, Pupil>();
@@ -293,6 +292,6 @@ export function buildState(entries: readonly Entry[]): State {
     moves,
     lessonNotes,
     retention,
-    assessment,
+    ...scores,
   };
 }

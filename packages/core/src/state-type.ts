@@ -17,6 +17,8 @@ import type { PrintRecord } from './prints.ts';
 import type { Membership } from './pupil-history.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { AssessmentSetup } from './assessment.ts';
+import type { SessionCapture } from './captures.ts';
+import type { MarkEntry } from './marks.ts';
 import type { Retention } from './retention.ts';
 import type {
   Course,
@@ -104,4 +106,8 @@ export interface State {
   readonly retention: Retention | null;
   /** Each course's continuous-assessment setups, in recorded order; the last for a term counts (#238). */
   readonly assessment: ReadonlyMap<string, readonly AssessmentSetup[]>;
+  /** The last mark for each course, term, target and pupil, by `markKey` (#239). */
+  readonly marks: ReadonlyMap<string, MarkEntry>;
+  /** The last capture for each session, pupil and item, by `captureKey` (#239). */
+  readonly captures: ReadonlyMap<string, SessionCapture>;
 }
