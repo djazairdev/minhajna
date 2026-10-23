@@ -107,6 +107,8 @@ function recordKey(event: RecordEvent): string {
       return `output:${event.output.id}`;
     case 'retention.set':
       return 'retention';
+    case 'assessment.set':
+      return `assessment:${event.setup.courseId}:${event.setup.term}`;
   }
 }
 

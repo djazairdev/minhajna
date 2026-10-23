@@ -5,6 +5,7 @@
 // layer, so a session's private note is its own event, apart from the
 // session record (PRD §5.4, §5.5).
 
+import type { AssessmentSetup } from './assessment.ts';
 import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
@@ -125,7 +126,9 @@ export type RecordEvent =
   /** A document printed or saved from its output (#235). */
   | { readonly kind: 'output.recorded'; readonly output: OutputRecord }
   /** How long records are kept (#235). */
-  | { readonly kind: 'retention.set'; readonly retention: Retention };
+  | { readonly kind: 'retention.set'; readonly retention: Retention }
+  /** A class and subject's continuous-assessment components, from a term on (#238). */
+  | { readonly kind: 'assessment.set'; readonly setup: AssessmentSetup };
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -177,6 +180,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'lesson-note.set': true,
   'output.recorded': true,
   'retention.set': true,
+  'assessment.set': true,
 };
 
 /**
@@ -194,6 +198,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'pupil.moved':
     case 'roll-call.taken':
     case 'counting.set':
+    case 'assessment.set':
       return 'pupil-records';
     case 'session.noted':
     case 'seating.set':

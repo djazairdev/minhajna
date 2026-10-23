@@ -116,6 +116,8 @@ export function recordKey(entry: Entry): string | null {
       return null;
     case 'retention.set':
       return 'retention';
+    case 'assessment.set':
+      return `assessment/${event.setup.courseId}/${event.setup.term}`;
   }
 }
 

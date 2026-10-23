@@ -1,0 +1,310 @@
+{
+  "format": 1,
+  "country": "dz",
+  "release": "2026.1",
+  "presets": [
+    {
+      "level": "primary",
+      "scale": 10,
+      "circular": "270",
+      "rulesYear": "2025-2026",
+      "subjects": ["arabic", "tamazight", "french", "english", "math"],
+      "components": [
+        {
+          "id": "participation",
+          "name": {
+            "ar": "المشاركة والإجابة عن الأسئلة",
+            "fr": "Participation et réponses aux questions",
+            "en": "Participation and answering questions"
+          },
+          "capture": "session",
+          "points": 3,
+          "min": 2,
+          "max": 4
+        },
+        {
+          "id": "initiative",
+          "name": {
+            "ar": "التفاعل والمبادرة واحترام التعليمات",
+            "fr": "Interaction, initiative et respect des consignes",
+            "en": "Interaction, initiative and following instructions"
+          },
+          "capture": "session",
+          "points": 2,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "id": "tasks",
+          "name": {
+            "ar": "إنجاز المهام الفردية والجماعية",
+            "fr": "Tâches individuelles et de groupe",
+            "en": "Individual and group tasks"
+          },
+          "capture": "session",
+          "points": 3,
+          "min": 2,
+          "max": 4
+        },
+        {
+          "id": "notebooks",
+          "name": {
+            "ar": "كراس القسم وكراريس الأنشطة",
+            "fr": "Cahier de classe et cahiers d'activités",
+            "en": "Class and activity notebooks"
+          },
+          "capture": "periodic",
+          "points": 2,
+          "min": 1,
+          "max": 3
+        }
+      ],
+      "source": "Rules: Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published. These components are for languages and mathematics, assessed month by month (music, visual arts and physical education have their own), and circular 270 left the averaging unchanged. Components: circular 272 of 18 October 2023 (2023/24), the latest that lists them for primary school. Averages, out of 10: (T + E)/2 for languages and mathematics, the exam alone for the other examined subjects (PRD §3.5). No text sets points per component: the points and their ranges are the Minhajna curators', not official, and the teacher sets their own within them (PRD §3.5)."
+    },
+    {
+      "level": "primary",
+      "scale": 10,
+      "circular": "270",
+      "rulesYear": "2025-2026",
+      "subjects": ["music", "visual-arts", "pe"],
+      "components": [
+        {
+          "id": "participation",
+          "name": {
+            "ar": "المشاركة",
+            "fr": "Participation",
+            "en": "Participation"
+          },
+          "capture": "session",
+          "points": 3,
+          "min": 2,
+          "max": 4
+        },
+        {
+          "id": "practical",
+          "name": {
+            "ar": "الأعمال التطبيقية",
+            "fr": "Travaux pratiques",
+            "en": "Practical work"
+          },
+          "capture": "session",
+          "points": 4,
+          "min": 2,
+          "max": 5
+        },
+        {
+          "id": "ability",
+          "name": {
+            "ar": "القدرات التعبيرية أو الحركية",
+            "fr": "Capacités d'expression ou motrices",
+            "en": "Expressive or motor ability"
+          },
+          "capture": "periodic",
+          "points": 3,
+          "min": 2,
+          "max": 4
+        }
+      ],
+      "source": "Rules: Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published. Music, visual arts and physical education have no term exam; they are assessed through continuous assessment and observation alone: participation, practical work, and expressive or motor ability. They have no formula yet (PRD §3.5). No text sets points per component: the points and their ranges are the Minhajna curators', not official, and the teacher sets their own within them (PRD §3.5)."
+    },
+    {
+      "level": "cem",
+      "scale": 20,
+      "circular": "270",
+      "rulesYear": "2025-2026",
+      "components": [
+        {
+          "id": "participation",
+          "name": {
+            "ar": "المشاركة في القسم",
+            "fr": "Participation en classe",
+            "en": "Participation in class"
+          },
+          "capture": "session",
+          "points": 4,
+          "min": 2,
+          "max": 6
+        },
+        {
+          "id": "quizzes",
+          "name": {
+            "ar": "الاستجوابات الشفهية والكتابية",
+            "fr": "Interrogations orales et écrites",
+            "en": "Oral and written quizzes"
+          },
+          "capture": "session",
+          "points": 3,
+          "min": 2,
+          "max": 5
+        },
+        {
+          "id": "homework",
+          "name": {
+            "ar": "الواجبات المنزلية",
+            "fr": "Devoirs à la maison",
+            "en": "Homework"
+          },
+          "capture": "homework",
+          "points": 3,
+          "min": 2,
+          "max": 5
+        },
+        {
+          "id": "notebook",
+          "name": {
+            "ar": "الكراس",
+            "fr": "Cahier",
+            "en": "Notebook"
+          },
+          "capture": "periodic",
+          "points": 3,
+          "min": 2,
+          "max": 4
+        },
+        {
+          "id": "attendance",
+          "name": {
+            "ar": "الانضباط والمواظبة",
+            "fr": "Discipline et assiduité",
+            "en": "Discipline and attendance"
+          },
+          "capture": "roll-call",
+          "points": 3,
+          "min": 1,
+          "max": 4
+        },
+        {
+          "id": "research",
+          "name": {
+            "ar": "البحوث والمشاريع",
+            "fr": "Recherches et projets",
+            "en": "Research and projects"
+          },
+          "capture": "manual",
+          "points": 4,
+          "min": 2,
+          "max": 6
+        }
+      ],
+      "source": "Rules: Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published. Components: circular 270 names discipline and attendance, oral and written quizzes, homework and research projects; participation and the notebook are captured in the session (PRD §3.5). Averages: ((T + F)/2 + 2E)/3. No text sets points per component: the points and their ranges are the Minhajna curators', not official, and the teacher sets their own within them (PRD §3.5)."
+    },
+    {
+      "level": "lycee",
+      "scale": 20,
+      "circular": "270",
+      "rulesYear": "2025-2026",
+      "components": [
+        {
+          "id": "participation",
+          "name": {
+            "ar": "المشاركة في القسم",
+            "fr": "Participation en classe",
+            "en": "Participation in class"
+          },
+          "capture": "session",
+          "points": 4,
+          "min": 2,
+          "max": 6
+        },
+        {
+          "id": "quizzes",
+          "name": {
+            "ar": "الاستجوابات الشفهية والكتابية",
+            "fr": "Interrogations orales et écrites",
+            "en": "Oral and written quizzes"
+          },
+          "capture": "session",
+          "points": 3,
+          "min": 2,
+          "max": 5
+        },
+        {
+          "id": "homework",
+          "name": {
+            "ar": "الواجبات المنزلية",
+            "fr": "Devoirs à la maison",
+            "en": "Homework"
+          },
+          "capture": "homework",
+          "points": 3,
+          "min": 2,
+          "max": 5
+        },
+        {
+          "id": "notebook",
+          "name": {
+            "ar": "الكراس",
+            "fr": "Cahier",
+            "en": "Notebook"
+          },
+          "capture": "periodic",
+          "points": 3,
+          "min": 2,
+          "max": 4
+        },
+        {
+          "id": "attendance",
+          "name": {
+            "ar": "الانضباط والمواظبة",
+            "fr": "Discipline et assiduité",
+            "en": "Discipline and attendance"
+          },
+          "capture": "roll-call",
+          "points": 3,
+          "min": 1,
+          "max": 4
+        },
+        {
+          "id": "research",
+          "name": {
+            "ar": "البحوث والمشاريع",
+            "fr": "Recherches et projets",
+            "en": "Research and projects"
+          },
+          "capture": "manual",
+          "points": 4,
+          "min": 2,
+          "max": 6
+        }
+      ],
+      "source": "Rules: Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published. Circular 270 sets the lycée's tests but lists continuous-assessment components for middle school only, so these follow middle school's until a lycée list is found. Averages: (T + F + 2E)/4; the subjects with practical work or an oral, (T + F + P + 2E)/5, come with the grade book (PRD §3.5). No text sets points per component: the points and their ranges are the Minhajna curators', not official, and the teacher sets their own within them (PRD §3.5)."
+    }
+  ],
+  "formulas": [
+    {
+      "level": "primary",
+      "id": "primary-examined",
+      "weights": {
+        "T": 1,
+        "E": 1
+      },
+      "subjects": ["arabic", "tamazight", "french", "english", "math"]
+    },
+    {
+      "level": "primary",
+      "id": "primary-exam-only",
+      "weights": {
+        "E": 1
+      },
+      "subjects": ["science-technology", "islamic", "civic", "history-geography"]
+    },
+    {
+      "level": "cem",
+      "id": "cem",
+      "weights": {
+        "T": 1,
+        "F": 1,
+        "E": 4
+      }
+    },
+    {
+      "level": "lycee",
+      "id": "lycee",
+      "weights": {
+        "T": 1,
+        "F": 1,
+        "E": 2
+      }
+    }
+  ]
+}

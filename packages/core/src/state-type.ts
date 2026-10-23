@@ -16,6 +16,7 @@ import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { Membership } from './pupil-history.ts';
 import type { CalendarEntry } from './reference.ts';
+import type { AssessmentSetup } from './assessment.ts';
 import type { Retention } from './retention.ts';
 import type {
   Course,
@@ -101,4 +102,6 @@ export interface State {
   readonly lessonNotes: ReadonlyMap<string, LessonNote>;
   /** How long records are kept, as the teacher chose; null for the defaults (#235). */
   readonly retention: Retention | null;
+  /** Each course's continuous-assessment setups, in recorded order; the last for a term counts (#238). */
+  readonly assessment: ReadonlyMap<string, readonly AssessmentSetup[]>;
 }
