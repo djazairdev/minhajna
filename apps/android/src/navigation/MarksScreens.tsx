@@ -7,7 +7,8 @@
 // capture during today's session; the term's component marks, whose month chips
 // stay in the route, and its justification; the grade book, whose rows open a
 // pupil's justification (#240); the descriptive observations of a term whose
-// marks they replace, whose subject chips stay in the route; and the entry of a
+// marks they replace, whose subject chips stay in the route; the term's
+// appreciations (#241), each recorded as it is chosen; and the entry of a
 // test's, the exam's or a component's marks, each recorded as it is typed or
 // tapped, so leaving loses nothing.
 
@@ -20,6 +21,7 @@ import { Capture } from '../marks/Capture';
 import { MarksBook } from '../marks/MarksBook';
 import { MarksComponents } from '../marks/MarksComponents';
 import { MarksEntry } from '../marks/MarksEntry';
+import { MarksAppreciations } from '../marks/MarksAppreciations';
 import { MarksJustify } from '../marks/MarksJustify';
 import { MarksObservations } from '../marks/MarksObservations';
 import { MarksSetup } from '../marks/MarksSetup';
@@ -39,6 +41,7 @@ export function MarksScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onComponents={(chosen) => navigation.navigate('MarksComponents', { courseId, term: chosen })}
       onBook={(chosen) => navigation.navigate('MarksBook', { courseId, term: chosen })}
       onObservations={(chosen) => navigation.navigate('MarksObservations', { courseId, term: chosen })}
+      onAppreciations={(chosen) => navigation.navigate('MarksAppreciations', { courseId, term: chosen })}
       onEntry={(chosen, testId) =>
         navigation.navigate('MarksEntry', { courseId, term: chosen, ...(testId !== undefined && { testId }) })
       }
@@ -131,6 +134,10 @@ export function MarksObservationsScreen({
   );
 }
 
+export function MarksAppreciationsScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksAppreciations'>) {
+  return <MarksAppreciations {...route.params} />;
+}
+
 export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
   return <MarksJustify {...route.params} />;
 }
@@ -157,6 +164,11 @@ export function marksRoutes(
         name="MarksObservations"
         component={MarksObservationsScreen}
         options={dark(t('marks.observations.title'))}
+      />
+      <Stack.Screen
+        name="MarksAppreciations"
+        component={MarksAppreciationsScreen}
+        options={dark(t('marks.appreciations.title'))}
       />
       <Stack.Screen
         name="MarksComponents"

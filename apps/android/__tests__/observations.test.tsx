@@ -3,12 +3,12 @@
 
 // «ملاحظات وصفية» (#240, P-Obs, answer 464): in 1AP's first term the Marks hub
 // says observations replace marks and shows their row in place of the rows of
-// marks, tests, the exam and «كشف النقاط», and the second term has marks again;
-// the screen's line, chips for the class's observed subjects, the counts, and
-// each pupil's three choices, a tap recording one and a second clearing it; an
-// archived class's observations shown without choices; no printed grade book
-// and no justification for an observed term; and every text found in each
-// language. Made-up records only.
+// marks, tests, the exam, «كشف النقاط» and «التقديرات», and the second term has
+// marks again; the screen's line, chips for the class's observed subjects, the
+// counts, and each pupil's three choices, a tap recording one and a second
+// clearing it; an archived class's observations shown without choices; no
+// printed grade book and no justification for an observed term; and every text
+// found in each language. Made-up records only.
 
 import { observationsFor, type RecordEvent } from '@minhajna/core';
 import { useWindowDimensions } from 'react-native';
@@ -74,6 +74,7 @@ const hub = (term?: number) => (
     onEntry={jest.fn()}
     onPart={jest.fn()}
     onObservations={onObservations}
+    onAppreciations={jest.fn()}
   />
 );
 const onCourse = jest.fn();
@@ -84,7 +85,9 @@ test('in 1AP’s first term the hub shows observations in place of marks; the se
   const data = await firstYear();
   await mount(data, hub());
   expect(texts()).toEqual(expect.arrayContaining(['الفصل الأول: ملاحظات بدل النقاط', 'الملاحظات: 0 من 3']));
-  expect(['marks-components', 'marks-book', 'marks-exam', 'marks-no-tests'].filter(has)).toEqual([]);
+  expect(['marks-components', 'marks-book', 'marks-exam', 'marks-no-tests', 'marks-appreciations'].filter(has)).toEqual(
+    [],
+  );
   expect(['marks-setup', 'marks-capture', 'marks-tests'].every(has)).toBe(true);
   expect(accessibilityProblems(root())).toEqual([]);
   await press('marks-observations');
@@ -92,7 +95,7 @@ test('in 1AP’s first term the hub shows observations in place of marks; the se
   await unmount();
   await mount(data, hub(2));
   expect(has('marks-observations')).toBe(false);
-  expect(['marks-components', 'marks-exam'].every(has)).toBe(true);
+  expect(['marks-components', 'marks-exam', 'marks-appreciations'].every(has)).toBe(true);
 });
 
 test('each pupil’s observation is chosen by hand, and a second tap clears it', async () => {
