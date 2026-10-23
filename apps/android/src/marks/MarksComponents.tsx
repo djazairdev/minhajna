@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «نقاط التقويم المستمر» (#239, answers 442 and 451): the class and the term,
-// chips for the months the term covers in primary, open on today's month
-// within the term, else its first, a note that the app never turns taps into
-// marks, then one row for each component or column of the term's setup with
-// its points and how many of its pupils are done, each opening the entry of
-// that component's marks for the period. A class archived after a
-// reorientation shows its rows, disabled.
+// chips for the months the term covers in primary, open on today's month within
+// the term, else its first, a note that the app never turns taps into marks,
+// then one row for each component or column of the term's setup with its points
+// and how many of its pupils are done, each opening the entry of that
+// component's marks for the period; and «تبرير التقويم المستمر» for the period
+// (answer 454). A class archived after a reorientation shows its component
+// rows, disabled.
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
@@ -32,9 +33,12 @@ export type MarksComponentsProps = {
   readonly month?: string;
   readonly onMonth: (month: string) => void;
   readonly onEntry: (componentId: string, month?: string) => void;
+  /** Opens «تبرير التقويم المستمر» on the term, and the month in primary. */
+  readonly onJustify: (month?: string) => void;
 };
 
-export function MarksComponents({ courseId, term, month: chosen, onMonth, onEntry }: MarksComponentsProps) {
+export function MarksComponents(props: MarksComponentsProps) {
+  const { courseId, term, month: chosen, onMonth, onEntry, onJustify } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -101,6 +105,15 @@ export function MarksComponents({ courseId, term, month: chosen, onMonth, onEntr
             />
           );
         })}
+        {lines.length > 0 && (
+          <RowLink
+            testID="components-justify"
+            icon={controlIcon('print')}
+            title={t('marks.justify.title')}
+            description={t('marks.justify.row')}
+            onPress={() => onJustify(month)}
+          />
+        )}
       </View>
     </ScrollView>
   );

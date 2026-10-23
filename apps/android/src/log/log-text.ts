@@ -3,9 +3,10 @@
 
 // Each line of «سجل النشاط» in words (#235, Log, answer 425): the book, the
 // class, the session's day and what changed, a pupil by their number on the
-// class list, never by name; a document by its title and the period its file
-// is named after; an erasure by the kinds it removed. Names come from the
-// records the line follows, so a class that has gone shows as a dash.
+// class list, never by name; a document by its title and the period its file is
+// named after, or a term by its name (#239); an erasure by the kinds it
+// removed. Names come from the records the line follows, so a class that has
+// gone shows as a dash.
 
 import {
   parsePackId,
@@ -21,6 +22,7 @@ import { listNumbers } from '../roll/roll-rules';
 import { gradeName, localized } from '../setup/names';
 import { documentKind } from '../documents/catalogue';
 import type { Translate } from '../documents/document-data';
+import { termWord } from '../marks/marks-rules';
 import type { Language } from '../text/i18n';
 import { shortDay } from '../today/outcome-rules';
 import { isolate } from '../week/grid-labels';
@@ -82,6 +84,7 @@ export function periodLabel(names: LogNames, period: string): string {
 
 const OWN_TITLES = {
   'book-fixes': 'bookFixes.title',
+  'marks-justify': 'marks.justify.title',
   'sept-check': 'septCheck.title',
   'stale-question': 'staleQuestion.title',
 } as const;
@@ -145,9 +148,9 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
     case 'output': {
       const { document, period, how, blank } = line.output;
       const made = how === 'pdf' ? 'PDF' : t('log.print');
-      return [documentTitle(t, document), periodLabel(names, period), made, ...(blank ? [t('log.blank')] : [])].join(
-        ' · ',
-      );
+      const term = /^term-(\d)$/.exec(period);
+      const when = term === null ? periodLabel(names, period) : termWord(t, Number(term[1]));
+      return [documentTitle(t, document), when, made, ...(blank ? [t('log.blank')] : [])].join(' · ');
     }
     case 'calendar-update':
       return t('log.calendar', { release: line.release });

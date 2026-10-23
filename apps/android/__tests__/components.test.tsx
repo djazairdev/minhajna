@@ -29,6 +29,7 @@ import {
 } from '@minhajna/core';
 import { accessibilityProblems } from '../jest/accessibility';
 import {
+  componentsScreen,
   context,
   control,
   DAY,
@@ -47,7 +48,6 @@ import { withTest } from '../jest/marks-class';
 import { course, primaryClass } from '../jest/specialist-classes';
 import ReactTestRenderer from 'react-test-renderer';
 import { Marks } from '../src/marks/Marks';
-import { MarksComponents } from '../src/marks/MarksComponents';
 import { useAppData, type AppData } from '../src/storage/AppData';
 import { i18n } from '../src/text/i18n';
 import text from '../src/text/ar.json';
@@ -72,7 +72,7 @@ test('the hub’s row counts the term’s cells, and the components list each wi
   expect(onComponents).toHaveBeenCalledWith(1);
   await unmount();
   const onEntry = jest.fn();
-  await mount(data, <MarksComponents courseId="c-1" term={1} onMonth={jest.fn()} onEntry={onEntry} />);
+  await mount(data, componentsScreen({ onEntry }));
   expect(texts()).toEqual(
     expect.arrayContaining([text.marks.componentMarks.note, 'المشاركة في القسم', 'على 4 · 0 من 3', 'على 3 · 0 من 3']),
   );
@@ -149,7 +149,7 @@ test('primary keeps its marks by the month, open on today’s', async () => {
   ]);
   const onMonth = jest.fn();
   const onEntry = jest.fn();
-  await mount(data, <MarksComponents courseId="c-p" term={1} onMonth={onMonth} onEntry={onEntry} />);
+  await mount(data, componentsScreen({ courseId: 'c-p', onMonth, onEntry }));
   const months = root().findByProps({ testID: 'components-month' }).props as { selected: string };
   expect(months.selected).toBe('2026-10');
   expect(texts()).toEqual(expect.arrayContaining(['سبتمبر', 'أكتوبر', 'على 3 · 0 من 1']));
@@ -173,7 +173,7 @@ test('a month not kept or an unknown component opens nothing; an archived class�
   }
   const room = data.book.state.classes.get('k-1')!;
   await data.book.record(DAY, { kind: 'class.set', schoolClass: { ...room, archivedFrom: parseDay('2026-10-16') } });
-  await mount(data, <MarksComponents courseId="c-1" term={1} onMonth={jest.fn()} onEntry={jest.fn()} />);
+  await mount(data, componentsScreen());
   expect(control('components-participation')?.props.disabled).toBe(true);
 });
 
@@ -199,7 +199,7 @@ test('homework counts only the taps where it came back, and the notebook its inc
 test('outside the term, primary opens on its first month', async () => {
   const data = await withTest();
   await data.book.recordAll(DAY, [primaryClass('k-p', 's-1', '5ap', '5 ابتدائي أ'), course('c-p', 'k-p', 'arabic')]);
-  await mount(data, <MarksComponents courseId="c-p" term={1} onMonth={jest.fn()} onEntry={jest.fn()} />, '2027-01-10');
+  await mount(data, componentsScreen({ courseId: 'c-p' }), '2027-01-10');
   expect((root().findByProps({ testID: 'components-month' }).props as { selected: string }).selected).toBe('2026-09');
 });
 
@@ -219,7 +219,7 @@ test('a mark above points since lowered must be retyped, and counts as not done'
   const target = { kind: 'component', componentId: 'participation' } as const;
   await data.book.record(DAY, setMark({ courseId: 'c-1', term: 1, target, pupilId: 'p-1' }, 4, 4));
   await data.book.record(DAY, setup(false, 3));
-  await mount(data, <MarksComponents courseId="c-1" term={1} onMonth={jest.fn()} onEntry={jest.fn()} />);
+  await mount(data, componentsScreen());
   expect(texts()).toContain('على 3 · 0 من 3');
   await unmount();
   await mount(data, entry('participation'));
@@ -265,7 +265,7 @@ test('a component taken out of the setup keeps its marks out of every count', as
   await mount(data, <Marks courseId="c-1" onComponents={jest.fn()} {...hub} />);
   expect(texts()).toContain('الخانات المملوءة: 0 من 18');
   await unmount();
-  await mount(data, <MarksComponents courseId="c-1" term={1} onMonth={jest.fn()} onEntry={jest.fn()} />);
+  await mount(data, componentsScreen());
   expect(control('components-research')).toBeUndefined();
   expect(kept(data, target)).toEqual({ 'p-1': 3 });
 });
@@ -274,7 +274,7 @@ test.each(['fr', 'en'] as const)('every text is found in %s', async (language) =
   await i18n.changeLanguage(language);
   const data = await withTest();
   await data.book.record(DAY, setup(true));
-  await mount(data, <MarksComponents courseId="c-1" term={1} onMonth={jest.fn()} onEntry={jest.fn()} />);
+  await mount(data, componentsScreen());
   expect(texts().filter((one) => one.includes('marks.'))).toEqual([]);
   for (const id of ['participation', 'homework', 'notebook', 'attendance', 'col-1']) {
     await unmount();

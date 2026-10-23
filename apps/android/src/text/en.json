@@ -2996,6 +2996,37 @@
       "useProposal": "Use the proposal",
       "counts": "Marks: {{entered}}",
       "none": "No continuous-assessment components this term"
+    },
+    "justify": {
+      "title": "Continuous-assessment justification",
+      "line": "{{class}} · continuous assessment · {{period}}",
+      "row": "One sheet per pupil: their components, what was recorded for each, and the mark",
+      "outOf": "/ {{scale}}",
+      "emptyCount": "Components without a mark: {{count}}",
+      "test": "Test {{mark}}",
+      "exam": "Exam {{mark}}",
+      "examAbsent": "Exam: absent",
+      "average": "Average {{mark}}",
+      "component": "Component",
+      "recorded": "Recorded",
+      "mark": "Mark",
+      "total": "Total",
+      "noteBook": "This sheet serves as the continuous-assessment book and as the answer to a parent’s appeal.",
+      "noteReasons": "It gives no reasons for absence and no details of behaviour.",
+      "course": "Class and subject",
+      "step": "{{n}} of {{total}}",
+      "previous": "Previous pupil",
+      "next": "Next pupil",
+      "scope": "What to print",
+      "one": "For this pupil",
+      "oneLine": "One sheet",
+      "all": "For the whole class",
+      "allLine": "One sheet per pupil on the list · sheets: {{count}}",
+      "confidential": "“Internal · confidential” at the head and foot of every page, as they hold pupils’ marks.",
+      "none": "No class with continuous assessment yet",
+      "noPupils": "No pupil on the list for this period",
+      "file": "Continuous-assessment justification",
+      "fileOne": "pupil {{n}}"
     }
   }
 }

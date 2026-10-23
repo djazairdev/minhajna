@@ -8,7 +8,8 @@
 // entry (#239), whose «تم» goes back to the hub with the marks counted; «تقويم
 // أثناء الحصة» opens capture, whose «تم» goes back too; «نقاط التقويم
 // المستمر» opens the term's components, a row its entry, and «تم» goes back
-// with the cell counted. Made-up records only.
+// with the cell counted; «تبرير التقويم المستمر» opens from the components and
+// from the Documents tab. Made-up records only.
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Alert, type AlertButton } from 'react-native';
@@ -139,4 +140,20 @@ test('«نقاط التقويم المستمر» opens the components, a row its
   expect(settingsTexts()).toContain('على 4 · 1 من 3');
   await back();
   expect(settingsTexts()).toContain('الخانات المملوءة: 1 من 18');
+});
+
+test('«تبرير التقويم المستمر» opens from the components and from the Documents tab', async () => {
+  await showSettingsScreen(<AppNavigator initialRouteName="Home" direction="rtl" />, await withTest());
+  await pressSettings('tab-Classes');
+  await pressSettings('classes-c-1-class');
+  await pressSettings('class-marks');
+  await pressSettings('marks-components');
+  await pressSettings('components-justify');
+  expect([header().route.name, header().route.params]).toEqual(['MarksJustify', { courseId: 'c-1', term: 1 }]);
+  expect(settingsTexts()).toContain('تلميذة أولى');
+  for (let n = 0; n < 3; n += 1) await back();
+  await pressSettings('tab-Documents');
+  await pressSettings('documents-justify');
+  expect(header().route.name).toBe('MarksJustify');
+  expect(settingsTexts()).toContain('1 من 3');
 });

@@ -4,10 +4,10 @@
 // The Marks routes (#238, #239): «التقويم والنقاط» for a class and subject,
 // whose term chips stay in the route; its continuous-assessment setup for a
 // term, which asks before a draft is lost and goes back to the hub once saved;
-// capture during today's session; the term's component marks, whose month
-// chips stay in the route; and the entry of a test's, the exam's or a
-// component's marks, each recorded as it is typed or tapped, so leaving loses
-// nothing.
+// capture during today's session; the term's component marks, whose month chips
+// stay in the route, and its justification; and the entry of a test's, the
+// exam's or a component's marks, each recorded as it is typed or tapped, so
+// leaving loses nothing.
 
 import { usePreventRemove } from '@react-navigation/native';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ import { Marks } from '../marks/Marks';
 import { Capture } from '../marks/Capture';
 import { MarksComponents } from '../marks/MarksComponents';
 import { MarksEntry } from '../marks/MarksEntry';
+import { MarksJustify } from '../marks/MarksJustify';
 import { MarksSetup } from '../marks/MarksSetup';
 import { useText } from '../text/i18n';
 import type { RootStackParamList } from './AppNavigator';
@@ -81,6 +82,9 @@ export function MarksComponentsScreen({
       term={term}
       {...(month !== undefined && { month })}
       onMonth={(chosen) => navigation.setParams({ month: chosen })}
+      onJustify={(chosen) =>
+        navigation.navigate('MarksJustify', { courseId, term, ...(chosen !== undefined && { month: chosen }) })
+      }
       onEntry={(componentId, chosen) =>
         navigation.navigate('MarksEntry', {
           courseId,
@@ -91,6 +95,10 @@ export function MarksComponentsScreen({
       }
     />
   );
+}
+
+export function MarksJustifyScreen({ route }: NativeStackScreenProps<RootStackParamList, 'MarksJustify'>) {
+  return <MarksJustify {...route.params} />;
 }
 
 export function MarksCaptureScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'MarksCapture'>) {
@@ -109,6 +117,7 @@ export function marksRoutes(
       <Stack.Screen name="MarksSetup" component={MarksSetupScreen} options={dark(t('marks.setupTitle'))} />
       <Stack.Screen name="MarksEntry" component={MarksEntryScreen} options={dark(t('marks.entry.title'))} />
       <Stack.Screen name="MarksCapture" component={MarksCaptureScreen} options={dark(t('marks.during.title'))} />
+      <Stack.Screen name="MarksJustify" component={MarksJustifyScreen} options={dark(t('marks.justify.title'))} />
       <Stack.Screen
         name="MarksComponents"
         component={MarksComponentsScreen}

@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «الوثائق» (#212, Docs): every document the app makes, with what each one
-// covers now. A document opens its output: print, or save a PDF, as
-// recorded or blank with its headings. «طباعة الأسبوع» comes first, with
-// how many documents have something new since their last print (#215).
-// «المذكرات» opens the next session's lesson note (#237). In a pilot build,
-// the last row opens «توقيتاتي في التجربة» (#220).
+// covers now. A document opens its output: print, or save a PDF, as recorded or
+// blank with its headings. «طباعة الأسبوع» comes first, with how many documents
+// have something new since their last print (#215). «المذكرات» opens the next
+// session's lesson note (#237), and «تبرير التقويم المستمر» its screen (#239).
+// In a pilot build, the last row opens «توقيتاتي في التجربة» (#220).
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
@@ -27,7 +27,8 @@ import { useDocumentData } from './useDocumentData';
 /**
  * The Documents tab; `onOpen` opens a document's output, `onPrintWeek`
  * «طباعة الأسبوع», `onFixes` the texts book's corrections, `onNote` a
- * session's lesson note, and `onTimings` «توقيتاتي» in a pilot build.
+ * session's lesson note, `onJustify` «تبرير التقويم المستمر», and `onTimings`
+ * «توقيتاتي» in a pilot build.
  */
 export function DocumentsTab({
   onOpen,
@@ -35,12 +36,14 @@ export function DocumentsTab({
   onFixes,
   onNote,
   onTimings,
+  onJustify,
 }: {
   readonly onOpen: (id: DocumentId) => void;
   readonly onPrintWeek: () => void;
   readonly onFixes: () => void;
   readonly onNote?: (key: string, day: string) => void;
   readonly onTimings?: () => void;
+  readonly onJustify?: () => void;
 }) {
   const t = useText();
   const insets = useSafeAreaInsets();
@@ -72,6 +75,15 @@ export function DocumentsTab({
               onPress={() => onOpen(kind.id)}
             />
           ))}
+          {onJustify !== undefined && (
+            <RowLink
+              testID="documents-justify"
+              icon={controlIcon('print')}
+              title={t('marks.justify.title')}
+              description={t('marks.justify.row')}
+              onPress={onJustify}
+            />
+          )}
           {onNote !== undefined && <NotesRow data={data} onOpen={onNote} onPrint={() => onOpen('notes')} />}
           <RowLink
             testID="documents-fixes"

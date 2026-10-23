@@ -70,6 +70,8 @@ export type RootStackParamList = {
   MarksSetup: { courseId: string; term: number };
   /** Capture during today's session of a course (#239). */
   MarksCapture: { courseId: string };
+  /** «تبرير التقويم المستمر», on a class and subject, term and month when given (#239). */
+  MarksJustify: { courseId?: string; term?: number; month?: string } | undefined;
   /** The term's component marks, by `month` in primary (#239). */
   MarksComponents: { courseId: string; term: number; month?: string };
   /** Entering a course's test's, component's or, with neither, the term's exam's marks (#239). */
