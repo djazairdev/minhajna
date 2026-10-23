@@ -62,10 +62,20 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
+/** The hub's other handlers, unused here. */
+const hubProps = () => ({
+  onTerm: jest.fn(),
+  onSetup: jest.fn(),
+  onTests: jest.fn(),
+  onCapture: jest.fn(),
+  onBook: jest.fn(),
+  onEntry: jest.fn(),
+});
+
 test('the hub’s row counts the term’s cells, and the components list each with its points', async () => {
   const data = await withTest();
   const onComponents = jest.fn();
-  const hub = { onTerm: jest.fn(), onSetup: jest.fn(), onTests: jest.fn(), onCapture: jest.fn(), onEntry: jest.fn() };
+  const hub = hubProps();
   await mount(data, <Marks courseId="c-1" onComponents={onComponents} {...hub} />);
   expect(texts()).toEqual(expect.arrayContaining([text.marks.componentMarks.title, 'الخانات المملوءة: 0 من 18']));
   await press('marks-components');
@@ -261,7 +271,7 @@ test('a component taken out of the setup keeps its marks out of every count', as
   const target = { kind: 'component', componentId: 'research' } as const;
   await data.book.record(DAY, setMark({ courseId: 'c-1', term: 1, target, pupilId: 'p-1' }, 3, 4));
   await data.book.record(DAY, setup(false));
-  const hub = { onTerm: jest.fn(), onSetup: jest.fn(), onTests: jest.fn(), onCapture: jest.fn(), onEntry: jest.fn() };
+  const hub = hubProps();
   await mount(data, <Marks courseId="c-1" onComponents={jest.fn()} {...hub} />);
   expect(texts()).toContain('الخانات المملوءة: 0 من 18');
   await unmount();

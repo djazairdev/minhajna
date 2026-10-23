@@ -8,7 +8,9 @@
 // «حفظ PDF». The whole class prints one page per pupil on the list. Each print
 // and saved PDF goes into the activity log with its period, never a name;
 // a saved PDF is named by the class, the list number and the period (answer
-// 455), never the pupil.
+// 455), never the pupil. Opened from the grade book on a pupil who is not on
+// the period's list, it adds them after the list for that visit, and the whole
+// class still prints the list alone (answer 460).
 
 import { termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -39,6 +41,8 @@ export type MarksJustifyProps = {
   readonly courseId?: string;
   readonly term?: number;
   readonly month?: string;
+  /** The pupil to open on, such as the one a grade-book row was for; the first on the list when not on it. */
+  readonly pupilId?: string;
 };
 
 export function MarksJustify(props: MarksJustifyProps) {
@@ -58,8 +62,19 @@ export function MarksJustify(props: MarksJustifyProps) {
   const months = courseId === undefined ? [] : periodMonths(context, courseId, term);
   const [pickedMonth, setMonth] = useState(props.month);
   const month = pickedMonth !== undefined && months.includes(pickedMonth) ? pickedMonth : openingMonth(months, today());
-  const pupils = courseId === undefined ? [] : justifyPupils(context, courseId, term, month, today());
-  const [index, setIndex] = useState(0);
+  const listed = courseId === undefined ? [] : justifyPupils(context, courseId, term, month, today());
+  const asked = props.pupilId;
+  const added =
+    asked !== undefined &&
+    courseId === props.courseId &&
+    term === props.term &&
+    pickedMonth === props.month &&
+    !listed.includes(asked) &&
+    state.pupils.has(asked);
+  const pupils = added ? [...listed, asked] : listed;
+  const [index, setIndex] = useState(() =>
+    Math.max(0, props.pupilId === undefined ? 0 : pupils.indexOf(props.pupilId)),
+  );
   const [all, setAll] = useState(false);
   const { busy, said, print, save, clear } = useOutputRun();
   const logged = useOutputLog();
@@ -78,7 +93,7 @@ export function MarksJustify(props: MarksJustifyProps) {
     clear();
   };
   const html = () => {
-    const pages = (all ? pupils : pupils.slice(at, at + 1)).flatMap((id) => pageOf(id) ?? []);
+    const pages = (all ? listed : pupils.slice(at, at + 1)).flatMap((id) => pageOf(id) ?? []);
     return justifyHtml(t, pages, { lang: currentLanguage(), dir: direction, title: t('marks.justify.title') });
   };
   const period = month ?? `term-${term}`;
@@ -167,7 +182,7 @@ export function MarksJustify(props: MarksJustifyProps) {
               {
                 value: 'all',
                 label: t('marks.justify.all'),
-                description: t('marks.justify.allLine', { count: pupils.length }),
+                description: t('marks.justify.allLine', { count: listed.length }),
               },
             ]}
           />

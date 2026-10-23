@@ -7,16 +7,16 @@
 // with the release and the rules year, and the rows built so far: «التقويم
 // المستمر», with the setup in force for the term; «تقويم أثناء الحصة», with
 // today's session, disabled with none; «نقاط التقويم المستمر», with how many of
-// the term's component cells are filled (answer 451); one row for each of the
+// the term's component cells are filled (answer 451); «كشف النقاط», with how
+// many pupils have an average (#240, answer 458); one row for each of the
 // term's tests, with its day and how many of its pupils are done, or «لا فرض في
 // هذا الفصل بعد» opening «مواعيد الفروض»; «الاختبار», with its window's first
 // day, for a subject with a term exam (#239, answer 444); and «مواعيد الفروض».
 // A subject with no continuous assessment says so, and a class archived after a
 // reorientation shows its setup and marks but takes no new ones (#231). The
-// rows of the grade book, appreciations and the export come with their own
-// issues.
+// rows of appreciations and the export come with their own issues.
 
-import { captureSession, termNumberOn, termTests } from '@minhajna/core';
+import { captureSession, gradeBook, termNumberOn, termTests } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -46,12 +46,14 @@ export type MarksProps = {
   readonly onCapture: () => void;
   /** Opens the term's component marks. */
   readonly onComponents: (term: number) => void;
+  /** Opens the term's grade book. */
+  readonly onBook: (term: number) => void;
   /** Opens the entry of a test's marks, or of the exam's without a test. */
   readonly onEntry: (term: number, testId?: string) => void;
 };
 
 export function Marks(props: MarksProps) {
-  const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onEntry } = props;
+  const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -90,6 +92,7 @@ export function Marks(props: MarksProps) {
   const exams = sheetOf();
   const entering = data !== null && marks !== null && levelScale(data, room.level) !== null;
   const session = captureSession(context, courseId, today());
+  const book = entering ? gradeBook(context, data, courseId, term) : null;
   return (
     <ScrollView
       style={styles.screen}
@@ -153,6 +156,15 @@ export function Marks(props: MarksProps) {
             description={t('marks.componentMarks.rowLine', componentProgress(context, data, courseId, term, today()))}
             disabled={archived}
             onPress={() => onComponents(term)}
+          />
+        )}
+        {book !== null && (
+          <RowLink
+            testID="marks-book"
+            icon={controlIcon('homework')}
+            title={t('marks.book.title')}
+            description={t('marks.book.rowLine', { counted: book.figures.counted, total: book.rows.length })}
+            onPress={() => onBook(term)}
           />
         )}
         {entering && tests.length === 0 && (

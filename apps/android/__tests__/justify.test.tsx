@@ -8,15 +8,16 @@
 // page framed «داخلي · سري», and saved as a PDF named by the class and list
 // number (answer 455); each print and save in the activity log with the
 // term, never a name; primary's page for a month, with no average; the
-// classes and subjects it can be made for; and every text found in each
-// language. Made-up records only.
+// classes and subjects it can be made for; a pupil asked for who is not on
+// the list, added after it for the visit (answer 460); and every text found in
+// each language. Made-up records only.
 
 import { eventOf, parseDay, setMark, type MarkTarget, type RecordEvent } from '@minhajna/core';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import type { TestData } from '../jest/app-data';
 import { context, control, DAY, mount, press, root, texts, unmount } from '../jest/components-screen';
-import { withTest } from '../jest/marks-class';
+import { pupil, withTest } from '../jest/marks-class';
 import { course, primaryClass } from '../jest/specialist-classes';
 import { justifyCourses } from '../src/marks/justify-rules';
 import { assessmentData } from '../src/marks/marks-rules';
@@ -168,6 +169,22 @@ test('a subject with no continuous assessment is not offered', async () => {
   expect(justifyCourses(context(data), assessmentData(data.profile)!)).not.toContain('c-i');
   await mount(data, <MarksJustify courseId="c-i" />);
   expect(texts()).toContain('تلميذة أولى');
+});
+
+test('a pupil asked for who is not on the list is added after it, and the class still prints the list', async () => {
+  const data = await marked();
+  await data.book.record(DAY, pupil('p-4', 'تلميذة رابعة', '2026-11-01'));
+  await mount(data, <MarksJustify courseId="c-1" term={1} pupilId="p-4" />);
+  expect(texts()).toEqual(expect.arrayContaining(['تلميذة رابعة', '4 من 4', 'ورقة لكل تلميذ في القائمة · الأوراق: 3']));
+  await ReactTestRenderer.act(async () => {
+    (root().findByProps({ testID: 'justify-scope' }).props as { onSelect: (one: string) => void }).onSelect('all');
+    await Promise.resolve();
+  });
+  await press('justify-print');
+  expect(printHtml.mock.calls[0]?.[0].match(/<section class="page"/g)).toHaveLength(3);
+  await unmount();
+  await mount(data, <MarksJustify courseId="c-1" term={1} pupilId="p-2" />);
+  expect(texts()).toEqual(expect.arrayContaining(['تلميذة ثانية', '2 من 3']));
 });
 
 test.each(['fr', 'en'] as const)('every text is found in %s', async (language) => {
