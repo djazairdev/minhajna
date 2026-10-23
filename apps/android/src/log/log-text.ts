@@ -103,6 +103,7 @@ export function periodLabel(names: LogNames, period: string): string {
 
 const OWN_TITLES = {
   'book-fixes': 'bookFixes.title',
+  council: 'marks.council.title',
   'marks-justify': 'marks.justify.title',
   'mark-fix': 'documents.markFix.name',
   'mark-sheet': 'documents.markSheet.name',

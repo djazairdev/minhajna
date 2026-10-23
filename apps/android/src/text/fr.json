@@ -3339,7 +3339,17 @@
       "cancel": "Annuler",
       "attendanceTitle": "Présence",
       "attendance": "Demi-journées d’absence au trimestre : {{absent}} · Retards : {{late}}, d’après le registre d’appel.",
-      "noAttendance": "Aucun appel enregistré pour cette classe ce trimestre."
+      "noAttendance": "Aucun appel enregistré pour cette classe ce trimestre.",
+      "figures": "Chiffres",
+      "figure": "Indicateur",
+      "value": "Valeur",
+      "band": "Tranche",
+      "rank": "Rang",
+      "pupil": "Élève",
+      "before": "Avant",
+      "changeHead": "Évolution",
+      "print": "Imprimer le dossier",
+      "saveNote": "Avant d’enregistrer : le dossier est confidentiel et contient les noms et les moyennes des élèves. Le sélecteur de fichiers s’ouvre pour choisir où le garder ; l’impression et l’enregistrement sont notés dans le journal d’activité."
     },
     "export": {
       "title": "Export du trimestre",

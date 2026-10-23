@@ -48,7 +48,23 @@ Before each class council, teachers work out averages, extremes, success rates a
 | Type check, ESLint, Prettier, root lint, typecheck and tests, the app's full Jest run | Pass |
 | Android emulator, release build signed with the debug key, on Friday 23 October | Pass.<br>• On the demo class's first term, «ملف مجلس القسم» first said «لا معدل في القسم بعد». After I entered every component for the first two pupils and the second pupil's exam, it gave «معدل القسم 13.79 · 10 فما فوق: 2 من 2».<br>• The screen showed 13.79, 16.67 and 10.92, a standard deviation of 2.88 and 100.0%, the same as the grade book. It also showed the bands, the two boys, both ranks, «لا مقارنة: هذا الفصل الأول.» and the class's lack of roll calls.<br>• Thresholds of 16 and 15 were refused. At 11 and 16, the second pupil (10.92) moved into remediation and the first (16.67) stayed in line for a distinction. «العودة إلى العتبتين الافتراضيتين» put back 8 and 15.<br>• This run came before the audit's three fixes: the comparison's arrows, the rule's wording, and no record for an unchanged choice. The tests cover those fixes. |
 
+## Part 3: printing and saving the pack
+
+- **«طباعة الملف»** prints the pack on A4 portrait, framed «داخلي · سري» in its header and footer, with the school and the school year, the title, and the class, subject and term. Then come the screen's sections, each under its heading: the figures with the full-value note, the bands, boys and girls, the comparison, every rank (from term 2 with the previous rank and its change), the two lists under their thresholds with the note that the thresholds are the teacher's, and the attendance. Every text is escaped.
+- **«حماية الملف بكلمة سر»** is on by default, as on the export's file screen. The password is checked by the same rule, never kept, and never filled in by the phone.
+- **«حفظ PDF»** keeps the PDF through the file picker, inside an encrypted archive when protected. It is named «ملف مجلس القسم», then the class, subject, term and year, never a pupil.
+- **The activity log** gets each print and each saved file as «ملف مجلس القسم» with its term. A cancelled save is neither said nor logged.
+- **A term with no average** has nothing to print or save.
+- **Each term starts afresh:** changing the term clears what was said of the last save, and the password.
+
+| Check | Result |
+|---|---|
+| Android tests (`council-pack-output.test.tsx`, 9 tests) | Pass. They cover:<br>• every section on the printed page, framed confidential;<br>• from term 2, the printed comparison with its arrows, and each rank with its previous rank and its change: up, down, the same, or none;<br>• no comparison when the previous term has no average, and the teacher's own thresholds printed as chosen;<br>• the print, logged with its term and shown in the activity log;<br>• every text escaped;<br>• a password refused by the rule, then the PDF kept under an accepted one with its name;<br>• the PDF kept without a password, and a cancelled save neither said nor logged;<br>• nothing to print without an average;<br>• every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests, the app's full Jest run | Pass |
+| Android emulator, release build signed with the debug key, on Friday 23 October | Pass.<br>• On the demo class's first term, «طباعة الملف» opened Android's print screen on two A4 pages framed «داخلي · سري». They showed the school and year, the title, the class, subject and term, then 13.79, 16.67, 10.92, 2.88 and 100.0% as on the screen, the bands, the two boys, «لا مقارنة: هذا الفصل الأول.», both ranks, the lists under 8 and 15, the thresholds note and the attendance line.<br>• A three-letter password was refused with the rule. With an accepted one, «حفظ PDF» opened the file picker on «ملف مجلس القسم القسم التجريبي · اللغة العربية الفصل الأول 2026-2027.pdf». The saved file was a `.pdf.zip` with its one entry AES-encrypted, and the screen said «حُفظ الملف.».<br>• Term 2 has no average there, so it had nothing to print. Back on term 1, the notice and the password were cleared. |
+
 Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 - the screen with TalkBack in Arabic;
 - a phone in French and English, with text at 200%;
+- the printed pack on paper, and the saved PDF opened with its password;
 - a teacher's real class in term 2 at a real council.

@@ -6,8 +6,9 @@
 // year's terms, the school and the school year marked «داخلي · سري», then the
 // figures, the comparison with the previous term and the ranks, the pupils for
 // remediation and distinction with the teacher's thresholds, and the term's
-// attendance from the roll-call book. Every figure is taken over the pupils
-// with an average, on the full value. A term without averages says so.
+// attendance from the roll-call book, then its print and save, begun afresh
+// for each term. Every figure is taken over the pupils with an average, on the
+// full value. A term without averages says so, and has nothing to print.
 
 import { councilPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -24,6 +25,7 @@ import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { CouncilFigures } from './CouncilFigures';
 import { CouncilLists } from './CouncilLists';
+import { CouncilOutput } from './CouncilOutput';
 import { CouncilRanks } from './CouncilRanks';
 import { attendanceLine } from './council-rules';
 import { assessmentData, termWord } from './marks-rules';
@@ -55,6 +57,7 @@ export function MarksCouncil({ courseId, term, onTerm }: MarksCouncilProps) {
   const school = state.schools.get(room?.schoolId ?? '')?.name ?? '';
   const terms = [...year.terms].map((one) => one.number).sort((a, b) => a - b);
   const nameOf = (pupilId: string) => state.pupils.get(pupilId)?.name ?? '';
+  const label = courseLabel(t, state, profile, courseId, true);
   return (
     <ScrollView
       style={styles.screen}
@@ -69,7 +72,7 @@ export function MarksCouncil({ courseId, term, onTerm }: MarksCouncilProps) {
       ]}
     >
       <Text testID="council-line" style={[styles.heading, align]}>
-        {`${courseLabel(t, state, profile, courseId, true)} · ${termWord(t, term)}`}
+        {`${label} · ${termWord(t, term)}`}
       </Text>
       {terms.length > 1 && (
         <ChipGroup
@@ -101,6 +104,7 @@ export function MarksCouncil({ courseId, term, onTerm }: MarksCouncilProps) {
           <Text testID="council-attendance" style={[styles.body, align]}>
             {attendanceLine(t, pack.attendance)}
           </Text>
+          <CouncilOutput key={term} pack={pack} courseId={courseId} term={term} label={label} />
         </>
       )}
     </ScrollView>
