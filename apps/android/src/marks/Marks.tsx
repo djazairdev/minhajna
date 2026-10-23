@@ -18,8 +18,9 @@
 // وصفية», with how many pupils have one, takes the place of the rows of marks,
 // tests, the exam and «كشف النقاط» (answer 464). A subject with no continuous
 // assessment says so, and a class archived after a reorientation shows its
-// setup and marks but takes no new ones (#231). The rows of appreciations and
-// the export come with their own issues.
+// setup and marks but takes no new ones (#231). «التقديرات», with how many
+// pupils have a phrase, follows «كشف النقاط» (#241, answer 465); the export
+// comes with its own issue.
 
 import { captureSession, courseObserved, gradeBook, termNumberOn, termTests } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -39,6 +40,7 @@ import { captureLine } from './capture-rules';
 import { componentProgress } from './component-rules';
 import { entryDone, entrySheet, levelScale, SHEET_TEXTS, type EntrySheet, type SatPart } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
+import { appreciationList, appreciationSheet, progressLine } from './appreciation-rules';
 import { observationSheet } from './observation-rules';
 
 const PARTS = [
@@ -65,11 +67,13 @@ export type MarksProps = {
   readonly onPart: (term: number, part: 'practical' | 'oral') => void;
   /** Opens the term's descriptive observations. */
   readonly onObservations: (term: number) => void;
+  /** Opens the term's appreciations. */
+  readonly onAppreciations: (term: number) => void;
 };
 
 export function Marks(props: MarksProps) {
   const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry, onPart } = props;
-  const { onObservations } = props;
+  const { onObservations, onAppreciations } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -112,6 +116,8 @@ export function Marks(props: MarksProps) {
   const observed = entering && courseObserved(state, data, courseId, term);
   const marking = entering && !observed;
   const book = marking ? gradeBook(context, data, courseId, term) : null;
+  const phrases = marking && book !== null && appreciationList(profile) !== null;
+  const apprec = phrases ? appreciationSheet(context, data, courseId, term) : null;
   const noted = observed ? observationSheet(context, courseId, term, today()) : null;
   const parts = PARTS.filter(({ part }) => (marks?.formula?.weights[part] ?? 0) > 0);
   return (
@@ -200,6 +206,15 @@ export function Marks(props: MarksProps) {
             title={t('marks.book.title')}
             description={t('marks.book.rowLine', { counted: book.figures.counted, total: book.rows.length })}
             onPress={() => onBook(term)}
+          />
+        )}
+        {apprec !== null && (
+          <RowLink
+            testID="marks-appreciations"
+            icon={controlIcon('pencil')}
+            title={t('marks.appreciations.title')}
+            description={progressLine(t, apprec)}
+            onPress={() => onAppreciations(term)}
           />
         )}
         {marking && tests.length === 0 && (
