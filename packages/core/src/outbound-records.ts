@@ -102,6 +102,10 @@ function currentRecords(state: State): RecordEvent[] {
     const observation = state.observations.get(key)!;
     if (observation.value !== null) records.push({ kind: 'observation.set', observation });
   }
+  for (const key of [...state.appreciations.keys()].sort(compareText)) {
+    const appreciation = state.appreciations.get(key)!;
+    if (appreciation.phrase !== null) records.push({ kind: 'appreciation.set', appreciation });
+  }
   if (state.setupFinished) records.push({ kind: 'setup.finished' });
   for (const print of state.prints) records.push({ kind: 'print.recorded', print: print.value });
   for (const test of [...state.tests.values()].sort((a, b) => compareDays(a.day, b.day) || compareText(a.id, b.id))) {

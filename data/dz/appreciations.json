@@ -1,0 +1,175 @@
+{
+  "format": 1,
+  "country": "dz",
+  "release": "2026.1",
+  "interim": true,
+  "source": "Minhajna's interim list, written by the project's editors while circular 244 of 16 November 2015 on report-card appreciations, and its list of phrases, are not found (PRD §3.6, answer 465). It is not official. The phrases are both positive and remedial, as the press reports the circular asks; the bands of the term average and the counts that make a concern about conduct are the editors' too. The banned phrase is the one the press reports the circular replaced.",
+  "banned": ["يوجه إلى الحياة العملية"],
+  "bands": [
+    {
+      "id": "weak",
+      "from": 0,
+      "to": 10
+    },
+    {
+      "id": "fair",
+      "from": 10,
+      "to": 12
+    },
+    {
+      "id": "good",
+      "from": 12,
+      "to": 14
+    },
+    {
+      "id": "very-good",
+      "from": 14,
+      "to": 16
+    },
+    {
+      "id": "excellent",
+      "from": 16,
+      "to": 20
+    }
+  ],
+  "phrases": [
+    {
+      "id": "weak-1",
+      "band": "weak",
+      "text": {
+        "ar": "نتائج ضعيفة، تحتاج إلى مراجعة منتظمة ومتابعة"
+      }
+    },
+    {
+      "id": "weak-2",
+      "band": "weak",
+      "text": {
+        "ar": "يُنتظر مضاعفة الجهد والمراجعة المستمرة"
+      }
+    },
+    {
+      "id": "weak-concern",
+      "band": "weak",
+      "conduct": "concern",
+      "text": {
+        "ar": "نتائج ضعيفة، والمواظبة والانضباط شرط للتحسن"
+      }
+    },
+    {
+      "id": "fair-1",
+      "band": "fair",
+      "text": {
+        "ar": "نتائج مقبولة، والتحسن ممكن"
+      }
+    },
+    {
+      "id": "fair-2",
+      "band": "fair",
+      "text": {
+        "ar": "عمل مقبول، يُنتظر مضاعفة الجهد"
+      }
+    },
+    {
+      "id": "fair-3",
+      "band": "fair",
+      "text": {
+        "ar": "نتائج تحتاج إلى مثابرة لتتحسن"
+      }
+    },
+    {
+      "id": "fair-good",
+      "band": "fair",
+      "conduct": "good",
+      "text": {
+        "ar": "نتائج مقبولة ومواظبة حسنة"
+      }
+    },
+    {
+      "id": "fair-concern",
+      "band": "fair",
+      "conduct": "concern",
+      "text": {
+        "ar": "نتائج مقبولة، والمواظبة تساعد على التحسن"
+      }
+    },
+    {
+      "id": "good-1",
+      "band": "good",
+      "text": {
+        "ar": "نتائج حسنة تستحق المواصلة"
+      }
+    },
+    {
+      "id": "good-2",
+      "band": "good",
+      "text": {
+        "ar": "عمل جاد، وبلوغ الأفضل ممكن"
+      }
+    },
+    {
+      "id": "good-good",
+      "band": "good",
+      "conduct": "good",
+      "text": {
+        "ar": "نتائج حسنة وسلوك حسن"
+      }
+    },
+    {
+      "id": "good-concern",
+      "band": "good",
+      "conduct": "concern",
+      "text": {
+        "ar": "نتائج حسنة، والحرص على المواظبة والانضباط مطلوب"
+      }
+    },
+    {
+      "id": "very-good-1",
+      "band": "very-good",
+      "text": {
+        "ar": "نتائج جيدة جداً تستحق المواصلة على هذا النهج"
+      }
+    },
+    {
+      "id": "very-good-2",
+      "band": "very-good",
+      "text": {
+        "ar": "عمل متقن يستحق المواصلة بالجدية نفسها"
+      }
+    },
+    {
+      "id": "very-good-concern",
+      "band": "very-good",
+      "conduct": "concern",
+      "text": {
+        "ar": "نتائج جيدة جداً، والمواظبة تزيدها تألقاً"
+      }
+    },
+    {
+      "id": "excellent-1",
+      "band": "excellent",
+      "text": {
+        "ar": "نتائج ممتازة تستحق التهنئة"
+      }
+    },
+    {
+      "id": "excellent-2",
+      "band": "excellent",
+      "text": {
+        "ar": "عمل متميز وتألق يستحق التنويه"
+      }
+    },
+    {
+      "id": "excellent-concern",
+      "band": "excellent",
+      "conduct": "concern",
+      "text": {
+        "ar": "نتائج ممتازة، والحرص على المواظبة مطلوب"
+      }
+    }
+  ],
+  "concern": {
+    "absences": 3,
+    "lateness": 3,
+    "behaviour": 2
+  }
+}

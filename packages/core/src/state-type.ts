@@ -18,6 +18,7 @@ import type { Membership } from './pupil-history.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
+import type { AppreciationEntry } from './appreciations.ts';
 import type { MarkEntry } from './marks.ts';
 import type { ObservationEntry } from './observations.ts';
 import type { Retention } from './retention.ts';
@@ -115,4 +116,6 @@ export interface State {
   readonly formulas: ReadonlyMap<string, FormulaId>;
   /** The last descriptive observation for each course, term and pupil, by `observationKey` (#240). */
   readonly observations: ReadonlyMap<string, ObservationEntry>;
+  /** The last appreciation for each course, term and pupil, by `appreciationKey` (#241). */
+  readonly appreciations: ReadonlyMap<string, AppreciationEntry>;
 }
