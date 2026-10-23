@@ -12,6 +12,8 @@ export * from './assessment-read.ts';
 export * from './captures.ts';
 export * from './marks.ts';
 export * from './observations.ts';
+export * from './appreciations.ts';
+export * from './appreciations-read.ts';
 export * from './mark-figures.ts';
 export * from './capture-figures.ts';
 export * from './component-figures.ts';

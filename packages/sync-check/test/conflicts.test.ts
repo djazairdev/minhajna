@@ -5,8 +5,8 @@
 // sync give one conflict and a notice that counts it; the same change made on
 // both, or changes to different records, give none. A pupil's mark or capture
 // is one record per cell, and a class and subject's formula one record per
-// course, and a descriptive observation one per pupil, course and term (#240).
-// Made-up records only.
+// course, and a descriptive observation or an appreciation one per pupil,
+// course and term (#240, #241). Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -15,6 +15,7 @@ import {
   parseDay,
   RecordBook,
   setCapture,
+  setAppreciation,
   setMark,
   setObservation,
   type CalendarUpdate,
@@ -122,6 +123,21 @@ test('an observation chosen differently on two devices conflicts for that pupil 
   assert.deepEqual(
     findConflicts(mine, theirs).map((conflict) => conflict.key),
     ['observation/c-1/1/p-1'],
+  );
+});
+
+test('an appreciation chosen differently on two devices conflicts for that pupil only', async () => {
+  const phrase = (id: string) => ({ id, band: 'fair', text: { ar: id } });
+  const choose = (pupilId: string, id: string) =>
+    setAppreciation({ courseId: 'c-1', term: 1, pupilId }, { release: '2026.1' }, phrase(id));
+  const [mine, theirs] = await Promise.all([
+    recorded(choose('p-1', 'fair-1'), choose('p-2', 'fair-1')),
+    recorded(choose('p-1', 'fair-2'), choose('p-2', 'fair-1')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), ['appreciation/c-1/1/p-1', 'appreciation/c-1/1/p-2']);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['appreciation/c-1/1/p-1'],
   );
 });
 

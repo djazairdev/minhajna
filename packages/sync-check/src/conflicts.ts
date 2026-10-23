@@ -18,6 +18,7 @@ import {
   kindOf,
   listKey,
   markKey,
+  appreciationKey,
   observationKey,
   type Entry,
   type RecordEvent,
@@ -136,6 +137,8 @@ export function recordKey(entry: Entry): string | null {
       return `formula/${event.courseId}`;
     case 'observation.set':
       return `observation/${observationKey(event.observation)}`;
+    case 'appreciation.set':
+      return `appreciation/${appreciationKey(event.appreciation)}`;
   }
 }
 

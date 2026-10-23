@@ -11,7 +11,8 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/profile.json` | Algeria: the working week, the twelve month names, the three levels and their grades, the subjects each level teaches, the session types and the 69 wilayas |
 | `dz/calendar-2026-2027.json` | Algeria's 2026/27 school year: its terms, the school holidays, the exam windows, the public holidays and Ramadan |
 | `dz/bells.json` | Algeria's bell-time templates, by level and shift, and the length of a session in Ramadan |
-| `dz/assessment.json` | Each level's continuous-assessment presets: their components, points and ranges, and the formulas its averages follow |
+| `dz/assessment.json` | Each level's continuous-assessment presets: their components, points and ranges, the formulas its averages follow, and the terms whose marks descriptive observations replace |
+| `dz/appreciations.json` | The appreciation phrases a teacher chooses from, by band of the term average and conduct, with the banned phrases: Minhajna's interim list while the official one is not found |
 | `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64), the SHA-256 fingerprint of that public half, and `signs`, what it may sign: `calendar`, `packs` or both. Empty until the first key is made, with the [signing tools](../docs/checks/signed-updates.md) |
 | `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
 | `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
@@ -63,7 +64,18 @@ Each level's continuous-assessment presets come from `dz/assessment.json` ([PRD 
   - Lycée: 270 lists no lycée components, so the lycée takes middle school's until a list is found.
   - Primary: continuous assessment covers languages and mathematics, month by month. 270 left its averaging unchanged, so their components are circular 272's list of 2023/24, the latest that names them.
   - Primary music, visual arts and physical education: 270 assesses them by continuous assessment and observation alone, so they have a preset of their own: participation, practical work, and expressive or motor ability. Primary's other subjects have no continuous assessment and no preset.
-- **Formulas:** each level's averages as whole-number weights of their parts (T, F, E, and P and O in the lycée), such as middle school's ((T + F)/2 + 2E)/3 as T 1, F 1, E 4, listed apart from the presets under `formulas`, each with its `level`. A formula may name the subjects it is for, and a level has one formula at most for every other subject. Primary's music, visual arts and physical education have no term exam and no formula yet. The lycée's formulas with practical work or an oral come with the grade book (#240).
+- **Formulas:** each level's averages as whole-number weights of their parts (T, F, E, and P and O in the lycée), such as middle school's ((T + F)/2 + 2E)/3 as T 1, F 1, E 4, listed apart from the presets under `formulas`, each with its `level`. A formula may name the subjects it is for, and a level has one formula at most for every other subject. Primary's music, visual arts and physical education have no term exam and no formula yet. The lycée's formulas with practical work or an oral are marked `alternative`: the administration chooses one for a subject in place of the level's, and the teacher records it (answer 463).
+- **Observations:** `observations` names the grades, terms and subjects whose marks descriptive observations replace, each with its `source`: 1AP term 1 for every subject, 3AP French and English term 1, and 4AP Tamazight term 1, as the press reported circular 270. The scale, «مكتسب», «في طور الاكتساب» and «غير مكتسب», is the app's (answer 464).
+
+## Appreciations
+
+`dz/appreciations.json` holds the phrases a teacher chooses each pupil's term appreciation from ([PRD §3.6](../docs/prd/PRD.md#36-appreciations), answer 465):
+
+- **Interim.** Circular 244's list of phrases is not found, so the project's editors publish this list, marked `interim`, versioned by its `release`, with its `source`. It is not official.
+- **Bands:** the term average out of 20, from 0 to 20 with no gap or overlap; primary's average out of 10 is doubled. Each band has at least one phrase for any conduct.
+- **Phrases:** each with its band, its text in Arabic and, for some, `good` or `concern` conduct. `restates` marks a phrase that only restates the mark, which the app warns about.
+- **Banned:** phrases no appreciation may contain. A list whose phrases contain one is refused.
+- **Concern:** the counts in a term, unjustified absences, lateness and behaviour taps, from which conduct is a concern.
 
 ## Hijri months
 
