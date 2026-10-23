@@ -1,6 +1,6 @@
 # Entering marks (#239)
 
-Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issues/239), on `feat/239-marks-core`, `feat/239-marks-entry` and `feat/239-capture`. Made-up classes and records only.
+Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issues/239), on `feat/239-marks-core`, `feat/239-marks-entry`, `feat/239-capture` and `feat/239-components`. Made-up classes and records only.
 
 ## Part 1: marks and captures in the history (#409)
 
@@ -75,9 +75,33 @@ Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issu
 | Android tests | Taps counting and cycling, recorded at once, and «تراجع»; quick taps; the chips of two sessions, and «تراجع» going back to the last tap's session and item; the screen on a day without a session; the hub's row on a day with a session and on one without, for a subject with no continuous assessment, and disabled for an archived class; the homework counts proposed and written on confirming; every text in French and English; the route. |
 | Android emulator, release build signed with the debug key | On Friday 23 October, a day off, the demo class's hub showed «تقويم أثناء الحصة» disabled with «لا حصة لهذا القسم اليوم». The screen itself was checked in the tests only, since the emulator had no session that day. |
 
+## Part 3b: component marks
+
+- **Where it opens** (answers 444 and 451): the hub's «نقاط التقويم المستمر», for a subject with continuous assessment, with how many of the term's component cells are filled, such as «الخانات المملوءة: 1 من 18». A class archived after a reorientation shows it disabled.
+- **The components** (answers 442 and 451):
+  - the class and the term; in primary, chips for the months the term covers, open on today's month within the term, else its first;
+  - a note that the app never turns taps into marks;
+  - one row for each component or column of the term's setup, with its points and how many of its pupils are done, such as «على 4 · 1 من 3».
+- **The entry:** the same one-pupil-at-a-time entry and keypad as a test, out of the component's points, with no «غائب».
+  - Under the current pupil, what was recorded for that component in the period: participation taps; homework due for the pupil's group with how many were not done or done with help; notebooks marked incomplete; for «الانضباط والمواظبة», the roll-call book's half-days, absences and lateness, and the behaviour taps; «لا يُسجَّل لهذا العنصر شيء في التطبيق» for the others and the teacher's columns.
+  - When the setup takes attendance from the roll-call book, «المقترح من دفتر المناداة: 2.75» and «اعتماد المقترح», which puts it on the keypad; «التالي» records it like any mark.
+  - The summary counts the marks entered and the empty cells, with no absences.
+- **The list:** the course's pupils, of its level only in a joint class, enrolled on the period's last day, on today while it runs, or on its first day before it starts.
+- **After the setup changes** (answer 452): marks already given keep their value. A mark above its component's new points shows with «النقطة أكبر من 3، ولا تُحفظ.» and must be retyped before «التالي» moves on; the summary says «نقاط فوق 3: 2», and the rows count it as not done. A component taken out of the setup keeps its marks in the history, out of every count.
+- **Homework** (answers 452 and 453): each piece due for the pupil's group in the period counts the pupil's tap on the session it came back in, a whole-class session for homework set in a half group, so the counts never exceed what was due.
+- TalkBack hears the evidence and the proposal with the current pupil.
+- The keypad's keys and the row of the previous pupil now have a minimum width of 48dp, so the accessibility check holds in the middle of an entry too.
+
+| Check | Result |
+|---|---|
+| Core tests | A term's months and a month cut to the term; the list read on the period's last day, on today, or on its first day, with a pupil who joined later, and a joint class's level; each kind of component's evidence, and a column's none; a pupil's homework due for their half group, tapped where it came back, a tap on another session left out; half-group homework read on the whole-class session; a mark above a lowered maximum in the entry check. |
+| Android tests | The hub's row and its count; the components with their points; a component entered out of its points with no «غائب», the over-maximum message and the evidence; the attendance proposal from a roll call put on the keypad and recorded, with the behaviour taps; the homework and notebook lines; a mark above points since lowered not counted until retyped; the summary counting a mark put above points lowered while it shows; a component taken out of the setup out of every count; the evidence in the card TalkBack reads; a mark of a pupil not on the list cleared; primary opening on its first month outside the term; the hub's row hidden without continuous assessment and disabled for an archived class; no proposal without the roll-call book; a column with nothing recorded; primary's months open on today's, and a month's mark; sheets refused for a month the course does not keep or an unknown component; an archived class's rows disabled; the routes, and «تم» going back with the cell counted; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils and the teacher's own setup, on Friday 23 October:<br>• The hub read «الخانات المملوءة: 0 من 270», six components for 45 pupils.<br>• The components showed each with its points, such as «الانضباط والمواظبة» and «على 3 · 0 من 45», and «البحوث والمشاريع» on 5.<br>• Attendance opened on the first pupil with «أنصاف الأيام: 0 · غياب غير مبرر: 0 · …» under the mark, also in the card's TalkBack label, and no «غائب» button. The demo has no roll call taken, so no proposal showed.<br>• 2.5 was recorded with «التالي», and 4 showed «النقطة أكبر من 3، ولا تُحفظ.».<br>• Participation said «نقرات المشاركة: 0».<br>• The row then read «على 3 · 1 من 45», and the hub «الخانات المملوءة: 1 من 270», still so after the app was closed and opened again. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
-- **TalkBack in Arabic:** the hub's test, exam and capture rows, the keypad, the current pupil announced after «التالي», the over-maximum message, the summary's clear buttons, and capture's session and item chips and pupil tiles.
-- **On a phone in French and English:** the entry and its summary, and capture. The emulator check was in Arabic.
-- **With a teacher:** entering a real test's marks in one sitting, and saying whether one pupil at a time is quick enough; tapping during a real session, and saying whether the tiles are quick enough to use while teaching.
+- **TalkBack in Arabic:** the hub's test, exam, capture and component rows, the components' month chips and rows, the evidence and «اعتماد المقترح», the keypad, the current pupil announced after «التالي», the over-maximum message, the summary's clear buttons, and capture's session and item chips and pupil tiles.
+- **On a phone in French and English:** the entry and its summary, capture, and component entry. The emulator check was in Arabic.
+- **With a teacher:** entering a real test's marks in one sitting, and saying whether one pupil at a time is quick enough; tapping during a real session, and saying whether the tiles are quick enough to use while teaching; giving a term's component marks with what was recorded beside each pupil, and saying whether the attendance proposal matches the mark they would give.

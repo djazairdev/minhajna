@@ -2932,6 +2932,7 @@
       "summary": "Marks entered",
       "counts": "Marks: {{entered}} · Absent: {{absent}}",
       "noneOver": "No mark above {{max}}",
+      "overCells": "Marks above {{max}}: {{count}}",
       "emptyCells": "Empty cells: {{count}}",
       "noEmpty": "No empty cell",
       "allListed": "Every pupil is on the class list",
@@ -2978,6 +2979,23 @@
       "sessions": "Today’s sessions",
       "sessionAt": "{{from}} – {{to}}",
       "sessionN": "Session {{n}}"
+    },
+    "componentMarks": {
+      "title": "Continuous-assessment marks",
+      "rowLine": "Cells filled: {{done}} of {{total}}",
+      "months": "Month",
+      "note": "The app never turns taps into marks: you give the mark, and what was recorded shows under each pupil.",
+      "line": "out of {{points}} · {{done}} of {{total}}",
+      "period": "{{period}} · out of {{max}}",
+      "participation": "Participation taps: {{n}}",
+      "homework": "Homework: {{set}} · not done: {{notDone}} · done with help: {{helped}}",
+      "notebook": "Notebook incomplete: {{n}}",
+      "attendance": "Half-days: {{possible}} · unjustified absences: {{unjustified}} · justified: {{justified}} · late: {{late}} · behaviour remarks: {{behaviour}}",
+      "nothing": "Nothing is recorded in the app for this component",
+      "proposed": "Proposed from the roll-call book: {{mark}}",
+      "useProposal": "Use the proposal",
+      "counts": "Marks: {{entered}}",
+      "none": "No continuous-assessment components this term"
     }
   }
 }

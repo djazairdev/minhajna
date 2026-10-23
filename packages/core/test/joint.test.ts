@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Joint primary classes (#43): one class, two or three levels, each on its
-// own plan, sharing the room's slot and its roll call, each with its own
-// grade's exams, sat by that level's pupils, and each level's captures and
-// homework counts for its own pupils only. Made-up data only.
+// Joint primary classes (#43): one class, two or three levels, each on its own
+// plan, sharing the room's slot and its roll call, each with its own grade's
+// exams, sat by that level's pupils, and each level's captures, homework
+// counts and component marks for its own pupils only. Made-up data only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -12,6 +12,7 @@ import { describe, it } from 'node:test';
 import {
   captureList,
   captureSession,
+  componentList,
   classGrades,
   courseOf,
   examList,
@@ -185,6 +186,7 @@ describe('Joint classes', () => {
     await book.record(sunday, setCapture(session, 'q01', 'homework', 1));
     await book.record(sunday, setCapture(session, 'q03', 'homework', 2));
     assert.deepEqual(homeworkCaptured(contextOf(book), { session, due: sunday }), { notDone: 1, reliedOn: 0 });
+    assert.deepEqual(componentList(contextOf(book), 'c-lang-4', { from: sunday, to: sunday }, sunday), ['q01', 'q02']);
   });
 
   it('holds two or three different levels of its own, in order', () => {

@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Marks (#239, answers 439 and 440): what a typed mark must be; the last
-// mark recorded counting, an absence, and a cleared mark; the entry check's
-// counts, empty cells and pupils not on the list; and marks kept with the
-// pupil records, travelling where they do.
-// Made-up records only.
+// Marks (#239, answers 439, 440 and 452): what a typed mark must be; the
+// last mark recorded counting, an absence, and a cleared mark; the entry
+// check's counts, a mark above a lowered maximum, empty cells and pupils not
+// on the list; and marks kept with the pupil records, travelling where they
+// do. Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -78,10 +78,13 @@ test('the last mark counts, an absence is kept, and a cleared mark leaves an emp
   ]);
   assert.deepEqual(entryCheck(['p01', 'p02', 'p03', 'p04'], marks), {
     entered: 1,
+    over: [],
     absent: 1,
     empty: ['p03', 'p04'],
     notOnList: ['p99'],
   });
+  const lowered = entryCheck(['p01', 'p02', 'p03', 'p04'], marks, 10);
+  assert.deepEqual([lowered.entered, lowered.over, lowered.absent], [0, ['p01'], 1]);
   assert.equal(marksFor(book.state, 'c-math', 2, T1).size, 0);
 });
 

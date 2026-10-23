@@ -70,8 +70,10 @@ export type RootStackParamList = {
   MarksSetup: { courseId: string; term: number };
   /** Capture during today's session of a course (#239). */
   MarksCapture: { courseId: string };
-  /** Entering the marks of a course's test, or of the term's exam without `testId` (#239). */
-  MarksEntry: { courseId: string; term: number; testId?: string };
+  /** The term's component marks, by `month` in primary (#239). */
+  MarksComponents: { courseId: string; term: number; month?: string };
+  /** Entering a course's test's, component's or, with neither, the term's exam's marks (#239). */
+  MarksEntry: { courseId: string; term: number; testId?: string; componentId?: string; month?: string };
   /** The weekly digest, worked out when it opens (#234). */
   Digest: undefined;
   /** The roll-call book of a class's course, on a month written YYYY-MM or `year`; the latest month when none. */

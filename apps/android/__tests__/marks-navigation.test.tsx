@@ -6,7 +6,9 @@
 // draft asks first, staying keeps it and leaving drops it; a save goes back to
 // the hub, which says the setup is now the teacher's. A test's row opens its
 // entry (#239), whose «تم» goes back to the hub with the marks counted; «تقويم
-// أثناء الحصة» opens capture, whose «تم» goes back too. Made-up records only.
+// أثناء الحصة» opens capture, whose «تم» goes back too; «نقاط التقويم
+// المستمر» opens the term's components, a row its entry, and «تم» goes back
+// with the cell counted. Made-up records only.
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Alert, type AlertButton } from 'react-native';
@@ -118,4 +120,23 @@ test('«تقويم أثناء الحصة» opens capture, and «تم» goes back
   await pressSettings('capture-p-1');
   await pressSettings('capture-done');
   expect(header().route.name).toBe('Marks');
+});
+
+test('«نقاط التقويم المستمر» opens the components, a row its entry, and «تم» goes back', async () => {
+  await showSettingsScreen(<AppNavigator initialRouteName="Home" direction="rtl" />, await withTest());
+  await pressSettings('tab-Classes');
+  await pressSettings('classes-c-1-class');
+  await pressSettings('class-marks');
+  await pressSettings('marks-components');
+  expect([header().route.name, header().route.params]).toEqual(['MarksComponents', { courseId: 'c-1', term: 1 }]);
+  await pressSettings('components-participation');
+  expect([header().route.name, header().route.params]).toEqual([
+    'MarksEntry',
+    { courseId: 'c-1', term: 1, componentId: 'participation' },
+  ]);
+  for (const id of ['pad-3', 'entry-next', 'entry-next', 'entry-next', 'entry-done']) await pressSettings(id);
+  expect(header().route.name).toBe('MarksComponents');
+  expect(settingsTexts()).toContain('على 4 · 1 من 3');
+  await back();
+  expect(settingsTexts()).toContain('الخانات المملوءة: 1 من 18');
 });

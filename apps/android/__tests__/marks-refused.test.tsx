@@ -85,6 +85,7 @@ test('the hub shows no formula, its setup row disabled, and still opens the test
       onSetup={jest.fn()}
       onTests={onTests}
       onCapture={jest.fn()}
+      onComponents={jest.fn()}
       onEntry={jest.fn()}
     />,
   );

@@ -110,7 +110,7 @@ export function nextStep(buffer: string, saved: MarkValue | undefined, max: numb
 
 export interface HubEntry {
   readonly sheet: EntrySheet;
-  /** Pupils on the list with a mark or «غائب». */
+  /** Pupils on the list with a mark within the maximum or «غائب». */
   readonly done: number;
 }
 
@@ -120,6 +120,7 @@ export function entryDone(context: Context, courseId: string, term: number, shee
   const check = entryCheck(
     sheet.listed.map((pupil) => pupil.id),
     marks,
+    sheet.max,
   );
   return { sheet, done: check.entered + check.absent };
 }

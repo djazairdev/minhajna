@@ -1,18 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Entering a test's or the exam's marks (#239, Marks-test, Marks-exam, answers
-// 440 and 447): the test's name or «الاختبار» with the class, its day and
-// maximum, how many of its pupils are done and a bar; then one pupil at a time
-// in class-list order, the previous one above, a tap going back to them, and
-// the next one below; the mark typed on the app's keypad, with «النقطة أكبر من
-// 20، ولا تُحفظ.» while it is above the maximum; «غائب عن الفرض» or «غائب عن
-// الاختبار», and «التالي», which records the mark at once and moves on. An
-// empty cell is skipped, a mark erased is cleared, and «مسح» on an empty cell
-// clears «غائب». What was just recorded shows at once, before the history's
-// write ends. The current pupil is a live region, so TalkBack says who comes
-// next, and that a mark is above the maximum. After the last pupil comes the
-// summary.
+// Entering a test's, the exam's or a component's marks (#239, Marks-test,
+// Marks-exam, answers 440, 447 and 451): the test's name, «الاختبار» or the
+// component's with the class, its day or period and maximum, how many of its
+// pupils are done and a bar; then one pupil at a time in class-list order, the
+// previous one above, a tap going back to them, and the next one below; the
+// mark typed on the app's keypad, with «النقطة أكبر من 20، ولا تُحفظ.» while it
+// is above the maximum; «غائب عن الفرض» or «غائب عن الاختبار», and «التالي»,
+// which records the mark at once and moves on. An empty cell is skipped, a mark
+// erased is cleared, and «مسح» on an empty cell clears «غائب». A component has
+// no «غائب»: under the pupil comes what was recorded for it in the period, and
+// the attendance proposal with «اعتماد المقترح», which puts it on the keypad,
+// both heard with the pupil; a mark above points since lowered must be retyped.
+// What was just recorded shows at once, before the history's write ends. The
+// current pupil is a live region, so TalkBack says who comes next, and that a
+// mark is above the maximum. After the last pupil comes the summary.
 
 import { entryCheck, marksFor, setMark, type MarkValue } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -31,30 +34,36 @@ import { entrySheet, nextStep, pressKey, startBuffer, withQuarter } from './entr
 import { EntrySummary } from './EntrySummary';
 import { MarkPad } from './MarkPad';
 import { assessmentData } from './marks-rules';
+import { componentSheet, isComponent, periodName, useEvidence } from './component-rules';
+import { EntryHead } from './EntryHead';
 
 export type MarksEntryProps = {
   readonly courseId: string;
   readonly term: number;
-  /** The test to enter; the term's exam when not given. */
+  /** The test to enter; the term's exam when neither it nor a component is given. */
   readonly testId?: string;
+  /** The component to enter, by the month in primary. */
+  readonly componentId?: string;
+  readonly month?: string;
   readonly onDone: () => void;
 };
 
-export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) {
+export function MarksEntry({ courseId, term, testId, componentId, month, onDone }: MarksEntryProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, calendarRelease, packs, record } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, record, today } = useAppData();
   const language = currentLanguage();
   const context = useMemo(
     () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
     [profile, year, calendar, calendarRelease, packs, state],
   );
   const data = assessmentData(profile);
-  const sheet = useMemo(
-    () => (data === null ? null : entrySheet(context, data, courseId, term, testId)),
-    [context, data, courseId, term, testId],
-  );
+  const sheet = useMemo(() => {
+    if (data === null) return null;
+    if (componentId === undefined) return entrySheet(context, data, courseId, term, testId);
+    return componentSheet(context, data, courseId, term, componentId, month, today());
+  }, [context, data, courseId, term, testId, componentId, month, today]);
   const [typed, setTyped] = useState<ReadonlyMap<string, MarkValue | null>>(new Map());
   const marks = useMemo(() => {
     const found = sheet === null ? new Map<string, MarkValue>() : marksFor(state, courseId, term, sheet.target);
@@ -68,12 +77,14 @@ export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) 
   const [buffer, setBuffer] = useState(() =>
     startBuffer(sheet === null ? undefined : marks.get(sheet.listed[0]?.id ?? '')),
   );
+  const said = useEvidence(t, context, courseId, sheet, sheet?.listed[index]?.id);
   if (sheet === null) return null;
   const { listed, max, target } = sheet;
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const check = entryCheck(
     listed.map((pupil) => pupil.id),
     marks,
+    max,
   );
   const shownOf = (value: MarkValue | undefined) =>
     value === undefined ? t('marks.entry.empty') : value === 'absent' ? t('marks.entry.absentShort') : String(value);
@@ -128,29 +139,24 @@ export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) 
         },
       ]}
     >
-      <View accessible style={styles.head}>
-        <Text testID="entry-heading" style={[styles.title, align]}>
-          {t('marks.entry.heading', {
-            title: isolate(sheet.title ?? t('marks.entry.exam')),
-            class: isolate(courseLabel(t, state, profile, courseId, true)),
-          })}
-        </Text>
-        <View style={styles.line}>
-          <Text style={[styles.note, styles.grow, align]}>
-            {t('marks.entry.line', { day: dayName(t, sheet.day, language, profile), max })}
-          </Text>
-          <Text testID="entry-progress" style={styles.progress}>
-            {t('marks.entry.progress', { done, total: listed.length })}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.track}>
-        <View style={[styles.bar, { width: `${listed.length === 0 ? 0 : (done * 100) / listed.length}%` }]} />
-      </View>
+      <EntryHead
+        heading={t('marks.entry.heading', {
+          title: isolate(sheet.title ?? t('marks.entry.exam')),
+          class: isolate(courseLabel(t, state, profile, courseId, true)),
+        })}
+        line={
+          isComponent(sheet)
+            ? t('marks.componentMarks.period', { period: periodName(t, profile.months, sheet.target, term), max })
+            : t('marks.entry.line', { day: dayName(t, sheet.day, language, profile), max })
+        }
+        done={done}
+        total={listed.length}
+      />
       {pupil === undefined ? (
         <EntrySummary
           max={max}
-          test={target.kind === 'test'}
+          over={check.over.length}
+          kind={target.kind}
           entered={check.entered}
           absent={check.absent}
           empty={check.empty.length}
@@ -188,6 +194,7 @@ export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) 
                 max,
               }),
               ...(over ? [t('marks.entry.over', { max })] : []),
+              ...(said === null ? [] : [said.text]),
             ].join('. ')}
             style={styles.card}
           >
@@ -206,6 +213,11 @@ export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) 
                 {t('marks.entry.over', { max })}
               </Text>
             )}
+            {said !== null && (
+              <Text testID="entry-evidence" style={[styles.note, align]}>
+                {said.text}
+              </Text>
+            )}
           </View>
           {following !== undefined && (
             <View style={styles.near}>
@@ -216,12 +228,23 @@ export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) 
           )}
           <MarkPad onKey={key} onQuarter={(quarter) => setBuffer(withQuarter(buffer, quarter))} />
           <View style={styles.actions}>
-            <Button
-              testID="entry-absent"
-              variant="line"
-              label={t(target.kind === 'test' ? 'marks.entry.absentTest' : 'marks.entry.absentExam')}
-              onPress={absent}
-            />
+            {said === null ? (
+              <Button
+                testID="entry-absent"
+                variant="line"
+                label={t(target.kind === 'test' ? 'marks.entry.absentTest' : 'marks.entry.absentExam')}
+                onPress={absent}
+              />
+            ) : (
+              said.proposed !== null && (
+                <Button
+                  testID="entry-proposal"
+                  variant="line"
+                  label={t('marks.componentMarks.useProposal')}
+                  onPress={() => setBuffer(String(said.proposed))}
+                />
+              )
+            )}
             <View style={styles.next}>
               <Button testID="entry-next" label={t('marks.entry.next')} onPress={next} />
             </View>
@@ -235,11 +258,13 @@ export function MarksEntry({ courseId, term, testId, onDone }: MarksEntryProps) 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: { gap: spacing['space-8'], paddingTop: spacing['space-12'] },
-  head: { gap: spacing['space-2'] },
-  line: { flexDirection: 'row', alignItems: 'baseline', gap: spacing['space-8'] },
-  track: { height: 4, borderRadius: 2, backgroundColor: colors.line, overflow: 'hidden' },
-  bar: { height: 4, backgroundColor: colors.board },
-  near: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'], minHeight: sizes.target },
+  near: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing['space-8'],
+    minHeight: sizes.target,
+    minWidth: sizes.target,
+  },
   card: {
     gap: spacing['space-2'],
     paddingVertical: spacing['space-10'],
@@ -263,10 +288,8 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing['space-8'] },
   next: { flexGrow: 1, flexBasis: 160 },
-  title: { ...typography.label, color: colors.ink },
   name: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink2 },
   note: { ...typography.caption, color: colors.ink2 },
-  progress: { ...typography.label, color: colors.ink },
   error: { ...typography.caption, color: colors['error-ink'], textAlign: 'center' },
 });

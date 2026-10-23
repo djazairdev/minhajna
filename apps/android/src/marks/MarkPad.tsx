@@ -7,7 +7,7 @@
 // phone's keyboard never covers the list.
 
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../design/tokens';
+import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
 
 const QUARTERS = ['.25', '.5', '.75'] as const;
@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
   key: {
     flexBasis: '30%',
     flexGrow: 1,
+    minWidth: sizes.target,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius['radius-card'],

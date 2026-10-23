@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The hub's entry rows (#239, answer 444): each of the term's tests with
-// its day and how many of its pupils are done, and «الاختبار» with its
-// window's first day, each opening its entry; a term with no test saying so
-// and opening «مواعيد الفروض»; a subject with no term exam showing no exam
-// row; and an archived class's rows shown but disabled, capture's too.
+// The hub's entry rows (#239, answer 444): each of the term's tests with its
+// day and how many of its pupils are done, and «الاختبار» with its window's
+// first day, each opening its entry; a term with no test saying so and opening
+// «مواعيد الفروض»; a subject with no term exam showing no exam row; and an
+// archived class's rows shown but disabled, capture's and the components' too.
 // Made-up records only.
 
 import { parseDay } from '@minhajna/core';
@@ -40,6 +40,7 @@ async function mount(data: TestData, props: Partial<MarksProps> = {}) {
     onSetup: jest.fn(),
     onTests: jest.fn(),
     onCapture: jest.fn(),
+    onComponents: jest.fn(),
     onEntry: jest.fn(),
     ...props,
   };
@@ -127,4 +128,5 @@ test('an archived class shows its rows but takes no new marks', async () => {
   expect(control('marks-exam')?.props.disabled).toBe(true);
   expect(texts()).toContain('حصة اليوم · 08:00 – 09:00');
   expect(control('marks-capture')?.props.disabled).toBe(true);
+  expect(control('marks-components')?.props.disabled).toBe(true);
 });

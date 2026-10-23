@@ -5,9 +5,10 @@
 // open on the term holding today, its formula, release and rules year, the
 // preset standing, and its rows and chips opening what they name; a chosen
 // term; a primary subject with no continuous assessment, its row disabled and
-// its capture row shown (answer 450); a class archived after a reorientation
-// showing its setup but taking no new one; a joint class's course named with
-// its year; and every text found in each language. Made-up records only.
+// its capture row shown but no component row (answers 450 and 451); a class
+// archived after a reorientation showing its setup but taking no new one; a
+// joint class's course named with its year; and every text found in each
+// language. Made-up records only.
 
 import { parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -43,6 +44,7 @@ async function mount(data: TestData, props: Partial<MarksProps> = {}) {
     onSetup: jest.fn(),
     onTests: jest.fn(),
     onCapture: jest.fn(),
+    onComponents: jest.fn(),
     onEntry: jest.fn(),
     ...props,
   };
@@ -120,6 +122,7 @@ test('a primary subject with no continuous assessment says so, its row disabled,
   );
   expect(control('marks-setup')?.props.disabled).toBe(true);
   expect(control('marks-capture')).toBeDefined();
+  expect(control('marks-components')).toBeUndefined();
 });
 
 test('an archived class shows its setup but takes no new one', async () => {
