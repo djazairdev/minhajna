@@ -3,10 +3,12 @@
   SPDX-FileCopyrightText: 2026 The Minhajna contributors
   SPDX-License-Identifier: AGPL-3.0-or-later
 
-  Only the PDFs the app makes, and the last small file it shares, such as a
-  school layer, both in its cache, can be handed to another app.
+  Only the PDFs the app makes, the files of the term export, and the last
+  small file it shares, such as a school layer, all in its cache, can be
+  handed to another app.
 -->
 <paths>
     <cache-path name="pdf" path="pdf/" />
     <cache-path name="share" path="share/" />
+    <cache-path name="files" path="files/" />
 </paths>
