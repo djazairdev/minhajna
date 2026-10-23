@@ -83,6 +83,7 @@ export const hubProps = () => ({
   onAppreciations: jest.fn(),
   onExport: jest.fn(),
   onFix: jest.fn(),
+  onCouncil: jest.fn(),
 });
 
 export const kept = (data: TestData, target: MarkTarget, courseId = 'c-1') =>

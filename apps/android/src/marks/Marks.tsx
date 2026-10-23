@@ -23,7 +23,8 @@
 // الفصلي», ready or with how many marks and appreciations are missing (#242,
 // answer 466). Once the term's last day has passed, a line says its marks
 // change only through «تصحيح بعد الفصل», whose row takes the place of the rows
-// that enter marks (#243, answer 468).
+// that enter marks (#243, answer 468). «ملف مجلس القسم», with the class
+// average and how many reach the threshold, follows the export (#244).
 
 import { captureSession, courseObserved, gradeBook, termEnded, termFixes, termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -39,6 +40,7 @@ import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { courseLabel } from '../exams/course-label';
 import { captureLine } from './capture-rules';
+import { councilRowLine } from './council-rules';
 import { componentProgress } from './component-rules';
 import { EntryRows } from './EntryRows';
 import { levelScale } from './entry-rules';
@@ -72,11 +74,13 @@ export type MarksProps = {
   readonly onExport: (term: number) => void;
   /** Opens the corrections after the term. */
   readonly onFix: (term: number) => void;
+  /** Opens the term's class-council pack. */
+  readonly onCouncil: (term: number) => void;
 };
 
 export function Marks(props: MarksProps) {
   const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry, onPart } = props;
-  const { onObservations, onAppreciations, onExport, onFix } = props;
+  const { onObservations, onAppreciations, onExport, onFix, onCouncil } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -232,6 +236,15 @@ export function Marks(props: MarksProps) {
             title={t('marks.export.title')}
             description={exportLine(t, exported)}
             onPress={() => onExport(term)}
+          />
+        )}
+        {book !== null && book.formula !== null && (
+          <RowLink
+            testID="marks-council"
+            icon={controlIcon('homework')}
+            title={t('marks.council.title')}
+            description={councilRowLine(t, book)}
+            onPress={() => onCouncil(term)}
           />
         )}
         {marking && !ended && (

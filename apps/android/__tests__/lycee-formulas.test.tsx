@@ -94,6 +94,7 @@ const hub = () => (
     onAppreciations={jest.fn()}
     onExport={jest.fn()}
     onFix={jest.fn()}
+    onCouncil={jest.fn()}
   />
 );
 const book = <MarksBook courseId="c-1" term={1} onJustify={jest.fn()} onSignature={jest.fn()} />;
