@@ -16,7 +16,7 @@ import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
 import type { Membership } from './pupil-history.ts';
 import type { CalendarEntry } from './reference.ts';
-import type { AssessmentSetup } from './assessment.ts';
+import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
 import type { MarkEntry } from './marks.ts';
 import type { Retention } from './retention.ts';
@@ -110,4 +110,6 @@ export interface State {
   readonly marks: ReadonlyMap<string, MarkEntry>;
   /** The last capture for each session, pupil and item, by `captureKey` (#239). */
   readonly captures: ReadonlyMap<string, SessionCapture>;
+  /** The averaging formula recorded for each course, by course ID, the last counting (#240). */
+  readonly formulas: ReadonlyMap<string, FormulaId>;
 }

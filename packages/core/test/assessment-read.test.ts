@@ -4,7 +4,9 @@
 // Reading a country's assessment presets and formulas (#238, answers 430,
 // 437 and 438): a file refused field by field, presets and formulas
 // clashing at a level told by their place in the file, a level's scales
-// disagreeing, another level's formula, and only the format's fields kept.
+// disagreeing, another level's formula, and only the format's fields kept;
+// lycée's alternatives, standing beside its formula with ids of their own
+// (#240, answer 463).
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -72,4 +74,29 @@ test('a preset file is refused field by field, and only the format’s fields ar
   assert.deepEqual(Object.keys(extra.value), ['country', 'release', 'presets', 'formulas']);
   assert.equal('note' in extra.value.presets[0]!, false);
   assert.equal('note' in extra.value.formulas[0]!, false);
+});
+
+test('lycée’s alternatives stand beside its formula, each with its own id', () => {
+  const file = readData('dz/assessment.json') as { formulas: Record<string, unknown>[] };
+  const read = parseAssessmentData(file, profile);
+  assert.ok(read.ok);
+  const alternatives = read.value.formulas.filter((one) => one.alternative === true);
+  assert.deepEqual(
+    alternatives.map((one) => [one.id, one.weights]),
+    [
+      ['lycee-practical', { T: 1, F: 1, P: 1, E: 2 }],
+      ['lycee-oral', { T: 1, F: 1, O: 1, E: 2 }],
+    ],
+  );
+  const problems = (formulas: Record<string, unknown>[]) => {
+    const result = parseAssessmentData({ ...file, formulas }, profile);
+    return result.ok ? [] : result.problems.map((one) => `${one.path} ${one.problem}`);
+  };
+  const lycee = { level: 'lycee', id: 'lycee', weights: { T: 1, F: 1, E: 2 } };
+  const oral = { level: 'lycee', id: 'lycee-oral', alternative: true, weights: { T: 1, O: 1, E: 2 } };
+  assert.deepEqual(problems([lycee, oral, { ...oral, id: 'lycee-practical', subjects: ['english'] }]), []);
+  assert.deepEqual(problems([lycee, oral, oral]), ['formulas[2] duplicate']);
+  for (const alternative of [false, 'yes']) {
+    assert.deepEqual(problems([lycee, { ...oral, alternative }]), ['formulas[1].alternative invalid']);
+  }
 });

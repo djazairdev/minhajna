@@ -10,7 +10,9 @@
 // Presets and formulas name subjects known at their level; at a level, no
 // subject is named twice and one entry at most stands for every other
 // subject, as primary's music, visual arts and PE have no formula. A level's
-// formulas have distinct ids, each its level's own, such as cem or lycee-oral.
+// formulas have distinct ids, each its level's own, such as cem or lycee-oral;
+// an alternative, which the administration can choose for a subject in place
+// of its level's, is marked so and stands beside them (#240, answer 463).
 
 import {
   AVERAGE_PARTS,
@@ -104,6 +106,8 @@ function readFormula(reader: Reader, raw: unknown, path: string, profile: Countr
   if (id !== undefined && levelCodes(profile).includes(level) && id !== level && !id.startsWith(`${level}-`)) {
     reader.fail(at(path, 'id'), 'invalid');
   }
+  const alternative = reader.flag(raw, 'alternative', path);
+  if (alternative === false) reader.fail(at(path, 'alternative'), 'invalid');
   const weights = raw['weights'];
   const entries = isFields(weights) ? Object.entries(weights) : [];
   const valid = entries.every(
@@ -114,12 +118,14 @@ function readFormula(reader: Reader, raw: unknown, path: string, profile: Countr
       weight > 0,
   );
   if (entries.length === 0 || !valid) reader.fail(at(path, 'weights'), weights === undefined ? 'required' : 'invalid');
-  if (id === undefined || entries.length === 0 || !valid || refused) return undefined;
+  const flagged = alternative === true || raw['alternative'] === undefined;
+  if (id === undefined || entries.length === 0 || !valid || refused || !flagged) return undefined;
   return {
     level,
     id,
     weights: Object.fromEntries(entries) as Formula['weights'],
     ...(named !== undefined && { subjects: named }),
+    ...(alternative === true && { alternative }),
   } satisfies Formula;
 }
 
@@ -128,9 +134,13 @@ interface LevelEntry {
   readonly subjects?: readonly string[];
   readonly id?: string;
   readonly scale?: number;
+  readonly alternative?: true;
 }
 
-/** At each level: no subject named twice, one entry at most for every other, distinct ids, one scale. */
+/**
+ * At each level: no subject named twice, one entry at most for every other, distinct ids, one scale; an
+ * alternative only needs its own id.
+ */
 function levelCheck(reader: Reader) {
   const named = new Set<string>();
   const others = new Set<string>();
@@ -138,11 +148,12 @@ function levelCheck(reader: Reader) {
   const scales = new Map<string, number>();
   return <T extends LevelEntry>(entry: T | undefined, path: string): T | undefined => {
     if (entry === undefined) return undefined;
-    const subjects = entry.subjects?.map((subject) => `${entry.level}/${subject}`) ?? [];
+    const alternative = entry.alternative === true;
+    const subjects = alternative ? [] : (entry.subjects?.map((subject) => `${entry.level}/${subject}`) ?? []);
     const id = entry.id === undefined ? undefined : `${entry.level}/${entry.id}`;
     const clash =
       subjects.some((subject) => named.has(subject)) ||
-      (entry.subjects === undefined && others.has(entry.level)) ||
+      (!alternative && entry.subjects === undefined && others.has(entry.level)) ||
       (id !== undefined && ids.has(id));
     if (clash) reader.fail(path, 'duplicate');
     const scale = scales.get(entry.level);
@@ -150,7 +161,7 @@ function levelCheck(reader: Reader) {
       reader.fail(at(path, 'scale'), 'invalid');
     }
     subjects.forEach((subject) => named.add(subject));
-    if (entry.subjects === undefined) others.add(entry.level);
+    if (!alternative && entry.subjects === undefined) others.add(entry.level);
     if (id !== undefined) ids.add(id);
     if (entry.scale !== undefined && scale === undefined) scales.set(entry.level, entry.scale);
     return entry;

@@ -267,7 +267,7 @@
           "max": 6
         }
       ],
-      "source": "Rules: Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published. Circular 270 sets the lycée's tests but lists continuous-assessment components for middle school only, so these follow middle school's until a lycée list is found. Averages: (T + F + 2E)/4; the subjects with practical work or an oral, (T + F + P + 2E)/5, come with the grade book (PRD §3.5). No text sets points per component: the points and their ranges are the Minhajna curators', not official, and the teacher sets their own within them (PRD §3.5)."
+      "source": "Rules: Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published. Circular 270 sets the lycée's tests but lists continuous-assessment components for middle school only, so these follow middle school's until a lycée list is found. Averages: (T + F + 2E)/4; for a subject the administration sets with practical work, (T + F + P + 2E)/5, or with an oral, (T + F + O + 2E)/5, which the teacher records for the class and subject (PRD §3.5, answer 463). No text sets points per component: the points and their ranges are the Minhajna curators', not official, and the teacher sets their own within them (PRD §3.5)."
     }
   ],
   "formulas": [
@@ -303,6 +303,28 @@
       "weights": {
         "T": 1,
         "F": 1,
+        "E": 2
+      }
+    },
+    {
+      "level": "lycee",
+      "id": "lycee-practical",
+      "alternative": true,
+      "weights": {
+        "T": 1,
+        "F": 1,
+        "P": 1,
+        "E": 2
+      }
+    },
+    {
+      "level": "lycee",
+      "id": "lycee-oral",
+      "alternative": true,
+      "weights": {
+        "T": 1,
+        "F": 1,
+        "O": 1,
         "E": 2
       }
     }

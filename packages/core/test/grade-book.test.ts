@@ -114,6 +114,8 @@ test('CEM’s book: T, F, E and ((T + F)/2 + 2E)/3 for each pupil sitting the ex
     T: 16,
     F: 10.5,
     E: 14,
+    P: null,
+    O: null,
     average: 13.75,
     rank: 1,
   });

@@ -1,6 +1,6 @@
 # The grade book (#240)
 
-Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen` and `feat/240-book-print`. Made-up classes and records only.
+Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print` and `feat/240-lycee-core`. Made-up classes and records only.
 
 ## Part 1: the averages (#414)
 
@@ -53,6 +53,18 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Android tests | A page for each class and subject in order, framed, with the scope, formula and release, heads, cells and figures; primary's month columns; the blank version; the drawn signature on middle-school pages only, not on a primary or lycée one, a blank one or with «فارغة»; names escaped; the term just ended between terms; one course's page for another term; the line, period and file names; nothing to print without a grade book; the screen's print and save with their log lines, and its «خانة التوقيع»; the log's words for a term. |
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils, on Friday 23 October, with no drawn signature set:<br>• The Documents tab showed «كشف النقاط» with «قسم واحد · الفصل الأول».<br>• Its output screen read «A4 عمودي», the day chooser on Friday 23 October, «كما سُجّلت» and «فارغة بعناوينها» with its line, «داخلي · سري» and the signature line for middle school.<br>• «طباعة» opened Android's print screen on ISO A4 with «Page 1 of 2»: 45 rows run onto a second page.<br>• On «كشف النقاط», «طباعة» and «حفظ PDF» sit under the figures with the signature line; «طباعة» opened the same two-page preview.<br>• The signature choice was checked in the tests only, since no signature was drawn on the emulator. |
+
+## Part 4: lycée's practical work and oral, the core
+
+- **The formulas** (answer 463): lycée's (T + F + P + 2E)/5 with practical work and (T + F + O + 2E)/5 with an oral are alternatives to its (T + F + 2E)/4, which stays the level's formula.
+- **The choice:** the administration's, which the teacher records for the class and subject and the whole year. The last one recorded counts while it is still among the subject's choices, and a reshaped class keeps the one of the class it continues. The choice travels with the pupil records, and two devices that chose differently conflict for that course only.
+- **The marks:** P and O are marked like the exam, «غائب» included. The book shows them when the formula weighs them, and an absence leaves the average empty.
+
+| Check | Result |
+|---|---|
+| Core tests | A subject's choices, its level's first; the formula followed, the last one recorded while still a choice, kept by a reshaped class; the book with P, «غ» leaving the average empty, and back to (T + F + 2E)/4; the choice in the pupil records only; the data file's alternatives, a repeated id refused, and a bad flag giving one problem; a conflict per course. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator | Not run: nothing on screen changes until the screens' pull request. |
 
 ## Still to do by a person
 

@@ -14,7 +14,10 @@
 // had, and a setup keeps its components' names and the preset release it
 // was made from, so marks already given keep their meaning (PRD §4.10). A
 // reshaped class reads the setups of the class it continues (#231). A
-// course with none uses the preset.
+// course with none uses the preset. A level can also have alternative
+// formulas, such as lycée's with practical work or an oral, which a class and
+// subject follows when the teacher records that the administration chose it,
+// and a reshaped class keeps (#240, answer 463).
 
 import { compareDays, type Day } from './day.ts';
 import { lineageIds } from './lineage.ts';
@@ -59,6 +62,8 @@ export interface Formula {
   readonly weights: Readonly<Partial<Record<AveragePart, number>>>;
   /** The subjects it is for; absent, it is the level's formula for every other subject. */
   readonly subjects?: readonly string[];
+  /** One the administration can choose for a subject in place of its level's, such as lycée's with an oral. */
+  readonly alternative?: true;
 }
 
 export interface AssessmentPreset {
@@ -139,9 +144,43 @@ export function presetFor(data: AssessmentData, level: string, subject: string):
   return forSubject(data.presets, level, subject);
 }
 
-/** The formula a subject's averages follow at a level; none for a subject with no exam yet. */
+/** A level's own formula for a subject, never an alternative; none for a subject with no exam yet. */
 export function formulaFor(data: AssessmentData, level: string, subject: string): Formula | undefined {
-  return forSubject(data.formulas, level, subject);
+  return forSubject(
+    data.formulas.filter((one) => one.alternative !== true),
+    level,
+    subject,
+  );
+}
+
+/** The formulas a subject can follow: its level's, then the alternatives for it; none without the first. */
+export function formulaChoices(data: AssessmentData, level: string, subject: string): Formula[] {
+  const usual = formulaFor(data, level, subject);
+  if (usual === undefined) return [];
+  const others = data.formulas.filter(
+    (one) =>
+      one.alternative === true && one.level === level && (one.subjects === undefined || one.subjects.includes(subject)),
+  );
+  return [usual, ...others];
+}
+
+/**
+ * The formula a class and subject follows: the one recorded for it, or for the class it continues, while it is still
+ * a choice, else its level's.
+ */
+export function courseFormula(
+  state: Pick<State, 'courses' | 'classes' | 'formulas'>,
+  data: AssessmentData,
+  courseId: string,
+): Formula | undefined {
+  const course = state.courses.get(courseId);
+  const room = course && state.classes.get(course.classId);
+  if (course === undefined || room === undefined) return undefined;
+  const choices = formulaChoices(data, room.level, course.subject);
+  const recorded = lineageIds(state, courseId).flatMap((id) =>
+    choices.filter((one) => one.id === state.formulas.get(id)),
+  );
+  return recorded[0] ?? choices[0];
 }
 
 /** The term whose dates hold the day; between terms the next, and after the last the last (answer 435). */
