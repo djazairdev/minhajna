@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The records the teacher keeps (PRD §5.3). They hold only the minimum data
-// (PRD §5.6): adding a pupil field changes a data flow, so it needs a
-// decision record first.
+// (PRD §5.6): adding a pupil field changes a data flow, so it needs a decision
+// record first.
 
 import type { Day, Weekday } from './day.ts';
 import type { RollCallUnitKind } from './reference.ts';
@@ -48,7 +48,14 @@ export interface School {
   readonly zone?: string;
   /** The times the teacher set to match the school's bell, over the level's template (PRD §4.6). */
   readonly bells?: SchoolBells;
+  /** How the school takes the term's marks, once the teacher says (#242): its workbook or the ostad grid. */
+  readonly exportRoute?: ExportRoute;
 }
+
+/** The ways a school takes the term's marks: its workbook extracted from amatti, or the ostad grid (#242). */
+export const EXPORT_ROUTES = ['workbook', 'ostad'] as const;
+
+export type ExportRoute = (typeof EXPORT_ROUTES)[number];
 
 /** One slot's time at a school, written HH:MM, such as 08:00 to 09:00. */
 export interface SlotTime {
