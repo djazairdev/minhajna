@@ -77,6 +77,8 @@ export type RootStackParamList = {
   MarksObservations: { courseId: string; term: number };
   /** The appreciations of a course's term with a grade book (#241). */
   MarksAppreciations: { courseId: string; term: number };
+  /** The term export of a course's term with a grade book (#242). */
+  MarksExport: { courseId: string; term: number };
   /** The term's component marks, by `month` in primary (#239). */
   MarksComponents: { courseId: string; term: number; month?: string };
   /** Entering a course's test's, component's, lycée's practical work's or oral's, or else the exam's marks (#239). */

@@ -13,13 +13,14 @@
 // in each language. The list here adds one phrase that restates the mark.
 // Made-up records only.
 
-import { appreciationsFor, refOf, sessionsBetween, setCapture, setMark, type MarkTarget } from '@minhajna/core';
+import { appreciationsFor, refOf, sessionsBetween, setCapture } from '@minhajna/core';
 import { useWindowDimensions } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import type { TestData } from '../jest/app-data';
 import { context, DAY, mount, press, root, texts, unmount } from '../jest/components-screen';
-import { pupil, withTest } from '../jest/marks-class';
+import { marked } from '../jest/marked-book';
+import { pupil } from '../jest/marks-class';
 import { Marks } from '../src/marks/Marks';
 import { MarksAppreciations } from '../src/marks/MarksAppreciations';
 import { i18n, missingKeys } from '../src/text/i18n';
@@ -44,33 +45,6 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
-const POINTS = { participation: 4, quizzes: 3, homework: 3, notebook: 3, attendance: 3, research: 4 } as const;
-const mark = (target: MarkTarget, pupilId: string, value: number, max: number) =>
-  setMark({ courseId: 'c-1', term: 1, target, pupilId }, value, max);
-
-/** 4م1: the first pupil at 11.67, the second at 9.995, the third at 16.00. */
-async function marked(): Promise<TestData> {
-  const data = await withTest();
-  const given = {
-    'p-1': [3.5, 2, 3, 2.5, 3, 4],
-    'p-2': [3, 2, 2, 2, 1.72, 2],
-    'p-3': [4, 3, 3, 3, 3, 4],
-  } as const;
-  const tests = { 'p-1': [12, 10], 'p-2': [10.25, 9.25], 'p-3': [16, 15] } as const;
-  await data.book.recordAll(DAY, [
-    ...Object.entries(given).flatMap(([pupilId, values]) =>
-      Object.entries(POINTS).map(([id, points], index) =>
-        mark({ kind: 'component', componentId: id }, pupilId, values[index], points),
-      ),
-    ),
-    ...Object.entries(tests).flatMap(([pupilId, [test, exam]]) => [
-      mark({ kind: 'test', testId: 't-1' }, pupilId, test, 20),
-      mark({ kind: 'exam' }, pupilId, exam, 20),
-    ]),
-  ]);
-  return data;
-}
-
 const screen = <MarksAppreciations courseId="c-1" term={1} />;
 const has = (testID: string) => root().findAll((node) => node.props.testID === testID).length > 0;
 const chosen = (data: TestData) =>
@@ -88,6 +62,7 @@ const hub = (onAppreciations = jest.fn()) => (
     onPart={jest.fn()}
     onObservations={jest.fn()}
     onAppreciations={onAppreciations}
+    onExport={jest.fn()}
   />
 );
 

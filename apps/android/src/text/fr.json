@@ -3206,6 +3206,34 @@
       "archived": "Cette classe a été recomposée : ses appréciations restent visibles, sans nouveau choix.",
       "noPupils": "Aucun élève dans le relevé de notes de ce trimestre.",
       "unavailable": "Pas d’appréciations pour ce trimestre : il n’a pas de relevé de notes, ou la liste d’appréciations fournie avec l’application n’a pas pu être lue."
+    },
+    "export": {
+      "title": "Export du trimestre",
+      "line": "Export du trimestre · {{class}} · {{term}}",
+      "ready": "Prêt à exporter",
+      "missing": "Notes manquantes : {{marks}} · Appréciations manquantes : {{appreciations}}",
+      "noPupils": "Aucun élève dans le relevé de notes de ce trimestre, donc rien à exporter.",
+      "marksDone": "Notes complètes : {{parts}}",
+      "and": ", ",
+      "marksMissing": "Cases de notes manquantes : {{count}} · Élèves concernés : {{pupils}} sur {{total}}",
+      "averages": "Moyennes selon la formule officielle, version {{release}}",
+      "noAverage": "Évaluation continue seule, sans moyenne du trimestre",
+      "appreciations": "Appréciations : {{done}} sur {{total}}",
+      "notReadyBadge": "Pas encore d’export",
+      "notReady": "Rien n’est exporté tant que les notes et les appréciations ne sont pas complètes : complétez-les depuis « Évaluation et notes », puis revenez ici.",
+      "route": "La voie choisie par l’établissement",
+      "workbook": "Fichier Excel de l’administration",
+      "workbookFrom": "Extrait d’amatti",
+      "ostad": "Grille ostad",
+      "ostadView": "Vue prête à recopier",
+      "routeNote": "La voie de l’établissement est gardée pour toutes vos classes de cet établissement.",
+      "workbookWaits": "Le remplissage du fichier de l’administration attend les modèles vides recueillis auprès des établissements ; le fichier ne vous est donc pas encore demandé. D’ici là, utilisez la vue de la grille ostad.",
+      "ostadOrder": "Dans l’ordre de la grille",
+      "ostadNote": "De grands chiffres à recopier à la main, sans se connecter à la grille.",
+      "absent": "Absent",
+      "never": "Minhajna ne demande jamais le mot de passe d’ostad ou d’amatti, n’entre pas dans ces plateformes à ma place et ne produit pas de bulletins pour les parents.",
+      "unavailable": "Pas d’export pour ce trimestre : il n’a pas de relevé de notes, ou les fichiers fournis avec l’application n’ont pas pu être lus.",
+      "toExport": "Vers l’export du trimestre"
     }
   }
 }

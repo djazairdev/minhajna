@@ -19,10 +19,11 @@
 // tests, the exam and «كشف النقاط» (answer 464). A subject with no continuous
 // assessment says so, and a class archived after a reorientation shows its
 // setup and marks but takes no new ones (#231). «التقديرات», with how many
-// pupils have a phrase, follows «كشف النقاط» (#241, answer 465); the export
-// comes with its own issue.
+// pupils have a phrase, follows «كشف النقاط» (#241, answer 465), then «التصدير
+// الفصلي», ready or with how many marks and appreciations are missing (#242,
+// answer 466).
 
-import { captureSession, courseObserved, gradeBook, termNumberOn, termTests } from '@minhajna/core';
+import { captureSession, courseObserved, gradeBook, termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -33,20 +34,16 @@ import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useText } from '../text/i18n';
 import { courseLabel } from '../exams/course-label';
-import { dayName } from '../today/DayMark';
 import { captureLine } from './capture-rules';
 import { componentProgress } from './component-rules';
-import { entryDone, entrySheet, levelScale, SHEET_TEXTS, type EntrySheet, type SatPart } from './entry-rules';
+import { EntryRows } from './EntryRows';
+import { levelScale } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
 import { appreciationList, appreciationSheet, progressLine } from './appreciation-rules';
+import { courseExport, exportLine } from './export-rules';
 import { observationSheet } from './observation-rules';
-
-const PARTS = [
-  { part: 'P', kind: 'practical' },
-  { part: 'O', kind: 'oral' },
-] as const;
 
 export type MarksProps = {
   readonly courseId: string;
@@ -69,11 +66,13 @@ export type MarksProps = {
   readonly onObservations: (term: number) => void;
   /** Opens the term's appreciations. */
   readonly onAppreciations: (term: number) => void;
+  /** Opens the term's export. */
+  readonly onExport: (term: number) => void;
 };
 
 export function Marks(props: MarksProps) {
   const { courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onComponents, onBook, onEntry, onPart } = props;
-  const { onObservations, onAppreciations } = props;
+  const { onObservations, onAppreciations, onExport } = props;
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -101,25 +100,15 @@ export function Marks(props: MarksProps) {
     return archived ? { line } : { line, press: () => onSetup(term) };
   };
   const row = setup();
-  const sheetOf = (testId?: string, part?: SatPart) =>
-    data === null ? null : entrySheet(context, data, courseId, term, testId, part);
-  const entryLine = (sheet: EntrySheet) =>
-    t('marks.entry.rowLine', {
-      day: dayName(t, sheet.day, currentLanguage(), profile),
-      done: entryDone(context, courseId, term, sheet).done,
-      total: sheet.listed.length,
-    });
-  const tests = termTests(context, courseId, term);
-  const exams = sheetOf();
   const entering = data !== null && marks !== null && levelScale(data, room.level) !== null;
   const session = captureSession(context, courseId, today());
   const observed = entering && courseObserved(state, data, courseId, term);
   const marking = entering && !observed;
   const book = marking ? gradeBook(context, data, courseId, term) : null;
   const phrases = marking && book !== null && appreciationList(profile) !== null;
-  const apprec = phrases ? appreciationSheet(context, data, courseId, term) : null;
+  const apprec = phrases ? appreciationSheet(context, data, courseId, term, book) : null;
+  const exported = apprec === null ? null : courseExport(context, profile, courseId, term, book);
   const noted = observed ? observationSheet(context, courseId, term, today()) : null;
-  const parts = PARTS.filter(({ part }) => (marks?.formula?.weights[part] ?? 0) > 0);
   return (
     <ScrollView
       style={styles.screen}
@@ -217,55 +206,28 @@ export function Marks(props: MarksProps) {
             onPress={() => onAppreciations(term)}
           />
         )}
-        {marking && tests.length === 0 && (
+        {exported !== null && (
           <RowLink
-            testID="marks-no-tests"
-            icon={controlIcon('pencil')}
-            title={t('marks.entry.noTests')}
-            description={t('tests.openLine')}
-            onPress={onTests}
+            testID="marks-export"
+            icon={controlIcon('check')}
+            title={t('marks.export.title')}
+            description={exportLine(t, exported)}
+            onPress={() => onExport(term)}
           />
         )}
-        {marking &&
-          tests.map((test) => {
-            const sheet = sheetOf(test.id);
-            return (
-              <RowLink
-                key={test.id}
-                testID={`marks-test-${test.id}`}
-                icon={controlIcon('pencil')}
-                title={test.title}
-                description={sheet === null ? '' : entryLine(sheet)}
-                disabled={archived || sheet === null}
-                onPress={() => onEntry(term, test.id)}
-              />
-            );
-          })}
-        {marking && marks.formula !== undefined && (
-          <RowLink
-            testID="marks-exam"
-            icon={controlIcon('pencil')}
-            title={t('marks.entry.exam')}
-            description={exams === null ? t('marks.entry.noExam') : entryLine(exams)}
-            disabled={archived || exams === null}
-            onPress={() => onEntry(term)}
+        {marking && (
+          <EntryRows
+            context={context}
+            data={data}
+            courseId={courseId}
+            term={term}
+            formula={marks.formula}
+            archived={archived}
+            onTests={onTests}
+            onEntry={onEntry}
+            onPart={onPart}
           />
         )}
-        {marking &&
-          parts.map(({ kind }) => {
-            const sheet = sheetOf(undefined, kind);
-            return (
-              <RowLink
-                key={kind}
-                testID={`marks-${kind}`}
-                icon={controlIcon('pencil')}
-                title={t(SHEET_TEXTS[kind].title)}
-                description={sheet === null ? t('marks.entry.noExam') : entryLine(sheet)}
-                disabled={archived || sheet === null}
-                onPress={() => onPart(term, kind)}
-              />
-            );
-          })}
         <RowLink
           testID="marks-tests"
           icon={controlIcon('check')}

@@ -12,8 +12,9 @@
 // A phrase chosen is recorded at once, shown, can be cleared, and moves on to
 // the next pupil without one, or the next pupil once each had one; a phrase
 // that only restates the mark stays on the pupil, with a warning. Once each has
-// one, «اكتملت التقديرات». The teacher picks only from the list. A class
-// archived after the reshaping shows its phrases but takes no new ones.
+// one, «اكتملت التقديرات», with «إلى التصدير الفصلي». The teacher picks only
+// from the list. A class archived after the reshaping shows its phrases but
+// takes no new ones.
 
 import { setAppreciation, type AppreciationPhrase } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -45,9 +46,11 @@ import { assessmentData, termWord } from './marks-rules';
 export type MarksAppreciationsProps = {
   readonly courseId: string;
   readonly term: number;
+  /** Opens the term's export once each pupil has a phrase. */
+  readonly onExport?: () => void;
 };
 
-export function MarksAppreciations({ courseId, term }: MarksAppreciationsProps) {
+export function MarksAppreciations({ courseId, term, onExport }: MarksAppreciationsProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -123,6 +126,9 @@ export function MarksAppreciations({ courseId, term }: MarksAppreciationsProps) 
         <View testID="apprec-complete" style={styles.card}>
           <Text style={[styles.title, align]}>{t('marks.appreciations.complete')}</Text>
           <Text style={[styles.body, align]}>{t('marks.appreciations.completeBody')}</Text>
+          {onExport !== undefined && (
+            <Button testID="apprec-export" label={t('marks.export.toExport')} onPress={onExport} />
+          )}
           <Button testID="apprec-review" variant="line" label={t('marks.appreciations.review')} onPress={() => go(0)} />
         </View>
       )}
