@@ -4,11 +4,11 @@
 // The Class page (#279): its subject and pupils, the switch to the other class
 // of the subject, today's session with its roll call, each record's row with
 // its line and its screen, every homework due today whichever group it was set
-// to, assessment shown for a later version, the month so far counted in half-
-// days for the class and each pupil, with no roll call said as such whatever
-// the rule for those not taken, an empty class, and the settings sheet (answer
-// 256). The teacher has 4م1, with 45 made-up pupils, and 4م2 on Thursdays from
-// 11 October 2026.
+// to, assessment with today's term and its setup, the month so far counted in
+// half-days for the class and each pupil, with no roll call said as such
+// whatever the rule for those not taken, an empty class, and the settings
+// sheet (answer 256). The teacher has 4م1, with 45 made-up pupils, and 4م2 on
+// Thursdays from 11 October 2026.
 
 import { DEFAULT_COUNTING, confirmSessions, parseDay, todayView, type Day, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -116,7 +116,7 @@ test('says the class, its session today and each record, with nothing taken yet'
       text.classPage.homeworkNone,
       text.classPage.extraLine,
       `${text.documents.supervised.page} · ${text.classPage.none}`,
-      text.classPage.marksLater,
+      'الفصل الأول · 6 عناصر على 20 · الإعداد الرسمي',
       text.classPage.pupils,
     ]),
   );
@@ -205,14 +205,17 @@ test('opens each record, switches class, and leaves the rows not built yet disab
   expect(control('class-pupil-p-1')).toBeUndefined();
 });
 
-test('the month row, Roll-print and each pupil open once their screens are given', async () => {
+test('the month row, Roll-print, the marks hub and each pupil open once their screens are given', async () => {
+  const onMarks = jest.fn();
   const onMonth = jest.fn();
   const onPupil = jest.fn();
   const onRollPrint = jest.fn();
-  await mount(await withPupils(), { onMonth, onPupil, onRollPrint });
+  await mount(await withPupils(), { onMarks, onMonth, onPupil, onRollPrint });
+  await press('class-marks');
   await press('class-roll');
   await press('class-roll-print');
   await press('class-pupil-p-2');
+  expect(onMarks).toHaveBeenCalledTimes(1);
   expect(onMonth).toHaveBeenCalledTimes(1);
   expect(onRollPrint).toHaveBeenCalledTimes(1);
   expect(onPupil).toHaveBeenCalledWith('p-2');

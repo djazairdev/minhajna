@@ -54,6 +54,7 @@ const KIND_GROUPS: Readonly<Record<string, string>> = {
   'homework.uncounted': 'homework',
   'print.recorded': 'print',
   'output.recorded': 'print',
+  'assessment.set': 'assessment',
 };
 
 /** A kind of record in words, such as «ملاحظة خاصة»; any other kind is «تغيير». */
