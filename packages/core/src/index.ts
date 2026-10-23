@@ -15,6 +15,7 @@ export * from './mark-figures.ts';
 export * from './capture-figures.ts';
 export * from './component-figures.ts';
 export * from './justification.ts';
+export * from './grade-book.ts';
 export * from './calendar.ts';
 export * from './rotating-groups.ts';
 export { halfPair, halfPairs, type HalfTurn } from './half-pair.ts';

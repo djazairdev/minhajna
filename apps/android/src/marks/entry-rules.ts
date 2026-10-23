@@ -24,9 +24,7 @@ import {
   type Day,
   type MarkTarget,
   type MarkValue,
-  type ScheduledTest,
 } from '@minhajna/core';
-import { courseTests } from '../exams/test-rules';
 
 export interface EntrySheet {
   readonly target: MarkTarget;
@@ -123,9 +121,4 @@ export function entryDone(context: Context, courseId: string, term: number, shee
     sheet.max,
   );
   return { sheet, done: check.entered + check.absent };
-}
-
-/** The course's tests whose day falls in the term, by day. */
-export function termTests(context: Context, courseId: string, term: number): ScheduledTest[] {
-  return courseTests(context, courseId).filter((test) => termNumberOn(context.ref.year, test.day) === term);
 }

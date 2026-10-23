@@ -16,7 +16,7 @@
 // rows of the grade book, appreciations and the export come with their own
 // issues.
 
-import { captureSession, termNumberOn } from '@minhajna/core';
+import { captureSession, termNumberOn, termTests } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -32,7 +32,7 @@ import { courseLabel } from '../exams/course-label';
 import { dayName } from '../today/DayMark';
 import { captureLine } from './capture-rules';
 import { componentProgress } from './component-rules';
-import { entryDone, entrySheet, levelScale, termTests, type EntrySheet } from './entry-rules';
+import { entryDone, entrySheet, levelScale, type EntrySheet } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
 
 export type MarksProps = {
