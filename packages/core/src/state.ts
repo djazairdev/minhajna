@@ -250,7 +250,7 @@ export function buildState(entries: readonly Entry[]): State {
         retention = event.retention;
         break;
       default:
-        addScore(scores, event);
+        addScore(scores, event, entry);
     }
   }
   const pupils = new Map<string, Pupil>();

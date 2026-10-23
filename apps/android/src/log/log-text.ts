@@ -10,11 +10,14 @@
 
 import {
   parsePackId,
+  shownMark,
   type CountryProfile,
   type Day,
   type LogCategory,
   type LogItem,
   type LogLine,
+  type MarkTarget,
+  type MarkValue,
   type SessionRef,
   type State,
 } from '@minhajna/core';
@@ -57,7 +60,23 @@ const KIND_GROUPS: Readonly<Record<string, string>> = {
   'print.recorded': 'print',
   'output.recorded': 'print',
   'assessment.set': 'assessment',
+  'mark.set': 'mark',
+  'mark.corrected': 'mark',
 };
+
+const TARGET_PARTS: Readonly<Record<MarkTarget['kind'], string>> = {
+  component: 'marks.book.T',
+  test: 'marks.book.F',
+  exam: 'marks.book.E',
+  practical: 'marks.book.P',
+  oral: 'marks.book.O',
+};
+
+/** A mark as the log says it: two decimals, «غائب», or a dash for none. */
+function markText(t: Translate, value: MarkValue | null): string {
+  if (value === null) return '—';
+  return value === 'absent' ? t('marks.export.absent') : shownMark(value);
+}
 
 /** A kind of record in words, such as «ملاحظة خاصة»; any other kind is «تغيير». */
 export function kindLabel(t: Translate, kind: string): string {
@@ -124,6 +143,17 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
             );
       const reason = line.reason === undefined ? [] : [t('log.reason', { reason: t(`fix.reasons.${line.reason}`) })];
       return [sessionHead(t, names, line.session), what, ...reason].join(' · ');
+    }
+    case 'mark-corrected': {
+      const classId = names.state.courses.get(line.courseId)?.classId;
+      const number = classId === undefined ? undefined : listNumbers(names, classId).get(line.pupilId);
+      const marks = { from: markText(t, line.from), to: markText(t, line.to) };
+      const pupil = number === undefined ? t('log.pupilGone', marks) : t('log.pupil', { ...marks, number });
+      const reason =
+        line.reason === undefined ? [] : [t('log.reason', { reason: t(`marks.fix.reasons.${line.reason}`) })];
+      const title = line.target.kind === 'test' ? names.state.tests.get(line.target.testId)?.title : undefined;
+      const part = title === undefined ? t(TARGET_PARTS[line.target.kind] as 'marks.book.T') : isolate(title);
+      return [t('log.markFix'), className(names, classId), termWord(t, line.term), part, pupil, ...reason].join(' · ');
     }
     case 'session-withdrawn':
       return [sessionHead(t, names, line.session), t('log.withdrawn')].join(' · ');

@@ -14,6 +14,7 @@ import {
   MemoryStore,
   parseDay,
   RecordBook,
+  correctMark,
   setCapture,
   setAppreciation,
   setMark,
@@ -91,6 +92,19 @@ test('a mark or a capture typed differently on two devices conflicts in its own 
     ['mark/c-1/1/test:t-1/p-1', 'capture/c-1/2026-11-08/m1/g-all/p-1/participation'],
   );
   assert.deepEqual(findConflicts(mine, same), []);
+});
+
+test('a correction after the term is the same record as the mark it corrects', async () => {
+  const cell = { courseId: 'c-1', term: 1, target: { kind: 'exam' as const }, pupilId: 'p-1' };
+  const [mine, theirs] = await Promise.all([
+    recorded(setMark(cell, 7.75, 20), correctMark(cell, 7.75, 9.75, 20, 'sum-error')),
+    recorded(setMark(cell, 7.75, 20), correctMark(cell, 7.75, 8.75, 20, 'transcription-error')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), ['mark/c-1/1/exam/p-1', 'mark/c-1/1/exam/p-1']);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['mark/c-1/1/exam/p-1'],
+  );
 });
 
 test('a formula chosen differently on two devices conflicts for that course only', async () => {
