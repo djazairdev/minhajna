@@ -1839,7 +1839,10 @@
       "noSpecialist": "No primary specialist subject taught this year, so there is no specialist's journal to print.",
       "noTimetable": "The timetable is not drawn yet, so there is nothing to print.",
       "blankPrimaryFront": "For each primary class, the front pages with their labels: cover, card, tables, and an empty pupil list and timetable.",
-      "signaturePrimaryFront": "The pages carry the confidential mark, as they hold pupils' names. The director's visa and the approval date stay blank."
+      "signaturePrimaryFront": "The pages carry the confidential mark, as they hold pupils' names. The director's visa and the approval date stay blank.",
+      "blankGradeBook": "The numbers, names and column heads print; the marks and averages stay blank.",
+      "signatureGradeBook": "The teacher's box carries the drawn signature on a middle-school grade book only; the director's box stays blank.",
+      "noGradeBook": "No class and subject has a grade book this term."
     },
     "textsBook": {
       "name": "Texts book",
@@ -1932,6 +1935,12 @@
       "sheetsTwo_other": "{{count}} sheets printed on both sides",
       "price": "about {{price}} DA",
       "pdf": "One PDF for the print shop"
+    },
+    "gradeBook": {
+      "name": "Grade book",
+      "heading": "Marks and averages",
+      "scope": "Class: {{class}} · Subject: {{subject}} · {{term}}",
+      "formula": "{{formula}}, out of {{scale}} · release {{release}}"
     }
   },
   "preview": {

@@ -1,6 +1,6 @@
 # The grade book (#240)
 
-Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core` and `feat/240-book-screen`. Made-up classes and records only.
+Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen` and `feat/240-book-print`. Made-up classes and records only.
 
 ## Part 1: the averages (#414)
 
@@ -34,10 +34,31 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils, on Friday 23 October:<br>• The hub showed «كشف النقاط» after «نقاط التقويم المستمر».<br>• The book read «كشف النقاط · القسم التجريبي · اللغة العربية · الفصل الأول», CEM's formula and «النقاط على 20», then the head and 45 rows.<br>• The first pupil's row read «الفرض 14.00 · الاختبار 16.75» from the part 2 check of #239, with «—» for T and the average, since one component has a mark.<br>• The name column is about 135 dp wide with 48 dp cells, and a long name wraps to two lines.<br>• The value sheet showed «رقم 1 في القائمة · المعدل الفصلي», each part in the book and in full, and «لا معدل حتى تكتمل أجزاؤه.».<br>• «تبرير نقطة التقويم» opened the justification on that pupil, «1 من 45».<br>• «حسب المعدل» kept the rows in list order, none having an average.<br>• The figures read «لا معدل في القسم بعد.» with the full-value note.<br>• Text at 200% was checked in the tests only, not on the emulator. |
 
+## Part 3: the printed grade book
+
+- **Among the documents** (answers 461 and 462): «كشف النقاط» is a pupils' document, A4 portrait, framed «داخلي · سري» on every page. Its day picks the term holding it, or between terms the one just ended, and it prints one page for each class and subject with a grade book, by class name, then subject's name.
+- **Each page:**
+  - the schools and the school year, then «كشف النقاط والمعدلات»;
+  - «القسم: 4م1 · المادة: اللغة العربية · الفصل الأول», the formula with the scale and the release;
+  - «الرقم», «الاسم واللقب», a column for each month marked in primary, each part and «المعدل», in two decimals;
+  - the class's figures, then the teacher's box and the director's «تأشيرة», each dated.
+- **Blank:** «فارغة» prints the numbers and names with empty cells and no figures.
+- **The drawn signature:** it goes in the teacher's box of a middle-school page only, never on a blank one. Primary and lycée pages keep a blank box, and the director's box is always blank.
+- **From the screen:** «طباعة» and «حفظ PDF» on «كشف النقاط» make that class and subject's page, with «خانة التوقيع» for a middle-school page while the drawn signature is in use, saved as «كشف النقاط 4م1 · اللغة العربية الفصل الأول 2026-2027.pdf».
+- **The log and file names:** each print and save goes into the activity log as «كشف النقاط · الفصل الأول». The Documents tab's file is «كشف النقاط الفصل الأول 2026-2027.pdf».
+- **Password:** a password on the PDF comes later, with every pupils' document (answer 415).
+
+| Check | Result |
+|---|---|
+| Android tests | A page for each class and subject in order, framed, with the scope, formula and release, heads, cells and figures; primary's month columns; the blank version; the drawn signature on middle-school pages only, not on a primary or lycée one, a blank one or with «فارغة»; names escaped; the term just ended between terms; one course's page for another term; the line, period and file names; nothing to print without a grade book; the screen's print and save with their log lines, and its «خانة التوقيع»; the log's words for a term. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils, on Friday 23 October, with no drawn signature set:<br>• The Documents tab showed «كشف النقاط» with «قسم واحد · الفصل الأول».<br>• Its output screen read «A4 عمودي», the day chooser on Friday 23 October, «كما سُجّلت» and «فارغة بعناوينها» with its line, «داخلي · سري» and the signature line for middle school.<br>• «طباعة» opened Android's print screen on ISO A4 with «Page 1 of 2»: 45 rows run onto a second page.<br>• On «كشف النقاط», «طباعة» and «حفظ PDF» sit under the figures with the signature line; «طباعة» opened the same two-page preview.<br>• The signature choice was checked in the tests only, since no signature was drawn on the emulator. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
 - **TalkBack in Arabic:** the hub's row, the order control, each row read as one line, and the value sheet.
 - **Text at 200% on a phone:** the parts under each name, and the value sheet.
-- **On a phone in French and English:** the book and the value sheet.
+- **On a phone in French and English:** the book, the value sheet, and the printed book.
+- **On paper:** the printed grade book on a real printer, A4, with a 45-pupil class on one page or running onto a second.
 - **With a teacher:** checking a real class's averages against their own grade book, and saying whether the full value and the line for a pupil shown at 10.00 are clear.
