@@ -808,7 +808,6 @@
     "extraLine": "Support, catch-up, revision, supervised study · does not move the plan",
     "none": "no session yet",
     "marks": "Assessment and marks",
-    "marksLater": "In a later version",
     "pupils": "Pupils",
     "archived": "This class was reshaped: archived since {{day}}, it can be read and printed and takes no more sessions."
   },
@@ -2828,6 +2827,7 @@
       "pupil": "a pupil",
       "homework": "a homework record",
       "print": "a print",
+      "assessment": "an assessment setup",
       "other": "another record"
     },
     "broken": {
@@ -2850,5 +2850,66 @@
       "restore": "Restore from a copy: comes with backups and transfer from another device, so these days come back as they were recorded.",
       "report": "Report a problem: comes with problem reports, where pupils’ names are replaced and the report is shown before it is sent."
     }
+  },
+  "marks": {
+    "termLabel": "Term",
+    "term": "Term {{term}}",
+    "formulaTitle": "Term average, by the official formula",
+    "formula": {
+      "cem": "(average of assessment and test + 2 × exam) ÷ 3",
+      "lycee": "(assessment + test + 2 × exam) ÷ 4",
+      "lyceePractical": "(assessment + test + practical work + 2 × exam) ÷ 5",
+      "lyceeOral": "(assessment + test + oral + 2 × exam) ÷ 5",
+      "primaryExamined": "(assessment + exam) ÷ 2",
+      "examOnly": "The exam mark alone",
+      "none": "This subject has no term exam, so no average yet."
+    },
+    "release": "Release {{release}}",
+    "releaseRules": "Release {{release}} · {{year}} rules until this year’s circular is out",
+    "setupRow": "Continuous assessment",
+    "components_one": "{{count}} component out of {{scale}}",
+    "components_other": "{{count}} components out of {{scale}}",
+    "official": "Official setup",
+    "own": "Your setup since term {{n}}",
+    "noAssessment": "No continuous assessment for this subject",
+    "unavailable": "The assessment setups could not be read",
+    "setupTitle": "Assessment components",
+    "setupHeading": "{{class}} · out of {{scale}} · from term {{n}}",
+    "presetTitle": "Official setup · {{level}}",
+    "presetSubjects": "Official setup · {{level}} · {{subjects}}",
+    "bundled": "Built in",
+    "reference": "Source: circular no. {{circular}} · release {{release}}",
+    "rules": "{{year}} rules until this year’s circular is out",
+    "curators": "The components come from the Ministry’s texts; their points and ranges are the Minhajna curators’, as no official text sets them. Share the points within these ranges, and add columns if you need to.",
+    "moved": "Some components’ ranges have changed since the setup was saved, so their points were moved to the nearest limit. Save to keep this.",
+    "capture": {
+      "session": "Recorded during the session",
+      "homework": "From the homework record",
+      "periodic": "Checked periodically",
+      "rollCall": "From the roll-call book",
+      "manual": "Entered by hand",
+      "column": "Added column"
+    },
+    "range": "from {{min}} to {{max}}",
+    "fewer": "Lower: {{name}}",
+    "more": "Raise: {{name}}",
+    "removeColumn": "Remove the column {{name}}",
+    "fromRollCall": "{{name}} from the roll-call book",
+    "addColumn": "Add a column",
+    "total": "Total {{total}} of {{scale}}",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "left": "The setup can be saved once the total reaches {{scale}}: {{points}} left to share.",
+    "over": "The setup can be saved once the total reaches {{scale}}: {{points}} too many.",
+    "save": "Save",
+    "leave": "The setup is not saved",
+    "columnContext": "A column of your own in {{class}}, counted in the total like the rest.",
+    "columnReassurance": "It is kept with the setup when you tap Save.",
+    "columnName": "Column name",
+    "columnPlaceholder": "For example: oral presentations",
+    "columnPoints": "Column points",
+    "columnFewer": "Fewer points",
+    "columnMore": "More points",
+    "columnAdd": "Add"
   }
 }

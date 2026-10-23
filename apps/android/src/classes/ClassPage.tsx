@@ -6,14 +6,14 @@
 // call, then a row for each of its records, each opening its screen: the texts
 // book, the plan, the roll-call book and its print (answer 260), homework,
 // sessions outside the timetable, supervised or extra lessons, and
-// assessment, which comes in a later version.
+// assessment, with the term holding today and its setup (#238, answer 436).
 // Then the pupils, each with the month's absences and lateness so far, and
 // «إضافة أو نقل». The settings button in the top bar opens the class's settings
 // that exist (answer 256). The page reads the record and adds nothing to it.
 // A class archived after a reorientation says so, and offers no session
 // outside the timetable and no pupil move (#231).
 
-import { courseSetup, type Session } from '@minhajna/core';
+import { courseSetup, termNumberOn, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
@@ -29,6 +29,7 @@ import { colors, spacing, typography } from '../design/tokens';
 import { frontDate } from '../documents/front-tables';
 import { useDocumentData } from '../documents/useDocumentData';
 import { bookSpan } from '../entry/book-lines';
+import { marksLine } from '../marks/marks-rules';
 import { localized, yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -52,6 +53,8 @@ export type ClassPageProps = {
   readonly onBook: () => void;
   readonly onPlan: () => void;
   readonly onTests?: () => void;
+  /** Opens «التقويم والنقاط»; the row is disabled without it. */
+  readonly onMarks?: () => void;
   /** Opens the roll-call book's month; the row is disabled without it. */
   readonly onMonth?: () => void;
   /** Opens Roll-print on this class's book. */
@@ -99,8 +102,9 @@ export function ClassPage(props: ClassPageProps) {
             roll: rollLine(t, data, day, month, pupils),
             homework: homeworkLine(t, context, row.course.id, day),
             supervised: supervisedLine(t, data, context, row),
+            marks: marksLine(t, state, profile, row.course.id, termNumberOn(year, day)),
           },
-    [t, data, context, row, day, month, pupils],
+    [t, data, context, row, day, month, pupils, state, profile, year],
   );
   if (row === undefined || lines === null) return null;
   const align = { writingDirection: direction, textAlign: 'auto' } as const;
@@ -212,7 +216,7 @@ export function ClassPage(props: ClassPageProps) {
         {link('homework', 'homework', t('homework.open'), lines.homework, props.onHomework)}
         {row.archived === undefined && link('extra', 'plus', t('extra.title'), t('classPage.extraLine'), props.onExtra)}
         {link('supervised', 'school', t('documents.supervised.name'), lines.supervised, props.onSupervised)}
-        {link('marks', 'check', t('classPage.marks'), t('classPage.marksLater'))}
+        {link('marks', 'check', t('classPage.marks'), lines.marks, props.onMarks)}
       </View>
       <SectionHeader
         testID="class-pupils"

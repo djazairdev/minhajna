@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### New
+
+- «التقويم والنقاط» now opens from the class page, on the term holding today or one you choose. It names the official formula your term averages follow, and opens «مواعيد الفروض». Continuous assessment starts from your level's official setup: share its points within each component's range, add columns of your own, take attendance and discipline from the roll-call book if you wish, and save once the total reaches 20, or 10 in primary. A saved setup applies from its term on, and earlier terms keep theirs.
+  - تُفتح «التقويم والنقاط» الآن من صفحة القسم، على الفصل الجاري أو الفصل الذي تختاره. تذكر الصيغة الرسمية لمعدلك الفصلي، وتفتح «مواعيد الفروض». ويبدأ التقويم المستمر من الإعداد الرسمي لطورك: وزّع نقاطه ضمن حدود كل عنصر، وأضف أعمدة من عندك، وخذ المواظبة والانضباط من دفتر المناداة إن شئت، واحفظ حين يبلغ المجموع 20، أو 10 في الابتدائي. ويسري الإعداد المحفوظ من فصله فما بعده، وتبقى للفصول السابقة إعداداتها.
+
 ## 0.3.0 (2026-10-23)
 
 The plan and calendar preview: the school calendar and its signed updates, the class plan in full with its layers, catch-up and re-pacing, Today for primary, lycée and teachers in several schools, the weekly digest, the drawn signature, lesson notes and distributions, and the activity log. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.

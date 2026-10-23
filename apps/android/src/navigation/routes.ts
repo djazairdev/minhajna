@@ -64,6 +64,10 @@ export type RootStackParamList = {
   /** The teacher's own paragraph at `index`, or a new one. */
   NoteOwn: { key: string; day: string; index?: number };
   Class: { courseId: string };
+  /** «التقويم والنقاط» for a course, on `term` when chosen, else the term holding today (#238). */
+  Marks: { courseId: string; term?: number };
+  /** The course's continuous-assessment setup, applying from `term` on. */
+  MarksSetup: { courseId: string; term: number };
   /** The weekly digest, worked out when it opens (#234). */
   Digest: undefined;
   /** The roll-call book of a class's course, on a month written YYYY-MM or `year`; the latest month when none. */
