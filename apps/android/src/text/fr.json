@@ -3078,6 +3078,52 @@
       "noPupils": "Aucun élève sur la liste pour cette période",
       "file": "Justification de l’évaluation continue",
       "fileOne": "élève {{n}}"
+    },
+    "book": {
+      "title": "Relevé de notes",
+      "rowLine": "Moyennes : {{counted}} sur {{total}}",
+      "line": "Relevé de notes · {{class}} · {{term}}",
+      "order": "Ordre",
+      "byList": "Par liste",
+      "byAverage": "Par moyenne",
+      "name": "Nom et prénom",
+      "T": "Évaluation",
+      "F": "Devoir",
+      "E": "Examen",
+      "P": "Travaux pratiques",
+      "O": "Oral",
+      "average": "Moyenne",
+      "absent": "Abs.",
+      "outOf": "Notes sur {{scale}}",
+      "months": "L’évaluation est la moyenne des mois évalués ; les mois de chaque élève sont sous son nom.",
+      "figures": "Moyenne de la classe {{mean}} · plus haute {{highest}} · plus basse {{lowest}} · {{threshold}} et plus : {{reached}} sur {{counted}}",
+      "noAverages": "Aucune moyenne dans la classe pour l’instant.",
+      "fullNote": "Les seuils et le rang comparent la valeur complète. Le numéro est celui de la liste.",
+      "atThreshold": "{{name}} : {{shown}} au relevé, valeur complète {{full}}, donc pas compté dans « {{threshold}} et plus ».",
+      "noPupils": "Aucun élève sur la liste de ce trimestre.",
+      "none": "Pas de relevé de notes pour cette matière.",
+      "with": {
+        "cem": "(({{T}} + {{F}}) ÷ 2 + 2 × {{E}}) ÷ 3 = {{average}}",
+        "lycee": "({{T}} + {{F}} + 2 × {{E}}) ÷ 4 = {{average}}",
+        "lyceePractical": "({{T}} + {{F}} + {{P}} + 2 × {{E}}) ÷ 5 = {{average}}",
+        "lyceeOral": "({{T}} + {{F}} + {{O}} + 2 × {{E}}) ÷ 5 = {{average}}",
+        "primaryExamined": "({{T}} + {{E}}) ÷ 2 = {{average}}",
+        "examOnly": "{{E}} = {{average}}"
+      },
+      "value": {
+        "context": "N° {{n}} sur la liste · moyenne du trimestre",
+        "reassurance": "Les seuils et le rang comparent la valeur complète ; la moyenne s’affiche avec deux décimales.",
+        "shown": "Au relevé, deux décimales",
+        "full": "Valeur complète",
+        "part": "Élément",
+        "inBook": "Au relevé",
+        "whole": "Complète",
+        "reached": "La moyenne atteint {{threshold}} : comptée dans « {{threshold}} et plus ». Rang {{rank}} sur {{counted}}.",
+        "below": "La moyenne est sous {{threshold}} : pas comptée dans « {{threshold}} et plus ». Rang {{rank}} sur {{counted}}.",
+        "none": "Pas de moyenne tant que ses parties manquent.",
+        "justify": "Justifier la note d’évaluation"
+      },
+      "comma": ", "
     }
   }
 }

@@ -3027,6 +3027,52 @@
       "noPupils": "No pupil on the list for this period",
       "file": "Continuous-assessment justification",
       "fileOne": "pupil {{n}}"
+    },
+    "book": {
+      "title": "Grade book",
+      "rowLine": "Averages: {{counted}} of {{total}}",
+      "line": "Grade book · {{class}} · {{term}}",
+      "order": "Order",
+      "byList": "By list",
+      "byAverage": "By average",
+      "name": "Name",
+      "T": "Assessment",
+      "F": "Test",
+      "E": "Exam",
+      "P": "Practical",
+      "O": "Oral",
+      "average": "Average",
+      "absent": "Abs.",
+      "outOf": "Marks out of {{scale}}",
+      "months": "Assessment is the mean of the months assessed; each pupil’s months show under their name.",
+      "figures": "Class average {{mean}} · highest {{highest}} · lowest {{lowest}} · {{threshold}} or more: {{reached}} of {{counted}}",
+      "noAverages": "No average in the class yet.",
+      "fullNote": "Thresholds and ranks compare the full value. The number is the pupil’s number on the list.",
+      "atThreshold": "{{name}}: {{shown}} in the book, {{full}} in full, so not counted in “{{threshold}} or more”.",
+      "noPupils": "No pupils on this term’s list.",
+      "none": "No grade book for this subject.",
+      "with": {
+        "cem": "(({{T}} + {{F}}) ÷ 2 + 2 × {{E}}) ÷ 3 = {{average}}",
+        "lycee": "({{T}} + {{F}} + 2 × {{E}}) ÷ 4 = {{average}}",
+        "lyceePractical": "({{T}} + {{F}} + {{P}} + 2 × {{E}}) ÷ 5 = {{average}}",
+        "lyceeOral": "({{T}} + {{F}} + {{O}} + 2 × {{E}}) ÷ 5 = {{average}}",
+        "primaryExamined": "({{T}} + {{E}}) ÷ 2 = {{average}}",
+        "examOnly": "{{E}} = {{average}}"
+      },
+      "value": {
+        "context": "No. {{n}} on the list · term average",
+        "reassurance": "Thresholds and ranks compare the full value; the average shows with two decimals.",
+        "shown": "In the book, two decimals",
+        "full": "Full value",
+        "part": "Part",
+        "inBook": "In the book",
+        "whole": "In full",
+        "reached": "The average reaches {{threshold}}, so it counts in “{{threshold}} or more”. Rank {{rank}} of {{counted}}.",
+        "below": "The average is below {{threshold}}, so it does not count in “{{threshold}} or more”. Rank {{rank}} of {{counted}}.",
+        "none": "No average until all its parts are in.",
+        "justify": "Justify the assessment mark"
+      },
+      "comma": ", "
     }
   }
 }

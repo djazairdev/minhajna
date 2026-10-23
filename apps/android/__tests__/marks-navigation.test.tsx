@@ -9,7 +9,8 @@
 // أثناء الحصة» opens capture, whose «تم» goes back too; «نقاط التقويم
 // المستمر» opens the term's components, a row its entry, and «تم» goes back
 // with the cell counted; «تبرير التقويم المستمر» opens from the components and
-// from the Documents tab. Made-up records only.
+// from the Documents tab; and «كشف النقاط» opens from the hub (#240), a pupil's
+// value sheet opening their justification on that pupil. Made-up records only.
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Alert, type AlertButton } from 'react-native';
@@ -156,4 +157,21 @@ test('«تبرير التقويم المستمر» opens from the components and
   await pressSettings('documents-justify');
   expect(header().route.name).toBe('MarksJustify');
   expect(settingsTexts()).toContain('1 من 3');
+});
+
+test('«كشف النقاط» opens from the hub, and a pupil’s value sheet opens their justification', async () => {
+  await showSettingsScreen(<AppNavigator initialRouteName="Home" direction="rtl" />, await withTest());
+  await pressSettings('tab-Classes');
+  await pressSettings('classes-c-1-class');
+  await pressSettings('class-marks');
+  await pressSettings('marks-book');
+  expect([header().route.name, header().route.params]).toEqual(['MarksBook', { courseId: 'c-1', term: 1 }]);
+  expect(settingsTexts()).toContain('كشف النقاط · 4م1 · اللغة العربية · الفصل الأول');
+  await pressSettings('book-row-p-2');
+  await pressSettings('book-value-justify');
+  expect([header().route.name, header().route.params]).toEqual([
+    'MarksJustify',
+    { courseId: 'c-1', term: 1, pupilId: 'p-2' },
+  ]);
+  expect(settingsTexts()).toEqual(expect.arrayContaining(['تلميذة ثانية', '2 من 3']));
 });
