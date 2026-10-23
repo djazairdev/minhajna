@@ -4,8 +4,9 @@
 // Captures during the session (#239, answers 441 and 442): each item's
 // range; the last capture counting and a zero clearing it; the homework
 // counts a session's captures propose; a pupil's evidence over a period and
-// a course; captures travelling with the pupil records; and a withdrawn
-// session's, or one not held, no longer counting. Made-up records only.
+// a course; captures travelling with the pupil records; and a session not
+// held no longer counting, while a withdrawn one's still do (answer 450).
+// Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -60,7 +61,9 @@ test('the last capture counts, a zero clears it, and homework proposes its two c
     p03: { homework: 2 },
     p05: { notebook: 1 },
   });
-  assert.deepEqual(homeworkProposal(book.state, s.key), { notDone: 1, reliedOn: 1 });
+  const all = ['p01', 'p02', 'p03', 'p04', 'p05'];
+  assert.deepEqual(homeworkProposal(book.state, s.key, all), { notDone: 1, reliedOn: 1 });
+  assert.deepEqual(homeworkProposal(book.state, s.key, ['p01', 'p03']), { notDone: 0, reliedOn: 1 });
   const sent = recordsForRoute(book.state, 'school-space').filter((one) => one.kind === 'capture.set');
   assert.equal(sent.length, 5);
 });
@@ -89,7 +92,7 @@ test('a pupil’s evidence counts the course’s sessions in the period only', a
   });
 });
 
-test('a withdrawn session’s captures, or those of a session not held, no longer count', async () => {
+test('a session not held no longer counts its captures, and a withdrawn one still does', async () => {
   const book = await openBook(cemEvents());
   const [held] = sessionsBetween(contextOf(book), d('2026-09-30'), d('2026-09-30'), new Set(['c-math']));
   assert.ok(held);
@@ -100,14 +103,14 @@ test('a withdrawn session’s captures, or those of a session not held, no longe
   await book.record(d('2026-09-30'), setCapture(s, 'p01', 'participation', 2));
   const shown = () => [
     sessionCaptures(book.state, s.key).size,
-    homeworkProposal(book.state, s.key).notDone,
+    homeworkProposal(book.state, s.key, ['p01']).notDone,
     evidence(book.state, 'c-math', 'p01', d('2026-09-30'), d('2026-09-30')).participation,
   ];
   assert.deepEqual(shown(), [1, 1, 2]);
   await book.record(d('2026-09-30'), event);
   assert.deepEqual(shown(), [1, 1, 2]);
   await book.record(d('2026-10-01'), { kind: 'session.withdrawn', session: s });
-  assert.deepEqual(shown(), [0, 0, 0]);
+  assert.deepEqual(shown(), [1, 1, 2]);
   const notHeld = { ...event.record, outcome: 'not-held' as const };
   await book.record(d('2026-10-01'), { kind: 'session.recorded', record: notHeld });
   assert.deepEqual(shown(), [0, 0, 0]);

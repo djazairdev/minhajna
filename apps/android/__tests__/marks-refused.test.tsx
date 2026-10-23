@@ -78,7 +78,16 @@ test('the Class page’s row says the setups could not be read', async () => {
 
 test('the hub shows no formula, its setup row disabled, and still opens the tests', async () => {
   const onTests = jest.fn();
-  await mount(<Marks courseId="c-1" onTerm={jest.fn()} onSetup={jest.fn()} onTests={onTests} onEntry={jest.fn()} />);
+  await mount(
+    <Marks
+      courseId="c-1"
+      onTerm={jest.fn()}
+      onSetup={jest.fn()}
+      onTests={onTests}
+      onCapture={jest.fn()}
+      onEntry={jest.fn()}
+    />,
+  );
   expect(texts()).toContain(text.marks.unavailable);
   expect(texts()).not.toContain(text.marks.formulaTitle);
   expect(control('marks-setup')?.props.disabled).toBe(true);

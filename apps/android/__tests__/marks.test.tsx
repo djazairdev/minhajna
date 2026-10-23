@@ -4,10 +4,10 @@
 // «التقويم والنقاط» (#238, Marks, answers 435 and 436): a middle-school class
 // open on the term holding today, its formula, release and rules year, the
 // preset standing, and its rows and chips opening what they name; a chosen
-// term; a primary subject with no continuous assessment, its row disabled;
-// a class archived after a reorientation showing its setup but taking no
-// new one; a joint class's course named with its year; and every text found
-// in each language. Made-up records only.
+// term; a primary subject with no continuous assessment, its row disabled and
+// its capture row shown (answer 450); a class archived after a reorientation
+// showing its setup but taking no new one; a joint class's course named with
+// its year; and every text found in each language. Made-up records only.
 
 import { parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -42,6 +42,7 @@ async function mount(data: TestData, props: Partial<MarksProps> = {}) {
     onTerm: jest.fn(),
     onSetup: jest.fn(),
     onTests: jest.fn(),
+    onCapture: jest.fn(),
     onEntry: jest.fn(),
     ...props,
   };
@@ -107,7 +108,7 @@ test('a chosen term opens its own setup', async () => {
   expect(props.onSetup).toHaveBeenCalledWith(2);
 });
 
-test('a primary subject with no continuous assessment says so, its row disabled', async () => {
+test('a primary subject with no continuous assessment says so, its row disabled, and still captures', async () => {
   const data = await withDay();
   await data.book.recordAll(parseDay('2026-10-15'), [
     primaryClass('p-1', 's-1', '5ap', '5 ابتدائي أ'),
@@ -118,6 +119,7 @@ test('a primary subject with no continuous assessment says so, its row disabled'
     expect.arrayContaining([text.marks.formula.examOnly, 'الإصدار 2026.1', text.marks.noAssessment]),
   );
   expect(control('marks-setup')?.props.disabled).toBe(true);
+  expect(control('marks-capture')).toBeDefined();
 });
 
 test('an archived class shows its setup but takes no new one', async () => {

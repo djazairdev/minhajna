@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The two counts for homework that came back (#214, P67, R-3.8-20 to 23):
-// pupils who did not do it and pupils who relied on someone else, one
-// stepper each, with the share of the class list under each, rounded to a
-// whole number. A pupil is counted once at most, so the two together never
-// pass the list. «الجميع أنجزه بنفسه» records none of either at once. Class
-// counts only, never names. With no class list there is nothing to count
-// against, and the panel says so. Counts kept from a longer list start at
-// what the list now allows.
+// pupils who did not do it and pupils who relied on someone else, one stepper
+// each, with the share of the class list under each, rounded to a whole number.
+// A pupil is counted once at most, so the two together never pass the list.
+// «الجميع أنجزه بنفسه» records none of either at once. Class counts only, never
+// names. With no class list there is nothing to count against, and the panel
+// says so. Counts kept from a longer list start at what the list now allows.
+// Before any count is saved, the homework taps of the session it came back in
+// fill the steppers, said as theirs, as they stood when the panel opened;
+// they are written only when the teacher confirms (#239, R-3.8-24).
 
 import { homeworkPercent, type HomeworkItem } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,13 +27,21 @@ export interface HomeworkCounterProps {
   /** The two column names, in the page's words. */
   readonly names: { readonly notDone: string; readonly reliedOn: string };
   readonly onCount: (notDone: number, reliedOn: number) => void;
+  /** The counts the session's homework taps propose, used only while none is saved. */
+  readonly proposed?: { readonly notDone: number; readonly reliedOn: number } | null;
 }
 
-export function HomeworkCounter({ item, names, onCount }: HomeworkCounterProps) {
+export function HomeworkCounter({ item, names, onCount, proposed = null }: HomeworkCounterProps) {
   const t = useText();
   const { direction } = useLocale();
-  const [notDone, setNotDone] = useState(Math.min(item.count?.notDone ?? 0, item.listed));
-  const [reliedOn, setReliedOn] = useState(Math.min(item.count?.reliedOn ?? 0, item.listed - notDone));
+  const [seed] = useState(() => {
+    const start = item.count ?? proposed;
+    const notDone = Math.min(start?.notDone ?? 0, item.listed);
+    const reliedOn = Math.min(start?.reliedOn ?? 0, item.listed - notDone);
+    return { notDone, reliedOn, fromTaps: item.count === null && proposed !== null };
+  });
+  const [notDone, setNotDone] = useState(seed.notDone);
+  const [reliedOn, setReliedOn] = useState(seed.reliedOn);
   const key = item.session.key;
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   if (item.listed === 0) {
@@ -67,6 +77,11 @@ export function HomeworkCounter({ item, names, onCount }: HomeworkCounterProps) 
   return (
     <View testID={`homework-counter-${key}`} style={styles.panel}>
       <Text style={[styles.title, align]}>{t('homework.counting', { text: isolate(item.text) })}</Text>
+      {item.count === null && seed.fromTaps && (
+        <Text testID="homework-proposed" style={[styles.note, align]}>
+          {t('homework.proposed', { notDone: seed.notDone, reliedOn: seed.reliedOn })}
+        </Text>
+      )}
       <View style={styles.steppers}>
         {one('notDone', notDone, reliedOn, setNotDone)}
         {one('reliedOn', reliedOn, notDone, setReliedOn)}

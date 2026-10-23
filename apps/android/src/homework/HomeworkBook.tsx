@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The texts book's homework record in the app (#214, P67, R-3.8-19 to 23):
-// one class and subject, the homework its sessions set in the order it was
-// set, in the subject's language and direction. Homework that has come back
-// opens its two counts; the homework that comes back today, or the one
-// Today's card opened, starts open. A count is saved the moment it is
-// confirmed, with «تراجع» while it is still the latest. Only confirmed
-// counts print; the rest stay blank, as on paper. The year's homework
-// pages print from here.
+// The texts book's homework record in the app (#214, P67, R-3.8-19 to 23): one
+// class and subject, the homework its sessions set in the order it was set, in
+// the subject's language and direction. Homework that has come back opens its
+// two counts; the homework that comes back today, or the one Today's card
+// opened, starts open. A count is saved the moment it is confirmed, with
+// «تراجع» while it is still the latest. Only confirmed counts print; the rest
+// stay blank, as on paper. The year's homework pages print from here. Before a
+// count is saved, the session's homework taps propose it (#239).
 
 import {
   canonicalJson,
@@ -16,6 +16,7 @@ import {
   countHomework,
   courseGrade,
   current,
+  homeworkCaptured,
   homeworkRecord,
   isJoint,
   uncountHomework,
@@ -163,6 +164,7 @@ export function HomeworkBook({ courseId, sessionKey, onPrint }: HomeworkBookProp
                       item={item}
                       names={names}
                       onCount={(notDone, reliedOn) => count(item, notDone, reliedOn)}
+                      proposed={item.count === null ? homeworkCaptured(context, item) : null}
                     />
                   )}
                 </HomeworkRow>

@@ -3,18 +3,19 @@
 
 // «التقويم والنقاط» for one class and subject (#238, Marks, answers 435 and
 // 436): the class and subject, chips for the year's terms, open on the term
-// whose dates hold today, then the card naming the formula its averages
-// follow, with the release and the rules year, and the rows built so far:
-// «التقويم المستمر», with the setup in force for the term; one row for each
-// of the term's tests, with its day and how many of its pupils are done, or
-// «لا فرض في هذا الفصل بعد» opening «مواعيد الفروض»; «الاختبار», with its
-// window's first day, for a subject with a term exam (#239, answer 444);
-// and «مواعيد الفروض». A subject with no continuous assessment says so, and
-// a class archived after a reorientation shows its setup and marks but
-// takes no new ones (#231). The rows of the grade book, appreciations and
-// the export come with their own issues.
+// whose dates hold today, then the card naming the formula its averages follow,
+// with the release and the rules year, and the rows built so far: «التقويم
+// المستمر», with the setup in force for the term; «تقويم أثناء الحصة», with
+// today's session, disabled with none; one row for each of the term's tests,
+// with its day and how many of its pupils are done, or «لا فرض في هذا الفصل
+// بعد» opening «مواعيد الفروض»; «الاختبار», with its window's first day, for a
+// subject with a term exam (#239, answer 444); and «مواعيد الفروض». A subject
+// with no continuous assessment says so, and a class archived after a
+// reorientation shows its setup and marks but takes no new ones (#231). The
+// rows of the grade book, appreciations and the export come with their own
+// issues.
 
-import { termNumberOn } from '@minhajna/core';
+import { captureSession, termNumberOn } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -28,6 +29,7 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { courseLabel } from '../exams/course-label';
 import { dayName } from '../today/DayMark';
+import { captureLine } from './capture-rules';
 import { entryDone, entrySheet, levelScale, termTests, type EntrySheet } from './entry-rules';
 import { assessmentData, courseMarks, formulaText, setupLine, termWord } from './marks-rules';
 
@@ -38,15 +40,18 @@ export type MarksProps = {
   readonly onTerm: (term: number) => void;
   readonly onSetup: (term: number) => void;
   readonly onTests: () => void;
+  /** Opens capture during today's session. */
+  readonly onCapture: () => void;
   /** Opens the entry of a test's marks, or of the exam's without a test. */
   readonly onEntry: (term: number, testId?: string) => void;
 };
 
-export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onEntry }: MarksProps) {
+export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onCapture, onEntry }: MarksProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
+  const app = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today } = app;
   const context = useMemo(
     () => coreContext({ profile, year, calendar, calendarRelease, packs, state }),
     [profile, year, calendar, calendarRelease, packs, state],
@@ -79,6 +84,7 @@ export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onEntr
   const tests = termTests(context, courseId, term);
   const exams = sheetOf();
   const entering = data !== null && marks !== null && levelScale(data, room.level) !== null;
+  const session = captureSession(context, courseId, today());
   return (
     <ScrollView
       style={styles.screen}
@@ -124,6 +130,16 @@ export function Marks({ courseId, term: chosen, onTerm, onSetup, onTests, onEntr
           disabled={row.press === undefined}
           onPress={row.press ?? (() => undefined)}
         />
+        {entering && (
+          <RowLink
+            testID="marks-capture"
+            icon={controlIcon('pupils')}
+            title={t('marks.during.title')}
+            description={session === null ? t('marks.during.noSession') : captureLine(t, app, session)}
+            disabled={archived || session === null}
+            onPress={onCapture}
+          />
+        )}
         {entering && tests.length === 0 && (
           <RowLink
             testID="marks-no-tests"

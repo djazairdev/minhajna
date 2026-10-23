@@ -1,6 +1,6 @@
 # Entering marks (#239)
 
-Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issues/239), on `feat/239-marks-core` and `feat/239-marks-entry`. Made-up classes and records only.
+Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issues/239), on `feat/239-marks-core`, `feat/239-marks-entry` and `feat/239-capture`. Made-up classes and records only.
 
 ## Part 1: marks and captures in the history (#409)
 
@@ -16,7 +16,7 @@ Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issu
   - a pupil's evidence over a period;
   - the homework counts a session proposes;
   - the attendance component, proposed from the roll-call book's own totals under the teacher's counting rules.
-  - Captures of a session withdrawn or recorded as not held no longer count.
+  - Captures of a session recorded as not held no longer count. Those of a withdrawn session count again since part 3, as for a session not yet recorded (answer 450).
 
 | Check | Result |
 |---|---|
@@ -54,9 +54,30 @@ Checks of 23 October 2026 for [#239](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, with 45 made-up pupils, on 23 October:<br>• A test, «Fard1», was added for Tuesday 10 November. The hub showed its row, «الثلاثاء 10 نوفمبر · 0 من 45», and «الاختبار · الأحد 6 ديسمبر · 0 من 45».<br>• In the entry, 14 was recorded and kept after the app was closed and opened again.<br>• 25 showed the error in the card, and «التالي» stayed on the pupil.<br>• 9.5 with the quarter key, then «غائب عن الفرض».<br>• Going back showed «غ», and «مسح» cleared it.<br>• The summary read «النقاط: 2 · الغياب: 0», «خانات فارغة: 43» and «كل التلاميذ من قائمة القسم», with the note that test marks stay with the teacher.<br>• «مراجعة من البداية» showed 14 again, and the hub read «2 من 45».<br>• The exam took 16.75, and its row read «1 من 45».<br>• The first build put «التالي» under the navigation bar while the error showed. The error now sits in the card and the two buttons share a row, and everything fits.<br>• At 200% text, «غائب عن الاختبار» and «التالي» wrap onto two rows, and «التالي» spans the width after a short scroll. |
 
+## Part 3: capture during the session
+
+- **Where it opens** (answers 441, 449 and 450): the hub's «تقويم أثناء الحصة», with today's session and its time, such as «حصة اليوم · 08:00 – 09:00», for every subject with a mark scale, with or without continuous assessment. It is disabled on a day the course has no session, and for a class archived after a reorientation.
+- **The sessions:** today's sessions of the course, leaving out a day the calendar closes, the teacher's own calendar days, and a session recorded as not held. The screen opens on the first not yet recorded, else the last, and shows a chip for each when there are several, with its time, such as «09:00 – 10:00». With none, it says «لا حصة لهذا القسم اليوم».
+- **The screen** (Capture):
+  - the class, the session line, and the session chips;
+  - chips for «المشاركة», «الواجب», «الكراس» and «السلوك», with each one's hint;
+  - a tile for each pupil of the session's group enrolled that day, in class-list order; in a joint class, of the course's level only.
+- **Taps:**
+  - participation and behaviour count up, shown «+2»;
+  - homework goes from nothing to «لم يُنجز», «بمساعدة الغير» and back;
+  - the notebook toggles «غير مكتمل».
+  - Each tap is recorded at once, and quick taps count from what was just tapped. «تراجع» takes back the last tap made on the screen, back on that tap's session and item, and «تم» goes back.
+- **Homework counts** (R-3.8-24): before a count is saved, the homework record's counter starts at what the taps of the session the homework came back in propose, «من تقويم الحصة · لم يُنجزه: 1 · …», counting only the pupils on the homework's list. They are written only when the teacher confirms.
+
+| Check | Result |
+|---|---|
+| Core tests | The session capture opens on: the first not yet recorded, else the last, with two sessions on a day; none on a day off, on the teacher's own calendar day, or for a session not held; a withdrawn session's captures counting again; a half group's list; a joint class's level; and the homework counts proposed from the due day's taps, from the homework's own half group's session only and for the pupils on the list only. |
+| Android tests | Taps counting and cycling, recorded at once, and «تراجع»; quick taps; the chips of two sessions, and «تراجع» going back to the last tap's session and item; the screen on a day without a session; the hub's row on a day with a session and on one without, for a subject with no continuous assessment, and disabled for an archived class; the homework counts proposed and written on confirming; every text in French and English; the route. |
+| Android emulator, release build signed with the debug key | On Friday 23 October, a day off, the demo class's hub showed «تقويم أثناء الحصة» disabled with «لا حصة لهذا القسم اليوم». The screen itself was checked in the tests only, since the emulator had no session that day. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
-- **TalkBack in Arabic:** the hub's test and exam rows, the keypad, the current pupil announced after «التالي», the over-maximum message, and the summary's clear buttons.
-- **On a phone in French and English:** the entry and its summary. The emulator check was in Arabic.
-- **With a teacher:** entering a real test's marks in one sitting, and saying whether one pupil at a time is quick enough.
+- **TalkBack in Arabic:** the hub's test, exam and capture rows, the keypad, the current pupil announced after «التالي», the over-maximum message, the summary's clear buttons, and capture's session and item chips and pupil tiles.
+- **On a phone in French and English:** the entry and its summary, and capture. The emulator check was in Arabic.
+- **With a teacher:** entering a real test's marks in one sitting, and saying whether one pupil at a time is quick enough; tapping during a real session, and saying whether the tiles are quick enough to use while teaching.
