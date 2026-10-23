@@ -148,7 +148,7 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
       });
     case 'output': {
       const { document, period, how, blank } = line.output;
-      const made = how === 'pdf' ? 'PDF' : t('log.print');
+      const made = how === 'print' ? t('log.print') : how.toUpperCase();
       const term = /^term-(\d)$/.exec(period);
       const when = term === null ? periodLabel(names, period) : termWord(t, Number(term[1]));
       return [documentTitle(t, document), when, made, ...(blank ? [t('log.blank')] : [])].join(' · ');

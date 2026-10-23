@@ -8,9 +8,10 @@
 // المؤسسة», the school's workbook or the ostad grid, kept with the school; for
 // the workbook, that filling it waits for the school's blank templates; for the
 // ostad grid, each pupil in the grid's order with large numbers to copy by
-// hand; once everything is complete, «ملفات أخرى» with the printed mark sheet;
-// and what Minhajna never does: ask for a platform's password, open it for the
-// teacher, or make a report card.
+// hand; once everything is complete, «ملفات أخرى» with the printed mark sheet,
+// the sheet as a file, and «مقارنة قبل التوقيع»; and what Minhajna never
+// does: ask for a platform's password, open it for the teacher, or make a
+// report card.
 
 import { EXPORT_ROUTES, type ExportRoute } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -19,6 +20,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { courseLabel } from '../exams/course-label';
 import { coreContext } from '../storage/core-context';
@@ -40,9 +43,13 @@ export type MarksExportProps = {
   readonly term: number;
   /** Opens the signature's settings. */
   readonly onSignature: () => void;
+  /** Opens the sheet as a file, to keep or send. */
+  readonly onFile: () => void;
+  /** Opens the check before signing. */
+  readonly onCheck: () => void;
 };
 
-export function MarksExport({ courseId, term, onSignature }: MarksExportProps) {
+export function MarksExport({ courseId, term, onSignature, onFile, onCheck }: MarksExportProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -153,6 +160,20 @@ export function MarksExport({ courseId, term, onSignature }: MarksExportProps) {
         <>
           <Text style={[styles.title, align]}>{t('marks.export.others')}</Text>
           <ExportPrint courseId={courseId} term={term} sheet={sheet} onSignature={onSignature} />
+          <RowLink
+            testID="export-file"
+            icon={controlIcon('lock')}
+            title={t('marks.export.file.title')}
+            description={t('marks.export.file.row')}
+            onPress={onFile}
+          />
+          <RowLink
+            testID="export-check"
+            icon={controlIcon('check')}
+            title={t('marks.export.check.title')}
+            description={t('marks.export.check.row')}
+            onPress={onCheck}
+          />
         </>
       )}
       <Text testID="export-never" style={[styles.note, align]}>

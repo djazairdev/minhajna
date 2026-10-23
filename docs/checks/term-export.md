@@ -72,11 +72,30 @@ Filling the school's own workbook waits for the blank templates of [#45](https:/
 | The archive opened on a Mac | The archive the test left was pulled from the emulator and opened with bsdtar 3.5.3 (libarchive 3.7.4) and the password. It gave back the exact bytes of the made-up CSV file; a wrong password was refused. |
 | Release build, type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 
+## Part 4b: the sheet as a file, and the check before signing
+
+- **Where** (Export-file, answer 467): once the export is ready, «ملفات أخرى» on «التصدير الفصلي» has «حفظ كشف النقاط في ملف» and «مقارنة قبل التوقيع».
+- **The file:**
+  - It is the sheet as a PDF, the printed page, with «خانة التوقيع» on a middle-school page. Or it is a CSV file whose first line is «داخلي · سري» with the class, subject, term and year, then the header and each pupil, with decimal commas.
+  - «حماية الملف بكلمة سر» is on by default. The password is 6 to 64 Latin letters, digits or symbols, shown as typed, never kept or filled in by the phone.
+  - «اختيار مكان الحفظ» opens the file picker. «مشاركة» first shows Share-warn: the file's name, «داخلي · سري», professional secrecy (Ord. 06-03 Art. 48), whether a password protects the file, and that no public link is made.
+  - Each file kept or shared goes into the activity log as the sheet, its term, and PDF or CSV.
+- **The check** (Marks-check, Marks-check-diff, R-3.7-09):
+  - A CSV file the teacher picks is set beside the register: how many rows match, then each differing row with both values, «تصحيح في الكشف» and «إعادة تعبئة الملف».
+  - It names the columns the file lacks, and the numbers not on the list or on two lines. Then every pupil appears in the control sheet's form, each read as one line.
+  - A file in any of the app's three languages is read. A file that is not text, over 2 MB, without the header, or unreadable is refused with what to do. Nothing is kept or changed.
+
+| Check | Result |
+|---|---|
+| Android tests | Pass. The file screen: no file before the export is ready; the CSV file's marking line, header and first pupil; a password refused, then accepted; the PDF without a password; Share-warn before sharing, and «إلغاء» sending nothing; a cancelled save not said or logged; a failure said; the log's line; every text in French and English. The check: the export's rows; no check before ready; the app's own file in Arabic and in French matching; a changed value; a missing column, an extra number and a number on two lines; the four refusals; every text in French and English. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, on Friday 23 October: the app started with the files module, and «التصدير الفصلي» showed its lines and «لا تصدير بعد», with neither «حفظ كشف النقاط في ملف» nor «مقارنة قبل التوقيع», since no pupil of the demo class has all their marks. The two screens were checked in the tests, and the files module in part 4a. |
+
 ## Still to do by a person
 
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
-- **TalkBack in Arabic:** the hub's row, the status card, the route choice, and each pupil of the ostad view read as one line.
-- **On a phone in French and English:** the screen and the ostad view.
-- **On Windows:** a password-protected CSV file and PDF, opened with 7-Zip, WinRAR and WPS, with a Latin and an Arabic password. If one refuses the Arabic password, part 4b keeps passwords to Latin letters and digits.
+- **TalkBack in Arabic:** the hub's row, the status card, the route choice, and each pupil of the ostad view read as one line; the file screen's format, switch and password; Share-warn; and each pupil of the check read as one line.
+- **On a phone in French and English:** the screen, the ostad view, the file screen and the check.
+- **On Windows:** a password-protected CSV file and PDF, opened with 7-Zip, WinRAR and WPS, with a Latin password, and whether each also opens an Arabic one. Until all three do, the file screen takes Latin letters, digits and symbols only (answer 467).
 - **On paper:** the printed mark sheet on a real A4 printer, with a 45-pupil class and long appreciations.
-- **With a teacher:** copying a real term's marks from the ostad view into the ostad grid, and saying whether the numbers are large enough and the order matches the grid.
+- **With a teacher:** saving a real term's CSV file with a password, opening it in Excel or WPS, then checking it back; and copying a real term's marks from the ostad view into the ostad grid, and saying whether the numbers are large enough and the order matches the grid.
