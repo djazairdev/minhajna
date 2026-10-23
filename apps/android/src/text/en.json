@@ -2804,6 +2804,7 @@
     "unchecked": "Cannot be checked",
     "textsBook": "Texts book",
     "rollCall": "Roll call",
+    "markFix": "Mark corrected after the term",
     "fields": {
       "outcome": "Session outcome",
       "coverage": "Session topic",
@@ -2845,6 +2846,7 @@
       "homework": "a homework record",
       "print": "a print",
       "assessment": "an assessment setup",
+      "mark": "Mark",
       "other": "another record"
     },
     "broken": {
@@ -3159,6 +3161,14 @@
       "archived": "This class was archived after the reshaping: its appreciations show, but no new ones can be chosen.",
       "noPupils": "No pupil in this term’s grade book.",
       "unavailable": "No appreciations for this term: it has no grade book, or the list of appreciations bundled with the app could not be read."
+    },
+    "fix": {
+      "reasons": {
+        "sum-error": "Error adding up the paper",
+        "transcription-error": "Error copying the mark",
+        "appeal": "Review after an appeal",
+        "other": "Another reason"
+      }
     },
     "export": {
       "title": "Term export",

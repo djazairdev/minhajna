@@ -2853,6 +2853,7 @@
     "unchecked": "Non vérifiable",
     "textsBook": "Cahier de textes",
     "rollCall": "Appel",
+    "markFix": "Note corrigée après le trimestre",
     "fields": {
       "outcome": "Résultat de la séance",
       "coverage": "Sujet de la séance",
@@ -2894,6 +2895,7 @@
       "homework": "un devoir",
       "print": "une impression",
       "assessment": "un réglage d’évaluation",
+      "mark": "Note",
       "other": "un autre dossier"
     },
     "broken": {
@@ -3213,6 +3215,14 @@
       "archived": "Cette classe a été recomposée : ses appréciations restent visibles, sans nouveau choix.",
       "noPupils": "Aucun élève dans le relevé de notes de ce trimestre.",
       "unavailable": "Pas d’appréciations pour ce trimestre : il n’a pas de relevé de notes, ou la liste d’appréciations fournie avec l’application n’a pas pu être lue."
+    },
+    "fix": {
+      "reasons": {
+        "sum-error": "Erreur dans le total de la copie",
+        "transcription-error": "Erreur de report",
+        "appeal": "Révision après un recours",
+        "other": "Autre raison"
+      }
     },
     "export": {
       "title": "Export du trimestre",

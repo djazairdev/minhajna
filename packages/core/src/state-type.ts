@@ -20,6 +20,7 @@ import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
 import type { AppreciationEntry } from './appreciations.ts';
 import type { MarkEntry } from './marks.ts';
+import type { MarkFix } from './mark-fix.ts';
 import type { ObservationEntry } from './observations.ts';
 import type { Retention } from './retention.ts';
 import type {
@@ -118,4 +119,6 @@ export interface State {
   readonly observations: ReadonlyMap<string, ObservationEntry>;
   /** The last appreciation for each course, term and pupil, by `appreciationKey` (#241). */
   readonly appreciations: ReadonlyMap<string, AppreciationEntry>;
+  /** Every correction of a mark after its term, with its day, in the order made (#243). */
+  readonly markFixes: readonly Version<MarkFix>[];
 }

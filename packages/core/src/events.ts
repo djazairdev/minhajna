@@ -8,6 +8,7 @@
 import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
 import type { MarkEntry } from './marks.ts';
+import type { MarkFix } from './mark-fix.ts';
 import type { ObservationEntry } from './observations.ts';
 import type { AppreciationEntry } from './appreciations.ts';
 import type { ExtraSession } from './extra-records.ts';
@@ -135,6 +136,8 @@ export type RecordEvent =
   | { readonly kind: 'assessment.set'; readonly setup: AssessmentSetup }
   /** A pupil's mark for a test, the exam or a component, or its absence (#239). */
   | { readonly kind: 'mark.set'; readonly mark: MarkEntry }
+  /** A mark of an ended term corrected, with the value before and the reason (#243). */
+  | { readonly kind: 'mark.corrected'; readonly fix: MarkFix }
   /** What the teacher tapped for a pupil during a session (#239). */
   | { readonly kind: 'capture.set'; readonly capture: SessionCapture }
   /** The averaging formula the administration set for a class and subject, among its level's (#240). */
@@ -196,6 +199,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'retention.set': true,
   'assessment.set': true,
   'mark.set': true,
+  'mark.corrected': true,
   'capture.set': true,
   'formula.set': true,
   'observation.set': true,
@@ -219,6 +223,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'counting.set':
     case 'assessment.set':
     case 'mark.set':
+    case 'mark.corrected':
     case 'capture.set':
     case 'formula.set':
     case 'observation.set':

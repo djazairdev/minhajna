@@ -131,6 +131,8 @@ export function recordKey(entry: Entry): string | null {
       return `assessment/${event.setup.courseId}/${event.setup.term}`;
     case 'mark.set':
       return `mark/${markKey(event.mark)}`;
+    case 'mark.corrected':
+      return `mark/${markKey(event.fix.mark)}`;
     case 'capture.set':
       return `capture/${captureKey(event.capture)}`;
     case 'formula.set':

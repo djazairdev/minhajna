@@ -7,10 +7,12 @@
 // without a number, signed files with their plan's subject and year, an
 // erasure's kinds each named once, a withdrawn session and one recorded again,
 // and a change that cannot be checked by its kind, with each language's own
-// comma. Made-up records only.
+// comma; and a mark corrected after the term, a test by its title (#243).
+// Made-up records only.
 
-import { parseDay, type LogLine, type SessionRef } from '@minhajna/core';
+import { parseDay, type LogLine, type MarkTarget, type SessionRef } from '@minhajna/core';
 import { openTestData } from '../jest/app-data';
+import { withTest } from '../jest/marks-class';
 import { withDay } from '../jest/today-day';
 import { categoryLabel, kindLabel, lineText, logDay, periodLabel, type LogNames } from '../src/log/log-text';
 import { i18n, missingKeys } from '../src/text/i18n';
@@ -120,4 +122,35 @@ test.each(['fr', 'en'] as const)('every line has its words in %s', async (langua
       : 'Deleted: a roll call, a pupil. The fact stays, without its content',
   );
   expect(missingKeys).toEqual([]);
+});
+
+test('a mark corrected after the term reads with its class, term, part, pupil, values and reason', async () => {
+  const data = await withTest();
+  const shown: LogNames = { state: data.book.state, profile: data.profile, lang: 'ar' };
+  const line = (pupilId: string, reason?: 'sum-error', target: MarkTarget = { kind: 'exam' }): LogLine => ({
+    kind: 'mark-corrected',
+    courseId: 'c-1',
+    term: 1,
+    target,
+    pupilId,
+    from: 7.75,
+    to: 'absent',
+    ...(reason !== undefined && { reason }),
+  });
+  expect(lineText(t, shown, line('p-1', 'sum-error'))).toBe(
+    'تصحيح نقطة بعد الفصل · \u20684م1\u2069 · الفصل الأول · الاختبار · التلميذ 1: من 7.75 إلى غائب · ' +
+      'السبب: خطأ في جمع نقاط الورقة',
+  );
+  expect(lineText(t, shown, line('p-gone'))).toBe(
+    'تصحيح نقطة بعد الفصل · \u20684م1\u2069 · الفصل الأول · الاختبار · تلميذ لم يعد في القائمة: من 7.75 إلى غائب',
+  );
+  const test = (testId: string) => line('p-1', undefined, { kind: 'test', testId });
+  expect(lineText(t, shown, test('t-1'))).toContain(' · الفصل الأول · \u2068الفرض الأول\u2069 · التلميذ 1: ');
+  expect(lineText(t, shown, test('t-gone'))).toContain(' · الفصل الأول · الفرض · التلميذ 1: ');
+  for (const language of ['fr', 'en'] as const) {
+    await i18n.changeLanguage(language);
+    missingKeys.length = 0;
+    lineText(t, { ...shown, lang: language }, line('p-1', 'sum-error'));
+    expect(missingKeys).toEqual([]);
+  }
 });

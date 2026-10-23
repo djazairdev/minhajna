@@ -13,6 +13,8 @@ import { canonicalJson } from './canonical.ts';
 import { compareDays, type Day } from './day.ts';
 import { CORRECTION_REASONS, eventOf, type CorrectionReason, type RecordEvent } from './events.ts';
 import { ERASURE, erasedIds, type Entry } from './history.ts';
+import { MARK_FIX_REASONS, type MarkFixReason } from './mark-fix.ts';
+import type { MarkTarget, MarkValue } from './marks.ts';
 import type { OutputRecord } from './prints.ts';
 import type { Half, SessionRecord, SessionRef } from './records.ts';
 import { markOf, ROLL_CALL_REASONS, type PupilMark, type RollCallReason } from './roll-call-fix.ts';
@@ -59,6 +61,17 @@ export type LogLine =
       readonly changes: readonly PupilMarkChange[];
       /** Only a known code: an older or other device's history may hold words, which never show. */
       readonly reason?: RollCallReason;
+    }
+  /** A mark corrected after its term (#243); its detail never shows. */
+  | {
+      readonly kind: 'mark-corrected';
+      readonly courseId: string;
+      readonly term: number;
+      readonly target: MarkTarget;
+      readonly pupilId: string;
+      readonly from: MarkValue | null;
+      readonly to: MarkValue | null;
+      readonly reason?: MarkFixReason;
     }
   /** The week's print set, by the documents it held. */
   | { readonly kind: 'printed'; readonly documents: readonly string[] }
@@ -167,6 +180,20 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
         ...(known(ROLL_CALL_REASONS, event.reason) && { reason: event.reason }),
       };
     }
+    case 'mark.corrected': {
+      const { mark, before, reason } = event.fix;
+      const { courseId, term, target, pupilId, value } = mark;
+      return {
+        kind: 'mark-corrected',
+        courseId,
+        term,
+        target,
+        pupilId,
+        from: before,
+        to: value,
+        ...(known(MARK_FIX_REASONS, reason) && { reason }),
+      };
+    }
     case 'print.recorded':
       return { kind: 'printed', documents: event.print.documents.map((document) => document.id) };
     case 'output.recorded':
@@ -187,6 +214,7 @@ const categoryOf = (line: LogLine): LogCategory | null => {
     case 'session-corrected':
     case 'session-withdrawn':
     case 'roll-call-corrected':
+    case 'mark-corrected':
       return 'corrections';
     case 'erased':
       return 'erasures';
