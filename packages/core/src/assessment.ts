@@ -21,6 +21,7 @@
 
 import { compareDays, type Day } from './day.ts';
 import { lineageIds } from './lineage.ts';
+import type { ObservedTerm } from './observations.ts';
 import type { LocalizedText, SchoolYear } from './reference.ts';
 import type { State } from './state.ts';
 
@@ -85,6 +86,8 @@ export interface AssessmentData {
   readonly release: string;
   readonly presets: readonly AssessmentPreset[];
   readonly formulas: readonly Formula[];
+  /** The grades' terms whose marks descriptive observations replace (#240); none when absent. */
+  readonly observations?: readonly ObservedTerm[];
 }
 
 /** A preset component with the teacher's points and the name it had, or a column of their own. */

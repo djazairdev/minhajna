@@ -18,6 +18,7 @@ import {
   kindOf,
   listKey,
   markKey,
+  observationKey,
   type Entry,
   type RecordEvent,
 } from '@minhajna/core';
@@ -133,6 +134,8 @@ export function recordKey(entry: Entry): string | null {
       return `capture/${captureKey(event.capture)}`;
     case 'formula.set':
       return `formula/${event.courseId}`;
+    case 'observation.set':
+      return `observation/${observationKey(event.observation)}`;
   }
 }
 

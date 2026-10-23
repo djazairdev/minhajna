@@ -1,6 +1,6 @@
 # The grade book (#240)
 
-Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print`, `feat/240-lycee-core` and `feat/240-lycee-screens`. Made-up classes and records only.
+Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issues/240), on `feat/240-book-core`, `feat/240-book-screen`, `feat/240-book-print`, `feat/240-lycee-core`, `feat/240-lycee-screens` and `feat/240-observations-core`. Made-up classes and records only.
 
 ## Part 1: the averages (#414)
 
@@ -66,7 +66,7 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator | Not run: nothing on screen changes until the screens' pull request. |
 
-## Part 4b: lycée's practical work and oral on the screens
+## Part 4b: lycée's practical work and oral on the screens (#418)
 
 - **The choice** (L-Marks, answer 463): on «كشف النقاط» of a subject with more than one formula, «صيغة المعدل، كما تحددها الإدارة للمادة» offers «دون أعمال تطبيقية ولا شفهي», «مع الأعمال التطبيقية» and «مع الشفهي», each with its formula. The note says it applies to the class and subject for the whole year, and that marks already entered are kept. Choosing the formula already followed records nothing, and an archived class shows the choice but takes none.
 - **The hub:** the formula card names the formula followed, and «الأعمال التطبيقية» or «الشفهي» has its row when that formula weighs it, with the exam's day and how many are done, or «لا موعد للاختبار في رزنامة هذا الفصل».
@@ -78,6 +78,18 @@ Checks of 23 October 2026 for [#240](https://github.com/djazairdev/minhajna/issu
 | Android tests | The choice and what it records; the hub's formula card and rows, opening the entry; the entry's title and «غائب» recorded on the part; the book's row read as one line, the value sheet's formula and the printed columns; the justification's line with practical work and with the oral; the row disabled with no exam window; a middle-school class with no choice; an archived class; every text in French and English. |
 | Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
 | Android emulator, release build signed with the debug key | On the demo class, 4AM Arabic, the only class on the emulator, on Friday 23 October:<br>• The hub's formula card still read CEM's formula, and the rows were the same as before, ending «Fard1», «الاختبار» and «مواعيد الفروض», with no practical work or oral row.<br>• The book showed no formula choice, and its head read «الاسم واللقب · التقويم · الفرض · الاختبار · المعدل».<br>• The first pupil's value sheet showed each part as before.<br>• The emulator has no lycée class, so the lycée screens were checked in the tests only. |
+
+## Part 5a: descriptive observations, the core
+
+- **The terms observed** (R-3.5-06, answer 464): `data/dz/assessment.json` names the grades, terms and subjects whose marks circular 270 replaces, as the press reported it: 1AP term 1 for every subject, 3AP French and English term 1, and 4AP Tamazight term 1, each with its source. A joint class's course is read by its own grade.
+- **The observation:** «مكتسب», «في طور الاكتساب» or «غير مكتسب», one for each pupil, subject and term, chosen by hand. The last one recorded counts and it can be cleared. It travels with the pupil records, and two devices that chose differently conflict for that pupil only.
+- **The counts:** how many pupils on a list have each observation, and how many have none yet.
+
+| Check | Result |
+|---|---|
+| Core tests | The file's three cases and which grade, subject and term are observed; an unknown grade, a term below 1, a subject unknown at the level, a missing source and a subject named twice in a grade's term, each refused; a class and subject's term by its grade; the last observation kept, a cleared one left out; the counts on a list; the observations in the pupil records only; a conflict per pupil. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests | Pass |
+| Android emulator | Not run: nothing on screen changes until the screen's pull request. |
 
 ## Still to do by a person
 

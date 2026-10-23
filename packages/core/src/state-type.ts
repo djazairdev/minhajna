@@ -19,6 +19,7 @@ import type { CalendarEntry } from './reference.ts';
 import type { AssessmentSetup, FormulaId } from './assessment.ts';
 import type { SessionCapture } from './captures.ts';
 import type { MarkEntry } from './marks.ts';
+import type { ObservationEntry } from './observations.ts';
 import type { Retention } from './retention.ts';
 import type {
   Course,
@@ -112,4 +113,6 @@ export interface State {
   readonly captures: ReadonlyMap<string, SessionCapture>;
   /** The averaging formula recorded for each course, by course ID, the last counting (#240). */
   readonly formulas: ReadonlyMap<string, FormulaId>;
+  /** The last descriptive observation for each course, term and pupil, by `observationKey` (#240). */
+  readonly observations: ReadonlyMap<string, ObservationEntry>;
 }

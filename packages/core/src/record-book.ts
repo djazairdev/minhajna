@@ -9,6 +9,7 @@ import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './h
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
 import { captureKey } from './captures.ts';
 import { markKey } from './marks.ts';
+import { observationKey } from './observations.ts';
 import { buildState, type State } from './state.ts';
 import { kindOf, listKey } from './support-queue.ts';
 import { layerKey, switchKey } from './variant-layers.ts';
@@ -117,6 +118,8 @@ function recordKey(event: RecordEvent): string {
       return `capture:${captureKey(event.capture)}`;
     case 'formula.set':
       return `formula:${event.courseId}`;
+    case 'observation.set':
+      return `observation:${observationKey(event.observation)}`;
   }
 }
 

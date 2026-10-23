@@ -328,5 +328,24 @@
         "E": 2
       }
     }
+  ],
+  "observations": [
+    {
+      "grade": "1ap",
+      "term": 1,
+      "source": "Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published, as the press reported it the next day; the circular itself was not read. Descriptive observations replace marks in these cases, and the digital report sheets were changed to allow it. The scale «مكتسب», «في طور الاكتساب», «غير مكتسب» is the app's, kept until an official list is found (answer 464)."
+    },
+    {
+      "grade": "3ap",
+      "term": 1,
+      "subjects": ["french", "english"],
+      "source": "Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published, as the press reported it the next day; the circular itself was not read. Descriptive observations replace marks in these cases, and the digital report sheets were changed to allow it. The scale «مكتسب», «في طور الاكتساب», «غير مكتسب» is the app's, kept until an official list is found (answer 464)."
+    },
+    {
+      "grade": "4ap",
+      "term": 1,
+      "subjects": ["tamazight"],
+      "source": "Ministry of National Education, circular 270 of 11 November 2025, for 2025/26, kept until the 2026/27 assessment circular is published, as the press reported it the next day; the circular itself was not read. Descriptive observations replace marks in these cases, and the digital report sheets were changed to allow it. The scale «مكتسب», «في طور الاكتساب», «غير مكتسب» is the app's, kept until an official list is found (answer 464)."
+    }
   ]
 }
