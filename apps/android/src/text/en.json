@@ -3097,6 +3097,21 @@
       "lycee": "Without practical work or an oral",
       "lyceePractical": "With practical work",
       "lyceeOral": "With an oral"
+    },
+    "observations": {
+      "title": "Descriptive observations",
+      "line": "Descriptive observations · {{class}}",
+      "instead": "{{term}}: observations instead of marks",
+      "subject": "Subject",
+      "acquired": "Acquired",
+      "inProgress": "Being acquired",
+      "notAcquired": "Not acquired",
+      "none": "Not recorded",
+      "counts": "Acquired {{acquired}} · Being acquired {{inProgress}} · Not acquired {{notAcquired}} · Not recorded {{missing}}",
+      "byHand": "Choose each pupil’s observation yourself; tap your choice again to clear it.",
+      "archived": "This class was archived after the reshaping: its observations show, and no new ones are recorded.",
+      "noPupils": "No pupil is on the class list for this term.",
+      "rowLine": "Observations: {{done}} of {{total}}"
     }
   }
 }

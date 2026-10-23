@@ -3,14 +3,14 @@
 
 // «كشف النقاط» among the documents (#240, Gradebook-print, answers 461 and
 // 462): the term holding the chosen day, or between terms the one just ended,
-// and a page for each class and subject with a grade book, by class name, then
-// subject's name; or one class and subject's page,
-// from the grade-book screen. Each page carries its formula, its months in
-// primary, its parts in two decimals and the class's figures, or only the
-// numbers and names when blank. The drawn signature goes in the teacher's
-// box of a middle-school page only, never on a blank one.
+// and a page for each class and subject with a grade book, not those whose term
+// observations replace (answer 464), by class name, then subject's name; or one
+// class and subject's page, from the grade-book screen. Each page carries its
+// formula, its months in primary, its parts in two decimals and the class's
+// figures, or only the numbers and names when blank. The drawn signature goes
+// in the teacher's box of a middle-school page only, never on a blank one.
 
-import { compareDays, courseGrade, gradeBook, isJoint, type GradeBook } from '@minhajna/core';
+import { compareDays, courseGrade, courseObserved, gradeBook, isJoint, type GradeBook } from '@minhajna/core';
 import { subjectName } from '../extra/extra-rules';
 import { cellText, figuresLine, partLabel, partValue } from '../marks/book-rules';
 import { periodName } from '../marks/component-rules';
@@ -30,7 +30,7 @@ export function bookTerm(data: Pick<DocumentData, 'year' | 'day'>): number {
   return (holding ?? ended ?? terms[0])?.number ?? 1;
 }
 
-/** The courses with a grade book in the term, by class name, then subject, each with its book. */
+/** The courses with a grade book in the term, not observed instead, by class name, then subject, each with its book. */
 export function bookCourses(
   data: DocumentData,
   term: number,
@@ -48,6 +48,7 @@ export function bookCourses(
         subject(a.subject).localeCompare(subject(b.subject), 'ar'),
     )
     .flatMap((course) => {
+      if (courseObserved(state, assessment, course.id, term)) return [];
       const book = gradeBook(context, assessment, course.id, term);
       return book === null ? [] : [{ courseId: course.id, book }];
     });

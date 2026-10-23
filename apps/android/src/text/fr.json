@@ -3148,6 +3148,21 @@
       "lycee": "Sans travaux pratiques ni oral",
       "lyceePractical": "Avec travaux pratiques",
       "lyceeOral": "Avec un oral"
+    },
+    "observations": {
+      "title": "Observations descriptives",
+      "line": "Observations descriptives · {{class}}",
+      "instead": "{{term}} : des observations au lieu des notes",
+      "subject": "Matière",
+      "acquired": "Acquis",
+      "inProgress": "En cours d’acquisition",
+      "notAcquired": "Non acquis",
+      "none": "Non saisie",
+      "counts": "Acquis {{acquired}} · En cours d’acquisition {{inProgress}} · Non acquis {{notAcquired}} · Non saisies {{missing}}",
+      "byHand": "Choisissez vous-même l’observation de chaque élève ; touchez à nouveau votre choix pour l’effacer.",
+      "archived": "Cette classe a été recomposée : ses observations restent visibles, sans nouvelle saisie.",
+      "noPupils": "Aucun élève sur la liste de la classe pour ce trimestre.",
+      "rowLine": "Observations : {{done}} sur {{total}}"
     }
   }
 }
