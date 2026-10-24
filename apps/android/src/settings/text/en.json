@@ -29,6 +29,7 @@
     "log": "Activity log",
     "export": "Export everything",
     "retention": "Retention",
+    "erase": "Erase this device",
     "help": "Help and privacy",
     "privacy": "Privacy notice"
   },
@@ -107,6 +108,7 @@
   "logLine": "Each correction, print, export and deletion",
   "exportLine": "The Minhajna archive or CSV files, free, at any time",
   "retentionLine": "{{lessons}} · {{pupils}}",
+  "eraseLine": "Everything is erased from this phone, with no way back",
   "retention": {
     "intro": "Each kind of record has a default period, which you can change. Nothing is erased without asking you, and erasing is real: the content goes, and the activity log keeps only the fact and its day.",
     "default": "Default",
@@ -185,5 +187,23 @@
       "homework": "Homework",
       "due": "Due"
     }
+  },
+  "eraseDevice": {
+    "oneStep": "One step, with no way back",
+    "gone": "What is erased from this phone",
+    "goneClasses": "{{classes}}, and {{pupils}}",
+    "goneRoll": "Roll calls, marks and appreciations",
+    "goneBooks": "The texts book, the daily journal and the lesson plans",
+    "goneNotes": "Private notes and the drawn signature",
+    "goneKey": "This phone’s key: nothing reaches it after the erasure",
+    "kept": "What stays elsewhere",
+    "keptNone": "Nothing yet: no other device and no backup, so everything is on this phone alone.",
+    "lost_one": "{{count}} change has reached neither another device nor a backup, and is lost with the erasure.",
+    "lost_other": "{{count}} changes have reached neither another device nor a backup, and are lost with the erasure.",
+    "export": "Export all data first",
+    "exportLine": "A file to keep on a computer, a memory card or a USB key",
+    "understood": "I understand that erasing cannot be undone, and that the project cannot recover anything.",
+    "erase": "Erase everything",
+    "failed": "The erasure did not finish. Try again."
   }
 }

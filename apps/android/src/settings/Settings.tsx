@@ -38,6 +38,7 @@ const AVAILABLE = [
   'log',
   'export',
   'retention',
+  'erase',
   'help',
   'privacy',
 ] as const;
@@ -52,7 +53,7 @@ const SECTIONS = [
   },
   { id: 'documents', rows: ['print', 'signature'] },
   { id: 'phone', rows: ['notifications', 'security', 'backup', 'language'] },
-  { id: 'data', rows: ['log', 'export', 'retention'] },
+  { id: 'data', rows: ['log', 'export', 'retention', 'erase'] },
   { id: 'help', rows: ['help', 'privacy'] },
 ] as const;
 
@@ -75,6 +76,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
     log: t('settings.logLine'),
     export: t('settings.exportLine'),
     retention: retentionLine(t, state),
+    erase: t('settings.eraseLine'),
   };
   const schools = [...state.schools.values()];
   return (

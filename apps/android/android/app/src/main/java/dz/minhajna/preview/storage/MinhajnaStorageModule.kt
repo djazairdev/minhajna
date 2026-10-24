@@ -9,7 +9,6 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.bridge.WritableMap
 import java.nio.charset.CharacterCodingException
 import java.security.SecureRandom
 import java.util.concurrent.ExecutorService
@@ -193,27 +192,22 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
     null
   }
 
+  /** Erases everything the app keeps on this phone (answer 477); the module then takes nothing until a restart. */
+  override fun eraseDevice(promise: Promise) = onWorker(promise) {
+    DeviceErase.run(reactApplicationContext) { history.close() }
+    worker.shutdown()
+    null
+  }
+
   override fun invalidate() {
     shown.getAndSet(null)?.cancel()
-    worker.execute { history.close() }
+    if (!worker.isShutdown) worker.execute { history.close() }
     worker.shutdown()
     super.invalidate()
   }
 
   private fun requireOpen() {
     if (!lock.isSet() || !history.isOpen()) throw LockedException()
-  }
-
-  /** A PIN's result for the JavaScript side; an Opened result's key, if any, stays with the caller. */
-  private fun tried(result: HistoryLock.Unlock): WritableMap = when (result) {
-    is HistoryLock.Unlock.Opened -> tried(true, 0)
-    is HistoryLock.Unlock.Wrong -> tried(false, result.waitSeconds)
-    is HistoryLock.Unlock.Waiting -> tried(false, result.waitSeconds)
-  }
-
-  private fun tried(opened: Boolean, waitSeconds: Long): WritableMap = Arguments.createMap().apply {
-    putBoolean("opened", opened)
-    putDouble("waitSeconds", waitSeconds.toDouble())
   }
 
   /**

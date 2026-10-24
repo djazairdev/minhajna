@@ -59,6 +59,13 @@ export class FakeStorage {
   failures = 0;
   waitUntil = 0;
   now: () => number = () => Date.now();
+  /** Set once the phone is erased: the module takes nothing more until the app restarts (answer 477). */
+  stopped = false;
+  /**
+   * Set to make `eraseDevice` fail before any key is touched, so nothing changes; on the device a failure once a
+   * key is gone ends with Android clearing the app's data, which closes the app.
+   */
+  eraseFails = false;
 
   /** A fake whose PIN is set and whose history is open, as after an unlock. */
   static unlocked(pin = '1234'): FakeStorage {
@@ -202,6 +209,14 @@ export class FakeStorage {
     });
   }
 
+  /** Erases everything the fake keeps, as on the device, then stops. */
+  eraseDevice(): Promise<void> {
+    if (this.stopped || this.eraseFails) return Promise.reject(failure('E_HISTORY', 'The phone was not erased'));
+    Object.assign(this, { rows: [], timings: [], opened: false, created: false, pin: null, biometric: false });
+    Object.assign(this, { failures: 0, waitUntil: 0, stopped: true });
+    return Promise.resolve();
+  }
+
   asSpec(): Spec {
     return this;
   }
@@ -225,6 +240,7 @@ export class FakeStorage {
   }
 
   #whenOpen<T>(task: () => T): Promise<T> {
+    if (this.stopped) return Promise.reject(failure('E_HISTORY', 'The storage module has stopped'));
     if (!this.opened) return Promise.reject(failure('E_HISTORY', 'The history is not open'));
     try {
       return Promise.resolve(task());

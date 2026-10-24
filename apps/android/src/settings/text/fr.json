@@ -29,6 +29,7 @@
     "log": "Journal d’activité",
     "export": "Exporter toutes les données",
     "retention": "Durée de conservation",
+    "erase": "Effacer cet appareil",
     "help": "Aide et confidentialité",
     "privacy": "Notice de confidentialité"
   },
@@ -108,6 +109,7 @@
   "logLine": "Chaque correction, impression, export et suppression",
   "exportLine": "L’archive Minhajna ou des fichiers CSV, gratuitement et à tout moment",
   "retentionLine": "{{lessons}} · {{pupils}}",
+  "eraseLine": "Tout est effacé de ce téléphone, sans retour",
   "retention": {
     "intro": "Chaque type de dossier a une durée par défaut, que vous pouvez changer. Rien n’est effacé sans vous le demander, et l’effacement est réel : le contenu disparaît, et le journal d’activité ne garde que le fait et son jour.",
     "default": "Par défaut",
@@ -186,5 +188,24 @@
       "homework": "Devoir",
       "due": "Pour le"
     }
+  },
+  "eraseDevice": {
+    "oneStep": "Une seule étape, sans retour",
+    "gone": "Ce qui est effacé de ce téléphone",
+    "goneClasses": "{{classes}}, et {{pupils}}",
+    "goneRoll": "Les appels, les notes et les appréciations",
+    "goneBooks": "Le cahier de textes, le journal de classe et les fiches de préparation",
+    "goneNotes": "Les notes privées et la signature dessinée",
+    "goneKey": "La clé de ce téléphone : plus rien ne l’atteint après l’effacement",
+    "kept": "Ce qui reste ailleurs",
+    "keptNone": "Rien pour l’instant : aucun autre appareil ni sauvegarde, tout est sur ce téléphone seulement.",
+    "lost_one": "{{count}} changement n’a atteint ni un autre appareil ni une sauvegarde : il est perdu avec l’effacement.",
+    "lost_many": "{{count}} de changements n’ont atteint ni un autre appareil ni une sauvegarde : ils sont perdus avec l’effacement.",
+    "lost_other": "{{count}} changements n’ont atteint ni un autre appareil ni une sauvegarde : ils sont perdus avec l’effacement.",
+    "export": "Exporter toutes les données d’abord",
+    "exportLine": "Un fichier à garder sur un ordinateur, une carte mémoire ou une clé USB",
+    "understood": "J’ai compris que l’effacement est sans retour, et que le projet ne peut rien récupérer.",
+    "erase": "Tout effacer",
+    "failed": "L’effacement n’a pas abouti. Réessayez."
   }
 }

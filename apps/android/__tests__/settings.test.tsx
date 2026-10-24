@@ -77,6 +77,7 @@ test('opens existing screens and each school’s own bell times and packs', asyn
     'language',
     'log',
     'retention',
+    'erase',
     'help',
     'privacy',
   ]) {

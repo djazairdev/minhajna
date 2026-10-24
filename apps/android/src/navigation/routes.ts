@@ -51,6 +51,7 @@ export type RootStackParamList = {
   /** «سجل النشاط» and «مدة الحفظ» (#235). */
   Log: undefined;
   SettingsExport: undefined;
+  SettingsErase: undefined;
   SettingsRetention: undefined;
   Language: undefined;
   PrivacyNotice: undefined;

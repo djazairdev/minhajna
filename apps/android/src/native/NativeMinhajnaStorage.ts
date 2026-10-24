@@ -67,6 +67,12 @@ export interface Spec extends TurboModule {
   addTimings(timings: string): Promise<void>;
   /** Deletes every timing. */
   clearTimings(): Promise<void>;
+  /**
+   * Erases everything the app keeps on this phone: its keys first, then the
+   * history, reminders, files, caches and settings (answer 477). The module
+   * takes nothing more until the app restarts.
+   */
+  eraseDevice(): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaStorage');
