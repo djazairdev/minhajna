@@ -5,7 +5,7 @@
 // Roll-print, answers 255 and 260), for one book or every one: the Month-year
 // screen's figures, each month counted up to today, with the class's totals.
 // The blank summary keeps the names and the months, and leaves the figures
-// empty.
+// empty. Once a pupil's data was erased, the summary says so.
 
 import type { PupilCount } from '@minhajna/core';
 import { percent, totals, yearView } from '../rollbook/month-rules';
@@ -14,6 +14,7 @@ import { yearShown, type DocumentData, type Translate } from './document-data';
 import { bookScope, rollBooks, type RollBook } from './roll-spread-pages';
 import { rollYearHtml, type YearLine, type YearSheet } from './roll-year-html';
 import { documentSignature, drawnMark } from './drawn-mark';
+import { erasedLine } from './erased-line';
 
 type Figures = Pick<PupilCount, 'possible' | 'absent' | 'present' | 'rate'>;
 
@@ -44,7 +45,12 @@ function sheet(data: DocumentData, t: Translate, blank: boolean, book: RollBook)
       name: t('rollBook.classTotal'),
       figures: [...sums.flatMap((sum) => four(sum, blank)), ...four(year, blank)],
     },
-    note: blank ? '' : t('rollBook.yearNote', { day: `\u2066${today.slice(8)}/${today.slice(5, 7)}\u2069` }),
+    note: [
+      blank ? '' : t('rollBook.yearNote', { day: `\u2066${today.slice(8)}/${today.slice(5, 7)}\u2069` }),
+      erasedLine(t, data.state, book.classId, data.year.from),
+    ]
+      .filter((part) => part !== '')
+      .join(' '),
     book: book.classId,
   };
 }

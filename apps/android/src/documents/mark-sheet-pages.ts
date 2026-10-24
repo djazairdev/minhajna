@@ -6,7 +6,8 @@
 // year, the class, subject, term and teacher, then each pupil in the grid's
 // order with their parts and average in two decimals, «غ» for a part missed,
 // and the appreciation chosen. The drawn signature goes in the teacher's box of
-// a middle-school page only, as on the grade book (answer 462).
+// a middle-school page only, as on the grade book (answer 462). Once the data
+// of pupils on the term's books was erased, the sheet says so.
 
 import { courseGrade, isJoint, type TermExport } from '@minhajna/core';
 import { subjectName } from '../extra/extra-rules';
@@ -15,6 +16,7 @@ import { termWord } from '../marks/marks-rules';
 import { yearShort } from '../setup/names';
 import { yearShown, type DocumentData, type Translate } from './document-data';
 import { documentSignature, drawnMark } from './drawn-mark';
+import { erasedLine } from './erased-line';
 import { isolate } from '../week/grid-labels';
 import { markSheetHtml } from './mark-sheet-html';
 
@@ -81,6 +83,12 @@ export function markSheetPages(
         appreciation: row.appreciation ?? '',
       })),
       mark: room?.level === 'cem' ? drawnMark(documentSignature(data, false)) : '',
+      erased: erasedLine(
+        t,
+        state,
+        room?.id ?? '',
+        data.year.terms.find((one) => one.number === term)?.from ?? data.year.from,
+      ),
     },
   );
 }

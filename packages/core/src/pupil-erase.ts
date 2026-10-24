@@ -2,32 +2,41 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Erasing the data of a pupil who left (#248, Pupil-erase, R-5.5-13, answer
-// 473), once the director confirmed the departure. Every version of the
-// pupil's own records goes: the pupil with their movements, marks and their
-// corrections, what was tapped for them, observations and appreciations. The
-// roll calls they were absent or late in and the seating plans with their
-// seat are the class's, so each version is restated without them before the
-// old ones are erased (restated.ts). The history keeps only the fact: the
-// class and the entries erased. The pupil's place on the class list stays
-// taken, so no other pupil's number changes.
+// 473), once the director confirmed the departure and its day came (answer
+// 474). Every version of the pupil's own records goes: the pupil with their
+// movements, marks and their corrections, what was tapped for them,
+// observations and appreciations. The roll calls they were absent or late in
+// and the seating plans with their seat are the class's, so each version is
+// restated without them before the old ones are erased (restated.ts). The
+// history keeps only the fact: the class, the day the pupil left and the
+// entries erased. The pupil's place on the class list stays taken, so no other
+// pupil's number changes.
 
-import { compareDays } from './day.ts';
+import { compareDays, type Day } from './day.ts';
 import { eventOf, type RecordEvent } from './events.ts';
 import type { Entry } from './history.ts';
 import { recordKey } from './record-keys.ts';
 import type { Pupil } from './records.ts';
 import type { Restatements } from './restated.ts';
 
-/** What the history keeps of an erasure: the class, and every entry it erased. */
+/** What the history keeps of an erasure: the class, the day the pupil left and every entry it erased. */
 export interface PupilErasure {
   readonly classId: string;
   readonly entries: readonly string[];
+  /** The departure's day, the first the pupil was off the list; absent from an erasure recorded before answer 474. */
+  readonly left?: Day;
 }
 
-/** Whether a pupil's data may be erased: their last movement is a departure the director confirmed. */
-export function departed(pupil: Pupil): boolean {
+/** The day of the pupil's departure when it is their last movement and the director confirmed it, else null. */
+export function departureDay(pupil: Pupil): Day | null {
   const last = [...pupil.movements].sort((a, b) => compareDays(a.day, b.day)).at(-1);
-  return last?.kind === 'out' && last.confirmed === true;
+  return last?.kind === 'out' && last.confirmed === true ? last.day : null;
+}
+
+/** Whether a pupil's data may be erased on `day`: their departure is confirmed and its day has come. */
+export function departed(pupil: Pupil, day: Day): boolean {
+  const left = departureDay(pupil);
+  return left !== null && compareDays(left, day) <= 0;
 }
 
 /** Whether an event names the pupil, in a record of their own or in one shared with the class. */

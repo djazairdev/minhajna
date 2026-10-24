@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «حذف بيانات هذا التلميذ» on a pupil's page (#248, Pupil-erase, answer 473):
-// no row for a pupil still on the list, a closed row while the director's
-// confirmation waits, and once confirmed a sheet that says what goes and what
-// stays, offers the export first, shows the activity log's one line, and
-// erases only once ticked, then closes the page; two quick taps erasing once;
-// a pupil girl's wording; a failed erasure said and the page kept; and every
-// text in French and English. The teacher has 4م1, with 45 made-up pupils.
+// «حذف بيانات هذا التلميذ» on a pupil's page (#248, Pupil-erase, answers 473
+// and 474): no row for a pupil still on the list, a closed row while the
+// director's confirmation or a departure recorded ahead waits for its day, and
+// once confirmed a sheet that says what goes and what stays, offers the export
+// first, shows the activity log's one line, and erases only once ticked, then
+// closes the page; two quick taps erasing once; a pupil girl's wording; a
+// failed erasure said and the page kept; and every text in French and English.
+// The teacher has 4م1, with 45 made-up pupils.
 
 import { activityLog, parseDay, type RecordEvent } from '@minhajna/core';
 import type { PressableProps } from 'react-native';
@@ -32,13 +33,13 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
-const left = (pupilId: string, confirmed: boolean): RecordEvent => ({
+const left = (pupilId: string, confirmed: boolean, day = '2026-10-11'): RecordEvent => ({
   kind: 'pupil.moved',
   pupilId,
-  movement: { day: parseDay('2026-10-11'), kind: 'out', reason: 'transfer', ...(confirmed && { confirmed }) },
+  movement: { day: parseDay(day), kind: 'out', reason: 'transfer', ...(confirmed && { confirmed }) },
 });
 
-async function page(data: TestData, pupilId: string) {
+async function page(data: TestData, pupilId: string, today = '2026-10-15') {
   const props: PupilPageProps = {
     courseId: 'c-1',
     pupilId,
@@ -50,7 +51,7 @@ async function page(data: TestData, pupilId: string) {
     onExport: jest.fn(),
     onErased: jest.fn(),
   };
-  await mount(data, <PupilPage {...props} />);
+  await mount(data, <PupilPage {...props} />, today);
   return props;
 }
 
@@ -70,6 +71,19 @@ test('no row for a pupil on the list, and a closed one while the confirmation wa
   expect(texts()).toContain('حذف بيانات هذا التلميذ');
   expect(texts()).toContain('يُتاح بعد المغادرة وتأكيد المدير');
   expect(disabled('pupil-erase')).toEqual(expect.objectContaining({ disabled: true }));
+});
+
+test('a departure recorded ahead opens the row only on its day', async () => {
+  const data = await withPupils();
+  await data.book.record(parseDay('2026-10-12'), left('p-3', true, '2026-10-20'));
+  await page(data, 'p-3');
+  expect(disabled('pupil-erase')).toEqual(expect.objectContaining({ disabled: true }));
+  await unmount();
+  await page(data, 'p-3', '2026-10-20');
+  expect(disabled('pupil-erase')).toEqual(expect.objectContaining({ disabled: false }));
+  await press('pupil-erase');
+  expect(shown('pupil-erase-sheet')).toBe(true);
+  expect(texts().some((text) => text.endsWith('· 4م1 · غادر في 20/10/2026'))).toBe(true);
 });
 
 test('the sheet says what goes and what stays, and erases once ticked', async () => {

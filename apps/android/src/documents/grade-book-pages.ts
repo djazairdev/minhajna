@@ -7,8 +7,9 @@
 // observations replace (answer 464), by class name, then subject's name; or one
 // class and subject's page, from the grade-book screen. Each page carries its
 // formula, its months in primary, its parts in two decimals and the class's
-// figures, or only the numbers and names when blank. The drawn signature goes
-// in the teacher's box of a middle-school page only, never on a blank one.
+// figures, or only the numbers and names when blank, and says when the data
+// of pupils on the term's books was erased. The drawn signature goes in the
+// teacher's box of a middle-school page only, never on a blank one.
 
 import { compareDays, courseGrade, courseObserved, gradeBook, isJoint, type GradeBook } from '@minhajna/core';
 import { subjectName } from '../extra/extra-rules';
@@ -20,6 +21,7 @@ import { coreContext } from '../storage/core-context';
 import type { DocumentKind } from './catalogue';
 import { schoolNames, yearLabel, yearShown, type DocumentData, type Translate } from './document-data';
 import { documentSignature, drawnMark } from './drawn-mark';
+import { erasedLine } from './erased-line';
 import { gradeBookHtml, type BookSheet } from './grade-book-html';
 
 /** The term the documents' day falls in; between terms the one just ended, and before them the first. */
@@ -95,6 +97,7 @@ function sheetOf(data: DocumentData, t: Translate, courseId: string, book: Grade
           ],
     })),
     figures: blank || !averaged ? '' : figuresLine(t, book),
+    erased: erasedLine(t, state, room.id, data.year.terms.find((one) => one.number === term)?.from ?? data.year.from),
     mark: room.level === 'cem' ? drawnMark(documentSignature(data, blank)) : '',
   } satisfies BookSheet;
 }

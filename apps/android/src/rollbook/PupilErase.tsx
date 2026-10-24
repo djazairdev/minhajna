@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «حذف بيانات هذا التلميذ» on a pupil's page (#248, Pupil-erase, R-5.5-13,
-// answer 473): shown once a departure is recorded, and open once the director
-// confirmed it. Its sheet says what goes and what stays, offers the export
-// first, shows the one line the activity log keeps, and erases only once the
-// teacher ticks that it cannot be undone, once however often it is tapped.
-// The pupil's page closes once the pupil is gone from the records.
+// answers 473 and 474): shown once a departure is recorded, and open once the
+// director confirmed it and its day came. Its sheet says what goes and what
+// stays, offers the export first, shows the one line the activity log keeps,
+// and erases only once the teacher ticks that it cannot be undone, once however
+// often it is tapped. The pupil's page closes once the pupil is gone from the
+// records.
 
-import { departed, pendingDeparture, type Day, type Pupil } from '@minhajna/core';
+import { departed, departureDay, pendingDeparture, type Day, type Pupil } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
@@ -40,8 +41,7 @@ const KEPT = ['pupilPage.erase.keptBooks', 'pupilPage.erase.keptFiles'] as const
 
 /** The day the pupil left, from their last recorded departure; null for a pupil still on the list. */
 function leftOn(pupil: Pupil): Day | null {
-  const out = pendingDeparture(pupil) ?? (departed(pupil) ? pupil.movements.at(-1) : undefined);
-  return out?.day ?? null;
+  return pendingDeparture(pupil)?.day ?? departureDay(pupil);
 }
 
 export function PupilErase(props: PupilEraseProps) {
@@ -92,7 +92,7 @@ export function PupilErase(props: PupilEraseProps) {
         icon={controlIcon('cross')}
         title={title}
         description={t('pupilPage.erase.rowLine')}
-        disabled={!departed(pupil)}
+        disabled={!departed(pupil, today())}
         onPress={() => setOpen(true)}
       />
       <BottomSheet

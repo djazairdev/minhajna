@@ -7,11 +7,13 @@
 // administration set (answer 463), «حسب القائمة» or «حسب المعدل», the rows, the
 // class's figures, the note that thresholds and ranks compare the full value,
 // and a line for each pupil shown at the threshold whose full value is below
-// it. A row opens the pupil's value sheet, and from it their justification.
-// «طباعة» and «حفظ PDF» make this class and subject's page of the printed grade
-// book, each going into the activity log with the term (answer 461); a
-// middle-school page offers «خانة التوقيع» while the drawn signature is in use,
-// with «إعدادات التوقيع», and the line on where it goes (answer 462).
+// it, and the line for pupils on the term's books whose data was erased
+// (answer 473). A row opens the pupil's value sheet, and from it their
+// justification. «طباعة» and «حفظ PDF» make this class and subject's page of
+// the printed grade book, each going into the activity log with the term
+// (answer 461); a middle-school page offers «خانة التوقيع» while the drawn
+// signature is in use, with «إعدادات التوقيع», and the line on where it goes
+// (answer 462).
 
 import { gradeBook, type BookRow } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -24,6 +26,7 @@ import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { yearLabel } from '../documents/document-data';
+import { erasedLine } from '../documents/erased-line';
 import { gradeBookPages } from '../documents/grade-book-pages';
 import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
 import { useOutputRun } from '../documents/output-run';
@@ -80,6 +83,7 @@ export function MarksBook({ courseId, term, onJustify, onSignature }: MarksBookP
   const label = courseLabel(t, state, profile, courseId, true);
   const room = state.classes.get(state.courses.get(courseId)?.classId ?? '');
   const signable = room?.level === 'cem';
+  const erased = erasedLine(t, state, room?.id ?? '', year.terms.find((one) => one.number === term)?.from ?? year.from);
   const html = () => gradeBookPages({ ...documents, drawn }, t, false, { courseId, term });
   const title = t('documents.gradeBook.name');
   const file = `${title} ${label} ${termWord(t, term)} ${yearLabel(documents)}.pdf`.replace(/[\\/:*?"<>|]/g, '-');
@@ -148,6 +152,11 @@ export function MarksBook({ courseId, term, onJustify, onSignature }: MarksBookP
                 </Text>
               ))}
             </View>
+          )}
+          {erased !== '' && (
+            <Text testID="book-erased" style={[styles.note, align]}>
+              {erased}
+            </Text>
           )}
         </>
       )}
