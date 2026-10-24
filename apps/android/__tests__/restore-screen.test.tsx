@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «استرجاع البيانات» (#247, Restore, answer 478): the two routes open in the
-// pilot, the other two shown as not open; what does not come back said
+// «استرجاع البيانات» (#247, Restore, answers 478 and 480): the three routes
+// open in the pilot, sync shown as not open; what does not come back said
 // first; a file asked for before anything is read; a backup restored with
 // the key typed, the kept copy dropped, and the history opened again; a
 // wrong key said, and cleared as it is typed again; a changed file on its own
@@ -58,11 +58,12 @@ async function backupText(): Promise<string> {
   return archiveText(archive);
 }
 
-async function screen() {
+async function screen(route: 'phone' | 'backup' = 'backup') {
   const storage = FakeStorage.unlocked();
   const data = await openTestData(storage);
   const onRestored = jest.fn();
   await mount(data, <Restore storage={storage.asSpec()} onRestored={onRestored} />);
+  if (route !== 'phone') await press(`restore-route-${route}`);
   return { storage, onRestored };
 }
 
@@ -82,20 +83,29 @@ const disabled = (testID: string) =>
 const has = (testID: string) => root().findAll((node) => node.props.testID === testID).length > 0;
 
 test('shows the routes, says what does not come back, and asks for the file first', async () => {
-  await screen();
+  await screen('phone');
   expect(accessibilityProblems(root())).toEqual([]);
   expect(texts()).toEqual(
     expect.arrayContaining([
       'من هاتف آخر أو من نسخة',
+      'الهاتف القديم في اليد',
       'ملف نسخة احتياطية',
       'فتح أرشيف «منهاجنا»',
+      'اختيار ملف النقل',
+      'الرمز الظاهر على الهاتف القديم',
+      'تُطلب الكاميرا الآن، لمسح الرمز وحده.',
       'الحقول الشخصية في بطاقة الأستاذ: تُكتب من جديد',
       'التوقيع المرسوم: يُرسم من جديد',
-      'لا يملك المشروع أي مفتاح: دون ورقة الاسترجاع، لا يمكن استرجاع شيء.',
     ]),
   );
-  expect(disabled('restore-route-phone')).toBe(true);
+  expect(texts()).not.toContain('لا يملك المشروع أي مفتاح: دون ورقة الاسترجاع، لا يمكن استرجاع شيء.');
+  expect(disabled('restore-route-phone')).toBe(false);
   expect(disabled('restore-route-sync')).toBe(true);
+  await press('restore-route-sync');
+  expect(has('restore-scan')).toBe(true);
+  await press('restore-route-backup');
+  expect(has('restore-scan')).toBe(false);
+  expect(texts()).toContain('لا يملك المشروع أي مفتاح: دون ورقة الاسترجاع، لا يمكن استرجاع شيء.');
   await press('restore-run');
   expect(texts()).toContain('يُختار الملف أولاً.');
   expect(readZip).not.toHaveBeenCalled();

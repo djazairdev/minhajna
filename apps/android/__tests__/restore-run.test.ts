@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A restore at setup (#247, answer 478): a backup read under the recovery
-// key, typed in any case and with spaces, and only with a password; an export
-// under its own, or none; the restored history stored whole, with the device
-// layer erased on the restore day, the personal fields and the key gone; and
-// each refusal told apart, nothing stored. Made-up records only.
+// A restore at setup (#247, answers 478 and 480): a transfer file under its
+// one-time key, a backup read under the recovery key, typed in any case and
+// with spaces, and only with a password; an export under its own, or none; the
+// restored history stored whole, with the device layer erased on the restore
+// day, the personal fields and the key gone; and each refusal told apart,
+// nothing stored. Made-up records only.
 
 import { ARCHIVE_FILE, archiveOf, archiveText, eventOf, parseDay } from '@minhajna/core';
 import type { TestData } from '../jest/app-data';
@@ -79,6 +80,18 @@ test('opens an export under its password, or none, without asking for one', asyn
   const locked = run(text, { route: 'archive', secret: 'mot de passe 1' });
   await expect(locked.result).resolves.toEqual({ ok: true });
   expect(locked.readZip).toHaveBeenCalledWith('0011223344556677', ARCHIVE_FILE, 'mot de passe 1', false);
+});
+
+test('opens a transfer file under its one-time key, with a seal, and words its refusals as a code', async () => {
+  const { text } = await backup();
+  const sent = run(text, { route: 'phone', secret: KEY.toLowerCase() });
+  await expect(sent.result).resolves.toEqual({ ok: true });
+  expect(sent.readZip).toHaveBeenCalledWith('0011223344556677', ARCHIVE_FILE, KEY, true);
+  const short = run(text, { route: 'phone', secret: KEY.slice(0, 20) });
+  await expect(short.result).resolves.toEqual({ ok: false, problem: 'code-form' });
+  expect(short.readZip).not.toHaveBeenCalled();
+  expect(zipProblem('E_ZIP_PASSWORD', { route: 'phone', secret: KEY })).toBe('code');
+  expect(zipProblem('E_ZIP_PLAIN', { route: 'phone', secret: KEY })).toBe('plain');
 });
 
 test('a key not shaped as one is refused before the file is read', async () => {

@@ -5,10 +5,10 @@
 // preview (R-6.4-07, #210). It fails closed: every screen of the record book is
 // guarded, unless the teacher allowed screenshots, and only the screens named
 // here, which hold no records, are not. A new screen is guarded until it is
-// added. The PIN pads, the recovery sheet and the restore are guarded always,
-// whatever the teacher allowed, so no screen recording shows a PIN being typed
-// or the recovery key. While the app locks or opens the history, records stay
-// guarded.
+// added. The PIN pads, the recovery sheet, the transfer and the restore are
+// guarded always, whatever the teacher allowed, so no screen recording shows a
+// PIN being typed, the recovery key or a transfer's one-time key. While the app
+// locks or opens the history, records stay guarded.
 
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import type { LockPhase } from './useLockPhase';
@@ -30,8 +30,13 @@ export const OPEN_SCREENS: ReadonlySet<string> = new Set<keyof RootStackParamLis
   'StorageCheck',
 ]);
 
-/** Screens inside the navigator with a PIN pad, or the recovery key (#247). */
-const PIN_SCREENS: ReadonlySet<string> = new Set<keyof RootStackParamList>(['LockPin', 'SettingsRecovery', 'Restore']);
+/** Screens inside the navigator with a PIN pad, or a key (#247). */
+const PIN_SCREENS: ReadonlySet<string> = new Set<keyof RootStackParamList>([
+  'LockPin',
+  'SettingsRecovery',
+  'SettingsTransfer',
+  'Restore',
+]);
 
 /** The kind of a navigator screen; a screen not yet known holds records. */
 export function screenKind(route: string | undefined): ScreenKind {

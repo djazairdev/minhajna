@@ -55,6 +55,8 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     }, promise)
   }
 
+  override fun qrRows(text: String): String = QrRows.of(text)
+
   private fun open(request: Int, intent: Intent, promise: Promise) = UiThreadUtil.runOnUiThread {
     val activity = context.currentActivity
     if (waiting != null) return@runOnUiThread promise.reject("E_CALENDAR_BUSY", "An input is already open")

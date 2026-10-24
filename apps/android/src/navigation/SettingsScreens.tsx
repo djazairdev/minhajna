@@ -17,6 +17,7 @@ import { EraseDevice } from '../settings/EraseDevice';
 import { ExportAll } from '../settings/ExportAll';
 import { useLockStorage } from '../lock/lock-storage';
 import { RecoverySheet } from '../settings/RecoverySheet';
+import { Transfer } from '../settings/Transfer';
 import { Retention } from '../settings/Retention';
 import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
@@ -105,11 +106,17 @@ export function SettingsDevicesScreen({
 }: NativeStackScreenProps<RootStackParamList, 'SettingsDevices'>) {
   return (
     <Devices
+      onTransfer={() => navigation.navigate('SettingsTransfer')}
       onSheet={(first) => navigation.navigate('SettingsRecovery', { first })}
       backupNow={route.params?.backup === true}
       onBackupStarted={() => navigation.setParams({ backup: false })}
     />
   );
+}
+
+/** «نقل مباشر»: the transfer file and its one-time key, which live while this screen is open. */
+export function SettingsTransferScreen() {
+  return <Transfer storage={useLockStorage()} />;
 }
 
 /** «ورقة الاسترجاع»: once a first sheet is confirmed, back to the devices page, where its backup starts. */
@@ -241,6 +248,11 @@ export function settingsRoutes(
         name="SettingsRecovery"
         component={SettingsRecoveryScreen}
         options={dark(t('settings.recovery.title'))}
+      />
+      <Stack.Screen
+        name="SettingsTransfer"
+        component={SettingsTransferScreen}
+        options={dark(t('settings.transfer.title'))}
       />
       <Stack.Screen name="SettingsRetention" component={Retention} options={dark(t('settings.rows.retention'))} />
     </>

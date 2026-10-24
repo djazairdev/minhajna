@@ -84,6 +84,7 @@ jest.mock('../src/native/NativeMinhajnaCalendarInput', () => ({
   default: {
     readFile: jest.fn(() => Promise.resolve(null)),
     scanQr: jest.fn(() => Promise.resolve(null)),
+    qrRows: jest.fn(() => '1110111\n1000001\n1011101\n1000001\n1110111'),
     cancel: jest.fn(),
     shareText: jest.fn(() => Promise.resolve()),
   },

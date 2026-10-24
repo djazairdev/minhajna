@@ -4,7 +4,8 @@
 // «الأجهزة والنسخ» in Settings (#247, Devices-pilot, R-3.11-02, R-6.2-03,
 // R-6.5-01, answer 478). Sync is not open in the pilot, and the page says why;
 // until it is, a new phone is reached by a direct transfer or a backup file.
-// A backup goes through the file picker under the recovery key; the first
+// The transfer opens its own screen (answer 480). A backup goes through the
+// file picker under the recovery key; the first
 // one gives the recovery sheet first, then is saved once the sheet is
 // confirmed. The sheet prints again from here. Nothing names where a backup
 // went, and the project holds no key.
@@ -27,6 +28,8 @@ import { useBackup } from './backup-run';
 import { settingsStyles as styles } from './styles';
 
 export type DevicesProps = {
+  /** Opens the direct transfer to a new phone. */
+  readonly onTransfer: () => void;
   /** Opens the recovery sheet: to print it again, or to give the first one before a backup. */
   readonly onSheet: (first: boolean) => void;
   /** The sheet was just confirmed for a first backup, which starts here once. */
@@ -34,7 +37,7 @@ export type DevicesProps = {
   readonly onBackupStarted: () => void;
 };
 
-export function Devices({ onSheet, backupNow, onBackupStarted }: DevicesProps) {
+export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: DevicesProps) {
   const t = useText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -78,9 +81,9 @@ export function Devices({ onSheet, backupNow, onBackupStarted }: DevicesProps) {
         testID="devices-transfer"
         icon={controlIcon('tune')}
         title={t('settings.devices.transfer')}
-        description={t('settings.later')}
-        disabled
-        onPress={() => undefined}
+        description={t('settings.devices.transferLine')}
+        disabled={busy}
+        onPress={onTransfer}
       />
       <View testID="devices-backup" style={styles.card}>
         <Text accessibilityRole="header" style={[styles.title, align]}>

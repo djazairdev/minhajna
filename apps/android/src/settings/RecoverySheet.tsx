@@ -12,7 +12,7 @@
 // backups made before stay on the old key, so a new one follows. Screenshots
 // are refused here whatever the teacher allowed, and the key reaches no server.
 
-import { deviceFacts, makeRecoveryKey, readRecoveryKey, recoveryGroups } from '@minhajna/core';
+import { deviceFacts, makeRecoveryKey, readRecoveryKey } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -29,7 +29,7 @@ import { useAppData } from '../storage/AppData';
 import { fromHex } from '../storage/history';
 import { currentLanguage, useText } from '../text/i18n';
 import { recoveryHtml } from './recovery-html';
-import { recoveryStyles as own } from './recovery-styles';
+import { KeyGroups } from './KeyGroups';
 import { settingsStyles as styles } from './styles';
 
 export type RecoverySheetProps = {
@@ -110,19 +110,7 @@ export function RecoverySheet({ storage, first, onConfirmed }: RecoverySheetProp
       <Text style={[styles.sub, align]}>{t('settings.recovery.given')}</Text>
       <View testID="recovery-key" style={styles.card}>
         <Text style={[styles.body, align]}>{t('settings.recovery.intro')}</Text>
-        <View style={own.groups}>
-          {recoveryGroups(key).map((group, index) => (
-            <View
-              key={index}
-              style={own.group}
-              accessible
-              accessibilityLabel={t('settings.recovery.group', { number: index + 1, letters: [...group].join(' ') })}
-            >
-              <Text style={own.number}>{index + 1}</Text>
-              <Text style={own.letters}>{group}</Text>
-            </View>
-          ))}
-        </View>
+        <KeyGroups value={key} />
         <Button
           testID="recovery-print"
           label={t('settings.recovery.print')}
