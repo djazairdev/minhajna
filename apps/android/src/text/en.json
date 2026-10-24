@@ -2847,6 +2847,7 @@
     "pack": "Signed plan: {{pack}}, release {{release}}",
     "layer": "Layer on the plan: {{title}}",
     "erased": "Deleted: {{what}}. The fact stays, without its content",
+    "pupilErased": "A pupil’s data erased · without its content",
     "unverified": "Changed: {{what}}",
     "kinds": {
       "session": "a texts-book session",

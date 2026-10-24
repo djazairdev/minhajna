@@ -56,17 +56,25 @@ export function unitByKey(context: Context, key: string, day: Day): RollCallUnit
   return unitsBetween(context, day, day).find((unit) => unit.key === key) ?? null;
 }
 
-/** The marks recorded for a unit, or null before its roll call is taken. */
 /**
  * Each pupil's number on the class list, kept for good as on the paper
  * roll-call book: a pupil who leaves keeps theirs, and one who joins takes
- * the next.
+ * the next. A pupil whose data was erased keeps their place, so no number
+ * after theirs changes (answer 473).
  */
 export function listNumbers(context: Pick<Context, 'state'>, classId: string): Map<string, number> {
-  const pupils = [...context.state.pupils.values()].filter((pupil) => pupil.classId === classId);
-  return new Map(pupils.map((pupil, index) => [pupil.id, index + 1]));
+  const { state } = context;
+  const pupils = [...state.pupils.values()].filter((pupil) => pupil.classId === classId);
+  const erased = (state.erasedPupils ?? []).filter((one) => one.classId === classId).map((one) => one.place);
+  return new Map(
+    pupils.map((pupil, index) => {
+      const first = state.memberships?.get(pupil.id)?.[0]?.order ?? Infinity;
+      return [pupil.id, index + 1 + erased.filter((place) => place < first).length];
+    }),
+  );
 }
 
+/** The marks recorded for a unit, or null before its roll call is taken. */
 export function recordedMarks(context: Context, unit: RollCallUnit): Marks | null {
   const record = current(context.state.rollCalls.get(unit.key));
   return record === null ? null : { absent: record.absent, late: record.late };

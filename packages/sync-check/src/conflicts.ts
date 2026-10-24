@@ -48,6 +48,7 @@ export function recordKey(entry: Entry): string | null {
     case 'pupil.set':
       return `pupil/${event.pupil.id}`;
     case 'pupil.moved':
+    case 'pupil.erased':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;

@@ -15,6 +15,9 @@ import type { ExtraSession } from './extra-records.ts';
 import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
+import type { CorrectionReason } from './correction-reasons.ts';
+import type { PupilErasure } from './pupil-erase.ts';
+import type { Restating } from './restated.ts';
 import type { CatchUpSession } from './catch-up-sessions.ts';
 import type { ExamDuty } from './exam-duties.ts';
 import type { Repace } from './repace-records.ts';
@@ -48,14 +51,7 @@ import type {
   TimetableVersion,
 } from './records.ts';
 
-/**
- * Why a confirmed session was corrected: added after confirming, an entry
- * error, or another reason, whose words stay in the private note. The code
- * shows with the correction (PRD §5.5).
- */
-export const CORRECTION_REASONS = ['added-later', 'entry-error', 'other'] as const;
-
-export type CorrectionReason = (typeof CORRECTION_REASONS)[number];
+export { CORRECTION_REASONS, type CorrectionReason } from './correction-reasons.ts';
 
 export type RecordEvent =
   | { readonly kind: 'teacher.set'; readonly card: TeacherCard }
@@ -64,6 +60,8 @@ export type RecordEvent =
   | { readonly kind: 'class.set'; readonly schoolClass: SchoolClass }
   | { readonly kind: 'pupil.set'; readonly pupil: Pupil }
   | { readonly kind: 'pupil.moved'; readonly pupilId: string; readonly movement: PupilMovement }
+  /** The fact that a pupil's data was erased: their class and the entries erased, nothing else (#248, answer 473). */
+  | { readonly kind: 'pupil.erased'; readonly erased: PupilErasure }
   | { readonly kind: 'course.set'; readonly course: Course }
   | { readonly kind: 'timetable.set'; readonly version: TimetableVersion }
   | { readonly kind: 'calendar.set'; readonly entry: CalendarEntry }
@@ -95,9 +93,9 @@ export type RecordEvent =
   | { readonly kind: 'extra.logged'; readonly extra: ExtraSession }
   | { readonly kind: 'extra.removed'; readonly id: string }
   // A roll call's correction carries its short reason, which is part of the
-  // roll-call record (PRD §3.4, §5.5).
-  | { readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string }
-  | { readonly kind: 'seating.set'; readonly plan: SeatingPlan }
+  // roll-call record (PRD §3.4, §5.5). Either may be restated (restated.ts).
+  | ({ readonly kind: 'roll-call.taken'; readonly rollCall: RollCall; readonly reason?: string } & Restating)
+  | ({ readonly kind: 'seating.set'; readonly plan: SeatingPlan } & Restating)
   // The roll-call book's counting rules, one set for every class (PRD §3.4).
   | { readonly kind: 'counting.set'; readonly rules: CountingRules }
   // Setup was finished once, so the app opens on Today from then on (#183).
@@ -161,6 +159,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'class.set': true,
   'pupil.set': true,
   'pupil.moved': true,
+  'pupil.erased': true,
   'course.set': true,
   'timetable.set': true,
   'calendar.set': true,
@@ -223,6 +222,7 @@ export function layerOf(event: RecordEvent): Layer {
       return 'device';
     case 'pupil.set':
     case 'pupil.moved':
+    case 'pupil.erased':
     case 'roll-call.taken':
     case 'counting.set':
     case 'assessment.set':
