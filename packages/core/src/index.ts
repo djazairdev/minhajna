@@ -55,6 +55,7 @@ export { courseSetup, refOf, type Choice, type CourseSetup, type Details } from 
 export * from './context.ts';
 export * from './day.ts';
 export * from './demo-pupils.ts';
+export * from './name-replace.ts';
 export * from './engine.ts';
 export * from './events.ts';
 export * from './extra.ts';

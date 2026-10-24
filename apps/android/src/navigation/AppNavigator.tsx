@@ -63,6 +63,8 @@ import {
 } from './SetupScreens';
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections } from '../help/PrivacyNotice';
+import { ProblemReport } from '../help/ProblemReport';
+import { recordStep } from '../help/steps';
 import type { HomeTabParamList, RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
 import { planRoutes } from './PlanScreens';
@@ -88,6 +90,11 @@ export const STORAGE_CHECK_MENU_ITEM = 'Storage check';
 
 /** A screen's title over a paper screen, with dark status bar icons. */
 const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
+
+/** «الإبلاغ عن مشكلة», with the screens opened before it. */
+function ProblemReportScreen() {
+  return <ProblemReport />;
+}
 
 /**
  * Places typed tabs under the native stack so inner screens cover them. In
@@ -126,7 +133,11 @@ export function AppNavigator({
       direction={direction}
       theme={theme}
       initialState={initialState}
-      onStateChange={onStateChange}
+      onReady={() => recordStep(navigation.getCurrentRoute()?.name)}
+      onStateChange={(state) => {
+        recordStep(navigation.getCurrentRoute()?.name);
+        onStateChange?.(state);
+      }}
     >
       <Stack.Navigator
         initialRouteName={initialRouteName}
@@ -241,6 +252,11 @@ export function AppNavigator({
           name="PrivacyNotice"
           component={HelpNotice}
           options={{ title: t('privacy.helpTitle'), statusBarStyle: 'dark' }}
+        />
+        <Stack.Screen
+          name="ProblemReport"
+          component={ProblemReportScreen}
+          options={{ title: t('report.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen
           name="Connections"

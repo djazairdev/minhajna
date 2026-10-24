@@ -64,6 +64,7 @@ export type RootStackParamList = {
   Language: undefined;
   PrivacyNotice: undefined;
   Connections: undefined;
+  ProblemReport: undefined;
   Licences: undefined;
   LicenceNotice: { name: string };
   Entry: { key: string; day: string };
