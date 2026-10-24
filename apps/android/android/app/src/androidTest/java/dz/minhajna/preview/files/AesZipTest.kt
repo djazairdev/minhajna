@@ -10,6 +10,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.charset.Charset
+import java.util.zip.ZipInputStream
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -18,12 +19,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Checks the AES-256 ZIP's headers, that the plain text never shows in it, and
- * the files' rules: names, types, a file known not to be text, and text read
- * as UTF-8, as UTF-16 after its byte-order mark, or as Arabic Windows' code
- * page. It also leaves `aes-check.zip` in the app's external files, with the
- * made-up text below under the password «مفتاح 2026», so that a reader on a
- * computer can open it with that password.
+ * Checks the AES-256 ZIP's headers, with one file or several, that the plain
+ * text never shows in it, a plain ZIP read back, and the files' rules:
+ * names, types, a file known not to be text, and text read as UTF-8, as
+ * UTF-16 after its byte-order mark, or as Arabic Windows' code page. It also
+ * leaves `aes-check.zip` in the app's external files, with the made-up text
+ * below under the password «مفتاح 2026», so that a reader on a computer can
+ * open it with that password.
  */
 @RunWith(AndroidJUnit4::class)
 class AesZipTest {
@@ -56,6 +58,43 @@ class AesZipTest {
     assertFalse(MinhajnaFilesModule.binary(content))
     val context = InstrumentationRegistry.getInstrumentation().targetContext
     File(context.getExternalFilesDir(null), "aes-check.zip").writeBytes(bytes)
+  }
+
+  @Test
+  fun anArchiveHoldsSeveralFilesEachFoundFromTheCentralDirectory() {
+    val files = listOf("marks.csv" to text.toByteArray(), "roll-call.csv" to "1;2\r\n".toByteArray())
+    val bytes = ByteArrayOutputStream().also { AesZip.writeAll(it, files, password) }.toByteArray()
+    val zip = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+    val end = bytes.size - 22
+    assertEquals(0x06054b50, zip.getInt(end))
+    assertEquals(2, zip.getShort(end + 8).toInt())
+    assertEquals(2, zip.getShort(end + 10).toInt())
+    var central = zip.getInt(end + 16)
+    assertEquals(bytes.size - 22 - central, zip.getInt(end + 12))
+    for ((name, _) in files) {
+      assertEquals(0x02014b50, zip.getInt(central))
+      val nameLength = zip.getShort(central + 28).toInt()
+      val local = zip.getInt(central + 42)
+      assertEquals(0x04034b50, zip.getInt(local))
+      assertEquals(name, String(bytes, local + 30, zip.getShort(local + 26).toInt(), Charsets.UTF_8))
+      assertEquals(name, String(bytes, central + 46, nameLength, Charsets.UTF_8))
+      central += 46 + nameLength + zip.getShort(central + 30).toInt()
+    }
+    assertFalse(String(bytes, Charsets.ISO_8859_1).contains("16,50"))
+  }
+
+  @Test
+  fun aPlainArchiveReadsBackWithItsArabicNames() {
+    val files = listOf("أرشيف.json" to "{\"a\":1}".toByteArray(), "notes.csv" to text.toByteArray())
+    val bytes = ByteArrayOutputStream().also { MinhajnaFilesModule.plainZip(it, files) }.toByteArray()
+    val read = mutableListOf<Pair<String, String>>()
+    ZipInputStream(bytes.inputStream()).use { zip ->
+      while (true) {
+        val entry = zip.nextEntry ?: break
+        read += entry.name to zip.readBytes().toString(Charsets.UTF_8)
+      }
+    }
+    assertEquals(files.map { it.first to it.second.toString(Charsets.UTF_8) }, read)
   }
 
   @Test

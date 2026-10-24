@@ -36,6 +36,7 @@ const AVAILABLE = [
   'security',
   'language',
   'log',
+  'export',
   'retention',
   'help',
   'privacy',
@@ -72,6 +73,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
     plans: t('settings.plansLine'),
     signature: signatureStatus(t, state.personal),
     log: t('settings.logLine'),
+    export: t('settings.exportLine'),
     retention: retentionLine(t, state),
   };
   const schools = [...state.schools.values()];

@@ -12,6 +12,7 @@ import { Language } from '../settings/Language';
 import { Lengths } from '../settings/Lengths';
 import { Notify } from '../settings/Notify';
 import { Plans } from '../settings/Plans';
+import { ExportAll } from '../settings/ExportAll';
 import { Retention } from '../settings/Retention';
 import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
@@ -69,6 +70,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
         break;
       case 'log':
         navigation.navigate('Log');
+        break;
+      case 'export':
+        navigation.navigate('SettingsExport');
         break;
       case 'retention':
         navigation.navigate('SettingsRetention');
@@ -180,6 +184,7 @@ export function settingsRoutes(
       <Stack.Screen name="SettingsNotify" component={Notify} options={dark(t('settings.rows.notifications'))} />
       <Stack.Screen name="SettingsSignature" component={DrawnSignature} options={dark(t('settings.rows.signature'))} />
       <Stack.Screen name="Log" component={Log} options={dark(t('settings.rows.log'))} />
+      <Stack.Screen name="SettingsExport" component={ExportAll} options={dark(t('settings.rows.export'))} />
       <Stack.Screen name="SettingsRetention" component={Retention} options={dark(t('settings.rows.retention'))} />
     </>
   );

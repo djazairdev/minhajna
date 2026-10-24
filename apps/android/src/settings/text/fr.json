@@ -106,6 +106,7 @@
     "statusNone": "Non dessinée"
   },
   "logLine": "Chaque correction, impression, export et suppression",
+  "exportLine": "L’archive Minhajna ou des fichiers CSV, gratuitement et à tout moment",
   "retentionLine": "{{lessons}} · {{pupils}}",
   "retention": {
     "intro": "Chaque type de dossier a une durée par défaut, que vous pouvez changer. Rien n’est effacé sans vous le demander, et l’effacement est réel : le contenu disparaît, et le journal d’activité ne garde que le fait et son jour.",
@@ -141,5 +142,49 @@
     "logDefault": "Par défaut : gardé aussi longtemps que les dossiers qu’il décrit",
     "howNotice": "Comment l’effacement est proposé : avec l’export de toutes les données, qui montre ce qui est effacé et ce qui reste, et propose l’export d’abord. Ce réglage n’efface rien.",
     "schoolNotice": "Dans l’espace de l’établissement, dans le système national : la copie de l’établissement et le registre officiel suivent la durée annoncée par le ministère, comme 3 ans pour les semaines signées, comme le cahier de textes. Ma copie garde ces réglages."
+  },
+  "exportAll": {
+    "free": "Gratuitement, à tout moment.",
+    "format": "Format",
+    "archive": "Archive Minhajna",
+    "archiveLine": "Tout : les données, leur historique et les versions épinglées. Un format ouvert et documenté, que chaque version suivante lit.",
+    "csvLine": "Les notes, l’appel et le registre des séances, pour un tableur.",
+    "leftOut": "L’archive contient tout, sauf les champs personnels de la fiche de l’enseignant et la signature dessinée : ils se saisissent et se dessinent à nouveau après l’ouverture sur un autre appareil.",
+    "year": "Année scolaire",
+    "years": "Toutes les années jusqu’ici : {{years}}. Le choix d’une seule année viendra avec l’archive de l’année.",
+    "notes": "Notes privées",
+    "notesLine": "Elles n’entrent dans le fichier que si vous les incluez ici.",
+    "protect": "Protéger le fichier par un mot de passe",
+    "protectLine": "Recommandé : le fichier contient des données d’élèves.",
+    "password": "Mot de passe du fichier",
+    "passwordLine": "Il n’est pas gardé dans le fichier, et le projet ne peut pas le retrouver.",
+    "confidential": "Interne · confidentiel. Gardez le fichier sur un ordinateur, une carte SD ou une clé USB, pas dans une messagerie.",
+    "sizeKb": "Taille avant compression : environ {{size}} Ko.",
+    "sizeMb": "Taille avant compression : environ {{size}} Mo.",
+    "save": "Choisir où enregistrer",
+    "saveNote": "Le sélecteur de fichiers du téléphone s’ouvre, et l’export est inscrit dans le journal d’activité.",
+    "archiveName": "Archive Minhajna",
+    "csvName": "Données Minhajna CSV",
+    "csv": {
+      "title": "Fichiers CSV",
+      "marksTitle": "Notes",
+      "rollTitle": "Appel",
+      "lessonsTitle": "Registre des séances",
+      "class": "Classe",
+      "subject": "Matière",
+      "term": "Trimestre",
+      "number": "N°",
+      "name": "Nom et prénom",
+      "registration": "N° d’inscription",
+      "what": "Évaluation",
+      "day": "Jour",
+      "value": "Note",
+      "half": "Demi-journée",
+      "mark": "Appel",
+      "justified": "Justifiée",
+      "lines": "Ce qui est inscrit",
+      "homework": "Devoir",
+      "due": "Pour le"
+    }
   }
 }

@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### New
+
+- «تصدير كل البيانات» in Settings takes everything you recorded out of the app, free, at any time. Choose the Minhajna archive, everything with its history and the plan releases your classes are pinned to, in an open format that later versions read, or three CSV files for spreadsheets: marks, roll call and the lesson log. The archive leaves your personal fields and drawn signature on the phone, and your private notes too unless you include them. The file is protected by a password by default, marked «داخلي · سري», and saved through the phone's file picker, to keep on a computer, an SD card or a USB key. The activity log records each export.
+  - تُخرج «تصدير كل البيانات» في الإعدادات كل ما سجّلته من التطبيق، مجاناً وفي أي وقت. اختر أرشيف «منهاجنا»، كل شيء بتاريخه وإصدارات المخططات المثبّتة لأقسامك، بصيغة مفتوحة تقرؤها الإصدارات اللاحقة، أو ثلاثة ملفات CSV لجداول البيانات: النقاط والمناداة وسجل الحصص. ويُبقي الأرشيف حقولك الشخصية وتوقيعك المرسوم على الهاتف، وملاحظاتك الخاصة أيضاً إلا إن ضمّنتها. والملف محمي بكلمة سر افتراضياً، وموسوم «داخلي · سري»، ويُحفظ عبر منتقي الملفات في الهاتف، لتحفظه في حاسوب أو بطاقة SD أو مفتاح USB. ويسجّل سجل النشاط كل تصدير.
+
 ## 0.4.0 (2026-10-23)
 
 The marks preview: continuous assessment from your level's official setup, in-class assessment taps, entering marks for tests and the exam, the grade book and term averages for every level, descriptive observations, appreciations, the term export with the ostad view and its files, corrections after the term, and the class-council pack. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.

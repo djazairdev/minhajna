@@ -48,6 +48,7 @@ jest.mock('../src/native/NativeMinhajnaFiles', () => ({
   __esModule: true,
   default: {
     makeText: jest.fn(() => Promise.resolve('0123456789abcdef')),
+    makeZip: jest.fn(() => Promise.resolve('00112233aabbccdd')),
     adoptPdf: jest.fn(() => Promise.resolve('fedcba9876543210')),
     saveFile: jest.fn(() => Promise.resolve(true)),
     shareFile: jest.fn(() => Promise.resolve()),

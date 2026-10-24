@@ -50,6 +50,7 @@ export type RootStackParamList = {
   SettingsSignature: undefined;
   /** «سجل النشاط» and «مدة الحفظ» (#235). */
   Log: undefined;
+  SettingsExport: undefined;
   SettingsRetention: undefined;
   Language: undefined;
   PrivacyNotice: undefined;

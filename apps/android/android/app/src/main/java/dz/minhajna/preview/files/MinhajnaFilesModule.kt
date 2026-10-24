@@ -10,24 +10,29 @@ import androidx.core.content.FileProvider
 import com.facebook.react.bridge.ActivityEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.UiThreadUtil
 import dz.minhajna.preview.storage.NativeMinhajnaFilesSpec
 import java.io.File
 import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 import java.security.SecureRandom
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 /**
  * The files the teacher keeps or sends from the term export (#242, answer
  * 466): text written as UTF-8, or a made PDF, each under the name the
  * teacher will see, in a folder of the app's cache named by a random token,
  * which is all that crosses the bridge. With a password, the file goes in an
- * AES-256 ZIP instead (R-5.9-15). Saving goes through the system's file
- * picker and sending through Android's share screen, never a link
- * (R-5.9-17), so the app asks for no storage permission. A saved or
+ * AES-256 ZIP instead (R-5.9-15). Several texts go in one ZIP, a plain one
+ * without a password, as the full export does (#248). Saving goes through
+ * the system's file picker and sending through Android's share screen, never
+ * a link (R-5.9-17), so the app asks for no storage permission. A saved or
  * cancelled file is deleted, a shared one stays until the app's next start,
  * which empties the folder. Reading back a file the teacher picks gives its
  * text: UTF-16 after its byte-order mark, as Excel saves Unicode text, else
@@ -56,16 +61,44 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
     made(fileName, password, promise) { source.readBytes().also { source.delete() } }
   }
 
+  override fun makeZip(
+    names: ReadableArray,
+    texts: ReadableArray,
+    fileName: String,
+    password: String,
+    promise: Promise,
+  ) {
+    if (names.size() != texts.size()) return promise.reject("E_FILE_NAME", "Each file needs a name")
+    val files = (0 until names.size()).map { names.getString(it).orEmpty() to texts.getString(it).orEmpty() }
+    val allowed = files.isNotEmpty() && files.map { it.first }.toSet().size == files.size
+    if (!allowed || files.any { !fileNameAllowed(it.first) } || !fileNameAllowed("$fileName.zip")) {
+      return promise.reject("E_FILE_NAME", "Each file needs a name of its own, with no folder in it")
+    }
+    placed(promise) { place ->
+      val bytes = files.map { (name, text) -> name to text.toByteArray(Charsets.UTF_8) }
+      File(place, "$fileName.zip").outputStream().use {
+        if (password.isEmpty()) plainZip(it, bytes) else AesZip.writeAll(it, bytes, password)
+      }
+    }
+  }
+
   /** Writes the bytes under the file's name in a fresh token's folder, zipped when a password is given. */
   private fun made(fileName: String, password: String, promise: Promise, bytes: () -> ByteArray) {
     if (!fileNameAllowed(fileName)) return promise.reject("E_FILE_NAME", "A file name has no folder in it")
+    placed(promise) { place ->
+      val content = bytes()
+      if (password.isEmpty()) File(place, fileName).writeBytes(content)
+      else File(place, "$fileName.zip").outputStream().use { AesZip.write(it, fileName, content, password) }
+    }
+  }
+
+  /** Makes a file in a fresh token's folder, off the main thread, and gives the token, or nothing if it fails. */
+  private fun placed(promise: Promise, make: (File) -> Unit) {
     Thread {
       val token = ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
       val place = File(folder, token).apply { mkdirs() }
       try {
-        val content = bytes()
-        if (password.isEmpty()) File(place, fileName).writeBytes(content)
-        else File(place, "$fileName.zip").outputStream().use { AesZip.write(it, fileName, content, password) }
+        make(place)
         promise.resolve(token)
       } catch (error: Exception) {
         place.deleteRecursively()
@@ -213,6 +246,17 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
       "csv" -> "text/csv"
       "pdf" -> "application/pdf"
       else -> "application/octet-stream"
+    }
+
+    /** A plain ZIP of the files, deflated, their names in UTF-8, for a file kept without a password (#248). */
+    fun plainZip(out: OutputStream, files: List<Pair<String, ByteArray>>) {
+      ZipOutputStream(out).use { zip ->
+        for ((name, bytes) in files) {
+          zip.putNextEntry(ZipEntry(name))
+          zip.write(bytes)
+          zip.closeEntry()
+        }
+      }
     }
 
     /** At most one byte over the limit, so a larger file is known to be one. */

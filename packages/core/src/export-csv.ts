@@ -32,7 +32,7 @@ export function exportCell(value: ExportValue, labels: Pick<CsvLabels, 'absent'>
 }
 
 /** A value as the CSV file writes it: a number with a decimal comma, the absence's word as it is, or nothing. */
-function csvCell(value: ExportValue, labels: Pick<CsvLabels, 'absent'>): string {
+export function csvCell(value: ExportValue, labels: Pick<CsvLabels, 'absent'>): string {
   return typeof value === 'number' ? shownMark(value).replace('.', ',') : exportCell(value, labels);
 }
 
@@ -63,8 +63,12 @@ export function exportCsv(
     ...(sheet.averaged ? [csvCell(row.average, labels)] : []),
     row.appreciation ?? '',
   ]);
-  const lines = [marking, header, ...rows].map((cells) => cells.map(field).join(';'));
-  return `\uFEFF${lines.join('\r\n')}\r\n`;
+  return csvText([marking, header, ...rows]);
+}
+
+/** Lines of cells as CSV text in the export's dialect: a byte-order mark, semicolons, and no cell run as a formula. */
+export function csvText(lines: readonly (readonly string[])[]): string {
+  return `\uFEFF${lines.map((cells) => cells.map(field).join(';')).join('\r\n')}\r\n`;
 }
 
 /** The separator a file uses: of semicolon, comma and tab, the one in the most of its first lines, outside quotes. */

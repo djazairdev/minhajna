@@ -32,14 +32,17 @@ export interface PrintRecord {
   readonly documents: readonly PrintedDocument[];
 }
 
-/** A document printed, or saved or shared as a PDF or CSV file: never its content, file name, password or recipient. */
+/**
+ * A document printed, or saved or shared as a PDF or CSV file, or the Minhajna archive saved (#248): never its
+ * content, file name, password or recipient.
+ */
 export interface OutputRecord {
   readonly id: string;
   /** The document's name, as the app calls it, such as `journal`. */
   readonly document: string;
   /** What it covered, as its file is named: a day, a month such as `2026-10`, or a school year such as `2026-2027`. */
   readonly period: string;
-  readonly how: 'print' | 'pdf' | 'csv';
+  readonly how: 'print' | 'pdf' | 'csv' | 'archive';
   readonly blank: boolean;
 }
 
