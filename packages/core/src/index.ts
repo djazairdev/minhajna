@@ -62,6 +62,8 @@ export * from './extra-records.ts';
 export * from './format.ts';
 export * from './hijri.ts';
 export * from './hijri-read.ts';
+export * from './archive.ts';
+export * from './archive-read.ts';
 export * from './history.ts';
 export * from './history-inspection.ts';
 export * from './history-damage.ts';
