@@ -18,7 +18,7 @@ Give teachers the [Arabic download and testing page](https://djazair.dev/ar/minh
 - **The signed preview:** the latest from the project's [releases page](https://github.com/djazairdev/minhajna/releases/latest), or handed over by the organiser.
 - **Made-up data only:** use «إضافة القسم التجريبي» in setup, or invented names. Keep using official school records.
 - **Offline:** entries stay on the phone. Opening the source link asks before launching the browser; no app record or identifier is attached.
-- **Included:** the demo class and the 2026/27 calendar, from 0.2.0 the app lock and the paper books printed from what is recorded, and from 0.3.0 the full class plan, the calendar with its signed updates, and notifications. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
+- **Included:** the demo class and the 2026/27 calendar, from 0.2.0 the app lock and the paper books printed from what is recorded, from 0.3.0 the full class plan, the calendar with its signed updates, and notifications, and from 0.4.0 marks, from continuous assessment to the term export and the class-council pack. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
 - **Compatible Android 8-or-later phones.**
 
 ## Before the session
