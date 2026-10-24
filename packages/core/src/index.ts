@@ -129,3 +129,5 @@ export * from './free-list.ts';
 export * from './free-list-offer.ts';
 export * from './variant-read.ts';
 export * from './signed-read.ts';
+export * from './school-cover.ts';
+export * from './school-cover-book.ts';
