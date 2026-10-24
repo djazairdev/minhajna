@@ -25,7 +25,8 @@ export function grouped(hex: string): string {
   return hex.match(/.{1,4}/g)?.join(' ') ?? '';
 }
 
-function useBuildFacts(): Result {
+/** The installed build's facts, read once off the UI thread. */
+export function useBuildFacts(): Result {
   const [result, setResult] = useState<Result>({ status: 'loading' });
   useEffect(() => {
     let active = true;

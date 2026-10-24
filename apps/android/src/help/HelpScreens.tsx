@@ -5,6 +5,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { TFunction } from 'i18next';
 import { Text } from 'react-native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
+import { PILOT_BUILD } from '../pilot/pilot-build';
+import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { AboutBuild } from './BuildFacts';
 import { HelpPage, HelpRow, helpStyles } from './HelpPage';
@@ -12,25 +14,39 @@ import { SourceLink } from './SourceLink';
 import { useAppLicences } from './useAppLicences';
 
 /**
- * The preview and its checksums, the privacy notice, connections and licences, and how to report an error in a
- * plan, which opens the Classes tab (answer 301), or a refused update file, by hand (answer 307); other reports,
- * settings and privacy controls remain later work.
+ * Help as drawn (#249, answer 483): the demo class, which opens «الأقسام والتلاميذ»; «توقيتاتي» in pilot builds;
+ * «الإبلاغ عن مشكلة», the plan-error row, which opens the Classes tab (answer 301), and a refused update file, by
+ * hand (answer 307); the teacher's channels; then the privacy notice, connections and licences, and the build.
  */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
   const t = useText();
+  const { state } = useAppData();
+  const demo = [...state.classes.values()].some((schoolClass) => schoolClass.demo === true);
   return (
     <HelpPage>
-      <Text accessibilityRole="header" style={helpStyles.heading}>
-        {t('help.about')}
-      </Text>
-      <AboutBuild />
-      <HelpRow label={t('privacy.helpTitle')} onPress={() => navigation.navigate('PrivacyNotice')} />
-      <HelpRow label={t('security.title')} onPress={() => navigation.navigate('Security')} />
-      <HelpRow label={t('connections.title')} onPress={() => navigation.navigate('Connections')} />
-      <HelpRow label={t('help.licences')} detail={t('help.offline')} onPress={() => navigation.navigate('Licences')} />
+      <HelpRow
+        testID="help-demo"
+        label={t('help.demo')}
+        detail={t(demo ? 'help.demoThere' : 'help.demoAdd')}
+        onPress={() => navigation.navigate('SettingsClasses')}
+      />
+      {PILOT_BUILD && (
+        <HelpRow
+          testID="help-timings"
+          label={t('pilotTimings.title')}
+          detail={t('help.timingsLine')}
+          onPress={() => navigation.navigate('PilotTimings')}
+        />
+      )}
       <Text accessibilityRole="header" style={helpStyles.heading}>
         {t('help.reports')}
       </Text>
+      <HelpRow
+        testID="help-problem"
+        label={t('report.title')}
+        detail={t('help.problemLine')}
+        onPress={() => navigation.navigate('ProblemReport')}
+      />
       <HelpRow
         testID="help-plan-error"
         label={t('help.planError')}
@@ -43,6 +59,25 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
       <Text testID="help-update-refused" selectable style={helpStyles.body}>
         {t('help.updateRefusedHow')}
       </Text>
+      <Text accessibilityRole="header" style={helpStyles.heading}>
+        {t('help.contact')}
+      </Text>
+      <Text testID="help-contact" selectable style={helpStyles.body}>
+        {t('help.contactMail')}
+      </Text>
+      <Text style={helpStyles.body}>{t('help.contactGroup')}</Text>
+      <Text style={helpStyles.body}>{t('help.contactSafe')}</Text>
+      <Text accessibilityRole="header" style={helpStyles.heading}>
+        {t('help.privacy')}
+      </Text>
+      <HelpRow label={t('privacy.helpTitle')} onPress={() => navigation.navigate('PrivacyNotice')} />
+      <HelpRow label={t('security.title')} onPress={() => navigation.navigate('Security')} />
+      <HelpRow label={t('connections.title')} onPress={() => navigation.navigate('Connections')} />
+      <HelpRow label={t('help.licences')} detail={t('help.offline')} onPress={() => navigation.navigate('Licences')} />
+      <Text accessibilityRole="header" style={helpStyles.heading}>
+        {t('help.about')}
+      </Text>
+      <AboutBuild />
     </HelpPage>
   );
 }

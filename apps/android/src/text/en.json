@@ -44,7 +44,17 @@
     "planError": "Report a plan error",
     "planErrorHow": "From the item itself in the class's plan: open the class's plan, tap the item, then “Report an error in this item”. The report then carries the item's ID and the pack's release.",
     "updateRefused": "A refused update file",
-    "updateRefusedHow": "From the “Import an update” screen: send the file's name and why it was refused, not its content, to contact@djazair.dev, and say where it came from."
+    "updateRefusedHow": "From the “Import an update” screen: send the file's name and why it was refused, not its content, to contact@djazair.dev, and say where it came from.",
+    "demo": "Demo class",
+    "demoThere": "In your classes: made-up pupils for trying the app, tutorials, screenshots and showing a problem again before you report it.",
+    "demoAdd": "Made-up pupils for trying the app, tutorials and screenshots. Add it from “Classes and pupils”.",
+    "timingsLine": "Measured on this phone, sent only if you share them",
+    "problemLine": "Pupils' names as your class lists write them are replaced, and the report is shown before it is sent",
+    "contact": "Contact",
+    "contactMail": "Email: contact@djazair.dev",
+    "contactGroup": "The teacher group on Facebook: questions, news and how-tos; its link comes with the pilot.",
+    "contactSafe": "Without real pupil data: the problem report or the demo class.",
+    "privacy": "Privacy and connections"
   },
   "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
   "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",
@@ -106,6 +116,7 @@
     "source": "The source code link in Licences opens only after you confirm. Your browser opens it outside the app, with no record or identifier.",
     "packSource": "A pack’s source address, in its details, opens only after you are asked, and the question names the site. Your browser opens it outside the app, with no record or identifier.",
     "errorReport": "A plan-error report is shown in full, and leaves the phone only when you share it and pick the app that sends it. The app adds nothing about your classes or pupils, nor your name unless you type it.",
+    "problemReport": "The problem report is shown in full, with pupils' names as your class lists write them replaced, and leaves the phone only when you choose to share it and the app that sends it. It holds the version, Android's version and the names of the last screens opened, without their content.",
     "register": "Any connection the project adds is listed in the NETWORK.md file of the source code, with what is sent and why, before it reaches the app."
   },
   "setup": {
@@ -3441,5 +3452,36 @@
         "unavailable": "No check until the term’s marks and appreciations are complete."
       }
     }
+  },
+  "report": {
+    "title": "Report a problem",
+    "intro": "The whole report is shown before it is sent",
+    "note": "What happened?",
+    "notePlaceholder": "For example: after confirming 4M3's session, the homework does not show in the homework book, p. 67.",
+    "noNames": "No pupils' names or details about them. Any pupil's name typed as your class lists write it is replaced before sending, so read the whole report before sharing it.",
+    "part": "Where?",
+    "parts": {
+      "today": "Today",
+      "classes": "Classes",
+      "roll": "Roll call",
+      "marks": "Assessment and marks",
+      "plan": "Plan",
+      "documents": "Documents",
+      "settings": "Settings",
+      "other": "Somewhere else"
+    },
+    "preview": "What will be sent, as it is",
+    "heading": "Problem report in Minhajna",
+    "lineNote": "What happened: {{note}}",
+    "linePart": "Where: {{part}}",
+    "lineVersion": "Version: {{version}} · Android {{android}}",
+    "lineSteps": "Last steps in the app, without content: {{steps}}",
+    "noSteps": "none",
+    "pupil": "Pupil {{n}}",
+    "demo": "Do not attach real screenshots. To show the problem, do it again in the demo class.",
+    "sendTo": "Send it to contact@djazair.dev, by email or with any app you pick in the share menu.",
+    "needsNote": "Write what happened first.",
+    "share": "Share the report",
+    "offline": "The app sends nothing itself and keeps no copy: your phone's share menu opens, and you choose."
   }
 }
