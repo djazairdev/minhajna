@@ -114,6 +114,7 @@ const OWN_TITLES = {
   'mark-sheet': 'documents.markSheet.name',
   'sept-check': 'septCheck.title',
   'stale-question': 'staleQuestion.title',
+  transfer: 'settings.transfer.title',
 } as const;
 
 /** A document's title: the Documents tab's, a screen's own printed page, a re-pace draft, or «وثيقة». */

@@ -58,6 +58,8 @@ export type RootStackParamList = {
   SettingsDevices: { backup?: boolean } | undefined;
   /** «ورقة الاسترجاع»: a first sheet before the first backup, or the key kept. */
   SettingsRecovery: { first: boolean };
+  /** The direct transfer to a new phone (#247). */
+  SettingsTransfer: undefined;
   SettingsRetention: undefined;
   Language: undefined;
   PrivacyNotice: undefined;

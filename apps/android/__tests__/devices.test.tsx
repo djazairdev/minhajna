@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «الأجهزة والنسخ» (#247, Devices-pilot, answer 478): sync not open yet, and
-// why; the transfer still to come; no backup and no sheet at first, the first
-// backup giving the sheet first; a backup saved under the recovery key, the
-// whole archive with the private notes and without the personal fields or
+// why; the transfer opening its screen; no backup and no sheet at first, the
+// first backup giving the sheet first; a backup saved under the recovery key,
+// the whole archive with the private notes and without the personal fields or
 // the key, its day recorded and said; a cancelled save neither said nor
 // recorded; the first backup started once after its sheet; and every text in
 // French and English. Made-up records only.
@@ -49,11 +49,15 @@ const disabled = (testID: string) =>
   )?.disabled === true;
 
 async function screen(data: TestData, backupNow = false) {
+  const onTransfer = jest.fn();
   const onSheet = jest.fn();
   const onBackupStarted = jest.fn();
-  await mount(data, <Devices onSheet={onSheet} backupNow={backupNow} onBackupStarted={onBackupStarted} />);
+  await mount(
+    data,
+    <Devices onTransfer={onTransfer} onSheet={onSheet} backupNow={backupNow} onBackupStarted={onBackupStarted} />,
+  );
   await ReactTestRenderer.act(settle);
-  return { onSheet, onBackupStarted };
+  return { onTransfer, onSheet, onBackupStarted };
 }
 
 /** The made-up class with a private note, the teacher's personal fields and a recovery key. */
@@ -68,7 +72,7 @@ async function keyed(): Promise<TestData> {
 }
 
 test('says sync is not open, and gives the sheet before the first backup', async () => {
-  const { onSheet } = await screen(await withPupils());
+  const { onTransfer, onSheet } = await screen(await withPupils());
   expect(accessibilityProblems(root())).toEqual([]);
   expect(texts()).toEqual(
     expect.arrayContaining([
@@ -81,7 +85,9 @@ test('says sync is not open, and gives the sheet before the first backup', async
       'لا يملك المشروع أي مفتاح، فلا يستطيع استرجاع البيانات.',
     ]),
   );
-  expect(disabled('devices-transfer')).toBe(true);
+  expect(texts()).toContain('ملف مشفّر ورمز لمرة واحدة، دون شبكة');
+  await press('devices-transfer');
+  expect(onTransfer).toHaveBeenCalledTimes(1);
   expect(disabled('devices-sheet')).toBe(true);
   await press('devices-backup-now');
   expect(onSheet).toHaveBeenCalledWith(true);

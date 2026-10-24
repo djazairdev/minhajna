@@ -8,6 +8,8 @@ import { TurboModuleRegistry } from 'react-native';
 export interface Spec extends TurboModule {
   readFile(): Promise<string | null>;
   scanQr(title: string, instruction: string, cancel: string, rtl: boolean): Promise<string | null>;
+  /** A QR code of short text, at most 200 characters, as rows of `1` (dark) and `0` (light), with no quiet zone. */
+  qrRows(text: string): string;
   cancel(): void;
   /** Shares a JSON file the app wrote, up to 1 MB, by its file name, through Android's share sheet. */
   shareText(name: string, text: string, title: string): Promise<void>;

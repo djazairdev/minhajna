@@ -63,6 +63,11 @@ test('documents by their title, a re-pace draft by its own, anything else as «�
   });
   expect(lineText(t, shown, exported('archive'))).toBe('تصدير كل البيانات · 24/10/2026 · أرشيف «منهاجنا»');
   expect(lineText(t, shown, exported('csv'))).toBe('تصدير كل البيانات · 24/10/2026 · CSV');
+  const transfer: LogLine = {
+    kind: 'output',
+    output: { id: 'o', document: 'transfer', period: '2026-10-24', how: 'archive', blank: false },
+  };
+  expect(lineText(t, shown, transfer)).toBe('نقل مباشر · 24/10/2026 · أرشيف «منهاجنا»');
   expect(lineText(t, shown, { kind: 'printed', documents: ['repace:c-1', 'texts'] })).toBe(
     'طباعة الأسبوع: إعادة توزيع بقية الفصل، دفتر النصوص',
   );

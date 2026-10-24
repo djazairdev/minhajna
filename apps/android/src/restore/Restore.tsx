@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «استرجاع البيانات» (#247, Restore, R-5.8-11, R-5.8-12, R-5.9-02, R-6.5-01,
-// answer 478), reached only from the welcome's «لديّ نسخة من هاتف آخر», once
-// the PIN is set, into the empty history. Two routes open in the pilot: a
-// backup file, then the recovery key, typed with no keyboard suggestions, and
-// «فتح أرشيف «منهاجنا»», the export file with its password if it has one.
-// The old phone's direct transfer and the sync account show, not open yet.
+// «استرجاع البيانات» (#247, Restore, R-5.8-10, R-5.8-11, R-5.8-12, R-5.9-02,
+// R-6.5-01, answers 478 to 480), reached only from the welcome's «لديّ نسخة من
+// هاتف آخر», once the PIN is set, into the empty history. Three routes open
+// in the pilot: the old phone in hand, its transfer file, then its one-time
+// key, scanned from its QR code, the camera asked then, or typed; a backup
+// file, then the recovery key; both keys typed with no keyboard suggestions;
+// and «فتح أرشيف «منهاجنا»», the export file with its password if it has one.
+// The sync account shows, not open yet.
 // The file comes through the system's file picker; what does not come back,
 // the teacher card's personal fields and the drawn signature, is said before.
 // A key that does not open the file, or any other refusal, is said under the
@@ -34,6 +36,7 @@ import { nativeDeps } from '../storage/history';
 import { useText } from '../text/i18n';
 import { restoreFile, zipProblem, type RestoreProblem, type RestoreRoute } from './restore-run';
 import { RestoreFail } from './RestoreFail';
+import { scanKey } from './scan-key';
 
 export type RestoreProps = {
   /** The storage module: SHA-256, random bytes and the restore itself. */
@@ -43,16 +46,22 @@ export type RestoreProps = {
 };
 
 type Picked = { readonly token: string; readonly name: string };
-type Shown = RestoreProblem | 'noFile';
+type Shown = RestoreProblem | 'noFile' | 'qr' | 'camera' | 'scan';
 
 const LEFT = ['settings.restore.personal', 'settings.restore.signature'] as const;
+
+const WORDS = {
+  phone: { pick: 'pickPhone', secret: 'code', placeholder: 'settings.recovery.placeholder' },
+  backup: { pick: 'pickBackup', secret: 'key', placeholder: 'settings.recovery.placeholder' },
+  archive: { pick: 'pickArchive', secret: 'password', placeholder: 'settings.restore.passwordHint' },
+} as const;
 
 export function Restore({ storage, onRestored }: RestoreProps) {
   const t = useText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { profile, today } = useAppData();
-  const [route, setRoute] = useState<RestoreRoute>('backup');
+  const [route, setRoute] = useState<RestoreRoute>('phone');
   const [picked, setPicked] = useState<Picked | null>(null);
   const [secret, setSecret] = useState('');
   const [problem, setProblem] = useState<Shown | null>(null);
@@ -71,8 +80,8 @@ export function Restore({ storage, onRestored }: RestoreProps) {
     kept.current.token = null;
     setPicked(null);
   };
-  const choose = (next: RestoreRoute | 'phone' | 'sync') => {
-    if (next !== 'backup' && next !== 'archive') return;
+  const choose = (next: RestoreRoute | 'sync') => {
+    if (next === 'sync') return;
     drop();
     setRoute(next);
     setSecret('');
@@ -97,6 +106,26 @@ export function Restore({ storage, onRestored }: RestoreProps) {
       setBusy(false);
     }
   };
+  const scan = async () => {
+    if (running.current) return;
+    running.current = true;
+    setBusy(true);
+    const scanned = await scanKey({
+      title: t('settings.restore.scanTitle'),
+      instruction: t('settings.restore.scanLine'),
+      cancel: t('settings.restore.scanCancel'),
+      rtl: direction === 'rtl',
+    });
+    running.current = false;
+    setBusy(false);
+    if (scanned === null) return;
+    if ('key' in scanned) {
+      setSecret(scanned.key);
+      setProblem(null);
+    } else {
+      setProblem(scanned.problem);
+    }
+  };
   const restore = async () => {
     if (running.current) return;
     if (picked === null) return setProblem('noFile');
@@ -119,7 +148,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
   if (problem === 'changed') {
     return (
       <RestoreFail
-        keyed={route === 'backup'}
+        route={route}
         onAgain={() => {
           drop();
           setProblem(null);
@@ -127,7 +156,8 @@ export function Restore({ storage, onRestored }: RestoreProps) {
       />
     );
   }
-  const keyed = route === 'backup';
+  const keyed = route !== 'archive';
+  const words = WORDS[route];
   return (
     <ScrollView
       style={styles.screen}
@@ -155,12 +185,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
         onSelect={choose}
         disabled={busy}
         choices={[
-          {
-            value: 'phone',
-            label: t('settings.restore.phone'),
-            description: t('settings.restore.phoneLine'),
-            disabled: true,
-          },
+          { value: 'phone', label: t('settings.restore.phone'), description: t('settings.restore.phoneLine') },
           { value: 'backup', label: t('settings.restore.backup'), description: t('settings.restore.backupLine') },
           { value: 'archive', label: t('settings.restore.archive'), description: t('settings.restore.archiveLine') },
           {
@@ -172,6 +197,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
         ]}
       />
       <View style={styles.card}>
+        {route === 'phone' && <Text style={[styles.body, align]}>{t('settings.restore.phoneHow')}</Text>}
         {picked !== null && (
           <Text testID="restore-picked" style={[styles.body, align]}>
             {picked.name === ''
@@ -183,19 +209,13 @@ export function Restore({ storage, onRestored }: RestoreProps) {
           testID="restore-pick"
           variant="line"
           disabled={busy}
-          label={t(
-            picked !== null
-              ? 'settings.restore.pickOther'
-              : keyed
-                ? 'settings.restore.pickBackup'
-                : 'settings.restore.pickArchive',
-          )}
+          label={t(`settings.restore.${picked !== null ? 'pickOther' : words.pick}`)}
           onPress={() => void pick()}
         />
         <TextField
           testID="restore-secret"
-          label={t(keyed ? 'settings.restore.key' : 'settings.restore.password')}
-          placeholder={t(keyed ? 'settings.recovery.placeholder' : 'settings.restore.passwordHint')}
+          label={t(`settings.restore.${words.secret}`)}
+          placeholder={t(words.placeholder)}
           value={secret}
           onChangeText={(text) => {
             setSecret(text);
@@ -211,6 +231,16 @@ export function Restore({ storage, onRestored }: RestoreProps) {
           editable={!busy}
         />
         {!keyed && <Text style={[styles.sub, align]}>{t('settings.restore.passwordLine')}</Text>}
+        {route === 'phone' && (
+          <Button
+            testID="restore-scan"
+            variant="line"
+            disabled={busy}
+            label={t('settings.restore.scan')}
+            onPress={() => void scan()}
+          />
+        )}
+        {route === 'phone' && <Text style={[styles.sub, align]}>{t('settings.restore.camera')}</Text>}
       </View>
       <View testID="restore-left" style={styles.card}>
         <Text accessibilityRole="header" style={[styles.title, align]}>
@@ -222,7 +252,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
           </Text>
         ))}
       </View>
-      {keyed && <Notice icon={controlIcon('lock')} message={t('settings.restore.noKey')} />}
+      {route === 'backup' && <Notice icon={controlIcon('lock')} message={t('settings.restore.noKey')} />}
       {problem !== null && (
         <Notice
           testID="restore-problem"

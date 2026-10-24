@@ -1,8 +1,8 @@
 # A new phone without sync (#247)
 
-Checks of 24 October 2026 for [#247](https://github.com/djazairdev/minhajna/issues/247), on `feat/247-restore-core`, `feat/247-backups` and `feat/247-restore`. Made-up records only.
+Checks of 24 October 2026 for [#247](https://github.com/djazairdev/minhajna/issues/247), on `feat/247-restore-core`, `feat/247-backups`, `feat/247-restore` and `feat/247-transfer`. Made-up records only.
 
-Without sync in the pilot (P3), a teacher moves to a new phone by a transfer file or an encrypted backup, and nothing leaves the phone otherwise (answer 478). Every file is a Minhajna archive ([`docs/formats/archive.md`](../formats/archive.md)) in the app's AES-256 ZIP. A backup is under the recovery key, a transfer file under a one-time key, and an export under its password. This page covers the first three pull requests. The transfer and the reminder follow.
+Without sync in the pilot (P3), a teacher moves to a new phone by a transfer file or an encrypted backup, and nothing leaves the phone otherwise (answer 478). Every file is a Minhajna archive ([`docs/formats/archive.md`](../formats/archive.md)) in the app's AES-256 ZIP. A backup is under the recovery key, a transfer file under a one-time key, and an export under its password. This page covers the first four pull requests. The reminder follows.
 
 ## Part 1: reading the files back, and restoring a history (core and native)
 
@@ -98,7 +98,35 @@ Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 | Type check, ESLint, Prettier, root lint, typecheck and tests, the app's full Jest run | Pass |
 | Android emulator, release build signed with the debug key, on Saturday 24 October | Pass. Starting from an empty phone, with part 2's backup of the 4AM demo class (45 made-up pupils) and a made-up personal name in Downloads.<br>• **The way in:** «لديّ نسخة من هاتف آخر» led to the first PIN, then straight to «استرجاع البيانات», which matched the board, with the transfer and sync not available. A screenshot of it came out black.<br>• **Refusals:** «استرجاع» with no file said «يُختار الملف أولاً.». The CSV export was refused as «ليس هذا الملف نسخة من «منهاجنا».». A copy of the backup with one byte changed opened «لم يُسترجع شيء · تغيّر الملف بعد حفظه», and the file stayed in Downloads, unchanged. The backup with the key's last character wrong was refused with «لا يفتح هذا المفتاح الملف…».<br>• **The restore:** the key typed again in lowercase with spaces restored the backup. The app opened on Today, after Android's notification question, which was declined. Settings showed the demo class with its 45 pupils, the card's name empty, and «الأجهزة والنسخ» with no backup and no sheet. The log's chain was intact, and the erasure of the two left-out entries was listed under «الحذف».<br>• **The export route:** an export saved without a password from the restored phone was refused on the backup route, pointing to the export's route. On «فتح أرشيف «منهاجنا»», with no password, it restored the class and its 45 pupils. |
 
-Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
-- the restore with TalkBack in Arabic, and at 200% text;
-- a backup moved to the new phone from a computer or a USB key, on a real phone.
+## Part 4: the direct transfer
 
+- **The old phone:** «نقل مباشر» in «الأجهزة والنسخ» opens its own screen, guarded against screenshots (answer 480).
+  - A one-time key is drawn as the screen opens, in the recovery key's form.
+  - It shows as a QR code holding `minhajna-key:1:` and the key, drawn from ZXing's modules at error correction M, with a four-module quiet zone, dark on light, left to right in every language. It also shows in six numbered groups, to type.
+  - The key is kept nowhere. A shared file is deleted from the app's cache as the screen closes, so a file sent stays useless once the screen is gone. The screen says to keep it open until the new phone is done.
+- **The file:** the whole archive, private notes included, in the AES-256 ZIP under the key, named «نقل منهاجنا» and the day.
+  - «إرسال الملف» opens Android's share menu (Quick Share, Bluetooth); «حفظ الملف» saves it through the file picker.
+  - Each file leaving is recorded in the activity log as «نقل مباشر · day · أرشيف «منهاجنا»», under «الملفات والطباعة». A share is recorded once its menu opens, as every export is; a cancelled save is not (answer 481).
+- **The new phone:** «الهاتف القديم في اليد» is the restore's first route.
+  - The transfer file comes through the file picker, then the key: scanned with «مسح الرمز» (the camera asked then, and only for it), or typed as the old phone shows it, with no keyboard suggestions. The file must have a password.
+  - **Said under the button:**
+    - a code that is not a Minhajna transfer's;
+    - a camera that does not open;
+    - a scan that does not work otherwise;
+    - a code of the wrong shape;
+    - a code that does not open the file, with a new file to send if the old phone's screen was closed.
+
+    A changed file opens the refusal page, worded for a transfer.
+  - Nothing about the transfer is logged on the new phone.
+
+| Check | Result |
+|---|---|
+| Android tests (`transfer.test.tsx`, 6 tests, `qr-code.test.tsx`, 1 test, `restore-phone.test.tsx`, 3 tests, `restore-run.test.ts`, 10 tests, and the restore screen, devices and log-text tests) | Pass. They cover:<br>• **the old phone:** the screen and its words in Arabic, French and English; the key's QR code and groups; the file shared or saved under the key with private notes, each recorded once; a cancelled save neither said nor recorded; a failure said; a double tap making one file; the shared file dropped when the screen closes; the transfer's line in the activity log;<br>• **the QR code:** drawn from the module rows with its quiet zone, left to right, labelled without the key;<br>• **the new phone:** the transfer restored under a scanned key, with a seal; a code that is not a transfer's, a camera or scan that does not work, and a cancelled scan; a code of the wrong shape, one that does not open the file, and a changed file, with nothing stored. |
+| Instrumented tests (`QrRowsTest.kt`, 2 tests), on my Android 15 emulator | Pass. The transfer text is encoded, drawn with its quiet zone and read back by ZXing's own reader; empty or too long text is refused. `CalendarInputTest` (6), `ZipReadTest` (6) and `PickedFilesTest` (3) still pass. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests, the app's full Jest run | Pass |
+| Android emulator, release build signed with the debug key, on Saturday 24 October | Pass. One emulator played both phones, starting from part 2's backup of the 4AM demo class (45 made-up pupils), restored on the backup route.<br>• **The old phone:** «نقل مباشر» showed the QR code, about 220 points wide, and the key in six groups. A screenshot of it came out black. «حفظ الملف» saved «نقل منهاجنا 2026-10-24.zip» to Downloads and said «حُفظ الملف.». Copied to the computer, the file opened with the key read from the groups and was refused under the backup's key. The log showed «نقل مباشر · 24/10/2026 · أرشيف «منهاجنا»» under «الملفات والطباعة».<br>• **The new phone:** after the app's data was cleared, «لديّ نسخة من هاتف آخر» and the first PIN led to the restore on «الهاتف القديم في اليد». With the transfer file picked, a code with its last character wrong was refused with «لا يفتح هذا الرمز الملف…». The right code, typed in lowercase in its six groups, restored the history. The app opened on Today, after Android's notification question, which was declined. Settings showed the demo class with its 45 pupils. The log had no transfer line, and the restore's erasure was listed under «الحذف». |
+
+Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
+- the restore and the transfer with TalkBack in Arabic, and at 200% text;
+- a backup moved to the new phone from a computer or a USB key, on a real phone;
+- the transfer between two real phones: the QR code scanned from the old phone's screen, and the file sent by Quick Share and by Bluetooth.
