@@ -58,6 +58,12 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
 
   fun eraseContent(ids: List<String>) = opened().eraseContent(ids)
 
+  /** Stores a restored history, given as a JSON array, in this empty one, all or none (#247). */
+  fun restoreJson(entries: String) {
+    val array = JSONArray(entries)
+    opened().restore(List(array.length()) { fromJson(array.getJSONObject(it)) })
+  }
+
   /** The pilot's timings, in the order kept, as a JSON array (#220). */
   fun loadTimingsJson(): String {
     val array = JSONArray()

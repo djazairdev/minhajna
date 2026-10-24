@@ -111,7 +111,7 @@ object AesZip {
   }
 
   /** AES-256 in counter mode, the counter a 16-byte little-endian number from 1. */
-  private fun crypt(data: ByteArray, key: ByteArray): ByteArray {
+  internal fun crypt(data: ByteArray, key: ByteArray): ByteArray {
     val aes = Cipher.getInstance("AES/ECB/NoPadding").apply { init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES")) }
     val counter = ByteArray(16)
     val stream = ByteArray(16)
@@ -131,7 +131,7 @@ object AesZip {
   }
 
   /** PBKDF2 with HMAC-SHA1 over the password's bytes, as WinZip derives its keys. */
-  private fun pbkdf2(password: ByteArray, salt: ByteArray, length: Int): ByteArray {
+  internal fun pbkdf2(password: ByteArray, salt: ByteArray, length: Int): ByteArray {
     val mac = Mac.getInstance("HmacSHA1").apply { init(SecretKeySpec(password, "HmacSHA1")) }
     val out = ByteArrayOutputStream()
     var block = 1
