@@ -1802,6 +1802,8 @@
     "number": "No.",
     "name": "Name",
     "confidential": "Internal · confidential",
+    "erased_one": "One pupil’s data erased",
+    "erased_other": "{{count}} pupils’ data erased",
     "rollBook": "Roll-call book",
     "list": {
       "line": "Printed or saved as PDF as the director and the inspector ask, or blank with their headings.",

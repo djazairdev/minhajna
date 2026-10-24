@@ -6,8 +6,9 @@
 // the school year, «كشف النقاط والمعدلات», the class, subject and term, the
 // formula with the scale and the release, a row for each pupil with their
 // number, name, primary's months, each part and the average, the class's
-// figures, then the teacher's box, with the drawn signature when the page
-// carries it, and the director's «تأشيرة», each dated.
+// figures, the line for pupils whose data was erased, then the teacher's box,
+// with the drawn signature when the page carries it, and the director's
+// «تأشيرة», each dated.
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -21,6 +22,8 @@ export interface BookSheet {
   readonly rows: readonly { readonly number: number; readonly name: string; readonly cells: readonly string[] }[];
   /** The class's figures; empty on a blank page. */
   readonly figures: string;
+  /** «حُذفت بيانات تلميذ واحد», or empty when no pupil on the term's books had their data erased. */
+  readonly erased: string;
   /** The drawn signature for the teacher's box, when the page carries it. */
   readonly mark: string;
 }
@@ -69,6 +72,7 @@ function pageOf(texts: BookTexts, sheet: BookSheet): string {
     `<p class="formula">${escapeHtml(sheet.formula)}</p>` +
     `<table class="book"><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>` +
     (sheet.figures === '' ? '' : `<p class="figures">${escapeHtml(sheet.figures)}</p>`) +
+    (sheet.erased === '' ? '' : `<p class="figures">${escapeHtml(sheet.erased)}</p>`) +
     `<table class="signs"><tr><td>${dated(texts.teacher, sheet.mark)}</td>` +
     `<td>${dated(texts.director)}</td></tr></table>`
   );

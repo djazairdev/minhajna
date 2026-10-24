@@ -10,7 +10,7 @@
 import type { Day } from './day.ts';
 import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './history.ts';
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
-import { departed, pupilEntries, withoutPupil } from './pupil-erase.ts';
+import { departed, departureDay, pupilEntries, withoutPupil } from './pupil-erase.ts';
 import { recordKey } from './record-keys.ts';
 import { restatements, sharedKey } from './restated.ts';
 import { buildState, type State } from './state.ts';
@@ -101,7 +101,8 @@ export class RecordBook {
   async erasePupil(day: Day, pupilId: string): Promise<Entry> {
     const pupil = this.#state.pupils.get(pupilId);
     if (pupil === undefined) throw new RangeError('Unknown pupil');
-    if (!departed(pupil)) throw new RangeError('Only the data of a pupil whose departure was confirmed is erased');
+    if (!departed(pupil, day))
+      throw new RangeError('Only the data of a pupil who left, the departure confirmed, is erased');
     const own = this.#log.entries.find((entry) => {
       const event = eventOf(entry);
       return event?.kind === 'pupil.set' && event.pupil.id === pupilId;
@@ -115,7 +116,8 @@ export class RecordBook {
       return started;
     }
     const entries = pupilEntries(this.#log.entries, restatements(this.#log.entries), pupilId);
-    const fact = await this.record(day, { kind: 'pupil.erased', erased: { classId: pupil.classId, entries } });
+    const erased = { classId: pupil.classId, entries, left: departureDay(pupil) ?? day };
+    const fact = await this.record(day, { kind: 'pupil.erased', erased });
     await this.#finish(fact);
     return fact;
   }

@@ -9,7 +9,8 @@
 // be filled by hand, and is dotted only before counting starts; any other
 // day is grey when there is no school, a make-up day aside, and dotted
 // otherwise. The blank spread keeps the names and the shading, and leaves
-// the marks and figures empty. Rows run to 50.
+// the marks and figures empty. Rows run to 50. A month that began before a
+// pupil whose data was erased left says so under the table.
 
 import {
   compareDays,
@@ -31,6 +32,7 @@ import { coreContext } from '../storage/core-context';
 import { monthLabel, type DocumentData, type Translate } from './document-data';
 import { rollSpreadHtml, type DayShade, type RollSpread, type SpreadRow } from './roll-spread-html';
 import { documentSignature, drawnMark } from './drawn-mark';
+import { erasedLine } from './erased-line';
 
 /** A roll-call book: a class, the group its courses are taught to, and the subject when it has one course. */
 export interface RollBook {
@@ -172,7 +174,7 @@ function spread(data: DocumentData, t: Translate, blank: boolean, book: RollBook
       late: '',
     })),
     possibleColumn: possibles.size > 1,
-    footer: [...figures, start].filter((part) => part !== '').join(' '),
+    footer: [...figures, start, erasedLine(t, data.state, book.classId, from)].filter((part) => part !== '').join(' '),
     book: book.classId,
   };
 }

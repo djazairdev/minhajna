@@ -120,7 +120,7 @@ describe('erasing the data of a pupil who left', () => {
 
     assert.doesNotMatch(JSON.stringify(book.entries), /p02|محمد الأمين|Mohamed/);
     assert.equal(book.state.pupils.has('p02'), false);
-    assert.deepEqual(book.state.erasedPupils, [{ classId: 'k-1am2', place, day: ERASED_ON }]);
+    assert.deepEqual(book.state.erasedPupils, [{ classId: 'k-1am2', place, day: ERASED_ON, left: d('2026-10-11') }]);
     const versions = book.state.rollCalls.get(sunday.key) ?? [];
     assert.deepEqual(
       versions.map((one) => [one.day, one.value.absent.map((absence) => absence.pupilId), one.value.late, one.reason]),
@@ -268,7 +268,7 @@ describe('erasing the data of a pupil who left', () => {
     ]);
     await book.erasePupil(ERASED_ON, 'p02');
     assert.equal(book.entries.filter((entry) => entry.kind === 'pupil.erased').length, 1);
-    assert.deepEqual(book.state.erasedPupils, [{ classId: 'k-1am2', place, day: ERASED_ON }]);
+    assert.deepEqual(book.state.erasedPupils, [{ classId: 'k-1am2', place, day: ERASED_ON, left: d('2026-10-11') }]);
     assert.deepEqual(
       logLines(book).filter((one) => one.line.kind.endsWith('erased')),
       [{ day: ERASED_ON, line: { kind: 'pupil-erased' } }],

@@ -5,8 +5,9 @@
 // portrait page for a class, subject and term, framed «داخلي · سري», with the
 // school and the school year, the title, the class, subject, term and teacher,
 // a row for each pupil in the grid's order with their number, name, each part,
-// the average and the appreciation, which wraps in its own wide column, then
-// the teacher's box, dated, with the drawn signature when the page carries it.
+// the average and the appreciation, which wraps in its own wide column, the
+// line for pupils whose data was erased, then the teacher's box, dated, with
+// the drawn signature when the page carries it.
 
 import { escapeHtml, printDocument } from './print-html';
 
@@ -24,6 +25,8 @@ export interface MarkSheet {
   }[];
   /** The drawn signature for the teacher's box, when the page carries it. */
   readonly mark: string;
+  /** «حُذفت بيانات تلميذ واحد», or empty when no pupil on the term's books had their data erased. */
+  readonly erased: string;
 }
 
 export interface MarkSheetTexts {
@@ -48,7 +51,7 @@ const CSS =
   'table.sheet{border-collapse:collapse;width:100%;font-size:9pt;margin-top:2mm}' +
   'table.sheet th,table.sheet td{border:0.5pt solid #000;padding:0.6mm 1.2mm;text-align:center;white-space:nowrap}' +
   'table.sheet td.name,table.sheet td.words{text-align:start;white-space:normal}' +
-  'table.sheet td.words{width:34%}table.sheet tr{break-inside:avoid}' +
+  'table.sheet td.words{width:34%}table.sheet tr{break-inside:avoid}.erased{font-size:9pt;margin-top:2mm}' +
   'table.signs{width:50%;border-collapse:collapse;margin-top:4mm;font-size:9pt;break-inside:avoid}' +
   'table.signs td{border:0.5pt solid #000;height:18mm;vertical-align:top;padding:1mm}' +
   'table.signs .drawn{height:9mm;margin:.5mm auto 0}';
@@ -70,6 +73,7 @@ function pageOf(texts: MarkSheetTexts, sheet: MarkSheet): string {
     `<div class="top"><span>${escapeHtml(texts.school)}</span><span>${escapeHtml(texts.year)}</span></div>` +
     `<h1>${escapeHtml(texts.heading)}</h1><p class="scope">${escapeHtml(sheet.scope)}</p>` +
     `<table class="sheet"><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>` +
+    (sheet.erased === '' ? '' : `<p class="erased">${escapeHtml(sheet.erased)}</p>`) +
     `<table class="signs"><tr><td>${escapeHtml(texts.teacher)} · ${escapeHtml(texts.date)}${sheet.mark}` +
     '</td></tr></table>'
   );

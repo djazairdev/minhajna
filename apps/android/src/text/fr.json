@@ -1835,6 +1835,9 @@
     "number": "N°",
     "name": "Nom et prénom",
     "confidential": "Interne · confidentiel",
+    "erased_one": "Données d’un élève effacées",
+    "erased_many": "Données de {{count}} d’élèves effacées",
+    "erased_other": "Données de {{count}} élèves effacées",
     "rollBook": "Registre d'appel",
     "list": {
       "line": "Imprimés ou enregistrés en PDF comme le demandent le directeur et l'inspecteur, ou vierges avec leurs en-têtes.",

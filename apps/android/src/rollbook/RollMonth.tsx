@@ -9,9 +9,11 @@
 // them by time, each saying whether it was taken (answer 255). The summary
 // shows each month and the year for every pupil, with the class's totals.
 // Both open the counting rules, and Roll-print on the month or the summary
-// shown (answer 260). The screen reads the record and adds nothing to it.
+// shown (answer 260), and say when the data of pupils on the month's or the
+// year's books was erased (answer 473). The screen reads the record and adds
+// nothing to it.
 
-import { parseDay, type Session } from '@minhajna/core';
+import { isDay, parseDay, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
@@ -22,6 +24,7 @@ import { ChipGroup } from '../components/Chip';
 import { OptionRow } from '../components/OptionRow';
 import { colors, spacing, typography } from '../design/tokens';
 import { monthLabel } from '../documents/document-data';
+import { erasedLine } from '../documents/erased-line';
 import { useDocumentData } from '../documents/useDocumentData';
 import { courseGroup } from '../classes/class-page-rules';
 import { classRows } from '../classes/class-rules';
@@ -110,6 +113,10 @@ export function RollMonth(props: RollMonthProps) {
       {text}
     </Text>
   );
+  const erased = (from: string) => {
+    const line = row === undefined || !isDay(from) ? '' : erasedLine(t, state, row.schoolClass.id, from);
+    return line === '' ? null : note(line, 'book-erased');
+  };
   return (
     <ScrollView
       style={styles.screen}
@@ -149,6 +156,7 @@ export function RollMonth(props: RollMonthProps) {
           )}
           {note(`${t('rollBook.yearNote', { day: dayName(t, day, data.lang, profile) })} ${t('rollBook.yearScroll')}`)}
           {summary !== null && <YearGrid view={summary} monthName={monthName} onPupil={props.onPupil} />}
+          {erased(year.from)}
           {note(t('rollBook.yearFoot'))}
         </>
       ) : (
@@ -172,6 +180,7 @@ export function RollMonth(props: RollMonthProps) {
             )}
           </View>
           {footer !== null && note(footer, 'month-footer')}
+          {erased(`${month}-01`)}
           {view?.countsFrom != null &&
             note(t('rollBook.countsFrom', { day: dayName(t, view.countsFrom, data.lang, profile) }), 'month-from')}
           {note(t('rollBook.daysNote'))}
