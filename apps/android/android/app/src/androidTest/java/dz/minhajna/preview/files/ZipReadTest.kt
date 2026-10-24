@@ -20,7 +20,8 @@ import org.junit.runner.RunWith
  * one with its password, among several files, in AE-2 or AE-1 form, and a
  * plain one; a wrong or missing password told apart from a changed file, and
  * a file that is not an archive, lacks the file, holds it twice, or is too
- * large, refused. The texts are made up.
+ * large, refused, and a plain one where a password is wanted. The texts are
+ * made up.
  */
 @RunWith(AndroidJUnit4::class)
 class ZipReadTest {
@@ -34,8 +35,14 @@ class ZipReadTest {
   private fun plain(files: List<Pair<String, ByteArray>> = listOf(name to text)) =
     ByteArrayOutputStream().also { MinhajnaFilesModule.plainZip(it, files) }.toByteArray()
 
-  private fun refused(reason: ZipRead.Reason, bytes: ByteArray, password: String = key, limit: Int = LIMIT) {
-    val error = assertThrows(ZipRead.Refused::class.java) { ZipRead.read(bytes, name, password, limit) }
+  private fun refused(
+    reason: ZipRead.Reason,
+    bytes: ByteArray,
+    password: String = key,
+    limit: Int = LIMIT,
+    sealed: Boolean = false,
+  ) {
+    val error = assertThrows(ZipRead.Refused::class.java) { ZipRead.read(bytes, name, password, limit, sealed) }
     assertEquals(reason, error.reason)
   }
 
@@ -58,6 +65,13 @@ class ZipReadTest {
   fun readsAPlainArchiveWhateverThePassword() {
     assertArrayEquals(text, ZipRead.read(plain(), name, "", LIMIT))
     assertArrayEquals(text, ZipRead.read(plain(), name, key, LIMIT))
+  }
+
+  @Test
+  fun refusesAPlainArchiveWhereAPasswordIsWanted() {
+    refused(ZipRead.Reason.PLAIN, plain(), sealed = true)
+    refused(ZipRead.Reason.PLAIN, plain(), "", sealed = true)
+    assertArrayEquals(text, ZipRead.read(aes(), name, key, LIMIT, sealed = true))
   }
 
   @Test

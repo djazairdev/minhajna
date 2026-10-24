@@ -24,11 +24,15 @@ import javax.crypto.spec.SecretKeySpec
  * code does; a plain one must match its CRC. A wrong password is told apart
  * from a changed file, save one in 65,536 that passes WinZip's two check bytes
  * and is taken for a change; the keys drawn from it are cleared after use.
+ * Where only a file under a password is wanted, a plain one is refused.
  */
 object ZipRead {
 
-  /** Why a file was not read: no archive holding it, a password that does not open it, a change, or its size. */
-  enum class Reason { NOT_ARCHIVE, PASSWORD, CHANGED, TOO_LARGE }
+  /**
+   * Why a file was not read: no archive holding it, a password that does not
+   * open it, a change, its size, or no password where one was wanted.
+   */
+  enum class Reason { NOT_ARCHIVE, PASSWORD, CHANGED, TOO_LARGE, PLAIN }
 
   class Refused(val reason: Reason) : Exception("The archive was refused: $reason")
 
@@ -50,13 +54,14 @@ object ZipRead {
   private const val CODE = 10
   private const val STRENGTH_256 = 3
 
-  /** The bytes of the file named `entry`, opened with `password` when it is encrypted. */
-  fun read(bytes: ByteArray, entry: String, password: String, limit: Int): ByteArray {
+  /** The bytes of the file named `entry`, opened with `password` when it is encrypted, as it must be if `sealed`. */
+  fun read(bytes: ByteArray, entry: String, password: String, limit: Int, sealed: Boolean = false): ByteArray {
     val zip = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
     val found = find(zip, bytes.size, entry.toByteArray(Charsets.UTF_8))
     if (found.size > limit) throw Refused(Reason.TOO_LARGE)
     val data = bytes.copyOfRange(found.start, found.start + found.stored)
     if ((found.flags and ENCRYPTED) == 0) {
+      if (sealed) throw Refused(Reason.PLAIN)
       val plain = expand(data, found.method, found.size)
       if (crc(plain) != found.crc) throw Refused(Reason.CHANGED)
       return plain

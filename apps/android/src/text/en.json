@@ -74,7 +74,8 @@
     "noAccount": "No account, no password",
     "offline": "Works without the internet",
     "onPhone": "Your data stays on this phone",
-    "start": "Let’s start"
+    "start": "Let’s start",
+    "restore": "I have a copy from another phone"
   },
   "privacy": {
     "title": "Before you start",

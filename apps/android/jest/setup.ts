@@ -43,7 +43,7 @@ jest.mock('../src/native/NativeMinhajnaPdf', () => ({
 }));
 
 // No file picker or share screen exists in Jest; a made file is a token,
-// saving is picked, and no file is opened.
+// saving is picked, and no file or archive is opened.
 jest.mock('../src/native/NativeMinhajnaFiles', () => ({
   __esModule: true,
   default: {
@@ -53,6 +53,9 @@ jest.mock('../src/native/NativeMinhajnaFiles', () => ({
     saveFile: jest.fn(() => Promise.resolve(true)),
     shareFile: jest.fn(() => Promise.resolve()),
     openText: jest.fn(() => Promise.resolve(null)),
+    openZip: jest.fn(() => Promise.resolve(null)),
+    readZip: jest.fn(() => Promise.reject(new Error('No archive is kept'))),
+    dropFile: jest.fn(),
   },
 }));
 

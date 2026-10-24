@@ -54,8 +54,8 @@ class AesZipTest {
     assertFalse(String(bytes, Charsets.ISO_8859_1).contains("16,50"))
     val again = ByteArrayOutputStream().also { AesZip.write(it, "كشف 4م1.csv", content, password) }.toByteArray()
     assertFalse(bytes.contentEquals(again))
-    assertTrue(MinhajnaFilesModule.binary(bytes))
-    assertFalse(MinhajnaFilesModule.binary(content))
+    assertTrue(PickedFiles.binary(bytes))
+    assertFalse(PickedFiles.binary(content))
     val context = InstrumentationRegistry.getInstrumentation().targetContext
     File(context.getExternalFilesDir(null), "aes-check.zip").writeBytes(bytes)
   }
@@ -104,17 +104,17 @@ class AesZipTest {
     assertFalse(MinhajnaFilesModule.fileNameAllowed(".hidden"))
     assertFalse(MinhajnaFilesModule.fileNameAllowed(" "))
     val xls = intArrayOf(0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1, 0).map { it.toByte() }.toByteArray()
-    assertTrue(MinhajnaFilesModule.binary(xls))
-    assertTrue(MinhajnaFilesModule.binary("%PDF-1.7".toByteArray()))
-    assertFalse(MinhajnaFilesModule.binary("PK".toByteArray()))
+    assertTrue(PickedFiles.binary(xls))
+    assertTrue(PickedFiles.binary("%PDF-1.7".toByteArray()))
+    assertFalse(PickedFiles.binary("PK".toByteArray()))
     assertEquals("application/zip", MinhajnaFilesModule.mimeOf(File("a.csv.zip")))
     assertEquals("text/csv", MinhajnaFilesModule.mimeOf(File("a.csv")))
-    assertEquals(text, MinhajnaFilesModule.textOf(text.toByteArray(Charsets.UTF_8)))
+    assertEquals(text, PickedFiles.textOf(text.toByteArray(Charsets.UTF_8)))
     val windows = "1;تلميذة أولى;16,50"
-    assertEquals(windows, MinhajnaFilesModule.textOf(windows.toByteArray(Charset.forName("windows-1256"))))
+    assertEquals(windows, PickedFiles.textOf(windows.toByteArray(Charset.forName("windows-1256"))))
     val unicode = byteArrayOf(0xFF.toByte(), 0xFE.toByte()) + "1\tتلميذة".toByteArray(Charsets.UTF_16LE)
-    assertEquals("1\tتلميذة", MinhajnaFilesModule.textOf(unicode))
+    assertEquals("1\tتلميذة", PickedFiles.textOf(unicode))
     val big = byteArrayOf(0xFE.toByte(), 0xFF.toByte()) + "1\tتلميذة".toByteArray(Charsets.UTF_16BE)
-    assertEquals("1\tتلميذة", MinhajnaFilesModule.textOf(big))
+    assertEquals("1\tتلميذة", PickedFiles.textOf(big))
   }
 }

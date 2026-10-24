@@ -101,7 +101,8 @@ test('the welcome waits for the PIN before taking real names, and says so once i
 
 test("the navigator's welcome is the one after the PIN", async () => {
   const navigation = { navigate: jest.fn() } as unknown as Parameters<typeof WelcomeScreen>[0]['navigation'];
-  await render(<WelcomeScreen navigation={navigation} route={{ key: 'Welcome', name: 'Welcome' }} />);
+  const data = await openTestData();
+  await render(withData(data, <WelcomeScreen navigation={navigation} route={{ key: 'Welcome', name: 'Welcome' }} />));
   expect(shown()).toContain(text.realNames.setup);
   expect(shown()).not.toContain(text.realNames.beforeLock);
 });

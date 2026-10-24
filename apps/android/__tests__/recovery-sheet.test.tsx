@@ -93,7 +93,7 @@ test('gives a new key in six groups, and keeps it only once typed back', async (
   expect(html.match(/class="g"/g)).toHaveLength(6);
   expect(html).toContain('\u20687-Zip\u2069');
   expect(html).not.toContain('4م1');
-  await type(`${key.slice(0, 23)}X`);
+  await type(`${key.slice(0, 23)}${key.endsWith('X') ? 'Y' : 'X'}`);
   await press('recovery-confirm');
   expect(texts().join(' ')).toContain('لا يطابق ما كُتب المفتاح. تُراجع الورقة ويُكتب من جديد.');
   expect(onConfirmed).not.toHaveBeenCalled();
