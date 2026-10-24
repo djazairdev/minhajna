@@ -13,9 +13,9 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * One file in a ZIP archive encrypted with AES-256, the WinZip AE-2 format,
+ * Files in a ZIP archive encrypted with AES-256, the WinZip AE-2 format,
  * made for Windows' 7-Zip, WinRAR and WPS to open with the password
- * (R-5.9-15, answer 466). The file is deflated, then encrypted in AES's
+ * (R-5.9-15, answer 466). Each file is deflated, then encrypted in AES's
  * counter mode with a little-endian counter from 1, under a key drawn from
  * the password's UTF-8 bytes and a random salt by PBKDF2 with HMAC-SHA1,
  * 1000 rounds; an HMAC-SHA1 of the encrypted bytes, cut to ten, lets the
@@ -37,8 +37,41 @@ object AesZip {
     content: ByteArray,
     password: String,
     at: Calendar = Calendar.getInstance(),
+  ) = writeAll(out, listOf(entry to content), password, at)
+
+  /** Writes the files in order, each encrypted under `password` with a salt of its own (#248). */
+  fun writeAll(
+    out: OutputStream,
+    files: List<Pair<String, ByteArray>>,
+    password: String,
+    at: Calendar = Calendar.getInstance(),
   ) {
     require(password.isNotEmpty()) { "A password is needed" }
+    require(files.isNotEmpty()) { "A file is needed" }
+    val centrals = ByteArrayOutputStream()
+    var offset = 0L
+    for ((entry, content) in files) {
+      val (local, body, central) = sealed(entry, content, password, at, offset)
+      out.write(local)
+      out.write(body)
+      centrals.write(central)
+      offset += local.size + body.size
+    }
+    val central = centrals.toByteArray()
+    val end = little(0x06054b50L, 4) + little(0, 2) + little(0, 2) + little(files.size, 2) + little(files.size, 2) +
+      little(central.size.toLong(), 4) + little(offset, 4) + little(0, 2)
+    out.write(central)
+    out.write(end)
+  }
+
+  /** One file's local header, its encrypted body, and its central header, which points back `offset` bytes in. */
+  private fun sealed(
+    entry: String,
+    content: ByteArray,
+    password: String,
+    at: Calendar,
+    offset: Long,
+  ): Triple<ByteArray, ByteArray, ByteArray> {
     val salt = ByteArray(SALT).also { SecureRandom().nextBytes(it) }
     val keys = pbkdf2(password.toByteArray(Charsets.UTF_8), salt, KEY * 2 + 2)
     val sealed = crypt(deflate(content), keys.copyOfRange(0, KEY))
@@ -58,13 +91,8 @@ object AesZip {
       little(name.size, 2) + little(extra.size, 2)
     val local = little(0x04034b50L, 4) + shared + name + extra
     val central = little(0x02014b50L, 4) + little(63, 2) + shared + little(0, 2) + little(0, 2) + little(0, 2) +
-      little(0, 4) + little(0, 4) + name + extra
-    val end = little(0x06054b50L, 4) + little(0, 2) + little(0, 2) + little(1, 2) + little(1, 2) +
-      little(central.size.toLong(), 4) + little((local.size + body.size).toLong(), 4) + little(0, 2)
-    out.write(local)
-    out.write(body)
-    out.write(central)
-    out.write(end)
+      little(0, 4) + little(offset, 4) + name + extra
+    return Triple(local, body, central)
   }
 
   /** The raw deflate stream of `content`, with no header. */

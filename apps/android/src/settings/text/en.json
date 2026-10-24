@@ -105,6 +105,7 @@
     "statusNone": "Not drawn"
   },
   "logLine": "Each correction, print, export and deletion",
+  "exportLine": "The Minhajna archive or CSV files, free, at any time",
   "retentionLine": "{{lessons}} · {{pupils}}",
   "retention": {
     "intro": "Each kind of record has a default period, which you can change. Nothing is erased without asking you, and erasing is real: the content goes, and the activity log keeps only the fact and its day.",
@@ -140,5 +141,49 @@
     "logDefault": "Default: kept as long as the records it describes",
     "howNotice": "How erasing is offered: with exporting all your data, which shows what is erased and what stays, and offers the export first. This setting erases nothing.",
     "schoolNotice": "In the school’s space, in the national system: the school’s copy and the official register follow the period the ministry announces, such as 3 years for signed weeks, like the texts book. My copy keeps these settings."
+  },
+  "exportAll": {
+    "free": "Free, at any time.",
+    "format": "Format",
+    "archive": "Minhajna archive",
+    "archiveLine": "Everything: the records, their history and the pinned releases. An open, documented format that every later version reads.",
+    "csvLine": "Marks, roll call and the lesson log, for spreadsheets.",
+    "leftOut": "The archive holds everything except the personal fields of the teacher card and the drawn signature: they are typed and drawn again after it is opened on another device.",
+    "year": "School year",
+    "years": "Every year so far: {{years}}. Choosing a single year comes with the yearly archive.",
+    "notes": "Private notes",
+    "notesLine": "They go into the file only if you include them here.",
+    "protect": "Protect the file with a password",
+    "protectLine": "Recommended: the file holds pupil data.",
+    "password": "File password",
+    "passwordLine": "It is not kept in the file, and the project cannot recover it.",
+    "confidential": "Internal · confidential. Keep the file on a computer, an SD card or a USB key, not in a messaging app.",
+    "sizeKb": "Size before compression: about {{size}} KB.",
+    "sizeMb": "Size before compression: about {{size}} MB.",
+    "save": "Choose where to save",
+    "saveNote": "The phone’s file picker opens, and the export is written in the activity log.",
+    "archiveName": "Minhajna archive",
+    "csvName": "Minhajna data CSV",
+    "csv": {
+      "title": "CSV files",
+      "marksTitle": "Marks",
+      "rollTitle": "Roll call",
+      "lessonsTitle": "Lesson log",
+      "class": "Class",
+      "subject": "Subject",
+      "term": "Term",
+      "number": "No.",
+      "name": "Name",
+      "registration": "Registration no.",
+      "what": "Assessment",
+      "day": "Day",
+      "value": "Mark",
+      "half": "Half day",
+      "mark": "Roll call",
+      "justified": "Justified",
+      "lines": "What was recorded",
+      "homework": "Homework",
+      "due": "Due"
+    }
   }
 }

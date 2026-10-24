@@ -11,6 +11,11 @@ import { TurboModuleRegistry } from 'react-native';
 export interface Spec extends TurboModule {
   /** Writes the text as UTF-8 under `fileName`, or in an AES-256 ZIP named after it when a password is given. */
   makeText(text: string, fileName: string, password: string): Promise<string>;
+  /**
+   * Writes each text as UTF-8 under its name, all in one ZIP named `fileName` and `.zip`: an AES-256 one when a
+   * password is given, else a plain one (#248).
+   */
+  makeZip(names: readonly string[], texts: readonly string[], fileName: string, password: string): Promise<string>;
   /** Moves a made PDF under `fileName`, or into an AES-256 ZIP named after it when a password is given. */
   adoptPdf(pdf: string, fileName: string, password: string): Promise<string>;
   /** Asks where to keep a made file, through the system's file picker; false when the teacher cancels. */

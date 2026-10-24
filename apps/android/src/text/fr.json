@@ -2890,6 +2890,7 @@
     "printed": "Impression de la semaine : {{documents}}",
     "document": "Document",
     "print": "Impression",
+    "archive": "Archive Minhajna",
     "blank": "vierge",
     "calendar": "Mise à jour signée du calendrier, version {{release}}",
     "pack": "Progression signée : {{pack}}, version {{release}}",

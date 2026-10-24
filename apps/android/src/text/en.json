@@ -2841,6 +2841,7 @@
     "printed": "Week printed: {{documents}}",
     "document": "Document",
     "print": "Print",
+    "archive": "Minhajna archive",
     "blank": "blank",
     "calendar": "Signed calendar update, release {{release}}",
     "pack": "Signed plan: {{pack}}, release {{release}}",
