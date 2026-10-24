@@ -1,8 +1,8 @@
 # A new phone without sync (#247)
 
-Checks of 24 October 2026 for [#247](https://github.com/djazairdev/minhajna/issues/247), on `feat/247-restore-core`, `feat/247-backups`, `feat/247-restore` and `feat/247-transfer`. Made-up records only.
+Checks of 24 October 2026 for [#247](https://github.com/djazairdev/minhajna/issues/247), on `feat/247-restore-core`, `feat/247-backups`, `feat/247-restore`, `feat/247-transfer` and `feat/247-reminder`. Made-up records only.
 
-Without sync in the pilot (P3), a teacher moves to a new phone by a transfer file or an encrypted backup, and nothing leaves the phone otherwise (answer 478). Every file is a Minhajna archive ([`docs/formats/archive.md`](../formats/archive.md)) in the app's AES-256 ZIP. A backup is under the recovery key, a transfer file under a one-time key, and an export under its password. This page covers the first four pull requests. The reminder follows.
+Without sync in the pilot (P3), a teacher moves to a new phone by a transfer file or an encrypted backup, and nothing leaves the phone otherwise (answer 478). Every file is a Minhajna archive ([`docs/formats/archive.md`](../formats/archive.md)) in the app's AES-256 ZIP. A backup is under the recovery key, a transfer file under a one-time key, and an export under its password. This page covers all five pull requests.
 
 ## Part 1: reading the files back, and restoring a history (core and native)
 
@@ -126,7 +126,34 @@ Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 | Type check, ESLint, Prettier, root lint, typecheck and tests, the app's full Jest run | Pass |
 | Android emulator, release build signed with the debug key, on Saturday 24 October | Pass. One emulator played both phones, starting from part 2's backup of the 4AM demo class (45 made-up pupils), restored on the backup route.<br>• **The old phone:** «نقل مباشر» showed the QR code, about 220 points wide, and the key in six groups. A screenshot of it came out black. «حفظ الملف» saved «نقل منهاجنا 2026-10-24.zip» to Downloads and said «حُفظ الملف.». Copied to the computer, the file opened with the key read from the groups and was refused under the backup's key. The log showed «نقل مباشر · 24/10/2026 · أرشيف «منهاجنا»» under «الملفات والطباعة».<br>• **The new phone:** after the app's data was cleared, «لديّ نسخة من هاتف آخر» and the first PIN led to the restore on «الهاتف القديم في اليد». With the transfer file picked, a code with its last character wrong was refused with «لا يفتح هذا الرمز الملف…». The right code, typed in lowercase in its six groups, restored the history. The app opened on Today, after Android's notification question, which was declined. Settings showed the demo class with its 45 pupils. The log had no transfer line, and the restore's erasure was listed under «الحذف». |
 
+## Part 5: the 30-day backup reminder
+
+- **When it is due** (answer 482):
+  - 30 days after the last backup saved on this phone, or after the first change when there is none.
+  - A restored phone counts from the day of its restore.
+  - «تذكيري لاحقاً» puts it off 7 days from the day it is tapped.
+  - The day it is put off to is kept on the phone, outside the history, and is not logged.
+- **The notification:** one, at 18:00 on the day it falls due, moved past quiet hours, and planned with the digest and the preview over the next 14 days.
+  - It is not repeated once its time has passed; Today's card carries the reminder from then on.
+  - It says «لا نسخة احتياطية منذ 30 يوماً» and «ما لم تحفظه نسخة يبقى على هذا الهاتف وحده. تُحفظ نسخة من «اليوم».», names no pupil, and opens Today.
+- **Today's card**, as drawn on Today-backup without the sync row:
+  - the title, then the last backup's day or «لم تُحفظ نسخة على هذا الهاتف بعد.», and that what no backup holds stays on this phone alone, as the project holds no key;
+  - «نسخة الآن»: with a recovery key, the file picker, then «حُفظت نسخة اليوم.»; without one, «الأجهزة والنسخ» and the recovery sheet's first backup;
+  - «تذكيري لاحقاً»: says when the reminder comes back, with «تراجع».
+- **«الإشعارات»** gains «تذكيرات نادرة», with one switch, «تذكير النسخ الاحتياطي», on by default.
+  - Turning it off stops both the notification and the card.
+  - The last line of «الأجهزة والنسخ» says the app reminds after 30 days without a backup, or that the reminder is off.
+  - Android's permission is asked once also when this is the only notification on.
+
+| Check | Result |
+|---|---|
+| Core tests (`devices.test.ts`, 6 tests, and `notify-times.test.ts`, 6 tests) | Pass. They cover:<br>• the due day 30 days after the first change, or after the last backup, never before the day it was put off to;<br>• the notification at 18:00 on its day, moved to Sunday 07:00 from a Friday, or to Saturday 07:00 for a teacher who works then;<br>• nothing once its time has passed, or beyond the 14 days;<br>• the reminder in order with the digests. |
+| Android tests (`today-backup.test.tsx`, 11 tests, `notify-plan.test.tsx`, 10 tests, `notify.test.tsx`, 6 tests, `notify-prefs.test.ts`, 3 tests, `devices.test.tsx`, 6 tests, and `restore-screen.test.tsx`, 8 tests) | Pass. They cover:<br>• **Today's card:** nothing before the due day; the card with no backup, or with the last one's day; a backup saved under the key, said and recorded; a cancelled save changing nothing; a failed one said; the recovery sheet first without a key; «تذكيري لاحقاً» and «تراجع», and the reminder back 7 days later; nothing once turned off; Today showing the card when its navigator offers the sheet; every text in French and English;<br>• **the notification:** planned with its words and channel, moved by «تذكيري لاحقاً», dropped once turned off; the permission asked for the reminder alone; the notice when Android does not let the app notify counting the reminder;<br>• **the settings:** the switch on by default, kept as it changes; the devices page's line, on or off;<br>• **the restore:** the reminder put off 30 days from it. |
+| Type check, ESLint, Prettier, root lint, typecheck and tests, the app's full Jest run | Pass |
+| Android emulator, release build signed with the debug key, its clock moved forward, on Saturday 24 October | Pass. Starting from the phone restored in Part 4, whose first change was on 24 October, with no backup.<br>• **Before it is due:** on 24 October, Today had no card. «الإشعارات» showed «تذكيرات نادرة» with the switch on, and the devices page ended with the reminder's line.<br>• **On its day:** on Monday 23 November at 17:57, Today showed the card with «لم تُحفظ نسخة على هذا الهاتف بعد.». The app was sent to the background, and the notification came at 18:02, two minutes late, within the hour Android may take, on its own channel, with its two lines. Tapping it opened Today, after the PIN.<br>• **Put off:** «تذكيري لاحقاً» said «يعود التذكير يوم الإثنين 30 نوفمبر.», and «تراجع» brought the card back. Put off again, the next alarm was 30 November at 18:00. The card was gone on 29 November and back on 30 November.<br>• **A first backup from the card:** «نسخة الآن» opened the recovery sheet; Back led to «الأجهزة والنسخ». With the key typed back, the sheet led to the file picker, and «نسخة منهاجنا 2026-11-30.zip» was saved; Today then had no card.<br>• **Turned off:** on 30 December the card came back with «آخر نسخة احتياطية: الإثنين 30 نوفمبر». Turned off in «الإشعارات», it went, with its 18:00 alarm, and the devices page said «تذكير النسخ الاحتياطي موقوف في «الإشعارات».». Turned on again, both came back.<br>• **After a restore:** with the app's data cleared, that backup was restored on 30 December. Today had no card then or on 28 January, and showed it on 29 January.<br>The emulator's clock was then set back. |
+
 Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 - the restore and the transfer with TalkBack in Arabic, and at 200% text;
 - a backup moved to the new phone from a computer or a USB key, on a real phone;
-- the transfer between two real phones: the QR code scanned from the old phone's screen, and the file sent by Quick Share and by Bluetooth.
+- the transfer between two real phones: the QR code scanned from the old phone's screen, and the file sent by Quick Share and by Bluetooth;
+- Today's reminder card and «تذكيرات نادرة» with TalkBack in Arabic, and the notification read from the shade, on a real phone left 30 days without a backup.

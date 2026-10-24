@@ -630,7 +630,18 @@
       "empty": "Écrivez ce qui a été enseigné avant d’enregistrer."
     },
     "sameTime": "En même temps que {{class}} · {{school}}",
-    "movedFrom": "Déplacée de {{time}} pour ce jour"
+    "movedFrom": "Déplacée de {{time}} pour ce jour",
+    "backup": {
+      "last": "Dernière sauvegarde : {{day}}",
+      "none": "Aucune sauvegarde n’a encore été faite sur ce téléphone.",
+      "body": "Ce qu’aucune sauvegarde ne contient reste sur ce téléphone seulement. Le projet n’a aucune clé : il ne peut pas le récupérer.",
+      "now": "Sauvegarder maintenant",
+      "later": "Me le rappeler plus tard",
+      "saved": "La sauvegarde du jour est enregistrée.",
+      "failed": "La sauvegarde n’a pas été enregistrée. Réessayez.",
+      "back": "Le rappel reviendra {{day}}.",
+      "undo": "Annuler"
+    }
   },
   "outcome": {
     "other": "Autre résultat",
@@ -2751,8 +2762,10 @@
     "previewTitle": "Aperçu quotidien",
     "tomorrow": "Demain : {{sessions}}, la première à {{time}} avec {{class}}",
     "today": "Aujourd’hui : {{sessions}}, la première à {{time}} avec {{class}}",
-    "off": "Les notifications de cette application sont désactivées sur le téléphone : ni le résumé ni l’aperçu n’arrivent.",
-    "allow": "Autoriser les notifications"
+    "off": "Les notifications de cette application sont désactivées sur le téléphone : ni le résumé, ni l’aperçu, ni le rappel n’arrivent.",
+    "allow": "Autoriser les notifications",
+    "backupTitle": "Aucune sauvegarde depuis 30 jours",
+    "backupText": "Ce qu’aucune sauvegarde ne contient reste sur ce téléphone seulement. Sauvegardez depuis « Aujourd’hui »."
   },
   "notes": {
     "title": "Fiche de préparation",

@@ -1,17 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// When notifications may arrive (#234, PRD §3.9, answers 403 and 405).
-// Quiet hours run from 20:00 to 07:00 every day, and over the weekend from
-// the last school day at 20:00 to the first one at 07:00: Thursday to Sunday
-// where the week starts on Sunday. A teacher who works on Saturdays shortens
-// the weekend's to Thursday 20:00 to Saturday 07:00. The weekly digest comes
-// as the weekend's quiet hours end, for the week before it, the year's last
-// included. The daily preview, if turned on, comes at 19:00 the evening
-// before each day with a session to teach; on a quiet evening it moves to
-// the end of the quiet hours, 07:00 on the day itself. Nothing is worked out
-// when a notification arrives: the app plans them ahead each time it is
-// used, and nothing else runs in the background (R-6.8-03).
+// When notifications may arrive (#234, PRD §3.9, answers 403 and 405). Quiet
+// hours run from 20:00 to 07:00 every day, and over the weekend from the last
+// school day at 20:00 to the first one at 07:00: Thursday to Sunday where the
+// week starts on Sunday. A teacher who works on Saturdays shortens the
+// weekend's to Thursday 20:00 to Saturday 07:00. The weekly digest comes as the
+// weekend's quiet hours end, for the week before it, the year's last included.
+// The daily preview, if turned on, comes at 19:00 the evening before each day
+// with a session to teach; on a quiet evening it moves to the end of the quiet
+// hours, 07:00 on the day itself. Nothing is worked out when a notification
+// arrives: the app plans them ahead each time it is used, and nothing else runs
+// in the background (R-6.8-03). The backup reminder comes once, at 18:00 on the
+// day it falls due (answer 482).
 
 import type { Context } from './context.ts';
 import { addDays, compareDays, maxDay, minDay, weekday, type Day } from './day.ts';
@@ -21,6 +22,7 @@ import { sessionsBetween, type Session } from './sessions.ts';
 export const QUIET_END = 7 * 60;
 export const QUIET_START = 20 * 60;
 export const PREVIEW_AT = 19 * 60;
+export const BACKUP_AT = 18 * 60;
 
 /** How far ahead notifications are planned, in days. */
 export const PLAN_DAYS = 14;
@@ -41,7 +43,9 @@ export interface NotifyChoices {
 export type Planned =
   | { readonly kind: 'digest'; readonly at: WallTime }
   /** The preview of `day`'s sessions the calendar leaves, in order: the evening before, or that morning. */
-  | { readonly kind: 'preview'; readonly at: WallTime; readonly day: Day; readonly sessions: readonly Session[] };
+  | { readonly kind: 'preview'; readonly at: WallTime; readonly day: Day; readonly sessions: readonly Session[] }
+  /** The backup reminder, on the day it falls due. */
+  | { readonly kind: 'backup'; readonly at: WallTime };
 
 /** Whether `day` is a weekend day all of whose hours are quiet: the two days before the week starts, but Saturday. */
 function restDay(context: Context, day: Day, saturday: boolean): boolean {
@@ -84,8 +88,13 @@ function before(a: WallTime, b: WallTime): boolean {
   return days < 0 || (days === 0 && a.minutes < b.minutes);
 }
 
-/** The notifications to plan from `now`, for the next `PLAN_DAYS` days, in time order. */
-export function notifyPlan(context: Context, now: WallTime, choices: NotifyChoices): Planned[] {
+/** The notifications to plan from `now`, for the next `PLAN_DAYS` days, in order; `backup` is the reminder's day. */
+export function notifyPlan(
+  context: Context,
+  now: WallTime,
+  choices: NotifyChoices,
+  backup: Day | null = null,
+): Planned[] {
   const { ref } = context;
   const last = addDays(now.day, PLAN_DAYS);
   const planned: Planned[] = [];
@@ -105,6 +114,10 @@ export function notifyPlan(context: Context, now: WallTime, choices: NotifyChoic
     if (sessions !== undefined && compareDays(at.day, day) <= 0 && before(now, at)) {
       planned.push({ kind: 'preview', at, day, sessions });
     }
+  }
+  const reminder = backup === null ? null : afterQuiet(context, { day: backup, minutes: BACKUP_AT }, choices.saturday);
+  if (reminder !== null && compareDays(reminder.day, last) <= 0 && before(now, reminder)) {
+    planned.push({ kind: 'backup', at: reminder });
   }
   return planned.sort((a, b) => (before(a.at, b.at) ? -1 : before(b.at, a.at) ? 1 : 0));
 }

@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The notifications set ahead (#234, answers 403, 405 and 406): the
-// digest's fixed words and the preview's sessions, «غداً» the evening
-// before and «اليوم» that morning after a quiet evening; planned again once
-// setup is done and when the choices change; the permission asked once;
-// a tapped notification opening the digest, also while the app is open;
-// and the Notif screen's notice when Android does not let the app notify,
-// which asks again or opens its settings. Made-up data only.
+// The notifications set ahead (#234, answers 403, 405, 406 and 482): the
+// digest's fixed words and the preview's sessions, «غداً» the evening before
+// and «اليوم» that morning after a quiet evening; the backup reminder at 18:00
+// on its day; planned again once setup is done and when the choices change; the
+// permission asked once, also for the reminder alone; a tapped notification
+// opening the digest, also while the app is open; and the Notif screen's notice
+// when Android does not let the app notify, which asks again or opens its
+// settings. Made-up data only.
 
 import { parseDay, type RecordEvent } from '@minhajna/core';
 import { DeviceEventEmitter, PermissionsAndroid, Platform } from 'react-native';
@@ -21,6 +22,7 @@ import face from '../src/native/NativeMinhajnaInterface';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { epochOf, notifyItems } from '../src/notify/notify-items';
 import { Notify } from '../src/settings/Notify';
+import { setBackupLater } from '../src/settings/backup-later';
 import { setNotifyPrefs } from '../src/settings/notify-prefs';
 import { i18n } from '../src/text/i18n';
 
@@ -36,7 +38,8 @@ afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
   tree = undefined;
   await closeSettingsScreen();
-  setNotifyPrefs({ digest: true, preview: false, saturday: false });
+  setNotifyPrefs({ digest: true, preview: false, saturday: false, backup: true });
+  setBackupLater(null);
   Object.assign(fakeNotify, { planned: [], plans: 0, allowed: true, settingsOpened: 0, opened: null });
   face.setSetting('notify-asked', 'false');
   jest.restoreAllMocks();
@@ -57,9 +60,9 @@ async function setUp(): Promise<TestData> {
   return data;
 }
 
-async function mount(data: TestData) {
+async function mount(data: TestData, today = '2026-10-14') {
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(withData(data, <AppNavigator initialRouteName="Home" />, '2026-10-14'));
+    tree = ReactTestRenderer.create(withData(data, <AppNavigator initialRouteName="Home" />, today));
   });
 }
 
@@ -106,6 +109,29 @@ test('notifications are planned once setup is done, and again when the choices c
   expect(fakeNotify.planned).toEqual([]);
 });
 
+test('the backup reminder is planned at 18:00 on its day, with its own words, and not once turned off', async () => {
+  await mount(await setUp(), '2026-11-05');
+  await settle();
+  const backups = () => fakeNotify.planned.filter((one) => one.channel === 'backup');
+  expect(backups().map((one) => one.at)).toEqual([epochOf({ day: parseDay('2026-11-15'), minutes: 7 * 60 })]);
+  await ReactTestRenderer.act(() => setBackupLater(parseDay('2026-11-17')));
+  await settle();
+  expect(backups()).toEqual([
+    {
+      id: 'backup-2026-11-17',
+      at: epochOf({ day: parseDay('2026-11-17'), minutes: 18 * 60 }),
+      channel: 'backup',
+      channelName: i18n.t('settings.notify.backup'),
+      title: i18n.t('notify.backupTitle'),
+      text: i18n.t('notify.backupText'),
+      open: 'today',
+    },
+  ]);
+  await ReactTestRenderer.act(() => setNotifyPrefs({ backup: false }));
+  await settle();
+  expect(fakeNotify.planned.map((one) => one.channel)).not.toContain('backup');
+});
+
 test('nothing is planned before setup is done', async () => {
   await mount(await withDay());
   await settle();
@@ -122,6 +148,15 @@ test('Android 13 and later ask for the permission once', async () => {
   await mount(data);
   expect(ask).toHaveBeenCalledTimes(1);
   expect(ask).toHaveBeenCalledWith(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+});
+
+test('the permission is asked also when the backup reminder is the only notification on', async () => {
+  jest.replaceProperty(Platform, 'OS', 'android');
+  jest.spyOn(Platform, 'Version', 'get').mockReturnValue(33);
+  const ask = jest.spyOn(PermissionsAndroid, 'request').mockResolvedValue(PermissionsAndroid.RESULTS.GRANTED);
+  setNotifyPrefs({ digest: false });
+  await mount(await setUp());
+  expect(ask).toHaveBeenCalledTimes(1);
 });
 
 test('a tapped digest notification opens the digest, once', async () => {
@@ -163,5 +198,7 @@ test('the Notif screen says when Android does not let the app notify, and opens 
   await pressSettings('notify-allow');
   expect(fakeNotify.settingsOpened).toBe(1);
   await ReactTestRenderer.act(() => setNotifyPrefs({ digest: false }));
+  expect(settingsRoot().findAll((node) => node.props.testID === 'notify-off').length).toBeGreaterThan(0);
+  await ReactTestRenderer.act(() => setNotifyPrefs({ backup: false }));
   expect(settingsRoot().findAll((node) => node.props.testID === 'notify-off')).toEqual([]);
 });

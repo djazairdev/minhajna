@@ -36,7 +36,7 @@ Checks of 22 October 2026 for [#234](https://github.com/djazairdev/minhajna/issu
   - A tapped digest opens the Digest and a tapped preview opens Today, also while the app is open. Reopening from Recents opens neither again.
   - Android 13 and later ask for the permission once, after setup.
   - On a lock screen that hides sensitive content, only the notification's title shows.
-- **Waiting for their own issues** (answer 404): the year-end prompts (R-5.7-04) come with #248, and the 30-day reminder (R-6.5-07) with #247.
+- **Waiting for their own issues** (answer 404): the year-end prompts (R-5.7-04). The 30-day backup reminder (R-6.5-07) came with #247, in «تذكيرات نادرة»: see [its checks](transfer-backup.md#part-5-the-30-day-backup-reminder).
 
 The app asks for two new permissions, `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED`. Still no network permission, push service or server: NETWORK.md says so. PRIVACY.md is unchanged; #234 asks the founder whether it should get a line on notifications. The history gains no event.
 
@@ -56,7 +56,7 @@ The app asks for two new permissions, `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COM
 These are added to the list in [#206](https://github.com/djazairdev/minhajna/issues/206):
 - **TalkBack in Arabic:**
   - the Digest's sections, the make-up strips, the drift card's three buttons and each class's card;
-  - «الإشعارات»: the three switches, the quiet hours and «السماح بالإشعارات»;
+  - «الإشعارات»: the three switches, «تذكير النسخ الاحتياطي» under «تذكيرات نادرة», the quiet hours and «السماح بالإشعارات»;
   - a digest and a preview notification read from the shade.
 - **On a phone:**
   - right to left and left to right, with text at 200%, on Android 8 at 360×800; the Digest and «الإشعارات» wrap without clipping, with touch targets of at least 48 dp;

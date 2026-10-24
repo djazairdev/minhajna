@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «استرجاع البيانات» (#247, Restore, answers 478 and 480): the three routes
-// open in the pilot, sync shown as not open; what does not come back said
-// first; a file asked for before anything is read; a backup restored with
-// the key typed, the kept copy dropped, and the history opened again; a
-// wrong key said, and cleared as it is typed again; a changed file on its own
-// page, with nothing kept, worded for a backup or an export; the export's
-// route without a key or the recovery sheet's line; the kept copy dropped when
-// the screen closes; and every text named in French and English. Made-up
-// records only.
+// «استرجاع البيانات» (#247, Restore, answers 478, 480 and 482): the three
+// routes open in the pilot, sync shown as not open; what does not come back
+// said first; a file asked for before anything is read; a backup restored with
+// the key typed, the kept copy dropped, the backup reminder put off 30 days,
+// and the history opened again; a wrong key said, and cleared as it is typed
+// again; a changed file on its own page, with nothing kept, worded for a backup
+// or an export; the export's route without a key or the recovery sheet's line;
+// the kept copy dropped when the screen closes; and every text named in French
+// and English. Made-up records only.
 
 import { archiveOf, archiveText, parseDay } from '@minhajna/core';
 import { TextInput, type TextInputProps } from 'react-native';
@@ -21,6 +21,7 @@ import { FakeStorage } from '../jest/fake-storage';
 import { withPupils } from '../jest/roll-class';
 import files from '../src/native/NativeMinhajnaFiles';
 import { Restore } from '../src/restore/Restore';
+import { backupLater, setBackupLater } from '../src/settings/backup-later';
 import { openRecordBook } from '../src/storage/history';
 import { i18n, missingKeys } from '../src/text/i18n';
 
@@ -40,6 +41,7 @@ beforeEach(() => {
 });
 afterEach(async () => {
   await unmount();
+  setBackupLater(null);
   await i18n.changeLanguage('ar');
   jest.clearAllMocks();
 });
@@ -111,7 +113,7 @@ test('shows the routes, says what does not come back, and asks for the file firs
   expect(readZip).not.toHaveBeenCalled();
 });
 
-test('restores a backup with the key typed, drops the copy and opens the history again', async () => {
+test('restores a backup with the typed key, drops the copy, puts the reminder off and opens the history', async () => {
   const text = await backupText();
   const { storage, onRestored } = await screen();
   openZip.mockResolvedValueOnce({ token: TOKEN, name: 'نسخة منهاجنا 2026-10-15.zip' });
@@ -123,6 +125,7 @@ test('restores a backup with the key typed, drops the copy and opens the history
   expect(readZip).toHaveBeenCalledWith(TOKEN, 'minhajna-archive.json', KEY, true);
   expect(onRestored).toHaveBeenCalledTimes(1);
   expect(dropFile).toHaveBeenCalledWith(TOKEN);
+  expect(backupLater()).toBe('2026-11-14');
   expect((await openRecordBook(storage.asSpec())).state.pupils.size).toBeGreaterThan(0);
 });
 

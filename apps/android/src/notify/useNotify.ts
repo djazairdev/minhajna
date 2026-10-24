@@ -1,20 +1,22 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The notifications set ahead, from the app (#234, answers 403 and 406):
-// once setup is done, the next 14 days are planned again a moment after
-// each change and each time the app comes back to the front, with the
-// teacher's choices. Android 13 and later ask for the permission once,
-// when the digest or the preview is on. A tapped notification opens the
-// digest or Today, once the app is unlocked and on its tabs, also when the
-// tap reaches the app while it is open.
+// The notifications set ahead, from the app (#234, answers 403 and 406): once
+// setup is done, the next 14 days are planned again a moment after each change
+// and each time the app comes back to the front, with the teacher's choices,
+// the backup reminder among them (answer 482). Android 13 and later ask for the
+// permission once, when any of them is on. A tapped notification opens the
+// digest or Today, once the app is unlocked and on its tabs, also when the tap
+// reaches the app while it is open.
 
+import { backupReminderDay, deviceFacts } from '@minhajna/core';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { AppState, DeviceEventEmitter, PermissionsAndroid, Platform } from 'react-native';
 import type { RootStackParamList } from '../navigation/routes';
 import face from '../native/NativeMinhajnaInterface';
 import notify from '../native/NativeMinhajnaNotify';
+import { useBackupLater } from '../settings/backup-later';
 import { useNotifyPrefs } from '../settings/notify-prefs';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -53,6 +55,7 @@ export function useNotifyPlan(): void {
   const data = useAppData();
   const prefs = useNotifyPrefs();
   const fronts = useFronts();
+  const later = useBackupLater();
   const context = useMemo(() => coreContext(data), [data]);
   const setUp = data.state.setupFinished;
   useEffect(() => {
@@ -60,18 +63,20 @@ export function useNotifyPlan(): void {
     const timer = setTimeout(() => {
       try {
         const now = { day: data.today(), minutes: wallNow(new Date()).minutes };
-        notify.plan(notifyItems(t, context, data, now, prefs));
+        const backup = prefs.backup ? backupReminderDay(deviceFacts(data.entries()), later) : null;
+        notify.plan(notifyItems(t, context, data, now, prefs, backup));
       } catch (error: unknown) {
         if (__DEV__) console.warn('Notifications not planned', error);
       }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [t, context, data, prefs, setUp, fronts]);
+  }, [t, context, data, prefs, later, setUp, fronts]);
+  const wanted = prefs.digest || prefs.preview || prefs.backup;
   useEffect(() => {
-    if (!setUp || !(prefs.digest || prefs.preview) || !asksPermission() || face.setting(ASKED) === 'true') return;
+    if (!setUp || !wanted || !asksPermission() || face.setting(ASKED) === 'true') return;
     face.setSetting(ASKED, 'true');
     askPermission().catch(() => undefined);
-  }, [setUp, prefs.digest, prefs.preview]);
+  }, [setUp, wanted]);
 }
 
 /** Opens the screen a tapped notification asks for: on the tabs, on return, and on a tap while open. */

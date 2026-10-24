@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The pilot's devices and backups (#247, answer 478), from a made-up class:
-// the recovery key kept on the phone and never in an archive, a new sheet's
-// earlier keys, the last backup and the first change, and the log's lines.
+// The pilot's devices and backups (#247, answer 478), from a made-up class: the
+// recovery key kept on the phone and never in an archive, a new sheet's earlier
+// keys, the last backup and the first change, the reminder's day, and the log's
+// lines.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -11,8 +12,10 @@ import { describe, it } from 'node:test';
 import {
   RECOVERY_ALPHABET,
   activityLog,
+  addDays,
   archiveOf,
   archiveText,
+  backupReminderDay,
   deviceFacts,
   layerOf,
   type ArchiveOptions,
@@ -92,5 +95,17 @@ describe('the devices and backups', () => {
       ],
     );
     assert.equal(JSON.stringify(day).includes(KEY), false);
+  });
+
+  it('reminds 30 days after the last backup or the first change, and not before the day put off to', async () => {
+    const book = await openBook(cemEvents());
+    const first = book.entries[0]!.day;
+    assert.equal(backupReminderDay(deviceFacts([]), null), null);
+    assert.equal(backupReminderDay(deviceFacts(book.entries), null), addDays(first, 30));
+    await book.record(d('2026-10-20'), { kind: 'backup.saved' });
+    const facts = deviceFacts(book.entries);
+    assert.equal(backupReminderDay(facts, null), d('2026-11-19'));
+    assert.equal(backupReminderDay(facts, d('2026-11-26')), d('2026-11-26'));
+    assert.equal(backupReminderDay(facts, d('2026-10-27')), d('2026-11-19'));
   });
 });

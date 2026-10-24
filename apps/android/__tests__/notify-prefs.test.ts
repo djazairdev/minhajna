@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The notification choices (#234, answer 403): the digest on and the daily
-// preview off by default, each choice falling back to its default when the
-// saved value cannot be read, and a change kept with the others.
+// The notification choices (#234, answers 403 and 482): the digest and the
+// backup reminder on and the daily preview off by default, each choice falling
+// back to its default when the saved value cannot be read, and a change kept
+// with the others.
 
 import face from '../src/native/NativeMinhajnaInterface';
 
@@ -20,16 +21,17 @@ function load(saved: string | null): Prefs {
 }
 
 test('the digest is on and the preview off by default', () => {
-  expect(load(null).notifyPrefs()).toEqual({ digest: true, preview: false, saturday: false });
+  expect(load(null).notifyPrefs()).toEqual({ digest: true, preview: false, saturday: false, backup: true });
 });
 
 test('a value that cannot be read falls back to the defaults, choice by choice', () => {
-  expect(load('not json').notifyPrefs()).toEqual({ digest: true, preview: false, saturday: false });
-  expect(load('[true]').notifyPrefs()).toEqual({ digest: true, preview: false, saturday: false });
+  expect(load('not json').notifyPrefs()).toEqual({ digest: true, preview: false, saturday: false, backup: true });
+  expect(load('[true]').notifyPrefs()).toEqual({ digest: true, preview: false, saturday: false, backup: true });
   expect(load('{"preview":true,"saturday":"yes"}').notifyPrefs()).toEqual({
     digest: true,
     preview: true,
     saturday: false,
+    backup: true,
   });
 });
 
@@ -37,5 +39,6 @@ test('a change is kept with the other choices', () => {
   const prefs = load('{}');
   prefs.setNotifyPrefs({ saturday: true });
   prefs.setNotifyPrefs({ digest: false });
-  expect(load(null).notifyPrefs()).toEqual({ digest: false, preview: false, saturday: true });
+  prefs.setNotifyPrefs({ backup: false });
+  expect(load(null).notifyPrefs()).toEqual({ digest: false, preview: false, saturday: true, backup: false });
 });

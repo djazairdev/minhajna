@@ -11,7 +11,7 @@
 // what is left goes on in, and how many sessions an item without stages has
 // taken. Closing before a choice records nothing.
 
-import type { Choice, PackItem, Proposal, Reason } from '@minhajna/core';
+import type { Choice, PackItem, Proposal, Reason, TodaySession } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState, type RefObject } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
@@ -24,6 +24,9 @@ import { TextField } from '../components/TextField';
 import { colors, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
 import { REASON_CHOICES, stageChoices, type CarryWords, type ReasonChoice } from './outcome-rules';
+
+/** The session «نتيجة أخرى» was opened for on Today, kept while the sheet closes. */
+export type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
 
 export interface OutcomeSheetProps {
   readonly visible: boolean;
