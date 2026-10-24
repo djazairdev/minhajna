@@ -74,6 +74,7 @@ test('opens existing screens and each school’s own bell times and packs', asyn
     'rules',
     'print',
     'security',
+    'backup',
     'language',
     'log',
     'retention',
@@ -94,9 +95,8 @@ test('opens existing screens and each school’s own bell times and packs', asyn
 
 test('does not offer insights, money or a pretend action for unfinished features', async () => {
   await showSettingsScreen(<Settings onOpen={onOpen} />, await settingsData());
-  expect(settingsControl('settings-backup').accessibilityState?.disabled).toBe(true);
-  await pressSettings('settings-backup');
-  expect(onOpen).not.toHaveBeenCalled();
+  expect(settingsTexts()).toEqual(expect.arrayContaining(['الأجهزة والنسخ', 'لا نسخة بعد']));
+  expect(screenKind('SettingsDevices')).toBe('records');
   expect(settingsControl('settings-export').accessibilityState?.disabled).toBeFalsy();
   await pressSettings('settings-export');
   expect(onOpen).toHaveBeenCalledWith('export');

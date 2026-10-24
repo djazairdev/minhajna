@@ -5,10 +5,11 @@
 // will hold; a session's correction names the book, the class, the day, the
 // fields and the reason; a roll call's names each pupil by number, never by
 // name; outputs by their title and period; an erasure by the kinds it
-// removed; the tabs filter; the days head with no clock time; and English
-// reads left to right. Made-up records only.
+// removed; the tabs filter; backups and recovery sheets under the devices,
+// whose tab shows once it has one (#247); the days head with no clock time;
+// and English reads left to right. Made-up records only.
 
-import { parseDay, type RecordEvent, type SessionRecord } from '@minhajna/core';
+import { RECOVERY_ALPHABET, parseDay, type RecordEvent, type SessionRecord } from '@minhajna/core';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import type { TestData } from '../jest/app-data';
@@ -137,6 +138,33 @@ test('the tabs show one kind at a time, and say when a kind has nothing', async 
   await mount(await withDay(), <Log />);
   await select('files');
   expect(texts()).toContain('لا شيء في السجل بعد: يُكتب هنا كل تصحيح وطباعة وحذف، بيومه.');
+});
+
+test('lists backups and recovery sheets under the devices, a tab shown only once it has one', async () => {
+  const tabs = () =>
+    (root().findByProps({ testID: 'log-tabs' }).props as { choices: { value: string }[] }).choices.map(
+      (one) => one.value,
+    );
+  await mount(await withChanges(), <Log />);
+  expect(tabs()).toEqual(['all', 'corrections', 'files', 'erasures']);
+  await unmount();
+  const data = await withDay();
+  const later = parseDay('2026-10-16');
+  await data.book.record(day, {
+    kind: 'recovery.set',
+    recovery: { key: ['K7QF', '3M9T', 'WX2R', '8HDN', 'P4VC', '6JYE'].join('') },
+  });
+  await data.book.record(later, { kind: 'recovery.set', recovery: { key: RECOVERY_ALPHABET.slice(0, 24) } });
+  await data.book.record(later, { kind: 'backup.saved' });
+  await data.book.erase(later, [data.book.entries.find((entry) => entry.kind === 'recovery.set')!.id]);
+  await mount(data, <Log />);
+  expect(tabs()).toEqual(['all', 'corrections', 'files', 'erasures', 'devices']);
+  await select('devices');
+  expect(labels()).toEqual(['الأجهزة. حُفظت نسخة احتياطية', 'الأجهزة. أُعدّت ورقة استرجاع جديدة، دون مفتاحها']);
+  await select('erasures');
+  expect(labels()).toEqual(['الحذف. حذف مفتاح استرجاع سابق. يبقى أنه حُذف، دون محتواه']);
+  expect(JSON.stringify(texts())).not.toMatch(/K7QF|0123/);
+  expect(missingKeys).toEqual([]);
 });
 
 test('reads left to right in English', async () => {

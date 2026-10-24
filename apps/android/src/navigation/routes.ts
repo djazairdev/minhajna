@@ -52,6 +52,10 @@ export type RootStackParamList = {
   Log: undefined;
   SettingsExport: undefined;
   SettingsErase: undefined;
+  /** «الأجهزة والنسخ» (#247); `backup` once a first sheet was confirmed, so the first backup starts. */
+  SettingsDevices: { backup?: boolean } | undefined;
+  /** «ورقة الاسترجاع»: a first sheet before the first backup, or the key kept. */
+  SettingsRecovery: { first: boolean };
   SettingsRetention: undefined;
   Language: undefined;
   PrivacyNotice: undefined;

@@ -49,7 +49,10 @@ export function recordKey(entry: Entry): string | null {
       return `pupil/${event.pupil.id}`;
     case 'pupil.moved':
     case 'pupil.erased':
+    case 'backup.saved':
       return null;
+    case 'recovery.set':
+      return 'recovery';
     case 'course.set':
       return `course/${event.course.id}`;
     case 'timetable.set':

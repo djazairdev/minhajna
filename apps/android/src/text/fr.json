@@ -2883,7 +2883,8 @@
       "all": "Tout",
       "corrections": "Corrections",
       "files": "Fichiers et impressions",
-      "erasures": "Suppressions"
+      "erasures": "Suppressions",
+      "devices": "Appareils"
     },
     "intact": "La chaîne est intacte : aucune modification ni suppression hors de l’application",
     "sector": "Aucun envoi au système du secteur : en mode enseignant, les absences ne sont pas envoyées. Dans le système national, si l’établissement choisit de les envoyer, chaque envoi est noté ici avec son jour.",
@@ -2938,7 +2939,9 @@
       "print": "une impression",
       "assessment": "un réglage d’évaluation",
       "mark": "Note",
-      "other": "un autre dossier"
+      "other": "un autre dossier",
+      "recoveryKey": "une ancienne clé de récupération",
+      "backup": "une sauvegarde"
     },
     "broken": {
       "title": "Quelque chose a changé hors de l’application",
@@ -2959,7 +2962,9 @@
       "safe": "Rien n’a été modifié ni effacé : l’application lit seulement ce journal, sans y écrire.",
       "restore": "Restaurer depuis une copie : arrive avec les sauvegardes et le transfert depuis un autre appareil, pour que ces jours reviennent tels qu’ils ont été notés.",
       "report": "Signaler un problème : arrive avec les rapports de problème, où les noms des élèves sont remplacés et le rapport est montré avant l’envoi."
-    }
+    },
+    "backupSaved": "Sauvegarde enregistrée",
+    "recoverySet": "Nouvelle feuille de récupération établie, sans sa clé"
   },
   "marks": {
     "termLabel": "Trimestre",
