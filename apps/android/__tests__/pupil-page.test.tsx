@@ -44,6 +44,8 @@ async function mount(data: TestData, props: Partial<PupilPageProps> = {}, day = 
     onClassYear: jest.fn(),
     onCorrect: jest.fn(),
     onMove: jest.fn(),
+    onExport: jest.fn(),
+    onErased: jest.fn(),
     ...props,
   };
   await ReactTestRenderer.act(async () => {

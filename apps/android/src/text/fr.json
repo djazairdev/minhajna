@@ -1566,7 +1566,30 @@
       "justified": "absence justifiée",
       "unjustified": "absence non justifiée"
     },
-    "move": "Enregistrer une arrivée ou un départ"
+    "move": "Enregistrer une arrivée ou un départ",
+    "erase": {
+      "row": "Effacer les données de cet élève",
+      "rowF": "Effacer les données de cette élève",
+      "rowLine": "Possible après le départ et la confirmation du directeur",
+      "context": "{{name}} · {{class}} · parti le {{day}}",
+      "contextF": "{{name}} · {{class}} · partie le {{day}}",
+      "reassurance": "Rien n’est effacé avant votre confirmation.",
+      "gone": "Effacé",
+      "goneName": "Le nom et le numéro d’inscription, la date et le motif du départ",
+      "goneRoll": "L’appel : les absences et les retards, et la justification de chaque absence",
+      "goneMarks": "Les notes, les appréciations et les observations, et ce qui a été noté en séance",
+      "goneSeat": "La place dans le plan de classe",
+      "kept": "Conservé",
+      "keptBooks": "Le cahier de textes et le journal de classe, qui ne nomment aucun élève",
+      "keptFiles": "Ce qui a été imprimé ou enregistré dans un fichier avant l’effacement, avec ses totaux tels quels : ils ne sont pas recalculés",
+      "export": "Exporter d’abord",
+      "exportLine": "Une archive ou des fichiers CSV, avec un mot de passe",
+      "log": "Une seule ligne reste dans le journal d’activité",
+      "logLine": "Données d’un élève effacées · {{day}} · sans leur contenu",
+      "understood": "J’ai compris que l’effacement est définitif.",
+      "erase": "Effacer les données",
+      "failed": "Les données n’ont pas été effacées. Réessayez."
+    }
   },
   "correct": {
     "title": "Corriger l'appel",
