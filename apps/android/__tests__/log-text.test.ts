@@ -7,8 +7,9 @@
 // without a number, signed files with their plan's subject and year, an
 // erasure's kinds each named once, a withdrawn session and one recorded again,
 // and a change that cannot be checked by its kind, with each language's own
-// comma; and a mark corrected after the term, a test by its title (#243).
-// Made-up records only.
+// comma; a mark corrected after the term, a test by its title (#243); and a
+// pupil's erasure in one line with nothing of them (#248). Made-up records
+// only.
 
 import { parseDay, type LogLine, type MarkTarget, type SessionRef } from '@minhajna/core';
 import { openTestData } from '../jest/app-data';
@@ -100,6 +101,7 @@ test('signed files, a session recorded again, and a change that cannot be checke
   expect(lineText(t, shown, { kind: 'erased', kinds: ['session.recorded', 'session.withdrawn', 'pupil.set'] })).toBe(
     'حذف حصة من دفتر النصوص، تلميذ. يبقى أنه حُذف، دون محتواه',
   );
+  expect(lineText(t, shown, { kind: 'pupil-erased' })).toBe('حُذفت بيانات تلميذ · دون محتواها');
   expect(lineText(t, shown, { kind: 'layer-added', title: 'طبقة (مثال)' })).toBe('طبقة على المخطط: طبقة (مثال)');
   expect(lineText(t, shown, { kind: 'session-corrected', session, fields: [] })).toBe(
     'دفتر النصوص · \u20684م1\u2069 · الخميس 15/10 · سُجّلت من جديد بعد سحب تأكيدها',
@@ -126,6 +128,11 @@ test.each(['fr', 'en'] as const)('every line has its words in %s', async (langua
     language === 'fr'
       ? 'Suppression : un appel, un élève. Il reste qu’elle a eu lieu, sans son contenu'
       : 'Deleted: a roll call, a pupil. The fact stays, without its content',
+  );
+  expect(lineText(t, shown, { kind: 'pupil-erased' })).toBe(
+    language === 'fr'
+      ? 'Données d’un élève effacées · sans leur contenu'
+      : 'A pupil’s data erased · without its content',
   );
   expect(missingKeys).toEqual([]);
 });

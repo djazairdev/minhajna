@@ -7,7 +7,9 @@
 // printing, and deletions, by the day each was made and in the history's
 // order, never a clock time (R-5.5-05). A line says what changed, never the
 // content: no pupil's name, note or text. Past a damaged stretch (#399,
-// answer 427) a change shows as its kind and day only, unchecked.
+// answer 427) a change shows as its kind and day only, unchecked. Erasing a
+// pupil's data shows as one line (answer 473): its erasures make none of
+// their own, and a roll call it restated keeps its corrections' days.
 
 import { canonicalJson } from './canonical.ts';
 import { compareDays, type Day } from './day.ts';
@@ -19,6 +21,7 @@ import type { OutputRecord } from './prints.ts';
 import type { Half, SessionRecord, SessionRef } from './records.ts';
 import { markOf, ROLL_CALL_REASONS, type PupilMark, type RollCallReason } from './roll-call-fix.ts';
 import type { RollCall } from './attendance-records.ts';
+import { restatements } from './restated.ts';
 
 /** A field of a session record a correction changed, in the order the texts book shows them. */
 export const SESSION_FIELDS = [
@@ -81,6 +84,8 @@ export type LogLine =
   | { readonly kind: 'layer-added'; readonly title: string }
   /** The kinds of the records an erasure removed: only the fact and the day stay (R-5.5-13). */
   | { readonly kind: 'erased'; readonly kinds: readonly string[] }
+  /** A pupil's data erased, with nothing of it (answer 473). */
+  | { readonly kind: 'pupil-erased' }
   /** A change past a damaged stretch: its kind and day, never its content. */
   | { readonly kind: 'unverified'; readonly entryKind: string };
 
@@ -204,9 +209,16 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'pack-added', pack: event.added.update.pack.id, release: event.added.update.pack.release };
     case 'layer.added':
       return { kind: 'layer-added', title: event.added.layer.title };
+    case 'pupil.erased':
+      return { kind: 'pupil-erased' };
     default:
       return null;
   }
+}
+
+/** An erasure's line: the kinds of the records it removed. */
+function erasedLine(ids: readonly string[], kinds: ReadonlyMap<string, string>): LogLine {
+  return { kind: 'erased', kinds: [...new Set(ids.flatMap((id) => kinds.get(id) ?? []))] };
 }
 
 const categoryOf = (line: LogLine): LogCategory | null => {
@@ -217,6 +229,7 @@ const categoryOf = (line: LogLine): LogCategory | null => {
     case 'mark-corrected':
       return 'corrections';
     case 'erased':
+    case 'pupil-erased':
       return 'erasures';
     case 'unverified':
       return null;
@@ -229,26 +242,36 @@ const categoryOf = (line: LogLine): LogCategory | null => {
  * The log, newest day first, a day's changes newest first; the phone's date can go back, so days are sorted.
  * Entries from `trusted` on lie past a damaged stretch: each shows as its kind and day, unchecked, and an
  * unreadable row is left out. An erased record's own versions show only through their erasure, as their content
- * is gone.
+ * is gone. A pupil's erasure is its fact's line alone, and a restated version stands at the day and place of the
+ * entry it replaces.
  */
 export function activityLog(entries: readonly (Entry | null)[], trusted: number = entries.length): LogDay[] {
   const seen: Seen = { sessions: new Map(), rollCalls: new Map() };
   const kinds = new Map<string, string>();
-  const items: LogItem[] = [];
+  const ofPupils = new Set<string>();
+  const restated = restatements(entries.slice(0, trusted).filter((entry) => entry !== null));
+  const positions = new Map(entries.flatMap((entry, position) => (entry === null ? [] : [[entry.id, position]])));
+  const placed: { readonly at: number; readonly item: LogItem }[] = [];
   entries.forEach((entry, position) => {
     if (entry === null) return;
     kinds.set(entry.id, entry.kind);
     let line: LogLine | null;
     if (position >= trusted) line = { kind: 'unverified', entryKind: entry.kind };
+    else if (restated.replaced.has(entry.id)) line = null;
     else if (entry.kind === ERASURE) {
       const ids = erasedIds(entry) ?? [];
-      line = { kind: 'erased', kinds: [...new Set(ids.flatMap((id) => kinds.get(id) ?? []))] };
+      line = ids.some((id) => ofPupils.has(id)) ? null : erasedLine(ids, kinds);
     } else {
       const event = eventOf(entry);
+      if (event?.kind === 'pupil.erased') for (const id of event.erased.entries) ofPupils.add(id);
       line = event === null ? null : lineOf(event, seen);
     }
-    if (line !== null) items.push({ seq: entry.seq, day: entry.day, category: categoryOf(line), line });
+    const stands = restated.of.get(entry.id) ?? entry;
+    const at = positions.get(stands.id) ?? position;
+    if (line !== null)
+      placed.push({ at, item: { seq: stands.seq, day: stands.day, category: categoryOf(line), line } });
   });
+  const items = placed.sort((a, b) => a.at - b.at).map((one) => one.item);
   const days = new Map<Day, LogItem[]>();
   for (const item of items.reverse()) days.set(item.day, [...(days.get(item.day) ?? []), item]);
   return [...days].sort(([a], [b]) => compareDays(b, a)).map(([day, dayItems]) => ({ day, items: dayItems }));

@@ -37,21 +37,19 @@ import type {
   TeacherPersonal,
 } from './records.ts';
 import { eventOf } from './events.ts';
+import { erasedPupils } from './erased-pupils.ts';
 import { withMovements, type Membership, type Movement } from './pupil-history.ts';
+import { restatements, standingOrder } from './restated.ts';
 import { addTimetable, type RecordedTimetable } from './timetable-history.ts';
 import { addScore, newScores } from './state-scores.ts';
 import type { State } from './state-type.ts';
-import type { Version } from './versions.ts';
+import { versionOf, type Version } from './versions.ts';
 
 export type { RecordedTimetable } from './timetable-history.ts';
 export { current, type Version } from './versions.ts';
 export type { State } from './state-type.ts';
 
-function versionOf<T>(entry: Entry, value: T, reason?: string): Version<T> {
-  return { entry: entry.id, day: entry.day, value, ...(reason !== undefined && { reason }) };
-}
-
-/** Builds the state from the history entries. */
+/** Builds the state from the history entries; a restated roll call stands as the entry it replaced (answer 473). */
 export function buildState(entries: readonly Entry[]): State {
   let teacher: TeacherCard | null = null;
   let personal: TeacherPersonal | null = null;
@@ -91,9 +89,10 @@ export function buildState(entries: readonly Entry[]): State {
   const keptClashes = new Map<string, KeptClash>();
   const moves = new Map<string, SessionMove>();
   const lessonNotes = new Map<string, LessonNote>();
+  const restated = restatements(entries);
 
   for (const [order, entry] of entries.entries()) {
-    const event = eventOf(entry);
+    const event = restated.replaced.has(entry.id) ? null : eventOf(entry);
     if (event === null) continue;
     switch (event.kind) {
       case 'teacher.set':
@@ -182,8 +181,9 @@ export function buildState(entries: readonly Entry[]): State {
         break;
       case 'roll-call.taken': {
         const key = event.rollCall.unit;
-        if (!rollCallOrders.has(key)) rollCallOrders.set(key, entry.seq);
-        rollCalls.set(key, [...(rollCalls.get(key) ?? []), versionOf(entry, event.rollCall, event.reason)]);
+        const { seq, day } = restated.of.get(entry.id) ?? entry;
+        rollCallOrders.set(key, Math.min(rollCallOrders.get(key) ?? seq, seq));
+        rollCalls.set(key, [...(rollCalls.get(key) ?? []), versionOf(entry, event.rollCall, event.reason, day)]);
         break;
       }
       case 'seating.set':
@@ -253,6 +253,8 @@ export function buildState(entries: readonly Entry[]): State {
         addScore(scores, event, entry);
     }
   }
+  if (restated.of.size > 0)
+    for (const [key, list] of rollCalls) rollCalls.set(key, standingOrder(list, entries, restated));
   const pupils = new Map<string, Pupil>();
   for (const [id, { pupil, order }] of pupilSets) pupils.set(id, withMovements(pupil, order, moved.get(id) ?? []));
 
@@ -264,6 +266,7 @@ export function buildState(entries: readonly Entry[]): State {
     pupils,
     memberships,
     rollCallOrders,
+    erasedPupils: erasedPupils(entries, memberships),
     courses,
     timetables,
     calendar: [...calendar.values()],

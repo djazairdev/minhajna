@@ -5,8 +5,9 @@
 // class, the session's day and what changed, a pupil by their number on the
 // class list, never by name; a document by its title and the period its file is
 // named after, or a term by its name (#239); an erasure by the kinds it
-// removed. Names come from the records the line follows, so a class that has
-// gone shows as a dash.
+// removed, and a pupil's erasure as one line with nothing of them (#248).
+// Names come from the records the line follows, so a class that has gone
+// shows as a dash.
 
 import {
   parsePackId,
@@ -55,6 +56,7 @@ const KIND_GROUPS: Readonly<Record<string, string>> = {
   'lesson-note.set': 'lessonNote',
   'pupil.set': 'pupil',
   'pupil.moved': 'pupil',
+  'pupil.erased': 'pupil',
   'homework.counted': 'homework',
   'homework.uncounted': 'homework',
   'print.recorded': 'print',
@@ -199,6 +201,8 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
           line.kinds.map((kind) => kindLabel(t, kind)),
         ),
       });
+    case 'pupil-erased':
+      return t('log.pupilErased');
     case 'unverified':
       return t('log.unverified', { what: kindLabel(t, line.entryKind) });
   }

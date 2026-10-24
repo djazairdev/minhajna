@@ -2896,6 +2896,7 @@
     "pack": "Progression signée : {{pack}}, version {{release}}",
     "layer": "Couche sur la progression : {{title}}",
     "erased": "Suppression : {{what}}. Il reste qu’elle a eu lieu, sans son contenu",
+    "pupilErased": "Données d’un élève effacées · sans leur contenu",
     "unverified": "Changement : {{what}}",
     "kinds": {
       "session": "une séance du cahier de textes",

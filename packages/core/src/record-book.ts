@@ -2,133 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The teacher's records and their history, together: every change is an
-// event added to the history, and the state is rebuilt from it.
+// event added to the history, and the state is rebuilt from it. Erasing a
+// pupil's data writes its fact first, then restates the class's records
+// without them and erases the rest, so an erasure the app could not finish
+// is finished when the history opens again (answer 473).
 
 import type { Day } from './day.ts';
 import { HistoryLog, type Entry, type HistoryDeps, type HistoryStore } from './history.ts';
 import { eventOf, layerOf, type RecordEvent } from './events.ts';
-import { captureKey } from './captures.ts';
-import { markKey } from './marks.ts';
-import { observationKey } from './observations.ts';
-import { appreciationKey } from './appreciations.ts';
+import { departed, pupilEntries, withoutPupil } from './pupil-erase.ts';
+import { recordKey } from './record-keys.ts';
+import { restatements, sharedKey } from './restated.ts';
 import { buildState, type State } from './state.ts';
-import { kindOf, listKey } from './support-queue.ts';
-import { layerKey, switchKey } from './variant-layers.ts';
-
-/**
- * Which record an event sets. Events with the same key are versions of one
- * record. A pupil's movements are part of the pupil's record.
- */
-function recordKey(event: RecordEvent): string {
-  switch (event.kind) {
-    case 'teacher.set':
-      return 'teacher';
-    case 'teacher.personal.set':
-      return 'teacher:personal';
-    case 'school.set':
-      return `school:${event.school.id}`;
-    case 'class.set':
-      return `class:${event.schoolClass.id}`;
-    case 'pupil.set':
-      return `pupil:${event.pupil.id}`;
-    case 'pupil.moved':
-      return `pupil:${event.pupilId}`;
-    case 'course.set':
-      return `course:${event.course.id}`;
-    case 'timetable.set':
-      return `timetable:${event.version.id}`;
-    case 'calendar.set':
-      return `calendar:${event.entry.id}`;
-    case 'calendar.removed':
-      return `calendar:${event.id}`;
-    case 'calendar.updated':
-      return `calendar-update:${event.applied.update.release}`;
-    case 'pack.added':
-      return `pack:${event.added.update.pack.id}@${event.added.update.pack.release}`;
-    case 'layer.added':
-      return `layer:${layerKey(event.added.layer)}`;
-    case 'layer.switched':
-      return `layer-switch:${switchKey(event.switched.courseId, event.switched.level)}`;
-    case 'list.set':
-      return `list:${event.list.courseId}`;
-    case 'session.recorded':
-      return `session:${event.record.session.key}`;
-    case 'session.withdrawn':
-      return `session:${event.session.key}`;
-    case 'session.noted':
-      return `note:${event.note.sessionKey}`;
-    case 'homework.counted':
-      return `homework:${event.count.sessionKey}`;
-    case 'homework.uncounted':
-      return `homework:${event.sessionKey}`;
-    case 'extra.logged':
-      return `extra:${event.extra.id}`;
-    case 'extra.removed':
-      return `extra:${event.id}`;
-    case 'roll-call.taken':
-      return `roll-call:${event.rollCall.unit}`;
-    case 'seating.set':
-      return `seating:${event.plan.classId}/${event.plan.groupId}`;
-    case 'counting.set':
-      return 'counting';
-    case 'setup.finished':
-      return 'setup';
-    case 'print.recorded':
-      return `print:${event.print.id}`;
-    case 'test.set':
-      return `test:${event.test.id}`;
-    case 'test.removed':
-      return `test:${event.id}`;
-    case 'plan.decided':
-      return `decision:${event.decision.id}`;
-    case 'plan.undecided':
-      return `decision:${event.id}`;
-    case 'duty.set':
-      return `duty:${event.duty.id}`;
-    case 'duty.removed':
-      return `duty:${event.id}`;
-    case 'catchup.set':
-      return `catchup:${event.catchUp.id}`;
-    case 'catchup.removed':
-      return `catchup:${event.id}`;
-    case 'support.set':
-      return `support:${listKey(event.queue.courseId, kindOf(event.queue))}`;
-    case 'repace.set':
-      return `repace:${event.repace.id}`;
-    case 'repace.removed':
-      return `repace:${event.id}`;
-    case 'clash.kept':
-      return `clash:${event.kept.id}`;
-    case 'clash.reopened':
-      return `clash:${event.id}`;
-    case 'move.set':
-      return `move:${event.move.id}`;
-    case 'move.removed':
-      return `move:${event.id}`;
-    case 'lesson-note.set':
-      return `lesson-note:${event.note.id}`;
-    case 'output.recorded':
-      return `output:${event.output.id}`;
-    case 'retention.set':
-      return 'retention';
-    case 'council-thresholds.set':
-      return 'council-thresholds';
-    case 'assessment.set':
-      return `assessment:${event.setup.courseId}:${event.setup.term}`;
-    case 'mark.set':
-      return `mark:${markKey(event.mark)}`;
-    case 'mark.corrected':
-      return `mark:${markKey(event.fix.mark)}`;
-    case 'capture.set':
-      return `capture:${captureKey(event.capture)}`;
-    case 'formula.set':
-      return `formula:${event.courseId}`;
-    case 'observation.set':
-      return `observation:${observationKey(event.observation)}`;
-    case 'appreciation.set':
-      return `appreciation:${appreciationKey(event.appreciation)}`;
-  }
-}
 
 /**
  * The teacher's records and their history. Every change is stored before
@@ -143,9 +28,16 @@ export class RecordBook {
     this.#state = buildState(log.entries);
   }
 
-  /** Opens a stored history, but only one that verifies (`HistoryLog.open`). */
+  /**
+   * Opens a stored history, but only one that verifies (`HistoryLog.open`), and finishes any pupil's erasure the
+   * app stopped in. One that cannot finish leaves the records as they are, never the history unopened.
+   */
   static async open(store: HistoryStore, deps: HistoryDeps): Promise<RecordBook> {
-    return new RecordBook(await HistoryLog.open(store, deps));
+    const book = new RecordBook(await HistoryLog.open(store, deps));
+    for (const entry of [...book.#log.entries]) {
+      if (eventOf(entry)?.kind === 'pupil.erased') await book.#finish(entry).catch(() => undefined);
+    }
+    return book;
   }
 
   get state(): State {
@@ -177,19 +69,21 @@ export class RecordBook {
    * Erases whole records: the entries must hold every version of each record
    * they touch, such as a session's record and its corrections, a roll call
    * and its corrections, or a pupil and their movements. Erasing one version
-   * alone would bring the one before it back (PRD §5.5).
+   * alone would bring the one before it back (PRD §5.5). An entry a
+   * restatement replaced counts no more, so it may go alone.
    */
   async erase(day: Day, ids: readonly string[]): Promise<Entry> {
     const named = new Set(ids);
+    const { replaced } = restatements(this.#log.entries);
     const touched = new Set<string>();
     for (const id of named) {
       const entry = this.#log.entries.find((candidate) => candidate.id === id);
       const event = entry === undefined ? null : eventOf(entry);
       if (event === null) throw new RangeError('An erasure names an entry that holds no record');
-      touched.add(recordKey(event));
+      if (!replaced.has(id)) touched.add(recordKey(event));
     }
     for (const entry of this.#log.entries) {
-      const event = eventOf(entry);
+      const event = replaced.has(entry.id) ? null : eventOf(entry);
       if (event !== null && !named.has(entry.id) && touched.has(recordKey(event))) {
         throw new RangeError('An erasure must cover every version of each record it touches');
       }
@@ -197,5 +91,78 @@ export class RecordBook {
     const erasure = await this.#log.erase(day, [...named]);
     this.#state = buildState(this.#log.entries);
     return erasure;
+  }
+
+  /**
+   * Erases the data of a pupil whose departure the director confirmed (R-5.5-13, answer 473). Returns the fact the
+   * history keeps: the class and the entries erased. Tried again after a failure, it finishes the fact already
+   * written rather than writing another.
+   */
+  async erasePupil(day: Day, pupilId: string): Promise<Entry> {
+    const pupil = this.#state.pupils.get(pupilId);
+    if (pupil === undefined) throw new RangeError('Unknown pupil');
+    if (!departed(pupil)) throw new RangeError('Only the data of a pupil whose departure was confirmed is erased');
+    const own = this.#log.entries.find((entry) => {
+      const event = eventOf(entry);
+      return event?.kind === 'pupil.set' && event.pupil.id === pupilId;
+    });
+    const started = this.#log.entries.find((entry) => {
+      const event = eventOf(entry);
+      return event?.kind === 'pupil.erased' && own !== undefined && event.erased.entries.includes(own.id);
+    });
+    if (started !== undefined) {
+      await this.#finish(started);
+      return started;
+    }
+    const entries = pupilEntries(this.#log.entries, restatements(this.#log.entries), pupilId);
+    const fact = await this.record(day, { kind: 'pupil.erased', erased: { classId: pupil.classId, entries } });
+    await this.#finish(fact);
+    return fact;
+  }
+
+  /**
+   * Finishes an erasure from its fact, on the fact's day: restates each shared version not restated yet, while the
+   * pupil's own entry still names them, then erases what is left, the private layer first and the pupil's own
+   * layer last. What was recorded about the pupil after the fact goes too. A shared version that could not be
+   * restated is never erased.
+   */
+  async #finish(fact: Entry): Promise<void> {
+    const event = eventOf(fact);
+    if (event?.kind !== 'pupil.erased') return;
+    const listed = new Set(event.erased.entries);
+    const own = this.#log.entries
+      .filter((entry) => listed.has(entry.id) && entry.seq < fact.seq)
+      .map(eventOf)
+      .find((one) => one?.kind === 'pupil.set');
+    const now = new Set(
+      own?.kind === 'pupil.set' ? pupilEntries(this.#log.entries, restatements(this.#log.entries), own.pupil.id) : [],
+    );
+    const held = () =>
+      this.#log.entries.filter(
+        (entry) => entry.content !== null && ((listed.has(entry.id) && entry.seq < fact.seq) || now.has(entry.id)),
+      );
+    if (own?.kind === 'pupil.set') {
+      const restated = restatements(this.#log.entries);
+      for (const entry of held()) {
+        const before = restated.replaced.has(entry.id) ? null : eventOf(entry);
+        const after = before && withoutPupil(before, own.pupil.id, (restated.of.get(entry.id) ?? entry).id);
+        if (after) await this.#log.append(fact.day, layerOf(after), after.kind, after);
+      }
+      this.#state = buildState(this.#log.entries);
+    }
+    const { replaced } = restatements(this.#log.entries);
+    const left = held().filter((entry) => {
+      const one = eventOf(entry);
+      return one !== null && (sharedKey(one) === null || replaced.has(entry.id));
+    });
+    const layers = [...new Set(left.map((entry) => entry.layer))].sort(
+      (a, b) => Number(a === 'pupil-records') - Number(b === 'pupil-records'),
+    );
+    for (const layer of layers) {
+      await this.erase(
+        fact.day,
+        left.filter((entry) => entry.layer === layer).map((entry) => entry.id),
+      );
+    }
   }
 }

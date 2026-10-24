@@ -14,6 +14,7 @@ import type { HomeworkCount } from './homework.ts';
 import type { AddedPack } from './pack-update.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import type { PrintRecord } from './prints.ts';
+import type { ErasedPupil } from './erased-pupils.ts';
 import type { Membership } from './pupil-history.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { AssessmentSetup, FormulaId } from './assessment.ts';
@@ -55,6 +56,8 @@ export interface State {
   readonly pupils: ReadonlyMap<string, Pupil>;
   readonly memberships?: ReadonlyMap<string, readonly Membership[]>;
   readonly rollCallOrders?: ReadonlyMap<string, number>;
+  /** The pupils whose data was erased, each keeping their place on the class list (answer 473). */
+  readonly erasedPupils?: readonly ErasedPupil[];
   readonly courses: ReadonlyMap<string, Course>;
   /** The timetable versions that apply on some day, in recorded order, the order they apply (see `addTimetable`). */
   readonly timetables: readonly RecordedTimetable[];
