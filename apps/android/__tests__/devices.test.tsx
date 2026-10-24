@@ -6,8 +6,9 @@
 // first backup giving the sheet first; a backup saved under the recovery key,
 // the whole archive with the private notes and without the personal fields or
 // the key, its day recorded and said; a cancelled save neither said nor
-// recorded; the first backup started once after its sheet; and every text in
-// French and English. Made-up records only.
+// recorded; the first backup started once after its sheet; the last line on the
+// 30-day reminder, or that it is off; and every text in French and English.
+// Made-up records only.
 
 import { deviceFacts, eventOf, readArchive } from '@minhajna/core';
 import ReactTestRenderer from 'react-test-renderer';
@@ -17,6 +18,7 @@ import { DAY, mount, press, root, settle, texts, unmount } from '../jest/compone
 import { withPupils } from '../jest/roll-class';
 import files from '../src/native/NativeMinhajnaFiles';
 import { Devices } from '../src/settings/Devices';
+import { setNotifyPrefs } from '../src/settings/notify-prefs';
 import { i18n, missingKeys } from '../src/text/i18n';
 
 jest.mock(
@@ -33,6 +35,7 @@ beforeEach(() => {
 });
 afterEach(async () => {
   await unmount();
+  setNotifyPrefs({ backup: true });
   await i18n.changeLanguage('ar');
   jest.clearAllMocks();
 });
@@ -82,8 +85,11 @@ test('says sync is not open, and gives the sheet before the first backup', async
       'إلى ذلك الحين، طريقان دون خادم ولا حساب:',
       'لا نسخة بعد',
       'تُعطى مع أول نسخة',
-      'لا يملك المشروع أي مفتاح، فلا يستطيع استرجاع البيانات.',
     ]),
+  );
+  expect(texts()).toContain(
+    'لا يملك المشروع أي مفتاح، فلا يستطيع استرجاع البيانات. ' +
+      'ويذكّر التطبيق بعد 30 يوماً دون نسخة، ما لم يُوقَف التذكير في «الإشعارات».',
   );
   expect(texts()).toContain('ملف مشفّر ورمز لمرة واحدة، دون شبكة');
   await press('devices-transfer');
@@ -135,6 +141,14 @@ test('starts the first backup once, after its sheet was confirmed', async () => 
   expect(onBackupStarted).toHaveBeenCalledTimes(1);
   expect(makeZip).toHaveBeenCalledTimes(1);
   expect(data.book.entries.filter((entry) => eventOf(entry)?.kind === 'backup.saved')).toHaveLength(1);
+});
+
+test('says when the backup reminder is turned off', async () => {
+  setNotifyPrefs({ backup: false });
+  await screen(await withPupils());
+  expect(texts()).toContain(
+    'لا يملك المشروع أي مفتاح، فلا يستطيع استرجاع البيانات. تذكير النسخ الاحتياطي موقوف في «الإشعارات».',
+  );
 });
 
 test('every text is found in French and English', async () => {

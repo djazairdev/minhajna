@@ -1,14 +1,23 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The words and times of the notifications set ahead (#234, answers 403,
-// 405 and 406), from the core's plan: the digest says only that it is
-// ready, since its figures are worked out when it opens; a preview gives
-// the day's sessions, the first one's time and its class, «غداً» the
-// evening before or «اليوم» that morning after a quiet evening. No pupil
-// is named and no mark given (R-6.4-06).
+// The words and times of the notifications set ahead (#234, answers 403, 405
+// and 406), from the core's plan: the digest says only that it is ready, since
+// its figures are worked out when it opens; a preview gives the day's sessions,
+// the first one's time and its class, «غداً» the evening before or «اليوم» that
+// morning after a quiet evening; the backup reminder, on the day it falls due,
+// says only that no backup was saved for 30 days (answer 482). No pupil is
+// named and no mark given (R-6.4-06).
 
-import { notifyPlan, parseDay, type Context, type NotifyChoices, type Planned, type WallTime } from '@minhajna/core';
+import {
+  notifyPlan,
+  parseDay,
+  type Context,
+  type Day,
+  type NotifyChoices,
+  type Planned,
+  type WallTime,
+} from '@minhajna/core';
 import { courseLabel } from '../exams/course-label';
 import type { PlannedNotification } from '../native/NativeMinhajnaNotify';
 import type { AppData } from '../storage/AppData';
@@ -40,6 +49,11 @@ function item(t: Translate, context: Context, data: Data, planned: Planned): Pla
     const id = `digest-${planned.at.day}`;
     return { id, at, channel: 'digest', channelName: title, title, text: t('notify.digestText'), open: 'digest' };
   }
+  if (planned.kind === 'backup') {
+    const channelName = t('settings.notify.backup');
+    const [id, title, text] = [`backup-${planned.at.day}`, t('notify.backupTitle'), t('notify.backupText')];
+    return { id, at, channel: 'backup', channelName, title, text, open: 'today' };
+  }
   const [first] = planned.sessions;
   const schoolClass = first && context.state.classes.get(first.classId);
   const school = schoolClass && context.state.schools.get(schoolClass.schoolId);
@@ -62,13 +76,14 @@ function item(t: Translate, context: Context, data: Data, planned: Planned): Pla
   };
 }
 
-/** The notifications to set ahead from `now`, with their words. */
+/** The notifications to set ahead from `now`, with their words, and the backup reminder's day if it is on. */
 export function notifyItems(
   t: Translate,
   context: Context,
   data: Data,
   now: WallTime,
   choices: NotifyChoices,
+  backup: Day | null = null,
 ): PlannedNotification[] {
-  return notifyPlan(context, now, choices).map((planned) => item(t, context, data, planned));
+  return notifyPlan(context, now, choices, backup).map((planned) => item(t, context, data, planned));
 }

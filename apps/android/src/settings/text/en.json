@@ -85,7 +85,11 @@
     "quietWeekend": "And from Thursday 20:00 to Sunday 07:00",
     "quietWeekendSaturday": "And from Thursday 20:00 to Saturday 07:00",
     "quietNone": "No notification arrives during them.",
-    "noNames": "No notification shows a name or a mark."
+    "noNames": "No notification shows a name or a mark.",
+    "rare": "Rare reminders",
+    "backup": "Backup reminder",
+    "backupLine": "After 30 days without a backup: “Back up now” on Today, or “Remind me later” for a week",
+    "rareLine": "On by default, each turned off on its own. None arrives during quiet hours."
   },
   "signature": {
     "intro": "Drawn once on the screen, then placed in the teacher’s signature boxes when printing.",
@@ -225,7 +229,9 @@
     "sheetLine": "Made on {{day}} · opens the backups on a new device",
     "noSheet": "Given with the first backup",
     "noKey": "The project holds no key, so it cannot recover the data.",
-    "backupName": "Minhajna backup"
+    "backupName": "Minhajna backup",
+    "reminder": "The app reminds you after 30 days without a backup, unless the reminder is turned off in “Notifications”.",
+    "reminderOff": "The backup reminder is turned off in “Notifications”."
   },
   "recovery": {
     "title": "Recovery sheet",

@@ -86,7 +86,11 @@
     "quietWeekend": "Et du jeudi 20:00 au dimanche 07:00",
     "quietWeekendSaturday": "Et du jeudi 20:00 au samedi 07:00",
     "quietNone": "Aucune notification n’arrive pendant ces heures.",
-    "noNames": "Aucune notification ne montre ni nom ni note."
+    "noNames": "Aucune notification ne montre ni nom ni note.",
+    "rare": "Rappels rares",
+    "backup": "Rappel de sauvegarde",
+    "backupLine": "Après 30 jours sans sauvegarde : « Sauvegarder maintenant » depuis « Aujourd’hui », ou « Me le rappeler plus tard » pour une semaine",
+    "rareLine": "Activés par défaut, chacun se désactive à part. Aucun n’arrive pendant les heures calmes."
   },
   "signature": {
     "intro": "Dessinée une fois à l’écran, puis placée dans les cases de signature de l’enseignant à l’impression.",
@@ -227,7 +231,9 @@
     "sheetLine": "Établie le {{day}} · ouvre les sauvegardes sur un nouvel appareil",
     "noSheet": "Donnée avec la première sauvegarde",
     "noKey": "Le projet n’a aucune clé : il ne peut pas récupérer les données.",
-    "backupName": "Sauvegarde Minhajna"
+    "backupName": "Sauvegarde Minhajna",
+    "reminder": "Après 30 jours sans sauvegarde, l’application affiche un rappel, sauf s’il est désactivé dans « Notifications ».",
+    "reminderOff": "Le rappel de sauvegarde est désactivé dans « Notifications »."
   },
   "recovery": {
     "title": "Feuille de récupération",

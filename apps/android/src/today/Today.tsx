@@ -2,24 +2,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Today (#32, Main and Today-done): the day's sessions in order. The next
-// session awaiting confirmation is the focus card, with the plan's proposal
-// in pencil and the one tap that records it; the others show their lesson,
-// and a recorded session shows what it wrote. Nothing is recorded until the
-// teacher taps (PRD §2.3), and the tap can be undone at once: the history
-// keeps both changes (PRD §4.7). «نتيجة أخرى» records any other outcome in
-// a second tap (#33); today-actions.ts records the taps and their undo. The
-// session's details come with their own screen.
-// Earlier sessions still awaiting confirmation come first, a week at a
-// time, to confirm at once but for the ones left out (#35).
-// A holiday, a closure or an exam week shows its name, the sessions it
-// took, counted apart, and the next session (#36). Every session card
-// carries its roll call, whatever its kind (#184), and the backlog a past
+// session awaiting confirmation is the focus card, with the plan's proposal in
+// pencil and the one tap that records it; the others show their lesson, and a
+// recorded session shows what it wrote. Nothing is recorded until the teacher
+// taps (PRD §2.3), and the tap can be undone at once: the history keeps both
+// changes (PRD §4.7). «نتيجة أخرى» records any other outcome in a second tap
+// (#33); today-actions.ts records the taps and their undo. The session's
+// details come with their own screen. Earlier sessions still awaiting
+// confirmation come first, a week at a time, to confirm at once but for the
+// ones left out (#35). A holiday, a closure or an exam week shows its name, the
+// sessions it took, counted apart, and the next session (#36). Every session
+// card carries its roll call, whatever its kind (#184), and the backlog a past
 // one's from the paper sheet (#38). A joint class's years share one card for
-// each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a
-// school event makes a special day, with a line and a card, and so does
-// Ramadan, with its cards (#224). Support sessions due show too (#228).
-// A half-group's session shows each half's turn at its item, and a TD
-// session the TD queue's next items (#231).
+// each slot, each on its own plan (#43, P-Multi). A seminar, a duty or a school
+// event makes a special day, with a line and a card, and so does Ramadan, with
+// its cards (#224). Support sessions due show too (#228). A half-group's
+// session shows each half's turn at its item, and a TD session the TD queue's
+// next items (#231). The 30-day backup reminder follows the banners (#247).
 
 import {
   addDays,
@@ -48,6 +47,7 @@ import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
 import { TodayUpdate } from './TodayUpdate';
+import { TodayBackup } from './TodayBackup';
 import { SupportToday } from './SupportToday';
 import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
 import { controlIcon } from '../design/Icon';
@@ -60,7 +60,7 @@ import { DayBanner, DayNote, NextSession, dayMarks, markLine, pausedNote, takenB
 import { FreeEntry, focusable, freeEntry, proposed } from './FreeEntry';
 import { SpecialCards, specialEntries, specialLine, specialLost } from './SpecialDay';
 import { carryWords, nextItem, previousItem } from './outcome-rules';
-import { OutcomeSheet } from './OutcomeSheet';
+import { OutcomeSheet, type Sheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
 import { dayFacts, lessonOf, proposalOf, withOffDay, writtenOf } from './today-labels';
@@ -71,13 +71,10 @@ import { useTodayActions } from './today-actions';
 import { nextLine, sessionMeta } from './today-meta';
 import { useCardExtras } from './card-extras';
 
-/** The session «نتيجة أخرى» was opened for, kept while the sheet closes. */
-type Sheet = { readonly item: TodaySession; readonly open: boolean; readonly backlog?: true };
-
 /**
  * The Today tab; `onHelp` opens Help, `onExtra` a session outside the timetable, `onDetails` a session's details,
  * `onRoll` its roll call, `onHomework` the homework that comes back, `onCalendarUpdate` what an update changed,
- * and `onJournal` a primary day's journal.
+ * `onBackupSheet` the recovery sheet for a first backup, and `onJournal` a primary day's journal.
  */
 export function Today(props: {
   onHelp: () => void;
@@ -88,6 +85,7 @@ export function Today(props: {
   onHomework?: (item: HomeworkItem) => void;
   onExams?: TodayExamsOpen;
   onCalendarUpdate?: (release: string) => void;
+  onBackupSheet?: () => void;
   onRamadan?: RamadanOpen;
   onJournal?: (day: Day) => void;
 }) {
@@ -218,6 +216,7 @@ export function Today(props: {
         <View style={styles.list}>
           {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
           {props.onCalendarUpdate && <TodayUpdate day={day} open={props.onCalendarUpdate} />}
+          {props.onBackupSheet && <TodayBackup day={day} onSheet={props.onBackupSheet} />}
           <RamadanNotice view={view} />
           {props.onExams && <TodayExams context={context} day={day} open={props.onExams} />}
           {backlog.days.length > 0 && (

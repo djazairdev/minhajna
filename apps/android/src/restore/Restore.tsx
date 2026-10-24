@@ -2,20 +2,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «استرجاع البيانات» (#247, Restore, R-5.8-10, R-5.8-11, R-5.8-12, R-5.9-02,
-// R-6.5-01, answers 478 to 480), reached only from the welcome's «لديّ نسخة من
-// هاتف آخر», once the PIN is set, into the empty history. Three routes open
-// in the pilot: the old phone in hand, its transfer file, then its one-time
-// key, scanned from its QR code, the camera asked then, or typed; a backup
-// file, then the recovery key; both keys typed with no keyboard suggestions;
-// and «فتح أرشيف «منهاجنا»», the export file with its password if it has one.
-// The sync account shows, not open yet.
-// The file comes through the system's file picker; what does not come back,
-// the teacher card's personal fields and the drawn signature, is said before.
-// A key that does not open the file, or any other refusal, is said under the
-// button, and the key can be typed again; a changed file has its own page.
-// Once all of it is stored, the history opens again, on Today. The copy of
-// the picked file is dropped as soon as it is not needed: on another file or
-// route, once restored, and when the screen closes.
+// R-6.5-01, answers 478 to 480), reached only from the welcome's
+// «لديّ نسخة من هاتف آخر», once the PIN is set, into the empty history. Three
+// routes open in the pilot: the old phone in hand, its transfer file, then its
+// one-time key, scanned from its QR code, the camera asked then, or typed; a
+// backup file, then the recovery key; both keys typed with no keyboard
+// suggestions; and «فتح أرشيف «منهاجنا»», the export file with its password if
+// it has one. The sync account shows, not open yet. The file comes through the
+// system's file picker; what does not come back, the teacher card's personal
+// fields and the drawn signature, is said before. A key that does not open the
+// file, or any other refusal, is said under the button, and the key can be
+// typed again; a changed file has its own page. Once all of it is stored, the
+// backup reminder is put off 30 days from the restore (answer 482), and the
+// history opens again, on Today. The copy of the picked file is dropped as soon
+// as it is not needed: on another file or route, once restored, and when the
+// screen closes.
 
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
@@ -30,6 +31,7 @@ import { spacing } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import files from '../native/NativeMinhajnaFiles';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
+import { putOffFromRestore } from '../settings/backup-later';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
 import { nativeDeps } from '../storage/history';
@@ -138,6 +140,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
     ).catch(() => ({ ok: false, problem: 'failed' }) as const);
     if (result.ok) {
       drop();
+      putOffFromRestore(today());
       onRestored();
       return;
     }

@@ -53,6 +53,10 @@ export function TodayTab({
       onExtra={() => navigation.navigate('Extra')}
       onJournal={(day) => navigation.navigate('DocOutput', { id: 'primary-journal', day })}
       onCalendarUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
+      onBackupSheet={() => {
+        navigation.navigate('SettingsDevices');
+        navigation.navigate('SettingsRecovery', { first: true });
+      }}
       onRamadan={{
         calendar: (id, schoolId) =>
           navigation.navigate('CalendarEntry', {

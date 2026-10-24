@@ -615,7 +615,18 @@
       "empty": "Write what was taught before recording."
     },
     "sameTime": "At the same time as {{class}} · {{school}}",
-    "movedFrom": "Moved from {{time}} for this day"
+    "movedFrom": "Moved from {{time}} for this day",
+    "backup": {
+      "last": "Last backup: {{day}}",
+      "none": "No backup has been made on this phone yet.",
+      "body": "What no backup holds stays on this phone alone. The project holds no key, so it cannot recover it.",
+      "now": "Back up now",
+      "later": "Remind me later",
+      "saved": "Today's backup is saved.",
+      "failed": "The backup was not saved. Try again.",
+      "back": "The reminder comes back {{day}}.",
+      "undo": "Undo"
+    }
   },
   "outcome": {
     "other": "Another outcome",
@@ -2701,8 +2712,10 @@
     "previewTitle": "Daily preview",
     "tomorrow": "Tomorrow: {{sessions}}, the first at {{time}} with {{class}}",
     "today": "Today: {{sessions}}, the first at {{time}} with {{class}}",
-    "off": "Notifications are off for this app on the phone, so neither the digest nor the preview arrives.",
-    "allow": "Allow notifications"
+    "off": "Notifications are off for this app on the phone, so neither the digest, the preview nor the reminder arrives.",
+    "allow": "Allow notifications",
+    "backupTitle": "No backup for 30 days",
+    "backupText": "What no backup holds stays on this phone alone. Back up from Today."
   },
   "notes": {
     "title": "Lesson note",

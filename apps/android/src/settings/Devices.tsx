@@ -5,10 +5,11 @@
 // R-6.5-01, answer 478). Sync is not open in the pilot, and the page says why;
 // until it is, a new phone is reached by a direct transfer or a backup file.
 // The transfer opens its own screen (answer 480). A backup goes through the
-// file picker under the recovery key; the first
-// one gives the recovery sheet first, then is saved once the sheet is
-// confirmed. The sheet prints again from here. Nothing names where a backup
-// went, and the project holds no key.
+// file picker under the recovery key; the first one gives the recovery sheet
+// first, then is saved once the sheet is confirmed. The sheet prints again from
+// here. Nothing names where a backup went, and the project holds no key. The
+// last line says the app reminds after 30 days without a backup, or that the
+// reminder is off (answer 482).
 
 import { deviceFacts, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,6 +26,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { backupLine } from './backup-line';
 import { useBackup } from './backup-run';
+import { useNotifyPrefs } from './notify-prefs';
 import { settingsStyles as styles } from './styles';
 
 export type DevicesProps = {
@@ -43,6 +45,7 @@ export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: Dev
   const insets = useSafeAreaInsets();
   const { entries, profile } = useAppData();
   const { busy, said, backup } = useBackup();
+  const reminded = useNotifyPrefs().backup;
   const facts = deviceFacts(entries());
   const key = facts.recovery?.key;
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -119,7 +122,9 @@ export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: Dev
         disabled={facts.recovery === null || busy}
         onPress={() => onSheet(false)}
       />
-      <Text style={[styles.body, align]}>{t('settings.devices.noKey')}</Text>
+      <Text testID="devices-no-key" style={[styles.body, align]}>
+        {`${t('settings.devices.noKey')} ${t(reminded ? 'settings.devices.reminder' : 'settings.devices.reminderOff')}`}
+      </Text>
     </ScrollView>
   );
 }

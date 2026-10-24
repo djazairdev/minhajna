@@ -10,7 +10,7 @@ export type PlannedNotification = {
   id: string;
   /** Milliseconds since the epoch, in the phone's time. */
   at: number;
-  /** `digest` or `preview`, with the channel's name in the interface's language. */
+  /** `digest`, `preview` or `backup`, with the channel's name in the interface's language. */
   channel: string;
   channelName: string;
   title: string;

@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «الإشعارات» in Settings (#234, Notif, answers 402 to 404): the weekly
-// digest, on by default, which says when it comes; the daily preview, off
-// by default; «العمل يوم السبت», which moves the digest to Saturday morning
-// and shortens the weekend's quiet hours; then the quiet hours themselves,
-// and that no notification shows a pupil's name or a mark. Each choice is
-// kept on this phone the moment it changes. When Android does not let the
-// app notify, the screen says so, and «السماح بالإشعارات» asks again or
-// opens the app's notification settings (answer 406). The year-end prompts
-// and the 30-day reminder come with their own screens (answer 404).
+// «الإشعارات» in Settings (#234, Notif, answers 402 to 404): the weekly digest,
+// on by default, which says when it comes; the daily preview, off by default;
+// «العمل يوم السبت», which moves the digest to Saturday morning and shortens
+// the weekend's quiet hours; then the quiet hours themselves, and that no
+// notification shows a pupil's name or a mark. Each choice is kept on this
+// phone the moment it changes. When Android does not let the app notify, the
+// screen says so, and «السماح بالإشعارات» asks again or opens the app's
+// notification settings (answer 406). «تذكيرات نادرة» holds the 30-day backup
+// reminder, on by default (answer 482); the year-end prompts join it with their
+// own screens (answer 404).
 
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
@@ -61,7 +62,7 @@ export function Notify() {
       ]}
     >
       <Text style={[styles.sub, align]}>{t('settings.notify.intro')}</Text>
-      {!enabled && (prefs.digest || prefs.preview) && (
+      {!enabled && (prefs.digest || prefs.preview || prefs.backup) && (
         <View testID="notify-off" style={styles.group}>
           <Notice icon={controlIcon('info')} message={t('notify.off')} />
           <Button testID="notify-allow" label={t('notify.allow')} onPress={() => void allow()} />
@@ -90,6 +91,19 @@ export function Notify() {
           value={prefs.saturday}
           onValueChange={change('saturday')}
         />
+      </View>
+      <View testID="notify-rare" style={styles.group}>
+        <Text accessibilityRole="header" style={[styles.title, align]}>
+          {t('settings.notify.rare')}
+        </Text>
+        <Switch
+          testID="notify-backup"
+          label={t('settings.notify.backup')}
+          description={t('settings.notify.backupLine')}
+          value={prefs.backup}
+          onValueChange={change('backup')}
+        />
+        <Text style={[styles.sub, align]}>{t('settings.notify.rareLine')}</Text>
       </View>
       <View testID="notify-quiet" style={styles.card}>
         <Text accessibilityRole="header" style={[styles.title, align]}>
