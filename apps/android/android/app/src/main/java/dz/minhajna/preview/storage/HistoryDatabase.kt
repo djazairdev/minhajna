@@ -66,7 +66,19 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
   }
 
   /** Returns once the entry is committed and synced to the disk (PRD §6.8). */
-  fun append(row: EntryRow) = write {
+  fun append(row: EntryRow) = write { insert(row) }
+
+  /**
+   * Stores a restored history in this one, which must be empty, all or none
+   * (#247, answer 478): a restore stopped halfway leaves it empty.
+   */
+  fun restore(rows: List<EntryRow>) = write {
+    val empty = db.rawQuery("SELECT count(*) FROM entry", null).use { it.moveToFirst() && it.getLong(0) == 0L }
+    check(empty) { "Only an empty history takes a restore" }
+    for (row in rows) insert(row)
+  }
+
+  private fun insert(row: EntryRow) {
     db.execSQL(
       "INSERT INTO entry (seq, id, day, layer, kind, digest, previous, hash, salt, body) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",

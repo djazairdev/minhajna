@@ -15,8 +15,9 @@
 
 import { canonicalJson } from './canonical.ts';
 import { isDay, type Day } from './day.ts';
-import { newId, toHex, type RandomBytes } from './id.ts';
+import type { RandomBytes } from './id.ts';
 import type { Layer } from './layers.ts';
+import { makeEntry } from './history-entry.ts';
 import { contentText, headerText } from './history-text.ts';
 
 /**
@@ -101,34 +102,6 @@ export class HistoryError extends Error {
 // clock time must never be stored (PRD §5.5).
 function checkDay(day: Day): void {
   if (!isDay(day)) throw new RangeError('The day of a change is written YYYY-MM-DD');
-}
-
-interface EntryInput {
-  readonly day: Day;
-  readonly layer: Layer;
-  readonly kind: string;
-  readonly body: unknown;
-}
-
-/**
- * Hashes a new entry onto `previous`. The stored body is parsed back from
- * the hashed text, so what is kept is exactly what was hashed, and later
- * changes to the caller's object cannot reach it.
- */
-async function makeEntry(deps: HistoryDeps, previous: Entry | null, input: EntryInput): Promise<Entry> {
-  const bodyText = canonicalJson(input.body);
-  const salt = toHex(deps.random(16));
-  const header = {
-    id: newId(deps.random),
-    seq: previous === null ? 0 : previous.seq + 1,
-    day: input.day,
-    layer: input.layer,
-    kind: input.kind,
-    digest: await deps.digest(contentText(salt, bodyText)),
-    previous: previous === null ? '' : previous.hash,
-  };
-  const body: unknown = JSON.parse(bodyText);
-  return { ...header, hash: await deps.digest(headerText(header)), content: { salt, body } };
 }
 
 /** The IDs an erasure entry names, or null if its content is not a list of IDs. */
