@@ -1534,7 +1534,30 @@
       "justified": "justified absence",
       "unjustified": "unjustified absence"
     },
-    "move": "Record an arrival or a departure"
+    "move": "Record an arrival or a departure",
+    "erase": {
+      "row": "Erase this pupil’s data",
+      "rowF": "Erase this pupil’s data",
+      "rowLine": "Possible after the departure and the director's confirmation",
+      "context": "{{name}} · {{class}} · left on {{day}}",
+      "contextF": "{{name}} · {{class}} · left on {{day}}",
+      "reassurance": "Nothing is erased until you confirm.",
+      "gone": "Erased",
+      "goneName": "The name and registration number, the day and reason of leaving",
+      "goneRoll": "Roll call: the absences and late arrivals, and each absence’s justification",
+      "goneMarks": "Marks, appreciations and observations, and what was noted in sessions",
+      "goneSeat": "The seat on the seating plan",
+      "kept": "Kept",
+      "keptBooks": "The texts book and the daily journal, which name no pupil",
+      "keptFiles": "What was printed or saved to a file before the erasure, with its totals as they were: they are not worked out again",
+      "export": "Export first",
+      "exportLine": "An archive or CSV files, with a password",
+      "log": "One line stays in the activity log",
+      "logLine": "A pupil’s data erased · {{day}} · without its content",
+      "understood": "I understand that the erasure cannot be undone.",
+      "erase": "Erase the data",
+      "failed": "The data was not erased. Try again."
+    }
   },
   "correct": {
     "title": "Correct the roll call",

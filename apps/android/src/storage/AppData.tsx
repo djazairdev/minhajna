@@ -54,6 +54,8 @@ export interface AppData {
   readonly recordFrom: (make: (state: State) => RecordEvent | null) => void;
   /** Erases every version of the records that `match` picks, such as a school and its changes (PRD §5.5). */
   readonly erase: (match: (event: RecordEvent) => boolean) => void;
+  /** Erases the data of a pupil whose departure the director confirmed, keeping only the fact (answer 473). */
+  readonly erasePupil: (pupilId: string) => void;
   /** The phone's day, which changes are recorded on. */
   readonly today: () => Day;
   /** A new random ID for a record made on this phone. */
@@ -148,6 +150,7 @@ export function AppDataProvider({
             .map((entry) => entry.id);
           if (ids.length > 0) await book.erase(today(), ids);
         }),
+      erasePupil: (pupilId: string) => save(() => book.erasePupil(today(), pupilId)),
       today,
       newId: () => newId(random),
       settled: () => queue.current,

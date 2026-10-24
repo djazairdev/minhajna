@@ -5,7 +5,8 @@
 // pupil's page, each titled with the class or the pupil, and Roll-print.
 // Choosing another month replaces the screen's in place; a pupil's name in a
 // table opens their page on the same month, and the print button opens
-// Roll-print on the month or the yearly summary shown.
+// Roll-print on the month or the yearly summary shown. Once a pupil's data is
+// erased, their page closes.
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useLayoutEffect } from 'react';
@@ -63,6 +64,8 @@ export function PupilScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onClassYear={() => navigation.navigate('RollMonth', { courseId, month: 'year' })}
       onCorrect={(unit) => navigation.navigate('Correct', { unit: unit.key, day: unit.day, pupilId })}
       onMove={() => course !== undefined && navigation.navigate('PupilMove', { classId: course.classId })}
+      onExport={() => navigation.navigate('SettingsExport')}
+      onErased={() => navigation.goBack()}
     />
   );
 }

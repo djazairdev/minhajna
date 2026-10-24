@@ -7,8 +7,8 @@
 // school year, their figures in half-days in the teacher's own sessions, the
 // yearly summary's link for the year, then the absences with their toggle, the
 // corrections through «تصحيح غياب أو تأخر مسجّل», the late arrivals, the change
-// log and the pupil's moves. A toggle records at once; the next waits until the
-// record has it.
+// log and the pupil's moves, and erasing a pupil who left (#248). A toggle
+// records at once; the next waits until the record has it.
 
 import { countYear, type PupilCount, type RollCallUnit, type State } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -31,6 +31,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { bookMonths } from './month-rules';
 import { PupilFigures, PupilYearTable } from './PupilFigures';
+import { PupilErase } from './PupilErase';
 import { PupilAbsences, PupilLates, PupilLog } from './PupilLists';
 import { EMPTY_VIEW, justifyEvents, pupilSpan, pupilView, type PupilAbsence } from './pupil-rules';
 
@@ -43,6 +44,9 @@ export type PupilPageProps = {
   readonly onClassYear: () => void;
   readonly onCorrect: (unit: RollCallUnit) => void;
   readonly onMove: () => void;
+  readonly onExport: () => void;
+  /** After the pupil's data was erased, when this page has nothing left to show. */
+  readonly onErased: () => void;
 };
 
 export function PupilPage(props: PupilPageProps) {
@@ -182,6 +186,7 @@ export function PupilPage(props: PupilPageProps) {
       <PupilLates view={view} />
       <PupilLog view={view} />
       <RowLink testID="pupil-move" icon={controlIcon('plus')} title={t('pupilPage.move')} onPress={props.onMove} />
+      <PupilErase pupil={pupil} className={row.schoolClass.name} onExport={props.onExport} onErased={props.onErased} />
       <BottomSheet
         testID="pupil-correct-sheet"
         visible={correcting}
