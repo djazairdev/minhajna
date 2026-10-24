@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «حذف بيانات هذا التلميذ» on a pupil's page (#248, Pupil-erase, R-5.5-13,
-// answers 473 and 474): shown once a departure is recorded, and open once the
-// director confirmed it and its day came. Its sheet says what goes and what
-// stays, offers the export first, shows the one line the activity log keeps,
-// and erases only once the teacher ticks that it cannot be undone, once however
-// often it is tapped. The pupil's page closes once the pupil is gone from the
-// records.
+// answers 473 to 475): shown once a departure from the school is recorded, not
+// for a change of class, and open once the director confirmed it and its day
+// came. Its sheet says what goes and what stays, an earlier class's record
+// included for a pupil who came by a change of class (answer 476), offers the
+// export first, shows the one line the activity log keeps, and erases only once
+// the teacher ticks that it cannot be undone, once however often it is tapped.
+// The pupil's page closes once the pupil is gone from the records.
 
-import { departed, departureDay, pendingDeparture, type Day, type Pupil } from '@minhajna/core';
+import { compareDays, departed, type Day, type Pupil } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
@@ -38,10 +39,12 @@ const GONE = [
   'pupilPage.erase.goneSeat',
 ] as const;
 const KEPT = ['pupilPage.erase.keptBooks', 'pupilPage.erase.keptFiles'] as const;
+const KEPT_EARLIER = [...KEPT, 'pupilPage.erase.keptEarlier'] as const;
 
-/** The day the pupil left, from their last recorded departure; null for a pupil still on the list. */
+/** The day the pupil leaves the school, from their last movement; null while on the list or for a change of class. */
 function leftOn(pupil: Pupil): Day | null {
-  return pendingDeparture(pupil)?.day ?? departureDay(pupil);
+  const last = [...pupil.movements].sort((a, b) => compareDays(a.day, b.day)).at(-1);
+  return last?.kind === 'out' && last.reason !== 'class-change' ? last.day : null;
 }
 
 export function PupilErase(props: PupilEraseProps) {
@@ -58,6 +61,7 @@ export function PupilErase(props: PupilEraseProps) {
   const day = leftOn(pupil);
   if (day === null) return null;
   const female = pupil.sex === 'f';
+  const changedClass = pupil.movements.some((movement) => movement.kind === 'in' && movement.reason === 'class-change');
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const title = t(female ? 'pupilPage.erase.rowF' : 'pupilPage.erase.row');
   const close = () => {
@@ -78,7 +82,7 @@ export function PupilErase(props: PupilEraseProps) {
       else props.onErased();
     });
   };
-  const items = (keys: typeof GONE | typeof KEPT) =>
+  const items = (keys: typeof GONE | typeof KEPT | typeof KEPT_EARLIER) =>
     keys.map((key) => (
       <Text key={key} style={[styles.item, align]}>
         {t(key)}
@@ -118,7 +122,7 @@ export function PupilErase(props: PupilEraseProps) {
           <Text accessibilityRole="header" style={[styles.label, align]}>
             {t('pupilPage.erase.kept')}
           </Text>
-          {items(KEPT)}
+          {items(changedClass ? KEPT_EARLIER : KEPT)}
         </View>
         <RowLink
           testID="pupil-erase-export"

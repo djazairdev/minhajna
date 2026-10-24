@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Which books still had a pupil whose data was erased (#248, answers 473 and
-// 474): a pupil counts on the class's books of every period that began
-// before the day they left, however late the erasure, and not on a later
-// period's book, nor on another class's; none when the state has no
-// erasures. A departure recorded ahead of its day waits for that day before
-// the erasure, the fact keeps the day, and a fact without it falls back to
-// the erasure's day. Made-up classes only.
+// 474): a pupil counts on the class's books of every period that began before
+// the day they left, however late the erasure, and not on a later period's
+// book, nor on another class's; none when the state has no erasures. A
+// departure recorded ahead of its day waits for that day before the erasure,
+// the fact keeps the day, and a fact without it falls back to the erasure's
+// day. A pupil who only changed class is still at school and is not erased
+// (answer 475). Made-up classes only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -70,6 +71,16 @@ describe('erasedPupils', () => {
     assert.equal(erasedFrom(book.state.erasedPupils, 'k-1am2', d('2026-11-01')), 1);
     assert.equal(erasedFrom(book.state.erasedPupils, 'k-1am2', d('2026-12-01')), 0);
     assert.deepEqual(erasedPupils(book.entries, new Map()), book.state.erasedPupils);
+  });
+
+  it('refuses a pupil who only changed class, however long ago', async () => {
+    const book = await RecordBook.open(new MemoryStore(), deps);
+    await book.recordAll(d('2026-09-13'), cemEvents());
+    await book.record(d('2026-10-11'), leavePupil(contextOf(book), 'p02', d('2026-10-11'), 'class-change'));
+    await book.record(d('2026-10-13'), confirmDeparture(contextOf(book), 'p02'));
+    await assert.rejects(book.erasePupil(d('2026-12-05'), 'p02'), /departure confirmed/);
+    assert.equal(book.state.pupils.has('p02'), true);
+    assert.equal(book.entries.filter((entry) => entry.kind === 'pupil.erased').length, 0);
   });
 
   it('takes the erasure’s day for a fact that did not keep the departure’s', async () => {

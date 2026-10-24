@@ -809,6 +809,9 @@
     "none": "no session yet",
     "marks": "Assessment and marks",
     "pupils": "Pupils",
+    "left": "Left the class",
+    "leftOn": "Left on {{day}}",
+    "leftOnF": "Left on {{day}}",
     "archived": "This class was reshaped: archived since {{day}}, it can be read and printed and takes no more sessions."
   },
   "classPlan": {
@@ -1550,6 +1553,7 @@
       "kept": "Kept",
       "keptBooks": "The texts book and the daily journal, which name no pupil",
       "keptFiles": "What was printed or saved to a file before the erasure, with its totals as they were: they are not worked out again",
+      "keptEarlier": "Their record in their previous class, with that class’s books",
       "export": "Export first",
       "exportLine": "An archive or CSV files, with a password",
       "log": "One line stays in the activity log",

@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «حذف بيانات هذا التلميذ» on a pupil's page (#248, Pupil-erase, answers 473
-// and 474): no row for a pupil still on the list, a closed row while the
-// director's confirmation or a departure recorded ahead waits for its day, and
-// once confirmed a sheet that says what goes and what stays, offers the export
-// first, shows the activity log's one line, and erases only once ticked, then
-// closes the page; two quick taps erasing once; a pupil girl's wording; a
-// failed erasure said and the page kept; and every text in French and English.
-// The teacher has 4م1, with 45 made-up pupils.
+// «حذف بيانات هذا التلميذ» on a pupil's page (#248, Pupil-erase, answers 473 to
+// 476): no row for a pupil still on the list or one who only changed class, a
+// closed row while the director's confirmation or a departure recorded ahead
+// waits for its day, and once confirmed a sheet that says what goes and what
+// stays, an earlier class's record kept for a pupil who came by a change of
+// class, offers the export first, shows the activity log's one line, and erases
+// only once ticked, then closes the page; two quick taps erasing once; a pupil
+// girl's wording; a failed erasure said and the page kept; and every text in
+// French and English. The teacher has 4م1, with 45 made-up pupils.
 
-import { activityLog, parseDay, type RecordEvent } from '@minhajna/core';
+import { activityLog, parseDay, type MovementReason, type RecordEvent } from '@minhajna/core';
 import type { PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
@@ -33,10 +34,15 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
-const left = (pupilId: string, confirmed: boolean, day = '2026-10-11'): RecordEvent => ({
+const left = (
+  pupilId: string,
+  confirmed: boolean,
+  day = '2026-10-11',
+  reason: MovementReason = 'transfer',
+): RecordEvent => ({
   kind: 'pupil.moved',
   pupilId,
-  movement: { day: parseDay(day), kind: 'out', reason: 'transfer', ...(confirmed && { confirmed }) },
+  movement: { day: parseDay(day), kind: 'out', reason, ...(confirmed && { confirmed }) },
 });
 
 async function page(data: TestData, pupilId: string, today = '2026-10-15') {
@@ -71,6 +77,35 @@ test('no row for a pupil on the list, and a closed one while the confirmation wa
   expect(texts()).toContain('حذف بيانات هذا التلميذ');
   expect(texts()).toContain('يُتاح بعد المغادرة وتأكيد المدير');
   expect(disabled('pupil-erase')).toEqual(expect.objectContaining({ disabled: true }));
+});
+
+test('no row for a pupil who only changed class', async () => {
+  const data = await withPupils();
+  await data.book.record(parseDay('2026-10-12'), left('p-3', true, '2026-10-11', 'class-change'));
+  await page(data, 'p-3');
+  expect(shown('pupil-erase')).toBe(false);
+});
+
+test('the sheet says an earlier class keeps its record for a pupil who came by a change of class', async () => {
+  const earlier = 'سجلّه في قسمه السابق، مع دفاتر ذلك القسم';
+  const data = await withPupils();
+  await data.book.recordAll(parseDay('2026-10-12'), [
+    {
+      kind: 'pupil.moved',
+      pupilId: 'p-3',
+      movement: { day: parseDay('2026-09-20'), kind: 'in', reason: 'class-change' },
+    },
+    left('p-3', true),
+    left('p-5', true),
+  ]);
+  await page(data, 'p-3');
+  await press('pupil-erase');
+  expect(texts()).toContain(earlier);
+  await unmount();
+  await page(data, 'p-5');
+  await press('pupil-erase');
+  expect(texts()).toContain('ما طُبع أو حُفظ في ملف قبل الحذف، ومجاميعه كما كانت: لا يُعاد حسابها');
+  expect(texts()).not.toContain(earlier);
 });
 
 test('a departure recorded ahead opens the row only on its day', async () => {
