@@ -15,6 +15,7 @@ import { localized } from '../setup/names';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { signatureStatus } from '../drawn/DrawnSignature';
+import { backupLine } from './backup-line';
 import { retentionLine } from './Retention';
 import { setCountMinutes, useCountMinutes } from './preferences';
 import { settingsStyles as styles } from './styles';
@@ -34,6 +35,7 @@ const AVAILABLE = [
   'signature',
   'notifications',
   'security',
+  'backup',
   'language',
   'log',
   'export',
@@ -62,7 +64,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
   const t = useText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
-  const { state, profile, unsaved } = useAppData();
+  const { state, profile, unsaved, entries } = useAppData();
   const minutes = useCountMinutes();
   const [failed, setFailed] = useState(false);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -77,6 +79,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
     export: t('settings.exportLine'),
     retention: retentionLine(t, state),
     erase: t('settings.eraseLine'),
+    backup: backupLine(t, entries(), profile),
   };
   const schools = [...state.schools.values()];
   return (

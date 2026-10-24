@@ -2833,7 +2833,8 @@
       "all": "All",
       "corrections": "Corrections",
       "files": "Files and printing",
-      "erasures": "Deletions"
+      "erasures": "Deletions",
+      "devices": "Devices"
     },
     "intact": "The chain is intact: nothing changed or deleted outside the app",
     "sector": "Nothing is sent to the sector’s system: in teacher mode, absences are not sent. In the national system, if the school chooses to send them, each sending is written here with its day.",
@@ -2888,7 +2889,9 @@
       "print": "a print",
       "assessment": "an assessment setup",
       "mark": "Mark",
-      "other": "another record"
+      "other": "another record",
+      "recoveryKey": "an earlier recovery key",
+      "backup": "a backup"
     },
     "broken": {
       "title": "Something changed outside the app",
@@ -2909,7 +2912,9 @@
       "safe": "Nothing was changed or erased: the app only reads this log, and never writes to it.",
       "restore": "Restore from a copy: comes with backups and transfer from another device, so these days come back as they were recorded.",
       "report": "Report a problem: comes with problem reports, where pupils’ names are replaced and the report is shown before it is sent."
-    }
+    },
+    "backupSaved": "Backup saved",
+    "recoverySet": "New recovery sheet made, without its key"
   },
   "marks": {
     "termLabel": "Term",

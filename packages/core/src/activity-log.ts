@@ -9,7 +9,8 @@
 // content: no pupil's name, note or text. Past a damaged stretch (#399,
 // answer 427) a change shows as its kind and day only, unchecked. Erasing a
 // pupil's data shows as one line (answer 473): its erasures make none of
-// their own, and a roll call it restated keeps its corrections' days.
+// their own, and a roll call it restated keeps its corrections' days. Backups
+// and recovery sheets are listed under the devices (#247), never the key.
 
 import { canonicalJson } from './canonical.ts';
 import { compareDays, type Day } from './day.ts';
@@ -86,10 +87,13 @@ export type LogLine =
   | { readonly kind: 'erased'; readonly kinds: readonly string[] }
   /** A pupil's data erased, with nothing of it (answer 473). */
   | { readonly kind: 'pupil-erased' }
+  /** A backup saved, or a new recovery sheet confirmed (#247): never the key. */
+  | { readonly kind: 'backup-saved' }
+  | { readonly kind: 'recovery-set' }
   /** A change past a damaged stretch: its kind and day, never its content. */
   | { readonly kind: 'unverified'; readonly entryKind: string };
 
-export type LogCategory = 'corrections' | 'files' | 'erasures';
+export type LogCategory = 'corrections' | 'files' | 'erasures' | 'devices';
 
 export interface LogItem {
   /** The entry's place in the history. */
@@ -211,6 +215,10 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'layer-added', title: event.added.layer.title };
     case 'pupil.erased':
       return { kind: 'pupil-erased' };
+    case 'backup.saved':
+      return { kind: 'backup-saved' };
+    case 'recovery.set':
+      return { kind: 'recovery-set' };
     default:
       return null;
   }
@@ -231,6 +239,9 @@ const categoryOf = (line: LogLine): LogCategory | null => {
     case 'erased':
     case 'pupil-erased':
       return 'erasures';
+    case 'backup-saved':
+    case 'recovery-set':
+      return 'devices';
     case 'unverified':
       return null;
     default:

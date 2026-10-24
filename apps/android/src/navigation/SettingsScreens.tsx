@@ -12,9 +12,11 @@ import { Language } from '../settings/Language';
 import { Lengths } from '../settings/Lengths';
 import { Notify } from '../settings/Notify';
 import { Plans } from '../settings/Plans';
+import { Devices } from '../settings/Devices';
 import { EraseDevice } from '../settings/EraseDevice';
 import { ExportAll } from '../settings/ExportAll';
 import { useLockStorage } from '../lock/lock-storage';
+import { RecoverySheet } from '../settings/RecoverySheet';
 import { Retention } from '../settings/Retention';
 import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
@@ -82,6 +84,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
       case 'erase':
         navigation.navigate('SettingsErase');
         break;
+      case 'backup':
+        navigation.navigate('SettingsDevices');
+        break;
       case 'help':
         navigation.navigate('Help');
         break;
@@ -91,6 +96,36 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
     }
   };
   return <Settings onOpen={open} />;
+}
+
+/** «الأجهزة والنسخ»: the first backup starts here once its sheet was confirmed (answer 478). */
+export function SettingsDevicesScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, 'SettingsDevices'>) {
+  return (
+    <Devices
+      onSheet={(first) => navigation.navigate('SettingsRecovery', { first })}
+      backupNow={route.params?.backup === true}
+      onBackupStarted={() => navigation.setParams({ backup: false })}
+    />
+  );
+}
+
+/** «ورقة الاسترجاع»: once a first sheet is confirmed, back to the devices page, where its backup starts. */
+export function SettingsRecoveryScreen({
+  navigation,
+  route,
+}: NativeStackScreenProps<RootStackParamList, 'SettingsRecovery'>) {
+  const storage = useLockStorage();
+  const { first } = route.params;
+  return (
+    <RecoverySheet
+      storage={storage}
+      first={first}
+      onConfirmed={() => (first ? navigation.popTo('SettingsDevices', { backup: true }) : navigation.goBack())}
+    />
+  );
 }
 
 /** «مسح هذا الجهاز», with the storage module the app opened its history with (answer 477). */
@@ -197,6 +232,16 @@ export function settingsRoutes(
       <Stack.Screen name="Log" component={Log} options={dark(t('settings.rows.log'))} />
       <Stack.Screen name="SettingsExport" component={ExportAll} options={dark(t('settings.rows.export'))} />
       <Stack.Screen name="SettingsErase" component={SettingsEraseScreen} options={dark(t('settings.rows.erase'))} />
+      <Stack.Screen
+        name="SettingsDevices"
+        component={SettingsDevicesScreen}
+        options={dark(t('settings.rows.backup'))}
+      />
+      <Stack.Screen
+        name="SettingsRecovery"
+        component={SettingsRecoveryScreen}
+        options={dark(t('settings.recovery.title'))}
+      />
       <Stack.Screen name="SettingsRetention" component={Retention} options={dark(t('settings.rows.retention'))} />
     </>
   );

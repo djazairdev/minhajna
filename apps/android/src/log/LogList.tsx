@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The days of «سجل النشاط» under its tabs (#235, Log, Log-broken, answer
-// 425): «الكل», then corrections, files and printing, and deletions, each
-// day newest first with its changes, each change read as one item, its tab
-// then its words. An unchecked change shows only under «الكل». The same list
-// serves the log and a history changed outside the app.
+// 425): «الكل», then corrections, files and printing, and deletions, and the
+// devices once it lists a backup or a recovery sheet (#247), each day newest
+// first with its changes, each change read as one item, its tab then its
+// words. An unchecked change shows only under «الكل». The same list serves the
+// log and a history changed outside the app.
 
 import type { LogCategory, LogDay } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -21,13 +22,17 @@ import { itemText, logDay, type LogNames } from './log-text';
 
 type Tab = 'all' | LogCategory;
 
-const TABS: readonly Tab[] = ['all', 'corrections', 'files', 'erasures'];
+const TABS: readonly Tab[] = ['all', 'corrections', 'files', 'erasures', 'devices'];
+
+/** Tabs shown even when empty; the devices' shows once it lists something (answer 425). */
+const ALWAYS: ReadonlySet<Tab> = new Set(['all', 'corrections', 'files', 'erasures']);
 
 export function LogList({ days, names }: { readonly days: readonly LogDay[]; readonly names: LogNames }) {
   const t = useText();
   const { direction } = useLocale();
   const [tab, setTab] = useState<Tab>('all');
   const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const listed = new Set<Tab>(days.flatMap((day) => day.items.flatMap((item) => item.category ?? [])));
   const shown = days
     .map((day) => ({ ...day, items: day.items.filter((item) => tab === 'all' || item.category === tab) }))
     .filter((day) => day.items.length > 0);
@@ -38,7 +43,10 @@ export function LogList({ days, names }: { readonly days: readonly LogDay[]; rea
         label={t('log.tabsLabel')}
         selected={tab}
         onSelect={setTab}
-        choices={TABS.map((value) => ({ value, label: t(`log.tabs.${value}`) }))}
+        choices={TABS.filter((value) => ALWAYS.has(value) || listed.has(value)).map((value) => ({
+          value,
+          label: t(`log.tabs.${value}`),
+        }))}
       />
       {shown.length === 0 && (
         <Notice

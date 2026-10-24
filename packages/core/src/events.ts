@@ -16,6 +16,7 @@ import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
 import type { CorrectionReason } from './correction-reasons.ts';
+import { DEVICE_KINDS, type DeviceEvent } from './device-events.ts';
 import type { PupilErasure } from './pupil-erase.ts';
 import type { Restating } from './restated.ts';
 import type { CatchUpSession } from './catch-up-sessions.ts';
@@ -146,7 +147,8 @@ export type RecordEvent =
   /** A pupil's descriptive observation for a course and term, or its clearing (#240). */
   | { readonly kind: 'observation.set'; readonly observation: ObservationEntry }
   /** The phrase chosen as a pupil's appreciation for a course and term, or its clearing (#241). */
-  | { readonly kind: 'appreciation.set'; readonly appreciation: AppreciationEntry };
+  | { readonly kind: 'appreciation.set'; readonly appreciation: AppreciationEntry }
+  | DeviceEvent;
 
 export type RecordKind = RecordEvent['kind'];
 
@@ -207,6 +209,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'formula.set': true,
   'observation.set': true,
   'appreciation.set': true,
+  ...DEVICE_KINDS,
 };
 
 /**
@@ -219,6 +222,8 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
 export function layerOf(event: RecordEvent): Layer {
   switch (event.kind) {
     case 'teacher.personal.set':
+    case 'recovery.set':
+    case 'backup.saved':
       return 'device';
     case 'pupil.set':
     case 'pupil.moved':
@@ -251,7 +256,6 @@ export function layerOf(event: RecordEvent): Layer {
     case 'layer.added':
     case 'layer.switched':
     case 'list.set':
-      return 'lesson-record';
     case 'teacher.set':
     case 'school.set':
     case 'class.set':

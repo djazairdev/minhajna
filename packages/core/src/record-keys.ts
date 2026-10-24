@@ -126,5 +126,9 @@ export function recordKey(event: RecordEvent): string {
       return `appreciation:${appreciationKey(event.appreciation)}`;
     case 'pupil.erased':
       return `pupil-erased:${event.erased.entries[0] ?? event.erased.classId}`;
+    case 'recovery.set':
+      return `recovery:${event.recovery?.key ?? ''}`;
+    case 'backup.saved':
+      return 'backup';
   }
 }

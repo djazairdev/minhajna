@@ -64,6 +64,8 @@ const KIND_GROUPS: Readonly<Record<string, string>> = {
   'assessment.set': 'assessment',
   'mark.set': 'mark',
   'mark.corrected': 'mark',
+  'recovery.set': 'recoveryKey',
+  'backup.saved': 'backup',
 };
 
 const TARGET_PARTS: Readonly<Record<MarkTarget['kind'], string>> = {
@@ -203,6 +205,10 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
       });
     case 'pupil-erased':
       return t('log.pupilErased');
+    case 'backup-saved':
+      return t('log.backupSaved');
+    case 'recovery-set':
+      return t('log.recoverySet');
     case 'unverified':
       return t('log.unverified', { what: kindLabel(t, line.entryKind) });
   }
