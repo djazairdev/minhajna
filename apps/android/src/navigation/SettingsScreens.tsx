@@ -12,7 +12,9 @@ import { Language } from '../settings/Language';
 import { Lengths } from '../settings/Lengths';
 import { Notify } from '../settings/Notify';
 import { Plans } from '../settings/Plans';
+import { EraseDevice } from '../settings/EraseDevice';
 import { ExportAll } from '../settings/ExportAll';
+import { useLockStorage } from '../lock/lock-storage';
 import { Retention } from '../settings/Retention';
 import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
@@ -77,6 +79,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
       case 'retention':
         navigation.navigate('SettingsRetention');
         break;
+      case 'erase':
+        navigation.navigate('SettingsErase');
+        break;
       case 'help':
         navigation.navigate('Help');
         break;
@@ -86,6 +91,12 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
     }
   };
   return <Settings onOpen={open} />;
+}
+
+/** «مسح هذا الجهاز», with the storage module the app opened its history with (answer 477). */
+export function SettingsEraseScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'SettingsErase'>) {
+  const storage = useLockStorage();
+  return <EraseDevice storage={storage} onExport={() => navigation.navigate('SettingsExport')} />;
 }
 
 /** The teacher card, saved as it is edited, without resetting setup or the navigation stack. */
@@ -185,6 +196,7 @@ export function settingsRoutes(
       <Stack.Screen name="SettingsSignature" component={DrawnSignature} options={dark(t('settings.rows.signature'))} />
       <Stack.Screen name="Log" component={Log} options={dark(t('settings.rows.log'))} />
       <Stack.Screen name="SettingsExport" component={ExportAll} options={dark(t('settings.rows.export'))} />
+      <Stack.Screen name="SettingsErase" component={SettingsEraseScreen} options={dark(t('settings.rows.erase'))} />
       <Stack.Screen name="SettingsRetention" component={Retention} options={dark(t('settings.rows.retention'))} />
     </>
   );

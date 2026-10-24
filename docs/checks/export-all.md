@@ -101,8 +101,29 @@ The books' line for an erased pupil and erasing the phone follow.
 | Android tests (`class-left.test.tsx`, 3 tests, and `pupil-erase.test.tsx`, 8 tests) | Pass. They cover:<br>• the pupils who left after the list, in its order, each with the day and opening their page;<br>• departures waiting for the director or for their day left in the list;<br>• no section when nobody left, and an erased pupil in neither;<br>• the texts in French and English;<br>• no erase row for a pupil who only changed class;<br>• the earlier class's record said on the sheet only for a pupil who came by a change of class. |
 | Android emulator, part 4c's release build signed with the debug key, over the books' line data, on Saturday 24 October | Pass. «بوزيد آية», number 6, had left on Wednesday 21 October, confirmed.<br>• **Class page:** after the list, «غادروا القسم» showed «6 · بوزيد آية · غادرت في 21/10/2026». Number 5, whose departure on 26 October is still to come, stayed in the list, and number 33, erased, was in neither.<br>• **Her row** opened her page with «حذف بيانات هذه التلميذة» open. The sheet named «غادرت في 21/10/2026» and had no earlier-class line.<br>• **After the erasure:** the page closed back to the class page, with «43 تلميذاً» and no «غادروا القسم». October's roll-call book said «حُذفت بيانات تلميذين». |
 
+## Part 5: «مسح هذا الجهاز»
+
+- **In Settings:** the last row of «البيانات» opens the screen.
+- **The screen:**
+  - says what goes from this phone, with the classes and pupils counted;
+  - says that nothing is kept elsewhere until devices and backups come (#247), and how many changes on this phone go with it;
+  - offers «تصدير كل البيانات أولاً».
+- **«مسح كل شيء»** is closed until «فهمت أن المسح لا رجوع فيه، وأن المشروع لا يستطيع استرجاع شيء.» is ticked. It waits for the last changes to be saved, erases once however often it is tapped, and starts the app again on the welcome screen, in Arabic. A failure is said, and the screen stays.
+- **The native erasure (`DeviceErase.kt`):**
+  - closes the history;
+  - deletes every key of the app from the Android Keystore first;
+  - cancels the reminders and the notifications shown;
+  - empties the app's folders and deletes its databases and settings, the interface language and the lock's included.
+
+| Check | Result |
+|---|---|
+| Android tests (`erase-device.test.tsx`, 4 tests, and the Settings row in `settings.test.tsx`) | Pass. They cover:<br>• the screen's words and counts, the export row, the closed button, the erasure and the restart;<br>• two quick taps erasing once;<br>• a failure said with the screen kept;<br>• every text in French and English;<br>• the Settings row opening the screen. |
+| Instrumented test (`DeviceEraseTest.kt`), on my Android 15 emulator | Pass. It sets up a history with its key in the Keystore, a reminder set ahead, files in each folder, a database, the interface language and another setting. After the erasure: the history was closed, the Keystore holds no key of the app, the folders are empty but kept, no reminder is planned, and no setting is left but React Native's direction, right to left. `StorageTest` and `LockTest` still pass (27 tests). |
+| Android emulator, part 5's release build signed with the debug key, over part 4c's data, on Saturday 24 October | Pass.<br>• **Settings:** «البيانات» ended with «مسح هذا الجهاز · يُمسح كل شيء من هذا الهاتف، ولا رجوع فيه».<br>• **The screen:** «قسم واحد، و43 تلميذاً», the four other lines, «لا شيء بعد: لا جهاز آخر ولا نسخة احتياطية…», «65 تغييراً لم تصل إلى جهاز آخر ولا إلى نسخة، فتضيع بالمسح.», «تصدير كل البيانات أولاً» and the tick. «مسح كل شيء» did nothing before the tick.<br>• **After the tick and «مسح كل شيء»:** the app started again on the welcome screen, in Arabic. A cold start after force-stopping it opened there too, with no PIN asked.<br>• **Reminders:** Android's alarm list showed the app's planned reminders removed at that moment, as «alarm_cancelled». |
+
 Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 - the screen with TalkBack in Arabic;
 - a phone in French and English, with text at 200%;
 - the protected ZIP opened with 7-Zip or WinRAR on a computer, and the CSV files opened in Excel;
-- an archive of a teacher's full term, for its size and the time it takes.
+- an archive of a teacher's full term, for its size and the time it takes;
+- «مسح هذا الجهاز» on a real phone that has printed, with the fingerprint turned on, then setup again from the start.
