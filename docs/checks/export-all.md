@@ -55,7 +55,7 @@ The books' line for an erased pupil and erasing the phone follow.
 ## Part 4: «حذف بيانات هذا التلميذ»
 
 - **On the pupil's page in the roll-call book:**
-  - the row shows once a departure is recorded;
+  - the row shows once a departure from the school is recorded, never for a change of class (answer 475);
   - it opens once the director's confirmation is recorded and the departure's day has come, since a departure can be recorded up to 14 days ahead;
   - a pupil still on the list has no row.
 - **The sheet:**
@@ -85,6 +85,21 @@ The books' line for an erased pupil and erasing the phone follow.
 | Android emulator, part 3's release build signed with the debug key and installed over part 2's, with its data | Pass. Opened with the PIN on Today, with the demo class and its exam-window warning. «سجل النشاط» said «السلسلة سليمة» and listed both exports in their order. The erasure itself is checked with its screen in part 4. |
 | Android emulator, part 4's release build signed with the debug key, over part 3's data | Pass. In the demo class, «عثماني لينة», number 33.<br>• **Before the departure:** her page had no erase row.<br>• **Departure recorded** through «تسجيل انتقال أو مغادرة» from Sunday 25 October, by transfer: «حذف بيانات هذه التلميذة» showed with «يُتاح بعد المغادرة وتأكيد المدير», and tapping it opened nothing.<br>• **Director's confirmation recorded:** the sheet opened with «عثماني لينة · القسم التجريبي · غادرت في 25/10/2026», the four lines that go, the two that stay, «التصدير أولاً» (which opened «تصدير كل البيانات», and back), «حُذفت بيانات تلميذ · 24/10/2026 · دون محتواها», and «حذف البيانات», which did nothing before the tick.<br>• **After the tick, «حذف البيانات»:** the page closed back to the class page. It showed «44 تلميذاً», no line 33, and «فرحات حمزة» still number 34.<br>• **«سجل النشاط»** said «السلسلة سليمة» and showed one line under «الحذف», «حُذفت بيانات تلميذ · دون محتواها», above the two exports. |
 | Android emulator, the books' line, a release build signed with the debug key, over part 4's data, on Saturday 24 October | Pass. Number 33's erasure came from part 4's build and kept no departure day, so it counts from the erasure's day, 24 October.<br>• **«دفتر المناداة»:** September, October and «الملخص السنوي» each showed «حُذفت بيانات تلميذ واحد».<br>• **«كشف النقاط»** of the first term showed it under the class's figures.<br>• **A departure recorded ahead:** «زروقي عبد الرؤوف», number 5, recorded as leaving on Monday 26 October, then the director's confirmation recorded; nothing waited for confirmation. His page kept «حذف بيانات هذا التلميذ» closed, with «يُتاح بعد المغادرة وتأكيد المدير», and tapping it opened nothing. |
+
+## Part 4c: «غادروا القسم»
+
+- **On the Class page:** after the list, «غادروا القسم» lists every pupil of the class's group whose confirmed departure's day has come, whatever its reason, in the list's order, with their number, name and «غادر في» or «غادرت في» and the day.
+- **Each row opens the pupil's page,** where a pupil who left the school has «حذف بيانات هذا التلميذ».
+- **Still in the list above:** a pupil whose departure waits for the director or for its day.
+- **In neither:** a pupil whose data was erased.
+- **An earlier class:** for a pupil who came by a change of class, the erase sheet's «ما يبقى» adds their record in their previous class, kept with that class's books (answer 476).
+- **The section** shows only when it has a pupil.
+
+| Check | Result |
+|---|---|
+| Core tests (`erased-from.test.ts`, 5 tests) | Pass. New: a pupil who only changed class is refused, however long ago, and nothing is written. |
+| Android tests (`class-left.test.tsx`, 3 tests, and `pupil-erase.test.tsx`, 8 tests) | Pass. They cover:<br>• the pupils who left after the list, in its order, each with the day and opening their page;<br>• departures waiting for the director or for their day left in the list;<br>• no section when nobody left, and an erased pupil in neither;<br>• the texts in French and English;<br>• no erase row for a pupil who only changed class;<br>• the earlier class's record said on the sheet only for a pupil who came by a change of class. |
+| Android emulator, part 4c's release build signed with the debug key, over the books' line data, on Saturday 24 October | Pass. «بوزيد آية», number 6, had left on Wednesday 21 October, confirmed.<br>• **Class page:** after the list, «غادروا القسم» showed «6 · بوزيد آية · غادرت في 21/10/2026». Number 5, whose departure on 26 October is still to come, stayed in the list, and number 33, erased, was in neither.<br>• **Her row** opened her page with «حذف بيانات هذه التلميذة» open. The sheet named «غادرت في 21/10/2026» and had no earlier-class line.<br>• **After the erasure:** the page closed back to the class page, with «43 تلميذاً» and no «غادروا القسم». October's roll-call book said «حُذفت بيانات تلميذين». |
 
 Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 - the screen with TalkBack in Arabic;

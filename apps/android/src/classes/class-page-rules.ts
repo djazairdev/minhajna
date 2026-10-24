@@ -8,12 +8,14 @@
 // or extra lessons. Each line states facts the record holds; the page adds
 // no record of its own. Absences are counted in half-days (answer 253),
 // from the month's first day to today, and only for the pupils the page
-// lists, the year's in a joint class.
+// lists, the year's in a joint class. The pupils who left the class follow,
+// each with the day they left (answer 475).
 
 import {
   DEFAULT_COUNTING,
   compareDays,
   countRollCalls,
+  departureDay,
   groupPupils,
   homeworkRecord,
   levelGroups,
@@ -27,6 +29,7 @@ import {
   type TermCheck,
 } from '@minhajna/core';
 import { bookViewPages } from '../book/book-pages';
+import { logDay } from '../log/log-text';
 import type { DocumentData, Translate } from '../documents/document-data';
 import { lessonRows } from '../documents/supervised-pages';
 import { listNumbers } from '../roll/roll-rules';
@@ -86,6 +89,25 @@ export function pupilLines(
       badge: parts.length === 0 ? null : parts.join(' · '),
     };
   });
+}
+
+/**
+ * The pupils of the course's group who left the class by `day`, whatever the reason, in the class list's order, each
+ * with the day they left; a departure waiting for the director or for its day is not one yet.
+ */
+export function leftLines(t: Translate, context: Context, row: ClassRow, day: Day): PupilLine[] {
+  const numbers = listNumbers(context, row.schoolClass.id);
+  const groupId = courseGroup(row);
+  const whole = wholeGroup(row.schoolClass).id;
+  return [...context.state.pupils.values()]
+    .filter((pupil) => pupil.classId === row.schoolClass.id && (groupId === whole || pupil.groups.includes(groupId)))
+    .flatMap((pupil) => {
+      const left = departureDay(pupil);
+      if (left === null || compareDays(left, day) > 0) return [];
+      const line = t(pupil.sex === 'f' ? 'classPage.leftOnF' : 'classPage.leftOn', { day: logDay(left) });
+      return [{ id: pupil.id, number: numbers.get(pupil.id) ?? 0, name: pupil.name, badge: line }];
+    })
+    .sort((a, b) => a.number - b.number);
 }
 
 /** The month's roll calls so far for the pupils listed: their half-days missed, late arrivals and attendance rate. */

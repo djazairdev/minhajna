@@ -5,13 +5,15 @@
 // to the teacher's other classes of the subject, today's session with its roll
 // call, then a row for each of its records, each opening its screen: the texts
 // book, the plan, the roll-call book and its print (answer 260), homework,
-// sessions outside the timetable, supervised or extra lessons, and
-// assessment, with the term holding today and its setup (#238, answer 436).
-// Then the pupils, each with the month's absences and lateness so far, and
-// «إضافة أو نقل». The settings button in the top bar opens the class's settings
-// that exist (answer 256). The page reads the record and adds nothing to it.
-// A class archived after a reorientation says so, and offers no session
-// outside the timetable and no pupil move (#231).
+// sessions outside the timetable, supervised or extra lessons, and assessment,
+// with the term holding today and its setup (#238, answer 436). Then the
+// pupils, each with the month's absences and lateness so far, and
+// «إضافة أو نقل», then «غادروا القسم», each pupil who left with the day,
+// opening their page like the others (answer 475). The settings button in the
+// top bar opens the class's settings that exist (answer 256). The page reads
+// the record and adds nothing to it. A class archived after a reorientation
+// says so, and offers no session outside the timetable and no pupil move
+// (#231).
 
 import { courseSetup, termNumberOn, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -40,7 +42,16 @@ import { rollStrip } from '../today/roll-strip';
 import { isolate } from '../week/grid-labels';
 import { reshapedWith } from '../reorient/reorient-rules';
 import { ClassSettings } from './ClassSettings';
-import { bookLine, homeworkLine, monthSoFar, pupilLines, rollLine, supervisedLine, tdLine } from './class-page-rules';
+import {
+  bookLine,
+  homeworkLine,
+  leftLines,
+  monthSoFar,
+  pupilLines,
+  rollLine,
+  supervisedLine,
+  tdLine,
+} from './class-page-rules';
 import { classRows, paceLine } from './class-rules';
 
 export type ClassPageProps = {
@@ -93,6 +104,7 @@ export function ClassPage(props: ClassPageProps) {
     () => (row === undefined ? [] : pupilLines(t, context, row, day, month)),
     [t, context, row, day, month],
   );
+  const left = useMemo(() => (row === undefined ? [] : leftLines(t, context, row, day)), [t, context, row, day]);
   const lines = useMemo(
     () =>
       row === undefined
@@ -143,12 +155,12 @@ export function ClassPage(props: ClassPageProps) {
       onPress={press ?? (() => undefined)}
     />
   );
-  const pupil = (one: (typeof pupils)[number]): ReactNode => {
+  const pupil = (one: (typeof pupils)[number], variant: 'default' | 'warning'): ReactNode => {
     const content = (
       <>
         <Text style={styles.number}>{one.number}</Text>
         <Text style={[styles.name, align]}>{one.name}</Text>
-        {one.badge !== null && <Badge label={one.badge} variant="warning" />}
+        {one.badge !== null && <Badge label={one.badge} variant={variant} />}
       </>
     );
     return props.onPupil === undefined ? (
@@ -228,7 +240,13 @@ export function ClassPage(props: ClassPageProps) {
       {pupils.length === 0 ? (
         <Text style={[styles.line, align]}>{t('setup.pupils', { count: 0 })}</Text>
       ) : (
-        <View>{pupils.map(pupil)}</View>
+        <View>{pupils.map((one) => pupil(one, 'warning'))}</View>
+      )}
+      {left.length > 0 && (
+        <>
+          <SectionHeader testID="class-left" label={t('classPage.left')} />
+          <View>{left.map((one) => pupil(one, 'default'))}</View>
+        </>
       )}
       <ClassSettings
         visible={props.settings}

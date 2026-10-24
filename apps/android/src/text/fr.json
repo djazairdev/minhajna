@@ -832,6 +832,9 @@
     "none": "aucune séance pour l’instant",
     "marks": "Évaluation et notes",
     "pupils": "Élèves",
+    "left": "Ont quitté la classe",
+    "leftOn": "Parti le {{day}}",
+    "leftOnF": "Partie le {{day}}",
     "archived": "Cette classe a été recomposée : archivée depuis le {{day}}, elle se lit et s’imprime, sans nouvelles séances."
   },
   "classPlan": {
@@ -1582,6 +1585,7 @@
       "kept": "Conservé",
       "keptBooks": "Le cahier de textes et le journal de classe, qui ne nomment aucun élève",
       "keptFiles": "Ce qui a été imprimé ou enregistré dans un fichier avant l’effacement, avec ses totaux tels quels : ils ne sont pas recalculés",
+      "keptEarlier": "Son dossier dans sa classe précédente, avec les registres de cette classe",
       "export": "Exporter d’abord",
       "exportLine": "Une archive ou des fichiers CSV, avec un mot de passe",
       "log": "Une seule ligne reste dans le journal d’activité",
