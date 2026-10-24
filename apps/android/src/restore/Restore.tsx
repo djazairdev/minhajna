@@ -1,0 +1,238 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// «استرجاع البيانات» (#247, Restore, R-5.8-11, R-5.8-12, R-5.9-02, R-6.5-01,
+// answer 478), reached only from the welcome's «لديّ نسخة من هاتف آخر», once
+// the PIN is set, into the empty history. Two routes open in the pilot: a
+// backup file, then the recovery key, typed with no keyboard suggestions, and
+// «فتح أرشيف «منهاجنا»», the export file with its password if it has one.
+// The old phone's direct transfer and the sync account show, not open yet.
+// The file comes through the system's file picker; what does not come back,
+// the teacher card's personal fields and the drawn signature, is said before.
+// A key that does not open the file, or any other refusal, is said under the
+// button, and the key can be typed again; a changed file has its own page.
+// Once all of it is stored, the history opens again, on Today. The copy of
+// the picked file is dropped as soon as it is not needed: on another file or
+// route, once restored, and when the screen closes.
+
+import { useLocale } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button } from '../components/Button';
+import { Notice } from '../components/Notice';
+import { RadioCardGroup } from '../components/RadioCard';
+import { TextField } from '../components/TextField';
+import { controlIcon } from '../design/Icon';
+import { spacing } from '../design/tokens';
+import { errorCode } from '../lock/lock-rules';
+import files from '../native/NativeMinhajnaFiles';
+import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
+import { settingsStyles as styles } from '../settings/styles';
+import { useAppData } from '../storage/AppData';
+import { nativeDeps } from '../storage/history';
+import { useText } from '../text/i18n';
+import { restoreFile, zipProblem, type RestoreProblem, type RestoreRoute } from './restore-run';
+import { RestoreFail } from './RestoreFail';
+
+export type RestoreProps = {
+  /** The storage module: SHA-256, random bytes and the restore itself. */
+  readonly storage: Pick<Storage, 'digest' | 'randomBytes' | 'restoreHistory'>;
+  /** Everything was stored; the history opens again. */
+  readonly onRestored: () => void;
+};
+
+type Picked = { readonly token: string; readonly name: string };
+type Shown = RestoreProblem | 'noFile';
+
+const LEFT = ['settings.restore.personal', 'settings.restore.signature'] as const;
+
+export function Restore({ storage, onRestored }: RestoreProps) {
+  const t = useText();
+  const { direction } = useLocale();
+  const insets = useSafeAreaInsets();
+  const { profile, today } = useAppData();
+  const [route, setRoute] = useState<RestoreRoute>('backup');
+  const [picked, setPicked] = useState<Picked | null>(null);
+  const [secret, setSecret] = useState('');
+  const [problem, setProblem] = useState<Shown | null>(null);
+  const [busy, setBusy] = useState(false);
+  const running = useRef(false);
+  const kept = useRef<{ token: string | null }>({ token: null });
+  useEffect(() => {
+    const held = kept.current;
+    return () => {
+      if (held.token !== null) files.dropFile(held.token);
+    };
+  }, []);
+  const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const drop = () => {
+    if (kept.current.token !== null) files.dropFile(kept.current.token);
+    kept.current.token = null;
+    setPicked(null);
+  };
+  const choose = (next: RestoreRoute | 'phone' | 'sync') => {
+    if (next !== 'backup' && next !== 'archive') return;
+    drop();
+    setRoute(next);
+    setSecret('');
+    setProblem(null);
+  };
+  const pick = async () => {
+    if (running.current) return;
+    running.current = true;
+    setBusy(true);
+    try {
+      const file = await files.openZip();
+      if (file !== null) {
+        drop();
+        kept.current.token = file.token;
+        setPicked(file);
+        setProblem(null);
+      }
+    } catch (error: unknown) {
+      setProblem(zipProblem(errorCode(error), { route, secret }));
+    } finally {
+      running.current = false;
+      setBusy(false);
+    }
+  };
+  const restore = async () => {
+    if (running.current) return;
+    if (picked === null) return setProblem('noFile');
+    running.current = true;
+    setBusy(true);
+    setProblem(null);
+    const result = await restoreFile(
+      { route, token: picked.token, secret, country: profile.code, day: today() },
+      { files, storage, deps: nativeDeps(storage) },
+    ).catch(() => ({ ok: false, problem: 'failed' }) as const);
+    if (result.ok) {
+      drop();
+      onRestored();
+      return;
+    }
+    running.current = false;
+    setBusy(false);
+    setProblem(result.problem);
+  };
+  if (problem === 'changed') {
+    return (
+      <RestoreFail
+        keyed={route === 'backup'}
+        onAgain={() => {
+          drop();
+          setProblem(null);
+        }}
+      />
+    );
+  }
+  const keyed = route === 'backup';
+  return (
+    <ScrollView
+      style={styles.screen}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={[
+        styles.content,
+        {
+          direction,
+          paddingLeft: insets.left + spacing['space-16'],
+          paddingRight: insets.right + spacing['space-16'],
+          paddingBottom: insets.bottom + spacing['space-24'],
+        },
+      ]}
+    >
+      <View style={styles.group}>
+        <Text accessibilityRole="header" style={[styles.title, align]}>
+          {t('settings.restore.sub')}
+        </Text>
+        <Text style={[styles.body, align]}>{t('settings.restore.line')}</Text>
+      </View>
+      <RadioCardGroup
+        testID="restore-route"
+        label={t('settings.restore.routes')}
+        selected={route}
+        onSelect={choose}
+        disabled={busy}
+        choices={[
+          {
+            value: 'phone',
+            label: t('settings.restore.phone'),
+            description: t('settings.restore.phoneLine'),
+            disabled: true,
+          },
+          { value: 'backup', label: t('settings.restore.backup'), description: t('settings.restore.backupLine') },
+          { value: 'archive', label: t('settings.restore.archive'), description: t('settings.restore.archiveLine') },
+          {
+            value: 'sync',
+            label: t('settings.restore.sync'),
+            description: t('settings.restore.syncLine'),
+            disabled: true,
+          },
+        ]}
+      />
+      <View style={styles.card}>
+        {picked !== null && (
+          <Text testID="restore-picked" style={[styles.body, align]}>
+            {picked.name === ''
+              ? t('settings.restore.pickedNoName')
+              : t('settings.restore.picked', { name: picked.name })}
+          </Text>
+        )}
+        <Button
+          testID="restore-pick"
+          variant="line"
+          disabled={busy}
+          label={t(
+            picked !== null
+              ? 'settings.restore.pickOther'
+              : keyed
+                ? 'settings.restore.pickBackup'
+                : 'settings.restore.pickArchive',
+          )}
+          onPress={() => void pick()}
+        />
+        <TextField
+          testID="restore-secret"
+          label={t(keyed ? 'settings.restore.key' : 'settings.restore.password')}
+          placeholder={t(keyed ? 'settings.recovery.placeholder' : 'settings.restore.passwordHint')}
+          value={secret}
+          onChangeText={(text) => {
+            setSecret(text);
+            if (problem !== 'noFile') setProblem(null);
+          }}
+          maxLength={keyed ? 48 : 64}
+          textDirection="ltr"
+          autoCapitalize={keyed ? 'characters' : 'none'}
+          keyboardType={keyed ? 'visible-password' : undefined}
+          autoCorrect={false}
+          autoComplete="off"
+          importantForAutofill="no"
+          editable={!busy}
+        />
+        {!keyed && <Text style={[styles.sub, align]}>{t('settings.restore.passwordLine')}</Text>}
+      </View>
+      <View testID="restore-left" style={styles.card}>
+        <Text accessibilityRole="header" style={[styles.title, align]}>
+          {t('settings.restore.notBack')}
+        </Text>
+        {LEFT.map((line) => (
+          <Text key={line} style={[styles.body, align]}>
+            {t(line)}
+          </Text>
+        ))}
+      </View>
+      {keyed && <Notice icon={controlIcon('lock')} message={t('settings.restore.noKey')} />}
+      {problem !== null && (
+        <Notice
+          testID="restore-problem"
+          icon={controlIcon('info')}
+          message={t(
+            problem === 'noFile' ? 'settings.restore.problems.noFile' : `settings.restore.problems.${problem}`,
+          )}
+        />
+      )}
+      <Button testID="restore-run" label={t('settings.restore.run')} disabled={busy} onPress={() => void restore()} />
+    </ScrollView>
+  );
+}

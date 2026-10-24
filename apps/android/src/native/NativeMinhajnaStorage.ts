@@ -59,6 +59,8 @@ export interface Spec extends TurboModule {
   loadHistory(): Promise<string>;
   /** Adds one entry, given as JSON. Resolves only once the write is committed. */
   appendEntry(entry: string): Promise<void>;
+  /** Stores a restored history, given as a JSON array of entries, into this empty one, all or none (#247). */
+  restoreHistory(entries: string): Promise<void>;
   /** Removes the content and salt of the given entries, in one transaction. */
   eraseContent(ids: readonly string[]): Promise<void>;
   /** The pilot's timings, kept outside the history, as a JSON array (#220). */

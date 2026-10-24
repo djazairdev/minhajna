@@ -3,26 +3,27 @@
 
 // A navigation preview (#72), not the teacher's feature screens: the design's
 // components come with #20, and the interface language and its catalogue with
-// #21. The app lock comes first (#210): a fresh install shows the welcome,
-// then the first PIN; afterwards the lock asks for the PIN or the phone's
-// prompt. Only then does the encrypted history (#19) open, and with
-// Algeria's reference data (#87) it must verify before navigation opens. On
-// a refusal, the offline welcome page shows, with no record contents; a
-// history whose chain breaks shows, read-only, what still checks (#235). It
-// starts from the insets known at launch, so the first frame is drawn at
-// once. Once both are open, the screens reach the record book and the
-// profile through AppData, and the app opens on Today once setup has been
-// finished (#183). Unused for the lock's delay, the app closes the history
-// and shows the lock; the screens come back as they were after it. The
-// screen guard follows the screen in front: records stay out of screenshots
-// and the recent-apps preview unless the teacher allows them, and PIN pads
-// always. Each navigation action raises it before the next screen is drawn.
-// Once the lock, the welcome or the history shows, the app tells Android its
-// first screen with content is drawn, so a start can be timed on any phone.
-// In development every problem in the reference data is logged, for whoever
-// keys it; teachers see one short message.
+// #21. The app lock comes first (#210): a fresh install shows the welcome, then
+// the first PIN, then setup or, for a teacher with a copy from another phone,
+// the restore (#247), after which the history is read again; afterwards the
+// lock asks for the PIN or the phone's prompt. Only then does the encrypted
+// history (#19) open, and with Algeria's reference data (#87) it must verify
+// before navigation opens. On a refusal, the offline welcome page shows, with
+// no record contents; a history whose chain breaks shows, read-only, what still
+// checks (#235). It starts from the insets known at launch, so the first frame
+// is drawn at once. Once both are open, the screens reach the record book and
+// the profile through AppData, and the app opens on Today once setup has been
+// finished (#183). Unused for the lock's delay, the app closes the history and
+// shows the lock; the screens come back as they were after it. The screen guard
+// follows the screen in front: records stay out of screenshots and the
+// recent-apps preview unless the teacher allows them, and PIN pads always. Each
+// navigation action raises it before the next screen is drawn. Once the lock,
+// the welcome or the history shows, the app tells Android its first screen with
+// content is drawn, so a start can be timed on any phone. In development every
+// problem in the reference data is logged, for whoever keys it; teachers see
+// one short message.
 
-import type { CountryProfile, RecordBook } from '@minhajna/core';
+import type { CountryProfile } from '@minhajna/core';
 import { LocaleDirContext, type InitialState, type NavigationState } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { I18nManager, StatusBar, StyleSheet, View } from 'react-native';
@@ -34,6 +35,7 @@ import { guardScreen, useLockSettings } from './src/lock/lock-settings';
 import { LockStorage } from './src/lock/lock-storage';
 import { PILOT_BUILD } from './src/pilot/pilot-build';
 import { PilotTimings, timingStore } from './src/pilot/timing-store';
+import { ReopenHistory } from './src/restore/reopen';
 import { focusedRoute, gateKind, screenKind } from './src/lock/screen-guard';
 import { Unlock } from './src/lock/Unlock';
 import { useAutoLock } from './src/lock/useAutoLock';
@@ -44,8 +46,9 @@ import { AppNavigator } from './src/navigation/AppNavigator';
 import { Welcome } from './src/navigation/Welcome';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
 import { AppDataProvider } from './src/storage/AppData';
-import { nativeDeps, openRecordBook } from './src/storage/history';
-import { readBroken, type BrokenHistory } from './src/storage/broken-history';
+import { nativeDeps } from './src/storage/history';
+import type { BrokenHistory } from './src/storage/broken-history';
+import { useHistory } from './src/storage/use-history';
 import { LogBroken } from './src/log/LogBroken';
 
 /** Shows the lock, then verifies the bundled reference data and private history before opening the preview. */
@@ -79,10 +82,26 @@ export default function App({
   const navigation = useRef<NavigationState | undefined>(undefined);
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
   const [route, setRoute] = useState<string | undefined>(undefined);
+  const [restoring, setRestoring] = useState(false);
   const firstState =
     restore ??
-    (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN : undefined);
-  const { lockNow } = lock;
+    (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false
+      ? restoring
+        ? TO_RESTORE
+        : AFTER_FIRST_PIN
+      : undefined);
+  const { lockNow, opened, start } = lock;
+  const reopen = useCallback(() => {
+    setRoute(undefined);
+    opened();
+  }, [opened]);
+  const begin = useCallback(
+    (restoreFirst: boolean) => {
+      setRestoring(restoreFirst);
+      start();
+    },
+    [start],
+  );
   const lockAway = useCallback(() => {
     setRestore(navigation.current ?? firstState);
     setRoute(undefined);
@@ -134,15 +153,17 @@ export default function App({
           >
             <LockStorage.Provider value={storage}>
               <PilotTimings.Provider value={pilot}>
-                <AppNavigator
-                  initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
-                  initialState={firstState}
-                  onAction={raiseGuard}
-                  onStateChange={(state) => {
-                    navigation.current = state;
-                    setRoute(focusedRoute(state));
-                  }}
-                />
+                <ReopenHistory.Provider value={reopen}>
+                  <AppNavigator
+                    initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
+                    initialState={firstState}
+                    onAction={raiseGuard}
+                    onStateChange={(state) => {
+                      navigation.current = state;
+                      setRoute(focusedRoute(state));
+                    }}
+                  />
+                </ReopenHistory.Provider>
               </PilotTimings.Provider>
             </LockStorage.Provider>
           </AppDataProvider>
@@ -152,6 +173,7 @@ export default function App({
               phase={phase}
               storage={storage}
               lock={lock}
+              begin={begin}
               lockMinutes={lockMinutes}
               referenceRefused={!reference.ok}
               historyRefused={phase.kind === 'refused' || history === 'refused' || history === 'broken'}
@@ -174,6 +196,7 @@ function Gate({
   phase,
   storage,
   lock,
+  begin,
   lockMinutes,
   referenceRefused,
   historyRefused,
@@ -182,6 +205,8 @@ function Gate({
   phase: LockPhase;
   storage: Storage;
   lock: ReturnType<typeof useLockPhase>;
+  /** From the welcome to the first PIN, then to setup or, when true, the restore. */
+  begin: (restoreFirst: boolean) => void;
   lockMinutes: number;
   referenceRefused: boolean;
   historyRefused: boolean;
@@ -191,7 +216,7 @@ function Gate({
   if (referenceRefused) return <Welcome referenceRefused historyRefused={historyRefused} />;
   switch (phase.kind) {
     case 'welcome':
-      return <Welcome onStart={lock.start} />;
+      return <Welcome onStart={() => begin(false)} onRestore={() => begin(true)} />;
     case 'create':
       return (
         <CreatePin
@@ -223,54 +248,11 @@ function Gate({
   }
 }
 
-type HistoryStatus = 'opening' | 'open' | 'refused' | 'broken';
-
-interface History {
-  readonly status: HistoryStatus;
-  readonly book: RecordBook | null;
-  readonly broken: BrokenHistory | null;
-}
-
-/**
- * Opens the history each time the lock opens it, and lets it go when the
- * lock closes it, so no record stays in memory behind the lock. A history
- * that does not verify, or whose key is gone, is never opened: the teacher
- * sees one short line, which names no pupil, and nothing from it is used
- * (PRD §5.5). One whose rows still read but whose chain breaks is inspected
- * read-only, to show what still checks (answer 427).
- */
-function useHistory(storage: Storage, opening: number | null): History {
-  const [history, setHistory] = useState<History & { opening: number | null }>({
-    status: 'opening',
-    book: null,
-    broken: null,
-    opening: null,
-  });
-  useEffect(() => {
-    if (opening === null) return;
-    let current = true;
-    openRecordBook(storage).then(
-      (book) => {
-        if (current) setHistory({ status: 'open', book, broken: null, opening });
-      },
-      (error: unknown) => {
-        if (__DEV__) console.warn('History refused', error);
-        void readBroken(storage).then((broken) => {
-          if (current) setHistory({ status: broken === null ? 'refused' : 'broken', book: null, broken, opening });
-        });
-      },
-    );
-    return () => {
-      current = false;
-      setHistory({ status: 'opening', book: null, broken: null, opening: null });
-    };
-  }, [storage, opening]);
-  if (opening === null || history.opening !== opening) return { status: 'opening', book: null, broken: null };
-  return history;
-}
-
 /** Setup goes on at the privacy notice after the first PIN, with the welcome under it for Back. */
 const AFTER_FIRST_PIN: InitialState = { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy' }] };
+
+/** Or at the restore, for a teacher who chose it on the welcome (#247). */
+const TO_RESTORE: InitialState = { index: 1, routes: [{ name: 'Welcome' }, { name: 'Restore' }] };
 
 const styles = StyleSheet.create({
   root: { flex: 1 },

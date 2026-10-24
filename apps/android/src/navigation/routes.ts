@@ -14,6 +14,8 @@ export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents
 /** Inner pages cover the tabs and carry no record contents. The gallery and the storage check exist in debug builds only. */
 export type RootStackParamList = {
   Welcome: undefined;
+  /** Restoring from another phone or a backup, into the empty history (#247). */
+  Restore: undefined;
   Privacy: undefined;
   Teaching: undefined;
   Card: undefined;

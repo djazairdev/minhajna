@@ -4,10 +4,10 @@
 // The welcome (Setup-1-Welcome, #24): the name on the board, the language
 // choice and the app's three promises, before anything is typed. It also
 // shows while the reference data and the history open, and on a refusal, with
-// no way forward. The restore link from another phone stays out of
-// field-check builds (choice F4, #49), and no restore exists yet. The
-// preview says what it is before anything else (#48), and whether the PIN
-// is set yet, for a build that takes real names (#211).
+// no way forward. «لديّ نسخة من هاتف آخر» leads to the restore (#247, answer
+// 478), through the PIN first on a fresh install. The preview says what it is
+// before anything else (#48), and whether the PIN is set yet, for a build
+// that takes real names (#211).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -20,14 +20,16 @@ import { PreviewNotice } from '../help/BuildFacts';
 import { useText } from '../text/i18n';
 import { LanguageChoice } from './LanguageChoice';
 
-/** The first page; `onStart` leads to the privacy notice once the app may open. */
+/** The first page; `onStart` leads to the privacy notice once the app may open, `onRestore` to the restore. */
 export function Welcome({
   onStart,
+  onRestore,
   referenceRefused = false,
   historyRefused = false,
   lockSet = false,
 }: {
   onStart?: () => void;
+  onRestore?: () => void;
   referenceRefused?: boolean;
   historyRefused?: boolean;
   /** True once the app's PIN is set, as when the welcome is left under the privacy notice. */
@@ -78,6 +80,11 @@ export function Welcome({
           ]}
         >
           <Button testID="welcome-start" label={t('welcome.start')} onPress={onStart} />
+          {onRestore && (
+            <View style={styles.restore}>
+              <Button testID="welcome-restore" variant="plain" label={t('welcome.restore')} onPress={onRestore} />
+            </View>
+          )}
         </View>
       )}
     </ScrollView>
@@ -89,5 +96,11 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1 },
   form: { gap: spacing['space-16'], paddingTop: spacing['space-20'], paddingBottom: spacing['space-16'] },
   refusal: { ...typography.body, color: colors.ink },
-  foot: { marginTop: 'auto', paddingTop: spacing['space-10'], paddingBottom: spacing['space-16'] },
+  restore: { flexDirection: 'row', justifyContent: 'center' },
+  foot: {
+    gap: spacing['space-8'],
+    marginTop: 'auto',
+    paddingTop: spacing['space-10'],
+    paddingBottom: spacing['space-16'],
+  },
 });

@@ -173,6 +173,16 @@ export class FakeStorage {
     });
   }
 
+  /** Stores the rows into an empty history only, all or none, as HistoryDatabase.restore does. */
+  restoreHistory(entries: string): Promise<void> {
+    return this.#whenOpen(() => {
+      const rows = JSON.parse(entries) as Row[];
+      if (this.rows.length > 0) throw new Error('Only an empty history takes a restore');
+      if (rows.some((row, at) => row.seq !== at)) throw new Error('entries are added in order');
+      this.rows.push(...rows);
+    });
+  }
+
   eraseContent(ids: readonly string[]): Promise<void> {
     return this.#whenOpen(() => {
       for (const row of this.rows) {

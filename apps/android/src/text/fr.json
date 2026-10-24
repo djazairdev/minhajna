@@ -79,7 +79,8 @@
     "noAccount": "Sans compte ni mot de passe",
     "offline": "Fonctionne sans internet",
     "onPhone": "Les données restent sur ce téléphone",
-    "start": "Commencer"
+    "start": "Commencer",
+    "restore": "J’ai une copie d’un autre téléphone"
   },
   "privacy": {
     "title": "Avant de commencer",

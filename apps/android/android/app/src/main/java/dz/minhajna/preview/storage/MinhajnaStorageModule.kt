@@ -172,6 +172,11 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
     null
   }
 
+  override fun restoreHistory(entries: String, promise: Promise) = onWorker(promise) {
+    history.restoreJson(entries)
+    null
+  }
+
   override fun eraseContent(ids: ReadableArray, promise: Promise) {
     val copies = List(ids.size()) { ids.getString(it) ?: "" }
     onWorker(promise) {

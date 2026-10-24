@@ -12,6 +12,9 @@ import { Plan } from '../setup/Plan';
 import { Teaching } from '../setup/Teaching';
 import { TypeList } from '../setup/TypeList';
 import { Week } from '../setup/Week';
+import { useLockStorage } from '../lock/lock-storage';
+import { Restore } from '../restore/Restore';
+import { useReopen } from '../restore/reopen';
 import { useAppData } from '../storage/AppData';
 import { WeekDraw } from '../week/WeekDraw';
 import { Welcome } from './Welcome';
@@ -113,9 +116,24 @@ export function TypeListScreen({ navigation, route }: NativeStackScreenProps<Roo
   return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
 }
 
-/** The welcome leads to the notice; Back from the notice returns here. */
+/**
+ * The welcome leads to the notice; Back from the notice returns here. While
+ * the history is still empty, it also leads to the restore (#247).
+ */
 export function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
-  return <Welcome lockSet onStart={() => navigation.navigate('Privacy')} />;
+  const { entries } = useAppData();
+  return (
+    <Welcome
+      lockSet
+      onStart={() => navigation.navigate('Privacy')}
+      onRestore={entries().length === 0 ? () => navigation.navigate('Restore') : undefined}
+    />
+  );
+}
+
+/** The restore; once everything is stored, the history opens again, on Today. */
+export function RestoreScreen() {
+  return <Restore storage={useLockStorage()} onRestored={useReopen()} />;
 }
 
 /** The first-use notice leads to setup without recording that it was read. */

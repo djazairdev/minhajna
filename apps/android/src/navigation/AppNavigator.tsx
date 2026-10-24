@@ -57,6 +57,7 @@ import {
   WeekDrawScreen,
   WeekScreen,
   WelcomeScreen,
+  RestoreScreen,
   FirstNotice,
   HelpNotice,
 } from './SetupScreens';
@@ -132,6 +133,7 @@ export function AppNavigator({
         screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}
       >
         <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Restore" component={RestoreScreen} options={dark(t('settings.restore.title'))} />
         <Stack.Screen
           name="Privacy"
           component={FirstNotice}

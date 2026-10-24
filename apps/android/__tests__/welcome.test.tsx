@@ -95,7 +95,7 @@ function routes(): string[] {
   return header?.navigation.getState().routes.map((route) => route.name) ?? [];
 }
 
-test('opens on the welcome, with no restore link and no way to skip the notice', async () => {
+test('opens on the welcome, with the restore link and no way to skip the notice', async () => {
   await mount();
   expect(shown()).toEqual([
     text.name,
@@ -111,6 +111,7 @@ test('opens on the welcome, with no restore link and no way to skip the notice',
     text.welcome.offline,
     text.welcome.onPhone,
     text.welcome.start,
+    text.welcome.restore,
   ]);
   expect(tree.root.findAllByType(TopBar)).toHaveLength(0);
   const images = tree.root.findAllByType(Image).map((node) => node.props as ImageProps);

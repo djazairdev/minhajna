@@ -6,8 +6,10 @@ package dz.minhajna.preview.files
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.content.FileProvider
 import com.facebook.react.bridge.ActivityEventListener
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
@@ -16,10 +18,6 @@ import dz.minhajna.preview.storage.NativeMinhajnaFilesSpec
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
-import java.nio.ByteBuffer
-import java.nio.charset.CharacterCodingException
-import java.nio.charset.Charset
-import java.nio.charset.CodingErrorAction
 import java.security.SecureRandom
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -35,17 +33,15 @@ import java.util.zip.ZipOutputStream
  * a link (R-5.9-17), so the app asks for no storage permission. A saved or
  * cancelled file is deleted, a shared one stays until the app's next start,
  * which empties the folder. Reading back a file the teacher picks gives its
- * text: UTF-16 after its byte-order mark, as Excel saves Unicode text, else
- * UTF-8, or Arabic Windows' code page when it is not, as Excel saves a CSV
- * file; a file over 2 MB is refused, and so is a file that is not text: a
- * ZIP archive, such as one the export made under a password or an .xlsx
- * workbook, an old .xls workbook, or a PDF.
+ * text (PickedFiles); a file over 2 MB is refused, and so is a file that is
+ * not text. An archive picked for a restore (#247) is kept under a token of
+ * its own, until it is dropped, and its one file read with a password.
  */
 class MinhajnaFilesModule(private val context: ReactApplicationContext) :
   NativeMinhajnaFilesSpec(context), ActivityEventListener {
   private val folder: File get() = File(context.cacheDir, FOLDER).apply { mkdirs() }
   private var saving: Pair<File, Promise>? = null
-  private var opening: Promise? = null
+  private var opening: Pair<Promise, Boolean>? = null
 
   init {
     context.addActivityEventListener(this)
@@ -95,17 +91,20 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
   /** Makes a file in a fresh token's folder, off the main thread, and gives the token, or nothing if it fails. */
   private fun placed(promise: Promise, make: (File) -> Unit) {
     Thread {
-      val token = ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
-      val place = File(folder, token).apply { mkdirs() }
+      val place = File(folder, newToken()).apply { mkdirs() }
       try {
         make(place)
-        promise.resolve(token)
+        promise.resolve(place.name)
       } catch (error: Exception) {
         place.deleteRecursively()
         promise.reject("E_FILE", "The file could not be made", error)
       }
     }.start()
   }
+
+  /** A fresh token: 8 random bytes in hex, a folder's name. */
+  private fun newToken(): String =
+    ByteArray(8).also { SecureRandom().nextBytes(it) }.joinToString("") { "%02x".format(it) }
 
   /** The one file a token's folder holds. */
   private fun fileOf(token: String): File? =
@@ -144,15 +143,35 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
     promise.resolve(null)
   }
 
-  override fun openText(promise: Promise) {
+  override fun openText(promise: Promise) = open(promise, false)
+
+  override fun openZip(promise: Promise) = open(promise, true)
+
+  override fun readZip(token: String, entry: String, password: String, sealed: Boolean, promise: Promise) {
+    val place = fileOf(token)?.parentFile ?: return promise.reject("E_FILE", "No such file")
+    Thread {
+      try {
+        promise.resolve(PickedFiles.archiveText(place, entry, password, sealed))
+      } catch (error: Throwable) {
+        refuse(promise, error)
+      }
+    }.start()
+  }
+
+  override fun dropFile(token: String) {
+    if (TOKEN_PATTERN.matches(token)) File(folder, token).deleteRecursively()
+  }
+
+  /** Asks for a file through the system's file picker: a text file, or any file for an archive. */
+  private fun open(promise: Promise, zip: Boolean) {
     val activity = context.currentActivity ?: return promise.reject("E_FILE", "No screen to open from")
     UiThreadUtil.runOnUiThread {
       if (saving != null || opening != null) return@runOnUiThread promise.reject("E_FILE_BUSY", "A picker is open")
-      opening = promise
+      opening = promise to zip
       val pick = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "*/*"
-        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/*", "application/csv", "application/vnd.ms-excel"))
+        if (!zip) putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/*", "application/csv", "application/vnd.ms-excel"))
       }
       try {
         activity.startActivityForResult(pick, OPEN_REQUEST)
@@ -186,22 +205,47 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
         }.start()
       }
       OPEN_REQUEST -> {
-        val promise = opening ?: return
+        val (promise, zip) = opening ?: return
         opening = null
         if (target == null) return promise.resolve(null)
-        Thread {
-          try {
-            val input = context.contentResolver.openInputStream(target) ?: throw IOException("Not readable")
-            val bytes = input.use { read(it) }
-            if (bytes.size > LIMIT) return@Thread promise.reject("E_FILE_SIZE", "The file is over 2 MB")
-            if (binary(bytes)) return@Thread promise.reject("E_FILE_BINARY", "The file is not text")
-            promise.resolve(textOf(bytes))
-          } catch (error: Exception) {
-            promise.reject("E_FILE", "The file could not be read", error)
-          }
-        }.start()
+        Thread { if (zip) kept(target, promise) else text(target, promise) }.start()
       }
     }
+  }
+
+  /** The picked file's text, refused over 2 MB or when it is not text. */
+  private fun text(target: Uri, promise: Promise) {
+    try {
+      val input = context.contentResolver.openInputStream(target) ?: throw IOException("Not readable")
+      val bytes = input.use { PickedFiles.read(it, PickedFiles.TEXT_LIMIT) }
+      if (bytes.size > PickedFiles.TEXT_LIMIT) return promise.reject("E_FILE_SIZE", "The file is over 2 MB")
+      if (PickedFiles.binary(bytes)) return promise.reject("E_FILE_BINARY", "The file is not text")
+      promise.resolve(PickedFiles.textOf(bytes))
+    } catch (error: Exception) {
+      promise.reject("E_FILE", "The file could not be read", error)
+    }
+  }
+
+  /** The picked archive, copied under a fresh token, given with the name the picker shows. */
+  private fun kept(target: Uri, promise: Promise) {
+    val place = File(folder, newToken()).apply { mkdirs() }
+    try {
+      val name = PickedFiles.keep(context.contentResolver, target, place)
+      promise.resolve(Arguments.createMap().apply {
+        putString("token", place.name)
+        putString("name", name)
+      })
+    } catch (error: Throwable) {
+      place.deleteRecursively()
+      refuse(promise, error)
+    }
+  }
+
+  /** Rejects with the archive's refusal, a lack of memory as its size, or a plain read failure. */
+  private fun refuse(promise: Promise, error: Throwable) = when (error) {
+    is ZipRead.Refused -> promise.reject("E_ZIP_${error.reason}", "The archive was refused")
+    is OutOfMemoryError -> promise.reject("E_ZIP_TOO_LARGE", "The archive is too large for this phone")
+    else -> promise.reject("E_FILE", "The file could not be read", error)
   }
 
   override fun onNewIntent(intent: Intent) = Unit
@@ -211,7 +255,7 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
     UiThreadUtil.runOnUiThread {
       saving?.second?.resolve(false)
       saving = null
-      opening?.resolve(null)
+      opening?.first?.resolve(null)
       opening = null
     }
     super.invalidate()
@@ -222,14 +266,8 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
     private const val FOLDER = "files"
     private const val SAVE_REQUEST = 4_242
     private const val OPEN_REQUEST = 4_243
-    private const val LIMIT = 2 * 1024 * 1024
     private val TOKEN_PATTERN = Regex("^[0-9a-f]{16}$")
     private val PDF_PATTERN = Regex("^[a-z0-9-]{1,64}$")
-    private val BINARY_STARTS = listOf(
-      intArrayOf(0x50, 0x4B, 0x03, 0x04),
-      intArrayOf(0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1),
-      intArrayOf(0x25, 0x50, 0x44, 0x46, 0x2D),
-    )
 
     /** Empties the files' folder, called as the app starts, so no file outlives a process killed mid-save. */
     fun clearCache(context: Context) {
@@ -258,38 +296,5 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
         }
       }
     }
-
-    /** At most one byte over the limit, so a larger file is known to be one. */
-    private fun read(input: java.io.InputStream): ByteArray {
-      val out = java.io.ByteArrayOutputStream()
-      val buffer = ByteArray(8192)
-      while (out.size() <= LIMIT) {
-        val count = input.read(buffer, 0, minOf(buffer.size, LIMIT + 1 - out.size()))
-        if (count < 0) break
-        out.write(buffer, 0, count)
-      }
-      return out.toByteArray()
-    }
-
-    /** Whether the bytes begin as a ZIP archive, an old Office file or a PDF does. */
-    fun binary(bytes: ByteArray): Boolean = BINARY_STARTS.any { start ->
-      bytes.size >= start.size && start.indices.all { bytes[it] == start[it].toByte() }
-    }
-
-    /** The bytes as text: UTF-16 after its mark, UTF-8 when they are, else Arabic Windows' code page. */
-    fun textOf(bytes: ByteArray): String = if (bytes.size >= 2 && unicode(bytes[0], bytes[1])) {
-      String(bytes, 2, bytes.size - 2, if (bytes[0] == 0xFF.toByte()) Charsets.UTF_16LE else Charsets.UTF_16BE)
-    } else try {
-      Charsets.UTF_8.newDecoder()
-        .onMalformedInput(CodingErrorAction.REPORT)
-        .onUnmappableCharacter(CodingErrorAction.REPORT)
-        .decode(ByteBuffer.wrap(bytes))
-        .toString()
-    } catch (error: CharacterCodingException) {
-      String(bytes, Charset.forName("windows-1256"))
-    }
-
-    private fun unicode(first: Byte, second: Byte): Boolean =
-      (first == 0xFF.toByte() && second == 0xFE.toByte()) || (first == 0xFE.toByte() && second == 0xFF.toByte())
   }
 }

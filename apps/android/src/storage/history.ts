@@ -68,7 +68,7 @@ export type HistorySpec = Pick<
   'randomBytes' | 'digest' | 'openHistory' | 'loadHistory' | 'appendEntry' | 'eraseContent'
 >;
 
-export function nativeDeps(native: HistorySpec): HistoryDeps {
+export function nativeDeps(native: Pick<HistorySpec, 'digest' | 'randomBytes'>): HistoryDeps {
   return {
     digest: async (text) => {
       const [hash] = await native.digest([text]);
