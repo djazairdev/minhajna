@@ -3,7 +3,12 @@
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { TFunction } from 'i18next';
+import { useState } from 'react';
 import { Text } from 'react-native';
+import { Notice } from '../components/Notice';
+import { Switch } from '../components/Switch';
+import { controlIcon } from '../design/Icon';
+import native from '../native/NativeMinhajnaCrash';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { PILOT_BUILD } from '../pilot/pilot-build';
 import { useAppData } from '../storage/AppData';
@@ -16,12 +21,15 @@ import { useAppLicences } from './useAppLicences';
 /**
  * Help as drawn (#249, answer 483): the demo class, which opens «الأقسام والتلاميذ»; «توقيتاتي» in pilot builds;
  * «الإبلاغ عن مشكلة», the plan-error row, which opens the Classes tab (answer 301), and a refused update file, by
- * hand (answer 307); the teacher's channels; then the privacy notice, connections and licences, and the build.
+ * hand (answer 307); «تقارير الأعطال», off until the teacher turns it on, and turning it off deletes a kept report;
+ * the teacher's channels; then the privacy notice, connections and licences, and the build.
  */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
   const t = useText();
   const { state } = useAppData();
   const demo = [...state.classes.values()].some((schoolClass) => schoolClass.demo === true);
+  const [crashes, setCrashes] = useState(() => native.reportsOn());
+  const [crashesFailed, setCrashesFailed] = useState(false);
   return (
     <HelpPage>
       <HelpRow
@@ -53,6 +61,20 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
         detail={t('help.planErrorHow')}
         onPress={() => navigation.popTo('Home', { screen: 'Classes' })}
       />
+      <Switch
+        testID="help-crashes"
+        label={t('help.crashes')}
+        description={t('help.crashesLine')}
+        value={crashes}
+        onValueChange={(on) => {
+          const saved = native.setReports(on);
+          if (saved) setCrashes(on);
+          setCrashesFailed(!saved);
+        }}
+      />
+      {crashesFailed && (
+        <Notice testID="help-crashes-failed" icon={controlIcon('info')} message={t('settings.failed')} />
+      )}
       <Text accessibilityRole="header" style={helpStyles.heading}>
         {t('help.updateRefused')}
       </Text>

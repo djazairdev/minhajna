@@ -116,11 +116,13 @@ export function Connections() {
         },
       ]}
     >
-      {(['none', 'source', 'packSource', 'errorReport', 'problemReport', 'register'] as const).map((key) => (
-        <Text key={key} style={[styles.paragraph, align]}>
-          {t(`connections.${key}`)}
-        </Text>
-      ))}
+      {(['none', 'source', 'packSource', 'errorReport', 'problemReport', 'crashReport', 'register'] as const).map(
+        (key) => (
+          <Text key={key} style={[styles.paragraph, align]}>
+            {t(`connections.${key}`)}
+          </Text>
+        ),
+      )}
     </ScrollView>
   );
 }

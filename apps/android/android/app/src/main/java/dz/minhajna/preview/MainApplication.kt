@@ -11,6 +11,7 @@ import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
+import dz.minhajna.preview.crash.CrashKeep
 import dz.minhajna.preview.documents.MinhajnaPdfModule
 import dz.minhajna.preview.files.MinhajnaFilesModule
 import dz.minhajna.preview.language.InterfaceLanguage
@@ -27,6 +28,7 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    CrashKeep.install(this)
     registerFonts()
     MinhajnaPdfModule.clearCache(this)
     MinhajnaFilesModule.clearCache(this)

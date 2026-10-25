@@ -34,49 +34,53 @@ import { coreContext } from '../storage/core-context';
 import { takenSlip } from '../documents/roll-slip';
 import { useText } from '../text/i18n';
 import { Today } from '../today/Today';
+import { CrashSheet } from '../help/CrashSheet';
 import { schoolEntries } from '../calendar/view';
 import type { HomeTabParamList, RootStackParamList } from './AppNavigator';
 
-/** The day's sessions; the help button opens Help and the privacy notice. */
+/** The day's sessions, with a crash report kept before the last stop; the help button opens Help. */
 export function TodayTab({
   navigation,
 }: CompositeScreenProps<BottomTabScreenProps<HomeTabParamList, 'Today'>, NativeStackScreenProps<RootStackParamList>>) {
   const data = useAppData();
   return (
-    <Today
-      onHelp={() => navigation.navigate('Help')}
-      onSettings={() => navigation.navigate('Settings')}
-      onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
-      onRoll={(session) =>
-        navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
-      }
-      onExtra={() => navigation.navigate('Extra')}
-      onJournal={(day) => navigation.navigate('DocOutput', { id: 'primary-journal', day })}
-      onCalendarUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
-      onBackupSheet={() => {
-        navigation.navigate('SettingsDevices');
-        navigation.navigate('SettingsRecovery', { first: true });
-      }}
-      onRamadan={{
-        calendar: (id, schoolId) =>
-          navigation.navigate('CalendarEntry', {
-            id,
-            origin: schoolEntries(data, schoolId).some((row) => row.origin === 'local' && row.entry.id === id)
-              ? 'local'
-              : 'bundled',
-            schoolId,
-          }),
-        book: () => navigation.navigate('Documents'),
-      }}
-      onHomework={(item) =>
-        navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
-      }
-      onExams={{
-        warning: (courseId) => navigation.navigate('ExamWindow', { courseId }),
-        duty: (day) => navigation.navigate('Duty', { day }),
-        support: (catchUp) => navigation.navigate('Extra', { courseId: catchUp.courseId, scheduled: catchUp.id }),
-      }}
-    />
+    <>
+      <CrashSheet />
+      <Today
+        onHelp={() => navigation.navigate('Help')}
+        onSettings={() => navigation.navigate('Settings')}
+        onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
+        onRoll={(session) =>
+          navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
+        }
+        onExtra={() => navigation.navigate('Extra')}
+        onJournal={(day) => navigation.navigate('DocOutput', { id: 'primary-journal', day })}
+        onCalendarUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
+        onBackupSheet={() => {
+          navigation.navigate('SettingsDevices');
+          navigation.navigate('SettingsRecovery', { first: true });
+        }}
+        onRamadan={{
+          calendar: (id, schoolId) =>
+            navigation.navigate('CalendarEntry', {
+              id,
+              origin: schoolEntries(data, schoolId).some((row) => row.origin === 'local' && row.entry.id === id)
+                ? 'local'
+                : 'bundled',
+              schoolId,
+            }),
+          book: () => navigation.navigate('Documents'),
+        }}
+        onHomework={(item) =>
+          navigation.navigate('Homework', { courseId: item.session.courseId, sessionKey: item.session.key })
+        }
+        onExams={{
+          warning: (courseId) => navigation.navigate('ExamWindow', { courseId }),
+          duty: (day) => navigation.navigate('Duty', { day }),
+          support: (catchUp) => navigation.navigate('Extra', { courseId: catchUp.courseId, scheduled: catchUp.id }),
+        }}
+      />
+    </>
   );
 }
 
