@@ -20,7 +20,7 @@ private val P256: ECParameterSpec by lazy {
   }
 }
 
-private fun isP256(params: ECParameterSpec): Boolean =
+internal fun isP256(params: ECParameterSpec): Boolean =
   params.curve == P256.curve &&
     params.generator == P256.generator &&
     params.order == P256.order &&
