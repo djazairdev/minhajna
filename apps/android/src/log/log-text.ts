@@ -114,6 +114,7 @@ const OWN_TITLES = {
   'mark-sheet': 'documents.markSheet.name',
   'sept-check': 'septCheck.title',
   'stale-question': 'staleQuestion.title',
+  statement: 'statement.title',
   transfer: 'settings.transfer.title',
 } as const;
 

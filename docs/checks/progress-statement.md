@@ -1,8 +1,8 @@
-# Progress statement: the core
+# Progress statement
 
 Part 1 of [#245](https://github.com/djazairdev/minhajna/issues/245), scoped by [#436](https://github.com/djazairdev/minhajna/issues/436). Prepared on main `2ae76b0` on 24 October 2026, then updated to main `ac0013c` and rechecked on 25 October. All test data is invented.
 
-This adds the statement's calculations and versioned signed text, not the Share screen. No teacher-facing feature is enabled, so CHANGELOG.md has no new announcement.
+Part 1 adds the statement's calculations and versioned signed text, with no teacher-facing feature. Part 3, the Share screen with print and PDF, is [below](#part-3-the-share-screen-print-and-pdf).
 
 ## Public API
 
@@ -77,10 +77,30 @@ The review of [PR #456](https://github.com/djazairdev/minhajna/pull/456) found t
 
 With whole numbers, a signed Arabic statement fits one QR code only with short titles, about 30 Arabic characters for each of the two titles. Most real statements will leave as a signed file, which answer 471 already allows.
 
+## Part 3: the Share screen, print and PDF
+
+[#438](https://github.com/djazairdev/minhajna/issues/438), answer 485. The class page has a row «بيان التقدّم» for a class with a plan. The screen shows the statement as it will leave, every field in words, with chips for the subject's other classes with a plan. Nothing is signed, made or logged before «طباعة» or «PDF».
+
+At either tap the app computes the statement as of that moment's day, signs it with the phone's Keystore key (#437), and lays out an A4 portrait page: the day, the title, the class, the fields, a privacy line, and a box with «توقيع رقمي للتحقق، وليس توقيعاً قانونياً.», the key fingerprint in groups of four and the signed text's QR code when it fits. The page has no «داخلي · سري» mark and no password, since it holds no pupil data. A failed signature makes nothing.
+
+**The signed text in the PDF.** The signature line is a link to `minhajna-statement:` followed by the signed text's UTF-8 bytes in base64 (`statementLink` and `linkedStatement` in `packages/core/src/statement-link.ts`). The phone's web engine keeps a link's address in the PDF, so every saved PDF carries the whole signed text however long it is. Reader mode (#246) takes it back from the file and checks it with `checkStatement`. On paper, only the QR code carries it, which fits short Arabic titles only.
+
+The PDF is named «بيان التقدّم <class> <subject> <day>.pdf» through `safeFileName`. Each print and each saved PDF adds one `output.recorded` line to the activity log, document `statement` and the day; a cancelled save adds nothing.
+
+| Check | Result |
+|---|---|
+| Unit tests: core link round trip and refusals (4); screen, print, PDF, the day of the tap, failures and texts (10); class page row (2) | Pass |
+| Emulator, Arabic, right to left: the class page row, then every field, the chips, both buttons and the signature line; «PDF» saves «بيان التقدّم القسم التجريبي الرياضيات 2026-10-25.pdf», one A4 page with the fields, the fingerprint in its true order and a QR code; «طباعة» opens Android's print screen on one A4 page; the log shows «بيان التقدّم · 25/10/2026 · PDF» | Pass |
+| Emulator, French, left to right: the same screen and a PDF named «Relevé de progression … Mathématiques 2026-10-25.pdf» | Pass |
+| Emulator, text at 200%: each label sits above its value and the buttons wrap. The printed page also grew with the phone's text size and ran onto a second page; every printed document does this, since the page's web view keeps the phone's text zoom, so it is fixed apart | Screen: pass. Page: separate fix |
+| The saved PDF keeps the link's address unescaped, `linkedStatement` reads the signed text back from the file, and `checkStatement` accepts it; with one figure changed it fails with `signature` | Pass, Arabic and French PDFs |
+| TalkBack in Arabic, A4 paper and a camera scan of the printed code | Not checked here; listed in #206 |
+
+The emulator check ran on 25 October 2026 on an API 35 emulator, with a release build of this branch signed with the debug key and made-up data: the demo class, a made-up own list of five items and three confirmed sessions.
+
 ## Still outside this part
 
 - #437 / PR #455: Android Keystore key creation and signing, fingerprints, QR drawing and native tests, submitted separately.
-- #438: the preview, A4 print/PDF and a recoverable representation of the signed text in the PDF.
 - #439: QR/file sharing, optional recipient roles and append-only sharing history. Its free-name field conflicts with PRD §3.10; the PRD wins: role only, never a recipient's name.
 - #246: reader mode, including identity and key-continuity checks. Main now contains #247's backup and transfer work; it does not transfer a teacher's Keystore signing key.
 - Native RTL/LTR at 200%, spoken Arabic TalkBack, A4 paper and budget-phone acceptance of those screens. None is claimed for this core-only work.

@@ -6,9 +6,10 @@
 // its line and its screen, every homework due today whichever group it was set
 // to, assessment with today's term and its setup, the month so far counted in
 // half-days for the class and each pupil, with no roll call said as such
-// whatever the rule for those not taken, an empty class, and the settings
-// sheet (answer 256). The teacher has 4م1, with 45 made-up pupils, and 4م2 on
-// Thursdays from 11 October 2026.
+// whatever the rule for those not taken, an empty class, and the settings sheet
+// (answer 256); the progress statement's row only with a plan (#438). The
+// teacher has 4م1, with 45 made-up pupils, and 4م2 on Thursdays from 11 October
+// 2026.
 
 import { DEFAULT_COUNTING, confirmSessions, parseDay, todayView, type Day, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -210,15 +211,24 @@ test('the month row, Roll-print, the marks hub and each pupil open once their sc
   const onMonth = jest.fn();
   const onPupil = jest.fn();
   const onRollPrint = jest.fn();
-  await mount(await withPupils(), { onMarks, onMonth, onPupil, onRollPrint });
+  const onStatement = jest.fn();
+  await mount(await withPupils(), { onMarks, onMonth, onPupil, onRollPrint, onStatement });
   await press('class-marks');
   await press('class-roll');
   await press('class-roll-print');
+  await press('class-statement');
   await press('class-pupil-p-2');
   expect(onMarks).toHaveBeenCalledTimes(1);
   expect(onMonth).toHaveBeenCalledTimes(1);
   expect(onRollPrint).toHaveBeenCalledTimes(1);
+  expect(onStatement).toHaveBeenCalledTimes(1);
   expect(onPupil).toHaveBeenCalledWith('p-2');
+});
+
+test('the progress statement is offered only for a class with a plan', async () => {
+  await mount(await withDay(), { courseId: 'c-2' });
+  expect(control('class-statement')).toBeUndefined();
+  expect(texts()).not.toContain(text.statement.row);
 });
 
 test('the settings sheet opens the seating plan, the counting rules and the moves, closing first', async () => {

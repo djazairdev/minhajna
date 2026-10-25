@@ -6,14 +6,14 @@
 // call, then a row for each of its records, each opening its screen: the texts
 // book, the plan, the roll-call book and its print (answer 260), homework,
 // sessions outside the timetable, supervised or extra lessons, and assessment,
-// with the term holding today and its setup (#238, answer 436). Then the
-// pupils, each with the month's absences and lateness so far, and
-// «إضافة أو نقل», then «غادروا القسم», each pupil who left with the day,
-// opening their page like the others (answer 475). The settings button in the
-// top bar opens the class's settings that exist (answer 256). The page reads
-// the record and adds nothing to it. A class archived after a reorientation
-// says so, and offers no session outside the timetable and no pupil move
-// (#231).
+// with the term holding today and its setup (#238, answer 436), and «بيان
+// التقدّم» for a class with a plan (#438). Then the pupils, each with the
+// month's absences and lateness so far, and «إضافة أو نقل», then «غادروا
+// القسم», each pupil who left with the day, opening their page like the others
+// (answer 475). The settings button in the top bar opens the class's settings
+// that exist (answer 256). The page reads the record and adds nothing to it. A
+// class archived after a reorientation says so, and offers no session outside
+// the timetable and no pupil move (#231).
 
 import { courseSetup, termNumberOn, type Session } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -70,6 +70,8 @@ export type ClassPageProps = {
   readonly onMonth?: () => void;
   /** Opens Roll-print on this class's book. */
   readonly onRollPrint?: () => void;
+  /** Opens «بيان التقدّم»; the row shows only for a class with a plan. */
+  readonly onStatement?: () => void;
   readonly onHomework: () => void;
   readonly onExtra: () => void;
   readonly onSupervised: () => void;
@@ -134,10 +136,10 @@ export function ClassPage(props: ClassPageProps) {
           row.today.slot,
           row.today.day,
         );
-  const plan = [
-    paceLine(t, row, minutes ? courseSetup(context, row.course.id).sessionMinutes : undefined),
-    tdLine(t, row.check),
-  ].filter((line): line is string => line !== null);
+  const setup = courseSetup(context, row.course.id);
+  const plan = [paceLine(t, row, minutes ? setup.sessionMinutes : undefined), tdLine(t, row.check)].filter(
+    (line): line is string => line !== null,
+  );
   const link = (
     id: string,
     icon: Parameters<typeof controlIcon>[0],
@@ -229,6 +231,8 @@ export function ClassPage(props: ClassPageProps) {
         {row.archived === undefined && link('extra', 'plus', t('extra.title'), t('classPage.extraLine'), props.onExtra)}
         {link('supervised', 'school', t('documents.supervised.name'), lines.supervised, props.onSupervised)}
         {link('marks', 'check', t('classPage.marks'), lines.marks, props.onMarks)}
+        {setup.pack !== null &&
+          link('statement', 'publisher', t('statement.title'), t('statement.row'), props.onStatement)}
       </View>
       <SectionHeader
         testID="class-pupils"

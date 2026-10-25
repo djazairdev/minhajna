@@ -87,6 +87,7 @@ export * from './pack.ts';
 export * from './pack-catalogue.ts';
 export * from './progress.ts';
 export * from './progress-statement.ts';
+export * from './statement-link.ts';
 export * from './statement-read.ts';
 export * from './statement-signature.ts';
 export * from './propose.ts';
