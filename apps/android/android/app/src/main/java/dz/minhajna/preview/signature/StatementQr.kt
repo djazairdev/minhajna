@@ -10,7 +10,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 /**
  * ZXing alone encodes (#437). The 996-byte contract matches #436's
- * STATEMENT_QR_LIMIT: version 25-M, UTF-8 ECI, normal byte mode. The writer
+ * STATEMENT_QR_LIMIT: version 25-M, UTF-8 ECI, byte mode for statement text. The writer
  * chooses the smallest version, with a four-cell white quiet zone. Rows
  * include that zone: future drawing must keep it white and square.
  * No bitmap, payload copy or QR image is saved to disk.

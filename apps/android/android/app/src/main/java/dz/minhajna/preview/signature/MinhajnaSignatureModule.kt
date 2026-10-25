@@ -15,7 +15,8 @@ import java.util.concurrent.RejectedExecutionException
  * file never holds the screen. The core reads a payload only after this
  * says its signature checks; a check asked for after the app reloaded
  * says it does not. Teacher signing and QR drawing (#437) run on the same
- * worker. Errors expose no payload, key material or platform exception.
+ * worker. Errors expose no payload, key material or platform exception,
+ * and any failure on the worker, an Error included, still answers.
  * Only public keys leave the Keystore; a new phone has a new signing key,
  * never a backup or transfer of this one. Device erasure (#248) must remove
  * TeacherSigningKey.ALIAS. No method signs automatically at app startup.
@@ -51,7 +52,7 @@ class MinhajnaSignatureModule(
       worker.execute {
         try {
           promise.resolve(task())
-        } catch (_: Exception) {
+        } catch (_: Throwable) {
           promise.reject(code, message)
         }
       }

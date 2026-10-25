@@ -25,7 +25,8 @@ class StatementQrTest {
 
   @Test
   fun readsAsciiArabicAndEmojiWithoutNetwork() {
-    for (text in listOf("{\"example\":1}", "\u0628\u064a\u0627\u0646 \u062a\u062c\u0631\u064a\u0628\u064a", "\ud83d\ude00")) {
+    val arabic = "\u0628\u064a\u0627\u0646 \u062a\u062c\u0631\u064a\u0628\u064a"
+    for (text in listOf("{\"example\":1}", arabic, "\ud83d\ude00")) {
       val rows = statementQr(text)
       assertEquals(text, decoded(rows))
       assertTrue(rows.size in 29..125)

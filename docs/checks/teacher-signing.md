@@ -2,7 +2,7 @@
 
 Part 2 of [#245](https://github.com/djazairdev/minhajna/issues/245), scoped by [#437](https://github.com/djazairdev/minhajna/issues/437). Based on main `2ae76b0`, checked on 24 October 2026. All payloads and keys used in tests are invented or generated for that test run.
 
-This adds native primitives, not a Share screen. Nothing is signed at startup or sent anywhere. There is no change teachers can see yet, so CHANGELOG.md is untouched. The separate, uncommitted #436 core work is preserved in its own checkout and branch.
+This adds native primitives, not a Share screen. Nothing is signed at startup or sent anywhere. There is no change teachers can see yet, so CHANGELOG.md is untouched.
 
 ## The signing key
 
@@ -52,8 +52,6 @@ Final results, with Node.js 22.23.2 and Temurin 17:
 
 The emulators were created from already-installed images, with no Google services or downloads. No shared emulator was wiped, updated or used. This is not a physical-phone, camera-scan or independent reproducibility result. The native package can be repeated after installing the debug app and test APKs with `adb shell am instrument -w -r -e package dz.minhajna.preview.signature dz.minhajna.preview.test/androidx.test.runner.AndroidJUnitRunner`.
 
-The two temporary test emulators and their disposable data were removed afterwards. They can be recreated from the unchanged installed SDK images; test logs remain outside their folders. Shared devices and the separate #436 checkout were left untouched.
-
 ## Remaining work
 
 - #436: core figures and signed-file format, prepared separately and not included in this branch.
@@ -63,7 +61,3 @@ The two temporary test emulators and their disposable data were removed afterwar
 - Native layout, spoken Arabic TalkBack, A4 paper, camera scanning and budget-phone acceptance belong to the connected screens. None is claimed by these primitive tests.
 
 No dependency, app permission, network call, database migration, record layer or existing public file format changes. NETWORK.md, PRIVACY.md and the PRD are untouched. No user-visible translation is needed until the screens are connected.
-
-## ملخص بالعربية
-
-هذه خطوة تمهيدية لتوقيع بيان التقدّم وإنشاء رمز QR داخل الهاتف. يبقى مفتاح التوقيع الخاص في الهاتف ولا يدخل في النسخ الاحتياطية أو نقل البيانات إلى هاتف آخر. لا تُضاف شاشة مشاركة بعد، ولا تُرسل أي بيانات. التوقيع للتحقق من سلامة البيان، وليس توقيعاً قانونياً أو اعتماداً من الدولة.

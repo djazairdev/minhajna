@@ -22,7 +22,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TeacherSigningTest {
   private val alias = "minhajna-test-teacher-${UUID.randomUUID()}"
-  private val payload = "{\"example\":\"\u0628\u064a\u0627\u0646 \u062a\u062c\u0631\u064a\u0628\u064a\",\"day\":\"2026-10-24\"}"
+  private val payload =
+    "{\"example\":\"\u0628\u064a\u0627\u0646 \u062a\u062c\u0631\u064a\u0628\u064a\",\"day\":\"2026-10-24\"}"
 
   @After
   fun removeOnlyThisTestsKeys() {
