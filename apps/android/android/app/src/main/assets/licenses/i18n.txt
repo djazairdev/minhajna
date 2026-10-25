@@ -7,8 +7,8 @@ SPDX-License-Identifier: MIT
 
 Interface text dependency notices
 
-i18next 26.4.5
-https://registry.npmjs.org/i18next/26.4.5
+i18next 26.5.4
+https://registry.npmjs.org/i18next/26.5.4
 
 The MIT License (MIT)
 
@@ -32,8 +32,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-react-i18next 17.0.17
-https://registry.npmjs.org/react-i18next/17.0.17
+react-i18next 17.1.0
+https://registry.npmjs.org/react-i18next/17.1.0
 
 The MIT License (MIT)
 
