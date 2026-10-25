@@ -31,7 +31,8 @@
     "retention": "Retention",
     "erase": "Erase this device",
     "help": "Help and privacy",
-    "privacy": "Privacy notice"
+    "privacy": "Privacy notice",
+    "statement": "Progress statement"
   },
   "cardLine": "Printed on documents; personal fields stay on this phone.",
   "cardFromSchools": "Subjects and schools come from the schools’ settings.",
@@ -347,5 +348,7 @@
       "askArchive": "If the phone it came from is in hand, export the file again. If not, choose another file, or check the password.",
       "again": "Choose another file"
     }
-  }
+  },
+  "sharing": "Sharing",
+  "statementLine": "Per class, no pupil data"
 }

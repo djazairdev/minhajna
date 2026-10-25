@@ -12,15 +12,12 @@
 // 1م3 with none.
 
 import {
-  confirmSessions,
-  eventOf,
   linkedStatement,
   parseDay,
   progressStatement,
+  sharingHistory,
   statementLink,
   statementPayload,
-  todayView,
-  type RecordEvent,
 } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import type { PressableProps } from 'react-native';
@@ -28,7 +25,7 @@ import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import type { TestData } from '../jest/app-data';
 import { context, mount, press, root, settle, texts, unmount } from '../jest/components-screen';
-import { withTd } from '../jest/td-class';
+import { statementClasses } from '../jest/statement-classes';
 import pdf from '../src/native/NativeMinhajnaPdf';
 import { AppDataProvider } from '../src/storage/AppData';
 import { nativeDeps } from '../src/storage/history';
@@ -60,47 +57,10 @@ afterEach(async () => {
   jest.clearAllMocks();
 });
 
-const klass = (id: string, name: string): RecordEvent => ({
-  kind: 'class.set',
-  schoolClass: {
-    id,
-    schoolId: 's-1',
-    level: 'cem',
-    grade: '1am',
-    name,
-    groups: [{ id: `${id}-w`, kind: 'whole', name }],
-  },
-});
-const course = (id: string, classId: string, pack: boolean): RecordEvent => ({
-  kind: 'course.set',
-  course: {
-    id,
-    classId,
-    subject: 'math',
-    year: '2026-2027',
-    pack: pack ? { id: 'dz.cem.1am.math.example', release: '2026.1' } : null,
-  },
-});
-
-/** 1\u06451 with its Thursday lesson confirmed, 1\u06452 on the same pack, and 1\u06453 with no plan. */
-async function classes(): Promise<TestData> {
-  const data = await withTd(false, true);
-  await data.book.recordAll(DAY, [
-    klass('k-n', '1\u06452'),
-    course('c-n', 'k-n', true),
-    klass('k-o', '1\u06453'),
-    course('c-o', 'k-o', false),
-  ]);
-  const lesson = todayView(context(data), DAY).sessions.find((one) => one.session.courseId === 'c-m');
-  await data.book.recordAll(DAY, confirmSessions(context(data), [{ session: lesson!.session }]));
-  return data;
-}
+const classes = () => statementClasses();
 
 const outputs = (data: TestData) =>
-  data.book.entries.flatMap((entry) => {
-    const event: RecordEvent | null = eventOf(entry);
-    return event?.kind === 'output.recorded' ? [[event.output.document, event.output.period, event.output.how]] : [];
-  });
+  sharingHistory(data.book.entries).map((share) => [share.courseId, share.day, share.how]);
 const has = (testID: string) => root().findAll((node) => node.props.testID === testID).length > 0;
 const field = (id: string) =>
   root().findAll((node) => node.props.testID === `statement-${id}` && node.props.accessibilityLabel !== undefined)[0]
@@ -162,7 +122,7 @@ test('a print is signed then, with the fingerprint, the legal line, the code and
   expect(html).toContain(`<a href="${statementLink(signed)}">`);
   expect(linkedStatement(statementLink(signed))).toBe(signed);
   expect(html).not.toContain(text.documents.confidential);
-  expect(outputs(data)).toEqual([['statement', '2026-10-15', 'print']]);
+  expect(outputs(data)).toEqual([['c-m', '2026-10-15', 'print']]);
   expect(has('statement-said')).toBe(false);
 });
 
@@ -177,7 +137,7 @@ test('a PDF is named by the class, subject and day; a cancelled save is neither 
   expect(makePdf).toHaveBeenCalledWith(expect.stringContaining('<svg class="qr"'), 'statement', false);
   expect(savePdf).toHaveBeenLastCalledWith('statement', `${text.statement.title} ${FIRST} ${MATH} 2026-10-15.pdf`);
   expect(sign).toHaveBeenCalledTimes(2);
-  expect(outputs(data)).toEqual([['statement', '2026-10-15', 'pdf']]);
+  expect(outputs(data)).toEqual([['c-m', '2026-10-15', 'pdf']]);
   expect(texts()).toContain(text.documents.output.saved);
 });
 
@@ -204,7 +164,7 @@ test('the statement leaves as of the day of the tap, though the screen opened th
   });
   expect(sign).toHaveBeenCalledWith(statementPayload(progressStatement(context(data), 'c-m', parseDay(day))!));
   expect(savePdf).toHaveBeenLastCalledWith('statement', expect.stringMatching(/ 2026-10-16\.pdf$/));
-  expect(outputs(data)).toEqual([['statement', '2026-10-16', 'pdf']]);
+  expect(outputs(data)).toEqual([['c-m', '2026-10-16', 'pdf']]);
   await ReactTestRenderer.act(() => tree?.unmount());
 });
 

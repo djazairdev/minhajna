@@ -3530,6 +3530,44 @@
       "code": "The code carries the signed statement; Minhajna reads it in reader mode, with no network.",
       "tooLong": "The statement is too long for one code: it is checked from its file, the PDF or the signed file.",
       "privacy": "The statement carries no pupil data, and no reasons for sessions not held."
-    }
+    },
+    "tooLong": "The statement is too long for one code, so it leaves as a signed file through the share menu. The short local transfer comes with the launch.",
+    "how": {
+      "print": "Print",
+      "pdf": "PDF",
+      "qr": "QR code",
+      "file": "Signed file"
+    },
+    "roles": {
+      "director": "Director",
+      "inspector": "Inspector",
+      "coordinator": "Coordinator",
+      "teacher": "Teacher",
+      "other": "Other"
+    },
+    "to": {
+      "director": "To the director",
+      "inspector": "To the inspector",
+      "coordinator": "To the coordinator",
+      "teacher": "To a teacher",
+      "other": "To someone else"
+    },
+    "toTitle": "To whom?",
+    "toContext": "Statement {{class}} · {{how}} · {{day}}",
+    "toNote": "Written in the sharing history with the date only, no time, and the role only, no name. The recipient can be added or changed later from the sharing history.",
+    "toSave": "Save in the sharing history",
+    "toLater": "Later",
+    "history": "Sharing history",
+    "historyNone": "No statement has left yet.",
+    "historyNote": "By date only, no time. Tap a line to change the recipient.",
+    "historyHint": "Opens “To whom?” for this statement",
+    "noRecipient": "No recipient yet",
+    "qrTitle": "Progress statement · {{class}}",
+    "qrLine": "Signed · read with no network",
+    "qrNote": "It carries the whole statement, with no pupil data, and never expires.",
+    "qrLabel": "QR code of the progress statement, signed, read with no network",
+    "qrClose": "Close",
+    "logShared": "Progress statement · {{class}} · {{how}}",
+    "logSent": "Progress statement · {{class}} · {{how}} · {{to}}"
   }
 }

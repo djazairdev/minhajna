@@ -45,6 +45,19 @@ export function fitsInQr(text: string): boolean {
   return bytes !== null && bytes > 0 && bytes <= STATEMENT_QR_LIMIT;
 }
 
+/**
+ * Whether a statement's signed file will fit one QR code, known before it is signed (answer 486): a P-256 key's
+ * SPKI is always 124 base64 characters, and its signature is taken at its longest, 96, so a statement said to fit
+ * always does.
+ */
+export function statementFitsInQr(statement: ProgressStatement): boolean {
+  const longest = { spki: 'A'.repeat(124), signature: 'A'.repeat(96) };
+  const payload = statementPayload(statement);
+  return fitsInQr(
+    canonicalJson({ format: SIGNED_STATEMENT_FORMAT, version: { major: 1, minor: 0 }, payload, ...longest }),
+  );
+}
+
 /** Signs one detached, allowlisted payload with a platform callback; never creates or exports a private key. */
 export async function signStatement(
   statement: ProgressStatement,

@@ -10,7 +10,8 @@
 // answer 427) a change shows as its kind and day only, unchecked. Erasing a
 // pupil's data shows as one line (answer 473): its erasures make none of
 // their own, and a roll call it restated keeps its corrections' days. Backups
-// and recovery sheets are listed under the devices (#247), never the key.
+// and recovery sheets are listed under the devices (#247), never the key. A
+// statement shared and the role it went to are files (#439).
 
 import { canonicalJson } from './canonical.ts';
 import { compareDays, type Day } from './day.ts';
@@ -23,6 +24,7 @@ import type { Half, SessionRecord, SessionRef } from './records.ts';
 import { markOf, ROLL_CALL_REASONS, type PupilMark, type RollCallReason } from './roll-call-fix.ts';
 import type { RollCall } from './attendance-records.ts';
 import { restatements } from './restated.ts';
+import { shareLine, type ShareLine, type StatementShare } from './statement-shares.ts';
 
 /** A field of a session record a correction changed, in the order the texts book shows them. */
 export const SESSION_FIELDS = [
@@ -90,6 +92,8 @@ export type LogLine =
   /** A backup saved, or a new recovery sheet confirmed (#247): never the key. */
   | { readonly kind: 'backup-saved' }
   | { readonly kind: 'recovery-set' }
+  /** A statement shared, or the role it went to (#439): never its content or a name. */
+  | ShareLine
   /** A change past a damaged stretch: its kind and day, never its content. */
   | { readonly kind: 'unverified'; readonly entryKind: string };
 
@@ -149,6 +153,7 @@ export function changedMarks(before: RollCall, after: RollCall): PupilMarkChange
 interface Seen {
   readonly sessions: Map<string, SessionRecord | null>;
   readonly rollCalls: Map<string, RollCall>;
+  readonly shares: Map<string, StatementShare>;
 }
 
 /** The line one event makes, given the versions seen before it; null for an event the log leaves out. */
@@ -219,6 +224,9 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'backup-saved' };
     case 'recovery.set':
       return { kind: 'recovery-set' };
+    case 'statement.shared':
+    case 'statement.sent':
+      return shareLine(event, seen.shares);
     default:
       return null;
   }
@@ -257,7 +265,7 @@ const categoryOf = (line: LogLine): LogCategory | null => {
  * entry it replaces.
  */
 export function activityLog(entries: readonly (Entry | null)[], trusted: number = entries.length): LogDay[] {
-  const seen: Seen = { sessions: new Map(), rollCalls: new Map() };
+  const seen: Seen = { sessions: new Map(), rollCalls: new Map(), shares: new Map() };
   const kinds = new Map<string, string>();
   const ofPupils = new Set<string>();
   const restated = restatements(entries.slice(0, trusted).filter((entry) => entry !== null));

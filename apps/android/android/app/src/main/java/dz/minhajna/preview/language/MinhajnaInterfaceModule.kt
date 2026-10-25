@@ -5,6 +5,7 @@ package dz.minhajna.preview.language
 
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import com.facebook.react.ReactApplication
 import com.facebook.react.bridge.ReactApplicationContext
@@ -102,6 +103,15 @@ class MinhajnaInterfaceModule(context: ReactApplicationContext) : NativeMinhajna
   override fun invalidate() {
     cancelFocusRequest()
     super.invalidate()
+  }
+
+  /** Keeps the screen on while a code is shown to be scanned, such as a statement's (#439), or lets it sleep again. */
+  override fun keepScreenOn(on: Boolean) {
+    val activity = reactApplicationContext.currentActivity ?: return
+    UiThreadUtil.runOnUiThread {
+      if (on) activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      else activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
   }
 
   /** Android logs the time since launch, as "Fully drawn", for timing a start on any phone. */
