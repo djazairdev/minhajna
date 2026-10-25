@@ -136,5 +136,9 @@ export function recordKey(event: RecordEvent): string {
       return `statement-shared:${event.share.id}`;
     case 'statement.sent':
       return `statement-sent:${event.sent.id}`;
+    case 'statement.received':
+      return `statement-received:${event.received.id}`;
+    case 'teacher.named':
+      return `teacher-named:${event.named.spki}`;
   }
 }

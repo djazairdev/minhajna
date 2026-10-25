@@ -68,6 +68,7 @@ import { recordStep } from '../help/steps';
 import type { HomeTabParamList, RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
 import { planRoutes } from './PlanScreens';
+import { readerRoutes } from './ReaderScreens';
 import { marksRoutes } from './MarksScreens';
 import { noteRoutes } from './NoteScreens';
 
@@ -240,6 +241,7 @@ export function AppNavigator({
         <Stack.Screen name="BookFixes" component={BookFixesScreen} options={dark(t('bookFixes.title'))} />
         <Stack.Screen name="PilotTimings" component={PilotTimingsScreen} options={dark(t('pilotTimings.title'))} />
         {planRoutes(Stack, t)}
+        {readerRoutes(Stack, t)}
         <Stack.Screen name="TestSchedule" component={TestScheduleScreen} options={dark(t('tests.title'))} />
         <Stack.Screen name="ExamWindow" component={ExamWindowScreen} options={dark(t('examWindow.title'))} />
         <Stack.Screen name="Duty" component={DutyScreen} options={dark(t('duties.title'))} />

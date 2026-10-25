@@ -32,7 +32,8 @@
     "erase": "Erase this device",
     "help": "Help and privacy",
     "privacy": "Privacy notice",
-    "statement": "Progress statement"
+    "statement": "Progress statement",
+    "received": "Statements received"
   },
   "cardLine": "Printed on documents; personal fields stay on this phone.",
   "cardFromSchools": "Subjects and schools come from the schools’ settings.",
@@ -350,5 +351,6 @@
     }
   },
   "sharing": "Sharing",
-  "statementLine": "Per class, no pupil data"
+  "statementLine": "Per class, no pupil data",
+  "receivedLine": "Teachers’ statements, checked and kept on your devices"
 }

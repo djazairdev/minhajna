@@ -51,9 +51,12 @@ export function recordKey(entry: Entry): string | null {
     case 'pupil.erased':
     case 'backup.saved':
     case 'statement.shared':
+    case 'statement.received':
       return null;
     case 'statement.sent':
       return `statement-sent/${event.sent.id}`;
+    case 'teacher.named':
+      return `teacher-named/${event.named.spki}`;
     case 'recovery.set':
       return 'recovery';
     case 'course.set':

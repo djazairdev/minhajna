@@ -36,6 +36,7 @@ const AVAILABLE = [
   'print',
   'signature',
   'statement',
+  'received',
   'notifications',
   'security',
   'backup',
@@ -57,7 +58,7 @@ const SECTIONS = [
     rows: ['card', 'schools', 'classes', 'week', 'times', 'lengths', 'plans', 'calendar', 'updates', 'rules'],
   },
   { id: 'documents', rows: ['print', 'signature'] },
-  { id: 'sharing', rows: ['statement'] },
+  { id: 'sharing', rows: ['statement', 'received'] },
   { id: 'phone', rows: ['notifications', 'security', 'backup', 'language'] },
   { id: 'data', rows: ['log', 'export', 'retention', 'erase'] },
   { id: 'help', rows: ['help', 'privacy'] },
@@ -65,7 +66,8 @@ const SECTIONS = [
 
 /**
  * The teacher's settings, with existing screens reachable without running setup again (#233); «بيان التقدّم» opens on
- * the first class with a plan, and shows only when one has a plan (answer 486).
+ * the first class with a plan, and shows only when one has a plan (answer 486); «البيانات المستلمة» always shows, for
+ * reader mode (#246, answer 489).
  */
 export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: string) => void }) {
   const t = useText();
@@ -91,6 +93,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
     erase: t('settings.eraseLine'),
     backup: backupLine(t, entries(), profile),
     statement: t('settings.statementLine'),
+    received: t('settings.receivedLine'),
   };
   const schools = [...state.schools.values()];
   return (
@@ -116,32 +119,34 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
           message={t(unsaved ? 'setup.notSaved' : 'settings.failed')}
         />
       )}
-      {SECTIONS.filter((section) => section.id !== 'sharing' || planned !== undefined).map((section) => (
+      {SECTIONS.map((section) => (
         <View key={section.id} style={styles.group}>
           <SectionHeader label={t(`settings.${section.id}`)} />
-          {section.rows.map((id) => {
-            const target = AVAILABLE.find((candidate) => candidate === id);
-            const description =
-              target === undefined
-                ? t('settings.later')
-                : id in descriptions
-                  ? descriptions[id as keyof typeof descriptions]
-                  : undefined;
-            return (
-              <RowLink
-                key={id}
-                testID={`settings-${id}`}
-                icon={controlIcon('tune')}
-                title={t(`settings.rows.${id}`)}
-                description={description}
-                disabled={target === undefined}
-                onPress={() => {
-                  if (target === 'statement') onOpen(target, planned?.id);
-                  else if (target !== undefined) onOpen(target);
-                }}
-              />
-            );
-          })}
+          {section.rows
+            .filter((id) => id !== 'statement' || planned !== undefined)
+            .map((id) => {
+              const target = AVAILABLE.find((candidate) => candidate === id);
+              const description =
+                target === undefined
+                  ? t('settings.later')
+                  : id in descriptions
+                    ? descriptions[id as keyof typeof descriptions]
+                    : undefined;
+              return (
+                <RowLink
+                  key={id}
+                  testID={`settings-${id}`}
+                  icon={controlIcon('tune')}
+                  title={t(`settings.rows.${id}`)}
+                  description={description}
+                  disabled={target === undefined}
+                  onPress={() => {
+                    if (target === 'statement') onOpen(target, planned?.id);
+                    else if (target !== undefined) onOpen(target);
+                  }}
+                />
+              );
+            })}
           {section.id === 'teaching' && (
             <>
               <Switch

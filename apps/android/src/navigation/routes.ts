@@ -77,6 +77,9 @@ export type RootStackParamList = {
   Class: { courseId: string };
   /** «بيان التقدّم» of a course, from its class page (#438). */
   Statement: { courseId: string };
+  /** Reader mode's statements received, and opening one: a new one, or a kept one by its ID (#246). */
+  ReaderList: undefined;
+  ReaderOpen: { id?: string } | undefined;
   /** «التقويم والنقاط» for a course, on `term` when chosen, else the term holding today (#238). */
   Marks: { courseId: string; term?: number };
   /** The course's continuous-assessment setup, applying from `term` on. */

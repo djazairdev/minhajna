@@ -18,7 +18,7 @@ import type { Layer } from './layers.ts';
 import type { CorrectionReason } from './correction-reasons.ts';
 import { COURSE_KINDS, type CourseEvent } from './course-events.ts';
 import { DEVICE_KINDS, type DeviceEvent } from './device-events.ts';
-import { SHARE_KINDS, type ShareEvent } from './share-events.ts';
+import { isShareEvent, SHARE_KINDS, type ShareEvent } from './share-events.ts';
 import type { PupilErasure } from './pupil-erase.ts';
 import type { Restating } from './restated.ts';
 import type { CatchUpSession } from './catch-up-sessions.ts';
@@ -216,6 +216,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
 // The layer of every event, checked by sync, exports and shares (PRD §5.4);
 // the teacher's own calendar and lesson notes stay private (§4.5, answer 417).
 export function layerOf(event: RecordEvent): Layer {
+  if (isShareEvent(event)) return 'shared-statement';
   switch (event.kind) {
     case 'teacher.personal.set':
     case 'recovery.set':
@@ -243,9 +244,6 @@ export function layerOf(event: RecordEvent): Layer {
     case 'retention.set':
     case 'council-thresholds.set':
       return 'private';
-    case 'statement.shared':
-    case 'statement.sent':
-      return 'shared-statement';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
     case 'calendar.removed':
