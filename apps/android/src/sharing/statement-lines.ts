@@ -19,8 +19,8 @@ import { isolate } from '../week/grid-labels';
 
 /** One field: its label, then its lines, the first the value and any others notes on it. */
 export interface StatementLine {
-  /** The statement's fields; reader mode heads them with its day, teacher and class (#246). */
-  readonly id: 'day' | 'teacher' | 'class' | 'unit' | 'resource' | 'delay' | 'notHeld' | 'pack';
+  /** The statement's fields; reader mode adds its day, teacher and class, and a spot check's period (#246). */
+  readonly id: 'day' | 'teacher' | 'class' | 'period' | 'unit' | 'resource' | 'delay' | 'notHeld' | 'pack';
   readonly label: string;
   readonly lines: readonly string[];
 }

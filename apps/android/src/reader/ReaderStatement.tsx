@@ -3,10 +3,11 @@
 
 // A statement kept in reader mode, as R-Open shows it (#246, answer 489): its
 // signature checked, the day it came and how, whether the school's picture
-// leaves it out as misdated, whether it is the first under its key or from the
-// teacher who sent an earlier one, the teacher by the name the reader gave or
-// unnamed, then its fields, its pack's edition, the key's fingerprint, and that
-// it holds no pupil data and stays on the reader's own devices.
+// leaves it out as misdated, the spot-check sheet for one it keeps, whether it
+// is the first under its key or from the teacher who sent an earlier one, the
+// teacher by the name the reader gave or unnamed, then its fields, its pack's
+// edition, the key's fingerprint, and that it holds no pupil data and stays on
+// the reader's own devices.
 
 import { inPicture, teacherNames, type Received } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -27,7 +28,16 @@ import { readerLines, senderLine, teacherLabel } from './reader-words';
 import { TeacherNameForm } from './TeacherNameForm';
 import { useFingerprints } from './useFingerprints';
 
-export function ReaderStatement({ one, list }: { readonly one: Received; readonly list: readonly Received[] }) {
+export function ReaderStatement({
+  one,
+  list,
+  onSpot,
+}: {
+  readonly one: Received;
+  readonly list: readonly Received[];
+  /** Opens the spot-check sheet; given for a statement the picture keeps (#246, answer 491). */
+  readonly onSpot?: () => void;
+}) {
   const t = useText();
   const { direction } = useLocale();
   const { profile, packs, entries } = useAppData();
@@ -60,6 +70,9 @@ export function ReaderStatement({ one, list }: { readonly one: Received; readonl
           label={t(names.has(one.spki) ? 'reader.rename' : 'reader.name')}
           onPress={() => setNaming(true)}
         />
+      )}
+      {onSpot !== undefined && inPicture(one) && (
+        <Button testID="reader-spot" variant="line" label={t('reader.spot.title')} onPress={onSpot} />
       )}
       <StatementFields lines={readerLines(t, profile, packs, one.statement, teacher)} />
       <Text style={[styles.sub, align]}>{t('reader.key')}</Text>

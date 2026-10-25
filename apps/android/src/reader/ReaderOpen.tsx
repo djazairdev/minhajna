@@ -30,9 +30,11 @@ export type ReaderOpenProps = {
   /** A statement already kept, by its ID; none to open a new one. */
   readonly id?: string;
   readonly onList: () => void;
+  /** Opens a kept statement's spot-check sheet (#246, answer 491). */
+  readonly onSpot?: (id: string) => void;
 };
 
-export function ReaderOpen({ id, onList }: ReaderOpenProps) {
+export function ReaderOpen({ id, onList, onSpot }: ReaderOpenProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -106,7 +108,14 @@ export function ReaderOpen({ id, onList }: ReaderOpenProps) {
           {t('reader.gone')}
         </Text>
       )}
-      {one !== undefined && <ReaderStatement key={one.id} one={one} list={list} />}
+      {one !== undefined && (
+        <ReaderStatement
+          key={one.id}
+          one={one}
+          list={list}
+          {...(onSpot !== undefined && { onSpot: () => onSpot(one.id) })}
+        />
+      )}
       <Button testID="reader-list" variant="plain" label={t('reader.back')} onPress={onList} />
     </ScrollView>
   );

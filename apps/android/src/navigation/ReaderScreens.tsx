@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Reader mode's screens, as routes (#246, answers 489 and 490): the
-// statements received, opening one, a new one or one kept, and the school's
-// picture, also as the home of a reader who started from the welcome, with
-// no back to it. `readerRoutes` gives the navigator their entries, as
+// Reader mode's screens, as routes (#246, answers 489 and 490): the statements
+// received, opening one, a new one or one kept, its spot-check sheet, and the
+// school's picture, also as the home of a reader who started from the welcome,
+// with no back to it. `readerRoutes` gives the navigator their entries, as
 // `planRoutes` does.
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ReaderList } from '../reader/ReaderList';
 import { ReaderOpen } from '../reader/ReaderOpen';
 import { ReaderPicture } from '../reader/ReaderPicture';
+import { ReaderSpot } from '../reader/ReaderSpot';
 import type { useText } from '../text/i18n';
 import type { RootStackParamList } from './routes';
 
@@ -29,6 +30,11 @@ export function ReaderListScreen({ navigation }: NativeStackScreenProps<RootStac
       }
     />
   );
+}
+
+/** A statement's spot-check sheet, with days drawn as it opens. */
+export function ReaderSpotScreen({ route }: NativeStackScreenProps<RootStackParamList, 'ReaderSpot'>) {
+  return <ReaderSpot id={route.params.id} />;
 }
 
 /** The school's picture; a cell opens its statement. */
@@ -59,7 +65,13 @@ export function ReaderHomeScreen({ navigation }: NativeStackScreenProps<RootStac
 /** A statement opened and checked, or one kept; back to the list, which is under it or comes in its place. */
 export function ReaderOpenScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReaderOpen'>) {
   const id = route.params?.id;
-  return <ReaderOpen {...(id !== undefined && { id })} onList={() => navigation.popTo('ReaderList')} />;
+  return (
+    <ReaderOpen
+      {...(id !== undefined && { id })}
+      onList={() => navigation.popTo('ReaderList')}
+      onSpot={(spot) => navigation.navigate('ReaderSpot', { id: spot })}
+    />
+  );
 }
 
 type Stack = ReturnType<typeof createNativeStackNavigator<RootStackParamList>>;
@@ -72,6 +84,7 @@ export function readerRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="ReaderList" component={ReaderListScreen} options={dark(t('reader.title'))} />
       <Stack.Screen name="ReaderOpen" component={ReaderOpenScreen} options={dark(t('reader.open'))} />
       <Stack.Screen name="ReaderPicture" component={ReaderPictureScreen} options={dark(t('reader.picture.title'))} />
+      <Stack.Screen name="ReaderSpot" component={ReaderSpotScreen} options={dark(t('reader.spot.title'))} />
       <Stack.Screen
         name="ReaderHome"
         component={ReaderHomeScreen}

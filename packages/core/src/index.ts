@@ -96,6 +96,7 @@ export * from './statement-picture.ts';
 export * from './statement-received.ts';
 export * from './statement-shares.ts';
 export * from './statement-signature.ts';
+export * from './statement-spot.ts';
 export * from './propose.ts';
 export type { ParseProblem, ParseProblemKind, ParseResult } from './read.ts';
 export * from './record-pack.ts';
