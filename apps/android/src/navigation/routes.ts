@@ -84,6 +84,8 @@ export type RootStackParamList = {
   /** «صورة المؤسسة» from the statements received, and the same picture as a reader's home (#246). */
   ReaderPicture: undefined;
   ReaderHome: undefined;
+  /** A kept statement's spot-check sheet, by its ID (#246, answer 491). */
+  ReaderSpot: { id: string };
   /** «التقويم والنقاط» for a course, on `term` when chosen, else the term holding today (#238). */
   Marks: { courseId: string; term?: number };
   /** The course's continuous-assessment setup, applying from `term` on. */

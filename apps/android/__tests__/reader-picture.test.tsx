@@ -12,14 +12,15 @@
 // nothing set up shows reader mode's rows only. Made-up keys and statements
 // only.
 
-import { nameTeacher, parseDay, receiveStatement, signStatement, type ProgressStatement } from '@minhajna/core';
+import { nameTeacher, parseDay } from '@minhajna/core';
 import type { NavigationState } from '@react-navigation/native';
 import { useWindowDimensions, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { accessibilityProblems } from '../jest/accessibility';
-import { openTestData, withData, type TestData } from '../jest/app-data';
+import { openTestData, withData } from '../jest/app-data';
 import { FakeStorage } from '../jest/fake-storage';
+import { KEY_A, KEY_B, keepStatement as keep, madeUpStatement as statement } from '../jest/reader-statements';
 import {
   closeSettingsScreen,
   pressSettings,
@@ -42,28 +43,6 @@ jest.mock(
 );
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({ __esModule: true, default: jest.fn() }));
 
-const [KEY_A, KEY_B] = ['bWFkZS11cC1rZXktYQ==', 'bWFkZS11cC1rZXktYg=='];
-let kept = 0;
-
-const statement = (day: string, section: string, subject = 'arabic', grade = '4am', behind = 0): ProgressStatement => ({
-  format: 'minhajna.statement',
-  version: { major: 1, minor: 0 },
-  day: parseDay(day),
-  class: { level: 'cem', grade, section, subject, year: '2026-2027' },
-  pack: { id: 'dz.cem.4am.arabic.example', release: '2026.1' },
-  lastUnit: null,
-  lastResource: null,
-  delay: { sessions: behind, weeks: null, bufferUsed: 0, bufferLeft: 2 },
-  notHeld: { calendar: 0, other: 0 },
-  td: { calendar: 0, other: 0 },
-});
-async function keep(data: TestData, spki: string, value: ProgressStatement) {
-  const text = await signStatement(value, spki, () => Promise.resolve('bWFkZS11cA=='));
-  kept += 1;
-  const event = receiveStatement(data.book.entries, text, { ok: true, spki, statement: value }, 'qr', `r-${kept}`);
-  await data.book.record(parseDay('2026-10-20'), event!);
-  return `r-${kept}`;
-}
 const has = (id: string) => settingsRoot().findAll((node) => node.props.testID === id).length > 0;
 const label = (id: string) => String(settingsRoot().findByProps({ testID: id }).props.accessibilityLabel);
 

@@ -60,6 +60,8 @@ export interface AppData {
   readonly today: () => Day;
   /** A new random ID for a record made on this phone. */
   readonly newId: () => string;
+  /** The phone's random bytes, for what is drawn and never kept, such as a spot check's days (#246). */
+  readonly random: RandomBytes;
   /** Resolves once every change made so far is saved or refused. */
   readonly settled: () => Promise<void>;
   /** Waits for queued changes; false when one of them failed while waiting, not before. */
@@ -153,6 +155,7 @@ export function AppDataProvider({
       erasePupil: (pupilId: string) => save(() => book.erasePupil(today(), pupilId)),
       today,
       newId: () => newId(random),
+      random,
       settled: () => queue.current,
       latestState: () => book.state,
       entries: () => book.entries,

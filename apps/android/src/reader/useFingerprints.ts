@@ -3,13 +3,14 @@
 
 // The fingerprints of the keys that signed the statements shown (#246),
 // worked out on the phone as the Share screen's own (#437); a key whose
-// fingerprint is not known yet, or cannot be, is missing from the map.
+// fingerprint is not known yet is missing from the map, and one that cannot
+// be worked out maps to null.
 
 import { useEffect, useState } from 'react';
 import { teacherKeyFingerprint } from '../sharing/teacher-key';
 
-export function useFingerprints(spkis: readonly string[]): ReadonlyMap<string, string> {
-  const [known, setKnown] = useState<ReadonlyMap<string, string>>(new Map());
+export function useFingerprints(spkis: readonly string[]): ReadonlyMap<string, string | null> {
+  const [known, setKnown] = useState<ReadonlyMap<string, string | null>>(new Map());
   const wanted = [...new Set(spkis)].sort().join('\n');
   useEffect(() => {
     let live = true;
@@ -18,11 +19,11 @@ export function useFingerprints(spkis: readonly string[]): ReadonlyMap<string, s
       keys.map((spki) =>
         teacherKeyFingerprint(spki).then(
           (value) => [spki, value] as const,
-          () => null,
+          () => [spki, null] as const,
         ),
       ),
     ).then((pairs) => {
-      if (live) setKnown(new Map(pairs.filter((pair) => pair !== null)));
+      if (live) setKnown(new Map(pairs));
     });
     return () => {
       live = false;

@@ -3708,6 +3708,24 @@
       "nameSchools": "If the teachers come from more than one school, name each with their school to keep their classes apart.",
       "leftOut_one": "{{count}} statement left out of the picture: dated after it came, or outside its school year.",
       "leftOut_other": "{{count}} statements left out of the picture: dated after they came, or outside their school year."
+    },
+    "spot": {
+      "title": "Spot-check sheet",
+      "statement": "Statement of {{day}}, signature valid",
+      "periodLabel": "Period",
+      "period": "From {{from}} to {{to}}",
+      "drawn_one": "{{count}} day drawn at random from the period",
+      "drawn_other": "{{count}} days drawn at random from the period",
+      "why": "The app draws them when the sheet opens, so they are not known before the visit. The inspector compares what the texts book says for those days with the pupils’ notebooks.",
+      "day": "Day",
+      "book": "In the texts book",
+      "notebooks": "In the pupils’ notebooks",
+      "notes": "Inspector’s notes",
+      "signature": "Inspector’s signature",
+      "none": "No days can be drawn for this statement: it is not from the {{year}} school year, whose calendar the app has.",
+      "early": "No days can be drawn for this statement: it is dated before the first day of the {{year}} school year.",
+      "noDays": "This statement’s period has no school day, so no days can be drawn.",
+      "onPhone": "The sheet stays on this phone and is sent nowhere."
     }
   }
 }

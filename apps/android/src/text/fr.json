@@ -3772,6 +3772,25 @@
       "leftOut_one": "{{count}} relevé laissé hors de la vue : daté après sa réception ou hors de son année scolaire.",
       "leftOut_many": "{{count}} de relevés laissés hors de la vue : datés après leur réception ou hors de leur année scolaire.",
       "leftOut_other": "{{count}} relevés laissés hors de la vue : datés après leur réception ou hors de leur année scolaire."
+    },
+    "spot": {
+      "title": "Fiche de vérification",
+      "statement": "Relevé du {{day}}, signature valide",
+      "periodLabel": "Période",
+      "period": "Du {{from}} au {{to}}",
+      "drawn_one": "{{count}} jour tiré au hasard dans la période",
+      "drawn_many": "{{count}} de jours tirés au hasard dans la période",
+      "drawn_other": "{{count}} jours tirés au hasard dans la période",
+      "why": "L’application les tire à l’ouverture de la fiche : ils ne sont pas connus avant la visite. L’inspecteur compare ce qui est écrit dans le cahier de textes ces jours-là avec les cahiers des élèves.",
+      "day": "Jour",
+      "book": "Dans le cahier de textes",
+      "notebooks": "Dans les cahiers des élèves",
+      "notes": "Remarques de l’inspecteur",
+      "signature": "Signature de l’inspecteur",
+      "none": "Aucun jour ne peut être tiré pour ce relevé : il n’est pas de l’année scolaire {{year}}, dont l’application a le calendrier.",
+      "early": "Aucun jour ne peut être tiré pour ce relevé : il est daté d’avant le premier jour de l’année scolaire {{year}}.",
+      "noDays": "La période de ce relevé n’a aucun jour de classe : aucun jour ne peut être tiré.",
+      "onPhone": "La fiche reste sur ce téléphone et n’est envoyée nulle part."
     }
   }
 }
