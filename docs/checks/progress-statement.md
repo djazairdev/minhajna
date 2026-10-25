@@ -21,13 +21,13 @@ The field-by-field specification is at the head of `packages/core/src/statement-
 
 The payload identifies the class by level, grade, section label, subject, school year and optional stream; the pack by ID and release. It holds the issue day, last completed main-plan unit, last main-plan learning resource (done or started), main-plan delay after buffers, buffers used and left, and anonymous counts of sessions not held. TD counts are a subset shown separately, never added twice. Plan weeks are null for non-week packs, not an invented conversion from hours.
 
-A unit is complete only once every non-buffer main item has been fully taught to the whole class. Skipping an item does not complete it; teaching one half does not complete the class. TD and buffers do not prevent main-plan unit completion. The last resource follows actual recorded teaching order, including re-teaching, not the furthest item or a future proposal.
+A unit is complete once every non-buffer main item is finished for the whole class and at least one was taught. An item the teacher left out, skipped, or a plan layer skipped counts as finished, as `pace` counts it; a unit left out whole never completes, and teaching one half does not complete the class. TD and buffers do not prevent main-plan unit completion. The last resource follows actual recorded teaching order, including re-teaching, not the furthest item or a future proposal; a skipped lesson is never named (answer 484).
 
-Main calendar losses reuse `pace`, including its rotation cost. TD and other session types count their own slots. Holidays, closures and rotation are calendar causes; the teacher's own calendar and other missed sessions are only `other`. Exams replace lessons and are not losses. A held session on a closed day is not lost; an unconfirmed session is neither delay nor a confirmed missed session. Corrected and withdrawn records use their current version. Inherited progress follows the course lineage.
+Main calendar losses reuse `pace`, including its rotation cost. A main half-session not held that this cost already counts is not counted again, so the sessions not held never exceed the sessions scheduled. TD sessions lost to holidays or closures are calendar causes, and TD's other losses are «أخرى» (answer 484). TD and other session types count their own slots. Holidays, closures and rotation are calendar causes; the teacher's own calendar and other missed sessions are only `other`. Exams replace lessons and are not losses. A held session on a closed day is not lost; an unconfirmed session is neither delay nor a confirmed missed session. Corrected and withdrawn records use their current version. Inherited progress follows the course lineage.
 
 The statement has no pupil identifiers, names, marks, roll calls, private notes, lesson notes, factual lines, homework, session dates, reasons, school identifiers, teacher-card details or recipient information. Session records pass the existing `statement` layer gate, followed by an explicit field projection. No whole history entry is exported. The teacher's private calendar contributes anonymous counts only.
 
-Text fields are bounded: 64 UTF-16 units for codes, year, stream and release; 128 for a section label or item ID; 192 for a pack ID; 512 for a title. Text must be non-empty, valid Unicode and free of control characters or bidi controls. Dates are real YYYY-MM-DD dates. Counts are finite, non-negative and at most one million; losses and plan weeks are integers. TD losses cannot exceed the totals. Files are at most 65,536 UTF-8 bytes.
+Text fields are bounded: 64 UTF-16 units for codes, year, stream and release; 128 for a section label or item ID; 192 for a pack ID; 512 for a title. Text must be non-empty, valid Unicode and free of control characters or bidi controls. Dates are real YYYY-MM-DD dates. Counts are finite, non-negative and at most one million, and all are integers: delay and buffer figures are rounded to whole sessions, as the class screen rounds them. A teacher's own list is named by its country, level, grade and subject with `.own`, never by the class's local ID; its items keep the random IDs the list gave them. No plan week shows as behind when the rounded delay is zero. A statement whose pack titles would break these bounds is not made. TD losses cannot exceed the totals. Files are at most 65,536 UTF-8 bytes.
 
 The envelope has format `minhajna.signed-statement`, version `{major:1,minor:0}`, a base64 DER SPKI public key, the exact payload string and its base64 DER ECDSA P-256/SHA-256 signature. The core uses the existing platform `Verifier`; it implements no cryptographic algorithm. Signing failures and verification errors contain no underlying exception or payload.
 
@@ -71,6 +71,12 @@ Fresh results with Node.js 22.23.2 and Temurin 17:
 
 This is a fresh build and regression check, not a new independent reproducibility, camera, physical-phone or accessibility acceptance result.
 
+## Review fixes
+
+The review of [PR #456](https://github.com/djazairdev/minhajna/pull/456) found the cases above. Six new tests in `statement-review-cases.test.ts` failed on the first version and pass now: a unit with an item left out or skipped, and one left out whole; a rotating class whose sessions were all not held; whole-number delay figures; a pack title too long to sign; a later major version, which now reports `version` so reader mode can ask for an update; and an own list's pack ID.
+
+With whole numbers, a signed Arabic statement fits one QR code only with short titles, about 30 Arabic characters for each of the two titles. Most real statements will leave as a signed file, which answer 471 already allows.
+
 ## Still outside this part
 
 - #437 / PR #455: Android Keystore key creation and signing, fingerprints, QR drawing and native tests, submitted separately.
@@ -80,7 +86,3 @@ This is a fresh build and regression check, not a new independent reproducibilit
 - Native RTL/LTR at 200%, spoken Arabic TalkBack, A4 paper and budget-phone acceptance of those screens. None is claimed for this core-only work.
 
 No dependency, permission, network call, database migration, existing format or layer rule changes. NETWORK.md, PRIVACY.md and the PRD are untouched. The new statement format does not alter existing signed reference updates.
-
-## ملخص بالعربية
-
-هذه خطوة تمهيدية لحساب بيان التقدّم والتحقق من توقيعه. يعرض البيان تقدّم القسم والحصص التي لم تُعقد، دون بيانات التلاميذ أو الملاحظات والأسباب الخاصة. لا ترسل هذه الخطوة أي شيء، ولا تضيف شاشة مشاركة بعد. التوقيع للتحقق من سلامة البيان، وليس توقيعاً قانونياً أو اعتماداً من الدولة.

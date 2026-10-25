@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Progress statement 1.0 (#436, PRD §3.10, §4.9, §5.9). `format` and
-// `version` identify this public format; `day` is the issue date, never a
-// clock time. `class` holds level, grade, section label, subject, year and
-// optional stream, never local IDs or pupil data. `pack` identifies the
-// pinned release (`own` for a teacher's list). `lastUnit` names the last
+// Progress statement 1.0 (#436, PRD §3.10, §4.9, §5.9). `format` and `version`
+// identify this public format; `day` is the issue date, never a clock time.
+// `class` holds level, grade, section label, subject, year and optional stream,
+// never local IDs or pupil data. `pack` identifies the pinned release (`own`
+// for a teacher's list, whose ID ends in `.own`). `lastUnit` names the last
 // completed main-plan unit in plan order; `lastResource` names the latest
-// main-plan lesson taught, with its whole-class completion status. Either
-// is null before any qualifies. Items carry only ID and title, never notes.
-// `delay` holds main-plan sessions and, only for week packs, plan weeks
-// behind after buffers, plus buffers used and left, exactly as pace gives
-// them. `notHeld` totals calendar causes and other causes; `td` is the TD
-// subset, not an extra amount to add. Neither carries reasons or dates.
-// Unknown fields are discarded at every level. New minor versions retain
-// their number so a reader can disclose omissions; new major versions fail.
+// main-plan lesson taught, with its whole-class completion status. Either is
+// null before any qualifies. Items carry only ID and title, never notes.
+// `delay` holds main-plan sessions and, only for week packs, plan weeks behind
+// after buffers, plus buffers used and left, as pace gives them, rounded to
+// whole sessions. `notHeld` totals calendar causes and other causes; `td` is
+// the TD subset, not an extra amount to add. Neither carries reasons or dates.
+// Unknown fields are discarded at every level. New minor versions retain their
+// number so a reader can disclose omissions; new major versions fail.
 
 import { canonicalJson } from './canonical.ts';
 import { isOneLine } from './calendar-notice-read.ts';
@@ -137,7 +137,12 @@ function statement(value: unknown): ProgressStatement | null {
   )
     return null;
   const { sessions, weeks, bufferUsed, bufferLeft } = delay;
-  if (!count(sessions) || (weeks !== null && !count(weeks, true)) || !count(bufferUsed) || !count(bufferLeft))
+  if (
+    !count(sessions, true) ||
+    (weeks !== null && !count(weeks, true)) ||
+    !count(bufferUsed, true) ||
+    !count(bufferLeft, true)
+  )
     return null;
   const notHeld = losses(value['notHeld']);
   const td = losses(value['td']);

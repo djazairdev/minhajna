@@ -13,7 +13,13 @@
 import { canonicalJson } from './canonical.ts';
 import { isFields } from './read.ts';
 import { readVersion, utf8Length, type Verifier } from './signed-read.ts';
-import { readStatement, statementPayload, STATEMENT_BYTES, type ProgressStatement } from './statement-read.ts';
+import {
+  readStatement,
+  statementPayload,
+  STATEMENT_BYTES,
+  STATEMENT_FORMAT,
+  type ProgressStatement,
+} from './statement-read.ts';
 
 /** The signed envelope is distinct from trusted reference-data updates. */
 export const SIGNED_STATEMENT_FORMAT = 'minhajna.signed-statement';
@@ -65,6 +71,16 @@ export async function signStatement(
   return text;
 }
 
+/** Whether a payload is a statement of a later major version, which an update of the app may read. */
+function newer(payload: string): boolean {
+  try {
+    const raw: unknown = JSON.parse(payload);
+    return isFields(raw) && raw['format'] === STATEMENT_FORMAT && (readVersion(raw['version'])?.major ?? 0) > 1;
+  } catch {
+    return false;
+  }
+}
+
 /** Verifies original bytes before reading the payload; returns fixed, content-free failures. */
 export async function checkStatement(text: string, verify: Verifier): Promise<StatementCheck> {
   if (typeof text !== 'string') return { ok: false, problem: 'invalid' };
@@ -95,5 +111,7 @@ export async function checkStatement(text: string, verify: Verifier): Promise<St
   }
   if (!valid) return { ok: false, problem: 'signature' };
   const read = readStatement(payload);
-  return read.ok ? { ok: true, statement: read.value, spki } : { ok: false, problem: 'payload' };
+  return read.ok
+    ? { ok: true, statement: read.value, spki }
+    : { ok: false, problem: newer(payload) ? 'version' : 'payload' };
 }
