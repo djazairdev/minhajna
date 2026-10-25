@@ -90,11 +90,13 @@ The PDF is named «بيان التقدّم <class> <subject> <day>.pdf» through
 | Check | Result |
 |---|---|
 | Unit tests: core link round trip and refusals (4); screen, print, PDF, the day of the tap, failures and texts (10); class page row (2) | Pass |
-| Emulator, Arabic, right to left | EMULATOR-AR |
-| Emulator, French, left to right | EMULATOR-FR |
-| Emulator, text at 200% | EMULATOR-200 |
-| The saved PDF keeps the link's address, and `linkedStatement` reads back the text that `checkStatement` accepts | EMULATOR-PDF |
+| Emulator, Arabic, right to left: the class page row, then every field, the chips, both buttons and the signature line; «PDF» saves «بيان التقدّم القسم التجريبي الرياضيات 2026-10-25.pdf», one A4 page with the fields, the fingerprint in its true order and a QR code; «طباعة» opens Android's print screen on one A4 page; the log shows «بيان التقدّم · 25/10/2026 · PDF» | Pass |
+| Emulator, French, left to right: the same screen and a PDF named «Relevé de progression … Mathématiques 2026-10-25.pdf» | Pass |
+| Emulator, text at 200%: each label sits above its value and the buttons wrap. The printed page also grew with the phone's text size and ran onto a second page; every printed document does this, since the page's web view keeps the phone's text zoom, so it is fixed apart | Screen: pass. Page: separate fix |
+| The saved PDF keeps the link's address unescaped, `linkedStatement` reads the signed text back from the file, and `checkStatement` accepts it; with one figure changed it fails with `signature` | Pass, Arabic and French PDFs |
 | TalkBack in Arabic, A4 paper and a camera scan of the printed code | Not checked here; listed in #206 |
+
+The emulator check ran on 25 October 2026 on an API 35 emulator, with a release build of this branch signed with the debug key and made-up data: the demo class, a made-up own list of five items and three confirmed sessions.
 
 ## Still outside this part
 
