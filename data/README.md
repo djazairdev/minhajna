@@ -93,6 +93,13 @@ A plan pack holds one plan as data, for one level, grade, subject, stream and ed
 - **The real packs** for the field check are keyed in [#23](https://github.com/djazairdev/minhajna/issues/23). They stay private, and ship only in field-check builds, until counsel answers on the plans' copyright.
 - **Until then,** `dz/packs/` holds three made-up examples, so a class can be set up and tried: 1AM maths (budgets in hours), 4AM Arabic (budgets in sessions) and 5AP Arabic (weeks, with a weekly model of reading and writing). Their status is `example`, their titles say «مثال», and their issuer says they are not a plan. They copy no official plan.
 - **A week pack may carry its weekly model** in `activities`: each activity type with its code, its name in Arabic, French and English, and its sessions a week, in the order of the week. Its items name their activity by code, and a code outside the model is refused.
+- **A new release says how its item IDs came from an earlier one** in `migration`: `from`, that earlier release, and `entries`, each one of
+  - `{"kind": "rename", "from": "a", "to": "b"}`: the same item under a new ID;
+  - `{"kind": "split", "from": "a", "to": ["b", "c"]}`: one item become two or more, in order;
+  - `{"kind": "merge", "from": ["a", "b"], "to": "c"}`: two or more become one;
+  - `{"kind": "remove", "item": "a"}`: an item the release no longer has.
+
+  `from` must be an earlier release. A page or title change that keeps its ID needs no entry. An ID is never used again for another item, so the reader refuses an old ID the release still has, a new ID it lacks, an ID in two entries, and an entry that mixes units, TD items and the main queue's items. A release without `migration` must keep every ID of the release before it. Moving a class follows the entries from its release to the new one through every release between them, one release at a time, and checks each against the release it starts from: every earlier item is still there or in an entry, every old ID was an earlier item, no new ID was one, an entry keeps its items' kind, and no ID removed earlier in the chain comes back. When a release in between is not on the phone, or a check fails, the class is not offered the move. Nothing recorded is rewritten ([#322](https://github.com/djazairdev/minhajna/issues/322), `packages/core/src/pack-migration.ts`).
 - **A test checks** that every file reads, is named by its ID, is an example, and names a grade and subject the profile has.
 
 ## Sources

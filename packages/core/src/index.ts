@@ -85,6 +85,7 @@ export * from './term-check-detail.ts';
 export * from './plan-view.ts';
 export * from './pack.ts';
 export * from './pack-catalogue.ts';
+export * from './pack-migration.ts';
 export * from './progress.ts';
 export * from './progress-statement.ts';
 export * from './statement-link.ts';
