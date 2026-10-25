@@ -114,6 +114,14 @@ After a print, a saved PDF, a closed QR code or a shared file, «لمن؟» asks
 | Check | Result |
 |---|---|
 | Unit tests: the history, roles and log lines, and the layer's travel rules (3); the QR bound at its longest signature (core); the sheet, a row changing the role, the QR screen and screen kept on, the file, the log, Settings and the texts in three languages (8) | Pass |
+| Emulator, Arabic: Settings «المشاركة» opens the statement; «رمز QR» shows the code with the window's keep-screen-on flag set, and the Android back button clears it and opens «لمن؟» | Pass |
+| Emulator: «المفتش» saved after the QR code; a saved PDF, then «لاحقاً», shows «دون مستلم بعد»; tapping each row sets «المدير» and «المنسق», the sheet opening with the current role checked; the history lists them newest first | Pass |
+| Emulator: the activity log shows «بيان التقدّم · القسم التجريبي · رمز QR», then the same line with «· للمفتش», and so on for each share and role | Pass |
+| Emulator: with a made-up 480-character lesson title the third button becomes «ملف موقّع» with its line; the share menu opens with «بيان التقدّم القسم التجريبي الرياضيات 2026-10-25.json» (this emulator image has no app that takes a file), then «لمن؟» asks. The file read back from the app's cache is 1,051 bytes, `checkStatement` accepts it, and with one word changed it fails with `signature` | Pass |
+| Emulator, French, left to right, text at 200%: «Partage» in Settings, the history rows wrapping, and «Pour qui ?» with its chips and buttons, «Enseignant» saved | Pass |
+| TalkBack in Arabic, a camera scan of the code, sending the file to another app, and how fast a large code draws on a budget phone | Not checked here; listed in #206 |
+
+The emulator check ran on 25 October 2026 on an API 35 emulator, with a release build of this branch signed with the debug key and made-up data.
 
 ## Still outside this part
 
