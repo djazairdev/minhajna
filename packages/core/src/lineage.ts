@@ -11,6 +11,8 @@
 
 import type { Day } from './day.ts';
 import type { PlanDecision } from './plan-decisions.ts';
+import { carriedView, courseMigration } from './migration-carry.ts';
+import type { Reference } from './reference.ts';
 import type { State } from './state-type.ts';
 
 type Decisions = ReadonlyMap<string, PlanDecision>;
@@ -42,11 +44,11 @@ export function lineageIds(state: Pick<State, 'courses'>, courseId: string): rea
 const views = new WeakMap<Decisions, Map<string, Decisions>>();
 
 /**
- * The plan decisions as `courseId` sees them: those of the courses it
- * continues read as its own, under their own IDs, so the items their
- * changes made keep their IDs. Without ancestors, the decisions as they are.
+ * The decisions as recorded, with those of the courses `courseId` continues
+ * read as its own, under their own IDs: what a new change's order and the
+ * check that it is new read, before anything is carried (#322).
  */
-export function courseDecisions(state: Pick<State, 'courses' | 'decisions'>, courseId: string): Decisions {
+export function recordedDecisions(state: Pick<State, 'courses' | 'decisions'>, courseId: string): Decisions {
   const older = ancestors(state, courseId).map((one) => one.courseId);
   if (older.length === 0) return state.decisions;
   const byCourse = views.get(state.decisions) ?? new Map<string, Decisions>();
@@ -62,6 +64,19 @@ export function courseDecisions(state: Pick<State, 'courses' | 'decisions'>, cou
   );
   byCourse.set(key, view);
   return view;
+}
+
+/**
+ * The plan decisions as `courseId` sees them: those of the courses it
+ * continues read as its own, under their own IDs, so the items their
+ * changes made keep their IDs; and carried to the release the course is
+ * on through its pack's migration entries (#322, migration-carry.ts).
+ */
+export function courseDecisions(
+  context: { readonly state: Pick<State, 'courses' | 'decisions'>; readonly ref: Pick<Reference, 'packs'> },
+  courseId: string,
+): Decisions {
+  return carriedView(recordedDecisions(context.state, courseId), courseId, courseMigration(context, courseId));
 }
 
 /** The first of the course's lineage that has a value for `read`, nearest first. */

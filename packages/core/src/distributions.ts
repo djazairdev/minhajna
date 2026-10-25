@@ -21,6 +21,7 @@ import { courseSetup } from './choices.ts';
 import type { Context } from './context.ts';
 import { compareDays, isWithin, monthOf, startOfWeek, type Day } from './day.ts';
 import { walkCourse } from './engine.ts';
+import { carriedId } from './pack-migration.ts';
 import type { PackItem, PlanPack } from './pack.ts';
 import { queueOf } from './pacing.ts';
 import { findPackItem } from './plan-layer.ts';
@@ -74,7 +75,7 @@ export interface TermRow {
 export function distributionSessions(context: Context, courseId: string): DistributionSession[] {
   const { ref, state } = context;
   if (!state.courses.has(courseId)) return [];
-  const pack = courseSetup(context, courseId).pack;
+  const { pack, migration } = courseSetup(context, courseId);
   if (pack === null) return [];
   const walk = walkCourse(context, courseId, ref.year.to);
   const found: Omit<DistributionSession, 'credit'>[] = [];
@@ -84,7 +85,7 @@ export function distributionSessions(context: Context, courseId: string): Distri
     if (record !== null) {
       const items = record.coverage
         .filter((one) => one.op !== 'skipped')
-        .map((one) => findPackItem(pack, one.item))
+        .map((one) => findPackItem(pack, carriedId(migration, one.item) ?? one.item))
         .filter((item) => item !== undefined);
       if (record.outcome !== 'not-held' && items.length > 0) found.push({ session, items, confirmed: true });
       continue;

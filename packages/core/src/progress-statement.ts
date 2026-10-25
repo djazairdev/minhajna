@@ -27,6 +27,7 @@ import { walkCourse } from './engine.ts';
 import { layerOf } from './events.ts';
 import { courseGrade } from './joint.ts';
 import { mayTravelAs } from './layers.ts';
+import { carriedId } from './pack-migration.ts';
 import { queueItems, stageCount, type PackItem } from './pack.ts';
 import { pace, queueOf } from './pacing.ts';
 import { wholeGroup } from './records.ts';
@@ -95,7 +96,7 @@ export function progressStatement(context: Context, courseId: string, today: Day
     if (queue === 'td' && cause !== null) td[cause] += 1;
     if (queue !== 'main' || record === undefined || record.outcome === 'not-held') continue;
     for (const coverage of record.coverage) {
-      const item = items.get(coverage.item);
+      const item = items.get(carriedId(setup.migration, coverage.item) ?? coverage.item);
       if (coverage.op === 'skipped' || item?.kind !== 'lesson') continue;
       lastResource = { ...named(item), status: complete(item) ? 'done' : 'started' };
     }

@@ -99,7 +99,7 @@ export function PlanLayers({ courseId, onCourse, onChanges, onDetails, onImport,
           description={changeCount(t, context, courseId)}
           onPress={onChanges}
         />
-        {changesFor(courseDecisions(state, courseId), courseId).length > 0 && (
+        {changesFor(courseDecisions(context, courseId), courseId).length > 0 && (
           <Button testID="layers-export" variant="line" label={t('planLayers.export.action')} onPress={onExport} />
         )}
       </View>

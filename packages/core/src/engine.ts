@@ -46,9 +46,9 @@ function walk(
   visit: Visitor,
 ): { readonly recorded: Progress; readonly counted: Progress } {
   const { ref, state } = context;
-  const recorded = Progress.of(setup.schoolClass);
-  const chain = Progress.of(setup.schoolClass);
-  const decisions = courseDecisions(state, setup.course.id);
+  const recorded = Progress.of(setup.schoolClass, setup.migration);
+  const chain = Progress.of(setup.schoolClass, setup.migration);
+  const decisions = courseDecisions(context, setup.course.id);
   for (const decision of decisionsFor(decisions, setup.course.id)) {
     if (decision.kind !== 'leave-out' || setup.pack === null || !allowedBy(setup.pack, decision)) continue;
     recorded.leaveOut(decision.item);
@@ -71,7 +71,7 @@ function walk(
     if (session.courseId !== setup.course.id) {
       const schoolClass = state.classes.get(session.classId);
       if (record === null || schoolClass === undefined) continue;
-      const progress = older.get(schoolClass.id) ?? Progress.of(schoolClass);
+      const progress = older.get(schoolClass.id) ?? Progress.of(schoolClass, setup.migration);
       older.set(schoolClass.id, progress);
       progress.apply(record);
       continue;

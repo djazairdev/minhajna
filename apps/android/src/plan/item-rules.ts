@@ -14,6 +14,7 @@
 import {
   budgetInSessions,
   courseDecisions,
+  recordedDecisions,
   courseSetup,
   decisionsFor,
   mergesOf,
@@ -57,7 +58,7 @@ export function itemPage(context: Context, courseId: string, itemId: string, day
   const queue = queueItems(view.pack, row.item.kind === 'td' ? 'td' : 'main');
   const at = queue.findIndex((item) => item.id === itemId);
   const next = queue[at + 1];
-  const merges = mergesOf(view.pack, courseDecisions(context.state, courseId), courseId);
+  const merges = mergesOf(view.pack, courseDecisions(context, courseId), courseId);
   const taken = new Set([...merges.keys(), ...merges.values()]);
   return {
     pack: view.pack,
@@ -68,7 +69,7 @@ export function itemPage(context: Context, courseId: string, itemId: string, day
     joinable: next !== undefined && !taken.has(itemId) && !taken.has(next.id),
     others: queue.filter((item) => item.id !== itemId && item.id !== next?.id),
     last: next === undefined,
-    answered: decisionsFor(courseDecisions(context.state, courseId), courseId).some((one) =>
+    answered: decisionsFor(courseDecisions(context, courseId), courseId).some((one) =>
       one.kind === 'leave-out' ? one.item === itemId : one.items.includes(itemId),
     ),
   };
@@ -99,6 +100,6 @@ export type Draft = PlanChange extends infer C
 
 /** The event that records a change, checked by the core, with its ID, day and place in the order. */
 export function changeEvent(context: Context, courseId: string, draft: Draft, id: string, day: Day): RecordEvent {
-  const seq = nextSeq(courseDecisions(context.state, courseId), courseId);
+  const seq = nextSeq(recordedDecisions(context.state, courseId), courseId);
   return recordChange(context, { ...draft, id, courseId, day, seq });
 }

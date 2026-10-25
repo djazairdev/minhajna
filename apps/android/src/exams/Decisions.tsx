@@ -6,16 +6,19 @@
 // with a button that takes it back, so a decision never stays for good once
 // the «تراجع» of the moment has gone. On the catch-up options, the class's
 // newest re-pace too (#229, answer 366). Nothing shows without a decision.
+// A decision carried to a new release's parts shows once, naming each part
+// it now leaves out, and takes back what was recorded (#322).
 
 import {
+  type Context,
   courseDecisions,
   courseSetup,
   decisionsFor,
-  findPackItem,
-  repacesOf,
-  type Context,
   type ExamDecision,
+  findPackItem,
+  recordedId,
   type Repace,
+  repacesOf,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
@@ -41,7 +44,10 @@ export function Decisions({ context, courseId, className, onTakeBack, onTakeBack
   const { direction } = useLocale();
   const language = currentLanguage();
   const comma = language === 'ar' ? '، ' : ', ';
-  const decisions = decisionsFor(courseDecisions(context.state, courseId), courseId);
+  const carried = decisionsFor(courseDecisions(context, courseId), courseId);
+  const decisions = carried.filter((one) => one.id === recordedId(one.id));
+  const leftOut = (decision: ExamDecision) =>
+    carried.flatMap((one) => (one.kind === 'leave-out' && recordedId(one.id) === decision.id ? [one.item] : []));
   const repace = onTakeBackRepace === undefined ? undefined : repacesOf(context.state, courseId).at(-1);
   if (decisions.length === 0 && repace === undefined) return null;
   const pack = courseSetup(context, courseId).pack;
@@ -49,7 +55,7 @@ export function Decisions({ context, courseId, className, onTakeBack, onTakeBack
   const said = (decision: ExamDecision): string => {
     switch (decision.kind) {
       case 'leave-out':
-        return t('examWindow.leftOut', { item: quoted(decision.item) });
+        return t('examWindow.leftOut', { item: leftOut(decision).map(quoted).join(comma) });
       case 'merge':
         return t('examWindow.merged', { first: quoted(decision.items[0]), second: quoted(decision.items[1]) });
       case 'postpone':

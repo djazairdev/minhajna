@@ -213,13 +213,30 @@ export function releaseChain(packs: Iterable<PlanPack>, target: PlanPack, since?
   return { ok: true, steps: steps.slice(reused + 1) };
 }
 
-/** Where an ID of an earlier release is in the last step's release: itself, the IDs it became, or none. */
+/** The item a session that taught `id` counts for: itself, its first part, its merged item; none when removed. */
+export function carriedId(migration: Migration, id: string): string | undefined {
+  return migration.length === 0 ? id : followId(migration, id)[0];
+}
+
+/** A part of a class's or a layer's own split of an item: `<item>~<change>~<n>` (partId in plan-layer.ts). */
+export const PART_ID = /^([^~]+)~(.+)~([12])$/;
+
+/**
+ * Where an ID of an earlier release is in the last step's release: itself,
+ * the IDs it became, or none. A part of the class's own split follows its
+ * item's rename; when the item is split, merged or removed, the part is gone.
+ */
 export function followId(migration: Migration, id: string): string[] {
   let ids = [id];
   for (const step of migration) {
+    const entryOf = (one: string) => step.entries.find((candidate) => oldIds(candidate).includes(one));
     ids = ids.flatMap((one) => {
-      const entry = step.entries.find((candidate) => oldIds(candidate).includes(one));
-      return entry === undefined ? [one] : [...newIds(entry)];
+      const entry = entryOf(one);
+      if (entry !== undefined) return [...newIds(entry)];
+      const part = PART_ID.exec(one);
+      const base = part === null ? undefined : entryOf(part[1]!);
+      if (part === null || base === undefined) return [one];
+      return base.kind === 'rename' ? [`${base.to}~${part[2]}~${part[3]}`] : [];
     });
   }
   return [...new Set(ids)];

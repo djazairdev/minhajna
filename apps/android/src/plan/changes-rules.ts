@@ -11,13 +11,14 @@
 import {
   addedId,
   changeEffects,
+  type Context,
   courseDecisions,
   courseSetup,
   findPackItem,
   isChange,
-  type Context,
   type PlanChange,
   type PlanPack,
+  recordedId,
 } from '@minhajna/core';
 import type { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
@@ -101,8 +102,8 @@ export function changeLines(
   if (pack === null) return [];
   const effects = changeEffects(context, courseId);
   const line = changeText(t, context, pack, base);
-  const made = [...courseDecisions(context.state, courseId).values()]
-    .filter((one): one is PlanChange => isChange(one) && one.courseId === courseId)
+  const made = [...courseDecisions(context, courseId).values()]
+    .filter((one): one is PlanChange => isChange(one) && one.courseId === courseId && one.id === recordedId(one.id))
     .sort((a, b) => b.seq - a.seq || b.id.localeCompare(a.id));
   const undone = new Set(made.flatMap((one) => (one.kind === 'undo' ? [one.change] : [])));
   return made

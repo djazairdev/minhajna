@@ -56,7 +56,7 @@ export function pastWindow(context: Context, courseId: string, today: Day): Past
   const term = exam.term;
 
   const postponed = new Set(
-    decisionsFor(courseDecisions(context.state, courseId), courseId).flatMap((decision) =>
+    decisionsFor(courseDecisions(context, courseId), courseId).flatMap((decision) =>
       decision.kind === 'postpone' && decision.term === term ? decision.items : [],
     ),
   );

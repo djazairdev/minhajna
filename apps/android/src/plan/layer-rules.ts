@@ -56,7 +56,7 @@ export function layerModel(
 ): LayerModel {
   const { pack, sessionMinutes } = courseSetup(context, courseId);
   const { on, known } = courseLayers(context.state, courseId);
-  const own = courseDecisions(context.state, courseId);
+  const own = courseDecisions(context, courseId);
   const decisions = known.includes(layer) ? own : new Map(own);
   const clash = known.some((one) => one !== layer && layerKey(one) === layerKey(layer));
   const withIt = {
