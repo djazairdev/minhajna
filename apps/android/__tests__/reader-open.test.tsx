@@ -153,7 +153,7 @@ test('the teacher is named per key, and the list shows each statement newest fir
   await open(data, await signed(statement('2026-10-08', '4M3')));
   await closeSettingsScreen();
   const onOpen = jest.fn();
-  await showSettingsScreen(<ReaderList onOpen={onOpen} />, data);
+  await showSettingsScreen(<ReaderList onOpen={onOpen} onPicture={jest.fn()} />, data);
   const [first, second] = receivedStatements(data.book.entries);
   const rows = settingsRoot().findAll((node) => String(node.props.testID).startsWith('reader-received-'));
   expect(rows.map((node) => node.props.testID as string).filter((id, at, all) => all.indexOf(id) === at)).toEqual([

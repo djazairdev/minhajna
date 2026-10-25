@@ -117,8 +117,9 @@ export function TypeListScreen({ navigation, route }: NativeStackScreenProps<Roo
 }
 
 /**
- * The welcome leads to the notice; Back from the notice returns here. While
- * the history is still empty, it also leads to the restore (#247).
+ * The welcome leads to the notice, for setup or reader mode (#246); Back from
+ * the notice returns here. While the history is still empty, it also leads to
+ * the restore (#247).
  */
 export function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
   const { entries } = useAppData();
@@ -126,6 +127,7 @@ export function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackPa
     <Welcome
       lockSet
       onStart={() => navigation.navigate('Privacy')}
+      onReader={() => navigation.navigate('Privacy', { reader: true })}
       onRestore={entries().length === 0 ? () => navigation.navigate('Restore') : undefined}
     />
   );
@@ -136,11 +138,18 @@ export function RestoreScreen() {
   return <Restore storage={useLockStorage()} onRestored={useReopen()} />;
 }
 
-/** The first-use notice leads to setup without recording that it was read. */
-export function FirstNotice({ navigation }: NativeStackScreenProps<RootStackParamList, 'Privacy'>) {
+/**
+ * The first-use notice leads to setup without recording that it was read, or
+ * to reader mode's home, which then has no way back to the welcome.
+ */
+export function FirstNotice({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Privacy'>) {
   return (
     <PrivacyNotice
-      onAccept={() => navigation.navigate('Teaching')}
+      onAccept={() =>
+        route.params?.reader === true
+          ? navigation.reset({ index: 0, routes: [{ name: 'ReaderHome' }] })
+          : navigation.navigate('Teaching')
+      }
       onConnections={() => navigation.navigate('Connections')}
     />
   );

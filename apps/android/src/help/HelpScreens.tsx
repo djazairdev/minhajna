@@ -11,6 +11,7 @@ import { controlIcon } from '../design/Icon';
 import native from '../native/NativeMinhajnaCrash';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { PILOT_BUILD } from '../pilot/pilot-build';
+import { readerOnly } from '../reader/reader-only';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { AboutBuild } from './BuildFacts';
@@ -19,7 +20,8 @@ import { SourceLink } from './SourceLink';
 import { useAppLicences } from './useAppLicences';
 
 /**
- * Help as drawn (#249, answer 483): the demo class, which opens «الأقسام والتلاميذ»; «توقيتاتي» in pilot builds;
+ * Help as drawn (#249, answer 483): the demo class, which opens «الأقسام والتلاميذ», and the plan-error row, both
+ * left out for a reader with nothing set up (#246, answer 490); «توقيتاتي» in pilot builds;
  * «الإبلاغ عن مشكلة», the plan-error row, which opens the Classes tab (answer 301), and a refused update file, by
  * hand (answer 307); «تقارير الأعطال», off until the teacher turns it on, and turning it off deletes a kept report;
  * the teacher's channels; then the privacy notice, connections and licences, and the build.
@@ -28,16 +30,19 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
   const t = useText();
   const { state } = useAppData();
   const demo = [...state.classes.values()].some((schoolClass) => schoolClass.demo === true);
+  const teaching = !readerOnly(state);
   const [crashes, setCrashes] = useState(() => native.reportsOn());
   const [crashesFailed, setCrashesFailed] = useState(false);
   return (
     <HelpPage>
-      <HelpRow
-        testID="help-demo"
-        label={t('help.demo')}
-        detail={t(demo ? 'help.demoThere' : 'help.demoAdd')}
-        onPress={() => navigation.navigate('SettingsClasses')}
-      />
+      {teaching && (
+        <HelpRow
+          testID="help-demo"
+          label={t('help.demo')}
+          detail={t(demo ? 'help.demoThere' : 'help.demoAdd')}
+          onPress={() => navigation.navigate('SettingsClasses')}
+        />
+      )}
       {PILOT_BUILD && (
         <HelpRow
           testID="help-timings"
@@ -55,12 +60,14 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
         detail={t('help.problemLine')}
         onPress={() => navigation.navigate('ProblemReport')}
       />
-      <HelpRow
-        testID="help-plan-error"
-        label={t('help.planError')}
-        detail={t('help.planErrorHow')}
-        onPress={() => navigation.popTo('Home', { screen: 'Classes' })}
-      />
+      {teaching && (
+        <HelpRow
+          testID="help-plan-error"
+          label={t('help.planError')}
+          detail={t('help.planErrorHow')}
+          onPress={() => navigation.popTo('Home', { screen: 'Classes' })}
+        />
+      )}
       <Switch
         testID="help-crashes"
         label={t('help.crashes')}

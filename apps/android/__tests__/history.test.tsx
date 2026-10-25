@@ -170,6 +170,7 @@ describe('at start', () => {
       text.welcome.offline,
       text.welcome.onPhone,
       text.welcome.start,
+      text.welcome.reader,
       text.welcome.restore,
     ]);
     expect(storage.opened).toBe(false);

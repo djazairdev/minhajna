@@ -92,6 +92,7 @@
     "offline": "Fonctionne sans internet",
     "onPhone": "Les données restent sur ce téléphone",
     "start": "Commencer",
+    "reader": "Ouvrir le relevé d’un enseignant",
     "restore": "J’ai une copie d’un autre téléphone"
   },
   "privacy": {
@@ -3719,7 +3720,7 @@
     "same": "Du même enseignant que le relevé du {{day}}.",
     "problemTitle": "Ce relevé n’est pas retenu",
     "problems": {
-      "signature": "Le relevé a été modifié après son émission : il n’est ni retenu ni gardé.",
+      "signature": "Le relevé a été modifié après son émission : il n’est ni retenu ni placé dans la vue de l’établissement.",
       "invalid": "Ce n’est pas un fichier de relevé de progression signé.",
       "version": "Le relevé vient d’une version plus récente de l’application : mettez-la à jour pour le lire.",
       "payload": "La signature est valide, mais le contenu du relevé ne suit pas son format : il n’est pas gardé.",
@@ -3746,7 +3747,31 @@
     "count_one": "{{count}} relevé",
     "count_many": "{{count}} de relevés",
     "count_other": "{{count}} relevés",
+    "teachers_one": "{{count}} enseignant",
+    "teachers_many": "{{count}} d’enseignants",
+    "teachers_other": "{{count}} enseignants",
     "back": "Aux relevés reçus",
-    "gone": "Ce relevé n’est plus sur ce téléphone."
+    "gone": "Ce relevé n’est plus sur ce téléphone.",
+    "leftOut": "Ce relevé est daté après sa réception ou hors de son année scolaire : il n’apparaît pas dans la vue de l’établissement.",
+    "leftOutShort": "hors de la vue",
+    "picture": {
+      "title": "Vue de l’établissement",
+      "scope": "D’après les relevés partagés par les enseignants",
+      "scopeDay": "D’après les relevés partagés par les enseignants · dernier reçu le {{day}}",
+      "empty": "Aucun relevé reçu pour l’instant. Ouvrez le relevé d’un enseignant depuis son code QR ou son fichier : il apparaîtra ici, à sa classe et à sa matière.",
+      "grades": "Année d’études",
+      "gradeCount": "{{grade}} : {{statements}} de {{teachers}}",
+      "section": "Classe",
+      "noSchool": "Établissement non indiqué",
+      "note": "Chaque case : le dernier relevé reçu, avec sa date · Case vide : aucun relevé reçu · Aucun classement, aucune couleur pour les personnes",
+      "behind": "{{sessions}} de retard",
+      "cell": "{{where}} : {{delay}}, {{day}}",
+      "emptyCell": "{{where}} : aucun relevé reçu",
+      "teach": "Configurer l’application pour enseigner",
+      "nameSchools": "Si les enseignants viennent de plusieurs établissements, nommez chacun avec son établissement pour séparer leurs classes.",
+      "leftOut_one": "{{count}} relevé laissé hors de la vue : daté après sa réception ou hors de son année scolaire.",
+      "leftOut_many": "{{count}} de relevés laissés hors de la vue : datés après leur réception ou hors de leur année scolaire.",
+      "leftOut_other": "{{count}} relevés laissés hors de la vue : datés après leur réception ou hors de leur année scolaire."
+    }
   }
 }

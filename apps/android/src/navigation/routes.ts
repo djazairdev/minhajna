@@ -16,7 +16,8 @@ export type RootStackParamList = {
   Welcome: undefined;
   /** Restoring from another phone or a backup, into the empty history (#247). */
   Restore: undefined;
-  Privacy: undefined;
+  /** The first-use notice; `reader` when it leads to reader mode's home instead of setup (#246). */
+  Privacy: { reader?: boolean } | undefined;
   Teaching: undefined;
   Card: undefined;
   Classes: undefined;
@@ -80,6 +81,9 @@ export type RootStackParamList = {
   /** Reader mode's statements received, and opening one: a new one, or a kept one by its ID (#246). */
   ReaderList: undefined;
   ReaderOpen: { id?: string } | undefined;
+  /** «صورة المؤسسة» from the statements received, and the same picture as a reader's home (#246). */
+  ReaderPicture: undefined;
+  ReaderHome: undefined;
   /** «التقويم والنقاط» for a course, on `term` when chosen, else the term holding today (#238). */
   Marks: { courseId: string; term?: number };
   /** The course's continuous-assessment setup, applying from `term` on. */

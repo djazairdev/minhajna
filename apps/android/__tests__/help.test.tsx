@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { parseDay } from '@minhajna/core';
 import { Alert, Linking, ScrollView, StyleSheet, Text } from 'react-native';
 import type { AlertButton, GestureResponderEvent, PressableProps, ScrollViewProps, TextProps } from 'react-native';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -209,6 +210,7 @@ test('keeps offline notices usable when no browser can open the source', async (
 });
 
 test('says how to report a plan error, read aloud, and opens the class plans from Help (answer 301)', async () => {
+  await navData.book.record(parseDay('2026-10-15'), { kind: 'setup.finished' });
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(withData(navData, <AppNavigator initialRouteName="Home" direction="rtl" />));
     await Promise.resolve();

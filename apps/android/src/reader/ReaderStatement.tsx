@@ -2,18 +2,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A statement kept in reader mode, as R-Open shows it (#246, answer 489): its
-// signature checked, the day it came and how, whether it is the first under its
-// key or from the teacher who sent an earlier one, the teacher by the name the
-// reader gave or unnamed, then its fields, its pack's edition, the key's
-// fingerprint, and that it holds no pupil data and stays on the reader's own
-// devices.
+// signature checked, the day it came and how, whether the school's picture
+// leaves it out as misdated, whether it is the first under its key or from the
+// teacher who sent an earlier one, the teacher by the name the reader gave or
+// unnamed, then its fields, its pack's edition, the key's fingerprint, and that
+// it holds no pupil data and stays on the reader's own devices.
 
-import { teacherNames, type Received } from '@minhajna/core';
+import { inPicture, teacherNames, type Received } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
+import { Notice } from '../components/Notice';
+import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { fingerprintText } from '../calendar/UpdateDetails';
 import { frontDate } from '../documents/front-tables';
@@ -48,6 +50,7 @@ export function ReaderStatement({ one, list }: { readonly one: Received; readonl
           {t('reader.kept', { day: frontDate(one.day), how: t(`reader.how.${one.how}`) })}
         </Text>
       </View>
+      {!inPicture(one) && <Notice testID="reader-left-out" icon={controlIcon('info')} message={t('reader.leftOut')} />}
       {naming ? (
         <TeacherNameForm spki={one.spki} named={names.get(one.spki)} onDone={() => setNaming(false)} />
       ) : (

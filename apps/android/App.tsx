@@ -13,15 +13,16 @@
 // checks (#235). It starts from the insets known at launch, so the first frame
 // is drawn at once. Once both are open, the screens reach the record book and
 // the profile through AppData, and the app opens on Today once setup has been
-// finished (#183). Unused for the lock's delay, the app closes the history and
-// shows the lock; the screens come back as they were after it. The screen guard
-// follows the screen in front: records stay out of screenshots and the
-// recent-apps preview unless the teacher allows them, and PIN pads always. Each
-// navigation action raises it before the next screen is drawn. Once the lock,
-// the welcome or the history shows, the app tells Android its first screen with
-// content is drawn, so a start can be timed on any phone. In development every
-// problem in the reference data is logged, for whoever keys it; teachers see
-// one short message.
+// finished (#183), or on reader mode's home for a reader who kept a statement
+// and never set up teaching (#246). Unused for the lock's delay, the app closes
+// the history and shows the lock; the screens come back as they were after it.
+// The screen guard follows the screen in front: records stay out of screenshots
+// and the recent-apps preview unless the teacher allows them, and PIN pads
+// always. Each navigation action raises it before the next screen is drawn.
+// Once the lock, the welcome or the history shows, the app tells Android its
+// first screen with content is drawn, so a start can be timed on any phone. In
+// development every problem in the reference data is logged, for whoever keys
+// it; teachers see one short message.
 
 import type { CountryProfile } from '@minhajna/core';
 import { LocaleDirContext, type InitialState, type NavigationState } from '@react-navigation/native';
@@ -43,6 +44,7 @@ import { useLockPhase, type LockPhase } from './src/lock/useLockPhase';
 import NativeInterface from './src/native/NativeMinhajnaInterface';
 import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajnaStorage';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { startRoute } from './src/navigation/start-route';
 import { Welcome } from './src/navigation/Welcome';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
 import { AppDataProvider } from './src/storage/AppData';
@@ -82,22 +84,18 @@ export default function App({
   const navigation = useRef<NavigationState | undefined>(undefined);
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
   const [route, setRoute] = useState<string | undefined>(undefined);
-  const [restoring, setRestoring] = useState(false);
+  const [next, setNext] = useState<Begin>('setup');
   const firstState =
     restore ??
-    (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false
-      ? restoring
-        ? TO_RESTORE
-        : AFTER_FIRST_PIN
-      : undefined);
+    (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined);
   const { lockNow, opened, start } = lock;
   const reopen = useCallback(() => {
     setRoute(undefined);
     opened();
   }, [opened]);
   const begin = useCallback(
-    (restoreFirst: boolean) => {
-      setRestoring(restoreFirst);
+    (choice: Begin) => {
+      setNext(choice);
       start();
     },
     [start],
@@ -109,7 +107,7 @@ export default function App({
   }, [lockNow, firstState]);
   useAutoLock(book !== null || broken !== null, lockMinutes, lockAway);
   const open = phase.kind === 'open' && reference.ok && book !== null;
-  const front = route ?? focusedRoute(firstState) ?? (book?.state.setupFinished ? 'Home' : 'Welcome');
+  const front = route ?? focusedRoute(firstState) ?? (book === null ? 'Welcome' : startRoute(book));
   const refused = !reference.ok || phase.kind === 'refused' || history === 'refused';
   const kind = open ? screenKind(front) : broken !== null ? 'records' : gateKind(phase, refused);
   const [actions, setActions] = useState(0);
@@ -155,7 +153,7 @@ export default function App({
               <PilotTimings.Provider value={pilot}>
                 <ReopenHistory.Provider value={reopen}>
                   <AppNavigator
-                    initialRouteName={book.state.setupFinished ? 'Home' : 'Welcome'}
+                    initialRouteName={startRoute(book)}
                     initialState={firstState}
                     onAction={raiseGuard}
                     onStateChange={(state) => {
@@ -205,8 +203,8 @@ function Gate({
   phase: LockPhase;
   storage: Storage;
   lock: ReturnType<typeof useLockPhase>;
-  /** From the welcome to the first PIN, then to setup or, when true, the restore. */
-  begin: (restoreFirst: boolean) => void;
+  /** From the welcome to the first PIN, then to setup, the restore or reader mode. */
+  begin: (next: Begin) => void;
   lockMinutes: number;
   referenceRefused: boolean;
   historyRefused: boolean;
@@ -216,7 +214,9 @@ function Gate({
   if (referenceRefused) return <Welcome referenceRefused historyRefused={historyRefused} />;
   switch (phase.kind) {
     case 'welcome':
-      return <Welcome onStart={() => begin(false)} onRestore={() => begin(true)} />;
+      return (
+        <Welcome onStart={() => begin('setup')} onReader={() => begin('reader')} onRestore={() => begin('restore')} />
+      );
     case 'create':
       return (
         <CreatePin
@@ -248,11 +248,18 @@ function Gate({
   }
 }
 
-/** Setup goes on at the privacy notice after the first PIN, with the welcome under it for Back. */
-const AFTER_FIRST_PIN: InitialState = { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy' }] };
+/** What the welcome began, before the first PIN. */
+type Begin = 'setup' | 'restore' | 'reader';
 
-/** Or at the restore, for a teacher who chose it on the welcome (#247). */
-const TO_RESTORE: InitialState = { index: 1, routes: [{ name: 'Welcome' }, { name: 'Restore' }] };
+/**
+ * After the first PIN, with the welcome under it for Back: setup goes on at the privacy notice, the restore at the
+ * restore (#247), and reader mode at the notice that leads to its home (#246).
+ */
+const AFTER_FIRST_PIN: Record<Begin, InitialState> = {
+  setup: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy' }] },
+  restore: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Restore' }] },
+  reader: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy', params: { reader: true } }] },
+};
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
