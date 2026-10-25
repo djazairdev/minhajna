@@ -3726,6 +3726,39 @@
       "early": "No days can be drawn for this statement: it is dated before the first day of the {{year}} school year.",
       "noDays": "This statement’s period has no school day, so no days can be drawn.",
       "onPhone": "The sheet stays on this phone and is sent nowhere."
+    },
+    "merge": {
+      "title": "Statements side by side",
+      "open": "Put statements side by side for the council",
+      "subject": "Subject",
+      "scope": "{{statements}} from {{teachers}}, the latest for each class",
+      "unit": "{{title}}, {{at}} of {{of}}",
+      "noUnit": "Outside the sequences and domains",
+      "miss": {
+        "own": "The teacher’s own list, so the resource is shown as sent",
+        "noPack": "Its pack is not in this app, so the resource is shown as sent",
+        "older": "This app has only releases older than the statement’s, so the resource is shown as sent",
+        "noItem": "This app’s pack does not have this resource, so it is shown as sent"
+      },
+      "place": "Place in the unit: {{at}} of {{of}}",
+      "placedOn": "on the app’s {{release}} release",
+      "order": "Classes follow the school’s order, and no one is ranked.",
+      "shared": "Only what teachers shared shows here; what was not shared leaves no trace.",
+      "print": "Print for the council’s register",
+      "register": "It prints as a table to paste into the numbered minutes register. It stays on this phone and is sent nowhere.",
+      "meeting": "For the subject’s teaching council meeting, on: ....................",
+      "made": "Made on {{day}}",
+      "signature": "Subject coordinator’s signature",
+      "columns": {
+        "section": "Class",
+        "teacher": "Teacher",
+        "day": "Statement",
+        "unit": "Sequence or domain",
+        "resource": "Last resource",
+        "place": "Place",
+        "delay": "Behind the plan",
+        "notHeld": "Sessions not held"
+      }
     }
   }
 }
