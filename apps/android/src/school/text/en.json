@@ -1,0 +1,35 @@
+{
+  "board": {
+    "title": "Assign cover",
+    "notice": "Choose a session from the school timetable, then its arrangement. No reason for cover is recorded.",
+    "session": "Session",
+    "kind": "Arrangement",
+    "arrangement": "Colleague or alternative session",
+    "save": "Save assignment",
+    "saved": "Change saved.",
+    "failed": "The requested change was not saved. Check the assignment shown, then try again.",
+    "denied": "This page is only for the director or deputy in the school’s space.",
+    "cancel": "Cancel assignment",
+    "cancelNotice": "Cancel this assignment? Its earlier versions remain.",
+    "confirmCancel": "Confirm cancellation",
+    "keep": "Keep assignment"
+  },
+  "cover": {
+    "given": "Cover I give",
+    "received": "Cover for my class",
+    "slot": "{{half}} · slot {{index}}",
+    "assigned": "Assigned by the school",
+    "needed": "Awaiting assignment",
+    "completed": "Confirmed by the assigned teacher",
+    "school": "From the school’s assignment. No reason for cover is recorded.",
+    "kinds": {
+      "supervision": "Class supervision",
+      "study-room": "Study room",
+      "colleague": "Cover by a free colleague",
+      "merge": "Merged with another class",
+      "swap": "Session swap",
+      "move": "Session move",
+      "release": "Pupils released after the last session"
+    }
+  }
+}

@@ -10,5 +10,11 @@
     "slug": "android-calendar",
     "filemask": "apps/android/src/calendar/text/*.json",
     "template": "apps/android/src/calendar/text/ar.json"
+  },
+  {
+    "name": "Android school cover",
+    "slug": "android-school-cover",
+    "filemask": "apps/android/src/school/text/*.json",
+    "template": "apps/android/src/school/text/ar.json"
   }
 ]
