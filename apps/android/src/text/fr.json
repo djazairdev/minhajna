@@ -3791,6 +3791,39 @@
       "early": "Aucun jour ne peut être tiré pour ce relevé : il est daté d’avant le premier jour de l’année scolaire {{year}}.",
       "noDays": "La période de ce relevé n’a aucun jour de classe : aucun jour ne peut être tiré.",
       "onPhone": "La fiche reste sur ce téléphone et n’est envoyée nulle part."
+    },
+    "merge": {
+      "title": "Bilans réunis",
+      "open": "Réunir les bilans pour le conseil",
+      "subject": "Matière",
+      "scope": "{{statements}} de {{teachers}}, le dernier de chaque classe",
+      "unit": "{{title}}, {{at}} sur {{of}}",
+      "noUnit": "Hors séquences et domaines",
+      "miss": {
+        "own": "Liste propre de l’enseignant : la ressource est montrée telle qu’envoyée",
+        "noPack": "Son pack n’est pas dans cette application : la ressource est montrée telle qu’envoyée",
+        "older": "L’application n’a que des éditions plus anciennes que celle du relevé : la ressource est montrée telle qu’envoyée",
+        "noItem": "Le pack de l’application n’a pas cette ressource : elle est montrée telle qu’envoyée"
+      },
+      "place": "Place dans l’unité : {{at}} sur {{of}}",
+      "placedOn": "sur l’édition {{release}} de l’application",
+      "order": "Les classes suivent l’ordre de l’établissement, et personne n’est classé.",
+      "shared": "Seul ce que les enseignants ont partagé apparaît ici ; ce qui n’a pas été partagé ne laisse aucune trace.",
+      "print": "Imprimer pour le registre du conseil",
+      "register": "Il s’imprime en tableau à coller dans le registre des procès-verbaux numéroté. Il reste sur ce téléphone et n’est envoyé nulle part.",
+      "meeting": "Pour la réunion du conseil d’enseignement de la matière, le : ....................",
+      "made": "Établi le {{day}}",
+      "signature": "Signature du coordinateur de la matière",
+      "columns": {
+        "section": "Classe",
+        "teacher": "Enseignant",
+        "day": "Bilan",
+        "unit": "Séquence ou domaine",
+        "resource": "Dernière ressource",
+        "place": "Place",
+        "delay": "Retard sur le plan",
+        "notHeld": "Séances non tenues"
+      }
     }
   }
 }

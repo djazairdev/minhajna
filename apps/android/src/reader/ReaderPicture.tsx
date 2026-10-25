@@ -5,7 +5,8 @@
 // teachers shared, for the latest school year among them, one grade at a time,
 // with how many statements and teachers its cells hold, how many were left out
 // as misdated, and a hint to name teachers by school while rows may merge. It
-// opens a new statement, the list of those received, and each cell's statement.
+// opens a new statement, the list of those received, each cell's statement,
+// and the grade's merge for the teaching council (answer 492).
 // As a director's or an inspector's home, started from the welcome, it heads
 // the page itself, with Settings and Help, and offers setting the app up for
 // teaching.
@@ -32,11 +33,13 @@ import { PictureGrid } from './PictureGrid';
 export type ReaderPictureProps = {
   readonly onOpen: (id?: string) => void;
   readonly onList: () => void;
+  /** Opens the merge of a grade's statements for the council; the button shows when given. */
+  readonly onMerge?: (grade: string) => void;
   /** Given for the reader's home: the page heads itself and offers these. */
   readonly home?: { readonly onSettings: () => void; readonly onHelp: () => void; readonly onTeach: () => void };
 };
 
-export function ReaderPicture({ onOpen, onList, home }: ReaderPictureProps) {
+export function ReaderPicture({ onOpen, onList, onMerge, home }: ReaderPictureProps) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -125,6 +128,14 @@ export function ReaderPicture({ onOpen, onList, home }: ReaderPictureProps) {
           </Text>
           <PictureGrid key={part.grade} part={part} subjects={subjects} onOpen={onOpen} />
           <Text style={[styles.sub, align]}>{t('reader.picture.note')}</Text>
+          {onMerge !== undefined && (
+            <Button
+              testID="reader-merge"
+              variant="line"
+              label={t('reader.merge.open')}
+              onPress={() => onMerge(part.grade)}
+            />
+          )}
           {picture.mayMerge && (
             <Text testID="reader-picture-merge" style={[styles.sub, align]}>
               {t('reader.picture.nameSchools')}

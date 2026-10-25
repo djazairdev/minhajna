@@ -86,6 +86,8 @@ export type RootStackParamList = {
   ReaderHome: undefined;
   /** A kept statement's spot-check sheet, by its ID (#246, answer 491). */
   ReaderSpot: { id: string };
+  /** The merge of a grade's statements for the teaching council, by its grade code (#246, answer 492). */
+  ReaderMerge: { grade: string };
   /** «التقويم والنقاط» for a course, on `term` when chosen, else the term holding today (#238). */
   Marks: { courseId: string; term?: number };
   /** The course's continuous-assessment setup, applying from `term` on. */

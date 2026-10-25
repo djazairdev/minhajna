@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Reader mode's screens, as routes (#246, answers 489 and 490): the statements
-// received, opening one, a new one or one kept, its spot-check sheet, and the
+// Reader mode's screens, as routes (#246, answers 489 to 492): the statements
+// received, opening one, a new one or one kept, its spot-check sheet, the
 // school's picture, also as the home of a reader who started from the welcome,
-// with no back to it. `readerRoutes` gives the navigator their entries, as
-// `planRoutes` does.
+// with no back to it, and a grade's merge for the teaching council.
+// `readerRoutes` gives the navigator their entries, as `planRoutes` does.
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ReaderList } from '../reader/ReaderList';
+import { ReaderMerge } from '../reader/ReaderMerge';
 import { ReaderOpen } from '../reader/ReaderOpen';
 import { ReaderPicture } from '../reader/ReaderPicture';
 import { ReaderSpot } from '../reader/ReaderSpot';
@@ -37,12 +38,18 @@ export function ReaderSpotScreen({ route }: NativeStackScreenProps<RootStackPara
   return <ReaderSpot id={route.params.id} />;
 }
 
-/** The school's picture; a cell opens its statement. */
+/** A grade's merge for the council; a row opens its statement. */
+export function ReaderMergeScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'ReaderMerge'>) {
+  return <ReaderMerge grade={route.params.grade} onOpen={(id) => navigation.navigate('ReaderOpen', { id })} />;
+}
+
+/** The school's picture; a cell opens its statement, and a grade its merge. */
 export function ReaderPictureScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'ReaderPicture'>) {
   return (
     <ReaderPicture
       onOpen={(id) => navigation.navigate('ReaderOpen', id === undefined ? undefined : { id })}
       onList={() => navigation.popTo('ReaderList')}
+      onMerge={(grade) => navigation.navigate('ReaderMerge', { grade })}
     />
   );
 }
@@ -53,6 +60,7 @@ export function ReaderHomeScreen({ navigation }: NativeStackScreenProps<RootStac
     <ReaderPicture
       onOpen={(id) => navigation.navigate('ReaderOpen', id === undefined ? undefined : { id })}
       onList={() => navigation.navigate('ReaderList')}
+      onMerge={(grade) => navigation.navigate('ReaderMerge', { grade })}
       home={{
         onSettings: () => navigation.navigate('Settings'),
         onHelp: () => navigation.navigate('Help'),
@@ -85,6 +93,7 @@ export function readerRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="ReaderOpen" component={ReaderOpenScreen} options={dark(t('reader.open'))} />
       <Stack.Screen name="ReaderPicture" component={ReaderPictureScreen} options={dark(t('reader.picture.title'))} />
       <Stack.Screen name="ReaderSpot" component={ReaderSpotScreen} options={dark(t('reader.spot.title'))} />
+      <Stack.Screen name="ReaderMerge" component={ReaderMergeScreen} options={dark(t('reader.merge.title'))} />
       <Stack.Screen
         name="ReaderHome"
         component={ReaderHomeScreen}
