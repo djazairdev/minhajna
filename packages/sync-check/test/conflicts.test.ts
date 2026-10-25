@@ -7,7 +7,8 @@
 // is one record per cell, and a class and subject's formula one record per
 // course, and a descriptive observation or an appreciation one per pupil,
 // course and term (#240, #241); a class's move to a newer release is a
-// change to its course (#322). Made-up records only.
+// change to its course (#322); a teacher's name in reader mode is one record
+// per key, and a statement received only adds (#246). Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -146,6 +147,23 @@ test('a class moved on one device and changed or moved on the other conflicts fo
   assert.deepEqual(
     findConflicts(mine, other).map((conflict) => conflict.key),
     ['course/c-1'],
+  );
+});
+
+test('a teacher named differently on two devices conflicts for that key, and a statement received never', async () => {
+  const named = (name: string): RecordEvent => ({ kind: 'teacher.named', named: { spki: 'made-up-key', name } });
+  const received = (id: string): RecordEvent => ({
+    kind: 'statement.received',
+    received: { id, text: '{}', how: 'qr' },
+  });
+  const [mine, theirs] = await Promise.all([
+    recorded(named('Made-up Teacher'), received('r-1')),
+    recorded(named('Other Teacher'), received('r-2')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), ['teacher-named/made-up-key', null]);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['teacher-named/made-up-key'],
   );
 });
 

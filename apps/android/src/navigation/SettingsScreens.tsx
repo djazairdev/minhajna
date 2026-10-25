@@ -97,6 +97,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
       case 'statement':
         if (id !== undefined) navigation.navigate('Statement', { courseId: id });
         break;
+      case 'received':
+        navigation.navigate('ReaderList');
+        break;
     }
   };
   return <Settings onOpen={open} />;

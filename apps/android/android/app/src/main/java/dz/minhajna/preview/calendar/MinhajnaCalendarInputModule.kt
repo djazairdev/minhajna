@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference
  */
 class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) :
   NativeMinhajnaCalendarInputSpec(context), ActivityEventListener {
-  private data class Waiting(val activity: Activity, val request: Int, val promise: Promise)
+  private data class Waiting(val activity: Activity, val request: Int, val promise: Promise, val statement: Boolean)
   private var waiting: Waiting? = null
   private val main = Handler(Looper.getMainLooper())
   private val reader = Executors.newSingleThreadExecutor()
@@ -44,6 +44,15 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
   }, promise) }
 
+  /** A progress statement's signed file or PDF, for reader mode (#246); a PDF gives only its statement link. */
+  override fun readStatement(promise: Promise) { open(FILE_REQUEST, Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+    addCategory(Intent.CATEGORY_OPENABLE)
+    type = "*/*"
+    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "application/pdf"))
+    putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+  }, promise, statement = true) }
+
   override fun scanQr(title: String, instruction: String, cancel: String, rtl: Boolean, promise: Promise) {
     if (listOf(title, instruction, cancel).any { it.length > 500 }) {
       promise.reject("E_CALENDAR_INPUT", "The scanner could not open")
@@ -57,14 +66,15 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
 
   override fun qrRows(text: String): String = QrRows.of(text)
 
-  private fun open(request: Int, intent: Intent, promise: Promise) = UiThreadUtil.runOnUiThread {
-    val activity = context.currentActivity
-    if (waiting != null) return@runOnUiThread promise.reject("E_CALENDAR_BUSY", "An input is already open")
-    if (activity == null) return@runOnUiThread promise.reject("E_CALENDAR_INPUT", "No screen to read from")
-    waiting = Waiting(activity, request, promise)
-    try { activity.startActivityForResult(intent, request) }
-    catch (_: RuntimeException) { waiting = null; promise.reject("E_CALENDAR_INPUT", "The input could not open") }
-  }
+  private fun open(request: Int, intent: Intent, promise: Promise, statement: Boolean = false) =
+    UiThreadUtil.runOnUiThread {
+      val activity = context.currentActivity
+      if (waiting != null) return@runOnUiThread promise.reject("E_CALENDAR_BUSY", "An input is already open")
+      if (activity == null) return@runOnUiThread promise.reject("E_CALENDAR_INPUT", "No screen to read from")
+      waiting = Waiting(activity, request, promise, statement)
+      try { activity.startActivityForResult(intent, request) }
+      catch (_: RuntimeException) { waiting = null; promise.reject("E_CALENDAR_INPUT", "The input could not open") }
+    }
 
   override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
     val next = waiting ?: return
@@ -104,10 +114,16 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     reader.execute {
       val result = runCatching {
         context.contentResolver.openAssetFileDescriptor(uri, "r", signal).use { descriptor ->
-          require(descriptor != null && descriptor.declaredLength <= NoticeInput.FILE_BYTES && generation == readGeneration)
+          val limit = if (next.statement) StatementFile.MAX_BYTES else NoticeInput.FILE_BYTES
+          require(descriptor != null && descriptor.declaredLength <= limit && generation == readGeneration)
           val input = descriptor.createInputStream()
           stream.set(input)
-          try { input.use { require(generation == readGeneration); NoticeInput.read(it, NoticeInput.FILE_BYTES) } } finally {
+          try {
+            input.use {
+              require(generation == readGeneration)
+              if (next.statement) StatementFile.read(it) else NoticeInput.read(it, NoticeInput.FILE_BYTES)
+            }
+          } finally {
             stream.compareAndSet(input, null)
             cancellation.compareAndSet(signal, null)
           }
