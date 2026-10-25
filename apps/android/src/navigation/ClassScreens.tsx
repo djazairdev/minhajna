@@ -5,7 +5,7 @@
 // settings button that opens its settings, and each of its rows opening its own
 // screen. Another class of the subject replaces it in place. A lycée class's
 // settings open the reorientation, which goes back to the Classes tab once
-// applied (#231).
+// applied (#231). «بيان التقدّم» opens from its row (#438).
 
 import { courseGrade, isJoint } from '@minhajna/core';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -15,6 +15,7 @@ import { ClassPage } from '../classes/ClassPage';
 import { Digest } from '../digest/Digest';
 import { courseGroup } from '../classes/class-page-rules';
 import { Reorient } from '../reorient/Reorient';
+import { StatementShare } from '../sharing/StatementShare';
 import { IconButton } from '../components/IconButton';
 import { controlIcon } from '../design/Icon';
 import { useAppData } from '../storage/AppData';
@@ -73,6 +74,7 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
       onRules={() => navigation.navigate('RollRules')}
       onMonth={() => navigation.navigate('RollMonth', { courseId })}
       onRollPrint={() => navigation.navigate('RollPrint', { courseId })}
+      onStatement={() => navigation.navigate('Statement', { courseId })}
       onPupil={(pupilId) => navigation.navigate('Pupil', { courseId, pupilId })}
     />
   );
@@ -81,6 +83,13 @@ export function ClassScreen({ navigation, route }: NativeStackScreenProps<RootSt
 /** The reshaping of a lycée level's classes, from a class's settings. */
 export function ReorientScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Reorient'>) {
   return <Reorient classId={route.params.classId} onDone={() => navigation.navigate('Home', { screen: 'Classes' })} />;
+}
+
+/** «بيان التقدّم»: another class's chip replaces it in place. */
+export function StatementScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Statement'>) {
+  return (
+    <StatementShare courseId={route.params.courseId} onCourse={(courseId) => navigation.setParams({ courseId })} />
+  );
 }
 
 /** The weekly digest: its rows open Today's list, a make-up, the catch-up options, a plan or «الإشعارات». */
@@ -105,6 +114,7 @@ export function classRoutes(
   return (
     <>
       <Stack.Screen name="Class" component={ClassScreen} options={dark(t('classPage.title'))} />
+      <Stack.Screen name="Statement" component={StatementScreen} options={dark(t('statement.title'))} />
       <Stack.Screen name="Reorient" component={ReorientScreen} options={dark(t('reorient.title'))} />
       <Stack.Screen name="Digest" component={DigestScreen} options={dark(t('digest.title'))} />
     </>

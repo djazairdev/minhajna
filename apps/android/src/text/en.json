@@ -3497,5 +3497,39 @@
     "send": "Send",
     "dontSend": "Don't send",
     "footer": "Crash reports are on in “Help”, and can be turned off there."
+  },
+  "statement": {
+    "title": "Progress statement",
+    "subtitle": "Per class · no pupil data, and it leaves the phone only when you choose.",
+    "row": "Per class, no pupil data · print or PDF",
+    "classes": "Class",
+    "none": "No statement for this class: it has no plan on the phone.",
+    "unit": "Last sequence or domain completed",
+    "noUnit": "No sequence or domain completed yet",
+    "resource": "Last resource",
+    "noResource": "No resource taught yet",
+    "done": "Finished by the whole class",
+    "started": "Started, not finished yet",
+    "delay": "Behind the plan",
+    "noDelay": "Not behind",
+    "delayWeeks": "{{weeks}} · {{sessions}}",
+    "buffer": "Buffer used: {{used}} · left: {{left}}",
+    "notHeld": "Sessions not held",
+    "losses": "Calendar: {{calendar}} · other: {{other}}",
+    "td": "Of which TD: calendar {{calendar}} · other {{other}}",
+    "pack": "Plan pack",
+    "ownList": "The teacher's own list",
+    "reasons": "The reasons for sessions not held stay on your devices; the statement does not carry them.",
+    "print": "Print",
+    "pdf": "PDF",
+    "signed": "Signed with your key when you print or save it, not before: the reader checks that it has not changed and that it comes from you. It is not a legal signature in teacher mode.",
+    "failed": "The statement was not made, and nothing of it left.",
+    "page": {
+      "signed": "Digital signature for checking, not a legal signature.",
+      "key": "Teacher's key fingerprint:",
+      "code": "The code carries the signed statement; Minhajna reads it in reader mode, with no network.",
+      "tooLong": "The statement is too long for one code: it is checked from its file, the PDF or the signed file.",
+      "privacy": "The statement carries no pupil data, and no reasons for sessions not held."
+    }
   }
 }

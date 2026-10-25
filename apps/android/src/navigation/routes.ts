@@ -75,6 +75,8 @@ export type RootStackParamList = {
   /** The teacher's own paragraph at `index`, or a new one. */
   NoteOwn: { key: string; day: string; index?: number };
   Class: { courseId: string };
+  /** «بيان التقدّم» of a course, from its class page (#438). */
+  Statement: { courseId: string };
   /** «التقويم والنقاط» for a course, on `term` when chosen, else the term holding today (#238). */
   Marks: { courseId: string; term?: number };
   /** The course's continuous-assessment setup, applying from `term` on. */

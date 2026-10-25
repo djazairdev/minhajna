@@ -3554,5 +3554,39 @@
     "send": "Envoyer",
     "dontSend": "Ne pas envoyer",
     "footer": "Les rapports de plantage sont activés dans « Aide » et peuvent y être désactivés."
+  },
+  "statement": {
+    "title": "Relevé de progression",
+    "subtitle": "Par classe · sans aucune donnée d’élève, et il ne quitte le téléphone que quand vous le choisissez.",
+    "row": "Par classe, sans données d’élèves · impression ou PDF",
+    "classes": "Classe",
+    "none": "Pas de relevé pour cette classe : elle n’a pas de plan sur le téléphone.",
+    "unit": "Dernière séquence ou dernier domaine achevé",
+    "noUnit": "Aucune séquence ni aucun domaine achevé pour l’instant",
+    "resource": "Dernière ressource",
+    "noResource": "Aucune ressource traitée pour l’instant",
+    "done": "Terminée par toute la classe",
+    "started": "Commencée, pas encore terminée",
+    "delay": "Retard sur le plan",
+    "noDelay": "Aucun retard",
+    "delayWeeks": "{{weeks}} · {{sessions}}",
+    "buffer": "Réserve utilisée : {{used}} · restante : {{left}}",
+    "notHeld": "Séances non tenues",
+    "losses": "Calendrier : {{calendar}} · autres : {{other}}",
+    "td": "Dont en travaux dirigés : calendrier {{calendar}} · autres {{other}}",
+    "pack": "Paquet du plan",
+    "ownList": "Liste propre de l’enseignant",
+    "reasons": "Les raisons des séances non tenues restent sur vos appareils ; le relevé ne les contient pas.",
+    "print": "Imprimer",
+    "pdf": "PDF",
+    "signed": "Signé avec votre clé au moment où vous l’imprimez ou l’enregistrez, pas avant : le lecteur vérifie qu’il n’a pas changé et qu’il vient de vous. Ce n’est pas une signature légale en mode enseignant.",
+    "failed": "Le relevé n’a pas été fait, et rien n’en est sorti.",
+    "page": {
+      "signed": "Signature numérique de vérification, et non signature légale.",
+      "key": "Empreinte de la clé de l’enseignant :",
+      "code": "Le code porte le relevé signé ; « Minhajna » le lit en mode lecteur, sans réseau.",
+      "tooLong": "Le relevé est trop long pour un seul code : on le vérifie depuis son fichier, PDF ou fichier signé.",
+      "privacy": "Le relevé ne contient aucune donnée d’élève, ni les raisons des séances non tenues."
+    }
   }
 }
