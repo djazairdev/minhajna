@@ -3,10 +3,11 @@
 
 // «البيانات المستلمة» (#246, answer 489): every statement kept in reader mode,
 // the latest statement day first, each by its class, subject and day, with its
-// teacher by name or unnamed; one opens as R-Open shows it, and «فتح بيان»
-// opens another. Nothing here leaves the reader's own devices.
+// teacher by name or unnamed, and marked when the picture leaves it out; one
+// opens as R-Open shows it, «فتح بيان» opens another, and «صورة المؤسسة» shows
+// them by grade. Nothing here leaves the reader's own devices.
 
-import { compareDays, receivedStatements, teacherNames } from '@minhajna/core';
+import { compareDays, inPicture, receivedStatements, teacherNames } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +23,13 @@ import { useText } from '../text/i18n';
 import { teacherLabel } from './reader-words';
 import { useFingerprints } from './useFingerprints';
 
-export function ReaderList({ onOpen }: { readonly onOpen: (id?: string) => void }) {
+export function ReaderList({
+  onOpen,
+  onPicture,
+}: {
+  readonly onOpen: (id?: string) => void;
+  readonly onPicture: () => void;
+}) {
   const t = useText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -50,6 +57,7 @@ export function ReaderList({ onOpen }: { readonly onOpen: (id?: string) => void 
     >
       <Text style={[styles.sub, align]}>{t('reader.onPhone')}</Text>
       <Button testID="reader-open" label={t('reader.open')} onPress={() => onOpen()} />
+      <Button testID="reader-picture" variant="line" label={t('reader.picture.title')} onPress={onPicture} />
       <Text testID="reader-count" style={[styles.title, align]}>
         {list.length === 0 ? t('reader.none') : t('reader.count', { count: list.length })}
       </Text>
@@ -59,7 +67,10 @@ export function ReaderList({ onOpen }: { readonly onOpen: (id?: string) => void 
           testID={`reader-received-${one.id}`}
           icon={controlIcon('info')}
           title={`${statementClass(profile, one.statement)} · ${frontDate(one.statement.day)}`}
-          description={teacherLabel(t, names, one.spki, fingerprints.get(one.spki) ?? null)}
+          description={[
+            teacherLabel(t, names, one.spki, fingerprints.get(one.spki) ?? null),
+            ...(inPicture(one) ? [] : [t('reader.leftOutShort')]),
+          ].join(' · ')}
           onPress={() => onOpen(one.id)}
         />
       ))}

@@ -26,7 +26,7 @@ export interface StatementLine {
 }
 
 /** The subject's name in the interface language, or its code. */
-function subjectName(profile: CountryProfile, code: string): string {
+export function subjectName(profile: CountryProfile, code: string): string {
   const subject = profile.subjects.find((one) => one.code === code);
   return subject === undefined ? code : localized(subject.name);
 }

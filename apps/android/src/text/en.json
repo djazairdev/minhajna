@@ -87,6 +87,7 @@
     "offline": "Works without the internet",
     "onPhone": "Your data stays on this phone",
     "start": "Let’s start",
+    "reader": "Open a teacher’s statement",
     "restore": "I have a copy from another phone"
   },
   "privacy": {
@@ -3658,7 +3659,7 @@
     "same": "From the same teacher who sent the statement of {{day}}.",
     "problemTitle": "This statement is not accepted",
     "problems": {
-      "signature": "The statement was changed after it was issued, so it is not accepted or kept.",
+      "signature": "The statement was changed after it was issued, so it is not accepted or placed in the school picture.",
       "invalid": "This is not a signed progress statement file.",
       "version": "The statement comes from a newer version of the app: update the app to read it.",
       "payload": "The signature is valid, but the statement’s content does not follow its format, so it is not kept.",
@@ -3684,7 +3685,29 @@
     "none": "No statement received yet.",
     "count_one": "{{count}} statement",
     "count_other": "{{count}} statements",
+    "teachers_one": "{{count}} teacher",
+    "teachers_other": "{{count}} teachers",
     "back": "To the statements received",
-    "gone": "This statement is no longer on this phone."
+    "gone": "This statement is no longer on this phone.",
+    "leftOut": "This statement is dated after it came, or outside its school year, so it is not in the school picture.",
+    "leftOutShort": "not in the picture",
+    "picture": {
+      "title": "School picture",
+      "scope": "From the statements teachers shared",
+      "scopeDay": "From the statements teachers shared · latest received {{day}}",
+      "empty": "No statement received yet. Open a teacher’s statement from its QR code or its file, and it shows here under its class and subject.",
+      "grades": "Year of study",
+      "gradeCount": "{{grade}}: {{statements}} from {{teachers}}",
+      "section": "Class",
+      "noSchool": "School not given",
+      "note": "Each cell: the latest statement received, with its date · Empty cell: no statement received · No ranking, no colours for people",
+      "behind": "{{sessions}} behind",
+      "cell": "{{where}}: {{delay}}, {{day}}",
+      "emptyCell": "{{where}}: no statement received",
+      "teach": "Set the app up for teaching",
+      "nameSchools": "If the teachers come from more than one school, name each with their school to keep their classes apart.",
+      "leftOut_one": "{{count}} statement left out of the picture: dated after it came, or outside its school year.",
+      "leftOut_other": "{{count}} statements left out of the picture: dated after they came, or outside their school year."
+    }
   }
 }

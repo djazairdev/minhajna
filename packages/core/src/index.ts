@@ -92,6 +92,7 @@ export * from './progress.ts';
 export * from './progress-statement.ts';
 export * from './statement-link.ts';
 export * from './statement-read.ts';
+export * from './statement-picture.ts';
 export * from './statement-received.ts';
 export * from './statement-shares.ts';
 export * from './statement-signature.ts';

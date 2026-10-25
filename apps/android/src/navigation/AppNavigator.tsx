@@ -111,7 +111,7 @@ export function AppNavigator({
   onAction,
 }: {
   direction?: 'rtl' | 'ltr';
-  initialRouteName?: 'Welcome' | 'Home';
+  initialRouteName?: 'Welcome' | 'Home' | 'ReaderHome';
   initialState?: InitialState;
   onStateChange?: (state: NavigationState | undefined) => void;
   /** Called as each navigation action is sent, before any screen it brings is drawn. */

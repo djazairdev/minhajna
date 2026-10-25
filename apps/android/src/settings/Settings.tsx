@@ -12,6 +12,7 @@ import { SectionHeader } from '../components/SectionHeader';
 import { Switch } from '../components/Switch';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
+import { readerOnly } from '../reader/reader-only';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
@@ -64,10 +65,24 @@ const SECTIONS = [
   { id: 'help', rows: ['help', 'privacy'] },
 ] as const;
 
+/** Reader mode's rows, for a director or an inspector who set up no teaching (#246, answer 490). */
+const READER_ROWS: readonly string[] = [
+  'received',
+  'security',
+  'backup',
+  'language',
+  'log',
+  'export',
+  'erase',
+  'help',
+  'privacy',
+];
+
 /**
  * The teacher's settings, with existing screens reachable without running setup again (#233); «بيان التقدّم» opens on
  * the first class with a plan, and shows only when one has a plan (answer 486); «البيانات المستلمة» always shows, for
- * reader mode (#246, answer 489).
+ * reader mode (#246, answer 489). Before setup is finished and while no school is entered, only reader mode's rows
+ * show (answer 490).
  */
 export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: string) => void }) {
   const t = useText();
@@ -77,6 +92,13 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
   const context = coreContext({ profile, year, calendar, calendarRelease, packs, state });
   const withPlan = [...state.courses.values()].filter((course) => courseSetup(context, course.id).pack !== null);
   const planned = withPlan.find((course) => course.year === year.id) ?? withPlan[0];
+  const teaching = !readerOnly(state);
+  const sections = SECTIONS.map((section) => ({
+    ...section,
+    rows: section.rows.filter(
+      (id) => (id !== 'statement' || planned !== undefined) && (teaching || READER_ROWS.includes(id)),
+    ),
+  })).filter((section) => section.rows.length > 0);
   const minutes = useCountMinutes();
   const [failed, setFailed] = useState(false);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -119,34 +141,32 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
           message={t(unsaved ? 'setup.notSaved' : 'settings.failed')}
         />
       )}
-      {SECTIONS.map((section) => (
+      {sections.map((section) => (
         <View key={section.id} style={styles.group}>
           <SectionHeader label={t(`settings.${section.id}`)} />
-          {section.rows
-            .filter((id) => id !== 'statement' || planned !== undefined)
-            .map((id) => {
-              const target = AVAILABLE.find((candidate) => candidate === id);
-              const description =
-                target === undefined
-                  ? t('settings.later')
-                  : id in descriptions
-                    ? descriptions[id as keyof typeof descriptions]
-                    : undefined;
-              return (
-                <RowLink
-                  key={id}
-                  testID={`settings-${id}`}
-                  icon={controlIcon('tune')}
-                  title={t(`settings.rows.${id}`)}
-                  description={description}
-                  disabled={target === undefined}
-                  onPress={() => {
-                    if (target === 'statement') onOpen(target, planned?.id);
-                    else if (target !== undefined) onOpen(target);
-                  }}
-                />
-              );
-            })}
+          {section.rows.map((id) => {
+            const target = AVAILABLE.find((candidate) => candidate === id);
+            const description =
+              target === undefined
+                ? t('settings.later')
+                : id in descriptions
+                  ? descriptions[id as keyof typeof descriptions]
+                  : undefined;
+            return (
+              <RowLink
+                key={id}
+                testID={`settings-${id}`}
+                icon={controlIcon('tune')}
+                title={t(`settings.rows.${id}`)}
+                description={description}
+                disabled={target === undefined}
+                onPress={() => {
+                  if (target === 'statement') onOpen(target, planned?.id);
+                  else if (target !== undefined) onOpen(target);
+                }}
+              />
+            );
+          })}
           {section.id === 'teaching' && (
             <>
               <Switch
