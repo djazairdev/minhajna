@@ -74,7 +74,7 @@ export function journalLines(
   for (const cover of record.coverage) {
     const item = findPackItem(pack, cover.item);
     const title = isolate(item?.title ?? cover.item);
-    const unit = item?.unit === undefined ? undefined : pack?.items.find((candidate) => candidate.id === item.unit);
+    const unit = item?.unit === undefined ? undefined : findPackItem(pack, item.unit);
     if (unit !== undefined && !sequences.some((line) => line.text === isolate(unit.title))) {
       sequences.push({ label: label('sequence'), text: isolate(unit.title) });
     }

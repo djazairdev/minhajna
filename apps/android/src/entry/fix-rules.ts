@@ -11,10 +11,12 @@
 import {
   courseSetup,
   findPackItem,
+  oldIds,
   proposalAt,
   type Context,
   type CorrectionReason,
   type Day,
+  type Migration,
   type PackItem,
   type PlanPack,
   type Proposal,
@@ -22,6 +24,7 @@ import {
   type SessionConfirmation,
   type SessionRecord,
   type TodaySession,
+  recordPack,
 } from '@minhajna/core';
 import type { useText } from '../text/i18n';
 import { bookLines } from './book-lines';
@@ -45,15 +48,39 @@ function lessonOf(pack: PlanPack | null, record: SessionRecord): Lesson {
   return { kind: 'proposed' };
 }
 
-/** The form, filled with what was recorded and the session's private note. */
+/** The item `id` became when every release since only renamed it; none after a split, merge or removal. */
+function renamedTo(migration: Migration, id: string): string | undefined {
+  let now = id;
+  for (const step of migration) {
+    const entry = step.entries.find((one) => oldIds(one).includes(now));
+    if (entry === undefined) continue;
+    if (entry.kind !== 'rename') return undefined;
+    now = entry.to;
+  }
+  return now;
+}
+
+/**
+ * The form, filled with what was recorded and the session's private note.
+ * The stage reached is the one recorded for the proposed item, also when the
+ * record names it by an earlier release's ID that `migration` only renamed;
+ * a split or merged item starts from the proposal, as the plan reads it.
+ */
 export function draftOf(
   pack: PlanPack | null,
   record: SessionRecord,
   proposal: Proposal | null,
   note: string | undefined,
   due: Day | null,
+  migration: Migration = [],
 ): EntryDraft {
-  const cover = record.coverage.find((one) => one.op === 'taught' && one.item === proposal?.item.id);
+  const proposed = proposal?.item.id;
+  const cover = record.coverage.find(
+    (one) =>
+      one.op === 'taught' &&
+      proposed !== undefined &&
+      (one.item === proposed || renamedTo(migration, one.item) === proposed),
+  );
   return {
     lesson: lessonOf(pack, record),
     sessionType: record.sessionType,
@@ -157,7 +184,17 @@ export function startOf(
     return { proposal: item.proposal, record: null, draft: startDraft(item.session, item.proposal, due) };
   }
   if (item.status !== 'recorded' || !correctable(item.session, item.record)) return null;
-  const pack = courseSetup(context, item.session.courseId).pack;
   const proposal = proposalAt(context, item.session);
-  return { proposal, record: item.record, draft: draftOf(pack, item.record, proposal, note, due) };
+  return {
+    proposal,
+    record: item.record,
+    draft: draftOf(
+      recordPack(context, item.record),
+      item.record,
+      proposal,
+      note,
+      due,
+      courseSetup(context, item.session.courseId).migration,
+    ),
+  };
 }

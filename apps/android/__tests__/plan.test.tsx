@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Setup-6-Plan and Setup-6b-Packs (#30): each grade and subject with its
-// pack or none yet, pinning the example pack to classes, free entry for one
-// class, a grade with no pack, the built-in calendar, and every control named
-// and 48dp. Made-up schools, classes and packs only.
+// Setup-6-Plan and Setup-6b-Packs (#30): each grade and subject with its pack
+// or none yet, pinning the example pack's newest release to classes, free entry
+// for one class, a grade with no pack, the built-in calendar, and every control
+// named and 48dp. Made-up schools, classes and packs only.
 
 import { PACK_STATUSES, parseDay, type RecordEvent } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -28,7 +28,7 @@ const root = () => tree!.root;
 const onChange = jest.fn();
 const onFinish = jest.fn();
 const onDone = jest.fn();
-const example = { id: 'dz.cem.4am.arabic.example', release: '2026.1' };
+const example = { id: 'dz.cem.4am.arabic.example', release: '2026.2' };
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -129,16 +129,16 @@ test("pins the example pack to the grade's classes, keeping a course already mad
   expect(onDone).toHaveBeenCalledTimes(1);
   expect(data.book.state.courses.get('c-1')?.pack).toEqual(example);
   expect(pins(data)).toEqual([
-    ['k-1', '2026.1'],
-    ['k-2', '2026.1'],
+    ['k-1', '2026.2'],
+    ['k-2', '2026.2'],
   ]);
   await show(data, 'plan');
   expect(shown()).toEqual(
     expect.arrayContaining([
       text.plan.status.example,
-      'التوقيت: حصص لكل عنصر · الإصدار 2026.1',
+      'التوقيت: حصص لكل عنصر · الإصدار 2026.2',
       text.plan.meaning.example,
-      '⁨4م2⁩ · 2026.1',
+      '⁨4م2⁩ · 2026.2',
       text.plan.change,
     ]),
   );

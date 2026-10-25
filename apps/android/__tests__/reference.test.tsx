@@ -49,10 +49,11 @@ test("reads Algeria's bundled profile, 2026/27 calendar, bell times and packs th
   expect(reference.calendar.year.from).toBe('2026-09-21');
   expect(reference.calendar.year.to).toBe('2027-07-08');
   expect(reference.bells.templates.map((template) => template.level)).toEqual(['cem', 'lycee']);
-  expect(reference.packs.map((pack) => pack.id)).toEqual([
-    'dz.cem.1am.math.example',
-    'dz.cem.4am.arabic.example',
-    'dz.primary.5ap.arabic.example',
+  expect(reference.packs.map((pack) => `${pack.id}@${pack.release}`)).toEqual([
+    'dz.cem.1am.math.example@2026.1',
+    'dz.cem.4am.arabic.example@2026.1',
+    'dz.cem.4am.arabic.example@2026.2',
+    'dz.primary.5ap.arabic.example@2026.1',
   ]);
   expect(reference.refusedPacks).toBe(0);
   expect(reference.keys).toEqual([]);
@@ -70,7 +71,7 @@ test('leaves out a refused plan pack on its own, and keeps the rest of the data'
   const reference = readReference({ ...bundledReference, packs: [{ ...(first as object), format: 2 }, ...rest] });
   expect(reference.ok).toBe(true);
   if (!reference.ok) return;
-  expect(reference.packs).toHaveLength(2);
+  expect(reference.packs).toHaveLength(3);
   expect(reference.refusedPacks).toBe(1);
 });
 
@@ -80,7 +81,7 @@ test('trusts no key when the key list is refused, and keeps the rest of the data
   if (!reference.ok) return;
   expect(reference.keys).toEqual([]);
   expect(reference.refusedKeys).toBe(true);
-  expect(reference.packs).toHaveLength(3);
+  expect(reference.packs).toHaveLength(4);
 });
 
 describe('a refused file', () => {

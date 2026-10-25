@@ -31,7 +31,7 @@ afterEach(async () => {
 
 test('shows each school’s real pins and missing releases, not the newest installed pack', async () => {
   const data = await settingsData();
-  await showSettingsScreen(<Plans onChoose={onChoose} />, data);
+  await showSettingsScreen(<Plans onChoose={onChoose} onRelease={jest.fn()} />, data);
   expect(settingsTexts()).toContain('متوسطة الأمل (مثال)');
   expect(settingsTexts()).toContain(catalogues.ar.plan.status.example);
   expect(settingsTexts().some((text) => text.includes('2025.9'))).toBe(true);
@@ -41,7 +41,7 @@ test('shows each school’s real pins and missing releases, not the newest insta
 });
 
 test('a school-specific plan page does not include the other school’s classes', async () => {
-  await showSettingsScreen(<Plans schoolId="s-2" onChoose={onChoose} />, await settingsData());
+  await showSettingsScreen(<Plans schoolId="s-2" onChoose={onChoose} onRelease={jest.fn()} />, await settingsData());
   expect(settingsTexts()).not.toContain('متوسطة النجاح');
   expect(settingsRoot().findAllByProps({ testID: 'settings-plans-s-1' })).toHaveLength(0);
 });

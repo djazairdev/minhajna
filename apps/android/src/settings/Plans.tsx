@@ -21,9 +21,11 @@ import { settingsStyles as styles } from './styles';
 export function Plans({
   schoolId,
   onChoose,
+  onRelease,
 }: {
   schoolId?: string;
   onChoose: (grade: string, subject: string, schoolId: string, classId: string) => void;
+  onRelease: (courseId: string, release: string) => void;
 }) {
   const t = useText();
   const { direction } = useLocale();
@@ -58,9 +60,8 @@ export function Plans({
             {offered.map(({ group, schoolClass }) => {
               const pin = pinOfClass(state, schoolClass.id, group.subject, year.id, group.grade);
               const pack = packOfPin(packs, pin);
-              const course =
-                pin === null ? courseOf(state, schoolClass.id, group.subject, year.id, group.grade) : undefined;
-              const list = course === undefined ? undefined : state.lists.get(course.id);
+              const course = courseOf(state, schoolClass.id, group.subject, year.id, group.grade);
+              const list = course === undefined || pin !== null ? undefined : state.lists.get(course.id);
               return (
                 <View
                   key={`${group.key}/${schoolClass.id}`}
@@ -75,11 +76,14 @@ export function Plans({
                       <Badge label={t(`plan.status.${pack.status}`)} />
                       <Text style={[styles.body, align]}>{packFacts(t, pack)}</Text>
                       <Text style={[styles.sub, align]}>{packSource(t, pack)}</Text>
-                      <NewerRelease
-                        testID={`settings-newer-${schoolClass.id}-${group.subject}-${group.grade}`}
-                        packs={packs}
-                        pinned={{ id: pack.id, release: pack.release }}
-                      />
+                      {course !== undefined && (
+                        <NewerRelease
+                          testID={`settings-newer-${schoolClass.id}-${group.subject}-${group.grade}`}
+                          packs={packs}
+                          pinned={{ id: pack.id, release: pack.release }}
+                          onOpen={(release) => onRelease(course.id, release)}
+                        />
+                      )}
                     </>
                   ) : list !== undefined ? (
                     <>

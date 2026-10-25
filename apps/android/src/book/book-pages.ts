@@ -19,6 +19,7 @@ import {
   confirmSessions,
   courseSetup,
   current,
+  recordPack,
   sessionsBetween,
   type Context,
   type Course,
@@ -77,7 +78,8 @@ export function bookViewPages(
   const rows = sessions.flatMap((session): ViewRow[] => {
     const record = current(data.state.sessions.get(session.key));
     if (record !== null) {
-      return [{ ...bookRow(data, where, session, record, t, dir), session, awaiting: false, proposed: false }];
+      const own = { ...where, pack: recordPack(context, record) };
+      return [{ ...bookRow(data, own, session, record, t, dir), session, awaiting: false, proposed: false }];
     }
     const preview = previews.get(session.key);
     if (preview === undefined) return [];

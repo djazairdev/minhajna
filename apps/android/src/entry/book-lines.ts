@@ -47,7 +47,7 @@ export function bookLines(
   for (const cover of record.coverage) {
     const item = findPackItem(pack, cover.item);
     const title = item?.title ?? cover.item;
-    const unit = item?.unit === undefined ? undefined : pack?.items.find((candidate) => candidate.id === item.unit);
+    const unit = item?.unit === undefined ? undefined : findPackItem(pack, item.unit);
     if (unit !== undefined && !units.has(unit.id)) {
       units.add(unit.id);
       lines.push({ label: t('today.unit'), text: unit.title });

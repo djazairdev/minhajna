@@ -17,9 +17,10 @@ import {
 import bells from '@minhajna/data/dz/bells.json';
 import calendar from '@minhajna/data/dz/calendar-2026-2027.json';
 import keys from '@minhajna/data/dz/keys.json';
-import cem1Math from '@minhajna/data/dz/packs/dz.cem.1am.math.example.json';
-import cem4Arabic from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example.json';
-import primary5Arabic from '@minhajna/data/dz/packs/dz.primary.5ap.arabic.example.json';
+import cem1Math from '@minhajna/data/dz/packs/dz.cem.1am.math.example@2026.1.json';
+import cem4Arabic from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example@2026.1.json';
+import cem4ArabicFix from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example@2026.2.json';
+import primary5Arabic from '@minhajna/data/dz/packs/dz.primary.5ap.arabic.example@2026.1.json';
 import profile from '@minhajna/data/dz/profile.json';
 
 // Algeria's reference data, bundled from the repository's data folder, so the
@@ -43,7 +44,7 @@ export const bundledReference: ReferenceFiles = {
   profile,
   calendar,
   bells,
-  packs: [cem1Math, cem4Arabic, primary5Arabic],
+  packs: [cem1Math, cem4Arabic, cem4ArabicFix, primary5Arabic],
   keys,
 };
 

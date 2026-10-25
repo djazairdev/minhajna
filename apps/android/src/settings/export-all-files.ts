@@ -16,10 +16,10 @@ import {
   ARCHIVE_FILE,
   archiveOf,
   archiveText,
-  courseSetup,
   csvCell,
   csvText,
   current,
+  recordPack,
   type AssessmentData,
   type Entry,
   type MarkEntry,
@@ -196,8 +196,7 @@ export function lessonsCsv(t: Translate, data: DocumentData): string {
     if (record === null) continue;
     const { homework, ...done } = record;
     const { className, subject } = sheetNames(data, t, record.session.courseId);
-    const pack = courseSetup(context, record.session.courseId).pack;
-    const said = journalLines(t, names, pack, done, false)
+    const said = journalLines(t, names, recordPack(context, record), done, false)
       .map((one) => `${one.label}: ${one.text}`.replace(ISOLATES, ''))
       .join(' · ');
     const { day, slot } = record.session;

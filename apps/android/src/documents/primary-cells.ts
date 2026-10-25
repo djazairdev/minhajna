@@ -14,6 +14,7 @@
 import {
   courseSetup,
   findPackItem,
+  recordPack,
   type Context,
   type CourseSetup,
   type PlanPack,
@@ -37,7 +38,7 @@ export interface SessionCells {
 
 function unitOf(pack: PlanPack | null, itemId: string | undefined): string | undefined {
   const unit = itemId === undefined ? undefined : findPackItem(pack, itemId)?.unit;
-  return unit === undefined ? undefined : pack?.items.find((one) => one.id === unit)?.title;
+  return unit === undefined ? undefined : findPackItem(pack, unit)?.title;
 }
 
 /** A session's activity, content and domain, with `data` and `t` in the journal's language. */
@@ -49,10 +50,11 @@ export function sessionCells(data: DocumentData, t: Translate, context: Context,
   const setup = courseSetup(context, item.course.id);
   const awaiting = item.record === null;
   const record = item.record ?? proposedRecord(item.session, item.proposal);
+  const pack = recordPack(context, record);
   const first = record.coverage[0]?.item;
-  const code = item.session.activity ?? findPackItem(setup.pack, first)?.activity;
+  const code = item.session.activity ?? findPackItem(pack, first)?.activity;
   const activity = ACTIVITIES.find((one) => one === code);
-  const unit = unitOf(setup.pack, first);
+  const unit = unitOf(pack, first);
   return {
     setup,
     activity:
@@ -61,7 +63,7 @@ export function sessionCells(data: DocumentData, t: Translate, context: Context,
         : record.sessionType === 'lesson'
           ? ''
           : names.type(record.sessionType),
-    content: journalLines(t, names, setup.pack, record, awaiting, { heads: true, done: true }),
+    content: journalLines(t, names, pack, record, awaiting, { heads: true, done: true }),
     domain: unit === undefined ? '' : isolate(unit),
     awaiting,
   };

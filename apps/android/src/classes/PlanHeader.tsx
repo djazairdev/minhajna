@@ -3,13 +3,13 @@
 
 // The head of a class's plan (#225, Plan, R-2.3-01, R-4.2-09): the parallel
 // classes to switch between, then the pack the class is pinned to, its status,
-// release and timing, a newer release when the app has one (answer 329), who
-// keyed it, and where it comes from, with the pack's details, the class's
-// own changes and its district and school layers (#226) a tap away. Until
-// the issuer publishes packs itself, the curators are named as a body,
-// without names (answer 291). An example pack says it is not a plan instead
-// of who keyed it. A class without a pack has its own list instead (#227):
-// its badge, items and sessions, and a link to edit it, or to begin it;
+// release and timing, a newer release when the app has one (answer 329) to move
+// the class to (#322), who keyed it, and where it comes from, with the pack's
+// details, the class's own changes and its district and school layers (#226) a
+// tap away. Until the issuer publishes packs itself, the curators are named as
+// a body, without names (answer 291). An example pack says it is not a plan
+// instead of who keyed it. A class without a pack has its own list instead
+// (#227): its badge, items and sessions, and a link to edit it, or to begin it;
 // no pack details, newer release, class changes or layers apply to it.
 
 import { changesFor, courseDecisions, parallelCourses, type Context, type PlanPack } from '@minhajna/core';
@@ -38,6 +38,7 @@ export type PlanHeaderProps = {
   readonly onCourse?: (courseId: string) => void;
   readonly onChanges?: () => void;
   readonly onLayers?: () => void;
+  readonly onRelease?: (release: string) => void;
   readonly onDetails?: () => void;
   readonly onEditList?: () => void;
 };
@@ -74,7 +75,7 @@ export function ParallelClasses({
 }
 
 export function PlanHeader(props: PlanHeaderProps) {
-  const { context, courseId, pack, onCourse, onChanges, onLayers, onDetails, onEditList } = props;
+  const { context, courseId, pack, onCourse, onChanges, onLayers, onDetails, onEditList, onRelease } = props;
   const t = useText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -118,11 +119,14 @@ export function PlanHeader(props: PlanHeaderProps) {
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {t('classPlan.packTitle', { release: pack.release })}
           </Text>
-          <NewerRelease
-            testID="plan-newer"
-            packs={context.ref.packs.values()}
-            pinned={{ id: pack.id, release: pack.release }}
-          />
+          {onRelease !== undefined && (
+            <NewerRelease
+              testID="plan-newer"
+              packs={context.ref.packs.values()}
+              pinned={{ id: pack.id, release: pack.release }}
+              onOpen={onRelease}
+            />
+          )}
           <Text style={[styles.sub, align]}>
             {pack.status === 'example' ? packTiming(t, pack) : `${packTiming(t, pack)} · ${t('classPlan.keyedBy')}`}
           </Text>

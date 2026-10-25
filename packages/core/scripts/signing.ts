@@ -246,9 +246,12 @@ export async function signPack(input: unknown, key: KeyObject, id: string, bundl
   ].sort();
   if (unread.length > 0)
     throw new Error(`Format 1.0 does not read these as written, such as a misspelled field: ${unread.join(', ')}`);
-  const bundledRelease = packs.find((one) => one.id === pack.id && compareReleases(one.release, pack.release) >= 0);
-  if (bundledRelease !== undefined)
-    throw new Error(`Release ${pack.release} of ${pack.id} is not after the bundled ${bundledRelease.release}.`);
+  const newest = packs
+    .filter((one) => one.id === pack.id)
+    .sort((a, b) => compareReleases(b.release, a.release))
+    .at(0);
+  if (newest !== undefined && compareReleases(newest.release, pack.release) >= 0)
+    throw new Error(`Release ${pack.release} of ${pack.id} is not after the bundled ${newest.release}.`);
   const { file, bytes, payload } = await seal(input, key, id, keys, 'packs');
   const again = parsePackUpdate(payload, profile);
   if (!again.ok) throw new Error(`The signed pack does not read: ${listed(again.problems)}`);

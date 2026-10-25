@@ -59,7 +59,7 @@ import { Backlog } from './Backlog';
 import { DayBanner, DayNote, NextSession, dayMarks, markLine, pausedNote, takenBy } from './DayMark';
 import { FreeEntry, focusable, freeEntry, proposed } from './FreeEntry';
 import { SpecialCards, specialEntries, specialLine, specialLost } from './SpecialDay';
-import { carryWords, nextItem, previousItem } from './outcome-rules';
+import { carryWords, nextItem, previousOf } from './outcome-rules';
 import { OutcomeSheet, type Sheet } from './OutcomeSheet';
 import { PaperRolls } from './PaperRolls';
 import { dueStrips } from '../homework/homework-strip';
@@ -134,7 +134,7 @@ export function Today(props: {
           testID={testID}
           kind="done"
           meta={metaOf(item, true)}
-          written={listWritten(t, state, item.record) ?? writtenOf(t, pack, item.record, comma)}
+          written={listWritten(t, state, item.record) ?? writtenOf(t, context, item.record, comma)}
           where={t('today.recorded')}
           show={{ id: 'fix', label: t('fix.open'), onPress: () => onDetails(item.session) }}
           due={due}
@@ -271,7 +271,7 @@ export function Today(props: {
           ].join(' · ')}
           proposal={sheet.item.proposal}
           next={nextItem(courseSetup(context, sheet.item.course.id).pack, sheet.item.proposal.item)}
-          previous={previousItem(state, courseSetup(context, sheet.item.course.id).pack, sheet.item.session)}
+          previous={previousOf(context, sheet.item.session)}
           carry={carryWords(t, profile, language, carryTo(context, sheet.item.session))}
           returnFocusRef={sheet.backlog === true ? backlogOther : other}
           onClose={() => setSheet({ ...sheet, open: false })}

@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Lesson notes (#237, answers 416 to 418): the head and the proposed paragraphs
-// the plan gives a note, the notes of a class numbered across its subjects in
-// the order made and read across the courses it continues, the newest written
-// note of an earlier year's class of the same subject, grade and pack, the plan
-// paragraphs kept in the plan's order before the teacher's own, and the notes
-// kept private, printed by the teacher and sent nowhere else. Made-up records
-// only.
+// the plan gives a note, an item taught before a move read as the one it was
+// carried to, the notes of a class numbered across its subjects in the order
+// made and read across the courses it continues, the newest written note of an
+// earlier year's class of the same subject, grade and pack, the plan paragraphs
+// kept in the plan's order before the teacher's own, and the notes kept
+// private, printed by the teacher and sent nowhere else. Made-up records only.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -32,6 +32,7 @@ import {
   type RecordEvent,
 } from '../src/index.ts';
 import { cemEvents, contextOf, d, mathPack, mathPackSource, openBook, reference } from './fixtures.ts';
+import { withFix } from './migration-fixtures.ts';
 
 function note(id: string, courseId: string, itemId: string, number: number, paragraphs: LessonNote['paragraphs'] = []) {
   return { id, courseId, itemId, number, paragraphs };
@@ -84,6 +85,14 @@ describe('lesson notes', () => {
     });
     assert.equal(noteDraft(contextOf(book), 'c-math', 'd1')?.unit, undefined);
     assert.equal(noteDraft(contextOf(book), 'c-math', 'missing'), null);
+  });
+
+  it('drafts an item taught before the class moved from the item it was carried to', async () => {
+    const book = await openBook(cemEvents());
+    const move = { courseId: 'c-math', from: '2026.1', to: '2026.2' };
+    await book.record(d('2026-09-25'), { kind: 'course.moved', move });
+    assert.equal(noteDraft(withFix(book), 'c-math', 'l1')?.resource, 'Reading and writing whole numbers l1b');
+    assert.equal(noteDraft(withFix(book), 'c-math', 'l2')?.resource, 'Comparing and ordering l2a');
   });
 
   it('names the domain and the textbook pages when the plan gives them', async () => {

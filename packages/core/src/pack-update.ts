@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Signed plan packs (#223 part 2, PRD §4.2, §4.8, R-4.8-03 to R-4.8-05,
-// answers 326 to 329): a release of a plan pack the app was not built with,
-// signed by a key that may sign packs, in a file of up to 1 MB. Adding one
-// puts it in the catalogue beside the bundled packs, so a class can pin it;
-// a class pinned to another release stays on it until the teacher moves it,
-// which waits for #322. A release the app already has changes nothing, and
-// one older than a release it has is not added, unless a class is pinned
-// to that very release and misses it.
+// Signed plan packs (#223 part 2, PRD §4.2, §4.8, R-4.8-03 to R-4.8-05, answers
+// 326 to 329): a release of a plan pack the app was not built with, signed by a
+// key that may sign packs, in a file of up to 1 MB. Adding one puts it in the
+// catalogue beside the bundled packs, so a class can pin it; a class pinned to
+// another release stays on it until the teacher moves it (#322, release-
+// move.ts). A release the app already has changes nothing, and one older than a
+// release it has is not added, unless a class is pinned to that very release
+// and misses it.
 
 import { CALENDAR_UPDATE_FORMAT } from './calendar-update.ts';
 import { canonicalJson } from './canonical.ts';

@@ -74,10 +74,18 @@ export interface NoteDraft {
   readonly proposals: readonly NoteProposal[];
 }
 
-/** What the plan gives a note for `itemId` in the course, or null when its pack holds no such item. */
+/**
+ * What the plan gives a note for `itemId` in the course, or null when its
+ * pack holds no such item. An item of an earlier release, taught before the
+ * class moved, is read as the item it was carried to, or its first part.
+ */
 export function noteDraft(context: Context, courseId: string, itemId: string): NoteDraft | null {
   const setup = courseSetup(context, courseId);
-  const item = findPackItem(setup.pack, itemId);
+  const item =
+    findPackItem(setup.pack, itemId) ??
+    followId(setup.migration, itemId)
+      .map((id) => findPackItem(setup.pack, id))
+      .find((one) => one !== undefined);
   if (setup.pack === null || item === undefined) return null;
   const unit = item.unit === undefined ? undefined : findPackItem(setup.pack, item.unit)?.title;
   const domain = setup.pack.activities?.find((one) => one.code === item.activity)?.name;
