@@ -16,6 +16,7 @@ import { ERASURE, type Entry } from './history.ts';
 import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
 import type { CorrectionReason } from './correction-reasons.ts';
+import { COURSE_KINDS, type CourseEvent } from './course-events.ts';
 import { DEVICE_KINDS, type DeviceEvent } from './device-events.ts';
 import { SHARE_KINDS, type ShareEvent } from './share-events.ts';
 import type { PupilErasure } from './pupil-erase.ts';
@@ -38,7 +39,6 @@ import type { CalendarEntry, CalendarLayer } from './reference.ts';
 import type { CountingRules } from './roll-call-counts.ts';
 import type { ScheduledTest } from './test-schedule.ts';
 import type {
-  Course,
   PrivateNote,
   Pupil,
   PupilMovement,
@@ -64,7 +64,7 @@ export type RecordEvent =
   | { readonly kind: 'pupil.moved'; readonly pupilId: string; readonly movement: PupilMovement }
   /** The fact that a pupil's data was erased: their class and the entries erased, nothing else (#248, answer 473). */
   | { readonly kind: 'pupil.erased'; readonly erased: PupilErasure }
-  | { readonly kind: 'course.set'; readonly course: Course }
+  | CourseEvent
   | { readonly kind: 'timetable.set'; readonly version: TimetableVersion }
   | { readonly kind: 'calendar.set'; readonly entry: CalendarEntry }
   /** An entry the teacher added, taken back; its layer keeps a teacher's own entry private. */
@@ -82,8 +82,7 @@ export type RecordEvent =
   // private, and goes into the session's note (PRD §5.4). A correction may
   // carry a coded reason, which shows with it (PRD §5.5).
   | { readonly kind: 'session.recorded'; readonly record: SessionRecord; readonly correction?: CorrectionReason }
-  // A confirmation undone: the session awaits confirmation again, and what
-  // was recorded stays in the history (PRD §4.7).
+  /** A confirmation undone: the session awaits confirmation again; its record stays (PRD §4.7). */
   | { readonly kind: 'session.withdrawn'; readonly session: SessionRef }
   | { readonly kind: 'session.noted'; readonly note: PrivateNote }
   // Homework's two counts, entered or corrected when it comes back, and
@@ -163,7 +162,7 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'pupil.set': true,
   'pupil.moved': true,
   'pupil.erased': true,
-  'course.set': true,
+  ...COURSE_KINDS,
   'timetable.set': true,
   'calendar.set': true,
   'calendar.removed': true,
@@ -260,6 +259,7 @@ export function layerOf(event: RecordEvent): Layer {
     case 'school.set':
     case 'class.set':
     case 'course.set':
+    case 'course.moved':
     case 'timetable.set':
     case 'session.recorded':
     case 'session.withdrawn':

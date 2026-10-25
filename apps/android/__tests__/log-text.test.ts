@@ -8,8 +8,8 @@
 // erasure's kinds each named once, a withdrawn session and one recorded again,
 // and a change that cannot be checked by its kind, with each language's own
 // comma; a mark corrected after the term, a test by its title (#243); and a
-// pupil's erasure in one line with nothing of them (#248). Made-up records
-// only.
+// pupil's erasure in one line with nothing of them (#248); a class moved to a
+// newer release (#322). Made-up records only.
 
 import { parseDay, type LogLine, type MarkTarget, type SessionRef } from '@minhajna/core';
 import { openTestData } from '../jest/app-data';
@@ -92,7 +92,7 @@ test('a class that has gone shows as a dash, and a pupil off the list has no num
   );
 });
 
-test('signed files, a session recorded again, and a change that cannot be checked', async () => {
+test('signed files, a class moved, a session recorded again, and a change that cannot be checked', async () => {
   const shown = await names();
   expect(lineText(t, shown, { kind: 'calendar-update', release: '2026.2' })).toBe(
     'تحديث موقّع للرزنامة، الإصدار 2026.2',
@@ -108,6 +108,12 @@ test('signed files, a session recorded again, and a change that cannot be checke
   );
   expect(lineText(t, shown, { kind: 'pupil-erased' })).toBe('حُذفت بيانات تلميذ · دون محتواها');
   expect(lineText(t, shown, { kind: 'layer-added', title: 'طبقة (مثال)' })).toBe('طبقة على المخطط: طبقة (مثال)');
+  expect(lineText(t, shown, { kind: 'course-moved', courseId: 'c-1', release: '2026.2' })).toBe(
+    '\u0646\u0642\u0644 \u20684\u06451\u2069 \u0625\u0644\u0649 \u0627\u0644\u0625\u0635\u062f\u0627\u0631 2026.2',
+  );
+  expect(lineText(t, shown, { kind: 'course-moved', courseId: 'gone', release: '2026.2' })).toBe(
+    '\u0646\u0642\u0644 \u2014 \u0625\u0644\u0649 \u0627\u0644\u0625\u0635\u062f\u0627\u0631 2026.2',
+  );
   expect(lineText(t, shown, { kind: 'session-corrected', session, fields: [] })).toBe(
     'دفتر النصوص · \u20684م1\u2069 · الخميس 15/10 · سُجّلت من جديد بعد سحب تأكيدها',
   );

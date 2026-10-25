@@ -2954,6 +2954,7 @@
     "calendar": "Mise à jour signée du calendrier, version {{release}}",
     "pack": "Progression signée : {{pack}}, version {{release}}",
     "layer": "Couche sur la progression : {{title}}",
+    "moved": "Passage de {{class}} à la version {{release}}",
     "erased": "Suppression : {{what}}. Il reste qu’elle a eu lieu, sans son contenu",
     "pupilErased": "Données d’un élève effacées · sans leur contenu",
     "unverified": "Changement : {{what}}",

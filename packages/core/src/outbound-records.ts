@@ -4,8 +4,12 @@
 // What may leave the teacher (PRD §5.4, §7.6): the current version of each
 // record whose layer a route takes, as the event that sets it, with nothing
 // from its history entry. A class's own changes to its plan travel in their
-// order, which their meaning needs, without the day each was made (#225).
+// order, which their meaning needs, without the day each was made (#225). A
+// class moved to a newer release goes out with its moves, each before the
+// first record read in on the release it moves to, and set back on a pack or
+// own list it had before for the records read in then (#322).
 
+import { comparePins, sentCourse, sentSessions } from './course-state.ts';
 import { compareDays } from './day.ts';
 import { compareDuties } from './exam-duties.ts';
 import { compareExtras } from './extra-records.ts';
@@ -36,7 +40,19 @@ function currentRecords(state: State): RecordEvent[] {
   for (const school of state.schools.values()) records.push({ kind: 'school.set', school });
   for (const schoolClass of state.classes.values()) records.push({ kind: 'class.set', schoolClass });
   for (const pupil of state.pupils.values()) records.push({ kind: 'pupil.set', pupil });
-  for (const course of state.courses.values()) records.push({ kind: 'course.set', course });
+  const pins = comparePins(state.courses);
+  const sessions = [...state.sessions.values()]
+    .flatMap((versions) => versions.slice(-1))
+    .flatMap(({ value, pack }) => (value === null ? [] : [{ record: value, pack }]))
+    .sort(
+      (a, b) =>
+        pins(a, b) ||
+        compareDays(a.record.session.day, b.record.session.day) ||
+        compareSlots(a.record.session.slot, b.record.session.slot) ||
+        compareText(a.record.session.key, b.record.session.key),
+    );
+  for (const course of state.courses.values())
+    records.push({ kind: 'course.set', course: sentCourse(course, sessions) });
   for (const { version, from } of state.timetables)
     records.push({ kind: 'timetable.set', version: { ...version, from } });
   for (const entry of state.calendar) records.push({ kind: 'calendar.set', entry });
@@ -45,16 +61,7 @@ function currentRecords(state: State): RecordEvent[] {
   for (const added of state.layers) records.push({ kind: 'layer.added', added });
   for (const switched of state.layerSwitches.values()) records.push({ kind: 'layer.switched', switched });
   for (const list of state.lists.values()) records.push({ kind: 'list.set', list });
-  const sessions = [...state.sessions.values()]
-    .flatMap((versions) => versions.slice(-1))
-    .flatMap(({ value }) => (value === null ? [] : [value]))
-    .sort(
-      (a, b) =>
-        compareDays(a.session.day, b.session.day) ||
-        compareSlots(a.session.slot, b.session.slot) ||
-        compareText(a.session.key, b.session.key),
-    );
-  for (const record of sessions) records.push({ kind: 'session.recorded', record });
+  records.push(...sentSessions(state.courses, sessions));
   for (const note of state.notes.values()) records.push({ kind: 'session.noted', note });
   const extras = [...state.extras.values()].flatMap((versions) => {
     const extra = current(versions);

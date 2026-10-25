@@ -32,6 +32,8 @@ export function recordKey(event: RecordEvent): string {
       return `pupil:${event.pupilId}`;
     case 'course.set':
       return `course:${event.course.id}`;
+    case 'course.moved':
+      return `course:${event.move.courseId}`;
     case 'timetable.set':
       return `timetable:${event.version.id}`;
     case 'calendar.set':
