@@ -29,6 +29,7 @@ import type { Translate } from '../documents/document-data';
 import { termWord } from '../marks/marks-rules';
 import type { Language } from '../text/i18n';
 import { shortDay } from '../today/outcome-rules';
+import { shareClass, shareHow, shareTo } from '../sharing/share-words';
 import { isolate } from '../week/grid-labels';
 
 /** What a line needs to name classes, pupils and months. */
@@ -61,6 +62,8 @@ const KIND_GROUPS: Readonly<Record<string, string>> = {
   'homework.uncounted': 'homework',
   'print.recorded': 'print',
   'output.recorded': 'print',
+  'statement.shared': 'print',
+  'statement.sent': 'print',
   'assessment.set': 'assessment',
   'mark.set': 'mark',
   'mark.corrected': 'mark',
@@ -191,6 +194,13 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
       const term = /^term-(\d)$/.exec(period);
       const when = term === null ? periodLabel(names, period) : termWord(t, Number(term[1]));
       return [documentTitle(t, document), when, made, ...(blank ? [t('log.blank')] : [])].join(' · ');
+    }
+    case 'shared':
+    case 'sent': {
+      const words = { class: shareClass(names.state, line.share.courseId), how: shareHow(t, line.share.how) };
+      return line.kind === 'shared'
+        ? t('statement.logShared', words)
+        : t('statement.logSent', { ...words, to: shareTo(t, line.to) });
     }
     case 'calendar-update':
       return t('log.calendar', { release: line.release });

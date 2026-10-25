@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { courseSetup } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -12,6 +13,7 @@ import { Switch } from '../components/Switch';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { localized } from '../setup/names';
+import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { signatureStatus } from '../drawn/DrawnSignature';
@@ -33,6 +35,7 @@ const AVAILABLE = [
   'rules',
   'print',
   'signature',
+  'statement',
   'notifications',
   'security',
   'backup',
@@ -54,17 +57,24 @@ const SECTIONS = [
     rows: ['card', 'schools', 'classes', 'week', 'times', 'lengths', 'plans', 'calendar', 'updates', 'rules'],
   },
   { id: 'documents', rows: ['print', 'signature'] },
+  { id: 'sharing', rows: ['statement'] },
   { id: 'phone', rows: ['notifications', 'security', 'backup', 'language'] },
   { id: 'data', rows: ['log', 'export', 'retention', 'erase'] },
   { id: 'help', rows: ['help', 'privacy'] },
 ] as const;
 
-/** The teacher's settings, with existing screens reachable without running setup again (#233). */
-export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?: string) => void }) {
+/**
+ * The teacher's settings, with existing screens reachable without running setup again (#233); «بيان التقدّم» opens on
+ * the first class with a plan, and shows only when one has a plan (answer 486).
+ */
+export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: string) => void }) {
   const t = useText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
-  const { state, profile, unsaved, entries } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, unsaved, entries } = useAppData();
+  const context = coreContext({ profile, year, calendar, calendarRelease, packs, state });
+  const withPlan = [...state.courses.values()].filter((course) => courseSetup(context, course.id).pack !== null);
+  const planned = withPlan.find((course) => course.year === year.id) ?? withPlan[0];
   const minutes = useCountMinutes();
   const [failed, setFailed] = useState(false);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -80,6 +90,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
     retention: retentionLine(t, state),
     erase: t('settings.eraseLine'),
     backup: backupLine(t, entries(), profile),
+    statement: t('settings.statementLine'),
   };
   const schools = [...state.schools.values()];
   return (
@@ -105,7 +116,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
           message={t(unsaved ? 'setup.notSaved' : 'settings.failed')}
         />
       )}
-      {SECTIONS.map((section) => (
+      {SECTIONS.filter((section) => section.id !== 'sharing' || planned !== undefined).map((section) => (
         <View key={section.id} style={styles.group}>
           <SectionHeader label={t(`settings.${section.id}`)} />
           {section.rows.map((id) => {
@@ -125,7 +136,8 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, schoolId?
                 description={description}
                 disabled={target === undefined}
                 onPress={() => {
-                  if (target !== undefined) onOpen(target);
+                  if (target === 'statement') onOpen(target, planned?.id);
+                  else if (target !== undefined) onOpen(target);
                 }}
               />
             );

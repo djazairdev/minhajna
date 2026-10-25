@@ -31,7 +31,8 @@
     "retention": "Durée de conservation",
     "erase": "Effacer cet appareil",
     "help": "Aide et confidentialité",
-    "privacy": "Notice de confidentialité"
+    "privacy": "Notice de confidentialité",
+    "statement": "Relevé de progression"
   },
   "cardLine": "Imprimée sur les documents ; les champs personnels restent sur ce téléphone.",
   "cardFromSchools": "Les matières et les établissements viennent de leurs paramètres.",
@@ -349,5 +350,7 @@
       "askArchive": "Si le téléphone d’où il vient est en main, exportez le fichier de nouveau. Sinon, choisissez un autre fichier, ou relisez le mot de passe.",
       "again": "Choisir un autre fichier"
     }
-  }
+  },
+  "sharing": "Partage",
+  "statementLine": "Par classe, sans données d’élèves"
 }

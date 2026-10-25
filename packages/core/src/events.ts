@@ -17,6 +17,7 @@ import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
 import type { CorrectionReason } from './correction-reasons.ts';
 import { DEVICE_KINDS, type DeviceEvent } from './device-events.ts';
+import { SHARE_KINDS, type ShareEvent } from './share-events.ts';
 import type { PupilErasure } from './pupil-erase.ts';
 import type { Restating } from './restated.ts';
 import type { CatchUpSession } from './catch-up-sessions.ts';
@@ -148,12 +149,12 @@ export type RecordEvent =
   | { readonly kind: 'observation.set'; readonly observation: ObservationEntry }
   /** The phrase chosen as a pupil's appreciation for a course and term, or its clearing (#241). */
   | { readonly kind: 'appreciation.set'; readonly appreciation: AppreciationEntry }
-  | DeviceEvent;
+  | DeviceEvent
+  | ShareEvent;
 
 export type RecordKind = RecordEvent['kind'];
 
-// Every kind must be listed, or its events would be dropped when the state is
-// built. The compiler checks that none is missing.
+// Every kind is listed, or the state drops its events; the compiler checks.
 const KINDS: Readonly<Record<RecordKind, true>> = {
   'teacher.set': true,
   'teacher.personal.set': true,
@@ -210,15 +211,11 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
   'observation.set': true,
   'appreciation.set': true,
   ...DEVICE_KINDS,
+  ...SHARE_KINDS,
 };
 
-/**
- * The layer of every event. Sync, exports and shares check it (PRD §5.4).
- *
- * The teacher's own calendar layer holds training days, seminars and duties,
- * which stay private (PRD §4.5). A lesson note is the teacher's own
- * preparation, kept private (answer 417).
- */
+// The layer of every event, checked by sync, exports and shares (PRD §5.4);
+// the teacher's own calendar and lesson notes stay private (§4.5, answer 417).
 export function layerOf(event: RecordEvent): Layer {
   switch (event.kind) {
     case 'teacher.personal.set':
@@ -247,6 +244,9 @@ export function layerOf(event: RecordEvent): Layer {
     case 'retention.set':
     case 'council-thresholds.set':
       return 'private';
+    case 'statement.shared':
+    case 'statement.sent':
+      return 'shared-statement';
     case 'calendar.set':
       return event.entry.layer === 'teacher' ? 'private' : 'lesson-record';
     case 'calendar.removed':

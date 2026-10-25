@@ -2,7 +2,7 @@
 
 Part 1 of [#245](https://github.com/djazairdev/minhajna/issues/245), scoped by [#436](https://github.com/djazairdev/minhajna/issues/436). Prepared on main `2ae76b0` on 24 October 2026, then updated to main `ac0013c` and rechecked on 25 October. All test data is invented.
 
-Part 1 adds the statement's calculations and versioned signed text, with no teacher-facing feature. Part 3, the Share screen with print and PDF, is [below](#part-3-the-share-screen-print-and-pdf).
+Part 1 adds the statement's calculations and versioned signed text, with no teacher-facing feature. Part 3, the Share screen with print and PDF, and part 4, sharing by QR code or file with its history, are [below](#part-3-the-share-screen-print-and-pdf).
 
 ## Public API
 
@@ -85,7 +85,7 @@ At either tap the app computes the statement as of that moment's day, signs it w
 
 **The signed text in the PDF.** The signature line is a link to `minhajna-statement:` followed by the signed text's UTF-8 bytes in base64 (`statementLink` and `linkedStatement` in `packages/core/src/statement-link.ts`). The phone's web engine keeps a link's address in the PDF, so every saved PDF carries the whole signed text however long it is. Reader mode (#246) takes it back from the file and checks it with `checkStatement`. On paper, only the QR code carries it, which fits short Arabic titles only.
 
-The PDF is named «بيان التقدّم <class> <subject> <day>.pdf» through `safeFileName`. Each print and each saved PDF adds one `output.recorded` line to the activity log, document `statement` and the day; a cancelled save adds nothing.
+The PDF is named «بيان التقدّم <class> <subject> <day>.pdf» through `safeFileName`. Each print and each saved PDF adds one `output.recorded` line to the activity log, document `statement` and the day; a cancelled save adds nothing. Part 4 records them as `statement.shared` instead.
 
 | Check | Result |
 |---|---|
@@ -98,10 +98,26 @@ The PDF is named «بيان التقدّم <class> <subject> <day>.pdf» through
 
 The emulator check ran on 25 October 2026 on an API 35 emulator, with a release build of this branch signed with the debug key and made-up data: the demo class, a made-up own list of five items and three confirmed sessions.
 
+## Part 4: sharing by QR code or file, «لمن؟» and the history
+
+[#439](https://github.com/djazairdev/minhajna/issues/439), answer 486. Every share is recorded in the teacher's shared-statement layer, which goes to their own devices and the full export but never into a statement or a school space:
+
+- `statement.shared` holds the share's ID, the class and how it left: `print`, `pdf`, `qr` or `file`. It replaces Part 3's `output.recorded` line.
+- `statement.sent` holds a share's ID and one of five roles: director, inspector, coordinator, teacher, other. There is never a name or free text; the issue's free-name field conflicts with PRD §3.10, and the PRD wins.
+
+`sharingHistory` lists the shares newest day first, each with the role said last; an earlier role stays in the records. A role for an unknown share, or outside the five, is left out. The activity log shows «بيان التقدّم · <class> · <how>», with the role after it for a `statement.sent` line.
+
+After a print, a saved PDF, a closed QR code or a shared file, «لمن؟» asks for the role. «حفظ في سجل المشاركة» records it only when it changed; «لاحقاً» and closing record nothing, since the share is already there. «سجل المشاركة» on the statement's screen opens the sheet again from any row.
+
+**QR code or file.** `statementFitsInQr` measures the signed file before signing, with the public key at its 124 base64 characters and the signature at its longest, 96. A statement that fits shows «رمز QR»: the whole signed text, drawn large on a light ground with the screen kept on (`keepScreenOn`) until «إغلاق». A longer one shows «ملف موقّع» instead, with a line saying why: the signed text as a `.json` file, named like the PDF, sent through the share menu with no password, since it has no pupil data. «المشاركة» in Settings opens the statement on the current year's first class with a plan, or another year's when this year has none, and the row is hidden when no class has one. A share whose way out a later version added is left out of the history and the log, rather than shown as a raw key.
+
+| Check | Result |
+|---|---|
+| Unit tests: the history, roles and log lines, and the layer's travel rules (3); the QR bound at its longest signature (core); the sheet, a row changing the role, the QR screen and screen kept on, the file, the log, Settings and the texts in three languages (8) | Pass |
+
 ## Still outside this part
 
 - #437 / PR #455: Android Keystore key creation and signing, fingerprints, QR drawing and native tests, submitted separately.
-- #439: QR/file sharing, optional recipient roles and append-only sharing history. Its free-name field conflicts with PRD §3.10; the PRD wins: role only, never a recipient's name.
 - #246: reader mode, including identity and key-continuity checks. Main now contains #247's backup and transfer work; it does not transfer a teacher's Keystore signing key.
 - Native RTL/LTR at 200%, spoken Arabic TalkBack, A4 paper and budget-phone acceptance of those screens. None is claimed for this core-only work.
 

@@ -26,7 +26,7 @@ import type { RootStackParamList } from './routes';
 
 /** Settings use their own routes, so leaving an editor returns here rather than continuing setup. */
 export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Settings'>) {
-  const open = (target: SettingTarget, schoolId?: string) => {
+  const open = (target: SettingTarget, id?: string) => {
     switch (target) {
       case 'calendar':
         navigation.navigate('Calendar');
@@ -47,10 +47,10 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
         navigation.navigate('SettingsWeek');
         break;
       case 'times':
-        navigation.navigate('Times', { schoolId });
+        navigation.navigate('Times', { schoolId: id });
         break;
       case 'plans':
-        navigation.navigate('SettingsPlans', { schoolId });
+        navigation.navigate('SettingsPlans', { schoolId: id });
         break;
       case 'lengths':
         navigation.navigate('SettingsLengths');
@@ -93,6 +93,9 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
         break;
       case 'privacy':
         navigation.navigate('PrivacyNotice');
+        break;
+      case 'statement':
+        if (id !== undefined) navigation.navigate('Statement', { courseId: id });
         break;
     }
   };

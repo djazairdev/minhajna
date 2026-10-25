@@ -1,38 +1,37 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «بيان التقدّم» (#438, Share, R-3.10-01, R-3.10-02, R-3.10-08, R-3.10-09,
-// answer 485), opened from a class page: chips for the subject's other classes
-// with a plan, then the statement as it will leave, every field in words, that
-// it carries no pupil data and that the reasons for sessions not held stay on
-// the phone. Nothing is signed or recorded until «طباعة» or «PDF»: then the
-// statement of that moment's day is signed with the teacher's key and goes to
-// Android's print screen, or to a PDF saved where the teacher picks, named by
-// the class, subject and day; each goes into the activity log with the day,
-// never its content. A failed signature makes nothing.
+// «بيان التقدّم» (#438, #439, Share, R-3.10-01, R-3.10-02, R-3.10-08 to
+// R-3.10-10, answers 485 and 486), opened from a class page or Settings: chips
+// for the subject's other classes with a plan, then the statement as it will
+// leave, every field in words, that it carries no pupil data and that the
+// reasons for sessions not held stay on the phone. Nothing is signed or
+// recorded until «طباعة», «PDF», «رمز QR» or «ملف موقّع»
+// (statement-actions.ts); the third button is the code when the signed
+// statement will fit one, else the signed file, with a line saying why. Each
+// share then asks «لمن؟», and «سجل المشاركة» lists them all. A failed signature
+// makes nothing.
 
-import { courseSetup, progressStatement, type ProgressStatement } from '@minhajna/core';
+import { courseSetup, progressStatement, sharingHistory, statementFitsInQr } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
-import { useOutputRun } from '../documents/output-run';
-import { useOutputLog } from '../log/output-log';
-import { safeFileName } from '../marks/export-file-rules';
-import pdf from '../native/NativeMinhajnaPdf';
 import { settingsStyles } from '../settings/styles';
-import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useText } from '../text/i18n';
+import { ShareHistory } from './ShareHistory';
+import { ShareTo, type ShareToProps } from './ShareTo';
 import { StatementFields } from './StatementFields';
-import { statementClass, statementDay, statementLines } from './statement-lines';
-import { statementHtml } from './statement-page';
-import { signedNow } from './statement-sign';
+import { StatementQr } from './StatementQr';
+import { useStatementActions } from './statement-actions';
+import { statementClass, statementLines } from './statement-lines';
 
 export type StatementShareProps = {
   readonly courseId: string;
@@ -44,7 +43,7 @@ export function StatementShare({ courseId, onCourse }: StatementShareProps) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { state, profile, year, calendar, calendarRelease, packs, today } = useAppData();
+  const { state, profile, year, calendar, calendarRelease, packs, today, entries } = useAppData();
   const day = today();
   const context = coreContext({ profile, year, calendar, calendarRelease, packs, state });
   const course = state.courses.get(courseId);
@@ -53,40 +52,17 @@ export function StatementShare({ courseId, onCourse }: StatementShareProps) {
     .filter((one) => courseSetup(context, one.id).pack !== null)
     .map((one) => ({ value: one.id, label: state.classes.get(one.classId)?.name ?? one.id }));
   const statement = course === undefined ? null : progressStatement(context, courseId, day);
-  const { busy, said, run } = useOutputRun();
-  const log = useOutputLog();
-
-  const now = () => {
-    const made = progressStatement(context, courseId, today());
-    if (made === null) throw new Error('No statement to make');
-    return made;
+  const actions = useStatementActions(courseId);
+  const { busy, said } = actions;
+  const [opened, setOpened] = useState<ShareToProps['share']>(null);
+  const opener = useRef<ViewInstance | null>(null);
+  const shares = sharingHistory(entries());
+  const asked = actions.asked === null ? opened : { ...actions.asked, day, to: null };
+  const closeAsked = () => {
+    actions.ask(null);
+    setOpened(null);
   };
-  const page = async (made: ProgressStatement) => {
-    const signed = await signedNow(made);
-    const lines = statementLines(t, profile, made);
-    const sheet = { day: statementDay(made), className: statementClass(profile, made), lines, ...signed };
-    return statementHtml(t, sheet, currentLanguage(), direction);
-  };
-  const subject = profile.subjects.find((one) => one.code === course?.subject);
-  const fileName = (made: ProgressStatement) => {
-    const named = subject === undefined ? made.class.subject : localized(subject.name);
-    return safeFileName(`${t('statement.title')} ${made.class.section} ${named} ${made.day}`, 'pdf');
-  };
-  const print = () =>
-    run(async () => {
-      const made = now();
-      await pdf.printHtml(await page(made), t('statement.title'), false);
-      log('statement', made.day).printed();
-      return null;
-    });
-  const save = () =>
-    run(async () => {
-      const made = now();
-      const file = await pdf.makePdf(await page(made), 'statement', false);
-      if (!(await pdf.savePdf(file.name, fileName(made)))) return null;
-      log('statement', made.day).saved();
-      return 'saved';
-    });
+  const fits = statement !== null && statementFitsInQr(statement);
 
   return (
     <ScrollView
@@ -120,16 +96,30 @@ export function StatementShare({ courseId, onCourse }: StatementShareProps) {
           </Text>
           <StatementFields lines={statementLines(t, profile, statement)} />
           <Notice icon={controlIcon('lock')} message={t('statement.reasons')} />
-          <View style={[styles.actions, { direction }]}>
+          <View ref={opener} collapsable={false} style={[styles.actions, { direction }]}>
             <Button
               testID="statement-print"
               variant="line"
               label={t('statement.print')}
               disabled={busy}
-              onPress={print}
+              onPress={actions.print}
             />
-            <Button testID="statement-pdf" variant="line" label={t('statement.pdf')} disabled={busy} onPress={save} />
+            <Button
+              testID="statement-pdf"
+              variant="line"
+              label={t('statement.pdf')}
+              disabled={busy}
+              onPress={actions.save}
+            />
+            <Button
+              testID={fits ? 'statement-qr-show' : 'statement-file'}
+              variant="line"
+              label={t(fits ? 'statement.how.qr' : 'statement.how.file')}
+              disabled={busy}
+              onPress={fits ? actions.show : actions.send}
+            />
           </View>
+          {!fits && <Text style={[styles.note, align]}>{t('statement.tooLong')}</Text>}
           <Notice icon={controlIcon('publisher')} message={t('statement.signed')} />
           {said !== null && (
             <Notice
@@ -140,6 +130,9 @@ export function StatementShare({ courseId, onCourse }: StatementShareProps) {
           )}
         </>
       )}
+      <ShareHistory shares={shares} onShare={setOpened} />
+      <ShareTo share={asked} onClose={closeAsked} returnFocusRef={opener} />
+      {actions.shown !== null && <StatementQr shown={actions.shown} onClose={actions.close} />}
     </ScrollView>
   );
 }
@@ -147,4 +140,5 @@ export function StatementShare({ courseId, onCourse }: StatementShareProps) {
 const styles = StyleSheet.create({
   strong: { ...typography.label, color: colors.ink },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-10'] },
+  note: { ...typography.caption, color: colors.ink2 },
 });

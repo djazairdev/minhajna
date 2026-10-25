@@ -16,6 +16,8 @@ export class FakeInterface {
   restarts = 0;
   /** How many times the app said its first screen with content was drawn. */
   fullyDrawn = 0;
+  /** Whether the screen is kept on, as a QR code asks while it shows. */
+  screenOn = false;
 
   asSpec(): Spec {
     return {
@@ -34,6 +36,9 @@ export class FakeInterface {
       cancelFocusRequest: () => undefined,
       reportFullyDrawn: () => {
         this.fullyDrawn += 1;
+      },
+      keepScreenOn: (on) => {
+        this.screenOn = on;
       },
       getConstants: () => ({}),
     };

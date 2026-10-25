@@ -3587,6 +3587,44 @@
       "code": "Le code porte le relevé signé ; « Minhajna » le lit en mode lecteur, sans réseau.",
       "tooLong": "Le relevé est trop long pour un seul code : on le vérifie depuis son fichier, PDF ou fichier signé.",
       "privacy": "Le relevé ne contient aucune donnée d’élève, ni les raisons des séances non tenues."
-    }
+    },
+    "tooLong": "Le relevé est trop long pour un seul code : il part comme fichier signé, par le menu de partage. Le transfert local de courte durée arrive avec le lancement.",
+    "how": {
+      "print": "Impression",
+      "pdf": "PDF",
+      "qr": "Code QR",
+      "file": "Fichier signé"
+    },
+    "roles": {
+      "director": "Directeur",
+      "inspector": "Inspecteur",
+      "coordinator": "Coordinateur",
+      "teacher": "Enseignant",
+      "other": "Autre"
+    },
+    "to": {
+      "director": "Au directeur",
+      "inspector": "À l’inspecteur",
+      "coordinator": "Au coordinateur",
+      "teacher": "À un enseignant",
+      "other": "À un autre destinataire"
+    },
+    "toTitle": "À qui ?",
+    "toContext": "Relevé {{class}} · {{how}} · {{day}}",
+    "toNote": "Inscrit dans l’historique des partages avec la date seule, sans heure, et le rôle seul, sans nom. Le destinataire s’ajoute ou se change plus tard depuis l’historique.",
+    "toSave": "Enregistrer dans l’historique",
+    "toLater": "Plus tard",
+    "history": "Historique des partages",
+    "historyNone": "Aucun relevé n’est encore parti.",
+    "historyNote": "Avec la date seule, sans heure. Touchez une ligne pour changer le destinataire.",
+    "historyHint": "Ouvre « À qui ? » pour ce relevé",
+    "noRecipient": "Sans destinataire pour l’instant",
+    "qrTitle": "Relevé de progression · {{class}}",
+    "qrLine": "Signé · se lit sans réseau",
+    "qrNote": "Il porte tout le relevé, sans données d’élèves, et n’expire pas.",
+    "qrLabel": "Code QR du relevé de progression, signé, lisible sans réseau",
+    "qrClose": "Fermer",
+    "logShared": "Relevé de progression · {{class}} · {{how}}",
+    "logSent": "Relevé de progression · {{class}} · {{how}} · {{to}}"
   }
 }

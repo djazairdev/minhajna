@@ -4,10 +4,11 @@
 // A QR code drawn from its modules (#247): dark ink on the sheet's light
 // colour, inside a quiet zone of four modules, left to right whatever the
 // interface's direction, as a scanner reads it. Each row is drawn as runs of
-// one colour, so a code of 25 to 33 modules needs a few hundred views at most.
-// It is one image for a screen reader, named by `label`. It stays beside the
-// transfer, its one use, until a shared QR code (Share-qr) joins the design
-// system.
+// one colour, so a code of 25 to 33 modules needs a few hundred views, and a
+// statement's of up to 117 a few thousand. It is one image for a screen reader,
+// named by `label`. The transfer's code (#247) and the progress statement's
+// (Share-qr, #439) use it; it stays beside the transfer until a shared QR code
+// joins the design system and its gallery.
 
 import { StyleSheet, View } from 'react-native';
 import { colors } from '../design/tokens';

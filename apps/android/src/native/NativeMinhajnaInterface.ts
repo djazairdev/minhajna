@@ -28,6 +28,8 @@ export interface Spec extends TurboModule {
    * timed on any phone (PRD §6.8). Nothing leaves the phone.
    */
   reportFullyDrawn(): void;
+  /** Keeps the screen on while a code is shown to be scanned, or lets it sleep again (#439). */
+  keepScreenOn(on: boolean): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaInterface');
