@@ -3,36 +3,36 @@
 
 // A class pinned to a release while a newer one of the same pack is in the
 // app, bundled or added from a signed file (#223, R-4.2-12, answer 329): a
-// badge names the newer release, and the class stays on its own until it
-// is moved, which waits for #322.
+// row names the newer release and its fixes, and that the class stays on its
+// own until it is moved; it opens «إصدار جديد للمخطط» to move it (#322).
 
-import { newerRelease, type PinnedPack, type PlanPack } from '@minhajna/core';
-import { useLocale } from '@react-navigation/native';
-import { Text, View } from 'react-native';
-import { Badge } from '../components/Badge';
-import { spacing } from '../design/tokens';
-import { settingsStyles as styles } from '../settings/styles';
+import type { PinnedPack, PlanPack } from '@minhajna/core';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
 import { useText } from '../text/i18n';
+import { newerRow } from './release-rules';
 
 export function NewerRelease({
   packs,
   pinned,
+  onOpen,
   testID,
 }: {
   packs: Iterable<PlanPack>;
   pinned: PinnedPack;
+  onOpen: (release: string) => void;
   testID: string;
 }) {
   const t = useText();
-  const { direction } = useLocale();
-  const newer = newerRelease(packs, pinned);
-  if (newer === null) return null;
+  const row = newerRow(t, packs, pinned);
+  if (row === null) return null;
   return (
-    <View testID={testID} style={{ gap: spacing['space-4'], alignItems: 'flex-start' }}>
-      <Badge label={t('plan.newerBadge', { release: newer.release })} />
-      <Text style={[styles.sub, { writingDirection: direction, textAlign: 'start' }]}>
-        {t('plan.newerStays', { current: pinned.release })}
-      </Text>
-    </View>
+    <RowLink
+      testID={testID}
+      icon={controlIcon('info')}
+      title={t('packRelease.title')}
+      description={row.text}
+      onPress={() => onOpen(row.release)}
+    />
   );
 }

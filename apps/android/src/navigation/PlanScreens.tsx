@@ -4,14 +4,15 @@
 // A class's plan and the screens it opens, as routes (#225): the plan, where
 // a parallel class replaces the one shown in place, the pack's details, one
 // item with the class's changes to it, the class's changes, its layers and
-// their import and export, a report of an error in an item, and the
-// class's own list without a pack (#227), which asks before leaving it
-// with changes not saved, and its offer for review; and the catch-up
-// options of a class behind its plan (#228); and «سؤال المفتش» about a
-// stale pack (#230). An archived class's plan reads only: its pack's
-// details and its tests, with no change, list, catch-up or item to open, so
-// nothing it records reaches the class that took its history (#231).
-// `planRoutes` gives the navigator their entries, as `calendarRoutes` does.
+// their import and export, a newer release of its pack to move it to
+// (#322), a report of an error in an item, and the class's own list without
+// a pack (#227), which asks before leaving it with changes not saved, and
+// its offer for review; and the catch-up options of a class behind its plan
+// (#228); and «سؤال المفتش» about a stale pack (#230). An archived class's
+// plan reads only: its pack's details and its tests, with no change, list,
+// catch-up, release or item to open, so nothing it records reaches the class
+// that took its history (#231). `planRoutes` gives the navigator their
+// entries, as `calendarRoutes` does.
 
 import { usePreventRemove } from '@react-navigation/native';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -23,6 +24,7 @@ import { LayerExport } from '../plan/LayerExport';
 import { LayerImport } from '../plan/LayerImport';
 import { PlanChanges } from '../plan/PlanChanges';
 import { PlanLayers } from '../plan/PlanLayers';
+import { PackRelease } from '../plan/PackRelease';
 import { PlanDetails } from '../plan/PlanDetails';
 import { PlanError } from '../plan/PlanError';
 import { CatchUp } from '../plan/CatchUp';
@@ -62,6 +64,7 @@ export function ClassPlanScreen({ navigation, route }: NativeStackScreenProps<Ro
       onDetails={() => navigation.navigate('PlanDetails', { courseId })}
       onChanges={() => navigation.navigate('PlanChanges', { courseId })}
       onLayers={() => navigation.navigate('PlanLayers', { courseId })}
+      onRelease={(release) => navigation.navigate('PackRelease', { courseId, release })}
       onEditList={() => navigation.navigate('PlanFree', { courseId })}
       onCatchUp={() => navigation.navigate('CatchUp', { courseId })}
       onRepace={() => navigation.navigate('Repace', { courseId })}
@@ -109,6 +112,18 @@ export function PlanLayersScreen({ navigation, route }: NativeStackScreenProps<R
       onDetails={() => navigation.navigate('PlanDetails', { courseId })}
       onImport={() => navigation.navigate('LayerImport', { courseId })}
       onExport={() => navigation.navigate('LayerExport', { courseId })}
+    />
+  );
+}
+
+/** A newer release of a class's pack, and moving the class to it. */
+export function PackReleaseScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'PackRelease'>) {
+  return (
+    <PackRelease
+      courseId={route.params.courseId}
+      release={route.params.release}
+      onCourse={(id) => navigation.setParams({ courseId: id })}
+      onPlan={(id) => navigation.popTo('ClassPlan', { courseId: id })}
     />
   );
 }
@@ -220,6 +235,7 @@ export function planRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="PlanItem" component={PlanItemScreen} options={dark(t('planItem.title'))} />
       <Stack.Screen name="PlanChanges" component={PlanChangesScreen} options={dark(t('planChanges.title'))} />
       <Stack.Screen name="PlanLayers" component={PlanLayersScreen} options={dark(t('planLayers.title'))} />
+      <Stack.Screen name="PackRelease" component={PackReleaseScreen} options={dark(t('packRelease.title'))} />
       <Stack.Screen name="LayerImport" component={LayerImportScreen} options={dark(t('planLayers.import'))} />
       <Stack.Screen name="LayerExport" component={LayerExportScreen} options={dark(t('planLayers.export.title'))} />
       <Stack.Screen name="PlanError" component={PlanErrorScreen} options={dark(t('planError.title'))} />

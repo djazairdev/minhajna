@@ -16,9 +16,9 @@
 
 import {
   compareDays,
-  courseSetup,
   current,
   formatTextsBookDay,
+  recordPack,
   sessionsBetween,
   type Context,
   type Course,
@@ -162,13 +162,13 @@ export function bookRows(
   dir: Direction,
 ): BookRow[] {
   const { state } = data;
-  const pack = courseSetup(context, course.id).pack;
   const schoolClass = state.classes.get(course.classId);
   const school = schoolClass && state.schools.get(schoolClass.schoolId);
   const start = course.continues === undefined ? from : data.year.from;
   const rows = sessionsBetween(context, start, to, new Set([course.id])).flatMap((session) => {
     const record = current(state.sessions.get(session.key));
-    return record === null ? [] : [{ ...bookRow(data, { school, pack }, session, record, t, dir), session }];
+    if (record === null) return [];
+    return [{ ...bookRow(data, { school, pack: recordPack(context, record) }, session, record, t, dir), session }];
   });
   return withReshape(rows, (row) => row.session.courseId === course.id, course, t, dir).filter(
     (row) => compareDays(row.day, from) >= 0,

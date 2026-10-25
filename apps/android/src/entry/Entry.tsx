@@ -20,6 +20,7 @@ import {
   formatDay,
   formatTextsBookDay,
   pairedItem,
+  recordPack,
   todayView,
   weekday,
   type CorrectionReason,
@@ -106,7 +107,8 @@ export function Entry({ sessionKey, day, onDone, onNote }: { sessionKey: string;
     record === null ? entered : correctionOf(entered, record, start.draft, draft, reason, reasonText);
   const preview = previewOf(context, confirmation);
   const dayName = (one: Day) => shortDay(t, one);
-  const changes = record === null || preview === null ? [] : fixChanges(t, pack, record, preview, dayName);
+  const changes =
+    record === null || preview === null ? [] : fixChanges(t, recordPack(context, record), record, preview, dayName);
   const unchanged = record !== null && changes.length === 0 && draft.note === start.draft.note;
   const shownDays = allDays ? days : days.slice(0, 3);
   const choose = (lesson: Lesson) =>
@@ -132,7 +134,7 @@ export function Entry({ sessionKey, day, onDone, onNote }: { sessionKey: string;
             recorded={{
               date: formatTextsBookDay(session.day),
               time: bookSpan(t, time, direction),
-              lines: bookLines(t, pack, record, dayName),
+              lines: bookLines(t, recordPack(context, record), record, dayName),
             }}
           />
         )}
@@ -153,7 +155,7 @@ export function Entry({ sessionKey, day, onDone, onNote }: { sessionKey: string;
             testID="entry-book"
             date={formatTextsBookDay(session.day)}
             time={bookSpan(t, time, direction)}
-            lines={bookLines(t, pack, preview, dayName)}
+            lines={bookLines(t, recordPack(context, preview), preview, dayName)}
           />
         )}
         {onNote !== undefined && <NoteLink sessionKey={sessionKey} day={day} onOpen={onNote} />}

@@ -138,6 +138,7 @@ export type RootStackParamList = {
   PlanItem: { courseId: string; itemId: string };
   PlanChanges: { courseId: string };
   PlanLayers: { courseId: string };
+  PackRelease: { courseId: string; release: string };
   LayerImport: { courseId: string };
   LayerExport: { courseId: string };
   PlanError: { courseId: string; itemId: string };

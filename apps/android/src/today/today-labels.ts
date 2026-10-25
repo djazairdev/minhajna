@@ -22,6 +22,8 @@ import {
   type SessionRecord,
   type TodaySession,
   type TodayView,
+  recordPack,
+  type Context,
 } from '@minhajna/core';
 import type { ProposalProps } from '../components/Proposal';
 import { localized } from '../setup/names';
@@ -102,9 +104,13 @@ export function lessonOf(
   };
 }
 
-/** What a recorded session wrote: the items it taught or taught again, the one it skipped, or that it was not held. */
-export function writtenOf(t: Translate, pack: PlanPack | null, record: SessionRecord, comma: string): string {
+/**
+ * What a recorded session wrote: the items it taught or taught again, the one
+ * it skipped, or that it was not held, titled as the plan was when recorded.
+ */
+export function writtenOf(t: Translate, context: Context, record: SessionRecord, comma: string): string {
   if (record.outcome === 'not-held') return t(record.makeUp === true ? 'today.notHeldMakeUp' : 'today.notHeld');
+  const pack = recordPack(context, record);
   const title = (id: string) => findPackItem(pack, id)?.title ?? id;
   const titles = record.coverage.flatMap((cover) => (cover.op === 'skipped' ? [] : [title(cover.item)]));
   if (titles.length > 0) return titles.join(comma);

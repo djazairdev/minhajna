@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Choosing a grade and subject's pack (#30, Setup-6b-Packs): each pack with
-// its status, timing, release and source, the ones that apply best first, or
-// no pack and typed items, each a radio card as drawn. What each status
-// means is listed under them. The pack is pinned to the classes chosen, each
-// staying on that release until another is chosen (PRD §4.2). Opened for one
-// class, only that class is ticked, and its own release, even an older or
-// missing one, is offered first and chosen. A class on another release of
-// the pack chosen stays on it, and the card says so: moving to a newer
-// release waits for #322 (answer 329). A signed pack can be imported from
-// here (answer 326). District variants come later.
+// Choosing a grade and subject's pack (#30, Setup-6b-Packs): each pack with its
+// status, timing, release and source, the ones that apply best first, or no
+// pack and typed items, each a radio card as drawn. What each status means is
+// listed under them. The pack is pinned to the classes chosen, each staying on
+// that release until another is chosen (PRD §4.2). Opened for one class, only
+// that class is ticked, and its own release, even an older or missing one, is
+// offered first and chosen. A class on another release of the pack chosen stays
+// on it, and the card says so: it moves to a newer release from «إصدار جديد
+// للمخطط» (#322). A signed pack can be imported from here (answer 326).
+// District variants come later.
 
 import { courseOf, packsFor, pinOf, STATUS_ORDER, type PinnedPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';

@@ -120,6 +120,9 @@ describe('a class moved to a newer release', () => {
       plan.removed.map((one) => one.decision.id),
       ['k7'],
     );
+    await change(book, { ...made, id: 'u7', kind: 'undo', change: 'k7' });
+    const after = movePlan(withFix(book), 'c-math', '2026.2');
+    assert.equal(after.ok && after.lists[0]?.changes, 2);
     assert.deepEqual(movePlan(withFix(book), 'c-math', '2027.1'), { ok: false, problem: 'missing', release: '2027.1' });
     assert.deepEqual(movePlan(withFix(book), 'c-math', '2026.1'), {
       ok: false,

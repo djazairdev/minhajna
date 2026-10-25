@@ -17,7 +17,7 @@
 // after that class, in grey until the teacher says it took place; only one
 // at a school with a middle or secondary level, where it can be entered.
 
-import { courseSetup, coversOn, dutiesOn, todayView, type TodaySession } from '@minhajna/core';
+import { coversOn, dutiesOn, recordPack, todayView, type TodaySession } from '@minhajna/core';
 import { coverSchools } from '../exams/cover-schools';
 import { bookSpan } from '../entry/book-lines';
 import { coreContext } from '../storage/core-context';
@@ -67,7 +67,7 @@ export function journalPages(data: DocumentData, t: Translate, blank: boolean, l
     return {
       time: bookSpan(t, time, data.dir) ?? meta.slot,
       className: meta.className,
-      lines: journalLines(t, names, courseSetup(context, item.course.id).pack, record, awaiting),
+      lines: journalLines(t, names, recordPack(context, record), record, awaiting),
       awaiting,
     };
   };

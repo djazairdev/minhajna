@@ -11,6 +11,7 @@ import { describe, it } from 'node:test';
 
 import {
   bellTimes,
+  compareReleases,
   formatDayWithMonth,
   hoursOn,
   parseBellData,
@@ -20,10 +21,12 @@ import {
   makeContext,
   parseCountryProfile,
   parseSchoolCalendar,
+  releaseChain,
   sessionsBetween,
   type CalendarMark,
   type Context,
   type CountryProfile,
+  type PlanPack,
   type RecordEvent,
   type SchoolCalendar,
 } from '../src/index.ts';
@@ -222,16 +225,18 @@ describe("Algeria's reference data", () => {
 
   // Until the field check's packs are keyed (#23), the app ships made-up
   // examples, marked as such, so a class can be set up and tried.
-  it('ships only example packs, each named by its file and fitting the profile', () => {
+  it('ships only example packs, each named by its file, fitting the profile, its releases chained', () => {
     const { profile } = readAlgeria();
     const files = readdirSync(new URL('../../../data/dz/packs/', import.meta.url));
     assert.notEqual(files.length, 0);
+    const packs: PlanPack[] = [];
     for (const file of files) {
       const read = parsePlanPack(readData(`dz/packs/${file}`));
       assert.deepEqual(read.ok ? [] : read.problems, [], file);
       assert.ok(read.ok);
       const pack = read.value;
-      assert.equal(`${pack.id}.json`, file);
+      assert.equal(`${pack.id}@${pack.release}.json`, file);
+      packs.push(pack);
       assert.equal(pack.status, 'example', file);
       assert.match(pack.provenance.issuer, /not a plan/, file);
       const parts = parsePackId(pack.id);
@@ -243,5 +248,16 @@ describe("Algeria's reference data", () => {
       const subject = profile.subjects.find((candidate) => candidate.code === parts?.subject);
       assert.ok(level !== undefined && subject?.levels.includes(level.code), file);
     }
+    for (const pack of packs) {
+      const releases = packs.filter((one) => one.id === pack.id);
+      const chain = releaseChain(releases, pack);
+      assert.ok(chain.ok, pack.id);
+      assert.equal(
+        chain.steps.length,
+        releases.filter((one) => compareReleases(one.release, pack.release) < 0).length,
+        pack.id,
+      );
+    }
+    assert.ok(packs.some((pack) => pack.migration !== undefined));
   });
 });

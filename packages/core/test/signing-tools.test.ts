@@ -129,7 +129,7 @@ test('an update written without its empty removals signs, as the phone reads it 
 
 const bundledPack = () =>
   JSON.parse(
-    readFileSync(new URL('../../../data/dz/packs/dz.cem.4am.arabic.example.json', import.meta.url), 'utf8'),
+    readFileSync(new URL('../../../data/dz/packs/dz.cem.4am.arabic.example@2026.1.json', import.meta.url), 'utf8'),
   ) as Record<string, unknown>;
 const packUpdate = (release: string, pack: Record<string, unknown> = bundledPack()) => ({
   format: PACK_UPDATE_FORMAT,
@@ -145,17 +145,17 @@ test("signs a pack's new release with a key that signs packs, as a file the phon
   assert.deepEqual(makeKey('example-ministry', holder, passphrase).entry.signs, ['calendar', 'packs']);
   const bundled = { ...readBundled(), keys: [made.entry] };
   const key = openPrivateKey(made.privatePem, passphrase);
-  const signed = await signPack(packUpdate('2026.2'), key, 'example-igp', bundled);
+  const signed = await signPack(packUpdate('2026.3'), key, 'example-igp', bundled);
   const opened = await openSigned(signed.file, bundled.keys, nodeVerifier, PACK_BYTES);
   assert.ok(opened.ok);
-  assert.deepEqual(opened.payload, packUpdate('2026.2'));
-  assert.equal(signed.update.pack.release, '2026.2');
+  assert.deepEqual(opened.payload, packUpdate('2026.3'));
+  assert.equal(signed.update.pack.release, '2026.3');
   await assert.rejects(
     signUpdate(update('2026.5'), key, 'example-igp', bundled),
     /does not let example-igp sign calendar/,
   );
   const primary = JSON.parse(
-    readFileSync(new URL('../../../data/dz/packs/dz.primary.5ap.arabic.example.json', import.meta.url), 'utf8'),
+    readFileSync(new URL('../../../data/dz/packs/dz.primary.5ap.arabic.example@2026.1.json', import.meta.url), 'utf8'),
   ) as Record<string, unknown>;
   assert.equal(
     (await signPack(packUpdate('2026.2', primary), key, 'example-igp', bundled)).update.pack.release,
@@ -170,15 +170,15 @@ test('refuses a pack the phone would refuse, or one a key may not sign', async (
   const key = openPrivateKey(both.privatePem, passphrase);
   const sign = (input: unknown) => signPack(input, key, 'example-both', bundled);
   await assert.rejects(
-    signPack(packUpdate('2026.2'), openPrivateKey(made.privatePem, passphrase), 'example-ministry', bundled),
+    signPack(packUpdate('2026.3'), openPrivateKey(made.privatePem, passphrase), 'example-ministry', bundled),
     /does not let example-ministry sign packs/,
   );
-  await assert.rejects(sign(packUpdate('2026.1')), /is not after the bundled 2026.1/);
-  await assert.rejects(sign({ ...packUpdate('2026.2'), extra: true }), /misspelled field: extra$/);
+  await assert.rejects(sign(packUpdate('2026.1')), /is not after the bundled 2026.2/);
+  await assert.rejects(sign({ ...packUpdate('2026.3'), extra: true }), /misspelled field: extra$/);
   await assert.rejects(
-    sign({ ...packUpdate('2026.2'), version: { major: 1, minor: 1 } }),
+    sign({ ...packUpdate('2026.3'), version: { major: 1, minor: 1 } }),
     /misspelled field: version$/,
   );
-  await assert.rejects(sign(packUpdate('2026.2', { ...bundledPack(), note: 'dropped' })), /misspelled field: pack$/);
-  await assert.rejects(sign({ ...packUpdate('2026.2'), country: 'tn' }), /does not read: country/);
+  await assert.rejects(sign(packUpdate('2026.3', { ...bundledPack(), note: 'dropped' })), /misspelled field: pack$/);
+  await assert.rejects(sign({ ...packUpdate('2026.3'), country: 'tn' }), /does not read: country/);
 });

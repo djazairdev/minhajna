@@ -191,6 +191,7 @@ export function SettingsPlansScreen({
       onChoose={(grade, subject, schoolId, classId) =>
         navigation.navigate('Packs', { grade, subject, schoolId, classId })
       }
+      onRelease={(courseId, release) => navigation.navigate('PackRelease', { courseId, release })}
     />
   );
 }

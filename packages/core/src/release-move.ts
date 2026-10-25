@@ -48,6 +48,14 @@ export interface MoveQuestion {
   readonly choices: readonly string[];
 }
 
+/** A list of changes on the move: carried as it is, carried through the entries, or something in it asked. */
+export interface MoveList {
+  /** None for the class's own changes. */
+  readonly layer?: PlanLayer;
+  readonly changes: number;
+  readonly carried: 'as-is' | 'with-entries' | 'asked';
+}
+
 export type MovePlan =
   | {
       readonly ok: true;
@@ -57,6 +65,8 @@ export type MovePlan =
       readonly questions: readonly MoveQuestion[];
       /** Changes on an item the newer releases remove: left out, or carried without it. */
       readonly removed: readonly { readonly decision: PlanDecision; readonly layer?: PlanLayer }[];
+      /** The class's own changes, then each layer it follows, and how each is carried. */
+      readonly lists: readonly MoveList[];
     }
   | { readonly ok: false; readonly problem: 'no-pack' | 'missing' | 'broken' | 'not-newer'; readonly release?: string };
 
@@ -80,8 +90,15 @@ export function movePlan(context: Context, courseId: string, to: string): MovePl
   ];
   const questions: MoveQuestion[] = [];
   const removed: { readonly decision: PlanDecision; readonly layer?: PlanLayer }[] = [];
+  const read: MoveList[] = [];
   for (const { layer, list } of lists) {
-    const carried = carryDecisions(carryDecisions(list, current).decisions, chain.steps);
+    const now = carryDecisions(list, current).decisions;
+    const carried = carryDecisions(now, chain.steps);
+    const same = carried.removed.length === 0 && JSON.stringify(carried.decisions) === JSON.stringify(now);
+    const undone = new Set(now.flatMap((one) => (one.kind === 'undo' ? [one.change] : [])));
+    const changes = now.filter((one) => one.kind !== 'undo' && !undone.has(one.id)).length;
+    const how = carried.unclear.length > 0 ? 'asked' : same ? 'as-is' : 'with-entries';
+    read.push({ ...(layer !== undefined && { layer }), changes, carried: how });
     for (const { decision, release, entry } of carried.unclear) {
       const later = chain.steps.slice(chain.steps.findIndex((step) => step.after.release === release) + 1);
       const choices = [...new Set(newIds(entry).flatMap((id) => followId(later, id)))];
@@ -89,7 +106,7 @@ export function movePlan(context: Context, courseId: string, to: string): MovePl
     }
     for (const decision of carried.removed) removed.push({ decision, ...(layer !== undefined && { layer }) });
   }
-  return { ok: true, from, to: target, steps: chain.steps, questions, removed };
+  return { ok: true, from, to: target, steps: chain.steps, questions, removed, lists: read };
 }
 
 /** Where one of the question's items goes: the item chosen for the one made unclear, else where it was taken. */
@@ -147,6 +164,28 @@ export function moveEvents(
   answers: readonly (string | null)[],
   made: { readonly newId: () => string; readonly day: Day },
 ): RecordEvent[] {
+  return moved(context, courseId, plan, answers, made).events;
+}
+
+/** The records as they would be once the class moved with these answers, to show its effect before the tap. */
+export function movedContext(
+  context: Context,
+  courseId: string,
+  plan: Extract<MovePlan, { ok: true }>,
+  answers: readonly (string | null)[],
+  day: Day,
+): Context {
+  let next = 0;
+  return moved(context, courseId, plan, answers, { newId: () => `check-${(next += 1)}`, day }).after;
+}
+
+function moved(
+  context: Context,
+  courseId: string,
+  plan: Extract<MovePlan, { ok: true }>,
+  answers: readonly (string | null)[],
+  made: { readonly newId: () => string; readonly day: Day },
+): { readonly events: RecordEvent[]; readonly after: Context } {
   const course = context.state.courses.get(courseId);
   if (course?.pack == null || answers.length !== plan.questions.length) throw new RangeError('Answer every question');
   const move = { courseId, from: plan.from.release, to: plan.to.release };
@@ -176,7 +215,7 @@ export function moveEvents(
     const decisions = new Map(after.state.decisions).set(event.decision.id, event.decision);
     after = { ...after, state: { ...after.state, decisions } };
   });
-  return events;
+  return { events, after };
 }
 
 /** A question's choices that fit after the answers given to the questions before it, as `moveEvents` checks them. */
@@ -191,9 +230,8 @@ export function fittingChoices(
     const answers = plan.questions.map((_, at) =>
       at === index ? choice : at < index ? (before.answers[at] ?? null) : null,
     );
-    let next = 0;
     try {
-      moveEvents(context, courseId, plan, answers, { newId: () => `check-${(next += 1)}`, day: before.day });
+      movedContext(context, courseId, plan, answers, before.day);
       return true;
     } catch {
       return false;

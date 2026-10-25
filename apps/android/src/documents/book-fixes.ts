@@ -17,9 +17,9 @@
 
 import {
   bookCorrections,
-  courseSetup,
   formatDay,
   printedBefore,
+  recordPack,
   type Correction,
   type CorrectionReason,
   type ExtraSession,
@@ -136,8 +136,7 @@ export function bookFixes(data: DocumentData, t: Translate, month: string, class
     const where = classOf(correction.courseId);
     if (where === null || (classId !== null && where.schoolClass.id !== classId)) continue;
     const st = i18n.getFixedT(wordsFor(subjectLanguage(data.profile, where.course.subject, data.lang), data.lang));
-    const pack = courseSetup(context, where.course.id).pack;
-    const write = (record: SessionRecord) => bookLines(st, pack, record, formatDay);
+    const write = (record: SessionRecord) => bookLines(st, recordPack(context, record), record, formatDay);
     const changes = sessionChanges(t, st, write, correction);
     if (changes.length === 0) continue;
     const session = (correction.after ?? correction.before)?.session;

@@ -208,6 +208,6 @@ test('keeps the title of a removed item a session was recorded under, and shows 
   await pressSettings('free-save');
   expect(saved(data)?.items).toEqual([]);
   expect(saved(data)?.removed).toEqual([{ id: first, kind: 'lesson', title: 'درس أول (مثال)' }]);
-  await showSettingsScreen(<Plans onChoose={jest.fn()} />, data);
+  await showSettingsScreen(<Plans onChoose={jest.fn()} onRelease={jest.fn()} />, data);
   expect(settingsTexts()).toContain(catalogues.ar.plan.status.own);
 });

@@ -5,10 +5,12 @@
 // import screen checks it and adds a new release, a key that may not sign
 // packs is refused, and the new release joins the pack list while the class
 // pinned to the old one stays on it, with a badge on its plan and in
-// Settings. Made-up keys and packs only.
+// Settings, which opens «إصدار جديد للمخطط» (#322). Made-up keys and packs
+// only.
 
 import { PACK_UPDATE_FORMAT, parseDay } from '@minhajna/core';
-import cem4Arabic from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example.json';
+import cem4Arabic from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example@2026.1.json';
+import cem4ArabicFix from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example@2026.2.json';
 import { useWindowDimensions } from 'react-native';
 import { makeTestKey, signedFile } from '../../../packages/core/test/signed-fixtures';
 import { accessibilityProblems } from '../jest/accessibility';
@@ -40,7 +42,10 @@ const payload = (release: string) => ({
   version: { major: 1, minor: 0 },
   country: 'dz',
   published: '2026-10-03',
-  pack: { ...cem4Arabic, release },
+  pack:
+    release === cem4ArabicFix.release
+      ? cem4ArabicFix
+      : { ...cem4ArabicFix, release, migration: { from: cem4ArabicFix.release, entries: [] } },
 });
 const onAdded = jest.fn();
 const has = (id: string) => settingsRoot().findAll((node) => node.props.testID === id).length > 0;
@@ -66,7 +71,7 @@ afterEach(async () => {
 test.each(['ar', 'fr', 'en'] as const)(
   'checks and adds a signed pack release, its class staying (%s)',
   async (language) => {
-    const data = await open(signedFile(key, payload('2026.2')), language);
+    const data = await open(signedFile(key, payload('2026.3')), language);
     const text = catalogues[language].calendarView.update;
     expect(has('pack-details')).toBe(true);
     expect(settingsTexts()).toContain(text.status.new);
@@ -75,20 +80,20 @@ test.each(['ar', 'fr', 'en'] as const)(
     expect(missingKeys).toEqual([]);
     await pressSettings('update-apply');
     expect(onAdded).toHaveBeenCalledWith('4am', 'arabic');
-    expect(data.book.state.addedPacks.map((one) => one.update.pack.release)).toEqual(['2026.2']);
+    expect(data.book.state.addedPacks.map((one) => one.update.pack.release)).toEqual(['2026.3']);
     expect(data.book.state.addedPacks[0]?.key).toBe(key.trusted.id);
     expect(data.book.state.courses.get('c-1')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.1' });
   },
 );
 
 test('a release the app has is held, and an older one is not added', async () => {
-  await open(signedFile(key, payload('2026.1')));
+  await open(signedFile(key, payload('2026.2')));
   expect(settingsTexts()).toContain(catalogues.ar.calendarView.update.pack.held);
   expect(has('update-apply')).toBe(false);
   await closeSettingsScreen();
-  const data = await open(signedFile(key, payload('2026.3')));
+  const data = await open(signedFile(key, payload('2026.4')));
   await pressSettings('update-apply');
-  jest.mocked(NativeInput.readFile).mockResolvedValueOnce(signedFile(key, payload('2026.2')));
+  jest.mocked(NativeInput.readFile).mockResolvedValueOnce(signedFile(key, payload('2026.3')));
   await pressSettings('update-file');
   expect(settingsTexts()).toContain(catalogues.ar.calendarView.update.pack.older);
   expect(has('update-apply')).toBe(false);
@@ -108,34 +113,40 @@ test('a pack signed with a key that may sign only the calendar is refused after 
 });
 
 test('the added release joins the pack list, and pinning it keeps the class on its own', async () => {
-  const data = await open(signedFile(key, payload('2026.2')));
+  const data = await open(signedFile(key, payload('2026.3')));
   await pressSettings('update-apply');
   await closeSettingsScreen();
   const onImport = jest.fn();
   const onDone = jest.fn();
   await showSettingsScreen(<Packs grade="4am" subject="arabic" onImport={onImport} onDone={onDone} />, data);
   const card = settingsRoot().find((node) => node.props.testID === `pack-${cem4Arabic.id}`);
-  expect(String(card.props.description)).toContain('2026.2');
+  expect(String(card.props.description)).toContain('2026.3');
   expect(String(card.props.description)).toContain('4م1');
   await pressSettings(`pack-${cem4Arabic.id}`);
   await pressSettings('pack-pin');
   expect(onDone).toHaveBeenCalledTimes(1);
   expect(data.book.state.courses.get('c-1')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.1' });
-  expect(data.book.state.courses.get('c-2')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.2' });
+  expect(data.book.state.courses.get('c-2')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.3' });
   await pressSettings('pack-import');
   expect(onImport).toHaveBeenCalledTimes(1);
 });
 
-test("the class's plan and Settings show that a newer release is in the app", async () => {
-  const data = await open(signedFile(key, payload('2026.2')));
+test("the class's plan and Settings open the newest release in the app", async () => {
+  const data = await open(signedFile(key, payload('2026.3')));
   await pressSettings('update-apply');
   await closeSettingsScreen();
-  await showSettingsScreen(<ClassPlan courseId="c-1" />, data);
-  expect(has('plan-newer')).toBe(true);
+  const onRelease = jest.fn();
+  await showSettingsScreen(<ClassPlan courseId="c-1" onRelease={onRelease} />, data);
+  await pressSettings('plan-newer');
+  expect(onRelease).toHaveBeenLastCalledWith('2026.3');
   expect(missingKeys).toEqual([]);
   await closeSettingsScreen();
-  await showSettingsScreen(<Plans onChoose={jest.fn()} />, data);
-  expect(has('settings-newer-k-1-arabic-4am')).toBe(true);
+  await showSettingsScreen(<ClassPlan courseId="c-1" />, data);
+  expect(has('plan-newer')).toBe(false);
+  await closeSettingsScreen();
+  await showSettingsScreen(<Plans onChoose={jest.fn()} onRelease={onRelease} />, data);
+  await pressSettings('settings-newer-k-1-arabic-4am');
+  expect(onRelease).toHaveBeenLastCalledWith('c-1', '2026.3');
   expect(has('settings-newer-k-2-arabic-4am')).toBe(false);
 });
 
@@ -159,7 +170,7 @@ test("last year's class on an older release is not listed as staying", async () 
     pack: { id: cem4Arabic.id, release: '2025.9' },
   };
   await data.book.record(parseDay('2026-10-15'), { kind: 'course.set', course: old });
-  jest.mocked(NativeInput.readFile).mockResolvedValueOnce(signedFile(key, payload('2026.2')));
+  jest.mocked(NativeInput.readFile).mockResolvedValueOnce(signedFile(key, payload('2026.3')));
   const screen = <ImportUpdate onApplied={jest.fn()} onAdded={onAdded} onReport={jest.fn()} />;
   await showSettingsScreen(screen, data);
   await pressSettings('update-file');

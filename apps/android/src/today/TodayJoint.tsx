@@ -53,7 +53,7 @@ export function TodayJoint(props: TodayJointProps) {
     const head = { id: grade, badge: grade.replace(/\D/g, ''), name: yearShort(t, grade) };
     if (item.status === 'recorded' && item.record !== null) {
       const show = { id: `fix-${grade}`, label: t('fix.open'), onPress: () => onDetails(item.session) };
-      return { ...head, kind: 'done', written: writtenOf(t, pack, item.record, comma), show };
+      return { ...head, kind: 'done', written: writtenOf(t, context, item.record, comma), show };
     }
     if (onFocus && item.proposal !== null && ready.includes(item)) {
       const proposal = proposalOf(t, pack, item.proposal);

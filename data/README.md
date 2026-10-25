@@ -14,7 +14,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/assessment.json` | Each level's continuous-assessment presets: their components, points and ranges, the formulas its averages follow, and the terms whose marks descriptive observations replace |
 | `dz/appreciations.json` | The appreciation phrases a teacher chooses from, by band of the term average and conduct, with the banned phrases: Minhajna's interim list while the official one is not found |
 | `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64), the SHA-256 fingerprint of that public half, and `signs`, what it may sign: `calendar`, `packs` or both. Empty until the first key is made, with the [signing tools](../docs/checks/signed-updates.md) |
-| `dz/packs/` | Plan packs, one file for each pack release, named by its ID. For now only made-up examples |
+| `dz/packs/` | Plan packs, one file for each pack release, named `<id>@<release>.json`. For now only made-up examples |
 | `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
 
 ## Month names
@@ -91,7 +91,7 @@ The roll-call book prints, beside each month, the Hijri months it spans, such as
 A plan pack holds one plan as data, for one level, grade, subject, stream and edition. Its ID reads `dz.<level>.<grade>.<subject>[.<stream>].<edition>` ([PRD §4.2](../docs/prd/PRD.md#42-plan-packs)). A class pins one release and stays on it until the teacher moves it.
 
 - **The real packs** for the field check are keyed in [#23](https://github.com/djazairdev/minhajna/issues/23). They stay private, and ship only in field-check builds, until counsel answers on the plans' copyright.
-- **Until then,** `dz/packs/` holds three made-up examples, so a class can be set up and tried: 1AM maths (budgets in hours), 4AM Arabic (budgets in sessions) and 5AP Arabic (weeks, with a weekly model of reading and writing). Their status is `example`, their titles say «مثال», and their issuer says they are not a plan. They copy no official plan.
+- **Until then,** `dz/packs/` holds three made-up examples, so a class can be set up and tried: 1AM maths (budgets in hours), 4AM Arabic (budgets in sessions) and 5AP Arabic (weeks, with a weekly model of reading and writing). The 4AM Arabic example also has a made-up fix, release 2026.2, with a page change, a renamed item and a split one, so a class can be moved to it. Their status is `example`, their titles say «مثال», and their issuer says they are not a plan. They copy no official plan.
 - **A week pack may carry its weekly model** in `activities`: each activity type with its code, its name in Arabic, French and English, and its sessions a week, in the order of the week. Its items name their activity by code, and a code outside the model is refused.
 - **A new release says how its item IDs came from an earlier one** in `migration`: `from`, that earlier release, and `entries`, each one of
   - `{"kind": "rename", "from": "a", "to": "b"}`: the same item under a new ID;
@@ -100,7 +100,7 @@ A plan pack holds one plan as data, for one level, grade, subject, stream and ed
   - `{"kind": "remove", "item": "a"}`: an item the release no longer has.
 
   `from` must be an earlier release. A page or title change that keeps its ID needs no entry. An ID is never used again for another item, so the reader refuses an old ID the release still has, a new ID it lacks, an ID in two entries, and an entry that mixes units, TD items and the main queue's items. A release without `migration` must keep every ID of the release before it. Moving a class follows the entries from its release to the new one through every release between them, one release at a time, and checks each against the release it starts from: every earlier item is still there or in an entry, every old ID was an earlier item, no new ID was one, an entry keeps its items' kind, and no ID removed earlier in the chain comes back. When a release in between is not on the phone, or a check fails, the class is not offered the move. Nothing recorded is rewritten ([#322](https://github.com/djazairdev/minhajna/issues/322), `packages/core/src/pack-migration.ts`).
-- **A test checks** that every file reads, is named by its ID, is an example, and names a grade and subject the profile has.
+- **A test checks** that every file reads, is named by its ID and release, is an example, and names a grade and subject the profile has, and that each pack's releases chain through their migration entries.
 
 ## Sources
 

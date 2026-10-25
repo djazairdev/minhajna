@@ -6,6 +6,8 @@
 // day, then the proposed one and those after it with the day the plan
 // would reach them; a search over the whole queue; and the choice another
 // lesson makes. The proposed item stays first in its queue (PRD §2.3, §4.7).
+// An item taught on an older release counts on the items that took its place
+// (#322).
 
 import {
   addDays,
@@ -25,6 +27,9 @@ import {
   type Proposal,
   type Session,
   type State,
+  courseSetup,
+  followId,
+  type Migration,
 } from '@minhajna/core';
 
 /** The lesson the session takes: the proposed one, another plan item, or content from outside the plan. */
@@ -54,7 +59,7 @@ export function choiceOf(lesson: Lesson): Choice | undefined {
 }
 
 /** The last day each item of this course and group was covered, before the session. */
-function taughtDays(state: State, session: Session): Map<string, Day> {
+function taughtDays(state: State, session: Session, migration: Migration): Map<string, Day> {
   const days = new Map<string, Day>();
   for (const versions of state.sessions.values()) {
     const record = current(versions);
@@ -64,9 +69,9 @@ function taughtDays(state: State, session: Session): Map<string, Day> {
       (compareDays(record.session.day, session.day) || compareSlots(record.session.slot, session.slot)) >= 0
     )
       continue;
-    for (const cover of record.coverage) {
-      const known = days.get(cover.item);
-      if (known === undefined || compareDays(known, record.session.day) < 0) days.set(cover.item, record.session.day);
+    for (const id of record.coverage.flatMap((cover) => followId(migration, cover.item))) {
+      const known = days.get(id);
+      if (known === undefined || compareDays(known, record.session.day) < 0) days.set(id, record.session.day);
     }
   }
   return days;
@@ -94,7 +99,7 @@ export function lessonGroups(
   proposal: Proposal,
   query: string,
 ): LessonGroup[] {
-  const days = taughtDays(context.state, session);
+  const days = taughtDays(context.state, session, courseSetup(context, session.courseId).migration);
   const needle = query.trim().toLocaleLowerCase();
   const queues = proposal.queue === 'td' ? (['td', 'main'] as const) : (['main', 'td'] as const);
   return queues.flatMap((queue) => {

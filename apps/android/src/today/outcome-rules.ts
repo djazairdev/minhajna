@@ -5,7 +5,8 @@
 // Sheet-reason): the stages a session may have reached, the item after the
 // proposed one, the last item taught before, the reasons a teacher may give,
 // and where what is left goes on, by its day. Stages, not percentages
-// (PRD §4.7); a reason stays private (PRD §3.3, §5.4).
+// (PRD §4.7); a reason stays private (PRD §3.3, §5.4). An item taught on an
+// older release is read as the class's release has it now (#322).
 
 import {
   compareDays,
@@ -25,6 +26,10 @@ import {
   type Session,
   type SessionRef,
   type State,
+  followId,
+  type Migration,
+  courseSetup,
+  type Context,
 } from '@minhajna/core';
 import { localized } from '../setup/names';
 import type { Language, useText } from '../text/i18n';
@@ -53,8 +58,13 @@ export function nextItem(pack: PlanPack | null, item: PackItem): PackItem | unde
   return at === -1 ? undefined : items[at + 1];
 }
 
-/** The last item taught in this course before the session, to teach again. */
-export function previousItem(state: State, pack: PlanPack | null, session: Session): PackItem | undefined {
+/** The last item taught in this course before the session, to teach again, as the class's release has it now. */
+export function previousItem(
+  state: State,
+  pack: PlanPack | null,
+  session: Session,
+  migration: Migration = [],
+): PackItem | undefined {
   if (pack === null) return undefined;
   const order = (a: SessionRef, b: SessionRef) => compareDays(a.day, b.day) || compareSlots(a.slot, b.slot);
   const earlier = [...state.sessions.values()]
@@ -67,10 +77,17 @@ export function previousItem(state: State, pack: PlanPack | null, session: Sessi
     .sort((a, b) => order(b.session, a.session));
   for (const record of earlier) {
     const taught = [...record.coverage].reverse().find((cover) => cover.op === 'taught' || cover.op === 'retaught');
-    const item = taught && pack.items.find((candidate) => candidate.id === taught.item);
+    const ids = taught === undefined ? [] : followId(migration, taught.item).reverse();
+    const item = ids.flatMap((id) => pack.items.filter((candidate) => candidate.id === id))[0];
     if (item !== undefined) return item;
   }
   return undefined;
+}
+
+/** The last item taught in the session's course before it, in the course's plan now. */
+export function previousOf(context: Context, session: Session): PackItem | undefined {
+  const setup = courseSetup(context, session.courseId);
+  return previousItem(context.state, setup.pack, session, setup.migration);
 }
 
 /** The reasons offered, «دون سبب» first and «سبب آخر» last, as the canvas orders them. */

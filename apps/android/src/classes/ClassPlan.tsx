@@ -67,6 +67,8 @@ export type ClassPlanProps = {
   readonly onDetails?: () => void;
   readonly onChanges?: () => void;
   readonly onLayers?: () => void;
+  /** «إصدار جديد للمخطط», while a newer release of its pack is in the app (#322). */
+  readonly onRelease?: (release: string) => void;
   readonly onEditList?: () => void;
   readonly onCatchUp?: () => void;
   readonly onSupport?: () => void;
@@ -82,7 +84,7 @@ export type ClassPlanProps = {
 
 export function ClassPlan(props: ClassPlanProps) {
   const { courseId, onExtra, onTests, onExamWindow, onCourse, onDetails, onChanges, onLayers, onItem, onCheck } = props;
-  const { onEditList, onCatchUp, onSupport, onRemediation, onRepace, onAsk } = props;
+  const { onEditList, onCatchUp, onSupport, onRemediation, onRepace, onAsk, onRelease } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -148,6 +150,7 @@ export function ClassPlan(props: ClassPlanProps) {
         {...(onDetails !== undefined && { onDetails })}
         {...(onChanges !== undefined && { onChanges })}
         {...(onLayers !== undefined && { onLayers })}
+        {...(onRelease !== undefined && { onRelease })}
         {...(onEditList !== undefined && { onEditList })}
       />
       {onExamWindow !== undefined && (
