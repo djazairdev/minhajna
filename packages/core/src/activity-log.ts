@@ -11,9 +11,10 @@
 // pupil's data shows as one line (answer 473): its erasures make none of
 // their own, and a roll call it restated keeps its corrections' days. Backups
 // and recovery sheets are listed under the devices (#247), never the key. A
-// statement shared and the role it went to are files (#439).
+// statement shared and its role (#439), and a class moved (#322), are files.
 
 import { canonicalJson } from './canonical.ts';
+import { movedLine, type MovedLine } from './course-state.ts';
 import { compareDays, type Day } from './day.ts';
 import { CORRECTION_REASONS, eventOf, type CorrectionReason, type RecordEvent } from './events.ts';
 import { ERASURE, erasedIds, type Entry } from './history.ts';
@@ -84,6 +85,7 @@ export type LogLine =
   | { readonly kind: 'output'; readonly output: OutputRecord }
   | { readonly kind: 'calendar-update'; readonly release: string }
   | { readonly kind: 'pack-added'; readonly pack: string; readonly release: string }
+  | MovedLine
   | { readonly kind: 'layer-added'; readonly title: string }
   /** The kinds of the records an erasure removed: only the fact and the day stay (R-5.5-13). */
   | { readonly kind: 'erased'; readonly kinds: readonly string[] }
@@ -154,6 +156,7 @@ interface Seen {
   readonly sessions: Map<string, SessionRecord | null>;
   readonly rollCalls: Map<string, RollCall>;
   readonly shares: Map<string, StatementShare>;
+  readonly courses: Map<string, string | undefined>;
 }
 
 /** The line one event makes, given the versions seen before it; null for an event the log leaves out. */
@@ -218,6 +221,9 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'pack-added', pack: event.added.update.pack.id, release: event.added.update.pack.release };
     case 'layer.added':
       return { kind: 'layer-added', title: event.added.layer.title };
+    case 'course.set':
+    case 'course.moved':
+      return movedLine(event, seen.courses);
     case 'pupil.erased':
       return { kind: 'pupil-erased' };
     case 'backup.saved':
@@ -230,11 +236,6 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
     default:
       return null;
   }
-}
-
-/** An erasure's line: the kinds of the records it removed. */
-function erasedLine(ids: readonly string[], kinds: ReadonlyMap<string, string>): LogLine {
-  return { kind: 'erased', kinds: [...new Set(ids.flatMap((id) => kinds.get(id) ?? []))] };
 }
 
 const categoryOf = (line: LogLine): LogCategory | null => {
@@ -265,7 +266,7 @@ const categoryOf = (line: LogLine): LogCategory | null => {
  * entry it replaces.
  */
 export function activityLog(entries: readonly (Entry | null)[], trusted: number = entries.length): LogDay[] {
-  const seen: Seen = { sessions: new Map(), rollCalls: new Map(), shares: new Map() };
+  const seen: Seen = { sessions: new Map(), rollCalls: new Map(), shares: new Map(), courses: new Map() };
   const kinds = new Map<string, string>();
   const ofPupils = new Set<string>();
   const restated = restatements(entries.slice(0, trusted).filter((entry) => entry !== null));
@@ -279,7 +280,8 @@ export function activityLog(entries: readonly (Entry | null)[], trusted: number 
     else if (restated.replaced.has(entry.id)) line = null;
     else if (entry.kind === ERASURE) {
       const ids = erasedIds(entry) ?? [];
-      line = ids.some((id) => ofPupils.has(id)) ? null : erasedLine(ids, kinds);
+      const erased = [...new Set(ids.flatMap((id) => kinds.get(id) ?? []))];
+      line = ids.some((id) => ofPupils.has(id)) ? null : { kind: 'erased', kinds: erased };
     } else {
       const event = eventOf(entry);
       if (event?.kind === 'pupil.erased') for (const id of event.erased.entries) ofPupils.add(id);

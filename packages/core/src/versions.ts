@@ -6,6 +6,7 @@
 
 import type { Day } from './day.ts';
 import type { Entry } from './history.ts';
+import type { PinnedPack } from './records.ts';
 
 /** One version of a record. Corrections add versions, and every version stays (PRD §3.1, rule 4). */
 export interface Version<T> {
@@ -13,6 +14,8 @@ export interface Version<T> {
   readonly day: Day;
   readonly value: T;
   readonly reason?: string;
+  /** A session record's: the pack and release its class was on when it was read in (#322). */
+  readonly pack?: PinnedPack;
 }
 
 /** The version an entry holds, on its own day or, for a restated one, the day of the entry it replaced. */

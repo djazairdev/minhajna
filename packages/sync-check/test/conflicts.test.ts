@@ -6,7 +6,8 @@
 // both, or changes to different records, give none. A pupil's mark or capture
 // is one record per cell, and a class and subject's formula one record per
 // course, and a descriptive observation or an appreciation one per pupil,
-// course and term (#240, #241). Made-up records only.
+// course and term (#240, #241); a class's move to a newer release is a
+// change to its course (#322). Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -124,6 +125,28 @@ test('a formula chosen differently on two devices conflicts for that course only
     ['formula/c-1'],
   );
   assert.deepEqual(findConflicts(mine.slice(0, 1), same), []);
+});
+
+test('a class moved on one device and changed or moved on the other conflicts for that course only', async () => {
+  const course = (release: string): RecordEvent => ({
+    kind: 'course.set',
+    course: { id: 'c-1', classId: 'k-1', subject: 'math', year: '2026-2027', pack: { id: 'p', release } },
+  });
+  const moved = (to: string): RecordEvent => ({ kind: 'course.moved', move: { courseId: 'c-1', from: '2026.1', to } });
+  const [mine, theirs, other] = await Promise.all([
+    recorded(moved('2026.2')),
+    recorded(course('2026.1')),
+    recorded(moved('2027.1')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), ['course/c-1']);
+  assert.deepEqual(
+    findConflicts(mine, theirs).map((conflict) => conflict.key),
+    ['course/c-1'],
+  );
+  assert.deepEqual(
+    findConflicts(mine, other).map((conflict) => conflict.key),
+    ['course/c-1'],
+  );
 });
 
 test('an observation chosen differently on two devices conflicts for that pupil only', async () => {

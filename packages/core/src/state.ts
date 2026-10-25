@@ -36,6 +36,7 @@ import type {
   TeacherCard,
   TeacherPersonal,
 } from './records.ts';
+import { addSession, setCourse } from './course-state.ts';
 import { eventOf } from './events.ts';
 import { erasedPupils } from './erased-pupils.ts';
 import { withMovements, type Membership, type Movement } from './pupil-history.ts';
@@ -118,7 +119,8 @@ export function buildState(entries: readonly Entry[]): State {
         moved.set(event.pupilId, [...(moved.get(event.pupilId) ?? []), { movement: event.movement, order }]);
         break;
       case 'course.set':
-        courses.set(event.course.id, event.course);
+      case 'course.moved':
+        setCourse(courses, event);
         break;
       case 'timetable.set':
         firstTimetable ??= event.version.id;
@@ -149,16 +151,10 @@ export function buildState(entries: readonly Entry[]): State {
       case 'list.set':
         if (freeListFits(event.list)) lists.set(event.list.courseId, event.list);
         break;
-      case 'session.recorded': {
-        const key = event.record.session.key;
-        sessions.set(key, [...(sessions.get(key) ?? []), versionOf(entry, event.record, event.correction)]);
+      case 'session.recorded':
+      case 'session.withdrawn':
+        addSession(sessions, entry, event, courses);
         break;
-      }
-      case 'session.withdrawn': {
-        const key = event.session.key;
-        sessions.set(key, [...(sessions.get(key) ?? []), versionOf<SessionRecord | null>(entry, null)]);
-        break;
-      }
       case 'session.noted':
         notes.set(event.note.sessionKey, event.note);
         break;

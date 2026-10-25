@@ -5,7 +5,8 @@
 // class, the session's day and what changed, a pupil by their number on the
 // class list, never by name; a document by its title and the period its file is
 // named after, or a term by its name (#239); an erasure by the kinds it
-// removed, and a pupil's erasure as one line with nothing of them (#248).
+// removed, and a pupil's erasure as one line with nothing of them (#248); a
+// class moved to a newer release by its name and the release (#322).
 // Names come from the records the line follows, so a class that has gone
 // shows as a dash.
 
@@ -208,6 +209,11 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
       return t('log.pack', { pack: packName(names, line.pack), release: line.release });
     case 'layer-added':
       return t('log.layer', { title: line.title });
+    case 'course-moved':
+      return t('log.moved', {
+        class: className(names, names.state.courses.get(line.courseId)?.classId),
+        release: line.release,
+      });
     case 'erased':
       return t('log.erased', {
         what: list(

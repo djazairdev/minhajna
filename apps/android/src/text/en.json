@@ -2904,6 +2904,7 @@
     "calendar": "Signed calendar update, release {{release}}",
     "pack": "Signed plan: {{pack}}, release {{release}}",
     "layer": "Layer on the plan: {{title}}",
+    "moved": "{{class}} moved to release {{release}}",
     "erased": "Deleted: {{what}}. The fact stays, without its content",
     "pupilErased": "A pupil’s data erased · without its content",
     "unverified": "Changed: {{what}}",

@@ -94,6 +94,11 @@ function place(step: MigrationStep, id: string | null): string | null {
   return null;
 }
 
+/** Where something placed before `id` goes once the migration's steps are taken, as `place` takes one. */
+export function placedBefore(migration: Migration, id: string | null): string | null {
+  return migration.reduce<string | null>((now, step) => place(step, now), id);
+}
+
 type Outcome =
   | { readonly carried: readonly PlanDecision[]; readonly partly?: true }
   | { readonly unclear: MigrationEntry }
