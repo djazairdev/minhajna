@@ -38,7 +38,7 @@ const CSS =
   '.fields th{width:35%}.fields .note{font-size:9pt}' +
   '.privacy{font-size:9pt;margin:3mm 0}' +
   '.sign{border:0.3mm solid #000;padding:3mm;display:flex;gap:4mm;align-items:center}' +
-  '.sign div{flex:1}.sign p{margin:0 0 2mm}.key{font-family:Sans,monospace;font-size:9pt;direction:ltr}' +
+  '.sign div{flex:1}.sign p{margin:0 0 2mm}.key{font-family:Sans,monospace;font-size:9pt}' +
   '.qr{width:60mm;height:60mm;flex:none}a{color:#000;text-decoration:none}';
 
 /** The fingerprint in groups of four, as a reader compares it by eye. */
@@ -75,7 +75,8 @@ function content(t: Translate, sheet: StatementSheet): string {
     `<p class="privacy">${e(t('statement.page.privacy'))}</p>` +
     `<div class="sign"><div><p><a href="${e(statementLink(sheet.text))}">` +
     `<b>${e(t('statement.page.signed'))}</b></a></p>` +
-    `<p>${e(t('statement.page.key'))} <span class="key">${e(groupedFingerprint(sheet.fingerprint))}</span></p>` +
+    `<p>${e(t('statement.page.key'))} ` +
+    `<bdi class="key" dir="ltr">${e(groupedFingerprint(sheet.fingerprint))}</bdi></p>` +
     `${code}</div>${sheet.qr === null ? '' : qrSvg(sheet.qr)}</div>`
   );
 }

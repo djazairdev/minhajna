@@ -153,7 +153,9 @@ test('a print is signed then, with the fingerprint, the legal line, the code and
   await expect(signature.verify(envelope.spki, envelope.payload, envelope.signature)).resolves.toBe(true);
   const [html, title, landscape] = printHtml.mock.calls[0];
   expect([title, landscape]).toEqual([text.statement.title, false]);
-  expect(html).toContain(groupedFingerprint(await teacherKeyFingerprint(envelope.spki)));
+  expect(html).toContain(
+    `<bdi class="key" dir="ltr">${groupedFingerprint(await teacherKeyFingerprint(envelope.spki))}</bdi>`,
+  );
   expect(html).toContain(text.statement.page.signed);
   expect(html).toContain(text.statement.page.code);
   expect(html).toContain('<svg class="qr"');
