@@ -27,6 +27,8 @@ import java.util.concurrent.TimeoutException
  * lives on, and `failed` is told, once, whenever in the page's life it
  * happens. A page not handed on within `LOAD_WAIT` ms is let go the same
  * way. After a reload of the app's JavaScript, a page is let go untold.
+ * The engine would enlarge the text by the phone's text size; a page is
+ * sized in points and millimetres, so its text zoom stays at 100%.
  */
 internal class OffscreenLayout(private val screen: () -> Context) {
   private val main = Handler(Looper.getMainLooper())
@@ -41,6 +43,7 @@ internal class OffscreenLayout(private val screen: () -> Context) {
         blockNetworkLoads = true
         allowFileAccess = false
         allowContentAccess = false
+        textZoom = 100
       }
       Loading(view, failed, then).start(html)
     }

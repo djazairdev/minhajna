@@ -27,6 +27,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 - «تقارير الأعطال» in Help, off until you turn it on: if the app then stops suddenly, it keeps only the error's type, where it happened in the code and the last screens you opened, never what was on them. At the next start you see that report in full and choose «إرسال», through the share menu, or «عدم الإرسال»; either way it is deleted from the phone. Turning the switch off deletes a kept report, and nothing is kept while it is off.
   - «تقارير الأعطال» في «المساعدة» متوقفة حتى تشغّلها: فإن توقف التطبيق فجأة، لا يحفظ إلا نوع العطل وموضعه في الشيفرة وأسماء آخر الشاشات التي فتحتها، دون ما فيها. وفي التشغيل التالي ترى التقرير كاملاً وتختار «إرسال» من قائمة المشاركة أو «عدم الإرسال»، ويُحذف من الهاتف في الحالتين. وإيقافها يحذف التقرير المحفوظ، ولا يُحفظ شيء وهي متوقفة.
 
+### Fixed
+
+- Printed pages and saved PDFs now keep their designed size when the phone's text size is set larger: a one-page document no longer spreads over two pages with its text enlarged.
+  - تحافظ الصفحات المطبوعة وملفات PDF المحفوظة الآن على مقاسها حين يُكبَّر حجم الخط في الهاتف: لم تعد وثيقة من صفحة واحدة تمتد على صفحتين بنص مكبَّر.
+
 ## 0.4.0 (2026-10-23)
 
 The marks preview: continuous assessment from your level's official setup, in-class assessment taps, entering marks for tests and the exam, the grade book and term averages for every level, descriptive observations, appreciations, the term export with the ostad view and its files, corrections after the term, and the class-council pack. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
