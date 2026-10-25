@@ -9,6 +9,7 @@
 import { ITEM_ID, ITEM_KINDS, readActivities, readAnchor, readItem, type PackActivity } from './pack-fields.ts';
 import { hasBidiControl, isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
 import type { LocalizedText, Queue } from './reference.ts';
+import { readMigration, type PackMigration } from './pack-migration.ts';
 import { readName } from './reference-fields.ts';
 
 export { ITEM_KINDS, type PackActivity } from './pack-fields.ts';
@@ -96,6 +97,8 @@ export interface PlanPack {
   readonly activities?: readonly PackActivity[];
   /** A stale pack's reason, such as the decision that changed the subject's hours (#230, answer 382). */
   readonly staleReason?: LocalizedText;
+  /** How its item IDs came from an earlier release (#322, pack-migration.ts). */
+  readonly migration?: PackMigration;
   /** Never in a file: the items a class's changes made and it took back, kept for their titles (#225). */
   readonly retired?: readonly PackItem[];
   /** Never in a file: the skips and joins of the layers the class has on (#226). */
@@ -194,6 +197,7 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
   const activities = readActivities(reader, input['activities'], anchor, items);
   const staleReason = input['staleReason'] === undefined ? undefined : readName(reader, input, '', 'staleReason');
   if (staleReason !== undefined && status !== 'stale') reader.fail('staleReason', 'invalid');
+  const migration = readMigration(reader, input['migration'], release, items);
   if (reader.problems.length > 0 || status === undefined || licence === undefined || anchor === undefined) {
     return { ok: false, problems: reader.problems };
   }
@@ -216,6 +220,7 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
       ...value,
       ...(activities !== undefined && { activities }),
       ...(staleReason !== undefined && { staleReason }),
+      ...(migration !== undefined && { migration }),
     },
   };
 }
