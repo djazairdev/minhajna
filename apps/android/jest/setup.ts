@@ -74,6 +74,11 @@ jest.mock('../src/native/NativeMinhajnaNotify', () => {
   return { __esModule: true, default: fakeNotify.asSpec() };
 });
 
+jest.mock('../src/native/NativeMinhajnaCrash', () => {
+  const { fakeCrash } = jest.requireActual<typeof import('./fake-crash')>('./fake-crash');
+  return { __esModule: true, default: fakeCrash.asSpec() };
+});
+
 jest.mock('../src/native/NativeMinhajnaSignature', () => {
   const { fakeSignature } = jest.requireActual<typeof import('./fake-signature')>('./fake-signature');
   return { __esModule: true, default: fakeSignature };

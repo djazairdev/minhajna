@@ -54,7 +54,9 @@
     "contactMail": "Courriel : contact@djazair.dev",
     "contactGroup": "Le groupe des enseignants sur Facebook : questions, nouvelles et explications ; son lien est donné avec le pilote.",
     "contactSafe": "Sans données réelles d’élèves : le rapport de problème ou la classe de démonstration.",
-    "privacy": "Confidentialité et connexions"
+    "privacy": "Confidentialité et connexions",
+    "crashes": "Rapports de plantage",
+    "crashesLine": "S’ils sont activés et que l’application s’arrête soudain, seuls le type d’erreur, sa place dans le code et les dernières étapes sont gardés, sans aucun contenu, et vous sont montrés au démarrage suivant pour l’envoyer ou non. Rien n’est gardé tant qu’ils sont désactivés."
   },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
   "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
@@ -122,7 +124,8 @@
     "packSource": "L’adresse source d’un pack, dans ses détails, ne s’ouvre qu’après votre accord, et la question nomme le site. Votre navigateur l’ouvre hors de l’application, sans dossier ni identifiant.",
     "errorReport": "Un signalement d’erreur dans le plan est affiché en entier, et ne quitte le téléphone que si vous le partagez et choisissez l’application qui l’envoie. L’application n’y ajoute rien sur vos classes ou vos élèves, ni votre nom sauf si vous le saisissez.",
     "problemReport": "Le rapport de problème est affiché en entier, les noms des élèves, tels que vos listes de classe les écrivent, remplacés, et ne quitte le téléphone que si vous choisissez de le partager et l’application qui l’envoie. Il contient la version, celle d’Android et le nom des derniers écrans ouverts, sans leur contenu.",
-    "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application."
+    "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application.",
+    "crashReport": "Le rapport de plantage, si vous avez activé les rapports de plantage, est affiché en entier au démarrage suivant et ne quitte le téléphone que si vous choisissez « Envoyer » et l’application qui l’envoie. Il contient le type d’erreur, sa place dans le code, la version, celle d’Android et le nom des derniers écrans ouverts, sans le message de l’erreur ni aucun contenu."
   },
   "setup": {
     "title": "Configuration",
@@ -3540,5 +3543,16 @@
     "needsNote": "Écrivez d’abord ce qui s’est passé.",
     "share": "Partager le rapport",
     "offline": "L’application n’envoie rien elle-même et n’en garde aucune copie : le menu de partage de votre téléphone s’ouvre, et vous choisissez."
+  },
+  "crash": {
+    "title": "Rapport de plantage, avant l’envoi",
+    "intro": "L’application s’est arrêtée la dernière fois. Voici tout ce qui en a été gardé.",
+    "heading": "Rapport de plantage dans Minhajna",
+    "lineType": "Erreur : {{type}}",
+    "lineFrames": "Place dans le code : {{frames}}",
+    "deleted": "Le rapport est supprimé du téléphone après « Envoyer » ou « Ne pas envoyer ».",
+    "send": "Envoyer",
+    "dontSend": "Ne pas envoyer",
+    "footer": "Les rapports de plantage sont activés dans « Aide » et peuvent y être désactivés."
   }
 }
