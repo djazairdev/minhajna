@@ -5,6 +5,8 @@
 // The index exports only the public names; the helpers serve the engine.
 
 import { courseDecisions, inherited } from './lineage.ts';
+import { courseMigration } from './migration-carry.ts';
+import type { Migration } from './pack-migration.ts';
 import type { Context } from './context.ts';
 import { stageCount, type PackItem, type PlanPack } from './pack.ts';
 import { findLevel, findSessionType, packKey } from './reference.ts';
@@ -77,6 +79,8 @@ export interface CourseSetup {
   readonly packMissing: boolean;
   /** True when the pinned release is stale: it proposes nothing, and no buffer or delay is counted from it. */
   readonly packStale: boolean;
+  /** How records and changes made on earlier releases are read on this one (#322, migration-carry.ts). */
+  readonly migration: Migration;
   readonly sessionMinutes: number;
 }
 
@@ -88,6 +92,7 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
   const pack = course.pack === null ? null : (ref.packs.get(packKey(course.pack.id, course.pack.release)) ?? null);
   const sessionMinutes = course.sessionMinutes ?? findLevel(ref.country, schoolClass.level).sessionMinutes;
   const list = course.pack === null ? inherited(state, courseId, (id) => state.lists.get(id)) : undefined;
+  const migration = list === undefined ? courseMigration(context, courseId) : [];
   return {
     course,
     schoolClass,
@@ -96,9 +101,17 @@ export function courseSetup(context: Context, courseId: string): CourseSetup {
         ? ownPack(list, course, schoolClass, ref.country)
         : pack === null
           ? null
-          : layered(pack, courseDecisions(state, courseId), courseId, sessionMinutes, courseLayers(state, courseId)),
+          : layered(
+              pack,
+              courseDecisions(context, courseId),
+              courseId,
+              sessionMinutes,
+              courseLayers(state, courseId),
+              migration,
+            ),
     packMissing: course.pack !== null && pack === null,
     packStale: pack?.status === 'stale',
+    migration,
     sessionMinutes,
   };
 }
@@ -116,7 +129,7 @@ export function proposalFor(
     groupId: session.groupId,
     ...(session.activity !== undefined && { activity: session.activity }),
     sessionMinutes: setup.sessionMinutes,
-    merges: mergesOf(setup.pack, courseDecisions(context.state, setup.course.id), setup.course.id),
+    merges: mergesOf(setup.pack, courseDecisions(context, setup.course.id), setup.course.id),
   });
 }
 

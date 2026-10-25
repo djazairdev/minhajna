@@ -17,13 +17,14 @@
 import {
   decisionOf,
   pastWindow,
+  type PlanChoice,
   planChoices,
+  type PlanDecision,
   postponeOf,
+  recordedId,
+  type RecordEvent,
   suggestedChoices,
   withPlanChanges,
-  type PlanChoice,
-  type PlanDecision,
-  type RecordEvent,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
@@ -100,9 +101,10 @@ export function ExamWindow({ courseId, onMakeUp, onLater }: ExamWindowProps) {
     setSaid(null);
     setTicked(null);
   };
-  const takeBack = (decision: PlanDecision) => {
+  const takeBack = (shown: PlanDecision) => {
     if (appliedFrom.current === state) return;
     appliedFrom.current = state;
+    const decision = state.decisions.get(recordedId(shown.id)) ?? shown;
     recordAll([{ kind: 'plan.undecided', id: decision.id }]);
     setSaid({ undo: [{ kind: 'plan.decided', decision }], message: t('examWindow.takenBack') });
     setTicked(null);

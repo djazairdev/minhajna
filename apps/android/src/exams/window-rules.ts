@@ -53,7 +53,7 @@ function stampOf(context: Context, courseId: string, day: Day): string {
     state.calendar,
     sessions,
     [...state.tests.values()].filter((test) => test.courseId === courseId),
-    decisionsFor(courseDecisions(state, courseId), courseId),
+    decisionsFor(courseDecisions(context, courseId), courseId),
   ]);
 }
 
@@ -103,7 +103,7 @@ export function quotedItems(t: Translate, items: readonly PackItem[], comma: str
 /** The items a course postponed past an exam window. */
 export function postponedItems(context: Context, courseId: string): ReadonlySet<string> {
   return new Set(
-    decisionsFor(courseDecisions(context.state, courseId), courseId).flatMap((decision) =>
+    decisionsFor(courseDecisions(context, courseId), courseId).flatMap((decision) =>
       decision.kind === 'postpone' ? decision.items : [],
     ),
   );

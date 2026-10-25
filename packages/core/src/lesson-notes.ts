@@ -20,6 +20,7 @@ import type { Context } from './context.ts';
 import { courseGrade } from './joint.ts';
 import { lineageIds } from './lineage.ts';
 import { budgetInSessions, stageNames } from './pack.ts';
+import { followId, type Migration } from './pack-migration.ts';
 import type { LocalizedText } from './reference.ts';
 import { findPackItem } from './plan-layer.ts';
 import type { State } from './state-type.ts';
@@ -123,9 +124,16 @@ export function noteFor(
   state: Pick<State, 'courses' | 'lessonNotes'>,
   courseId: string,
   itemId: string,
+  migration: Migration = [],
 ): LessonNote | undefined {
   const courses = new Set(lineageIds(state, courseId));
-  return notesOf(state, courseId).find((note) => courses.has(note.courseId) && note.itemId === itemId);
+  const notes = notesOf(state, courseId).filter((note) => courses.has(note.courseId));
+  return notes.find((note) => note.itemId === itemId) ?? notes.find((note) => carriedTo(note, itemId, migration));
+}
+
+/** Whether a note on an item of an earlier release shows on `itemId`: its part, or its merged item (#322). */
+function carriedTo(note: LessonNote, itemId: string, migration: Migration): boolean {
+  return migration.length > 0 && note.itemId !== itemId && followId(migration, note.itemId).includes(itemId);
 }
 
 /** The number a new note of the course takes: one more than the highest of its class this year. */
@@ -141,6 +149,7 @@ export function earlierNote(
   state: Pick<State, 'courses' | 'classes' | 'lessonNotes'>,
   courseId: string,
   itemId: string,
+  migration: Migration = [],
 ): LessonNote | undefined {
   const course = state.courses.get(courseId);
   const schoolClass = course && state.classes.get(course.classId);
@@ -152,7 +161,7 @@ export function earlierNote(
       const other = state.courses.get(note.courseId);
       const room = other && state.classes.get(other.classId);
       return (
-        note.itemId === itemId &&
+        (note.itemId === itemId || carriedTo(note, itemId, migration)) &&
         note.paragraphs.some((one) => one.text.trim() !== '') &&
         other !== undefined &&
         room !== undefined &&

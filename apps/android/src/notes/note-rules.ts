@@ -8,6 +8,7 @@
 // lesson, which «المذكرات» opens.
 
 import {
+  courseMigration,
   addDays,
   courseGrade,
   current,
@@ -119,7 +120,12 @@ export function nextNoted(
     const walk = walks.get(session.courseId) ?? walkCourse(context, session.courseId, to);
     walks.set(session.courseId, walk);
     const itemId = walk.proposals.get(session.key)?.item.id;
-    if (itemId !== undefined) return { session, itemId, note: noteFor(state, session.courseId, itemId) };
+    if (itemId !== undefined)
+      return {
+        session,
+        itemId,
+        note: noteFor(state, session.courseId, itemId, courseMigration(context, session.courseId)),
+      };
   }
   return null;
 }

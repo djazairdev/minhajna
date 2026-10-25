@@ -12,7 +12,7 @@
 // the head and every title over lines. A day with no such session prints a page
 // that says so.
 
-import { courseSetup, noteDraft, noteFor, todayView } from '@minhajna/core';
+import { courseMigration, courseSetup, noteDraft, noteFor, todayView } from '@minhajna/core';
 import { bookSpan } from '../entry/book-lines';
 import { noteBlocks, noteSubject, sessionItem } from '../notes/note-rules';
 import { localized } from '../setup/names';
@@ -55,7 +55,7 @@ function notePages(data: DocumentData, t: Translate, blank: boolean): string[] {
     const courseId = item.session.courseId;
     const draft = itemId === null ? null : noteDraft(context, courseId, itemId);
     if (itemId === null || draft === null) return [];
-    const note = blank ? undefined : noteFor(data.state, courseId, itemId);
+    const note = blank ? undefined : noteFor(data.state, courseId, itemId, courseMigration(context, courseId));
     const { schoolClass, course } = courseSetup(context, courseId);
     const subject = noteSubject(t, data.profile, data.lang, course, schoolClass);
     const school = data.state.schools.get(schoolClass.schoolId);

@@ -14,20 +14,10 @@
 // (#231).
 
 import { stageCount, type PackItem, type PlanPack } from './pack.ts';
+import type { Migration } from './pack-migration.ts';
+import { migratedItems, type GroupProgress, type ItemState } from './progress-migration.ts';
 import type { Queue } from './reference.ts';
 import { wholeGroup, type Coverage, type SchoolClass, type SessionRecord } from './records.ts';
-
-interface GroupProgress {
-  /** The stages covered, numbered from 0. */
-  readonly stages: Set<number>;
-  spent: number;
-}
-
-interface ItemState {
-  skipped: boolean;
-  retaught: number;
-  readonly groups: Map<string, GroupProgress>;
-}
 
 /**
  * How far a course has got in its plan. Coverage is kept per group, because
@@ -38,21 +28,26 @@ export class Progress {
   readonly #whole: string;
   readonly #halves: readonly string[];
   readonly #items = new Map<string, ItemState>();
+  readonly #migration: Migration;
+  #view: Map<string, ItemState> | null = null;
 
-  constructor(whole: string, halves: readonly string[]) {
+  constructor(whole: string, halves: readonly string[], migration: Migration = []) {
     this.#whole = whole;
     this.#halves = halves;
+    this.#migration = migration;
   }
 
-  static of(schoolClass: SchoolClass): Progress {
+  /** A class's progress; with a migration, read on the release it is on (#322, progress-migration.ts). */
+  static of(schoolClass: SchoolClass, migration: Migration = []): Progress {
     return new Progress(
       wholeGroup(schoolClass).id,
       schoolClass.groups.filter((group) => group.kind === 'half').map((group) => group.id),
+      migration,
     );
   }
 
   clone(): Progress {
-    const copy = new Progress(this.#whole, this.#halves);
+    const copy = new Progress(this.#whole, this.#halves, this.#migration);
     for (const [id, state] of this.#items) {
       copy.#items.set(id, {
         skipped: state.skipped,
@@ -101,7 +96,10 @@ export class Progress {
    * class's, or, for the class, those that every half-group has had.
    */
   coveredStages(itemId: string, groupId: string): number[] {
-    const item = this.#items.get(itemId);
+    return this.#stagesOf(this.#state(itemId), groupId);
+  }
+
+  #stagesOf(item: ItemState | undefined, groupId: string): number[] {
     if (item === undefined) return [];
     const stages = new Set(item.groups.get(this.#whole)?.stages);
     if (groupId !== this.#whole) {
@@ -128,7 +126,10 @@ export class Progress {
 
   /** Sessions spent teaching an item by a group, counting the whole class's sessions. */
   spent(itemId: string, groupId: string): number {
-    const item = this.#items.get(itemId);
+    return this.#spentOf(this.#state(itemId), groupId);
+  }
+
+  #spentOf(item: ItemState | undefined, groupId: string): number {
     if (item === undefined) return 0;
     const whole = item.groups.get(this.#whole)?.spent ?? 0;
     if (groupId !== this.#whole) return whole + (item.groups.get(groupId)?.spent ?? 0);
@@ -143,11 +144,11 @@ export class Progress {
   }
 
   skipped(itemId: string): boolean {
-    return this.#items.get(itemId)?.skipped ?? false;
+    return this.#state(itemId)?.skipped ?? false;
   }
 
   retaught(itemId: string): number {
-    return this.#items.get(itemId)?.retaught ?? 0;
+    return this.#state(itemId)?.retaught ?? 0;
   }
 
   /** Skipped, or with every stage covered. */
@@ -158,20 +159,34 @@ export class Progress {
   /**
    * Takes the progress of a class whose history this class continues as its
    * own whole-class progress: what that class had as a whole, its halves
-   * together included (#231).
+   * together included (#231), under the IDs its sessions recorded, which
+   * this class then reads on its own release (#322).
    */
   inherit(other: Progress): void {
     for (const [id, theirs] of other.#items) {
       const item = this.#item(id);
       const group = this.#group(item, this.#whole);
-      for (const stage of other.coveredStages(id, other.#whole)) group.stages.add(stage);
-      group.spent += other.spent(id, other.#whole);
+      for (const stage of other.#stagesOf(theirs, other.#whole)) group.stages.add(stage);
+      group.spent += other.#spentOf(theirs, other.#whole);
       item.skipped ||= theirs.skipped;
       item.retaught += theirs.retaught;
     }
   }
 
+  /** An item's progress as read on the class's release, the IDs it was recorded under carried to it. */
+  #state(id: string): ItemState | undefined {
+    if (this.#migration.length === 0) return this.#items.get(id);
+    this.#view ??= migratedItems(
+      this.#items,
+      this.#migration,
+      (state, group) => this.#stagesOf(state, group).length,
+      this.#whole,
+    );
+    return this.#view.get(id);
+  }
+
   #item(id: string): ItemState {
+    this.#view = null;
     let item = this.#items.get(id);
     if (item === undefined) {
       item = { skipped: false, retaught: 0, groups: new Map() };

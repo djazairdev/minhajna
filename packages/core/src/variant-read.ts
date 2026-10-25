@@ -180,7 +180,7 @@ export interface LayerAbout {
  */
 export function layerFromChanges(context: Context, courseId: string, about: LayerAbout): PlanLayer {
   const pack = context.state.courses.get(courseId)?.pack?.id;
-  const changes = changesFor(courseDecisions(context.state, courseId), courseId);
+  const changes = changesFor(courseDecisions(context, courseId), courseId);
   if (pack === undefined || changes.length === 0)
     throw new RangeError('A layer needs a class with changes to its pack');
   const level: LayerLevel = 'school';

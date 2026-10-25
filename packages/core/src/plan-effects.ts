@@ -26,7 +26,7 @@ export function changeEffects(context: Context, courseId: string): ReadonlyMap<s
   const pin = course.pack;
   const pack = pin === null ? undefined : context.ref.packs.get(packKey(pin.id, pin.release));
   if (pack === undefined) return effects;
-  const own = courseDecisions(context.state, courseId);
+  const own = courseDecisions(context, courseId);
   const others = [...own].filter(([, one]) => !isChange(one) || one.courseId !== courseId);
   const changes = changesFor(own, courseId);
   const total = (count: number): number => {

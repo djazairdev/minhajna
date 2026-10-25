@@ -10,7 +10,7 @@
 // pack's release, which every fix still reaches.
 
 import {
-  courseDecisions,
+  recordedDecisions,
   courseSetup,
   formatDay,
   nextSeq,
@@ -70,7 +70,7 @@ export function PlanChanges({ courseId, onCourse }: PlanChangesProps) {
         text: t('planChanges.undoGo'),
         onPress: () => {
           try {
-            const seq = nextSeq(courseDecisions(context.state, courseId), courseId);
+            const seq = nextSeq(recordedDecisions(context.state, courseId), courseId);
             record(recordChange(context, { id: newId(), courseId, day, seq, kind: 'undo', change: id }));
           } catch {
             Alert.alert(t('planChanges.title'), t('planItem.refused'));

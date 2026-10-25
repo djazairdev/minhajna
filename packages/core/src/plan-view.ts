@@ -6,7 +6,8 @@
 // item if nothing changes. Where the plan says the class should be is
 // worked out apart and marked only as a reference: it never moves the class
 // and is never a judgement (PRD §3.1, rule 8). Progress belongs to the
-// class, the subject and the year (PRD §2.3).
+// class, the subject and the year (PRD §2.3). A day taught on an older
+// release shows on the items that took the old item's place (#322).
 
 import { ancestors } from './lineage.ts';
 import { courseSetup } from './choices.ts';
@@ -14,6 +15,7 @@ import type { Context } from './context.ts';
 import { compareDays, type Day } from './day.ts';
 import { walkCourse } from './engine.ts';
 import { budgetInSessions, queueItems, stageCount, type PackItem, type PlanPack } from './pack.ts';
+import { followId } from './pack-migration.ts';
 import { pace } from './pacing.ts';
 import { compareSessions, sessionsBetween } from './sessions.ts';
 import { current } from './state.ts';
@@ -68,12 +70,14 @@ export function planView(context: Context, courseId: string, today: Day): PlanVi
     if (compareDays(record.session.day, today) > 0) continue;
     for (const cover of record.coverage) {
       if (cover.op === 'skipped') continue;
-      const known = taught.get(cover.item);
-      const day = record.session.day;
-      taught.set(cover.item, {
-        from: known === undefined || compareDays(day, known.from) < 0 ? day : known.from,
-        to: known === undefined || compareDays(day, known.to) > 0 ? day : known.to,
-      });
+      for (const id of followId(setup.migration, cover.item)) {
+        const known = taught.get(id);
+        const day = record.session.day;
+        taught.set(id, {
+          from: known === undefined || compareDays(day, known.from) < 0 ? day : known.from,
+          to: known === undefined || compareDays(day, known.to) > 0 ? day : known.to,
+        });
+      }
     }
   }
 

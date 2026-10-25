@@ -23,6 +23,7 @@ import {
   makeUpsDue,
   openCatchUps,
   pace,
+  recordedId,
   removeRepace,
   restoreCatchUp,
   termCheck,
@@ -98,11 +99,13 @@ export function CatchUp({ courseId, onAdd, onSupport, onRepace }: CatchUpProps) 
       message: t('catchUp.confirmed'),
     });
   };
-  const takeBack = (decision: PlanDecision) =>
+  const takeBack = (shown: PlanDecision) => {
+    const decision = state.decisions.get(recordedId(shown.id)) ?? shown;
     once([{ kind: 'plan.undecided', id: decision.id }], {
       undo: () => [{ kind: 'plan.decided', decision }],
       message: t('examWindow.takenBack'),
     });
+  };
   const takeBackRepace = (repace: Repace) => {
     let events: RecordEvent[];
     try {

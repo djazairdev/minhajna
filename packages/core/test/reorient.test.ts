@@ -80,7 +80,7 @@ describe('reorientation', () => {
     const next = [...walked.proposals.values()].find((one) => one !== null);
     const old = [...walkCourse(before, 'c-math', d('2026-10-12')).proposals.values()].find((one) => one !== null);
     assert.equal(next?.item.id, old?.item.id);
-    assert.equal(courseDecisions(context.state, math.id).get('x-skip')?.courseId, math.id);
+    assert.equal(courseDecisions(context, math.id).get('x-skip')?.courseId, math.id);
     assert.equal(walked.progress.skipped('l7'), true);
 
     const all = sessionsBetween(context, d('2026-09-20'), d('2026-10-20'));
@@ -149,7 +149,7 @@ describe('reorientation', () => {
     );
     assert.equal(repaceShift(context.state, math.id, day).gap, 2);
 
-    const seq = nextSeq(courseDecisions(context.state, math.id), math.id);
+    const seq = nextSeq(courseDecisions(context, math.id), math.id);
     assert.equal(seq, 2);
     const change = { id: 'x-budget', courseId: math.id, kind: 'budget' as const, item: 'l6', sessions: 3 };
     assert.throws(() => recordChange(context, { ...change, seq: 1 }), /out of order/);

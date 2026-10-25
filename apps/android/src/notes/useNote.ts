@@ -8,6 +8,7 @@
 // change, so two quick taps never make two notes or lose one.
 
 import {
+  courseMigration,
   courseSetup,
   earlierNote,
   nextNoteNumber,
@@ -63,10 +64,11 @@ export function useNote(sessionKey: string, day: Day): NoteSession | null {
     const { schoolClass, course } = courseSetup(context, courseId);
     const school = state.schools.get(schoolClass.schoolId);
     const time = sessionTime({ bells, calendar, state }, school, item.session.slot, day);
-    const note = noteFor(state, courseId, itemId);
+    const migration = courseMigration(context, courseId);
+    const note = noteFor(state, courseId, itemId, migration);
     const keep = (change: (one: LessonNote) => LessonNote) =>
       recordFrom((newest) => {
-        const base = noteFor(newest, courseId, itemId) ?? {
+        const base = noteFor(newest, courseId, itemId, migration) ?? {
           id: `note-${newId()}`,
           courseId,
           itemId,
@@ -89,7 +91,7 @@ export function useNote(sessionKey: string, day: Day): NoteSession | null {
       ]
         .filter(Boolean)
         .join(' · '),
-      earlier: earlierNote(state, courseId, itemId),
+      earlier: earlierNote(state, courseId, itemId, migration),
       keep,
     };
   }, [context, day, sessionKey, state, bells, calendar, profile, t, direction, recordFrom, newId]);

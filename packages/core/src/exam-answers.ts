@@ -70,7 +70,7 @@ export function planChoices(context: Context, warning: Pick<PastWindow, 'courseI
     item !== undefined && item.buffer !== true && !progress.isFinished(pack, item, whole);
   const due = (item: PackItem): boolean => item.term !== undefined && item.term <= warning.term;
   const leftOut = new Set(
-    decisionsFor(courseDecisions(context.state, warning.courseId), warning.courseId).flatMap((decision) =>
+    decisionsFor(courseDecisions(context, warning.courseId), warning.courseId).flatMap((decision) =>
       decision.kind === 'leave-out' ? [decision.item] : [],
     ),
   );
@@ -83,7 +83,7 @@ export function planChoices(context: Context, warning: Pick<PastWindow, 'courseI
     if (
       open(next) &&
       !leftOut.has(next.id) &&
-      mayMerge(pack, courseDecisions(context.state, warning.courseId), warning.courseId, [item.id, next.id])
+      mayMerge(pack, courseDecisions(context, warning.courseId), warning.courseId, [item.id, next.id])
     ) {
       choices.push({ kind: 'merge', items: [item, next] });
     }

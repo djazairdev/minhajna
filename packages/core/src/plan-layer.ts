@@ -30,6 +30,8 @@
 
 import type { Day } from './day.ts';
 import { budgetInSessions, queueItems, stageNames, type PackItem, type PlanPack, type StageTemplate } from './pack.ts';
+import { carryDecisions } from './migration-carry.ts';
+import type { Migration } from './pack-migration.ts';
 import type { PlanDecision } from './plan-decisions.ts';
 import { layerChanges, layerKey, NO_LAYERS, type CourseLayers } from './variant-layers.ts';
 
@@ -103,15 +105,21 @@ export function layered(
   courseId: string,
   sessionMinutes: number,
   layers: CourseLayers = NO_LAYERS,
+  migration: Migration = [],
 ): PlanPack {
   const byPack = memo.get(decisions) ?? new WeakMap<PlanPack, Map<string, PlanPack>>();
   memo.set(decisions, byPack);
   const byCourse = byPack.get(pack) ?? new Map<string, PlanPack>();
   byPack.set(pack, byCourse);
-  const key = [courseId, sessionMinutes, ...[layers.on, layers.known].map((list) => list.map(layerKey).join(' '))];
+  const key = [
+    courseId,
+    sessionMinutes,
+    ...[layers.on, layers.known].map((list) => list.map(layerKey).join(' ')),
+    migration.map((step) => step.after.release).join(' '),
+  ];
   const known = byCourse.get(key.join('\n'));
   if (known !== undefined) return known;
-  const result = apply(pack, decisions, courseId, sessionMinutes, layers);
+  const result = apply(pack, decisions, courseId, sessionMinutes, layers, migration);
   byCourse.set(key.join('\n'), result);
   return result;
 }
@@ -122,8 +130,11 @@ function apply(
   courseId: string,
   sessionMinutes: number,
   layers: CourseLayers,
+  migration: Migration,
 ): PlanPack {
   const own = madeFor(decisions, courseId);
+  const carried = (layer: CourseLayers['on'][number]) =>
+    carryDecisions(layerChanges(layer, courseId), migration).decisions;
   if (own.length === 0 && layers.known.length === 0) return pack;
   const answered = new Set(
     [...decisions.values()].flatMap((one) =>
@@ -131,9 +142,9 @@ function apply(
     ),
   );
   const fromLayers = layers.on
-    .flatMap((layer) => layerChanges(layer, courseId))
+    .flatMap(carried)
     .filter((change) => change.kind !== 'split' || !answered.has(change.item));
-  const made = [...layers.known.flatMap((layer) => layerChanges(layer, courseId)), ...own];
+  const made = [...layers.known.flatMap(carried), ...own];
   const changes = [...fromLayers, ...changesFor(decisions, courseId)];
   const layerSkips: string[] = [];
   const layerJoins: [string, string][] = [];

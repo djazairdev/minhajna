@@ -162,7 +162,7 @@ export function PlanHeader(props: PlanHeaderProps) {
 /** How many of the class's own changes are in force, or that it follows the pack as it is. */
 export function changeCount(t: ReturnType<typeof useText>, context: Context, courseId: string): string {
   const course = context.state.courses.get(courseId);
-  const count = changesFor(courseDecisions(context.state, courseId), courseId).length;
+  const count = changesFor(courseDecisions(context, courseId), courseId).length;
   const name = isolate(context.state.classes.get(course?.classId ?? '')?.name ?? '');
   return count === 0 ? t('planChanges.none', { class: name }) : t('planChanges.count', { count });
 }

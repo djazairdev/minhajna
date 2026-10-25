@@ -4,6 +4,7 @@
 import { recordOf, type CourseSetup } from './choices.ts';
 import type { Context } from './context.ts';
 import type { Day } from './day.ts';
+import { carriedId } from './pack-migration.ts';
 import { Progress, proposedCoverage, type Proposal } from './progress.ts';
 import type { Session } from './sessions.ts';
 import { current } from './state.ts';
@@ -16,8 +17,8 @@ export function rotationProgress(
   proposals: ReadonlyMap<string, Proposal | null>,
   today: Day,
 ) {
-  const actual = Progress.of(setup.schoolClass);
-  const chain = Progress.of(setup.schoolClass);
+  const actual = Progress.of(setup.schoolClass, setup.migration);
+  const chain = Progress.of(setup.schoolClass, setup.migration);
   const completed = new Map<string, Day>();
   const projected = new Map<string, Day>();
   const groups = new Map<string, Set<string>>();
@@ -36,7 +37,8 @@ export function rotationProgress(
     const recorded = saved !== null && session.day <= today;
     if (recorded) actual.apply(record);
     for (const coverage of record.coverage) {
-      const item = setup.pack?.items.find((one) => one.id === coverage.item);
+      const id = carriedId(setup.migration, coverage.item);
+      const item = setup.pack?.items.find((one) => one.id === id);
       if (item === undefined || setup.pack === null || coverage.op !== 'taught') continue;
       if (session.rotation !== undefined) rotatingItems.add(item.id);
       if (!projected.has(item.id) && chain.isFinished(setup.pack, item, whole)) projected.set(item.id, session.day);
