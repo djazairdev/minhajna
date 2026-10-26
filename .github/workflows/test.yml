@@ -55,6 +55,12 @@ jobs:
         working-directory: apps/android
         run: npm ci --no-audit
 
+      # The PC web app has its own lockfile too (#250); the linter checks its
+      # build scripts with esbuild's types. Its .npmrc stops install scripts.
+      - name: Install the web app's locked dependencies
+        working-directory: apps/web
+        run: npm ci --no-audit
+
       # The build and the linter run once the project has those scripts.
       - name: Build
         run: npm run build --if-present
@@ -67,3 +73,8 @@ jobs:
 
       - name: Test
         run: npm test
+
+      # The web app's tests build its bundle twice and check it.
+      - name: Type check and test the web app
+        working-directory: apps/web
+        run: npm run typecheck && npm test
