@@ -3,8 +3,8 @@
 
 // The pilot's devices and backups (#247, answer 478), from a made-up class: the
 // recovery key kept on the phone and never in an archive, a new sheet's earlier
-// keys, the last backup and the first change, the reminder's day, and the log's
-// lines.
+// keys, the last backup, the changes since it and the first change, the
+// reminder's day, and the log's lines.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -40,6 +40,7 @@ describe('the devices and backups', () => {
       recovery: null,
       earlierKeys: [],
       lastBackup: null,
+      sinceBackup: book.entries.length,
       firstChange: book.entries[0]!.day,
     });
     assert.equal(deviceFacts([]).firstChange, null);
@@ -55,6 +56,10 @@ describe('the devices and backups', () => {
     const facts = deviceFacts(book.entries);
     assert.deepEqual(facts.recovery, { key: KEY, day: d('2026-10-20') });
     assert.equal(facts.lastBackup, d('2026-10-22'));
+    assert.equal(facts.sinceBackup, 0);
+    await book.record(d('2026-10-23'), { kind: 'recovery.set', recovery: { key: NEXT } });
+    await book.record(d('2026-10-23'), { kind: 'recovery.set', recovery: { key: KEY } });
+    assert.equal(deviceFacts(book.entries).sinceBackup, 2);
     const archive = archiveOf(book.entries, book.state, options);
     assert.equal(archiveText(archive).includes(KEY), false);
     const device = book.entries.filter((entry) => entry.layer === 'device').map((entry) => entry.id);

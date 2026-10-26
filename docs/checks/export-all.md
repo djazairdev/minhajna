@@ -121,6 +121,25 @@ The books' line for an erased pupil and erasing the phone follow.
 | Instrumented test (`DeviceEraseTest.kt`), on my Android 15 emulator | Pass. It sets up a history with its key in the Keystore, a reminder set ahead, files in each folder, a database, the interface language and another setting. After the erasure: the history was closed, the Keystore holds no key of the app, the folders are empty but kept, no reminder is planned, and no setting is left but React Native's direction, right to left. `StorageTest` and `LockTest` still pass (27 tests). |
 | Android emulator, part 5's release build signed with the debug key, over part 4c's data, on Saturday 24 October | Pass.<br>• **Settings:** «البيانات» ended with «مسح هذا الجهاز · يُمسح كل شيء من هذا الهاتف، ولا رجوع فيه».<br>• **The screen:** «قسم واحد، و43 تلميذاً», the four other lines, «لا شيء بعد: لا جهاز آخر ولا نسخة احتياطية…», «65 تغييراً لم تصل إلى جهاز آخر ولا إلى نسخة، فتضيع بالمسح.», «تصدير كل البيانات أولاً» and the tick. «مسح كل شيء» did nothing before the tick.<br>• **After the tick and «مسح كل شيء»:** the app started again on the welcome screen, in Arabic. A cold start after force-stopping it opened there too, with no PIN asked.<br>• **Reminders:** Android's alarm list showed the app's planned reminders removed at that moment, as «alarm_cancelled». |
 
+### After backups (#482, 26 October)
+
+0.5.0 shipped the screen as above, which said that nothing was kept elsewhere even after a backup. [#482](https://github.com/djazairdev/minhajna/issues/482) fixes this:
+- **«ما يبقى خارجه»** names the last backup and its day, and the files saved elsewhere, which the erasure does not touch. It adds that no backup holds the personal fields or the drawn signature, so they go with the erasure.
+- **«لا شيء بعد…»** shows only when no backup was ever saved.
+- **The lost line** counts only the changes recorded since the last backup, with its day. With none since, it says that every change is in that backup.
+  - **Why count, not a sentence:** a count is what the screen gave before, and the history knows exactly which entries came after the backup.
+- **Before any backup**, every change is still counted, as before.
+
+| Check | Result |
+|---|---|
+| Core tests (`devices.test.ts`) | Pass. They cover every change counted with no backup, none after a backup, and two counted after it. |
+| Android tests (`erase-device.test.tsx`, 7 tests) | Pass. New:<br>• a backup with two changes after it, in Arabic, with its day, what it leaves out, the two counted, and no «لا شيء بعد»;<br>• a backup with none after it;<br>• no backup, a backup, and changes after it, in French and English. |
+
+Left for later:
+- **After a restore** the history does not yet know the file it came from, so the screen says there is no backup and counts every change as lost; the devices page has the same gap. This errs on the safe side and is [#485](https://github.com/djazairdev/minhajna/issues/485).
+- **A direct transfer** with no backup still says «لا جهاز آخر»: a transfer records only that the file was sent, and the app cannot know that the new phone opened it.
+- **French weekdays** read «le Mardi 20 octobre», as elsewhere in the app, in [#486](https://github.com/djazairdev/minhajna/issues/486).
+
 Still to check, on [#206](https://github.com/djazairdev/minhajna/issues/206):
 - the screen with TalkBack in Arabic;
 - a phone in French and English, with text at 200%;
