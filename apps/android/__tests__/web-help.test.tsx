@@ -7,8 +7,9 @@
 // when the browser refused; the crash report is deleted once shared or copied,
 // kept when it was not or its menu was closed, and the sheet says which; while
 // the menu is open, both screens wait and send once; the demo-class timings,
-// the real-names line and a refused checksum name this PC; and every new text
-// is in French and English. Made-up records.
+// the real-names line and a refused checksum name this PC; the privacy notice
+// and its connections page speak of this PC's browser and its host (#483); and
+// every new text is in French and English. Made-up records.
 
 import { Platform, Share } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
@@ -19,7 +20,11 @@ import { withPupils } from '../jest/roll-class';
 import { CrashSheet } from '../src/help/CrashSheet';
 import { clearOffer } from '../src/help/crash-report';
 import { ProblemReport } from '../src/help/ProblemReport';
+import { Connections, PrivacyNotice } from '../src/help/PrivacyNotice';
 import { useDeviceText } from '../src/text/device-text';
+import calendarAr from '../src/calendar/text/ar.json';
+import calendarEn from '../src/calendar/text/en.json';
+import calendarFr from '../src/calendar/text/fr.json';
 import text from '../src/text/ar.json';
 import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
@@ -183,6 +188,31 @@ test('the timings, the real-names lines and a refused checksum name this PC', as
   ]);
 });
 
+test('the privacy notice and its connections page speak of this PC', async () => {
+  await mount(await withPupils(), <PrivacyNotice onConnections={() => undefined} />);
+  const notice = text.privacy.pc;
+  expect(texts()).toEqual(
+    expect.arrayContaining([notice.phoneTitle, notice.phoneText, notice.leaveText, notice.publisherText]),
+  );
+  expect(texts()).toEqual(expect.arrayContaining([text.privacy.leaveTitle, text.privacy.trackingText]));
+  expect(texts()).not.toContain(text.privacy.phoneText);
+  expect(texts()).toContain(calendarAr.receive.pc.privacy);
+  expect(texts()).not.toContain(calendarAr.receive.privacy);
+  await unmount();
+  await mount(await withPupils(), <Connections />);
+  const links = text.connections.pc;
+  expect(texts()).toEqual(
+    expect.arrayContaining([
+      links.none,
+      links.errorReport,
+      links.problemReport,
+      links.crashReport,
+      text.connections.source,
+    ]),
+  );
+  expect(texts()).not.toContain(text.connections.none);
+});
+
 test('every new text is in French and English', () => {
   const pairs = [
     [text.report.pc, fr.report.pc, en.report.pc],
@@ -190,6 +220,9 @@ test('every new text is in French and English', () => {
     [text.help.pc, fr.help.pc, en.help.pc],
     [text.preview.pc, fr.preview.pc, en.preview.pc],
     [text.realNames.pc, fr.realNames.pc, en.realNames.pc],
+    [text.privacy.pc, fr.privacy.pc, en.privacy.pc],
+    [text.connections.pc, fr.connections.pc, en.connections.pc],
+    [calendarAr.receive.pc, calendarFr.receive.pc, calendarEn.receive.pc],
   ] as const;
   for (const [ar, ...others] of pairs) {
     for (const other of others) {

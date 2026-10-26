@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### Privacy
+
+- The privacy notice before first use and in «المساعدة والخصوصية» now says that nothing leaves unless you send or save it, and that crash reports stay off unless you turn them on, as 0.5.0 made them. On a PC, it and «ما يتصل به التطبيق، ولماذا» now speak of this PC: what stays in the browser, and what Cloudflare sees when it serves the app.
+  - يقول إشعار الخصوصية، قبل أول استعمال وفي «المساعدة والخصوصية»، إنه لا يغادر شيء إلا ما ترسله أو تحفظه، وإن تقارير الأعطال تبقى متوقفة حتى تشغّلها، كما صارت في 0.5.0. وعلى الحاسوب، يتحدث هو و«ما يتصل به التطبيق، ولماذا» الآن عن هذا الحاسوب: ما يبقى في المتصفح، وما يراه Cloudflare حين يقدّم التطبيق.
+
 ## 0.6.1 (2026-10-29)
 
 A small release for the PC web app, which now opens at https://minhajna.djazair.dev, served by Cloudflare. The project keeps no access logs. Nothing changes on the phone. The app is still for trying with made-up pupils only.

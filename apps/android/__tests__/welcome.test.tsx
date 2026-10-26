@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The welcome and the privacy notice before first use (#24), and the notice
-// and the connections page again from Help.
+// and the connections page again from Help; the notice names Help as its
+// screen is titled, where crash reports are turned on (#479).
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { BackHandler, Image, Text, TextInput } from 'react-native';
@@ -174,6 +175,12 @@ test('shows every part of the notice, with the contact still a placeholder', asy
     ]),
   );
   for (const key of keys) expect(tree.root.findAllByProps({ testID: `privacy-${key}` })).not.toEqual([]);
+});
+
+test('names Help in the notice as its screen is titled, in every language', () => {
+  for (const catalogue of Object.values(catalogues)) {
+    expect(catalogue.privacy.trackingText).toContain(catalogue.help.title);
+  }
 });
 
 test('offers the notice and the connections from Help, without the first-use button', async () => {

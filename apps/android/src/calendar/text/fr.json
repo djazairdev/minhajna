@@ -206,7 +206,8 @@
       }
     },
     "pc": {
-      "notice": "Recevez un avis de fermeture de l’établissement ou d’un collègue sous forme de fichier, lu sur ce PC sans réseau. Vérifiez sa source et l’établissement avant l’ajout ; l’identité de l’expéditeur n’est pas authentifiée."
+      "notice": "Recevez un avis de fermeture de l’établissement ou d’un collègue sous forme de fichier, lu sur ce PC sans réseau. Vérifiez sa source et l’établissement avant l’ajout ; l’identité de l’expéditeur n’est pas authentifiée.",
+      "privacy": "Ce PC n’utilise aucune caméra. Un fichier s’ouvre par la fenêtre de fichiers du navigateur, qui ne donne à l’application aucun accès à vos autres fichiers."
     }
   },
   "update": {
