@@ -2136,6 +2136,43 @@
       "next": "Choisissez un nouveau code à 4 chiffres",
       "confirm": "Tapez le code pour activer l'empreinte ou le visage",
       "biometricFailed": "Non activé : le téléphone n'a confirmé ni empreinte ni visage."
+    },
+    "web": {
+      "offline": "Fonctionne sans internet une fois ouvert ici.",
+      "title": "Ouvrir Minhajna sur ce PC",
+      "passphrase": "Phrase de passe",
+      "repeat": "Retapez la phrase de passe",
+      "open": "Ouvrir",
+      "back": "Retour",
+      "wrong": "Phrase de passe incorrecte.",
+      "waitWhy": "Chaque phrase de passe incorrecte allonge l’attente, jusqu’à une heure. Personne ne peut lever le verrou, pas même le projet Minhajna.",
+      "noSpace": "Le stockage de ce PC est plein : la phrase de passe n’est pas essayée. Libérez de l’espace, puis réessayez.",
+      "mismatch": "Les deux phrases de passe diffèrent.",
+      "long": "Cette phrase de passe est trop longue ; choisissez-en une plus courte.",
+      "kept": "Les données restent dans ce seul navigateur, chiffrées avec la phrase de passe.",
+      "forgot": "Phrase de passe oubliée ?",
+      "forgotLine": "Personne ne peut la retrouver, pas même le projet Minhajna. Il faut alors effacer ce PC : ce qui n’était gardé qu’ici est perdu, et le reste revient depuis votre téléphone.",
+      "short_one": "La phrase de passe doit compter au moins {{count}} caractère.",
+      "short_many": "La phrase de passe doit compter au moins {{count}} caractères.",
+      "short_other": "La phrase de passe doit compter au moins {{count}} caractères.",
+      "locks_one": "Se verrouille après {{count}} minute sans utilisation.",
+      "locks_many": "Se verrouille après {{count}} minutes sans utilisation.",
+      "locks_other": "Se verrouille après {{count}} minutes sans utilisation.",
+      "create": {
+        "title": "Choisissez une phrase de passe pour ce PC",
+        "submit": "Continuer",
+        "failed": "La phrase de passe n’a pas été enregistrée. Vérifiez qu’il reste de l’espace sur ce PC, puis choisissez-la à nouveau.",
+        "line_one": "Au moins {{count}} caractère ; quelques mots que vous seul connaissez font une bonne phrase. Personne ne peut la retrouver, pas même le projet Minhajna.",
+        "line_many": "Au moins {{count}} caractères ; quelques mots que vous seul connaissez font une bonne phrase. Personne ne peut la retrouver, pas même le projet Minhajna.",
+        "line_other": "Au moins {{count}} caractères ; quelques mots que vous seul connaissez font une bonne phrase. Personne ne peut la retrouver, pas même le projet Minhajna.",
+        "notSaved": "La phrase de passe n’a pas été enregistrée. Choisissez-la à nouveau."
+      },
+      "change": {
+        "title": "Changer la phrase de passe",
+        "current": "Phrase de passe actuelle",
+        "next": "Nouvelle phrase de passe",
+        "submit": "Changer"
+      }
     }
   },
   "security": {
@@ -2164,7 +2201,16 @@
     "pinChanged": "Le code est changé.",
     "biometricOn": "L'application s'ouvre maintenant aussi avec l'empreinte ou le visage.",
     "biometricOff": "L'application s'ouvre maintenant avec le code seul.",
-    "failed": "Le changement n'a pas été enregistré. Réessayez."
+    "failed": "Le changement n'a pas été enregistré. Réessayez.",
+    "web": {
+      "subtitle": "Sur ce PC",
+      "open": "Avec la phrase de passe, à chaque fois. Un PC n’a pas d’invite d’empreinte.",
+      "change": "Changer la phrase de passe",
+      "changed": "La phrase de passe est changée.",
+      "fixedEncrypted": "L’historique est chiffré dans ce navigateur et ne s’ouvre qu’avec la phrase de passe",
+      "fixedKey": "Sa clé reste en mémoire seulement tant que l’application est ouverte, et s’oublie au verrouillage",
+      "fixedServer": "Rien n’est envoyé à un serveur : l’application fonctionne dans ce seul navigateur"
+    }
   },
   "extra": {
     "title": "Séance hors emploi du temps",

@@ -6,11 +6,13 @@
 // with pupils' records, and what is fixed and cannot be switched off
 // (PRD §6.4). The fingerprint or face shows only where the phone can match
 // a strong one. Each choice is kept the moment it is made. The activity log
-// the design links to comes with its own issue.
+// the design links to comes with its own issue. On a PC (#250) the app opens
+// with the passphrase, a browser cannot block screenshots, and the fixed
+// protections are the PC's own.
 
 import { useFocusEffect, useLocale } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { Facts } from '../components/Facts';
@@ -48,6 +50,10 @@ const SAID = {
 } as const;
 
 const FIXED = ['fixedDatabase', 'fixedNotifications', 'fixedBackup', 'fixedPermissions'] as const;
+
+/** A PC opens with its passphrase, keeps its history in the browser, and cannot block screenshots (#250). */
+const WEB = Platform.OS === 'web';
+const WEB_FIXED = ['web.fixedEncrypted', 'web.fixedKey', 'web.fixedServer'] as const;
 
 /** The lock's choices on this phone, and the protections that stay on. */
 export function Security({ storage, done, doneAt, onChangePin, onTurnOnPhone }: SecurityProps) {
@@ -121,7 +127,7 @@ export function Security({ storage, done, doneAt, onChangePin, onTurnOnPhone }: 
         <Notice
           testID="security-said"
           icon={controlIcon(said === 'failed' ? 'info' : 'check')}
-          message={t(SAID[said])}
+          message={t(WEB && said === 'pin' ? 'security.web.changed' : SAID[said])}
         />
       )}
       {status !== null && (status.biometricAvailable || status.biometric) ? (
@@ -139,10 +145,17 @@ export function Security({ storage, done, doneAt, onChangePin, onTurnOnPhone }: 
       ) : (
         <View style={styles.group}>
           <Text style={[styles.label, align]}>{t('security.open')}</Text>
-          {status !== null && <Text style={[styles.body, align]}>{t('security.noBiometric')}</Text>}
+          {status !== null && (
+            <Text style={[styles.body, align]}>{t(WEB ? 'security.web.open' : 'security.noBiometric')}</Text>
+          )}
         </View>
       )}
-      <Button testID="security-change-pin" variant="line" label={t('security.changePin')} onPress={onChangePin} />
+      <Button
+        testID="security-change-pin"
+        variant="line"
+        label={t(WEB ? 'security.web.change' : 'security.changePin')}
+        onPress={onChangePin}
+      />
       <SegmentedControl
         testID="security-delay"
         label={t('security.delay')}
@@ -156,15 +169,17 @@ export function Security({ storage, done, doneAt, onChangePin, onTurnOnPhone }: 
           { value: '15', label: t('security.minutes', { count: 15 }) },
         ]}
       />
-      <Switch
-        testID="security-screenshots"
-        label={t('security.screenshots')}
-        description={t('security.screenshotsLine')}
-        value={settings.screenshots}
-        onValueChange={(allowed) => {
-          allowScreenshots(allowed).catch(failed);
-        }}
-      />
+      {!WEB && (
+        <Switch
+          testID="security-screenshots"
+          label={t('security.screenshots')}
+          description={t('security.screenshotsLine')}
+          value={settings.screenshots}
+          onValueChange={(allowed) => {
+            allowScreenshots(allowed).catch(failed);
+          }}
+        />
+      )}
       <View style={styles.group}>
         <Text accessibilityRole="header" style={[styles.label, align]}>
           {t('security.fixed')}
@@ -172,7 +187,7 @@ export function Security({ storage, done, doneAt, onChangePin, onTurnOnPhone }: 
         <Facts
           keptLabel={t('security.fixedLabel')}
           notKeptLabel={t('security.notFixed')}
-          kept={FIXED.map((id) => ({ id, text: t(`security.${id}`), kept: true }))}
+          kept={(WEB ? WEB_FIXED : FIXED).map((id) => ({ id, text: t(`security.${id}`), kept: true }))}
         />
       </View>
     </ScrollView>

@@ -5,7 +5,7 @@
 // never record contents.
 
 import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { LockPinMode } from '../lock/LockPin';
+import type { LockPinMode } from '../lock/lock-props';
 import type { SecurityDone } from '../lock/Security';
 import type { Cell } from '../week/week-rules';
 

@@ -10,23 +10,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
-import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { useText } from '../text/i18n';
+import type { UnlockProps } from './lock-props';
 import { LockBoard } from './LockBoard';
 import { PIN_LENGTH, errorCode, typed, waitWording } from './lock-rules';
 import { PinPad } from './PinPad';
 import { useWait } from './useWait';
 
-export type UnlockProps = {
-  readonly storage: Storage;
-  readonly biometric: boolean;
-  /** A wait already running when the screen opens, in seconds. */
-  readonly waitSeconds: number;
-  readonly lockMinutes: number;
-  readonly onOpened: () => void;
-  /** The history cannot be opened: its key is gone, or the module failed. */
-  readonly onRefused: (error: unknown) => void;
-};
+export type { UnlockProps } from './lock-props';
 
 type Message = 'wrong' | 'noSpace' | null;
 

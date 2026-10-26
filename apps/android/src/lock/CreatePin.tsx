@@ -8,25 +8,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, BackHandler } from 'react-native';
-import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { useText } from '../text/i18n';
+import type { CreatePinProps } from './lock-props';
 import { LockBoard } from './LockBoard';
 import { PIN_LENGTH, errorCode, typed } from './lock-rules';
 import { PinPad } from './PinPad';
 
-export type CreatePinProps = {
-  readonly storage: Storage;
-  /** A history from before the lock is already on this phone. */
-  readonly upgrade: boolean;
-  readonly lockMinutes: number;
-  /** The history is open under the new PIN, which the fingerprint question may need once. */
-  readonly onCreated: (pin: string) => void;
-  readonly onRefused: (error: unknown) => void;
-  /** The PIN did not save, but the native module may have kept it: shows the lock if so. */
-  readonly onFailed?: () => void;
-  /** Android's Back from the first step, back to the welcome; Back from the second step starts again. */
-  readonly onBack?: () => void;
-};
+export type { CreatePinProps } from './lock-props';
 
 /** Asks for a new PIN twice, and seals the history's key under it. */
 export function CreatePin({ storage, upgrade, lockMinutes, onCreated, onRefused, onFailed, onBack }: CreatePinProps) {

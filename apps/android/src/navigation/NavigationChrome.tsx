@@ -7,7 +7,7 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, useLocale } from '@react-navigation/native';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
@@ -115,7 +115,11 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
           {route.name === 'TypeList' && <Text style={styles.subtitle}>{t('setup.sorted')}</Text>}
           {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
-          {route.name === 'Security' && <Text style={styles.subtitle}>{t('security.subtitle')}</Text>}
+          {route.name === 'Security' && (
+            <Text style={styles.subtitle}>
+              {t(Platform.OS === 'web' ? 'security.web.subtitle' : 'security.subtitle')}
+            </Text>
+          )}
           {route.name === 'Extra' && <Text style={styles.subtitle}>{t('extra.subtitle')}</Text>}
           {route.name === 'AddSessions' && <Text style={styles.subtitle}>{t('addSessions.subtitle')}</Text>}
           {route.name === 'PrintWeek' && <Text style={styles.subtitle}>{t('documents.printWeek.line')}</Text>}

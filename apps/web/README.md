@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: the shell only.** This is the first of four parts. The app starts and shows its welcome screen, but it keeps no records yet: setting up, the lock and the history come in part 2, with a passphrase of at least 12 characters (answer 502). Until then every step that would keep a record is refused. Use made-up data only.
+**Status: parts 1 and 2 of four.** The app starts, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser. Files in and out come in part 3, and updates, erasing the PC and printing in part 4; until then those steps are refused. Use made-up data only.
 
 ## Build and try it
 
@@ -37,6 +37,19 @@ Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answer
 
 `public/sw.js` reads `build.json` once and fetches every file it lists past the browser's HTTP cache. It checks each file against its SHA-256, so a changed file or a redirected page fails the install, and one cache never mixes two builds. It keeps the files in one cache named after the checksum and answers only from it, so the app opens with no network (R-6.6-05). The worker never changes between builds, so the browser never swaps the app on its own. A new build is installed only when the teacher accepts it (R-6.6-06); that step comes in part 4.
 
+## The lock and the history
+
+Part 2 (answers 502, 504 and 505) puts the phone's lock and history in the browser, with the same rules:
+
+- **The passphrase** stands in for the PIN: at least 12 characters, typed twice, compared in one Unicode form. The `.web.tsx` screens beside the PIN screens in `apps/android/src/lock` take the same props, and esbuild picks them first.
+- **The history's key** is 32 random bytes for AES-GCM. On disk it is sealed with a key drawn from the passphrase by PBKDF2-HMAC-SHA256, 600,000 rounds, with a random salt. While the history is open the page holds the key in memory only, as a key it cannot read back; locking or closing the tab forgets it.
+- **Rows** live in IndexedDB (`src/native/vault/`), each sealed with its own nonce and bound to its sequence number. The count and the last sequence number are sealed beside them, so a row changed on disk, moved or dropped from the end refuses to open. The pilot's timings are one sealed row.
+- **Erasing content** seals every row again under a new history key, in the same transaction that keeps the new key. IndexedDB cannot overwrite old records at once as SQLCipher's secure delete does, so the browser may keep the old copies in its files for a while; the old key that opens them is sealed with the passphrase in those same old files.
+- **Wrong passphrases** are counted as the phone counts wrong PINs: four are free, then the wait doubles from 30 seconds up to an hour. The wait only slows guessing on the lock page; someone who copies the browser's files can guess without it, which is why the passphrase is long and slow to try.
+- **The automatic lock** uses the phone's choices, 1, 5 or 15 minutes, 5 by default. A click, a key or a wheel turn counts as use.
+- **A forgotten passphrase** cannot be recovered by anyone; the PC must then be erased. Until part 4 brings «مسح هذا الحاسوب», that means clearing this site's data in the browser's settings.
+- **Password managers** get the usual hints: the lock's field is the current password, and the new and repeated ones are new passwords.
+
 ## The native modules
 
 | Module | On the web |
@@ -45,7 +58,7 @@ Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answer
 | Build, Licences | Read from `build.json` and `licences.json`. |
 | Notify | None: the phone carries the reminders. |
 | StorageCheck | Absent, as in a release build. |
-| Storage | The browser's SHA-256 and random bytes. The history and the lock come in part 2, and erasing the PC in part 4. |
+| Storage | The browser's SHA-256 and random bytes, the passphrase lock, and the history and timings sealed in IndexedDB. A PC has no fingerprint prompt. Erasing the PC comes in part 4. |
 | Files, CalendarInput, Signature | Come in part 3. |
 | Pdf | Printing through the browser, in part 4. |
 
