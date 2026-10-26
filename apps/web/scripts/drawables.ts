@@ -6,8 +6,9 @@
 // as an SVG of the same name, so the app's `{ uri: 'icon_offline' }` finds
 // it. Only what the drawables use is read: the vector's size and viewport,
 // paths with their fill and stroke, and groups moved by a translation.
-// Any other element or attribute in a vector, such as autoMirrored, stops
-// the build rather than drawing it wrong.
+// Any other element, attribute, text or value in a vector, such as
+// autoMirrored, stops the build rather than drawing it wrong; each value is
+// checked before it goes into the SVG.
 
 /** The attributes each element may carry, which the SVG draws. */
 const DRAWN: Readonly<Record<string, ReadonlySet<string>>> = {
@@ -21,6 +22,12 @@ function checkAttributes(tag: string, attributes: string): void {
   for (const [, name] of attributes.matchAll(/android:(\w+)=/gu))
     if (name === undefined || DRAWN[tag]?.has(name) !== true)
       throw new Error(`A vector's <${tag}> android:${name ?? ''} is not drawn on the web`);
+}
+
+/** A number as an attribute holds it, refused otherwise. */
+function number(value: string): string {
+  if (!/^-?\d+(?:\.\d+)?$/u.test(value)) throw new Error(`Not a number: ${JSON.stringify(value)}`);
+  return value;
 }
 
 /** The value of `android:name` in the element's attributes, or undefined. */
@@ -43,17 +50,41 @@ function paint(attributes: string, kind: 'fill' | 'stroke'): string {
   return ` ${kind}="${colour}"${opacity === 1 ? '' : ` ${kind}-opacity="${opacity}"`}`;
 }
 
+/** One of the words an attribute may hold, refused otherwise. */
+function word(value: string | undefined, words: readonly string[]): string | undefined {
+  if (value !== undefined && !words.includes(value)) throw new Error(`Not one of ${words.join(', ')}: ${value}`);
+  return value;
+}
+
 function path(attributes: string): string {
   const d = attribute(attributes, 'pathData');
   if (d === undefined) throw new Error('A path without pathData');
-  const width = attribute(attributes, 'strokeWidth');
-  const cap = attribute(attributes, 'strokeLineCap');
-  const join = attribute(attributes, 'strokeLineJoin');
+  if (!/^[\d\s.,+\-eEMmLlHhVvCcSsQqTtAaZz]+$/u.test(d)) throw new Error(`Path data ${JSON.stringify(d)}`);
+  const stroke = attribute(attributes, 'strokeWidth');
+  const width = stroke === undefined ? undefined : number(stroke);
+  const cap = word(attribute(attributes, 'strokeLineCap'), ['butt', 'round', 'square']);
+  const join = word(attribute(attributes, 'strokeLineJoin'), ['miter', 'round', 'bevel']);
   return (
     `<path d="${d}"${paint(attributes, 'fill')}${paint(attributes, 'stroke')}` +
     `${width === undefined ? '' : ` stroke-width="${width}"`}${cap === undefined ? '' : ` stroke-linecap="${cap}"`}` +
     `${join === undefined ? '' : ` stroke-linejoin="${join}"`}/>`
   );
+}
+
+/** One piece of a vector's body: a comment, a tag with its parts, or the text between. */
+const TOKEN = /(<!--[\s\S]*?--!?>)|<(\/?)(\w+)\b([^<>]*?)(\/?)>|([^<]+)|([\s\S])/gu;
+
+/** The SVG element for one tag of the vector's body, with `depth` the groups open around it. */
+function element(close: string, tag: string, attributes: string, alone: string, depth: number): string {
+  if (tag !== 'path' && tag !== 'group') throw new Error(`A vector's <${tag}> is not drawn on the web`);
+  checkAttributes(tag, attributes);
+  if (tag === 'path') return path(attributes);
+  if (alone === '/') throw new Error('A group that closes itself');
+  if (close === '/' && depth === 0) throw new Error('A group closed that is not open');
+  if (close === '/') return '</g>';
+  const x = number(attribute(attributes, 'translateX') ?? '0');
+  const y = number(attribute(attributes, 'translateY') ?? '0');
+  return `<g transform="translate(${x} ${y})">`;
 }
 
 /** The SVG of an Android vector drawable, or null when the file is not a vector. */
@@ -62,22 +93,23 @@ export function vectorToSvg(xml: string): string | null {
   if (vector === null) return null;
   const [, head = '', body = ''] = vector;
   checkAttributes('vector', head);
-  const size = (name: string) => attribute(head, name)?.replace(/dp$/u, '');
-  const parts = body
-    .replace(/<!--[\s\S]*?-->/gu, '')
-    .replace(/<(\/?)(\w+)\b([^>]*?)\/?>/gu, (_, close, tag, attributes) => {
-      if (tag === 'path' || tag === 'group') checkAttributes(tag as string, attributes as string);
-      if (tag === 'path') return path(attributes as string);
-      if (tag === 'group' && close === '/') return '</g>';
-      if (tag === 'group') {
-        const x = attribute(attributes as string, 'translateX') ?? '0';
-        const y = attribute(attributes as string, 'translateY') ?? '0';
-        return `<g transform="translate(${x} ${y})">`;
+  const size = (name: string) => number(attribute(head, name)?.replace(/dp$/u, '') ?? '');
+  let depth = 0;
+  const parts = [...body.matchAll(TOKEN)].map(
+    ([, comment, close = '', tag, attributes = '', alone = '', text, other]) => {
+      if (comment !== undefined) return '';
+      if (tag !== undefined) {
+        const svg = element(close, tag, attributes, alone, depth);
+        if (tag === 'group') depth += close === '/' ? -1 : 1;
+        return svg;
       }
-      throw new Error(`A vector's <${tag as string}> is not drawn on the web`);
-    });
+      if (text !== undefined && text.trim() === '') return '';
+      throw new Error(`A vector holds ${JSON.stringify(text ?? other)}, which is not drawn on the web`);
+    },
+  );
+  if (depth !== 0) throw new Error('A group left open');
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size('width')}" height="${size('height')}" ` +
-    `viewBox="0 0 ${attribute(head, 'viewportWidth')} ${attribute(head, 'viewportHeight')}">${parts.trim()}</svg>\n`
+    `viewBox="0 0 ${size('viewportWidth')} ${size('viewportHeight')}">${parts.join('')}</svg>\n`
   );
 }

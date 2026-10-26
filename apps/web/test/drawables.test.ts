@@ -42,6 +42,17 @@ describe('the drawables', () => {
       () => vectorToSvg(vector('<path android:pathData="M0 0" android:fillType="evenOdd"/>')),
       /<path> android:fillType is not drawn/u,
     );
+    assert.throws(() => vectorToSvg(vector('<!-- open <path android:pathData="M0 0"/>')), /not drawn/u);
+    assert.throws(() => vectorToSvg(vector('stray text')), /not drawn/u);
+    assert.equal(vectorToSvg(vector('<!-- a --!>')), vectorToSvg(vector('')));
+    assert.throws(() => vectorToSvg(vector('<group android:translateX="1"/>')), /closes itself/u);
+    assert.throws(() => vectorToSvg(vector('</group>')), /not open/u);
+    assert.throws(() => vectorToSvg(vector('<group>')), /left open/u);
+    assert.throws(() => vectorToSvg(vector('<path android:pathData="M0 0 onload=x"/>')), /Path data/u);
+    assert.throws(
+      () => vectorToSvg(vector('<path android:pathData="M0 0" android:strokeLineCap="x"/>')),
+      /Not one of/u,
+    );
     assert.throws(
       () => vectorToSvg(vector('').replace('android:width', 'android:autoMirrored="true" android:width')),
       /<vector> android:autoMirrored is not drawn/u,
