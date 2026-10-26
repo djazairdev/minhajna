@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### Changed
+
+- The restore and «مقارنة قبل التوقيع» now open a file only from this phone, an SD card or a USB key, as the calendar and reader mode already do. A file on a computer or in a cloud folder must first be copied to the phone, as both screens say.
+  - يفتح الاسترجاع و«مقارنة قبل التوقيع» الآن الملف من هذا الهاتف أو بطاقة SD أو مفتاح USB فقط، كما تفعل الرزنامة ووضع القارئ. ويجب أولاً نسخ الملف الموجود على حاسوب أو في مجلد سحابي إلى الهاتف، كما تقول الشاشتان.
+
 ## 0.5.0 (2026-10-26)
 
 The statements and support preview: the progress statement as a print, a PDF or a signed QR code; reader mode for a director or an inspector, with the school's picture, spot checks and the subject council's merge; a new phone without sync, through a backup or a direct transfer; exporting everything, and erasing a pupil's data or the phone; and problem and crash reports you read before they leave. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.

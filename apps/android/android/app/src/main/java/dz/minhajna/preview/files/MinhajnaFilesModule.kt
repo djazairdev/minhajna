@@ -35,7 +35,9 @@ import java.util.zip.ZipOutputStream
  * which empties the folder. Reading back a file the teacher picks gives its
  * text (PickedFiles); a file over 2 MB is refused, and so is a file that is
  * not text. An archive picked for a restore (#247) is kept under a token of
- * its own, until it is dropped, and its one file read with a password.
+ * its own, until it is dropped, and its one file read with a password. Both
+ * pickers show local files only, on the phone, an SD card or a USB key, never
+ * a cloud provider's (#477, answer 495).
  */
 class MinhajnaFilesModule(private val context: ReactApplicationContext) :
   NativeMinhajnaFilesSpec(context), ActivityEventListener {
@@ -162,7 +164,7 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
     if (TOKEN_PATTERN.matches(token)) File(folder, token).deleteRecursively()
   }
 
-  /** Asks for a file through the system's file picker: a text file, or any file for an archive. */
+  /** Asks for a local file through the system's file picker: a text file, or any file for an archive. */
   private fun open(promise: Promise, zip: Boolean) {
     val activity = context.currentActivity ?: return promise.reject("E_FILE", "No screen to open from")
     UiThreadUtil.runOnUiThread {
@@ -171,6 +173,7 @@ class MinhajnaFilesModule(private val context: ReactApplicationContext) :
       val pick = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "*/*"
+        putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         if (!zip) putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/*", "application/csv", "application/vnd.ms-excel"))
       }
       try {

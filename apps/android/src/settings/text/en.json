@@ -303,6 +303,7 @@
     "pickOther": "Choose another file",
     "picked": "File: {{name}}",
     "pickedNoName": "File chosen",
+    "local": "The file must be on this phone, an SD card or a USB key. If it is on a computer or in a cloud folder, copy it to the phone first.",
     "key": "Recovery key, from the printed sheet",
     "code": "The code shown on the old phone",
     "password": "The file's password, if it has one",

@@ -305,6 +305,7 @@
     "pickOther": "Choisir un autre fichier",
     "picked": "Fichier : {{name}}",
     "pickedNoName": "Fichier choisi",
+    "local": "Le fichier doit être sur ce téléphone, une carte SD ou une clé USB. S’il est sur un ordinateur ou dans le cloud, copiez-le d’abord sur le téléphone.",
     "key": "Clé de récupération, depuis la feuille imprimée",
     "code": "Le code affiché sur l’ancien téléphone",
     "password": "Mot de passe du fichier, s’il en a un",

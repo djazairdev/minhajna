@@ -3,13 +3,14 @@
 
 // «استرجاع البيانات» (#247, Restore, answers 478, 480 and 482): the three
 // routes open in the pilot, sync shown as not open; what does not come back
-// said first; a file asked for before anything is read; a backup restored with
-// the key typed, the kept copy dropped, the backup reminder put off 30 days,
-// and the history opened again; a wrong key said, and cleared as it is typed
-// again; a changed file on its own page, with nothing kept, worded for a backup
-// or an export; the export's route without a key or the recovery sheet's line;
-// the kept copy dropped when the screen closes; and every text named in French
-// and English. Made-up records only.
+// said first; the file asked for from the phone, an SD card or a USB key; a
+// file asked for before anything is read; a backup restored with the key typed,
+// the kept copy dropped, the backup reminder put off 30 days, and the history
+// opened again; a wrong key said, and cleared as it is typed again; a changed
+// file on its own page, with nothing kept, worded for a backup or an export;
+// the export's route without a key or the recovery sheet's line; the kept copy
+// dropped when the screen closes; and every text named in French and English.
+// Made-up records only.
 
 import { archiveOf, archiveText, parseDay } from '@minhajna/core';
 import { TextInput, type TextInputProps } from 'react-native';
@@ -24,6 +25,10 @@ import { Restore } from '../src/restore/Restore';
 import { backupLater, setBackupLater } from '../src/settings/backup-later';
 import { openRecordBook } from '../src/storage/history';
 import { i18n, missingKeys } from '../src/text/i18n';
+
+/** The line under the pick button: the file must be on this phone, an SD card or a USB key. */
+const LOCAL_ONLY =
+  '\u064a\u062c\u0628 \u0623\u0646 \u064a\u0643\u0648\u0646 \u0627\u0644\u0645\u0644\u0641 \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u0647\u0627\u062a\u0641 \u0623\u0648 \u0628\u0637\u0627\u0642\u0629 SD \u0623\u0648 \u0645\u0641\u062a\u0627\u062d USB. \u0648\u0625\u0646 \u0643\u0627\u0646 \u0639\u0644\u0649 \u062d\u0627\u0633\u0648\u0628 \u0623\u0648 \u0641\u064a \u0645\u062c\u0644\u062f \u0633\u062d\u0627\u0628\u064a\u060c \u0641\u0627\u0646\u0633\u062e\u0647 \u0625\u0644\u0649 \u0627\u0644\u0647\u0627\u062a\u0641 \u0623\u0648\u0644\u0627\u064b.';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -101,6 +106,7 @@ test('shows the routes, says what does not come back, and asks for the file firs
     ]),
   );
   expect(texts()).not.toContain('لا يملك المشروع أي مفتاح: دون ورقة الاسترجاع، لا يمكن استرجاع شيء.');
+  expect(texts()).toContain(LOCAL_ONLY);
   expect(disabled('restore-route-phone')).toBe(false);
   expect(disabled('restore-route-sync')).toBe(true);
   await press('restore-route-sync');

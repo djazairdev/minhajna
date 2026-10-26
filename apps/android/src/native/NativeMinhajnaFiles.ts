@@ -24,13 +24,15 @@ export interface Spec extends TurboModule {
   /** Hands a made file to Android's share screen; never a link. */
   shareFile(token: string, title: string): Promise<void>;
   /**
-   * Asks for a text file through the system's file picker, and gives its text; null when the teacher cancels. A file
+   * Asks for a local text file through the system's file picker, from the phone, an SD card or a USB key, never a
+   * cloud provider (#477), and gives its text; null when the teacher cancels. A file
    * that is not text, a ZIP archive, an .xlsx or .xls workbook or a PDF, is refused as `E_FILE_BINARY`, and a file
    * over 2 MB as `E_FILE_SIZE`.
    */
   openText(): Promise<string | null>;
   /**
-   * Asks for a ZIP archive through the system's file picker, and keeps a copy under a token, given with the name the
+   * Asks for a local ZIP archive through the system's file picker, from the phone, an SD card or a USB key, never a
+   * cloud provider (#477), and keeps a copy under a token, given with the name the
    * picker shows; null when the teacher cancels. A file over 16 MB is refused as `E_ZIP_TOO_LARGE`.
    */
   openZip(): Promise<{ token: string; name: string } | null>;

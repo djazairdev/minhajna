@@ -3483,7 +3483,7 @@
         "form": "Sous la forme de la feuille de contrôle officielle : pour chaque élève, la valeur du registre de Minhajna, et à côté ce qui a été lu dans le fichier.",
         "pick": "Choisir le fichier",
         "again": "Choisir un autre fichier",
-        "which": "Un fichier CSV texte : celui que Minhajna enregistre sans mot de passe, ou un tableau enregistré en CSV par Excel ou WPS.",
+        "which": "Un fichier CSV texte : celui que Minhajna enregistre sans mot de passe, ou un tableau enregistré en CSV par Excel ou WPS. Il doit être sur ce téléphone, une carte SD ou une clé USB. S’il est ailleurs, copiez-le d’abord sur le téléphone.",
         "refusedBadge": "Fichier non lu",
         "binary": "Ce fichier n’est pas un CSV texte : c’est une archive, un classeur Excel ou un PDF. Enregistrez le tableau en CSV sans mot de passe, puis choisissez-le.",
         "size": "Le fichier dépasse 2 Mo, alors que le relevé d’une classe est bien plus petit. Choisissez le fichier de cette seule classe.",
