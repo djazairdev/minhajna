@@ -3427,7 +3427,7 @@
         "form": "In the form of the official control sheet: for each pupil, the value in Minhajna’s register, with what was read from the file beside it.",
         "pick": "Choose the file",
         "again": "Choose another file",
-        "which": "A text CSV file: the one Minhajna saves without a password, or a table saved as CSV by Excel or WPS.",
+        "which": "A text CSV file: the one Minhajna saves without a password, or a table saved as CSV by Excel or WPS. It must be on this phone, an SD card or a USB key. If it is elsewhere, copy it there first.",
         "refusedBadge": "File not read",
         "binary": "This file is not a text CSV file: it is an archive, an Excel workbook or a PDF. Save the table as CSV without a password, then choose it.",
         "size": "The file is over 2 MB, while one class’s sheet is far smaller. Choose this class’s file alone.",

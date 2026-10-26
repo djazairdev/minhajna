@@ -9,7 +9,8 @@
 // backup file, then the recovery key; both keys typed with no keyboard
 // suggestions; and «فتح أرشيف «منهاجنا»», the export file with its password if
 // it has one. The sync account shows, not open yet. The file comes through the
-// system's file picker; what does not come back, the teacher card's personal
+// system's file picker, from this phone, an SD card or a USB key only, as the
+// screen says (#477); what does not come back, the teacher card's personal
 // fields and the drawn signature, is said before. A key that does not open the
 // file, or any other refusal, is said under the button, and the key can be
 // typed again; a changed file has its own page. Once all of it is stored, the
@@ -215,6 +216,9 @@ export function Restore({ storage, onRestored }: RestoreProps) {
           label={t(`settings.restore.${picked !== null ? 'pickOther' : words.pick}`)}
           onPress={() => void pick()}
         />
+        <Text testID="restore-local" style={[styles.sub, align]}>
+          {t('settings.restore.local')}
+        </Text>
         <TextField
           testID="restore-secret"
           label={t(`settings.restore.${words.secret}`)}

@@ -27,7 +27,7 @@ None of these makes a network call. Each leaves the phone or comes in only when 
 - **A direct transfer** (#247) sends one encrypted file through the share sheet, as Quick Share or Bluetooth, or saves it through the document picker. Its one-time code shows on the old phone's screen and is scanned or typed on the new one; it is kept nowhere. How Quick Share or Bluetooth carries the file is under Android's own settings.
 - **The recovery sheet** (#247), which holds the recovery key, prints through Android's print service, to the printer the teacher picks. The app sends the key nowhere else.
 - **Reader mode** (#246) opens a statement from a file the teacher picks (`ACTION_OPEN_DOCUMENT`, `EXTRA_LOCAL_ONLY`) or from its QR code, and keeps it in the local history. Its spot-check sheet and the subject council's merge print or save as a PDF through the print service or the document picker, and nothing about them is kept. Nothing is sent.
-- **The restore** (#247) opens a backup, an export or a transfer file, and the marks check (#242) a CSV file, that the teacher picks (`ACTION_OPEN_DOCUMENT`). These pickers also show cloud providers: a file kept with one is fetched by that provider's app under its own settings, never by Minhajna.
+- **The restore** (#247) opens a backup, an export or a transfer file, and the marks check (#242) a CSV file, that the teacher picks from the phone, an SD card or a USB key (`ACTION_OPEN_DOCUMENT`, `EXTRA_LOCAL_ONLY`; #477, answer 495). The pickers show no cloud provider, so a file kept in a cloud folder must first be copied to the phone by the teacher.
 
 ## Notifications
 
