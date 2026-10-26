@@ -26,7 +26,7 @@ Never include real pupil data, even privately.
 - Anything that could expose pupil data or teachers' records, or let someone read, change or forge them.
 - An official build or a signed file that doesn't match its source, its checksum or its signature.
 
-The previews, 0.1.0 to 0.4.0, are for invited teachers using made-up data. The [download page](https://djazair.dev/en/minhajna/) links to the signed release; the [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview) explains how to verify it. National-system services are not available yet.
+The previews, 0.1.0 to 0.5.0, are for invited teachers using made-up data. The [download page](https://djazair.dev/en/minhajna/) links to the signed release; the [organiser's guide](docs/field-check/session-guide.md#checking-that-it-is-the-projects-preview) explains how to verify it. National-system services are not available yet.
 
 ## Supported versions
 
