@@ -17,15 +17,15 @@ Give teachers the [Arabic download and testing page](https://djazair.dev/ar/minh
 
 - **The signed preview:** the latest from the project's [releases page](https://github.com/djazairdev/minhajna/releases/latest), or handed over by the organiser.
 - **Made-up data only:** use «إضافة القسم التجريبي» in setup, or invented names. Keep using official school records.
-- **Offline:** entries stay on the phone. Opening the source link asks before launching the browser; no app record or identifier is attached.
-- **Included:** the demo class and the 2026/27 calendar, from 0.2.0 the app lock and the paper books printed from what is recorded, from 0.3.0 the full class plan, the calendar with its signed updates, and notifications, and from 0.4.0 marks, from continuous assessment to the term export and the class-council pack. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
+- **Offline:** entries stay on the phone unless the teacher saves or shares a file, such as a statement, an export, a backup or a report. Opening the source link asks before launching the browser; no app record or identifier is attached.
+- **Included:** the demo class and the 2026/27 calendar, from 0.2.0 the app lock and the paper books printed from what is recorded, from 0.3.0 the full class plan, the calendar with its signed updates, and notifications, from 0.4.0 marks, from continuous assessment to the term export and the class-council pack, and from 0.5.0 the progress statement, reader mode, backups and moving to a new phone, exporting and erasing, and problem and crash reports. Complete field-check plan packs are still pending ([#23](https://github.com/djazairdev/minhajna/issues/23)).
 - **Compatible Android 8-or-later phones.**
 
 ## Before the session
 
 - Have the universal installer, `minhajna-<version>.apk`, and the published file and signing-certificate checksums. Use it for compatible ARM phones; smaller ARM-specific installers are optional for organisers who know the device.
 - Charge the phones and download or transfer the installer beforehand. Testing works offline.
-- Explain that there is no backup or recovery. Use invented data only, never real school records.
+- Explain that backups and the recovery sheet, from 0.5.0, are there to try: with invented data, nothing needs keeping. Use invented data only, never real school records.
 - If no session appears during the first try, check the teacher's timetable and the calendar's holidays.
 
 ## Installing it
@@ -69,7 +69,7 @@ Updates are manual, announced on [Facebook](https://www.facebook.com/djazairdev)
 
 ## Going back to the demo class
 
-**Clearing storage permanently deletes all entries.** Use this only to reset made-up data between teachers or start again, never to update.
+**Clearing storage permanently deletes all entries.** Use this only to reset made-up data between teachers or start again, never to update. From 0.5.0, «مسح هذا الجهاز», under «البيانات» in the app's Settings, does steps 1 and 2 from inside the app.
 
 1. In Android's **Settings**, open **Apps**, then **Minhajna** («منهاجنا»).
 2. Open **Storage**, then **Clear storage**, and confirm.
@@ -78,7 +78,7 @@ Updates are manual, announced on [Facebook](https://www.facebook.com/djazairdev)
 
 ## Removing it
 
-Uninstall through **Settings › Apps › Minhajna**. This deletes the encrypted records and their key, with no recovery; they are excluded from cloud backup. Delete the installer from Downloads separately if no longer needed.
+Uninstall through **Settings › Apps › Minhajna**, or erase everything first with «مسح هذا الجهاز» in Settings. This deletes the encrypted records and their key; they are excluded from Android's cloud backup, so only a backup or a full export saved with the app can bring them back. Backups, exports and PDFs saved to a computer, an SD card or a USB key stay there: delete them too, and the installer in Downloads, if no longer needed.
 
 ## Making the preview
 
