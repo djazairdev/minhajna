@@ -12,6 +12,7 @@
       "react": ["../android/node_modules/@types/react/index.d.ts"],
       "react/*": ["../android/node_modules/@types/react/*"]
     },
+    "moduleSuffixes": [".web", ""],
     "types": ["node"],
     "jsx": "react-jsx"
   },

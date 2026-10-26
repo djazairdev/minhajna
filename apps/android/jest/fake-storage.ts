@@ -52,6 +52,8 @@ export class FakeStorage {
   created = false;
   /** The lock's PIN once set; the fake keeps it plain, the device never does. */
   pin: string | null = null;
+  /** What a new PIN must match; a PC's passphrase takes 12 characters or more (#250). */
+  pinRule: RegExp = PIN;
   biometric = false;
   biometricAvailable = false;
   /** What the phone's prompt does when shown. */
@@ -106,7 +108,7 @@ export class FakeStorage {
   }
 
   createLock(pin: string): Promise<void> {
-    if (this.pin !== null || !PIN.test(pin)) return Promise.reject(failure('E_HISTORY'));
+    if (this.pin !== null || !this.pinRule.test(pin)) return Promise.reject(failure('E_HISTORY'));
     if (this.keyLost) return Promise.reject(failure('E_KEY_LOST'));
     this.pin = pin;
     this.opened = true;
@@ -150,7 +152,7 @@ export class FakeStorage {
 
   changePin(old: string, next: string): Promise<PinResult> {
     if (!this.opened || this.pin === null) return Promise.reject(failure('E_LOCKED'));
-    if (!PIN.test(next)) return Promise.reject(failure('E_HISTORY'));
+    if (!this.pinRule.test(next)) return Promise.reject(failure('E_HISTORY'));
     const result = this.#try(old);
     if (result.opened) this.pin = next;
     return Promise.resolve(result);

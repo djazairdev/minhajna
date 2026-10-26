@@ -24,7 +24,8 @@
     "react-native-web": "0.21.4"
   },
   "devDependencies": {
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "fake-indexeddb": "6.2.5"
   },
   "engines": {
     "node": ">=22.18.0"

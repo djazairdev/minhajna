@@ -24,6 +24,8 @@ export type TextFieldProps = Pick<
   | 'autoCorrect'
   | 'autoComplete'
   | 'importantForAutofill'
+  | 'secureTextEntry'
+  | 'autoFocus'
 > & {
   readonly label: string;
   /** Decorative only; the translated label must carry its meaning. */
@@ -48,6 +50,7 @@ export type TextFieldProps = Pick<
  * Android's content-size event already includes the input's compound padding.
  * Until that first event, a text area keeps its native intrinsic height.
  * Each change counts as use of the app, for the automatic lock (#210).
+ * Autofill is off unless the screen names the field, as a PC's passphrase.
  */
 export function TextField({
   label,
@@ -63,6 +66,7 @@ export function TextField({
   ref,
   onFocus,
   onBlur,
+  autoComplete = 'off',
   ...inputProps
 }: TextFieldProps) {
   const { direction } = useLocale();
@@ -108,7 +112,7 @@ export function TextField({
             onChangeText(value);
           }}
           multiline={multiline}
-          autoComplete="off"
+          autoComplete={autoComplete}
           importantForAutofill="noExcludeDescendants"
           autoCorrect={false}
           spellCheck={false}

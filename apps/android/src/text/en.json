@@ -2092,6 +2092,40 @@
       "next": "Choose a new 4-digit PIN",
       "confirm": "Type the PIN to turn on the fingerprint or face",
       "biometricFailed": "Not turned on: the phone did not confirm a fingerprint or face."
+    },
+    "web": {
+      "offline": "Works without internet once opened here.",
+      "title": "Open Minhajna on this PC",
+      "passphrase": "Passphrase",
+      "repeat": "Type the passphrase again",
+      "open": "Open",
+      "back": "Back",
+      "wrong": "Wrong passphrase.",
+      "waitWhy": "Each wrong passphrase makes the wait longer, up to an hour. Nobody can lift the lock, not even the Minhajna project.",
+      "noSpace": "This PC’s storage is full, so the passphrase is not tried. Free some space, then try again.",
+      "mismatch": "The two passphrases differ.",
+      "long": "This passphrase is too long; choose a shorter one.",
+      "kept": "The data stays in this browser only, encrypted with the passphrase.",
+      "forgot": "Forgot the passphrase?",
+      "forgotLine": "Nobody can recover it, not even the Minhajna project. This PC must then be erased: what was kept only here is lost, and the rest comes back from your phone.",
+      "short_one": "The passphrase needs at least {{count}} character.",
+      "short_other": "The passphrase needs at least {{count}} characters.",
+      "locks_one": "Locks after {{count}} minute unused.",
+      "locks_other": "Locks after {{count}} minutes unused.",
+      "create": {
+        "title": "Choose a passphrase for this PC",
+        "submit": "Continue",
+        "failed": "The passphrase was not saved. Check this PC has free space, then choose it again.",
+        "line_one": "At least {{count}} character; a few words only you know make a good one. Nobody can recover it, not even the Minhajna project.",
+        "line_other": "At least {{count}} characters; a few words only you know make a good one. Nobody can recover it, not even the Minhajna project.",
+        "notSaved": "The passphrase was not saved. Choose it again."
+      },
+      "change": {
+        "title": "Change the passphrase",
+        "current": "Current passphrase",
+        "next": "New passphrase",
+        "submit": "Change"
+      }
     }
   },
   "security": {
@@ -2119,7 +2153,16 @@
     "pinChanged": "The PIN is changed.",
     "biometricOn": "The app now opens with the fingerprint or face too.",
     "biometricOff": "The app now opens with the PIN only.",
-    "failed": "The change was not saved. Try again."
+    "failed": "The change was not saved. Try again.",
+    "web": {
+      "subtitle": "On this PC",
+      "open": "With the passphrase, every time. A PC has no fingerprint prompt.",
+      "change": "Change the passphrase",
+      "changed": "The passphrase is changed.",
+      "fixedEncrypted": "The history is encrypted in this browser, and opens only with the passphrase",
+      "fixedKey": "Its key stays in memory only while the app is open, and is forgotten when it locks",
+      "fixedServer": "Nothing is sent to a server: the app works in this browser alone"
+    }
   },
   "extra": {
     "title": "A session outside the timetable",

@@ -63,7 +63,7 @@ By hand:
 
 ## Left for the next parts
 
-- **Part 2:** the passphrase of at least 12 characters (answer 502) in place of the PIN pad, the encrypted history in the browser, and the automatic lock. Until then, the phone's PIN pad and its "not saved" message, which mention the phone, show on the PC.
+- **Part 2:** done in [web-lock.md](web-lock.md).
 - **Part 3:** files in and out, QR codes and signatures; the keep-storage request and warning (R-6.6-08); the handover rule (answer 503).
 - **Part 4:** accepting an update with its checksum, «مسح هذا الحاسوب», and printing through the browser. Help's build facts still say "APK" for the checksum.
 - **Crash reports:** the frames are read in Hermes's form, so a browser's stack keeps the type and the screens but may keep no frame. The report's line "Android …" needs web wording.

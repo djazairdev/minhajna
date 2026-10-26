@@ -14,22 +14,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, BackHandler, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, sizes, spacing, typography } from '../design/tokens';
-import type { PinResult, Spec as Storage } from '../native/NativeMinhajnaStorage';
+import type { PinResult } from '../native/NativeMinhajnaStorage';
 import { useText } from '../text/i18n';
+import type { LockPinProps } from './lock-props';
 import { LockBoard } from './LockBoard';
 import { PIN_LENGTH, errorCode, typed, waitWording } from './lock-rules';
 import { PinPad } from './PinPad';
 import { useWait } from './useWait';
 
-export type LockPinMode = 'change' | 'biometric';
-
-export type LockPinProps = {
-  readonly storage: Storage;
-  readonly mode: LockPinMode;
-  /** The PIN changed, or the phone's prompt was turned on. */
-  readonly onDone: () => void;
-  readonly onCancel: () => void;
-};
+export type { LockPinMode, LockPinProps } from './lock-props';
 
 type Step = 'current' | 'next' | 'repeat';
 type Message = 'wrong' | 'noSpace' | 'mismatch' | 'failed' | 'notOn' | null;

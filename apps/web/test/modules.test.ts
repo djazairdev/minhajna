@@ -1,13 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The web versions of the native modules built in this part (#250): the
-// settings, the lock's choices and crash reports kept in the browser under
-// one prefix and refused as the phone refuses them; a browser that refuses
-// its storage keeping nothing; the direction from the kept language; the
-// browser's SHA-256 and random bytes; and every step of the later parts
-// refused as not built yet. The browser's storage is a made-up one here.
+// The web versions of the native modules (#250): the settings, the lock's
+// choices and crash reports kept in the browser under one prefix and
+// refused as the phone refuses them; a browser that refuses its storage
+// keeping nothing; the direction from the kept language; the browser's
+// SHA-256 and random bytes; and every step of the later parts refused as
+// not built yet. The browser's storages are made-up ones here; the vault's
+// own tests are in vault.test.ts.
 
+import 'fake-indexeddb/auto';
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 
@@ -83,14 +85,13 @@ describe('the web modules', () => {
     assert.deepEqual(await Storage.digest(['abc']), [
       'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
     ]);
-    await assert.rejects(Storage.digest(['\ud800']), /not well-formed/u);
+    await assert.rejects(Storage.digest(['\ud800']), { code: 'E_NOT_WELL_FORMED' });
     assert.match(Storage.randomBytes(16), /^[0-9a-f]{32}$/u);
     assert.equal((await Storage.lockStatus()).state, 'setup');
   });
 
   it('refuses every step of the later parts as not built yet, keeping nothing', async () => {
-    await assert.rejects(Storage.createLock('1234'), { code: 'E_WEB_NOT_YET' });
-    await assert.rejects(Storage.appendEntry('{}'), { code: 'E_WEB_NOT_YET' });
+    await assert.rejects(Storage.eraseDevice(), { code: 'E_WEB_NOT_YET' });
     await assert.rejects(Files.openText(), { code: 'E_WEB_NOT_YET' });
     assert.equal(kept.size, 0);
   });
