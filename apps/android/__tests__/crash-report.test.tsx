@@ -2,27 +2,31 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Crash reports, off by default (#249, Crash-preview, answer 483): only the
-// error's type and the places in its stack are kept, never its message, and
-// no frame at all when the message cannot be set aside; a crash that stops
-// the app is kept only while the switch is on, and the crash goes on as it
-// would, an error in a render among them; the next start shows exactly what
-// would be shared, and «إرسال» or «عدم الإرسال» deletes it while closing
-// chooses nothing until the next start; a report that does not read is
-// deleted; Help's switch, off at first, deletes a kept report when turned
-// off and says so when it did not save; the screens opened reach native
-// memory; and every text in French and English. Made-up records only.
+// error's type and the places in its stack are kept, a frame in Hermes's own
+// code by name only, never its message, and no frame at all when the message
+// cannot be set aside; a crash that stops the app is kept only while the switch
+// is on, and the crash goes on as it would, an error in a render among them;
+// the next start shows exactly what would be shared, and «إرسال» or
+// «عدم الإرسال» deletes it while closing chooses nothing until the next start;
+// a report that does not read is deleted; Help's switch, off at first, deletes
+// a kept report when turned off and says so when it did not save; the screens
+// opened reach native memory; a reader's home and the welcome offer a kept
+// report as Today does; and every text in French and English. Made-up records
+// only.
 
 import { Share, Text, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { fakeCrash } from '../jest/fake-crash';
 import { withData } from '../jest/app-data';
-import { mount, press, texts, unmount } from '../jest/components-screen';
+import { control, mount, press, texts, unmount } from '../jest/components-screen';
 import { withPupils } from '../jest/roll-class';
 import { CrashBoundary } from '../src/help/CrashBoundary';
 import { CrashSheet } from '../src/help/CrashSheet';
 import { clearOffer, crashFrames, crashType, keepCrashes } from '../src/help/crash-report';
 import { clearSteps, recordStep } from '../src/help/steps';
 import { AppNavigator } from '../src/navigation/AppNavigator';
+import { ReaderHomeScreen } from '../src/navigation/ReaderScreens';
+import { WelcomeScreen } from '../src/navigation/SetupScreens';
 import { i18n, missingKeys } from '../src/text/i18n';
 
 jest.mock(
@@ -59,14 +63,15 @@ const FRAMES = [
   '    at anonymous (index.android.bundle:1:9812)',
   '    at apply (native)',
   '    at /data/app/~~x/base.apk!/assets/index.android.bundle:1:5',
+  '    at promiseReactionJob (address at InternalBytecode.js:1:1234)',
 ];
 
-test('keeps the type and the frames, never the message or a path', () => {
+test('keeps the type and the frames, never the message or a path, and Hermes frames by name', () => {
   const error = thrown('غياب مختلق آية\n    at Ahmed (index.android.bundle:1:2)', FRAMES);
   expect(crashType(error)).toBe('TypeError');
-  expect(crashFrames(error)).toEqual(['renderRoll 1:20457', 'anonymous 1:9812', 'apply']);
+  expect(crashFrames(error)).toEqual(['renderRoll 1:20457', 'anonymous 1:9812', 'apply', 'promiseReactionJob']);
   expect(crashFrames(error).join(' ')).not.toMatch(/Ahmed|آية|data/u);
-  expect(crashFrames(thrown('', FRAMES))).toHaveLength(3);
+  expect(crashFrames(thrown('', FRAMES))).toHaveLength(4);
 });
 
 test('keeps no frame when the message cannot be set aside, and no odd type', () => {
@@ -95,7 +100,7 @@ test('keeps a crash that stops the app only while the switch is on, and lets it 
   handler?.(error, true);
   expect(JSON.parse(fakeCrash.report ?? '{}')).toEqual({
     type: 'TypeError',
-    frames: ['renderRoll 1:20457', 'anonymous 1:9812', 'apply'],
+    frames: ['renderRoll 1:20457', 'anonymous 1:9812', 'apply', 'promiseReactionJob'],
     steps: ['Today', 'Roll'],
     version: '0.5.0',
     android: '15',
@@ -147,6 +152,18 @@ test('deletes the report unsent, and keeps it for the next start when the sheet 
   await press('crash-dont-send');
   expect(fakeCrash.report).toBeNull();
   expect(share).not.toHaveBeenCalled();
+});
+
+test.each([
+  ['a reader’s home', ReaderHomeScreen],
+  ['the welcome', WelcomeScreen],
+])('%s offers the kept report too', async (_place, Screen) => {
+  kept();
+  const navigation = { navigate: jest.fn() };
+  await mount(await withPupils(), <Screen navigation={navigation as never} route={{} as never} />);
+  expect(control('crash-send')).toBeDefined();
+  await press('crash-dont-send');
+  expect(fakeCrash.report).toBeNull();
 });
 
 test('shows nothing when no crash was kept, and deletes a report that does not read', async () => {

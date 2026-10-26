@@ -85,7 +85,7 @@ apksigcopier compare minhajna-arm64-v8a-signed.apk --unsigned app/build/outputs/
 
 This works only if the release was signed without moving the files inside the APK. Sign with `apksigner sign --alignment-preserved --v1-signing-enabled false`. Android 8 doesn't need the old v1 scheme. Without `--alignment-preserved`, `apksigner` realigns the files, and the signature no longer fits any rebuild.
 
-The signed APK and rebuild must target the same processor. CI retains each build's R8 mapping/configuration separately for diagnosis; they are not installed on the phone.
+The signed APK and rebuild must target the same processor. CI also collects each build's two crash-report maps, R8's mapping and the Hermes bundle's source map, compares them between the two copies, and keeps them for 90 days. They are never in an APK ([Reading a crash report](../contributing/crash-reports.md)).
 
 ## Timing the start
 

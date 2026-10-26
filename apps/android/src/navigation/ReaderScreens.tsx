@@ -4,10 +4,12 @@
 // Reader mode's screens, as routes (#246, answers 489 to 492): the statements
 // received, opening one, a new one or one kept, its spot-check sheet, the
 // school's picture, also as the home of a reader who started from the welcome,
-// with no back to it, and a grade's merge for the teaching council.
+// with no back to it, where a crash report kept before the last stop is
+// offered as on Today, and a grade's merge for the teaching council.
 // `readerRoutes` gives the navigator their entries, as `planRoutes` does.
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { CrashSheet } from '../help/CrashSheet';
 import { ReaderList } from '../reader/ReaderList';
 import { ReaderMerge } from '../reader/ReaderMerge';
 import { ReaderOpen } from '../reader/ReaderOpen';
@@ -54,19 +56,22 @@ export function ReaderPictureScreen({ navigation }: NativeStackScreenProps<RootS
   );
 }
 
-/** The picture as a reader's home, with Settings, Help and setting the app up for teaching. */
+/** The picture as a reader's home, with Settings, Help, setting the app up for teaching and a kept crash report. */
 export function ReaderHomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'ReaderHome'>) {
   return (
-    <ReaderPicture
-      onOpen={(id) => navigation.navigate('ReaderOpen', id === undefined ? undefined : { id })}
-      onList={() => navigation.navigate('ReaderList')}
-      onMerge={(grade) => navigation.navigate('ReaderMerge', { grade })}
-      home={{
-        onSettings: () => navigation.navigate('Settings'),
-        onHelp: () => navigation.navigate('Help'),
-        onTeach: () => navigation.navigate('Teaching'),
-      }}
-    />
+    <>
+      <CrashSheet />
+      <ReaderPicture
+        onOpen={(id) => navigation.navigate('ReaderOpen', id === undefined ? undefined : { id })}
+        onList={() => navigation.navigate('ReaderList')}
+        onMerge={(grade) => navigation.navigate('ReaderMerge', { grade })}
+        home={{
+          onSettings: () => navigation.navigate('Settings'),
+          onHelp: () => navigation.navigate('Help'),
+          onTeach: () => navigation.navigate('Teaching'),
+        }}
+      />
+    </>
   );
 }
 

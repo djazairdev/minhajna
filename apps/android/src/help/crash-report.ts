@@ -6,7 +6,8 @@
 // screens opened by name, the version and Android's version. The error's
 // message is never read: a stack's frames are taken only once its first
 // line, which holds the message, is known and set aside, and each frame
-// keeps a function's name and its line and column in the bundle, no path.
+// keeps a function's name and its line and column in the bundle, no path;
+// a frame in Hermes's own code keeps its name only, as no map reads it.
 // Only a JavaScript crash that stops the app is kept, by native code, and
 // only while the switch in Help is on.
 
@@ -28,7 +29,7 @@ export type CrashReport = {
 };
 
 const TYPE = /^[A-Za-z_$][\w$.]{0,79}$/u;
-const FRAME = /^\s*at ([\w$.<>?[\]-]{1,60}) \((?:address at )?[^()]*?:(\d{1,9}):(\d{1,9})\)$/u;
+const FRAME = /^\s*at ([\w$.<>?[\]-]{1,60}) \((?:address at )?([^()]*?):(\d{1,9}):(\d{1,9})\)$/u;
 const BARE = /^\s*at ([\w$.<>?[\]-]{1,60}) \((?:native|unknown)\)$/u;
 
 /** The error's type as its code names it, such as TypeError; never its message. */
@@ -47,7 +48,7 @@ export function crashFrames(error: unknown): string[] {
     .split('\n')
     .flatMap((line) => {
       const at = FRAME.exec(line);
-      if (at !== null) return [`${at[1]} ${at[2]}:${at[3]}`];
+      if (at !== null) return [at[2].endsWith('InternalBytecode.js') ? at[1] : `${at[1]} ${at[3]}:${at[4]}`];
       const bare = BARE.exec(line);
       return bare === null ? [] : [bare[1]];
     })

@@ -65,6 +65,8 @@ export function verifyApks(directory) {
 
 /** Validates extracted archive entries for the processors given, with byte readers supplied by the caller. */
 export function verifyContents(entries, readEntry, abis, fontHashes, notices) {
+  const maps = entries.filter((entry) => entry.endsWith('.map') || entry.endsWith('mapping.txt'));
+  assert.deepEqual(maps, [], 'No crash-report map goes into an APK (release-maps.js)');
   const libraries = entries.filter((entry) => entry.startsWith('lib/') && entry.endsWith('.so'));
   assert.deepEqual([...new Set(libraries.map((entry) => entry.split('/')[1]))].sort(), abis.toSorted());
   for (const abi of abis) {

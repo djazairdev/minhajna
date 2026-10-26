@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «تقرير عطل، قبل إرساله» over Today (#249, Crash-preview, R-1.5-07, answer
-// 483): after a crash kept while crash reports were on, the next start shows
-// exactly what would be shared, then «إرسال», which hands that text to
-// Android's share sheet, or «عدم الإرسال». Either way the report is deleted
-// from the phone. Closing the sheet chooses nothing: it comes back on the
-// next start, not after an unlock, until the teacher chooses or turns crash
-// reports off in Help. A report that does not read is deleted.
+// 483), the reader's home or the welcome (#460): after a crash kept while crash
+// reports were on, the next start shows exactly what would be shared, then
+// «إرسال», which hands that text to Android's share sheet, or «عدم الإرسال».
+// Either way the report is deleted from the phone. Closing the sheet chooses
+// nothing: it comes back on the next start, not after an unlock, until the
+// teacher chooses or turns crash reports off in Help. A report that does not
+// read is deleted.
 
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';

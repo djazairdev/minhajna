@@ -5,6 +5,7 @@
 # release APK (universal, 32-bit and 64-bit ARM) must be the same byte for byte
 # in both copies, ask for no permission but the biometric prompt's, and hold no
 # code that F-Droid's scanner knows as non-free (docs/checks/android-build.md).
+# The maps that read crash reports must be the same in both copies too.
 
 name: Android
 
@@ -111,6 +112,12 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: node tools/android/release-apks.js verify apps/android/android/app/build/outputs/apk/release
 
+      # R8's mapping and the Hermes bundle's source map, under the names a
+      # release publishes them by (docs/contributing/crash-reports.md).
+      - name: Collect the maps that read crash reports
+        working-directory: ${{ matrix.path }}
+        run: node tools/android/release-maps.js collect apps/android/android/app/build "$RUNNER_TEMP/maps"
+
       # Only biometrics (#210), foreground QR scanning (#222) and the
       # notifications set ahead with their restart (#234) are allowed. The
       # manifest removes the permission needed by ContextCompat's receiver
@@ -154,13 +161,13 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      # The longest GitHub keeps an artifact. A published preview keeps its own
-      # copy of the mapping (docs/field-check/session-guide.md).
-      - name: Keep the shrinker's mapping and configuration
+      # The longest GitHub keeps an artifact. A published release keeps its own
+      # copy of the maps (docs/field-check/session-guide.md).
+      - name: Keep the maps for the comparison and for crash reports
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: mapping-${{ matrix.copy }}
-          path: ${{ matrix.path }}/apps/android/android/app/build/outputs/mapping/release/
+          name: maps-${{ matrix.copy }}
+          path: ${{ runner.temp }}/maps/
           if-no-files-found: error
           retention-days: 90
 
@@ -191,6 +198,15 @@ jobs:
 
       - name: Compare them byte for byte
         run: node tools/android/release-apks.js compare apks/apk-first apks/apk-second
+
+      - name: Download the two copies' maps
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: maps-*
+          path: maps
+
+      - name: Compare the maps byte for byte
+        run: node tools/android/release-maps.js compare maps/maps-first maps/maps-second
 
   scan:
     name: F-Droid scanner

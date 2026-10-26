@@ -7,12 +7,12 @@ Checks of 25 October 2026 for the second pull request of [#249](https://github.c
 - **«تقارير الأعطال»** in Help is off until the teacher turns it on (answer 483). Turning it off deletes a kept report. If the switch can't be saved, it keeps its old value and says so.
 - **While it is on, a crash that stops the app keeps one file** in the app's own folder, outside the history. The file holds:
   - the error's type;
-  - where the stack says it happened: a JavaScript function's name with its line and column in the bundle, or a native class, method and line, never a file path;
+  - where the stack says it happened: a JavaScript function's name with its line and column in the bundle, by its name only when in Hermes's own code, or a native class, method and line, never a file path;
   - the route names of the last ten screens;
   - the version and Android's version.
 - **What is never kept:** the error's message, since it may hold data. If a JavaScript stack's first line can't be matched to its message and set aside, no place in the code is kept.
 - **JavaScript crashes**, an error in a screen's render among them, reach the same handler as native ones, through an error boundary around the app. A crash already kept from JavaScript isn't kept again by its native exception.
-- **At the next start,** «تقرير عطل، قبل إرساله» shows over Today exactly what would be shared:
+- **At the next start,** «تقرير عطل، قبل إرساله» shows over Today, or over the reader's home or the welcome before setup is finished, exactly what would be shared:
   - «إرسال» opens Android's share sheet with that text;
   - «عدم الإرسال» sends nothing;
   - either way the file is deleted.

@@ -35,6 +35,7 @@ The apps follow [Semantic Versioning 2.0.0](https://semver.org/), read for an ap
 
   `n` is the beta's number, from 1 to 98, and 99 for the release itself. So `1.5.0-beta.1` is 1050001, `1.5.0` is 1050099, and `1.5.1` is 1050199. Minor and patch numbers stay below 100.
 - **Each Android APK adds its processor's digit** to that code: the code × 10, plus 0 for the universal APK, 1 for 32-bit ARM (`armeabi-v7a`) and 2 for 64-bit ARM (`arm64-v8a`). So `1.5.0` is 10500990 for the universal APK and 10500992 for 64-bit ARM. Every APK of a release has its own code, as F-Droid needs for each build, and a phone can update from one APK of a release to any APK of a later one.
+- **Each Android release publishes two maps** with its APKs: R8's mapping and the Hermes bundle's source map, named by the version, such as `minhajna-1.5.0-mapping.txt`. One pair serves every APK of the release, since only their native libraries differ, and a crash report names the version it came from ([crash-reports.md](crash-reports.md)).
 - **The web app** shows its version and its build checksum, which anyone can compare with the published one ([PRD §6.6](../prd/PRD.md#66-the-web-app)).
 
 ## The server

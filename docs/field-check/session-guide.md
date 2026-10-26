@@ -104,8 +104,12 @@ For the maintainer who releases it ([releases.md](../contributing/releases.md#si
    apksigner verify --print-certs minhajna-<version>.apk
    ```
 
-   Keep the shrinker's mapping, `apps/android/android/app/build/outputs/mapping/release/`, with the release's files, so that a crash report from these APKs can be read. CI keeps its copy for 90 days only.
+4. Collect the two maps that read a crash report from these APKs, from the repository's root, and publish them with the APKs and their SHA-256 checksums. One pair serves all three APKs, and neither goes into an APK ([Reading a crash report](../contributing/crash-reports.md)). CI keeps its copy for 90 days only.
 
-4. Install the universal APK on a phone, and check that «المساعدة والخصوصية» shows its checksum and the certificate's.
+   ```sh
+   node tools/android/release-maps.js collect apps/android/android/app/build <folder>
+   ```
+
+5. Install the universal APK on a phone, and check that «المساعدة والخصوصية» shows its checksum and the certificate's.
 
 </details>

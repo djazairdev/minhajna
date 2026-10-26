@@ -181,3 +181,12 @@ test('rejects a removed or changed licence notice', () => {
   files.delete('assets/licenses/demo.txt');
   assert.throws(verify, /Missing demo/);
 });
+
+test('rejects a crash-report map inside an APK', () => {
+  const { files, verify } = contents();
+  files.set('assets/index.android.bundle.map', Buffer.from('synthetic map'));
+  assert.throws(verify, /No crash-report map/);
+  files.delete('assets/index.android.bundle.map');
+  files.set('mapping.txt', Buffer.from('synthetic mapping'));
+  assert.throws(verify, /No crash-report map/);
+});
