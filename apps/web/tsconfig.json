@@ -1,0 +1,20 @@
+{
+  "extends": "../android/tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@minhajna/core": ["../../packages/core/src/index.ts"],
+      "@minhajna/core/test-support": ["../../packages/core/test/history-store-suite.ts"],
+      "@minhajna/core/test-support/demo-year": ["../../packages/core/test/demo-year.ts"],
+      "@minhajna/data/*": ["../../data/*"],
+      "react-native": ["../android/node_modules/react-native/types_generated/index.d.ts"],
+      "react": ["../android/node_modules/@types/react/index.d.ts"],
+      "react/*": ["../android/node_modules/@types/react/*"]
+    },
+    "types": ["node"],
+    "jsx": "react-jsx"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

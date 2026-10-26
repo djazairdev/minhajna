@@ -1,0 +1,16 @@
+/* SPDX-FileCopyrightText: 2026 The Minhajna contributors */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+
+/* The page around the app: the full window, the app's paper colour. */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: #f6f3ea;
+}
+#root {
+  display: flex;
+}

@@ -71,9 +71,11 @@ git clone https://github.com/djazairdev/minhajna
 cd minhajna
 npm ci --no-audit
 (cd apps/android && npm ci --no-audit)
+(cd apps/web && npm ci --no-audit)
 npm run typecheck
 npm run lint
 npm test
+(cd apps/web && npm run typecheck && npm test)
 ```
 
 The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md). Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).

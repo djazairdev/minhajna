@@ -1,0 +1,14 @@
+{
+  "id": "./",
+  "name": "منهاجنا",
+  "short_name": "منهاجنا",
+  "description": "Minhajna, the teacher's records, on a PC",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f3ea",
+  "theme_color": "#1f2e29",
+  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
