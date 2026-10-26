@@ -41,6 +41,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 - «دمج البيانات لمجلس المادة» under a grade of the school's picture puts each class's latest statement for a subject side by side, in the school's order: its last resource placed on its unit as the app's pack has it, with its place drawn as boxes, the delay and the sessions not held. It prints on landscape pages for the council's minutes register, or saves as a PDF, and nothing about it is kept.
   - «دمج البيانات لمجلس المادة» تحت سنة من صورة المؤسسة تضع آخر بيان لكل قسم في مادة جنباً إلى جنب، بترتيب المؤسسة: آخر مورد في مقطعه كما في حزمة التطبيق، وموضعه مرسوماً بمربعات، والتأخر والحصص التي لم تُعقد. يُطبع على صفحات أفقية لسجل محاضر المجلس، أو يُحفظ PDF، ولا يُحفظ عنه شيء.
 
+### Fixed
+
+- Printed pages and saved PDFs now keep their designed size when the phone's text size is set larger: a one-page document no longer spreads over two pages with its text enlarged.
+  - تحافظ الصفحات المطبوعة وملفات PDF المحفوظة الآن على مقاسها حين يُكبَّر حجم الخط في الهاتف: لم تعد وثيقة من صفحة واحدة تمتد على صفحتين بنص مكبَّر.
+
 ## 0.4.0 (2026-10-23)
 
 The marks preview: continuous assessment from your level's official setup, in-class assessment taps, entering marks for tests and the exam, the grade book and term averages for every level, descriptive observations, appreciations, the term export with the ostad view and its files, corrections after the term, and the class-council pack. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
