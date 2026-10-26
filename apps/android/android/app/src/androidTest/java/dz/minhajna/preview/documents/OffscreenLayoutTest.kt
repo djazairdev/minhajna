@@ -88,9 +88,10 @@ class OffscreenLayoutTest {
   }
 
   private companion object {
-    const val NAME = "<!doctype html><p>منهاجنا</p>"
+    const val WORD = "\u0645\u0646\u0647\u0627\u062c\u0646\u0627"
+    const val NAME = "<!doctype html><p>$WORD</p>"
     val THIRTY_LINES = "<!doctype html><style>@page { size: A4; margin: 0 } body { margin: 0; font: 12pt/1.5 serif }" +
-      " p { margin: 0 }</style>" + "<p>منهاجنا</p>".repeat(30)
+      " p { margin: 0 }</style>" + "<p>$WORD</p>".repeat(30)
     val A4: PrintAttributes = PrintAttributes.Builder()
       .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
       .setResolution(PrintAttributes.Resolution("pdf", "pdf", 300, 300))
