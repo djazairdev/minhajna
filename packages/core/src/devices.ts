@@ -6,10 +6,10 @@
 // never leave the phone: not in an archive, a backup or a transfer file. The
 // recovery key is kept so that later backups ask nothing and the sheet prints
 // again; a new sheet erases the content of the keys before it. A backup keeps
-// only its fact and day, read by the devices page, the log and the 30-day
-// reminder (answer 482): due 30 days after the last backup, or after the first
-// change when there is none, and never before the day it was put off to, by
-// «تذكيري لاحقاً» or a restore.
+// only its fact and day, read by the devices page, the log, the erase screen
+// and the 30-day reminder (answer 482): due 30 days after the last backup, or
+// after the first change when there is none, and never before the day it was
+// put off to, by «تذكيري لاحقاً» or a restore.
 
 import { addDays, maxDay, type Day } from './day.ts';
 import { eventOf, type RecordEvent } from './events.ts';
@@ -29,6 +29,8 @@ export interface DeviceFacts {
   readonly earlierKeys: readonly string[];
   /** The day of the last backup saved, or null. */
   readonly lastBackup: Day | null;
+  /** The entries recorded after the last backup, which no backup holds; all of them when there is none. */
+  readonly sinceBackup: number;
   /** The day of the first change of any kind, from which the reminder counts without a backup. */
   readonly firstChange: Day | null;
 }
@@ -43,6 +45,7 @@ function keyOf(event: RecordEvent | null): string | null {
 export function deviceFacts(entries: readonly Entry[]): DeviceFacts {
   let recovery: DeviceFacts['recovery'] = null;
   let lastBackup: Day | null = null;
+  let sinceBackup = 0;
   const keys: Entry[] = [];
   for (const entry of entries) {
     const event = eventOf(entry);
@@ -51,12 +54,16 @@ export function deviceFacts(entries: readonly Entry[]): DeviceFacts {
       recovery = { key, day: entry.day };
       keys.push(entry);
     }
-    if (event?.kind === 'backup.saved') lastBackup = entry.day;
+    sinceBackup += 1;
+    if (event?.kind === 'backup.saved') {
+      lastBackup = entry.day;
+      sinceBackup = 0;
+    }
   }
   const current = recovery?.key;
   const earlierKeys = keys.filter((entry) => keyOf(eventOf(entry)) !== current).map((entry) => entry.id);
   const first = entries.find((entry) => entry.kind !== ERASURE);
-  return { recovery, earlierKeys, lastBackup, firstChange: first?.day ?? null };
+  return { recovery, earlierKeys, lastBackup, sinceBackup, firstChange: first?.day ?? null };
 }
 
 /** The day the backup reminder falls due, never before `later`, the day it was put off to; null before any change. */

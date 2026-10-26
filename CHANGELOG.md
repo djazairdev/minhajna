@@ -11,6 +11,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 - The restore and «مقارنة قبل التوقيع» now open a file only from this phone, an SD card or a USB key, as the calendar and reader mode already do. A file on a computer or in a cloud folder must first be copied to the phone, as both screens say.
   - يفتح الاسترجاع و«مقارنة قبل التوقيع» الآن الملف من هذا الهاتف أو بطاقة SD أو مفتاح USB فقط، كما تفعل الرزنامة ووضع القارئ. ويجب أولاً نسخ الملف الموجود على حاسوب أو في مجلد سحابي إلى الهاتف، كما تقول الشاشتان.
 
+### Fixed
+
+- «مسح هذا الجهاز» now names your last backup and its day under «ما يبقى خارجه», says that the erasure touches neither it nor the files you saved elsewhere, and counts as lost only the changes made since that backup. Since 0.5.0 it said that nothing was kept, even after a backup.
+  - يذكر «مسح هذا الجهاز» الآن آخر نسخة احتياطية ويومها تحت «ما يبقى خارجه»، ويقول إن المسح لا يمسّها ولا الملفات التي حفظتها في مكان آخر، ولا يعدّ ضائعاً إلا التغييرات التي جاءت بعد تلك النسخة. وكان منذ 0.5.0 يقول إنه لا يبقى شيء، حتى بعد النسخ.
+
 ## 0.5.0 (2026-10-26)
 
 The statements and support preview: the progress statement as a print, a PDF or a signed QR code; reader mode for a director or an inspector, with the school's picture, spot checks and the subject council's merge; a new phone without sync, through a backup or a direct transfer; exporting everything, and erasing a pupil's data or the phone; and problem and crash reports you read before they leave. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
