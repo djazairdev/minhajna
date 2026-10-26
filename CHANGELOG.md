@@ -6,6 +6,12 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+## 0.5.0 (2026-10-26)
+
+The statements and support preview: the progress statement as a print, a PDF or a signed QR code; reader mode for a director or an inspector, with the school's picture, spot checks and the subject council's merge; a new phone without sync, through a backup or a direct transfer; exporting everything, and erasing a pupil's data or the phone; and problem and crash reports you read before they leave. It is still for trying the app with made-up pupils only, and is handed over directly as an APK, not through a store.
+
+معاينة بيانات التقدّم والدعم: بيان التقدّم مطبوعاً أو PDF أو رمز QR موقّعاً؛ ووضع القارئ للمدير أو المفتش، مع صورة المؤسسة وورقة التحقق ودمج البيانات لمجلس المادة؛ والانتقال إلى هاتف جديد دون مزامنة، بنسخة احتياطية أو بنقل مباشر؛ وتصدير كل البيانات، ومسح بيانات تلميذ أو الهاتف؛ وتقارير المشاكل والأعطال التي تقرؤها قبل أن تغادر. وتبقى لتجربة التطبيق بأسماء تلاميذ مختلَقة فقط، وتُسلَّم مباشرة ملفَّ APK، لا عبر متجر.
+
 ### New
 
 - «تصدير كل البيانات» in Settings takes everything you recorded out of the app, free, at any time. Choose the Minhajna archive, everything with its history and the plan releases your classes are pinned to, in an open format that later versions read, or three CSV files for spreadsheets: marks, roll call and the lesson log. The archive leaves your personal fields and drawn signature on the phone, and your private notes too unless you include them. The file is protected by a password by default, marked «داخلي · سري», and saved through the phone's file picker, to keep on a computer, an SD card or a USB key. The activity log records each export.
@@ -45,6 +51,23 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 - Printed pages and saved PDFs now keep their designed size when the phone's text size is set larger: a one-page document no longer spreads over two pages with its text enlarged.
   - تحافظ الصفحات المطبوعة وملفات PDF المحفوظة الآن على مقاسها حين يُكبَّر حجم الخط في الهاتف: لم تعد وثيقة من صفحة واحدة تمتد على صفحتين بنص مكبَّر.
+
+### Privacy
+
+- Exporting everything takes your records out of the app only as a file you save through the phone's file picker, under a password by default and marked «داخلي · سري». The archive leaves out your personal fields and drawn signature, and your private notes unless you include them. The activity log records each export, never the file or its password.
+  - لا يُخرج «تصدير كل البيانات» سجلاتك من التطبيق إلا ملفاً تحفظه عبر منتقي الملفات في الهاتف، محمياً بكلمة سر افتراضياً وموسوماً «داخلي · سري». ولا يضم الأرشيف حقولك الشخصية ولا توقيعك المرسوم، ولا ملاحظاتك الخاصة إلا إن ضمّنتها. ويسجّل سجل النشاط كل تصدير، ولا يسجّل الملف ولا كلمة سره أبداً.
+- A progress statement carries no pupil data and none of your reasons for sessions not held, and leaves the phone only when you print, save or share it. It is signed with this phone's key as it leaves, which is not a legal signature. A reader can tell your statements from others' by this key, and may name you for it on their own phone. «لمن؟» records a role, never a name, and the activity log records each statement that leaves and its role, never its content.
+  - لا يحمل بيان التقدّم أي بيانات عن التلاميذ ولا أسبابك للحصص التي لم تُعقد، ولا يغادر الهاتف إلا حين تطبعه أو تحفظه أو تشاركه. ويُوقَّع بمفتاح هذا الهاتف عند خروجه، وليس ذلك توقيعاً قانونياً. ويستطيع القارئ أن يميّز بياناتك عن بيانات غيرك بهذا المفتاح، وأن يربط اسمك به على هاتفه. وتسجّل «لمن؟» دوراً، لا اسماً أبداً، ويسجّل سجل النشاط كل بيان يخرج ودوره، ولا يسجّل محتواه أبداً.
+- Backups and direct transfers are encrypted, and hold everything on the phone, your private notes included. Only you hold the recovery key and the one-time code: the project holds no key and cannot recover anything. Your personal fields, your drawn signature and the key itself never go into a backup. The activity log lists each backup, never the key.
+  - النسخ الاحتياطية والنقل المباشر مشفّرة، وتضم كل ما على الهاتف، ومنه ملاحظاتك الخاصة. لا يملك مفتاح الاسترجاع ولا رمز المرة الواحدة غيرك: لا يحتفظ المشروع بأي مفتاح ولا يستطيع استرجاع شيء. ولا تدخل حقولك الشخصية ولا توقيعك المرسوم ولا المفتاح نفسه أي نسخة احتياطية. ويذكر سجل النشاط كل نسخة، ولا يذكر المفتاح أبداً.
+- The camera now also scans a statement's QR code in reader mode and the one-time code of a direct transfer, only when you choose to scan. Its frames are still read in the phone's memory and never saved or sent.
+  - صارت الكاميرا تمسح أيضاً رمز QR لبيان في وضع القارئ ورمز المرة الواحدة في النقل المباشر، ولا تُستعمل إلا حين تختار المسح. وتبقى صورها تُقرأ في ذاكرة الهاتف، ولا تُحفظ ولا تُرسل.
+- Statements received in reader mode are kept on your own devices only, on no server. Nothing in the school's picture is ranked or coloured for a person, and the spot-check sheet and the council's merge keep nothing.
+  - تُحفظ البيانات المستلمة في وضع القارئ على أجهزتك وحدها، لا على أي خادم. ولا يُرتَّب شيء في صورة المؤسسة ولا يُلوَّن لشخص، ولا تحفظ ورقة التحقق ولا دمج البيانات لمجلس المادة شيئاً.
+- A problem report or a crash report leaves only through the share menu, after you read it in full, and the app keeps no copy. Crash reports are off until you turn them on, and never keep the error's message or what was on the screens.
+  - لا يغادر تقرير المشكلة ولا تقرير العطل إلا عبر قائمة المشاركة، بعد أن تقرأه كاملاً، ولا يحتفظ التطبيق بنسخة منه. وتقارير الأعطال متوقفة حتى تشغّلها، ولا تحفظ أبداً رسالة العطل ولا ما كان على الشاشات.
+- Erasing a pupil's data or the phone cannot be undone, and the export is offered first. The activity log keeps one line for each pupil erased, with no content. Backups and files you saved elsewhere stay where you put them.
+  - لا يمكن التراجع عن مسح بيانات تلميذ أو مسح الهاتف، ويُعرض التصدير قبل ذلك. ويحتفظ سجل النشاط بسطر واحد لكل تلميذ مُسحت بياناته، دون أي محتوى. وتبقى النسخ الاحتياطية والملفات التي حفظتها في مكان آخر حيث وضعتها.
 
 ## 0.4.0 (2026-10-23)
 
