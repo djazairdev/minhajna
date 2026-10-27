@@ -16,6 +16,8 @@ export type RootStackParamList = {
   Welcome: undefined;
   /** Restoring from another phone or a backup, into the empty history (#247). */
   Restore: undefined;
+  /** «استلام النسخة»: the working copy back from the other device, after this history's (#250). */
+  TakeBack: undefined;
   /** The first-use notice; `reader` when it leads to reader mode's home instead of setup (#246). */
   Privacy: { reader?: boolean } | undefined;
   Teaching: undefined;

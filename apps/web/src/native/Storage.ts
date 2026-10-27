@@ -55,6 +55,7 @@ const Storage: Spec = {
   lockHistory,
   loadHistory: () => serial(history.loadHistory),
   appendEntry: (entry) => serial(() => history.appendEntry(entry)),
+  appendEntries: (entries) => serial(() => history.appendEntries(entries)),
   restoreHistory: (entries) => serial(() => history.restoreHistory(entries)),
   eraseContent: (ids) => serial(() => history.eraseContent(ids)),
   loadTimings: () => serial(history.loadTimings),

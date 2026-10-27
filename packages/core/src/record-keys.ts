@@ -132,6 +132,9 @@ export function recordKey(event: RecordEvent): string {
       return `recovery:${event.recovery?.key ?? ''}`;
     case 'backup.saved':
       return 'backup';
+    case 'handover.sent':
+    case 'handover.ended':
+      return 'handover';
     case 'statement.shared':
       return `statement-shared:${event.share.id}`;
     case 'statement.sent':

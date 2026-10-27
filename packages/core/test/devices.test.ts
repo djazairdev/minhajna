@@ -42,6 +42,7 @@ describe('the devices and backups', () => {
       lastBackup: null,
       sinceBackup: book.entries.length,
       firstChange: book.entries[0]!.day,
+      handedOver: null,
     });
     assert.equal(deviceFacts([]).firstChange, null);
   });

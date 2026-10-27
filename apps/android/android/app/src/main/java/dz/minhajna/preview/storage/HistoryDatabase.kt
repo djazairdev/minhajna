@@ -68,6 +68,9 @@ class HistoryDatabase private constructor(private val db: SQLiteDatabase) {
   /** Returns once the entry is committed and synced to the disk (PRD §6.8). */
   fun append(row: EntryRow) = write { insert(row) }
 
+  /** Adds entries after the last, all or none: a copy taken back from another device (#250). */
+  fun appendAll(rows: List<EntryRow>) = write { for (row in rows) insert(row) }
+
   /**
    * Stores a restored history in this one, which must be empty, all or none
    * (#247, answer 478): a restore stopped halfway leaves it empty.

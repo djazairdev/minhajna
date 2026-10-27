@@ -227,6 +227,10 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
       return t('log.backupSaved');
     case 'recovery-set':
       return t('log.recoverySet');
+    case 'handover-sent':
+      return t('log.handoverSent');
+    case 'handover-ended':
+      return t(line.how === 'taken' ? 'log.handoverTaken' : 'log.handoverBack');
     case 'unverified':
       return t('log.unverified', { what: kindLabel(t, line.entryKind) });
   }

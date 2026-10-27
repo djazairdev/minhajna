@@ -3075,7 +3075,10 @@
       "report": "Signaler un problème : arrive avec les rapports de problème, où les noms des élèves sont remplacés et le rapport est montré avant l’envoi."
     },
     "backupSaved": "Sauvegarde enregistrée",
-    "recoverySet": "Nouvelle feuille de récupération établie, sans sa clé"
+    "recoverySet": "Nouvelle feuille de récupération établie, sans sa clé",
+    "handoverSent": "Le travail est passé à l’autre appareil",
+    "handoverBack": "Le travail est revenu de l’autre appareil",
+    "handoverTaken": "Le travail a été repris ici"
   },
   "marks": {
     "termLabel": "Trimestre",

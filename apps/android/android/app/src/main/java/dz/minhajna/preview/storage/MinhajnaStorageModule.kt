@@ -24,7 +24,6 @@ import javax.crypto.Cipher
  * bytes from SecureRandom. Every primitive is the platform's or SQLCipher's.
  * Once a PIN is set, the history opens only through the lock (#210). The
  * pilot's timings live in the same database, outside the history (#220).
- *
  * Database work runs on one thread, in order, so a promise resolves only
  * after its own write is committed. Error messages name no pupil: they carry
  * no data from the history.
@@ -169,6 +168,11 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
 
   override fun appendEntry(entry: String, promise: Promise) = onWorker(promise) {
     history.appendJson(entry)
+    null
+  }
+
+  override fun appendEntries(entries: String, promise: Promise) = onWorker(promise) {
+    history.appendAllJson(entries)
     null
   }
 

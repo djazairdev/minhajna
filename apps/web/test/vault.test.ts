@@ -6,7 +6,8 @@
 // are counted and bring the phone's waits; rows are sealed, so nothing
 // readable is kept, and a row changed, moved or dropped from the end
 // refuses to open; erasing content seals everything under a new key; and
-// each step is all or none. The passphrases and entries are made up.
+// each step, adding a copy taken back among them, is all or none. The
+// passphrases and entries are made up.
 
 import 'fake-indexeddb/auto';
 import { IDBFactory } from 'fake-indexeddb';
@@ -265,6 +266,24 @@ describe('the PC vault', () => {
     await Storage.createLock(PASSPHRASE);
     await assert.rejects(Storage.restoreHistory(JSON.stringify([JSON.parse(entry(0)), JSON.parse(entry(0, 'x'))])));
     assert.equal(await Storage.loadHistory(), '[]');
+  });
+
+  it('adds entries after the last all at once, or none of them', async () => {
+    await Storage.createLock(PASSPHRASE);
+    await Storage.appendEntry(entry(0));
+    const list = (...rows: string[]) => `[${rows.join(',')}]`;
+    await assert.rejects(Storage.appendEntries(list(entry(1), entry(3))), { code: 'E_HISTORY' });
+    await assert.rejects(Storage.appendEntries(list(entry(0, 'x'), entry(1))), { code: 'E_HISTORY' });
+    await assert.rejects(Storage.appendEntries('{}'), { code: 'E_HISTORY' });
+    await assert.rejects(Storage.appendEntries(list(entry(2))), { code: 'E_HISTORY' });
+    assert.equal((JSON.parse(await Storage.loadHistory()) as unknown[]).length, 1);
+    await Storage.appendEntries(list(entry(1), entry(2)));
+    await Storage.appendEntries('[]');
+    const rows = JSON.parse(await Storage.loadHistory()) as { seq: number }[];
+    assert.deepEqual(
+      rows.map((row) => row.seq),
+      [0, 1, 2],
+    );
   });
 
   it('refuses a new passphrase over rows whose key is gone', async () => {

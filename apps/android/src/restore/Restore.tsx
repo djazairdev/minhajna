@@ -17,7 +17,9 @@
 // backup reminder is put off 30 days from the restore (answer 482), and the
 // history opens again, on Today. The copy of the picked file is dropped as soon
 // as it is not needed: on another file or route, once restored, and when the
-// screen closes.
+// screen closes. «استلام النسخة» (#250, answers 514 and 515) is the same
+// screen for a device whose working copy is on the other device: a transfer
+// or a backup from that device only, added to this history once checked.
 
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
@@ -41,12 +43,15 @@ import { useDeviceText } from '../text/device-text';
 import { restoreFile, zipProblem, type RestoreProblem, type RestoreRoute } from './restore-run';
 import { RestoreFail } from './RestoreFail';
 import { scanKey } from './scan-key';
+import { takeBackFile } from './take-back-run';
 
 export type RestoreProps = {
   /** The storage module: SHA-256, random bytes and the restore itself. */
-  readonly storage: Pick<Storage, 'digest' | 'randomBytes' | 'restoreHistory'>;
+  readonly storage: Pick<Storage, 'digest' | 'randomBytes' | 'restoreHistory' | 'appendEntries'>;
   /** Everything was stored; the history opens again. */
   readonly onRestored: () => void;
+  /** Takes the working copy back from the other device instead of restoring into an empty history. */
+  readonly back?: boolean;
 };
 
 type Picked = { readonly token: string; readonly name: string };
@@ -60,11 +65,11 @@ const WORDS = {
   archive: { pick: 'pickArchive', secret: 'password', placeholder: 'settings.restore.passwordHint' },
 } as const;
 
-export function Restore({ storage, onRestored }: RestoreProps) {
+export function Restore({ storage, onRestored, back = false }: RestoreProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
-  const { profile, today } = useAppData();
+  const { profile, today, entries } = useAppData();
   const [route, setRoute] = useState<RestoreRoute>('phone');
   const [picked, setPicked] = useState<Picked | null>(null);
   const [secret, setSecret] = useState('');
@@ -136,13 +141,14 @@ export function Restore({ storage, onRestored }: RestoreProps) {
     running.current = true;
     setBusy(true);
     setProblem(null);
-    const result = await restoreFile(
-      { route, token: picked.token, secret, country: profile.code, day: today() },
-      { files, storage, deps: nativeDeps(storage) },
-    ).catch(() => ({ ok: false, problem: 'failed' }) as const);
+    const input = { route, token: picked.token, secret, country: profile.code, day: today() };
+    const run = back
+      ? takeBackFile(input, { files, storage, deps: nativeDeps(storage), ours: entries() })
+      : restoreFile(input, { files, storage, deps: nativeDeps(storage) });
+    const result = await run.catch(() => ({ ok: false, problem: 'failed' }) as const);
     if (result.ok) {
       drop();
-      putOffFromRestore(today());
+      if (!back) putOffFromRestore(today());
       onRestored();
       return;
     }
@@ -179,9 +185,9 @@ export function Restore({ storage, onRestored }: RestoreProps) {
     >
       <View style={styles.group}>
         <Text accessibilityRole="header" style={[styles.title, align]}>
-          {t('settings.restore.sub')}
+          {t(back ? 'settings.takeBack.sub' : 'settings.restore.sub')}
         </Text>
-        <Text style={[styles.body, align]}>{t('settings.restore.line')}</Text>
+        <Text style={[styles.body, align]}>{t(back ? 'settings.takeBack.line' : 'settings.restore.line')}</Text>
       </View>
       <RadioCardGroup
         testID="restore-route"
@@ -199,10 +205,17 @@ export function Restore({ storage, onRestored }: RestoreProps) {
             description: t('settings.restore.syncLine'),
             disabled: true,
           },
-        ]}
+        ]
+          .filter((choice) => !back || choice.value === 'phone' || choice.value === 'backup')
+          .map((choice) => ({ ...choice, value: choice.value as RestoreRoute | 'sync' }))}
       />
       <View style={styles.card}>
-        {route === 'phone' && <Text style={[styles.body, align]}>{t('settings.restore.phoneHow')}</Text>}
+        {route === 'phone' && (
+          <Text style={[styles.body, align]}>
+            {t(back ? 'settings.takeBack.phoneHow' : 'settings.restore.phoneHow')}
+          </Text>
+        )}
+        {back && route === 'backup' && <Text style={[styles.body, align]}>{t('settings.takeBack.backupHow')}</Text>}
         {picked !== null && (
           <Text testID="restore-picked" style={[styles.body, align]}>
             {picked.name === ''
@@ -250,16 +263,18 @@ export function Restore({ storage, onRestored }: RestoreProps) {
         )}
         {route === 'phone' && canScan() && <Text style={[styles.sub, align]}>{t('settings.restore.camera')}</Text>}
       </View>
-      <View testID="restore-left" style={styles.card}>
-        <Text accessibilityRole="header" style={[styles.title, align]}>
-          {t('settings.restore.notBack')}
-        </Text>
-        {LEFT.map((line) => (
-          <Text key={line} style={[styles.body, align]}>
-            {t(line)}
+      {!back && (
+        <View testID="restore-left" style={styles.card}>
+          <Text accessibilityRole="header" style={[styles.title, align]}>
+            {t('settings.restore.notBack')}
           </Text>
-        ))}
-      </View>
+          {LEFT.map((line) => (
+            <Text key={line} style={[styles.body, align]}>
+              {t(line)}
+            </Text>
+          ))}
+        </View>
+      )}
       {route === 'backup' && <Notice icon={controlIcon('lock')} message={t('settings.restore.noKey')} />}
       {problem !== null && (
         <Notice
@@ -270,7 +285,12 @@ export function Restore({ storage, onRestored }: RestoreProps) {
           )}
         />
       )}
-      <Button testID="restore-run" label={t('settings.restore.run')} disabled={busy} onPress={() => void restore()} />
+      <Button
+        testID="restore-run"
+        label={t(back ? 'settings.takeBack.run' : 'settings.restore.run')}
+        disabled={busy}
+        onPress={() => void restore()}
+      />
     </ScrollView>
   );
 }

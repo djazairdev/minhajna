@@ -15,7 +15,7 @@ import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
-import { BottomNav, TopBar, theme } from './NavigationChrome';
+import { HomeTabBar, TopBar, theme } from './NavigationChrome';
 import { RollRules } from '../roll/RollRules';
 import {
   TestScheduleScreen,
@@ -65,6 +65,7 @@ import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '..
 import { Connections } from '../help/PrivacyNotice';
 import { ProblemReport } from '../help/ProblemReport';
 import { recordStep } from '../help/steps';
+import { HandoverRefused } from '../settings/HandoverSheets';
 import type { HomeTabParamList, RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
 import { planRoutes } from './PlanScreens';
@@ -276,6 +277,7 @@ export function AppNavigator({
           options={({ route }) => ({ title: noticeTitle(route.params.name, t), statusBarStyle: 'dark' })}
         />
       </Stack.Navigator>
+      <HandoverRefused onReceive={() => navigation.navigate('TakeBack')} />
     </NavigationContainer>
   );
 }
@@ -287,7 +289,7 @@ function HomeTabs() {
   return (
     <Tabs.Navigator
       backBehavior="history"
-      tabBar={(props) => <BottomNav {...props} />}
+      tabBar={(props) => <HomeTabBar {...props} />}
       screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
     >
       <Tabs.Screen name="Today" component={TodayTab} />

@@ -221,6 +221,8 @@ export function layerOf(event: RecordEvent): Layer {
     case 'teacher.personal.set':
     case 'recovery.set':
     case 'backup.saved':
+    case 'handover.sent':
+    case 'handover.ended':
       return 'device';
     case 'pupil.set':
     case 'pupil.moved':

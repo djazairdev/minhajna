@@ -3022,7 +3022,10 @@
       "report": "Report a problem: comes with problem reports, where pupils’ names are replaced and the report is shown before it is sent."
     },
     "backupSaved": "Backup saved",
-    "recoverySet": "New recovery sheet made, without its key"
+    "recoverySet": "New recovery sheet made, without its key",
+    "handoverSent": "Work moved to the other device",
+    "handoverBack": "Work came back from the other device",
+    "handoverTaken": "Work taken back here"
   },
   "marks": {
     "termLabel": "Term",

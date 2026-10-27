@@ -5,12 +5,14 @@
 // Native Web, with what it leaves out. The layout's direction comes from the
 // kept language, as Android sets it before the app starts; view tags reach
 // the interface module's focus; an image named like an Android drawable is
-// the SVG the build wrote from it; and the Android-only pieces the app
+// the SVG the build wrote from it; React Native's name for the focused text
+// input, which a bottom sheet asks for to keep its field in view, reads
+// React Native Web's focused field; and the Android-only pieces the app
 // imports are inert, since the web asks for no permission and has no
 // developer menu or back button of its own.
 
 import { createElement } from 'react';
-import { I18nManager as WebI18nManager, Image as WebImage } from 'react-native-web';
+import { I18nManager as WebI18nManager, Image as WebImage, TextInput as WebTextInput } from 'react-native-web';
 import { isRtl } from './direction.ts';
 import { tagOf } from './view-tags.ts';
 
@@ -30,6 +32,8 @@ export function Image(props) {
   return createElement(WebImage, { ...props, source: drawn(props.source) });
 }
 Object.assign(Image, WebImage);
+
+Object.assign(WebTextInput.State, { currentlyFocusedInput: () => WebTextInput.State.currentlyFocusedField() });
 
 export function findNodeHandle(target) {
   return tagOf(target);

@@ -19,7 +19,9 @@ import org.junit.runner.RunWith
  * A restored history stored on a real Android (#247, answer 478): whole,
  * entries without content among them, kept after the history is opened
  * again; and nothing stored when the history is not empty or when one entry
- * is refused halfway. Each test uses its own files and Keystore alias.
+ * is refused halfway. A copy taken back from another device (#250) is added
+ * after the last entry, all or none. Each test uses its own files and
+ * Keystore alias.
  */
 @RunWith(AndroidJUnit4::class)
 class RestoreTest {
@@ -71,6 +73,17 @@ class RestoreTest {
     history.appendJson(HistoryStorage.toJson(listOf(row(0))).removePrefix("[").removeSuffix("]"))
     assertThrows(IllegalStateException::class.java) { history.restoreJson(HistoryStorage.toJson(listOf(row(0)))) }
     assertEquals(HistoryStorage.toJson(listOf(row(0))), history.loadJson())
+  }
+
+  @Test
+  fun addsACopyTakenBackAfterTheLastAllOrNone() {
+    val history = storage()
+    history.appendJson(HistoryStorage.toJson(listOf(row(0))).removePrefix("[").removeSuffix("]"))
+    assertThrows(Exception::class.java) { history.appendAllJson(HistoryStorage.toJson(listOf(row(1), row(3)))) }
+    assertEquals(HistoryStorage.toJson(listOf(row(0))), history.loadJson())
+    history.appendAllJson(HistoryStorage.toJson(listOf(row(1, null), row(2))))
+    history.close()
+    assertEquals(HistoryStorage.toJson(listOf(row(0), row(1, null), row(2))), storage().loadJson())
   }
 
   @Test
