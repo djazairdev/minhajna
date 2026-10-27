@@ -244,7 +244,9 @@
     "reminderOff": "The backup reminder is turned off in “Notifications”.",
     "pc": {
       "backupLine": "An encrypted file, saved where you choose or in the browser’s downloads; keep a copy on a USB key. Nothing is sent to a server."
-    }
+    },
+    "install": "Install Minhajna",
+    "installLine": "Works without internet in its own window, from the Start menu or the desktop. The browser asks first."
   },
   "recovery": {
     "title": "Recovery sheet",

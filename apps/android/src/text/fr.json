@@ -658,7 +658,15 @@
       "saved": "La sauvegarde du jour est enregistrée.",
       "failed": "La sauvegarde n’a pas été enregistrée. Réessayez.",
       "back": "Le rappel reviendra {{day}}.",
-      "undo": "Annuler"
+      "undo": "Annuler",
+      "pc": {
+        "none": "Aucune sauvegarde n’a encore été faite sur ce PC.",
+        "body": "Ce qu’aucune sauvegarde ne contient reste sur ce PC seulement. Le projet n’a aucune clé : il ne peut pas le récupérer."
+      }
+    },
+    "keep": {
+      "now": "Sauvegarder maintenant",
+      "where": "Un fichier chiffré sur une clé USB ou un autre disque, ouvert avec la clé de récupération."
     }
   },
   "outcome": {
@@ -2180,7 +2188,28 @@
         "current": "Phrase de passe actuelle",
         "next": "Nouvelle phrase de passe",
         "submit": "Changer"
-      }
+      },
+      "risk": {
+        "badge": "Attention",
+        "title": "Le navigateur peut effacer les données de Minhajna de ce PC",
+        "why": "Il n’a pas accepté de les conserver : il peut les effacer si l’espace manque sur le PC.",
+        "after": "Une fois ouvert, « Aujourd’hui » propose une sauvegarde sur une clé USB ou un autre disque.",
+        "stays": "Cet avertissement revient à chaque ouverture, jusqu’à ce que le navigateur accepte de conserver les données."
+      },
+      "install": {
+        "title": "Première ouverture de Minhajna sur ce PC",
+        "line": "Installez-le depuis le navigateur pour travailler sans internet, dans sa propre fenêtre.",
+        "package": "Un paquet fixe venu du site qui le sert ; il ne charge rien d’un autre site.",
+        "offline": "Il fonctionne ensuite sans internet, et ne change que lorsqu’une mise à jour est acceptée.",
+        "submit": "Installer Minhajna",
+        "asks": "Le navigateur demande d’abord, dans sa propre fenêtre.",
+        "later": "Plus tard",
+        "next": "Puis la phrase de passe de ce PC, et la demande au navigateur de conserver les données.",
+        "done": "Minhajna est installé sur ce PC",
+        "opens": "Il s’ouvre depuis le menu Démarrer ou le bureau, dans sa propre fenêtre et sans internet.",
+        "failed": "Minhajna n’a pas été installé. Vous pourrez l’installer plus tard depuis « Appareils et sauvegardes » ou le menu du navigateur."
+      },
+      "cleared": "Effacer les données de ce site dans le navigateur les supprime, conservées ou non."
     }
   },
   "security": {

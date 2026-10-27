@@ -247,7 +247,9 @@
     "reminderOff": "Le rappel de sauvegarde est désactivé dans « Notifications ».",
     "pc": {
       "backupLine": "Un fichier chiffré, enregistré où vous choisissez ou dans les téléchargements du navigateur ; gardez-en une copie sur une clé USB. Rien n’est envoyé à un serveur."
-    }
+    },
+    "install": "Installer Minhajna",
+    "installLine": "Fonctionne sans internet dans sa propre fenêtre, depuis le menu Démarrer ou le bureau. Le navigateur demande d’abord."
   },
   "recovery": {
     "title": "Feuille de récupération",
