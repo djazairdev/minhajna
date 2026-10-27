@@ -7,6 +7,8 @@
 // this page's own folder once the app is started, so the next visit opens
 // with no network. A key pressed or a wheel turned counts as use of the
 // app for the automatic lock, as a click does through the root view.
+// Whether the browser keeps the data is read at once, so the lock page
+// knows whether to warn as it shows.
 
 import './error-utils.ts';
 import '@minhajna/core';
@@ -15,6 +17,7 @@ import App from '../../android/App';
 import { withCrashBoundary } from '../../android/src/help/CrashBoundary';
 import { keepCrashes } from '../../android/src/help/crash-report';
 import { noteUse } from '../../android/src/lock/activity';
+import { readKept } from '../../android/src/lock/browser-offers';
 import { applyDirection } from './direction.ts';
 import { withLocale } from './locale-root.js';
 
@@ -23,6 +26,7 @@ const rootTag = document.getElementById('root') as unknown as RootTag;
 
 applyDirection();
 keepCrashes();
+void readKept();
 for (const kind of ['keydown', 'wheel'] as const)
   window.addEventListener(kind, noteUse, { capture: true, passive: true });
 AppRegistry.registerComponent('Minhajna', () => withLocale(withCrashBoundary(App)));

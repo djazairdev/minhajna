@@ -8,7 +8,12 @@
 // and «تذكيري لاحقاً». With a recovery key the backup is saved through the file
 // picker, the second tap; without one, the devices page gives the recovery
 // sheet first. «تذكيري لاحقاً» puts the reminder off 7 days, with «تراجع».
-// Nothing shows when the reminder is turned off in «الإشعارات».
+// Nothing shows when the reminder is turned off in «الإشعارات». On a PC
+// whose browser has not agreed to keep the data (answer 511), it says so
+// each day instead, as the lock page does, and offers «نسخة احتياطية الآن»
+// until a backup is saved that day; it cannot be put off or turned off.
+// Until the browser's answer is read, nothing shows, so one card never
+// gives way to the other.
 
 import { BACKUP_LATER_DAYS, addDays, backupReminderDay, compareDays, deviceFacts, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -20,9 +25,11 @@ import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { setBackupLater, useBackupLater } from '../settings/backup-later';
 import { useBackup } from '../settings/backup-run';
+import { useDataKept } from '../lock/browser-offers';
 import { useNotifyPrefs } from '../settings/notify-prefs';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { dayName } from './DayMark';
 
 export type TodayBackupProps = {
@@ -36,8 +43,9 @@ export type TodayBackupProps = {
 type Put = { readonly before: Day | null; readonly until: Day };
 
 export function TodayBackup({ day, onSheet }: TodayBackupProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
+  const kept = useDataKept();
   const { entries, profile } = useAppData();
   const on = useNotifyPrefs().backup;
   const later = useBackupLater();
@@ -55,8 +63,34 @@ export function TodayBackup({ day, onSheet }: TodayBackupProps) {
       setPut(null);
     }
   };
+  if (kept === null) return null;
   if (said === 'saved') {
     return <Notice testID="today-backup-saved" icon={controlIcon('check')} message={t('today.backup.saved')} />;
+  }
+  const key = facts.recovery?.key;
+  const now = () => (key === undefined ? onSheet() : backup(key));
+  if (kept === false) {
+    const saved = facts.lastBackup !== null && compareDays(facts.lastBackup, day) === 0;
+    return (
+      <View testID="today-keep" style={styles.card}>
+        <Text accessibilityRole="header" style={[styles.title, align]}>
+          {t('lock.web.risk.title')}
+        </Text>
+        <Text style={[styles.body, align]}>{t('lock.web.risk.why')}</Text>
+        <Text style={[styles.note, align]}>{t('lock.web.cleared')}</Text>
+        {saved ? (
+          <Notice testID="today-keep-saved" icon={controlIcon('check')} message={t('today.backup.saved')} />
+        ) : (
+          <>
+            {said === 'failed' && (
+              <Notice testID="today-keep-failed" icon={controlIcon('info')} message={t('today.backup.failed')} />
+            )}
+            <Button testID="today-keep-now" label={t('today.keep.now')} disabled={busy} onPress={now} />
+            <Text style={[styles.note, align]}>{t('today.keep.where')}</Text>
+          </>
+        )}
+      </View>
+    );
   }
   if (put !== null) {
     return (
@@ -72,7 +106,6 @@ export function TodayBackup({ day, onSheet }: TodayBackupProps) {
     );
   }
   if (!on || due === null || compareDays(day, due) < 0) return null;
-  const key = facts.recovery?.key;
   const until = addDays(day, BACKUP_LATER_DAYS);
   return (
     <View testID="today-backup" style={styles.card}>
@@ -86,12 +119,7 @@ export function TodayBackup({ day, onSheet }: TodayBackupProps) {
       {said === 'failed' && (
         <Notice testID="today-backup-failed" icon={controlIcon('info')} message={t('today.backup.failed')} />
       )}
-      <Button
-        testID="today-backup-now"
-        label={t('today.backup.now')}
-        disabled={busy}
-        onPress={() => (key === undefined ? onSheet() : backup(key))}
-      />
+      <Button testID="today-backup-now" label={t('today.backup.now')} disabled={busy} onPress={now} />
       <Button
         testID="today-backup-put-off"
         variant="line"

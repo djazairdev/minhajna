@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: parts 1 and 2 of four, and the first pull request of part 3.** The app starts, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser. It restores a backup or a transfer file from the phone, sends a transfer back, and makes, opens and shares files. The keep-storage warning and the handover rule finish part 3; updates, erasing the PC and printing come in part 4. Until then those steps are refused. Use made-up data only.
+**Status: parts 1 and 2 of four, and the first two pull requests of part 3.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, and makes, opens and shares files. The handover rule finishes part 3; updates, erasing the PC and printing come in part 4. Until then those steps are refused. Use made-up data only.
 
 ## Build and try it
 
@@ -63,6 +63,13 @@ The first pull request of part 3 (answers 506, 508 and 509) brings the phone's f
 - **Signing (answers 508 and 510):** the PC signs with its own ECDSA P-256 pair, made once while the history is open. Its private half is sealed with the history's key, like every record (`src/native/vault/signing.ts`), so a copy of the browser's files signs nothing without the passphrase; it is opened once per unlock, imported as a key the page cannot read back, and dropped when the history locks. Erasing content reseals it under the new key. Signatures are in the phone's DER form, so either device checks the other's.
 - **Words (answer 509):** on a PC, `useDeviceText` shows a text's PC wording where the catalogue has one in the interface's language, under the same key with `pc` before its last part. Restore, transfer, the devices page, the recovery sheet, exporting everything, the welcome, the reader's opening and spot-check pages, and the screens that lost their scan button or gained the save dialog have theirs; the other screens get theirs in their own parts.
 
+## Keeping the data and installing
+
+The second pull request of part 3 (answers 511 and 512) handles what the browser decides:
+
+- **Keeping the data:** a browser may clear a site's data when the PC runs short of space, unless it has agreed to keep it. Clearing this site's data in the browser deletes it either way, and the warning says so. The app asks through the storage manager as the passphrase is sent, on the first run and at the first try of each opening, while the click still counts as the teacher's. Chrome and Edge decide on their own, by how the site is used, and agree for an installed app; Firefox asks the teacher. The app reads the answer as it starts. While the browser has not agreed, the lock page says so at every opening, and Today offers «نسخة احتياطية الآن», the usual backup, until one is saved that day. It cannot be put off or turned off, unlike the 30-day reminder.
+- **Installing:** Chrome and Edge offer installing the app. `public/offer.js`, a small script that runs before the app's bundle, holds the offer from the page's first moment, and the app shows its own button instead. On the first run, when the browser offers it as the page shows and the app is not installed, a page before the passphrase says what installing gives, with «تثبيت «منهاجنا»», which opens the browser's own dialog, and «لاحقاً». Settings › «الأجهزة والنسخ» keeps the button while the offer lasts. A browser that makes no such offer, as Firefox, shows neither. The installed app shares the browser's storage, so nothing moves.
+
 ## The native modules
 
 | Module | On the web |
@@ -76,5 +83,6 @@ The first pull request of part 3 (answers 506, 508 and 509) brings the phone's f
 | CalendarInput | Updates, plan layers and statements as files, a statement PDF giving only its link; QR codes drawn, none scanned. |
 | Signature | Web Crypto's ECDSA P-256: the PC's own pair, sealed in the vault, and others' signatures checked. QR codes for statements. |
 | Pdf | Printing through the browser, in part 4. |
+| Browser | The web's own: whether the browser keeps the data, and its install offer. A phone has no such module. |
 
 Until its part comes, a module refuses each step with `E_WEB_NOT_YET`.

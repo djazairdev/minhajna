@@ -9,7 +9,8 @@
 // first, then is saved once the sheet is confirmed. The sheet prints again from
 // here. Nothing names where a backup went, and the project holds no key. The
 // last line says the app reminds after 30 days without a backup, or that the
-// reminder is off (answer 482).
+// reminder is off (answer 482). On a PC whose browser offers installing the
+// app, the page offers it too, for a teacher who put it off (answer 512).
 
 import { deviceFacts, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -20,6 +21,7 @@ import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
+import { useInstall } from '../lock/browser-offers';
 import { spacing } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { currentLanguage } from '../text/i18n';
@@ -51,6 +53,7 @@ export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: Dev
   const key = facts.recovery?.key;
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const started = useRef(false);
+  const offer = useInstall();
   const day = (one: Day) => dayName(t, one, currentLanguage(), profile);
   useEffect(() => {
     if (!backupNow) started.current = false;
@@ -72,6 +75,15 @@ export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: Dev
         },
       ]}
     >
+      {offer.state === 'offered' && (
+        <RowLink
+          testID="devices-install"
+          icon={controlIcon('offline')}
+          title={t('settings.devices.install')}
+          description={t('settings.devices.installLine')}
+          onPress={() => void offer.install()}
+        />
+      )}
       <Text style={[styles.sub, align]}>{t('settings.devices.yours')}</Text>
       <View testID="devices-sync" style={styles.card}>
         <Text accessibilityRole="header" style={[styles.title, align]}>

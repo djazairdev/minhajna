@@ -643,7 +643,15 @@
       "saved": "Today's backup is saved.",
       "failed": "The backup was not saved. Try again.",
       "back": "The reminder comes back {{day}}.",
-      "undo": "Undo"
+      "undo": "Undo",
+      "pc": {
+        "none": "No backup has been made on this PC yet.",
+        "body": "What no backup holds stays on this PC alone. The project holds no key, so it cannot recover it."
+      }
+    },
+    "keep": {
+      "now": "Back up now",
+      "where": "An encrypted file on a USB key or another disk, opened with the recovery key."
     }
   },
   "outcome": {
@@ -2133,7 +2141,28 @@
         "current": "Current passphrase",
         "next": "New passphrase",
         "submit": "Change"
-      }
+      },
+      "risk": {
+        "badge": "Warning",
+        "title": "The browser may clear Minhajna’s data from this PC",
+        "why": "It has not agreed to keep them, so it may clear them if the PC runs short of space.",
+        "after": "Once opened, “Today” offers a backup to a USB key or another disk.",
+        "stays": "This warning shows at each opening until the browser agrees to keep the data."
+      },
+      "install": {
+        "title": "Minhajna’s first opening on this PC",
+        "line": "Install it from the browser to work without internet, in its own window.",
+        "package": "A fixed package from the site that serves it; it loads nothing from any other site.",
+        "offline": "It then works without internet, and changes only when an update is accepted.",
+        "submit": "Install Minhajna",
+        "asks": "The browser asks first, in its own window.",
+        "later": "Later",
+        "next": "Then the passphrase for this PC, and asking the browser to keep the data.",
+        "done": "Minhajna is installed on this PC",
+        "opens": "It opens from the Start menu or the desktop, in its own window and without internet.",
+        "failed": "Minhajna was not installed. It can be installed later from “Devices and backups” or the browser’s menu."
+      },
+      "cleared": "Clearing this site’s data in the browser deletes it all, kept or not."
     }
   },
   "security": {

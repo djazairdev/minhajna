@@ -3,13 +3,15 @@
 
 // The PC's lock pages (#250, Web-unlock design): the board with the chalk
 // mim, the name and the tagline beside a paper side that holds the form,
-// then a line for a wrong passphrase or a wait, then what the lock does,
-// each with a tick. In a narrow window the board sits above the form. The
-// message's live region stays in place, empty when there is nothing to
-// say, so screen readers announce what comes into it. A countdown is not
-// read out each second: its first words go to a hidden live region for a
-// few seconds, so a wait is heard once as it starts. The page scrolls, so
-// text at 200% stays readable. No record shows on it.
+// under a warning when there is one, such as the browser not keeping the
+// data (Web-unlock-risk), then a line for a wrong passphrase or a wait,
+// then what the lock does, each with a tick. In a narrow window the board
+// sits above the form. The message's live region stays in place, empty
+// when there is nothing to say, so screen readers announce what comes into
+// it. A countdown is not read out each second: its first words go to a
+// hidden live region for a few seconds, so a wait is heard once as it
+// starts. The page scrolls, so text at 200% stays readable. No record
+// shows on it.
 
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -35,11 +37,13 @@ export type WebLockPageProps = {
   readonly detail?: string;
   /** What the lock does, one fact a line. */
   readonly facts: readonly string[];
+  /** Shown under the title, before the form. */
+  readonly warning?: ReactNode;
   readonly children: ReactNode;
 };
 
 /** The board and the paper side of a lock page. */
-export function WebLockPage({ title, message, live = true, detail, facts, children }: WebLockPageProps) {
+export function WebLockPage({ title, message, live = true, detail, facts, warning, children }: WebLockPageProps) {
   const t = useText();
   const { direction } = useLocale();
   const { width } = useWindowDimensions();
@@ -85,6 +89,7 @@ export function WebLockPage({ title, message, live = true, detail, facts, childr
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {title}
           </Text>
+          {warning}
           {children}
           <View style={styles.messages}>
             <Text accessibilityLiveRegion={live ? 'polite' : 'none'} style={[styles.message, align]}>

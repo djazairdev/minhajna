@@ -5,14 +5,20 @@
 // «فتح» or Enter, to the storage module, which counts wrong tries and keeps
 // the wait as the phone's does, so a reload resets nothing. A wait reads its
 // time left from the module each second (useWait). «نسيت عبارة المرور؟» says
-// what is left to do, as nobody can recover the passphrase.
+// what is left to do, as nobody can recover the passphrase. While the
+// browser has not agreed to keep the data, the page warns at each opening
+// (Web-unlock-risk, answer 511), saying too that clearing the site's data
+// deletes it either way; the first passphrase sent at each opening asks
+// the browser again, while the click still counts as the teacher's.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { Button } from '../components/Button';
+import { Notice } from '../components/Notice';
 import { TextField } from '../components/TextField';
 import { colors, spacing, typography } from '../design/tokens';
 import { useText } from '../text/i18n';
+import { askToKeep, useDataKept } from './browser-offers';
 import { errorCode, waitWording } from './lock-rules';
 import type { UnlockProps } from './lock-props';
 import { useWait } from './useWait';
@@ -34,7 +40,9 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
   );
   const [busy, setBusy] = useState(false);
   const [forgot, setForgot] = useState(false);
+  const kept = useDataKept();
   const mounted = useRef(true);
+  const asked = useRef(false);
 
   useEffect(() => {
     mounted.current = true;
@@ -46,6 +54,8 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
   const waiting = wait > 0;
   const submit = () => {
     if (busy || waiting || passphrase === '') return;
+    if (!asked.current) void askToKeep();
+    asked.current = true;
     setBusy(true);
     storage.unlock(passphrase).then(
       (result) => {
@@ -86,6 +96,22 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
       live={!waiting}
       detail={waiting ? t('lock.web.waitWhy') : undefined}
       facts={[t('lock.web.kept'), t('lock.web.locks', { count: lockMinutes })]}
+      warning={
+        kept === false && (
+          <Notice
+            testID="keep-risk"
+            variant="notice"
+            badge={t('lock.web.risk.badge')}
+            title={t('lock.web.risk.title')}
+            message={[
+              t('lock.web.risk.why'),
+              t('lock.web.cleared'),
+              t('lock.web.risk.after'),
+              t('lock.web.risk.stays'),
+            ].join(' ')}
+          />
+        )
+      }
     >
       <TextField
         testID="passphrase"
