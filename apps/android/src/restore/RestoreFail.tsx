@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { spacing } from '../design/tokens';
 import { settingsStyles as styles } from '../settings/styles';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import type { RestoreRoute } from './restore-run';
 
 const WORDS = {
@@ -25,7 +25,7 @@ const WORDS = {
 
 /** The refusal of a transfer file, a backup or an export, and the way back to choosing another file. */
 export function RestoreFail({ route, onAgain }: { readonly route: RestoreRoute; readonly onAgain: () => void }) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;

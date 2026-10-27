@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: parts 1 and 2 of four.** The app starts, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser. Files in and out come in part 3, and updates, erasing the PC and printing in part 4; until then those steps are refused. Use made-up data only.
+**Status: parts 1 and 2 of four, and the first pull request of part 3.** The app starts, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser. It restores a backup or a transfer file from the phone, sends a transfer back, and makes, opens and shares files. The keep-storage warning and the handover rule finish part 3; updates, erasing the PC and printing come in part 4. Until then those steps are refused. Use made-up data only.
 
 ## Build and try it
 
@@ -50,6 +50,19 @@ Part 2 (answers 502, 504 and 505) puts the phone's lock and history in the brows
 - **A forgotten passphrase** cannot be recovered by anyone; the PC must then be erased. Until part 4 brings «مسح هذا الحاسوب», that means clearing this site's data in the browser's settings.
 - **Password managers** get the usual hints: the lock's field is the current password, and the new and repeated ones are new passwords.
 
+## Files in and out
+
+The first pull request of part 3 (answers 506, 508 and 509) brings the phone's files to the PC:
+
+- **Files** come through the browser's file dialog. They leave through the browser's save dialog where it has one (Chrome and Edge), which tells the app when the teacher closes it; elsewhere they leave as a download, which the page cannot follow, so it counts as saved. Browsers share few kinds of file, Chrome and Edge no ZIP at all, so a PC's transfer and marks export offer Save alone. Where a screen can only send, sending fails where the browser cannot share the file; it never turns into a download that says it was shared. Nothing is uploaded.
+- **A file dialog** that a browser closes without saying so stops blocking once the page has its focus back: the next pick, from any screen, replaces it.
+- **Archives** are written and read with zip.js, in the same AES-256 form as the phone's (WinZip's AE-2, strength 3), so a backup or a transfer file opens on either. A picked archive is refused as the phone refuses it: too large, not an archive, a changed file, a wrong password, or a file with no password where one is needed.
+- **Text files** are read as the phone reads them: UTF-16 after its mark, then strict UTF-8, then Windows-1256, as Excel writes them. Binary files and files over 2 MB are refused.
+- **QR codes** come from the JavaScript port of the ZXing encoder the phone uses. The port differs from the phone's Java 3.5.4 in two places, which `src/native/files/qr.ts` replaces with Java's: its version check did not round bits down to bytes, so a text filling a version went one version up; and its mask penalty counted cells past the code's edge as light, so it chose another mask for some texts. With both replaced, 300 made-up texts in every mode gave the same cells as the Java encoder, and `test/qr.test.ts` keeps eight of them. The build bundles only ZXing's encoder.
+- **No camera (answer 506):** a PC scans nothing. Every place the phone scans already takes a file or a typed key, and on a PC the scan buttons are gone.
+- **Signing (answers 508 and 510):** the PC signs with its own ECDSA P-256 pair, made once while the history is open. Its private half is sealed with the history's key, like every record (`src/native/vault/signing.ts`), so a copy of the browser's files signs nothing without the passphrase; it is opened once per unlock, imported as a key the page cannot read back, and dropped when the history locks. Erasing content reseals it under the new key. Signatures are in the phone's DER form, so either device checks the other's.
+- **Words (answer 509):** on a PC, `useDeviceText` shows a text's PC wording where the catalogue has one in the interface's language, under the same key with `pc` before its last part. Restore, transfer, the devices page, the recovery sheet, exporting everything, the welcome, the reader's opening and spot-check pages, and the screens that lost their scan button or gained the save dialog have theirs; the other screens get theirs in their own parts.
+
 ## The native modules
 
 | Module | On the web |
@@ -59,7 +72,9 @@ Part 2 (answers 502, 504 and 505) puts the phone's lock and history in the brows
 | Notify | None: the phone carries the reminders. |
 | StorageCheck | Absent, as in a release build. |
 | Storage | The browser's SHA-256 and random bytes, the passphrase lock, and the history and timings sealed in IndexedDB. A PC has no fingerprint prompt. Erasing the PC comes in part 4. |
-| Files, CalendarInput, Signature | Come in part 3. |
+| Files | The file dialog, the save dialog or a download, and the share menu where the browser shares the file; archives with zip.js. A PDF to keep is the phone's only. |
+| CalendarInput | Updates, plan layers and statements as files, a statement PDF giving only its link; QR codes drawn, none scanned. |
+| Signature | Web Crypto's ECDSA P-256: the PC's own pair, sealed in the vault, and others' signatures checked. QR codes for statements. |
 | Pdf | Printing through the browser, in part 4. |
 
 Until its part comes, a module refuses each step with `E_WEB_NOT_YET`.

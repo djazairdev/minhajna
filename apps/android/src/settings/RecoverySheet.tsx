@@ -27,7 +27,8 @@ import { isolate } from '../week/grid-labels';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { useAppData } from '../storage/AppData';
 import { fromHex } from '../storage/history';
-import { currentLanguage, useText } from '../text/i18n';
+import { currentLanguage } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { recoveryHtml } from './recovery-html';
 import { KeyGroups } from './KeyGroups';
 import { settingsStyles as styles } from './styles';
@@ -49,7 +50,7 @@ const LINES = [
 ] as const;
 
 export function RecoverySheet({ storage, first, onConfirmed }: RecoverySheetProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { entries, record, erase, allSaved } = useAppData();

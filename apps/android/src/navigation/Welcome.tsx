@@ -18,7 +18,7 @@ import { Facts } from '../components/Facts';
 import { WelcomeHero } from '../components/WelcomeHero';
 import { colors, spacing, typography } from '../design/tokens';
 import { PreviewNotice } from '../help/BuildFacts';
-import { useText } from '../text/i18n';
+import { onPc, useDeviceText } from '../text/device-text';
 import { LanguageChoice } from './LanguageChoice';
 
 /**
@@ -43,7 +43,7 @@ export function Welcome({
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const refusals = [referenceRefused && t('referenceRefused'), historyRefused && t('historyRefused')];
   return (
     <ScrollView
@@ -74,7 +74,7 @@ export function Welcome({
           facts={[
             { icon: 'no_account', text: t('welcome.noAccount') },
             { icon: 'offline', text: t('welcome.offline') },
-            { icon: 'phone', text: t('welcome.onPhone') },
+            { icon: onPc() ? 'lock' : 'phone', text: t('welcome.onPhone') },
           ]}
         />
       </View>

@@ -31,6 +31,8 @@ import {
 export const KEY = 'key';
 const ATTEMPTS = 'attempts';
 export const HEAD = 'head';
+/** The PC's signing pair, sealed with the history (vault/signing.ts). */
+export const SIGNING = 'signing';
 
 /** The open history's key, the key that seals it, and the stamp of its sealed copy on disk. */
 interface Open {
@@ -41,6 +43,12 @@ interface Open {
 
 let opened: Open | null = null;
 let queue: Promise<unknown> = Promise.resolve();
+const forgetters = new Set<() => void>();
+
+/** Has `forget` drop what the page holds from the open history whenever it locks. */
+export function forgetOnLock(forget: () => void): void {
+  forgetters.add(forget);
+}
 
 /** An error with the native module's code. */
 export function coded(message: string, code: string): Error {
@@ -156,6 +164,7 @@ export function createLock(passphrase: string): Promise<void> {
         meta.add(sealed, KEY);
         meta.delete(ATTEMPTS);
         meta.delete(HEAD);
+        meta.delete(SIGNING);
         transaction.objectStore('timings').clear();
       };
       return () => undefined;
@@ -240,10 +249,11 @@ export function changePassphrase(current: string, next: string): Promise<PinResu
   });
 }
 
-/** Forgets the history's key and its sealing key; only the passphrase opens it again. */
+/** Forgets the history's key, its sealing key and what was opened with them; only the passphrase opens it again. */
 export function lockHistory(): Promise<void> {
   return serial(() => {
     opened = null;
+    forgetters.forEach((forget) => forget());
     return Promise.resolve();
   });
 }

@@ -90,9 +90,9 @@ describe('the web modules', () => {
     assert.equal((await Storage.lockStatus()).state, 'setup');
   });
 
-  it('refuses every step of the later parts as not built yet, keeping nothing', async () => {
+  it('refuses every step of the later parts as not built yet, and a PDF to keep, keeping nothing', async () => {
     await assert.rejects(Storage.eraseDevice(), { code: 'E_WEB_NOT_YET' });
-    await assert.rejects(Files.openText(), { code: 'E_WEB_NOT_YET' });
+    await assert.rejects(Files.adoptPdf('made', 'marks.pdf', ''), { code: 'E_WEB_PHONE_ONLY' });
     assert.equal(kept.size, 0);
   });
 });

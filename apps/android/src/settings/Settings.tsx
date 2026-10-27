@@ -16,7 +16,7 @@ import { readerOnly } from '../reader/reader-only';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { signatureStatus } from '../drawn/DrawnSignature';
 import { backupLine } from './backup-line';
 import { retentionLine } from './Retention';
@@ -85,7 +85,7 @@ const READER_ROWS: readonly string[] = [
  * show (answer 490).
  */
 export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: string) => void }) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { state, profile, year, calendar, calendarRelease, packs, unsaved, entries } = useAppData();

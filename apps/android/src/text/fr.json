@@ -93,7 +93,12 @@
     "onPhone": "Les données restent sur ce téléphone",
     "start": "Commencer",
     "reader": "Ouvrir le relevé d’un enseignant",
-    "restore": "J’ai une copie d’un autre téléphone"
+    "restore": "J’ai une copie d’un autre téléphone",
+    "pc": {
+      "noAccount": "Sans compte ; rien n’est envoyé à un serveur",
+      "onPhone": "Les données restent dans ce navigateur",
+      "restore": "J’ai une copie de mon téléphone"
+    }
   },
   "privacy": {
     "title": "Avant de commencer",
@@ -1108,7 +1113,10 @@
       "payload": "Quelque chose dans la couche ne respecte pas son format, ou elle est pour un autre pays.",
       "level": "Une couche de circonscription n’arrive que dans un fichier signé, et une couche d’établissement n’arrive jamais signée.",
       "signer": "La clé qui a signé le fichier ne signe ni les packs ni leurs couches.",
-      "input": "Le fichier ou le code n’a pas pu être lu."
+      "input": "Le fichier ou le code n’a pas pu être lu.",
+      "pc": {
+        "input": "Le fichier n’a pas pu être lu."
+      }
     },
     "refused": "La couche de la classe n’a pas pu être changée.",
     "export": {
@@ -3511,7 +3519,10 @@
         "open": "Sans mot de passe, quiconque reçoit le fichier peut le lire.",
         "save": "Choisir où enregistrer",
         "picker": "Le sélecteur de fichiers du téléphone s’ouvre ; l’enregistrement et le partage sont inscrits au journal d’activité.",
-        "unavailable": "Pas de fichier avant que les notes et appréciations du trimestre soient complètes."
+        "unavailable": "Pas de fichier avant que les notes et appréciations du trimestre soient complètes.",
+        "pc": {
+          "picker": "Le navigateur enregistre le fichier où vous choisissez, ou dans ses téléchargements ; l’enregistrement est inscrit au journal d’activité."
+        }
       },
       "share": {
         "title": "Partager le relevé",
@@ -3771,7 +3782,10 @@
       "version": "Le relevé vient d’une version plus récente de l’application : mettez-la à jour pour le lire.",
       "payload": "La signature est valide, mais le contenu du relevé ne suit pas son format : il n’est pas gardé.",
       "unreadable": "Le fichier ou le code n’a pas pu être lu.",
-      "noLink": "Aucun relevé n’a été trouvé dans ce PDF. Ouvrez le fichier tel que l’enseignant l’a envoyé, ou scannez son code QR."
+      "noLink": "Aucun relevé n’a été trouvé dans ce PDF. Ouvrez le fichier tel que l’enseignant l’a envoyé, ou scannez son code QR.",
+      "pc": {
+        "noLink": "Aucun relevé n’a été trouvé dans ce PDF. Ouvrez le fichier tel que l’enseignant l’a envoyé."
+      }
     },
     "day": "Date du relevé",
     "teacher": "Enseignant",
@@ -3870,6 +3884,10 @@
         "delay": "Retard sur le plan",
         "notHeld": "Séances non tenues"
       }
+    },
+    "pc": {
+      "intro": "Le relevé d’un enseignant s’ouvre depuis son fichier, signé ou PDF, et sa signature est vérifiée avant tout. Sans compte.",
+      "gone": "Ce relevé n’est plus sur ce PC."
     }
   }
 }

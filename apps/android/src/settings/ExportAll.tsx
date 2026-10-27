@@ -33,7 +33,7 @@ import { passwordAllowed, safeFileName } from '../marks/export-file-rules';
 import build from '../native/NativeMinhajnaBuild';
 import files from '../native/NativeMinhajnaFiles';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { exportFiles, type ExportFile, type ExportFormat } from './export-all-files';
 import { settingsStyles as styles } from './styles';
 
@@ -46,7 +46,7 @@ export function sizeLine(t: Translate, made: readonly ExportFile[]): string {
 }
 
 export function ExportAll() {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const documents = useDocumentData();

@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { canShareFiles } from '../components/device-abilities';
 import { Notice } from '../components/Notice';
 import { QrCode } from './QrCode';
 import { controlIcon } from '../design/Icon';
@@ -32,7 +33,7 @@ import files from '../native/NativeMinhajnaFiles';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { useAppData } from '../storage/AppData';
 import { fromHex } from '../storage/history';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { archiveFile } from './export-all-files';
 import { KeyGroups } from './KeyGroups';
 import { settingsStyles as styles } from './styles';
@@ -47,7 +48,7 @@ type Said = 'shared' | 'saved' | 'failed';
 const CARRIED = ['settings.transfer.carries', 'settings.transfer.notCarried'] as const;
 
 export function Transfer({ storage }: TransferProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const documents = useDocumentData();
@@ -123,16 +124,20 @@ export function Transfer({ storage }: TransferProps) {
             {t(line)}
           </Text>
         ))}
-        <Button
-          testID="transfer-share"
-          label={t('settings.transfer.share')}
-          disabled={busy}
-          onPress={() => send('share')}
-        />
-        <Text style={[styles.sub, align]}>{t('settings.transfer.shareLine')}</Text>
+        {canShareFiles() && (
+          <>
+            <Button
+              testID="transfer-share"
+              label={t('settings.transfer.share')}
+              disabled={busy}
+              onPress={() => send('share')}
+            />
+            <Text style={[styles.sub, align]}>{t('settings.transfer.shareLine')}</Text>
+          </>
+        )}
         <Button
           testID="transfer-save"
-          variant="line"
+          variant={canShareFiles() ? 'line' : 'primary'}
           label={t('settings.transfer.save')}
           disabled={busy}
           onPress={() => send('save')}

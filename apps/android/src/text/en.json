@@ -88,7 +88,12 @@
     "onPhone": "Your data stays on this phone",
     "start": "Let’s start",
     "reader": "Open a teacher’s statement",
-    "restore": "I have a copy from another phone"
+    "restore": "I have a copy from another phone",
+    "pc": {
+      "noAccount": "No account; nothing sent to a server",
+      "onPhone": "Your data stays in this browser",
+      "restore": "I have a copy from my phone"
+    }
   },
   "privacy": {
     "title": "Before you start",
@@ -1082,7 +1087,10 @@
       "payload": "Something in the layer does not fit its format, or it is for another country.",
       "level": "A district layer only comes in a signed file, and a school layer never comes signed.",
       "signer": "The key that signed the file does not sign packs or their layers.",
-      "input": "The file or code could not be read."
+      "input": "The file or code could not be read.",
+      "pc": {
+        "input": "The file could not be read."
+      }
     },
     "refused": "The class’s layer could not be changed now.",
     "export": {
@@ -3452,7 +3460,10 @@
         "open": "Without a password, anyone who gets the file can read it.",
         "save": "Choose where to save",
         "picker": "The phone’s file picker opens; saving and sharing are written to the activity log.",
-        "unavailable": "No file until the term’s marks and appreciations are complete."
+        "unavailable": "No file until the term’s marks and appreciations are complete.",
+        "pc": {
+          "picker": "The browser saves the file where you choose, or in its downloads; the save is written to the activity log."
+        }
       },
       "share": {
         "title": "Share the mark sheet",
@@ -3707,7 +3718,10 @@
       "version": "The statement comes from a newer version of the app: update the app to read it.",
       "payload": "The signature is valid, but the statement’s content does not follow its format, so it is not kept.",
       "unreadable": "The file or the code could not be read.",
-      "noLink": "No statement was found in this PDF. Open the file as the teacher sent it, or scan its QR code."
+      "noLink": "No statement was found in this PDF. Open the file as the teacher sent it, or scan its QR code.",
+      "pc": {
+        "noLink": "No statement was found in this PDF. Open the file as the teacher sent it."
+      }
     },
     "day": "Statement date",
     "teacher": "Teacher",
@@ -3802,6 +3816,10 @@
         "delay": "Behind the plan",
         "notHeld": "Sessions not held"
       }
+    },
+    "pc": {
+      "intro": "A teacher’s statement opens from its file, signed or PDF, and its signature is checked before anything else. No account.",
+      "gone": "This statement is no longer on this PC."
     }
   }
 }
