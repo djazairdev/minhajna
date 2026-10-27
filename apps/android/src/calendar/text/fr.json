@@ -200,7 +200,10 @@
       "scope": "L’établissement, la wilaya ou les niveaux ne correspondent pas. Vérifiez l’avis et votre sélection.",
       "conflict": "Une date avec le même identifiant a un contenu différent. Vérifiez-la dans le calendrier ; rien ne sera remplacé automatiquement.",
       "acknowledge": "Vérifiez d’abord l’avis et confirmez qu’il concerne votre sélection.",
-      "input": "Le fichier ou le code n’a pas pu être lu. Réessayez ou utilisez un fichier à la place de la caméra."
+      "input": "Le fichier ou le code n’a pas pu être lu. Réessayez ou utilisez un fichier à la place de la caméra.",
+      "pc": {
+        "input": "Le fichier n’a pas pu être lu. Réessayez, ou choisissez un autre fichier."
+      }
     }
   },
   "update": {

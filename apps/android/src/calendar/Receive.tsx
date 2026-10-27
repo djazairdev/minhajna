@@ -15,6 +15,7 @@ import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { canScan } from '../components/device-abilities';
 import { Button } from '../components/Button';
 import { CheckRow } from '../components/CheckRow';
 import { ChipGroup } from '../components/Chip';
@@ -24,7 +25,7 @@ import { spacing } from '../design/tokens';
 import { settingsStyles as styles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { Impact } from './Impact';
 import { ReceiveNotice } from './ReceiveNotice';
 import { SaveProblem } from './SaveProblem';
@@ -44,7 +45,7 @@ export function Receive({
   onIgnore: () => void;
 }) {
   const data = useAppData();
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const writer = useCalendarSave();
@@ -123,13 +124,15 @@ export function Receive({
         disabled={busy}
         onPress={() => read('file')}
       />
-      <Button
-        testID="calendar-receive-qr"
-        variant="line"
-        label={t('calendarView.receive.qr')}
-        disabled={busy}
-        onPress={() => read('qr')}
-      />
+      {canScan() && (
+        <Button
+          testID="calendar-receive-qr"
+          variant="line"
+          label={t('calendarView.receive.qr')}
+          disabled={busy}
+          onPress={() => read('qr')}
+        />
+      )}
       {input.problem !== null && (
         <Notice
           testID="calendar-input-problem"

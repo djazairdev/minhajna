@@ -192,6 +192,9 @@
       "lines": "What was recorded",
       "homework": "Homework",
       "due": "Due"
+    },
+    "pc": {
+      "saveNote": "The browser saves the file where you choose, or in its downloads, and the export is written in the activity log."
     }
   },
   "eraseDevice": {
@@ -238,7 +241,10 @@
     "noKey": "The project holds no key, so it cannot recover the data.",
     "backupName": "Minhajna backup",
     "reminder": "The app reminds you after 30 days without a backup, unless the reminder is turned off in “Notifications”.",
-    "reminderOff": "The backup reminder is turned off in “Notifications”."
+    "reminderOff": "The backup reminder is turned off in “Notifications”.",
+    "pc": {
+      "backupLine": "An encrypted file, saved where you choose or in the browser’s downloads; keep a copy on a USB key. Nothing is sent to a server."
+    }
   },
   "recovery": {
     "title": "Recovery sheet",
@@ -260,7 +266,12 @@
     "confirm": "Confirm",
     "newKey": "New key",
     "newLine": "If the sheet is lost, a new key replaces it. Backups made before stay on the old key, so save a new backup after it.",
-    "failed": "The sheet was not saved. Try again."
+    "failed": "The sheet was not saved. Try again.",
+    "pc": {
+      "intro": "This is the recovery key. It brings the data back on a new device if this PC or the phone is lost, and it opens the backups.",
+      "keep": "Keep it at home, away from this PC, as you keep official papers. Do not photograph it or send it.",
+      "guarded": "The key is sent to no server."
+    }
   },
   "transfer": {
     "title": "Direct transfer",
@@ -286,7 +297,19 @@
     "onNew": "On the new phone: “I have a copy from another phone” › “The old phone in hand”, then the transfer file, then scan this code.",
     "confidential": "Internal · confidential. The file holds pupils' data: send it only to your new phone, never through a messaging app.",
     "guarded": "Screenshots are blocked here. The code is kept nowhere and sent to no server.",
-    "fileName": "Minhajna transfer"
+    "fileName": "Minhajna transfer",
+    "pc": {
+      "sub": "From this PC to your phone",
+      "intro": "From here, an encrypted file with all your data goes to your phone; the phone then scans the code shown here to open it, with no server and no internet.",
+      "notCarried": "The personal fields of the teacher card and the drawn signature: typed and drawn again on the phone.",
+      "saveLine": "On this PC or a USB key, then to your phone by cable or USB key.",
+      "codeLine": "It opens only the transfer file made here, and stops working once this screen closes, so keep it open until the phone is done.",
+      "qr": "QR code to open the transfer file on the phone",
+      "typed": "Or type it on the phone:",
+      "onNew": "On the phone: “I have a copy from another phone” › “The old phone in hand”, then the transfer file, then scan this code.",
+      "confidential": "Internal · confidential. The file holds pupils' data: send it only to your phone, never through a messaging app.",
+      "guarded": "The code is kept nowhere and sent to no server."
+    }
   },
   "restore": {
     "title": "Restore your data",
@@ -341,7 +364,12 @@
       "failed": "Nothing was restored. Try again.",
       "qr": "This is not a Minhajna transfer code.",
       "camera": "The camera could not open. Type the code instead.",
-      "scan": "The code could not be scanned. Type it instead."
+      "scan": "The code could not be scanned. Type it instead.",
+      "pc": {
+        "code-form": "The code is 24 letters and digits, as on the phone.",
+        "code": "This code does not open the file. Is it the file made with this code? If the phone's transfer screen was closed, send a new file from it.",
+        "too-large": "The file is too large to open on this PC."
+      }
     },
     "fail": {
       "title": "Nothing was restored",
@@ -353,10 +381,28 @@
       "askPhone": "Send a new transfer file from the old phone, then scan its new code.",
       "ask": "If the old phone is in hand, save a new backup from it. If not, choose another backup file, or check the key.",
       "askArchive": "If the phone it came from is in hand, export the file again. If not, choose another file, or check the password.",
-      "again": "Choose another file"
+      "again": "Choose another file",
+      "pc": {
+        "nothing": "Nothing from it was kept on this PC, and the file stays where it is, as it is.",
+        "askPhone": "Send a new transfer file from the phone, then type its new code.",
+        "ask": "If the phone is in hand, save a new backup from it. If not, choose another backup file, or check the key.",
+        "askArchive": "If the device it came from is in hand, export the file again. If not, choose another file, or check the password."
+      }
+    },
+    "pc": {
+      "sub": "From your phone or a backup",
+      "phone": "The phone in hand",
+      "phoneLine": "The phone's transfer file, then its code",
+      "phoneHow": "On the phone: Settings › Devices and backups › Direct transfer. Save the transfer file, bring it to this PC by cable or USB key, then type the code the phone shows.",
+      "backupLine": "From this PC or a USB key, then the recovery key",
+      "local": "The file is chosen from this PC or a USB key, and is uploaded nowhere.",
+      "code": "The code shown on the phone"
     }
   },
   "sharing": "Sharing",
   "statementLine": "Per class, no pupil data",
-  "receivedLine": "Teachers’ statements, checked and kept on your devices"
+  "receivedLine": "Teachers’ statements, checked and kept on your devices",
+  "pc": {
+    "phone": "This PC"
+  }
 }

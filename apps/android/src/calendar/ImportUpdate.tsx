@@ -26,6 +26,7 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { canScan } from '../components/device-abilities';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
@@ -33,7 +34,7 @@ import { spacing } from '../design/tokens';
 import { settingsStyles as styles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { Impact } from './Impact';
 import { PackDetails } from './PackDetails';
 import { SaveProblem } from './SaveProblem';
@@ -62,7 +63,7 @@ export function ImportUpdate({
   onPlan?: (courseId: string) => void;
 }) {
   const data = useAppData();
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const input = useUpdateInput();
@@ -137,10 +138,12 @@ export function ImportUpdate({
         {t('calendarView.update.lead')}
       </Text>
       <Notice icon={controlIcon('info')} message={t('calendarView.update.hint')} />
-      <Button testID="update-qr" label={t('calendarView.receive.qr')} disabled={busy} onPress={() => read('qr')} />
+      {canScan() && (
+        <Button testID="update-qr" label={t('calendarView.receive.qr')} disabled={busy} onPress={() => read('qr')} />
+      )}
       <Button
         testID="update-file"
-        variant="line"
+        variant={canScan() ? 'line' : 'primary'}
         label={opened?.read.ok === false ? t('calendarView.update.another') : t('calendarView.receive.file')}
         disabled={busy}
         onPress={() => read('file')}

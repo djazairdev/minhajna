@@ -23,6 +23,7 @@ import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { canScan } from '../components/device-abilities';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
@@ -36,7 +37,7 @@ import { putOffFromRestore } from '../settings/backup-later';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
 import { nativeDeps } from '../storage/history';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { restoreFile, zipProblem, type RestoreProblem, type RestoreRoute } from './restore-run';
 import { RestoreFail } from './RestoreFail';
 import { scanKey } from './scan-key';
@@ -60,7 +61,7 @@ const WORDS = {
 } as const;
 
 export function Restore({ storage, onRestored }: RestoreProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { profile, today } = useAppData();
@@ -238,7 +239,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
           editable={!busy}
         />
         {!keyed && <Text style={[styles.sub, align]}>{t('settings.restore.passwordLine')}</Text>}
-        {route === 'phone' && (
+        {route === 'phone' && canScan() && (
           <Button
             testID="restore-scan"
             variant="line"
@@ -247,7 +248,7 @@ export function Restore({ storage, onRestored }: RestoreProps) {
             onPress={() => void scan()}
           />
         )}
-        {route === 'phone' && <Text style={[styles.sub, align]}>{t('settings.restore.camera')}</Text>}
+        {route === 'phone' && canScan() && <Text style={[styles.sub, align]}>{t('settings.restore.camera')}</Text>}
       </View>
       <View testID="restore-left" style={styles.card}>
         <Text accessibilityRole="header" style={[styles.title, align]}>

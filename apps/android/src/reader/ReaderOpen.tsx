@@ -14,13 +14,14 @@ import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { canScan } from '../components/device-abilities';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { ReaderStatement } from './ReaderStatement';
 import { useStatementInput, type OpenedStatement } from './useStatementInput';
 
@@ -35,7 +36,7 @@ export type ReaderOpenProps = {
 };
 
 export function ReaderOpen({ id, onList, onSpot }: ReaderOpenProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { entries, record, newId, today } = useAppData();
@@ -78,15 +79,17 @@ export function ReaderOpen({ id, onList, onSpot }: ReaderOpenProps) {
         <>
           <Text style={[styles.body, align]}>{t('reader.intro')}</Text>
           <View style={{ gap: spacing['space-8'] }}>
-            <Button
-              testID="reader-scan"
-              label={t('reader.scan')}
-              disabled={input.busy}
-              onPress={() => void input.read('qr')}
-            />
+            {canScan() && (
+              <Button
+                testID="reader-scan"
+                label={t('reader.scan')}
+                disabled={input.busy}
+                onPress={() => void input.read('qr')}
+              />
+            )}
             <Button
               testID="reader-file"
-              variant="line"
+              variant={canScan() ? 'line' : 'primary'}
               label={t('reader.file')}
               disabled={input.busy}
               onPress={() => void input.read('file')}

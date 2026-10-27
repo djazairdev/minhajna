@@ -193,6 +193,9 @@
       "lines": "Ce qui est inscrit",
       "homework": "Devoir",
       "due": "Pour le"
+    },
+    "pc": {
+      "saveNote": "Le navigateur enregistre le fichier où vous choisissez, ou dans ses téléchargements, et l’export est inscrit dans le journal d’activité."
     }
   },
   "eraseDevice": {
@@ -241,7 +244,10 @@
     "noKey": "Le projet n’a aucune clé : il ne peut pas récupérer les données.",
     "backupName": "Sauvegarde Minhajna",
     "reminder": "Après 30 jours sans sauvegarde, l’application affiche un rappel, sauf s’il est désactivé dans « Notifications ».",
-    "reminderOff": "Le rappel de sauvegarde est désactivé dans « Notifications »."
+    "reminderOff": "Le rappel de sauvegarde est désactivé dans « Notifications ».",
+    "pc": {
+      "backupLine": "Un fichier chiffré, enregistré où vous choisissez ou dans les téléchargements du navigateur ; gardez-en une copie sur une clé USB. Rien n’est envoyé à un serveur."
+    }
   },
   "recovery": {
     "title": "Feuille de récupération",
@@ -263,7 +269,12 @@
     "confirm": "Confirmer",
     "newKey": "Nouvelle clé",
     "newLine": "Si la feuille est perdue, une nouvelle clé la remplace. Les sauvegardes déjà faites restent sur l’ancienne clé : faites-en une nouvelle ensuite.",
-    "failed": "La feuille n’a pas été enregistrée. Réessayez."
+    "failed": "La feuille n’a pas été enregistrée. Réessayez.",
+    "pc": {
+      "intro": "Voici la clé de récupération. Elle rétablit les données sur un nouvel appareil si ce PC ou le téléphone est perdu, et ouvre les sauvegardes.",
+      "keep": "Gardez-la à la maison, loin de ce PC, comme un document officiel. Ne la photographiez pas et ne l’envoyez pas.",
+      "guarded": "La clé n’est envoyée à aucun serveur."
+    }
   },
   "transfer": {
     "title": "Transfert direct",
@@ -289,7 +300,19 @@
     "onNew": "Sur le nouveau téléphone : « J’ai une copie d’un autre téléphone » › « L’ancien téléphone en main », puis le fichier de transfert, puis scannez ce code.",
     "confidential": "Interne · confidentiel. Le fichier contient les données des élèves : envoyez-le seulement à votre nouveau téléphone, jamais par une messagerie.",
     "guarded": "Les captures d’écran sont bloquées ici. Le code n’est gardé nulle part et n’est envoyé à aucun serveur.",
-    "fileName": "Transfert Minhajna"
+    "fileName": "Transfert Minhajna",
+    "pc": {
+      "sub": "De ce PC vers votre téléphone",
+      "intro": "D’ici, un fichier chiffré avec toutes les données part vers votre téléphone ; le téléphone scanne ensuite le code affiché ici pour l’ouvrir, sans serveur ni internet.",
+      "notCarried": "Les champs personnels de la fiche enseignant et la signature dessinée : à saisir et dessiner de nouveau sur le téléphone.",
+      "saveLine": "Sur ce PC ou une clé USB, puis vers votre téléphone par câble ou clé USB.",
+      "codeLine": "Il n’ouvre que le fichier de transfert préparé ici, et ne vaut plus une fois cet écran fermé : gardez-le ouvert jusqu’à ce que le téléphone ait fini.",
+      "qr": "Code QR pour ouvrir le fichier de transfert sur le téléphone",
+      "typed": "Ou à saisir sur le téléphone :",
+      "onNew": "Sur le téléphone : « J’ai une copie d’un autre téléphone » › « L’ancien téléphone en main », puis le fichier de transfert, puis scannez ce code.",
+      "confidential": "Interne · confidentiel. Le fichier contient les données des élèves : envoyez-le seulement à votre téléphone, jamais par une messagerie.",
+      "guarded": "Le code n’est gardé nulle part et n’est envoyé à aucun serveur."
+    }
   },
   "restore": {
     "title": "Restaurer les données",
@@ -344,7 +367,12 @@
       "failed": "Rien n’a été restauré. Réessayez.",
       "qr": "Ce n’est pas un code de transfert Minhajna.",
       "camera": "La caméra n’a pas pu s’ouvrir. Saisissez le code à la place.",
-      "scan": "Le code n’a pas pu être lu. Saisissez-le à la place."
+      "scan": "Le code n’a pas pu être lu. Saisissez-le à la place.",
+      "pc": {
+        "code-form": "Le code compte 24 lettres et chiffres, comme sur le téléphone.",
+        "code": "Ce code n’ouvre pas le fichier. Est-ce le fichier préparé avec ce code ? Si l’écran de transfert du téléphone a été fermé, envoyez-en un nouveau fichier.",
+        "too-large": "Le fichier est trop grand pour être ouvert sur ce PC."
+      }
     },
     "fail": {
       "title": "Rien n’a été restauré",
@@ -356,10 +384,28 @@
       "askPhone": "Envoyez un nouveau fichier de transfert depuis l’ancien téléphone, puis scannez son nouveau code.",
       "ask": "Si l’ancien téléphone est en main, faites-en une nouvelle sauvegarde. Sinon, choisissez un autre fichier de sauvegarde, ou relisez la clé.",
       "askArchive": "Si le téléphone d’où il vient est en main, exportez le fichier de nouveau. Sinon, choisissez un autre fichier, ou relisez le mot de passe.",
-      "again": "Choisir un autre fichier"
+      "again": "Choisir un autre fichier",
+      "pc": {
+        "nothing": "Rien n’en a été gardé sur ce PC, et le fichier reste tel quel à sa place.",
+        "askPhone": "Envoyez un nouveau fichier de transfert depuis le téléphone, puis saisissez son nouveau code.",
+        "ask": "Si le téléphone est en main, faites-en une nouvelle sauvegarde. Sinon, choisissez un autre fichier de sauvegarde, ou relisez la clé.",
+        "askArchive": "Si l’appareil d’où il vient est en main, exportez le fichier de nouveau. Sinon, choisissez un autre fichier, ou relisez le mot de passe."
+      }
+    },
+    "pc": {
+      "sub": "Depuis votre téléphone ou une sauvegarde",
+      "phone": "Le téléphone en main",
+      "phoneLine": "Le fichier de transfert du téléphone, puis son code",
+      "phoneHow": "Sur le téléphone : Paramètres › Appareils et sauvegardes › Transfert direct. Enregistrez le fichier de transfert, apportez-le sur ce PC par câble ou clé USB, puis saisissez le code que le téléphone affiche.",
+      "backupLine": "Depuis ce PC ou une clé USB, puis la clé de récupération",
+      "local": "Le fichier est choisi sur ce PC ou une clé USB, et n’est envoyé nulle part.",
+      "code": "Le code affiché sur le téléphone"
     }
   },
   "sharing": "Partage",
   "statementLine": "Par classe, sans données d’élèves",
-  "receivedLine": "Ceux des enseignants, vérifiés et gardés sur vos appareils"
+  "receivedLine": "Ceux des enseignants, vérifiés et gardés sur vos appareils",
+  "pc": {
+    "phone": "Ce PC"
+  }
 }

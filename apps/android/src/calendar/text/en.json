@@ -199,7 +199,10 @@
       "scope": "The school, zone or levels do not match. Check the notice and the selected school.",
       "conflict": "An entry with the same ID has different content. Review it in the calendar; nothing will be replaced automatically.",
       "acknowledge": "Review the notice and confirm that it applies to the selected school or zone first.",
-      "input": "The file or code could not be read. Try again or use a file instead of the camera."
+      "input": "The file or code could not be read. Try again or use a file instead of the camera.",
+      "pc": {
+        "input": "The file could not be read. Try again, or choose another file."
+      }
     }
   },
   "update": {

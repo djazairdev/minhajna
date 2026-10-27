@@ -5,17 +5,19 @@
 // sealed with the history's key and kept by its sequence number, and the
 // count and last sequence number are sealed beside them, so a row changed,
 // moved or dropped from the end refuses to open. The timings are one sealed
-// row. Erasing content seals everything again under a new key; the browser
-// may keep the old rows and the old sealed key in its files until it
-// compacts them. A write checks, in its own transaction, that the sealed
-// key is still the one this page opened, and the end and the timings still
-// the ones it read, so another tab's write in between fails it rather than
-// mixing two keys or losing a write. These steps need the history open,
-// and reject with E_LOCKED otherwise.
+// row. Erasing content seals everything again under a new key, the PC's
+// signing pair included (answer 510); the browser may keep the old rows and
+// the old sealed key in its files until it compacts them. A write checks,
+// in its own transaction, that the sealed key is still the one this page
+// opened, and the end, the timings and the signing pair still the ones it
+// read, so another tab's write in between fails it rather than mixing two
+// keys or losing a write. These steps need the history open, and reject
+// with E_LOCKED otherwise.
 
 import { transact } from './database.ts';
-import { HEAD, KEY, coded, newSealedKey, noSpace, openedKey, openedStamp, takeKey } from './lock.ts';
+import { HEAD, KEY, SIGNING, coded, newSealedKey, noSpace, openedKey, openedStamp, takeKey } from './lock.ts';
 import { isSealed, seal, unseal, type Sealed } from './seal.ts';
+import { readSigning, resealSigning } from './signing.ts';
 import { ALL, MOVED, TIMINGS, checked, rowStamp, stamp, type Stamp } from './stamp.ts';
 
 /** An entry row as the app gives it: a sequence number and an id, and the rest kept as given. */
@@ -165,22 +167,32 @@ export async function eraseContent(ids: readonly string[]): Promise<void> {
   );
   const head = await sealHead(next.key, { count: rows.length, last: rows.at(-1)?.seq ?? -1 });
   const timed = timings === null ? null : await seal(next.key, JSON.stringify(timings), TIMINGS);
+  const signing = await readSigning();
+  const signed = await resealSigning(openedKey(), next.key, signing);
   let moved = false;
-  await write(['entries', 'meta', 'timings'], (transaction) =>
+  await write(['entries', 'meta', 'timings'], (transaction) => {
+    const keptSigning = transaction.objectStore('meta').get(SIGNING);
     checked(
       transaction,
       read,
       rows.length,
       () => {
+        if (rowStamp(keptSigning.result) !== rowStamp(signing)) {
+          moved = true;
+          transaction.abort();
+          return;
+        }
         const store = transaction.objectStore('entries');
         for (const { seq, sealed } of resealed) store.put(sealed, seq);
         transaction.objectStore('meta').put(next.sealed, KEY);
         transaction.objectStore('meta').put(head, HEAD);
         if (timed !== null) transaction.objectStore(TIMINGS).put(timed, ALL);
+        if (signed !== null) transaction.objectStore('meta').put(signed, SIGNING);
+        else if (signing !== undefined) transaction.objectStore('meta').delete(SIGNING);
       },
       () => (moved = true),
-    ),
-  ).catch((error: unknown) => {
+    );
+  }).catch((error: unknown) => {
     throw moved ? coded(MOVED, 'E_HISTORY') : error;
   });
   takeKey(next.key, next.sealed);

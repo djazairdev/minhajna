@@ -15,6 +15,7 @@ import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { canShareFiles } from '../components/device-abilities';
 import { Notice } from '../components/Notice';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Switch } from '../components/Switch';
@@ -31,7 +32,7 @@ import files from '../native/NativeMinhajnaFiles';
 import pdf from '../native/NativeMinhajnaPdf';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { courseExport } from './export-rules';
 import { passwordAllowed, sheetCsv, sheetFileName, type FileFormat } from './export-file-rules';
 import { termWord } from './marks-rules';
@@ -45,7 +46,7 @@ export type ExportFileProps = {
 };
 
 export function ExportFile({ courseId, term, onSignature }: ExportFileProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { state, profile, year, calendar, calendarRelease, packs } = useAppData();
@@ -185,14 +186,16 @@ export function ExportFile({ courseId, term, onSignature }: ExportFileProps) {
       </Text>
       <View style={styles.actions}>
         <Button testID="file-save" label={t('marks.export.file.save')} disabled={busy} onPress={save} />
-        <Button
-          ref={opener}
-          testID="file-share"
-          variant="line"
-          label={t('marks.export.share.action')}
-          disabled={busy}
-          onPress={() => ready() && setWarning(true)}
-        />
+        {canShareFiles() && (
+          <Button
+            ref={opener}
+            testID="file-share"
+            variant="line"
+            label={t('marks.export.share.action')}
+            disabled={busy}
+            onPress={() => ready() && setWarning(true)}
+          />
+        )}
         <CopyWarning testID="file-copy" shown={signable && inUse && drawn} />
       </View>
       <Text style={[styles.note, align]}>{t('marks.export.file.picker')}</Text>

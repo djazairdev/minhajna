@@ -22,7 +22,8 @@ import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { currentLanguage } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { dayName } from '../today/DayMark';
 import { backupLine } from './backup-line';
 import { useBackup } from './backup-run';
@@ -40,7 +41,7 @@ export type DevicesProps = {
 };
 
 export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: DevicesProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { entries, profile } = useAppData();

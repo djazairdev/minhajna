@@ -14,6 +14,7 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { canScan } from '../components/device-abilities';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
@@ -23,7 +24,7 @@ import { useCalendarSave } from '../calendar/useCalendarSave';
 import { settingsStyles as styles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { LayerCard } from './LayerCard';
 import { layerModel } from './layer-rules';
@@ -36,7 +37,7 @@ export type LayerImportProps = {
 };
 
 export function LayerImport({ courseId, onTaken }: LayerImportProps) {
-  const t = useText();
+  const t = useDeviceText();
   const data = useAppData();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -94,13 +95,15 @@ export function LayerImport({ courseId, onTaken }: LayerImportProps) {
         disabled={busy}
         onPress={() => void input.read('file')}
       />
-      <Button
-        testID="layer-qr"
-        variant="line"
-        label={t('planLayers.qr')}
-        disabled={busy}
-        onPress={() => void input.read('qr')}
-      />
+      {canScan() && (
+        <Button
+          testID="layer-qr"
+          variant="line"
+          label={t('planLayers.qr')}
+          disabled={busy}
+          onPress={() => void input.read('qr')}
+        />
+      )}
       {input.busy && <Text style={[styles.sub, align]}>{t('planLayers.reading')}</Text>}
       {input.unreadable && note(t('planLayers.problems.input'), 'layer-unreadable')}
       {opened?.ok === false && note(t(`planLayers.problems.${opened.problem}`), 'layer-refused')}

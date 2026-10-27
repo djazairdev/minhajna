@@ -28,14 +28,15 @@ import { StatementFields } from '../sharing/StatementFields';
 import { statementLines, subjectName } from '../sharing/statement-lines';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { currentLanguage } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { senderLine, teacherLabel } from './reader-words';
 import { spotHtml } from './spot-page';
 import { useFingerprints } from './useFingerprints';
 
 export function ReaderSpot({ id }: { readonly id: string }) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useAppData();
