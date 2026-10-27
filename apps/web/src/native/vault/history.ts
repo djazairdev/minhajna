@@ -124,18 +124,23 @@ export async function loadHistory(): Promise<string> {
   return JSON.stringify((await readAll(openedKey())).rows);
 }
 
-/** Adds one entry, given as JSON, after the last; one already kept at its sequence number refuses it. */
-export async function appendEntry(entry: string): Promise<void> {
+/** Adds entries after the last, all or none; one already kept at its sequence number refuses them. */
+async function appendRows(rows: readonly Row[]): Promise<void> {
   const key = openedKey();
-  const row = parseRow(parseJson(entry));
+  const first = rows[0];
+  if (first === undefined) return;
+  if (rows.some((row, index) => row.seq !== first.seq + index)) throw coded('The entries do not follow', 'E_HISTORY');
   const kept = await transact(['meta'], 'readonly', (transaction) => {
     const head = transaction.objectStore('meta').get(HEAD);
     return () => ({ head: head.result as unknown });
   });
   const { count, last } = await readHead(key, kept.head);
-  if (row.seq <= last) throw coded('An entry is already kept at this sequence number', 'E_HISTORY');
-  const sealed = await seal(key, entry, place(row.seq));
-  const head = await sealHead(key, { count: count + 1, last: row.seq });
+  if (first.seq <= last) throw coded('An entry is already kept at this sequence number', 'E_HISTORY');
+  if (first.seq !== last + 1) throw coded('The entries do not follow the last one', 'E_HISTORY');
+  const sealed = await Promise.all(
+    rows.map(async (row) => ({ seq: row.seq, sealed: await seal(key, JSON.stringify(row), place(row.seq)) })),
+  );
+  const head = await sealHead(key, { count: count + rows.length, last: first.seq + rows.length - 1 });
   let moved = false;
   await write(['entries', 'meta'], (transaction) =>
     checked(
@@ -143,7 +148,8 @@ export async function appendEntry(entry: string): Promise<void> {
       stamp(kept.head, null),
       null,
       () => {
-        transaction.objectStore('entries').add(sealed, row.seq);
+        const store = transaction.objectStore('entries');
+        for (const row of sealed) store.add(row.sealed, row.seq);
         transaction.objectStore('meta').put(head, HEAD);
       },
       () => (moved = true),
@@ -151,6 +157,18 @@ export async function appendEntry(entry: string): Promise<void> {
   ).catch((error: unknown) => {
     throw moved ? coded(MOVED, 'E_HISTORY') : error;
   });
+}
+
+/** Adds one entry, given as JSON, after the last. */
+export async function appendEntry(entry: string): Promise<void> {
+  await appendRows([parseRow(parseJson(entry))]);
+}
+
+/** Adds entries, given as a JSON array, after the last, all or none: a copy taken back (#250). */
+export async function appendEntries(entries: string): Promise<void> {
+  const list = parseJson(entries);
+  if (!Array.isArray(list)) throw coded('The entries are not a list', 'E_HISTORY');
+  await appendRows(list.map(parseRow));
 }
 
 /** Removes the content and salt of the given entries, and seals everything again under a new key, all at once. */

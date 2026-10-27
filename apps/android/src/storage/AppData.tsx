@@ -4,10 +4,15 @@
 // The teacher's record book and the country's reference data, for every
 // screen. Changes are saved one after another, in the order they are made,
 // each on the day it is made. A change that fails to save is reported on the
-// screen, never dropped silently (PRD §6.8).
+// screen, never dropped silently (PRD §6.8). While the working copy is on
+// the teacher's other device (answer 513), every change but what never
+// leaves this device and the log of prints is refused here, for every
+// screen at once, and the refusal is said; it counts as not saved.
 
 import {
+  deviceFacts,
   eventOf,
+  recordsWhileHandedOver,
   type BellData,
   type CalendarEntry,
   newId,
@@ -72,6 +77,11 @@ export interface AppData {
   readonly latestState: () => State;
   /** True after a change failed to save, until the next one saves. */
   readonly unsaved: boolean;
+  /** The day the working copy went to the other device, while it is there (answer 503); null when here. */
+  readonly handedOver: Day | null;
+  /** True after a change was refused as the copy is on the other device, until `dismissRefused`. */
+  readonly refused: boolean;
+  readonly dismissRefused: () => void;
 }
 
 const AppDataContext = createContext<AppData | null>(null);
@@ -111,6 +121,7 @@ export function AppDataProvider({
 }) {
   const [state, setState] = useState(book.state);
   const [unsaved, setUnsaved] = useState(false);
+  const [refused, setRefused] = useState(false);
   const queue = useRef<Promise<void>>(Promise.resolve());
   const failureCount = useRef(0);
   const actions = useMemo(() => {
@@ -128,6 +139,13 @@ export function AppDataProvider({
         },
       );
     };
+    const refuses = (events: readonly RecordEvent[] | 'pupil') => {
+      if (events !== 'pupil' && events.every(recordsWhileHandedOver)) return false;
+      if (deviceFacts(book.entries).handedOver === null) return false;
+      failureCount.current += 1;
+      setRefused(true);
+      return true;
+    };
     return {
       profile,
       year,
@@ -135,24 +153,36 @@ export function AppDataProvider({
       bells,
       packs,
       keys,
-      record: (event: RecordEvent) => save(() => book.record(today(), event)),
-      recordAll: (events: readonly RecordEvent[]) => save(() => book.recordAll(today(), events)),
+      record: (event: RecordEvent) =>
+        save(async () => {
+          if (!refuses([event])) await book.record(today(), event);
+        }),
+      recordAll: (events: readonly RecordEvent[]) =>
+        save(async () => {
+          if (!refuses(events)) await book.recordAll(today(), events);
+        }),
       recordFrom: (make: (state: State) => RecordEvent | null) =>
         save(async () => {
           const event = make(book.state);
-          if (event !== null) await book.record(today(), event);
+          if (event !== null && !refuses([event])) await book.record(today(), event);
         }),
       erase: (match: (event: RecordEvent) => boolean) =>
         save(async () => {
-          const ids = book.entries
-            .filter((entry) => {
-              const event = eventOf(entry);
-              return event !== null && match(event);
-            })
-            .map((entry) => entry.id);
-          if (ids.length > 0) await book.erase(today(), ids);
+          const matched = book.entries.flatMap((entry) => {
+            const event = eventOf(entry);
+            return event !== null && match(event) ? [{ id: entry.id, event }] : [];
+          });
+          if (matched.length > 0 && !refuses(matched.map((one) => one.event)))
+            await book.erase(
+              today(),
+              matched.map((one) => one.id),
+            );
         }),
-      erasePupil: (pupilId: string) => save(() => book.erasePupil(today(), pupilId)),
+      erasePupil: (pupilId: string) =>
+        save(async () => {
+          if (!refuses('pupil')) await book.erasePupil(today(), pupilId);
+        }),
+      dismissRefused: () => setRefused(false),
       today,
       newId: () => newId(random),
       random,
@@ -192,8 +222,10 @@ export function AppDataProvider({
       updatedIds: updated.updatedIds ?? NONE_UPDATED,
       state,
       unsaved,
+      handedOver: deviceFacts(book.entries).handedOver?.day ?? null,
+      refused,
     }),
-    [actions, allPacks, updated, calendar, state, unsaved],
+    [actions, allPacks, updated, calendar, state, unsaved, book, refused],
   );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

@@ -143,6 +143,11 @@ export function RestoreScreen() {
   return <Restore storage={useLockStorage()} onRestored={useReopen()} />;
 }
 
+/** «استلام النسخة»: the working copy back from the other device (answers 514 and 515). */
+export function TakeBackScreen() {
+  return <Restore back storage={useLockStorage()} onRestored={useReopen()} />;
+}
+
 /**
  * The first-use notice leads to setup without recording that it was read, or
  * to reader mode's home, which then has no way back to the welcome.

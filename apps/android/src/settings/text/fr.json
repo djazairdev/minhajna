@@ -374,7 +374,9 @@
         "code-form": "Le code compte 24 lettres et chiffres, comme sur le téléphone.",
         "code": "Ce code n’ouvre pas le fichier. Est-ce le fichier préparé avec ce code ? Si l’écran de transfert du téléphone a été fermé, envoyez-en un nouveau fichier.",
         "too-large": "Le fichier est trop grand pour être ouvert sur ce PC."
-      }
+      },
+      "not-continued": "Ce fichier ne prolonge pas ce qui a été envoyé d’ici : il ne vient pas de la copie où le travail est passé. Envoyez un nouveau fichier depuis l’autre appareil, ou choisissez « Reprendre le travail ici » dans le bandeau au-dessus des onglets.",
+      "not-handed-over": "Le travail est déjà sur cet appareil : il n’y a pas de copie à recevoir."
     },
     "fail": {
       "title": "Rien n’a été restauré",
@@ -409,5 +411,32 @@
   "receivedLine": "Ceux des enseignants, vérifiés et gardés sur vos appareils",
   "pc": {
     "phone": "Ce PC"
+  },
+  "handover": {
+    "title": "L’autre appareil a-t-il ouvert le fichier ?",
+    "line": "Appuyez une fois les classes affichées sur l’autre appareil, et laissez cet écran ouvert jusque-là. Cet appareil sert ensuite à lire et imprimer jusqu’au retour de la copie, pour que rien ne soit noté à deux endroits.",
+    "confirm": "L’autre appareil l’a ouvert : le travail continue là-bas",
+    "done": "Le travail continue sur l’autre appareil ; cet appareil sert à lire et imprimer jusqu’au retour de la copie.",
+    "away": "Le travail est sur l’autre appareil depuis {{day}} : ici, lecture et impression seulement.",
+    "receive": "Recevoir la copie",
+    "takeOver": "Reprendre le travail ici",
+    "takeTitle": "Reprendre le travail sur cet appareil ?",
+    "takeContext": "L’enregistrement revient sur cet appareil dès maintenant. Ce que l’autre appareil a noté depuis {{day}}, et ce qu’il notera ensuite, n’arrive pas ici.",
+    "takeReassurance": "Pour garder ce qui a été noté là-bas, recevez plutôt la copie.",
+    "cancel": "Annuler",
+    "refusedTitle": "Cette modification n’a pas été enregistrée",
+    "refusedContext": "Le travail est sur l’autre appareil depuis {{day}} ; cet appareil sert à lire et imprimer jusqu’au retour de la copie.",
+    "refusedReassurance": "Rien n’a changé ici.",
+    "close": "Fermer",
+    "noFile": "Le travail est sur l’autre appareil depuis {{day}} : aucun fichier de transfert ne part d’ici avant le retour de la copie, car chacun serait une copie de travail de plus.",
+    "changed": "Une modification a été notée ici après l’enregistrement de ce fichier ; elle n’arriverait pas sur l’autre appareil. Enregistrez de nouveau le fichier et ouvrez-le là-bas."
+  },
+  "takeBack": {
+    "title": "Recevoir la copie",
+    "sub": "Depuis l’autre appareil",
+    "line": "Ce que l’autre appareil a noté s’ajoute à ce qui est ici, et le travail revient sur cet appareil. Seul un fichier issu de la copie envoyée d’ici est accepté.",
+    "phoneHow": "Sur l’autre appareil : Paramètres › Appareils et sauvegardes › Transfert direct. Enregistrez-y le fichier de transfert, apportez-le ici, puis saisissez le code affiché.",
+    "run": "Recevoir la copie",
+    "backupHow": "Une sauvegarde de l’autre appareil, enregistrée là-bas après sa dernière modification. Ce qui y est noté ensuite n’arrive pas ici : arrêtez d’y noter, ou envoyez plutôt un fichier de transfert depuis cet appareil."
   }
 }

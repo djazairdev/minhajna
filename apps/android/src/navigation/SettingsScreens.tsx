@@ -23,6 +23,7 @@ import { Settings, type SettingTarget } from '../settings/Settings';
 import { Times } from '../times/Times';
 import type { useText } from '../text/i18n';
 import type { RootStackParamList } from './routes';
+import { TakeBackScreen } from './SetupScreens';
 
 /** Settings use their own routes, so leaving an editor returns here rather than continuing setup. */
 export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Settings'>) {
@@ -262,6 +263,7 @@ export function settingsRoutes(
         options={dark(t('settings.transfer.title'))}
       />
       <Stack.Screen name="SettingsRetention" component={Retention} options={dark(t('settings.rows.retention'))} />
+      <Stack.Screen name="TakeBack" component={TakeBackScreen} options={dark(t('settings.takeBack.title'))} />
     </>
   );
 }

@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Making one history entry, shared by the history and a restore (#247). It is
-// kept out of the core's index: only those two add entries to a chain.
+// Making one history entry, shared by the history, a restore (#247) and a
+// copy coming back (#250), which also links an entry onto another chain. It
+// is kept out of the core's index: only those add entries to a chain.
 
 import { canonicalJson } from './canonical.ts';
 import type { Day } from './day.ts';
@@ -37,4 +38,22 @@ export async function makeEntry(deps: HistoryDeps, previous: Entry | null, input
   };
   const body: unknown = JSON.parse(bodyText);
   return { ...header, hash: await deps.digest(headerText(header)), content: { salt, body } };
+}
+
+/**
+ * The same entry linked after `previous` instead: its ID, day, layer, kind
+ * and content stay, so erasures that name it still do, and only its place,
+ * its link and its hash change.
+ */
+export async function relinkedEntry(deps: Pick<HistoryDeps, 'digest'>, previous: Entry, entry: Entry): Promise<Entry> {
+  const header = {
+    id: entry.id,
+    seq: previous.seq + 1,
+    day: entry.day,
+    layer: entry.layer,
+    kind: entry.kind,
+    digest: entry.digest,
+    previous: previous.hash,
+  };
+  return { ...header, hash: await deps.digest(headerText(header)), content: entry.content };
 }

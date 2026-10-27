@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: parts 1 and 2 of four, and the first two pull requests of part 3.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, and makes, opens and shares files. The handover rule finishes part 3; updates, erasing the PC and printing come in part 4. Until then those steps are refused. Use made-up data only.
+**Status: parts 1 to 3 of four.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. Updates, erasing the PC and printing come in part 4; until then those steps are refused. Use made-up data only.
 
 ## Build and try it
 
@@ -70,6 +70,15 @@ The second pull request of part 3 (answers 511 and 512) handles what the browser
 - **Keeping the data:** a browser may clear a site's data when the PC runs short of space, unless it has agreed to keep it. Clearing this site's data in the browser deletes it either way, and the warning says so. The app asks through the storage manager as the passphrase is sent, on the first run and at the first try of each opening, while the click still counts as the teacher's. Chrome and Edge decide on their own, by how the site is used, and agree for an installed app; Firefox asks the teacher. The app reads the answer as it starts. While the browser has not agreed, the lock page says so at every opening, and Today offers «نسخة احتياطية الآن», the usual backup, until one is saved that day. It cannot be put off or turned off, unlike the 30-day reminder.
 - **Installing:** Chrome and Edge offer installing the app. `public/offer.js`, a small script that runs before the app's bundle, holds the offer from the page's first moment, and the app shows its own button instead. On the first run, when the browser offers it as the page shows and the app is not installed, a page before the passphrase says what installing gives, with «تثبيت «منهاجنا»», which opens the browser's own dialog, and «لاحقاً». Settings › «الأجهزة والنسخ» keeps the button while the offer lasts. A browser that makes no such offer, as Firefox, shows neither. The installed app shares the browser's storage, so nothing moves.
 
+## Handing the work over
+
+The third pull request of part 3 (answers 503 and 513 to 515) keeps one working copy at a time, on the phone and on the PC alike:
+
+- **Handing it over:** once a transfer file is saved, the sending device asks whether the other device opened it. Confirmed, it notes the last entry the file held, and from then on a banner over Today, Classes and Documents says since when the work has been on the other device, and that here is for reading and printing only. A change made after the file was saved would stay behind, so the file is asked for again; and while the copy is away, no transfer file leaves.
+- **Read-only:** while the copy is away, every change is refused in one place, before anything is stored, with a sheet over whichever screen made it that says it was not saved and why. The device still records what never leaves it, its recovery key, its backups and the handover itself, and the log of what it prints or saves.
+- **Taking it back:** «استلام النسخة» opens a transfer file or a backup from the other device, never an export. It is taken only if it continues this device's copy: every entry handed over, but the device layer's, is in it with the same ID and content, in the same order, so the copy can go back and forth any number of times. The history stays append-only: what the other device recorded since is added after this device's own entries, with the same IDs and content, then the end of the handover, all in one write. The device layer stays each device's own, so this device keeps its recovery key and backup facts. An erasure made on the other device applies here too, to entries handed over only. A backup leaves behind what the other device records after it, which the screen says.
+- **Working here again:** «استعادة العمل هنا» ends the handover after asking, as what the other device recorded since would not come here.
+
 ## The native modules
 
 | Module | On the web |
@@ -78,7 +87,7 @@ The second pull request of part 3 (answers 511 and 512) handles what the browser
 | Build, Licences | Read from `build.json` and `licences.json`. |
 | Notify | None: the phone carries the reminders. |
 | StorageCheck | Absent, as in a release build. |
-| Storage | The browser's SHA-256 and random bytes, the passphrase lock, and the history and timings sealed in IndexedDB. A PC has no fingerprint prompt. Erasing the PC comes in part 4. |
+| Storage | The browser's SHA-256 and random bytes, the passphrase lock, and the history and timings sealed in IndexedDB, a copy taken back added in one transaction. A PC has no fingerprint prompt. Erasing the PC comes in part 4. |
 | Files | The file dialog, the save dialog or a download, and the share menu where the browser shares the file; archives with zip.js. A PDF to keep is the phone's only. |
 | CalendarInput | Updates, plan layers and statements as files, a statement PDF giving only its link; QR codes drawn, none scanned. |
 | Signature | Web Crypto's ECDSA P-256: the PC's own pair, sealed in the vault, and others' signatures checked. QR codes for statements. |

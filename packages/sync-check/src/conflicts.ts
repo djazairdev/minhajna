@@ -59,6 +59,9 @@ export function recordKey(entry: Entry): string | null {
       return `teacher-named/${event.named.spki}`;
     case 'recovery.set':
       return 'recovery';
+    case 'handover.sent':
+    case 'handover.ended':
+      return 'handover';
     case 'course.set':
       return `course/${event.course.id}`;
     case 'course.moved':

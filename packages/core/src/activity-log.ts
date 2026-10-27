@@ -13,42 +13,19 @@
 // and recovery sheets are listed under the devices (#247), never the key. A
 // statement shared and its role (#439), and a class moved (#322), are files.
 
-import { canonicalJson } from './canonical.ts';
 import { movedLine, type MovedLine } from './course-state.ts';
 import { compareDays, type Day } from './day.ts';
 import { CORRECTION_REASONS, eventOf, type CorrectionReason, type RecordEvent } from './events.ts';
 import { ERASURE, erasedIds, type Entry } from './history.ts';
+import { changedFields, changedMarks, type PupilMarkChange, type SessionField } from './log-changes.ts';
 import { MARK_FIX_REASONS, type MarkFixReason } from './mark-fix.ts';
 import type { MarkTarget, MarkValue } from './marks.ts';
 import type { OutputRecord } from './prints.ts';
 import type { Half, SessionRecord, SessionRef } from './records.ts';
-import { markOf, ROLL_CALL_REASONS, type PupilMark, type RollCallReason } from './roll-call-fix.ts';
+import { ROLL_CALL_REASONS, type RollCallReason } from './roll-call-fix.ts';
 import type { RollCall } from './attendance-records.ts';
 import { restatements } from './restated.ts';
 import { shareLine, type ShareLine, type StatementShare } from './statement-shares.ts';
-
-/** A field of a session record a correction changed, in the order the texts book shows them. */
-export const SESSION_FIELDS = [
-  'outcome',
-  'coverage',
-  'unplanned',
-  'homework',
-  'due',
-  'test',
-  'factual',
-  'type',
-  'make-up',
-  'list-item',
-] as const;
-
-export type SessionField = (typeof SESSION_FIELDS)[number];
-
-/** One pupil's mark before and after a roll call's correction. */
-export interface PupilMarkChange {
-  readonly pupilId: string;
-  readonly from: PupilMark;
-  readonly to: PupilMark;
-}
 
 export type LogLine =
   | {
@@ -94,6 +71,9 @@ export type LogLine =
   /** A backup saved, or a new recovery sheet confirmed (#247): never the key. */
   | { readonly kind: 'backup-saved' }
   | { readonly kind: 'recovery-set' }
+  /** The working copy handed to the other device, or back here (answer 503): never which device. */
+  | { readonly kind: 'handover-sent' }
+  | { readonly kind: 'handover-ended'; readonly how: 'back' | 'taken' }
   /** A statement shared, or the role it went to (#439): never its content or a name. */
   | ShareLine
   /** A change past a damaged stretch: its kind and day, never its content. */
@@ -118,38 +98,6 @@ export interface LogDay {
 
 const known = <T extends string>(codes: readonly T[], value: string | undefined): value is T =>
   (codes as readonly (string | undefined)[]).includes(value);
-
-const same = (a: unknown, b: unknown) => canonicalJson(a ?? null) === canonicalJson(b ?? null);
-
-const FIELD_VALUES: Readonly<Record<SessionField, (record: SessionRecord) => unknown>> = {
-  outcome: (record) => record.outcome,
-  coverage: (record) => record.coverage,
-  unplanned: (record) => record.unplanned,
-  homework: (record) => record.homework?.text,
-  due: (record) => record.homework?.due,
-  test: (record) => record.test,
-  factual: (record) => record.factual,
-  type: (record) => record.sessionType,
-  'make-up': (record) => record.makeUp,
-  'list-item': (record) => record.listItem,
-};
-
-/** The fields that differ between two versions of a session record. */
-export function changedFields(before: SessionRecord, after: SessionRecord): SessionField[] {
-  return SESSION_FIELDS.filter((field) => !same(FIELD_VALUES[field](before), FIELD_VALUES[field](after)));
-}
-
-/** Every pupil whose mark differs between two versions of a roll call, in the order they are marked. */
-export function changedMarks(before: RollCall, after: RollCall): PupilMarkChange[] {
-  const pupils = new Set<string>();
-  for (const rollCall of [before, after]) {
-    for (const absence of rollCall.absent) pupils.add(absence.pupilId);
-    for (const id of rollCall.late) pupils.add(id);
-  }
-  return [...pupils]
-    .map((pupilId) => ({ pupilId, from: markOf(before, pupilId), to: markOf(after, pupilId) }))
-    .filter((change) => change.from !== change.to);
-}
 
 /** The books' records the log follows, each by its last version; null once a session was withdrawn. */
 interface Seen {
@@ -230,6 +178,10 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'backup-saved' };
     case 'recovery.set':
       return { kind: 'recovery-set' };
+    case 'handover.sent':
+      return { kind: 'handover-sent' };
+    case 'handover.ended':
+      return { kind: 'handover-ended', how: event.handover?.how === 'taken' ? 'taken' : 'back' };
     case 'statement.shared':
     case 'statement.sent':
       return shareLine(event, seen.shares);
@@ -250,6 +202,8 @@ const categoryOf = (line: LogLine): LogCategory | null => {
       return 'erasures';
     case 'backup-saved':
     case 'recovery-set':
+    case 'handover-sent':
+    case 'handover-ended':
       return 'devices';
     case 'unverified':
       return null;

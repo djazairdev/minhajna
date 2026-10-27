@@ -175,6 +175,15 @@ export class FakeStorage {
     });
   }
 
+  /** Adds the rows after the last, all or none, as HistoryDatabase.appendAll does. */
+  appendEntries(entries: string): Promise<void> {
+    return this.#whenOpen(() => {
+      const rows = JSON.parse(entries) as Row[];
+      if (rows.some((row, at) => row.seq !== this.rows.length + at)) throw new Error('entries are added in order');
+      this.rows.push(...rows);
+    });
+  }
+
   /** Stores the rows into an empty history only, all or none, as HistoryDatabase.restore does. */
   restoreHistory(entries: string): Promise<void> {
     return this.#whenOpen(() => {

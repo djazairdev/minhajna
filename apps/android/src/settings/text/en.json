@@ -371,7 +371,9 @@
         "code-form": "The code is 24 letters and digits, as on the phone.",
         "code": "This code does not open the file. Is it the file made with this code? If the phone's transfer screen was closed, send a new file from it.",
         "too-large": "The file is too large to open on this PC."
-      }
+      },
+      "not-continued": "This file does not continue what was sent from here: it is not from the copy work moved to. Send a new file from the other device, or choose “Work here again” in the banner above the tabs.",
+      "not-handed-over": "Work is already on this device, so there is no copy to receive."
     },
     "fail": {
       "title": "Nothing was restored",
@@ -406,5 +408,32 @@
   "receivedLine": "Teachers’ statements, checked and kept on your devices",
   "pc": {
     "phone": "This PC"
+  },
+  "handover": {
+    "title": "Has the other device opened the file?",
+    "line": "Press it once the classes show on the other device, and keep this screen open until then. This device then stays for reading and printing until the copy comes back, so nothing is recorded in two places.",
+    "confirm": "The other device opened it: work continues there",
+    "done": "Work continues on the other device from now; this device is for reading and printing until the copy comes back.",
+    "away": "Work has been on the other device since {{day}}: here, reading and printing only.",
+    "receive": "Receive the copy",
+    "takeOver": "Work here again",
+    "takeTitle": "Work on this device again?",
+    "takeContext": "Recording comes back to this device from now. What the other device recorded since {{day}}, and anything it records later, does not come here.",
+    "takeReassurance": "To keep what was recorded there, receive the copy instead.",
+    "cancel": "Cancel",
+    "refusedTitle": "This change was not saved",
+    "refusedContext": "Work has been on the other device since {{day}}; this device is for reading and printing until the copy comes back.",
+    "refusedReassurance": "Nothing changed here.",
+    "close": "Close",
+    "noFile": "Work has been on the other device since {{day}}, so no transfer file leaves here until the copy comes back: each would be one more working copy.",
+    "changed": "A change was recorded here after this file was saved, so it would not reach the other device. Save the file again and open it there."
+  },
+  "takeBack": {
+    "title": "Receive the copy",
+    "sub": "From the other device",
+    "line": "What the other device recorded is added to what is here, and work comes back to this device. Only a file from the copy sent from here is taken.",
+    "phoneHow": "On the other device: Settings › Devices and backups › Direct transfer. Save the transfer file there and bring it here, then type the code it shows.",
+    "run": "Receive the copy",
+    "backupHow": "A backup from the other device, saved there after its last change. Anything recorded there after it does not come here, so stop recording there, or send a transfer file from it instead."
   }
 }

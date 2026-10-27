@@ -19,6 +19,7 @@ import {
   restoredHistory,
   type Day,
   type HistoryDeps,
+  type OpenedArchive,
 } from '@minhajna/core';
 import type { Spec as Files } from '../native/NativeMinhajnaFiles';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
@@ -42,7 +43,9 @@ export type RestoreProblem =
   | 'country'
   | 'changed'
   | 'unreadable'
-  | 'failed';
+  | 'failed'
+  | 'not-continued'
+  | 'not-handed-over';
 
 export type RestoreResult = { readonly ok: true } | { readonly ok: false; readonly problem: RestoreProblem };
 
@@ -80,8 +83,13 @@ export function zipProblem(code: string | undefined, input: Pick<RestoreInput, '
   return (code !== undefined && ZIP_PROBLEMS[code]) || 'unreadable';
 }
 
-/** Restores the picked archive into the empty history, or says why not; nothing is stored unless all of it is. */
-export async function restoreFile(input: RestoreInput, { files, storage, deps }: RestoreDeps): Promise<RestoreResult> {
+/** The picked archive read under its key and checked for this country, or why not. */
+export async function openedFile(
+  input: RestoreInput,
+  { files, deps }: Pick<RestoreDeps, 'files' | 'deps'>,
+): Promise<
+  { readonly ok: true; readonly opened: Extract<OpenedArchive, { ok: true }> } | Extract<RestoreResult, { ok: false }>
+> {
   const keyed = input.route !== 'archive';
   const key = keyed ? readRecoveryKey(input.secret) : input.secret;
   if (key === null) return { ok: false, problem: input.route === 'phone' ? 'code-form' : 'key-form' };
@@ -97,6 +105,14 @@ export async function restoreFile(input: RestoreInput, { files, storage, deps }:
     return { ok: false, problem: problem[opened.problem] };
   }
   if (opened.archive.country !== input.country) return { ok: false, problem: 'country' };
+  return { ok: true, opened };
+}
+
+/** Restores the picked archive into the empty history, or says why not; nothing is stored unless all of it is. */
+export async function restoreFile(input: RestoreInput, { files, storage, deps }: RestoreDeps): Promise<RestoreResult> {
+  const read = await openedFile(input, { files, deps });
+  if (!read.ok) return read;
+  const { opened } = read;
   let restored;
   try {
     restored = await restoredHistory(opened, input.day, deps);

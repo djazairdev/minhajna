@@ -56,6 +56,12 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
   /** Adds one entry, given as JSON, and returns once it is committed. */
   fun appendJson(entry: String) = opened().append(fromJson(JSONObject(entry)))
 
+  /** Adds entries, given as a JSON array, after the last, all or none (#250). */
+  fun appendAllJson(entries: String) {
+    val array = JSONArray(entries)
+    opened().appendAll(List(array.length()) { fromJson(array.getJSONObject(it)) })
+  }
+
   fun eraseContent(ids: List<String>) = opened().eraseContent(ids)
 
   /** Stores a restored history, given as a JSON array, in this empty one, all or none (#247). */

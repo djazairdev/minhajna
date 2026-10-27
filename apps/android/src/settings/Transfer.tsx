@@ -11,9 +11,15 @@
 // groups to type. It is never kept: it lives while this screen is open, and the
 // file made under it is deleted as the screen closes, so a file sent stays
 // useless without this screen. Screenshots are refused here, and the key
-// reaches no server.
+// reaches no server. Once a file has left, the teacher confirms here that
+// the other device opened it (answer 503), and this device stays for
+// reading and printing until the copy comes back: the confirmation keeps
+// the last entry the file held, which the copy must continue. A change made
+// here after the file was made would stay behind, so it asks for the file
+// again; and while the copy is away, no file leaves, as each would be one
+// more working copy.
 
-import { makeRecoveryKey, transferQr } from '@minhajna/core';
+import { makeRecoveryKey, recordsWhileHandedOver, transferQr } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -35,6 +41,7 @@ import { useAppData } from '../storage/AppData';
 import { fromHex } from '../storage/history';
 import { useDeviceText } from '../text/device-text';
 import { archiveFile } from './export-all-files';
+import { useAwayDay } from './HandoverSheets';
 import { KeyGroups } from './KeyGroups';
 import { settingsStyles as styles } from './styles';
 
@@ -52,7 +59,7 @@ export function Transfer({ storage }: TransferProps) {
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const documents = useDocumentData();
-  const { entries, settled } = useAppData();
+  const { entries, settled, record, handedOver } = useAppData();
   const logged = useOutputLog()('transfer', documents.day);
   const [key] = useState(() => makeRecoveryKey((length) => fromHex(storage.randomBytes(length))));
   const [rows] = useState(() => qr.qrRows(transferQr(key)));
@@ -60,7 +67,12 @@ export function Transfer({ storage }: TransferProps) {
   const [busy, setBusy] = useState(false);
   const running = useRef(false);
   const shared = useRef<{ tokens: string[] }>({ tokens: [] });
+  const [sent, setSent] = useState<string | null>(null);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const day = useAwayDay();
+  const history = entries();
+  const after = history.slice(history.findIndex((entry) => entry.hash === sent) + 1);
+  const changed = sent !== null && !after.every((entry) => entry.layer === 'device' || recordsWhileHandedOver(entry));
   useEffect(() => {
     const held = shared.current;
     return () => held.tokens.forEach((token) => files.dropFile(token));
@@ -68,18 +80,20 @@ export function Transfer({ storage }: TransferProps) {
   const made = async () => {
     await settled();
     const { version } = await build.describe();
-    const file = archiveFile(documents, { entries: entries(), app: version, privateNotes: true });
+    const held = entries();
+    const file = archiveFile(documents, { entries: held, app: version, privateNotes: true });
     const name = safeFileName(`${t('settings.transfer.fileName')} ${documents.day}`, 'zip').replace(/\.zip$/, '');
-    return files.makeZip([file.name], [file.text], name, key);
+    const token = await files.makeZip([file.name], [file.text], name, key);
+    return { token, last: held.at(-1)?.hash ?? null };
   };
   const send = (how: 'share' | 'save') => {
-    if (running.current) return;
+    if (running.current || day !== null) return;
     running.current = true;
     setBusy(true);
     setSaid(null);
     void (async () => {
       try {
-        const token = await made();
+        const { token, last } = await made();
         if (how === 'share') {
           shared.current.tokens.push(token);
           await files.shareFile(token, t('settings.transfer.shareTitle'));
@@ -88,6 +102,7 @@ export function Transfer({ storage }: TransferProps) {
         }
         logged.filed('archive');
         setSaid(how === 'share' ? 'shared' : 'saved');
+        setSent(last);
       } catch {
         setSaid('failed');
       } finally {
@@ -119,6 +134,9 @@ export function Transfer({ storage }: TransferProps) {
         <Text accessibilityRole="header" style={[styles.title, align]}>
           {t('settings.transfer.file')}
         </Text>
+        {day !== null && sent === null && (
+          <Notice testID="transfer-away" icon={controlIcon('info')} message={t('settings.handover.noFile', { day })} />
+        )}
         {CARRIED.map((line) => (
           <Text key={line} style={[styles.body, align]}>
             {t(line)}
@@ -129,7 +147,7 @@ export function Transfer({ storage }: TransferProps) {
             <Button
               testID="transfer-share"
               label={t('settings.transfer.share')}
-              disabled={busy}
+              disabled={busy || day !== null}
               onPress={() => send('share')}
             />
             <Text style={[styles.sub, align]}>{t('settings.transfer.shareLine')}</Text>
@@ -139,7 +157,7 @@ export function Transfer({ storage }: TransferProps) {
           testID="transfer-save"
           variant={canShareFiles() ? 'line' : 'primary'}
           label={t('settings.transfer.save')}
-          disabled={busy}
+          disabled={busy || day !== null}
           onPress={() => send('save')}
         />
         <Text style={[styles.sub, align]}>{t('settings.transfer.saveLine')}</Text>
@@ -156,6 +174,28 @@ export function Transfer({ storage }: TransferProps) {
         <Text style={[styles.body, align]}>{t('settings.transfer.typed')}</Text>
         <KeyGroups value={key} />
       </View>
+      {sent !== null && (
+        <View testID="transfer-handover" style={styles.card}>
+          <Text accessibilityRole="header" style={[styles.title, align]}>
+            {t('settings.handover.title')}
+          </Text>
+          {handedOver === null && changed ? (
+            <Notice testID="transfer-changed" icon={controlIcon('info')} message={t('settings.handover.changed')} />
+          ) : handedOver === null ? (
+            <>
+              <Text style={[styles.body, align]}>{t('settings.handover.line')}</Text>
+              <Button
+                testID="transfer-handed"
+                variant="line"
+                label={t('settings.handover.confirm')}
+                onPress={() => record({ kind: 'handover.sent', handover: { last: sent } })}
+              />
+            </>
+          ) : (
+            <Notice testID="transfer-handed-done" icon={controlIcon('check')} message={t('settings.handover.done')} />
+          )}
+        </View>
+      )}
       <Text style={[styles.body, align]}>{t('settings.transfer.onNew')}</Text>
       <Notice icon={controlIcon('info')} message={t('settings.transfer.confidential')} />
       <Notice icon={controlIcon('lock')} message={t('settings.transfer.guarded')} />

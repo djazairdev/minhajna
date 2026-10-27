@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamilyForWeight } from '../design/fonts';
 import { colors, fontFamilies, radius, sizes, spacing, typography } from '../design/tokens';
 import { documentKind } from '../documents/catalogue';
+import { HandoverBar } from '../settings/HandoverBar';
 import { SETUP_STEPS } from '../setup/Teaching';
 import { useText } from '../text/i18n';
 
@@ -30,6 +31,16 @@ export const theme = {
 
 /** Each setup screen's step, which its bar's subtitle names. */
 const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4, Plan: 5 } as const;
+
+/** The tabs, under the banner of a working copy on the other device (answer 513). */
+export function HomeTabBar(props: BottomTabBarProps) {
+  return (
+    <View>
+      <HandoverBar onReceive={() => props.navigation.navigate('TakeBack')} />
+      <BottomNav {...props} />
+    </View>
+  );
+}
 
 /** Keeps tab labels and selection accessible without exposing decorative icons. */
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
