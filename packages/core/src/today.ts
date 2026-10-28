@@ -6,8 +6,8 @@
 // only that: it is never read as an absence (charter point 3).
 
 import type { Context } from './context.ts';
-import { addDays, compareDays, minDay, weekday, type Day } from './day.ts';
-import { confirmCourse, walkCourse, type Confirmation } from './engine.ts';
+import { addDays, compareDays, eachDay, minDay, weekday, type Day } from './day.ts';
+import { confirmCourse, walkCourse, type Confirmation, type CourseWalk } from './engine.ts';
 import type { Proposal } from './progress.ts';
 import type { CalendarEntry } from './reference.ts';
 import { compareSlots, type Course, type Reason, type SessionRecord, type TeacherBlock } from './records.ts';
@@ -73,13 +73,50 @@ export function nextSession(context: Context, day: Day): Session | null {
   return null;
 }
 
-export function todayView(context: Context, day: Day): TodayView {
-  const { ref, state, calendar } = context;
-  const sessions = sessionsBetween(context, day, day);
-  const walks = new Map(
+/** Each course of these sessions walked once, up to `day`. */
+function walksTo(context: Context, sessions: readonly Session[], day: Day): Map<string, CourseWalk> {
+  return new Map(
     [...new Set(sessions.map((session) => session.courseId))].map((id) => [id, walkCourse(context, id, day)]),
   );
+}
 
+export function todayView(context: Context, day: Day): TodayView {
+  const { ref } = context;
+  const sessions = sessionsBetween(context, day, day);
+  const before = addDays(day, -1);
+  const awaitingEarlier =
+    compareDays(before, ref.year.from) < 0 ? 0 : awaitingBetween(context, ref.year.from, before).length;
+  return viewOf(context, day, sessions, walksTo(context, sessions, day), awaitingEarlier);
+}
+
+/**
+ * Several days at once, each as `todayView` has it, but for the earlier
+ * sessions still awaiting confirmation, which it leaves at 0: each course is
+ * walked once, up to the last day, as the week on a PC needs (#251).
+ */
+export function daysView(context: Context, from: Day, to: Day): TodayView[] {
+  const sessions = sessionsBetween(context, from, to);
+  const walks = walksTo(context, sessions, to);
+  return eachDay(from, to).map((day) =>
+    viewOf(
+      context,
+      day,
+      sessions.filter((session) => session.day === day),
+      walks,
+      0,
+    ),
+  );
+}
+
+/** One day's view, from its sessions and their courses' walks. */
+function viewOf(
+  context: Context,
+  day: Day,
+  sessions: readonly Session[],
+  walks: ReadonlyMap<string, CourseWalk>,
+  awaitingEarlier: number,
+): TodayView {
+  const { state, calendar } = context;
   const items: TodaySession[] = [];
   for (const session of sessions) {
     const walk = walks.get(session.courseId);
@@ -107,14 +144,12 @@ export function todayView(context: Context, day: Day): TodayView {
     for (const entry of calendar.info(day, school, schoolClass).entries) marks.set(entry.id, entry);
   }
 
-  const before = addDays(day, -1);
   return {
     day,
     sessions: items,
     marks: [...marks.values()],
     blocks: (versionOn(state.timetables, day)?.blocks ?? []).filter((block) => block.weekday === weekday(day)),
-    awaitingEarlier:
-      compareDays(before, ref.year.from) < 0 ? 0 : awaitingBetween(context, ref.year.from, before).length,
+    awaitingEarlier,
   };
 }
 

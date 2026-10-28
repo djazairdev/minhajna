@@ -4,6 +4,7 @@
   "latinName": "Minhajna",
   "navigation": {
     "today": "Aujourd’hui",
+    "week": "Semaine",
     "classes": "Classes",
     "documents": "Documents",
     "back": "Retour",
@@ -4006,6 +4007,24 @@
       "backup": "Cette copie a été restaurée d’une sauvegarde le {{day}}",
       "archive": "Cette copie a été ouverte depuis un fichier d’export le {{day}}",
       "back": "Cette copie est revenue du téléphone le {{day}}"
+    }
+  },
+  "pcWeek": {
+    "title": "La semaine du {{from}} au {{to}}",
+    "summary": "{{sessions}} · confirmées : {{recorded}}",
+    "none": "Aucune séance cette semaine.",
+    "before": "Semaine précédente",
+    "after": "Semaine suivante",
+    "print": "Imprimer la semaine",
+    "pick": "Choisissez une séance de la semaine pour la voir ici.",
+    "meta": "{{class}} · {{day}} · {{time}}",
+    "cellName": "{{day}}, {{time}} : {{class}}, {{lesson}}, {{state}}",
+    "fixNote": "Toute séance peut être corrigée plus tard, et la première version reste dans l’historique.",
+    "state": {
+      "recorded": "Confirmée",
+      "awaiting": "En attente de confirmation",
+      "proposed": "Proposée",
+      "calendar": "Prise par le calendrier"
     }
   }
 }

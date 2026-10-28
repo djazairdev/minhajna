@@ -10,7 +10,8 @@ import type { SecurityDone } from '../lock/Security';
 import type { Cell } from '../week/week-rules';
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
-export type HomeTabParamList = { Today: undefined; Classes: undefined; Documents: undefined };
+/** `PcWeek` is the PC's week (#251), a tab on a PC only. */
+export type HomeTabParamList = { Today: undefined; PcWeek: undefined; Classes: undefined; Documents: undefined };
 /** Inner pages cover the tabs and carry no record contents. The gallery and the storage check exist in debug builds only. */
 export type RootStackParamList = {
   Welcome: undefined;

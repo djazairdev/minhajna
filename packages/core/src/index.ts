@@ -149,6 +149,7 @@ export * from './timings.ts';
 export * from './today.ts';
 export * from './backlog.ts';
 export * from './week.ts';
+export * from './week-view.ts';
 export * from './calendar-update.ts';
 export * from './pack-update.ts';
 export * from './variant-layers.ts';

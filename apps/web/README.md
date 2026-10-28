@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250), and its week, [#251](https://github.com/djazairdev/minhajna/issues/251)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: all four parts.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, erases everything it keeps in this browser on request, prints through the browser's dialog, which also saves a PDF, and speaks of this PC on the screens it brings, Help among them. The PC words of the remaining screens come in a last sweep before 0.6.0. Its frame, a rail in place of the phone's bottom tabs, is the first part of the week's issue; the week itself comes next. Use made-up data only.
+**Status: all four parts.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, erases everything it keeps in this browser on request, prints through the browser's dialog, which also saves a PDF, and speaks of this PC on the screens it brings, Help among them. The PC words of the remaining screens come in a last sweep before 0.6.0. Its frame, a rail in place of the phone's bottom tabs, and the week at once, with a session's details beside it, come from the week's issue; confirming and correcting there come next. Use made-up data only.
 
 ## Build and try it
 
@@ -86,6 +86,15 @@ The first pull request of [#251](https://github.com/djazairdev/minhajna/issues/2
 - **The rail:** at the start of the window, in place of the phone's bottom tabs, the app's name, the teacher and the schools, Today, Classes, which reads «الأقسام والنقاط» on a PC, and Documents, and Settings, which opens over them with its back bar as on the phone, where the design keeps the rail beside it; that waits for the week. The current tab is marked for screen readers.
 - **Its foot:** the banner of a working copy on the other device, a line on where the copy here came from, and «قفل الآن», which locks at once, as the automatic lock does, and comes back to the same screen once unlocked.
 - **Where the copy came from:** there is no sync, so the line states the fact: transferred from the phone, restored from a backup, opened from an export file, or back from the phone, with its day, and nothing on a PC that started fresh. A restore notes its route, and the history keeps it as a device event once it opens, which never leaves the device and shows in the log under the devices.
+
+## The week
+
+The second pull request of [#251](https://github.com/djazairdev/minhajna/issues/251) (answers 526 and 527) adds «الأسبوع» to the rail, after Today, on a PC only:
+
+- **The grid:** the week's days across and its slots down, each row timed by its first session. Each session shows in its cell with its class and its lesson in Today's own words, in ink once recorded, in pencil, dashed, while proposed, and muted when the calendar takes it.
+- **Above it:** the week's dates, how many sessions it holds and how many are confirmed, the weeks before and after within the school year, and, on the current week, the week's print set. Today's column says so in words.
+- **The side pane:** the chosen session's class, day and time, its lesson and its state, what the plan proposes for one still to confirm, and, for a recorded one, that it can be corrected later. The sessions are one group of choices for a screen reader. The week opens on the first session still to confirm, else on the next one held.
+- **From the core:** `weekView` gives the week's days as Today has them, each course walked once for the week, with the timetable's slots and the counts, so the phone and the PC agree.
 
 ## Handing the work over
 
