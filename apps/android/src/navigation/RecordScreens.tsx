@@ -240,6 +240,7 @@ export function TextsBookScreen({ navigation, route }: NativeStackScreenProps<Ro
     <TextsBook
       key={route.params.courseId}
       courseId={route.params.courseId}
+      {...(route.params.sessionKey !== undefined && { sessionKey: route.params.sessionKey })}
       onCourse={(courseId) => navigation.setParams({ courseId })}
       onDetails={(session) => navigation.navigate('Entry', { key: session.key, day: session.day })}
       onPrint={(day) => navigation.navigate('DocOutput', { id: 'texts', day })}

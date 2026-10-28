@@ -10,6 +10,7 @@ import { createBottomTabNavigator, type BottomTabScreenProps } from '@react-navi
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useNotifyOpen, useNotifyPlan } from '../notify/useNotify';
+import { PilotTimings } from '../pilot/timing-store';
 import { onPc, useDeviceText } from '../text/device-text';
 import { DocumentsTabScreen } from './DocumentScreens';
 import { HomeTabBar } from './NavigationChrome';
@@ -26,11 +27,23 @@ export const tabLabels = {
 
 const Tabs = createBottomTabNavigator<HomeTabParamList>();
 
-/** The PC's week, whose print opens the week's print set. */
+/**
+ * The PC's week: its print opens the week's print set, its book page the texts
+ * book, a note the session's note. Its confirmations stay out of the pilot's
+ * timings, which time Today's one tap on the phone.
+ */
 function PcWeekScreen({
   navigation,
 }: CompositeScreenProps<BottomTabScreenProps<HomeTabParamList, 'PcWeek'>, NativeStackScreenProps<RootStackParamList>>) {
-  return <PcWeek onPrint={() => navigation.navigate('PrintWeek')} />;
+  return (
+    <PilotTimings.Provider value={null}>
+      <PcWeek
+        onPrint={() => navigation.navigate('PrintWeek')}
+        onBook={(courseId, sessionKey) => navigation.navigate('TextsBook', { courseId, sessionKey })}
+        onNote={(session) => navigation.navigate('Note', { key: session.key, day: session.day })}
+      />
+    </PilotTimings.Provider>
+  );
 }
 
 export function HomeTabs() {

@@ -3952,6 +3952,9 @@
     "meta": "{{class}} · {{day}} · {{time}}",
     "cellName": "{{day}}, {{time}}: {{class}}, {{lesson}}, {{state}}",
     "fixNote": "Any session can be corrected later, and the first version stays in the history.",
+    "fix": "Correct the session",
+    "bookPage": "Texts book page",
+    "back": "Back to the session",
     "state": {
       "recorded": "Confirmed",
       "awaiting": "Awaiting confirmation",

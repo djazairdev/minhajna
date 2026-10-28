@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The texts book in the app (#213, P09, P10): one class and subject, page
-// by page as it prints, in the subject's language and direction, opening on
-// the latest page. The class's other subjects are a tap away. A confirmed
-// row opens the session's details to correct it; a session awaiting
-// confirmation is confirmed as proposed with one tap, with «تراجع», or opened
-// for another outcome (R-2.3-07); «تراجع» shows only while the record the
-// tap made is still the session's latest. The month on screen prints from
-// here, so any month of the year can be printed (R-3.8-01), and so does the
-// strip of the page's last confirmed day, to paste into the paper book
-// (R-3.8-15).
+// The texts book in the app (#213, P09, P10): one class and subject, page by
+// page as it prints, in the subject's language and direction, opening on the
+// latest page, or on a session's own page from the PC's week (#251). The
+// class's other subjects are a tap away. A confirmed row opens the session's
+// details to correct it; a session awaiting confirmation is confirmed as
+// proposed with one tap, with «تراجع», or opened for another outcome
+// (R-2.3-07); «تراجع» shows only while the record the tap made is still the
+// session's latest. The month on screen prints from here, so any month of the
+// year can be printed (R-3.8-01), and so does the strip of the page's last
+// confirmed day, to paste into the paper book (R-3.8-15).
 
 import {
   canonicalJson,
@@ -65,9 +65,12 @@ export interface TextsBookProps {
   readonly onStrip?: (day: Day) => void;
   /** The month's corrections, for the director, of this class. */
   readonly onFixes?: (month: string, classId: string) => void;
+  /** The session whose page the book opens on, else its latest page. */
+  readonly sessionKey?: string;
 }
 
-export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework, onStrip, onFixes }: TextsBookProps) {
+export function TextsBook(props: TextsBookProps) {
+  const { courseId, onCourse, onDetails, onPrint, onHomework, onStrip, onFixes, sessionKey } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
@@ -88,7 +91,8 @@ export function TextsBook({ courseId, onCourse, onDetails, onPrint, onHomework, 
   );
   const [shown, setShown] = useState<number | null>(null);
   const [undo, setUndo] = useState<Undo | null>(null);
-  const index = shown === null || shown >= pages.length ? pages.length - 1 : shown;
+  const opening = pages.findIndex((one) => one.rows.some((row) => row.session.key === sessionKey));
+  const index = shown === null || shown >= pages.length ? (opening >= 0 ? opening : pages.length - 1) : shown;
   const page = pages[index];
 
   if (course === undefined || schoolClass === undefined) {

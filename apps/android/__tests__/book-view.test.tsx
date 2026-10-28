@@ -84,7 +84,7 @@ function Elsewhere() {
   return null;
 }
 
-async function show(data: TestData, courseId = 'c-1') {
+async function show(data: TestData, courseId = 'c-1', sessionKey?: string) {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">
@@ -93,6 +93,7 @@ async function show(data: TestData, courseId = 'c-1') {
           <>
             <TextsBook
               courseId={courseId}
+              sessionKey={sessionKey}
               onCourse={onCourse}
               onDetails={onDetails}
               onPrint={onPrint}
@@ -249,4 +250,22 @@ test("the class's other subjects are a tap away, and a book with nothing yet say
   expect(onCourse).toHaveBeenCalledWith('c-1');
   await press('book-homework');
   expect(onHomework).toHaveBeenCalledWith('c-3');
+});
+
+test("opens on the page of the session it is given, as from the PC week's pane", async () => {
+  const data = await withOctober();
+  const [first] = sessionsBetween(
+    coreContext({ ...data, state: data.book.state }),
+    data.year.from,
+    parseDay('2026-10-31'),
+    new Set(['c-1']),
+  );
+  await show(data);
+  await press('book-before');
+  const october = said('book-page');
+  await ReactTestRenderer.act(() => tree?.unmount());
+  await show(data, 'c-1', first.key);
+  expect(said('book-page')).toBe(october);
+  await press('book-after');
+  expect(said('book-page')).not.toBe(october);
 });
