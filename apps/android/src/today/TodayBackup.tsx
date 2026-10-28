@@ -13,7 +13,8 @@
 // each day instead, as the lock page does, and offers «نسخة احتياطية الآن»
 // until a backup is saved that day; it cannot be put off or turned off.
 // Until the browser's answer is read, nothing shows, so one card never
-// gives way to the other.
+// gives way to the other. On a PC, the web app's update comes first
+// (`TodayDeviceCards`).
 
 import { BACKUP_LATER_DAYS, addDays, backupReminderDay, compareDays, deviceFacts, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -31,6 +32,8 @@ import { useAppData } from '../storage/AppData';
 import { useDeviceText } from '../text/device-text';
 import { currentLanguage } from '../text/i18n';
 import { dayName } from './DayMark';
+import { TodayAppUpdate } from './TodayAppUpdate';
+import { takesUpdates } from '../settings/update-offer';
 
 export type TodayBackupProps = {
   /** Today. */
@@ -38,6 +41,16 @@ export type TodayBackupProps = {
   /** Opens the devices page and the recovery sheet, for a first backup. */
   readonly onSheet: () => void;
 };
+
+/** This device's cards on Today: the PC web app's update, on a PC only, then the backup. */
+export function TodayDeviceCards(props: TodayBackupProps) {
+  return (
+    <>
+      {takesUpdates && <TodayAppUpdate />}
+      <TodayBackup {...props} />
+    </>
+  );
+}
 
 /** The reminder put off: the day it was put off to before, and the day it comes back. */
 type Put = { readonly before: Day | null; readonly until: Day };

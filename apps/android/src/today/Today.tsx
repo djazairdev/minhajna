@@ -47,7 +47,7 @@ import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
 import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
 import { TodayUpdate } from './TodayUpdate';
-import { TodayBackup } from './TodayBackup';
+import { TodayDeviceCards } from './TodayBackup';
 import { SupportToday } from './SupportToday';
 import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
 import { controlIcon } from '../design/Icon';
@@ -216,7 +216,7 @@ export function Today(props: {
         <View style={styles.list}>
           {mark !== null && <DayBanner entry={mark} line={markLine(t, mark, day, language, profile)} />}
           {props.onCalendarUpdate && <TodayUpdate day={day} open={props.onCalendarUpdate} />}
-          {props.onBackupSheet && <TodayBackup day={day} onSheet={props.onBackupSheet} />}
+          {props.onBackupSheet && <TodayDeviceCards day={day} onSheet={props.onBackupSheet} />}
           <RamadanNotice view={view} />
           {props.onExams && <TodayExams context={context} day={day} open={props.onExams} />}
           {backlog.days.length > 0 && (

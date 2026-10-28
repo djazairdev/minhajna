@@ -74,6 +74,7 @@ export type LogLine =
   /** The working copy handed to the other device, or back here (answer 503): never which device. */
   | { readonly kind: 'handover-sent' }
   | { readonly kind: 'handover-ended'; readonly how: 'back' | 'taken' }
+  | { readonly kind: 'app-updated'; readonly version: string }
   /** A statement shared, or the role it went to (#439): never its content or a name. */
   | ShareLine
   /** A change past a damaged stretch: its kind and day, never its content. */
@@ -182,6 +183,8 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'handover-sent' };
     case 'handover.ended':
       return { kind: 'handover-ended', how: event.handover?.how === 'taken' ? 'taken' : 'back' };
+    case 'app.updated':
+      return { kind: 'app-updated', version: String(event.updated?.version ?? '').slice(0, 20) };
     case 'statement.shared':
     case 'statement.sent':
       return shareLine(event, seen.shares);
@@ -204,6 +207,7 @@ const categoryOf = (line: LogLine): LogCategory | null => {
     case 'recovery-set':
     case 'handover-sent':
     case 'handover-ended':
+    case 'app-updated':
       return 'devices';
     case 'unverified':
       return null;

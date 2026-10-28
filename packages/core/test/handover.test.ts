@@ -22,6 +22,7 @@ import {
   archiveOf,
   archiveText,
   buildState,
+  layerOf,
   deviceFacts,
   readArchive,
   recordsWhileHandedOver,
@@ -91,11 +92,14 @@ async function handed() {
 }
 
 describe('the working copy handed over', () => {
-  it('records only what never leaves the device, and the prints, while the copy is away', () => {
+  it('records only what never leaves the device, the PC’s updates and the prints, while the copy is away', () => {
     assert.equal(recordsWhileHandedOver(printed('made-up')), true);
     assert.equal(recordsWhileHandedOver({ kind: 'backup.saved' }), true);
     assert.equal(recordsWhileHandedOver({ kind: 'recovery.set', recovery: { key: KEY } }), true);
     assert.equal(recordsWhileHandedOver(note('made-up')), false);
+    const updated: RecordEvent = { kind: 'app.updated', updated: { version: '0.6.1', build: 'ef'.repeat(32) } };
+    assert.equal(recordsWhileHandedOver(updated), true);
+    assert.equal(layerOf(updated), 'device');
   });
 
   it('is kept in the device facts until it ends, and a malformed one is ignored', async () => {

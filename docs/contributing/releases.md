@@ -127,6 +127,7 @@ A pull request that changes something teachers can see adds a short note under `
 - **Credit** is agreed in the pull request. Only contributors who consent are named in the release notes.
 - **Keep other pending notes.** If another change edits the same section, keep both entries when resolving the conflict.
 - **Before tagging a release,** the release manager changes the `Unreleased` heading to the version and release date, following the existing headings, and starts a fresh `Unreleased` section above it. The Arabic entries are copied into the app's release notes and the teacher announcement. Published notes stay in `CHANGELOG.md`.
+- **The PC web app's notes:** before tagging, the release manager writes `apps/web/release-notes.json` for the new version: at most five short lines, of 160 characters at most, in Arabic, French and English, as many in each, drawn from the release's notes. The PC shows them in its update offer (answer 517). Notes written for another version are left out of the build, so a release without new ones offers its update with its version and checksum alone.
 
 ## Reference-data releases
 

@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: parts 1 to 3 of four.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. Updates, erasing the PC and printing come in part 4; until then those steps are refused. Use made-up data only.
+**Status: parts 1 to 3 of four, and the first pull request of part 4.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it. Erasing the PC and printing come next in part 4; until then those steps are refused. Use made-up data only.
 
 ## Build and try it
 
@@ -35,7 +35,13 @@ Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answer
 
 ## Offline and updates
 
-`public/sw.js` reads `build.json` once and fetches every file it lists past the browser's HTTP cache. It checks each file against its SHA-256, so a changed file or a redirected page fails the install, and one cache never mixes two builds. It keeps the files in one cache named after the checksum and answers only from it, so the app opens with no network (R-6.6-05). The worker never changes between builds, so the browser never swaps the app on its own. A new build is installed only when the teacher accepts it (R-6.6-06); that step comes in part 4.
+`public/sw.js` reads `build.json` once and fetches every file it lists past the browser's HTTP cache. It checks each file against its SHA-256, so a changed file or a redirected page fails the install, and one cache never mixes two builds. It keeps the files in one cache named after the checksum and answers only from it, so the app opens with no network (R-6.6-05). The worker never changes between builds, so the browser never swaps the app on its own. A new build is installed only when the teacher accepts it (R-6.6-06):
+
+- **Looking for one (answer 516):** at each opening, when the PC is online, the app asks the worker for the server's build. The worker fetches `build.json` past every cache and checks its checksum, as an install does, then `notes.json`, checked against its line. The version and version code are read from `notes.json`, which the checksum covers, never from `build.json` alone, and a build is offered only when its version code is higher than the installed one's, so no older build, and no other build of the same version, is ever offered. Offline, or on any failure, nothing is offered.
+- **The offer (Web-update):** Today shows the version, what changed in the interface's language, and the new build's checksum beside the current one's, to compare with the published ones. «تثبيت التحديث» installs it; «لاحقاً» leaves the current build running, with a line that the update waits, and the offer comes back at the next opening.
+- **Installing:** the worker installs the server's build only if its checksum is the one the teacher saw, into a cache of its own beside the current one. Every file is checked as on the first install; the old cache answers until the new one is whole, and is deleted only then. Every page of the app then reloads into the new build, which asks for the passphrase; another tab of the app reloads too, its changes already saved as each was made. A file that fails its hash, or a server that changed its build meanwhile, leaves the current build as it was.
+- **After:** Today says which version was installed and that the data is as it was, and the history records the update with its day, version and checksum, a device entry that never leaves the PC.
+- **Release notes (answer 517):** `release-notes.json` holds at most five short lines in Arabic, French and English for one version. The build always writes `notes.json`, among the files the checksum covers, with the version and version code; the lines go in only when they were written for the version it builds, and otherwise the offer has the version and checksum alone. The release guide says when to write them.
 
 ## The lock and the history
 
@@ -92,6 +98,7 @@ The third pull request of part 3 (answers 503 and 513 to 515) keeps one working 
 | CalendarInput | Updates, plan layers and statements as files, a statement PDF giving only its link; QR codes drawn, none scanned. |
 | Signature | Web Crypto's ECDSA P-256: the PC's own pair, sealed in the vault, and others' signatures checked. QR codes for statements. |
 | Pdf | Printing through the browser, in part 4. |
+| Update | The server's newer build, through the offline worker, installed only by the checksum the teacher saw. A phone has no such module. |
 | Browser | The web's own: whether the browser keeps the data, and its install offer. A phone has no such module. |
 
 Until its part comes, a module refuses each step with `E_WEB_NOT_YET`.
