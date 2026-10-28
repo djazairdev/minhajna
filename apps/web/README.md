@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: parts 1 to 3 of four, and the first pull request of part 4.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it. Erasing the PC and printing come next in part 4; until then those steps are refused. Use made-up data only.
+**Status: parts 1 to 3 of four, and the first two pull requests of part 4.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, and erases everything it keeps in this browser on request. Printing comes next in part 4; until then it is refused. Use made-up data only.
 
 ## Build and try it
 
@@ -53,7 +53,8 @@ Part 2 (answers 502, 504 and 505) puts the phone's lock and history in the brows
 - **Erasing content** seals every row again under a new history key, in the same transaction that keeps the new key. IndexedDB cannot overwrite old records at once as SQLCipher's secure delete does, so the browser may keep the old copies in its files for a while; the old key that opens them is sealed with the passphrase in those same old files.
 - **Wrong passphrases** are counted as the phone counts wrong PINs: four are free, then the wait doubles from 30 seconds up to an hour. The wait only slows guessing on the lock page; someone who copies the browser's files can guess without it, which is why the passphrase is long and slow to try.
 - **The automatic lock** uses the phone's choices, 1, 5 or 15 minutes, 5 by default. A click, a key or a wheel turn counts as use.
-- **A forgotten passphrase** cannot be recovered by anyone; the PC must then be erased. Until part 4 brings «مسح هذا الحاسوب», that means clearing this site's data in the browser's settings.
+- **A forgotten passphrase** cannot be recovered by anyone; the PC must then be erased. «نسيت عبارة المرور؟» on the lock page leads to «مسح هذا الحاسوب» (answer 518).
+- **Erasing this PC (answers 518 to 520):** from Settings, or from the lock page with no counts as the history is locked. The IndexedDB database goes whole first, with the sealed key, the history, the timings and the signing pair; then the open history's keys are forgotten and every setting under the `minhajna:` prefix goes. A delete the browser refuses leaves everything as it was. Another tab that keeps the database open for more than three seconds makes the screen say the erase waits for the app's other tabs, and stay busy: the delete cannot be called back, so the erase finishes once they are closed. The app's own files stay in the offline worker's cache, so it opens again without internet, empty as at first. Every other tab of the app reloads once the database is gone. The tab that erased keeps a mark in its session storage, so its welcome says the PC was erased; no other tab or opening sees it. As with erasing content, the browser may keep the deleted rows in its files for a while; they stay sealed, and open only with the passphrase.
 - **Password managers** get the usual hints: the lock's field is the current password, and the new and repeated ones are new passwords.
 
 ## Files in and out
@@ -93,12 +94,12 @@ The third pull request of part 3 (answers 503 and 513 to 515) keeps one working 
 | Build, Licences | Read from `build.json` and `licences.json`. |
 | Notify | None: the phone carries the reminders. |
 | StorageCheck | Absent, as in a release build. |
-| Storage | The browser's SHA-256 and random bytes, the passphrase lock, and the history and timings sealed in IndexedDB, a copy taken back added in one transaction. A PC has no fingerprint prompt. Erasing the PC comes in part 4. |
+| Storage | The browser's SHA-256 and random bytes, the passphrase lock, and the history and timings sealed in IndexedDB, a copy taken back added in one transaction. A PC has no fingerprint prompt. Erasing the PC deletes the database and the settings, and keeps the app's files. |
 | Files | The file dialog, the save dialog or a download, and the share menu where the browser shares the file; archives with zip.js. A PDF to keep is the phone's only. |
 | CalendarInput | Updates, plan layers and statements as files, a statement PDF giving only its link; QR codes drawn, none scanned. |
 | Signature | Web Crypto's ECDSA P-256: the PC's own pair, sealed in the vault, and others' signatures checked. QR codes for statements. |
 | Pdf | Printing through the browser, in part 4. |
 | Update | The server's newer build, through the offline worker, installed only by the checksum the teacher saw. A phone has no such module. |
-| Browser | The web's own: whether the browser keeps the data, and its install offer. A phone has no such module. |
+| Browser | The web's own: whether the browser keeps the data, its install offer, and whether this tab has just erased the PC. A phone has no such module. |
 
 Until its part comes, a module refuses each step with `E_WEB_NOT_YET`.

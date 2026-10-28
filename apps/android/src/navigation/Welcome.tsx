@@ -8,16 +8,19 @@
 // through the PIN first on a fresh install, and «فتح بيان أستاذ» to reader
 // mode, for a director or an inspector (#246, answer 490). The preview says
 // what it is before anything else (#48), and whether the PIN is set yet, for a
-// build that takes real names (#211).
+// build that takes real names (#211). A PC whose tab has just erased it says
+// so first, for as long as the page lasts (Web-erase, answer 519).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { Facts } from '../components/Facts';
+import { Notice } from '../components/Notice';
 import { WelcomeHero } from '../components/WelcomeHero';
 import { colors, spacing, typography } from '../design/tokens';
 import { PreviewNotice } from '../help/BuildFacts';
+import browser from '../native/NativeMinhajnaBrowser';
 import { onPc, useDeviceText } from '../text/device-text';
 import { LanguageChoice } from './LanguageChoice';
 
@@ -68,6 +71,15 @@ export function Welcome({
               {line}
             </Text>
           ))}
+        {browser?.erasedHere() === true && (
+          <Notice
+            testID="welcome-erased"
+            variant="notice"
+            badge={t('welcome.erased.badge')}
+            title={t('welcome.erased.title')}
+            message={[t('welcome.erased.line'), t('welcome.erased.kept'), t('welcome.erased.again')].join(' ')}
+          />
+        )}
         <PreviewNotice short lockSet={lockSet} />
         <LanguageChoice />
         <Facts

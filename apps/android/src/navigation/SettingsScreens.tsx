@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { usePreventRemove } from '@react-navigation/native';
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useState } from 'react';
 import { DrawnSignature } from '../drawn/DrawnSignature';
 import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
@@ -142,10 +144,15 @@ export function SettingsRecoveryScreen({
   );
 }
 
-/** «مسح هذا الجهاز», with the storage module the app opened its history with (answer 477). */
+/**
+ * «مسح هذا الجهاز», with the storage module the app opened its history with (answer 477); the screen stays while an
+ * erase runs, as one a PC's other tabs keep waiting cannot be called back.
+ */
 export function SettingsEraseScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'SettingsErase'>) {
   const storage = useLockStorage();
-  return <EraseDevice storage={storage} onExport={() => navigation.navigate('SettingsExport')} />;
+  const [busy, setBusy] = useState(false);
+  usePreventRemove(busy, () => undefined);
+  return <EraseDevice storage={storage} onExport={() => navigation.navigate('SettingsExport')} onBusy={setBusy} />;
 }
 
 /** The teacher card, saved as it is edited, without resetting setup or the navigation stack. */

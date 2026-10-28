@@ -30,6 +30,7 @@ const { default: Lock } = await import('../src/native/Lock.ts');
 const { default: Crash } = await import('../src/native/Crash.ts');
 const { default: Storage } = await import('../src/native/Storage.ts');
 const { default: Files } = await import('../src/native/Files.ts');
+const { default: Pdf } = await import('../src/native/Pdf.ts');
 const { isRtl } = await import('../src/direction.ts');
 
 beforeEach(() => {
@@ -91,7 +92,7 @@ describe('the web modules', () => {
   });
 
   it('refuses every step of the later parts as not built yet, and a PDF to keep, keeping nothing', async () => {
-    await assert.rejects(Storage.eraseDevice(), { code: 'E_WEB_NOT_YET' });
+    await assert.rejects(Pdf.printHtml('<p></p>', 'made-up', false), { code: 'E_WEB_NOT_YET' });
     await assert.rejects(Files.adoptPdf('made', 'marks.pdf', ''), { code: 'E_WEB_PHONE_ONLY' });
     assert.equal(kept.size, 0);
   });

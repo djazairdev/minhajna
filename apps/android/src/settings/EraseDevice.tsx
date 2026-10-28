@@ -3,14 +3,17 @@
 
 // «مسح هذا الجهاز» in Settings (#248, Erase, R-5.7-05, R-5.8-09, answer 477):
 // one step that cannot be undone. It says what goes from this phone, with the
-// classes and pupils counted, and what stays outside it (#482): the last
-// backup and its day, and the files saved elsewhere, though no backup holds
-// the personal fields or the drawn signature, with the changes since that
-// backup counted as lost; or, before any backup, nothing, so every change on
-// this phone goes with it. It offers the export first, and erases only once
-// the teacher ticks that it cannot be undone, once however often it is
-// tapped, after the last changes are saved; the app then starts again on the
-// welcome screen. A failure is said, and the screen stays.
+// classes and pupils counted, and what stays outside it (#482): the last backup
+// and its day, and the files saved elsewhere, though no backup holds the
+// personal fields or the drawn signature, with the changes since that backup
+// counted as lost; or, before any backup, nothing, so every change on this
+// phone goes with it. It offers the export first, and erases only once the
+// teacher ticks that it cannot be undone, once however often it is tapped,
+// after the last changes are saved; the app then starts again on the welcome
+// screen. A failure is said, and the screen stays; a PC whose other tabs keep
+// the erase waiting says so and stays busy until it finishes. On a PC it says
+// what goes from this browser and this PC's key (#250, Web-erase, answer 509),
+// and the app stays installed (answer 520).
 
 import { deviceFacts } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,8 +28,10 @@ import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import ui from '../native/NativeMinhajnaInterface';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
+import { errorCode } from '../lock/lock-rules';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { dayName } from '../today/DayMark';
 import { settingsStyles as styles } from './styles';
 
@@ -34,6 +39,8 @@ export type EraseDeviceProps = {
   /** The storage module the app opened its history with. */
   readonly storage: Storage;
   readonly onExport: () => void;
+  /** Told when an erase starts or stops running, so the route can hold the screen while it runs. */
+  readonly onBusy?: (busy: boolean) => void;
 };
 
 const GONE = [
@@ -43,14 +50,14 @@ const GONE = [
   'settings.eraseDevice.goneKey',
 ] as const;
 
-export function EraseDevice({ storage, onExport }: EraseDeviceProps) {
-  const t = useText();
+export function EraseDevice({ storage, onExport, onBusy }: EraseDeviceProps) {
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { state, entries, profile, allSaved } = useAppData();
   const [understood, setUnderstood] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [said, setSaid] = useState<'failed' | 'waits' | null>(null);
   const pending = useRef(false);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const counted = t('settings.eraseDevice.goneClasses', {
@@ -73,15 +80,21 @@ export function EraseDevice({ storage, onExport }: EraseDeviceProps) {
     if (pending.current || !understood) return;
     pending.current = true;
     setBusy(true);
-    setFailed(false);
+    onBusy?.(true);
+    setSaid(null);
     void allSaved()
       .then(() => storage.eraseDevice())
       .then(
         () => ui.restart(),
-        () => {
+        (error: unknown) => {
+          if (errorCode(error) === 'E_ERASE_WAITS') {
+            setSaid('waits');
+            return;
+          }
           pending.current = false;
           setBusy(false);
-          setFailed(true);
+          onBusy?.(false);
+          setSaid('failed');
         },
       );
   };
@@ -135,7 +148,9 @@ export function EraseDevice({ storage, onExport }: EraseDeviceProps) {
         disabled={busy}
         onCheckedChange={setUnderstood}
       />
-      {failed && <Notice testID="erase-failed" icon={controlIcon('info')} message={t('settings.eraseDevice.failed')} />}
+      {said !== null && (
+        <Notice testID={`erase-${said}`} icon={controlIcon('info')} message={t(`settings.eraseDevice.${said}`)} />
+      )}
       <Button
         testID="erase-confirm"
         variant="danger"

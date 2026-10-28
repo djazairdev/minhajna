@@ -218,7 +218,15 @@
     "exportLine": "A file to keep on a computer, a memory card or a USB key",
     "understood": "I understand that erasing cannot be undone, and that the project cannot recover anything.",
     "erase": "Erase everything",
-    "failed": "The erasure did not finish. Try again."
+    "failed": "The erasure did not finish. Try again.",
+    "waits": "The erasure waits for Minhajna’s other tabs or windows on this PC: close them, and it finishes on its own.",
+    "pc": {
+      "gone": "What is erased from this browser",
+      "goneKey": "This PC’s key: the passphrase opens nothing after the erasure",
+      "keptNone": "Nothing yet: no backup, so what was not handed over to the phone is on this PC alone.",
+      "exportLine": "A file to keep on a USB key or another disk",
+      "erase": "Erase this PC"
+    }
   },
   "devices": {
     "yours": "Only you hold the keys",
@@ -407,7 +415,8 @@
   "statementLine": "Per class, no pupil data",
   "receivedLine": "Teachers’ statements, checked and kept on your devices",
   "pc": {
-    "phone": "This PC"
+    "phone": "This PC",
+    "eraseLine": "Everything is erased from this browser, with no way back"
   },
   "handover": {
     "title": "Has the other device opened the file?",

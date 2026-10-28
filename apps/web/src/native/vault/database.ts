@@ -13,7 +13,7 @@
 export const STORES = ['meta', 'entries', 'timings'] as const;
 export type StoreName = (typeof STORES)[number];
 
-const NAME = 'minhajna';
+export const NAME = 'minhajna';
 const VERSION = 1;
 
 let opening: Promise<IDBDatabase> | null = null;

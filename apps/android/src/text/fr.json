@@ -98,6 +98,13 @@
       "noAccount": "Sans compte ; rien n’est envoyé à un serveur",
       "onPhone": "Les données restent dans ce navigateur",
       "restore": "J’ai une copie de mon téléphone"
+    },
+    "erased": {
+      "badge": "Effacé",
+      "title": "Minhajna a été effacé de ce navigateur",
+      "line": "Il n’y reste rien de vos données, ni la clé de ce PC. L’application reste installée, vide comme au premier jour.",
+      "kept": "Sur le téléphone et dans les fichiers enregistrés ailleurs : tout ce qu’ils contiennent, tel quel.",
+      "again": "Pour ajouter ce PC à nouveau, ouvrez le transfert de votre téléphone ou une sauvegarde avec « J’ai une copie de mon téléphone »."
     }
   },
   "privacy": {
@@ -2209,7 +2216,18 @@
         "opens": "Il s’ouvre depuis le menu Démarrer ou le bureau, dans sa propre fenêtre et sans internet.",
         "failed": "Minhajna n’a pas été installé. Vous pourrez l’installer plus tard depuis « Appareils et sauvegardes » ou le menu du navigateur."
       },
-      "cleared": "Effacer les données de ce site dans le navigateur les supprime, conservées ou non."
+      "cleared": "Effacer les données de ce site dans le navigateur les supprime, conservées ou non.",
+      "erase": {
+        "link": "Effacer ce PC",
+        "title": "Effacer ce PC",
+        "oneStep": "Une seule étape, sans retour : pour quitter ce PC, ou après avoir oublié la phrase de passe.",
+        "gone": "Ce qui est effacé de ce navigateur",
+        "goneAll": "Les classes et les élèves, les appels, les notes et les appréciations",
+        "goneKey": "La clé de ce PC : la phrase de passe n’ouvre plus rien après l’effacement",
+        "keptLine": "Ce qui a été remis au téléphone, et les sauvegardes et fichiers enregistrés ailleurs : l’effacement n’y touche pas.",
+        "lost": "Ce qui a été noté sur ce PC sans atteindre le téléphone ni une sauvegarde est perdu avec l’effacement. Si la phrase de passe vous revient, ouvrez d’abord le PC et faites une sauvegarde.",
+        "submit": "Effacer ce PC"
+      }
     }
   },
   "security": {

@@ -6,10 +6,10 @@
 // in this browser's IndexedDB (part 2, answer 502). The PIN steps take the
 // passphrase. A PC has no fingerprint, so that prompt never shows. Each
 // step that touches the vault runs after the one before. Erasing the PC
-// comes in part 4; until then it is refused.
+// deletes the vault and the settings, and keeps the app's files (part 4).
 
 import type { Spec } from '../../../android/src/native/NativeMinhajnaStorage';
-import { notYet } from './not-yet.ts';
+import { eraseDevice } from './vault/erase.ts';
 import * as history from './vault/history.ts';
 import {
   changePassphrase,
@@ -61,7 +61,7 @@ const Storage: Spec = {
   loadTimings: () => serial(history.loadTimings),
   addTimings: (timings) => serial(() => history.addTimings(timings)),
   clearTimings: () => serial(history.clearTimings),
-  eraseDevice: () => notYet('Erasing this PC'),
+  eraseDevice: () => serial(eraseDevice),
 };
 
 export default Storage;
