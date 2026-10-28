@@ -14,7 +14,7 @@ import { NewerRelease } from '../plan/NewerRelease';
 import { groupName, packFacts, packSource } from '../plan/pack-labels';
 import { packOfPin, pinOfClass, planGroups } from '../plan/plan-rules';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { settingsStyles as styles } from './styles';
 
 /** Each school's actual class pins, not a newer available pack presented as the one in use. */
@@ -27,7 +27,7 @@ export function Plans({
   onChoose: (grade: string, subject: string, schoolId: string, classId: string) => void;
   onRelease: (courseId: string, release: string) => void;
 }) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { state, profile, packs, year } = useAppData();

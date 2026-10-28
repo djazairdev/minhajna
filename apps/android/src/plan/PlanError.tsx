@@ -5,26 +5,28 @@
 // kind of error and the teacher's note, then exactly what will be sent,
 // the pack and item IDs, the release, the kind, the note and a name only
 // if the teacher asks for credit and types it. Sharing hands the text to
-// Android's share sheet, where the teacher picks the app; the screen says
-// to send it to contact@djazair.dev (answers 287, 290), an address the
-// teacher can copy. The app itself sends nothing, and adds nothing about
-// the class, school or pupils. While the report cannot be shared, a line
-// says what it still needs.
+// Android's share sheet, where the teacher picks the app; on a PC to the
+// browser's share menu, else the clipboard, as Help's report (answer 523).
+// The screen says to send it to contact@djazair.dev (answers 287, 290), an
+// address the teacher can copy. The app itself sends nothing, and adds
+// nothing about the class, school or pupils. While the report cannot be
+// shared, a line says what it still needs.
 
 import { type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
-import { ScrollView, Share, Text, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Switch } from '../components/Switch';
 import { TextField } from '../components/TextField';
 import { spacing } from '../design/tokens';
+import { sendReport, type Sent } from '../help/send-report';
 import { settingsStyles as styles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { onPc, useDeviceText } from '../text/device-text';
 import { ERROR_KINDS, NAME_LIMIT, NOTE_LIMIT, plain, ready, reportLines, type ErrorKind } from './error-report';
 import { isAdded, itemPage } from './item-rules';
 
@@ -34,7 +36,7 @@ export type PlanErrorProps = {
 };
 
 export function PlanError({ courseId, itemId }: PlanErrorProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -48,6 +50,9 @@ export function PlanError({ courseId, itemId }: PlanErrorProps) {
   const [note, setNote] = useState('');
   const [credit, setCredit] = useState(false);
   const [name, setName] = useState('');
+  const [handed, setHanded] = useState<Sent | null>(null);
+  const [busy, setBusy] = useState(false);
+  const pending = useRef(false);
   if (page === null || isAdded(page.row.item)) {
     return (
       <View style={styles.screen}>
@@ -104,7 +109,7 @@ export function PlanError({ courseId, itemId }: PlanErrorProps) {
       <View testID="error-preview" accessible style={[styles.card, { gap: spacing['space-4'] }]}>
         <Text style={[styles.sub, align]}>{t('planError.preview')}</Text>
         {lines.map((line, index) => (
-          <Text key={index} style={[styles.body, align]}>
+          <Text key={index} selectable={onPc()} style={[styles.body, align]}>
             {line}
           </Text>
         ))}
@@ -121,11 +126,24 @@ export function PlanError({ courseId, itemId }: PlanErrorProps) {
       <Button
         testID="error-share"
         label={t('planError.share')}
-        disabled={!ready(report)}
+        disabled={!ready(report) || busy}
         onPress={() => {
-          Share.share({ message: lines.join('\n'), title: t('planError.title') }).catch(() => undefined);
+          if (pending.current) return;
+          pending.current = true;
+          setBusy(true);
+          setHanded(null);
+          void sendReport(lines.join('\n'), t('planError.title')).then((how) => {
+            pending.current = false;
+            setBusy(false);
+            setHanded(how);
+          });
         }}
       />
+      {(handed === 'copied' || handed === 'failed') && (
+        <Text testID={`error-${handed}`} accessibilityLiveRegion="polite" style={[styles.body, align]}>
+          {t(handed === 'copied' ? 'report.copied' : 'report.copyFailed')}
+        </Text>
+      )}
       <Text style={[styles.sub, align]}>{t('planError.offline')}</Text>
     </ScrollView>
   );

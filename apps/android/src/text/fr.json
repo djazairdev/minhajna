@@ -238,6 +238,10 @@
       "primary": "Primaire",
       "cem": "Moyen",
       "lycee": "Secondaire"
+    },
+    "pc": {
+      "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce PC.",
+      "cardIntro": "Ce qui s’imprime en tête des documents. Les champs personnels sont facultatifs et ne quittent pas ce PC."
     }
   },
   "week": {
@@ -854,7 +858,10 @@
     "school": "{{school}} · {{groups}}",
     "week": "Emploi du temps : {{schools}}",
     "weekNote": "Une semaine réunit les séances de chaque école, dessinée sur ce téléphone. {{clashes}}",
-    "register": "Un registre par classe : il ne compte que vos séances, avec un appel à chacune, et l’appel par demi-journée reste celui de l’enseignant de la classe."
+    "register": "Un registre par classe : il ne compte que vos séances, avec un appel à chacune, et l’appel par demi-journée reste celui de l’enseignant de la classe.",
+    "pc": {
+      "weekNote": "Une semaine réunit les séances de chaque école, dessinée sur ce PC. {{clashes}}"
+    }
   },
   "classPage": {
     "title": "Classe",
@@ -1192,7 +1199,11 @@
     "sendTo": "Envoyez-le à contact@djazair.dev, par e-mail ou avec l’application choisie dans le menu de partage.",
     "share": "Partager le signalement",
     "offline": "L’application n’envoie rien elle-même : le menu de partage du téléphone s’ouvre, et vous choisissez.",
-    "gone": "Cet élément n’est plus dans le plan de la classe, ou vous l’avez ajouté : il n’y a pas d’erreur de pack à signaler."
+    "gone": "Cet élément n’est plus dans le plan de la classe, ou vous l’avez ajouté : il n’y a pas d’erreur de pack à signaler.",
+    "pc": {
+      "offline": "L’application n’envoie rien elle-même et n’en garde aucune copie : le menu de partage du navigateur s’ouvre s’il en a un ; sinon le rapport est copié pour que vous le colliez. Vous choisissez où il va.",
+      "sendTo": "Envoyez-le à contact@djazair.dev, par courriel ou avec l’application de votre choix."
+    }
   },
   "tests": {
     "title": "Calendrier des devoirs",
@@ -1468,7 +1479,10 @@
       "days": "Jour de séances",
       "none": "Cette classe n’a aucune séance cette année scolaire, donc aucune feuille d’appel.",
       "open": "Imprimer une feuille d’appel vierge pour cette classe",
-      "confidential": "Écrit en haut et en bas de la feuille, car elle contient les noms des élèves."
+      "confidential": "Écrit en haut et en bas de la feuille, car elle contient les noms des élèves.",
+      "pc": {
+        "line": "Pour un remplaçant, ou un appel sur papier"
+      }
     },
     "slip": {
       "name": "Billet d’absence de la séance",
@@ -1524,7 +1538,10 @@
     "paper": "Écrite dans le cahier avant la correction : à corriger là aussi, et à signer.",
     "none": "Aucune correction ce mois-ci.",
     "foot": "À présenter avec le cahier papier au contrôle mensuel, sur le téléphone ou imprimée.",
-    "open": "Corrections de {{month}}"
+    "open": "Corrections de {{month}}",
+    "pc": {
+      "foot": "À présenter avec le cahier papier au contrôle mensuel, à l’écran ou imprimée."
+    }
   },
   "pilotTimings": {
     "title": "Mes temps du pilote",
@@ -1580,7 +1597,14 @@
     "clearYes": "Effacer",
     "cancel": "Annuler",
     "cleared": "Mesures effacées.",
-    "failed": "Les mesures n’ont pas pu être lues. Vous pouvez les effacer et recommencer."
+    "failed": "Les mesures n’ont pas pu être lues. Vous pouvez les effacer et recommencer.",
+    "pc": {
+      "scope": "Sur ce PC seulement",
+      "line": "Sur ce PC seulement · Version pilote",
+      "intro": "Ce PC mesure le temps pris pour confirmer chaque séance et faire chaque appel, en secondes seulement : ni heure, ni jour, ni contenu. Les chiffres restent sur ce PC et ne partent que si vous les partagez.",
+      "exportLine": "Le fichier de l’administration, depuis ce PC",
+      "clearLine": "Les chiffres sont effacés de ce PC, sans retour. Vos séances et vos registres ne sont pas touchés."
+    }
   },
   "pupilPage": {
     "head": "{{class}} · n° {{number}}",
@@ -2551,7 +2575,16 @@
     "made": "Proposée le : {{day}}",
     "ids": "Chaque élément porte un identifiant qui relie le pack publié à ma liste, et ne désigne rien d’autre.",
     "unrecorded": "Le menu de partage s’est ouvert, mais la proposition n’a pas pu être ajoutée à l’historique de la liste.",
-    "cannot": "Le fichier ne peut pas être préparé : un élément de la liste ne se lit pas. Enregistrez de nouveau la liste, puis réessayez."
+    "cannot": "Le fichier ne peut pas être préparé : un élément de la liste ne se lit pas. Enregistrez de nouveau la liste, puis réessayez.",
+    "offline": "L’application n’envoie rien elle-même : le menu de partage du téléphone s’ouvre, et vous choisissez.",
+    "pc": {
+      "sendTo": "Enregistrez le fichier, puis envoyez-le à contact@djazair.dev par courriel. Un relecteur de Minhajna et un enseignant de la matière le relisent avant sa publication, comme plan communautaire signé, non officiel.",
+      "share": "Enregistrer pour relecture",
+      "sent": "Le fichier est enregistré où vous l’avez choisi, ou dans les téléchargements du navigateur, et la proposition figure dans l’historique de la liste.",
+      "failed": "Le fichier n’a pas pu être enregistré : rien n’a été ajouté à l’historique.",
+      "unrecorded": "Le fichier est enregistré, mais la proposition n’a pas pu être ajoutée à l’historique de la liste.",
+      "offline": "L’application n’envoie rien elle-même : le fichier est enregistré sur ce PC, et c’est vous qui l’envoyez."
+    }
   },
   "catchUp": {
     "title": "Options de rattrapage",
@@ -2899,7 +2932,10 @@
     "off": "Les notifications de cette application sont désactivées sur le téléphone : ni le résumé, ni l’aperçu, ni le rappel n’arrivent.",
     "allow": "Autoriser les notifications",
     "backupTitle": "Aucune sauvegarde depuis 30 jours",
-    "backupText": "Ce qu’aucune sauvegarde ne contient reste sur ce téléphone seulement. Sauvegardez depuis « Aujourd’hui »."
+    "backupText": "Ce qu’aucune sauvegarde ne contient reste sur ce téléphone seulement. Sauvegardez depuis « Aujourd’hui ».",
+    "pc": {
+      "off": "Un PC ne reçoit aucune notification de l’application : ni le résumé, ni l’aperçu, ni le rappel n’arrivent ici."
+    }
   },
   "notes": {
     "title": "Fiche de préparation",
@@ -3110,7 +3146,10 @@
       "trustedNone": "Rien : le premier changement du journal ne peut pas être vérifié",
       "safe": "Rien n’a été modifié ni effacé : l’application lit seulement ce journal, sans y écrire.",
       "restore": "Restaurer depuis une copie : arrive avec les sauvegardes et le transfert depuis un autre appareil, pour que ces jours reviennent tels qu’ils ont été notés.",
-      "report": "Signaler un problème : arrive avec les rapports de problème, où les noms des élèves sont remplacés et le rapport est montré avant l’envoi."
+      "report": "Signaler un problème : arrive avec les rapports de problème, où les noms des élèves sont remplacés et le rapport est montré avant l’envoi.",
+      "pc": {
+        "why": "Chaque changement est lié au précédent, donc toute modification ou suppression qui n’est pas passée par l’application se voit. Cela arrive si une partie du stockage du navigateur est abîmée, ou si un autre programme y a modifié les données de l’application."
+      }
     },
     "backupSaved": "Sauvegarde enregistrée",
     "recoverySet": "Nouvelle feuille de récupération établie, sans sa clé",
@@ -3646,7 +3685,10 @@
         "same": "Identique",
         "differs": "Diffère",
         "never": "La vérification est refaite après chaque correction, avant de signer la feuille de contrôle imprimée par l’administration. Elle ne change rien au registre ni au fichier.",
-        "unavailable": "Pas de vérification avant que les notes et appréciations du trimestre soient complètes."
+        "unavailable": "Pas de vérification avant que les notes et appréciations du trimestre soient complètes.",
+        "pc": {
+          "which": "Un fichier CSV texte : celui que Minhajna enregistre sans mot de passe, ou un tableau enregistré en CSV par Excel ou WPS. Il doit être sur ce PC ou une clé USB. S’il est ailleurs, copiez-le d’abord sur ce PC."
+        }
       }
     }
   },
@@ -3772,7 +3814,11 @@
     "qrLabel": "Code QR du relevé de progression, signé, lisible sans réseau",
     "qrClose": "Fermer",
     "logShared": "Relevé de progression · {{class}} · {{how}}",
-    "logSent": "Relevé de progression · {{class}} · {{how}} · {{to}}"
+    "logSent": "Relevé de progression · {{class}} · {{how}} · {{to}}",
+    "pc": {
+      "subtitle": "Par classe · sans aucune donnée d’élève, et il ne quitte ce PC que quand vous le choisissez.",
+      "none": "Pas de relevé pour cette classe : elle n’a pas de plan sur ce PC."
+    }
   },
   "packRelease": {
     "title": "Nouvelle version de la progression",
@@ -3845,7 +3891,10 @@
     "back": "Retour à la progression",
     "missing": "Le déplacement n’est pas proposé : la version {{release}} n’est pas sur le téléphone.",
     "broken": "Le déplacement n’est pas proposé : les correspondances de la version {{release}} ne suivent pas la précédente.",
-    "none": "Aucune classe sur une version antérieure à {{release}}."
+    "none": "Aucune classe sur une version antérieure à {{release}}.",
+    "pc": {
+      "missing": "Le déplacement n’est pas proposé : la version {{release}} n’est pas sur ce PC."
+    }
   },
   "reader": {
     "title": "Relevés reçus",
@@ -3940,7 +3989,10 @@
       "none": "Aucun jour ne peut être tiré pour ce relevé : il n’est pas de l’année scolaire {{year}}, dont l’application a le calendrier.",
       "early": "Aucun jour ne peut être tiré pour ce relevé : il est daté d’avant le premier jour de l’année scolaire {{year}}.",
       "noDays": "La période de ce relevé n’a aucun jour de classe : aucun jour ne peut être tiré.",
-      "onPhone": "La fiche reste sur ce téléphone et n’est envoyée nulle part."
+      "onPhone": "La fiche reste sur ce téléphone et n’est envoyée nulle part.",
+      "pc": {
+        "onPhone": "La fiche reste sur ce PC et n’est envoyée nulle part."
+      }
     },
     "merge": {
       "title": "Bilans réunis",
@@ -3973,6 +4025,9 @@
         "place": "Place",
         "delay": "Retard sur le plan",
         "notHeld": "Séances non tenues"
+      },
+      "pc": {
+        "register": "Il s’imprime en tableau à coller dans le registre des procès-verbaux numéroté. Il reste sur ce PC et n’est envoyé nulle part."
       }
     },
     "pc": {
@@ -4029,5 +4084,8 @@
       "proposed": "Proposée",
       "calendar": "Prise par le calendrier"
     }
+  },
+  "pc": {
+    "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce PC : rien n’en est affiché."
   }
 }

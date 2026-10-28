@@ -203,6 +203,9 @@
       "pc": {
         "input": "The file could not be read. Try again, or choose another file."
       }
+    },
+    "pc": {
+      "notice": "Receive a closure notice from your school or a colleague as a file, read on this PC without a network. Review its source and school before adding it; the sender’s identity is not authenticated."
     }
   },
   "update": {
@@ -342,6 +345,10 @@
       "held": "This release of the plan is already in the app, so nothing changes.",
       "older": "The app holds a later release of this plan, so it is not added.",
       "apply": "Apply: add release {{release}}"
+    },
+    "pc": {
+      "hint": "A file from a colleague or the school, on a USB key or saved on this PC. It is opened on its own, and its signature is checked before anything else.",
+      "whatNowBody": "Ask whoever sent it for the file again."
     }
   },
   "council": {

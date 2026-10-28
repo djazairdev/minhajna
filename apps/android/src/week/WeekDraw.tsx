@@ -40,7 +40,7 @@ import { WeekGrid } from '../components/WeekGrid';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDraft } from '../setup/useDraft';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { gridCell, gridLabels, isolate, schoolShort, schoolTally, weekMarks } from './grid-labels';
 import { SlotSheet } from './SlotSheet';
 import { ShiftCard } from './ShiftCard';
@@ -73,7 +73,7 @@ export function WeekDraw({
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const { state, profile, year, record, today, newId, unsaved } = useAppData();
   const [start] = useState(() => versionToDraw(state, year, today(), newId));
   const draft = useDraft(start, (version) => record({ kind: 'timetable.set', version }));

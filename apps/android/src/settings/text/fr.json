@@ -110,7 +110,11 @@
     "statusOn": "Activée",
     "statusOff": "Désactivée",
     "drawn": "Dessinée",
-    "statusNone": "Non dessinée"
+    "statusNone": "Non dessinée",
+    "pc": {
+      "padHint": "Dessinez à la souris, au stylet ou au doigt ; chaque trait est gardé quand vous relâchez.",
+      "phoneOnly": "Elle reste sur ce PC seulement : elle n’est ni transférée ni sauvegardée."
+    }
   },
   "logLine": "Chaque correction, impression, export et suppression",
   "exportLine": "L’archive Minhajna ou des fichiers CSV, gratuitement et à tout moment",
@@ -195,7 +199,8 @@
       "due": "Pour le"
     },
     "pc": {
-      "saveNote": "Le navigateur enregistre le fichier où vous choisissez, ou dans ses téléchargements, et l’export est inscrit dans le journal d’activité."
+      "saveNote": "Le navigateur enregistre le fichier où vous choisissez, ou dans ses téléchargements, et l’export est inscrit dans le journal d’activité.",
+      "confidential": "Interne · confidentiel. Gardez le fichier sur ce PC ou une clé USB, pas dans une messagerie."
     }
   },
   "eraseDevice": {
@@ -228,7 +233,10 @@
       "goneKey": "La clé de ce PC : la phrase de passe n’ouvre plus rien après l’effacement",
       "keptNone": "Rien pour l’instant : aucune sauvegarde, donc ce qui n’a pas été remis au téléphone est sur ce PC seulement.",
       "exportLine": "Un fichier à garder sur une clé USB ou un autre disque",
-      "erase": "Effacer ce PC"
+      "erase": "Effacer ce PC",
+      "lost_one": "{{count}} changement n’a atteint ni un autre appareil ni une sauvegarde : il est perdu avec l’effacement.",
+      "lost_many": "{{count}} de changements n’ont atteint ni un autre appareil ni une sauvegarde : ils sont perdus avec l’effacement.",
+      "lost_other": "{{count}} changements n’ont atteint ni un autre appareil ni une sauvegarde : ils sont perdus avec l’effacement."
     }
   },
   "devices": {
@@ -419,7 +427,10 @@
   "receivedLine": "Ceux des enseignants, vérifiés et gardés sur vos appareils",
   "pc": {
     "phone": "Ce PC",
-    "eraseLine": "Tout est effacé de ce navigateur, sans retour"
+    "eraseLine": "Tout est effacé de ce navigateur, sans retour",
+    "cardLine": "Imprimée sur les documents ; les champs personnels restent sur ce PC.",
+    "missingPack": "La version {{release}} n’est pas installée sur ce PC. La classe y reste liée.",
+    "languageIntro": "La langue de l’interface sur ce PC"
   },
   "handover": {
     "title": "L’autre appareil a-t-il ouvert le fichier ?",

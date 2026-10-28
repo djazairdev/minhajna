@@ -16,7 +16,7 @@ import { SetupSteps } from '../components/SetupSteps';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { protectedChoices } from '../settings/school-guards';
 import { SchoolFields, SchoolSummary } from './SchoolFields';
 import { isComplete } from './school-rules';
@@ -29,7 +29,7 @@ export const SETUP_STEPS = 5;
 export function Teaching({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const { profile, state, unsaved } = useAppData();
   const { schools, chooseLevels, chooseSubjects, chooseZone, rename, flush, add, remove } = useSchools();
   const [open, setOpen] = useState(() => (schools.find((school) => !isComplete(profile, school)) ?? schools[0]).id);

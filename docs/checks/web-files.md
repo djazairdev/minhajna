@@ -51,8 +51,8 @@ Checks of 27 October 2026 for the first pull request of part 3 of [#250](https:/
 - **Part 3, next pull requests:** the keep-storage request and warning, with the install prompt (R-6.6-08); the handover rule, read-only until the copy comes back (answer 503), on both devices.
 - **Part 4:** accepting an update, «مسح هذا الحاسوب», which also deletes the sealed signing pair, and printing through the browser; the PC words of those screens and of Help.
 - **Before 0.6.0:**
-  - a last sweep of the texts that still name the phone or the camera (answer 509): among them the privacy notice, the reader's picture and council merge, and a calendar update's refusal page;
-  - the screens that can only send, a plan layer, a free list and a statement's file, need Save on a PC: they fail where the browser cannot share the file, which for a JSON file is Chrome and Edge;
+  - a last sweep of the texts that still name the phone or the camera (answer 509): done, as in [the PC's words record](web-pc-words.md), but for the privacy notice;
+  - the screens that can only send, a plan layer and a statement's file, need Save on a PC: they fail where the browser cannot share the file, which for a JSON file is Chrome and Edge;
   - the privacy notice's PC wording needs the founder's review;
   - the changelog's entry for the PC web app, once a host serves it (answer 500).
 - **A download counts as saved:** in Firefox and Safari, and in Chrome when the save dialog is refused, the page cannot tell a download cancelled or blocked from one kept.

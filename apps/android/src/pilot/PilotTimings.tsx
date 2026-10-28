@@ -23,7 +23,7 @@ import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import build from '../native/NativeMinhajnaBuild';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { sharedLines, shareText, timingCards, type TimingCard } from './timing-figures';
 import type { TimingStore } from './timing-store';
 
@@ -31,7 +31,7 @@ type Loaded =
   { readonly kind: 'loading' } | { readonly kind: 'failed' } | { readonly kind: 'ready'; timings: Timing[] };
 
 export function PilotTimings({ store }: { readonly store: TimingStore }) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const [loaded, setLoaded] = useState<Loaded>({ kind: 'loading' });

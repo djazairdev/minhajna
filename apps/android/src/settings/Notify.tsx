@@ -10,7 +10,8 @@
 // screen says so, and «السماح بالإشعارات» asks again or opens the app's
 // notification settings (answer 406). «تذكيرات نادرة» holds the 30-day backup
 // reminder, on by default (answer 482); the year-end prompts join it with their
-// own screens (answer 404).
+// own screens (answer 404). A PC gets no notifications, so there the screen
+// says so and offers nothing to allow (#250, answer 509).
 
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
@@ -23,12 +24,12 @@ import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import notify from '../native/NativeMinhajnaNotify';
 import { askPermission, recheckEnabled, useNotifyEnabled } from '../notify/useNotify';
-import { useText } from '../text/i18n';
+import { onPc, useDeviceText } from '../text/device-text';
 import { setNotifyPrefs, useNotifyPrefs } from './notify-prefs';
 import { settingsStyles as styles } from './styles';
 
 export function Notify() {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const prefs = useNotifyPrefs();
@@ -65,7 +66,7 @@ export function Notify() {
       {!enabled && (prefs.digest || prefs.preview || prefs.backup) && (
         <View testID="notify-off" style={styles.group}>
           <Notice icon={controlIcon('info')} message={t('notify.off')} />
-          <Button testID="notify-allow" label={t('notify.allow')} onPress={() => void allow()} />
+          {!onPc() && <Button testID="notify-allow" label={t('notify.allow')} onPress={() => void allow()} />}
         </View>
       )}
       {failed && <Notice testID="notify-failed" icon={controlIcon('info')} message={t('settings.failed')} />}

@@ -21,7 +21,8 @@ import { SetupSteps } from '../components/SetupSteps';
 import { TextField } from '../components/TextField';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { localized } from './names';
 import { SETUP_STEPS } from './Teaching';
 import { useDraft } from './useDraft';
@@ -64,7 +65,7 @@ export function Card({
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const { profile, year, state, unsaved } = useAppData();
   const { name, rank } = useCard();
   const align = { writingDirection: direction, textAlign: 'start' } as const;

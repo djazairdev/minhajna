@@ -24,7 +24,7 @@ import { bookFixesHtml } from '../documents/book-fixes-html';
 import { monthLabel } from '../documents/document-data';
 import { useOutputRun } from '../documents/output-run';
 import { useDocumentData } from '../documents/useDocumentData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { useOutputLog } from '../log/output-log';
 import { PrintSave } from '../documents/PrintSave';
 
@@ -38,7 +38,7 @@ export type BookFixesProps = {
 const ALL = 'all';
 
 export function BookFixes(props: BookFixesProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useDocumentData();
@@ -154,7 +154,7 @@ export function BookFixes(props: BookFixesProps) {
 }
 
 function FixCard({ item }: { item: FixItem }) {
-  const t = useText();
+  const t = useDeviceText();
   return (
     <View testID={`fixes-item-${item.key}`} style={styles.card}>
       <Text style={styles.head}>

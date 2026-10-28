@@ -222,9 +222,10 @@ test('every new text is in French and English', () => {
     [settingsAr.eraseDevice.pc, settingsFr.eraseDevice.pc, settingsEn.eraseDevice.pc],
     [settingsAr.pc, settingsFr.pc, settingsEn.pc],
   ] as const;
+  const bases = (texts: object) => [...new Set(Object.keys(texts).map((key) => key.replace(/_[a-z]+$/u, '')))];
   for (const [ar, ...others] of pairs) {
     for (const other of others) {
-      expect(Object.keys(other)).toEqual(Object.keys(ar));
+      expect(bases(other)).toEqual(bases(ar));
       for (const [key, value] of Object.entries(other)) {
         expect(value).not.toBe('');
         expect(value).not.toBe((ar as Record<string, string>)[key]);

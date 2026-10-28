@@ -26,7 +26,8 @@ import { settingsStyles as styles } from '../settings/styles';
 import { gradeName } from '../setup/names';
 import { subjectName } from '../sharing/statement-lines';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { mergeHtml } from './merge-page';
 import { mergeWords, type MergeWords } from './merge-words';
@@ -35,7 +36,7 @@ import { useFingerprints } from './useFingerprints';
 import { PrintSave } from '../documents/PrintSave';
 
 export function ReaderMerge({ grade, onOpen }: { readonly grade: string; readonly onOpen: (id: string) => void }) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { entries, profile, packs, today } = useAppData();
