@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Checks a host of the PC web app once a build is deployed (answer 528), as
-// a teacher's browser will see it: `node scripts/check-host.ts [address]
+// Checks a host of the PC web app once a build is deployed (answer 528), as a
+// teacher's browser will see it: `node scripts/check-host.ts [address]
 // [checksum]`, by default the address teachers open. Every file build.json
 // lists must come back whole, by its SHA-256, with its media type and the
-// host's headers (scripts/host.ts), straight, with no redirect and no
-// cookie; the address itself must give the page; a file the build does not
-// hold must not be found, so the host answers nothing but the build. And
-// build.json must name the release's build checksum, which only a check on
-// this computer may leave out, as any build passes the rest. Plain HTTP is
-// refused but on this computer. Prints each problem; exits 1 if there are.
+// host's headers (scripts/host.ts), straight, with no redirect, no cookie and
+// no header that has the browser report to anyone; the address itself must
+// give the page; a file the build does not hold must not be found, so the
+// host answers nothing but the build. And build.json must name the release's
+// build checksum, which only a check on this computer may leave out, as any
+// build passes the rest. Plain HTTP is refused but on this computer. Prints
+// each problem; exits 1 if there are.
 
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +19,9 @@ import { checksum } from './hashes.ts';
 import { ADDRESS, hostHeaders, pagePolicy, typeOf } from './host.ts';
 
 type Built = { version: string; sha256: string; files: Record<string, string> };
+
+/** Headers that would have the browser send reports, such as Cloudflare's Network Error Logging. */
+const REPORTING = ['NEL', 'Report-To', 'Reporting-Endpoints'];
 
 /** The problems found with the build served at `address`, none when it is served as it should be. */
 export async function checkHost(address: string, expected?: string): Promise<string[]> {
@@ -51,6 +55,7 @@ export async function checkHost(address: string, expected?: string): Promise<str
       if (got !== value) problems.push(`${label}: ${header} is ${got ?? 'missing'}, not ${value}`);
     }
     if (response.headers.has('Set-Cookie')) problems.push(`${label}: sets a cookie`);
+    for (const header of REPORTING) if (response.headers.has(header)) problems.push(`${label}: sends ${header}`);
     const bytes = Buffer.from(await response.arrayBuffer());
     const hash = createHash('sha256').update(bytes).digest('hex');
     if (name !== 'build.json' && hash !== built.files[name]) problems.push(`${label}: not the build's file`);

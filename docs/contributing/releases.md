@@ -7,6 +7,7 @@ This guide is mostly for maintainers. Contributors need only [adding a release n
 - [Who releases](#who-releases)
 - [The release checklist](#the-release-checklist)
 - [Signing](#signing)
+- [The release workflow](#the-release-workflow)
 - [Fixes and security releases](#fixes-and-security-releases)
 - [The changelog](#the-changelog)
 - [Reference-data releases](#reference-data-releases)
@@ -30,7 +31,7 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
   1. the fix is merged into `main` first, through a pull request;
   2. a maintainer copies it to the release branch with `git cherry-pick -x`, which records where it came from.
 - **Patch releases** come from the release branch.
-- **Tags** are annotated and signed by the release manager:
+- **Tags** are annotated and signed with the release manager's key, by [the release workflow](#the-release-workflow) once the release manager approves the release (answers 533 and 536):
   - `v1.5.0` and `v1.5.0-beta.1` for the apps;
   - `server-v1.2.0` for the server.
 - **A pushed tag is never moved or deleted.** A mistake gets a new version. The first two releases were tagged `app-v0.1.0` and `app-v0.2.0`; those tags stay, beside `v0.1.0` and `v0.2.0` on the same commits.
@@ -52,7 +53,7 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 4. Dependencies: every licence is compatible with AGPL-3.0, and no known vulnerability is left unexplained.
 5. Secret scanning is clean.
 6. `NETWORK.md` matches the code: every address the app contacts, what it sends and why.
-7. The build is reproducible: two independent builds from the tag give the same result, apart from the signature. The PC web app's ZIP (`npm run zip` in `apps/web`) has the same SHA-256 as CI's `web-zip` artifact.
+7. The build is reproducible: two independent builds from the release commit give the same result, apart from the signature. The release workflow builds the APKs and their maps twice, at different paths, and packs the PC web app's ZIP twice, and compares each pair byte for byte.
 8. The tests pass:
    - the published test cases, in both apps;
    - every export imports back to the same records;
@@ -66,15 +67,15 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 
 **Release**
 
-12. The release manager signs the tag. The release is built from the tag and signed, and the SHA-256 checksum of each file is published with it.
-    - The PC web app's ZIP, `minhajna-web-<version>.zip`, is built from the tag too, attached beside the APKs and listed in `SHA256SUMS.txt`. Install the three lockfiles first, as CI does: `npm ci` at the root, in `apps/android` and in `apps/web`. Then run `npm run build && npm run zip` in `apps/web`. The build stops at any warning, since a missing package would change the bundle.
+12. The release manager approves the release in the `release-signing` environment. [The release workflow](#the-release-workflow) then signs the APKs with the project's key and checks that each one carries the project's certificate and differs from its build only by its signature. It signs the tag with the release manager's key, and publishes the SHA-256 checksum of each file with the release.
+    - The PC web app's ZIP, `minhajna-web-<version>.zip`, is built from the release commit too, attached beside the APKs and listed in `SHA256SUMS.txt`. To build it by hand, install the three lockfiles first, as CI does: `npm ci` at the root, in `apps/android` and in `apps/web`. Then run `npm run build && npm run zip` in `apps/web`. The build stops at any warning, since a missing package would change the bundle.
     - The release notes give the PC web app's build checksum, the `sha256` in its `build.json`. The app shows it, and [the host check](web-host.md#deploying-a-release) compares the deployed build with it.
 13. The release is published:
-    - on GitHub, titled with its tag (`v1.5.0`), with the notes, the files, the checksums and the signatures. A beta is marked as a pre-release; the newest release is marked as Latest;
+    - on GitHub, by the release workflow, titled with its tag (`v1.5.0`), with the notes written from `CHANGELOG.md`, the files, the checksums and the signatures. A beta is marked as a pre-release; the newest release is marked as Latest;
     - on the project's website, with the signing key's fingerprint and the checksums, which the README repeats ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security));
     - on Google Play, as a staged rollout;
     - on F-Droid, which builds it from the tag.
-    - on the PC web app's host, `https://minhajna.djazair.dev`, once the GitHub release is out: the release's ZIP is deployed and checked as [the host guide](web-host.md) says (answers 528 and 531).
+    - on the PC web app's host, `https://minhajna.djazair.dev`, by the release workflow once the GitHub release is out, when it is the newest release: the release's ZIP is deployed and checked as [the host guide](web-host.md#deploying-a-release) says (answers 528, 531 and 534).
 14. It is announced in Arabic in the teacher group ([PRD §1.11](../prd/PRD.md#111-community-transparency-and-building-in-public)).
 
 **After the release**
@@ -84,9 +85,38 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 ## Signing
 
 - **Official builds are made only from the public source** ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security)).
-- **Signing keys are held by named maintainers,** with an offline backup. They never enter a repository, and no check that runs on a pull request can reach them ([PRD §1.4](../prd/PRD.md#14-what-is-open-and-what-stays-private)).
+- **Signing keys are held by named maintainers,** with an offline backup. They never enter a repository. For releases, the project's keystore and the release manager's tag key are also kept in the repository's `release-signing` environment (answers 533 and 536). Only `main` and `release/*` may use it, and each run waits for the release manager's approval, so no check that runs on a pull request can reach them ([PRD §1.4](../prd/PRD.md#14-what-is-open-and-what-stays-private)).
 - **One signing certificate for every official Android source.** A teacher can then move between Google Play, the website and F-Droid without reinstalling the app and losing its data. Google Play signs with the project's own key, and reproducible builds let F-Droid ship the project's signed build.
 - **A lost or exposed key is a security incident** ([SECURITY.md](../../SECURITY.md)).
+
+## The release workflow
+
+`.github/workflows/release.yml` makes each release from its release commit (answers 533 to 538).
+
+- **What starts it.** A push to `main` or to a `release/*` branch that changes `CHANGELOG.md` or the app's `build.gradle`, when the app's `versionName` has no `v<version>` tag yet and `CHANGELOG.md` has that version's dated section (answer 535). Merging the release pull request is enough.
+- **Building and checking.** It runs the Android workflow, which builds the three APKs and the two maps twice at different paths and compares them, and the Test workflow, which packs the PC web app's ZIP. The ZIP is then packed again at another path and compared.
+- **The approval.** The "Sign and publish" job then waits in the `release-signing` environment. Approving it is the release manager's act: everything after it is automatic. Rejecting it releases nothing. Approve within 7 days, while the build's APKs are kept; after that, re-run all the jobs.
+- **The APKs.** `apksigner` signs each one with the project's keystore, aligned as built and with neither the v1 nor the v4 scheme. Each must carry the project's certificate and differ from its build only by its signature (`tools/release/signed-apk.js`).
+- **The tag.** `v<version>` is signed with the release manager's SSH key, whose fingerprint the workflow checks first, then verified and pushed.
+- **The release.** It is titled with its tag. Its notes come from the version's section of `CHANGELOG.md`, with each file's checksum, the certificate's, the PC web app's build checksum and the checklist issue titled `Release <version>` (`tools/release/assemble.js`). A beta is marked as a pre-release, and a release is Latest when no newer release, beta aside, is tagged.
+- **The host.** The newest release's ZIP is deployed to the PC web app's host and checked there ([the host guide](web-host.md#deploying-a-release), answer 534).
+- **A failed step.** Re-run the failed jobs. A tag pushed by an earlier attempt on the same commit is kept, and a tag of that name on another commit stops the run. The release is made as a draft, given its files, then published, so a re-run finishes a release left half made and never changes one already published.
+- **A rehearsal.** A pull request that changes the workflow or its tools runs everything up to the notes, which it keeps as the `release-rehearsal` artifact. It also serves the build through Cloudflare's runtime on the runner, and the host check must pass against it. Nothing is signed, tagged, published or deployed.
+
+### Setting it up
+
+Once, before any release pull request is merged, the founder creates `release-signing` in the repository's **Settings › Environments**. A run that names an environment that does not exist creates it with no reviewer and no branch rule; it then stops at the missing keys, but the protections must come first.
+
+1. **Required reviewers:** the release manager. While there is one maintainer, leave "Prevent self-review" off, since the release manager's own merge starts the run.
+2. **Deployment branches and tags:** selected branches only, `main` and `release/*`.
+3. **Environment secrets:**
+   - `RELEASE_KEYSTORE`: the project's keystore, in base64 (`base64 -i <keystore> | pbcopy` on macOS);
+   - `RELEASE_KEYSTORE_PASSWORD`: its password, which is also the key's;
+   - `RELEASE_TAG_KEY`: the private half of the release manager's SSH key. On GitHub, add it to the release manager's account as a signing key only, never as an authentication key, and use it for nothing else, such as logging in to a server: anyone who took it from the environment could then sign tags, but not push or log in as the release manager;
+   - `RELEASE_TAG_KEY_PASSPHRASE`: that key's passphrase, if it has one.
+4. **Environment variables:** `RELEASE_TAGGER_NAME` and `RELEASE_TAGGER_EMAIL`, the name and e-mail address the tags carry. The address must be one of the release manager's verified addresses on GitHub, so the tags show as verified.
+
+The organisation's `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` deploy the host (answer 538). Keep the offline copies of both keys: GitHub never shows a secret again, and without the keystore no teacher can update.
 
 ## Fixes and security releases
 
@@ -129,8 +159,8 @@ A pull request that changes something teachers can see adds a short note under `
 - **If you can't write the Arabic line,** a maintainer adds it before the release.
 - **Credit** is agreed in the pull request. Only contributors who consent are named in the release notes.
 - **Keep other pending notes.** If another change edits the same section, keep both entries when resolving the conflict.
-- **Before tagging a release,** the release manager changes the `Unreleased` heading to the version and release date, following the existing headings, and starts a fresh `Unreleased` section above it. The Arabic entries are copied into the app's release notes and the teacher announcement. Published notes stay in `CHANGELOG.md`.
-- **The PC web app's notes:** before tagging, the release manager writes `apps/web/release-notes.json` for the new version: at most five short lines, of 160 characters at most, in Arabic, French and English, as many in each, drawn from the release's notes. The PC shows them in its update offer (answer 517). Notes written for another version are left out of the build, so a release without new ones offers its update with its version and checksum alone.
+- **In the release pull request,** the release manager changes the `Unreleased` heading to the version and release date, following the existing headings, and starts a fresh `Unreleased` section above it. The section's first two paragraphs, an English introduction then its Arabic one, open the GitHub release's notes, followed by any further paragraph, such as the thanks, and the release workflow stops on an entry without its Arabic line. The Arabic entries are copied into the app's release notes and the teacher announcement. Published notes stay in `CHANGELOG.md`.
+- **The PC web app's notes:** in the release pull request, the release manager writes `apps/web/release-notes.json` for the new version: at most five short lines, of 160 characters at most, in Arabic, French and English, as many in each, drawn from the release's notes. The PC shows them in its update offer (answer 517). Notes written for another version are left out of the build, so a release without new ones offers its update with its version and checksum alone.
 
 ## Reference-data releases
 

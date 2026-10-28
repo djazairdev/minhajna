@@ -1,0 +1,13 @@
+{
+  "name": "@minhajna/web-host",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Deploys Minhajna's PC web app to its host",
+  "license": "AGPL-3.0-or-later",
+  "devDependencies": {
+    "wrangler": "4.149.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
