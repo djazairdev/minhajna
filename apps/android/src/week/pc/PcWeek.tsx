@@ -10,15 +10,26 @@
 // confirmed, the weeks before and after, within the school year, and, on the
 // current week, the week's print set, which holds what is new since its last
 // print. Today's column says so. The sessions are one group of choices; the one
-// chosen shows in the side pane, and the week opens on the first one still to
-// confirm, else on the next one held, as it does again when the one chosen is
-// gone. The phone keeps Today.
+// chosen shows in the side pane, where it is confirmed or corrected as on
+// Today, with Today's sheet for another outcome and «تراجع» after, and the week
+// opens on the first one still to confirm, else on the next one held, as it
+// does again when the one chosen is gone. The phone keeps Today.
 
-import { addDays, slotKey, startOfWeek, weekCell, weekView, type TodaySession, type WeekView } from '@minhajna/core';
+import {
+  addDays,
+  slotKey,
+  startOfWeek,
+  weekCell,
+  weekView,
+  type TodaySession,
+  type TodayView,
+  type WeekView,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { Button } from '../../components/Button';
+import { Snackbar } from '../../components/Snackbar';
 import { IconButton } from '../../components/IconButton';
 import { controlIcon } from '../../design/Icon';
 import { fontFamilyForWeight } from '../../design/fonts';
@@ -27,8 +38,10 @@ import { coreContext } from '../../storage/core-context';
 import { useAppData } from '../../storage/AppData';
 import { useDeviceText } from '../../text/device-text';
 import { currentLanguage } from '../../text/i18n';
+import { useTodayActions } from '../../today/today-actions';
 import { dayHead, rowLabel, sessionText, weekTitle, type WeekWords } from './week-labels';
 import { isolate } from '../grid-labels';
+import { WeekOutcome } from './WeekOutcome';
 import { WeekPane } from './WeekPane';
 
 /** The session the week opens on: the first still to confirm up to today, else the next held, else the first. */
@@ -39,7 +52,14 @@ function openingKey(week: WeekView, today: string): string | null {
   return (open ?? held.find((item) => item.session.day >= today) ?? held[0] ?? sessions[0])?.session.key ?? null;
 }
 
-export function PcWeek({ onPrint }: { readonly onPrint: () => void }) {
+export type PcWeekProps = {
+  readonly onPrint: () => void;
+  /** Opens a course's texts book on a session's page. */
+  readonly onBook: (courseId: string, sessionKey: string) => void;
+  readonly onNote: (session: TodaySession['session']) => void;
+};
+
+export function PcWeek({ onPrint, onBook, onNote }: PcWeekProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -50,6 +70,9 @@ export function PcWeek({ onPrint }: { readonly onPrint: () => void }) {
     [profile, year, calendar, calendarRelease, packs, state],
   );
   const today = data.today();
+  const { done, confirm, keepReason, undo } = useTodayActions(context, t, data.record, data.recordAll);
+  const [sheet, setSheet] = useState<{ view: TodayView; item: TodaySession; open: boolean } | null>(null);
+  const other = useRef<ViewInstance>(null);
   const [anchor, setAnchor] = useState(today);
   const week = useMemo(() => weekView(context, anchor), [context, anchor]);
   const [chosen, setChosen] = useState<{ week: string; key: string | null } | null>(null);
@@ -97,63 +120,102 @@ export function PcWeek({ onPrint }: { readonly onPrint: () => void }) {
   };
   return (
     <View testID="pc-week" style={[styles.screen, { direction }]}>
-      <ScrollView style={styles.main} contentContainerStyle={styles.mainContent}>
-        <View style={styles.head}>
-          <View style={styles.heading}>
-            <Text accessibilityRole="header" style={[styles.title, align]}>
-              {weekTitle(words, week)}
-            </Text>
-            <Text style={[styles.summary, align]}>
-              {week.held === 0
-                ? t('pcWeek.none')
-                : t('pcWeek.summary', { sessions: t('count.sessions', { count: week.held }), recorded: week.recorded })}
-            </Text>
-          </View>
-          <View style={styles.flip}>
-            <IconButton
-              testID="week-before"
-              icon={controlIcon('chevron')}
-              accessibilityLabel={t('pcWeek.before')}
-              disabled={week.start <= year.from}
-              onPress={() => move(-7)}
-            />
-          </View>
-          <IconButton
-            testID="week-after"
-            icon={controlIcon('chevron')}
-            accessibilityLabel={t('pcWeek.after')}
-            disabled={addDays(week.start, 6) >= year.to}
-            onPress={() => move(7)}
-          />
-          {thisWeek && <Button testID="week-print" variant="line" label={t('pcWeek.print')} onPress={onPrint} />}
-        </View>
-        <View style={styles.row} importantForAccessibility="no-hide-descendants">
-          <View style={styles.slotColumn} />
-          {week.days.map((view) => (
-            <Text key={view.day} style={[styles.dayHead, view.day === today && styles.todayHead]}>
-              {dayHead(t, view.day, today)}
-            </Text>
-          ))}
-        </View>
-        <View accessibilityRole="radiogroup" accessibilityLabel={weekTitle(words, week)} style={styles.rows}>
-          {week.slots.map((slot) => (
-            <View key={slotKey(slot)} style={styles.row}>
-              <Text importantForAccessibility="no" style={[styles.slotColumn, styles.slot]}>
-                {rowLabel(words, week, slot)}
+      <View style={styles.frame}>
+        <ScrollView style={styles.main} contentContainerStyle={styles.mainContent}>
+          <View style={styles.head}>
+            <View style={styles.heading}>
+              <Text accessibilityRole="header" style={[styles.title, align]}>
+                {weekTitle(words, week)}
               </Text>
-              {week.days.map((view) => {
-                const items = weekCell(view, slot);
-                return (
-                  <View key={view.day} style={[styles.cell, items.length === 0 && styles.empty]}>
-                    {items.map((item) => card(view, item))}
-                  </View>
-                );
-              })}
+              <Text style={[styles.summary, align]}>
+                {week.held === 0
+                  ? t('pcWeek.none')
+                  : t('pcWeek.summary', {
+                      sessions: t('count.sessions', { count: week.held }),
+                      recorded: week.recorded,
+                    })}
+              </Text>
             </View>
-          ))}
-        </View>
-      </ScrollView>
-      <WeekPane words={words} view={found?.view ?? null} item={found?.item ?? null} />
+            <View style={styles.flip}>
+              <IconButton
+                testID="week-before"
+                icon={controlIcon('chevron')}
+                accessibilityLabel={t('pcWeek.before')}
+                disabled={week.start <= year.from}
+                onPress={() => move(-7)}
+              />
+            </View>
+            <IconButton
+              testID="week-after"
+              icon={controlIcon('chevron')}
+              accessibilityLabel={t('pcWeek.after')}
+              disabled={addDays(week.start, 6) >= year.to}
+              onPress={() => move(7)}
+            />
+            {thisWeek && <Button testID="week-print" variant="line" label={t('pcWeek.print')} onPress={onPrint} />}
+          </View>
+          <View style={styles.row} importantForAccessibility="no-hide-descendants">
+            <View style={styles.slotColumn} />
+            {week.days.map((view) => (
+              <Text key={view.day} style={[styles.dayHead, view.day === today && styles.todayHead]}>
+                {dayHead(t, view.day, today)}
+              </Text>
+            ))}
+          </View>
+          <View accessibilityRole="radiogroup" accessibilityLabel={weekTitle(words, week)} style={styles.rows}>
+            {week.slots.map((slot) => (
+              <View key={slotKey(slot)} style={styles.row}>
+                <Text importantForAccessibility="no" style={[styles.slotColumn, styles.slot]}>
+                  {rowLabel(words, week, slot)}
+                </Text>
+                {week.days.map((view) => {
+                  const items = weekCell(view, slot);
+                  return (
+                    <View key={view.day} style={[styles.cell, items.length === 0 && styles.empty]}>
+                      {items.map((item) => card(view, item))}
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+        <WeekPane
+          key={selected ?? 'none'}
+          words={words}
+          view={found?.view ?? null}
+          item={found?.item ?? null}
+          actions={{
+            onConfirm: (item) => confirm(item),
+            onOther: (item) => found !== undefined && setSheet({ view: found.view, item, open: true }),
+            onBook: (item) => onBook(item.course.id, item.session.key),
+            onNote: (item) => onNote(item.session),
+            onOpen: (item) => setChosen({ week: week.start, key: item.session.key }),
+          }}
+          otherRef={other}
+        />
+      </View>
+      {sheet !== null && (
+        <WeekOutcome
+          words={words}
+          view={sheet.view}
+          item={sheet.item}
+          visible={sheet.open}
+          returnFocusRef={other}
+          onClose={() => setSheet({ ...sheet, open: false })}
+          onChoose={(choice) => confirm(sheet.item, choice)}
+          onReason={(reason, text) => keepReason(sheet.item, reason, text)}
+        />
+      )}
+      {done !== null && (
+        <Snackbar
+          testID="week-snack"
+          message={done.message}
+          undoLabel={t('today.undo')}
+          bottomOffset={0}
+          onUndo={undo}
+        />
+      )}
     </View>
   );
 }
@@ -161,7 +223,8 @@ export function PcWeek({ onPrint }: { readonly onPrint: () => void }) {
 const bold = fontFamilyForWeight(fontFamilies.arabic, '700');
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, flexDirection: 'row', backgroundColor: colors.paper },
+  screen: { flex: 1, backgroundColor: colors.paper },
+  frame: { flex: 1, flexDirection: 'row' },
   main: { flex: 1 },
   mainContent: { gap: spacing['space-6'], padding: spacing['space-20'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'], marginBottom: spacing['space-6'] },

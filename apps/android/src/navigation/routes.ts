@@ -167,7 +167,8 @@ export type RootStackParamList = {
   TestSchedule: { courseId: string };
   ExamWindow: { courseId: string };
   Duty: { day?: string } | undefined;
-  TextsBook: { courseId: string };
+  /** A course's texts book, open on the page of the session given, else on its latest page. */
+  TextsBook: { courseId: string; sessionKey?: string };
   /** A course's homework record, open on the homework a session set, if given. */
   Homework: { courseId: string; sessionKey?: string };
   Roll: { key: string; day: string; courseId: string };

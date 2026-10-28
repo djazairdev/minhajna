@@ -69,7 +69,7 @@ const title = (from: string, to: string) =>
 const heading = () => title('11', '2026-10-15');
 
 test('the week opens on its first session to confirm, shown in the pane with its proposal', async () => {
-  await mount(await withPupils(), <PcWeek onPrint={jest.fn()} />);
+  await mount(await withPupils(), <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />);
   expect(texts()).toEqual(
     expect.arrayContaining([
       heading(),
@@ -86,7 +86,7 @@ test('the week opens on its first session to confirm, shown in the pane with its
 });
 
 test('another session chosen shows in the pane', async () => {
-  await mount(await withPupils(), <PcWeek onPrint={jest.fn()} />);
+  await mount(await withPupils(), <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />);
   const other = key('c-2', '2026-10-15', 3);
   await press(cell(other));
   expect(selected(other)).toBe(true);
@@ -102,7 +102,7 @@ test('a recorded session reads in ink, with what it wrote and that it can be cor
     DAY,
     confirmSessions(context(data), [{ session: first.session, choice: { outcome: 'not-held' } }]),
   );
-  await mount(data, <PcWeek onPrint={jest.fn()} />);
+  await mount(data, <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />);
   expect(texts()).toContain(
     i18n.t('pcWeek.summary', { sessions: i18n.t('count.sessions', { count: 3 }), recorded: 1 }),
   );
@@ -112,7 +112,7 @@ test('a recorded session reads in ink, with what it wrote and that it can be cor
 });
 
 test('the next week is proposed, a holiday week has nothing to count, and the week before comes back', async () => {
-  await mount(await withPupils(), <PcWeek onPrint={jest.fn()} />);
+  await mount(await withPupils(), <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />);
   await press('week-after');
   expect(texts()).toContain(title('18', '2026-10-22'));
   expect(pane()).toContain(text.pcWeek.state.proposed);
@@ -125,7 +125,7 @@ test('the next week is proposed, a holiday week has nothing to count, and the we
 
 test("the print opens the week's print set, from the current week only", async () => {
   const onPrint = jest.fn();
-  await mount(await withPupils(), <PcWeek onPrint={onPrint} />);
+  await mount(await withPupils(), <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={onPrint} />);
   await press('week-print');
   expect(onPrint).toHaveBeenCalledTimes(1);
   await press('week-after');
@@ -134,11 +134,11 @@ test("the print opens the week's print set, from the current week only", async (
 
 test("the weeks stop at the school year's edges", async () => {
   const data = await withPupils();
-  await mount(data, <PcWeek onPrint={jest.fn()} />, data.year.from);
+  await mount(data, <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />, data.year.from);
   expect(disabled('week-before')).toBe(true);
   expect(disabled('week-after')).toBe(false);
   await unmount();
-  await mount(data, <PcWeek onPrint={jest.fn()} />, data.year.to);
+  await mount(data, <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />, data.year.to);
   expect(disabled('week-after')).toBe(true);
 });
 
@@ -158,12 +158,19 @@ test('a lesson continued says where it goes on from', async () => {
     language: 'ar' as const,
     today: DAY,
   };
-  await mount(data, <WeekPane words={words} view={view} item={item} />);
+  const actions = {
+    onConfirm: jest.fn(),
+    onOther: jest.fn(),
+    onBook: jest.fn(),
+    onNote: jest.fn(),
+    onOpen: jest.fn(),
+  };
+  await mount(data, <WeekPane words={words} view={view} item={item} actions={actions} otherRef={{ current: null }} />);
   expect(pane()).toContain(i18n.t('today.continuedNote', { stage: 'Made-up stage 2' }));
 });
 
 test('a chosen session that is gone gives way to the first to confirm', async () => {
-  await mount(await withPupils(), <PcWeek onPrint={jest.fn()} />);
+  await mount(await withPupils(), <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />);
   const other = key('c-2', '2026-10-15', 3);
   await press(cell(other));
   expect(selected(other)).toBe(true);
@@ -178,7 +185,7 @@ test('a chosen session that is gone gives way to the first to confirm', async ()
       entries: data.book.state.timetables[0].version.entries.filter((entry) => entry.courseId === 'c-1'),
     },
   });
-  await mount(data, <PcWeek onPrint={jest.fn()} />);
+  await mount(data, <PcWeek onBook={jest.fn()} onNote={jest.fn()} onPrint={jest.fn()} />);
   expect(selected(other)).toBeUndefined();
   expect(selected(key('c-1', '2026-10-15', 1))).toBe(true);
 });

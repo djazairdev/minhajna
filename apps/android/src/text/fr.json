@@ -4020,6 +4020,9 @@
     "meta": "{{class}} · {{day}} · {{time}}",
     "cellName": "{{day}}, {{time}} : {{class}}, {{lesson}}, {{state}}",
     "fixNote": "Toute séance peut être corrigée plus tard, et la première version reste dans l’historique.",
+    "fix": "Corriger la séance",
+    "bookPage": "Page du cahier",
+    "back": "Retour à la séance",
     "state": {
       "recorded": "Confirmée",
       "awaiting": "En attente de confirmation",
