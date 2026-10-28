@@ -5,7 +5,7 @@
   "description": "Deploys Minhajna's PC web app to its host",
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
-    "wrangler": "4.149.0"
+    "wrangler": "4.153.0"
   },
   "engines": {
     "node": ">=22.18.0"
