@@ -6,6 +6,8 @@
 // phone keeps them outside its database. They live in the browser's local
 // storage under one prefix, so erasing the PC finds every one. A browser
 // that refuses the storage keeps none: reads give nothing, and writes fail.
+// The mark that this tab erased the PC lives in the tab's own session
+// storage, read once when the page loads (answer 519).
 
 const PREFIX = 'minhajna:';
 
@@ -34,6 +36,38 @@ export function dropSetting(key: string): void {
     localStorage.removeItem(PREFIX + key);
   } catch {
     return;
+  }
+}
+
+/** Forgets every value kept under the prefix. */
+export function dropAllSettings(): void {
+  try {
+    const keys = Array.from({ length: localStorage.length }, (_, at) => localStorage.key(at));
+    for (const key of keys) if (key?.startsWith(PREFIX) === true) localStorage.removeItem(key);
+  } catch {
+    return;
+  }
+}
+
+const ERASED = `${PREFIX}erased`;
+
+/** Marks, for this tab alone, that it erased the PC. */
+export function markErased(): void {
+  try {
+    sessionStorage.setItem(ERASED, 'yes');
+  } catch {
+    return;
+  }
+}
+
+/** Whether this tab erased the PC before it loaded the page, forgetting the mark. */
+export function takeErased(): boolean {
+  try {
+    const erased = sessionStorage.getItem(ERASED) === 'yes';
+    sessionStorage.removeItem(ERASED);
+    return erased;
+  } catch {
+    return false;
   }
 }
 

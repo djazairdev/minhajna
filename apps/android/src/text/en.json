@@ -93,6 +93,13 @@
       "noAccount": "No account; nothing sent to a server",
       "onPhone": "Your data stays in this browser",
       "restore": "I have a copy from my phone"
+    },
+    "erased": {
+      "badge": "Erased",
+      "title": "Minhajna was erased from this browser",
+      "line": "Nothing of your data is left in it, nor this PC’s key. The app stays installed, empty as at first.",
+      "kept": "On the phone, and in the files saved elsewhere: everything they hold, as it was.",
+      "again": "To add this PC again, open your phone’s transfer or a backup with “I have a copy from my phone”."
     }
   },
   "privacy": {
@@ -2162,7 +2169,18 @@
         "opens": "It opens from the Start menu or the desktop, in its own window and without internet.",
         "failed": "Minhajna was not installed. It can be installed later from “Devices and backups” or the browser’s menu."
       },
-      "cleared": "Clearing this site’s data in the browser deletes it all, kept or not."
+      "cleared": "Clearing this site’s data in the browser deletes it all, kept or not.",
+      "erase": {
+        "link": "Erase this PC",
+        "title": "Erase this PC",
+        "oneStep": "One step, with no way back: for leaving this PC, or after forgetting the passphrase.",
+        "gone": "What is erased from this browser",
+        "goneAll": "The classes and pupils, roll calls, marks and appreciations",
+        "goneKey": "This PC’s key: the passphrase opens nothing after the erasure",
+        "keptLine": "What was handed over to the phone, and the backups and files saved elsewhere: the erasure does not touch them.",
+        "lost": "Whatever was recorded on this PC and has reached neither the phone nor a backup is lost with the erasure. If the passphrase comes back to mind, open the PC first and make a backup.",
+        "submit": "Erase this PC"
+      }
     }
   },
   "security": {

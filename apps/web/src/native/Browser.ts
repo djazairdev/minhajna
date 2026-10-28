@@ -10,9 +10,12 @@
 // first moment, as the app shows its own button in place of the
 // browser's, and it is spent once its dialog has been answered, as a
 // browser offers each one once. The app counts as installed while it runs
-// in its own window, or once the browser says it was installed.
+// in its own window, or once the browser says it was installed. Whether
+// this tab erased the PC just before is read once, as the page loads, so
+// the welcome says it for as long as the page lasts (answer 519).
 
 import type { Spec } from '../../../android/src/native/NativeMinhajnaBrowser';
+import { takeErased } from './web-settings.ts';
 
 /** The browser's install offer, of which only these parts are used. */
 type Offer = Event & {
@@ -29,6 +32,7 @@ let installed =
   (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches === true);
 let offer: Offer | null = installed ? null : (early.minhajnaOffer ?? null);
 let waiting: (() => void)[] = [];
+const erased = typeof window !== 'undefined' && takeErased();
 
 function changed(): void {
   const all = waiting;
@@ -86,6 +90,7 @@ const Browser: Spec = {
     }
   },
   installChanged: () => new Promise<void>((resolve) => waiting.push(resolve)),
+  erasedHere: () => erased,
 };
 
 export default Browser;

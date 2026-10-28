@@ -5,7 +5,8 @@
 // it keeps the data or not, as a test sets it, counting each time the app
 // asks; it offers installing the app or not, and its install dialog,
 // shown only while it offers, is accepted or refused as set. A change of
-// offer reaches whoever waits for one. The phone's tests have no such
+// offer reaches whoever waits for one; a test sets whether this tab has
+// just erased the PC. The phone's tests have no such
 // module, as a phone has none.
 
 import type { Spec } from '../src/native/NativeMinhajnaBrowser';
@@ -18,6 +19,7 @@ export const browserState = {
   state: 'offered' as 'installed' | 'offered' | 'none',
   accepts: true,
   installs: 0,
+  erased: false,
 };
 
 /** The browser changes its offer, as when Chrome makes one after the page loads. */
@@ -29,7 +31,7 @@ export function changeOffer(state: typeof browserState.state): void {
 }
 
 export function resetBrowser(): void {
-  Object.assign(browserState, { kept: false, asked: 0, state: 'offered', accepts: true, installs: 0 });
+  Object.assign(browserState, { kept: false, asked: 0, state: 'offered', accepts: true, installs: 0, erased: false });
 }
 
 export const fakeBrowser: Spec = {
@@ -46,6 +48,7 @@ export const fakeBrowser: Spec = {
     return Promise.resolve(browserState.accepts);
   },
   installChanged: () => new Promise<void>((resolve) => waiting.push(resolve)),
+  erasedHere: () => browserState.erased,
 };
 
 export default fakeBrowser;

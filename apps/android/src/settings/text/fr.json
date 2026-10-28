@@ -221,7 +221,15 @@
     "exportLine": "Un fichier à garder sur un ordinateur, une carte mémoire ou une clé USB",
     "understood": "J’ai compris que l’effacement est sans retour, et que le projet ne peut rien récupérer.",
     "erase": "Tout effacer",
-    "failed": "L’effacement n’a pas abouti. Réessayez."
+    "failed": "L’effacement n’a pas abouti. Réessayez.",
+    "waits": "L’effacement attend les autres onglets ou fenêtres de Minhajna sur ce PC : fermez-les, et il se termine de lui-même.",
+    "pc": {
+      "gone": "Ce qui est effacé de ce navigateur",
+      "goneKey": "La clé de ce PC : la phrase de passe n’ouvre plus rien après l’effacement",
+      "keptNone": "Rien pour l’instant : aucune sauvegarde, donc ce qui n’a pas été remis au téléphone est sur ce PC seulement.",
+      "exportLine": "Un fichier à garder sur une clé USB ou un autre disque",
+      "erase": "Effacer ce PC"
+    }
   },
   "devices": {
     "yours": "Vous seul avez les clés",
@@ -410,7 +418,8 @@
   "statementLine": "Par classe, sans données d’élèves",
   "receivedLine": "Ceux des enseignants, vérifiés et gardés sur vos appareils",
   "pc": {
-    "phone": "Ce PC"
+    "phone": "Ce PC",
+    "eraseLine": "Tout est effacé de ce navigateur, sans retour"
   },
   "handover": {
     "title": "L’autre appareil a-t-il ouvert le fichier ?",

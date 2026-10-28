@@ -249,11 +249,16 @@ export function changePassphrase(current: string, next: string): Promise<PinResu
   });
 }
 
+/** Forgets the open history's keys and what the page holds from it, at once. */
+export function forgetOpened(): void {
+  opened = null;
+  forgetters.forEach((forget) => forget());
+}
+
 /** Forgets the history's key, its sealing key and what was opened with them; only the passphrase opens it again. */
 export function lockHistory(): Promise<void> {
   return serial(() => {
-    opened = null;
-    forgetters.forEach((forget) => forget());
+    forgetOpened();
     return Promise.resolve();
   });
 }

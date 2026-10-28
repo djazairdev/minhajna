@@ -5,7 +5,8 @@
 // «فتح» or Enter, to the storage module, which counts wrong tries and keeps
 // the wait as the phone's does, so a reload resets nothing. A wait reads its
 // time left from the module each second (useWait). «نسيت عبارة المرور؟» says
-// what is left to do, as nobody can recover the passphrase. While the
+// what is left to do, as nobody can recover the passphrase, and leads to
+// «مسح هذا الحاسوب» (EraseLocked, answer 518). While the
 // browser has not agreed to keep the data, the page warns at each opening
 // (Web-unlock-risk, answer 511), saying too that clearing the site's data
 // deletes it either way; the first passphrase sent at each opening asks
@@ -22,6 +23,7 @@ import { askToKeep, useDataKept } from './browser-offers';
 import { errorCode, waitWording } from './lock-rules';
 import type { UnlockProps } from './lock-props';
 import { useWait } from './useWait';
+import { EraseLocked } from './web/EraseLocked';
 import { WebLockPage } from './web/WebLockPage';
 
 export type { UnlockProps } from './lock-props';
@@ -40,6 +42,7 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
   );
   const [busy, setBusy] = useState(false);
   const [forgot, setForgot] = useState(false);
+  const [erasing, setErasing] = useState(false);
   const kept = useDataKept();
   const mounted = useRef(true);
   const asked = useRef(false);
@@ -82,6 +85,7 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
     );
   };
 
+  if (erasing) return <EraseLocked storage={storage} onBack={() => setErasing(false)} />;
   const shown = waiting
     ? t(waitWording(wait).key, { count: waitWording(wait).count })
     : message === 'wrong'
@@ -139,6 +143,17 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
         <Text style={styles.linkText}>{t('lock.web.forgot')}</Text>
       </Pressable>
       {forgot && <Text style={styles.forgot}>{t('lock.web.forgotLine')}</Text>}
+      {forgot && (
+        <Pressable
+          testID="passphrase-erase"
+          accessibilityRole="button"
+          disabled={busy}
+          onPress={() => setErasing(true)}
+          style={styles.link}
+        >
+          <Text style={styles.linkText}>{t('lock.web.erase.link')}</Text>
+        </Pressable>
+      )}
     </WebLockPage>
   );
 }
