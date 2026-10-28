@@ -24,7 +24,8 @@ import { courseLabel } from '../exams/course-label';
 import files from '../native/NativeMinhajnaFiles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { i18n, LANGUAGES, useText, type Language } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { i18n, LANGUAGES, type Language } from '../text/i18n';
 import { CheckRows, DiffRows } from './CheckRows';
 import { csvLabels, fileCheck, refusalOf, type CheckRefusal } from './export-file-rules';
 import { courseExport, partName } from './export-rules';
@@ -47,7 +48,7 @@ export type MarksCheckProps = {
 };
 
 export function MarksCheck({ courseId, term, onBook, onFile }: MarksCheckProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { state, profile, year, calendar, calendarRelease, packs } = useAppData();

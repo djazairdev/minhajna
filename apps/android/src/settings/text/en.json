@@ -109,7 +109,11 @@
     "statusOn": "On",
     "statusOff": "Off",
     "drawn": "Drawn",
-    "statusNone": "Not drawn"
+    "statusNone": "Not drawn",
+    "pc": {
+      "padHint": "Draw with the mouse, a pen or a finger; each line is kept when you release it.",
+      "phoneOnly": "It stays on this PC only: it is not transferred or backed up."
+    }
   },
   "logLine": "Each correction, print, export and deletion",
   "exportLine": "The Minhajna archive or CSV files, free, at any time",
@@ -194,7 +198,8 @@
       "due": "Due"
     },
     "pc": {
-      "saveNote": "The browser saves the file where you choose, or in its downloads, and the export is written in the activity log."
+      "saveNote": "The browser saves the file where you choose, or in its downloads, and the export is written in the activity log.",
+      "confidential": "Internal · confidential. Keep the file on this PC or a USB key, not in a messaging app."
     }
   },
   "eraseDevice": {
@@ -225,7 +230,9 @@
       "goneKey": "This PC’s key: the passphrase opens nothing after the erasure",
       "keptNone": "Nothing yet: no backup, so what was not handed over to the phone is on this PC alone.",
       "exportLine": "A file to keep on a USB key or another disk",
-      "erase": "Erase this PC"
+      "erase": "Erase this PC",
+      "lost_one": "{{count}} change has reached neither another device nor a backup, and is lost with the erasure.",
+      "lost_other": "{{count}} changes have reached neither another device nor a backup, and are lost with the erasure."
     }
   },
   "devices": {
@@ -416,7 +423,10 @@
   "receivedLine": "Teachers’ statements, checked and kept on your devices",
   "pc": {
     "phone": "This PC",
-    "eraseLine": "Everything is erased from this browser, with no way back"
+    "eraseLine": "Everything is erased from this browser, with no way back",
+    "cardLine": "Printed on documents; personal fields stay on this PC.",
+    "missingPack": "Release {{release}} is not installed on this PC. The class stays pinned to it.",
+    "languageIntro": "The interface language on this PC"
   },
   "handover": {
     "title": "Has the other device opened the file?",

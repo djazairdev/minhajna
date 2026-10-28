@@ -7,8 +7,10 @@
 // licence CC BY-SA 4.0 and the credit, no name by default or a name the
 // teacher types. Nothing from sessions, the class or pupils goes. Sending
 // hands the file to Android's share sheet, to send to contact@djazair.dev
-// as the error report does; the app sends nothing itself. Once shared,
-// the offer is recorded, and the list's history shows it.
+// as the error report does; a PC, whose browser may share no JSON file,
+// saves it instead, for the teacher to send (answer 509). The app sends
+// nothing itself. Once shared or saved, the offer is recorded, and the
+// list's history shows it.
 
 import { formatDay, listOffer, listOfferFile, offerFreeList, OFFER_CREDIT_MAX } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -16,15 +18,18 @@ import { useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { canShareFiles } from '../components/device-abilities';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { TextField } from '../components/TextField';
 import { spacing } from '../design/tokens';
 import NativeInput from '../native/NativeMinhajnaCalendarInput';
+import files from '../native/NativeMinhajnaFiles';
 import { settingsStyles as styles } from '../settings/styles';
 import { localized } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { plain } from './error-report';
 import { titleOf } from './free-rules';
@@ -34,7 +39,7 @@ export type PlanOfferProps = { readonly courseId: string; readonly onDone?: () =
 type Credit = 'none' | 'name';
 
 export function PlanOffer({ courseId, onDone }: PlanOfferProps) {
-  const t = useText();
+  const t = useDeviceText();
   const data = useAppData();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -61,9 +66,15 @@ export function PlanOffer({ courseId, onDone }: PlanOfferProps) {
     sharing.current = true;
     setBusy(true);
     setOutcome(null);
-    NativeInput.shareText(`minhajna-list-${made}.json`, built.file, t('planOffer.shareTitle'))
+    const file = built.file;
+    const fileName = `minhajna-list-${made}.json`;
+    const handed = canShareFiles()
+      ? NativeInput.shareText(fileName, file, t('planOffer.shareTitle')).then(() => true)
+      : files.makeText(file, fileName, '').then((token) => files.saveFile(token));
+    handed
       .then(
-        () => {
+        (done) => {
+          if (!done) return;
           try {
             data.record(offerFreeList(data.state.courses, list, made));
             setOutcome('sent');
@@ -187,7 +198,7 @@ export function PlanOffer({ courseId, onDone }: PlanOfferProps) {
               {t(`planOffer.${outcome}`)}
             </Text>
           )}
-          <Text style={[styles.sub, align]}>{t('planError.offline')}</Text>
+          <Text style={[styles.sub, align]}>{t('planOffer.offline')}</Text>
         </>
       )}
     </ScrollView>

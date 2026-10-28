@@ -32,6 +32,6 @@ Checks of 28 October 2026 for the fourth and last pull request of part 4 of [#25
 ## Left for later
 
 - **The privacy and connections screens' PC words** are the founder's to write, with the privacy notice ([#483](https://github.com/djazairdev/minhajna/pull/483)); until then they read the phone's words.
-- **The remaining screens' PC words:** 49 texts outside Help still name the phone or Android with no PC version, among them the phone's lock and security screens, the pilot timings, the marks, the reader and the statement. They are the last sweep of answer 509, before 0.6.0, as in [the files record](web-files.md).
+- **The remaining screens' PC words:** done in the last sweep of answer 509, as in [the PC's words record](web-pc-words.md).
 - **Before 0.6.0:** as in [the files record](web-files.md) and [the updates record](web-update.md).
 - **Still to check by hand:** the share menu of Chrome and Edge on Windows 10 and 11, and copying in Firefox, which has no share menu there.

@@ -13,7 +13,7 @@ import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
 import { localized } from '../setup/names';
 import { settingsStyles as styles } from '../settings/styles';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import type { UpdateProblem } from './read-update';
 
@@ -48,7 +48,7 @@ export function UpdateRefused({
   via: string;
   onReport: () => void;
 }) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const checks = checksFor(problem);

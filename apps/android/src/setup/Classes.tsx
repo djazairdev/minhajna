@@ -22,7 +22,8 @@ import { SetupSteps } from '../components/SetupSteps';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { AddClass } from './AddClass';
 import { AddJoint } from './AddJoint';
 import { jointSchools, yearTally } from './joint-rules';
@@ -42,7 +43,7 @@ function ClassCard({
   onType: () => void;
 }) {
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const ready = count > 0;
   const comma = currentLanguage() === 'ar' ? '، ' : ', ';
@@ -95,7 +96,7 @@ export function Classes({
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const { state, profile, unsaved } = useAppData();
   const [adding, setAdding] = useState<'class' | 'demo' | 'joint' | null>(null);
   const align = { writingDirection: direction, textAlign: 'start' } as const;

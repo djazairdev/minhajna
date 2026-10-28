@@ -25,7 +25,7 @@ import { colors, spacing, typography } from '../design/tokens';
 import { settingsStyles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { ShareHistory } from './ShareHistory';
 import { ShareTo, type ShareToProps } from './ShareTo';
 import { StatementFields } from './StatementFields';
@@ -40,7 +40,7 @@ export type StatementShareProps = {
 };
 
 export function StatementShare({ courseId, onCourse }: StatementShareProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;

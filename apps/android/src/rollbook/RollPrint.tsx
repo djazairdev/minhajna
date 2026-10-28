@@ -38,7 +38,7 @@ import { rollBooks, type RollBook } from '../documents/roll-spread-pages';
 import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from '../documents/SignatureChoice';
 import { useDocumentData } from '../documents/useDocumentData';
 import { coreContext } from '../storage/core-context';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { bookMonths } from './month-rules';
 import { bookKey, bookName, firstBook } from './roll-print-book';
 import { blankLine, choiceNote, whatChoices } from './roll-print-choices';
@@ -67,7 +67,7 @@ export type RollPrintProps = {
 };
 
 export function RollPrint(props: RollPrintProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useDocumentData();

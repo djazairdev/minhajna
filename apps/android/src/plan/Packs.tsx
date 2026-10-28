@@ -22,7 +22,7 @@ import { ChipGroup } from '../components/Chip';
 import { RadioCard } from '../components/RadioCard';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { groupName, packFacts, packSource } from './pack-labels';
 import { packOfPin, pinEvents, pinOfClass, planGroups } from './plan-rules';
@@ -48,7 +48,7 @@ export function Packs({
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const { state, profile, year, packs, recordAll, newId } = useAppData();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };

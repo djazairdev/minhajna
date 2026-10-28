@@ -5,9 +5,9 @@
 // restore screens read their PC wording, naming this PC and the phone, with
 // no scan button, no Send and no line about screenshots; the phone keeps
 // its own. Every PC text sits beside the phone's text it replaces, in all
-// three languages, and none speaks of this phone; a PC text missing in the
-// interface's language gives that language's phone text, never another
-// language's. Made-up records only.
+// three languages, each with its own plural forms, and none speaks of this
+// phone; a PC text missing in the interface's language gives that
+// language's phone text, never another language's. Made-up records only.
 
 import { Platform, Text } from 'react-native';
 import { openTestData } from '../jest/app-data';
@@ -54,7 +54,10 @@ test('puts pc before the last part of a key', () => {
 });
 
 test('keeps each PC text beside the text it replaces, in every language, never saying this phone', () => {
-  const keys = (language: keyof typeof catalogues) => flat(catalogues[language]).map(([key]) => key);
+  const plural = /_(zero|one|two|few|many|other)$/u;
+  const keys = (language: keyof typeof catalogues) => [
+    ...new Set(flat(catalogues[language]).map(([key]) => key.replace(plural, ''))),
+  ];
   const pcKeys = keys('en').filter((key) => key.split('.').includes('pc'));
   expect(pcKeys.length).toBeGreaterThan(30);
   for (const language of ['ar', 'fr'] as const) {

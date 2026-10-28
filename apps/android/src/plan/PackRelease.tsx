@@ -22,7 +22,7 @@ import { spacing } from '../design/tokens';
 import { settingsStyles as styles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { classesOn } from './release-rules';
 import { ReleaseChanges } from './ReleaseChanges';
@@ -36,7 +36,7 @@ export type PackReleaseProps = {
 };
 
 export function PackRelease({ courseId, release, onCourse, onPlan }: PackReleaseProps) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;

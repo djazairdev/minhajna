@@ -231,6 +231,10 @@
       "primary": "Primary",
       "cem": "Middle school",
       "lycee": "Secondary"
+    },
+    "pc": {
+      "notSaved": "The last change could not be saved on this PC.",
+      "cardIntro": "What the documents print at the top. Personal fields are optional and never leave this PC."
     }
   },
   "week": {
@@ -833,7 +837,10 @@
     "school": "{{school}} · {{groups}}",
     "week": "Timetable: {{schools}}",
     "weekNote": "One week holds every school’s sessions, drawn on this phone. {{clashes}}",
-    "register": "One register per class: it counts only your sessions, with a roll call at each, while the half-day roll call stays the class teacher’s."
+    "register": "One register per class: it counts only your sessions, with a roll call at each, while the half-day roll call stays the class teacher’s.",
+    "pc": {
+      "weekNote": "One week holds every school’s sessions, drawn on this PC. {{clashes}}"
+    }
   },
   "classPage": {
     "title": "Class",
@@ -1166,7 +1173,11 @@
     "sendTo": "Send it to contact@djazair.dev, by email or any app you pick in the share menu.",
     "share": "Share the report",
     "offline": "The app sends nothing itself: your phone’s share menu opens, and you choose.",
-    "gone": "This item is no longer in the class’s plan, or you added it, so there is no pack error to report."
+    "gone": "This item is no longer in the class’s plan, or you added it, so there is no pack error to report.",
+    "pc": {
+      "offline": "The app sends nothing itself and keeps no copy: the browser’s share menu opens where it has one; otherwise the report is copied for you to paste. You choose where it goes.",
+      "sendTo": "Send it to contact@djazair.dev, by email or with any app you pick."
+    }
   },
   "tests": {
     "title": "Test schedule",
@@ -1442,7 +1453,10 @@
       "days": "Session day",
       "none": "This class has no session this school year, so there is no sheet to print.",
       "open": "Print a blank roll-call sheet for this class",
-      "confidential": "Written at the head and foot of the sheet, as it holds pupils' names."
+      "confidential": "Written at the head and foot of the sheet, as it holds pupils' names.",
+      "pc": {
+        "line": "For a substitute, or a roll call on paper"
+      }
     },
     "slip": {
       "name": "Session absence slip",
@@ -1498,7 +1512,10 @@
     "paper": "Written in the book before the correction: correct it there too, and sign it.",
     "none": "No corrections this month.",
     "foot": "Shown with the paper book at the monthly check, on the phone or printed.",
-    "open": "Corrections for {{month}}"
+    "open": "Corrections for {{month}}",
+    "pc": {
+      "foot": "Shown with the paper book at the monthly check, on screen or printed."
+    }
   },
   "pilotTimings": {
     "title": "My pilot timings",
@@ -1548,7 +1565,14 @@
     "clearYes": "Clear",
     "cancel": "Cancel",
     "cleared": "Timings cleared.",
-    "failed": "The timings could not be read. You can clear them and start again."
+    "failed": "The timings could not be read. You can clear them and start again.",
+    "pc": {
+      "scope": "On this PC only",
+      "line": "On this PC only · Pilot version",
+      "intro": "This PC measures how long confirming each session and taking each roll call take, in seconds only: no time, no day, no content. The figures stay on this PC and are sent only if you share them.",
+      "exportLine": "The office’s file, from this PC",
+      "clearLine": "The figures are deleted from this PC for good. Your sessions and records are not touched."
+    }
   },
   "pupilPage": {
     "head": "{{class}} · no. {{number}}",
@@ -2501,7 +2525,16 @@
     "made": "Offered on: {{day}}",
     "ids": "Each item has an ID that ties the published pack back to my list, and points to nothing else.",
     "unrecorded": "The share menu opened, but the offer could not be added to the list’s history.",
-    "cannot": "The file cannot be made: something in the list cannot be read. Save the list again, then try again."
+    "cannot": "The file cannot be made: something in the list cannot be read. Save the list again, then try again.",
+    "offline": "The app sends nothing itself: your phone’s share menu opens, and you choose.",
+    "pc": {
+      "sendTo": "Save the file, then send it to contact@djazair.dev by email. A Minhajna curator and a teacher of the subject review it before it is published, then it is published as a signed community plan, not an official one.",
+      "share": "Save for review",
+      "sent": "The file is saved where you chose, or in the browser’s downloads, and the offer is in the list’s history.",
+      "failed": "The file could not be saved, so nothing was recorded.",
+      "unrecorded": "The file is saved, but the offer could not be added to the list’s history.",
+      "offline": "The app sends nothing itself: the file is saved on this PC, and you send it."
+    }
   },
   "catchUp": {
     "title": "Catch-up options",
@@ -2846,7 +2879,10 @@
     "off": "Notifications are off for this app on the phone, so neither the digest, the preview nor the reminder arrives.",
     "allow": "Allow notifications",
     "backupTitle": "No backup for 30 days",
-    "backupText": "What no backup holds stays on this phone alone. Back up from Today."
+    "backupText": "What no backup holds stays on this phone alone. Back up from Today.",
+    "pc": {
+      "off": "A PC gets no notifications from the app: neither the digest, the preview nor the reminder arrives here."
+    }
   },
   "notes": {
     "title": "Lesson note",
@@ -3057,7 +3093,10 @@
       "trustedNone": "Nothing: the first change in the log cannot be checked",
       "safe": "Nothing was changed or erased: the app only reads this log, and never writes to it.",
       "restore": "Restore from a copy: comes with backups and transfer from another device, so these days come back as they were recorded.",
-      "report": "Report a problem: comes with problem reports, where pupils’ names are replaced and the report is shown before it is sent."
+      "report": "Report a problem: comes with problem reports, where pupils’ names are replaced and the report is shown before it is sent.",
+      "pc": {
+        "why": "Each change is linked to the one before, so any change or deletion that did not go through the app shows. This happens if part of the browser’s storage is damaged, or another program changed the app’s data in it."
+      }
     },
     "backupSaved": "Backup saved",
     "recoverySet": "New recovery sheet made, without its key",
@@ -3586,7 +3625,10 @@
         "same": "Matches",
         "differs": "Differs",
         "never": "The check is made again after each correction, before signing the control sheet the administration prints. It changes nothing in the register or the file.",
-        "unavailable": "No check until the term’s marks and appreciations are complete."
+        "unavailable": "No check until the term’s marks and appreciations are complete.",
+        "pc": {
+          "which": "A text CSV file: the one Minhajna saves without a password, or a table saved as CSV by Excel or WPS. It must be on this PC or a USB key. If it is elsewhere, copy it to this PC first."
+        }
       }
     }
   },
@@ -3712,7 +3754,11 @@
     "qrLabel": "QR code of the progress statement, signed, read with no network",
     "qrClose": "Close",
     "logShared": "Progress statement · {{class}} · {{how}}",
-    "logSent": "Progress statement · {{class}} · {{how}} · {{to}}"
+    "logSent": "Progress statement · {{class}} · {{how}} · {{to}}",
+    "pc": {
+      "subtitle": "Per class · no pupil data, and it leaves this PC only when you choose.",
+      "none": "No statement for this class: it has no plan on this PC."
+    }
   },
   "packRelease": {
     "title": "New plan release",
@@ -3781,7 +3827,10 @@
     "back": "Back to the plan",
     "missing": "The move is not offered: release {{release}} is not on the phone.",
     "broken": "The move is not offered: the entries of release {{release}} do not fit the one before it.",
-    "none": "No class is on a release older than {{release}}."
+    "none": "No class is on a release older than {{release}}.",
+    "pc": {
+      "missing": "The move is not offered: release {{release}} is not on this PC."
+    }
   },
   "reader": {
     "title": "Statements received",
@@ -3872,7 +3921,10 @@
       "none": "No days can be drawn for this statement: it is not from the {{year}} school year, whose calendar the app has.",
       "early": "No days can be drawn for this statement: it is dated before the first day of the {{year}} school year.",
       "noDays": "This statement’s period has no school day, so no days can be drawn.",
-      "onPhone": "The sheet stays on this phone and is sent nowhere."
+      "onPhone": "The sheet stays on this phone and is sent nowhere.",
+      "pc": {
+        "onPhone": "The sheet stays on this PC and is sent nowhere."
+      }
     },
     "merge": {
       "title": "Statements side by side",
@@ -3905,6 +3957,9 @@
         "place": "Place",
         "delay": "Behind the plan",
         "notHeld": "Sessions not held"
+      },
+      "pc": {
+        "register": "It prints as a table to paste into the numbered minutes register. It stays on this PC and is sent nowhere."
       }
     },
     "pc": {
@@ -3961,5 +4016,8 @@
       "proposed": "Proposed",
       "calendar": "Taken by the calendar"
     }
+  },
+  "pc": {
+    "historyRefused": "Your records could not be opened on this PC, so none of them are shown."
   }
 }

@@ -18,14 +18,15 @@ import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import type { BrokenHistory } from '../storage/broken-history';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { logDay } from './log-text';
 import { LogList } from './LogList';
 
 const KINDS: readonly DamagedKind[] = ['texts-book', 'roll-call', 'notes', 'other'];
 
 export function LogBroken({ broken, profile }: { readonly broken: BrokenHistory; readonly profile: CountryProfile }) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { damage, state } = broken;

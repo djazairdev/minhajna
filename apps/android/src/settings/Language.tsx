@@ -11,19 +11,13 @@ import { RadioCard } from '../components/RadioCard';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import {
-  catalogues,
-  chooseLanguage,
-  currentLanguage,
-  LANGUAGES,
-  useText,
-  type Language as LanguageCode,
-} from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { catalogues, chooseLanguage, currentLanguage, LANGUAGES, type Language as LanguageCode } from '../text/i18n';
 import { settingsStyles as styles } from './styles';
 
 /** A local preview first; saving alone changes the phone's language and, when needed, restarts its direction. */
 export function Language({ onDone }: { onDone: () => void }) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const [selected, setSelected] = useState<LanguageCode>(currentLanguage);

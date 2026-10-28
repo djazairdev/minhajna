@@ -204,6 +204,9 @@
       "pc": {
         "input": "Le fichier n’a pas pu être lu. Réessayez, ou choisissez un autre fichier."
       }
+    },
+    "pc": {
+      "notice": "Recevez un avis de fermeture de l’établissement ou d’un collègue sous forme de fichier, lu sur ce PC sans réseau. Vérifiez sa source et l’établissement avant l’ajout ; l’identité de l’expéditeur n’est pas authentifiée."
     }
   },
   "update": {
@@ -346,6 +349,10 @@
       "held": "Cette version du plan est déjà dans l'application : rien ne change.",
       "older": "L'application contient une version plus récente de ce plan : celle-ci n'est pas ajoutée.",
       "apply": "Appliquer : ajouter la version {{release}}"
+    },
+    "pc": {
+      "hint": "Un fichier d’un collègue ou de l’établissement, sur une clé USB ou enregistré sur ce PC. Il est ouvert à part, et sa signature est vérifiée avant tout.",
+      "whatNowBody": "Redemandez le fichier à qui l’a envoyé."
     }
   },
   "council": {

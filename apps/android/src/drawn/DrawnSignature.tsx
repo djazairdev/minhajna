@@ -23,6 +23,7 @@ import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
+import { useDeviceText } from '../text/device-text';
 import { useText } from '../text/i18n';
 import { SignaturePad } from './SignaturePad';
 import { strokesOf } from './strokes';
@@ -36,7 +37,7 @@ export function signatureStatus(t: ReturnType<typeof useText>, personal: Teacher
 }
 
 export function DrawnSignature() {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const { state, record, unsaved } = useAppData();

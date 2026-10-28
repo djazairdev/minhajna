@@ -19,7 +19,7 @@ import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
 import { NotesRow } from '../notes/NotesRow';
 import { useTimingStore } from '../pilot/timing-store';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { DOCUMENTS, type DocumentId } from './catalogue';
 import { weekEntries } from './print-week';
 import { useDocumentData } from './useDocumentData';
@@ -45,7 +45,7 @@ export function DocumentsTab({
   readonly onTimings?: () => void;
   readonly onJustify?: () => void;
 }) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const data = useDocumentData();
