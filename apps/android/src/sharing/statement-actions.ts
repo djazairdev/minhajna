@@ -9,11 +9,13 @@
 // went. A file's name keeps the class's first 30 characters, so a long name
 // never pushes out the subject and day. A failed signature makes and records
 // nothing. On a PC a print opens under that name, as its dialog can save a
-// PDF (#250, answer 521).
+// PDF (#250, answer 521), and the file is saved rather than shared, as the
+// browser may share no JSON file; it counts once saved (answer 509).
 
 import { progressStatement, type ProgressStatement, type ShareHow, type StatementShare } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
+import { canShareFiles } from '../components/device-abilities';
 import { useOutputRun } from '../documents/output-run';
 import { safeFileName } from '../marks/export-file-rules';
 import files from '../native/NativeMinhajnaFiles';
@@ -96,9 +98,10 @@ export function useStatementActions(courseId: string) {
       const made = now();
       const { text } = await signedNow(made);
       const token = await files.makeText(text, named(made, 'json'), '');
-      await files.shareFile(token, t('statement.title'));
+      if (canShareFiles()) await files.shareFile(token, t('statement.title'));
+      else if (!(await files.saveFile(token))) return null;
       setAsked(shared('file'));
-      return null;
+      return canShareFiles() ? null : 'saved';
     });
   const close = () => {
     if (shown === null) return;

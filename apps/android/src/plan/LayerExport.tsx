@@ -4,11 +4,13 @@
 // The coordinator's school layer (#226, answers 337, 342 and 345): built
 // from a class's changes in force, in their order, named and credited by
 // the teacher, shown exactly as colleagues will read it, then handed to
-// Android's share sheet as a file. Nothing is recorded and no class
-// changes; an edit after a share makes a new layer, under a new ID (answer
-// 341). The name of who made it goes only as the teacher types it; the
-// file holds no pupil, mark, roll call or recorded session. A file another
-// teacher could not read back is never shared.
+// Android's share sheet as a file. A PC, whose browser may share no JSON
+// file, saves it instead, for the teacher to pass on (answer 509). Nothing
+// is recorded and no class changes; an edit after a share makes a new
+// layer, under a new ID (answer 341). The name of who made it goes only as
+// the teacher types it; the file holds no pupil, mark, roll call or
+// recorded session. A file another teacher could not read back is never
+// shared.
 
 import { isOneLine, layerFile, layerFromChanges, type PlanLayer } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -16,13 +18,15 @@ import { useMemo, useRef, useState } from 'react';
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
+import { canShareFiles } from '../components/device-abilities';
 import { TextField } from '../components/TextField';
 import { spacing } from '../design/tokens';
 import NativeInput from '../native/NativeMinhajnaCalendarInput';
+import files from '../native/NativeMinhajnaFiles';
 import { settingsStyles as styles } from '../settings/styles';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { plain } from './error-report';
 import { LayerCard } from './LayerCard';
@@ -32,7 +36,7 @@ import { packOfPin } from './plan-rules';
 export type LayerExportProps = { readonly courseId: string };
 
 export function LayerExport({ courseId }: LayerExportProps) {
-  const t = useText();
+  const t = useDeviceText();
   const data = useAppData();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -78,9 +82,15 @@ export function LayerExport({ courseId }: LayerExportProps) {
     sharing.current = true;
     setBusy(true);
     setOutcome(null);
-    NativeInput.shareText(`minhajna-layer-${made}.json`, built.file, t('planLayers.export.shareTitle'))
+    const file = built.file;
+    const fileName = `minhajna-layer-${made}.json`;
+    const handed = canShareFiles()
+      ? NativeInput.shareText(fileName, file, t('planLayers.export.shareTitle')).then(() => true)
+      : files.makeText(file, fileName, '').then((token) => files.saveFile(token));
+    handed
       .then(
-        () => {
+        (done) => {
+          if (!done) return;
           setShared(true);
           setOutcome('shared');
         },

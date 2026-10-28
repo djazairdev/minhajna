@@ -7,14 +7,17 @@
 // minutes a week on sessions and roll calls, and the term's export. Then
 // exactly what would be sent, and what never is. Nothing is sent by the app:
 // «مشاركة هذه الأرقام» opens the phone's share sheet with those lines, and
-// the teacher picks where they go, once. The design's switch to send them
-// to the project's server is left out, as the build asks for no network
+// the teacher picks where they go, once. A PC sends them as Help sends a
+// report: through the browser's share menu, else copied, saying which, with
+// the lines selectable to copy by hand, and the button waits while the menu
+// is open (#250, answers 509 and 523). The design's switch to send them to
+// the project's server is left out, as the build asks for no network
 // (choices P4 and P7). «مسح القياسات» deletes the timings after a question.
 
 import { timingSummary, type Timing } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, Share, StyleSheet, Text, View, type ViewInstance } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Badge } from '../components/Badge';
 import { BottomSheet } from '../components/BottomSheet';
@@ -22,8 +25,9 @@ import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
+import { sendReport, type Sent } from '../help/send-report';
 import build from '../native/NativeMinhajnaBuild';
-import { useDeviceText } from '../text/device-text';
+import { onPc, useDeviceText } from '../text/device-text';
 import { sharedLines, shareText, timingCards, type TimingCard } from './timing-figures';
 import type { TimingStore } from './timing-store';
 
@@ -38,6 +42,8 @@ export function PilotTimings({ store }: { readonly store: TimingStore }) {
   const [version, setVersion] = useState('');
   const [asking, setAsking] = useState(false);
   const [cleared, setCleared] = useState(false);
+  const [handed, setHanded] = useState<Sent | null>(null);
+  const [sending, setSending] = useState(false);
   const clearRef = useRef<ViewInstance>(null);
   const load = useCallback(() => {
     store.load().then(
@@ -101,8 +107,12 @@ export function PilotTimings({ store }: { readonly store: TimingStore }) {
           <View testID="timings-sent" style={styles.sent}>
             {lines.map((line) => (
               <View key={line.label} style={styles.line} accessible accessibilityLabel={`${line.label}: ${line.value}`}>
-                <Text style={styles.lineLabel}>{line.label}</Text>
-                <Text style={styles.lineValue}>{line.value}</Text>
+                <Text selectable={onPc()} style={styles.lineLabel}>
+                  {line.label}
+                </Text>
+                <Text selectable={onPc()} style={styles.lineValue}>
+                  {line.value}
+                </Text>
               </View>
             ))}
           </View>
@@ -120,11 +130,20 @@ export function PilotTimings({ store }: { readonly store: TimingStore }) {
       <Button
         testID="timings-share"
         label={t('pilotTimings.share')}
-        disabled={lines.length === 0}
+        disabled={lines.length === 0 || sending}
         onPress={() => {
-          Share.share({ message: shareText(t, lines), title: t('pilotTimings.shareTitle') }).catch(() => undefined);
+          setHanded(null);
+          setSending(true);
+          sendReport(shareText(t, lines), t('pilotTimings.shareTitle'))
+            .then(setHanded, () => setHanded('failed'))
+            .finally(() => setSending(false));
         }}
       />
+      {(handed === 'copied' || handed === 'failed') && (
+        <Text testID={`timings-${handed}`} accessibilityLiveRegion="polite" style={styles.small}>
+          {t(handed === 'copied' ? 'pilotTimings.copied' : 'pilotTimings.copyFailed')}
+        </Text>
+      )}
       <Text style={styles.small}>{t('pilotTimings.shareLine')}</Text>
       <Button
         testID="timings-clear"
