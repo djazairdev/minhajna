@@ -17,7 +17,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { androidVersion, checksum, fileHashes, releaseNotes } from '../scripts/build.ts';
+import { androidVersion, releaseNotes } from '../scripts/build.ts';
+import { checksum, fileHashes } from '../scripts/hashes.ts';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);

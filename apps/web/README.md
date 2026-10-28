@@ -12,10 +12,11 @@ npm run build
 npm run serve
 ```
 
-Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answers on this computer only and serves `dist/` and nothing else.
+Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answers on this computer only and serves `dist/` and nothing else, with the host's headers.
 
 - `npm test` builds the bundle twice and checks it.
 - `npm run typecheck` checks the web code and the scripts.
+- `npm run zip` packs the build into `release/minhajna-web-<version>.zip` for the host, and `npm run check-host -- <address>` checks a deployed build. Teachers open it at <https://minhajna.djazair.dev>; the [host guide](../../docs/contributing/web-host.md) says what the host serves and how a release is deployed (answers 528, 531 and 532).
 
 ## How it is built
 

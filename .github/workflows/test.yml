@@ -78,3 +78,18 @@ jobs:
       - name: Type check and test the web app
         working-directory: apps/web
         run: npm run typecheck && npm test
+
+      # The ZIP a release attaches and the host serves (answer 528), kept to
+      # compare with the release manager's: the same build packs to the same
+      # bytes on any system.
+      - name: Pack the web app for its host
+        working-directory: apps/web
+        run: npm run build && npm run zip
+
+      - name: Keep the web app's ZIP for the comparison
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-zip
+          path: apps/web/release/*.zip
+          if-no-files-found: error
+          retention-days: 7
