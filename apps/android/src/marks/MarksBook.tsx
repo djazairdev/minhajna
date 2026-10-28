@@ -20,7 +20,6 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { controlIcon } from '../design/Icon';
@@ -41,6 +40,7 @@ import { BookTable } from './BookTable';
 import { BookValue } from './BookValue';
 import { FormulaChoice } from './FormulaChoice';
 import { assessmentData, formulaText, termWord } from './marks-rules';
+import { PrintSave } from '../documents/PrintSave';
 
 export type MarksBookProps = {
   readonly courseId: string;
@@ -186,18 +186,20 @@ export function MarksBook({ courseId, term, onJustify, onSignature }: MarksBookP
         message={signable && inUse && drawn ? drawnNote(t, ['grade-book']) : t('documents.output.signatureGradeBook')}
       />
       <View style={styles.actions}>
-        <Button
-          testID="book-print"
-          label={t('documents.output.print')}
-          disabled={busy}
-          onPress={() => print(html, title, false, log.printed)}
-        />
-        <Button
-          testID="book-save"
-          variant="line"
-          label={t('documents.output.save')}
-          disabled={busy}
-          onPress={() => save(html, 'document-grade-book', file, false, log.saved)}
+        <PrintSave
+          print={{
+            testID: 'book-print',
+            label: t('documents.output.print'),
+            disabled: busy,
+            onPress: () => print(html, title, false, log.printed, file),
+          }}
+          save={{
+            testID: 'book-save',
+            variant: 'line',
+            label: t('documents.output.save'),
+            disabled: busy,
+            onPress: () => save(html, 'document-grade-book', file, false, log.saved),
+          }}
         />
         <CopyWarning testID="book-copy" shown={signable && inUse && drawn} />
       </View>

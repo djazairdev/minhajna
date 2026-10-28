@@ -2,7 +2,7 @@
 
 The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: parts 1 to 3 of four, and the first two pull requests of part 4.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, and erases everything it keeps in this browser on request. Printing comes next in part 4; until then it is refused. Use made-up data only.
+**Status: parts 1 to 3 of four, and the first three pull requests of part 4.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, erases everything it keeps in this browser on request, and prints through the browser's dialog, which also saves a PDF. The PC words of Help and the remaining screens come last in part 4. Use made-up data only.
 
 ## Build and try it
 
@@ -55,6 +55,7 @@ Part 2 (answers 502, 504 and 505) puts the phone's lock and history in the brows
 - **The automatic lock** uses the phone's choices, 1, 5 or 15 minutes, 5 by default. A click, a key or a wheel turn counts as use.
 - **A forgotten passphrase** cannot be recovered by anyone; the PC must then be erased. «نسيت عبارة المرور؟» on the lock page leads to «مسح هذا الحاسوب» (answer 518).
 - **Erasing this PC (answers 518 to 520):** from Settings, or from the lock page with no counts as the history is locked. The IndexedDB database goes whole first, with the sealed key, the history, the timings and the signing pair; then the open history's keys are forgotten and every setting under the `minhajna:` prefix goes. A delete the browser refuses leaves everything as it was. Another tab that keeps the database open for more than three seconds makes the screen say the erase waits for the app's other tabs, and stay busy: the delete cannot be called back, so the erase finishes once they are closed. The app's own files stay in the offline worker's cache, so it opens again without internet, empty as at first. Every other tab of the app reloads once the database is gone. The tab that erased keeps a mark in its session storage, so its welcome says the PC was erased; no other tab or opening sees it. As with erasing content, the browser may keep the deleted rows in its files for a while; they stay sealed, and open only with the passphrase.
+- **Printing (answers 507, 521 and 522):** the document goes into a hidden frame of the page. The page's policy refuses a style element or attribute there, so the document's rules go through the frame's own style sheet, its style attributes become rules on numbered data attributes, and the bundled fonts come from the app's `fonts` folder. The print dialog opens once the fonts and pictures are loaded, under the document's file name, so "Save as PDF" proposes it. Each screen's «طباعة» and «حفظ PDF» become one «طباعة أو حفظ PDF», logged as a print. The week's print counts no pages first, as the dialog shows them, so a two-sided print gets no blank page between books. The mark sheet as a PDF and the council file print, and a password-protected file is made on the phone.
 - **Password managers** get the usual hints: the lock's field is the current password, and the new and repeated ones are new passwords.
 
 ## Files in and out
@@ -98,8 +99,8 @@ The third pull request of part 3 (answers 503 and 513 to 515) keeps one working 
 | Files | The file dialog, the save dialog or a download, and the share menu where the browser shares the file; archives with zip.js. A PDF to keep is the phone's only. |
 | CalendarInput | Updates, plan layers and statements as files, a statement PDF giving only its link; QR codes drawn, none scanned. |
 | Signature | Web Crypto's ECDSA P-256: the PC's own pair, sealed in the vault, and others' signatures checked. QR codes for statements. |
-| Pdf | Printing through the browser, in part 4. |
+| Pdf | Printing through the browser's dialog, from a hidden frame of the page. A PDF made without the dialog, to share or keep, and the count of pages before printing are the phone's only. |
 | Update | The server's newer build, through the offline worker, installed only by the checksum the teacher saw. A phone has no such module. |
 | Browser | The web's own: whether the browser keeps the data, its install offer, and whether this tab has just erased the PC. A phone has no such module. |
 
-Until its part comes, a module refuses each step with `E_WEB_NOT_YET`.
+A step that stays on the phone is refused with `E_WEB_PHONE_ONLY`.

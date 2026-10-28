@@ -19,7 +19,6 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { IconButton } from '../components/IconButton';
 import { Notice } from '../components/Notice';
@@ -37,6 +36,7 @@ import { openingMonth, periodMonths } from './component-rules';
 import { justifyCourses, justifyPage, justifyPupils } from './justify-rules';
 import { JustifySheet } from './JustifySheet';
 import { assessmentData, termWord } from './marks-rules';
+import { PrintSave } from '../documents/PrintSave';
 
 export type MarksJustifyProps = {
   /** The class and subject to open on; the first with continuous assessment when not given. */
@@ -209,18 +209,20 @@ export function MarksJustify(props: MarksJustifyProps) {
             />
           )}
           <View style={styles.actions}>
-            <Button
-              testID="justify-print"
-              label={t('documents.output.print')}
-              disabled={busy}
-              onPress={() => print(html, t('marks.justify.title'), false, log.printed)}
-            />
-            <Button
-              testID="justify-save"
-              variant="line"
-              label={t('documents.output.save')}
-              disabled={busy}
-              onPress={() => save(html, 'document-marks-justify', file, false, log.saved)}
+            <PrintSave
+              print={{
+                testID: 'justify-print',
+                label: t('documents.output.print'),
+                disabled: busy,
+                onPress: () => print(html, t('marks.justify.title'), false, log.printed, file),
+              }}
+              save={{
+                testID: 'justify-save',
+                variant: 'line',
+                label: t('documents.output.save'),
+                disabled: busy,
+                onPress: () => save(html, 'document-marks-justify', file, false, log.saved),
+              }}
             />
           </View>
         </>

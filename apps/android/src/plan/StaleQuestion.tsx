@@ -13,7 +13,6 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -26,6 +25,7 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { staleSheet, type StaleSheet } from './stale-question';
 import { useOutputLog } from '../log/output-log';
+import { PrintSave } from '../documents/PrintSave';
 
 export type StaleQuestionProps = {
   readonly courseId: string;
@@ -80,18 +80,21 @@ export function StaleQuestion({ courseId, onSignature }: StaleQuestionProps) {
             />
           )}
           <View style={styles.actions}>
-            <Button
-              testID="stale-question-print"
-              label={t('septCheck.print')}
-              disabled={busy}
-              onPress={() => print(html, t('staleQuestion.title'), false, logged('stale-question', day).printed)}
-            />
-            <Button
-              testID="stale-question-save"
-              variant="line"
-              label={t('septCheck.save')}
-              disabled={busy}
-              onPress={() => save(html, 'stale-question', file, false, logged('stale-question', day).saved)}
+            <PrintSave
+              print={{
+                testID: 'stale-question-print',
+                label: t('septCheck.print'),
+                disabled: busy,
+                onPress: () =>
+                  print(html, t('staleQuestion.title'), false, logged('stale-question', day).printed, file),
+              }}
+              save={{
+                testID: 'stale-question-save',
+                variant: 'line',
+                label: t('septCheck.save'),
+                disabled: busy,
+                onPress: () => save(html, 'stale-question', file, false, logged('stale-question', day).saved),
+              }}
             />
           </View>
           {signing.warning}

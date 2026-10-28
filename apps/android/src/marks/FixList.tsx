@@ -12,7 +12,6 @@ import { targetKey, type MarkFix, type MarkTarget, type Version } from '@minhajn
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -26,6 +25,7 @@ import { useText } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import { fixLine, type FixTarget } from './fix-rules';
 import { termWord } from './marks-rules';
+import { PrintSave } from '../documents/PrintSave';
 
 export type FixListProps = {
   readonly fixes: readonly Version<MarkFix>[];
@@ -93,19 +93,21 @@ export function FixList(props: FixListProps) {
               ))}
             </View>
             <View style={styles.actions}>
-              <Button
-                testID={`fix-print-${fix.entry}`}
-                variant="line"
-                label={t('marks.fix.print')}
-                disabled={busy}
-                onPress={() => print(html, title, false, logged.printed)}
-              />
-              <Button
-                testID={`fix-save-${fix.entry}`}
-                variant="line"
-                label={t('documents.output.save')}
-                disabled={busy}
-                onPress={() => save(html, 'document-mark-fix', file, false, logged.saved)}
+              <PrintSave
+                print={{
+                  testID: `fix-print-${fix.entry}`,
+                  variant: 'line',
+                  label: t('marks.fix.print'),
+                  disabled: busy,
+                  onPress: () => print(html, title, false, logged.printed, file),
+                }}
+                save={{
+                  testID: `fix-save-${fix.entry}`,
+                  variant: 'line',
+                  label: t('documents.output.save'),
+                  disabled: busy,
+                  onPress: () => save(html, 'document-mark-fix', file, false, logged.saved),
+                }}
               />
             </View>
           </View>

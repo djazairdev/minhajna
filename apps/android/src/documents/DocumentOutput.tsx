@@ -27,7 +27,6 @@ import type { Day } from '@minhajna/core';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocale } from '@react-navigation/native';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
 import { controlIcon } from '../design/Icon';
@@ -40,6 +39,7 @@ import { useAppData } from '../storage/AppData';
 import { useOutputRun } from './output-run';
 import { useOutputLog } from '../log/output-log';
 import { CopyWarning, drawnNote, SignatureChoice, useSignatureInUse } from './SignatureChoice';
+import { PrintSave } from './PrintSave';
 
 /** Prints or saves one document, for the period of `day` when given, else today's. */
 export function DocumentOutput({
@@ -174,20 +174,22 @@ export function DocumentOutput({
         />
       )}
       <View style={styles.actions}>
-        <Button
-          testID="output-print"
-          label={t('documents.output.print')}
-          disabled={busy || empty}
-          onPress={() => print(html, kind.title(t), kind.landscape, made().printed)}
-        />
-        <Button
-          testID="output-save"
-          variant="line"
-          label={t('documents.output.save')}
-          disabled={busy || empty}
-          onPress={() =>
-            save(html, `document-${kind.id}`, fileName(kind, data, t, blank, layout), kind.landscape, made().saved)
-          }
+        <PrintSave
+          print={{
+            testID: 'output-print',
+            label: t('documents.output.print'),
+            disabled: busy || empty,
+            onPress: () =>
+              print(html, kind.title(t), kind.landscape, made().printed, fileName(kind, data, t, blank, layout)),
+          }}
+          save={{
+            testID: 'output-save',
+            variant: 'line',
+            label: t('documents.output.save'),
+            disabled: busy || empty,
+            onPress: () =>
+              save(html, `document-${kind.id}`, fileName(kind, data, t, blank, layout), kind.landscape, made().saved),
+          }}
         />
       </View>
       <CopyWarning testID="output-copy" shown={signs} />

@@ -15,7 +15,6 @@ import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
@@ -33,6 +32,7 @@ import { mergeHtml } from './merge-page';
 import { mergeWords, type MergeWords } from './merge-words';
 import { teacherLabel } from './reader-words';
 import { useFingerprints } from './useFingerprints';
+import { PrintSave } from '../documents/PrintSave';
 
 export function ReaderMerge({ grade, onOpen }: { readonly grade: string; readonly onOpen: (id: string) => void }) {
   const t = useText();
@@ -115,18 +115,20 @@ export function ReaderMerge({ grade, onOpen }: { readonly grade: string; readonl
       <Text style={[styles.sub, align]}>{t('reader.merge.order')}</Text>
       <Text style={[styles.sub, align]}>{t('reader.merge.shared')}</Text>
       <View style={{ gap: spacing['space-8'] }}>
-        <Button
-          testID="merge-print"
-          label={t('reader.merge.print')}
-          disabled={output.busy || waiting}
-          onPress={() => output.print(html, sheet.title, true)}
-        />
-        <Button
-          testID="merge-pdf"
-          variant="line"
-          label={t('documents.output.save')}
-          disabled={output.busy || waiting}
-          onPress={() => output.save(html, 'merge', file, true)}
+        <PrintSave
+          print={{
+            testID: 'merge-print',
+            label: t('reader.merge.print'),
+            disabled: output.busy || waiting,
+            onPress: () => output.print(html, sheet.title, true, undefined, file),
+          }}
+          save={{
+            testID: 'merge-pdf',
+            variant: 'line',
+            label: t('documents.output.save'),
+            disabled: output.busy || waiting,
+            onPress: () => output.save(html, 'merge', file, true),
+          }}
         />
       </View>
       {output.said !== null && (

@@ -7,10 +7,12 @@
 // then whether the file was saved or the document was not made. Nothing is
 // said once the screen has closed, or after a print or a cancelled save. A
 // print can be kept once it has gone to the print screen, as a primary
-// re-pace draft keeps its day (#229).
+// re-pace draft keeps its day (#229). On a PC the print dialog also saves a
+// PDF (answer 521), so a print given the file's name opens under that name.
 
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import pdf from '../native/NativeMinhajnaPdf';
+import { onPc } from '../text/device-text';
 
 export type Said = 'saved' | 'failed' | null;
 
@@ -57,9 +59,9 @@ export function useOutputRun() {
       );
   };
 
-  const print = (html: () => string, title: string, landscape: boolean, printed?: () => void) =>
+  const print = (html: () => string, title: string, landscape: boolean, printed?: () => void, file?: string) =>
     run(async () => {
-      await pdf.printHtml(html(), title, landscape);
+      await pdf.printHtml(html(), onPc() && file !== undefined ? file.replace(/\.pdf$/u, '') : title, landscape);
       printed?.();
       return null;
     });

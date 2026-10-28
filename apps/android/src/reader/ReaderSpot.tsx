@@ -16,7 +16,6 @@ import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
@@ -34,6 +33,7 @@ import { isolate } from '../week/grid-labels';
 import { senderLine, teacherLabel } from './reader-words';
 import { spotHtml } from './spot-page';
 import { useFingerprints } from './useFingerprints';
+import { PrintSave } from '../documents/PrintSave';
 
 export function ReaderSpot({ id }: { readonly id: string }) {
   const t = useDeviceText();
@@ -124,18 +124,20 @@ export function ReaderSpot({ id }: { readonly id: string }) {
             </Text>
           ))}
           <View style={{ gap: spacing['space-8'] }}>
-            <Button
-              testID="spot-print"
-              label={t('documents.output.print')}
-              disabled={output.busy || waiting}
-              onPress={() => output.print(html, t('reader.spot.title'), false)}
-            />
-            <Button
-              testID="spot-pdf"
-              variant="line"
-              label={t('documents.output.save')}
-              disabled={output.busy || waiting}
-              onPress={() => output.save(html, 'spot', file, false)}
+            <PrintSave
+              print={{
+                testID: 'spot-print',
+                label: t('documents.output.print'),
+                disabled: output.busy || waiting,
+                onPress: () => output.print(html, t('reader.spot.title'), false, undefined, file),
+              }}
+              save={{
+                testID: 'spot-pdf',
+                variant: 'line',
+                label: t('documents.output.save'),
+                disabled: output.busy || waiting,
+                onPress: () => output.save(html, 'spot', file, false),
+              }}
             />
           </View>
           {output.said !== null && (

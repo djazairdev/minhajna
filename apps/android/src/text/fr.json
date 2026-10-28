@@ -1954,7 +1954,9 @@
       "signaturePrimaryFront": "Les pages portent « Interne · confidentiel » car elles contiennent les noms des élèves. Le visa du directeur et la date d'approbation restent vides.",
       "blankGradeBook": "Les numéros, les noms et les en-têtes s’impriment ; les notes et les moyennes restent vides.",
       "signatureGradeBook": "La case de l’enseignant porte sa signature dessinée sur le relevé du collège seulement ; celle du directeur reste vide.",
-      "noGradeBook": "Aucune classe ni matière avec un relevé de notes ce trimestre."
+      "noGradeBook": "Aucune classe ni matière avec un relevé de notes ce trimestre.",
+      "printOrSave": "Imprimer ou enregistrer en PDF",
+      "printOrSaveLine": "Dans la fenêtre d’impression, choisissez une imprimante, ou « Enregistrer au format PDF » pour garder un fichier."
     },
     "textsBook": {
       "name": "Cahier de textes",
@@ -2050,7 +2052,10 @@
       "sheetsTwo_many": "{{count}} feuilles recto verso",
       "sheetsTwo_other": "{{count}} feuilles recto verso",
       "price": "environ {{price}} DA",
-      "pdf": "Un seul PDF pour l’imprimerie"
+      "pdf": "Un seul PDF pour l’imprimerie",
+      "pc": {
+        "counting": "La fenêtre d’impression indique le nombre de pages."
+      }
     },
     "gradeBook": {
       "name": "Relevé de notes",
@@ -3519,7 +3524,10 @@
       "before": "Avant",
       "changeHead": "Évolution",
       "print": "Imprimer le dossier",
-      "saveNote": "Avant d’enregistrer : le dossier est confidentiel et contient les noms et les moyennes des élèves. Le sélecteur de fichiers s’ouvre pour choisir où le garder ; l’impression et l’enregistrement sont notés dans le journal d’activité."
+      "saveNote": "Avant d’enregistrer : le dossier est confidentiel et contient les noms et les moyennes des élèves. Le sélecteur de fichiers s’ouvre pour choisir où le garder ; l’impression et l’enregistrement sont notés dans le journal d’activité.",
+      "pc": {
+        "saveNote": "Avant d’enregistrer : le dossier est confidentiel et contient les noms et les moyennes des élèves. L’impression est notée dans le journal d’activité."
+      }
     },
     "export": {
       "title": "Export du trimestre",
@@ -3573,7 +3581,8 @@
         "unavailable": "Pas de fichier avant que les notes et appréciations du trimestre soient complètes.",
         "pc": {
           "picker": "Le navigateur enregistre le fichier où vous choisissez, ou dans ses téléchargements ; l’enregistrement est inscrit au journal d’activité."
-        }
+        },
+        "protectedOnPhone": "Un fichier protégé par un mot de passe se fait sur le téléphone."
       },
       "share": {
         "title": "Partager le relevé",

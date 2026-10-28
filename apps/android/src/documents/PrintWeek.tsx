@@ -12,13 +12,13 @@
 // the PDF, the print shop too, can copy the signature it carries (R-3.8-46,
 // answer 415). The choices stay on this phone; a print counts once Android's
 // print screen opens or the PDF is saved, and leaves its record in the
-// history.
+// history. A PC prints or saves through the browser's dialog, which counts
+// the pages itself (#250, answers 507 and 521).
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { OptionRow } from '../components/OptionRow';
 import { SegmentedControl } from '../components/SegmentedControl';
@@ -27,7 +27,7 @@ import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import pdf from '../native/NativeMinhajnaPdf';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { onPc, useDeviceText } from '../text/device-text';
 import type { DocumentId } from './catalogue';
 import { PrintEntry } from './PrintEntry';
 import { countsForPrint, useBookCounts } from './print-count';
@@ -40,12 +40,13 @@ import { usePrintSettings, type PrintSettingsChange } from './print-settings';
 import { yearShown } from './document-data';
 import { chosenLayout, documentPages, entryLine, weekEntries, weekSet } from './print-week';
 import { useDocumentData } from './useDocumentData';
+import { PrintSave } from './PrintSave';
 
 type Said = 'saved' | 'failed' | null;
 const NEW: PrintRange = { kind: 'new' };
 
 export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }) {
-  const t = useText();
+  const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const { record, newId } = useAppData();
@@ -106,7 +107,7 @@ export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }
       const html = printSetHtml(set.documents, layout, counts ?? (await countsForPrint(set.documents, counting)));
       const landscape = setLandscape(set.documents);
       if (how === 'print') {
-        await pdf.printHtml(html, title, landscape);
+        await pdf.printHtml(html, onPc() ? `${title} ${data.day}` : title, landscape);
         keep();
         return null;
       }
@@ -248,19 +249,21 @@ export function PrintWeek({ onSignature }: { readonly onSignature?: () => void }
         />
       )}
       <View style={styles.actions}>
-        <Button
-          testID="print-print"
-          label={t('documents.output.print')}
-          icon={controlIcon('print')}
-          disabled={busy || empty}
-          onPress={() => run('print')}
-        />
-        <Button
-          testID="print-pdf"
-          variant="line"
-          label={t('documents.printWeek.pdf')}
-          disabled={busy || empty}
-          onPress={() => run('pdf')}
+        <PrintSave
+          print={{
+            testID: 'print-print',
+            label: t('documents.output.print'),
+            icon: controlIcon('print'),
+            disabled: busy || empty,
+            onPress: () => run('print'),
+          }}
+          save={{
+            testID: 'print-pdf',
+            variant: 'line',
+            label: t('documents.printWeek.pdf'),
+            disabled: busy || empty,
+            onPress: () => run('pdf'),
+          }}
         />
       </View>
       <CopyWarning testID="print-copy" shown={signs} printShop />

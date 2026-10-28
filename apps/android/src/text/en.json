@@ -1919,7 +1919,9 @@
       "signaturePrimaryFront": "The pages carry the confidential mark, as they hold pupils' names. The director's visa and the approval date stay blank.",
       "blankGradeBook": "The numbers, names and column heads print; the marks and averages stay blank.",
       "signatureGradeBook": "The teacher's box carries the drawn signature on a middle-school grade book only; the director's box stays blank.",
-      "noGradeBook": "No class and subject has a grade book this term."
+      "noGradeBook": "No class and subject has a grade book this term.",
+      "printOrSave": "Print or save as PDF",
+      "printOrSaveLine": "In the print window, choose a printer, or “Save as PDF” to keep a file."
     },
     "textsBook": {
       "name": "Texts book",
@@ -2011,7 +2013,10 @@
       "sheetsTwo_one": "{{count}} sheet printed on both sides",
       "sheetsTwo_other": "{{count}} sheets printed on both sides",
       "price": "about {{price}} DA",
-      "pdf": "One PDF for the print shop"
+      "pdf": "One PDF for the print shop",
+      "pc": {
+        "counting": "The print window shows the number of pages."
+      }
     },
     "gradeBook": {
       "name": "Grade book",
@@ -3460,7 +3465,10 @@
       "before": "Before",
       "changeHead": "Change",
       "print": "Print the pack",
-      "saveNote": "Before saving: the pack is confidential and holds the pupils’ names and averages. The file picker opens for you to choose where to keep it; printing and saving go into the activity log."
+      "saveNote": "Before saving: the pack is confidential and holds the pupils’ names and averages. The file picker opens for you to choose where to keep it; printing and saving go into the activity log.",
+      "pc": {
+        "saveNote": "Before saving: the pack is confidential and holds the pupils’ names and averages. Printing goes into the activity log."
+      }
     },
     "export": {
       "title": "Term export",
@@ -3514,7 +3522,8 @@
         "unavailable": "No file until the term’s marks and appreciations are complete.",
         "pc": {
           "picker": "The browser saves the file where you choose, or in its downloads; the save is written to the activity log."
-        }
+        },
+        "protectedOnPhone": "A file protected with a password is made on the phone."
       },
       "share": {
         "title": "Share the mark sheet",

@@ -11,7 +11,6 @@ import type { TermExport } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
@@ -24,6 +23,7 @@ import { useOutputLog } from '../log/output-log';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { sheetFileName } from './export-file-rules';
+import { PrintSave } from '../documents/PrintSave';
 
 export type ExportPrintProps = {
   readonly courseId: string;
@@ -73,18 +73,20 @@ export function ExportPrint({ courseId, term, sheet, onSignature }: ExportPrintP
         message={t(signable && inUse && drawn ? 'marks.export.drawnLine' : 'marks.export.signatureLine')}
       />
       <View style={styles.actions}>
-        <Button
-          testID="export-print-button"
-          label={t('documents.output.print')}
-          disabled={busy}
-          onPress={() => print(html, title, false, log.printed)}
-        />
-        <Button
-          testID="export-save"
-          variant="line"
-          label={t('documents.output.save')}
-          disabled={busy}
-          onPress={() => save(html, 'document-mark-sheet', file, false, log.saved)}
+        <PrintSave
+          print={{
+            testID: 'export-print-button',
+            label: t('documents.output.print'),
+            disabled: busy,
+            onPress: () => print(html, title, false, log.printed, file),
+          }}
+          save={{
+            testID: 'export-save',
+            variant: 'line',
+            label: t('documents.output.save'),
+            disabled: busy,
+            onPress: () => save(html, 'document-mark-sheet', file, false, log.saved),
+          }}
         />
         <CopyWarning testID="export-copy" shown={signable && inUse && drawn} />
       </View>
