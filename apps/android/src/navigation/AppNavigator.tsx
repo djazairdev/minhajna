@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   NavigationContainer,
   useNavigationContainerRef,
@@ -15,13 +14,13 @@ import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
-import { HomeTabBar, TopBar, theme } from './NavigationChrome';
+import { TopBar, theme } from './NavigationChrome';
+import { HomeTabs } from './HomeTabs';
 import { RollRules } from '../roll/RollRules';
 import {
   TestScheduleScreen,
   ExamWindowScreen,
   DutyScreen,
-  ClassesTabScreen,
   CorrectScreen,
   EntryScreen,
   PupilMoveScreen,
@@ -29,22 +28,14 @@ import {
   SeatsSetupScreen,
   TextsBookScreen,
   HomeworkScreen,
-  TodayTab,
 } from './RecordScreens';
 import { extraRoutes } from './ExtraScreens';
 import { LockPinScreen, SecurityScreen } from './LockScreens';
 import { classRoutes } from './ClassScreens';
 import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens';
-import {
-  BookFixesScreen,
-  DistScreen,
-  DocOutputScreen,
-  DocumentsTabScreen,
-  PilotTimingsScreen,
-  PrintWeekScreen,
-} from './DocumentScreens';
+import { BookFixesScreen, DistScreen, DocOutputScreen, PilotTimingsScreen, PrintWeekScreen } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
-import { useNotifyOpen, useNotifyPlan } from '../notify/useNotify';
+import { useRecordReceived } from '../restore/received';
 import { SettingsScreen, TimesScreen, settingsRoutes } from './SettingsScreens';
 import {
   CardScreen,
@@ -66,7 +57,7 @@ import { Connections } from '../help/PrivacyNotice';
 import { ProblemReport } from '../help/ProblemReport';
 import { recordStep } from '../help/steps';
 import { HandoverRefused } from '../settings/HandoverSheets';
-import type { HomeTabParamList, RootStackParamList } from './routes';
+import type { RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
 import { planRoutes } from './PlanScreens';
 import { readerRoutes } from './ReaderScreens';
@@ -74,16 +65,9 @@ import { marksRoutes } from './MarksScreens';
 import { noteRoutes } from './NoteScreens';
 
 /** Each tab's label in the catalogue. */
-export const tabLabels = {
-  Today: 'navigation.today',
-  Classes: 'navigation.classes',
-  Documents: 'navigation.documents',
-} as const satisfies Record<keyof HomeTabParamList, string>;
-
 export type { HomeTabParamList, RootStackParamList } from './routes';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const Tabs = createBottomTabNavigator<HomeTabParamList>();
 
 /** The developer menu's item that opens the gallery, in English like the rest of that menu. */
 export const GALLERY_MENU_ITEM = 'Component gallery';
@@ -120,6 +104,7 @@ export function AppNavigator({
 }) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
+  useRecordReceived();
   useEffect(
     () => (onAction === undefined ? undefined : navigation.addListener('__unsafe_action__', onAction)),
     [navigation, onAction],
@@ -279,22 +264,5 @@ export function AppNavigator({
       </Stack.Navigator>
       <HandoverRefused onReceive={() => navigation.navigate('TakeBack')} />
     </NavigationContainer>
-  );
-}
-
-function HomeTabs() {
-  const t = useText();
-  useNotifyPlan();
-  useNotifyOpen();
-  return (
-    <Tabs.Navigator
-      backBehavior="history"
-      tabBar={(props) => <HomeTabBar {...props} />}
-      screenOptions={({ route }) => ({ headerShown: false, title: t(tabLabels[route.name]) })}
-    >
-      <Tabs.Screen name="Today" component={TodayTab} />
-      <Tabs.Screen name="Classes" component={ClassesTabScreen} />
-      <Tabs.Screen name="Documents" component={DocumentsTabScreen} />
-    </Tabs.Navigator>
   );
 }

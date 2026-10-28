@@ -1,8 +1,8 @@
 # Minhajna for the web
 
-The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
+The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250), and its week, [#251](https://github.com/djazairdev/minhajna/issues/251)): the phone app's own screens, texts and rules, running in a browser on the teacher's own computer, offline once installed (PRD §6.6, answers 499 and 501).
 
-**Status: all four parts.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, erases everything it keeps in this browser on request, prints through the browser's dialog, which also saves a PDF, and speaks of this PC on the screens it brings, Help among them. The PC words of the remaining screens come in a last sweep before 0.6.0. Use made-up data only.
+**Status: all four parts.** The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and shares files. It offers updates and installs one only once the teacher accepts it, erases everything it keeps in this browser on request, prints through the browser's dialog, which also saves a PDF, and speaks of this PC on the screens it brings, Help among them. The PC words of the remaining screens come in a last sweep before 0.6.0. Its frame, a rail in place of the phone's bottom tabs, is the first part of the week's issue; the week itself comes next. Use made-up data only.
 
 ## Build and try it
 
@@ -78,6 +78,14 @@ The second pull request of part 3 (answers 511 and 512) handles what the browser
 
 - **Keeping the data:** a browser may clear a site's data when the PC runs short of space, unless it has agreed to keep it. Clearing this site's data in the browser deletes it either way, and the warning says so. The app asks through the storage manager as the passphrase is sent, on the first run and at the first try of each opening, while the click still counts as the teacher's. Chrome and Edge decide on their own, by how the site is used, and agree for an installed app; Firefox asks the teacher. The app reads the answer as it starts. While the browser has not agreed, the lock page says so at every opening, and Today offers «نسخة احتياطية الآن», the usual backup, until one is saved that day. It cannot be put off or turned off, unlike the 30-day reminder.
 - **Installing:** Chrome and Edge offer installing the app. `public/offer.js`, a small script that runs before the app's bundle, holds the offer from the page's first moment, and the app shows its own button instead. On the first run, when the browser offers it as the page shows and the app is not installed, a page before the passphrase says what installing gives, with «تثبيت «منهاجنا»», which opens the browser's own dialog, and «لاحقاً». Settings › «الأجهزة والنسخ» keeps the button while the offer lasts. A browser that makes no such offer, as Firefox, shows neither. The installed app shares the browser's storage, so nothing moves.
+
+## The frame
+
+The first pull request of [#251](https://github.com/djazairdev/minhajna/issues/251) (answers 524 and 525) gives the PC a frame of its own:
+
+- **The rail:** at the start of the window, in place of the phone's bottom tabs, the app's name, the teacher and the schools, Today, Classes, which reads «الأقسام والنقاط» on a PC, and Documents, and Settings, which opens over them with its back bar as on the phone, where the design keeps the rail beside it; that waits for the week. The current tab is marked for screen readers.
+- **Its foot:** the banner of a working copy on the other device, a line on where the copy here came from, and «قفل الآن», which locks at once, as the automatic lock does, and comes back to the same screen once unlocked.
+- **Where the copy came from:** there is no sync, so the line states the fact: transferred from the phone, restored from a backup, opened from an export file, or back from the phone, with its day, and nothing on a PC that started fresh. A restore notes its route, and the history keeps it as a device event once it opens, which never leaves the device and shows in the log under the devices.
 
 ## Handing the work over
 

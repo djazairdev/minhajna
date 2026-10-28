@@ -39,6 +39,7 @@ import { PilotTimings, timingStore } from './src/pilot/timing-store';
 import { ReopenHistory } from './src/restore/reopen';
 import { focusedRoute, gateKind, screenKind } from './src/lock/screen-guard';
 import { Unlock } from './src/lock/Unlock';
+import { LockAway } from './src/lock/lock-away';
 import { useAutoLock } from './src/lock/useAutoLock';
 import { useLockPhase, type LockPhase } from './src/lock/useLockPhase';
 import NativeInterface from './src/native/NativeMinhajnaInterface';
@@ -152,15 +153,17 @@ export default function App({
             <LockStorage.Provider value={storage}>
               <PilotTimings.Provider value={pilot}>
                 <ReopenHistory.Provider value={reopen}>
-                  <AppNavigator
-                    initialRouteName={startRoute(book)}
-                    initialState={firstState}
-                    onAction={raiseGuard}
-                    onStateChange={(state) => {
-                      navigation.current = state;
-                      setRoute(focusedRoute(state));
-                    }}
-                  />
+                  <LockAway.Provider value={lockAway}>
+                    <AppNavigator
+                      initialRouteName={startRoute(book)}
+                      initialState={firstState}
+                      onAction={raiseGuard}
+                      onStateChange={(state) => {
+                        navigation.current = state;
+                        setRoute(focusedRoute(state));
+                      }}
+                    />
+                  </LockAway.Provider>
                 </ReopenHistory.Provider>
               </PilotTimings.Provider>
             </LockStorage.Provider>

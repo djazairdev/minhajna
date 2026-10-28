@@ -63,6 +63,7 @@ export function recordKey(entry: Entry): string | null {
     case 'handover.ended':
       return 'handover';
     case 'app.updated':
+    case 'copy.received':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;

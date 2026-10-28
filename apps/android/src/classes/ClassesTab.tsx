@@ -5,14 +5,15 @@
 // pupils, its first session today, and where it stands against the plan,
 // buffers first, with its page (#279) and its texts book (#213) a tap away; the
 // plan opens from the page (answer 257). The heading names the subjects, the
-// schools and the pupils. A teacher in two schools or more (#232, answers 394,
-// 397 and 398) sees a section per school, «مدرسة الفتح · 7 أفواج», the heading
+// schools and the pupils; on a PC it reads «الأقسام والنقاط», as the rail does
+// (#251, answer 524). A teacher in two schools or more (#232, answers 394, 397
+// and 398) sees a section per school, «مدرسة الفتح · 7 أفواج», the heading
 // counting the groups, archived ones aside, and the schools, and a card for the
 // merged week saying whether a clash is open, which opens the week. A
 // specialist, in one school or more, is told that each class's register counts
 // only their sessions, called one by one. «ملخص الأسبوع» opens the weekly
-// digest (#234). The year switch, the attendance and the roll call button
-// come with their own issues.
+// digest (#234). The year switch, the attendance and the roll call button come
+// with their own issues.
 
 import { courseSetup, versionOn, weekClashes } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -29,7 +30,8 @@ import { colors, spacing } from '../design/tokens';
 import { localized, yearShort } from '../setup/names';
 import { coreContext } from '../storage/core-context';
 import { useAppData } from '../storage/AppData';
-import { currentLanguage, useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { sessionTime } from '../times/times-rules';
 import { isolate } from '../week/grid-labels';
 import { bySchool, classRows, paceLine, specialistRoll, type ClassRow } from './class-rules';
@@ -49,7 +51,7 @@ export function ClassesTab({
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const minutes = useCountMinutes();
   const { state, profile, year, calendar, calendarRelease, packs, bells, today } = useAppData();
   const day = today();

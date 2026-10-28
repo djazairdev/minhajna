@@ -5,14 +5,14 @@
 // routes open in the pilot, sync shown as not open; what does not come back
 // said first; the file asked for from the phone, an SD card or a USB key; a
 // file asked for before anything is read; a backup restored with the key typed,
-// the kept copy dropped, the backup reminder put off 30 days, and the history
-// opened again; a wrong key said, and cleared as it is typed again; a changed
-// file on its own page, with nothing kept, worded for a backup or an export;
-// the export's route without a key or the recovery sheet's line; the kept copy
-// dropped when the screen closes; and every text named in French and English.
-// Made-up records only.
+// the kept copy dropped, the backup reminder put off 30 days, the route kept
+// for the history (answer 525), and the history opened again; a wrong key said,
+// and cleared as it is typed again; a changed file on its own page, with
+// nothing kept, worded for a backup or an export; the export's route without a
+// key or the recovery sheet's line; the kept copy dropped when the screen
+// closes; and every text named in French and English. Made-up records only.
 
-import { archiveOf, archiveText, parseDay } from '@minhajna/core';
+import { archiveOf, archiveText, deviceFacts, parseDay } from '@minhajna/core';
 import { TextInput, type TextInputProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
@@ -21,6 +21,7 @@ import { mount, press, root, settle, texts, unmount } from '../jest/components-s
 import { FakeStorage } from '../jest/fake-storage';
 import { withPupils } from '../jest/roll-class';
 import files from '../src/native/NativeMinhajnaFiles';
+import { useRecordReceived } from '../src/restore/received';
 import { Restore } from '../src/restore/Restore';
 import { backupLater, setBackupLater } from '../src/settings/backup-later';
 import { openRecordBook } from '../src/storage/history';
@@ -50,6 +51,12 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
   jest.clearAllMocks();
 });
+
+/** Records the route a restore noted, as the opened history does. */
+function Received() {
+  useRecordReceived();
+  return null;
+}
 
 /** The made-up class's backup text. */
 async function backupText(): Promise<string> {
@@ -133,6 +140,10 @@ test('restores a backup with the typed key, drops the copy, puts the reminder of
   expect(dropFile).toHaveBeenCalledWith(TOKEN);
   expect(backupLater()).toBe('2026-11-14');
   expect((await openRecordBook(storage.asSpec())).state.pupils.size).toBeGreaterThan(0);
+  await unmount();
+  const restored = await openTestData(storage);
+  await mount(restored, <Received />);
+  expect(deviceFacts(restored.book.entries).received).toEqual({ day: '2026-10-15', from: 'backup' });
 });
 
 test('says a key that does not open the file, and clears it as the key is typed again', async () => {

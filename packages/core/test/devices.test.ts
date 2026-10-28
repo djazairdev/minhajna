@@ -4,7 +4,8 @@
 // The pilot's devices and backups (#247, answer 478), from a made-up class: the
 // recovery key kept on the phone and never in an archive, a new sheet's earlier
 // keys, the last backup, the changes since it and the first change, the
-// reminder's day, and the log's lines.
+// reminder's day, where a restored copy came from (#251, answer 525), and the
+// log's lines.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -43,6 +44,7 @@ describe('the devices and backups', () => {
       sinceBackup: book.entries.length,
       firstChange: book.entries[0]!.day,
       handedOver: null,
+      received: null,
     });
     assert.equal(deviceFacts([]).firstChange, null);
   });
@@ -101,6 +103,29 @@ describe('the devices and backups', () => {
       ],
     );
     assert.equal(JSON.stringify(day).includes(KEY), false);
+  });
+
+  it('keeps where the copy came from, last, on this device only, and lists its route in the log', async () => {
+    const book = await openBook(cemEvents());
+    assert.equal(layerOf({ kind: 'copy.received', received: { from: 'phone' } }), 'device');
+    await book.record(d('2026-10-20'), { kind: 'copy.received', received: { from: 'phone' } });
+    assert.deepEqual(deviceFacts(book.entries).received, { day: d('2026-10-20'), from: 'phone' });
+    await book.record(d('2026-10-21'), { kind: 'handover.sent', handover: { last: 'a'.repeat(64) } });
+    await book.record(d('2026-10-22'), { kind: 'handover.ended', handover: { how: 'taken' } });
+    assert.deepEqual(deviceFacts(book.entries).received, { day: d('2026-10-20'), from: 'phone' });
+    await book.record(d('2026-10-23'), { kind: 'handover.ended', handover: { how: 'back' } });
+    assert.deepEqual(deviceFacts(book.entries).received, { day: d('2026-10-23'), from: 'back' });
+    await book.record(d('2026-10-24'), { kind: 'copy.received', received: { from: 'archive' } });
+    assert.deepEqual(deviceFacts(book.entries).received, { day: d('2026-10-24'), from: 'archive' });
+    await book.record(d('2026-10-25'), { kind: 'copy.received', received: { from: 'cloud' as 'phone' } });
+    assert.deepEqual(deviceFacts(book.entries).received, { day: d('2026-10-24'), from: 'archive' });
+    assert.equal(activityLog(book.entries).find((one) => one.day === d('2026-10-25'))?.items.length ?? 0, 0);
+    const day = activityLog(book.entries).find((one) => one.day === d('2026-10-24'));
+    assert.deepEqual(
+      day?.items.map((item) => [item.category, item.line]),
+      [['devices', { kind: 'copy-received', from: 'archive' }]],
+    );
+    assert.equal(archiveText(archiveOf(book.entries, book.state, options)).includes('"received"'), false);
   });
 
   it('reminds 30 days after the last backup or the first change, and not before the day put off to', async () => {

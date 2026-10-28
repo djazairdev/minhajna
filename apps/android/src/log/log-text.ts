@@ -233,6 +233,8 @@ export function lineText(t: Translate, names: LogNames, line: LogLine): string {
       return t(line.how === 'taken' ? 'log.handoverTaken' : 'log.handoverBack');
     case 'app-updated':
       return t('log.appUpdated', { version: line.version });
+    case 'copy-received':
+      return t(`log.copyReceived.${line.from}`);
     case 'unverified':
       return t('log.unverified', { what: kindLabel(t, line.entryKind) });
   }

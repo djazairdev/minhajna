@@ -1,20 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «سجل النشاط» (#235, Log, R-5.5-06, answer 425): worked out from the
-// history, never kept apart. It lists corrections to the books (a later
-// version of a session or a roll call, or a session withdrawn), files and
-// printing, and deletions, by the day each was made and in the history's
-// order, never a clock time (R-5.5-05). A line says what changed, never the
-// content: no pupil's name, note or text. Past a damaged stretch (#399,
-// answer 427) a change shows as its kind and day only, unchecked. Erasing a
-// pupil's data shows as one line (answer 473): its erasures make none of
-// their own, and a roll call it restated keeps its corrections' days. Backups
-// and recovery sheets are listed under the devices (#247), never the key. A
-// statement shared and its role (#439), and a class moved (#322), are files.
+// «سجل النشاط» (#235, Log, R-5.5-06, answer 425): worked out from the history,
+// never kept apart. It lists corrections to the books (a later version of a
+// session or a roll call, or a session withdrawn), files and printing, and
+// deletions, by the day each was made and in the history's order, never a clock
+// time (R-5.5-05). A line says what changed, never the content: no pupil's
+// name, note or text. Past a damaged stretch (#399, answer 427) a change shows
+// as its kind and day only, unchecked. Erasing a pupil's data shows as one line
+// (answer 473): its erasures make none of their own, and a roll call it
+// restated keeps its corrections' days. Backups, recovery sheets and a restored
+// copy's route are listed under the devices (#247, answer 525), never the key.
+// A statement shared and its role (#439), and a class moved (#322), are files.
 
 import { movedLine, type MovedLine } from './course-state.ts';
 import { compareDays, type Day } from './day.ts';
+import { isCopyRoute, type CopyRoute } from './device-events.ts';
 import { CORRECTION_REASONS, eventOf, type CorrectionReason, type RecordEvent } from './events.ts';
 import { ERASURE, erasedIds, type Entry } from './history.ts';
 import { changedFields, changedMarks, type PupilMarkChange, type SessionField } from './log-changes.ts';
@@ -75,6 +76,8 @@ export type LogLine =
   | { readonly kind: 'handover-sent' }
   | { readonly kind: 'handover-ended'; readonly how: 'back' | 'taken' }
   | { readonly kind: 'app-updated'; readonly version: string }
+  /** A copy restored here, by its route (answer 525): never the file or a key. */
+  | { readonly kind: 'copy-received'; readonly from: CopyRoute }
   /** A statement shared, or the role it went to (#439): never its content or a name. */
   | ShareLine
   /** A change past a damaged stretch: its kind and day, never its content. */
@@ -185,6 +188,8 @@ function lineOf(event: RecordEvent, seen: Seen): LogLine | null {
       return { kind: 'handover-ended', how: event.handover?.how === 'taken' ? 'taken' : 'back' };
     case 'app.updated':
       return { kind: 'app-updated', version: String(event.updated?.version ?? '').slice(0, 20) };
+    case 'copy.received':
+      return isCopyRoute(event.received?.from) ? { kind: 'copy-received', from: event.received.from } : null;
     case 'statement.shared':
     case 'statement.sent':
       return shareLine(event, seen.shares);
@@ -208,6 +213,7 @@ const categoryOf = (line: LogLine): LogCategory | null => {
     case 'handover-sent':
     case 'handover-ended':
     case 'app-updated':
+    case 'copy-received':
       return 'devices';
     case 'unverified':
       return null;
