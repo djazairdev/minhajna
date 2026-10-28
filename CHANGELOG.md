@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### Privacy
+
+- The PC web app at https://minhajna.djazair.dev is now served by Cloudflare. Cloudflare sees the PC's IP address and browser at each visit and each update check, under its own policy. The project keeps no access logs, and Cloudflare never receives what you record.
+  - يقدّم Cloudflare الآن تطبيق الحاسوب على https://minhajna.djazair.dev. ويرى Cloudflare عنوان IP للحاسوب ومتصفحه عند كل زيارة وكل بحث عن تحديث، وفق سياسته الخاصة. ولا يحتفظ المشروع بأي سجل للزيارات، ولا يصل Cloudflare أبداً ما تسجّله.
+
 ## 0.6.0 (2026-10-28)
 
 The PC preview: Minhajna on a PC, in the browser, as a preview, with the whole week on one screen; and one working copy handed between the phone and the PC. It is still for trying the app with made-up pupils only. The APKs are handed over directly, not through a store, and the PC web app opens at https://minhajna.djazair.dev.

@@ -4,6 +4,7 @@
 node_modules/
 dist/
 /apps/web/release/
+.wrangler/
 coverage/
 .DS_Store
 *.private.pem
