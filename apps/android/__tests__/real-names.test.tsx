@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Real class lists (#211, answer 274): the switch is off in the project's
-// builds, and a build without a declaration, or before its PIN is chosen,
-// never asks for real names. Here the switch is on, as in the build the
-// Ministry runs: the class list says how names are protected, the welcome
-// waits for the PIN, Help and the privacy notice state the declaration,
-// Help asks to compare with the build's own checksums, and every control
-// is named in each language. The reference is made up.
+// builds, and a build without a declaration, or before its PIN is chosen, never
+// asks for real names. Here the switch is on, as in the build the Ministry
+// runs: the class list says how names are protected, on a PC in this browser
+// (#250), the welcome waits for the PIN, Help and the privacy notice state the
+// declaration, Help asks to compare with the build's own checksums, and every
+// control is named in each language. The reference is made up.
 
 import { parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData } from '../jest/app-data';
@@ -38,6 +38,7 @@ let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
   tree = undefined;
+  jest.restoreAllMocks();
   await i18n.changeLanguage('ar');
 });
 
@@ -88,6 +89,17 @@ test('the class list takes real names and says how they are protected', async ()
   expect(exists('made-up-only')).toBe(false);
   expect(shown()).toEqual(expect.arrayContaining([text.realNames.badge, text.realNames.setup]));
   expect(shown()).not.toContain(text.setup.madeUpOnly);
+});
+
+test('on a PC, the class list and the welcome say the names stay in this browser', async () => {
+  jest.replaceProperty(Platform, 'OS', 'web');
+  await render(await typeList());
+  expect(shown()).toContain(text.realNames.pc.setup);
+  expect(shown()).not.toContain(text.realNames.setup);
+  await render(<Welcome />);
+  expect(shown()).toContain(text.realNames.pc.beforeLock);
+  await render(<Welcome lockSet />);
+  expect(shown()).toContain(text.realNames.pc.setup);
 });
 
 test('the welcome waits for the PIN before taking real names, and says so once it is set', async () => {

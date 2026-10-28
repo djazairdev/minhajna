@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Typing a class list (#27, Setup-4c-Type, R-3.2-11): the name, the sex and,
-// if the teacher has it, the registration number. Each pupil is saved when
-// added, the list is sorted alphabetically, and there is no limit on its size.
-// Tapping a pupil loads them back into the form, to correct or remove. The
-// project's builds take made-up names only, and the screen says so (choice
-// F1 of the field check, #49); the build the Ministry runs takes real names,
-// and says how they are protected (#211). In a joint class, each pupil's
-// year is chosen too, and the list counts each year's pupils (#43).
+// Typing a class list (#27, Setup-4c-Type, R-3.2-11): the name, the sex and, if
+// the teacher has it, the registration number. Each pupil is saved when added,
+// the list is sorted alphabetically, and there is no limit on its size. Tapping
+// a pupil loads them back into the form, to correct or remove. The project's
+// builds take made-up names only, and the screen says so (choice F1 of the
+// field check, #49); the build the Ministry runs takes real names, and says how
+// they are protected (#211), on a PC in this browser behind the passphrase
+// (#250, answer 509). In a joint class, each pupil's year is chosen too, and
+// the list counts each year's pupils (#43).
 
 import { isJoint, levelGroups, pupilGrade, type Pupil, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -22,7 +23,7 @@ import { TextField } from '../components/TextField';
 import { REAL_NAMES, realNamesDeclaration } from '../privacy/real-names';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { registrationTaken, sortedPupils, typedPupil } from './class-rules';
 import { withYear, yearTally } from './joint-rules';
 import { gradeName } from './names';
@@ -49,7 +50,7 @@ function useForm(schoolClass: SchoolClass | undefined) {
 /** One typed pupil, in the list's order. */
 function Row({ pupil, at, year, onPress }: { pupil: Pupil; at: number; year?: string; onPress: () => void }) {
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sex = pupil.sex === 'f' ? t('setup.female') : t('setup.male');
   const second = [year, pupil.registration ?? t('setup.noRegistration')].filter(Boolean).join(' · ');
@@ -80,7 +81,7 @@ function Row({ pupil, at, year, onPress }: { pupil: Pupil; at: number; year?: st
 export function TypeList({ classId, onDone }: { classId: string; onDone: () => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
-  const t = useText();
+  const t = useDeviceText();
   const { state, profile, record, erase, newId, unsaved } = useAppData();
   const schoolClass = state.classes.get(classId);
   const joint = schoolClass !== undefined && isJoint(schoolClass) ? schoolClass : undefined;

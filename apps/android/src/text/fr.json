@@ -56,7 +56,10 @@
     "contactSafe": "Sans données réelles d’élèves : le rapport de problème ou la classe de démonstration.",
     "privacy": "Confidentialité et connexions",
     "crashes": "Rapports de plantage",
-    "crashesLine": "S’ils sont activés et que l’application s’arrête soudain, seuls le type d’erreur, sa place dans le code et les dernières étapes sont gardés, sans aucun contenu, et vous sont montrés au démarrage suivant pour l’envoyer ou non. Rien n’est gardé tant qu’ils sont désactivés."
+    "crashesLine": "S’ils sont activés et que l’application s’arrête soudain, seuls le type d’erreur, sa place dans le code et les dernières étapes sont gardés, sans aucun contenu, et vous sont montrés au démarrage suivant pour l’envoyer ou non. Rien n’est gardé tant qu’ils sont désactivés.",
+    "pc": {
+      "timingsLine": "Mesurés sur ce PC, envoyés seulement si vous les partagez"
+    }
   },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
   "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce téléphone : rien n’en est affiché.",
@@ -2091,7 +2094,10 @@
     "signer": "Empreinte de son certificat de signature (SHA-256)",
     "compare": "Comparez-les aux empreintes publiées avec l’aperçu. Si elles diffèrent, ce n’est pas l’aperçu du projet.",
     "reading": "Calcul des empreintes…",
-    "refused": "Les empreintes n’ont pas pu être calculées sur ce téléphone."
+    "refused": "Les empreintes n’ont pas pu être calculées sur ce téléphone.",
+    "pc": {
+      "refused": "Les empreintes n’ont pas pu être calculées sur ce PC."
+    }
   },
   "realNames": {
     "badge": "Vrais noms",
@@ -2100,7 +2106,12 @@
     "title": "Listes de classe réelles",
     "message": "Cette version accepte les vrais noms de vos élèves une fois le verrou de l’application activé. Ils restent chiffrés sur ce téléphone et ne parviennent jamais au projet Minhajna. Déclaré à l’ANPDP sous le numéro {{declaration}}.",
     "privacy": "Le traitement est déclaré à l’ANPDP sous le numéro {{declaration}}.",
-    "compare": "Comparez-les avec les empreintes publiées avec cette version. Si elles diffèrent, ce n’est pas la version publiée."
+    "compare": "Comparez-les avec les empreintes publiées avec cette version. Si elles diffèrent, ce n’est pas la version publiée.",
+    "pc": {
+      "setup": "Vous pouvez saisir les vrais noms de vos élèves. Ils restent chiffrés dans ce navigateur, derrière la phrase de passe, et ne parviennent jamais au projet Minhajna.",
+      "message": "Cette version accepte les vrais noms de vos élèves une fois la phrase de passe choisie. Ils restent chiffrés dans ce navigateur et ne parviennent jamais au projet Minhajna. Déclaré à l’ANPDP sous le numéro {{declaration}}.",
+      "beforeLock": "Les vrais noms des élèves sont acceptés une fois la phrase de passe choisie."
+    }
   },
   "joint": {
     "open": "Classe multiniveau (primaire)",
@@ -3659,7 +3670,14 @@
     "sendTo": "Envoyez-le à contact@djazair.dev, par courriel ou avec l’application de votre choix dans le menu de partage.",
     "needsNote": "Écrivez d’abord ce qui s’est passé.",
     "share": "Partager le rapport",
-    "offline": "L’application n’envoie rien elle-même et n’en garde aucune copie : le menu de partage de votre téléphone s’ouvre, et vous choisissez."
+    "offline": "L’application n’envoie rien elle-même et n’en garde aucune copie : le menu de partage de votre téléphone s’ouvre, et vous choisissez.",
+    "pc": {
+      "offline": "L’application n’envoie rien elle-même et n’en garde aucune copie : le menu de partage du navigateur s’ouvre s’il en a un ; sinon le rapport est copié pour que vous le colliez. Vous choisissez où il va.",
+      "lineVersion": "Version : {{version}} · application web sur PC",
+      "sendTo": "Envoyez-le à contact@djazair.dev, par courriel ou avec l’application de votre choix."
+    },
+    "copied": "Le rapport est copié : collez-le dans un courriel ou un message à contact@djazair.dev.",
+    "copyFailed": "Le navigateur n’a pas copié le rapport. Sélectionnez son texte ci-dessus et copiez-le."
   },
   "crash": {
     "title": "Rapport de plantage, avant l’envoi",
@@ -3670,7 +3688,10 @@
     "deleted": "Le rapport est supprimé du téléphone après « Envoyer » ou « Ne pas envoyer ».",
     "send": "Envoyer",
     "dontSend": "Ne pas envoyer",
-    "footer": "Les rapports de plantage sont activés dans « Aide » et peuvent y être désactivés."
+    "footer": "Les rapports de plantage sont activés dans « Aide » et peuvent y être désactivés.",
+    "pc": {
+      "deleted": "Le rapport est supprimé de ce PC une fois partagé ou copié, ou après « Ne pas envoyer »."
+    }
   },
   "statement": {
     "title": "Relevé de progression",

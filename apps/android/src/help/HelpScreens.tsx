@@ -13,7 +13,7 @@ import type { RootStackParamList } from '../navigation/AppNavigator';
 import { PILOT_BUILD } from '../pilot/pilot-build';
 import { readerOnly } from '../reader/reader-only';
 import { useAppData } from '../storage/AppData';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { AboutBuild } from './BuildFacts';
 import { HelpPage, HelpRow, helpStyles } from './HelpPage';
 import { SourceLink } from './SourceLink';
@@ -27,7 +27,7 @@ import { useAppLicences } from './useAppLicences';
  * the teacher's channels; then the privacy notice, connections and licences, and the build.
  */
 export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Help'>) {
-  const t = useText();
+  const t = useDeviceText();
   const { state } = useAppData();
   const demo = [...state.classes.values()].some((schoolClass) => schoolClass.demo === true);
   const teaching = !readerOnly(state);
@@ -113,7 +113,7 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
 
 /** Every public asset gets an entry, including future filenames unknown to this UI. */
 export function LicencesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Licences'>) {
-  const t = useText();
+  const t = useDeviceText();
   const { result, retry } = useAppLicences();
   return (
     <HelpPage>
@@ -160,7 +160,7 @@ export function noticeTitle(name: string, t: TFunction): string {
 }
 
 function LoadState({ status, retry }: { status: 'loading' | 'refused'; retry: () => void }) {
-  const t = useText();
+  const t = useDeviceText();
   return (
     <>
       <Text accessibilityLiveRegion="polite" style={helpStyles.body}>

@@ -12,7 +12,9 @@
 // browser offers each one once. The app counts as installed while it runs
 // in its own window, or once the browser says it was installed. Whether
 // this tab erased the PC just before is read once, as the page loads, so
-// the welcome says it for as long as the page lasts (answer 519).
+// the welcome says it for as long as the page lasts (answer 519). A report's
+// text goes through the browser's share menu where it has one; a refused
+// menu, or none, copies it to the clipboard instead (answer 523).
 
 import type { Spec } from '../../../android/src/native/NativeMinhajnaBrowser';
 import { takeErased } from './web-settings.ts';
@@ -91,6 +93,22 @@ const Browser: Spec = {
   },
   installChanged: () => new Promise<void>((resolve) => waiting.push(resolve)),
   erasedHere: () => erased,
+  async sendText(title, text) {
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, text });
+        return 'shared';
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return 'cancelled';
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      return 'copied';
+    } catch {
+      return 'failed';
+    }
+  },
 };
 
 export default Browser;
