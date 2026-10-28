@@ -6,7 +6,10 @@
     "today": "Aujourd’hui",
     "classes": "Classes",
     "documents": "Documents",
-    "back": "Retour"
+    "back": "Retour",
+    "pc": {
+      "classes": "Classes et notes"
+    }
   },
   "help": {
     "title": "Aide et confidentialité",
@@ -3113,7 +3116,12 @@
     "handoverSent": "Le travail est passé à l’autre appareil",
     "handoverBack": "Le travail est revenu de l’autre appareil",
     "handoverTaken": "Le travail a été repris ici",
-    "appUpdated": "Version {{version}} installée sur ce PC"
+    "appUpdated": "Version {{version}} installée sur ce PC",
+    "copyReceived": {
+      "phone": "Copie transférée de l’autre appareil",
+      "backup": "Copie restaurée d’une sauvegarde",
+      "archive": "Copie ouverte depuis un fichier d’export"
+    }
   },
   "marks": {
     "termLabel": "Trimestre",
@@ -3990,5 +3998,14 @@
     "same": "Les données sont telles quelles, dans ce navigateur, chiffrées par la phrase de passe.",
     "logged": "La mise à jour est inscrite au journal d’activité, avec son jour.",
     "continue": "Continuer"
+  },
+  "shell": {
+    "lockNow": "Verrouiller maintenant",
+    "from": {
+      "phone": "Cette copie a été transférée du téléphone le {{day}}",
+      "backup": "Cette copie a été restaurée d’une sauvegarde le {{day}}",
+      "archive": "Cette copie a été ouverte depuis un fichier d’export le {{day}}",
+      "back": "Cette copie est revenue du téléphone le {{day}}"
+    }
   }
 }

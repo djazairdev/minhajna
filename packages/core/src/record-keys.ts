@@ -137,6 +137,8 @@ export function recordKey(event: RecordEvent): string {
       return 'handover';
     case 'app.updated':
       return `app-updated:${event.updated?.build ?? ''}`;
+    case 'copy.received':
+      return 'copy-received';
     case 'statement.shared':
       return `statement-shared:${event.share.id}`;
     case 'statement.sent':

@@ -6,7 +6,10 @@
     "today": "Today",
     "classes": "Classes",
     "documents": "Documents",
-    "back": "Back"
+    "back": "Back",
+    "pc": {
+      "classes": "Classes and marks"
+    }
   },
   "help": {
     "title": "Help and privacy",
@@ -3060,7 +3063,12 @@
     "handoverSent": "Work moved to the other device",
     "handoverBack": "Work came back from the other device",
     "handoverTaken": "Work taken back here",
-    "appUpdated": "Version {{version}} installed on this PC"
+    "appUpdated": "Version {{version}} installed on this PC",
+    "copyReceived": {
+      "phone": "Copy transferred from the other device",
+      "backup": "Copy restored from a backup",
+      "archive": "Copy opened from an export file"
+    }
   },
   "marks": {
     "termLabel": "Term",
@@ -3922,5 +3930,14 @@
     "same": "The data is as it was, in this browser, encrypted with the passphrase.",
     "logged": "The update is written in the activity log, with its day.",
     "continue": "Continue"
+  },
+  "shell": {
+    "lockNow": "Lock now",
+    "from": {
+      "phone": "This copy was transferred from the phone on {{day}}",
+      "backup": "This copy was restored from a backup on {{day}}",
+      "archive": "This copy was opened from an export file on {{day}}",
+      "back": "This copy came back from the phone on {{day}}"
+    }
   }
 }

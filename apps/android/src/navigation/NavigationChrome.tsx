@@ -14,7 +14,9 @@ import { colors, fontFamilies, radius, sizes, spacing, typography } from '../des
 import { documentKind } from '../documents/catalogue';
 import { HandoverBar } from '../settings/HandoverBar';
 import { SETUP_STEPS } from '../setup/Teaching';
+import { onPc } from '../text/device-text';
 import { useText } from '../text/i18n';
+import { SideRail } from './SideRail';
 
 /** The navigator's colours, from the design's tokens. */
 export const theme = {
@@ -32,8 +34,9 @@ export const theme = {
 /** Each setup screen's step, which its bar's subtitle names. */
 const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4, Plan: 5 } as const;
 
-/** The tabs, under the banner of a working copy on the other device (answer 513). */
+/** The tabs, under the banner of a working copy on the other device (answer 513); the rail on a PC (answer 524). */
 export function HomeTabBar(props: BottomTabBarProps) {
+  if (onPc()) return <SideRail {...props} />;
   return (
     <View>
       <HandoverBar onReceive={() => props.navigation.navigate('TakeBack')} />
