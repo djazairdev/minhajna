@@ -15,7 +15,6 @@ import { compareDays, parseDay, type Day } from '@minhajna/core';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
@@ -27,6 +26,7 @@ import { useOutputRun } from '../documents/output-run';
 import { useDocumentData } from '../documents/useDocumentData';
 import { useText } from '../text/i18n';
 import { useOutputLog } from '../log/output-log';
+import { PrintSave } from '../documents/PrintSave';
 
 export type BookFixesProps = {
   /** A month written YYYY-MM; today's when not given. */
@@ -132,18 +132,20 @@ export function BookFixes(props: BookFixesProps) {
         />
       )}
       <View style={styles.actions}>
-        <Button
-          testID="fixes-print"
-          label={t('documents.output.print')}
-          disabled={busy}
-          onPress={() => print(html, t('bookFixes.title'), false, logged('book-fixes', month).printed)}
-        />
-        <Button
-          testID="fixes-save"
-          variant="line"
-          label={t('documents.output.save')}
-          disabled={busy}
-          onPress={() => save(html, `book-fixes-${month}`, file, false, logged('book-fixes', month).saved)}
+        <PrintSave
+          print={{
+            testID: 'fixes-print',
+            label: t('documents.output.print'),
+            disabled: busy,
+            onPress: () => print(html, t('bookFixes.title'), false, logged('book-fixes', month).printed, file),
+          }}
+          save={{
+            testID: 'fixes-save',
+            variant: 'line',
+            label: t('documents.output.save'),
+            disabled: busy,
+            onPress: () => save(html, `book-fixes-${month}`, file, false, logged('book-fixes', month).saved),
+          }}
         />
         <Text style={styles.note}>{t('bookFixes.foot')}</Text>
       </View>

@@ -8,7 +8,8 @@
 // encrypted archive when protected, as on the export's file screen. The file
 // is named by the class, subject, term and year, never a pupil; each print and
 // save goes into the activity log with the term. What became of it is said
-// once.
+// once. On a PC the print dialog prints or saves an unprotected PDF, and a
+// protected file is made on the phone (#250, answers 521 and 522).
 
 import type { CouncilPack } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -27,9 +28,10 @@ import { useDocumentData } from '../documents/useDocumentData';
 import { useOutputLog } from '../log/output-log';
 import files from '../native/NativeMinhajnaFiles';
 import pdf from '../native/NativeMinhajnaPdf';
-import { useText } from '../text/i18n';
 import { passwordAllowed, safeFileName } from './export-file-rules';
 import { termWord } from './marks-rules';
+import { PrintSave } from '../documents/PrintSave';
+import { onPc, useDeviceText } from '../text/device-text';
 
 export type CouncilOutputProps = {
   readonly pack: CouncilPack;
@@ -40,7 +42,7 @@ export type CouncilOutputProps = {
 };
 
 export function CouncilOutput({ pack, courseId, term, label }: CouncilOutputProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const documents = useDocumentData();
   const { busy, said, print, run, clear } = useOutputRun();
@@ -64,14 +66,32 @@ export function CouncilOutput({ pack, courseId, term, label }: CouncilOutputProp
       return 'saved';
     });
   };
+  const printing = {
+    testID: 'council-print',
+    label: t('marks.council.print'),
+    disabled: busy,
+    onPress: () => print(html, title, false, logged.printed, fileName),
+  };
+  const notice = said !== null && (
+    <Notice
+      testID="council-said"
+      icon={controlIcon(said === 'saved' ? 'check' : 'info')}
+      message={t(said === 'saved' ? 'documents.output.saved' : 'documents.output.failed')}
+    />
+  );
+  if (onPc()) {
+    return (
+      <View style={styles.group}>
+        <PrintSave print={printing} />
+        <Text style={[styles.note, align]}>{t('marks.export.file.protectedOnPhone')}</Text>
+        <Text style={[styles.note, align]}>{t('marks.council.saveNote')}</Text>
+        {notice}
+      </View>
+    );
+  }
   return (
     <View style={styles.group}>
-      <Button
-        testID="council-print"
-        label={t('marks.council.print')}
-        disabled={busy}
-        onPress={() => print(html, title, false, logged.printed)}
-      />
+      <Button {...printing} />
       <Switch
         testID="council-protect"
         label={t('marks.export.file.protect')}
@@ -106,13 +126,7 @@ export function CouncilOutput({ pack, courseId, term, label }: CouncilOutputProp
       <Text style={[styles.note, align]}>{t(locked ? 'marks.export.file.passwordPdf' : 'marks.export.file.open')}</Text>
       <Button testID="council-save" variant="line" label={t('documents.output.save')} disabled={busy} onPress={save} />
       <Text style={[styles.note, align]}>{t('marks.council.saveNote')}</Text>
-      {said !== null && (
-        <Notice
-          testID="council-said"
-          icon={controlIcon(said === 'saved' ? 'check' : 'info')}
-          message={t(said === 'saved' ? 'documents.output.saved' : 'documents.output.failed')}
-        />
-      )}
+      {notice}
     </View>
   );
 }

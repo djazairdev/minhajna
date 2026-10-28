@@ -5,9 +5,9 @@
 // choices and crash reports kept in the browser under one prefix and
 // refused as the phone refuses them; a browser that refuses its storage
 // keeping nothing; the direction from the kept language; the browser's
-// SHA-256 and random bytes; and every step of the later parts refused as
-// not built yet. The browser's storages are made-up ones here; the vault's
-// own tests are in vault.test.ts.
+// SHA-256 and random bytes; and the PDF steps that stay on the phone
+// refused, keeping nothing. The browser's storages are made-up ones here;
+// the vault's own tests are in vault.test.ts.
 
 import 'fake-indexeddb/auto';
 import assert from 'node:assert/strict';
@@ -91,8 +91,11 @@ describe('the web modules', () => {
     assert.equal((await Storage.lockStatus()).state, 'setup');
   });
 
-  it('refuses every step of the later parts as not built yet, and a PDF to keep, keeping nothing', async () => {
-    await assert.rejects(Pdf.printHtml('<p></p>', 'made-up', false), { code: 'E_WEB_NOT_YET' });
+  it('refuses the PDF steps that stay on the phone, keeping nothing', async () => {
+    await assert.rejects(Pdf.makePdf('<p></p>', 'made-up', false), { code: 'E_WEB_PHONE_ONLY' });
+    await assert.rejects(Pdf.savePdf('made-up', 'made-up.pdf'), { code: 'E_WEB_PHONE_ONLY' });
+    await assert.rejects(Pdf.sharePdf('made-up', 'Made up'), { code: 'E_WEB_PHONE_ONLY' });
+    await assert.rejects(Pdf.pageColors('<p></p>', false, [1, 1]), { code: 'E_WEB_PHONE_ONLY' });
     await assert.rejects(Files.adoptPdf('made', 'marks.pdf', ''), { code: 'E_WEB_PHONE_ONLY' });
     assert.equal(kept.size, 0);
   });

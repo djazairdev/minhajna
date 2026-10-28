@@ -32,6 +32,7 @@ import { StatementFields } from './StatementFields';
 import { StatementQr } from './StatementQr';
 import { useStatementActions } from './statement-actions';
 import { statementClass, statementLines } from './statement-lines';
+import { PrintSave } from '../documents/PrintSave';
 
 export type StatementShareProps = {
   readonly courseId: string;
@@ -97,19 +98,21 @@ export function StatementShare({ courseId, onCourse }: StatementShareProps) {
           <StatementFields lines={statementLines(t, profile, statement)} />
           <Notice icon={controlIcon('lock')} message={t('statement.reasons')} />
           <View ref={opener} collapsable={false} style={[styles.actions, { direction }]}>
-            <Button
-              testID="statement-print"
-              variant="line"
-              label={t('statement.print')}
-              disabled={busy}
-              onPress={actions.print}
-            />
-            <Button
-              testID="statement-pdf"
-              variant="line"
-              label={t('statement.pdf')}
-              disabled={busy}
-              onPress={actions.save}
+            <PrintSave
+              print={{
+                testID: 'statement-print',
+                variant: 'line',
+                label: t('statement.print'),
+                disabled: busy,
+                onPress: actions.print,
+              }}
+              save={{
+                testID: 'statement-pdf',
+                variant: 'line',
+                label: t('statement.pdf'),
+                disabled: busy,
+                onPress: actions.save,
+              }}
             />
             <Button
               testID={fits ? 'statement-qr-show' : 'statement-file'}

@@ -23,7 +23,6 @@ import { compareDays, countYear, parseDay, type Day } from '@minhajna/core';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { Notice } from '../components/Notice';
 import { RadioCardGroup } from '../components/RadioCard';
@@ -45,6 +44,7 @@ import { bookKey, bookName, firstBook } from './roll-print-book';
 import { blankLine, choiceNote, whatChoices } from './roll-print-choices';
 import { RollPrintDay } from './RollPrintDay';
 import { useOutputLog } from '../log/output-log';
+import { PrintSave } from '../documents/PrintSave';
 
 export type { RollPrintChoice };
 
@@ -269,18 +269,21 @@ export function RollPrint(props: RollPrintProps) {
         />
       )}
       <View style={styles.actions}>
-        <Button
-          testID="roll-print-print"
-          label={t('documents.output.print')}
-          disabled={busy || output === null}
-          onPress={() => output !== null && print(output.html, output.title, output.landscape, log?.printed)}
-        />
-        <Button
-          testID="roll-print-save"
-          variant="line"
-          label={t('documents.output.save')}
-          disabled={busy || output === null}
-          onPress={() => output !== null && save(output.html, output.made, output.file, output.landscape, log?.saved)}
+        <PrintSave
+          print={{
+            testID: 'roll-print-print',
+            label: t('documents.output.print'),
+            disabled: busy || output === null,
+            onPress: () =>
+              output !== null && print(output.html, output.title, output.landscape, log?.printed, output.file),
+          }}
+          save={{
+            testID: 'roll-print-save',
+            variant: 'line',
+            label: t('documents.output.save'),
+            disabled: busy || output === null,
+            onPress: () => output !== null && save(output.html, output.made, output.file, output.landscape, log?.saved),
+          }}
         />
       </View>
       <CopyWarning testID="roll-print-copy" shown={signed && inUse && drawn && !blank} />

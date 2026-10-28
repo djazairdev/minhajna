@@ -7,7 +7,8 @@
 // change, keeps only the latest answer, and says when the count failed;
 // printing counts first if no answer is in yet, and, if it cannot, prints
 // with no blank page between books. The count follows the counting pass's
-// HTML only, so a change that leaves it alone counts nothing again.
+// HTML only, so a change that leaves it alone counts nothing again. A PC
+// counts nothing: the browser's print dialog shows the pages (answer 507).
 
 import { useEffect, useMemo, useState } from 'react';
 import pdf from '../native/NativeMinhajnaPdf';
@@ -20,6 +21,7 @@ import {
   type SetDocument,
   type SetLayout,
 } from './print-set';
+import { onPc } from '../text/device-text';
 
 /** How long the screen waits after a change before counting, in milliseconds. */
 export const COUNT_DELAY = 400;
@@ -52,6 +54,7 @@ export function useBookCounts(
   const landscape = useMemo(() => setLandscape(documents), [documents]);
   const [answer, setAnswer] = useState<{ html: string; counts: number[] | null; failed: boolean } | null>(null);
   useEffect(() => {
+    if (onPc()) return;
     let current = true;
     const timer = setTimeout(() => {
       countHtml(html, books, landscape).then(

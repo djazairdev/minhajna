@@ -15,7 +15,6 @@ import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { controlIcon } from '../design/Icon';
 import { fontFamilyForWeight } from '../design/fonts';
@@ -29,6 +28,7 @@ import { useAppData } from '../storage/AppData';
 import { currentLanguage, useText } from '../text/i18n';
 import { figure, septSheet, type SeptSheet } from './sept-check';
 import { useOutputLog } from '../log/output-log';
+import { PrintSave } from '../documents/PrintSave';
 
 export type SeptCheckProps = {
   readonly courseId: string;
@@ -83,18 +83,20 @@ export function SeptCheck({ courseId, onSignature }: SeptCheckProps) {
             />
           )}
           <View style={styles.actions}>
-            <Button
-              testID="sept-print"
-              label={t('septCheck.print')}
-              disabled={busy}
-              onPress={() => print(html, t('septCheck.title'), false, logged('sept-check', day).printed)}
-            />
-            <Button
-              testID="sept-save"
-              variant="line"
-              label={t('septCheck.save')}
-              disabled={busy}
-              onPress={() => save(html, 'sept-check', file, false, logged('sept-check', day).saved)}
+            <PrintSave
+              print={{
+                testID: 'sept-print',
+                label: t('septCheck.print'),
+                disabled: busy,
+                onPress: () => print(html, t('septCheck.title'), false, logged('sept-check', day).printed, file),
+              }}
+              save={{
+                testID: 'sept-save',
+                variant: 'line',
+                label: t('septCheck.save'),
+                disabled: busy,
+                onPress: () => save(html, 'sept-check', file, false, logged('sept-check', day).saved),
+              }}
             />
           </View>
           {signing.warning}

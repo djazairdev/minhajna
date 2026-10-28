@@ -8,7 +8,8 @@
 // shows, and a file once it reaches the share menu, which never says where it
 // went. A file's name keeps the class's first 30 characters, so a long name
 // never pushes out the subject and day. A failed signature makes and records
-// nothing.
+// nothing. On a PC a print opens under that name, as its dialog can save a
+// PDF (#250, answer 521).
 
 import { progressStatement, type ProgressStatement, type ShareHow, type StatementShare } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,6 +26,7 @@ import { currentLanguage, useText } from '../text/i18n';
 import { statementClass, statementDay, statementLines } from './statement-lines';
 import { statementHtml } from './statement-page';
 import { signedNow } from './statement-sign';
+import { onPc } from '../text/device-text';
 
 /** A statement's code on screen, with the statement it carries and its share. */
 export interface ShownCode {
@@ -68,7 +70,8 @@ export function useStatementActions(courseId: string) {
 
   const print = () =>
     output.run(async () => {
-      await pdf.printHtml(await page(now()), t('statement.title'), false);
+      const made = now();
+      await pdf.printHtml(await page(made), onPc() ? named(made, 'pdf').slice(0, -4) : t('statement.title'), false);
       setAsked(shared('print'));
       return null;
     });

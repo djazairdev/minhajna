@@ -9,6 +9,8 @@
 // file picker, or «مشاركة» through the share screen after Share-warn. A saved
 // or shared file goes into the activity log as the sheet, its term, and PDF or
 // CSV. One file at a time; what became of it is said once the picker closes.
+// On a PC a PDF is printed, or saved unprotected, through the print dialog,
+// and a protected one is made on the phone (#250, answers 521 and 522).
 
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useRef, useState } from 'react';
@@ -37,6 +39,8 @@ import { courseExport } from './export-rules';
 import { passwordAllowed, sheetCsv, sheetFileName, type FileFormat } from './export-file-rules';
 import { termWord } from './marks-rules';
 import { ShareWarn } from './ShareWarn';
+import { PrintSave } from '../documents/PrintSave';
+import { onPc } from '../text/device-text';
 
 export type ExportFileProps = {
   readonly courseId: string;
@@ -55,7 +59,7 @@ export function ExportFile({ courseId, term, onSignature }: ExportFileProps) {
     [profile, year, calendar, calendarRelease, packs, state],
   );
   const documents = useDocumentData();
-  const { busy, said, run, clear } = useOutputRun();
+  const { busy, said, run, print, clear } = useOutputRun();
   const logged = useOutputLog();
   const inUse = useSignatureInUse();
   const [format, setFormat] = useState<FileFormat>('pdf');
@@ -76,9 +80,11 @@ export function ExportFile({ courseId, term, onSignature }: ExportFileProps) {
   const fileName = sheetFileName(t, label, term, documents, format);
   const secret = locked ? password : '';
   const wrong = locked && !passwordAllowed(password);
+  const pages = () => markSheetPages({ ...documents, drawn }, t, courseId, term, sheet);
+  const pcPdf = onPc() && format === 'pdf';
   const make = async () => {
     if (format === 'csv') return files.makeText(sheetCsv(t, documents, courseId, term, sheet), fileName, secret);
-    const html = markSheetPages({ ...documents, drawn }, t, courseId, term, sheet);
+    const html = pages();
     const made = await pdf.makePdf(html, 'document-mark-sheet', false);
     return files.adoptPdf(made.name, fileName, secret);
   };
@@ -150,55 +156,74 @@ export function ExportFile({ courseId, term, onSignature }: ExportFileProps) {
           onSettings={onSignature}
         />
       )}
-      <Switch
-        testID="file-protect"
-        label={t('marks.export.file.protect')}
-        description={t('marks.export.file.protectNote')}
-        value={locked}
-        disabled={busy}
-        onValueChange={change(setLocked)}
-      />
-      {locked && (
-        <TextField
-          testID="file-password"
-          label={t('marks.export.file.password')}
-          placeholder={t('marks.export.file.passwordExample')}
-          value={password}
-          onChangeText={change(setPassword)}
-          error={tried && wrong ? t('marks.export.file.passwordRule') : undefined}
-          maxLength={64}
-          textDirection="ltr"
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="off"
-          importantForAutofill="no"
-          editable={!busy}
-        />
-      )}
-      <Text style={[styles.note, align]}>
-        {t(
-          !locked
-            ? 'marks.export.file.open'
-            : format === 'csv'
-              ? 'marks.export.file.passwordCsv'
-              : 'marks.export.file.passwordPdf',
-        )}
-      </Text>
-      <View style={styles.actions}>
-        <Button testID="file-save" label={t('marks.export.file.save')} disabled={busy} onPress={save} />
-        {canShareFiles() && (
-          <Button
-            ref={opener}
-            testID="file-share"
-            variant="line"
-            label={t('marks.export.share.action')}
+      {!pcPdf && (
+        <>
+          <Switch
+            testID="file-protect"
+            label={t('marks.export.file.protect')}
+            description={t('marks.export.file.protectNote')}
+            value={locked}
             disabled={busy}
-            onPress={() => ready() && setWarning(true)}
+            onValueChange={change(setLocked)}
           />
-        )}
-        <CopyWarning testID="file-copy" shown={signable && inUse && drawn} />
-      </View>
-      <Text style={[styles.note, align]}>{t('marks.export.file.picker')}</Text>
+          {locked && (
+            <TextField
+              testID="file-password"
+              label={t('marks.export.file.password')}
+              placeholder={t('marks.export.file.passwordExample')}
+              value={password}
+              onChangeText={change(setPassword)}
+              error={tried && wrong ? t('marks.export.file.passwordRule') : undefined}
+              maxLength={64}
+              textDirection="ltr"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="off"
+              importantForAutofill="no"
+              editable={!busy}
+            />
+          )}
+          <Text style={[styles.note, align]}>
+            {t(
+              !locked
+                ? 'marks.export.file.open'
+                : format === 'csv'
+                  ? 'marks.export.file.passwordCsv'
+                  : 'marks.export.file.passwordPdf',
+            )}
+          </Text>
+        </>
+      )}
+      {pcPdf ? (
+        <View style={styles.actions}>
+          <PrintSave
+            print={{
+              testID: 'file-print',
+              label: t('documents.output.print'),
+              disabled: busy,
+              onPress: () => print(pages, fileName, false, logged('mark-sheet', `term-${term}`).printed, fileName),
+            }}
+          />
+          <Text style={[styles.note, align]}>{t('marks.export.file.protectedOnPhone')}</Text>
+          <CopyWarning testID="file-copy" shown={signable && inUse && drawn} />
+        </View>
+      ) : (
+        <View style={styles.actions}>
+          <Button testID="file-save" label={t('marks.export.file.save')} disabled={busy} onPress={save} />
+          {canShareFiles() && (
+            <Button
+              ref={opener}
+              testID="file-share"
+              variant="line"
+              label={t('marks.export.share.action')}
+              disabled={busy}
+              onPress={() => ready() && setWarning(true)}
+            />
+          )}
+          <CopyWarning testID="file-copy" shown={signable && inUse && drawn} />
+        </View>
+      )}
+      {!pcPdf && <Text style={[styles.note, align]}>{t('marks.export.file.picker')}</Text>}
       {said !== null && (
         <Notice
           testID="file-said"
