@@ -14,11 +14,11 @@
 // short notes in each language (answer 517), from release-notes.json when
 // it is written for this version, else none.
 
-import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { vectorToSvg } from './drawables.ts';
+import { checksum, fileHashes } from './hashes.ts';
 import { notices } from './licences.ts';
 import { resolvePlugin } from './resolve.ts';
 
@@ -80,28 +80,6 @@ export function releaseNotes(text: string, version: string, versionCode: number)
   }
   const [ar, fr, en] = lines as [string[], string[], string[]];
   return { version, versionCode, ar, fr, en };
-}
-
-/** Each file's SHA-256, by name in name order. */
-export function fileHashes(folder: URL, names: readonly string[]): Record<string, string> {
-  const sorted = [...names].sort();
-  return Object.fromEntries(
-    sorted.map((name) => [
-      name,
-      createHash('sha256')
-        .update(readFileSync(new URL(name, folder)))
-        .digest('hex'),
-    ]),
-  );
-}
-
-/** The build's checksum: the SHA-256 of `hash  name` lines, as sha256sum writes them, in name order. */
-export function checksum(hashes: Readonly<Record<string, string>>): string {
-  const lines = Object.keys(hashes)
-    .sort()
-    .map((name) => `${hashes[name] ?? ''}  ${name}\n`)
-    .join('');
-  return createHash('sha256').update(lines).digest('hex');
 }
 
 async function main() {

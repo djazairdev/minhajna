@@ -8,6 +8,8 @@
   "scripts": {
     "build": "node scripts/build.ts",
     "serve": "node scripts/serve.ts",
+    "zip": "node scripts/pack.ts",
+    "check-host": "node scripts/check-host.ts",
     "test": "node --test --test-force-exit \"test/*.test.ts\"",
     "typecheck": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json && node ../../node_modules/typescript/bin/tsc -p scripts/tsconfig.json && node ../../node_modules/typescript/bin/tsc -p test/tsconfig.json"
   },

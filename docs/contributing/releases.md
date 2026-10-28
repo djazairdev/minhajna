@@ -52,7 +52,7 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 4. Dependencies: every licence is compatible with AGPL-3.0, and no known vulnerability is left unexplained.
 5. Secret scanning is clean.
 6. `NETWORK.md` matches the code: every address the app contacts, what it sends and why.
-7. The build is reproducible: two independent builds from the tag give the same result, apart from the signature.
+7. The build is reproducible: two independent builds from the tag give the same result, apart from the signature. The PC web app's ZIP (`npm run zip` in `apps/web`) has the same SHA-256 as CI's `web-zip` artifact.
 8. The tests pass:
    - the published test cases, in both apps;
    - every export imports back to the same records;
@@ -67,11 +67,14 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 **Release**
 
 12. The release manager signs the tag. The release is built from the tag and signed, and the SHA-256 checksum of each file is published with it.
+    - The PC web app's ZIP, `minhajna-web-<version>.zip`, is built from the tag too (`npm run build && npm run zip` in `apps/web`), attached beside the APKs and listed in `SHA256SUMS.txt`.
+    - The release notes give the PC web app's build checksum, the `sha256` in its `build.json`. The app shows it, and [the host check](web-host.md#deploying-a-release) compares the deployed build with it.
 13. The release is published:
     - on GitHub, titled with its tag (`v1.5.0`), with the notes, the files, the checksums and the signatures. A beta is marked as a pre-release; the newest release is marked as Latest;
     - on the project's website, with the signing key's fingerprint and the checksums, which the README repeats ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security));
     - on Google Play, as a staged rollout;
     - on F-Droid, which builds it from the tag.
+    - on the PC web app's host, `https://minhajna.djazair.dev`, once the GitHub release is out: the release's ZIP is deployed and checked as [the host guide](web-host.md) says (answers 528 and 531).
 14. It is announced in Arabic in the teacher group ([PRD §1.11](../prd/PRD.md#111-community-transparency-and-building-in-public)).
 
 **After the release**
