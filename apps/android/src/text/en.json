@@ -4,6 +4,7 @@
   "latinName": "Minhajna",
   "navigation": {
     "today": "Today",
+    "week": "Week",
     "classes": "Classes",
     "documents": "Documents",
     "back": "Back",
@@ -3938,6 +3939,24 @@
       "backup": "This copy was restored from a backup on {{day}}",
       "archive": "This copy was opened from an export file on {{day}}",
       "back": "This copy came back from the phone on {{day}}"
+    }
+  },
+  "pcWeek": {
+    "title": "The week from {{from}} to {{to}}",
+    "summary": "{{sessions}} · confirmed: {{recorded}}",
+    "none": "No sessions this week.",
+    "before": "Previous week",
+    "after": "Next week",
+    "print": "Print the week",
+    "pick": "Choose a session in the week to see it here.",
+    "meta": "{{class}} · {{day}} · {{time}}",
+    "cellName": "{{day}}, {{time}}: {{class}}, {{lesson}}, {{state}}",
+    "fixNote": "Any session can be corrected later, and the first version stays in the history.",
+    "state": {
+      "recorded": "Confirmed",
+      "awaiting": "Awaiting confirmation",
+      "proposed": "Proposed",
+      "calendar": "Taken by the calendar"
     }
   }
 }
