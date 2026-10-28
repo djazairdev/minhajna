@@ -5,8 +5,10 @@
 // same checksum, which build.json gives with each file's SHA-256 and which
 // sha256sum's lines reproduce; the version in the bundle; a page whose
 // security policy loads nothing from elsewhere and runs no inline script;
-// every font alias of the phone app, every drawable as an SVG, and a licence
-// notice for every package in the bundle. The browser's own install and
+// every font alias of the phone app, every drawable as an SVG, a licence
+// notice for every package in the bundle, and among the files the checksum
+// covers, the version and the release's notes (answer 517), the notes only
+// when written for that version. The browser's own install and
 // offline start are checked by hand (docs/checks/web-shell.md).
 
 import assert from 'node:assert/strict';
@@ -15,7 +17,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { androidVersion, checksum, fileHashes } from '../scripts/build.ts';
+import { androidVersion, checksum, fileHashes, releaseNotes } from '../scripts/build.ts';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);
@@ -63,6 +65,31 @@ describe('the web bundle', () => {
   it('lists every file for the offline worker, and nothing that is not there', () => {
     assert.deepEqual(Object.keys(first.files), files.filter((name) => name !== 'build.json').sort());
     assert.ok('index.html' in first.files && 'app.js' in first.files);
+  });
+
+  it('ships the release notes among the files, for its version only', () => {
+    assert.ok('notes.json' in first.files);
+    const notes = JSON.parse(text('notes.json')) as { version: string; versionCode: number };
+    assert.deepEqual([notes.version, notes.versionCode], [first.version, first.versionCode]);
+    const lines = (count: number) => Array.from({ length: count }, (_, at) => `Made-up change ${at}`);
+    const written = (ar: string[], fr = ar, en = ar) => JSON.stringify({ version: '9.9.9', ar, fr, en });
+    assert.deepEqual(releaseNotes(written(lines(2)), '9.9.9', 99), {
+      version: '9.9.9',
+      versionCode: 99,
+      ar: lines(2),
+      fr: lines(2),
+      en: lines(2),
+    });
+    assert.deepEqual(releaseNotes(written(lines(2)), '1.0.0', 10), {
+      version: '1.0.0',
+      versionCode: 10,
+      ar: [],
+      fr: [],
+      en: [],
+    });
+    assert.throws(() => releaseNotes(written(lines(6)), '9.9.9', 99), /at most five/u);
+    assert.throws(() => releaseNotes(written(lines(2), lines(1)), '9.9.9', 99), /as many lines/u);
+    assert.throws(() => releaseNotes(written(['x'.repeat(161)]), '9.9.9', 99), /at most five/u);
   });
 
   it('builds the version into the bundle for crash reports', () => {

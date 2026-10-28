@@ -33,6 +33,7 @@ const WHILE_HANDED_OVER: ReadonlySet<string> = new Set([
   'backup.saved',
   'handover.sent',
   'handover.ended',
+  'app.updated',
   'output.recorded',
 ]);
 

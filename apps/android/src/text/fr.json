@@ -3078,7 +3078,8 @@
     "recoverySet": "Nouvelle feuille de récupération établie, sans sa clé",
     "handoverSent": "Le travail est passé à l’autre appareil",
     "handoverBack": "Le travail est revenu de l’autre appareil",
-    "handoverTaken": "Le travail a été repris ici"
+    "handoverTaken": "Le travail a été repris ici",
+    "appUpdated": "Version {{version}} installée sur ce PC"
   },
   "marks": {
     "termLabel": "Trimestre",
@@ -3921,5 +3922,25 @@
       "intro": "Le relevé d’un enseignant s’ouvre depuis son fichier, signé ou PDF, et sa signature est vérifiée avant tout. Sans compte.",
       "gone": "Ce relevé n’est plus sur ce PC."
     }
+  },
+  "appUpdate": {
+    "title": "Une mise à jour est disponible",
+    "line": "La version {{version}} de Minhajna. La version {{current}} continue de fonctionner telle quelle jusqu’à l’installation de la mise à jour.",
+    "changed": "Ce qui change",
+    "note": "• {{line}}",
+    "build": "Empreinte de la version {{version}}",
+    "current": "Version actuelle {{version}}",
+    "compare": "À comparer avec celle publiée sur la page des versions du site du projet et dans le dépôt ; chacun peut la vérifier en refaisant la compilation.",
+    "install": "Installer la mise à jour",
+    "later": "Plus tard",
+    "waitingTitle": "Une mise à jour attend",
+    "waiting": "La version {{current}} fonctionne telle quelle. La version {{version}} attend et ne s’installe jamais seule ; cette proposition revient à la prochaine ouverture.",
+    "installNow": "Installer la mise à jour maintenant",
+    "installing": "Installation de la mise à jour… Minhajna s’ouvre ensuite de nouveau, avec la phrase de passe.",
+    "failed": "La mise à jour n’a pas été installée : la version du serveur a changé ou la connexion a été coupée. La version {{current}} continue de fonctionner telle quelle.",
+    "done": "Version {{version}} installée",
+    "same": "Les données sont telles quelles, dans ce navigateur, chiffrées par la phrase de passe.",
+    "logged": "La mise à jour est inscrite au journal d’activité, avec son jour.",
+    "continue": "Continuer"
   }
 }

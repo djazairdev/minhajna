@@ -17,7 +17,7 @@ import type { HomeworkCount } from './homework.ts';
 import type { Layer } from './layers.ts';
 import type { CorrectionReason } from './correction-reasons.ts';
 import { COURSE_KINDS, type CourseEvent } from './course-events.ts';
-import { DEVICE_KINDS, type DeviceEvent } from './device-events.ts';
+import { DEVICE_KINDS, isDeviceEvent, type DeviceEvent } from './device-events.ts';
 import { isShareEvent, SHARE_KINDS, type ShareEvent } from './share-events.ts';
 import type { PupilErasure } from './pupil-erase.ts';
 import type { Restating } from './restated.ts';
@@ -217,12 +217,9 @@ const KINDS: Readonly<Record<RecordKind, true>> = {
 // the teacher's own calendar and lesson notes stay private (§4.5, answer 417).
 export function layerOf(event: RecordEvent): Layer {
   if (isShareEvent(event)) return 'shared-statement';
+  if (isDeviceEvent(event)) return 'device';
   switch (event.kind) {
     case 'teacher.personal.set':
-    case 'recovery.set':
-    case 'backup.saved':
-    case 'handover.sent':
-    case 'handover.ended':
       return 'device';
     case 'pupil.set':
     case 'pupil.moved':

@@ -3025,7 +3025,8 @@
     "recoverySet": "New recovery sheet made, without its key",
     "handoverSent": "Work moved to the other device",
     "handoverBack": "Work came back from the other device",
-    "handoverTaken": "Work taken back here"
+    "handoverTaken": "Work taken back here",
+    "appUpdated": "Version {{version}} installed on this PC"
   },
   "marks": {
     "termLabel": "Term",
@@ -3853,5 +3854,25 @@
       "intro": "A teacher’s statement opens from its file, signed or PDF, and its signature is checked before anything else. No account.",
       "gone": "This statement is no longer on this PC."
     }
+  },
+  "appUpdate": {
+    "title": "An update is available",
+    "line": "Version {{version}} of Minhajna. Version {{current}} keeps working as it is until the update is installed.",
+    "changed": "What changed",
+    "note": "• {{line}}",
+    "build": "Build checksum of version {{version}}",
+    "current": "Current version {{version}}",
+    "compare": "Compare it with the one published on the project site’s releases page and in the repository; anyone can check it by building again.",
+    "install": "Install the update",
+    "later": "Later",
+    "waitingTitle": "An update is waiting",
+    "waiting": "Version {{current}} keeps working as it is. Version {{version}} waits and is never installed on its own; this offer comes back at the next opening.",
+    "installNow": "Install the update now",
+    "installing": "Installing the update… Minhajna then opens again, with the passphrase.",
+    "failed": "The update was not installed: the server’s build changed or the connection dropped. Version {{current}} keeps working as it is.",
+    "done": "Version {{version}} installed",
+    "same": "The data is as it was, in this browser, encrypted with the passphrase.",
+    "logged": "The update is written in the activity log, with its day.",
+    "continue": "Continue"
   }
 }

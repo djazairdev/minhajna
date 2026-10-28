@@ -9,7 +9,10 @@
 // checksum: the SHA-256 of those lines as sha256sum writes them, sorted by
 // name, so anyone can recompute it with standard tools. The app shows the
 // checksum, and the worker checks every file against its line. The same
-// sources give the same checksum.
+// sources give the same checksum. notes.json, among the files, holds the
+// version and version code, so the checksum covers them, and the release's
+// short notes in each language (answer 517), from release-notes.json when
+// it is written for this version, else none.
 
 import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -53,6 +56,30 @@ export function androidVersion(gradle: string): { version: string; versionCode: 
   const code = /versionCode (\d+)/u.exec(gradle)?.[1];
   if (name === undefined || code === undefined) throw new Error('No version in the Android build');
   return { version: name, versionCode: Number(code) };
+}
+
+/** The languages of the release notes, the interface's. */
+export const NOTE_LANGUAGES = ['ar', 'fr', 'en'] as const;
+
+export type ReleaseNotes = { version: string; versionCode: number } & Record<(typeof NOTE_LANGUAGES)[number], string[]>;
+
+/**
+ * The build's version and the release's notes for it: up to five short
+ * lines in each language, as many in each, or none when they were written
+ * for another version. Malformed notes stop the build.
+ */
+export function releaseNotes(text: string, version: string, versionCode: number): ReleaseNotes {
+  const notes = JSON.parse(text) as Partial<Record<string, unknown>>;
+  const none = { version, versionCode, ar: [], fr: [], en: [] };
+  if (notes.version !== version) return none;
+  const lines = NOTE_LANGUAGES.map((language) => notes[language]);
+  const fine = (list: unknown): list is string[] =>
+    Array.isArray(list) && list.length <= 5 && list.every((line) => typeof line === 'string' && line.length <= 160);
+  if (!lines.every(fine) || new Set(lines.map((list) => list.length)).size !== 1) {
+    throw new Error('release-notes.json needs at most five lines of 160 characters, as many lines in each language');
+  }
+  const [ar, fr, en] = lines as [string[], string[], string[]];
+  return { version, versionCode, ar, fr, en };
 }
 
 /** Each file's SHA-256, by name in name order. */
@@ -129,6 +156,8 @@ async function main() {
   copyFileSync(new URL('docs/design/system/logo/minhajna-icon.svg', repository), new URL('icon.svg', output));
   copyFileSync(new URL('LICENSES/AGPL-3.0-or-later.txt', repository), new URL('LICENSE.txt', output));
   copyFileSync(new URL('LICENSES/CC-BY-SA-4.0.txt', repository), new URL('DATA-LICENSE.txt', output));
+  const notes = releaseNotes(readFileSync(new URL('release-notes.json', root), 'utf8'), version, versionCode);
+  writeFileSync(new URL('notes.json', output), `${JSON.stringify(notes)}\n`);
   const files = fileHashes(
     output,
     readdirSync(output, { recursive: true, encoding: 'utf8' })
