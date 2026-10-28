@@ -7,6 +7,7 @@
 // checksums of its APK and of the certificate that signed it, which anyone can
 // compare with those published with the build. Checksums are Latin text, cut
 // into groups of four and selectable, so they can be read aloud or copied.
+// On a PC its words name this browser and the passphrase (#250, answer 509).
 
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -14,7 +15,7 @@ import { Notice } from '../components/Notice';
 import native, { type BuildFacts } from '../native/NativeMinhajnaBuild';
 import { spacing } from '../design/tokens';
 import { buildDeclaration, REAL_NAMES, realNamesDeclaration } from '../privacy/real-names';
-import { useText } from '../text/i18n';
+import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { helpStyles } from './HelpPage';
 
@@ -47,7 +48,7 @@ export function useBuildFacts(): Result {
 
 /** The preview's notice: one line on the welcome, so its button stays in view, and in full in Help. */
 export function PreviewNotice({ short = false, lockSet = true }: { short?: boolean; lockSet?: boolean }) {
-  const t = useText();
+  const t = useDeviceText();
   const declaration = realNamesDeclaration(REAL_NAMES, lockSet);
   if (buildDeclaration(REAL_NAMES) !== null && (short || declaration === null)) {
     return (
@@ -96,7 +97,7 @@ function Checksum({ label, hex }: { label: string; hex: string }) {
 
 /** The preview's notice, version and checksums, at the head of Help. */
 export function AboutBuild() {
-  const t = useText();
+  const t = useDeviceText();
   const result = useBuildFacts();
   return (
     <View style={{ gap: spacing['space-12'] }}>

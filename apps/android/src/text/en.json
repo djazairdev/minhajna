@@ -56,7 +56,10 @@
     "contactSafe": "Without real pupil data: the problem report or the demo class.",
     "privacy": "Privacy and connections",
     "crashes": "Crash reports",
-    "crashesLine": "When on and the app stops suddenly, only the error's type, where it happened in the code and the last steps are kept, with no content, and shown to you at the next start to send or not. Nothing is kept while they are off."
+    "crashesLine": "When on and the app stops suddenly, only the error's type, where it happened in the code and the last steps are kept, with no content, and shown to you at the next start to send or not. Nothing is kept while they are off.",
+    "pc": {
+      "timingsLine": "Measured on this PC, sent only if you share them"
+    }
   },
   "referenceRefused": "The calendar and Algeria’s data that come with the app could not be read, so none of it was used.",
   "historyRefused": "Your records could not be opened on this phone, so none of them are shown.",
@@ -2052,7 +2055,10 @@
     "signer": "Checksum of its signing certificate (SHA-256)",
     "compare": "Compare them with the checksums published with the preview. If they differ, this is not the project’s preview.",
     "reading": "Working out the checksums…",
-    "refused": "The checksums could not be worked out on this phone."
+    "refused": "The checksums could not be worked out on this phone.",
+    "pc": {
+      "refused": "The checksums could not be worked out on this PC."
+    }
   },
   "realNames": {
     "badge": "Real names",
@@ -2061,7 +2067,12 @@
     "title": "Real class lists",
     "message": "This version takes your pupils’ real names once the app lock is set. They stay encrypted on this phone and never reach the Minhajna project. Declared to the ANPDP under number {{declaration}}.",
     "privacy": "The processing is declared to the ANPDP under number {{declaration}}.",
-    "compare": "Compare them with the checksums published with this version. If they differ, this is not the published version."
+    "compare": "Compare them with the checksums published with this version. If they differ, this is not the published version.",
+    "pc": {
+      "setup": "You can type your pupils’ real names. They stay encrypted in this browser, behind the passphrase, and never reach the Minhajna project.",
+      "message": "This version takes your pupils’ real names once the passphrase is set. They stay encrypted in this browser and never reach the Minhajna project. Declared to the ANPDP under number {{declaration}}.",
+      "beforeLock": "Pupils’ real names are accepted once you choose the passphrase."
+    }
   },
   "joint": {
     "open": "Joint class (primary)",
@@ -3599,7 +3610,14 @@
     "sendTo": "Send it to contact@djazair.dev, by email or with any app you pick in the share menu.",
     "needsNote": "Write what happened first.",
     "share": "Share the report",
-    "offline": "The app sends nothing itself and keeps no copy: your phone's share menu opens, and you choose."
+    "offline": "The app sends nothing itself and keeps no copy: your phone's share menu opens, and you choose.",
+    "pc": {
+      "offline": "The app sends nothing itself and keeps no copy: the browser’s share menu opens where it has one; otherwise the report is copied for you to paste. You choose where it goes.",
+      "lineVersion": "Version: {{version}} · PC web app",
+      "sendTo": "Send it to contact@djazair.dev, by email or with any app you pick."
+    },
+    "copied": "The report is copied: paste it into an email or a message to contact@djazair.dev.",
+    "copyFailed": "The browser did not copy the report. Select its text above and copy it."
   },
   "crash": {
     "title": "Crash report, before sending",
@@ -3610,7 +3628,10 @@
     "deleted": "The report is deleted from the phone after “Send” or “Don't send”.",
     "send": "Send",
     "dontSend": "Don't send",
-    "footer": "Crash reports are on in “Help”, and can be turned off there."
+    "footer": "Crash reports are on in “Help”, and can be turned off there.",
+    "pc": {
+      "deleted": "The report is deleted from this PC once it is shared or copied, or after “Don't send”."
+    }
   },
   "statement": {
     "title": "Progress statement",

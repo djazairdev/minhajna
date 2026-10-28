@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The browser's offers on the web (#250, answers 511 and 512), on a
-// made-up page: keeping the data through the storage manager, counted as
-// not kept when it is missing or fails; and the install offer, held from
-// the start in place of the browser's own, spent once its dialog is
-// answered, and over once the app is installed; one the page kept before
-// the module ran, through public/offer.js, is taken over. The last tests
-// load fresh copies of the module, as installing cannot be undone.
+// The browser's offers on the web (#250, answers 511, 512 and 523), on a
+// made-up page: keeping the data through the storage manager, counted as not
+// kept when it is missing or fails; the install offer, held from the start in
+// place of the browser's own, spent once its dialog is answered, and over once
+// the app is installed, one the page kept before the module ran, through
+// public/offer.js, taken over; and a report's text shared, or copied where
+// sharing is missing or fails. The last tests load fresh copies of the module,
+// as installing cannot be undone.
 
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
@@ -66,6 +67,33 @@ function offer(outcome: string) {
 beforeEach(() => Object.assign(keeper, { persisted: false, granted: false, asked: 0, failing: false }));
 
 describe('the browser module', () => {
+  it('sends a text through the share menu, or copies it where there is none or it fails', async () => {
+    const copied: string[] = [];
+    let sharing: ((data: { title: string; text: string }) => Promise<void>) | undefined;
+    let copying = true;
+    Object.defineProperty(navigator, 'share', { configurable: true, get: () => sharing });
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: (text: string) => {
+          if (!copying) return Promise.reject(new Error('refused'));
+          copied.push(text);
+          return Promise.resolve();
+        },
+      },
+    });
+    assert.equal(await Browser.sendText('Made up', 'A made-up report'), 'copied');
+    sharing = () => Promise.resolve();
+    assert.equal(await Browser.sendText('Made up', 'Shared'), 'shared');
+    sharing = () => Promise.reject(Object.assign(new Error('closed'), { name: 'AbortError' }));
+    assert.equal(await Browser.sendText('Made up', 'Closed'), 'cancelled');
+    sharing = () => Promise.reject(Object.assign(new Error('not allowed'), { name: 'NotAllowedError' }));
+    assert.equal(await Browser.sendText('Made up', 'Refused share'), 'copied');
+    copying = false;
+    assert.equal(await Browser.sendText('Made up', 'Refused copy'), 'failed');
+    assert.deepEqual(copied, ['A made-up report', 'Refused share']);
+  });
+
   it('reads and asks whether the data is kept, counting a failure as not kept', async () => {
     assert.equal(await Browser.dataKept(), false);
     assert.equal(await Browser.keepData(), false);
