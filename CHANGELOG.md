@@ -6,6 +6,25 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+## 0.6.0 (2026-10-28)
+
+The PC preview: Minhajna on a PC, in the browser, as a preview, with the whole week on one screen; and one working copy handed between the phone and the PC. It is still for trying the app with made-up pupils only. The APKs are handed over directly, not through a store, and the PC web app opens at https://minhajna.djazair.dev.
+
+معاينة الحاسوب: «منهاجنا» على الحاسوب في المتصفح، معاينةً، مع الأسبوع كله في شاشة واحدة؛ ونسخة عمل واحدة تنتقل بين الهاتف والحاسوب. وتبقى لتجربة التطبيق بأسماء تلاميذ مختلَقة فقط. وتُسلَّم ملفات APK مباشرة لا عبر متجر، ويُفتح تطبيق الحاسوب من https://minhajna.djazair.dev.
+
+### New
+
+- Minhajna on a PC, as a preview. Open https://minhajna.djazair.dev in Chrome, Edge or Firefox; «تثبيت «منهاجنا»» installs it from the browser where it offers that. It then opens without internet, with a passphrase of at least 12 characters in place of the PIN, and locks after 1, 5 or 15 minutes unused, or at once with «قفل الآن». It shows the phone's screens beside a rail, in words that speak of this PC. It has only been tried in Chrome so far, so it stays a preview until it is checked in Chrome, Edge and Firefox on Windows.
+  - «منهاجنا» على الحاسوب، معاينةً. افتح https://minhajna.djazair.dev في Chrome أو Edge أو Firefox، وتثبّته «تثبيت «منهاجنا»» من المتصفح حيث يتيح ذلك. ثم يُفتح دون إنترنت، بعبارة مرور من 12 حرفاً على الأقل بدل رمز PIN، ويُقفل بعد 1 أو 5 أو 15 دقيقة دون استعمال، أو فوراً بـ«قفل الآن». ويعرض شاشات الهاتف بجانب شريط جانبي، بكلمات تتحدث عن هذا الحاسوب. ولم يُجرَّب حتى الآن إلا في Chrome، فيبقى معاينةً حتى يُتحقق منه في Chrome وEdge وFirefox على Windows.
+- On the PC, «لديّ نسخة من هاتفي» opens a direct transfer with its code, or a backup with your recovery key, through the browser's file dialog. Files leave the PC through the browser's save dialog, or as a download. A backup or a transfer file has the same encrypted form on both devices. The foot of the rail says where the copy came from, and on what day: there is no sync.
+  - على الحاسوب، تفتح «لديّ نسخة من هاتفي» نقلاً مباشراً برمزه، أو نسخة احتياطية بمفتاح الاسترجاع، عبر نافذة الملفات في المتصفح. وتغادر الملفات الحاسوب عبر نافذة الحفظ في المتصفح أو تنزيلاً. وللنسخة الاحتياطية وملف النقل الصيغة المشفّرة نفسها على الجهازين. ويقول أسفل الشريط الجانبي من أين جاءت النسخة وفي أي يوم: لا مزامنة.
+- One working copy at a time, on the phone and on the PC. Once a transfer file has left, the sending device asks «هل فتح الجهاز الآخر الملف؟». Once you confirm, it is for reading and printing only: a banner says since when the work has been on the other device, and a change is refused with a sheet saying it was not saved. «استلام النسخة» takes the work back from the other device's transfer file or backup, when it continues this copy. «استعادة العمل هنا» works here again without it, leaving behind what the other device recorded since.
+  - نسخة عمل واحدة في كل مرة، على الهاتف وعلى الحاسوب. بعد خروج ملف النقل، يسأل الجهاز المرسِل «هل فتح الجهاز الآخر الملف؟». وبعد تأكيدك يصير للقراءة والطباعة فقط: يقول شريط منذ متى صار العمل على الجهاز الآخر، ويُرفض كل تغيير بورقة تقول إنه لم يُحفظ. وتستعيد «استلام النسخة» العمل من ملف نقل الجهاز الآخر أو نسخته الاحتياطية، إن كان يكمل هذه النسخة. وتُعيد «استعادة العمل هنا» العمل إلى هذا الجهاز دونه، ويبقى خارجه ما سجّله الجهاز الآخر منذئذ.
+- «الأسبوع» on a PC shows the whole week at once: each session in its cell, in ink once confirmed and in pencil while proposed, with the week's counts above. Choose a session to see it beside the week. There, a session up to today is confirmed, or given another outcome, as on Today, with «تراجع» after. A confirmed session is corrected through «تصحيح الحصة», and «صفحة الدفتر» opens the texts book on its page. The phone keeps Today alone, with no week screen.
+  - يعرض «الأسبوع» على الحاسوب الأسبوع كله دفعة واحدة: كل حصة في خانتها، بالحبر بعد تأكيدها وبقلم الرصاص ما دامت مقترحة، مع أعداد الأسبوع فوقها. اختر حصة لتظهر بجانب الأسبوع. وهناك تُؤكَّد الحصة إلى غاية اليوم، أو تُعطى نتيجة أخرى، كما في «اليوم»، ثم «تراجع». وتُصحَّح الحصة المؤكَّدة بـ«تصحيح الحصة»، وتفتح «صفحة الدفتر» دفتر النصوص على صفحتها. ولا يتغيّر الهاتف: يبقى فيه «اليوم» وحده، دون «الأسبوع».
+- On a PC, «طباعة أو حفظ PDF» opens the browser's print dialog, which also saves a PDF. An update is offered on Today with its version, what changed and its checksum, and installed only with «تثبيت التحديث». While the browser has not agreed to keep the data, the lock page says so, and Today offers «نسخة احتياطية الآن» until a backup is saved that day. «مسح هذا الحاسوب» in Settings, or from the lock page when the passphrase is forgotten, erases everything Minhajna keeps in this browser.
+  - على الحاسوب، تفتح «طباعة أو حفظ PDF» نافذة الطباعة في المتصفح، وتحفظ منها ملف PDF أيضاً. ويُعرض التحديث في «اليوم» بإصداره وما تغيّر فيه وبصمته، ولا يُثبَّت إلا بـ«تثبيت التحديث». وما دام المتصفح لم يوافق على الاحتفاظ بالبيانات، تقول ذلك صفحة القفل، ويعرض «اليوم» «نسخة احتياطية الآن» حتى تُحفظ نسخة في ذلك اليوم. ويمسح «مسح هذا الحاسوب» في الإعدادات، أو من صفحة القفل عند نسيان عبارة المرور، كل ما يحفظه «منهاجنا» في هذا المتصفح.
+
 ### Changed
 
 - The restore and «مقارنة قبل التوقيع» now open a file only from this phone, an SD card or a USB key, as the calendar and reader mode already do. A file on a computer or in a cloud folder must first be copied to the phone, as both screens say.
@@ -15,6 +34,17 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 - «مسح هذا الجهاز» now names your last backup and its day under «ما يبقى خارجه», says that the erasure touches neither it nor the files you saved elsewhere, and counts as lost only the changes made since that backup. Since 0.5.0 it said that nothing was kept, even after a backup.
   - يذكر «مسح هذا الجهاز» الآن آخر نسخة احتياطية ويومها تحت «ما يبقى خارجه»، ويقول إن المسح لا يمسّها ولا الملفات التي حفظتها في مكان آخر، ولا يعدّ ضائعاً إلا التغييرات التي جاءت بعد تلك النسخة. وكان منذ 0.5.0 يقول إنه لا يبقى شيء، حتى بعد النسخ.
+
+### Privacy
+
+- On a PC, everything stays in that browser, encrypted with a key sealed under your passphrase. Nobody can recover a forgotten passphrase, not even the project: the PC must then be erased, and what was kept only there is lost. A browser may clear a site's data when the PC runs short of space, and clearing it by hand deletes it, so keep a backup.
+  - على الحاسوب يبقى كل شيء في ذلك المتصفح، مشفّراً بمفتاح مختوم بعبارة مرورك. ولا يستطيع أحد استرجاع عبارة مرور منسية، ولا المشروع نفسه: يجب حينئذ مسح الحاسوب، ويضيع ما لم يُحفظ إلا فيه. وقد يمسح المتصفح بيانات الموقع حين يضيق مكان الحاسوب، ومسحها يدوياً يحذفها، فاحتفظ بنسخة احتياطية.
+- The PC web app comes from https://minhajna.djazair.dev and loads nothing from anywhere else. That host sees the PC's IP address and browser at each visit and each update check, and keeps them 7 days. It never receives what you record, and the app sends it nothing else. Updates install only when you accept them, checked by their checksum.
+  - يأتي تطبيق الحاسوب من https://minhajna.djazair.dev ولا يحمّل شيئاً من أي مكان آخر. ويرى ذلك الخادم عنوان IP للحاسوب ومتصفحه عند كل زيارة وكل بحث عن تحديث، ويحتفظ بهما 7 أيام. ولا يصله أبداً ما تسجّله، ولا يرسل إليه التطبيق شيئاً غير ذلك. ولا تُثبَّت التحديثات إلا حين تقبلها، بعد التحقق من بصمتها.
+- The PC signs progress statements with a key of its own, sealed like your records, so a reader sees it as another key than your phone's.
+  - يوقّع الحاسوب بيانات التقدّم بمفتاح خاص به، مختوم مثل سجلاتك، فيراه القارئ مفتاحاً غير مفتاح هاتفك.
+- Work moves between the phone and the PC only in the encrypted transfer file or backup that you move yourself; nothing goes through a server.
+  - لا ينتقل العمل بين الهاتف والحاسوب إلا في ملف النقل المشفّر أو النسخة الاحتياطية التي تنقلها بنفسك؛ ولا يمرّ شيء عبر خادم.
 
 ## 0.5.0 (2026-10-26)
 

@@ -54,7 +54,7 @@ Checks of 27 October 2026 for the first pull request of part 3 of [#250](https:/
   - a last sweep of the texts that still name the phone or the camera (answer 509): done, as in [the PC's words record](web-pc-words.md), but for the privacy notice;
   - the screens that could only send, a plan layer and a statement's file, save on a PC: done, as in [the PC's words record](web-pc-words.md#the-follow-up-saving-and-copying-on-a-pc);
   - the privacy notice's PC wording needs the founder's review;
-  - the changelog's entry for the PC web app, once a host serves it (answer 500).
+  - the changelog's entry for the PC web app: done in 0.6.0's, with the host chosen (answers 528 and 531).
 - **A download counts as saved:** in Firefox and Safari, and in Chrome when the save dialog is refused, the page cannot tell a download cancelled or blocked from one kept.
 - **Still to check by hand:**
   - a backup made on a real phone and restored on a PC, and a PC's transfer opened on a real phone;

@@ -1,6 +1,21 @@
 {
   "version": "0.6.0",
-  "ar": [],
-  "fr": [],
-  "en": []
+  "ar": [
+    "«منهاجنا» على الحاسوب، معاينةً: ثبّته من المتصفح، وافتحه دون إنترنت، وأقفله بعبارة مرور.",
+    "الأسبوع كله في شاشة واحدة: أكّد الحصة أو صحّحها بجانبه، وافتح صفحتها في دفتر النصوص.",
+    "انقل عملك من الهاتف بنقل مباشر أو بنسخة احتياطية، وأعده إليه بالطريقة نفسها.",
+    "اطبع أو احفظ PDF عبر المتصفح، وامسح هذا الحاسوب من الإعدادات أو من صفحة القفل."
+  ],
+  "fr": [
+    "Minhajna sur PC, en aperçu : installez-le depuis le navigateur, ouvrez-le hors ligne et verrouillez-le par une phrase de passe.",
+    "Toute la semaine sur un écran : confirmez ou corrigez une séance à côté, et ouvrez sa page dans le cahier de textes.",
+    "Apportez votre travail du téléphone par un transfert ou une sauvegarde, et rendez-le de la même façon.",
+    "Imprimez ou enregistrez un PDF par le navigateur, et effacez ce PC depuis les Paramètres ou la page de verrouillage."
+  ],
+  "en": [
+    "Minhajna on a PC, as a preview: install it from the browser, open it offline, and lock it with a passphrase.",
+    "The whole week on one screen: confirm or correct a session beside it, and open its page of the texts book.",
+    "Bring your work from the phone by a transfer or a backup, and hand it back the same way.",
+    "Print or save a PDF through the browser, and erase this PC from Settings or the lock page."
+  ]
 }
