@@ -1141,7 +1141,12 @@
       "share": "Share the file",
       "shareTitle": "School layer",
       "shared": "The share menu is open: pick the app to send the file with.",
-      "failed": "The file could not be shared. Try again."
+      "failed": "The file could not be shared. Try again.",
+      "pc": {
+        "share": "Save the file",
+        "shared": "The file is saved where you chose, or in the browser’s downloads: send it to your colleagues by USB key or by email.",
+        "failed": "The file could not be saved. Try again."
+      }
     }
   },
   "planError": {
@@ -1558,6 +1563,8 @@
     "neverMe": "Anything that identifies me or my school",
     "share": "Share these figures",
     "shareLine": "You choose the app and who receives them, once. Minhajna sends nothing on its own.",
+    "copyFailed": "The browser did not copy the figures. Select them above and copy them.",
+    "copied": "The figures are copied: paste them into an email or a message.",
     "shareTitle": "My Minhajna pilot timings",
     "clear": "Clear the timings",
     "clearTitle": "Clear the timings?",
@@ -1571,7 +1578,8 @@
       "line": "On this PC only · Pilot version",
       "intro": "This PC measures how long confirming each session and taking each roll call take, in seconds only: no time, no day, no content. The figures stay on this PC and are sent only if you share them.",
       "exportLine": "The office’s file, from this PC",
-      "clearLine": "The figures are deleted from this PC for good. Your sessions and records are not touched."
+      "clearLine": "The figures are deleted from this PC for good. Your sessions and records are not touched.",
+      "shareLine": "Where the browser has a share menu, you choose the app and who receives them, once; otherwise the figures are copied. Minhajna sends nothing on its own."
     }
   },
   "pupilPage": {
@@ -3757,7 +3765,8 @@
     "logSent": "Progress statement · {{class}} · {{how}} · {{to}}",
     "pc": {
       "subtitle": "Per class · no pupil data, and it leaves this PC only when you choose.",
-      "none": "No statement for this class: it has no plan on this PC."
+      "none": "No statement for this class: it has no plan on this PC.",
+      "tooLong": "The statement is too long for one code, so it leaves as a signed file that you save on this PC and send yourself. The short local transfer comes with the launch."
     }
   },
   "packRelease": {

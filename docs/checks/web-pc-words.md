@@ -32,11 +32,22 @@ Checks of 28 October 2026 for the last sweep of answer 509, from the pull reques
 | Web build | Pass |
 | ESLint, Prettier | Pass |
 
+## The follow-up: saving and copying on a PC
+
+The next pull request settles what this one left for later: the screens that only shared.
+
+- **A school layer** («مشاركة طبقة مؤسسة») saves its file on a PC, with «حفظ الملف». The screen then says where the file is, and to send it to colleagues by USB key or by email. A closed save dialog says nothing and counts nothing, and a refused save says so.
+- **A statement too long for one code** leaves as a signed file saved on the PC, and the line under its buttons says so. It enters the sharing history and asks «لمن؟» only once saved; a closed save dialog records nothing.
+- **The pilot's timings** go through the browser's share menu, or are copied where it has none or it refuses, as Help's report does. The screen says they were copied, or that they were not and to select them, and the lines can be selected. The button waits while the menu is open.
+- The phone keeps its share sheet on all three screens.
+
+| Check | Result |
+|---|---|
+| Jest (`apps/android`) | The 3 new tests in `web-pc-sending.test.tsx` pass: on a PC a school layer and a long statement are saved, never shared, and count only once a save goes through; the timings go to the browser and say whether they were copied, and the button waits while the menu is open. The phone's own tests for the three screens pass unchanged. The rest pass, but for the two notice tests, as above. |
+| ESLint, Prettier, type checks | Pass |
+
 ## Left for later
 
-- **Sharing on a PC with no share menu:**
-  - The pilot's timings are shared through React Native's share call, which sends nothing in a browser with no share menu, such as Firefox. Help's send path, with its copy, would fit.
-  - A plan layer and a statement's file can still only be shared, so they fail on Chrome and Edge, as in [the files record](web-files.md). The calendar sends no file, so it is not affected.
 - **The notifications screen on a PC** still shows its switches, which change nothing there.
 - **The privacy and connections screens' PC words:** the founder's, with [#483](https://github.com/djazairdev/minhajna/pull/483).
 - **Still to check by hand:** these screens in Chrome, Edge and Firefox on Windows, with a screen reader and text at 200%.

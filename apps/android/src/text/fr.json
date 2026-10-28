@@ -1167,7 +1167,12 @@
       "share": "Partager le fichier",
       "shareTitle": "Couche d’établissement",
       "shared": "Le menu de partage est ouvert : choisissez l’application pour envoyer le fichier.",
-      "failed": "Le fichier n’a pas pu être partagé. Réessayez."
+      "failed": "Le fichier n’a pas pu être partagé. Réessayez.",
+      "pc": {
+        "share": "Enregistrer le fichier",
+        "shared": "Le fichier est enregistré où vous l’avez choisi, ou dans les téléchargements du navigateur : envoyez-le à vos collègues par clé USB ou par courriel.",
+        "failed": "Le fichier n’a pas pu être enregistré. Réessayez."
+      }
     }
   },
   "planError": {
@@ -1590,6 +1595,8 @@
     "neverMe": "Ce qui m’identifie, moi ou mon établissement",
     "share": "Partager ces chiffres",
     "shareLine": "Vous choisissez l’application et le destinataire, une fois. Minhajna n’envoie rien de lui-même.",
+    "copyFailed": "Le navigateur n’a pas copié les chiffres. Sélectionnez-les ci-dessus et copiez-les.",
+    "copied": "Les chiffres sont copiés : collez-les dans un courriel ou un message.",
     "shareTitle": "Mes temps du pilote Minhajna",
     "clear": "Effacer les mesures",
     "clearTitle": "Effacer les mesures ?",
@@ -1603,7 +1610,8 @@
       "line": "Sur ce PC seulement · Version pilote",
       "intro": "Ce PC mesure le temps pris pour confirmer chaque séance et faire chaque appel, en secondes seulement : ni heure, ni jour, ni contenu. Les chiffres restent sur ce PC et ne partent que si vous les partagez.",
       "exportLine": "Le fichier de l’administration, depuis ce PC",
-      "clearLine": "Les chiffres sont effacés de ce PC, sans retour. Vos séances et vos registres ne sont pas touchés."
+      "clearLine": "Les chiffres sont effacés de ce PC, sans retour. Vos séances et vos registres ne sont pas touchés.",
+      "shareLine": "Là où le navigateur a un menu de partage, vous choisissez l’application et le destinataire, une fois ; sinon, les chiffres sont copiés. Minhajna n’envoie rien de lui-même."
     }
   },
   "pupilPage": {
@@ -3817,7 +3825,8 @@
     "logSent": "Relevé de progression · {{class}} · {{how}} · {{to}}",
     "pc": {
       "subtitle": "Par classe · sans aucune donnée d’élève, et il ne quitte ce PC que quand vous le choisissez.",
-      "none": "Pas de relevé pour cette classe : elle n’a pas de plan sur ce PC."
+      "none": "Pas de relevé pour cette classe : elle n’a pas de plan sur ce PC.",
+      "tooLong": "Le relevé est trop long pour un seul code : il part comme fichier signé, que vous enregistrez sur ce PC et envoyez vous-même. Le transfert local de courte durée arrive avec le lancement."
     }
   },
   "packRelease": {
