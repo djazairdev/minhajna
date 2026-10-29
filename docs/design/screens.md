@@ -25,6 +25,15 @@ Yes, except 1 requirement partly designed: R-6.2-02 (Privacy still shows a place
 | C. Plan packs, the calendar and the engine | §4 (teacher-facing parts) | 106 | 102 | 0 | 0 | 4 |
 | D. Data, privacy, security and the school space | §1.5–1.6, §1.11, §5.5, §5.7–5.9, §6.2, §6.4–6.6, §6.8, §7 (teacher parts), §8.4 | 147 | 134 | 1 | 0 | 12 |
 
+## Is every screen above the teacher designed?
+
+Not yet. Audit E checked the requirements of the director, the coordinator, the timetable preparer, the reader, the inspector, the directorate, the Ministry, the operators, the curators and the observatory; the fix batches added more. Of these 218, 114 are designed, 49 partly, 26 have no screen, and 29 are rules with no screen of their own.
+
+| Scope | PRD | Requirements | Designed | Partial | Missing | Rule only |
+|---|---|---|---|---|---|---|
+| E. Above the teacher: the school, directorates, the Ministry, operators, curators and the observatory | §1.6, §4 (curators), §5.10, §6.5, §6.7, §7.1–§7.14, §8 | 217 | 114 | 48 | 26 | 29 |
+| Added by the fix batches | — | 1 | 0 | 1 | 0 | 0 |
+
 ## Today and the book
 
 | Screen ID | Screen | Device | Who | Stage | PRD | Requirements |
@@ -232,7 +241,7 @@ Yes, except 1 requirement partly designed: R-6.2-02 (Privacy still shows a place
 | [`TT-change`](screens/TT-change.png) ([HTML](screens/TT-change.html)) | A new timetable version from the school | Phone | Teacher | Launch | §2.3, §2.5, §3.2, §3.11, §4.6, §5.5, §5.9, §7.4, §7.8 | R-2.3-17, R-2.5-11, R-3.2-16, R-3.11-03, R-4.6-04, R-4.6-05, R-4.6-09, R-5.5-07, R-5.9-07, R-7.4-01, R-7.4-03, R-7.4-04, R-7.4-05, R-7.4-06, R-7.4-07, R-7.8-04 |
 | [`Handover-in`](screens/Handover-in.png) ([HTML](screens/Handover-in.html)) | Receiving a handover (the substitute's phone) | Phone | Teacher | Launch | §3.10, §4.7, §5.5, §5.8, §5.9 | R-3.10-12, R-3.10-13, R-3.10-14, R-3.10-17, R-4.7-40, R-5.5-07, R-5.8-10, R-5.9-09 |
 | [`Handover-in-fail`](screens/Handover-in-fail.png) ([HTML](screens/Handover-in-fail.html)) | A handover package that fails its check: changed, or not from the same teacher | Phone | Teacher | Pilot | §5.5 | R-5.5-07 |
-| [`Pack-release`](screens/Pack-release.png) ([HTML](screens/Pack-release.html)) | A new pack release: moving each class, asking first when its own change meets a split | Phone | Teacher | Launch | §4.2, §4.8, §4.12, §5.9 | R-4.2-12, R-4.2-13, R-4.2-17, R-4.2-18, R-4.8-02, R-4.8-04, R-5.9-10 |
+| [`Pack-release`](screens/Pack-release.png) ([HTML](screens/Pack-release.html)) | A new pack release: moving each class, asking first when its own change meets a split | Phone | Teacher | Launch | §4.2, §4.8, §4.12, §5.9, §8.3 | R-4.2-12, R-4.2-13, R-4.2-17, R-4.2-18, R-4.8-02, R-4.8-04, R-5.9-10, R-4.2-27, R-4.8-06, R-8.3-02 |
 | [`Today-june`](screens/Today-june.png) ([HTML](screens/Today-june.html)) | Today in June: the year-end card, and in July 2028 the erase card | Phone | Teacher | Launch | §5.7 | R-5.7-04 |
 | [`Year-close`](screens/Year-close.png) ([HTML](screens/Year-close.html)) | Closing the school year | Phone | Teacher | Launch | §3.2, §3.4, §3.8, §4.2, §5.7 | R-3.2-32, R-3.4-14, R-3.4-29, R-3.8-47, R-3.8-60, R-4.2-12, R-5.7-01, R-5.7-02, R-5.7-04 |
 | [`Year-erase`](screens/Year-erase.png) ([HTML](screens/Year-erase.html)) | A year later: erasing that year's pupil records | Phone | Teacher | Launch | §3.4, §5.5, §5.7 | R-5.5-13, R-5.7-03, R-5.7-04 |
@@ -296,26 +305,26 @@ Yes, except 1 requirement partly designed: R-6.2-02 (Privacy still shows a place
 
 | Screen ID | Screen | Device | Who | Stage | PRD | Requirements |
 |---|---|---|---|---|---|---|
-| [`R-Open`](screens/R-Open.png) ([HTML](screens/R-Open.html)) | Reader mode: a teacher's statement, checked | Phone | Director, inspector, coordinator | Pilot | §3.10, §4.9, §5.5, §5.9 | R-3.10-08, R-4.9-01, R-5.5-04, R-5.5-07, R-5.9-08, R-5.9-18 |
-| [`R-Picture`](screens/R-Picture.png) ([HTML](screens/R-Picture.html)) | Reader mode: the school's picture from the statements received | PC | Director, inspector, coordinator | Pilot | §3.10, §4.9 | R-4.9-01 |
-| [`R-Spot`](screens/R-Spot.png) ([HTML](screens/R-Spot.html)) | Reader mode: the inspector's spot-check sheet | Phone | Director, inspector, coordinator | Pilot | §7.2 | — |
-| [`R-Merge`](screens/R-Merge.png) ([HTML](screens/R-Merge.html)) | The coordinator's merge for the teaching council | PC | Director, inspector, coordinator | Pilot | §4.7 | R-4.7-10 |
-| [`D-TT-import`](screens/D-TT-import.png) ([HTML](screens/D-TT-import.html)) | Timetable package: version 1, checked and sent | PC | Director | Launch | §7.4 | — |
-| [`D-TT-change`](screens/D-TT-change.png) ([HTML](screens/D-TT-change.html)) | Timetable package: version 2, only the affected teachers told | PC | Director | Launch | §4.6 | R-4.6-05 |
+| [`R-Open`](screens/R-Open.png) ([HTML](screens/R-Open.html)) | Reader mode: a teacher's statement, checked | Phone | Director, inspector, coordinator | Pilot | §3.10, §4.9, §5.5, §5.9, §5.10, §7.2, §7.13 | R-3.10-08, R-4.9-01, R-5.5-04, R-5.5-07, R-5.9-08, R-5.9-18, R-5.10-04, R-7.2-01, R-7.2-02, R-7.2-04, R-7.13-01 |
+| [`R-Picture`](screens/R-Picture.png) ([HTML](screens/R-Picture.html)) | Reader mode: the school's picture from the statements received | PC | Director, inspector, coordinator | Pilot | §3.10, §4.9, §5.10, §7.2, §7.3, §7.13, §7.14 | R-4.9-01, R-5.10-04, R-7.2-02, R-7.2-03, R-7.2-04, R-7.3-04, R-7.13-01, R-7.14-01 |
+| [`R-Spot`](screens/R-Spot.png) ([HTML](screens/R-Spot.html)) | Reader mode: the inspector's spot-check sheet | Phone | Director, inspector, coordinator | Pilot | §7.2, §7.13, §8.5 | R-7.2-02, R-7.2-04, R-7.2-06, R-7.13-01, R-8.5-01 |
+| [`R-Merge`](screens/R-Merge.png) ([HTML](screens/R-Merge.html)) | The coordinator's merge for the teaching council | PC | Director, inspector, coordinator | Pilot | §4.7, §5.10, §7.2, §7.3, §7.13 | R-4.7-10, R-5.10-04, R-7.2-04, R-7.3-01, R-7.3-02, R-7.3-03, R-7.3-04, R-7.13-01 |
+| [`D-TT-import`](screens/D-TT-import.png) ([HTML](screens/D-TT-import.html)) | Timetable package: version 1, checked and sent | PC | Director | Launch | §7.1, §7.4, §7.13 | R-7.1-02, R-7.4-08, R-7.4-09, R-7.4-10, R-7.4-11, R-7.4-12, R-7.4-16, R-7.4-18, R-7.13-02 |
+| [`D-TT-change`](screens/D-TT-change.png) ([HTML](screens/D-TT-change.html)) | Timetable package: version 2, only the affected teachers told | PC | Director | Launch | §4.6, §7.1, §7.4, §7.5, §7.13 | R-4.6-05, R-7.1-02, R-7.4-12, R-7.4-13, R-7.4-15, R-7.4-16, R-7.4-17, R-7.5-13, R-7.13-02 |
 
 ## 2027/28: the opt-in insights
 
 | Screen ID | Screen | Device | Who | Stage | PRD | Requirements |
 |---|---|---|---|---|---|---|
 | [`Insights-optin`](screens/Insights-optin.png) ([HTML](screens/Insights-optin.html)) | Anonymous insights: the exact payload first | Phone | Teacher | Insights | §1.6, §4.2, §4.9, §7.10, §8.4, §10.3 | R-10.3-05, R-4.2-11, R-4.9-03, R-1.6-01, R-1.6-02, R-1.6-03, R-1.6-04, R-1.6-05, R-1.6-06, R-1.6-08, R-7.10-09, R-8.4-01 |
-| [`Insights-compare`](screens/Insights-compare.png) ([HTML](screens/Insights-compare.html)) | Anonymous insights: my class against its peers | Phone | Teacher | Insights | §1.6, §4.9, §8.4 | R-4.9-03, R-1.6-05, R-1.6-07, R-8.4-02, R-8.4-03, R-8.4-04 |
+| [`Insights-compare`](screens/Insights-compare.png) ([HTML](screens/Insights-compare.html)) | Anonymous insights: my class against its peers | Phone | Teacher | Insights | §1.6, §4.9, §8.4 | R-4.9-03, R-1.6-05, R-1.6-07, R-8.4-02, R-8.4-03, R-8.4-04, R-1.6-13 |
 | [`Log-insights`](screens/Log-insights.png) ([HTML](screens/Log-insights.html)) | The log: each insights sending | Phone | Teacher | Insights | §1.6 | R-1.6-03 |
 | [`Help-insights`](screens/Help-insights.png) ([HTML](screens/Help-insights.html)) | Help with insights on | Phone | Teacher | Insights | §1.5 | R-1.5-06 |
-| [`Obs-Report`](screens/Obs-Report.png) ([HTML](screens/Obs-Report.html)) | Anonymous insights: the term report, drafted for the IGP first | PC | Observatory | Insights | §8.4 | — |
+| [`Obs-Report`](screens/Obs-Report.png) ([HTML](screens/Obs-Report.html)) | Anonymous insights: the term report, drafted for the IGP first | PC | Observatory | Insights | §1.6, §4.9, §5.10, §8.4 | R-1.6-10, R-1.6-11, R-1.6-12, R-1.6-13, R-1.6-14, R-1.6-15, R-1.6-17, R-1.6-18, R-4.9-05, R-5.10-09, R-8.4-06, R-8.4-07, R-8.4-08, R-8.4-09, R-8.4-10, R-8.4-11, R-8.4-12 |
 | [`Settings-school`](screens/Settings-school.png) ([HTML](screens/Settings-school.html)) | Settings after School-join | Phone | Teacher | Insights | §1.6, §8.4 | R-1.6-08 |
 | [`Insights-optin-school`](screens/Insights-optin-school.png) ([HTML](screens/Insights-optin-school.html)) | Insights off for school classes | Phone | Teacher | Insights | §1.6, §8.4 | R-1.6-08 |
 | [`Settings-retired`](screens/Settings-retired.png) ([HTML](screens/Settings-retired.html)) | Settings after insights retire | Phone | Teacher | Insights | §1.6, §8.4 | R-1.6-08 |
-| [`Insights-optin-retired`](screens/Insights-optin-retired.png) ([HTML](screens/Insights-optin-retired.html)) | Insights retired | Phone | Teacher | Insights | §1.6, §4.9, §8.4 | R-4.9-04, R-1.6-08 |
+| [`Insights-optin-retired`](screens/Insights-optin-retired.png) ([HTML](screens/Insights-optin-retired.html)) | Insights retired | Phone | Teacher | Insights | §1.6, §4.9, §8.4 | R-4.9-04, R-1.6-08, R-1.6-10 |
 
 ## The national system: the teacher (example 2029/30)
 
@@ -346,26 +355,26 @@ Yes, except 1 requirement partly designed: R-6.2-02 (Privacy still shows a place
 
 | Screen ID | Screen | Device | Who | Stage | PRD | Requirements |
 |---|---|---|---|---|---|---|
-| [`D-Dashboard`](screens/D-Dashboard.png) ([HTML](screens/D-Dashboard.html)) | The national system: the director's dashboard | PC | Director | National | §1.11, §7.6 | R-1.11-04, R-7.6-01, R-7.6-04 |
-| [`D-Cover`](screens/D-Cover.png) ([HTML](screens/D-Cover.html)) | The national system: today's cover, the sheet and the log | PC | Director | National | §7.7 | R-7.7-02 |
-| [`D-Record`](screens/D-Record.png) ([HTML](screens/D-Record.html)) | The national system: a class's signed week, with the visa | PC | Director | National | §5.5, §7.5 | — |
-| [`D-Record-fix`](screens/D-Record-fix.png) ([HTML](screens/D-Record-fix.html)) | The national system: a corrected week as the director reads it, both versions | PC | Director | National | §3.1, §3.3, §5.5 | R-3.1-08, R-3.3-30, R-5.5-02, R-5.5-04, R-5.5-09 |
-| [`D-Report`](screens/D-Report.png) ([HTML](screens/D-Report.html)) | The national system: the term's delivery report | PC | Director | National | §7.5, §7.7 | R-7.5-08, R-7.7-02 |
-| [`D-Substitute`](screens/D-Substitute.png) ([HTML](screens/D-Substitute.html)) | The national system: a substitute's appointment and the inspector's grant | PC | Director | National | §7.5 | R-7.5-07 |
-| [`D-TT-proposal`](screens/D-TT-proposal.png) ([HTML](screens/D-TT-proposal.html)) | The national system: a teacher's timetable proposal, accepted or declined | PC | Director | National | §7.4, §7.8 | — |
-| [`D-Issue`](screens/D-Issue.png) ([HTML](screens/D-Issue.html)) | The national system: joining codes and security keys, from the official assignments | PC | Director | National | §2.6, §3.1, §3.2, §5.8, §5.9, §6.4, §6.5, §6.6 | R-2.6-04, R-3.1-12, R-3.1-14, R-3.2-04, R-3.2-07, R-5.8-03, R-5.8-04, R-5.8-12, R-5.9-11, R-6.4-04, R-6.6-04 |
-| [`D-Keys`](screens/D-Keys.png) ([HTML](screens/D-Keys.html)) | The school key: who holds it, the timetable key and the split recovery (React Flow map) | PC | Director | National | §6.5, §7.5 | — |
-| [`D-Exchange`](screens/D-Exchange.png) ([HTML](screens/D-Exchange.html)) | The national system: what enters and leaves the school (a React Flow map) | PC | Director | National | §3.4 | R-3.4-05 |
+| [`D-Dashboard`](screens/D-Dashboard.png) ([HTML](screens/D-Dashboard.html)) | The national system: the director's dashboard | PC | Director | National | §1.11, §5.10, §7.1, §7.4, §7.5, §7.6, §7.7, §7.8, §7.10, §7.11, §7.12, §7.13, §7.14 | R-1.11-04, R-7.6-01, R-7.6-04, R-5.10-02, R-5.10-11, R-7.1-04, R-7.4-18, R-7.5-11, R-7.5-14, R-7.5-16, R-7.6-05, R-7.6-06, R-7.6-07, R-7.6-08, R-7.6-09, R-7.6-10, R-7.6-11, R-7.7-06, R-7.10-10, R-7.10-23, R-7.11-01, R-7.11-07, R-7.12-03, R-7.13-03, R-7.14-06 |
+| [`D-Cover`](screens/D-Cover.png) ([HTML](screens/D-Cover.html)) | The national system: today's cover, the sheet and the log | PC | Director | National | §7.1, §7.7, §7.8 | R-7.7-02, R-7.1-04, R-7.7-03, R-7.7-04, R-7.7-05, R-7.7-06, R-7.7-07 |
+| [`D-Record`](screens/D-Record.png) ([HTML](screens/D-Record.html)) | The national system: a class's signed week, with the visa | PC | Director | National | §5.10, §7.1, §7.5, §7.8, §7.11 | R-5.10-02, R-7.1-04, R-7.5-14, R-7.5-16, R-7.8-06, R-7.8-07, R-7.11-08 |
+| [`D-Record-fix`](screens/D-Record-fix.png) ([HTML](screens/D-Record-fix.html)) | The national system: a corrected week as the director reads it, both versions | PC | Director | National | §3.1, §3.3, §5.5, §5.10, §7.1, §7.5, §7.8 | R-3.1-08, R-3.3-30, R-5.5-02, R-5.5-04, R-5.5-09, R-5.10-02, R-7.1-04, R-7.5-14, R-7.5-16, R-7.8-06, R-7.8-07 |
+| [`D-Report`](screens/D-Report.png) ([HTML](screens/D-Report.html)) | The national system: the term's delivery report | PC | Director | National | §7.1, §7.5, §7.6, §7.7 | R-7.5-08, R-7.7-02, R-7.1-04, R-7.6-11, R-7.7-07 |
+| [`D-Substitute`](screens/D-Substitute.png) ([HTML](screens/D-Substitute.html)) | The national system: a substitute's appointment and the inspector's grant | PC | Director | National | §7.1, §7.5, §7.8, §7.12 | R-7.5-07, R-7.1-04, R-7.5-15, R-7.8-11, R-7.12-03 |
+| [`D-TT-proposal`](screens/D-TT-proposal.png) ([HTML](screens/D-TT-proposal.html)) | The national system: a teacher's timetable proposal, accepted or declined | PC | Director | National | §5.10, §7.1, §7.4, §7.5, §7.8, §7.14 | R-5.10-03, R-7.1-04, R-7.4-10, R-7.4-13, R-7.4-14, R-7.4-15, R-7.4-16, R-7.4-17, R-7.5-13, R-7.14-04 |
+| [`D-Issue`](screens/D-Issue.png) ([HTML](screens/D-Issue.html)) | The national system: joining codes and security keys, from the official assignments | PC | Director | National | §2.6, §3.1, §3.2, §5.8, §5.9, §5.10, §6.4, §6.5, §6.6, §7.1, §7.4, §7.5, §7.12 | R-2.6-04, R-3.1-12, R-3.1-14, R-3.2-04, R-3.2-07, R-5.8-03, R-5.8-04, R-5.8-12, R-5.9-11, R-6.4-04, R-6.6-04, R-5.10-14, R-6.5-15, R-6.5-17, R-6.5-18, R-7.1-04, R-7.4-18, R-7.5-11, R-7.5-16, R-7.5-18, R-7.5-19, R-7.12-07 |
+| [`D-Keys`](screens/D-Keys.png) ([HTML](screens/D-Keys.html)) | The school key: who holds it, the timetable key and the split recovery (React Flow map) | PC | Director | National | §5.10, §6.5, §7.1, §7.5, §7.6, §7.8, §7.11, §7.12, §7.14 | R-5.10-01, R-5.10-02, R-5.10-03, R-5.10-05, R-5.10-06, R-5.10-07, R-5.10-13, R-6.5-10, R-6.5-11, R-6.5-12, R-6.5-14, R-6.5-16, R-6.5-17, R-7.1-04, R-7.5-10, R-7.5-15, R-7.5-17, R-7.6-09, R-7.8-08, R-7.8-10, R-7.11-03, R-7.11-04, R-7.11-05, R-7.11-06, R-7.12-02, R-7.12-04, R-7.14-03 |
+| [`D-Exchange`](screens/D-Exchange.png) ([HTML](screens/D-Exchange.html)) | The national system: what enters and leaves the school (a React Flow map) | PC | Director | National | §3.4, §5.10, §6.5, §7.1, §7.5, §7.8, §7.11, §7.12 | R-3.4-05, R-5.10-01, R-5.10-05, R-5.10-10, R-6.5-10, R-6.5-13, R-6.5-17, R-7.1-04, R-7.5-10, R-7.5-15, R-7.5-17, R-7.5-18, R-7.8-11, R-7.11-02, R-7.12-02, R-7.12-06 |
 
 ## The national system: the directorate, the inspector and the operators (example 2029/30)
 
 | Screen ID | Screen | Device | Who | Stage | PRD | Requirements |
 |---|---|---|---|---|---|---|
-| [`M-Grant`](screens/M-Grant.png) ([HTML](screens/M-Grant.html)) | The national system: the directorate grants an inspector time-limited access | PC | Directorate | National | §7.8 | R-7.8-02, R-7.8-05 |
-| [`I-Grant`](screens/I-Grant.png) ([HTML](screens/I-Grant.html)) | The national system: the inspector's phone during a grant, with the spot-check sheet | Phone | Inspector | National | §1.11, §7.8 | R-1.11-05, R-7.8-05 |
-| [`M-Totals`](screens/M-Totals.png) ([HTML](screens/M-Totals.html)) | The national system: the directorate's totals, what the system owes teachers and the curriculum report | PC | Directorate | National | §4.9 | R-4.9-04 |
-| [`N-Totals`](screens/N-Totals.png) ([HTML](screens/N-Totals.html)) | The national system: the Ministry's totals, wilayas named for what is owed | PC | Ministry | National | §5.10, §7.9 | R-7.9-01 |
-| [`Ops-Console`](screens/Ops-Console.png) ([HTML](screens/Ops-Console.html)) | The national system: the operators' map, no key anywhere (a React Flow map) | PC | Operators | National | §5.8 | R-5.8-06 |
+| [`M-Grant`](screens/M-Grant.png) ([HTML](screens/M-Grant.html)) | The national system: the directorate grants an inspector time-limited access | PC | Directorate | National | §1.11, §5.10, §7.8, §7.9, §7.14, §8.2, §8.5, §8.7 | R-7.8-02, R-7.8-05, R-5.10-05, R-5.10-13, R-5.10-14, R-7.9-02, R-7.9-09, R-7.14-02, R-8.2-02, R-8.5-02, R-8.7-02 |
+| [`I-Grant`](screens/I-Grant.png) ([HTML](screens/I-Grant.html)) | The national system: the inspector's phone during a grant, with the spot-check sheet | Phone | Inspector | National | §1.11, §5.10, §7.2, §7.8, §8.5 | R-1.11-05, R-7.8-05, R-5.10-05, R-5.10-13, R-5.10-14, R-7.2-06, R-8.5-02 |
+| [`M-Totals`](screens/M-Totals.png) ([HTML](screens/M-Totals.html)) | The national system: the directorate's totals, what the system owes teachers and the curriculum report | PC | Directorate | National | §1.11, §4.9, §5.10, §7.9, §7.10, §7.11, §7.12, §7.14, §8.1, §8.2, §8.7, §8.8 | R-4.9-04, R-5.10-06, R-5.10-08, R-5.10-09, R-5.10-10, R-5.10-11, R-7.9-02, R-7.9-03, R-7.9-04, R-7.9-05, R-7.9-06, R-7.9-07, R-7.9-08, R-7.9-09, R-7.10-24, R-7.11-01, R-7.12-03, R-7.14-02, R-8.1-02, R-8.2-02, R-8.7-02, R-8.8-01 |
+| [`N-Totals`](screens/N-Totals.png) ([HTML](screens/N-Totals.html)) | The national system: the Ministry's totals, wilayas named for what is owed | PC | Ministry | National | §1.11, §5.10, §7.9, §7.10, §8.1, §8.2, §8.7, §8.8 | R-5.10-06, R-5.10-08, R-5.10-09, R-5.10-10, R-7.9-03, R-7.9-07, R-7.9-08, R-7.9-09, R-7.10-26, R-8.1-02, R-8.2-02, R-8.7-02, R-8.8-01, R-7.9-01 |
+| [`Ops-Console`](screens/Ops-Console.png) ([HTML](screens/Ops-Console.html)) | The national system: the operators' map, no key anywhere (a React Flow map) | PC | Operators | National | §5.8, §5.10, §6.7, §7.11, §7.12 | R-5.8-06, R-5.10-01, R-5.10-07, R-5.10-10, R-6.7-01, R-6.7-03, R-6.7-04, R-6.7-05, R-6.7-07, R-6.7-08, R-6.7-09, R-6.7-10, R-6.7-11, R-6.7-12, R-6.7-13, R-7.11-01, R-7.11-06, R-7.11-07, R-7.12-06, R-7.12-08 |
 
 ## The exam threshold at every level (example 2029/30)
 
@@ -376,15 +385,15 @@ Yes, except 1 requirement partly designed: R-6.2-02 (Privacy still shows a place
 | [`T-Threshold-propose`](screens/T-Threshold-propose.png) ([HTML](screens/T-Threshold-propose.html)) | The national system: no cut yet, proposing one first, or none for this exam | Phone | Teacher | National | §3.2, §3.3, §7.10 | R-3.2-06, R-3.3-36, R-7.10-03 |
 | [`T-Threshold-after`](screens/T-Threshold-after.png) ([HTML](screens/T-Threshold-after.html)) | The national system: the school's cut published after the exam, with its figures | Phone | Teacher | National | §3.3, §7.10 | R-3.3-39, R-7.10-04 |
 | [`T-Threshold-moved`](screens/T-Threshold-moved.png) ([HTML](screens/T-Threshold-moved.html)) | The national system: an exam date moved, with its figures day and signing deadline | Phone | Teacher | National | §7.10 | R-7.10-06 |
-| [`T-Threshold-totals`](screens/T-Threshold-totals.png) ([HTML](screens/T-Threshold-totals.html)) | The national system: the directorate's totals on the phone, with no cut | Phone | Teacher | National | §3.3, §7.10 | R-3.3-35, R-7.10-02 |
-| [`D-Threshold`](screens/D-Threshold.png) ([HTML](screens/D-Threshold.html)) | The national system: the school's thresholds for its term exams, every subject | PC | Director | National | §2.6, §3.3, §7.10 | R-2.6-13, R-3.3-34, R-3.3-36, R-7.10-02, R-7.10-03 |
-| [`M-Threshold`](screens/M-Threshold.png) ([HTML](screens/M-Threshold.html)) | The national system: the directorate's threshold for its mock BEM | PC | Directorate | National | §7.10 | — |
-| [`N-Threshold`](screens/N-Threshold.png) ([HTML](screens/N-Threshold.html)) | The national system: the Ministry's BEM threshold, with the wilayas as a range | PC | Ministry | National | §7.10 | — |
-| [`N-Published`](screens/N-Published.png) ([HTML](screens/N-Published.html)) | The national system: what is published after the BEM, and how each threshold was set | PC | Ministry | National | §3.3, §7.10 | R-3.3-39, R-7.10-04, R-7.10-06, R-7.10-07 |
+| [`T-Threshold-totals`](screens/T-Threshold-totals.png) ([HTML](screens/T-Threshold-totals.html)) | The national system: the directorate's totals on the phone, with no cut | Phone | Teacher | National | §3.3, §7.10 | R-3.3-35, R-7.10-02, R-7.10-13 |
+| [`D-Threshold`](screens/D-Threshold.png) ([HTML](screens/D-Threshold.html)) | The national system: the school's thresholds for its term exams, every subject | PC | Director | National | §2.6, §3.3, §5.10, §7.6, §7.10, §7.14 | R-2.6-13, R-3.3-34, R-3.3-36, R-7.10-02, R-7.10-03, R-5.10-12, R-7.6-05, R-7.10-10, R-7.10-11, R-7.10-12, R-7.10-15, R-7.10-17, R-7.10-19, R-7.10-21, R-7.10-23, R-7.10-26, R-7.10-27, R-7.14-05 |
+| [`M-Threshold`](screens/M-Threshold.png) ([HTML](screens/M-Threshold.html)) | The national system: the directorate's threshold for its mock BEM | PC | Directorate | National | §1.11, §5.10, §7.9, §7.10, §7.14, §8.1, §8.2, §8.5, §8.7, §8.8 | R-5.10-06, R-5.10-09, R-5.10-11, R-5.10-12, R-7.9-02, R-7.9-03, R-7.9-04, R-7.9-07, R-7.9-08, R-7.9-09, R-7.10-10, R-7.10-13, R-7.10-15, R-7.10-16, R-7.10-17, R-7.10-18, R-7.10-20, R-7.10-21, R-7.10-22, R-7.10-24, R-7.10-26, R-7.10-27, R-7.14-02, R-7.14-06, R-8.1-02, R-8.2-02, R-8.5-02, R-8.7-02, R-8.8-01 |
+| [`N-Threshold`](screens/N-Threshold.png) ([HTML](screens/N-Threshold.html)) | The national system: the Ministry's BEM threshold, with the wilayas as a range | PC | Ministry | National | §1.11, §5.10, §7.9, §7.10, §7.14, §8.2, §8.5, §8.7 | R-5.10-06, R-5.10-09, R-5.10-11, R-5.10-12, R-7.9-03, R-7.9-08, R-7.9-09, R-7.10-10, R-7.10-14, R-7.10-15, R-7.10-16, R-7.10-17, R-7.10-18, R-7.10-20, R-7.10-22, R-7.10-25, R-7.10-26, R-7.10-27, R-7.14-06, R-8.2-02, R-8.5-02, R-8.7-02 |
+| [`N-Published`](screens/N-Published.png) ([HTML](screens/N-Published.html)) | The national system: what is published after the BEM, and how each threshold was set | PC | Ministry | National | §3.3, §5.10, §7.10, §8.5, §8.7, §8.8 | R-3.3-39, R-7.10-04, R-7.10-06, R-7.10-07, R-5.10-12, R-7.10-14, R-7.10-15, R-7.10-21, R-7.10-22, R-7.10-25, R-7.10-27, R-8.5-02, R-8.7-02, R-8.8-01 |
 
 ## Curators: the pack editor
 
 | Screen ID | Screen | Device | Who | Stage | PRD | Requirements |
 |---|---|---|---|---|---|---|
-| [`E-Migrate`](screens/E-Migrate.png) ([HTML](screens/E-Migrate.html)) | The pack editor: mapping item IDs from 2026.1 to 2026.2 | PC | Curators | Curators | §4.7 | R-4.7-41 |
-| [`E-Release`](screens/E-Release.png) ([HTML](screens/E-Release.html)) | The pack editor: release 2026.2, the checks and the two-person review | PC | Curators | Curators | §4.2 | R-4.2-10, R-4.2-16, R-4.2-17 |
+| [`E-Migrate`](screens/E-Migrate.png) ([HTML](screens/E-Migrate.html)) | The pack editor: mapping item IDs from 2026.1 to 2026.2 | PC | Curators | Curators | §4.2, §4.3, §4.4, §4.7, §6.7 | R-4.7-41, R-4.2-24, R-4.2-25, R-4.2-26, R-4.2-30, R-4.2-31, R-4.3-07, R-4.3-11, R-4.3-15, R-4.4-06, R-4.7-42, R-6.7-02 |
+| [`E-Release`](screens/E-Release.png) ([HTML](screens/E-Release.html)) | The pack editor: release 2026.2, the checks and the two-person review | PC | Curators | Curators | §4.2, §4.3, §4.4, §4.8, §6.7 | R-4.2-10, R-4.2-16, R-4.2-17, R-4.2-22, R-4.2-24, R-4.2-25, R-4.2-26, R-4.2-27, R-4.2-29, R-4.2-30, R-4.3-06, R-4.3-07, R-4.3-08, R-4.3-11, R-4.3-13, R-4.3-14, R-4.3-15, R-4.3-16, R-4.4-03, R-4.4-06, R-4.8-06, R-6.7-02 |
