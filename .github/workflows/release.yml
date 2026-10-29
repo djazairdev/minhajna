@@ -1,0 +1,407 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Releases the apps from their release commit (answers 533 to 538,
+# docs/contributing/releases.md). When main or a release branch gets a
+# versionName with no tag yet, and CHANGELOG.md dates that version, the
+# Android and Test workflows build and check it, the web app's ZIP is packed
+# again at another path and compared, and the release-signing environment
+# waits for the release manager's approval. Only that job reaches the signing
+# keys: it signs the APKs and the tag, then publishes the release. The newest
+# release's ZIP is then deployed to the PC web app's host and checked there.
+# A pull request that changes these tools rehearses everything up to the
+# notes and a local host, with no key, no tag, nothing published and no
+# deploy.
+
+name: Release
+
+on:
+  push:
+    branches: [main, 'release/*']
+    paths:
+      - CHANGELOG.md
+      - apps/android/android/app/build.gradle
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - tools/release/**
+      - apps/web/host/**
+      - apps/web/scripts/worker.ts
+      - apps/web/scripts/host.ts
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  BUILD_TOOLS: '37.0.0'
+  # The certificate of every official APK since 0.1.0 (releases.md#signing).
+  CERTIFICATE: de2a5a7839bb88733456078bb937179f43ff99004d2408cb965093aa0aed6a5b
+  # The release manager's tag key (answer 536).
+  TAG_KEY_FINGERPRINT: SHA256:x6jHuuaYifgkKf44eLD4aPSDfDI0LtAoVRAv/CpKWMA
+  HOST: https://minhajna.djazair.dev
+  # Wrangler would otherwise send usage data to Cloudflare.
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  plan:
+    name: Which release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      build: ${{ steps.plan.outputs.build }}
+      release: ${{ steps.plan.outputs.release }}
+      prerelease: ${{ steps.plan.outputs.prerelease }}
+      latest: ${{ steps.plan.outputs.latest }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Read the version, its changelog and the tags
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          git ls-remote --tags --refs origin > "$RUNNER_TEMP/tags"
+          node tools/release/plan.js "$EVENT" "$RUNNER_TEMP/tags" >> "$GITHUB_OUTPUT"
+
+  android:
+    name: Android
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/android.yml
+
+  test:
+    name: Test
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/test.yml
+
+  web:
+    name: Same web ZIP twice
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the code at another path
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: another/copy/of/minhajna
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      # The three lockfiles, as the Test workflow installs them (releases.md,
+      # item 12). Their .npmrc files stop install scripts.
+      - name: Install the locked dependencies
+        working-directory: another/copy/of/minhajna
+        run: |
+          npm ci --no-audit
+          (cd apps/android && npm ci --no-audit)
+          (cd apps/web && npm ci --no-audit)
+
+      - name: Pack the web app
+        working-directory: another/copy/of/minhajna/apps/web
+        run: npm run build && npm run zip
+
+      - name: Download the Test workflow's ZIP
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-zip
+          path: web-zip
+
+      - name: Compare them byte for byte
+        run: |
+          for zip in web-zip/*.zip; do
+            cmp "$zip" "another/copy/of/minhajna/apps/web/release/$(basename "$zip")"
+          done
+          sha256sum web-zip/*.zip
+
+  rehearsal:
+    name: Notes and host, rehearsed
+    needs: [plan, android, web]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Download the build's files
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: '{apk-first,maps-first,web-zip}'
+
+      - name: Name the unsigned files as a release names its files
+        run: |
+          mkdir release
+          cp apk-first/app-universal-release-unsigned.apk "release/minhajna-$VERSION.apk"
+          for abi in armeabi-v7a arm64-v8a; do
+            cp "apk-first/app-$abi-release-unsigned.apk" "release/minhajna-$VERSION-$abi.apk"
+          done
+          cp maps-first/* web-zip/*.zip release/
+
+      - name: Write the checksums and the notes
+        env:
+          COMMIT: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node tools/release/assemble.js release --rehearsal
+
+      - name: Keep the rehearsed notes
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-rehearsal
+          path: |
+            release/release-notes.md
+            release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Install the host's deploy tool
+        working-directory: apps/web/host
+        run: npm ci --no-audit
+
+      - name: Unzip the build where the host takes it
+        run: |
+          mkdir -p apps/web/release/dist
+          unzip -q "release/minhajna-web-$VERSION.zip" -d apps/web/release/dist
+
+      # Cloudflare's runtime on the runner, with the Worker and the build, as
+      # the host serves them; the host check must pass against it.
+      - name: Serve the build as the host does, and check it
+        run: |
+          checksum=$(jq -r .sha256 apps/web/release/dist/build.json)
+          (cd apps/web/host && node_modules/.bin/wrangler dev --ip 127.0.0.1 --port 8787 \
+            --local-upstream 127.0.0.1:8787 > "$RUNNER_TEMP/wrangler.log" 2>&1 &)
+          for attempt in $(seq 1 60); do
+            curl -s -o /dev/null http://127.0.0.1:8787/build.json && break
+            sleep 1
+          done
+          (cd apps/web && node scripts/check-host.ts http://127.0.0.1:8787 "$checksum") || {
+            cat "$RUNNER_TEMP/wrangler.log"
+            exit 1
+          }
+
+      - name: Bundle the Worker as a deploy would
+        working-directory: apps/web/host
+        run: node_modules/.bin/wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+
+  release:
+    name: Sign and publish
+    needs: [plan, android, web]
+    if: needs.plan.outputs.release == 'true' && github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # Only main and release/* may use it, and the release manager approves
+    # each run (releases.md#signing).
+    environment: release-signing
+    permissions:
+      contents: write
+      issues: read
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Download the build's files
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: '{apk-first,maps-first,web-zip}'
+
+      # The runner's image need not hold this version of the build tools.
+      - name: Install the build tools
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "build-tools;$BUILD_TOOLS" > /dev/null'
+
+      # As the session guide's "Making the preview": alignment preserved, no
+      # v1 scheme. The keystore lives on the runner's disk for this step only.
+      - name: Sign the three APKs
+        env:
+          KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+          KSPASS: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+        run: |
+          if [[ -z "$KEYSTORE" || -z "$KSPASS" ]]; then
+            missing="RELEASE_KEYSTORE or RELEASE_KEYSTORE_PASSWORD"
+            echo "::error title=Signing::release-signing has no $missing (releases.md#setting-it-up)"
+            exit 1
+          fi
+          umask 077
+          keystore="$RUNNER_TEMP/release.jks"
+          trap 'rm -f "$keystore"' EXIT
+          base64 --decode <<< "$KEYSTORE" > "$keystore"
+          mkdir release
+          for abi in universal armeabi-v7a arm64-v8a; do
+            if [[ $abi == universal ]]; then out="minhajna-$VERSION.apk"; else out="minhajna-$VERSION-$abi.apk"; fi
+            "$ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner" sign --ks "$keystore" --ks-key-alias minhajna \
+              --ks-pass env:KSPASS --key-pass env:KSPASS --alignment-preserved \
+              --v1-signing-enabled false --v4-signing-enabled false \
+              --out "release/$out" "apk-first/app-$abi-release-unsigned.apk"
+          done
+
+      - name: Check each APK's certificate, and that it is its build plus a signature
+        run: |
+          pairs=()
+          for abi in universal armeabi-v7a arm64-v8a; do
+            if [[ $abi == universal ]]; then out="minhajna-$VERSION.apk"; else out="minhajna-$VERSION-$abi.apk"; fi
+            if ! "$ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner" verify --print-certs "release/$out" |
+              grep -q "certificate SHA-256 digest: $CERTIFICATE\$"; then
+              echo "::error title=Signing::$out is not signed with the project's certificate"
+              exit 1
+            fi
+            pairs+=("release/$out" "apk-first/app-$abi-release-unsigned.apk")
+          done
+          node tools/release/signed-apk.js "${pairs[@]}"
+
+      - name: Find the release's checklist issue
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh issue list -R "$GITHUB_REPOSITORY" --state all --search "\"Release $VERSION\" in:title" \
+            --json number,title | jq -r --arg title "Release $VERSION" \
+            'map(select(.title == $title or (.title | startswith($title + ":")))) | .[0].number // empty')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - name: Write the checksums and the notes
+        env:
+          COMMIT: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ISSUE: ${{ steps.issue.outputs.number }}
+        run: |
+          cp maps-first/* web-zip/*.zip release/
+          node tools/release/assemble.js release
+
+      # The release manager's own key (answer 536).
+      - name: Sign and push the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_KEY: ${{ secrets.RELEASE_TAG_KEY }}
+          TAG_KEY_PASSPHRASE: ${{ secrets.RELEASE_TAG_KEY_PASSPHRASE }}
+          TAGGER_NAME: ${{ vars.RELEASE_TAGGER_NAME }}
+          TAGGER_EMAIL: ${{ vars.RELEASE_TAGGER_EMAIL }}
+        run: tools/release/sign-tag.sh
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ needs.plan.outputs.prerelease }}
+          LATEST: ${{ needs.plan.outputs.latest }}
+        run: tools/release/publish.sh
+
+  deploy:
+    name: Deploy the PC web app
+    needs: [plan, release]
+    if: github.event_name == 'push' && needs.release.result == 'success' && needs.plan.outputs.latest == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      # The published ZIP, checked against the published checksums, never
+      # a copy from the build (web-host.md#deploying-a-release).
+      - name: Download the release's ZIP and check it
+        id: zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip="minhajna-web-$VERSION.zip"
+          gh release download "v$VERSION" -R "$GITHUB_REPOSITORY" -D published -p "$zip" -p SHA256SUMS.txt
+          (cd published && grep "  $zip\$" SHA256SUMS.txt | sha256sum --check --strict)
+          mkdir -p apps/web/release/dist
+          unzip -q "published/$zip" -d apps/web/release/dist
+          echo "checksum=$(jq -r .sha256 apps/web/release/dist/build.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse to replace a newer build
+        run: |
+          served=$(curl -fsS --max-time 20 "$HOST/build.json" | jq -r .version || true)
+          if [[ -n "$served" ]] && node --input-type=module -e "
+            import { compareVersions } from './tools/release/plan.js';
+            process.exit(compareVersions(process.argv[1], process.argv[2]) > 0 ? 0 : 1);
+          " "$served" "$VERSION"; then
+            echo "::error title=Deploy::$HOST serves $served, newer than $VERSION"
+            exit 1
+          fi
+          echo "$HOST serves ${served:-nothing yet}"
+
+      - name: Install the host's deploy tool
+        working-directory: apps/web/host
+        run: npm ci --no-audit
+
+      - name: Deploy the build
+        working-directory: apps/web/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node_modules/.bin/wrangler deploy
+
+      # A first deploy waits for the address's certificate.
+      - name: Check the host
+        working-directory: apps/web
+        env:
+          CHECKSUM: ${{ steps.zip.outputs.checksum }}
+        run: |
+          for attempt in $(seq 1 20); do
+            if node scripts/check-host.ts "$HOST" "$CHECKSUM"; then exit 0; fi
+            sleep 30
+          done
+          exit 1

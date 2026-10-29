@@ -1,0 +1,25 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The PC web app's host on Cloudflare (answers 534, 537 and 538): one Worker
+// at https://minhajna.djazair.dev, in front of the release's files that the
+// release workflow unzips into apps/web/release/dist/. The Worker answers
+// every request itself (scripts/worker.ts), so no file is served without the
+// host's headers and no path is redirected or rewritten. It has no
+// workers.dev or preview address, and its logs stay off.
+{
+  "name": "minhajna-web",
+  "main": "../scripts/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "minhajna.djazair.dev", "custom_domain": true }],
+  "assets": {
+    "directory": "../release/dist",
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "run_worker_first": true,
+  },
+  "observability": { "enabled": false },
+}

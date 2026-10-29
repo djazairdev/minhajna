@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # The build, the type checks, the linter and the tests
-# (docs/contributing/workflow.md#pull-requests).
+# (docs/contributing/workflow.md#pull-requests). The release workflow calls it
+# before a release (release.yml).
 
 name: Test
 
@@ -10,11 +11,13 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_call:
 
 permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Called by the release workflow, github.workflow names the caller.
+  group: test-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:

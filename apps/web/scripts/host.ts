@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What a host of the PC web app serves (answers 528, 531 and 532), shared by
+// What a host of the PC web app serves (answers 528, 531 and 537), shared by
 // the local server and the host check so that both hold to the same rules:
 // the files of one build and nothing else, each with its media type, never
 // cached by the browser or a proxy, with the page's own security policy as
