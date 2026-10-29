@@ -371,8 +371,17 @@ jobs:
           unzip -q "published/$zip" -d apps/web/release/dist
           echo "checksum=$(jq -r .sha256 apps/web/release/dist/build.json)" >> "$GITHUB_OUTPUT"
 
+      # Before the first deploy the address has no record. The zone's own
+      # name server is asked first, so the runner's resolvers never cache a
+      # "no such address" answer that the host check would then get.
       - name: Refuse to replace a newer build
         run: |
+          name=${HOST#https://}
+          zone=$(dig +short NS "${name#*.}" | head -1 || true)
+          if [[ -n "$zone" && -z "$(dig +short "$name" @"$zone")" ]]; then
+            echo "$HOST has no address yet"
+            exit 0
+          fi
           served=$(curl -fsS --max-time 20 "$HOST/build.json" | jq -r .version || true)
           if [[ -n "$served" ]] && node --input-type=module -e "
             import { compareVersions } from './tools/release/plan.js';
@@ -394,13 +403,16 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: node_modules/.bin/wrangler deploy
 
-      # A first deploy waits for the address's certificate.
+      # A first deploy waits for the address's record and certificate. The
+      # runner's resolver may hold the "no such address" answer from the
+      # refuse step, so it is flushed before each attempt.
       - name: Check the host
         working-directory: apps/web
         env:
           CHECKSUM: ${{ steps.zip.outputs.checksum }}
         run: |
           for attempt in $(seq 1 20); do
+            sudo resolvectl flush-caches || true
             if node scripts/check-host.ts "$HOST" "$CHECKSUM"; then exit 0; fi
             sleep 30
           done
