@@ -8,8 +8,9 @@
 // every font alias of the phone app, every drawable as an SVG, a licence
 // notice for every package in the bundle, and among the files the checksum
 // covers, the version and the release's notes (answer 517), the notes only
-// when written for that version. The browser's own install and
-// offline start are checked by hand (docs/checks/web-shell.md).
+// when written for that version. A warning stops the build as an error
+// does. The browser's own install and offline start are checked by hand
+// (docs/checks/web-shell.md).
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -17,7 +18,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { androidVersion, releaseNotes } from '../scripts/build.ts';
+import { androidVersion, releaseNotes, stopsBuild } from '../scripts/build.ts';
 import { checksum, fileHashes } from '../scripts/hashes.ts';
 
 const root = new URL('../', import.meta.url);
@@ -91,6 +92,12 @@ describe('the web bundle', () => {
     assert.throws(() => releaseNotes(written(lines(6)), '9.9.9', 99), /at most five/u);
     assert.throws(() => releaseNotes(written(lines(2), lines(1)), '9.9.9', 99), /as many lines/u);
     assert.throws(() => releaseNotes(written(['x'.repeat(161)]), '9.9.9', 99), /at most five/u);
+  });
+
+  it('stops at a warning as at an error, as a missing package gives one', () => {
+    assert.equal(stopsBuild({ errors: [], warnings: [] }), false);
+    assert.equal(stopsBuild({ errors: [], warnings: [{ text: 'Cannot find base config file' }] }), true);
+    assert.equal(stopsBuild({ errors: [{ text: 'Could not resolve' }], warnings: [] }), true);
   });
 
   it('builds the version into the bundle for crash reports', () => {

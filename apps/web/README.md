@@ -6,13 +6,15 @@ The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250), and i
 
 ## Build and try it
 
+From the repository's root, install the three lockfiles, as CI does, then build and serve:
+
 ```bash
-npm ci
+npm ci && (cd apps/android && npm ci) && cd apps/web && npm ci
 npm run build
 npm run serve
 ```
 
-Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answers on this computer only and serves `dist/` and nothing else, with the host's headers.
+The build reads the Android app's code and its TypeScript settings, so it stops at any warning, such as a package left uninstalled, rather than build a different bundle. Then open <http://127.0.0.1:4180/> in Chrome, Edge or Firefox. The server answers on this computer only and serves `dist/` and nothing else, with the host's headers.
 
 - `npm test` builds the bundle twice and checks it.
 - `npm run typecheck` checks the web code and the scripts.

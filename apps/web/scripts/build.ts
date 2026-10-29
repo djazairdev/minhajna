@@ -12,7 +12,9 @@
 // sources give the same checksum. notes.json, among the files, holds the
 // version and version code, so the checksum covers them, and the release's
 // short notes in each language (answer 517), from release-notes.json when
-// it is written for this version, else none.
+// it is written for this version, else none. A warning stops the build as an
+// error does: a package left uninstalled, such as the Android app's
+// TypeScript base config, would otherwise change the bundle without a word.
 
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -82,6 +84,11 @@ export function releaseNotes(text: string, version: string, versionCode: number)
   return { version, versionCode, ar, fr, en };
 }
 
+/** Whether esbuild's result stops the build: any error, or any warning. */
+export function stopsBuild(result: { errors: readonly unknown[]; warnings: readonly unknown[] }): boolean {
+  return result.errors.length > 0 || result.warnings.length > 0;
+}
+
 async function main() {
   const { version, versionCode } = androidVersion(
     readFileSync(new URL('apps/android/android/app/build.gradle', repository), 'utf8'),
@@ -113,7 +120,13 @@ async function main() {
     logLevel: 'warning',
     metafile: true,
   });
-  if (result.errors.length > 0) process.exit(1);
+  if (stopsBuild(result)) {
+    const count = result.warnings.length;
+    process.stderr.write(
+      `Warnings: ${count}. The build stops. Run npm ci at the root, in apps/android and apps/web.\n`,
+    );
+    process.exit(1);
+  }
   const face = (family: string, file: string, weight: number) =>
     `@font-face { font-family: '${family}'; src: url('./fonts/${file}.ttf') format('truetype'); font-weight: ${weight}; font-display: block; }`;
   const faces = FONTS.flatMap(([family, file, weight, latin]) => {
