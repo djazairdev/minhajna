@@ -364,6 +364,7 @@ Yes, except 1 requirement partly designed: R-6.2-02 (Privacy still shows a place
 | [`M-Grant`](screens/M-Grant.png) ([HTML](screens/M-Grant.html)) | The national system: the directorate grants an inspector time-limited access | PC | Directorate | National | §7.8 | R-7.8-02, R-7.8-05 |
 | [`I-Grant`](screens/I-Grant.png) ([HTML](screens/I-Grant.html)) | The national system: the inspector's phone during a grant, with the spot-check sheet | Phone | Inspector | National | §1.11, §7.8 | R-1.11-05, R-7.8-05 |
 | [`M-Totals`](screens/M-Totals.png) ([HTML](screens/M-Totals.html)) | The national system: the directorate's totals, what the system owes teachers and the curriculum report | PC | Directorate | National | §4.9 | R-4.9-04 |
+| [`N-Totals`](screens/N-Totals.png) ([HTML](screens/N-Totals.html)) | The national system: the Ministry's totals, wilayas named for what is owed | PC | Ministry | National | §5.10, §7.9 | R-7.9-01 |
 | [`Ops-Console`](screens/Ops-Console.png) ([HTML](screens/Ops-Console.html)) | The national system: the operators' map, no key anywhere (a React Flow map) | PC | Operators | National | §5.8 | R-5.8-06 |
 
 ## The exam threshold at every level (example 2029/30)

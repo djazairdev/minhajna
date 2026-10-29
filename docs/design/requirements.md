@@ -1,6 +1,6 @@
 # Requirements and their screens
 
-Every teacher-facing requirement of the PRD, one line each, with the screens that meet it and what is still missing. IDs are `R-<PRD section>-<number>`. Line numbers in the PRD column refer to [`docs/prd/PRD.md`](../prd/PRD.md) as of 4 Oct 2026. Coverage: *designed*, *partial*, *missing*, or *n/a (rule)* for a rule that needs no screen of its own.
+Every teacher-facing requirement of the PRD, one line each, and last the requirements above the school added later, with the screens that meet them and what is still missing. IDs are `R-<PRD section>-<number>`. Line numbers in the PRD column refer to [`docs/prd/PRD.md`](../prd/PRD.md) as of 4 Oct 2026. Coverage: *designed*, *partial*, *missing*, or *n/a (rule)* for a rule that needs no screen of its own.
 
 ## A. Getting started, Today and roll call (§2.3, §2.5–2.6, §3.1–3.4)
 
@@ -596,3 +596,11 @@ Every teacher-facing requirement of the PRD, one line each, with the screens tha
 | R-8.4-02 | Indicators carry their class count and the self-selection note; end-of-term position as a median and a spread | §8.4 l.2337–2341 | Insights-compare | designed | — |
 | R-8.4-03 | Shares near 0% or 100% in small cells are shown in bands | §8.4 l.2346 | Insights-compare | designed | — |
 | R-8.4-04 | The comparison is worked out on the device from published figures; nothing about the class is sent | §8.4 l.2348 | Insights-compare | designed | — |
+
+## Above the school, added after the audits
+
+Requirements of the screens above the school, which the teacher-facing audits left out. They are not counted in the screen map's totals.
+
+| ID | Requirement | PRD | Screens | Coverage | What is missing or wrong |
+|---|---|---|---|---|---|
+| R-7.9-01 | The Ministry sees its totals: what the system owes teachers (cover given, vacant posts, weekly hours without a teacher, sessions lost to closures) by named wilaya, in the official order and never sorted, and the curriculum report with the wilayas only as a range (all of them, and the middle half), never named or ranked. Only on announced days; each figure covers at least 10 teachers and 3 schools, and smaller cells are hidden, also from subtraction | §7.9; §5.10; answer 539 | Batch 3: N-Totals | designed | — |
