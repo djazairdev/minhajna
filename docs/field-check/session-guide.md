@@ -85,7 +85,7 @@ Uninstall through **Settings › Apps › Minhajna**, or erase everything first 
 <details>
 <summary>Build, sign and publish</summary>
 
-For the maintainer who releases it ([releases.md](../contributing/releases.md#signing)):
+[The release workflow](../contributing/releases.md#the-release-workflow) builds, signs and publishes each preview once the release manager approves it. These steps do the same by hand, for the maintainer who releases it when the workflow cannot run ([releases.md](../contributing/releases.md#signing)):
 
 1. Build the release APKs from the tagged commit, as in [the Android build check](../checks/android-build.md#repeating-the-build). There are three: the universal APK, with both supported ARM processor types, and the smaller APKs for 32-bit and 64-bit ARM separately. They come out unsigned, so that two builds can be compared, and each has its own version code ([versioning.md](../contributing/versioning.md#the-apps)).
 2. Sign each one with the project's key, which never enters the repository. Sign without moving the files inside the APK, so the signature can be checked against any rebuild ([Checking a signed APK](../checks/android-build.md#checking-a-signed-apk)):

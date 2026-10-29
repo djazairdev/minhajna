@@ -5,7 +5,8 @@
 # release APK (universal, 32-bit and 64-bit ARM) must be the same byte for byte
 # in both copies, ask for no permission but the biometric prompt's, and hold no
 # code that F-Droid's scanner knows as non-free (docs/checks/android-build.md).
-# The maps that read crash reports must be the same in both copies too.
+# The maps that read crash reports must be the same in both copies too. The
+# release workflow calls it to build a release (release.yml).
 
 name: Android
 
@@ -29,11 +30,13 @@ on:
       - tools/android/**
       - docs/design/system/tokens.json
       - .github/workflows/android.yml
+  workflow_call:
 
 permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Called by the release workflow, github.workflow names the caller.
+  group: android-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:

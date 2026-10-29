@@ -5,10 +5,10 @@
 // made-up build in a folder of its own, as the real dist/ is rebuilt by
 // another test meanwhile: the ZIP packs to the same bytes twice, opens in
 // zip.js to the build's files, and is refused for a changed file; the local
-// server passes the check, which finds a changed file, another checksum
-// than the release's, missing headers, a cookie, a redirect, a page given
-// for a file the build does not hold, and plain HTTP or no release checksum
-// away from this computer.
+// server passes the check, which finds a changed file, another checksum than
+// the release's, missing headers, a cookie, a reporting header, a redirect, a
+// page given for a file the build does not hold, and plain HTTP or no release
+// checksum away from this computer.
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -104,7 +104,7 @@ describe('the host check', () => {
     const loose = createServer((request, response) => {
       const name = (request.url ?? '/').slice(1) || 'index.html';
       const file = existsSync(new URL(name, folder)) ? name : 'index.html';
-      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Set-Cookie': 'made=up' });
+      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Set-Cookie': 'made=up', NEL: '{}' });
       response.end(readFileSync(new URL(file, folder)));
     });
     const problems = await checkHost(await started(loose));
@@ -113,6 +113,7 @@ describe('the host check', () => {
     );
     assert.ok(problems.includes('index.html: Cache-Control is missing, not no-store'));
     assert.ok(problems.some((problem) => problem.endsWith(': sets a cookie')));
+    assert.ok(problems.some((problem) => problem.endsWith(': sends NEL')));
     assert.ok(problems.includes('a file outside the build: status 200, not 404'));
   });
 
