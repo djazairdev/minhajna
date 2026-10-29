@@ -205,7 +205,8 @@
       }
     },
     "pc": {
-      "notice": "Receive a closure notice from your school or a colleague as a file, read on this PC without a network. Review its source and school before adding it; the sender’s identity is not authenticated."
+      "notice": "Receive a closure notice from your school or a colleague as a file, read on this PC without a network. Review its source and school before adding it; the sender’s identity is not authenticated.",
+      "privacy": "This PC uses no camera. A file opens through the browser’s file dialog, which gives the app no access to your other files."
     }
   },
   "update": {
