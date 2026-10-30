@@ -12,6 +12,12 @@
 // all, so a file changed after signing is refused and nothing is applied.
 // The file is read strictly: other fields, another format or a newer major
 // version are refused, and a newer minor version is read as far as known.
+// A file signed with a demo world's key names the world (#556, choice D4):
+// its signature covers the world's mark before the payload, so it opens
+// only in that world, and a world opens only its own files. Real mode,
+// which names no world, refuses any file that names one. A world's keys
+// never enter real mode's list, and their IDs start with `world-`: real
+// mode refuses a file signed with such a key, and a world any other.
 
 import { at, isFields, Reader, type ParseResult } from './read.ts';
 import type { LocalizedText } from './reference.ts';
@@ -77,12 +83,26 @@ export function utf8Length(text: string): number | null {
   return bytes;
 }
 
-/** Reads a signed file and checks its signature with one of `keys`; the payload is parsed only once it checks. */
+/** How every demo world's key ID starts, and no real key's. */
+export const WORLD_KEY_PREFIX = 'world-';
+
+/** What a world's key signs for a payload: the world's mark, then the payload. */
+export function worldSignedText(world: string, payload: string): string {
+  return `minhajna/world/1\n${world}\n${payload}`;
+}
+
+/**
+ * Reads a signed file and checks its signature with one of `keys`; the
+ * payload is parsed only once it checks. Inside a demo world, `world` names
+ * it, and only a file that names the same world opens; otherwise a file
+ * that names a world is refused.
+ */
 export async function openSigned(
   text: string,
   keys: readonly TrustedKey[],
   verify: Verifier,
   limit = SIGNED_BYTES,
+  world: string | null = null,
 ): Promise<Opened> {
   const bytes = text.length > limit ? null : utf8Length(text);
   if (bytes === null || bytes > limit) return { ok: false, problem: 'invalid' };
@@ -96,7 +116,7 @@ export async function openSigned(
   const version = readVersion(raw['version']);
   if (version?.major !== 1) return { ok: false, problem: 'version' };
   const { key: id, payload, signature } = raw;
-  const known = ['format', 'version', 'key', 'payload', 'signature'];
+  const known = ['format', 'version', 'key', 'payload', 'signature', ...(world === null ? [] : ['world'])];
   if (
     Object.keys(raw).some((name) => !known.includes(name)) ||
     typeof id !== 'string' ||
@@ -106,12 +126,16 @@ export async function openSigned(
     utf8Length(payload) === null ||
     typeof signature !== 'string' ||
     signature.length > 200 ||
-    !BASE64.test(signature)
+    !BASE64.test(signature) ||
+    (world !== null && raw['world'] !== world)
   )
     return { ok: false, problem: 'invalid' };
   const key = keys.find((one) => one.id === id);
-  if (key === undefined) return { ok: false, problem: 'unknown-key' };
-  const checks = await verify(key.spki, payload, signature).catch(() => false);
+  if (key === undefined || (world !== null) !== key.id.startsWith(WORLD_KEY_PREFIX)) {
+    return { ok: false, problem: 'unknown-key' };
+  }
+  const signed = world === null ? payload : worldSignedText(world, payload);
+  const checks = await verify(key.spki, signed, signature).catch(() => false);
   if (!checks) return { ok: false, problem: 'signature', key };
   try {
     return { ok: true, key, minor: version.minor, payload: JSON.parse(payload) as unknown };
