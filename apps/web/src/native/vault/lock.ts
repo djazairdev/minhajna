@@ -9,7 +9,10 @@
 // to; locking forgets them. Every step runs after the one before,
 // and a try is counted in the same transaction that reads the count, so
 // neither two steps nor two tabs race over it. Errors carry the phone's
-// codes, and E_PASSPHRASE for a passphrase that does not fit.
+// codes, and E_PASSPHRASE for a passphrase that does not fit. While a
+// demo world is open in this tab (#558), the history is shut: what it
+// held is forgotten, and every step is refused with E_WORLD until the
+// world is left.
 
 import type { LockStatus, PinResult } from '../../../../android/src/native/NativeMinhajnaStorage';
 import { failed, readAttempts, waitLeft } from './attempts.ts';
@@ -43,6 +46,7 @@ interface Open {
 
 let opened: Open | null = null;
 let queue: Promise<unknown> = Promise.resolve();
+let world: string | null = null;
 const forgetters = new Set<() => void>();
 
 /** Has `forget` drop what the page holds from the open history whenever it locks. */
@@ -62,11 +66,38 @@ export function noSpace(error: unknown): unknown {
     : error;
 }
 
-/** Runs the step once the ones before it are done, whether they kept or failed. */
-export function serial<T>(step: () => Promise<T>): Promise<T> {
+function inTurn<T>(step: () => Promise<T>): Promise<T> {
   const next = queue.then(step, step);
   queue = next.catch(() => undefined);
   return next;
+}
+
+/** Runs the step once the ones before it are done, whether they kept or failed; refused while a world is open. */
+export function serial<T>(step: () => Promise<T>): Promise<T> {
+  return inTurn(() => (world === null ? step() : Promise.reject(coded('A demo world is open', 'E_WORLD'))));
+}
+
+/** The demo world open in this tab, if any. */
+export function openWorld(): string | null {
+  return world;
+}
+
+/** Shuts the history for a world once the steps before are done, forgetting what it held; one world at a time. */
+export function shutForWorld(id: string): Promise<void> {
+  return inTurn(() => {
+    if (world !== null && world !== id) return Promise.reject(coded('Another world is open', 'E_WORLD'));
+    world = id;
+    forgetOpened();
+    return Promise.resolve();
+  });
+}
+
+/** Lets the history open again, through its lock, once the world is left. */
+export function openAfterWorld(): Promise<void> {
+  return inTurn(() => {
+    world = null;
+    return Promise.resolve();
+  });
 }
 
 function openedVault(): Open {

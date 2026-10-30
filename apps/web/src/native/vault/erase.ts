@@ -8,18 +8,22 @@
 // interface language among them. A database the browser fails to delete leaves
 // everything as it was, the history still open. The app's own files stay in the
 // offline worker's cache, so it opens again without internet, empty as at
-// first. A tab of the app that holds the database open closes it when the
-// browser asks. One that keeps it open for longer than BLOCKED_FOR makes the
-// erase answer E_ERASE_WAITS: the delete cannot be called back, and this tab's
-// history waits behind it, so the page stays busy and asks for the other tabs
-// to be closed; once they are, the erase finishes and this tab starts again.
-// Every other tab reloads once the database is gone, so none goes on showing
-// what was erased. The tab that erased keeps a mark for itself alone, so its
-// next page says the PC was erased.
+// first. Every demo world's database goes too (#558), before the history's, so
+// a world the browser fails to delete leaves the history as it was; the worlds
+// are found among the browser's databases and in the settings' list. A tab of
+// the app that holds the database open closes it when the browser asks. One
+// that keeps it open for longer than BLOCKED_FOR makes the erase answer
+// E_ERASE_WAITS: the delete cannot be called back, and this tab's history waits
+// behind it, so the page stays busy and asks for the other tabs to be closed;
+// once they are, the erase finishes and this tab starts again. Every other tab
+// reloads once the database is gone, so none goes on showing what was erased.
+// The tab that erased keeps a mark for itself alone, so its next page says the
+// PC was erased.
 
 import { dropAllSettings, markErased } from '../web-settings.ts';
 import { closeDatabase, NAME } from './database.ts';
 import { coded, forgetOpened } from './lock.ts';
+import { isWorldDatabase, keptWorlds, worldDatabase } from './world-store.ts';
 
 const CHANNEL = 'minhajna-erase';
 /** How long another tab may keep the database open before the page is told the erase waits, in milliseconds. */
@@ -41,28 +45,46 @@ function finish(): void {
   channel?.postMessage('erased');
 }
 
-/** Erases everything the app keeps in this browser but its own files; the caller then restarts the app. */
-export async function eraseDevice(): Promise<void> {
-  await closeDatabase();
-  await new Promise<void>((resolve, reject) => {
-    const request = indexedDB.deleteDatabase(NAME);
+/**
+ * Deletes one database. One another tab keeps open for longer than
+ * BLOCKED_FOR calls `waits`, and the delete goes on once that tab lets go.
+ */
+function remove(name: string, waits: () => void): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(name);
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let late = false;
     request.onblocked = () => {
-      timer ??= setTimeout(() => {
-        late = true;
-        reject(coded('The erase waits for the app’s other tabs', 'E_ERASE_WAITS'));
-      }, BLOCKED_FOR);
+      timer ??= setTimeout(waits, BLOCKED_FOR);
     };
     request.onsuccess = () => {
       clearTimeout(timer);
-      finish();
-      if (!late) resolve();
-      else if (typeof location !== 'undefined') location.reload();
+      resolve();
     };
     request.onerror = () => {
       clearTimeout(timer);
       reject(request.error ?? new Error('The browser did not delete its database'));
     };
+  });
+}
+
+/** Erases everything the app keeps in this browser but its own files; the caller then restarts the app. */
+export async function eraseDevice(): Promise<void> {
+  await closeDatabase();
+  const listed = typeof indexedDB.databases === 'function' ? await indexedDB.databases() : [];
+  const named = listed.flatMap(({ name }) => (name && isWorldDatabase(name) ? [name] : []));
+  const worlds = [...new Set([...named, ...keptWorlds().map(worldDatabase)])];
+  await new Promise<void>((resolve, reject) => {
+    let late = false;
+    const waits = () => {
+      if (late) return;
+      late = true;
+      reject(coded('The erase waits for the app’s other tabs', 'E_ERASE_WAITS'));
+    };
+    void (async () => {
+      for (const name of [...worlds, NAME]) await remove(name, waits);
+      finish();
+      if (!late) resolve();
+      else if (typeof location !== 'undefined') location.reload();
+    })().catch(reject);
   });
 }

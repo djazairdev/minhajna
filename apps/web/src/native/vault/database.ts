@@ -65,7 +65,16 @@ export async function transact<T>(
   mode: IDBTransactionMode,
   work: (transaction: IDBTransaction) => () => T,
 ): Promise<T> {
-  const db = await database();
+  return inTransaction(await database(), stores, mode, work);
+}
+
+/** As `transact`, in another of the app's databases, such as a demo world's. */
+export function inTransaction<T>(
+  db: IDBDatabase,
+  stores: readonly StoreName[],
+  mode: IDBTransactionMode,
+  work: (transaction: IDBTransaction) => () => T,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const transaction = db.transaction(stores, mode, { durability: 'strict' });
     let result: (() => T) | null = null;
