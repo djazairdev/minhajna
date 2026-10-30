@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Rate limits on starting and joining worlds, and on the relay. A world
-// id is 25 bits, so joins are limited too, to keep guessing out of reach.
-// Requests are counted in 60 slices of each window, so a request costs the
-// same however many came before it. An IPv6 address counts by its /64,
-// since one client usually holds a whole /64. Addresses are held in memory
-// only until the first new slice after their window, and never logged or
-// stored. Behind Cloudflare the address comes from CF-Connecting-IP, which
-// is only read when the server is told it runs there.
+// Rate limits on starting and joining worlds, and on the relay, and a daily
+// quota of batches stored, so no address fills the store. A world id is 25
+// bits, so joins are limited too, to keep guessing out of reach. Requests
+// are counted in 60 slices of each window, so a request costs the same
+// however many came before it; the quota counts only batches stored. An
+// IPv6 address counts by its /64, since one client usually holds a whole
+// /64. Addresses are held in memory only until the first new slice after
+// their window, so up to a day for the quota, and never logged or stored.
+// Behind Cloudflare the address comes from CF-Connecting-IP, which is only
+// read when the server is told it runs there.
 
 import type { IncomingMessage } from 'node:http';
 import { isIPv4, isIPv6 } from 'node:net';
@@ -22,6 +24,8 @@ export interface Limit {
 export const START_LIMIT: Limit = { perAddress: 5, total: 120, windowMs: 60 * 60 * 1000 };
 export const JOIN_LIMIT: Limit = { perAddress: 60, total: 6000, windowMs: 10 * 60 * 1000 };
 export const RELAY_LIMIT: Limit = { perAddress: 1200, total: 120_000, windowMs: 10 * 60 * 1000 };
+/** Sealed batches stored per day: about 82 MB for one address; for everyone, a week of them fits the server's cap. */
+export const UPLOAD_LIMIT: Limit = { perAddress: 20_000, total: 140_000, windowMs: 24 * 60 * 60 * 1000 };
 
 const EVERYONE = '';
 
@@ -39,23 +43,37 @@ export class Limiter {
     private readonly now: () => number = Date.now,
   ) {}
 
-  /** Counts one more for the address, or answers false when it or everyone has had their share. */
-  take(address: string): boolean {
+  /** Answers whether `amount` more fits the address's share and everyone's, counting nothing. */
+  fits(address: string, amount = 1): boolean {
+    const { mine, all } = this.counts(address);
+    return sum(mine) + amount <= this.limit.perAddress && sum(all) + amount <= this.limit.total;
+  }
+
+  /** Counts `amount` more for the address, or answers false when it or everyone would go over their share. */
+  take(address: string, amount = 1): boolean {
+    if (!this.fits(address, amount)) return false;
+    this.charge(address, amount);
+    return true;
+  }
+
+  /** Counts `amount` more for the address whether it fits or not, for what was already done. */
+  charge(address: string, amount: number): void {
+    const { slice, mine, all } = this.counts(address);
+    for (const counts of [mine, all]) {
+      const last = counts.at(-1);
+      if (last?.slice === slice) last.count += amount;
+      else counts.push({ slice, count: amount });
+    }
+  }
+
+  private counts(address: string): { slice: number; mine: Counts; all: Counts } {
     const slice = Math.floor((this.now() * SLICES) / this.limit.windowMs);
     const oldest = slice - SLICES;
     if (slice !== this.lastSlice) {
       this.lastSlice = slice;
       for (const [key, counts] of this.seen) if ((counts.at(-1)?.slice ?? oldest) <= oldest) this.seen.delete(key);
     }
-    const mine = this.current(address, oldest);
-    const all = this.current(EVERYONE, oldest);
-    if (sum(mine) >= this.limit.perAddress || sum(all) >= this.limit.total) return false;
-    for (const counts of [mine, all]) {
-      const last = counts.at(-1);
-      if (last?.slice === slice) last.count += 1;
-      else counts.push({ slice, count: 1 });
-    }
-    return true;
+    return { slice, mine: this.current(address, oldest), all: this.current(EVERYONE, oldest) };
   }
 
   private current(key: string, oldest: number): Counts {

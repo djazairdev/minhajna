@@ -6,6 +6,7 @@
 // .../batches adds a stream's next sealed batches, all or none,
 // and GET .../batches?after=n reads them back in the order they arrived.
 // The server stores the ciphertext and the minimum it needs to hand it on.
+// Only batches stored count toward an address's daily quota.
 
 import {
   BadRequestException,
@@ -27,7 +28,8 @@ import {
   Req,
 } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { limitRequest, openWorld } from '../worlds/world-access.js';
+import { clientAddress } from '../worlds/limits.js';
+import { limitRequest, noWorld, openWorld, tooMany } from '../worlds/world-access.js';
 import { WORLD_STORE, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
 import { isSpaceId, MAX_PAGE, readSpace, readUpload } from './space-rules.js';
@@ -61,6 +63,7 @@ export class SpacesController {
     const read = readSpace(space, body);
     if ('problem' in read) throw new BadRequestException(read.problem);
     const added = await this.spaces.addSpace(world, space, read.kind);
+    if (added === 'gone') throw noWorld();
     if (added === 'other') throw new ConflictException('this space exists with another kind');
     if (added === 'full') throw new ConflictException('the world holds as many spaces as it may');
     return { kind: read.kind };
@@ -80,7 +83,11 @@ export class SpacesController {
     await this.findSpace(world, space);
     const upload = readUpload(body);
     if (typeof upload === 'string') throw new BadRequestException(upload);
+    const address = clientAddress(request, this.limiters.trustCloudflare);
+    if (!this.limiters.uploads.fits(address, upload.batches.length)) throw tooMany();
     const added = await this.spaces.addBatches(world, space, upload.stream, upload.first, upload.batches);
+    if (added === 'added') this.limiters.uploads.charge(address, upload.batches.length);
+    if (added === 'gone') throw noWorld();
     if (added === 'taken' || added === 'gap') {
       const next = await this.spaces.nextNumber(world, space, upload.stream);
       throw new ConflictException(`the stream's next batch is number ${next}`);

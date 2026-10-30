@@ -31,7 +31,7 @@ import type { IncomingMessage } from 'node:http';
 import type { Limiter } from './limits.js';
 import { limitRequest, openWorld } from './world-access.js';
 import { hashToken, holdsStarter, newStarterToken, nextAnnouncedDay, readWorldStart } from './world-rules.js';
-import { WORLD_STORE, type WorldStore } from './world-store.js';
+import { seventhDay, WORLD_STORE, type WorldStore } from './world-store.js';
 
 export const WORLD_LIMITERS = Symbol('WorldLimiters');
 
@@ -39,7 +39,10 @@ export interface WorldLimiters {
   readonly starts: Limiter;
   readonly joins: Limiter;
   readonly relay: Limiter;
+  readonly uploads: Limiter;
   readonly trustCloudflare: boolean;
+  /** The clock: rate limits, and the day a world starts on and is erased. */
+  readonly now: () => number;
 }
 
 @Controller('worlds')
@@ -56,7 +59,9 @@ export class WorldsController {
     const start = readWorldStart(body);
     if (typeof start === 'string') throw new BadRequestException(start);
     const starter = newStarterToken();
-    if (!(await this.store.add({ ...start, starterHash: hashToken(starter) }))) {
+    const today = new Date(this.limiters.now()).toISOString().slice(0, 10);
+    const world = { ...start, starterHash: hashToken(starter), erasesOn: seventhDay(today) };
+    if (!(await this.store.add(world))) {
       throw new ConflictException('a world with this id exists; draw a new code');
     }
     return { starter };

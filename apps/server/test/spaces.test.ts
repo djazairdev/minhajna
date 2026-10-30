@@ -12,7 +12,7 @@ import { after, before, describe, it } from 'node:test';
 import type { NestNodeApplication } from '@nestjs/platform-node';
 import { createApp } from '../src/app.js';
 import { SEALED_BATCH_BYTES } from '../src/spaces/space-rules.js';
-import { MemorySpaceStore } from '../src/spaces/space-store.js';
+import { MemorySpaceStore, StoreBusy } from '../src/spaces/space-store.js';
 import { MemoryWorldStore } from '../src/worlds/world-store.js';
 
 const OPEN = { perAddress: 10_000, total: 10_000, windowMs: 60_000 };
@@ -191,6 +191,65 @@ describe('the encrypted relay', () => {
         });
       assert.equal((await upload(0)).status, 201);
       assert.equal((await upload(1)).status, 507);
+    } finally {
+      await small.close();
+    }
+  });
+
+  it('answers 503 with Retry-After when the store is too busy', async () => {
+    const busy = new MemorySpaceStore();
+    busy.addBatches = () => Promise.reject(new StoreBusy());
+    const small = await createApp(false, { spaces: busy, starts: OPEN, joins: OPEN, relay: OPEN });
+    await small.listen(0, '127.0.0.1');
+    const url = await small.getUrl();
+    try {
+      const json = { 'content-type': 'application/json', 'x-world-pass': PASS };
+      const start = { world: WORLD, sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [], pass: PASS };
+      await fetch(`${url}/worlds`, { method: 'POST', headers: json, body: JSON.stringify(start) });
+      await fetch(`${url}/worlds/${WORLD}/spaces/${SCHOOL}`, {
+        method: 'PUT',
+        headers: json,
+        body: '{"kind":"school"}',
+      });
+      const res = await fetch(`${url}/worlds/${WORLD}/spaces/${SCHOOL}/batches`, {
+        method: 'POST',
+        headers: json,
+        body: JSON.stringify({ stream: SCHOOL, first: 0, batches: [await seal('made-up')] }),
+      });
+      assert.equal(res.status, 503);
+      assert.equal(res.headers.get('retry-after'), '5');
+      assert.equal(res.headers.get('cache-control'), 'no-store');
+    } finally {
+      await small.close();
+    }
+  });
+
+  it('answers 429 past the day’s quota of batches from one address, counting only batches stored', async () => {
+    const quota = { perAddress: 3, total: 100, windowMs: 86_400_000 };
+    const small = await createApp(false, { starts: OPEN, joins: OPEN, relay: OPEN, uploads: quota });
+    await small.listen(0, '127.0.0.1');
+    const url = await small.getUrl();
+    try {
+      const json = { 'content-type': 'application/json', 'x-world-pass': PASS };
+      const start = { world: WORLD, sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [], pass: PASS };
+      await fetch(`${url}/worlds`, { method: 'POST', headers: json, body: JSON.stringify(start) });
+      await fetch(`${url}/worlds/${WORLD}/spaces/${SCHOOL}`, {
+        method: 'PUT',
+        headers: json,
+        body: '{"kind":"school"}',
+      });
+      const one = await seal('made-up');
+      const upload = (first: number, count: number): Promise<Response> =>
+        fetch(`${url}/worlds/${WORLD}/spaces/${SCHOOL}/batches`, {
+          method: 'POST',
+          headers: json,
+          body: JSON.stringify({ stream: SCHOOL, first, batches: Array<string>(count).fill(one) }),
+        });
+      assert.equal((await upload(0, 2)).status, 201);
+      assert.equal((await upload(2, 2)).status, 429);
+      assert.equal((await upload(0, 1)).status, 409);
+      assert.equal((await upload(2, 1)).status, 201);
+      assert.equal((await upload(3, 1)).status, 429);
     } finally {
       await small.close();
     }

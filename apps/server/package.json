@@ -16,7 +16,7 @@
     "migrate": "node dist/src/storage/migrate.js",
     "diff": "node tools/prisma/node_modules/prisma/build/index.js migrate diff --config tools/prisma/prisma.config.ts --from-config-datasource --to-schema=prisma/schema.prisma",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test \"dist/test/*.test.js\""
+    "test": "npm run build && node --test --test-concurrency=1 \"dist/test/*.test.js\""
   },
   "dependencies": {
     "@nestjs/common": "12.3.2",
