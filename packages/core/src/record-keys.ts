@@ -139,6 +139,8 @@ export function recordKey(event: RecordEvent): string {
       return `app-updated:${event.updated?.build ?? ''}`;
     case 'copy.received':
       return 'copy-received';
+    case 'world.kept':
+      return 'world-kept';
     case 'statement.shared':
       return `statement-shared:${event.share.id}`;
     case 'statement.sent':

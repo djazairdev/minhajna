@@ -4,8 +4,11 @@
 // The device layer's events of the pilot's backups (#247, answer 478), of the
 // working copy handed to the teacher's other device and back (#250, answers 503
 // and 514), of the PC web app's updates (R-6.6-06), and of where a restored
-// copy came from (#251, answer 525), apart from devices.ts, which reads them,
+// copy came from (#251, answer 525), and of the demo world a store belongs to
+// (#560, answer 573), apart from devices.ts and world-kept.ts, which read them,
 // so the events module imports no module that imports it back.
+
+import type { WorldKind } from './world-keys.ts';
 
 export type DeviceEvent =
   /** The recovery key the teacher printed or wrote, then typed back to confirm it (answer 478). */
@@ -19,7 +22,16 @@ export type DeviceEvent =
   /** The PC web app installed an update the teacher accepted: its version and build checksum. */
   | { readonly kind: 'app.updated'; readonly updated: { readonly version: string; readonly build: string } }
   /** A copy restored into the empty history, by its route only: never the file, a key or the other device. */
-  | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute } };
+  | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute } }
+  /** In a demo world's own store: its kind and code, and the starter token where the world was started. */
+  | { readonly kind: 'world.kept'; readonly kept: WorldKept };
+
+/** A demo world's own facts, kept only in its store (answer 572). */
+export interface WorldKept {
+  readonly kind: WorldKind;
+  readonly code: string;
+  readonly starter: string | null;
+}
 
 /** A restore's routes: a transfer from the other device, a backup, or an export. */
 export type CopyRoute = 'phone' | 'backup' | 'archive';
@@ -35,6 +47,7 @@ export const DEVICE_KINDS = {
   'handover.ended': true,
   'app.updated': true,
   'copy.received': true,
+  'world.kept': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

@@ -9,7 +9,8 @@
 // mode, for a director or an inspector (#246, answer 490). The preview says
 // what it is before anything else (#48), and whether the PIN is set yet, for a
 // build that takes real names (#211). A PC whose tab has just erased it says
-// so first, for as long as the page lasts (Web-erase, answer 519).
+// so first, for as long as the page lasts (Web-erase, answer 519). Where the
+// app offers demo worlds, on a PC, the welcome leads to them (#560).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -18,6 +19,7 @@ import { Button } from '../components/Button';
 import { Facts } from '../components/Facts';
 import { Notice } from '../components/Notice';
 import { WelcomeHero } from '../components/WelcomeHero';
+import { useDemoDoor } from '../demo/demo-door';
 import { colors, spacing, typography } from '../design/tokens';
 import { PreviewNotice } from '../help/BuildFacts';
 import browser from '../native/NativeMinhajnaBrowser';
@@ -47,6 +49,7 @@ export function Welcome({
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useDeviceText();
+  const demo = useDemoDoor();
   const refusals = [referenceRefused && t('referenceRefused'), historyRefused && t('historyRefused')];
   return (
     <ScrollView
@@ -102,6 +105,11 @@ export function Welcome({
           {onRestore && (
             <View style={styles.restore}>
               <Button testID="welcome-restore" variant="plain" label={t('welcome.restore')} onPress={onRestore} />
+            </View>
+          )}
+          {demo !== null && (
+            <View style={styles.restore}>
+              <Button testID="welcome-demo" variant="plain" label={t('demo.open')} onPress={demo} />
             </View>
           )}
         </View>

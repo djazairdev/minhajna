@@ -10,7 +10,9 @@
 // browser has not agreed to keep the data, the page warns at each opening
 // (Web-unlock-risk, answer 511), saying too that clearing the site's data
 // deletes it either way; the first passphrase sent at each opening asks
-// the browser again, while the click still counts as the teacher's.
+// the browser again, while the click still counts as the teacher's. The
+// demo worlds open from here too, with no passphrase, since they never touch
+// the history (#560).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
@@ -18,6 +20,7 @@ import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { TextField } from '../components/TextField';
 import { colors, spacing, typography } from '../design/tokens';
+import { useDemoDoor } from '../demo/demo-door';
 import { useText } from '../text/i18n';
 import { askToKeep, useDataKept } from './browser-offers';
 import { errorCode, waitWording } from './lock-rules';
@@ -44,6 +47,7 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
   const [forgot, setForgot] = useState(false);
   const [erasing, setErasing] = useState(false);
   const kept = useDataKept();
+  const demo = useDemoDoor();
   const mounted = useRef(true);
   const asked = useRef(false);
 
@@ -152,6 +156,17 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
           style={styles.link}
         >
           <Text style={styles.linkText}>{t('lock.web.erase.link')}</Text>
+        </Pressable>
+      )}
+      {demo !== null && (
+        <Pressable
+          testID="passphrase-demo"
+          accessibilityRole="button"
+          disabled={busy}
+          onPress={demo}
+          style={styles.link}
+        >
+          <Text style={styles.linkText}>{t('demo.open')}</Text>
         </Pressable>
       )}
     </WebLockPage>

@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Jest has no native side: the app's storage, lock-settings, interface-language,
-// licence, notification and signature modules, and React Native's developer
-// menu, are Node fakes, fresh for each test file.
+// Jest has no native side: the app's storage, lock-settings,
+// interface-language, licence, notification, signature and demo world
+// modules, and React Native's developer menu, are Node fakes, fresh for each
+// test file.
 jest.mock('../src/native/NativeMinhajnaStorage', () => {
   const { FakeStorage } = jest.requireActual<typeof import('./fake-storage')>('./fake-storage');
   return { __esModule: true, default: new FakeStorage().asSpec() };
@@ -82,6 +83,12 @@ jest.mock('../src/native/NativeMinhajnaCrash', () => {
 jest.mock('../src/native/NativeMinhajnaSignature', () => {
   const { fakeSignature } = jest.requireActual<typeof import('./fake-signature')>('./fake-signature');
   return { __esModule: true, default: fakeSignature };
+});
+
+jest.mock('../src/native/NativeMinhajnaWorld', () => {
+  const { FakeWorld } = jest.requireActual<typeof import('./fake-world')>('./fake-world');
+  const { FakeStorage } = jest.requireActual<typeof import('./fake-storage')>('./fake-storage');
+  return { __esModule: true, default: new FakeWorld(new FakeStorage()).asSpec() };
 });
 
 jest.mock('../src/native/NativeMinhajnaCalendarInput', () => ({
