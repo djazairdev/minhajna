@@ -37,8 +37,10 @@ describe('npm run demo', () => {
     assert.deepEqual(words(preparation('/repo', { fresh: false }, () => true)), [
       '. docker compose -f apps/server/compose.yaml up --detach --wait',
       '. npm ci --no-audit --no-fund',
+      'apps/android npm ci --no-audit --no-fund',
       'apps/web npm ci --no-audit --no-fund',
       'apps/server npm ci --no-audit --no-fund',
+      'apps/server/tools/prisma npm ci --no-audit --no-fund',
       'apps/server npm run build',
       'apps/web npm run build',
     ]);

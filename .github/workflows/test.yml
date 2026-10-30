@@ -31,6 +31,21 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+    # The server's tests and its migrations check run against PostgreSQL,
+    # the same image as the local demo (apps/server/compose.yaml), on this
+    # runner only.
+    services:
+      postgres:
+        image: postgres:18.6-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
+        env:
+          POSTGRES_USER: minhajna
+          POSTGRES_DB: minhajna_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U minhajna -d minhajna_test"
+          --health-interval 2s --health-timeout 2s --health-retries 30
     steps:
       - name: Check out the code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,11 +79,14 @@ jobs:
         working-directory: apps/web
         run: npm ci --no-audit
 
-      # The server has its own lockfile too (#538); the linter checks it with
-      # NestJS's types. Its .npmrc stops install scripts.
+      # The server has its own lockfile too (#538), and Prisma's command line
+      # its own in tools/prisma (#542), so it never installs with the server.
+      # The linter checks the server with NestJS's types and its generated
+      # Prisma client, which needs no download. Both .npmrc files stop
+      # install scripts.
       - name: Install the server's locked dependencies
         working-directory: apps/server
-        run: npm ci --no-audit
+        run: npm ci --no-audit && npm run tools && npm run generate
 
       # The build and the linter run once the project has those scripts.
       - name: Build
@@ -83,9 +101,25 @@ jobs:
       - name: Test
         run: npm test
 
-      # The server's tests build it and start it on this machine only.
+      # The committed SQL migrations, applied to an empty database, must
+      # give exactly the tables schema.prisma describes: prisma migrate diff
+      # exits with 2 when they differ. It fetches Prisma's schema engine,
+      # here in CI only; the server itself never runs it.
+      - name: Check the server's migrations against its schema
+        working-directory: apps/server
+        env:
+          DATABASE_URL: postgresql://minhajna@127.0.0.1:5432/minhajna_test
+        run: |
+          npm run build
+          npm run migrate
+          npm run diff -- --exit-code
+
+      # The server's tests build it and start it on this machine only, and
+      # use the runner's PostgreSQL.
       - name: Type check and test the server
         working-directory: apps/server
+        env:
+          TEST_DATABASE_URL: postgresql://minhajna@127.0.0.1:5432/minhajna_test
         run: npm run typecheck && npm test
 
       # The web app's tests build its bundle twice and check it.

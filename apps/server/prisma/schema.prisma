@@ -1,0 +1,66 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The demo server's tables (#542, answers 550 and 551): worlds, their spaces
+// and the sealed batches the relay hands on, each row keyed by its world and
+// erased with it. Nothing here is named: ids the devices drew, hashes, days,
+// and ciphertext. A space counts its batches, and each batch takes the next
+// of that count as its place in the space, so readers page through a space
+// in the order uploads committed, and learn nothing of other spaces. Each
+// migration is generated from this schema with `prisma migrate diff
+// --script` and committed as plain SQL.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SpaceKind {
+  school
+  directorate
+  national
+}
+
+model World {
+  id            String     @id @db.Char(5)
+  sealed        String
+  date          DateTime   @db.Date
+  announcedDays DateTime[] @db.Date
+  starterHash   String     @db.Char(64)
+  passHash      String     @db.Char(64)
+  erasesOn      DateTime   @db.Date
+  spaces        Space[]
+
+  @@index([erasesOn])
+  @@map("world")
+}
+
+model Space {
+  worldId String    @db.Char(5)
+  id      String    @db.VarChar(43)
+  kind    SpaceKind
+  count   Int       @default(0)
+  world   World     @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  batches Batch[]
+
+  @@id([worldId, id])
+  @@map("space")
+}
+
+model Batch {
+  worldId String @db.Char(5)
+  spaceId String @db.VarChar(43)
+  seq     Int
+  stream  String @db.VarChar(43)
+  number  Int
+  bytes   Bytes
+  space   Space  @relation(fields: [worldId, spaceId], references: [worldId, id], onDelete: Cascade)
+
+  @@id([worldId, spaceId, seq])
+  @@unique([worldId, spaceId, stream, number])
+  @@map("batch")
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@minhajna/server-prisma-tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Prisma's command line for the server's build: it generates the client and diffs the migrations, and never ships with the server",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "prisma": "7.10.1"
+  }
+}

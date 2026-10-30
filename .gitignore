@@ -3,6 +3,7 @@
 
 node_modules/
 dist/
+/apps/server/src/generated/
 /apps/web/release/
 .wrangler/
 coverage/
