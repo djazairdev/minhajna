@@ -5,6 +5,8 @@ package dz.minhajna.preview.signature
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import dz.minhajna.preview.storage.WorldGate
+import dz.minhajna.preview.storage.WorldOpenException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.security.KeyStore
 import java.security.MessageDigest
@@ -42,6 +44,20 @@ class TeacherSigningTest {
     assertEquals("EC", private.algorithm)
     assertNull(private.encoded)
     assertTrue(verifies(public, payload, teacher.sign(payload)))
+  }
+
+  @Test
+  fun refusesInAWorldWithoutMakingAKey() {
+    WorldGate.enter("7K3QX")
+    try {
+      val teacher = TeacherSigningKey(alias)
+      assertThrows(WorldOpenException::class.java) { teacher.publicKey() }
+      assertThrows(WorldOpenException::class.java) { teacher.sign(payload) }
+      assertFalse(KeyStore.getInstance("AndroidKeyStore").apply { load(null) }.containsAlias(alias))
+    } finally {
+      WorldGate.leave()
+    }
+    assertTrue(verifies(TeacherSigningKey(alias).publicKey(), payload, TeacherSigningKey(alias).sign(payload)))
   }
 
   @Test

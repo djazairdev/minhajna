@@ -29,11 +29,11 @@ interface Head {
   readonly last: number;
 }
 
-function place(seq: number): string {
+export function place(seq: number): string {
   return `entry:${seq}`;
 }
 
-function parseJson(text: string): unknown {
+export function parseJson(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
   } catch {
@@ -41,7 +41,7 @@ function parseJson(text: string): unknown {
   }
 }
 
-function parseRow(value: unknown): Row {
+export function parseRow(value: unknown): Row {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw coded('An entry is not an object', 'E_HISTORY');
   }
@@ -52,7 +52,7 @@ function parseRow(value: unknown): Row {
   return value as Row;
 }
 
-async function opened(key: CryptoKey, value: unknown, where: string): Promise<string> {
+export async function opened(key: CryptoKey, value: unknown, where: string): Promise<string> {
   if (!isSealed(value)) throw coded('A row cannot be read', 'E_HISTORY');
   try {
     return await unseal(key, value, where);
@@ -61,14 +61,14 @@ async function opened(key: CryptoKey, value: unknown, where: string): Promise<st
   }
 }
 
-async function readHead(key: CryptoKey, value: unknown): Promise<Head> {
+export async function readHead(key: CryptoKey, value: unknown): Promise<Head> {
   if (value === undefined) return { count: 0, last: -1 };
   const { count, last } = parseJson(await opened(key, value, HEAD)) as Partial<Head>;
   if (!Number.isSafeInteger(count) || !Number.isSafeInteger(last)) throw coded('The end is unreadable', 'E_HISTORY');
   return { count: count ?? 0, last: last ?? -1 };
 }
 
-function sealHead(key: CryptoKey, head: Head): Promise<Sealed> {
+export function sealHead(key: CryptoKey, head: Head): Promise<Sealed> {
   return seal(key, JSON.stringify(head), HEAD);
 }
 

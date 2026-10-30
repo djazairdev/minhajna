@@ -7,6 +7,7 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import dz.minhajna.preview.storage.NativeMinhajnaSignatureSpec
+import dz.minhajna.preview.storage.WorldOpenException
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 
@@ -20,6 +21,8 @@ import java.util.concurrent.RejectedExecutionException
  * Only public keys leave the Keystore; a new phone has a new signing key,
  * never a backup or transfer of this one. Device erasure (#248) must remove
  * TeacherSigningKey.ALIAS. No method signs automatically at app startup.
+ * While a demo world is open (#558), the teacher's key is refused with
+ * E_WORLD; checking signatures and drawing QR codes go on.
  */
 class MinhajnaSignatureModule(
   context: ReactApplicationContext,
@@ -52,6 +55,8 @@ class MinhajnaSignatureModule(
       worker.execute {
         try {
           promise.resolve(task())
+        } catch (e: WorldOpenException) {
+          promise.reject(e.code, e.message)
         } catch (_: Throwable) {
           promise.reject(code, message)
         }

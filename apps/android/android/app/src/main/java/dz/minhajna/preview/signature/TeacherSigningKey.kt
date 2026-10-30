@@ -5,6 +5,7 @@ package dz.minhajna.preview.signature
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import dz.minhajna.preview.storage.WorldGate
 import java.nio.CharBuffer
 import java.nio.charset.CodingErrorAction
 import java.security.KeyPairGenerator
@@ -20,12 +21,18 @@ import java.util.Base64
  * transfer, or leaves Android's Keystore. A new phone makes a new key;
  * reader mode must check its continuity, not treat a signature as identity
  * or state certification. Device erasure (#248) must delete ALIAS too.
- * Invalid existing entries fail; they are never silently replaced.
+ * Invalid existing entries fail; they are never silently replaced. While a
+ * demo world is open (#558), the teacher's key neither signs nor answers
+ * with its public half, so nothing a world makes carries it.
  */
 class TeacherSigningKey(private val alias: String = ALIAS) {
-  fun publicKey(): String = Base64.getEncoder().encodeToString(entry().certificate.publicKey.encoded)
+  fun publicKey(): String {
+    WorldGate.refuse()
+    return Base64.getEncoder().encodeToString(entry().certificate.publicKey.encoded)
+  }
 
   fun sign(payload: String): String {
+    WorldGate.refuse()
     val bytes = signatureBytes(payload, 65_536)
     return Signature.getInstance("SHA256withECDSA").run {
       initSign(entry().privateKey)
