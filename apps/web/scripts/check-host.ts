@@ -8,7 +8,8 @@
 // host's headers (scripts/host.ts), straight, with no redirect, no cookie and
 // no header that has the browser report to anyone; the address itself must
 // give the page; a file the build does not hold must not be found, so the
-// host answers nothing but the build. And build.json must name the release's
+// host answers nothing but the build; the page's policy may name no address
+// but its own and the demo server's. And build.json must name the release's
 // build checksum, which only a check on this computer may leave out, as any
 // build passes the rest. Plain HTTP is refused but on this computer. Prints
 // each problem; exits 1 if there are.
@@ -16,7 +17,7 @@
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { checksum } from './hashes.ts';
-import { ADDRESS, hostHeaders, pagePolicy, typeOf } from './host.ts';
+import { addressProblems, ADDRESS, hostHeaders, pagePolicy, typeOf } from './host.ts';
 
 type Built = { version: string; sha256: string; files: Record<string, string> };
 
@@ -40,6 +41,7 @@ export async function checkHost(address: string, expected?: string): Promise<str
   }
   const page = await (await get('index.html')).text();
   const headers = hostHeaders(pagePolicy(page), base.protocol === 'https:');
+  problems.push(...addressProblems(pagePolicy(page)).map((problem) => `index.html: ${problem}`));
   const names = Object.keys(built.files).sort();
   for (const path of ['', 'build.json', ...names]) {
     const name = path === '' ? 'index.html' : path;

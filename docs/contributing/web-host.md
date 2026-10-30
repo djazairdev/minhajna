@@ -46,7 +46,7 @@ node_modules/.bin/wrangler rollback
 npm run check-host -- https://minhajna.djazair.dev <checksum>
 ```
 
-Without the checksum, any build the host serves whole would pass, so the check refuses to run away from this computer.
+Without the checksum, any build the host serves whole would pass, so the check refuses to run away from this computer. The check also reads the page's security policy: it may name no address but its own and, to connect to, the demo server `https://minhajna-demo.djazair.dev` (#544, answer 554), for the hosted app and the self-hosted ZIP alike.
 
 **Never deploy an older build.** The worker never offers a lower version code, so teachers who installed the newer build keep it, and only new installs would get the older one. A broken release is fixed with a new version. Going back is only for a deploy whose check has just failed.
 

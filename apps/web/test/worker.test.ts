@@ -20,7 +20,7 @@ import { checkHost } from '../scripts/check-host.ts';
 import { checksum } from '../scripts/hashes.ts';
 import { answer, type Assets } from '../scripts/worker.ts';
 
-const POLICY = "default-src 'none'; script-src 'self'";
+const POLICY = "default-src 'none'; script-src 'self'; connect-src 'self' https://minhajna-demo.djazair.dev";
 const hex = (body: string) => createHash('sha256').update(body).digest('hex');
 
 /** A made-up build in a new folder, and an assets binding over it that records its reads. */

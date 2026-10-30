@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The build packed for its host, and the host check (answer 528), on a
-// made-up build in a folder of its own, as the real dist/ is rebuilt by
-// another test meanwhile: the ZIP packs to the same bytes twice, opens in
-// zip.js to the build's files, and is refused for a changed file; the local
-// server passes the check, which finds a changed file, another checksum than
-// the release's, missing headers, a cookie, a reporting header, a redirect, a
-// page given for a file the build does not hold, and plain HTTP or no release
-// checksum away from this computer.
+// The build packed for its host, and the host check (answer 528), on a made-up
+// build in a folder of its own, as the real dist/ is rebuilt by another test
+// meanwhile: the ZIP packs to the same bytes twice, opens in zip.js to the
+// build's files, and is refused for a changed file; the local server passes the
+// check, which finds a changed file, another checksum than the release's, a
+// policy naming another address than the demo server's or widening it by a
+// keyword, an entity or no default, missing headers, a cookie, a reporting
+// header, a redirect, a page given for a file the build does not hold, and
+// plain HTTP or no release checksum away from this computer.
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -21,19 +22,20 @@ import { pathToFileURL } from 'node:url';
 import { BlobWriter, Uint8ArrayReader, ZipReader, configure } from '@zip.js/zip.js';
 import { checksum } from '../scripts/hashes.ts';
 import { checkHost } from '../scripts/check-host.ts';
+import { addressProblems } from '../scripts/host.ts';
 import { packBuild } from '../scripts/pack.ts';
 import { serveFolder } from '../scripts/serve.ts';
 
 configure({ useWebWorkers: false });
 
-const POLICY = "default-src 'none'; script-src 'self'";
+const POLICY = "default-src 'none'; script-src 'self'; connect-src 'self' https://minhajna-demo.djazair.dev";
 const hex = (body: string) => createHash('sha256').update(body).digest('hex');
 
 /** A made-up build written to a new folder, with its build.json. */
-function madeBuild(): { folder: URL; sha256: string; files: Record<string, string> } {
+function madeBuild(policy = POLICY): { folder: URL; sha256: string; files: Record<string, string> } {
   const folder = pathToFileURL(`${mkdtempSync(`${tmpdir()}/minhajna-host-`)}/`);
   const files: Record<string, string> = {
-    'index.html': `<!doctype html><meta http-equiv="Content-Security-Policy" content="${POLICY}" /><p>made up</p>`,
+    'index.html': `<!doctype html><meta http-equiv="Content-Security-Policy" content="${policy}" /><p>made up</p>`,
     'app.js': 'console.log("made up");',
     'notes.json': '{"version":"9.9.9","versionCode":99}',
   };
@@ -115,6 +117,32 @@ describe('the host check', () => {
     assert.ok(problems.some((problem) => problem.endsWith(': sets a cookie')));
     assert.ok(problems.some((problem) => problem.endsWith(': sends NEL')));
     assert.ok(problems.includes('a file outside the build: status 200, not 404'));
+  });
+
+  it('finds a policy that lets the page reach another address, or not the demo server', async () => {
+    const wider = madeBuild(`${POLICY} https://elsewhere.test; img-src 'self' https://images.test`);
+    assert.deepEqual(await checkHost(await started(serveFolder(wider.folder))), [
+      'index.html: connect-src allows https://elsewhere.test',
+      'index.html: img-src allows https://images.test',
+      "index.html: connect-src is not 'self' https://minhajna-demo.djazair.dev",
+    ]);
+    const narrower = madeBuild("default-src 'none'; connect-src 'self'");
+    assert.deepEqual(await checkHost(await started(serveFolder(narrower.folder))), [
+      "index.html: connect-src is not 'self' https://minhajna-demo.djazair.dev",
+    ]);
+  });
+
+  it('finds a policy with no default, a keyword that widens it, or an entity that hides an address', () => {
+    const connect = "connect-src 'self' https://minhajna-demo.djazair.dev";
+    assert.deepEqual(addressProblems(`${POLICY}; style-src 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='`), []);
+    assert.deepEqual(addressProblems(`script-src 'self'; ${connect}`), ["default-src is not 'none'"]);
+    assert.deepEqual(
+      addressProblems(`default-src 'none'; script-src 'self' 'strict-dynamic' 'unsafe-inline'; ${connect}`),
+      ["script-src allows 'strict-dynamic'", "script-src allows 'unsafe-inline'"],
+    );
+    assert.deepEqual(addressProblems(`${POLICY}; img-src 'self'&#32;https://elsewhere.test`), [
+      'the policy holds an HTML entity, which the browser would read otherwise',
+    ]);
   });
 
   it('finds a redirect', async () => {

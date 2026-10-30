@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { androidVersion, releaseNotes, stopsBuild } from '../scripts/build.ts';
 import { checksum, fileHashes } from '../scripts/hashes.ts';
+import { addressProblems } from '../scripts/host.ts';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);
@@ -105,13 +106,14 @@ describe('the web bundle', () => {
     assert.doesNotMatch(text('app.js'), /MINHAJNA_WEB_VERSION/u);
   });
 
-  it('loads nothing from elsewhere and runs no inline script', () => {
+  it('loads nothing from elsewhere, connects to the demo server only, and runs no inline script', () => {
     const html = text('index.html');
     const policy = /content="(default-src[^"]+)"/u.exec(html)?.[1] ?? '';
     assert.match(policy, /default-src 'none'/u);
     assert.match(policy, /script-src 'self';/u);
-    assert.match(policy, /connect-src 'self';/u);
-    assert.doesNotMatch(policy, /unsafe|https?:|\*/u);
+    assert.match(policy, /connect-src 'self' https:\/\/minhajna-demo\.djazair\.dev;/u);
+    assert.deepEqual(addressProblems(policy), []);
+    assert.doesNotMatch(policy, /unsafe|http:|\*/u);
     assert.doesNotMatch(html, /(?:src|href)="(?!\.\/)/u);
     assert.doesNotMatch(html, /<script(?![^>]*src=)/u);
     assert.doesNotMatch(text('fonts.css') + text('page.css'), /url\((?!'\.\/)/u);

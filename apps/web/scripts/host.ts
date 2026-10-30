@@ -6,10 +6,25 @@
 // the files of one build and nothing else, each with its media type, never
 // cached by the browser or a proxy, with the page's own security policy as
 // a header too, where it can also refuse framing by another site. Over HTTPS
-// the browser is told to keep to HTTPS.
+// the browser is told to keep to HTTPS. The policy names one address beyond
+// the page's own: the demo server (answer 554), for demo worlds only, and the
+// host check fails if it names any other, lacks default-src 'none', or holds
+// a keyword but 'self', 'none' and hashes.
 
 /** The address teachers open (answer 531). */
 export const ADDRESS = 'https://minhajna.djazair.dev/';
+
+/** The demo server (answer 554): the one address the page may connect to besides its own. */
+export const DEMO_SERVER = 'https://minhajna-demo.djazair.dev';
+
+/** The quoted sources a policy may hold: its own origin, nothing, and hashes. */
+const KEYWORD = /^'(?:self|none|sha(?:256|384|512)-[A-Za-z0-9+/]+={0,2})'$/u;
+
+/** What each directive may allow besides those. */
+const OTHERS: Readonly<Record<string, readonly string[]>> = {
+  'img-src': ['data:', 'blob:'],
+  'connect-src': [DEMO_SERVER],
+};
 
 /** The media type of each file kind in dist/. */
 export const TYPES: Readonly<Record<string, string>> = {
@@ -34,6 +49,23 @@ export function pagePolicy(html: string): string {
   const policy = /http-equiv="Content-Security-Policy"\s+content="([^"]+)"/u.exec(html)?.[1];
   if (policy === undefined) throw new Error('index.html has no security policy');
   return policy;
+}
+
+/** What a page's policy allows beyond its own origin and the demo server, or lacks. */
+export function addressProblems(policy: string): string[] {
+  if (policy.includes('&')) return ['the policy holds an HTML entity, which the browser would read otherwise'];
+  const problems: string[] = [];
+  const directives = policy.split(';').map((directive) => directive.trim().split(/\s+/u));
+  for (const [name = '', ...sources] of directives) {
+    for (const source of sources) {
+      if (!KEYWORD.test(source) && !(OTHERS[name] ?? []).includes(source)) problems.push(`${name} allows ${source}`);
+    }
+  }
+  const fallback = directives.find(([name]) => name === 'default-src')?.slice(1) ?? [];
+  if (fallback.join(' ') !== "'none'") problems.push("default-src is not 'none'");
+  const connect = directives.find(([name]) => name === 'connect-src')?.slice(1) ?? [];
+  if (connect.join(' ') !== `'self' ${DEMO_SERVER}`) problems.push(`connect-src is not 'self' ${DEMO_SERVER}`);
+  return problems;
 }
 
 /** The headers every answer carries besides its media type; the HTTPS one only over HTTPS. */
