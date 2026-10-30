@@ -74,6 +74,8 @@ export * from './school-recovery.ts';
 export * from './timetable-key.ts';
 export * from './grants.ts';
 export * from './certify.ts';
+export * from './week-totals.ts';
+export * from './total-shares.ts';
 export * from './devices.ts';
 export * from './restore.ts';
 export * from './handover.ts';
