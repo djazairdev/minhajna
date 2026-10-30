@@ -1,13 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Made-up devices for the school key's tests (#550): each with its own ID
-// and X25519 keypair, and its crypto from Node's X25519, HKDF, AES-GCM and
-// HMAC, as a platform would give it; and records sealed under a key.
+// Made-up devices for the school key's tests (#550, #551): each with its
+// own ID and X25519 keypair, random or from a recovery's seed, and its crypto
+// from Node's X25519, HKDF, AES-GCM and HMAC, as a platform would give it;
+// and records sealed under a key.
 
 import assert from 'node:assert/strict';
-import { webcrypto } from 'node:crypto';
-import { newId, toHex, type Holder, type KeyCrypto, type OpenedKeyring } from '../src/index.ts';
+import { createPrivateKey, createPublicKey, webcrypto } from 'node:crypto';
+import { newId, toHex, type Holder, type KeyCrypto, type OpenedKeyring, type RecoveryDevice } from '../src/index.ts';
+import { fromHex } from '../src/school-key-shape.ts';
 
 const { subtle } = webcrypto;
 type CryptoKey = webcrypto.CryptoKey;
@@ -23,9 +25,22 @@ async function aesFor(mine: CryptoKey, theirs: CryptoKey, salt: Uint8Array, info
   return subtle.deriveKey(params, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 
+/** An X25519 keypair from 32 bytes, as a recovery's is made from its seed. */
+async function seeded(seed: Uint8Array): Promise<CryptoKeyPair> {
+  const pkcs8 = new Uint8Array([...fromHex('302e020100300506032b656e04220420'), ...seed]);
+  const privateKey = await subtle.importKey('pkcs8', pkcs8, { name: 'X25519' }, true, ['deriveBits']);
+  const spki = createPublicKey(createPrivateKey({ key: Buffer.from(pkcs8), format: 'der', type: 'pkcs8' }));
+  const raw = new Uint8Array(spki.export({ format: 'der', type: 'spki' })).subarray(-32);
+  const publicKey = await subtle.importKey('raw', raw, { name: 'X25519' }, true, []);
+  return { privateKey, publicKey };
+}
+
 /** A made-up device: its ID, its public key, and its crypto, which opens only what was sealed for it. */
-export async function device(): Promise<{ holder: Holder; crypto: KeyCrypto }> {
-  const pair = (await subtle.generateKey({ name: 'X25519' }, true, ['deriveBits'])) as CryptoKeyPair;
+export async function device(seed?: Uint8Array): Promise<{ holder: Holder; crypto: KeyCrypto }> {
+  const pair =
+    seed === undefined
+      ? ((await subtle.generateKey({ name: 'X25519' }, true, ['deriveBits'])) as CryptoKeyPair)
+      : await seeded(seed);
   const mine = new Uint8Array(await subtle.exportKey('raw', pair.publicKey));
   const crypto: KeyCrypto = {
     seal: async (key, publicKey, info) => {
@@ -55,6 +70,12 @@ export async function device(): Promise<{ holder: Holder; crypto: KeyCrypto }> {
   };
   return { holder: { id: newId(random), publicKey: toHex(mine) }, crypto };
 }
+
+/** The recovery's keypair from its seed, as the platform makes it. */
+export const recoveryDevice: RecoveryDevice = async (seed) => {
+  const made = await device(seed);
+  return { crypto: made.crypto, publicKey: fromHex(made.holder.publicKey) };
+};
 
 /** A record sealed under a key, and whether a key opens it. */
 export async function sealRecord(key: Uint8Array): Promise<Uint8Array> {
