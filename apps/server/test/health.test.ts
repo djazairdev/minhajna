@@ -38,7 +38,7 @@ describe('the health check', () => {
   });
 
   it('refuses any other path', async () => {
-    const res = await fetch(`${base}/worlds`);
+    const res = await fetch(`${base}/nowhere`);
     assert.equal(res.status, 404);
   });
 });

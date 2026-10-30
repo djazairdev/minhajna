@@ -3,7 +3,8 @@
 
 // Starts the server. It listens on this computer only unless HOST says
 // otherwise, as the container does; PORT defaults to 3000 and must be a
-// port number.
+// port number. TRUST_PROXY=cloudflare reads the client's address from
+// Cloudflare's header, for the rate limits.
 
 import { createApp } from './app.js';
 
@@ -15,5 +16,5 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   process.exit(1);
 }
 
-const app = await createApp();
+const app = await createApp(undefined, { trustCloudflare: process.env['TRUST_PROXY'] === 'cloudflare' });
 await app.listen(port, host);
