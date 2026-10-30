@@ -1,38 +1,30 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Fixed batches (PRD §5.8). The changes since the last sync are compressed,
-// cut into pieces and sealed one by one with AES-256-GCM under the
-// teacher's key, every piece padded to the same size. The server sees only
-// sealed batches of one size, numbered in order. A batch's stream and number
-// are bound into its seal, so a batch moved, swapped or replayed elsewhere
-// fails to open. Node's Web Crypto does the cryptography: the project writes
-// none of its own (PRD §6.5).
+// Fixed batches (PRD §5.8) as the check runs them. The core cuts and pads
+// change sets into batches (#541); here they are compressed first and each
+// piece is sealed with AES-256-GCM under the teacher's key, by Node's Web
+// Crypto: the project writes no cryptography of its own (PRD §6.5).
 
 import type { webcrypto } from 'node:crypto';
-import type { Entry } from '@minhajna/core';
+import {
+  openBatches as openCoreBatches,
+  sealBatches as sealCoreBatches,
+  type BatchCipher,
+  type Entry,
+  type SealedBatch,
+} from '@minhajna/core';
+
+export { pieceRoom, type SealedBatch } from '@minhajna/core';
 
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
-/** A piece's head: a flag for the last piece of a change set, then the bytes used. */
-const HEAD_BYTES = 5;
-const LAST = 1;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
-
-export interface SealedBatch {
-  readonly number: number;
-  readonly bytes: Uint8Array;
-}
 
 /** What a sealed batch of the given size takes on the wire, before any request overhead. */
 export function sealedSize(size: number): number {
   return IV_BYTES + size + TAG_BYTES;
-}
-
-/** The bytes of a change set that one batch of the given size holds. */
-export function pieceRoom(size: number): number {
-  return size - HEAD_BYTES;
 }
 
 async function through(bytes: Uint8Array, stream: CompressionStream | DecompressionStream): Promise<Uint8Array> {
@@ -52,20 +44,31 @@ export async function decodeChanges(bytes: Uint8Array): Promise<Entry[]> {
   return parsed as Entry[];
 }
 
-function additional(stream: string, number: number): Uint8Array {
-  return encoder.encode(`minhajna/sync/1\n${stream}\n${number}`);
-}
-
 /** A fresh teacher's key for the check; the app's keys come from its own design (PRD §6.5). */
 export async function makeKey(): Promise<webcrypto.CryptoKey> {
   return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 
-/**
- * Seals a change set into batches of `size` bytes each, numbered from
- * `first`. An empty change set still makes one batch, as a batch sent at a
- * set time with nothing new.
- */
+/** AES-256-GCM under the key, with a fresh 12-byte IV before each sealed piece. */
+export function aesGcm(key: webcrypto.CryptoKey): BatchCipher {
+  return {
+    async seal(plain, additionalData) {
+      const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+      const sealed = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData }, key, plain));
+      const bytes = new Uint8Array(IV_BYTES + sealed.length);
+      bytes.set(iv);
+      bytes.set(sealed, IV_BYTES);
+      return bytes;
+    },
+    async open(bytes, additionalData) {
+      const iv = bytes.subarray(0, IV_BYTES);
+      const sealed = bytes.subarray(IV_BYTES);
+      return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv, additionalData }, key, sealed));
+    },
+  };
+}
+
+/** Seals a change set into batches of `size` bytes each under the key, numbered from `first`. */
 export async function sealBatches(
   key: webcrypto.CryptoKey,
   stream: string,
@@ -73,66 +76,14 @@ export async function sealBatches(
   changes: Uint8Array,
   size: number,
 ): Promise<SealedBatch[]> {
-  const room = pieceRoom(size);
-  if (room < 1) throw new RangeError('A batch must hold more than its head');
-  const count = Math.max(1, Math.ceil(changes.length / room));
-  const batches: SealedBatch[] = [];
-  for (let index = 0; index < count; index++) {
-    const part = changes.subarray(index * room, (index + 1) * room);
-    const plain = new Uint8Array(size);
-    const view = new DataView(plain.buffer);
-    view.setUint8(0, index === count - 1 ? LAST : 0);
-    view.setUint32(1, part.length);
-    plain.set(part, HEAD_BYTES);
-    const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
-    const number = first + index;
-    const sealed = new Uint8Array(
-      await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: additional(stream, number) }, key, plain),
-    );
-    const bytes = new Uint8Array(IV_BYTES + sealed.length);
-    bytes.set(iv);
-    bytes.set(sealed, IV_BYTES);
-    batches.push({ number, bytes });
-  }
-  return batches;
+  return sealCoreBatches(aesGcm(key), stream, first, changes, size);
 }
 
-/**
- * Opens batches in order and joins their pieces back into change sets. It
- * fails if any batch was changed, sealed for another place, or is missing
- * the end of its change set. Empty change sets are left out.
- */
+/** Opens batches under the key in order and joins them back into change sets. */
 export async function openBatches(
   key: webcrypto.CryptoKey,
   stream: string,
   batches: readonly SealedBatch[],
 ): Promise<Uint8Array[]> {
-  const sets: Uint8Array[] = [];
-  let pending: Uint8Array[] = [];
-  for (const batch of batches) {
-    const iv = batch.bytes.subarray(0, IV_BYTES);
-    const plain = new Uint8Array(
-      await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv, additionalData: additional(stream, batch.number) },
-        key,
-        batch.bytes.subarray(IV_BYTES),
-      ),
-    );
-    const view = new DataView(plain.buffer);
-    const used = view.getUint32(1);
-    if (used > plain.length - HEAD_BYTES) throw new RangeError('A batch claims more bytes than it holds');
-    pending.push(plain.slice(HEAD_BYTES, HEAD_BYTES + used));
-    if (view.getUint8(0) === LAST) {
-      const set = new Uint8Array(pending.reduce((total, part) => total + part.length, 0));
-      let offset = 0;
-      for (const part of pending) {
-        set.set(part, offset);
-        offset += part.length;
-      }
-      if (set.length > 0) sets.push(set);
-      pending = [];
-    }
-  }
-  if (pending.length > 0) throw new RangeError('The last change set is cut short');
-  return sets;
+  return openCoreBatches(aesGcm(key), stream, batches);
 }

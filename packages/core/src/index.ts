@@ -68,6 +68,7 @@ export * from './archive.ts';
 export * from './archive-read.ts';
 export * from './recovery-key.ts';
 export * from './world-code.ts';
+export * from './batches.ts';
 export * from './devices.ts';
 export * from './restore.ts';
 export * from './handover.ts';
