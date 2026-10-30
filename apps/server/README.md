@@ -2,7 +2,7 @@
 
 The server package ([PRD §5.2](../../docs/prd/PRD.md#52-architecture)): one package, installed by whoever runs it. In 0.7.0 it is **the demo server** ([#516](https://github.com/djazairdev/minhajna/issues/516)): it holds made-up demo worlds in which every role, from the Ministry to the teacher, runs the national flow. It never holds real data, and it never holds a key to a school's or a teacher's records.
 
-**Status:** the health check ([#538](https://github.com/djazairdev/minhajna/issues/538)), the worlds API ([#540](https://github.com/djazairdev/minhajna/issues/540)) and the encrypted relay ([#541](https://github.com/djazairdev/minhajna/issues/541)), kept in PostgreSQL and erased on their 7th day ([#542](https://github.com/djazairdev/minhajna/issues/542)).
+**Status:** the health check ([#538](https://github.com/djazairdev/minhajna/issues/538)), the worlds API ([#540](https://github.com/djazairdev/minhajna/issues/540)), the encrypted relay ([#541](https://github.com/djazairdev/minhajna/issues/541)) and the stand-in CA ([#554](https://github.com/djazairdev/minhajna/issues/554)), kept in PostgreSQL and erased on their 7th day ([#542](https://github.com/djazairdev/minhajna/issues/542)).
 
 ## The worlds API
 
@@ -32,6 +32,18 @@ Inside a world, with its pass, clients exchange sealed records through spaces: o
 - **One size:** every batch is exactly 4,124 bytes: the core's 4,096-byte batch sealed with AES-256-GCM. Anything else is refused, so a batch's size says nothing.
 - **The minimum:** the server keeps each space's id and kind, and each batch's stream, number, arrival order and sealed bytes. No names, no times, no addresses.
 - **Caps:** a world holds at most 2,000 spaces and 10,000 batches (about 41 MB). The server holds at most 1,000,000 batches in PostgreSQL (about 4 GB), or 50,000 in memory (about 206 MB), and answers `507` beyond; uploads to different worlds at the same moment may pass that cap by a few.
+
+## The stand-in CA
+
+Each world has its own stand-in certificate authority ([#554](https://github.com/djazairdev/minhajna/issues/554), answer 564), which certifies the keys teachers sign their weeks with. A teacher's signing key is made on the device and never leaves it.
+
+| Request                                                                          | Does                                                                                             | Answers                                                                           |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `GET /worlds/:world/ca`, with the pass                                           | Reads the CA's public key, which devices check the world's certificates against                  | `{publicKey}`, 32 bytes in hex                                                    |
+| `POST /worlds/:world/certificates` with `{world, subject, publicKey, signature}` | Certifies the Ed25519 key a request names, when the request is signed by it and names this world | `201` with the certificate, marked as a stand-in's and issued on the world's date |
+
+- **What it proves:** a request proves only that the device holds its key. In the demo, anyone with a world's code acts in any role, and the server is the CA and hands out its key, so a demo signature proves nothing against the server. Every certificate says it is a stand-in's, and only the state's CA, outside Minhajna's server, can make a signature evidence (answers 563 and 564).
+- **The key:** an Ed25519 key, made the first time the world needs it and kept with the world, so it is erased with it, and lingers only in the sealed archive's WAL and base backups for about two days, like every row (see "What the bucket keeps and shows"). It certifies nothing outside its world, and never changes within it, so a device fetches it once and keeps it. The certificate's texts are those of [`packages/core/src/certify.ts`](../../packages/core/src/certify.ts), and the tests check the server's certificates with the core's own checks.
 
 ## Storage
 
@@ -69,7 +81,7 @@ docker build -f apps/server/Dockerfile -t minhajna-server .
 - **While it runs,** PostgreSQL archives each WAL file as it fills, and at least every `ARCHIVE_TIMEOUT` seconds (60), so a container lost without warning loses at most that much. A base backup is taken whenever the latest is `BACKUP_EVERY` seconds old (a day), on starting too, and the last two are kept.
 - **On `SIGTERM`,** the server stops, the last WAL file is archived, and PostgreSQL stops. That takes longer than the usual 10 seconds' grace: give the container at least 120 (`docker run --stop-timeout 120`, or the host's equivalent), or a stop may lose up to a minute of writes.
 - **The bucket comes from the environment,** never from the image or the repository: `WALG_S3_PREFIX` (`s3://<bucket>/<path>`), `AWS_ENDPOINT` (R2's `https://<account>.r2.cloudflarestorage.com`), `AWS_REGION` (`auto` for R2), `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Without `WALG_S3_PREFIX` it refuses to start, unless `ARCHIVE=off` says to keep nothing, for trying the image.
-- **Seal the archive** with `WALG_LIBSODIUM_KEY` (32 random bytes, in hex with `WALG_LIBSODIUM_KEY_TRANSFORM=hex`), so whoever can read the bucket reads nothing: without it, world ids, hashes, erasure days and sealed batches are in the clear there. Keep the key with the bucket's credentials; without it the archive cannot be restored.
+- **Seal the archive** with `WALG_LIBSODIUM_KEY` (32 random bytes, in hex with `WALG_LIBSODIUM_KEY_TRANSFORM=hex`), so whoever can read the bucket reads nothing: without it, world ids, hashes, erasure days, sealed batches and each world's stand-in CA key are in the clear there. Keep the key with the bucket's credentials; without it the archive cannot be restored.
 - **What the bucket keeps and shows:** an erased world leaves the database at once, but stays in the bucket until the WAL and the base backups that hold it are replaced, about two days at most while backups run; deleted rows may also linger in later backups until PostgreSQL reuses their space. The times the bucket stores with each WAL file and backup show when the demo was used, to the minute, to whoever reads the bucket.
 - **Inside,** the start script runs as root only to start PostgreSQL as `postgres` and the server as `minhajna`, a database role that is no superuser, without the bucket's settings. PostgreSQL listens on its socket only, the server on port 8080, and nothing else is reached but the bucket; closing every other outbound address is the host's part ([#545](https://github.com/djazairdev/minhajna/issues/545)). Its logs carry no clock times: they are cut from PostgreSQL's and WAL-G's lines.
 - **Its test** (`test/image.test.ts`) builds the image and runs it against an S3 stand-in, [SeaweedFS](https://github.com/seaweedfs/seaweedfs) in `compose.yaml`'s `archive` profile, with a sealed archive. It stops a container after a world was written both before and after its latest base backup, and finds both in a new container on an empty disk. It needs Docker, so it runs only with `TEST_IMAGE=1`, as the Server image workflow does.

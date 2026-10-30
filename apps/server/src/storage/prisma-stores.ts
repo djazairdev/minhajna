@@ -110,7 +110,7 @@ export class PrismaWorldStore implements WorldStore {
   }
 
   async get(id: string): Promise<World | undefined> {
-    const row = await this.client.world.findUnique({ where: { id } });
+    const row = await this.client.world.findUnique({ where: { id }, omit: { caKey: true } });
     if (!row) return undefined;
     return {
       ...row,
@@ -122,6 +122,13 @@ export class PrismaWorldStore implements WorldStore {
 
   async setDate(id: string, date: string): Promise<void> {
     await this.client.world.updateMany({ where: { id }, data: { date: toDate(date) } });
+  }
+
+  async caKey(id: string, make: () => string): Promise<string | undefined> {
+    const row = await this.client.world.findUnique({ where: { id }, select: { caKey: true } });
+    if (!row || row.caKey !== null) return row?.caKey ?? undefined;
+    await this.client.world.updateMany({ where: { id, caKey: null }, data: { caKey: make() } });
+    return (await this.client.world.findUnique({ where: { id }, select: { caKey: true } }))?.caKey ?? undefined;
   }
 
   async sweep(today: string): Promise<string[]> {
