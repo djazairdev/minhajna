@@ -151,16 +151,38 @@ export async function removeHolder(
   crypto: KeyCrypto,
   random: RandomBytes,
 ): Promise<OpenedKeyring> {
-  const { ring, keys } = opened;
+  const { ring } = opened;
   const holders = ring.holders.filter((one) => one.id !== device);
   if (holders.length === ring.holders.length) throw new RangeError('The device does not hold the key');
   if (holders.length === 0) throw new RangeError('The last device cannot be removed');
+  return nextEpoch(opened, holders, by, crypto, random);
+}
+
+/** The keyring under a new key for the same devices, made by the device `by`; a proposal, as `addHolder` makes. */
+export function rekeyKeyring(
+  opened: OpenedKeyring,
+  by: string,
+  crypto: KeyCrypto,
+  random: RandomBytes,
+): Promise<OpenedKeyring> {
+  return nextEpoch(opened, opened.ring.holders, by, crypto, random);
+}
+
+async function nextEpoch(
+  opened: OpenedKeyring,
+  holders: readonly Holder[],
+  by: string,
+  crypto: KeyCrypto,
+  random: RandomBytes,
+): Promise<OpenedKeyring> {
+  const { ring, keys } = opened;
   if (!ring.holders.some((one) => one.id === by)) throw new RangeError('Only a holder changes the keyring');
+  const kept = new Set(holders.map((one) => one.id));
   const key = random(SCHOOL_KEY_BYTES);
   const number = ring.epochs.length;
   const commit = await commitOf(crypto, key);
   const epochs: SchoolEpoch[] = ring.epochs.map((epoch) => {
-    const sealed = Object.fromEntries(Object.entries(epoch.sealed).filter(([id]) => id !== device));
+    const sealed = Object.fromEntries(Object.entries(epoch.sealed).filter(([id]) => kept.has(id)));
     return { ...epoch, sealed };
   });
   const link = await linkOf(crypto, ring.school, number, commit, keys.at(-1)!);

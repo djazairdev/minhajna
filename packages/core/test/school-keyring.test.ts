@@ -14,6 +14,7 @@ import {
   acceptKeyring,
   addHolder,
   openKeyring,
+  rekeyKeyring,
   removeHolder,
   sealInfo,
   startKeyring,
@@ -59,6 +60,17 @@ describe('the school keyring through the server', () => {
       opened(await acceptKeyring(kept, again.ring, director.holder.id, director.crypto)).keys,
       again.keys,
     );
+  });
+
+  it('takes a new key for the same devices, which every holder adopts', async () => {
+    const { deputy, phone, three } = await school();
+    const rekeyed = await rekeyKeyring(three, deputy.holder.id, deputy.crypto, random);
+    assert.deepEqual(rekeyed.ring.holders, three.ring.holders);
+    assert.deepEqual(rekeyed.keys.slice(0, -1), three.keys);
+    const held = opened(await openKeyring(three.ring, phone.holder.id, phone.crypto));
+    assert.deepEqual(opened(await acceptKeyring(held, rekeyed.ring, phone.holder.id, phone.crypto)).keys, rekeyed.keys);
+    const other = await device();
+    await assert.rejects(rekeyKeyring(three, other.holder.id, deputy.crypto, random), /Only a holder/);
   });
 
   it('refuses a fork made by a removed device once its removal is held', async () => {
