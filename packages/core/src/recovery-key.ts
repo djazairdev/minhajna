@@ -29,6 +29,11 @@ const PERSIAN_ZERO = 0x06f0;
 export function makeRecoveryKey(random: RandomBytes): string {
   const bytes = random(BYTES);
   if (bytes.length !== BYTES) throw new RangeError('A recovery key needs 15 random bytes');
+  return recoverySymbols(bytes);
+}
+
+/** Bytes as characters of the recovery alphabet, five bits each, in order; leftover bits are dropped. */
+export function recoverySymbols(bytes: Uint8Array): string {
   let key = '';
   let value = 0;
   let bits = 0;
@@ -52,12 +57,17 @@ function asciiDigits(text: string): string {
   });
 }
 
-/** The key the teacher typed, as stored, or null when it is not one. */
-export function readRecoveryKey(text: string): string | null {
-  const plain = asciiDigits(text)
+/** What was typed, in capitals with ASCII digits, O as zero, I and L as one, and no spaces or dashes. */
+export function plainTyped(text: string): string {
+  return asciiDigits(text)
     .toUpperCase()
     .replace(/[\s-]/g, '')
     .replace(/[OIL]/g, (letter) => MISREAD[letter]!);
+}
+
+/** The key the teacher typed, as stored, or null when it is not one. */
+export function readRecoveryKey(text: string): string | null {
+  const plain = plainTyped(text);
   const fine = plain.length === RECOVERY_LENGTH && [...plain].every((one) => RECOVERY_ALPHABET.includes(one));
   return fine ? plain : null;
 }
