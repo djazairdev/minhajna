@@ -4,8 +4,9 @@
 // Where the server keeps its worlds. A world is its id (the first half of
 // its code), the sealed world the starting device sent, which the server
 // cannot open, the world's date, the announced days the date moves through,
-// and hashes of the starter token and of the world's pass. This store keeps
-// them in memory; #542 keeps them in PostgreSQL behind the same interface.
+// hashes of the starter token and of the world's pass, and the day it is
+// erased, its 7th (answer 548). This store keeps them in memory, for tests
+// and development; storage/prisma-stores.ts keeps them in PostgreSQL.
 
 export interface World {
   readonly id: string;
@@ -14,6 +15,14 @@ export interface World {
   readonly announcedDays: readonly string[];
   readonly starterHash: string;
   readonly passHash: string;
+  readonly erasesOn: string;
+}
+
+/** A world's 7th day, counting the day it starts as its 1st. */
+export function seventhDay(start: string): string {
+  const day = new Date(`${start}T00:00:00Z`);
+  day.setUTCDate(day.getUTCDate() + 6);
+  return day.toISOString().slice(0, 10);
 }
 
 export interface WorldStore {
@@ -21,6 +30,8 @@ export interface WorldStore {
   add(world: World): Promise<boolean>;
   get(id: string): Promise<World | undefined>;
   setDate(id: string, date: string): Promise<void>;
+  /** Erases every world whose erasure day has come, with everything in it, and answers their ids. */
+  sweep(today: string): Promise<string[]>;
 }
 
 export const WORLD_STORE = Symbol('WorldStore');
@@ -42,5 +53,11 @@ export class MemoryWorldStore implements WorldStore {
     const world = this.worlds.get(id);
     if (world) this.worlds.set(id, { ...world, date });
     return Promise.resolve();
+  }
+
+  sweep(today: string): Promise<string[]> {
+    const gone = [...this.worlds.values()].filter((world) => world.erasesOn <= today).map((world) => world.id);
+    for (const id of gone) this.worlds.delete(id);
+    return Promise.resolve(gone);
   }
 }

@@ -37,6 +37,23 @@ describe('the rate limits', () => {
     assert.equal(limiter.take('10.0.0.4'), true);
   });
 
+  it('counts amounts, answers whether one fits without counting it, and charges what was done', () => {
+    const limiter = new Limiter({ perAddress: 5, total: 8, windowMs: 1000 }, () => 0);
+    assert.equal(limiter.fits('10.0.0.1', 5), true);
+    assert.equal(limiter.fits('10.0.0.1', 6), false);
+    assert.equal(limiter.take('10.0.0.1', 4), true);
+    assert.equal(limiter.fits('10.0.0.1', 2), false);
+    assert.equal(limiter.take('10.0.0.1', 2), false);
+    assert.equal(limiter.take('10.0.0.1', 1), true);
+    assert.equal(limiter.take('10.0.0.2', 4), false);
+    assert.equal(limiter.take('10.0.0.2', 3), true);
+    const charged = new Limiter({ perAddress: 5, total: 100, windowMs: 1000 }, () => 0);
+    charged.charge('10.0.0.1', 7);
+    assert.equal(charged.fits('10.0.0.1', 1), false);
+    assert.equal(charged.fits('10.0.0.2', 5), true);
+    assert.equal(charged.fits('10.0.0.2', 94), false);
+  });
+
   it("reads Cloudflare's header only when told the server runs behind it", () => {
     const behind = request('172.16.0.9', { 'cf-connecting-ip': '192.0.2.7' });
     assert.equal(clientAddress(behind, true), '192.0.2.7');

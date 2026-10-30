@@ -6,8 +6,8 @@
 // the stream a client named, its number, the order it arrived in and its
 // sealed bytes, all one size. Nothing else: no names, no times, no
 // addresses. A stream's batches are numbered from 0 with no gap. This
-// store keeps them in memory, within caps per world and in all; #542 keeps
-// them in PostgreSQL behind the same interface.
+// store keeps them in memory, within caps per world and in all, for tests
+// and development; storage/prisma-stores.ts keeps them in PostgreSQL.
 
 export type SpaceKind = 'school' | 'directorate' | 'national';
 
@@ -18,9 +18,13 @@ export interface StoredBatch {
   readonly bytes: Uint8Array;
 }
 
-export type SpaceAdded = 'added' | 'same' | 'other' | 'full';
+/** 'gone' when the world was erased meanwhile. */
+export type SpaceAdded = 'added' | 'same' | 'other' | 'full' | 'gone';
 /** 'taken' or 'gap' when `first` is before or after the stream's next number; 'full' for the world or 'server-full'. */
-export type BatchesAdded = 'added' | 'taken' | 'gap' | 'full' | 'server-full';
+export type BatchesAdded = 'added' | 'taken' | 'gap' | 'full' | 'server-full' | 'gone';
+
+/** Thrown when the store is too busy to answer in time; the client may try again. */
+export class StoreBusy extends Error {}
 
 export interface SpaceStore {
   addSpace(world: string, space: string, kind: SpaceKind): Promise<SpaceAdded>;
@@ -34,6 +38,8 @@ export interface SpaceStore {
     batches: readonly Uint8Array[],
   ): Promise<BatchesAdded>;
   nextNumber(world: string, space: string, stream: string): Promise<number>;
+  /** Drops what is kept for worlds the sweep erased, where erasing a world does not already. */
+  forget(worlds: readonly string[]): Promise<void>;
   batchesAfter(world: string, space: string, after: number, most: number): Promise<StoredBatch[]>;
 }
 
@@ -99,6 +105,14 @@ export class MemorySpaceStore implements SpaceStore {
 
   nextNumber(world: string, space: string, stream: string): Promise<number> {
     return Promise.resolve(this.worlds.get(world)?.spaces.get(space)?.next.get(stream) ?? 0);
+  }
+
+  forget(worlds: readonly string[]): Promise<void> {
+    for (const id of worlds) {
+      this.held -= this.worlds.get(id)?.batches ?? 0;
+      this.worlds.delete(id);
+    }
+    return Promise.resolve();
   }
 
   batchesAfter(world: string, space: string, after: number, most: number): Promise<StoredBatch[]> {

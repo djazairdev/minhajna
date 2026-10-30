@@ -17,12 +17,18 @@ const STAND_IN = hashToken('no world has this id');
 export async function openWorld(store: WorldStore, id: string, pass: string | undefined): Promise<World> {
   const world = isWorldId(id) ? await store.get(id) : undefined;
   const fits = holdsPass(pass, world?.passHash ?? STAND_IN);
-  if (!world || !fits) throw new NotFoundException('no world has this id and pass');
+  if (!world || !fits) throw noWorld();
   return world;
 }
 
+export function tooMany(): HttpException {
+  return new HttpException('too many requests; try again later', HttpStatus.TOO_MANY_REQUESTS);
+}
+
 export function limitRequest(limiter: Limiter, request: IncomingMessage, trustCloudflare: boolean): void {
-  if (!limiter.take(clientAddress(request, trustCloudflare))) {
-    throw new HttpException('too many requests; try again later', HttpStatus.TOO_MANY_REQUESTS);
-  }
+  if (!limiter.take(clientAddress(request, trustCloudflare))) throw tooMany();
+}
+
+export function noWorld(): NotFoundException {
+  return new NotFoundException('no world has this id and pass');
 }

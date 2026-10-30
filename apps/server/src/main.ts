@@ -5,11 +5,14 @@
 // otherwise, as the container does; PORT defaults to 3000 and must be a
 // port number. TRUST_PROXY=cloudflare reads the client's address from
 // Cloudflare's header, for the rate limits. With DATABASE_URL, it first
-// applies any committed migration the database lacks.
+// applies any committed migration the database lacks, then keeps its worlds
+// there; without it, in memory, lost when it stops.
 
 import pg from 'pg';
 import { createApp } from './app.js';
 import { applyMigrations } from './storage/migrations.js';
+import { PrismaStores } from './storage/prisma-stores.js';
+import type { WorldsOptions } from './worlds/worlds.module.js';
 
 const host = process.env['HOST'] ?? '127.0.0.1';
 const port = Number(process.env['PORT'] ?? 3000);
@@ -31,5 +34,10 @@ if (url) {
   }
 }
 
-const app = await createApp(undefined, { trustCloudflare: process.env['TRUST_PROXY'] === 'cloudflare' });
+const stores = url ? new PrismaStores(url) : undefined;
+const worlds: WorldsOptions = {
+  trustCloudflare: process.env['TRUST_PROXY'] === 'cloudflare',
+  ...(stores ? { store: stores.worlds, spaces: stores.spaces, close: () => stores.close() } : {}),
+};
+const app = await createApp(undefined, worlds);
 await app.listen(port, host);
