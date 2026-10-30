@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit
 internal object DeviceErase {
 
   fun run(context: Context, closeHistory: () -> Unit) {
+    WorldGate.refuse()
     val keyStore = KeyStore.getInstance(KEYSTORE).apply { load(null) }
     val steps: List<() -> Unit> = listOf(
       { for (alias in keyStore.aliases().toList()) keyStore.deleteEntry(alias) },

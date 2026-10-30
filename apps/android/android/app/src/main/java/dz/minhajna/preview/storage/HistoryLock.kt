@@ -76,6 +76,7 @@ class HistoryLock(
    * a crash in between leaves both, and the lock file wins.
    */
   fun create(pin: String, random: SecureRandom, databaseExists: Boolean): ByteArray {
+    WorldGate.refuse()
     check(!isSet()) { "A PIN is already set" }
     requirePin(pin)
     val key = when {
@@ -101,6 +102,7 @@ class HistoryLock(
    * file that a crash left behind after the lock was written goes now.
    */
   fun unlock(pin: String): Unlock {
+    WorldGate.refuse()
     check(isSet()) { "No PIN is set" }
     val wait = attempts.waitSeconds()
     if (wait > 0) return Unlock.Waiting(wait)
@@ -126,6 +128,7 @@ class HistoryLock(
    * result carries no key. The biometric copy stays as it is.
    */
   fun change(old: String, new: String, random: SecureRandom): Unlock {
+    WorldGate.refuse()
     requirePin(new)
     val result = unlock(old)
     if (result is Unlock.Opened) {
@@ -145,6 +148,7 @@ class HistoryLock(
    * a fingerprint or face is enrolled.
    */
   fun biometricKeyCipher(): Cipher {
+    WorldGate.refuse()
     dropBiometric()
     val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE)
     generator.init(
@@ -169,6 +173,7 @@ class HistoryLock(
 
   /** Writes the biometric copy with a cipher the prompt released. */
   fun saveBiometric(cipher: Cipher, key: ByteArray) {
+    WorldGate.refuse()
     Sealing.writeAtomically(biometricFile, byteArrayOf(BIOMETRIC_VERSION) + Sealing.seal(cipher, key, BIOMETRIC_AAD))
   }
 
@@ -178,6 +183,7 @@ class HistoryLock(
    * failure, when the PIN alone opens the app this time.
    */
   fun biometricOpeningCipher(): Cipher? {
+    WorldGate.refuse()
     val stored = Sealing.readAtomically(biometricFile) ?: return null
     return try {
       val key = keyStore().getKey(biometricAlias, null) as? SecretKey
@@ -199,12 +205,14 @@ class HistoryLock(
 
   /** The history's key from a cipher the prompt released, or null if the copy does not open. */
   fun openBiometric(cipher: Cipher): ByteArray? {
+    WorldGate.refuse()
     val stored = Sealing.readAtomically(biometricFile) ?: return null
     if (stored.size <= 1) return null
     return Sealing.open(cipher, stored.copyOfRange(1, stored.size), BIOMETRIC_AAD)
   }
 
   fun dropBiometric() {
+    WorldGate.refuse()
     AtomicFile(biometricFile).delete()
     keyStore().let { if (it.containsAlias(biometricAlias)) it.deleteEntry(biometricAlias) }
   }

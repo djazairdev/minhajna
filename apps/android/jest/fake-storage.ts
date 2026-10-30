@@ -49,6 +49,8 @@ export class FakeStorage {
   opened = false;
   /** Set to make `openHistory` fail, as when the key is gone. */
   keyLost = false;
+  /** Set while a demo world is open: the history closes and refuses every call, as WorldGate makes it (#558). */
+  worldOpen = false;
   created = false;
   /** The lock's PIN once set; the fake keeps it plain, the device never does. */
   pin: string | null = null;
@@ -90,6 +92,7 @@ export class FakeStorage {
   }
 
   openHistory(): Promise<void> {
+    if (this.worldOpen) return this.#whenOpen(() => undefined);
     if (this.pin !== null) return this.opened ? Promise.resolve() : Promise.reject(failure('E_LOCKED'));
     if (this.keyLost) return Promise.reject(failure('E_KEY_LOST'));
     this.opened = true;
@@ -262,6 +265,8 @@ export class FakeStorage {
 
   #whenOpen<T>(task: () => T): Promise<T> {
     if (this.stopped) return Promise.reject(failure('E_HISTORY', 'The storage module has stopped'));
+    if (this.worldOpen) this.opened = false;
+    if (this.worldOpen) return Promise.reject(failure('E_HISTORY', 'A demo world is open'));
     if (!this.opened) return Promise.reject(failure('E_HISTORY', 'The history is not open'));
     try {
       return Promise.resolve(task());

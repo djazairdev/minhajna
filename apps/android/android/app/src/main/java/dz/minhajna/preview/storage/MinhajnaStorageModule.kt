@@ -147,7 +147,7 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
         key.fill(0)
         throw e
       }
-      prompt(texts, cipher, promise, onCancel = { key.fill(0); lock.dropBiometric() }) { released ->
+      prompt(texts, cipher, promise, onCancel = { key.fill(0); runCatching(lock::dropBiometric) }) { released ->
         try {
           lock.saveBiometric(released, key)
         } finally {
@@ -282,7 +282,7 @@ class MinhajnaStorageModule(context: ReactApplicationContext) : NativeMinhajnaSt
         } catch (e: CancelledException) {
           promise.reject("E_CANCELLED", e.message, e)
         } catch (e: Exception) {
-          promise.reject("E_HISTORY", e.message ?: e.javaClass.simpleName, e)
+          promise.reject((e as? Coded)?.code ?: "E_HISTORY", e.message ?: e.javaClass.simpleName, e)
         }
       }
     } catch (e: RejectedExecutionException) {

@@ -15,7 +15,7 @@ describe('the native modules on the web', () => {
     const specs = readdirSync(new URL('../../android/src/native/', import.meta.url))
       .map((name) => /^NativeMinhajna([A-Za-z]+)\.ts$/u.exec(name)?.[1])
       .filter((name) => name !== undefined);
-    assert.equal(specs.length, 14);
+    assert.equal(specs.length, 15);
     for (const name of specs) assert.match(webModule(name), new RegExp(`src/native/${name}\\.ts$`, 'u'));
   });
 

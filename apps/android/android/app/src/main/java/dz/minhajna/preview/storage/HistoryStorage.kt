@@ -16,9 +16,15 @@ import org.json.JSONObject
  * each with its own Keystore key, through this same code.
  *
  * It is not thread-safe: each caller keeps it to one thread, so that a write
- * is committed before the next one starts.
+ * is committed before the next one starts. While a demo world is open
+ * ([WorldGate]), the teacher's history closes at its next call and refuses
+ * every call; a world's own history, under another alias, is not held back.
  */
-class HistoryStorage(private val folder: File, private val alias: String = DatabaseKey.ALIAS) {
+class HistoryStorage(
+  private val folder: File,
+  private val alias: String = DatabaseKey.ALIAS,
+  private val teachers: Boolean = alias == DatabaseKey.ALIAS,
+) {
 
   private var history: HistoryDatabase? = null
 
@@ -27,6 +33,7 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
    * while no PIN is set. Opening it again does nothing.
    */
   fun open(random: SecureRandom) {
+    refuseInWorld()
     if (history != null) return
     val key = DatabaseKey(File(folder, KEY), alias)
     if (exists() && !key.exists()) {
@@ -42,11 +49,12 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
 
   /** Opens the history with a key the lock gave; the caller clears the key. Opening it again does nothing. */
   fun openWithKey(bytes: ByteArray) {
+    refuseInWorld()
     if (history != null) return
     history = HistoryDatabase.open(File(folder, DATABASE), bytes)
   }
 
-  fun isOpen(): Boolean = history != null
+  fun isOpen(): Boolean = history != null && !(teachers && WorldGate.isOpen)
 
   fun exists(): Boolean = File(folder, DATABASE).exists()
 
@@ -99,7 +107,16 @@ class HistoryStorage(private val folder: File, private val alias: String = Datab
     history = null
   }
 
-  private fun opened(): HistoryDatabase = history ?: throw IllegalStateException("The history is not open")
+  private fun opened(): HistoryDatabase {
+    refuseInWorld()
+    return history ?: throw IllegalStateException("The history is not open")
+  }
+
+  private fun refuseInWorld() {
+    if (!teachers || !WorldGate.isOpen) return
+    close()
+    throw WorldOpenException()
+  }
 
   companion object {
     const val DATABASE = "history.db"
