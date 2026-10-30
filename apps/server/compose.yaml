@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# PostgreSQL for the local demo (#543), which `npm run demo` starts with the
+# server and the PC web app. The image is pinned by version and digest, the
+# same as the Weblate setup's. It listens on this machine only, on port
+# 54320, so it does not meet another PostgreSQL. It holds made-up worlds
+# only, so it trusts local connections and needs no password: it is for a
+# local demo only, and never for a deployment. Its health check asks over
+# TCP, so it passes only once the real server listens. Its data lives in the
+# demo-data volume, which `npm run demo -- --fresh` clears.
+
+name: minhajna-demo
+
+services:
+  database:
+    image: postgres:18.6-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873
+    environment:
+      POSTGRES_USER: minhajna
+      POSTGRES_DB: minhajna_demo
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 127.0.0.1:54320:5432
+    volumes:
+      - demo-data:/var/lib/postgresql
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, minhajna, -d, minhajna_demo]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+volumes:
+  demo-data: {}
