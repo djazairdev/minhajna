@@ -10,6 +10,8 @@ import { describe, it } from 'node:test';
 import { createApp } from '../src/app.js';
 import { clientAddress, Limiter, limitKey } from '../src/worlds/limits.js';
 
+const PASS = 'cGFzcy1mb3ItYS1tYWRlLXVwLWRlbW8td29ybGQtMDE';
+
 function request(remoteAddress: string | undefined, headers: Record<string, string> = {}): IncomingMessage {
   return { socket: { remoteAddress }, headers } as unknown as IncomingMessage;
 }
@@ -62,9 +64,9 @@ describe('the rate limits', () => {
     assert.equal(clientAddress(behind, true), '2001:db8:aa:1::/64');
   });
 
-  it('answers 429 to starts and joins over the limit', async () => {
+  it('answers 429 to starts, joins and the relay over the limit', async () => {
     const tight = { perAddress: 2, total: 100, windowMs: 60_000 };
-    const app = await createApp(false, { starts: tight, joins: tight });
+    const app = await createApp(false, { starts: tight, joins: tight, relay: tight });
     await app.listen(0, '127.0.0.1');
     const base = await app.getUrl();
     try {
@@ -72,14 +74,24 @@ describe('the rate limits', () => {
         fetch(`${base}/worlds`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ world, sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [] }),
+          body: JSON.stringify({ world, sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [], pass: PASS }),
         });
       assert.equal((await start('K1MT1')).status, 201);
       assert.equal((await start('K1MT2')).status, 201);
       assert.equal((await start('K1MT3')).status, 429);
-      assert.equal((await fetch(`${base}/worlds/K1MT1`)).status, 200);
-      assert.equal((await fetch(`${base}/worlds/K1MT2/date`)).status, 200);
-      assert.equal((await fetch(`${base}/worlds/K1MT1`)).status, 429);
+      const headers = { 'x-world-pass': PASS };
+      assert.equal((await fetch(`${base}/worlds/K1MT1`, { headers })).status, 200);
+      assert.equal((await fetch(`${base}/worlds/K1MT2/date`, { headers })).status, 200);
+      assert.equal((await fetch(`${base}/worlds/K1MT1`, { headers })).status, 429);
+      const space = `${base}/worlds/K1MT2/spaces/bGltaXRlZC1zcGFjZS1vZi1kZW1v`;
+      const put = {
+        method: 'PUT',
+        headers: { ...headers, 'content-type': 'application/json' },
+        body: '{"kind":"school"}',
+      };
+      assert.equal((await fetch(space, put)).status, 200);
+      assert.equal((await fetch(`${space}/batches`, { headers })).status, 200);
+      assert.equal((await fetch(`${space}/batches`, { headers })).status, 429);
     } finally {
       await app.close();
     }

@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The worlds API (#540, choice D3 of the 0.7.0 demo). POST /worlds starts a
-// world from the first half of its code and the sealed world, and answers
-// the starter token once. GET /worlds/:world joins it, GET
-// /worlds/:world/date reads its date, and POST /worlds/:world/date moves
-// the date to the next announced day, only for the starter token's holder.
-// No answer may be cached: they carry the starter token and sealed worlds.
+// world from the first half of its code, the sealed world and the world's
+// pass, and answers the starter token once. With the pass in X-World-Pass,
+// GET /worlds/:world joins it and GET /worlds/:world/date reads its date; a
+// wrong pass answers as if no world had the id. POST /worlds/:world/date,
+// with the pass too, moves the date to the next announced day, only for the
+// starter token's holder. Only a start can tell that an id is taken, and
+// starts are the most limited requests. No answer may be cached: they carry
+// the starter token and sealed worlds.
 
 import {
   BadRequestException,
@@ -18,31 +21,24 @@ import {
   Header,
   Headers,
   HttpCode,
-  HttpException,
   HttpStatus,
   Inject,
-  NotFoundException,
   Param,
   Post,
   Req,
 } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { clientAddress, type Limiter } from './limits.js';
-import {
-  hashToken,
-  holdsStarter,
-  isWorldId,
-  newStarterToken,
-  nextAnnouncedDay,
-  readWorldStart,
-} from './world-rules.js';
-import { WORLD_STORE, type World, type WorldStore } from './world-store.js';
+import type { Limiter } from './limits.js';
+import { limitRequest, openWorld } from './world-access.js';
+import { hashToken, holdsStarter, newStarterToken, nextAnnouncedDay, readWorldStart } from './world-rules.js';
+import { WORLD_STORE, type WorldStore } from './world-store.js';
 
 export const WORLD_LIMITERS = Symbol('WorldLimiters');
 
 export interface WorldLimiters {
   readonly starts: Limiter;
   readonly joins: Limiter;
+  readonly relay: Limiter;
   readonly trustCloudflare: boolean;
 }
 
@@ -68,17 +64,25 @@ export class WorldsController {
 
   @Get(':world')
   @Header('Cache-Control', 'no-store')
-  async join(@Param('world') id: string, @Req() request: IncomingMessage): Promise<{ sealed: string; date: string }> {
+  async join(
+    @Param('world') id: string,
+    @Headers('x-world-pass') pass: string | undefined,
+    @Req() request: IncomingMessage,
+  ): Promise<{ sealed: string; date: string }> {
     this.limit(this.limiters.joins, request);
-    const world = await this.find(id);
+    const world = await openWorld(this.store, id, pass);
     return { sealed: world.sealed, date: world.date };
   }
 
   @Get(':world/date')
   @Header('Cache-Control', 'no-store')
-  async date(@Param('world') id: string, @Req() request: IncomingMessage): Promise<{ date: string }> {
+  async date(
+    @Param('world') id: string,
+    @Headers('x-world-pass') pass: string | undefined,
+    @Req() request: IncomingMessage,
+  ): Promise<{ date: string }> {
     this.limit(this.limiters.joins, request);
-    return { date: (await this.find(id)).date };
+    return { date: (await openWorld(this.store, id, pass)).date };
   }
 
   @Post(':world/date')
@@ -86,11 +90,12 @@ export class WorldsController {
   @HttpCode(HttpStatus.OK)
   async move(
     @Param('world') id: string,
+    @Headers('x-world-pass') pass: string | undefined,
     @Headers('authorization') authorization: string | undefined,
     @Req() request: IncomingMessage,
   ): Promise<{ date: string }> {
     this.limit(this.limiters.joins, request);
-    const world = await this.find(id);
+    const world = await openWorld(this.store, id, pass);
     if (!holdsStarter(authorization, world.starterHash)) {
       throw new ForbiddenException('only the device that started the world moves its date');
     }
@@ -101,14 +106,6 @@ export class WorldsController {
   }
 
   private limit(limiter: Limiter, request: IncomingMessage): void {
-    if (!limiter.take(clientAddress(request, this.limiters.trustCloudflare))) {
-      throw new HttpException('too many requests; try again later', HttpStatus.TOO_MANY_REQUESTS);
-    }
-  }
-
-  private async find(id: string): Promise<World> {
-    const world = isWorldId(id) ? await this.store.get(id) : undefined;
-    if (!world) throw new NotFoundException('no world has this id');
-    return world;
+    limitRequest(limiter, request, this.limiters.trustCloudflare);
   }
 }
