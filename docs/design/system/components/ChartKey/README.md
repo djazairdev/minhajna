@@ -7,4 +7,4 @@ The marks every chart uses, and their key: recorded, projected, reference, the e
 - **Held back:** hatched cells for figures under the minimum group size (PRD [§5.10](https://github.com/djazairdev/minhajna/blob/main/docs/prd/PRD.md#510-the-permission-model)).
 - **Bands** for ranges of totals. **Tracks** for progress, always with the figure written.
 - **Every chart has a table** of the same figures, and mirrored axes in right-to-left layouts (PRD [§5.2](https://github.com/djazairdev/minhajna/blob/main/docs/prd/PRD.md#52-architecture)).
-- **Canvas:** T-Threshold, T-Threshold-after, T-Threshold-totals, D-Threshold, M-Threshold, N-Threshold, N-Published, M-Totals, Obs-Report.
+- **Canvas:** T-Threshold, T-Threshold-after, T-Threshold-totals, D-Threshold, M-Threshold, N-Threshold, N-Published, M-Totals, N-Totals, Obs-Report.
