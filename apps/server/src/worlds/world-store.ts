@@ -5,8 +5,10 @@
 // its code), the sealed world the starting device sent, which the server
 // cannot open, the world's date, the announced days the date moves through,
 // hashes of the starter token and of the world's pass, and the day it is
-// erased, its 7th (answer 548). This store keeps them in memory, for tests
-// and development; storage/prisma-stores.ts keeps them in PostgreSQL.
+// erased, its 7th (answer 548). It keeps too the key of the world's stand-in
+// CA (#554), apart from the world, made the first time the world needs it.
+// This store keeps them in memory, for tests and development;
+// storage/prisma-stores.ts keeps them in PostgreSQL.
 
 export interface World {
   readonly id: string;
@@ -30,6 +32,8 @@ export interface WorldStore {
   add(world: World): Promise<boolean>;
   get(id: string): Promise<World | undefined>;
   setDate(id: string, date: string): Promise<void>;
+  /** The world's stand-in CA key, made with `make` the first time it is asked for; undefined without the world. */
+  caKey(id: string, make: () => string): Promise<string | undefined>;
   /** Erases every world whose erasure day has come, with everything in it, and answers their ids. */
   sweep(today: string): Promise<string[]>;
 }
@@ -38,6 +42,7 @@ export const WORLD_STORE = Symbol('WorldStore');
 
 export class MemoryWorldStore implements WorldStore {
   private readonly worlds = new Map<string, World>();
+  private readonly caKeys = new Map<string, string>();
 
   add(world: World): Promise<boolean> {
     if (this.worlds.has(world.id)) return Promise.resolve(false);
@@ -55,9 +60,18 @@ export class MemoryWorldStore implements WorldStore {
     return Promise.resolve();
   }
 
+  caKey(id: string, make: () => string): Promise<string | undefined> {
+    if (!this.worlds.has(id)) return Promise.resolve(undefined);
+    if (!this.caKeys.has(id)) this.caKeys.set(id, make());
+    return Promise.resolve(this.caKeys.get(id));
+  }
+
   sweep(today: string): Promise<string[]> {
     const gone = [...this.worlds.values()].filter((world) => world.erasesOn <= today).map((world) => world.id);
-    for (const id of gone) this.worlds.delete(id);
+    for (const id of gone) {
+      this.worlds.delete(id);
+      this.caKeys.delete(id);
+    }
     return Promise.resolve(gone);
   }
 }

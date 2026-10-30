@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The world and space stores (#541, #542): the same rules, caps and sweep
-// for the memory stores and PostgreSQL's, which run against the database
-// named by TEST_DATABASE_URL, emptied before each test, and are skipped
-// without it; CI always sets it. Then a world kept in PostgreSQL outliving
-// a restart of the server. Every world here is made up.
+// The world and space stores (#541, #542, #554): the same rules, caps,
+// stand-in CA keys and sweep for the memory stores and PostgreSQL's, which
+// run against the database named by TEST_DATABASE_URL, emptied before each
+// test, and are skipped without it; CI always sets it. Then a world kept
+// in PostgreSQL outliving a restart of the server. Every world here is
+// made up.
 
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
@@ -99,6 +100,21 @@ for (const kind of KINDS) {
         await worlds.setDate('AAAAA', '2026-12-06');
         assert.equal((await worlds.get('AAAAA'))?.date, '2026-12-06');
         await worlds.setDate('CCCCC', '2026-12-06');
+      }));
+
+    it('makes a world’s stand-in CA key once, keeps it apart from the world, and erases it with the world', () =>
+      withStores(async ({ worlds }) => {
+        assert.equal(await worlds.caKey('AAAAA', () => 'first-key'), 'first-key');
+        assert.equal(await worlds.caKey('AAAAA', () => 'second-key'), 'first-key');
+        assert.equal(await worlds.caKey('BBBBB', () => 'other-key'), 'other-key');
+        assert.equal(await worlds.caKey('CCCCC', () => 'no-world'), undefined);
+        await worlds.add(madeUpWorld('DDDDD'));
+        const [one, two] = await Promise.all(['one', 'two'].map((key) => worlds.caKey('DDDDD', () => key)));
+        assert.equal(one, two);
+        assert.ok(one === 'one' || one === 'two');
+        assert.deepEqual(await worlds.get('AAAAA'), madeUpWorld('AAAAA'));
+        await worlds.sweep('2026-12-07');
+        assert.equal(await worlds.caKey('AAAAA', () => 'after'), undefined);
       }));
 
     it('keeps each world’s spaces apart', () =>
