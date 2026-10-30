@@ -23,5 +23,6 @@ Then <http://127.0.0.1:3000/health> answers the package's version. The server li
 
 - **NestJS 12 on Node's own `node:http`** (§5.2), through its `NodeAdapter`, in TypeScript compiled by `tsc` to `dist/`. Once the server reads JSON bodies, the adapter's parser refuses those that try to change object prototypes. NestJS needs TypeScript's decorators and their type metadata, so this package's `tsconfig.json` turns them on over the repository's shared settings.
 - **Its own lockfile,** like the apps. Its `.npmrc` repeats the repository's rules: no dependency runs scripts while installing, and the Node.js version is checked.
+- **One override:** `@nestjs/platform-node` 12.3.2 pins `qs` at 6.16.0, which GHSA-6pq8-jhm2-2vcw covers, so `package.json` raises it to the patched 6.16.1. Remove the override once a release of the adapter carries the fix.
 - **Logs with no clock times:** every line holds a level, the part of the server that wrote it and its message. Requests are never logged, so the logs never show who was active, or when (§6.5, §6.7).
 - **Nothing more than asked:** no request bodies are read yet, and no header says what the server is built with.

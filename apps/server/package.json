@@ -24,5 +24,8 @@
   "devDependencies": {
     "@types/node": "22.20.5",
     "typescript": "6.0.3"
+  },
+  "overrides": {
+    "qs": "6.16.1"
   }
 }
