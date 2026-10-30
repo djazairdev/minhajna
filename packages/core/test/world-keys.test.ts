@@ -86,7 +86,7 @@ function worldKeys(world: string): WorldKeys {
     signs: ['calendar' as const, 'packs' as const],
   };
   const pkcs8 = privateKey.export({ type: 'pkcs8', format: 'der' }).toString('base64');
-  return { world, trusted: [trusted], private: { 'world-ministry': pkcs8 } };
+  return { world, kind: 'national', trusted: [trusted], private: { 'world-ministry': pkcs8 } };
 }
 
 describe('a world’s secrets', () => {
@@ -130,6 +130,11 @@ describe('a world’s sealed keys', () => {
     assert.match(text, /^[A-Za-z0-9_-]+$/u);
     assert.equal(text.includes(keys.private['world-ministry']!.slice(0, 40)), false);
     assert.deepEqual(await openWorldKeys(text, secrets, cipher), keys);
+    const teachers = { ...keys, kind: 'teachers' as const };
+    assert.deepEqual(
+      await openWorldKeys(await sealWorldKeys(teachers, secrets, cipher, PAIR), secrets, cipher),
+      teachers,
+    );
 
     const other = await sealed();
     assert.equal(await openWorldKeys(text, other.secrets, cipher), null);
@@ -155,6 +160,8 @@ describe('a world’s sealed keys', () => {
     const half = keys.private['world-ministry']!;
     for (const changed of [
       { ...keys, world: 'ABCDE' },
+      { ...keys, kind: 'school' as never },
+      { ...keys, kind: undefined as never },
       { ...keys, private: {} },
       { ...keys, private: { 'world-ministry': half, other: half } },
       { ...keys, private: { 'world-ministry': 'not base64!' } },
