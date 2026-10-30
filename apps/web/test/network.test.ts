@@ -98,13 +98,8 @@ describe('the guard on a PC', () => {
   });
 
   it('keeps the page’s own files and local addresses open, and nothing else outside a world', async () => {
-    for (const address of [
-      './build.json',
-      '/licences.json',
-      `${OWN}/sw.js`,
-      'blob:https://minhajna.djazair.dev/1',
-      'data:,x',
-    ]) {
+    const open = ['./build.json', '/licences.json', `${OWN}/sw.js`, 'blob:https://minhajna.djazair.dev/1', 'data:,x'];
+    for (const address of open) {
       assert.equal(await passes(address), true, address);
     }
     for (const address of [
@@ -120,7 +115,7 @@ describe('the guard on a PC', () => {
     ]) {
       assert.equal(await passes(address), false, address);
     }
-    assert.ok(sent.every((address) => !address.includes('example.com') && !address.startsWith(DEMO_SERVER)));
+    assert.deepEqual(new Set(sent), new Set(open));
   });
 
   it('lets the demo server through only while a world is open', async () => {
