@@ -4108,5 +4108,9 @@
   },
   "pc": {
     "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce PC : rien n’en est affiché."
+  },
+  "demo": {
+    "band": "Version de démonstration · données inventées",
+    "date": "Date du monde : {{date}}"
   }
 }

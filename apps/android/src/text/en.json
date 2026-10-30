@@ -4040,5 +4040,9 @@
   },
   "pc": {
     "historyRefused": "Your records could not be opened on this PC, so none of them are shown."
+  },
+  "demo": {
+    "band": "Demo version · made-up data",
+    "date": "The world’s date: {{date}}"
   }
 }
