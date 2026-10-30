@@ -33,7 +33,7 @@ The build reads the Android app's code and its TypeScript settings, so it stops 
   cd dist
   find . -type f ! -name build.json | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum | sha256sum
   ```
-- **Nothing loaded from elsewhere:** the page's security policy allows only its own files, and no inline script (R-6.6-01).
+- **Nothing loaded from elsewhere:** the page's security policy allows only its own files, and no inline script (R-6.6-01). It may connect to one other address, the demo server `https://minhajna-demo.djazair.dev` (answer 554), for demo worlds only; the host check fails if it names any other.
 - **Licences:** `licences.json` holds a notice for every package in the bundle, with the reference data's and the fonts'.
 
 ## Offline and updates
