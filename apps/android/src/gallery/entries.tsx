@@ -24,6 +24,7 @@ import { RowLinkSamples } from './row-link-samples';
 import { FactsSamples } from './facts-samples';
 import { PageHeadingSamples, SectionHeaderSamples } from './heading-samples';
 import { NoticeSamples, SnackbarSamples } from './feedback-samples';
+import { DemoBandSamples } from './demo-band-samples';
 import { TabsSample } from './navigation-sample';
 import { TextFieldSamples } from './text-field-samples';
 import { PrivateNoteSamples } from './private-note-samples';
@@ -120,7 +121,12 @@ export const entries: readonly GalleryEntry[] = [
   {
     name: 'Notice',
     design: 'docs/design/system/components/Notice/README.md',
-    render: (sample, language) => <NoticeSamples sample={sample} language={language} />,
+    render: (sample, language) => (
+      <>
+        <NoticeSamples sample={sample} language={language} />
+        <DemoBandSamples language={language} />
+      </>
+    ),
   },
   {
     name: 'SetupSteps',
