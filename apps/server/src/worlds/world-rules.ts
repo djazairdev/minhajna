@@ -3,15 +3,17 @@
 
 // What the server accepts for a world (choice D3 of the 0.7.0 demo): an id
 // of five characters from the world code's alphabet, a sealed world in
-// base64url, a date and the announced days the date moves through. The
-// starter token is random, handed back once and kept only as its hash, so
-// the store alone cannot move a world's date.
+// base64url, a date and the announced days the date moves through, and the
+// world's pass, which the device derives from the code's secret. The server
+// keeps the pass and the starter token only as hashes: whoever reads the
+// store can neither enter the world nor move its date.
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 const WORLD_ID = /^[0-9A-HJKMNP-TV-Z]{5}$/;
 const SEALED = /^[A-Za-z0-9_-]+$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const PASS = /^[A-Za-z0-9_-]{43}$/;
 
 export const MAX_SEALED = 48 * 1024;
 export const MAX_ANNOUNCED_DAYS = 400;
@@ -21,6 +23,7 @@ export interface WorldStart {
   readonly sealed: string;
   readonly date: string;
   readonly announcedDays: readonly string[];
+  readonly passHash: string;
 }
 
 export function isWorldId(text: unknown): text is string {
@@ -38,7 +41,7 @@ export function isDay(text: unknown): text is string {
 /** The start request as the server keeps it, or why it was refused. */
 export function readWorldStart(body: unknown): WorldStart | string {
   if (typeof body !== 'object' || body === null) return 'the request must be a JSON object';
-  const { world, sealed, date, announcedDays } = body as Record<string, unknown>;
+  const { world, sealed, date, announcedDays, pass } = body as Record<string, unknown>;
   if (!isWorldId(world)) return 'world must be the first five characters of a world code';
   if (typeof sealed !== 'string' || !SEALED.test(sealed) || sealed.length > MAX_SEALED) {
     return `sealed must be base64url, at most ${MAX_SEALED} characters`;
@@ -47,7 +50,8 @@ export function readWorldStart(body: unknown): WorldStart | string {
   if (!Array.isArray(announcedDays) || announcedDays.length > MAX_ANNOUNCED_DAYS || !announcedDays.every(isDay)) {
     return `announcedDays must list at most ${MAX_ANNOUNCED_DAYS} days written YYYY-MM-DD`;
   }
-  return { id: world, sealed, date, announcedDays: [...new Set(announcedDays)].sort() };
+  if (typeof pass !== 'string' || !PASS.test(pass)) return 'pass must be 32 bytes in base64url';
+  return { id: world, sealed, date, announcedDays: [...new Set(announcedDays)].sort(), passHash: hashToken(pass) };
 }
 
 /** The first announced day after the world's date, or null when none is left. */
@@ -61,6 +65,12 @@ export function newStarterToken(): string {
 
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
+}
+
+/** Whether the X-World-Pass header carries the pass whose hash the world keeps. */
+export function holdsPass(header: string | undefined, passHash: string): boolean {
+  if (typeof header !== 'string' || !PASS.test(header)) return false;
+  return timingSafeEqual(Buffer.from(hashToken(header), 'hex'), Buffer.from(passHash, 'hex'));
 }
 
 /** Whether the Authorization header carries the token whose hash the world keeps. */

@@ -4,8 +4,8 @@
 // Where the server keeps its worlds. A world is its id (the first half of
 // its code), the sealed world the starting device sent, which the server
 // cannot open, the world's date, the announced days the date moves through,
-// and a hash of the starter token. This store keeps them in memory; #542
-// keeps them in PostgreSQL behind the same interface.
+// and hashes of the starter token and of the world's pass. This store keeps
+// them in memory; #542 keeps them in PostgreSQL behind the same interface.
 
 export interface World {
   readonly id: string;
@@ -13,6 +13,7 @@ export interface World {
   readonly date: string;
   readonly announcedDays: readonly string[];
   readonly starterHash: string;
+  readonly passHash: string;
 }
 
 export interface WorldStore {

@@ -3,14 +3,15 @@
 
 // Builds the server's application, apart from listening, so the tests start
 // the same application the server runs. NestJS runs straight on node:http
-// through NodeAdapter. Bodies are read as JSON only, up to 64 KB, since a
-// sealed world is small; anything larger is refused before a route runs.
+// through NodeAdapter. Bodies are read as JSON only; the body guard refuses
+// one larger than its route takes before it is read.
 
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { LoggerService } from '@nestjs/common';
 import { NodeAdapter, type NestNodeApplication } from '@nestjs/platform-node';
 import { AppModule } from './app.module.js';
+import { BATCH_BODY, bodyGuard } from './body-guard.js';
 import { PlainLogger } from './plain-logger.js';
 import type { WorldsOptions } from './worlds/worlds.module.js';
 
@@ -22,7 +23,8 @@ export async function createApp(
     logger,
     bodyParser: false,
   });
-  app.useBodyParser('json', { limit: '64kb' });
+  app.use(bodyGuard);
+  app.useBodyParser('json', { limit: BATCH_BODY });
   app.enableShutdownHooks();
   return app;
 }
