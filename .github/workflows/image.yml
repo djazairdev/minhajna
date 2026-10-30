@@ -1,0 +1,64 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# The demo server's image (#633): builds it from apps/server/Dockerfile and
+# checks that a world written in one container is found again in a new one
+# on an empty disk, through WAL-G and an S3 stand-in on this runner only
+# (apps/server/compose.yaml's archive profile). It runs when the server or
+# this workflow changes. Nothing is pushed or deployed from here.
+
+name: Server image
+
+on:
+  pull_request:
+    paths:
+      - apps/server/**
+      - tsconfig.base.json
+      - .github/workflows/image.yml
+  push:
+    branches: [main]
+    paths:
+      - apps/server/**
+      - tsconfig.base.json
+      - .github/workflows/image.yml
+
+permissions: {}
+
+concurrency:
+  group: image-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  image:
+    name: Server image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      # Both .npmrc files stop install scripts; the test is built like the
+      # server's others.
+      - name: Install the server's locked dependencies
+        working-directory: apps/server
+        run: npm ci --no-audit && npm run tools
+
+      - name: Build the image and keep a world through a new container
+        working-directory: apps/server
+        env:
+          TEST_IMAGE: '1'
+        run: npm run build && node --test dist/test/image.test.js

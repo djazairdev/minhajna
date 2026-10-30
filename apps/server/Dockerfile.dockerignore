@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# The image is built from the repository's root, so only what it copies is
+# sent to the builder: never node_modules, dist, or anything private.
+*
+!tsconfig.base.json
+!apps/server/package.json
+!apps/server/package-lock.json
+!apps/server/.npmrc
+!apps/server/tsconfig.json
+!apps/server/prisma
+!apps/server/src
+!apps/server/container
+!apps/server/tools/prisma/package.json
+!apps/server/tools/prisma/package-lock.json
+!apps/server/tools/prisma/.npmrc
+!apps/server/tools/prisma/prisma.config.ts
+apps/server/src/generated

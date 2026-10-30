@@ -10,6 +10,11 @@
 # TCP, so it passes only once the real server listens. Its data lives in the
 # demo-data volume, which `npm run demo -- --fresh` clears. On its first
 # start it also makes minhajna_test, for the server's database tests.
+#
+# With `--profile archive`, the objects service is an S3-compatible bucket
+# store (SeaweedFS) standing in for R2, for the image's archive test (#633):
+# it keeps nothing past `down`, needs no credentials, and listens on this
+# machine only, on port 58333.
 
 name: minhajna-demo
 
@@ -27,6 +32,18 @@ services:
       - ./test-database.sql:/docker-entrypoint-initdb.d/test-database.sql:ro
     healthcheck:
       test: [CMD, pg_isready, -h, 127.0.0.1, -U, minhajna, -d, minhajna_demo]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  objects:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    profiles: [archive]
+    command: [server, -dir=/data, -s3, -ip.bind=0.0.0.0]
+    ports:
+      - 127.0.0.1:58333:8333
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8333/status]
       interval: 2s
       timeout: 2s
       retries: 30

@@ -57,9 +57,28 @@ With `DATABASE_URL`, worlds, spaces and batches are kept in PostgreSQL ([#542](h
 - **Prisma's command line** lives in `tools/prisma/` with its own lockfile, so it never installs with the server: `npm run tools` installs it, and `npm run build` runs its `generate`, which downloads nothing.
 - **A new migration:** change `schema.prisma`; against a database with every committed migration applied, run `DATABASE_URL=… npm run diff -- --script`; commit its output as `prisma/migrations/<next number>_<name>/migration.sql`, with the licence header the others carry.
 
+## The container image
+
+The demo runs from one image ([#633](https://github.com/djazairdev/minhajna/issues/633), answer 550): the server and PostgreSQL 18 together, with [WAL-G](https://github.com/wal-g/wal-g) keeping the database in an S3-compatible bucket, R2 for the demo, so a container that starts on an empty disk finds every world as it was. Build it from the repository's root:
+
+```bash
+docker build -f apps/server/Dockerfile -t minhajna-server .
+```
+
+- **On an empty disk,** it restores the latest base backup and every archived WAL file from the bucket; when the bucket holds none, it makes a new database and backs it up at once. A restore lands in a separate folder first, so a failed one leaves nothing half-made. If the bucket cannot be read within `BUCKET_WAIT` seconds (120), or the backup restored within `RESTORE_WAIT` (1800), it stops rather than start an empty or partial database. A WAL file the bucket fails to give is asked for 5 times over about 30 seconds; then recovery stops, rather than open a database without it, and the next container tries again.
+- **While it runs,** PostgreSQL archives each WAL file as it fills, and at least every `ARCHIVE_TIMEOUT` seconds (60), so a container lost without warning loses at most that much. A base backup is taken whenever the latest is `BACKUP_EVERY` seconds old (a day), on starting too, and the last two are kept.
+- **On `SIGTERM`,** the server stops, the last WAL file is archived, and PostgreSQL stops. That takes longer than the usual 10 seconds' grace: give the container at least 120 (`docker run --stop-timeout 120`, or the host's equivalent), or a stop may lose up to a minute of writes.
+- **The bucket comes from the environment,** never from the image or the repository: `WALG_S3_PREFIX` (`s3://<bucket>/<path>`), `AWS_ENDPOINT` (R2's `https://<account>.r2.cloudflarestorage.com`), `AWS_REGION` (`auto` for R2), `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Without `WALG_S3_PREFIX` it refuses to start, unless `ARCHIVE=off` says to keep nothing, for trying the image.
+- **Seal the archive** with `WALG_LIBSODIUM_KEY` (32 random bytes, in hex with `WALG_LIBSODIUM_KEY_TRANSFORM=hex`), so whoever can read the bucket reads nothing: without it, world ids, hashes, erasure days and sealed batches are in the clear there. Keep the key with the bucket's credentials; without it the archive cannot be restored.
+- **What the bucket keeps and shows:** an erased world leaves the database at once, but stays in the bucket until the WAL and the base backups that hold it are replaced, about two days at most while backups run; deleted rows may also linger in later backups until PostgreSQL reuses their space. The times the bucket stores with each WAL file and backup show when the demo was used, to the minute, to whoever reads the bucket.
+- **Inside,** the start script runs as root only to start PostgreSQL as `postgres` and the server as `minhajna`, a database role that is no superuser, without the bucket's settings. PostgreSQL listens on its socket only, the server on port 8080, and nothing else is reached but the bucket; closing every other outbound address is the host's part ([#545](https://github.com/djazairdev/minhajna/issues/545)). Its logs carry no clock times: they are cut from PostgreSQL's and WAL-G's lines.
+- **Its test** (`test/image.test.ts`) builds the image and runs it against an S3 stand-in, [SeaweedFS](https://github.com/seaweedfs/seaweedfs) in `compose.yaml`'s `archive` profile, with a sealed archive. It stops a container after a world was written both before and after its latest base backup, and finds both in a new container on an empty disk. It needs Docker, so it runs only with `TEST_IMAGE=1`, as the Server image workflow does.
+
 ## Before deploying
 
-- **Set `DATABASE_URL`,** or worlds are lost at every restart. A deployment carries `dist/`, `prisma/migrations/` and the server's `package.json`, lockfile and `.npmrc`, and installs with `npm ci --omit=dev`, which never brings Prisma's command line.
+- **Set `DATABASE_URL`,** or worlds are lost at every restart; the image sets it for its own PostgreSQL. A deployment outside the image carries `dist/`, `prisma/migrations/` and the server's `package.json`, lockfile and `.npmrc`, and installs with `npm ci --omit=dev`, which never brings Prisma's command line.
+- **One container per bucket path:** two containers running on the same `WALG_S3_PREFIX`, as in a blue-green deploy, split the archive, and the next restore keeps only one of them. Stop the old container before the new one starts.
+- **Give it a stop grace of 120 seconds** and a disk for the database and some days of WAL, mounted at `/var/lib/postgresql`, never at the database's own folder below it, where a restore could not move into place. If the bucket stays out of reach, WAL piles up until the disk is full, and PostgreSQL stops.
 - **Behind Cloudflare,** set `TRUST_PROXY=cloudflare` and make sure the Worker in front passes `CF-Connecting-IP` on ([#545](https://github.com/djazairdev/minhajna/issues/545)); otherwise every request has the Worker's address and the per-address limits become one shared limit.
 
 ## Build and try it
