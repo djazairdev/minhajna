@@ -13,6 +13,6 @@
     "emitDecoratorMetadata": true,
     "sourceMap": false
   },
-  "include": ["src", "test"],
+  "include": ["src", "test", "tools/prisma/prisma.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

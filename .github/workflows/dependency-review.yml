@@ -36,14 +36,23 @@ jobs:
             MPL-2.0, LGPL-2.1-or-later, LGPL-3.0-or-later, GPL-3.0-or-later,
             AGPL-3.0-or-later, OFL-1.1, CC0-1.0, CC-BY-4.0, CC-BY-SA-4.0
           # Exceptions a maintainer accepted, each by name, with its reason.
-          # Neither package reaches the apps.
+          # None of them reaches the apps or installs with the server.
           # - argparse 2 is a port of Python's argparse, under the Python
           #   Software Foundation licence. Build tools load it through
           #   js-yaml.
           # - minimatch 10 matches file paths for ESLint. It is under the
           #   Blue Oak Model License 1.0.0, a permissive licence approved by
           #   the OSI.
-          allow-dependencies-licenses: pkg:npm/argparse, pkg:npm/minimatch
+          # - The server's build tool, Prisma's command line (#542, answer
+          #   553), installed apart in apps/server/tools/prisma, brings four
+          #   more that only its Studio and its own database tools load:
+          #   elkjs (EPL-2.0) and @visx/vendor (declared as "MIT and ISC")
+          #   lay out Studio's graphs, robust-predicates (Unlicense) is under
+          #   them, and postgres (Unlicense) is the tool's own driver.
+          allow-dependencies-licenses: >-
+            pkg:npm/argparse, pkg:npm/minimatch, pkg:npm/elkjs,
+            pkg:npm/@visx/vendor, pkg:npm/%40visx/vendor, pkg:npm/robust-predicates,
+            pkg:npm/postgres
           # Advisories with no fixed version yet, in tools that run on the
           # developer's machine, on the project's own files, such as Metro and
           # Jest. Neither library reaches the apps. Remove each advisory once

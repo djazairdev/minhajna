@@ -8,7 +8,8 @@
 # only, so it trusts local connections and needs no password: it is for a
 # local demo only, and never for a deployment. Its health check asks over
 # TCP, so it passes only once the real server listens. Its data lives in the
-# demo-data volume, which `npm run demo -- --fresh` clears.
+# demo-data volume, which `npm run demo -- --fresh` clears. On its first
+# start it also makes minhajna_test, for the server's database tests.
 
 name: minhajna-demo
 
@@ -23,6 +24,7 @@ services:
       - 127.0.0.1:54320:5432
     volumes:
       - demo-data:/var/lib/postgresql
+      - ./test-database.sql:/docker-entrypoint-initdb.d/test-database.sql:ro
     healthcheck:
       test: [CMD, pg_isready, -h, 127.0.0.1, -U, minhajna, -d, minhajna_demo]
       interval: 2s

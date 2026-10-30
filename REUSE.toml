@@ -19,7 +19,7 @@ SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 # The apps' files that cannot hold a comment.
 [[annotations]]
-path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/android/app.json", "apps/server/package.json", "apps/server/package-lock.json", "apps/server/tsconfig.json", "apps/web/package.json", "apps/web/package-lock.json", "apps/web/host/package.json", "apps/web/host/package-lock.json", "apps/web/tsconfig.json", "apps/web/scripts/tsconfig.json", "apps/web/test/tsconfig.json", "apps/web/public/manifest.webmanifest", "apps/web/release-notes.json", "apps/android/src/text/*.json", "apps/android/src/settings/text/*.json", "apps/android/src/calendar/text/*.json", "infra/weblate/project.json", "infra/weblate/component.json", "infra/weblate/namespaces.json"]
+path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/android/app.json", "apps/server/package.json", "apps/server/package-lock.json", "apps/server/tsconfig.json", "apps/server/tools/prisma/package.json", "apps/server/tools/prisma/package-lock.json", "apps/web/package.json", "apps/web/package-lock.json", "apps/web/host/package.json", "apps/web/host/package-lock.json", "apps/web/tsconfig.json", "apps/web/scripts/tsconfig.json", "apps/web/test/tsconfig.json", "apps/web/public/manifest.webmanifest", "apps/web/release-notes.json", "apps/android/src/text/*.json", "apps/android/src/settings/text/*.json", "apps/android/src/calendar/text/*.json", "infra/weblate/project.json", "infra/weblate/component.json", "infra/weblate/namespaces.json"]
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 

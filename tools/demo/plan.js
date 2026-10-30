@@ -38,8 +38,10 @@ export function preparation(root, { fresh }, stale = (folder) => needsInstall(jo
   steps.push({ what: 'Starting PostgreSQL', command: 'docker', args: [...COMPOSE, 'up', '--detach', '--wait'] });
   for (const [what, folder] of [
     ['the shared packages', '.'],
+    ['the Android app, whose screens the web app builds', 'apps/android'],
     ['the web app', 'apps/web'],
     ['the server', 'apps/server'],
+    ["the server's build tools", 'apps/server/tools/prisma'],
   ]) {
     if (stale(folder)) {
       steps.push({ what: `Installing ${what}`, command: 'npm', args: ['ci', '--no-audit', '--no-fund'], cwd: folder });

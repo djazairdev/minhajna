@@ -33,9 +33,30 @@ Inside a world, with its pass, clients exchange sealed records through spaces: o
 - **The minimum:** the server keeps each space's id and kind, and each batch's stream, number, arrival order and sealed bytes. No names, no times, no addresses.
 - **Caps:** a world holds at most 2,000 spaces and 10,000 batches (about 41 MB); the memory store holds at most 50,000 batches in all (about 206 MB) and answers `507` beyond.
 
+## Storage
+
+Worlds, spaces and batches go to PostgreSQL ([#542](https://github.com/djazairdev/minhajna/issues/542), answer 550). Their tables are described in [`prisma/schema.prisma`](prisma/schema.prisma), and the server will query them through the Prisma Client generated from it (Prisma 7, answer 551), which needs no download and no engine; until the PostgreSQL stores replace the memory ones, the tables wait empty.
+
+- **Migrations are plain SQL,** in `prisma/migrations/<name>/migration.sql`, each generated with `prisma migrate diff --script` and reviewed before it is committed. CI applies them to an empty database and fails if they differ from the schema.
+- **The server applies any missing migration when it starts with `DATABASE_URL`,** and `npm run migrate` does the same. Each is applied once, in order of name, in its own transaction, and recorded with its SHA-256 in `minhajna_meta.migration`; a migration whose file changed after it was applied is refused, as is a file that opens or closes its own transaction.
+- **With `psql` alone,** on a machine with no Prisma tool and no internet, from this folder: it stops at the first failure, skips what is applied, and takes the same lock as the server.
+
+  ```bash
+  set -e
+  psql "$DATABASE_URL" -c 'CREATE SCHEMA IF NOT EXISTS minhajna_meta' -c 'CREATE TABLE IF NOT EXISTS minhajna_meta.migration (name text PRIMARY KEY, sha256 char(64))'
+  for dir in prisma/migrations/*/; do
+    name=$(basename "$dir")
+    [ -n "$(psql "$DATABASE_URL" -tAc "SELECT 1 FROM minhajna_meta.migration WHERE name = '$name'")" ] && continue
+    psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -c 'SELECT pg_advisory_xact_lock(7042542)' -f "${dir}migration.sql" -c "INSERT INTO minhajna_meta.migration (name) VALUES ('$name')"
+  done
+  ```
+
+- **Prisma's command line** lives in `tools/prisma/` with its own lockfile, so it never installs with the server: `npm run tools` installs it, and `npm run build` runs its `generate`, which downloads nothing.
+- **A new migration:** change `schema.prisma`; against a database with every committed migration applied, run `DATABASE_URL=… npm run diff -- --script`; commit its output as `prisma/migrations/<next number>_<name>/migration.sql`, with the licence header the others carry.
+
 ## Before deploying
 
-- **Worlds are kept in memory** until [#542](https://github.com/djazairdev/minhajna/issues/542) stores them in PostgreSQL and erases each on its 7th day; do not deploy the server before then. Its store needs a quota per address or over time as well as its total cap, or one address can fill it.
+- **Worlds are kept in memory** until [#542](https://github.com/djazairdev/minhajna/issues/542) stores them in PostgreSQL and erases each on its 7th day; do not deploy the server before then. A deployment carries `dist/`, `prisma/migrations/` and the server's `package.json`, lockfile and `.npmrc`, and installs with `npm ci --omit=dev`, which never brings Prisma's command line. Its store needs a quota per address or over time as well as its total cap, or one address can fill it.
 - **Behind Cloudflare,** set `TRUST_PROXY=cloudflare` and make sure the Worker in front passes `CF-Connecting-IP` on ([#545](https://github.com/djazairdev/minhajna/issues/545)); otherwise every request has the Worker's address and the per-address limits become one shared limit.
 
 ## Build and try it
@@ -44,13 +65,15 @@ From this folder, with Node.js 22.18 or later:
 
 ```bash
 npm ci
+npm run tools
 npm run build
 npm start
 ```
 
 Then <http://127.0.0.1:3000/health> answers the package's version. The server listens on this computer only; `HOST` and `PORT` change the address and the port.
 
-- `npm test` builds the package and runs its tests.
+- `npm run tools` installs Prisma's command line, which `build`, `test` and `typecheck` need: it generates the database client.
+- `npm test` builds the package and runs its tests. Its database tests run when `TEST_DATABASE_URL` names a database whose name ends in `_test`, which they empty: the local demo's PostgreSQL has one, `postgresql://minhajna@127.0.0.1:54320/minhajna_test`.
 - `npm run typecheck` checks the types without building.
 
 ## The whole demo on this computer
