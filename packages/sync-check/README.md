@@ -8,7 +8,7 @@ Everything is made up and stays in memory. No server is reached: a stand-in serv
 
 | Module                 | What it does                                                                                                                            |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `batches.ts`           | Fixed batches: changes compressed, cut into pieces, padded to one size and sealed with AES-256-GCM, each bound to its stream and number |
+| `batches.ts`           | Fixed batches: changes compressed, then cut, padded and bound to their stream and number by the core's `batches.ts`, each piece sealed with AES-256-GCM |
 | `link.ts`              | A weak link on its own clock: speed, round trips, request overhead, and drops at seeded random moments                                  |
 | `transfer.ts`          | Uploading and downloading batches by resuming after a drop or by restarting from zero, and the stand-in server                          |
 | `conflicts.ts`         | The record each entry changes, the records two devices changed differently, and what the notice counts                                  |
