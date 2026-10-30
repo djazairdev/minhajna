@@ -2,22 +2,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «نقل مباشر» from the old phone (#247, Transfer, R-3.10-17, R-5.8-10, answers
-// 478, 480 and 481). Pilot builds ask for no network permission, so the
-// transfer is a file: everything as the Minhajna archive, private notes
-// included, in an AES-256 ZIP under a one-time key drawn as the screen opens.
-// The file leaves through the share menu, as Quick Share or Bluetooth, or the
-// file picker; each is recorded in the activity log, a share once its menu
-// opens. The key shows as a QR code for the new phone to scan, and in six
-// groups to type. It is never kept: it lives while this screen is open, and the
-// file made under it is deleted as the screen closes, so a file sent stays
-// useless without this screen. Screenshots are refused here, and the key
-// reaches no server. Once a file has left, the teacher confirms here that
-// the other device opened it (answer 503), and this device stays for
-// reading and printing until the copy comes back: the confirmation keeps
-// the last entry the file held, which the copy must continue. A change made
-// here after the file was made would stay behind, so it asks for the file
-// again; and while the copy is away, no file leaves, as each would be one
-// more working copy.
+// 478, 480 and 481). The transfer uses no network, so it is a file: everything
+// as the Minhajna archive, private notes included, in an AES-256 ZIP under a
+// one-time key drawn as the screen opens. The file leaves through the share
+// menu, as Quick Share or Bluetooth, or the file picker; each is recorded in
+// the activity log, a share once its menu opens. The key shows as a QR code for
+// the new phone to scan, and in six groups to type. It is never kept: it lives
+// while this screen is open, and the file made under it is deleted as the
+// screen closes, so a file sent stays useless without this screen. Screenshots
+// are refused here, and the key reaches no server. Once a file has left, the
+// teacher confirms here that the other device opened it (answer 503), and this
+// device stays for reading and printing until the copy comes back: the
+// confirmation keeps the last entry the file held, which the copy must
+// continue. A change made here after the file was made would stay behind, so it
+// asks for the file again; and while the copy is away, no file leaves, as each
+// would be one more working copy.
 
 import { makeRecoveryKey, recordsWhileHandedOver, transferQr } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
