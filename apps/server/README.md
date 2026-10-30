@@ -53,6 +53,18 @@ Then <http://127.0.0.1:3000/health> answers the package's version. The server li
 - `npm test` builds the package and runs its tests.
 - `npm run typecheck` checks the types without building.
 
+## The whole demo on this computer
+
+From the repository's root, with Node.js 22.18 or later and Docker with Compose v2:
+
+```bash
+npm run demo
+```
+
+- **What it does:** it starts PostgreSQL ([`compose.yaml`](compose.yaml), on port 54320, this computer only), installs any part's locked dependencies that are missing or older than its lockfile, builds the server and the PC web app, and runs them: the server on <http://127.0.0.1:3000/health>, the web app on <http://127.0.0.1:4180/>.
+- **Stopping:** Ctrl-C stops all three. The database keeps its made-up worlds for the next run; `npm run demo -- --fresh` clears them first.
+- **Local only:** the database trusts every connection from this computer and has no password, so the compose file is never used for a deployment.
+
 ## How it is built
 
 - **NestJS 12 on Node's own `node:http`** (§5.2), through its `NodeAdapter`, in TypeScript compiled by `tsc` to `dist/`. Once the server reads JSON bodies, the adapter's parser refuses those that try to change object prototypes. NestJS needs TypeScript's decorators and their type metadata, so this package's `tsconfig.json` turns them on over the repository's shared settings.

@@ -12,10 +12,11 @@
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "test": "npm test --workspaces && node --test tools/android/*.test.js tools/release/*.test.js",
+    "test": "npm test --workspaces && node --test tools/android/*.test.js tools/release/*.test.js tools/demo/*.test.js",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "eslint --max-warnings 0 . && prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "demo": "node tools/demo/demo.js"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
