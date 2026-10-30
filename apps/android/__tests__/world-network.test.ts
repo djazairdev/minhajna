@@ -7,9 +7,9 @@
 // alike, whatever the address hides; the world's client sends only to the open
 // world's paths, with its pass and nothing else of the device's, and refuses
 // what comes back too late, too long or not as JSON, or after the world was
-// left; entering the same world again keeps what is on its way. No test
-// connects: every request lands in a stand-in. The worlds and passes are made
-// up.
+// left; entering the same world again keeps what is on its way, and leaving
+// by a stale entry leaves a later one open. No test connects: every request
+// lands in a stand-in. The worlds and passes are made up.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,9 +18,11 @@ import { installNetworkGuard } from '../src/network/install';
 import {
   DEMO_SERVER,
   enterWorldNetwork,
+  leaveWorldEntry,
   leaveWorldNetwork,
   MOST_ANSWER,
   TIMEOUT_MS,
+  worldNetworkOpen,
   worldRequest,
 } from '../src/network/world-network';
 
@@ -239,5 +241,17 @@ describe('the world’s client', () => {
     const waiting = worldRequest(get, hanging);
     jest.advanceTimersByTime(TIMEOUT_MS);
     await expect(waiting).rejects.toMatchObject({ code: 'E_TIMEOUT' });
+  });
+
+  it('leaves by an entry only while that entry is the open one', () => {
+    const first = enterWorldNetwork('7K3QX', PASS);
+    expect(enterWorldNetwork('7K3QX', PASS)).toBe(first);
+    leaveWorldNetwork();
+    const second = enterWorldNetwork('7K3QX', PASS);
+    expect(second).not.toBe(first);
+    leaveWorldEntry(first);
+    expect(worldNetworkOpen()).toBe('7K3QX');
+    leaveWorldEntry(second);
+    expect(worldNetworkOpen()).toBeNull();
   });
 });

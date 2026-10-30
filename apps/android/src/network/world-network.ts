@@ -28,22 +28,38 @@ const TOKEN = /^[A-Za-z0-9_-]{16,128}$/u;
 /** A world's path after its ID: plain segments, none of dots alone, and a plain query. */
 const REST = /^(?:\/(?!\.+(?:[/?]|$))[A-Za-z0-9._~-]+)*(?:\?[A-Za-z0-9._~=&-]+)?$/u;
 
-let open: { readonly world: string; readonly pass: string } | null = null;
+let open: WorldEntry | null = null;
 
 function failed(message: string, code: string): Error {
   return Object.assign(new Error(message), { code });
 }
 
-/** Opens the network to a world, with its pass; another open world refuses it, and the same one changes nothing. */
-export function enterWorldNetwork(world: string, pass: string): void {
+/** Which entry into a world is open, for leaving only that one. */
+export interface WorldEntry {
+  readonly world: string;
+  readonly pass: string;
+}
+
+/**
+ * Opens the network to a world, with its pass, and answers the entry; another open world refuses it, and the same
+ * one changes nothing.
+ */
+export function enterWorldNetwork(world: string, pass: string): WorldEntry {
   if (!WORLD_ID.test(world) || !PASS.test(pass)) throw failed('Not a world and its pass', 'E_NO_WORLD');
   if (open !== null && open.world !== world) throw failed('Another world is open', 'E_NO_WORLD');
-  if (open?.pass !== pass) open = { world, pass };
+  const entry = open?.pass === pass ? open : { world, pass };
+  open = entry;
+  return entry;
 }
 
 /** Shuts the network: no request goes, and no answer still on its way is read. */
 export function leaveWorldNetwork(): void {
   open = null;
+}
+
+/** Shuts the network if this entry is still the open one, and leaves a later entry open. */
+export function leaveWorldEntry(entry: WorldEntry): void {
+  if (open === entry) open = null;
 }
 
 /** The world the network is open to, if any. */

@@ -6,16 +6,17 @@
 // the world's ID (the platform's PBKDF2-SHA256, WORLD_KDF_ROUNDS rounds) gives
 // one master key, and from it two: the world's pass, which the device sends in
 // X-World-Pass and the server keeps only hashed, and the key that seals the
-// world's private keys. The sealed world is what the starting device sends the
-// server and every joining device opens: the world's stand-ins for the state's
-// signing keys, each with what it may sign (calendars, plan packs), its public
-// half, its fingerprint and its private half, as ASCII JSON, sealed with the
-// platform's AES-256-GCM bound to the world's ID. Every file a world's key
-// signs names the world (signed-read.ts): real mode refuses it, and another
-// world refuses it too. The certificates of the world's stand-in CA are a
-// stand-in's and name their world as well (certify.ts). Timetable packages are
-// signed with a teacher's or a school's key, never a world's, once #577 signs
-// them.
+// world's private keys. The sealed world, with the world's kind (part of
+// format 1 since #560, before any world was live), is what the starting
+// device sends the server and every joining device opens: the world's
+// stand-ins for the state's signing keys, each with what it may sign
+// (calendars, plan packs), its public half, its fingerprint and its private
+// half, as ASCII JSON, sealed with the platform's AES-256-GCM bound to the
+// world's ID. Every file a world's key signs names the world (signed-read.ts):
+// real mode refuses it, and another world refuses it too. The certificates of
+// the world's stand-in CA are a stand-in's and name their world as well
+// (certify.ts). Timetable packages are signed with a teacher's or a school's
+// key, never a world's, once #577 signs them.
 
 import { canonicalJson } from './canonical.ts';
 import { readWorldCode, worldCodeSecret, worldIdOfCode } from './world-code.ts';
@@ -59,9 +60,14 @@ export interface WorldSecrets {
   readonly sealing: Uint8Array;
 }
 
+/** The world's kind: every role from the Ministry to the teacher, or teachers in teacher mode (answer 572). */
+export const WORLD_KINDS = ['national', 'teachers'] as const;
+export type WorldKind = (typeof WORLD_KINDS)[number];
+
 /** A world's keys: their public halves as the app trusts them, and their private halves by key ID. */
 export interface WorldKeys {
   readonly world: string;
+  readonly kind: WorldKind;
   readonly trusted: readonly TrustedKey[];
   /** PKCS #8, DER, base64. */
   readonly private: Readonly<Record<string, string>>;
@@ -118,8 +124,9 @@ function sealedFor(world: string): Uint8Array {
 
 function readKeys(value: unknown, world: string): WorldKeys | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
-  const { format, world: named, trusted, private: halves, ...rest } = value as Record<string, unknown>;
+  const { format, world: named, kind, trusted, private: halves, ...rest } = value as Record<string, unknown>;
   if (format !== WORLD_KEYS_FORMAT || named !== world || Object.keys(rest).length > 0) return null;
+  if (!WORLD_KINDS.includes(kind as WorldKind)) return null;
   const parsed = parseTrustedKeys({ format: 1, keys: trusted });
   if (!parsed.ok || typeof halves !== 'object' || halves === null || Array.isArray(halves)) return null;
   const ids = parsed.value.map((key) => key.id);
@@ -128,7 +135,7 @@ function readKeys(value: unknown, world: string): WorldKeys | null {
   if (entries.length !== ids.length || !entries.every(([id, half]) => ids.includes(id) && typeof half === 'string'))
     return null;
   if (!entries.every(([, half]) => PKCS8.test(half as string))) return null;
-  return { world, trusted: parsed.value, private: halves as Record<string, string> };
+  return { world, kind: kind as WorldKind, trusted: parsed.value, private: halves as Record<string, string> };
 }
 
 /** The platform's ECDSA P-256 over a text's UTF-8 bytes with a private half, as signed-read.ts checks it. */
@@ -154,7 +161,13 @@ export async function sealWorldKeys(
   cipher: WorldCipher,
   pair: { readonly sign: WorldSigner; readonly verify: Verifier },
 ): Promise<string> {
-  const plain = { format: WORLD_KEYS_FORMAT, world: keys.world, trusted: keys.trusted, private: keys.private };
+  const plain = {
+    format: WORLD_KEYS_FORMAT,
+    world: keys.world,
+    kind: keys.kind,
+    trusted: keys.trusted,
+    private: keys.private,
+  };
   if (keys.world !== secrets.world || readKeys(plain, secrets.world) === null) {
     throw new RangeError('Not keys of this world');
   }
