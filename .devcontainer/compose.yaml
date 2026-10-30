@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# The dev container (#634), on top of apps/server/compose.yaml, which
+# devcontainer.json names first, so relative paths here start from
+# apps/server/. The workspace shares the database's network, so PostgreSQL
+# is at 127.0.0.1:5432 inside it and the S3 stand-in at objects:8333, and
+# the demo's ports are forwarded from it. No port is published on the
+# computer, so a demo already running there is left alone, and the project
+# has its own name, so its database is apart from that demo's. Each
+# node_modules folder is a volume of its own, which the workspace gives to
+# the node user as it starts, so the container's Linux installs never
+# replace the computer's.
+
+name: minhajna-dev
+
+services:
+  workspace:
+    image: node:22.23.4-trixie@sha256:ead00acb9f552752e0fe17a428d692094ab5f9e021e7bb97202fa7b0cd702a04
+    command: [sh, -c, 'chown node:node $$MODULES && exec sleep infinity']
+    network_mode: service:database
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ../..:/workspaces/minhajna:cached
+      - root-modules:/workspaces/minhajna/node_modules
+      - android-modules:/workspaces/minhajna/apps/android/node_modules
+      - web-modules:/workspaces/minhajna/apps/web/node_modules
+      - server-modules:/workspaces/minhajna/apps/server/node_modules
+      - prisma-modules:/workspaces/minhajna/apps/server/tools/prisma/node_modules
+    environment:
+      MODULES: >-
+        /workspaces/minhajna/node_modules /workspaces/minhajna/apps/android/node_modules
+        /workspaces/minhajna/apps/web/node_modules /workspaces/minhajna/apps/server/node_modules
+        /workspaces/minhajna/apps/server/tools/prisma/node_modules
+      MINHAJNA_DEMO_DATABASE: postgresql://minhajna@127.0.0.1:5432/minhajna_demo
+      TEST_DATABASE_URL: postgresql://minhajna@127.0.0.1:5432/minhajna_test
+
+  database:
+    ports: !reset []
+
+  objects:
+    ports: !reset []
+
+volumes:
+  root-modules: {}
+  android-modules: {}
+  web-modules: {}
+  server-modules: {}
+  prisma-modules: {}

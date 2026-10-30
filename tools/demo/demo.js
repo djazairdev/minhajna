@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// `npm run demo [-- --fresh]` (#543): prepares the local demo as plan.js
-// says, starts the server and the web app, waits for the server's health
-// check, and prints where they are. Ctrl-C, a failed step or a program that
-// stops stops everything, PostgreSQL included, from the moment PostgreSQL
-// starts; the database's data stays for the next run unless --fresh clears
-// it. npm runs through Node itself, so the same commands work on Windows.
+// `npm run demo [-- --fresh]` (#543): prepares the local demo as plan.js says,
+// starts the server and the web app, waits for the server's health check, and
+// prints where they are. Ctrl-C, a failed step or a program that stops stops
+// everything, PostgreSQL included, from the moment PostgreSQL starts; the
+// database's data stays for the next run unless --fresh clears it. In the dev
+// container, its PostgreSQL is left running. npm runs through Node itself, so
+// the same commands work on Windows.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { get } from 'node:http';
@@ -48,7 +49,8 @@ export function runnable({ command, args }, npmCli = process.env.npm_execpath) {
 function run(step) {
   process.stdout.write(`${step.what}…\n`);
   const { command, args } = runnable(step);
-  const result = spawnSync(command, args, { cwd: join(root, step.cwd ?? '.'), stdio: 'inherit' });
+  const env = { ...process.env, ...step.env };
+  const result = spawnSync(command, args, { cwd: join(root, step.cwd ?? '.'), env, stdio: 'inherit' });
   if (result.status !== 0) {
     const why = result.error?.message ?? (result.signal ? `stopped by ${result.signal}` : `exit code ${result.status}`);
     throw new Error(`${step.what} failed (${why}): ${step.command} ${step.args.join(' ')}`);
@@ -74,21 +76,22 @@ export function stopper(children, stopDatabase, exit) {
 async function main() {
   const options = demoOptions(process.argv.slice(2));
   if (options instanceof Error) throw options;
+  const database = process.env.MINHAJNA_DEMO_DATABASE || undefined;
   const children = [];
   const halt = stopper(
     children,
-    () => run(STOP),
+    () => (database ? undefined : run(STOP)),
     (code) => process.exit(code),
   );
   process.on('SIGINT', () => halt(0));
   process.on('SIGTERM', () => halt(0));
   try {
-    for (const step of preparation(root, options)) run(step);
+    for (const step of preparation(root, { ...options, database })) run(step);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     halt(1);
   }
-  for (const { what, command, args, cwd, env } of services()) {
+  for (const { what, command, args, cwd, env } of services(database)) {
     const child = spawn(command, args, { cwd: join(root, cwd), env: { ...process.env, ...env }, stdio: 'inherit' });
     child.on('exit', () => {
       process.stderr.write(`${what} stopped\n`);
