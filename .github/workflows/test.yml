@@ -64,6 +64,12 @@ jobs:
         working-directory: apps/web
         run: npm ci --no-audit
 
+      # The server has its own lockfile too (#538); the linter checks it with
+      # NestJS's types. Its .npmrc stops install scripts.
+      - name: Install the server's locked dependencies
+        working-directory: apps/server
+        run: npm ci --no-audit
+
       # The build and the linter run once the project has those scripts.
       - name: Build
         run: npm run build --if-present
@@ -76,6 +82,11 @@ jobs:
 
       - name: Test
         run: npm test
+
+      # The server's tests build it and start it on this machine only.
+      - name: Type check and test the server
+        working-directory: apps/server
+        run: npm run typecheck && npm test
 
       # The web app's tests build its bundle twice and check it.
       - name: Type check and test the web app
