@@ -80,6 +80,15 @@ npm test
 
 The Android build has its own checks: [docs/checks/android-build.md](docs/checks/android-build.md). Pull requests also check the sign-off, the licence of every file, the title, secrets, and the licences and vulnerabilities of new dependencies ([workflow.md](docs/contributing/workflow.md#pull-requests)).
 
+### Or in a dev container
+
+To install nothing on your computer but Docker, open the repository in a dev container: in VS Code with the Dev Containers extension, choose **Reopen in Container**, or open it in GitHub Codespaces. It needs no account, key or secret of the project's.
+
+- **What it holds:** Node.js 22 (`.devcontainer/`), with every lockfile installed by `npm ci`, as CI does, and the ESLint and Prettier extensions. The commands above then run as they are, without the `npm ci` lines, and the server's database tests run too.
+- **The demo:** it starts the server's PostgreSQL and S3 stand-in from `apps/server/compose.yaml`, and `npm run demo` uses that PostgreSQL. The server's port (3000) and the web app's (4180) are forwarded to your computer.
+- **Its own packages:** each `node_modules` folder is a volume of the container's own, so the installs on your computer are left alone; on Linux, Docker leaves empty folders, owned by root, where they are mounted, which an `npm ci` on your computer replaces. After changing `.devcontainer/` or `apps/server/compose.yaml`, rebuild the container, as its network goes with the database's.
+- **Not the Android app:** it holds no Android SDK, so the APK is still built on your own computer ([docs/checks/android-build.md](docs/checks/android-build.md)).
+
 ### Your first pull request
 
 A checklist that passes every check the first time. Say the issue is #69, a README for the Android app.

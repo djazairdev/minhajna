@@ -1,0 +1,24 @@
+{
+  "name": "Minhajna",
+  "dockerComposeFile": ["../apps/server/compose.yaml", "compose.yaml"],
+  "service": "workspace",
+  "runServices": ["workspace", "database", "objects"],
+  "workspaceFolder": "/workspaces/minhajna",
+  "remoteUser": "node",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [3000, 4180],
+  "portsAttributes": {
+    "3000": {
+      "label": "Demo server"
+    },
+    "4180": {
+      "label": "PC web app"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/install.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+    }
+  }
+}

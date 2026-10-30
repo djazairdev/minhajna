@@ -109,6 +109,7 @@ npm run demo
 - **What it does:** it starts PostgreSQL ([`compose.yaml`](compose.yaml), on port 54320, this computer only), installs any part's locked dependencies that are missing or older than its lockfile, builds the server and the PC web app, and runs them: the server on <http://127.0.0.1:3000/health>, the web app on <http://127.0.0.1:4180/>.
 - **Stopping:** Ctrl-C stops all three. The database keeps its made-up worlds for the next run; `npm run demo -- --fresh` clears them first.
 - **Local only:** the database trusts every connection from this computer and has no password, so the compose file is never used for a deployment.
+- **In the dev container** ([CONTRIBUTING.md](../../CONTRIBUTING.md#or-in-a-dev-container), #634), the container starts this PostgreSQL and the S3 stand-in itself, with no port on the computer, and names its database in `MINHAJNA_DEMO_DATABASE`. `npm run demo` then runs no Docker, leaves PostgreSQL running when it stops, and with `--fresh` empties the demo database instead of its volume.
 
 ## How it is built
 
