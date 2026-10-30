@@ -100,7 +100,7 @@ describe('npm run demo', () => {
       command: process.execPath,
       args: ['/npm/bin/npm-cli.js', 'run', 'build'],
     });
-    assert.deepEqual(runnable(step, undefined), step);
+    assert.deepEqual(runnable(step, ''), step);
     assert.deepEqual(runnable(step, '/yarn/bin/yarn.js'), step);
     assert.deepEqual(runnable(step, 'C:\\npm\\bin\\npm-cli.js').command, process.execPath);
     assert.deepEqual(runnable(STOP, '/npm/bin/npm-cli.js'), { command: 'docker', args: STOP.args });
