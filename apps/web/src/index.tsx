@@ -8,8 +8,10 @@
 // with no network. A key pressed or a wheel turned counts as use of the
 // app for the automatic lock, as a click does through the root view.
 // Whether the browser keeps the data is read at once, so the lock page
-// knows whether to warn as it shows.
+// knows whether to warn as it shows. The network guard comes first, so it is
+// set before any other module runs (#559).
 
+import './network-guard.ts';
 import './error-utils.ts';
 import '@minhajna/core';
 import { AppRegistry, type RootTag } from 'react-native';
