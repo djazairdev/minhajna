@@ -4929,6 +4929,43 @@
         "fix": "La correction reste possible : elle est signée aussi, et les deux versions restent visibles.",
         "counted": "La signature compte à partir du jour où elle est faite sur le téléphone, même si le réseau tarde."
       }
+    },
+    "weekFix": {
+      "title": "Corriger une semaine signée",
+      "open": "Corriger la semaine",
+      "lead": "Cette semaine a été signée et est devenue le registre officiel. Une correction reste toujours possible : elle s’ajoute et se signe, et les deux versions restent visibles.",
+      "signing": "Signature de la correction…",
+      "entry": "L’entrée à corriger",
+      "recorded": "Enregistré : {{state}}",
+      "becomes": "Devient",
+      "reason": "Motif de la correction · facultatif pour les séances",
+      "reasons": {
+        "confirmed-later": "Confirmé plus tard",
+        "entry-error": "Erreur de saisie",
+        "other": "Autre"
+      },
+      "reasonNote": "Le motif se choisit et ne s’écrit pas, et la raison d’une séance non tenue n’est jamais demandée. L’appel et les notes demandent un motif ; un monde de démonstration ne les enregistre pas encore.",
+      "shown": "Tel qu’il apparaît après la signature",
+      "original": "La version signée",
+      "fix": "Correction {{number}}",
+      "now": "Correction {{number}} · signée maintenant",
+      "change": "{{session}} : {{state}}",
+      "because": "{{change}} · motif : {{reason}}",
+      "states": {
+        "held": "comme prévu",
+        "not-held": "séance non tenue",
+        "awaiting": "en attente de confirmation",
+        "none": "ne figure plus dans la semaine"
+      },
+      "lines": {
+        "kept": "Rien n’est effacé : l’original reste et la correction lui est liée, si bien qu’une correction honnête ne ressemble jamais à une falsification.",
+        "channel": "Elle arrive dans l’espace de l’établissement dès sa signature, et la direction la voit à côté de l’original.",
+        "notCounted": "Le nombre de corrections n’est compté pour personne et n’apparaît sur aucun tableau."
+      },
+      "sign": "Signer la correction",
+      "signNote": "Une signature électronique avec la clé de ce téléphone, comme pour signer la semaine. Sur votre propre téléphone, l’empreinte ou le code PIN est demandé avant de signer ; dans un monde de démonstration, il ne l’est pas.",
+      "done": "La correction {{number}} est signée.",
+      "changed": "Cette semaine a changé depuis l’ouverture de la page. Relisez-la, puis corrigez-la."
     }
   },
   "chart": {
