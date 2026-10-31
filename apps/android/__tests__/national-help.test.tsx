@@ -11,7 +11,8 @@
 // joined; and where the privacy notice is. Each joined card opens the page for
 // its own school, and also opens Week-sign, the weekly digest and the teacher's
 // classes in the school's space under the band and the school's timetable, each
-// with its title said, Week-sign, the digest and the classes leading back; and
+// with its title said, Week-sign, the digest and the classes leading back, and
+// the classes open the term report, its title said, leading back to them; and
 // the page's hidden live region is the PC's alone. Going back, by the button or
 // Android's back, returns to School-join. Every world, school and key is made
 // up.
@@ -223,4 +224,14 @@ test('a joined card opens the teacher’s classes in the school’s space, its t
   expect(live('mine-said')).toBe(text.demo.mine.title);
   await press('mine-back');
   expect(shown('school-join') && !shown('mine')).toBe(true);
+});
+
+test('the teacher’s classes open the term report, its title said, which leads back to them', async () => {
+  const id = await opened();
+  await joinWith(await issue(id, 1));
+  await press('school-mine');
+  await press('mine-report');
+  expect(live('report-said')).toBe(text.demo.report.title);
+  await press('report-back');
+  expect(shown('mine') && !shown('report')).toBe(true);
 });

@@ -4918,6 +4918,7 @@
       "subtitle": "{{date}} · as the director sees them",
       "term": "Term {{number}} so far: from {{from}} to {{to}}",
       "noTerm": "No term falls on this date, so nothing is counted.",
+      "noCalendar": "The school has no calendar in this world, so nothing is counted.",
       "hours": "Teaching hours in the timetable: {{hours}}",
       "weekly": "Weekly sessions in the timetable: {{count}} · {{hours}}",
       "counts": {
@@ -4930,6 +4931,18 @@
       "plan": "Plan progress and the threshold day come with a plan pack.",
       "noWeek": "No week of this class is signed this term yet.",
       "foot": "“Awaiting confirmation” is not an absence, and it is never printed and never leaves the screen. The space keeps no day on which a session was confirmed, no ranking, no colours for people and no clock times."
+    },
+    "report": {
+      "title": "Term report",
+      "open": "Term report",
+      "subtitle": "{{date}} · the term so far, as the director sees it",
+      "confirmed": "Confirmed sessions in signed weeks: {{count}}",
+      "lostList": "Sessions not held",
+      "lostCalendar": "{{session}} · calendar: {{entry}}",
+      "lostOther": "{{session}} · other",
+      "noCourse": "No week is signed this term yet, so the report is empty.",
+      "makeUps": "Make-up sessions: none in a demo world. Outside one they come from the make-ups on “Today” and count as held.",
+      "foot": "Each class has its own figures: no total for the school and no ranking. The report closes when the term does. “Other” gathers everything the calendar does not hold, without reasons: the reasons stay on your devices alone."
     }
   },
   "chart": {

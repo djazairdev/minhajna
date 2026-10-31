@@ -6,7 +6,8 @@
 // what in the national system (#568), or the timetable from the school (#579),
 // or the week to sign (#582), on a course the digest chose, going back to the
 // page that opened it, or the weekly digest, or the teacher's classes as the
-// director sees them (#584). Going back, by a page's button or Android's back,
+// director sees them, or their term report, opened from the classes and going
+// back to them (#584). Going back, by a page's button or Android's back,
 // returns to School-join, and from it to the world's home; Leave's way to the
 // next school returns to School-join with the code's card scrolled into view,
 // once it is laid out.
@@ -16,12 +17,17 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { BackHandler, type LayoutChangeEvent, type ScrollViewInstance } from 'react-native';
 
 /** A joined card's own pages. */
-export type JoinPage = 'devices' | 'leave' | 'help' | 'timetable' | 'week' | 'digest' | 'mine';
+export type JoinPage = 'devices' | 'leave' | 'help' | 'timetable' | 'week' | 'digest' | 'mine' | 'report';
 
-export type JoinView =
-  | 'join'
-  | 'rejoin'
-  | { readonly page: JoinPage; readonly join: SchoolJoined; readonly course?: string; readonly back?: JoinPage };
+/** A joined card's page on view: on a course when one was chosen, and the page its way back returns to. */
+export type JoinedView = {
+  readonly page: JoinPage;
+  readonly join: SchoolJoined;
+  readonly course?: string;
+  readonly back?: JoinPage;
+};
+
+export type JoinView = 'join' | 'rejoin' | JoinedView;
 
 /** School-join's page, the ways between them, and what scrolls the code's card into view. */
 export function useJoinView(onClose: () => void, onReturn: () => void) {

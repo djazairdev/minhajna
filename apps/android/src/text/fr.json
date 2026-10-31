@@ -4988,6 +4988,7 @@
       "subtitle": "{{date}} · comme la direction les voit",
       "term": "Trimestre {{number}} jusqu’ici : du {{from}} au {{to}}",
       "noTerm": "Aucun trimestre ne tombe à cette date : rien n’est compté.",
+      "noCalendar": "L’établissement n’a pas de calendrier dans ce monde : rien n’est compté.",
       "hours": "Heures d’enseignement à l’emploi du temps : {{hours}}",
       "weekly": "Séances par semaine à l’emploi du temps : {{count}} · {{hours}}",
       "counts": {
@@ -5000,6 +5001,18 @@
       "plan": "L’avancement du plan et le jour du seuil arrivent avec un pack de plan.",
       "noWeek": "Aucune semaine de cette classe n’est encore signée ce trimestre.",
       "foot": "« En attente de confirmation » n’est pas une absence : elle n’est jamais imprimée et ne quitte jamais l’écran. L’espace ne garde ni le jour où une séance a été confirmée, ni classement, ni couleurs pour les personnes, ni heures."
+    },
+    "report": {
+      "title": "Rapport du trimestre",
+      "open": "Rapport du trimestre",
+      "subtitle": "{{date}} · le trimestre jusqu’ici, comme la direction le voit",
+      "confirmed": "Séances confirmées des semaines signées : {{count}}",
+      "lostList": "Séances non tenues",
+      "lostCalendar": "{{session}} · calendrier : {{entry}}",
+      "lostOther": "{{session}} · autre",
+      "noCourse": "Aucune semaine n’est encore signée ce trimestre : le rapport est vide.",
+      "makeUps": "Séances de rattrapage : aucune dans un monde de démonstration. En dehors, elles viennent des rattrapages d’« Aujourd’hui » et comptent comme tenues.",
+      "foot": "Chaque classe a ses propres chiffres : ni total pour l’établissement, ni classement. Le rapport se clôt avec le trimestre. « Autre » regroupe tout ce que le calendrier ne contient pas, sans motif : les motifs restent sur vos seuls appareils."
     }
   },
   "chart": {
