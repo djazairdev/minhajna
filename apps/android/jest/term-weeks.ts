@@ -6,13 +6,16 @@
 // signed on their channel, each session's state by its weekday, for one group
 // or none, the rest awaiting; and a term with one class's three weekly sessions
 // over two signed weeks: three held, one awaiting, one not held on Yennayer and
-// one not held otherwise, with another class's session never signed.
+// one not held otherwise, with another class's session never signed; and a new
+// code issued to a teacher, on which a new device joins.
 
 import { parseDay, readJoinCode, type Day, type SchoolJoined, type Subject } from '@minhajna/core';
+import { assignmentsOf, codeText, holdSchool, issueFor } from '../src/director/issue-session';
 import { bundledReference, readReference } from '../src/reference';
+import { joinSchool } from '../src/school/school-join-session';
 import type { MineCalendar } from '../src/week/school-mine-session';
 import { readSignChannel, signTheWeek, weekRecord, weeksToSign, weekStart } from '../src/week/week-sign-session';
-import { BELLS, school, sendParts, server, session, setting } from './timetable-send';
+import { BELLS, school, sendParts, server, session, setting, STAFF } from './timetable-send';
 import { nodeKit as kit } from './world-server';
 
 const read = readReference(bundledReference);
@@ -52,4 +55,17 @@ export async function signedTerm() {
   await sign({ world: id, date: FIRST }, joined, { 0: 'held', 1: 'not-held' });
   await sign({ world: id, date: SECOND }, joined, { 0: 'held', 1: 'held', 2: 'not-held' });
   return { id, here, joined };
+}
+
+/** A new code issued to a teacher of the staff list, and a new device joined on it. */
+export async function joinNew(
+  id: string,
+  here: Parameters<typeof holdSchool>[0],
+  device: () => Promise<typeof here>,
+  teacher: string,
+) {
+  const desk = await holdSchool(here, kit, server.send);
+  const assignment = (await assignmentsOf(desk, STAFF, kit)).get(teacher)!;
+  const { kept, desk: after } = await issueFor(here, desk, assignment, 'phone', kit, server.send);
+  return joinSchool(await device(), await codeText(id, after, kept), kit, server.send);
 }

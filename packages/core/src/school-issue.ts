@@ -112,7 +112,7 @@ export interface KeptIssue extends SchoolIssued {
 export const joinedKey = (assignment: string, issue: number) => `${assignment}:${issue}`;
 
 /** Every issue in this store for a school, the first that reads of each, in the order kept, with its day. */
-function issuesIn(entries: readonly Entry[], school: string): KeptIssue[] {
+export function issuesIn(entries: readonly Entry[], school: string): KeptIssue[] {
   const found = new Map<string, KeptIssue>();
   for (const entry of entries) {
     const event = eventOf(entry);
