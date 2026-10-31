@@ -26,7 +26,8 @@ export interface RecoveryTexts {
 /** Groups on each line of the table, so the key fits an A4 page's width. */
 const ROW = 3;
 
-const CSS =
+/** The sheet's style, which the school's recovery parts share (#571). */
+export const RECOVERY_CSS =
   'h1{font-family:Ruqaa,Naskh;font-size:18pt;margin:0 0 6mm;text-align:center}' +
   'p{margin:0 0 3mm;line-height:1.5}' +
   'table.key{direction:ltr;margin:6mm auto;border-collapse:collapse}' +
@@ -34,25 +35,30 @@ const CSS =
   'table.key .n{font-size:9pt}table.key .g{font-family:Sans;font-size:20pt;font-weight:700;letter-spacing:1.5mm}' +
   '.line{direction:ltr;text-align:center;font-family:Sans;font-size:13pt;letter-spacing:0.6mm;margin:0 0 6mm}';
 
-/** The sheet for `key`, as one A4 portrait page. */
-export function recoveryHtml(texts: RecoveryTexts, key: string): string {
+/** A sheet's page for `key`: the title, the intro, the key in its groups and on one line, then the lines. */
+export function recoveryPage(texts: Omit<RecoveryTexts, 'lang' | 'dir'>, key: string): string {
   const groups = recoveryGroups(key);
   const rows = [groups.slice(0, ROW), groups.slice(ROW)].map((row, at) => {
     const numbers = row.map((_, index) => `<td class="n">${at * ROW + index + 1}</td>`).join('');
     const cells = row.map((group) => `<td class="g">${escapeHtml(group)}</td>`).join('');
     return `<tr>${numbers}</tr><tr>${cells}</tr>`;
   });
-  const page =
+  return (
     `<h1>${escapeHtml(texts.title)}</h1><p>${escapeHtml(texts.intro)}</p>` +
     `<table class="key">${rows.join('')}</table>` +
     `<p>${escapeHtml(texts.computer)}</p><p class="line">${escapeHtml(key)}</p>` +
-    texts.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('');
+    texts.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('')
+  );
+}
+
+/** The sheet for `key`, as one A4 portrait page. */
+export function recoveryHtml(texts: RecoveryTexts, key: string): string {
   return printDocument({
     lang: texts.lang,
     dir: texts.dir,
     title: texts.title,
     landscape: false,
-    css: CSS,
-    pages: [page],
+    css: RECOVERY_CSS,
+    pages: [recoveryPage(texts, key)],
   });
 }

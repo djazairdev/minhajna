@@ -52,7 +52,7 @@ import { worldRequest } from '../network/world-network';
 import { caKey, spaceBatches } from '../school/space-read';
 
 /** A P-256 point, uncompressed, as the world kit's agreement gives it. */
-const PUBLIC_KEY_BYTES = 65;
+export const PUBLIC_KEY_BYTES = 65;
 
 type IssueWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 

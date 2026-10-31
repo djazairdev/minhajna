@@ -40,6 +40,7 @@ import { leaveWorldNetwork, worldNetworkOpen } from '../src/network/world-networ
 import { bundledReference, readReference } from '../src/reference';
 import { openRecordBook } from '../src/storage/history';
 import text from '../src/text/ar.json';
+import { isolate } from '../src/week/grid-labels';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -213,7 +214,7 @@ test('a second holder shows by its ID, and on a phone the groups are written out
   await press('keys-box-holder-ffffffffffffffffffffffffffffffff');
   expect(within('keys-panel')).toContain(words.about.device);
   await press('keys-tab-recovery');
-  expect(texts()).toContain(words.fingerprint.replace('{{fingerprint}}', keyringFingerprint(two.ring)));
+  expect(texts()).toContain(words.fingerprint.replace('{{fingerprint}}', isolate(keyringFingerprint(two.ring))));
 });
 
 test('the map of a recovery links both parts to it and it to the key, and right to left turns', () => {
@@ -249,7 +250,19 @@ test('two holders that look like a recovery warn on either tab', async () => {
     epochs: 1,
     fingerprint: '2-abcd',
   };
-  jest.spyOn(keysPage, 'useKeysPage').mockReturnValue({ facts, busy: false, problem: null });
+  jest.spyOn(keysPage, 'useKeysPage').mockReturnValue({
+    facts,
+    desk: null,
+    busy: false,
+    problem: null,
+    reload: () => undefined,
+    recovery: null,
+    setRecovery: () => undefined,
+    making: false,
+    setMaking: () => undefined,
+    said: null,
+    setSaid: () => undefined,
+  });
   const open = { world: 'ABCDE', date: '2026-10-20' as never, book: await openRecordBook(new FakeStorage().asSpec()) };
   const { zones = [], workingDays } = reference.profile;
   const school = directorSchool(seedNationalWorld('ABCDE', zones, workingDays, reference.packs))!;

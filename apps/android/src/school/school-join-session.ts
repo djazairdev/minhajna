@@ -19,7 +19,7 @@
 // joined on it first, world-session.ts's E_WORLD_SERVER, E_WORLD_BUSY and
 // E_WORLD_KIT, the network's own (world-network.ts), and the store's when it
 // cannot keep the key, or E_WORLD when it kept none; problemOf gives each
-// code's words in the catalogue.
+// code's words in the catalogue, D-Keys' E_KEYRING_CHANGED too.
 
 import {
   certificateRequest,
@@ -154,6 +154,7 @@ const PROBLEMS = {
   E_WORLD: 'demo.problem.store',
   E_KEY_LOST: 'demo.problem.store',
   E_SCHOOL_KEY: 'demo.problem.store',
+  E_KEYRING_CHANGED: 'demo.keys.recovery.changed',
 } as const;
 
 /** The catalogue's words for an error's code. */

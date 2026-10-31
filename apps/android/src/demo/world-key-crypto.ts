@@ -30,8 +30,8 @@ export interface DevicePair {
 /** The length of an uncompressed P-256 point. */
 const POINT = 65;
 /** P-256's prime and the curve's b; its a is -3. */
-const PRIME = BigInt('0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff');
-const B = BigInt('0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b');
+export const PRIME = BigInt('0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff');
+export const B = BigInt('0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b');
 /** The shortest sealed key: the point, the cipher's nonce and its tag. */
 const SHORTEST = POINT + 12 + 16;
 const encoder = new TextEncoder();
