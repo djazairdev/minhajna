@@ -64,6 +64,7 @@ async function read(accept: string, limit: number, text: (bytes: Uint8Array) => 
 
 const CalendarInput: Spec = {
   readFile: () => read('.json,application/json', FILE_BYTES, strict),
+  readTable: () => read('.csv,text/csv,text/comma-separated-values,text/plain', FILE_BYTES, strict),
   readStatement: () => read('.json,.pdf,application/json,application/pdf', STATEMENT_BYTES, statementText),
   scanQr: () => Promise.reject(refused('E_CALENDAR_CAMERA', 'A PC scans no QR code')),
   qrRows: shortRows,

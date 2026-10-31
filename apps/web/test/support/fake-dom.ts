@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A made-up page for the files tests: the file dialog gives the next file
-// queued, or closes with none, or closes saying nothing, as some browsers
-// do, until the page has its focus back; each download is recorded with
-// its name and content. Nothing touches the computer's own files.
+// queued, or closes with none, or closes saying nothing, as some browsers do,
+// until the page has its focus back, and records the types it offered; each
+// download is recorded with its name and content. Nothing touches the
+// computer's own files.
 
 type Handler = () => void;
 
 export const queued: (File | null | 'silent')[] = [];
+/** The file types each dialog offered, in order. */
+export const accepted: string[] = [];
 const focusHandlers = new Set<Handler>();
 
 /** The page has its focus back, as when the teacher leaves a dialog. */
@@ -29,6 +32,7 @@ class FakeInput {
   }
 
   click() {
+    accepted.push(this.accept);
     const next = queued.shift() ?? null;
     if (next === 'silent') return;
     if (next === null) this.handlers.get('cancel')?.();

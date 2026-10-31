@@ -44,6 +44,15 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
   }, promise) }
 
+  /** A timetable as CSV, for the timetable page (#576); providers label CSV in several ways. */
+  override fun readTable(promise: Promise) { open(FILE_REQUEST, Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+    addCategory(Intent.CATEGORY_OPENABLE)
+    type = "*/*"
+    putExtra(Intent.EXTRA_MIME_TYPES, TABLE_TYPES)
+    putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
+  }, promise) }
+
   /** A progress statement's signed file or PDF, for reader mode (#246); a PDF gives only its statement link. */
   override fun readStatement(promise: Promise) { open(FILE_REQUEST, Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
     addCategory(Intent.CATEGORY_OPENABLE)
@@ -202,5 +211,14 @@ class MinhajnaCalendarInputModule(private val context: ReactApplicationContext) 
     private const val FILE_REQUEST = 8431
     private const val SCAN_REQUEST = 8432
     private val SHARE_NAME = Regex("^[a-z0-9-]{1,64}\\.json$")
+    private val TABLE_TYPES =
+      arrayOf(
+        "text/csv",
+        "text/comma-separated-values",
+        "text/x-csv",
+        "application/csv",
+        "text/plain",
+        "application/vnd.ms-excel",
+      )
   }
 }
