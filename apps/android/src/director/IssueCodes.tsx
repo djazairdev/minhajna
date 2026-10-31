@@ -3,16 +3,17 @@
 
 // D-Issue, the director's joining codes and security keys in a national demo
 // world (#570, §7.5, answers 596 to 598), as the design draws it, under the
-// workspace's title: the world's date and how many teachers the school has;
-// on the PC, printing every code still waiting to be scanned on one sheet;
-// reading the joins again; chips for every teacher, by phone, by security key
-// and the codes waiting; the teachers (IssueList.tsx); the chosen teacher's
-// panel (IssuePanel.tsx), beside the list on the PC and under it on the phone;
-// and, under them, how many are shown and in what order, that no password or
-// reset passes through the director, and that nothing records when or where
-// anyone signed in. Until the school key is held, the page says it is
-// opening; a problem, a failed print as well, is said in the world's words
-// and keeps what is shown.
+// workspace's title: the world's date and how many teachers the school has; on
+// the PC, printing every code still waiting to be scanned on one sheet; reading
+// the joins again; chips for every teacher, by phone, by security key and the
+// codes waiting; the teachers (IssueList.tsx); the chosen teacher's panel
+// (IssuePanel.tsx), beside the list on the PC and under it on the phone; and,
+// under them, how many are shown and in what order, that no password or reset
+// passes through the director, and that nothing records when or where anyone
+// signed in. Until the school key is held, the page says it is opening; codes
+// issued again under a new epoch are counted, to print or show them again; a
+// problem, a failed print as well, is said in the world's words and keeps what
+// is shown.
 
 import type { CountryProfile, Day, DemoSchool, IssueRow } from '@minhajna/core';
 import { issueCounts } from '@minhajna/core';
@@ -159,6 +160,11 @@ export function IssueCodes({ world, school, profile, kit, send, dayText }: Issue
       <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
         {page.problem === null ? '' : t(page.problem as 'demo.problem.other')}
       </Text>
+      {page.reissued > 0 && (
+        <Text testID="issue-reissued" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
+          {t('demo.issue.reissued', { number: page.reissued })}
+        </Text>
+      )}
       {page.desk === null ? (
         <Text style={[styles.small, align]}>{page.busy ? t('demo.issue.opening') : ''}</Text>
       ) : (

@@ -3,13 +3,14 @@
 
 // D-Issue's state on the director's device (#570, answer 598): on opening, the
 // school key is held (started the first time) and each teacher's assignment
-// worked out; the joined days are then read from the school's space, again
-// with `refresh`. The rows follow the world's store, so each issue recorded
-// shows at once, waiting to be scanned. A problem keeps what
-// the page already shows and is said in the catalogue's words, the page's own
-// failures, such as printing, as well. While an issue is recorded the page
-// says it is busy, so a second tap waits. Leaving the
-// world, or another world opening, drops what a slower answer brings back.
+// worked out; the joined days are then read from the school's space, again with
+// `refresh`. The rows follow the world's store, so each issue recorded shows at
+// once, waiting to be scanned, and codes issued again under a new epoch are
+// counted for the page to say. A problem keeps what the page already shows and
+// is said in the catalogue's words, the page's own failures, such as printing,
+// as well. While an issue is recorded the page says it is busy, so a second tap
+// waits. Leaving the world, or another world opening, drops what a slower
+// answer brings back.
 
 import { issueRows, keptIssues, type Day, type DemoTeacher, type IssueRow, type KeptIssue } from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -28,6 +29,8 @@ export interface IssuePage {
   readonly issuing: boolean;
   /** The catalogue key of the last problem, or null. */
   readonly problem: string | null;
+  /** How many codes not yet scanned were last issued again under a new epoch, to print or show again. */
+  readonly reissued: number;
   /** Issues the next code or key for a teacher, and answers it as kept, or null after a problem. */
   readonly issue: (teacher: DemoTeacher, access: 'phone' | 'key') => Promise<KeptIssue | null>;
   readonly refresh: () => void;
@@ -51,6 +54,7 @@ export function useIssuePage(
   const [issuing, setIssuing] = useState(false);
   const recording = useRef(false);
   const [problem, setProblem] = useState<string | null>(null);
+  const [reissued, setReissued] = useState(0);
   const [, setKept] = useState(0);
   const live = useRef<string | null>(null);
   useEffect(() => {
@@ -76,6 +80,7 @@ export function useIssuePage(
       const assignments = await assignmentsOf(held, teachers, kit);
       if (!open) return;
       setDesk({ desk: held, assignments });
+      setReissued(held.reissued);
       await read(held);
     })()
       .catch((error: unknown) => open && setProblem(problemOf(error)))
@@ -102,7 +107,9 @@ export function useIssuePage(
     setProblem(null);
     setIssuing(true);
     try {
-      const kept = await issueFor(world, desk.desk, assignment, access, kit);
+      const { kept, desk: followed, reissued: again } = await issueFor(world, desk.desk, assignment, access, kit, send);
+      setDesk({ desk: followed, assignments: desk.assignments });
+      if (again > 0) setReissued(again);
       setKept((count) => count + 1);
       return kept;
     } catch (error) {
@@ -126,5 +133,5 @@ export function useIssuePage(
           world.date,
           naming,
         );
-  return { desk: desk?.desk ?? null, rows, busy, issuing, problem, issue, refresh, fail };
+  return { desk: desk?.desk ?? null, rows, busy, issuing, problem, reissued, issue, refresh, fail };
 }

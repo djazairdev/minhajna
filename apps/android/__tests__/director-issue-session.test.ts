@@ -19,6 +19,7 @@ import {
   eventOf,
   joinedKey,
   keptIssues,
+  keyringStream,
   readJoinCode,
   type DemoTeacher,
   type Entry,
@@ -68,6 +69,14 @@ async function world() {
 
 const helds = (entries: readonly Entry[]) => entries.filter((one) => eventOf(one)?.kind === 'school.held').length;
 
+/** An issue as the store keeps it, after following the school's stream. */
+const issued = async (
+  here: Parameters<typeof issueFor>[0],
+  desk: Parameters<typeof issueFor>[1],
+  assignment: string,
+  access: 'phone' | 'key',
+) => (await issueFor(here, desk, assignment, access, kit, server.send)).kept;
+
 test('the first opening starts the school key on a drawn space, kept in the store, and creates the space', async () => {
   const { id, here } = await world();
   const desk = await holdSchool(here, kit, server.send);
@@ -75,7 +84,9 @@ test('the first opening starts the school key on a drawn space, kept in the stor
   expect(held.school).toMatch(/^[A-Za-z0-9_-]{22}$/u);
   expect(held.ring.holders).toEqual([{ id: held.device, publicKey: held.publicKey }]);
   expect(desk.opened.keys).toHaveLength(1);
-  expect(await server.relay.spaces.batchesAfter(id, held.school, 0, 10)).toEqual([]);
+  const stream = await keyringStream(held.school, kit.mac);
+  const there = await server.relay.spaces.batchesAfter(id, held.school, 0, 10);
+  expect(there.map((one) => one.stream)).toEqual([stream]);
   const sent = JSON.stringify(server.seen);
   expect(sent).not.toContain(held.pkcs8);
   const again = await holdSchool(here, kit, server.send);
@@ -116,14 +127,14 @@ test('two issues at once go one after the other, each as asked', async () => {
   const desk = await holdSchool(here, kit, server.send);
   const [assignment] = (await assignmentsOf(desk, [teacher('teacher-1')], kit)).values();
   const [code, key] = await Promise.all([
-    issueFor(here, desk, assignment, 'phone', kit),
-    issueFor(here, desk, assignment, 'key', kit),
+    issued(here, desk, assignment, 'phone'),
+    issued(here, desk, assignment, 'key'),
   ]);
   expect(code).toMatchObject({ issue: 1, access: 'phone', keyNumber: null });
   expect(key).toMatchObject({ issue: 2, access: 'key' });
   jest.spyOn(here.book, 'record').mockRejectedValueOnce(new Error('made-up failure'));
-  await expect(issueFor(here, desk, assignment, 'phone', kit)).rejects.toThrow('made-up failure');
-  expect(await issueFor(here, desk, assignment, 'phone', kit)).toMatchObject({ issue: 3 });
+  await expect(issued(here, desk, assignment, 'phone')).rejects.toThrow('made-up failure');
+  expect(await issued(here, desk, assignment, 'phone')).toMatchObject({ issue: 3 });
 });
 
 test('each teacher’s assignment comes from the space, and issues count up with a key’s number', async () => {
@@ -133,12 +144,12 @@ test('each teacher’s assignment comes from the space, and issues count up with
   const first = assignments.get('teacher-1')!;
   expect(first).toBe(await assignmentId(desk.held.school, 'teacher-1', kit.mac));
   expect(assignments.get('teacher-2')).not.toBe(first);
-  const one = await issueFor(here, desk, first, 'phone', kit);
+  const one = await issued(here, desk, first, 'phone');
   expect(one).toMatchObject({ school: desk.held.school, assignment: first, issue: 1, epoch: 0, keyNumber: null });
   const text = await codeText(id, desk, one);
   expect(await codeText(id, desk, one)).toBe(text);
   expect(readJoinCode(text)).toMatchObject({ world: id, school: desk.held.school, assignment: first, issue: 1 });
-  const two = await issueFor(here, desk, first, 'key', kit);
+  const two = await issued(here, desk, first, 'key');
   expect(two).toMatchObject({ issue: 2, access: 'key' });
   expect(two.keyNumber).toMatch(/^\d{4}$/u);
   await expect(codeText(id, desk, two)).rejects.toThrow(RangeError);
@@ -151,14 +162,14 @@ test('a teacher who joins on a code is read back with their certificate’s day,
   const desk = await holdSchool(here, kit, server.send);
   const assignments = await assignmentsOf(desk, [teacher('teacher-1'), teacher('teacher-2')], kit);
   const [joining, waiting] = [assignments.get('teacher-1')!, assignments.get('teacher-2')!];
-  const issues = [await issueFor(here, desk, joining, 'phone', kit), await issueFor(here, desk, waiting, 'phone', kit)];
+  const issues = [await issued(here, desk, joining, 'phone'), await issued(here, desk, waiting, 'phone')];
   expect(await joinedDays(id, desk, issues, kit, server.send)).toEqual(new Map());
   const phone = await device();
   const joined = await joinSchool(phone, await codeText(id, desk, issues[0]), kit, server.send);
   const days = await joinedDays(id, desk, issues, kit, server.send);
   expect(days).toEqual(new Map([[joinedKey(joining, 1), joined.certificate.issued]]));
-  const replaced = await issueFor(here, desk, joining, 'phone', kit);
-  const key = await issueFor(here, desk, waiting, 'key', kit);
+  const replaced = await issued(here, desk, joining, 'phone');
+  const key = await issued(here, desk, waiting, 'key');
   expect(await joinedDays(id, desk, [replaced, key], kit, server.send)).toEqual(new Map());
 });
 

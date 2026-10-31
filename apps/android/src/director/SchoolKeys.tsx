@@ -98,6 +98,7 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
               desk={page.desk}
               made={page.facts.recoveries.length > 0}
               kit={kit}
+              send={send}
               school={name}
               dayText={dayText}
               recovery={page.recovery}

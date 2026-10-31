@@ -1,23 +1,29 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Issue's session on the director's device in a demo world (#570, answers
-// 596 and 597). The first time the page opens, the device makes its agreement
-// pair with the world kit, draws the school's space ID, starts the school's
-// keyring with itself as the first holder, and keeps all of it in the world's
-// own store before anything goes to the relay; of two openings at once the
-// second waits for the first. Every opening then opens the keyring on this
-// device and creates the school's space on the relay, so a teacher's join
-// finds it. A held key that no longer reads or opens here says so and starts
+// D-Issue's session on the director's device in a demo world (#570, answers 596
+// and 597). The first time the page opens, the device makes its agreement pair
+// with the world kit, draws the school's space ID, starts the school's keyring
+// with itself as the first holder, and keeps all of it in the world's own store
+// before anything goes to the relay; of two openings at once the second waits
+// for the first. Every opening then opens the keyring on this device, creates
+// the school's space on the relay, so a teacher's join finds it, and follows
+// the school's keyring stream (keyring-session.ts), which refuses a device a
+// holder removed; after a removal, every code not yet scanned under an older
+// epoch is issued again, and the page says how many, to print or show them
+// again. A held key that no longer reads or opens here says so and starts
 // nothing new, since a second keyring would void every code given. Each
 // teacher's assignment is worked out from the space; issuing a code or a
-// security key, one at a time in a world, records its issue, the keyring's
-// latest epoch and, for a key, a number never given before; a code's text,
-// never a key's, is worked out again whenever it is shown. The days teachers
-// joined are read from the space in one pass: for each current issue, the day
-// of the certificate on the first joined record of its channel. Errors carry
-// world-session.ts's codes, E_SCHOOL_KEY for a key that no longer reads or
-// opens, and E_WORLD when the store kept something else or nothing.
+// security key, one change at a time in a world and after following the stream,
+// records its issue, the keyring's latest epoch and, for a key, a number never
+// given before; a code's text, never a key's, is worked out again whenever it
+// is shown. The days teachers joined are read from the space in one pass: for
+// each current issue, the day of the certificate on the first joined record of
+// its channel. Errors carry world-session.ts's codes, E_SCHOOL_KEY for a key
+// that no longer reads or opens, E_KEY_REMOVED and E_KEYRING_CHANGED from
+// following the stream, E_SCHOOL_WAITING on a device waiting to hold the key
+// another device holds (answer 600), which starts nothing, and E_WORLD when the
+// store kept something else or nothing.
 
 import {
   assignmentId,
@@ -26,6 +32,7 @@ import {
   joinCodeText,
   joinedKey,
   keptIssues,
+  keptWaiting,
   keyNumbers,
   latestEpoch,
   latestHeld,
@@ -40,9 +47,6 @@ import {
   type Day,
   type DemoTeacher,
   type KeptIssue,
-  type KeyCrypto,
-  type OpenedKeyring,
-  type SchoolHeld,
   type SchoolIssued,
 } from '@minhajna/core';
 import { newDevicePair, worldKeyCrypto } from '../demo/world-key-crypto';
@@ -50,29 +54,27 @@ import type { OpenWorld } from '../demo/world-mode';
 import { failed, kitStep, unexpected, type Send, type WorldKit } from '../demo/world-session';
 import { worldRequest } from '../network/world-network';
 import { caKey, spaceBatches } from '../school/space-read';
+import { followSchool } from './keyring-session';
+import { inTurn } from './keys-session';
+import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
 
-/** A P-256 point, uncompressed, as the world kit's agreement gives it. */
-export const PUBLIC_KEY_BYTES = 65;
+export { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
 
 type IssueWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 
-/** The school key as this device holds it: the record kept, the keyring opened, and the device's crypto. */
-export interface IssueDesk {
-  readonly held: SchoolHeld;
-  readonly opened: OpenedKeyring;
-  readonly crypto: KeyCrypto;
+/** The openings on their way, by world, so a second waits for the first. */
+const going = new Map<string, Promise<HeldDesk>>();
+
+/** The desk as the page opens it, with how many codes were just issued again under the latest epoch. */
+export interface HeldDesk extends IssueDesk {
+  readonly reissued: number;
 }
 
-/** The openings on their way, by world, so a second waits for the first. */
-const going = new Map<string, Promise<IssueDesk>>();
-/** The last issue on its way in each world, so the next waits for it. */
-const issuing = new Map<string, Promise<unknown>>();
-
 /** Holds the school's key on this device, starting it the first time, and answers the desk to issue from. */
-export async function holdSchool(world: IssueWorld, kit: WorldKit, send: Send = worldRequest): Promise<IssueDesk> {
+export async function holdSchool(world: IssueWorld, kit: WorldKit, send: Send = worldRequest): Promise<HeldDesk> {
   const before = going.get(world.world);
   if (before !== undefined) return before;
-  const holding = holdOnce(world, kit, send);
+  const holding = inTurn(world.world, () => holdOnce(world, kit, send));
   going.set(world.world, holding);
   try {
     return await holding;
@@ -81,8 +83,11 @@ export async function holdSchool(world: IssueWorld, kit: WorldKit, send: Send = 
   }
 }
 
-async function holdOnce(world: IssueWorld, kit: WorldKit, send: Send): Promise<IssueDesk> {
+async function holdOnce(world: IssueWorld, kit: WorldKit, send: Send): Promise<HeldDesk> {
   if (!world.book.entries.some((entry) => eventOf(entry)?.kind === 'school.held')) {
+    if (keptWaiting(world.book.entries, PUBLIC_KEY_BYTES) !== null) {
+      throw failed('This device waits to hold the key another device holds', 'E_SCHOOL_WAITING');
+    }
     const pair = await kitStep(() => newDevicePair(kit));
     const holder = { id: newId(kit.random), publicKey: pair.publicKey };
     const school = newSchoolSpace(kit.random);
@@ -101,7 +106,8 @@ async function holdOnce(world: IssueWorld, kit: WorldKit, send: Send): Promise<I
     body: { kind: 'school' },
   });
   if (space.status !== 200 && space.status !== 201) throw unexpected(space);
-  return { held, opened, crypto };
+  const desk = (await followSchool(world, { held, opened, crypto }, kit, send)).desk;
+  return { ...desk, reissued: await issueStaleAgain(world, desk, kit, send) };
 }
 
 /** Each teacher's assignment in the school's space, by the seeded teacher's ID. */
@@ -117,21 +123,44 @@ export async function assignmentsOf(
   return new Map(pairs);
 }
 
-/** Issues the next code, or a security key, for an assignment, after any issue on its way, as the store keeps it. */
+/**
+ * Issues the next code, or a security key, for an assignment, one change at a
+ * time in a world, after following the school's stream, so it is made under
+ * the latest epoch, and codes made under an older one issued again first;
+ * the issue as the store keeps it, the desk followed, and how many codes
+ * were issued again.
+ */
 export function issueFor(
   world: IssueWorld,
   desk: IssueDesk,
   assignment: string,
   access: 'phone' | 'key',
   kit: WorldKit,
-): Promise<KeptIssue> {
-  const next = (issuing.get(world.world) ?? Promise.resolve())
-    .catch(() => undefined)
-    .then(() => issueOnce(world, desk, assignment, access, kit));
-  issuing.set(world.world, next);
-  return next.finally(() => {
-    if (issuing.get(world.world) === next) issuing.delete(world.world);
+  send: Send = worldRequest,
+): Promise<{ readonly kept: KeptIssue; readonly desk: IssueDesk; readonly reissued: number }> {
+  return inTurn(world.world, async () => {
+    const followed = (await followSchool(world, desk, kit, send)).desk;
+    const reissued = await issueStaleAgain(world, followed, kit, send);
+    return { kept: await issueOnce(world, followed, assignment, access, kit), desk: followed, reissued };
   });
+}
+
+/**
+ * Issues again every code not yet scanned that was made under an epoch older
+ * than the latest, since a device removed since, or an old recovery's parts
+ * that were renewed, hold that epoch's key and could work out its channel's
+ * (school-join.ts), and answers how many; a security key is left as it is,
+ * since its number is on the key itself.
+ */
+async function issueStaleAgain(world: IssueWorld, desk: IssueDesk, kit: WorldKit, send: Send): Promise<number> {
+  const latest = latestEpoch(desk.opened);
+  const issues = keptIssues(world.book.entries, desk.held.school).values();
+  const stale = [...issues].filter((one) => one.access === 'phone' && one.epoch < latest);
+  if (stale.length === 0) return 0;
+  const days = await joinedDays(world.world, desk, stale, kit, send);
+  const again = stale.filter((one) => !days.has(joinedKey(one.assignment, one.issue)));
+  for (const one of again) await issueOnce(world, desk, one.assignment, 'phone', kit);
+  return again.length;
 }
 
 async function issueOnce(

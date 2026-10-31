@@ -68,8 +68,8 @@ async function recoveries(open: Awaited<ReturnType<typeof director>>['open']) {
 test('two makings at once go one after the other, and only the second recovers the keyring', async () => {
   const { open, desk } = await director();
   const [one, two] = await Promise.all([
-    makeRecovery(open, desk, nodeKit, 'make'),
-    makeRecovery(open, desk, nodeKit, 'renew'),
+    makeRecovery(open, desk, nodeKit, 'make', server.send),
+    makeRecovery(open, desk, nodeKit, 'renew', server.send),
   ]);
   expect(one.parts).not.toEqual(two.parts);
   expect(one.fingerprint).not.toBe(two.fingerprint);
@@ -98,7 +98,7 @@ test('renewing when two holders look like recoveries leaves one, the new', async
     await open.book.record(open.date, { kind: 'school.held', held: { ...desk.held, ring: change.ring } });
   }
   expect(await recoveries(open)).toHaveLength(2);
-  const made = await makeRecovery(open, await holdSchool(open, nodeKit, server.send), nodeKit, 'renew');
+  const made = await makeRecovery(open, await holdSchool(open, nodeKit, server.send), nodeKit, 'renew', server.send);
   expect(await recoveries(open)).toHaveLength(1);
   const held = latestHeld(open.book.entries, 65)!;
   const recovered = await recoverKeyring(held.school, rings(open.book.entries), made.parts, desk.crypto, device);
@@ -107,9 +107,13 @@ test('renewing when two holders look like recoveries leaves one, the new', async
 
 test('a choice the keyring no longer matches is refused', async () => {
   const { open, desk } = await director();
-  await expect(makeRecovery(open, desk, nodeKit, 'renew')).rejects.toMatchObject({ code: 'E_KEYRING_CHANGED' });
-  await makeRecovery(open, desk, nodeKit, 'make');
+  await expect(makeRecovery(open, desk, nodeKit, 'renew', server.send)).rejects.toMatchObject({
+    code: 'E_KEYRING_CHANGED',
+  });
+  await makeRecovery(open, desk, nodeKit, 'make', server.send);
   const before = rings(open.book.entries).length;
-  await expect(makeRecovery(open, desk, nodeKit, 'make')).rejects.toMatchObject({ code: 'E_KEYRING_CHANGED' });
+  await expect(makeRecovery(open, desk, nodeKit, 'make', server.send)).rejects.toMatchObject({
+    code: 'E_KEYRING_CHANGED',
+  });
   expect(rings(open.book.entries)).toHaveLength(before);
 });
