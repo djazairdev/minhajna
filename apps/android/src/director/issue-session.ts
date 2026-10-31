@@ -203,7 +203,7 @@ export async function keyCodeText(world: string, desk: IssueDesk, issue: SchoolI
 }
 
 /** An issue's joining code, whose channel a teacher's join, by phone or by key (#572), writes to. */
-function joinCode(world: string, desk: IssueDesk, issue: SchoolIssued) {
+export function joinCode(world: string, desk: IssueDesk, issue: SchoolIssued) {
   const { assignment, epoch } = issue;
   return kitStep(() => makeJoinCode(desk.opened, world, assignment, issue.issue, desk.crypto, epoch));
 }

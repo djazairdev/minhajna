@@ -23,7 +23,8 @@
 // with live checks (TimetableHand.tsx, answer 594), and what is entered is
 // counted and checked as a file's reading is. The timetable read or entered is
 // kept in memory for the world it was read in, so it outlives a change of page,
-// until it is sent (#577) or the world is left; nothing is uploaded or signed.
+// until the world is left; the director sends each teacher their part from
+// under the checks (TimetableSend.tsx, #577), and nothing else is uploaded.
 // Minhajna imports the timetable and never builds it.
 
 import {
@@ -38,7 +39,7 @@ import {
   type Weekday,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { SegmentedControl } from '../components/SegmentedControl';
@@ -80,10 +81,12 @@ export type TimetableImportProps = {
   /** The timetable read so far in this world, or null. */
   readonly read: TimetableRead | null;
   readonly onRead: (read: TimetableRead | null) => void;
+  /** Shown under the checks once sessions were read with none refused: the director's sending (#577). */
+  readonly children?: ReactNode;
 };
 
 /** The timetable page: a file brought in and checked. */
-export function TimetableImport({ level, bells, workingDays, read, onRead }: TimetableImportProps) {
+export function TimetableImport({ level, bells, workingDays, read, onRead, children }: TimetableImportProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -243,6 +246,7 @@ export function TimetableImport({ level, bells, workingDays, read, onRead }: Tim
           {groups.length > 0 && <Text style={[styles.small, align]}>{t('ttImport.groupsLine')}</Text>}
         </View>
       )}
+      {result !== undefined && refused.length === 0 && result.sessions.length > 0 && children}
       {result !== undefined && refused.length === 0 && result.sessions.length > 0 && (
         <TimetableGrid sessions={result.sessions} workingDays={workingDays} afternoon={afternoonStart(bells, level)} />
       )}

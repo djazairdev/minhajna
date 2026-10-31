@@ -4783,5 +4783,19 @@
     "notRead": "Columns not read",
     "done": "File read: {{sessions}} · rows left out: {{left}}",
     "notImported": "File not imported"
+  },
+  "ttSend": {
+    "title": "Send each teacher their timetable",
+    "line": "Each teacher in the school’s list of teachers who was given a code or a security key receives their own sessions and the bell times, signed by this device, applying from {{day}}. A teacher’s device reads only its own timetable.",
+    "go": "Send the timetables",
+    "sent": "Teachers sent their timetable: {{teachers}}",
+    "noCode": "Given no code or key yet, so not sent:",
+    "notStaff": "Not in the school’s list of teachers, so not sent:",
+    "tooLong": "Too long to send, or with a name too long:",
+    "and": ", ",
+    "again": "Sending again replaces each teacher’s timetable with this one.",
+    "twoNames": "Two or more teachers of the list share this name, so not sent:",
+    "failed": "Not sent, try again:",
+    "sending": "Sending…"
   }
 }

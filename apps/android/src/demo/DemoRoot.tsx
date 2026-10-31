@@ -20,10 +20,11 @@
 // workspace opens on the seeded school's dashboard (#569), its codes page
 // issues joining codes and security keys (#570), its keys page maps who holds
 // the school key (#571), and the director's and the preparer's timetable page
-// brings in its timetable (#576), kept for the world it was read in, and their
-// My log lists their own actions (#573). The teacher of a national world signs
-// in on a staffroom PC (#572): on the phone it approves a PC's code, and on the
-// PC it is the staffroom PC itself.
+// brings in its timetable (#576), kept for the world it was read in, from which
+// the director sends each teacher their part (#577), and the director's My log
+// lists their own actions (#573). The teacher of a national world signs in on a
+// staffroom PC (#572): on the phone it approves a PC's code, and on the PC it
+// is the staffroom PC itself.
 
 import {
   readWorldCode,
@@ -55,6 +56,8 @@ import { OwnLog } from '../director/OwnLog';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { useDirectorSchool } from '../director/director-world';
 import { TimetableImport, type TimetableRead } from '../timetable/TimetableImport';
+import { TimetableSend } from '../timetable/TimetableSend';
+import { levelBells } from '../timetable/timetable-words';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -272,7 +275,19 @@ export function DemoRoot({
               workingDays={reference.profile.workingDays}
               read={timetable?.world === open.world ? timetable.read : null}
               onRead={(read) => setTimetable(read === null ? null : { world: open.world, read })}
-            />
+            >
+              {workspace === 'director' && timetable?.world === open.world && (
+                <TimetableSend
+                  world={open}
+                  school={school}
+                  sessions={timetable.read.result.sessions}
+                  bells={levelBells(reference.bells, school.level)}
+                  kit={kit}
+                  send={send}
+                  dayText={dayText}
+                />
+              )}
+            </TimetableImport>
           );
         return null;
       }}
