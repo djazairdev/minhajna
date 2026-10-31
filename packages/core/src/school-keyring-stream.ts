@@ -21,29 +21,17 @@
 // refused, and the new device shows the keyring's fingerprint to compare with
 // the holder's before it keeps anything.
 
-import { joinPieces, keyedCipher, openPiece, sealBatches, SYNC_BATCH_BYTES, type SealedBatch } from './batches.ts';
-import { canonicalJson } from './canonical.ts';
-import { toHex } from './id.ts';
+import type { SealedBatch } from './batches.ts';
 import { HOLDER_SECRET, openAdmitted } from './school-holder.ts';
 import { acceptKeyring, type OpenedKeyring } from './school-key.ts';
 import { ascii, fromHex, isKeyring, MAC, SCHOOL, type KeyCrypto, type SchoolKeyring } from './school-key-shape.ts';
+import { openRecords, placeOf, sealRecord } from './sealed-stream.ts';
 import { toBase64Url, type WorldCipher, type WorldMac } from './world-keys.ts';
 
 /** The format of what a holder puts in a new device's drop space. */
 export const ADMITTED_FORMAT = 'minhajna/holder-admitted/1';
 /** The most batches one keyring may take, about 128 KB; a longer one is never sealed, and a reader stops there. */
 export const KEYRING_BATCHES = 32;
-
-/** Where a keyring, or a new device's admission, goes: a stream and its sealing key. */
-interface Place {
-  readonly stream: string;
-  readonly sealing: Uint8Array;
-}
-
-async function placeOf(key: Uint8Array, name: string, mac: WorldMac): Promise<Place> {
-  const stream = toHex((await mac(key, ascii(`minhajna/${name}/stream`))).subarray(0, 16));
-  return { stream, sealing: await mac(key, ascii(`minhajna/${name}/seal`)) };
-}
 
 function dropKey(secret: string): Uint8Array {
   if (!HOLDER_SECRET.test(secret)) throw new RangeError('Not a one-time secret');
@@ -55,54 +43,6 @@ export async function keyringStream(school: string, mac: WorldMac): Promise<stri
   return (await placeOf(ascii(school), 'keyring', mac)).stream;
 }
 
-/** The text of a change set, ASCII only, as `seal` writes it; another byte only fails the shape checks after. */
-function parsed(bytes: Uint8Array): unknown {
-  let text = '';
-  for (let at = 0; at < bytes.length; at += 4096) text += String.fromCharCode(...bytes.subarray(at, at + 4096));
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
-
-async function seal(place: Place, value: unknown, first: number, cipher: WorldCipher): Promise<SealedBatch[]> {
-  if (!Number.isSafeInteger(first) || first < 0) throw new RangeError('A batch is numbered from 0');
-  const bytes = ascii(canonicalJson(value));
-  const batches = await sealBatches(keyedCipher(place.sealing, cipher), place.stream, first, bytes, SYNC_BATCH_BYTES);
-  if (batches.length > KEYRING_BATCHES) throw new RangeError('A keyring this long cannot travel');
-  return batches;
-}
-
-/**
- * The change sets of a stream's batches, in their order, each batch opened
- * once, and a number given twice only the first time: a batch that does not
- * open, a gap, or a set longer than KEYRING_BATCHES drops what was gathered,
- * and a set that starts again before it ends keeps only the new start.
- */
-async function opened(place: Place, batches: readonly SealedBatch[], cipher: WorldCipher): Promise<unknown[]> {
-  const opener = keyedCipher(place.sealing, cipher);
-  const found: unknown[] = [];
-  let pending: Uint8Array[] = [];
-  let previous = -1;
-  for (const batch of [...batches].sort((a, b) => a.number - b.number)) {
-    if (batch.number === previous) continue;
-    const piece = await openPiece(opener, place.stream, batch).catch(() => null);
-    const follows = batch.number === previous + 1;
-    previous = batch.number;
-    if (piece === null || (!piece.first && (!follows || pending.length === 0))) {
-      pending = [];
-      continue;
-    }
-    pending = piece.first ? [piece.bytes] : [...pending, piece.bytes];
-    if (piece.last) {
-      found.push(parsed(joinPieces(pending)));
-      pending = [];
-    } else if (pending.length >= KEYRING_BATCHES) pending = [];
-  }
-  return found;
-}
-
 /** A keyring's batches on the school's stream, numbered from `first`, the stream's next number. */
 export async function sealKeyring(
   ring: SchoolKeyring,
@@ -111,7 +51,7 @@ export async function sealKeyring(
   mac: WorldMac,
 ): Promise<{ readonly stream: string; readonly batches: readonly SealedBatch[] }> {
   const place = await placeOf(ascii(ring.school), 'keyring', mac);
-  return { stream: place.stream, batches: await seal(place, ring, first, cipher) };
+  return { stream: place.stream, batches: await sealRecord(place, ring, first, KEYRING_BATCHES, cipher) };
 }
 
 /** The school's keyrings its stream holds, in order, leaving out what is not one. */
@@ -122,7 +62,7 @@ export async function readKeyrings(
   cipher: WorldCipher,
   mac: WorldMac,
 ): Promise<readonly SchoolKeyring[]> {
-  const sets = await opened(await placeOf(ascii(school), 'keyring', mac), batches, cipher);
+  const sets = await openRecords(await placeOf(ascii(school), 'keyring', mac), batches, KEYRING_BATCHES, cipher);
   return sets.filter((one): one is SchoolKeyring => isKeyring(one, publicKeyBytes) && one.school === school);
 }
 
@@ -172,7 +112,7 @@ export async function sealAdmitted(
   const place = await placeOf(dropKey(secret), 'holder-drop', mac);
   const { ring, admission } = admitted;
   const record = { format: ADMITTED_FORMAT, school: ring.school, ring, admission };
-  return { space, stream: place.stream, batches: await seal(place, record, first, cipher) };
+  return { space, stream: place.stream, batches: await sealRecord(place, record, first, KEYRING_BATCHES, cipher) };
 }
 
 /**
@@ -191,7 +131,8 @@ export async function readAdmitted(
   mac: WorldMac,
 ): Promise<{ readonly school: string; readonly opened: OpenedKeyring } | null | 'contested'> {
   let found: { readonly school: string; readonly opened: OpenedKeyring } | null = null;
-  for (const one of await opened(await placeOf(dropKey(secret), 'holder-drop', mac), batches, cipher)) {
+  const place = await placeOf(dropKey(secret), 'holder-drop', mac);
+  for (const one of await openRecords(place, batches, KEYRING_BATCHES, cipher)) {
     if (typeof one !== 'object' || one === null || Array.isArray(one)) continue;
     const { format, school, ring, admission, ...rest } = one as Record<string, unknown>;
     if (format !== ADMITTED_FORMAT || Object.keys(rest).length > 0) continue;

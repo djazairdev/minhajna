@@ -85,6 +85,7 @@ export * from './school-dashboard.ts';
 export * from './school-recovery.ts';
 export * from './school-keys-map.ts';
 export * from './school-keyring-stream.ts';
+export * from './staff-pc.ts';
 export * from './timetable-key.ts';
 export * from './timetable-fet.ts';
 export * from './timetable-grid.ts';
