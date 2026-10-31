@@ -62,7 +62,7 @@ The welcome screen demonstrates Aref Ruqaa (Arabic name), Noto Naskh Arabic (Ara
 2. On the dedicated Android 8 emulator or a test phone, turn on airplane mode and turn off Wi-Fi and mobile data **before first launch**.
 3. Open the app with no development server running. Check the three faces, Arabic joining, and that no text is clipped, then repeat with text at 200%.
 4. Check Arabic TalkBack on a suitable device. A rendering screenshot alone does not prove screen-reader support.
-5. Build twice from clean copies in different directories, and compare the unsigned APKs byte for byte. Also check that the APK asks for no permissions and contains the font licence and all nine fonts.
+5. Build twice from clean copies in different directories, and compare the unsigned APKs byte for byte. Also check that the APK asks for no permission beyond those NETWORK.md lists, and contains the font licence and all nine fonts.
 
 ### Local result, 15 October 2026
 

@@ -194,13 +194,16 @@ test('the privacy notice and its connections page speak of this PC', async () =>
   expect(texts()).toEqual(
     expect.arrayContaining([notice.phoneTitle, notice.phoneText, notice.leaveText, notice.publisherText]),
   );
-  expect(texts()).toEqual(expect.arrayContaining([text.privacy.leaveTitle, text.privacy.trackingText]));
+  expect(texts()).toEqual(
+    expect.arrayContaining([text.privacy.leaveTitle, text.privacy.trackingText, text.privacy.demoText]),
+  );
   expect(texts()).not.toContain(text.privacy.phoneText);
   expect(texts()).toContain(calendarAr.receive.pc.privacy);
   expect(texts()).not.toContain(calendarAr.receive.privacy);
   await unmount();
   await mount(await withPupils(), <Connections />);
   const links = text.connections.pc;
+  expect(texts()).toContain(text.connections.demo);
   expect(texts()).toEqual(
     expect.arrayContaining([
       links.none,
