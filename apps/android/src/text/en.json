@@ -4328,6 +4328,28 @@
         "other": "Not held: other"
       }
     },
+    "ownLog": {
+      "lead": "What you did in this world, from this device.",
+      "none": "Nothing done from this device in this world yet.",
+      "preparer": "Importing a timetable is not kept in the world yet, so nothing shows here.",
+      "rule": "Each member of the administration sees their own actions alone. The teacher sees every reading of their records.",
+      "days": "Days only, never a time; signing in is never listed.",
+      "someone": "a teacher of the school",
+      "line": {
+        "keyStarted": "Started the school key on this device",
+        "keyAdmitted": "This device added to the school key",
+        "holdersAdded": "Devices added to the school key: {{number}}",
+        "holdersRemoved": "Devices removed from the school key: {{number}}",
+        "codeIssued": "Joining code for {{name}}",
+        "codeReplaced": "New joining code for {{name}}",
+        "codeReissued": "New joining code for {{name}} after the school key changed",
+        "keyIssued": "Security key {{number}} for {{name}}",
+        "keyReplaced": "Security key {{number}} for {{name}}, replacing an earlier key",
+        "recoveryMade": "Made the school key’s recovery",
+        "recoveryRenewed": "Renewed the school key’s recovery"
+      },
+      "opening": "Working out the log…"
+    },
     "issue": {
       "lead": "{{date}} · The school's teachers in the demo world: {{number}}",
       "print": "Print the codes not yet scanned",

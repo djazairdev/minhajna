@@ -184,3 +184,4 @@ export * from './free-list.ts';
 export * from './free-list-offer.ts';
 export * from './variant-read.ts';
 export * from './signed-read.ts';
+export * from './staff-log.ts';
