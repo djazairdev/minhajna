@@ -6,10 +6,10 @@
 // or a QR code is checked, kept once and shown with every field, the first
 // under its key, its pack's newer edition, and the lines on pupil data and
 // their own devices; a later one from the same key names the earlier one; a
-// changed or foreign file, or a PDF with no link, says so and is never kept;
-// the teacher is named per key; and the list shows each statement, newest
-// first, each opening as kept, and one no longer kept says so. Made-up keys and
-// statements only.
+// changed or foreign file, one signed in a demo world (#563), or a PDF with no
+// link, says so and is never kept; the teacher is named per key; and the list
+// shows each statement, newest first, each opening as kept, and one no longer
+// kept says so. Made-up keys and statements only.
 
 import {
   parseDay,
@@ -118,7 +118,7 @@ test('a PDF link and a QR code are kept, and a later statement names the earlier
   expect(String(settingsRoot().findByProps({ testID: 'reader-sender' }).props.children)).toContain('01/10/2026');
 });
 
-test('a changed or foreign file says so and is never kept', async () => {
+test('a changed, foreign or demo world’s file says so and is never kept', async () => {
   const data = await openTestData();
   const file = JSON.parse(await signed(statement('2026-10-01'))) as Record<string, string>;
   await open(data, JSON.stringify({ ...file, payload: file.payload.replace('2026-10-01', '2026-10-02') }));
@@ -129,6 +129,15 @@ test('a changed or foreign file says so and is never kept', async () => {
   await closeSettingsScreen();
   await open(data, '');
   expect(settingsTexts()).toContain(catalogues.ar.reader.problems.invalid);
+  const world = await signStatement(
+    statement('2026-10-01'),
+    await signature.teacherKey(),
+    (text) => signature.sign(text),
+    'ABCDE',
+  );
+  await closeSettingsScreen();
+  await open(data, world);
+  expect(settingsTexts()).toContain(catalogues.ar.reader.problems.world);
   for (const link of ['minhajna-statement:', 'minhajna-statement:!!']) {
     await closeSettingsScreen();
     await open(data, link);

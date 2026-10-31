@@ -30,7 +30,7 @@ export type OpenedStatement =
     }
   | {
       readonly ok: false;
-      readonly problem: 'invalid' | 'version' | 'signature' | 'payload' | 'unreadable' | 'noLink';
+      readonly problem: 'invalid' | 'version' | 'world' | 'signature' | 'payload' | 'unreadable' | 'noLink';
     };
 
 export function useStatementInput(onOpened: (opened: OpenedStatement) => void) {

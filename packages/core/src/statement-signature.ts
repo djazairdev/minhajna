@@ -9,10 +9,16 @@
 // says nothing about identity, known-key continuity, state certification or
 // legal status. Reader mode must check identity and key changes separately.
 // The payload never includes the recipient or the local sharing history.
+// A statement signed in a demo world (#563, answer 577) also names the
+// world, and its signature covers the world's mark before the payload, as a
+// world's signed files do: real mode refuses any statement that names a
+// world, and a world refuses one that names no world or another, once the
+// signature checks over what the statement names, so a changed statement is
+// said to be changed whatever it names.
 
 import { canonicalJson } from './canonical.ts';
 import { isFields } from './read.ts';
-import { readVersion, utf8Length, type Verifier } from './signed-read.ts';
+import { readVersion, utf8Length, worldSignedText, type Verifier } from './signed-read.ts';
 import {
   readStatement,
   statementPayload,
@@ -20,6 +26,7 @@ import {
   STATEMENT_FORMAT,
   type ProgressStatement,
 } from './statement-read.ts';
+import { isWorldId } from './world-code.ts';
 
 /** The signed envelope is distinct from trusted reference-data updates. */
 export const SIGNED_STATEMENT_FORMAT = 'minhajna.signed-statement';
@@ -30,7 +37,7 @@ export const STATEMENT_QR_LIMIT = 996;
 /** Signature validity is not proof of the signer's identity or legal authority. */
 export type StatementCheck =
   | { readonly ok: true; readonly statement: ProgressStatement; readonly spki: string }
-  | { readonly ok: false; readonly problem: 'invalid' | 'version' | 'signature' | 'payload' };
+  | { readonly ok: false; readonly problem: 'invalid' | 'version' | 'world' | 'signature' | 'payload' };
 
 const BASE64 = /^(?:[A-Za-z0-9+/]{4})+$|^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)$/;
 
@@ -50,25 +57,31 @@ export function fitsInQr(text: string): boolean {
  * SPKI is always 124 base64 characters, and its signature is taken at its longest, 96, so a statement said to fit
  * always does.
  */
-export function statementFitsInQr(statement: ProgressStatement): boolean {
+export function statementFitsInQr(statement: ProgressStatement, world: string | null = null): boolean {
   const longest = { spki: 'A'.repeat(124), signature: 'A'.repeat(96) };
   const payload = statementPayload(statement);
+  const named = world === null ? {} : { world };
   return fitsInQr(
-    canonicalJson({ format: SIGNED_STATEMENT_FORMAT, version: { major: 1, minor: 0 }, payload, ...longest }),
+    canonicalJson({ format: SIGNED_STATEMENT_FORMAT, version: { major: 1, minor: 0 }, payload, ...named, ...longest }),
   );
 }
 
-/** Signs one detached, allowlisted payload with a platform callback; never creates or exports a private key. */
+/**
+ * Signs one detached, allowlisted payload with a platform callback; never creates or exports a private key. Inside
+ * a demo world, `world` names it, and the callback signs the world's mark before the payload.
+ */
 export async function signStatement(
   statement: ProgressStatement,
   spki: string,
-  sign: (payload: string) => Promise<string>,
+  sign: (signed: string) => Promise<string>,
+  world: string | null = null,
 ): Promise<string> {
   if (!encoded(spki, 200)) throw new TypeError('Invalid statement public key');
+  if (world !== null && !isWorldId(world)) throw new TypeError('Invalid world');
   const payload = statementPayload(statement);
   let signature: string;
   try {
-    signature = await sign(payload);
+    signature = await sign(world === null ? payload : worldSignedText(world, payload));
   } catch {
     throw new Error('Statement signing failed');
   }
@@ -78,10 +91,17 @@ export async function signStatement(
     version: { major: 1, minor: 0 },
     spki,
     payload,
+    ...(world !== null && { world }),
     signature,
   });
   if (utf8Length(text)! > STATEMENT_BYTES) throw new RangeError('Signed statement exceeds size limit');
   return text;
+}
+
+/** The world a signed statement's envelope names, null for none, or undefined when its `world` is no world's ID. */
+export function statementWorld(raw: Readonly<Record<string, unknown>>): string | null | undefined {
+  if (!Object.hasOwn(raw, 'world')) return null;
+  return isWorldId(raw['world']) ? raw['world'] : undefined;
 }
 
 /** Whether a payload is a statement of a later major version, which an update of the app may read. */
@@ -94,8 +114,16 @@ function newer(payload: string): boolean {
   }
 }
 
-/** Verifies original bytes before reading the payload; returns fixed, content-free failures. */
-export async function checkStatement(text: string, verify: Verifier): Promise<StatementCheck> {
+/**
+ * Verifies original bytes before reading the payload; returns fixed, content-free failures. Inside a demo world,
+ * `world` names it, and only a statement that names the same world checks; otherwise one that names a world is
+ * refused.
+ */
+export async function checkStatement(
+  text: string,
+  verify: Verifier,
+  world: string | null = null,
+): Promise<StatementCheck> {
   if (typeof text !== 'string') return { ok: false, problem: 'invalid' };
   const bytes = text.length > STATEMENT_BYTES ? null : utf8Length(text);
   if (bytes === null || bytes > STATEMENT_BYTES) return { ok: false, problem: 'invalid' };
@@ -116,13 +144,16 @@ export async function checkStatement(text: string, verify: Verifier): Promise<St
     utf8Length(payload) === null
   )
     return { ok: false, problem: 'invalid' };
+  const named = statementWorld(raw);
+  if (named === undefined) return { ok: false, problem: 'invalid' };
   let valid: boolean;
   try {
-    valid = await verify(spki, payload, signature);
+    valid = await verify(spki, named === null ? payload : worldSignedText(named, payload), signature);
   } catch {
     return { ok: false, problem: 'signature' };
   }
   if (!valid) return { ok: false, problem: 'signature' };
+  if (named !== world) return { ok: false, problem: 'world' };
   const read = readStatement(payload);
   return read.ok
     ? { ok: true, statement: read.value, spki }

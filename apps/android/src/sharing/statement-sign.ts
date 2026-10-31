@@ -21,7 +21,7 @@ export interface SignedStatement {
 /** Signs `statement` with the teacher's key; throws when it cannot be signed. */
 export async function signedNow(statement: ProgressStatement): Promise<SignedStatement> {
   const spki = await signature.teacherKey();
-  const text = await signStatement(statement, spki, (payload) => signature.sign(payload));
+  const text = await signStatement(statement, spki, (signed) => signature.sign(signed));
   const fingerprint = await teacherKeyFingerprint(spki);
   const qr = fitsInQr(text) ? await signature.qrMatrix(text) : null;
   return { text, fingerprint, qr };
