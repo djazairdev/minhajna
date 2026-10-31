@@ -4174,7 +4174,9 @@
       "moveLine": "Seul cet appareil, qui a démarré le monde, en déplace la date.",
       "changeRole": "Changer de rôle",
       "leave": "Quitter le monde",
-      "school": "Espace de l’établissement"
+      "school": "Espace de l’établissement",
+      "staffPc": "PC de la salle des professeurs",
+      "pcApprove": "Se connecter sur un PC"
     },
     "shell": {
       "name": "Démo nationale",
@@ -4589,6 +4591,74 @@
         "yes": "Le retirer",
         "done": "Cet appareil est retiré. Rien de ce qui est ajouté désormais ne lui parvient.",
         "renewed": "Cet appareil est retiré. Il avait créé la récupération, qui est donc renouvelée : imprimez les deux nouvelles feuilles et remettez-les."
+      }
+    },
+    "staff": {
+      "title": "PC de la salle des professeurs",
+      "lead": "Le registre sur un grand écran, et rien n’y reste après.",
+      "browsers": "Chrome, Edge et Firefox, sous Windows 10 et 11",
+      "close": "Retour",
+      "erased": {
+        "locked": "La session est verrouillée et effacée de ce PC.",
+        "idle": "La session s’est verrouillée après 5 minutes sans utilisation et est effacée de ce PC.",
+        "ended": "La session est terminée et effacée de ce PC."
+      },
+      "session": {
+        "who": "{{teacher}} · {{school}}",
+        "memory": "Session sur un PC partagé · en mémoire seulement",
+        "lock": "Verrouiller",
+        "end": "Terminer la session",
+        "opening": "Lecture de vos affectations dans l’espace de l’établissement…",
+        "channel": "{{subject}} · {{classes}}",
+        "separator": ", ",
+        "joined": "Vous avez rejoint le {{day}}, selon l’espace de l’établissement.",
+        "notJoined": "L’espace de l’établissement n’a encore aucune adhésion.",
+        "records": "L’espace de l’établissement n’a encore aucun registre de cette semaine.",
+        "private": "Le motif d’une séance non tenue et vos notes privées : sur vos seuls appareils, pas dans l’espace de l’établissement.",
+        "signed": "La semaine est signée sur le téléphone, avec une clé qui ne le quitte jamais.",
+        "footer": "Les registres sont dans la seule mémoire de cette session, et rien n’est gardé dans le navigateur. La session se verrouille seule après 5 minutes sans utilisation. Aucune connexion n’est enregistrée."
+      },
+      "phone": {
+        "title": "Se connecter sur un PC",
+        "lead": "Sur le PC de l’établissement, scannez le code affiché, puis approuvez ici.",
+        "scan": "Scanner le code du PC",
+        "hint": "Visez le code sur le PC",
+        "cancel": "Annuler",
+        "scanButton": "Scanner le code du PC",
+        "camera": "La caméra est demandée pour scanner les codes seulement.",
+        "memory": "Mes registres s’ouvrent sur le PC dans la seule mémoire de la session et en sont effacés quand elle est fermée ou verrouillée. Aucune connexion n’est enregistrée, ni sur le téléphone ni sur le serveur.",
+        "notCode": "Ce n’est pas un code pour se connecter sur un PC.",
+        "notJoined": "Ce téléphone n’a pas encore rejoint d’établissement dans ce monde : rejoignez d’abord avec le code de l’établissement.",
+        "ask": "Ouvrir mes registres sur ce PC ?",
+        "asked": "Le code d’un PC de l’établissement a été scanné ; il demande à ouvrir une session.",
+        "school": "Établissement",
+        "pcValue": "Un des PC de l’établissement",
+        "opens": "Ce qui s’ouvre",
+        "opensValue": "Mes affectations dans l’espace de l’établissement, une par code d’adhésion : {{number}}",
+        "nothingKept": "Dans la seule mémoire de la session ; rien ne reste dans le navigateur. Aucune connexion n’est enregistrée, ni sur le téléphone ni sur le serveur.",
+        "private": "Les notes privées ne s’ouvrent pas ici, car elles ne sont pas dans l’espace de l’établissement.",
+        "present": "Si ce PC n’est pas devant vous maintenant, refusez.",
+        "approve": "Approuver",
+        "refuse": "Refuser",
+        "check": "Code de contrôle : {{check}}. Comparez-le avec celui qu’affiche le PC avant que la session ne s’ouvre.",
+        "close": "Retour",
+        "computer": "PC"
+      },
+      "signIn": {
+        "title": "Se connecter sur ce PC avec le téléphone",
+        "memory": "Les registres restent dans la seule mémoire de la session et sont effacés quand elle est fermée ou verrouillée. Aucune connexion n’est enregistrée, ni ici ni sur le serveur.",
+        "step1": "1. Dans Minhajna sur le téléphone : « Se connecter sur un PC ».",
+        "step2": "2. Scanner ce code.",
+        "step3": "3. Approuver sur le téléphone, puis comparer le code de contrôle ici.",
+        "qr": "Le code à usage unique pour se connecter sur ce PC",
+        "check": "Vérifier maintenant",
+        "again": "Nouveau code",
+        "nothing": "Rien pour l’instant : aucun téléphone n’a approuvé ce code.",
+        "contested": "Deux sessions différentes ont atteint ce code, aucune n’a été ouverte. Un nouveau code est affiché.",
+        "compare": "Code de contrôle : {{check}}. Est-ce celui qu’affiche votre téléphone ?",
+        "who": "Session : {{teacher}} · {{school}}",
+        "same": "Le même : ouvrir la session",
+        "differ": "Différent : nouveau code"
       }
     }
   },

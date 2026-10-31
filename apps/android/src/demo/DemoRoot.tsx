@@ -20,7 +20,9 @@
 // workspace opens on the seeded school's dashboard (#569), its codes page
 // issues joining codes and security keys (#570), its keys page maps who holds
 // the school key (#571), and the director's and the preparer's timetable page
-// brings in its timetable (#576), kept for the world it was read in.
+// brings in its timetable (#576), kept for the world it was read in. The
+// teacher of a national world signs in on a staffroom PC (#572): on the phone
+// it approves a PC's code, and on the PC it is the staffroom PC itself.
 
 import {
   readWorldCode,
@@ -44,6 +46,8 @@ import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from '
 import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
 import { SchoolJoin } from '../school/SchoolJoin';
+import { PcApprove } from '../staff/PcApprove';
+import { StaffPc } from '../staff/StaffPc';
 import { DirectorDashboard } from '../director/DirectorDashboard';
 import { IssueCodes } from '../director/IssueCodes';
 import { SchoolKeys } from '../director/SchoolKeys';
@@ -104,6 +108,7 @@ export function DemoRoot({
   const [role, setRole] = useState<WorldRole | null>(null);
   const [reading, setReading] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [staff, setStaff] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ProblemKey | null>(null);
   const [timetable, setTimetable] = useState<{ world: string; read: TimetableRead } | null>(null);
@@ -157,19 +162,20 @@ export function DemoRoot({
       setRole(null);
       setReading(false);
       setJoining(false);
+      setStaff(false);
       setTimetable(null);
       onLeft();
     });
 
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (reading || joining) return false;
+      if (reading || joining || staff) return false;
       if (open === null && !working.current) onBack();
       if (open !== null) setRole(null);
       return true;
     });
     return () => handler.remove();
-  }, [open, onBack, reading, joining]);
+  }, [open, onBack, reading, joining, staff]);
 
   const shown = problem === null ? null : t(problem);
   if (open === null)
@@ -189,6 +195,21 @@ export function DemoRoot({
         year={calendar.year.id}
         onClose={() => setJoining(false)}
       />
+    );
+  if (staff && open.kind === 'national' && school !== null && reference !== undefined)
+    return onPc() ? (
+      <StaffPc
+        world={open}
+        school={school}
+        profile={reference.profile}
+        date={date}
+        dayText={dayText}
+        kit={kit}
+        send={send}
+        onClose={() => setStaff(false)}
+      />
+    ) : (
+      <PcApprove world={open} school={school} date={date} kit={kit} send={send} onClose={() => setStaff(false)} />
     );
   if (reading && reference !== undefined)
     return (
@@ -210,6 +231,9 @@ export function DemoRoot({
       onRole={setRole}
       onReader={reference === undefined ? undefined : () => setReading(true)}
       onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
+      onStaff={
+        open.kind === 'national' && school !== null && reference !== undefined ? () => setStaff(true) : undefined
+      }
       onMove={move}
       onLeave={leave}
       pageBody={(workspace, page) => {

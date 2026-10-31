@@ -4106,7 +4106,9 @@
       "moveLine": "Only this device, which started the world, moves its date.",
       "changeRole": "Change role",
       "leave": "Leave the world",
-      "school": "The school’s space"
+      "school": "The school’s space",
+      "staffPc": "Staffroom PC",
+      "pcApprove": "Sign in on a PC"
     },
     "shell": {
       "name": "National demo",
@@ -4521,6 +4523,74 @@
         "yes": "Remove it",
         "done": "That device is removed. Nothing added from now on reaches it.",
         "renewed": "That device is removed. It had made the recovery, so the recovery is renewed: print both new sheets and hand them over."
+      }
+    },
+    "staff": {
+      "title": "Staffroom PC",
+      "lead": "The records on a wide screen, and nothing left on it afterwards.",
+      "browsers": "Chrome, Edge and Firefox, on Windows 10 and 11",
+      "close": "Back",
+      "erased": {
+        "locked": "The session is locked and erased from this PC.",
+        "idle": "The session locked after 5 minutes unused and is erased from this PC.",
+        "ended": "The session ended and is erased from this PC."
+      },
+      "session": {
+        "who": "{{teacher}} · {{school}}",
+        "memory": "Session on a shared PC · in memory alone",
+        "lock": "Lock",
+        "end": "End the session",
+        "opening": "Reading your assignments from the school’s space…",
+        "channel": "{{subject}} · {{classes}}",
+        "separator": ", ",
+        "joined": "You joined on {{day}}, as the school’s space holds it.",
+        "notJoined": "The school’s space holds no join yet.",
+        "records": "The school’s space holds no records of this week yet.",
+        "private": "Why a session was not held, and your private notes: on your own devices alone, not in the school’s space.",
+        "signed": "The week is signed on the phone, with a key that never leaves it.",
+        "footer": "The records are in this session’s memory alone, and nothing is kept in the browser. The session locks itself after 5 minutes unused. No sign-in is recorded."
+      },
+      "phone": {
+        "title": "Sign in on a PC",
+        "lead": "On the school’s PC, scan the code on the screen, then approve here.",
+        "scan": "Scan the PC’s code",
+        "hint": "Point at the code on the PC",
+        "cancel": "Cancel",
+        "scanButton": "Scan the PC’s code",
+        "camera": "The camera is asked for to scan codes only.",
+        "memory": "My records open on the PC in the session’s memory alone and are erased from it when the session is closed or locked. No sign-in is recorded, on the phone or on the server.",
+        "notCode": "This is not a code to sign in on a PC.",
+        "notJoined": "This phone has not joined a school in this world yet: join first with the school’s code.",
+        "ask": "Open my records on this PC?",
+        "asked": "A school PC’s code was scanned; it asks to open a session.",
+        "school": "School",
+        "pcValue": "One of the school’s PCs",
+        "opens": "What opens",
+        "opensValue": "My assignments in the school’s space, one per joining code: {{number}}",
+        "nothingKept": "In the session’s memory alone; nothing stays in the browser. No sign-in is recorded, on the phone or on the server.",
+        "private": "Private notes do not open here, since they are not in the school’s space.",
+        "present": "If this PC is not in front of you now, refuse.",
+        "approve": "Approve",
+        "refuse": "Refuse",
+        "check": "Check: {{check}}. Compare it with the one the PC shows before the session opens.",
+        "close": "Back",
+        "computer": "PC"
+      },
+      "signIn": {
+        "title": "Sign in on this PC with your phone",
+        "memory": "The records stay in the session’s memory alone and are erased when the session is closed or locked. No sign-in is recorded, here or on the server.",
+        "step1": "1. In Minhajna on your phone: “Sign in on a PC”.",
+        "step2": "2. Scan this code.",
+        "step3": "3. Approve on the phone, then compare the check here.",
+        "qr": "The one-time code to sign in on this PC",
+        "check": "Check now",
+        "again": "New code",
+        "nothing": "Nothing yet: no phone has approved this code.",
+        "contested": "Two different sessions reached this code, so neither opened. A new code is below.",
+        "compare": "Check: {{check}}. Is it the one your phone shows?",
+        "who": "Session: {{teacher}} · {{school}}",
+        "same": "The same: open the session",
+        "differ": "Different: new code"
       }
     }
   },
