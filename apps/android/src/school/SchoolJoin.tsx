@@ -18,7 +18,8 @@
 // opens, and that kept keys are being checked, when they are; so is each other
 // page's title as it opens. The law, or the new phone's note, sits at the
 // page's foot. Before any join, a link opens the way for a new phone
-// (Rejoin.tsx, #566), and a joined card opens the teacher's devices and copies
+// (Rejoin.tsx, #566), and a joined card opens the timetable the school sent
+// (TeacherTimetable.tsx, #579), the teacher's devices and copies
 // (DevicesMoved.tsx), who reads what in the national system (NationalHelp.tsx,
 // #568) and what stays and goes on leaving (Leave.tsx, #567), when the year's
 // dates read; going back from any returns here, and Leave's way to the next
@@ -45,6 +46,7 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
+import { TeacherTimetable } from '../timetable/TeacherTimetable';
 import { checkKeptJoins, joinSchool, problemOf } from './school-join-session';
 import { DevicesMoved } from './DevicesMoved';
 import { NationalHelp } from './NationalHelp';
@@ -193,6 +195,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClo
     const shown = { date, join: view.join, dayText, onClose: leave, said };
     if (view.page === 'devices') return <DevicesMoved {...shown} />;
     if (view.page === 'help') return <NationalHelp {...shown} />;
+    if (view.page === 'timetable') return <TeacherTimetable {...shown} world={world} kit={kit} send={send} />;
     if (dates !== null) return <Leave {...shown} year={year} dates={dates} onJoin={toCode} />;
   }
   return (
@@ -240,6 +243,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClo
             dayText={dayText}
             onDevices={open('devices')}
             onHelp={open('help')}
+            onTimetable={open('timetable')}
             onLeave={dates === null ? undefined : open('leave')}
           />
           <View onLayout={onCodeLayout} style={styles.code}>

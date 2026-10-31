@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The school's space as joined (#564, #565, answer 582): one card for each
-// code that joined, with the world's date its certificate was given and the
-// school's ID shortened, kept left to right inside a sentence of either
-// direction, and a way to the teacher's devices and copies once joined
-// (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
-// #567).
+// The school's space as joined (#564, #565, answer 582): one card for each code
+// that joined, with the world's date its certificate was given and the school's
+// ID shortened, kept left to right inside a sentence of either direction, and a
+// way to the timetable the school sent (TeacherTimetable.tsx, #579), to the
+// teacher's devices and copies once joined (DevicesMoved.tsx, #566) and to what
+// stays and goes on leaving (Leave.tsx, #567).
 
 import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -27,10 +27,12 @@ export type SchoolJoinedCardsProps = {
   readonly onLeave?: (join: SchoolJoined) => void;
   /** Opens who reads what in the national system, and by which key. */
   readonly onHelp: (join: SchoolJoined) => void;
+  /** Opens the timetable the school sent on the code's channel. */
+  readonly onTimetable: (join: SchoolJoined) => void;
 };
 
 /** A card for each code that joined the school's space. */
-export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave, onHelp }: SchoolJoinedCardsProps) {
+export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave, onHelp, onTimetable }: SchoolJoinedCardsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -45,6 +47,12 @@ export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave, onHelp }
           school: shortSchool(readJoinCode(join.code)?.school ?? ''),
         })}
       </Text>
+      <Button
+        testID="school-timetable"
+        variant="line"
+        label={t('demo.timetable.open')}
+        onPress={() => onTimetable(join)}
+      />
       <Button testID="school-devices" variant="line" label={t('demo.devices.open')} onPress={() => onDevices(join)} />
       <Button testID="school-help" variant="line" label={t('demo.help.open')} onPress={() => onHelp(join)} />
       {onLeave !== undefined && (

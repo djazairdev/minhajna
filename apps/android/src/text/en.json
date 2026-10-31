@@ -79,7 +79,11 @@
     "schools_one": "{{count}} school",
     "schools_other": "{{count}} schools",
     "groups_one": "{{count}} group",
-    "groups_other": "{{count}} groups"
+    "groups_other": "{{count}} groups",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes"
   },
   "bottomSheet": {
     "close": "Close"
@@ -4298,6 +4302,35 @@
       "nothingElse": "Nothing else: no advertising and no analytics. The full list is published with the source code.",
       "moved": "The app no longer contacts the project’s sync server: the sync moved to the Ministry’s server on the day of joining, {{date}}.",
       "privacy": "The privacy notice, what Minhajna keeps and where, is in Help, outside this world."
+    },
+    "timetable": {
+      "title": "Timetable from the school",
+      "open": "Timetable from the school",
+      "reading": "Reading the school’s channel…",
+      "again": "Read again",
+      "none": "No timetable from the school yet: your part arrives here once the school publishes it.",
+      "inForce": "In force today: version {{version}}, from {{day}}",
+      "inForceOnce": "Today only: version {{version}}, for {{day}}",
+      "notYet": "Not in force yet: version {{version}} applies from {{day}}",
+      "hours": "{{hours}} a week",
+      "received": "Versions received",
+      "from": "Version {{version}} · from {{day}}",
+      "once": "Version {{version}} · {{day}} only",
+      "whole": "Sessions in your timetable: {{sessions}}",
+      "nothing": "Nothing changes in your sessions.",
+      "fromChanges": "From {{day}}, for your classes:",
+      "onceChanges": "On {{day}} only, then version {{version}} applies again:",
+      "hoursSame": "{{hours}} a week, as before",
+      "hoursChanged": "From {{before}} to {{after}} a week",
+      "confirmed": "Receipt confirmed on {{day}}",
+      "confirm": "Confirm receipt of version {{version}}",
+      "paper": "Confirming receipt tells the school you received this version, in place of signing the paper notice.",
+      "done": "Receipt of version {{version}} confirmed.",
+      "hoursAnd": "{{hours}} {{minutes}}",
+      "daySessions": "That day: {{sessions}}",
+      "confirming": "Confirming the receipt…",
+      "affected": "The school tells only the teachers whose sessions a version changes.",
+      "notJoined": "This phone’s join is not on the school’s channel yet. Open the school’s space again, then read again."
     },
     "leave": {
       "open": "Leaving the school",
