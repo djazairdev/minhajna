@@ -1,22 +1,32 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A timetable read from a file as each class's week (#576, answer 593): the
-// classes come under their first spelling in reading order, 1AM2 before 1AM10;
-// a class's grid has a row for each time, earliest first, and a column for each
-// working day, then any other day a session takes; a cell holds the whole class
-// first, then its groups, week A before week B; and the alternating weeks
-// balance for each group of pupils and each teacher, as when two groups swap
-// two labs from week to week, a group's week holding the whole class's
-// sessions, its own and those of each group it is within, the smallest groups
-// being checked, and a group with a single group within it too, two spellings
-// of a group being one, while a session taught to several classes together
-// counts once for its teacher, and a timetable with no week A or B says it does
-// not alternate. Every class and teacher is made up.
+// A timetable read from a file as each class's week (#576, answer 593), and
+// each teacher's and room's for printing (#581, answer 609), a cell by class
+// and a session with no room in no room's grid: the classes come under their
+// first spelling in reading order, 1AM2 before 1AM10; a class's grid has a row
+// for each time, earliest first, and a column for each working day, then any
+// other day a session takes; a cell holds the whole class first, then its
+// groups, week A before week B; and the alternating weeks balance for each
+// group of pupils and each teacher, as when two groups swap two labs from week
+// to week, a group's week holding the whole class's sessions, its own and those
+// of each group it is within, the smallest groups being checked, and a group
+// with a single group within it too, two spellings of a group being one, while
+// a session taught to several classes together counts once for its teacher, and
+// a timetable with no week A or B says it does not alternate. Every class and
+// teacher is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { alternates, classGrid, timetableClasses, weekBalance, type ImportedSession } from '../src/index.ts';
+import {
+  alternates,
+  classGrid,
+  gridOf,
+  timetableClasses,
+  timetableNames,
+  weekBalance,
+  type ImportedSession,
+} from '../src/index.ts';
 
 let row = 1;
 /** A session of an hour from the given hour, every week, for the whole class, unless told otherwise. */
@@ -40,6 +50,45 @@ describe('the classes of a timetable', () => {
       session({ class: '1am2', teacher: 'Teacher B', day: 1 }),
     ];
     assert.deepEqual(timetableClasses(sessions), ['1AM2', '1AM10']);
+  });
+});
+
+describe("a teacher's and a room's grid", () => {
+  it('lists teachers and named rooms, and lays out their weeks by class', () => {
+    const sessions = [
+      session({ class: '4AM3', teacher: 'Teacher A', room: 'Lab 2' }),
+      session({ class: '4AM2', teacher: 'teacher a', room: 'lab 2', group: 'G1' }),
+      session({ class: '4AM2', teacher: 'Teacher B', day: 1, week: 'B' }),
+      session({ class: '4AM2', teacher: 'Teacher A', day: 1, start: 540, end: 600, room: 'Room 10' }),
+    ];
+    assert.deepEqual(timetableNames(sessions, 'teacher'), ['Teacher A', 'Teacher B']);
+    assert.deepEqual(timetableNames(sessions, 'room'), ['Lab 2', 'Room 10']);
+    assert.deepEqual(timetableNames(sessions, 'class'), timetableClasses(sessions));
+    const teacher = gridOf(sessions, 'teacher', 'TEACHER A', [0, 1]);
+    assert.deepEqual(
+      teacher.slots.map((slot) => slot.cells.map((cell) => cell.map((one) => one.class))),
+      [
+        [['4AM2', '4AM3'], []],
+        [[], ['4AM2']],
+      ],
+    );
+    const room = gridOf(sessions, 'room', 'Lab 2', [0, 1]);
+    assert.deepEqual(
+      room.slots.map((slot) => [slot.start, slot.cells.map((cell) => cell.length)]),
+      [[480, [2, 0]]],
+    );
+    assert.deepEqual(gridOf(sessions, 'room', '', [0, 1]).slots, []);
+  });
+
+  it('keeps the whole class first when its name is spelled two ways', () => {
+    const sessions = [
+      session({ class: '4am2', teacher: 'Teacher A', group: 'G1' }),
+      session({ class: '4AM2', teacher: 'Teacher B' }),
+    ];
+    assert.deepEqual(
+      classGrid(sessions, '4AM2', [0]).slots[0]?.cells[0]?.map((one) => one.teacher),
+      ['Teacher B', 'Teacher A'],
+    );
   });
 });
 

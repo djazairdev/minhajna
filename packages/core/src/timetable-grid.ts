@@ -5,18 +5,20 @@
 // alternating weeks (#576, D-TT-import, §7.4, R-7.4-10, answer 593). The
 // classes are listed under their first spelling, two spellings of one name
 // being one class, in the order a person reads them, 1AM2 before 1AM10. A
-// class's grid has a row for each start and end its sessions take, earliest
-// first, and a column for each of the school's working days, then any other day
-// its sessions fall on, so nothing read is hidden; a cell holds the sessions of
-// that time, the whole class first, then each group, week A before week B. When
-// sessions alternate, each group of pupils and each teacher must have as long a
-// week A as week B: a group's week holds the whole class's sessions, its own,
-// and those of each group it is within, as G1 1/2 is within G1; the smallest
-// groups are checked, taken to cover any group split into several, so a group
-// with a single group directly within it is checked too; a class without groups
-// is one group; and a session taught to several classes together counts once
-// for its teacher. The balance is of the sessions a reading kept, never of the
-// rows left out. The grid shows the timetable as read and never changes it.
+// class's grid, and a teacher's or a room's laid out the same way for printing
+// (#581), has a row for each start and end its sessions take, earliest first,
+// and a column for each of the school's working days, then any other day its
+// sessions fall on, so nothing read is hidden; a cell holds the sessions of
+// that time, by class, the whole class first, then each group, week A before
+// week B; a session with no room is in no room's grid. When sessions alternate,
+// each group of pupils and each teacher must have as long a week A as week B: a
+// group's week holds the whole class's sessions, its own, and those of each
+// group it is within, as G1 1/2 is within G1; the smallest groups are checked,
+// taken to cover any group split into several, so a group with a single group
+// directly within it is checked too; a class without groups is one group; and a
+// session taught to several classes together counts once for its teacher. The
+// balance is of the sessions a reading kept, never of the rows left out. The
+// grid shows the timetable as read and never changes it.
 
 import type { Weekday } from './day.ts';
 import { groupWithin, timetableNameKey as key, type ImportedSession } from './timetable-import.ts';
@@ -57,6 +59,14 @@ export function timetableClasses(sessions: readonly ImportedSession[]): string[]
   return names(sessions.map((one) => one.class));
 }
 
+/** Whose week a grid is: a class's, a teacher's or a room's. */
+export type GridOf = 'class' | 'teacher' | 'room';
+
+/** The classes, teachers or rooms a timetable names, each under its first spelling, in reading order. */
+export function timetableNames(sessions: readonly ImportedSession[], of: GridOf): string[] {
+  return names(sessions.map((one) => one[of]));
+}
+
 const WEEK_ORDER = { both: 0, A: 1, B: 2 } as const;
 
 /**
@@ -68,11 +78,22 @@ export function classGrid(
   name: string,
   workingDays: readonly Weekday[],
 ): ClassGrid {
-  const mine = sessions.filter((one) => key(one.class) === key(name));
+  return gridOf(sessions, 'class', name, workingDays);
+}
+
+/** A class's, a teacher's or a room's week, as a class's is laid out, a cell's sessions by class first. */
+export function gridOf(
+  sessions: readonly ImportedSession[],
+  of: GridOf,
+  name: string,
+  workingDays: readonly Weekday[],
+): ClassGrid {
+  const mine = sessions.filter((one) => one[of] !== '' && key(one[of]) === key(name));
   const others = [...new Set(mine.map((one) => one.day))].filter((day) => !workingDays.includes(day));
   const days = [...workingDays, ...others.sort((one, other) => one - other)];
   const times = new Map(mine.map((one) => [`${one.start}-${one.end}`, [one.start, one.end] as const]));
   const order = (one: ImportedSession, other: ImportedSession) =>
+    byReading(key(one.class), key(other.class)) ||
     Number(one.group !== '') - Number(other.group !== '') ||
     byReading(one.group, other.group) ||
     WEEK_ORDER[one.week] - WEEK_ORDER[other.week];

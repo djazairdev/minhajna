@@ -56,6 +56,7 @@ import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { useDirectorSchool } from '../director/director-world';
+import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import type { TimetableRead } from '../timetable/TimetableImport';
 
@@ -274,6 +275,7 @@ export function DemoRoot({
               role={workspace}
               world={open}
               school={school}
+              wilaya={localized(reference.profile.zones?.find((one) => one.code === school.wilaya)?.name ?? {})}
               bells={reference.bells}
               workingDays={reference.profile.workingDays}
               read={timetable?.world === open.world ? timetable.read : null}

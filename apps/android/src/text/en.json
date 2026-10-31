@@ -4896,6 +4896,52 @@
     "done": "File read: {{sessions}} · rows left out: {{left}}",
     "notImported": "File not imported"
   },
+  "ttPrint": {
+    "title": "Printing",
+    "lines": {
+      "primary": "Class, teacher and room grids, with the official header and boxes for the director’s and the inspector’s signatures.",
+      "cem": "Class, teacher and room grids, with the official header and boxes for the director’s and the education counsellor’s signatures.",
+      "lycee": "Class, teacher and room grids, with the official header and boxes for the director’s and the deputy head’s (censeur’s) signatures."
+    },
+    "which": "Grids to print",
+    "of": {
+      "class": "Classes · {{count}}",
+      "teacher": "Teachers · {{count}}",
+      "room": "Rooms · {{count}}"
+    },
+    "noRooms": "The timetable names no room.",
+    "print": "Print the grids",
+    "pdf": "Save as PDF",
+    "said": {
+      "printing": "Preparing the grids…",
+      "saved": "Saved as {{name}}.",
+      "failed": "The grids could not be printed or saved. Try again."
+    },
+    "republic": "People’s Democratic Republic of Algeria",
+    "ministry": "Ministry of National Education",
+    "directorate": "Directorate of Education of the Wilaya of {{wilaya}}",
+    "year": "School year {{year}}",
+    "titles": {
+      "class": "Timetable of class {{name}}",
+      "teacher": "Timetable of {{name}}",
+      "room": "Timetable of room {{name}}"
+    },
+    "weeks": "Weeks A and B alternate: a session marked week A or B takes place in that week only.",
+    "boxes": {
+      "director": "The director",
+      "censeur": "The deputy head (censeur)",
+      "counsellor": "The education counsellor",
+      "inspector": "The inspector"
+    },
+    "date": "Date:",
+    "printed": "Printed on {{day}}",
+    "demo": "Demo world: made-up data, not an official document",
+    "files": {
+      "class": "Class timetables",
+      "teacher": "Teacher timetables",
+      "room": "Room timetables"
+    }
+  },
   "ttSend": {
     "title": "Send each teacher their timetable",
     "sent": "Teachers sent their timetable: {{teachers}}",

@@ -4966,6 +4966,52 @@
     "done": "Fichier lu : {{sessions}} · lignes laissées hors de l’import : {{left}}",
     "notImported": "Fichier non importé"
   },
+  "ttPrint": {
+    "title": "Impression",
+    "lines": {
+      "primary": "Grilles des classes, des enseignants et des salles, avec l’en-tête officiel et les cases de signature du directeur et de l’inspecteur.",
+      "cem": "Grilles des classes, des enseignants et des salles, avec l’en-tête officiel et les cases de signature du directeur et du conseiller d’éducation.",
+      "lycee": "Grilles des classes, des enseignants et des salles, avec l’en-tête officiel et les cases de signature du directeur et du censeur."
+    },
+    "which": "Grilles à imprimer",
+    "of": {
+      "class": "Classes · {{count}}",
+      "teacher": "Enseignants · {{count}}",
+      "room": "Salles · {{count}}"
+    },
+    "noRooms": "L’emploi du temps ne nomme aucune salle.",
+    "print": "Imprimer les grilles",
+    "pdf": "Enregistrer en PDF",
+    "said": {
+      "printing": "Préparation des grilles…",
+      "saved": "Enregistré sous {{name}}.",
+      "failed": "Impossible d’imprimer ou d’enregistrer les grilles. Réessayez."
+    },
+    "republic": "République Algérienne Démocratique et Populaire",
+    "ministry": "Ministère de l’Éducation Nationale",
+    "directorate": "Direction de l’Éducation de la Wilaya de {{wilaya}}",
+    "year": "Année scolaire {{year}}",
+    "titles": {
+      "class": "Emploi du temps de la classe {{name}}",
+      "teacher": "Emploi du temps de {{name}}",
+      "room": "Emploi du temps de la salle {{name}}"
+    },
+    "weeks": "Les semaines A et B alternent : une séance marquée semaine A ou B n’a lieu que cette semaine-là.",
+    "boxes": {
+      "director": "Le directeur",
+      "censeur": "Le censeur",
+      "counsellor": "Le conseiller d’éducation",
+      "inspector": "L’inspecteur"
+    },
+    "date": "Date :",
+    "printed": "Imprimé le {{day}}",
+    "demo": "Monde de démonstration : données fictives, pas un document officiel",
+    "files": {
+      "class": "Emplois du temps des classes",
+      "teacher": "Emplois du temps des enseignants",
+      "room": "Emplois du temps des salles"
+    }
+  },
   "ttSend": {
     "title": "Envoyer à chaque enseignant son emploi du temps",
     "sent": "Enseignants qui ont reçu leur emploi du temps : {{teachers}}",
