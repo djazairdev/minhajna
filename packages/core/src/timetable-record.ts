@@ -1,9 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the timetable's signed records on a teacher's channel share (#577,
-// #578, answers 605 and 606): a teacher's part, a teacher's proposal and the
-// decision on it each travel as a record naming its format, its canonical JSON
+// What the timetable's signed records on a teacher's channel share (#577, #578,
+// #579, answers 605 to 607): a teacher's part, a teacher's proposal, the
+// decision on it and a teacher's receipt each name the code's world, school,
+// assignment and issue, are signed with the key their certificate names, of
+// their own world, and travel as a record naming its format, its canonical JSON
 // text, a signature and the certificate of the key that signed. The signature
 // covers the text behind a line naming the format, the world and the
 // certificate's subject, key and serial, so a text signed for one format is
@@ -12,9 +14,11 @@
 // hidden characters and are at most 80 characters long.
 
 import { canonicalJson } from './canonical.ts';
-import { checkCertificate, isCertificate, type Certificate, type KeyChecker } from './certify.ts';
+import { checkCertificate, isCertificate, type Certificate, type KeyChecker, type KeySigner } from './certify.ts';
 import { channelSealing, channelStream, type JoinCode } from './school-join.ts';
+import { ID, SCHOOL } from './school-key-shape.ts';
 import type { Place } from './sealed-stream.ts';
+import { isWorldId } from './world-code.ts';
 import type { WorldMac } from './world-keys.ts';
 
 /** The most characters a name may take. */
@@ -91,4 +95,46 @@ export async function signedRecord<T>(
     .verify(certificate.publicKey, signedLine(format, certificate, text), signature)
     .catch(() => false);
   return holds ? { value: parsed, text, signature, certificate } : null;
+}
+
+/** What every record on a teacher's channel names: its code's world, school, assignment and issue. */
+export interface OnChannel {
+  readonly world: string;
+  readonly school: string;
+  readonly assignment: string;
+  readonly issue: number;
+}
+
+/** A record as its channel carries it. */
+export interface SignedTimetable<T> {
+  readonly value: T;
+  readonly text: string;
+  readonly signature: string;
+  readonly certificate: Certificate;
+}
+
+/** The fields that name a channel. */
+export const CHANNEL = ['world', 'school', 'assignment', 'issue'];
+
+/** Whether a record has these fields only, and names a channel by fields of their shape. */
+export function onChannelShape(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const { world, school, assignment, issue } = value;
+  const fields = Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key));
+  const spaced = typeof school === 'string' && SCHOOL.test(school) && typeof assignment === 'string';
+  return fields && isWorldId(world) && spaced && ID.test(assignment) && whole(issue, 1, 999_999_999);
+}
+
+/** A record of a format signed with the key its certificate names, of the record's world. */
+export async function signedTimetable<T extends OnChannel>(
+  value: T,
+  shaped: (one: unknown) => one is T,
+  format: string,
+  certificate: Certificate,
+  signer: KeySigner,
+): Promise<SignedTimetable<T>> {
+  if (!shaped(value)) throw new RangeError('Not a timetable record of this kind');
+  if (certificate.publicKey !== signer.publicKey) throw new RangeError('The certificate is for another key');
+  if (certificate.world !== value.world) throw new RangeError('The certificate is of another world');
+  const text = canonicalJson(value);
+  return { value, text, signature: await signer.sign(signedLine(format, certificate, text)), certificate };
 }
