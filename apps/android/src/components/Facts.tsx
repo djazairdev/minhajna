@@ -6,8 +6,16 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, sizes, spacing, typography } from '../design/tokens';
 import { Icon, type IconName } from '../design/Icon';
 
-/** A display-only result; its stable ID is local to this list, not a record identifier. */
-export type KeptFact = { readonly id: string; readonly text: string; readonly kept: boolean };
+/**
+ * A display-only result; its stable ID is local to this list, not a record identifier. A kept fact with an icon is
+ * drawn with it, in a neutral colour, for what is kept by someone else.
+ */
+export type KeptFact = {
+  readonly id: string;
+  readonly text: string;
+  readonly kept: boolean;
+  readonly icon?: IconName;
+};
 
 /** Kept summaries require translated state words because a strike-through is not spoken by TalkBack. */
 export type FactsProps =
@@ -38,9 +46,9 @@ export function Facts(props: FactsProps) {
             style={styles.kept}
           >
             <Icon
-              name={fact.kept ? 'check' : 'cross'}
+              name={fact.icon ?? (fact.kept ? 'check' : 'cross')}
               size={sizes.icon}
-              color={fact.kept ? colors.board : colors.ink2}
+              color={fact.kept && fact.icon === undefined ? colors.board : colors.ink2}
             />
             <Text style={[styles.keptText, align, !fact.kept && styles.notKept]}>{fact.text}</Text>
           </View>

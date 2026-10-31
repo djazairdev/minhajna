@@ -165,6 +165,7 @@ export function DemoRoot({
         kit={kit}
         send={send}
         trial={trialTermEnd(calendar.year, profile.weekStartsOn)}
+        year={calendar.year.id}
         onClose={() => setJoining(false)}
       />
     );

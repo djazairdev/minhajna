@@ -4258,6 +4258,36 @@
       "school": "School ID {{school}}",
       "step": "Step {{number}}",
       "stepDone": "Step 1, done"
+    },
+    "leave": {
+      "open": "Leaving the school",
+      "title": "Leaving the school",
+      "move": "When you move schools",
+      "from": "Takes effect on {{date}}",
+      "moveLine": "A move follows the official assignment list: membership of this school lasts until {{date}}.",
+      "withYou": "Stays with you, on your devices",
+      "kept1": "A full copy of your lesson records: the texts book, the class journal and the plans, for all your years",
+      "kept2": "The weeks you signed, with their signatures",
+      "kept3": "Private notes and reasons, document templates and lesson notes",
+      "kept4": "The teacher card and the drawn signature",
+      "atSchool": "Stays with the school",
+      "school1": "Its copy and the official record: the signed weeks, roll call and marks, for as long as the Ministry declares",
+      "school2": "Your phone receives nothing new from it after {{date}}, and next year’s classes never reach it from your phone",
+      "notAnyMore": "Does not stay",
+      "pupils": "Pupils’ data for {{year}}",
+      "pupilsLine": "It stays on the phone to read through the following year, then the app offers to erase it after the end of {{next}}, as every year. The session record stays.",
+      "next": "At the new school",
+      "nextLine": "Join by scanning the school’s code, as the first time. Classes come from the {{next}} assignments, not this year’s.",
+      "join": "Join with the school’s code",
+      "export": "Export everything, free",
+      "exportLine": "From teacher mode, at any time. A demo world exports nothing as a real record.",
+      "nothing": "Nothing is deleted from your phone when you leave, and nothing is needed before it.",
+      "pc": {
+        "school2": "Your device receives nothing new from it after {{date}}, and next year’s classes never reach it from your device",
+        "pupilsLine": "It stays on the device to read through the following year, then the app offers to erase it after the end of {{next}}, as every year. The session record stays.",
+        "nextLine": "Join by pasting the school’s code, as the first time. Classes come from the {{next}} assignments, not this year’s.",
+        "nothing": "Nothing is deleted from your device when you leave, and nothing is needed before it."
+      }
     }
   },
   "chart": {
