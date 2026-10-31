@@ -79,6 +79,7 @@ export * from './school-join.ts';
 export * from './school-joined.ts';
 export * from './school-leave.ts';
 export * from './school-trial.ts';
+export * from './school-dashboard.ts';
 export * from './school-recovery.ts';
 export * from './timetable-key.ts';
 export * from './timetable-import.ts';
