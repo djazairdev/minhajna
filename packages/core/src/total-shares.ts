@@ -13,8 +13,9 @@
 // it is merged, skipped or re-taught, how far classes got, and plans that run
 // long). A week counts only when signed with a key the school lists for its
 // course, whatever device its certificate names, so no other signer adds or
-// replaces one; of each week only the latest correction counts, the lower
-// signature breaking a tie; and only weeks with a day in the term up to the
+// replaces one; of each week only the latest correction counts, the lower text
+// breaking a tie, since only its signer controls the text while anyone can
+// alter an ECDSA signature; and only weeks with a day in the term up to the
 // announced day. Each week's sums go to its own subject; a class counts under
 // its latest week's subject, and how far it got is that week's. A share has no
 // row for a teacher or a class. In the demo the server sees each school's share
@@ -24,7 +25,7 @@
 // first and the ID links no two days; a device removed from the school key can
 // still work it out (answer 567).
 
-import { checkSignedWeek, type KeyChecker } from './certify.ts';
+import { checkSignedWeek, isSigningKey, type KeyChecker } from './certify.ts';
 import { addDays, isDay, type Day } from './day.ts';
 import { toHex } from './id.ts';
 import { ENTRY_ID } from './reference-fields.ts';
@@ -81,7 +82,7 @@ export interface ShareInput {
   /** The school's signed weeks, as its space holds them. */
   readonly weeks: readonly unknown[];
   /**
-   * By course, the signing keys (in hex) that may sign its weeks, as the
+   * By course, the signing keys (SPKI in base64) that may sign its weeks, as the
    * school's records keep them when a device joins: the teacher's, and a new
    * phone's once it rejoins (#564, #566).
    */
@@ -94,7 +95,7 @@ export interface ShareInput {
 
 interface Checked {
   readonly read: WeekForTotals;
-  readonly signature: string;
+  readonly text: string;
 }
 
 type ItemCount = { -readonly [K in keyof ItemShare]: number };
@@ -110,11 +111,11 @@ interface Tally {
 
 const newTally = (): Tally => ({ classes: 0, cover: 0, closed: 0, reached: 0, runLong: 0, items: new Map() });
 
-/** Whether `a` comes before `b` among a course's weeks: an earlier week, a lower version, a lower signature. */
+/** Whether `a` comes before `b` among a course's weeks: an earlier week, a lower version, a lower text. */
 function before(a: Checked, b: Checked): boolean {
   if (a.read.week !== b.read.week) return a.read.week < b.read.week;
   if (a.read.version !== b.read.version) return a.read.version < b.read.version;
-  return a.signature < b.signature;
+  return a.text < b.text;
 }
 
 const tooLong = (value: unknown): boolean =>
@@ -134,10 +135,10 @@ async function countedWeeks({ weeks, signers, ca, from, day }: ShareInput): Prom
     if (typeof signed === 'string' || read === null) continue;
     const { course, week, version } = read;
     if (!signers[course]?.includes(signed.certificate.publicKey) || addDays(week, 6) < from || week > day) continue;
-    const one = { read, signature: signed.signature };
+    const one = { read, text: signed.text };
     const held = latest.get(`${course}\n${week}`);
     const kept = held?.read.version ?? -1;
-    if (kept > version || (kept === version && held!.signature < one.signature)) continue;
+    if (kept > version || (kept === version && held!.text <= one.text)) continue;
     latest.set(`${course}\n${week}`, one);
   }
   const courses = new Map<string, WeekForTotals[]>();
@@ -183,8 +184,6 @@ function sorted<T>(entries: Iterable<[string, T]>): Record<string, T> {
   return Object.fromEntries([...entries].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }
 
-const KEY = /^[0-9a-f]{64}$/u;
-
 const isMap = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -206,8 +205,7 @@ export async function prepareShare(input: ShareInput, crypto: KeyCrypto): Promis
   if (!names.every((name) => ENTRY_ID.test(name) && isStaffing(staffing[name]))) {
     throw new RangeError('Staffing is counted by subject');
   }
-  const isKeys = (keys: unknown) =>
-    Array.isArray(keys) && keys.every((one) => typeof one === 'string' && KEY.test(one));
+  const isKeys = (keys: unknown) => Array.isArray(keys) && keys.every(isSigningKey);
   const listed = isMap(input.signers) ? Object.entries(input.signers) : [['', null] as const];
   if (!listed.every(([course, keys]) => ID.test(course) && isKeys(keys))) {
     throw new RangeError('Signers are listed by course and key');

@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A school's share of the totals above the school (#555): what a signed
-// week gives the totals, read strictly; and the share a school-key device
-// prepares from the weeks its teachers signed under the world's CA: only
-// the keys the school lists for a course, a new phone's included, each
-// week's latest correction, the term's weeks up to the day, each week's
-// sums under its own subject and each class under its latest, with its
-// latest word on each item, teachers from the assignments, no row for a
-// class, and an ID that every device of the school, and only the school's
-// key, makes for that day. Every world, school, teacher, class and week is
-// made up.
+// A school's share of the totals above the school (#555): what a signed week
+// gives the totals, read strictly; and the share a school-key device prepares
+// from the weeks its teachers signed under the world's CA: only the keys the
+// school lists for a course, a new phone's included, each week's latest
+// correction, settled between two of one version by their texts, never by
+// signatures anyone can alter, the term's weeks up to the day, each week's sums
+// under its own subject and each class under its latest, with its latest word
+// on each item, teachers from the assignments, no row for a class, and an ID
+// that every device of the school, and only the school's key, makes for that
+// day. Every world, school, teacher, class and week is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -33,7 +33,7 @@ import {
   type ShareInput,
   type WeekTotals,
 } from '../src/index.ts';
-import { keySigner } from './key-signers.ts';
+import { alteredSignature, keySigner } from './key-signers.ts';
 import { device, opened as openedOf, random, SCHOOL } from './school-devices.ts';
 
 const WORLD = 'K7QF4';
@@ -233,8 +233,9 @@ describe('a school’s share of the totals', () => {
     ];
     const signers = { [one]: [a.signer.publicKey], [two]: [a.signer.publicKey] };
     const share = (weeks: unknown[]) => prepareShare(inputOf(opened, ca, { weeks, signers }), director.crypto);
-    const kept = twins[0]!.signature < twins[1]!.signature ? 100 : 200;
-    for (const order of [twins, [...twins].reverse()]) {
+    const kept = twins[0]!.text < twins[1]!.text ? 100 : 200;
+    const altered = twins.map((one) => ({ ...one, signature: alteredSignature(one.signature) }));
+    for (const order of [twins, [...twins].reverse(), [twins[0]!, altered[1]!], [altered[0]!, twins[1]!], altered]) {
       assert.equal((await share([...order, ...edges])).subjects['math']!.reached, kept + 700);
     }
     assert.equal((await share(edges)).subjects['math']!.closed, 3);
@@ -262,6 +263,7 @@ describe('a school’s share of the totals', () => {
     for (const signers of [
       { 'a course': [] },
       { [newId(random)]: [newId(random)] },
+      { [newId(random)]: [KEY] },
       { [newId(random)]: [[KEY]] },
       null,
     ]) {
