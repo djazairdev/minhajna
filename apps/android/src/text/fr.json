@@ -4442,7 +4442,13 @@
         "replaceKey": "Remplacer une clé perdue",
         "newCode": "Nouveau code d’adhésion",
         "keyInstead": "Une clé de sécurité à la place",
-        "restores": "L’adhésion rend la copie des classes de l’établissement. Les notes privées ne reviennent que de la synchronisation des propres appareils de l’enseignant."
+        "restores": "L’adhésion rend la copie des classes de l’établissement. Les notes privées ne reviennent que de la synchronisation des propres appareils de l’enseignant.",
+        "setUpKey": "Configurer la clé {{number}} avec l’enseignant",
+        "keyReady": "La clé {{number}} est prête : l’enseignant se connecte avec elle sur n’importe quel PC de la salle des professeurs, avec son propre code PIN.",
+        "keyAsking": "Touchez la clé {{number}} et tapez son code PIN…",
+        "keyUnsupported": "Cette clé ne peut pas être configurée dans ce navigateur : il faut une clé et un navigateur qui connaissent l’extension PRF, comme Chrome, Edge ou Firefox.",
+        "keyTaken": "Un autre appareil a rejoint avec le code de cette clé en premier, elle ne peut donc pas être reconfigurée : donnez une autre clé à l’enseignant.",
+        "keySetUp": "Cette clé est déjà configurée et a rejoint : l’enseignant se connecte avec elle. Pour une autre clé, donnez-lui-en une nouvelle."
       },
       "sheet": {
         "title": "Codes d’adhésion non encore scannés",
@@ -4659,6 +4665,16 @@
         "who": "Session : {{teacher}} · {{school}}",
         "same": "Le même : ouvrir la session",
         "differ": "Différent : nouveau code"
+      },
+      "key": {
+        "title": "Avec une clé de sécurité",
+        "note": "Pour l’enseignant qui n’utilise pas son téléphone : le navigateur demande la clé et son propre code PIN.",
+        "none": "Ce navigateur ne connaît pas les clés de sécurité : utilisez Chrome, Edge ou Firefox.",
+        "button": "Se connecter avec la clé de sécurité",
+        "asking": "Demande de la clé…",
+        "unsupported": "Cette clé ou ce navigateur ne donne pas ce qu’il faut pour ouvrir la session.",
+        "cancelled": "La demande de la clé a été fermée avant la fin, ou cette clé ne contient aucune connexion à Minhajna.",
+        "notSet": "Cette clé n’a pas été configurée dans ce monde : l’établissement la configure depuis la page des codes."
       }
     }
   },

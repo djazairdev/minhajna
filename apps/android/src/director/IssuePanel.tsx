@@ -6,13 +6,17 @@
 // last valid day, printing on the PC, and cancelling it, which gives the next
 // code at once; a security key shows its number and replaces a lost one; a
 // teacher with no code, an expired one, or joined, gets a new code or a key
-// instead. Its last line says what joining gives back. The QR is one image
-// for a screen reader, named for its teacher; a code that cannot be worked
-// out is said as the page's problem.
+// instead. On a PC whose browser has security keys, a key waiting is set up
+// there with the teacher beside it (#572, answer 602): while the key is asked
+// the panel says to touch it and type its PIN and keeps its other buttons
+// waiting, and once done it says the key is ready, even after the key joined;
+// why not is said as the page's problem. Its last line says what joining gives
+// back. The QR is one image for a screen reader, named for its teacher; a code
+// that cannot be worked out is said as the page's problem.
 
 import { joinedKey, type Day, type IssueRow, type SchoolIssued } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -33,11 +37,13 @@ export type IssuePanelProps = {
   /** Prints the code shown, on the PC. */
   readonly onPrint: () => void;
   readonly onProblem: (error: unknown) => void;
+  /** Sets the key waiting up with the teacher, on a PC whose browser has security keys; none elsewhere. */
+  readonly onSetUpKey?: () => Promise<void>;
 };
 
 /** The chosen teacher's code or key, and how to give one. */
 export function IssuePanel(props: IssuePanelProps) {
-  const { world, desk, row, subject, busy, dayText, onIssue, onPrint, onProblem } = props;
+  const { world, desk, row, subject, dayText, onIssue, onPrint, onProblem, onSetUpKey } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -60,6 +66,21 @@ export function IssuePanel(props: IssuePanelProps) {
       open = false;
     };
   }, [world, desk, made, onProblem]);
+  const [settingUp, setSettingUp] = useState(false);
+  const [setUp, setSetUp] = useState<string | null>(null);
+  const setting = useRef(false);
+  const busy = props.busy || settingUp;
+  const setUpKey = (of: string) => {
+    if (onSetUpKey === undefined || setting.current) return;
+    setting.current = true;
+    setSettingUp(true);
+    void onSetUpKey()
+      .then(() => setSetUp(of), onProblem)
+      .finally(() => {
+        setting.current = false;
+        setSettingUp(false);
+      });
+  };
   const text = key !== null && code?.key === key ? code.text : null;
   const rows = useMemo(() => (text === null ? null : qr.qrRows(text)), [text]);
   const name = personName(row.teacher);
@@ -91,6 +112,19 @@ export function IssuePanel(props: IssuePanelProps) {
         <>
           <Text style={[styles.head, align]}>{t('demo.issue.panel.key', { number: row.keyNumber })}</Text>
           <Text style={[styles.small, align]}>{t('demo.issue.panel.keyNote')}</Text>
+          {settingUp && (
+            <Text testID="issue-key-asking" accessibilityLiveRegion="polite" style={[styles.small, align]}>
+              {t('demo.issue.panel.keyAsking', { number: row.keyNumber })}
+            </Text>
+          )}
+          {onSetUpKey !== undefined && setUp !== joinedKey(issue.assignment, issue.issue) && (
+            <Button
+              testID="issue-key-setup"
+              label={t('demo.issue.panel.setUpKey', { number: row.keyNumber })}
+              disabled={busy}
+              onPress={() => setUpKey(joinedKey(issue.assignment, issue.issue))}
+            />
+          )}
           <Button
             testID="issue-replace-key"
             variant="line"
@@ -115,6 +149,11 @@ export function IssuePanel(props: IssuePanelProps) {
             onPress={() => onIssue('key')}
           />
         </>
+      )}
+      {issue !== null && issue.keyNumber !== null && setUp === joinedKey(issue.assignment, issue.issue) && (
+        <Text testID="issue-key-ready" accessibilityLiveRegion="polite" style={[styles.small, align]}>
+          {t('demo.issue.panel.keyReady', { number: issue.keyNumber })}
+        </Text>
       )}
       <Text style={[styles.small, align]}>{t('demo.issue.panel.restores')}</Text>
     </View>

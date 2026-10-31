@@ -4,12 +4,13 @@
 // A staffroom PC in a national demo world (#572, answer 602), under the demo
 // band: it says what a staffroom PC is, that the records stay in the session's
 // memory alone and are erased when it is closed or locked, and that no sign-in
-// is recorded; then the sign-in with the phone (StaffSignIn.tsx), or, once
-// signed in, the teacher's session (StaffSession.tsx). The session is this
-// component's state alone, never the browser's storage: locking or ending it,
-// or leaving it unused, erases it and shows a new code, saying why; closing
-// goes back to the world's home. Under them: the browsers the web app is made
-// for.
+// is recorded; then the sign-in with the phone (StaffSignIn.tsx) and with a
+// security key (StaffKeySignIn.tsx), or, once signed in, the teacher's session
+// (StaffSession.tsx); a key's late answer never replaces a session already
+// open. The session is this component's state alone, never the browser's
+// storage: locking or ending it, or leaving it unused, erases it and shows a
+// new code, saying why; closing goes back to the world's home. Under them: the
+// browsers the web app is made for.
 
 import type { CountryProfile, Day, DemoSchool, PcSession } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -21,6 +22,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { colors, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
+import { StaffKeySignIn } from './StaffKeySignIn';
 import { StaffSession } from './StaffSession';
 import { StaffSignIn } from './StaffSignIn';
 
@@ -61,7 +63,15 @@ export function StaffPc({ world, school, profile, date, dayText, kit, send, onCl
         </Text>
         <Text style={[styles.small, align]}>{t('demo.staff.lead')}</Text>
         {session === null ? (
-          <StaffSignIn key={round} world={world} kit={kit} send={send} note={note} onSession={setSession} />
+          <>
+            <StaffSignIn key={round} world={world} kit={kit} send={send} note={note} onSession={setSession} />
+            <StaffKeySignIn
+              world={world}
+              kit={kit}
+              send={send}
+              onSession={(next) => setSession((now) => now ?? next)}
+            />
+          </>
         ) : (
           <StaffSession
             session={session}

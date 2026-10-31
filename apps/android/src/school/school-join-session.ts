@@ -47,8 +47,14 @@ const TRIES = 3;
 /** The joins on their way, by code, so a second press waits for the first. */
 const going = new Map<string, Promise<SchoolJoined>>();
 
-/** A new signing key, certified by the world's CA for a new device ID, as the store keeps it. */
-async function certified(code: JoinCode, text: string, ca: string, kit: WorldKit, send: Send): Promise<SchoolJoined> {
+/** A new signing key for a code's join, certified by the world's CA, with a new device ID. */
+export async function certified(
+  code: JoinCode,
+  text: string,
+  ca: string,
+  kit: WorldKit,
+  send: Send,
+): Promise<SchoolJoined> {
   const pair = await kitStep(() => kit.newPair());
   const signer = { publicKey: pair.spki, sign: (one: string) => kit.sign(pair.pkcs8, one), verify: kit.verify };
   const device = newId(kit.random);
@@ -116,16 +122,37 @@ async function joinOnce(
   }
   const kept = keptFor();
   if (kept === undefined) throw failed('The world’s store did not keep the key', 'E_WORLD');
+  return putJoined(code, kept, ca, kit, send);
+}
+
+/** A code's channel: its stream, its batches, and the first joined record that holds there, or null. */
+export async function readChannel(code: JoinCode, ca: string, kit: WorldKit, send: Send) {
+  const stream = await kitStep(() => channelStream(code, kit.mac));
+  const batches = (await spaceBatches(code.world, code.school, send)).get(stream) ?? [];
+  const joined = await kitStep(() => readJoined(code, batches, { key: ca, checker: kit }, kit.cipher, kit.mac));
+  return { stream, batches, joined };
+}
+
+/**
+ * Puts the joined record on its code's channel at the stream's next number,
+ * unless the first that holds there is already this one, and answers it; a
+ * code another device joined on first is refused (E_JOIN_TAKEN).
+ */
+export async function putJoined(
+  code: JoinCode,
+  kept: SchoolJoined,
+  ca: string,
+  kit: WorldKit,
+  send: Send,
+): Promise<SchoolJoined> {
   const space = await send({
     method: 'PUT',
     path: `/worlds/${code.world}/spaces/${code.school}`,
     body: { kind: 'school' },
   });
   if (space.status !== 200 && space.status !== 201) throw unexpected(space);
-  const stream = await kitStep(() => channelStream(code, kit.mac));
   for (let tries = 0; tries <= TRIES; tries += 1) {
-    const batches = (await spaceBatches(code.world, code.school, send)).get(stream) ?? [];
-    const joined = await kitStep(() => readJoined(code, batches, { key: ca, checker: kit }, kit.cipher, kit.mac));
+    const { stream, batches, joined } = await readChannel(code, ca, kit, send);
     if (joined !== null) {
       const ours = joined.device === kept.device && joined.certificate.publicKey === kept.certificate.publicKey;
       if (!ours || joined.certificate.serial !== kept.certificate.serial) {
@@ -162,6 +189,13 @@ const PROBLEMS = {
   E_NO_SCHOOL_KEY: 'demo.issue.keysFirst',
   E_REMOVE_SELF: 'demo.keys.removeSelf',
   E_PC_NOT_JOINED: 'demo.staff.phone.notJoined',
+  E_KEY_PRF: 'demo.staff.key.unsupported',
+  E_KEY_CANCELLED: 'demo.staff.key.cancelled',
+  E_KEY_NOT_SET: 'demo.staff.key.notSet',
+  E_KEY_SETUP_PRF: 'demo.issue.panel.keyUnsupported',
+  E_KEY_TAKEN: 'demo.issue.panel.keyTaken',
+  E_KEY_SET_UP: 'demo.issue.panel.keySetUp',
+  E_NO_SUCH_WORLD: 'demo.problem.none',
 } as const;
 
 /** The catalogue's words for an error's code. */

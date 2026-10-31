@@ -196,7 +196,13 @@ export async function codeText(world: string, desk: IssueDesk, issue: SchoolIssu
   return joinCodeText(await joinCode(world, desk, issue));
 }
 
-/** An issue's joining code, whose channel a teacher's join, by phone or later by key (#572), writes to. */
+/** The text of a security key issue's joining code, which only the key's session carries (#572, answer 602). */
+export async function keyCodeText(world: string, desk: IssueDesk, issue: SchoolIssued): Promise<string> {
+  if (issue.access !== 'key') throw new RangeError('A code issue’s text is shown, not kept in a key');
+  return joinCodeText(await joinCode(world, desk, issue));
+}
+
+/** An issue's joining code, whose channel a teacher's join, by phone or by key (#572), writes to. */
 function joinCode(world: string, desk: IssueDesk, issue: SchoolIssued) {
   const { assignment, epoch } = issue;
   return kitStep(() => makeJoinCode(desk.opened, world, assignment, issue.issue, desk.crypto, epoch));

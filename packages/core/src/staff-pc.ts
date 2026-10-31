@@ -28,7 +28,7 @@ import { HOLDER_SECRET } from './school-holder.ts';
 import { ascii, fromHex, type KeyCrypto } from './school-key-shape.ts';
 import { asciiJson, openRecords, parsedAscii, placeOf, sealRecord } from './sealed-stream.ts';
 import { isWorldId } from './world-code.ts';
-import { fromBase64Url, toBase64Url, type WorldCipher, type WorldMac } from './world-keys.ts';
+import { fromBase64Url, PKCS8_TEXT, toBase64Url, type WorldCipher, type WorldMac } from './world-keys.ts';
 
 /** What a staffroom PC's QR code holds before its fields. */
 export const PC_QR_PREFIX = 'minhajna-pc:1:';
@@ -49,7 +49,6 @@ export const PC_ANSWERS_OPENED = 16;
 const INFO = 'minhajna/pc-session-seal/1';
 const NAME_MOST = 120;
 const HEX = /^(?:[0-9a-f]{2})+$/u;
-const PKCS8_MOST = 512;
 const HIDDEN = /[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/u;
 
 /** What a staffroom PC shows to be signed in: its public key, in hex, and its one-time secret. */
@@ -66,9 +65,9 @@ export interface PcSession {
   /** The joining codes' texts, as their QR codes hold them. */
   readonly joins: readonly string[];
   /**
-   * A security key's signing key, its PKCS #8 in hex, and the certificate its
-   * joined record carries; whether the two match, and the certificate's world,
-   * is the app's to check.
+   * A security key's signing key, its PKCS #8 in base64 as the platform
+   * writes it, and the certificate its joined record carries; whether the two
+   * match, and the certificate's world, is the app's to check.
    */
   readonly signing?: { readonly pkcs8: string; readonly certificate: Certificate };
 }
@@ -98,7 +97,7 @@ const named = (value: unknown): value is string =>
 function signingKey(value: unknown): boolean {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const { pkcs8, certificate, ...rest } = value as Record<string, unknown>;
-  const key = typeof pkcs8 === 'string' && HEX.test(pkcs8) && pkcs8.length <= PKCS8_MOST;
+  const key = typeof pkcs8 === 'string' && PKCS8_TEXT.test(pkcs8);
   return Object.keys(rest).length === 0 && key && isCertificate(certificate);
 }
 
