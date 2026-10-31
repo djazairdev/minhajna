@@ -134,6 +134,29 @@ test('a cancelled save is neither said nor recorded', async () => {
   expect(texts()).toContain('لا نسخة بعد');
 });
 
+test('records the actual file boundary when another change is saved while the picker is open', async () => {
+  const data = await keyed();
+  saveFile.mockImplementationOnce(async () => {
+    await data.book.record(DAY, { kind: 'setup.finished' });
+    return true;
+  });
+  await screen(data);
+  await press('devices-backup-now');
+  await ReactTestRenderer.act(settle);
+  const opened = await readArchive(makeZip.mock.calls[0][1][0], digest);
+  expect(opened.ok).toBe(true);
+  if (!opened.ok) throw new Error('Invented backup did not open');
+  const saved = data.book.entries
+    .map(eventOf)
+    .reverse()
+    .find((event) => event?.kind === 'backup.saved');
+  expect(saved).toEqual({
+    kind: 'backup.saved',
+    backup: { last: opened.entries.at(-1)!.hash, made: DAY },
+  });
+  expect(deviceFacts(data.book.entries).sinceBackup).toBe(1);
+});
+
 test('starts the first backup once, after its sheet was confirmed', async () => {
   const data = await keyed();
   const { onBackupStarted } = await screen(data, true);

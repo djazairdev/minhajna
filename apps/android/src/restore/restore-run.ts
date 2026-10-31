@@ -115,7 +115,7 @@ export async function restoreFile(input: RestoreInput, { files, storage, deps }:
   const { opened } = read;
   let restored;
   try {
-    restored = await restoredHistory(opened, input.day, deps);
+    restored = await restoredHistory(opened, input.day, deps, input.route);
   } catch (error: unknown) {
     return { ok: false, problem: error instanceof HistoryError ? 'changed' : 'failed' };
   }

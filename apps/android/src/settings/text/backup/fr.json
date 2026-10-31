@@ -1,0 +1,9 @@
+{
+  "backup": "Les données ont été restaurées depuis une sauvegarde créée le {{day}}.",
+  "archive": "Les données ont été restaurées depuis une archive créée le {{day}}.",
+  "keptBackup": "La sauvegarde utilisée pour la restauration, créée le {{day}}, n’est pas touchée par l’effacement.",
+  "keptArchive": "L’archive utilisée pour la restauration, créée le {{day}}, n’est pas touchée par l’effacement.",
+  "leftOut": "Les champs personnels de la fiche de l’enseignant et la signature dessinée ne sont pas dans le fichier de restauration.",
+  "lost": "Modifications enregistrées depuis la restauration et absentes du fichier : {{count}}. L’effacement les supprime.",
+  "none": "Aucune modification depuis la restauration. Le fichier de restauration reste en dehors de l’application."
+}

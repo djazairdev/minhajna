@@ -6,7 +6,8 @@
 // classes and pupils counted, and what stays outside it (#482): the last backup
 // and its day, and the files saved elsewhere, though no backup holds the
 // personal fields or the drawn signature, with the changes since that backup
-// counted as lost; or, before any backup, nothing, so every change on this
+// counted as lost; a restored backup or archive is named with its own day and
+// only subsequent changes (#485); or, before any backup, every change on this
 // phone goes with it. It offers the export first, and erases only once the
 // teacher ticks that it cannot be undone, once however often it is tapped,
 // after the last changes are saved; the app then starts again on the welcome
@@ -31,8 +32,7 @@ import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { errorCode } from '../lock/lock-rules';
 import { useAppData } from '../storage/AppData';
 import { useDeviceText } from '../text/device-text';
-import { currentLanguage } from '../text/i18n';
-import { dayName } from '../today/DayMark';
+import { eraseCopyLines } from './erase-copy';
 import { settingsStyles as styles } from './styles';
 
 export type EraseDeviceProps = {
@@ -64,18 +64,7 @@ export function EraseDevice({ storage, onExport, onBusy }: EraseDeviceProps) {
     classes: t('ready.classes', { count: state.classes.size }),
     pupils: t('setup.pupils', { count: state.pupils.size }),
   });
-  const { lastBackup, sinceBackup } = deviceFacts(entries());
-  const day = lastBackup === null ? '' : dayName(t, lastBackup, currentLanguage(), profile);
-  const kept =
-    lastBackup === null
-      ? [t('settings.eraseDevice.keptNone')]
-      : [t('settings.eraseDevice.keptBackup', { day }), t('settings.eraseDevice.keptLeftOut')];
-  const lost =
-    lastBackup === null
-      ? t('settings.eraseDevice.lost', { count: sinceBackup })
-      : sinceBackup === 0
-        ? t('settings.eraseDevice.lostNone', { day })
-        : t('settings.eraseDevice.lostSince', { count: sinceBackup, day });
+  const { kept, lost } = eraseCopyLines(t, deviceFacts(entries()), profile);
   const erase = () => {
     if (pending.current || !understood) return;
     pending.current = true;

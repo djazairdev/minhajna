@@ -61,8 +61,12 @@ test('restores a backup whole, with the device layer erased on the restore day',
   await expect(result).resolves.toEqual({ ok: true });
   expect(readZip).toHaveBeenCalledWith('0011223344556677', ARCHIVE_FILE, KEY, true);
   const book = await openRecordBook(target.asSpec());
-  expect(book.entries).toHaveLength(data.book.entries.length + 1);
+  expect(book.entries).toHaveLength(data.book.entries.length + 2);
   expect(book.entries.at(-1)?.day).toBe(RESTORED);
+  expect(eventOf(book.entries.at(-1)!)).toEqual({
+    kind: 'copy.received',
+    received: { from: 'backup', file: { made: DAY, last: data.book.entries.at(-1)!.hash } },
+  });
   expect(book.state.pupils.size).toBe(data.book.state.pupils.size);
   expect(book.state.classes.size).toBe(data.book.state.classes.size);
   const stored = JSON.stringify(target.rows);
