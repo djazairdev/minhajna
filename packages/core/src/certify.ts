@@ -21,10 +21,9 @@
 // documents is signature.ts and has nothing to do with this.
 
 import { isDay, type Day } from './day.ts';
-import { RECOVERY_ALPHABET } from './recovery-key.ts';
 import { ID } from './school-key-shape.ts';
 import { utf8Length } from './signed-read.ts';
-import { WORLD_ID_LENGTH } from './world-code.ts';
+import { isWorldId } from './world-code.ts';
 
 export interface KeyChecker {
   /** Whether `signature` is an Ed25519 signature of the text's UTF-8 bytes under `publicKey`; never throws. */
@@ -67,7 +66,6 @@ export interface SignedWeek {
 
 export type SignedWeekProblem = 'uncertified' | 'forged';
 
-const WORLD_ID = new RegExp(`^[${RECOVERY_ALPHABET}]{${WORLD_ID_LENGTH}}$`, 'u');
 const PUBLIC_KEY = /^[0-9a-f]{64}$/u;
 const SIGNATURE = /^[0-9a-f]{128}$/u;
 
@@ -101,7 +99,7 @@ export async function certificateRequest(
   subject: string,
   signer: KeySigner,
 ): Promise<CertificateRequest> {
-  if (!WORLD_ID.test(world) || !ID.test(subject) || !PUBLIC_KEY.test(signer.publicKey)) {
+  if (!isWorldId(world) || !ID.test(subject) || !PUBLIC_KEY.test(signer.publicKey)) {
     throw new RangeError('A request names a world, a device and its key');
   }
   const { publicKey } = signer;
@@ -112,7 +110,7 @@ export async function certificateRequest(
 export async function checkRequest(value: unknown, checker: KeyChecker): Promise<boolean> {
   if (!hasOnly(value, ['world', 'subject', 'publicKey', 'signature'])) return false;
   const { world, subject, publicKey, signature } = value;
-  if (!test(world, WORLD_ID) || !test(subject, ID) || !test(publicKey, PUBLIC_KEY) || !test(signature, SIGNATURE)) {
+  if (!isWorldId(world) || !test(subject, ID) || !test(publicKey, PUBLIC_KEY) || !test(signature, SIGNATURE)) {
     return false;
   }
   return checker.verify(publicKey, requestText(world, subject, publicKey), signature);
@@ -122,7 +120,7 @@ export async function checkRequest(value: unknown, checker: KeyChecker): Promise
 export function isCertificate(value: unknown): value is Certificate {
   if (!hasOnly(value, ['standIn', 'world', 'subject', 'publicKey', 'issued', 'serial', 'signature'])) return false;
   const { standIn, world, subject, publicKey, issued, serial, signature } = value;
-  if (standIn !== true || !test(world, WORLD_ID) || !test(subject, ID) || !test(publicKey, PUBLIC_KEY)) return false;
+  if (standIn !== true || !isWorldId(world) || !test(subject, ID) || !test(publicKey, PUBLIC_KEY)) return false;
   return typeof issued === 'string' && isDay(issued) && test(serial, ID) && test(signature, SIGNATURE);
 }
 

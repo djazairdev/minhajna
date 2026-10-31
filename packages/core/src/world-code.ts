@@ -18,6 +18,7 @@ export const WORLD_CODE_LENGTH = 20;
 export const WORLD_CODE_GROUP = 5;
 export const WORLD_ID_LENGTH = 5;
 
+const WORLD_ID = new RegExp(`^[${RECOVERY_ALPHABET}]{${WORLD_ID_LENGTH}}$`, 'u');
 const BYTES = 12;
 const BODY = WORLD_CODE_LENGTH - 1;
 const BASE = RECOVERY_ALPHABET.length;
@@ -66,12 +67,20 @@ export function worldCodeGroups(code: string): readonly string[] {
   return code.match(/.{5}/g) ?? [];
 }
 
-/** The first half: the only part of a code the server may receive, naming the world. */
+/** The first five characters: the only part of a code the server may receive, naming the world. */
 export function worldIdOfCode(code: string): string {
   return code.slice(0, WORLD_ID_LENGTH);
 }
 
-/** The second half: the secret the device derives the world's wrapping key from. It never leaves the device. */
+/** Whether a value is a world's ID, a code's first five characters. */
+export function isWorldId(value: unknown): value is string {
+  return typeof value === 'string' && WORLD_ID.test(value);
+}
+
+/**
+ * The next fourteen characters, before the check character: the secret the device derives the world's wrapping key
+ * from. It never leaves the device.
+ */
 export function worldCodeSecret(code: string): string {
   return code.slice(WORLD_ID_LENGTH, BODY);
 }

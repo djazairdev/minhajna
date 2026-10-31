@@ -3878,6 +3878,7 @@
       "signature": "The statement was changed after it was issued, so it is not accepted or placed in the school picture.",
       "invalid": "This is not a signed progress statement file.",
       "version": "The statement comes from a newer version of the app: update the app to read it.",
+      "world": "This statement was signed in a demo world with made-up data, so it is not accepted here or placed in the school picture.",
       "payload": "The signature is valid, but the statement’s content does not follow its format, so it is not kept.",
       "unreadable": "The file or the code could not be read.",
       "noLink": "No statement was found in this PDF. Open the file as the teacher sent it, or scan its QR code.",
