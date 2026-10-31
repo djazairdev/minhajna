@@ -7,8 +7,10 @@
 // AES-256-GCM with a fresh random 12-byte nonce first for its sealed keys,
 // and ECDSA P-256 for its stand-in signing key, made extractable only so its
 // private half can be sealed for the world, with signatures in the phone's
-// DER form, and its fingerprint the SHA-256 of its SPKI. A seal that does not
-// open answers null; nothing here keeps a key.
+// DER form, and its fingerprint the SHA-256 of its SPKI. It refuses what the
+// phone refuses: an AES key of another length, an empty secret, and text to
+// sign that is not well-formed. A seal that does not open answers null;
+// nothing here keeps a key.
 
 import type { WorldKit } from '../../../android/src/demo/world-session';
 import Signature from './Signature.ts';
@@ -27,13 +29,16 @@ function hex(bytes: ArrayBuffer): string {
   return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+/** An AES-256 key; any other length is refused, as on the phone. */
 function aes(key: Uint8Array, use: KeyUsage): Promise<CryptoKey> {
+  if (key.length !== 32) return Promise.reject(new RangeError('Not a 256-bit key'));
   return crypto.subtle.importKey('raw', buffer(key), 'AES-GCM', false, [use]);
 }
 
 export const worldKit: WorldKit = {
   random: (length) => crypto.getRandomValues(new Uint8Array(length)),
   async kdf(secret, salt, rounds) {
+    if (secret.length === 0) throw new RangeError('No secret');
     const base = await crypto.subtle.importKey('raw', buffer(secret), 'PBKDF2', false, ['deriveBits']);
     const bits = await crypto.subtle.deriveBits(
       { name: 'PBKDF2', hash: 'SHA-256', salt: buffer(salt), iterations: rounds },
@@ -76,6 +81,7 @@ export const worldKit: WorldKit = {
     },
   },
   async sign(pkcs8, text) {
+    if (!text.isWellFormed()) throw new RangeError('Text that is not well-formed');
     const der = fromBase64(pkcs8);
     if (der === null) throw new RangeError('Not a private key');
     const key = await crypto.subtle.importKey('pkcs8', der, P256, false, ['sign']);

@@ -32,6 +32,8 @@ import dz.minhajna.preview.storage.NativeMinhajnaCrashSpec
 import dz.minhajna.preview.storage.NativeMinhajnaCalendarInputSpec
 import dz.minhajna.preview.signature.MinhajnaSignatureModule
 import dz.minhajna.preview.storage.NativeMinhajnaSignatureSpec
+import dz.minhajna.preview.storage.NativeMinhajnaWorldKitSpec
+import dz.minhajna.preview.world.MinhajnaWorldKitModule
 
 /** Registers the app's own TurboModules, and debug builds' extra ones; libraries come through autolinking. */
 class MinhajnaPackage : BaseReactPackage() {
@@ -50,6 +52,7 @@ class MinhajnaPackage : BaseReactPackage() {
       NativeMinhajnaNotifySpec.NAME -> MinhajnaNotifyModule(reactContext)
       NativeMinhajnaCrashSpec.NAME -> MinhajnaCrashModule(reactContext)
       NativeMinhajnaWorldSpec.NAME -> MinhajnaWorldModule(reactContext)
+      NativeMinhajnaWorldKitSpec.NAME -> MinhajnaWorldKitModule(reactContext)
       else -> DebugModules.create(name, reactContext)
     }
 
@@ -67,6 +70,7 @@ class MinhajnaPackage : BaseReactPackage() {
       info(NativeMinhajnaNotifySpec.NAME, MinhajnaNotifyModule::class.java.name),
       info(NativeMinhajnaCrashSpec.NAME, MinhajnaCrashModule::class.java.name),
       info(NativeMinhajnaWorldSpec.NAME, MinhajnaWorldModule::class.java.name),
+      info(NativeMinhajnaWorldKitSpec.NAME, MinhajnaWorldKitModule::class.java.name),
     ) + DebugModules.classes.map { (name, className) -> info(name, className) }
   }
 
