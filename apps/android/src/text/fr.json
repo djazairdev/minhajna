@@ -2432,6 +2432,7 @@
     "failed": "La journée n’a pas été enregistrée. Réessayez.",
     "noClass": "Aucune classe pour l’instant. Ajoutez vos classes et dessinez votre semaine d’abord.",
     "separator": ", ",
+    "colon": " : ",
     "untimed": "Certaines de ces séances n’ont pas encore d’horaire dans l’établissement : elles s’inscrivent dans la page des séances supplémentaires une fois l’horaire réglé."
   },
   "homework": {
@@ -4264,5 +4265,10 @@
       "paste": "Texte du code d’adhésion",
       "pastePlaceholder": "minhajna-join:1:…"
     }
+  },
+  "chart": {
+    "heldBack": "Sous l’effectif minimal",
+    "separator": ", ",
+    "colon": " : "
   }
 }

@@ -5,13 +5,17 @@
 // catalogue of the interface's language (#21). The screens are rendered in
 // each state the app has and in each language, and anything shown that no
 // entry of that language produces fails the test, an Arabic fallback included.
+// A label TalkBack reads may also be a run of whole texts the screen shows and
+// the language's marks, entries with no letter, such as its list marks, as a
+// chart's row says its category and each series' name and figure.
 
 import { formatDayWithMonth, parseDay } from '@minhajna/core';
 import i18next from 'i18next';
 import type { ReactElement } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import type { PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
+import { ChartFigure } from '../src/drawing/ChartFigure';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { Welcome } from '../src/navigation/Welcome';
 import { catalogues, currentLanguage, i18n, missingKeys, type Language } from '../src/text/i18n';
@@ -61,10 +65,24 @@ const textOf = (node: ReactTestRenderer.ReactTestInstance) => [node.props.childr
 /**
  * The texts on screen and the labels TalkBack reads that no entry produces.
  * A label that only joins the texts shown inside it, as a notice's does, is
- * checked through those texts.
+ * checked through those texts, and so is one made of whole texts shown
+ * anywhere on the screen and the language's marks, entries with no letter.
  */
 function notInCatalogue(tree: ReactTestRenderer.ReactTestRenderer): string[] {
   const shown = tree.root.findAllByType(Text).map(textOf);
+  const pieces = [
+    ...shown,
+    ...entries(catalogues[currentLanguage()])
+      .map(([, value]) => value)
+      .filter((value) => /^[\s\p{P}\p{S}]+$/u.test(value)),
+  ].filter((piece) => piece.trim() !== '');
+  const composed = (label: string) => {
+    const reached = Array<boolean>(label.length + 1).fill(false);
+    reached[0] = true;
+    for (let at = 0; at < label.length; at += 1)
+      if (reached[at]) for (const piece of pieces) if (label.startsWith(piece, at)) reached[at + piece.length] = true;
+    return reached[label.length] === true;
+  };
   const labels = tree.root
     .findAll((node) => typeof (node.props as { accessibilityLabel?: unknown }).accessibilityLabel === 'string')
     .filter(
@@ -72,7 +90,8 @@ function notInCatalogue(tree: ReactTestRenderer.ReactTestRenderer): string[] {
         (node.props as { accessibilityLabel: string }).accessibilityLabel !==
         node.findAllByType(Text).map(textOf).join('. '),
     )
-    .map((node) => (node.props as { accessibilityLabel: string }).accessibilityLabel);
+    .map((node) => (node.props as { accessibilityLabel: string }).accessibilityLabel)
+    .filter((label) => !composed(label));
   return [...new Set([...shown, ...labels])].filter((text) => !inCatalogue(text, currentLanguage()));
 }
 
@@ -216,6 +235,31 @@ test.each(LANGUAGES)('shows only catalogue texts on every tab and on the inner s
 test('catches a text written into a screen', async () => {
   const tree = await render(<Text>{'غير موجود في الفهرس'}</Text>);
   expect(notInCatalogue(tree)).toEqual(['غير موجود في الفهرس']);
+});
+
+test('takes a label made of shown texts and marks, and catches one with letters of its own', async () => {
+  await speak('ar');
+  const spec = {
+    kind: 'bar',
+    label: 'Made-up',
+    categories: ['Class A'],
+    series: [
+      { name: 'Latest', values: [null] },
+      { name: 'Earlier', values: [48] },
+    ],
+  } as const;
+  const made = ['Made-up', 'Class', 'Class A', 'Latest', 'Earlier', '48'];
+  const chart = await render(<ChartFigure spec={spec} categoryLabel="Class" />);
+  expect(notInCatalogue(chart).filter((text) => !made.includes(text))).toEqual([]);
+  const said = 'Class A غير موجود';
+  const own = await render(
+    <View>
+      <Text>{'Class A'}</Text>
+      <View accessible accessibilityLabel={said} />
+      <View accessible accessibilityLabel="ثرثر" />
+    </View>,
+  );
+  expect(notInCatalogue(own)).toEqual(['Class A', said, 'ثرثر']);
 });
 
 /** TypeScript refuses a key the catalogue lacks; one from outside TypeScript is still caught at run time. */

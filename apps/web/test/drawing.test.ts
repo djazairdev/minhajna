@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The PC's charts and maps (#600, answer 574): a chart's latest figures solid
-// in the board's colour and earlier ones dashed, then dotted; its axes
-// mirrored for right to left; its label as the screen reader's description;
-// a map whose boxes and links are only read, refusing a link to a box it does
-// not hold; ECharts' notice carrying its NOTICE file and the d3 licence it
-// embeds; a chart's tooltip on the canvas; React Flow given nothing to focus,
-// edit or describe; and neither library anywhere in the Android app. The
-// figures are made up.
+// in the board's colour and earlier ones dashed, then dotted; its axes mirrored
+// for right to left; its label as the screen reader's description; a map whose
+// boxes and links are only read, refusing a link to a box it does not hold;
+// ECharts' notice carrying its NOTICE file and the d3 licence it embeds; a
+// chart's tooltip on the canvas; a figure held back left out; React Flow given
+// nothing to focus, edit or describe; and neither library anywhere in the
+// Android app. The figures are made up.
 
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -53,7 +53,7 @@ type Option = {
   xAxis: { inverse: boolean; data: string[] };
   yAxis: { position: string };
   legend?: Record<string, unknown>;
-  series: { type: string; data: number[]; lineStyle?: { type: string; width: number; color: string } }[];
+  series: { type: string; data: (number | null)[]; lineStyle?: { type: string; width: number; color: string } }[];
   tooltip: { renderMode: string };
 };
 
@@ -97,6 +97,13 @@ describe('a chart', () => {
 
   it('refuses a series that misses a category', () => {
     assert.throws(() => option({ ...PROGRESS, series: [{ name: 'Now', values: [1, 2] }] }), RangeError);
+  });
+
+  it('leaves a figure held back below the floor out, as a gap, never as a number', () => {
+    const held = option({ ...PROGRESS, series: [{ name: 'Now', values: [12, null, 9] }] });
+    assert.deepEqual(held.series[0]?.data, [12, null, 9]);
+    const bars = option({ ...PROGRESS, kind: 'bar', series: [{ name: 'Now', values: [null, 15, 9] }] });
+    assert.deepEqual(bars.series[0]?.data, [null, 15, 9]);
   });
 });
 
