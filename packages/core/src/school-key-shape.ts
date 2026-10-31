@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The school keyring's shape (#550): its types, and the strict check a
-// keyring must pass before a device reads anything in it, since it comes
-// through the server. Every field is ASCII of a fixed form, with no field
-// beyond those named, so the text its tag covers is the text a device
-// reads. The school key itself is in school-key.ts.
+// The school keyring's shape (#550): its types, and the strict check a keyring
+// must pass before a device reads anything in it, since it comes through the
+// server. Every field is ASCII of a fixed form, with no field beyond those
+// named, so the text its tag covers is the text a device reads. The school key
+// itself is in school-key.ts. A demo staff list's teacher IDs share one shape
+// here, as covers and appointments name them (#586, #587).
 
 export interface KeyCrypto {
   /** Seals a key so that only the device holding the public key's private key opens it, bound to `info`. */
@@ -59,6 +60,13 @@ export const MAC = /^[0-9a-f]{64}$/u;
 const HEX = /^(?:[0-9a-f]{2})+$/u;
 /** A school's space ID, as the relay takes it. */
 export const SCHOOL = /^[A-Za-z0-9_-]{16,43}$/u;
+
+/** A teacher's ID in a demo school's staff list: lowercase letters and digits in words joined by hyphens. */
+const PERSON = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+
+/** Whether a value is a teacher's ID in a demo school's staff list, of at most 64 characters. */
+export const isStaffId = (value: unknown): value is string =>
+  typeof value === 'string' && value.length <= 64 && PERSON.test(value);
 
 /** Text as bytes; anything but printable ASCII and line feeds is refused, so no two texts give the same bytes. */
 export function ascii(text: string): Uint8Array {
