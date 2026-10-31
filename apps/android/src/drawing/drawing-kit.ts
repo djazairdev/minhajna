@@ -7,15 +7,17 @@
 // through this context; where there is none, as on the phone, a screen shows
 // the table of the same figures alone, since every chart has one beside it,
 // as every map has its links written out, which is also what a screen reader
-// reads; and the phone draws its charts with react-native-svg. The shapes
-// below are the app's own, so no screen imports either library.
+// reads; and the phone draws its charts with react-native-svg. ChartFigure.tsx
+// sets the table under its chart. The shapes below are the app's own, so no
+// screen imports either library.
 
 import { createContext, useContext, type ComponentType } from 'react';
 
 /** One line of figures in a chart, such as a class's progress. */
 export interface ChartSeries {
   readonly name: string;
-  readonly values: readonly number[];
+  /** Null for a figure held back below the floor (floors.ts), which the chart leaves out and the table says. */
+  readonly values: readonly (number | null)[];
 }
 
 /** A chart's figures, in the order the categories are read. */

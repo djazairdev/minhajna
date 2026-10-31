@@ -36,6 +36,7 @@ import { SessionCardSamples } from './session-card-samples';
 import { RollCallSamples, StatsSamples } from './roll-call-samples';
 import type { Language } from '../text/i18n';
 import { BottomSheetSamples } from './sheet-samples';
+import { ChartFigureSamples } from './chart-figure-samples';
 import type { Sample } from './samples';
 
 export type GalleryEntry = {
@@ -217,5 +218,10 @@ export const entries: readonly GalleryEntry[] = [
         <TabsSample labels={sample.longTabs} />
       </>
     ),
+  },
+  {
+    name: 'ChartKey',
+    design: 'docs/design/system/components/ChartKey/README.md',
+    render: (_sample, language) => <ChartFigureSamples language={language} />,
   },
 ];

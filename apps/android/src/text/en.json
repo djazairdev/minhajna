@@ -2384,6 +2384,7 @@
     "failed": "The day was not saved. Try again.",
     "noClass": "No class yet. Add your classes and draw your week first.",
     "separator": ", ",
+    "colon": ": ",
     "untimed": "Some of these sessions have no time at the school yet, so they go on the page for additional lessons once their time is set."
   },
   "homework": {
@@ -4196,5 +4197,10 @@
       "paste": "The joining code’s text",
       "pastePlaceholder": "minhajna-join:1:…"
     }
+  },
+  "chart": {
+    "heldBack": "Below the minimum group size",
+    "separator": ", ",
+    "colon": ": "
   }
 }
