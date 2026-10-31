@@ -135,9 +135,9 @@ test('a problem is said, with a way to read again', async () => {
   expect(has('teacher-again')).toBe(true);
 });
 
-test('the joined card opens the timetable from the school', async () => {
+test('the joined card opens the timetable from the school, and Week-sign', async () => {
   const { joined } = await setting();
-  const opened = jest.fn();
+  const [opened, week] = [jest.fn(), jest.fn()];
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">
@@ -147,12 +147,16 @@ test('the joined card opens the timetable from the school', async () => {
           onDevices={() => undefined}
           onHelp={() => undefined}
           onTimetable={opened}
+          onWeek={week}
         />
       </LocaleDirContext.Provider>,
     );
   });
   await press('school-timetable');
   expect(opened).toHaveBeenCalledWith(joined);
+  await press('school-week');
+  expect(week).toHaveBeenCalledWith(joined);
+  expect(texts()).toContain(ar.demo.weekSign.reminder);
 });
 
 test('the page’s words read in every language', () => {

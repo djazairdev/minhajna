@@ -3,10 +3,12 @@
 
 // The school's space as joined (#564, #565, answer 582): one card for each code
 // that joined, with the world's date its certificate was given and the school's
-// ID shortened, kept left to right inside a sentence of either direction, and a
-// way to the timetable the school sent (TeacherTimetable.tsx, #579), to the
-// teacher's devices and copies once joined (DevicesMoved.tsx, #566) and to what
-// stays and goes on leaving (Leave.tsx, #567).
+// ID shortened, kept left to right inside a sentence of either direction, the
+// reminder that each class's week waits to be signed once a week, with a way to
+// sign it (WeekSign.tsx, #582), a way to the timetable the school sent
+// (TeacherTimetable.tsx, #579), to the teacher's devices and copies once joined
+// (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
+// #567).
 
 import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -29,10 +31,13 @@ export type SchoolJoinedCardsProps = {
   readonly onHelp: (join: SchoolJoined) => void;
   /** Opens the timetable the school sent on the code's channel. */
   readonly onTimetable: (join: SchoolJoined) => void;
+  /** Opens each class's week to sign. */
+  readonly onWeek: (join: SchoolJoined) => void;
 };
 
 /** A card for each code that joined the school's space. */
-export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave, onHelp, onTimetable }: SchoolJoinedCardsProps) {
+export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
+  const { joins, dayText, onDevices, onLeave, onHelp, onTimetable, onWeek } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -47,6 +52,8 @@ export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave, onHelp, 
           school: shortSchool(readJoinCode(join.code)?.school ?? ''),
         })}
       </Text>
+      <Text style={[styles.small, align]}>{t('demo.weekSign.reminder')}</Text>
+      <Button testID="school-week" label={t('demo.weekSign.open')} onPress={() => onWeek(join)} />
       <Button
         testID="school-timetable"
         variant="line"
