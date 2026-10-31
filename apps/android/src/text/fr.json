@@ -4326,6 +4326,36 @@
       "school": "Identifiant de l’établissement {{school}}",
       "step": "Étape {{number}}",
       "stepDone": "Étape 1, faite"
+    },
+    "leave": {
+      "open": "Quitter l’établissement",
+      "title": "Quitter l’établissement",
+      "move": "En cas de mutation",
+      "from": "Prend effet le {{date}}",
+      "moveLine": "Une mutation suit la liste officielle des affectations : l’adhésion à cet établissement dure jusqu’au {{date}}.",
+      "withYou": "Reste avec vous, sur vos appareils",
+      "kept1": "Une copie complète de vos registres de cours : cahier de textes, journal de classe et plans, pour toutes vos années",
+      "kept2": "Les semaines que vous avez signées, avec leurs signatures",
+      "kept3": "Les notes privées et les raisons, les modèles de documents et les fiches",
+      "kept4": "La carte d’enseignant et la signature dessinée",
+      "atSchool": "Reste à l’établissement",
+      "school1": "Sa copie et le registre officiel : les semaines signées, l’appel et les notes, pour la durée que déclare le ministère",
+      "school2": "Votre téléphone n’en reçoit plus rien après le {{date}}, et il ne lui envoie pas les classes de l’année suivante",
+      "notAnyMore": "Ne reste pas",
+      "pupils": "Données des élèves de {{year}}",
+      "pupilsLine": "Elles restent sur le téléphone, à lire pendant toute l’année suivante, puis l’application propose de les effacer après la fin de {{next}}, comme chaque année. Le registre des séances reste.",
+      "next": "Au nouvel établissement",
+      "nextLine": "Rejoindre en scannant le code de l’établissement, comme la première fois. Les classes viennent des affectations de {{next}}, pas de cette année.",
+      "join": "Rejoindre avec le code de l’établissement",
+      "export": "Tout exporter, gratuitement",
+      "exportLine": "Depuis le mode enseignant, à tout moment. Un monde de démonstration n’exporte rien comme registre réel.",
+      "nothing": "Rien n’est effacé de votre téléphone au départ, et rien n’est à faire avant.",
+      "pc": {
+        "school2": "Votre appareil n’en reçoit plus rien après le {{date}}, et il ne lui envoie pas les classes de l’année suivante",
+        "pupilsLine": "Elles restent sur l’appareil, à lire pendant toute l’année suivante, puis l’application propose de les effacer après la fin de {{next}}, comme chaque année. Le registre des séances reste.",
+        "nextLine": "Rejoindre en collant le code de l’établissement, comme la première fois. Les classes viennent des affectations de {{next}}, pas de cette année.",
+        "nothing": "Rien n’est effacé de votre appareil au départ, et rien n’est à faire avant."
+      }
     }
   },
   "chart": {

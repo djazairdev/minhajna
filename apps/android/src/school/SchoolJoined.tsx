@@ -5,7 +5,8 @@
 // code that joined, with the world's date its certificate was given and the
 // school's ID shortened, kept left to right inside a sentence of either
 // direction, and a way to the teacher's devices and copies once joined
-// (DevicesMoved.tsx, #566).
+// (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
+// #567).
 
 import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -22,10 +23,12 @@ export type SchoolJoinedCardsProps = {
   readonly dayText: (day: Day) => string;
   /** Opens the teacher's devices and copies for a join. */
   readonly onDevices: (join: SchoolJoined) => void;
+  /** Opens what stays and what goes when the teacher leaves the school, when the year's dates read. */
+  readonly onLeave?: (join: SchoolJoined) => void;
 };
 
 /** A card for each code that joined the school's space. */
-export function SchoolJoinedCards({ joins, dayText, onDevices }: SchoolJoinedCardsProps) {
+export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave }: SchoolJoinedCardsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -41,6 +44,9 @@ export function SchoolJoinedCards({ joins, dayText, onDevices }: SchoolJoinedCar
         })}
       </Text>
       <Button testID="school-devices" variant="line" label={t('demo.devices.open')} onPress={() => onDevices(join)} />
+      {onLeave !== undefined && (
+        <Button testID="school-leave-open" variant="plain" label={t('demo.leave.open')} onPress={() => onLeave(join)} />
+      )}
     </View>
   ));
 }
