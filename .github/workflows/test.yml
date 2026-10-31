@@ -28,7 +28,7 @@ jobs:
   test:
     name: Node.js 22
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: read
     # The server's tests and its migrations check run against PostgreSQL,
@@ -126,6 +126,19 @@ jobs:
       - name: Type check and test the web app
         working-directory: apps/web
         run: npm run typecheck && npm test
+
+      # The demo scenarios (#629, answer 586) run against `npm run demo`, as
+      # whoever shows the demo starts it, on a demo database of its own on the
+      # runner's PostgreSQL, which --fresh empties first, as it empties no
+      # other. The demo stops when the step ends.
+      - name: Run the demo scenarios
+        env:
+          MINHAJNA_DEMO_DATABASE: postgresql://minhajna@127.0.0.1:5432/minhajna_demo
+        run: |
+          createdb -h 127.0.0.1 -U minhajna minhajna_demo
+          npm run demo -- --fresh & demo=$!
+          trap 'kill "$demo" 2>/dev/null || true' EXIT
+          node tools/demo-scenario/run.js --wait 300
 
       # The ZIP a release attaches and the host serves (answer 528), kept to
       # compare with the release manager's: the same build packs to the same

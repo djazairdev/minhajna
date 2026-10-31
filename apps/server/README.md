@@ -122,6 +122,7 @@ npm run demo
 - **Stopping:** Ctrl-C stops all three. The database keeps its made-up worlds for the next run; `npm run demo -- --fresh` clears them first.
 - **Local only:** the database trusts every connection from this computer and has no password, so the compose file is never used for a deployment.
 - **In the dev container** ([CONTRIBUTING.md](../../CONTRIBUTING.md#or-in-a-dev-container), #634), the container starts this PostgreSQL and the S3 stand-in itself, with no port on the computer, and names its database in `MINHAJNA_DEMO_DATABASE`. `npm run demo` then runs no Docker, leaves PostgreSQL running when it stops, and with `--fresh` empties the demo database instead of its volume.
+- **Demo scenarios** ([`tools/demo-scenario/`](../../tools/demo-scenario/scenario.js), #629): with the demo running, `node tools/demo-scenario/run.js` starts a world, acts as its roles, moves its date and checks what each role sees, as their devices would. CI runs them against `npm run demo -- --fresh`; `--server` names another server and `--wait` how many seconds to wait for its health check.
 
 ## How it is built
 
