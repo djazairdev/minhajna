@@ -18,7 +18,8 @@
 // the week is signed; one not confirmed is signed awaiting, never an absence.
 // Signing makes the week's text at version 0, signs it with the key the teacher
 // joined with and puts it on the channel, refused when this key signed that
-// course's week already or another device joined on the channel first.
+// course's week already at that version or above, as when a correction (#583)
+// was put meanwhile, or another device joined on the channel first.
 
 import {
   addDays,
@@ -27,6 +28,7 @@ import {
   courseId,
   partOn,
   sealWeek,
+  sessionSlot,
   signWeek,
   timetableNameKey,
   weekday,
@@ -152,18 +154,22 @@ export async function weekRecord(
   };
 }
 
-/** A session's key among a week's confirmations. */
-export const sessionKey = (one: Omit<WeekSession, 'state'>) =>
-  [one.day, one.start, one.end, one.group, one.week].join('\n');
+/** A session's key among a week's confirmations: its slot in the week. */
+export const sessionKey = sessionSlot;
 
-/** A course's signed week among signed weeks: of its first day, its class by name key and its subject's code. */
+/** A course's signed week at its highest version: of its first day, its class by name key and its subject's code. */
 export const signedWeek = (records: readonly WeekRecord[], week: WeekToSign, first: Day) =>
-  records.find(
-    (one) =>
-      one.week === first &&
-      timetableNameKey(one.class) === timetableNameKey(week.class) &&
-      one.totals.subject === week.code,
-  );
+  records
+    .filter(
+      (one) =>
+        one.week === first &&
+        timetableNameKey(one.class) === timetableNameKey(week.class) &&
+        one.totals.subject === week.code,
+    )
+    .reduce<WeekRecord | undefined>(
+      (best, one) => (best === undefined || one.version > best.version ? one : best),
+      undefined,
+    );
 
 let keptWorld: string | null = null;
 const kept = new Map<string, Map<string, SessionState>>();
@@ -186,7 +192,7 @@ export function confirmations(world: string, device: string, school: string, wee
   return { states, set, forget };
 }
 
-/** Signs a course's week with this device's key and puts it on its channel, refused when this key signed it already. */
+/** Signs a course's week or its correction with this device's key and puts it on its channel, refused when taken. */
 export async function signTheWeek(
   world: SignWorld,
   join: SchoolJoined,

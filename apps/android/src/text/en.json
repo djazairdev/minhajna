@@ -4859,6 +4859,43 @@
         "fix": "It can still be corrected: the correction is signed too, and both versions show.",
         "counted": "The signature counts from the day it is made on the phone, even if the network is late."
       }
+    },
+    "weekFix": {
+      "title": "Correct a signed week",
+      "open": "Correct the week",
+      "lead": "This week was signed and became the official record. A correction is always possible: it is added and signed, and both versions show.",
+      "signing": "Signing the correction…",
+      "entry": "The entry to correct",
+      "recorded": "Recorded: {{state}}",
+      "becomes": "Becomes",
+      "reason": "Reason for the correction · optional for sessions",
+      "reasons": {
+        "confirmed-later": "Confirmed later",
+        "entry-error": "Entry error",
+        "other": "Other"
+      },
+      "reasonNote": "The reason is chosen, never typed, and the reason a session was not held is never asked. Roll call and marks need a reason; a demo world does not record them yet.",
+      "shown": "As it shows after signing",
+      "original": "The signed version",
+      "fix": "Correction {{number}}",
+      "now": "Correction {{number}} · signed now",
+      "change": "{{session}}: {{state}}",
+      "because": "{{change}} · reason: {{reason}}",
+      "states": {
+        "held": "as planned",
+        "not-held": "session not held",
+        "awaiting": "awaiting confirmation",
+        "none": "no longer in the week"
+      },
+      "lines": {
+        "kept": "Nothing is erased: the original stays and the correction is joined to it, so an honest correction never looks like tampering.",
+        "channel": "It reaches the school’s space as soon as it is signed, and the director sees it beside the original.",
+        "notCounted": "The number of corrections is counted for no teacher and shows on no board."
+      },
+      "sign": "Sign the correction",
+      "signNote": "An electronic signature with this phone’s key, like signing the week. On your own phone the fingerprint or PIN is asked before signing; in a demo world it is not.",
+      "done": "Correction {{number}} is signed.",
+      "changed": "This week changed since the page opened. Read it again, then correct it."
     }
   },
   "chart": {
