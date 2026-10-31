@@ -147,6 +147,8 @@ export function recordKey(event: RecordEvent): string {
       return `school-held:${event.held?.school ?? ''}`;
     case 'school.waiting':
       return 'school-waiting';
+    case 'school.timetable':
+      return `school-timetable:${event.published?.school ?? ''}/${event.published?.version ?? ''}`;
     case 'school.issued': {
       const { school = '', assignment = '', issue = '' } = event.issued ?? {};
       return `school-issued:${school}/${assignment}/${issue}`;

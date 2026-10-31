@@ -1,24 +1,27 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Sending each teacher their part from the director's timetable page (#577,
-// answer 605), against a made-up demo server: the card shows under the checks
-// once a timetable is read, saying from which day the parts apply; sending says
-// how many teachers were sent their part, aloud in the page's hidden live
-// region on a PC, and names apart the teacher with no code yet and the one not
-// in the staff list, each name isolated, and the teacher's channel holds the
-// part; another timetable read clears what was said; a part that did not reach
-// the server names its teacher with the problem met, and a name the staff list
-// shares is named; the preparer's page has no sending, nor does a page with
-// nothing read; a director's device that holds no school key yet says to start
-// it on the keys page; and the card's words read in every language. Every
-// world, school and person is made up.
+// Publishing a version of the timetable from the director's timetable page
+// (#577, #578, answers 605 and 606), against a made-up demo server: the card
+// shows under the checks once a timetable is read; checking drafts the first
+// version, with every teacher with a code new and the others named apart, and
+// says how many are told; publishing sends the part, says how many were sent it
+// and how many were told nothing, aloud in the page's hidden live region on a
+// PC, and clears the draft; another reading clears what was said; a second
+// version shows what changed from the first and how many others hear nothing,
+// and, for one day, offers the school days and publishes a one-day part; a part
+// that did not reach the server names its teacher with the problem met, and a
+// name the staff list shares is named; the preparer's page has no sending; a
+// director's device that holds no school key yet says to start it on the keys
+// page; and the card's words read in every language. Every world, school and
+// person is made up.
 
 import {
   channelStream,
   directorSchool,
   readJoinCode,
-  readPart,
+  channelParts,
+  type JoinCode,
   seedNationalWorld,
   type DemoSchool,
   type SchoolCalendar,
@@ -35,8 +38,9 @@ import { leaveWorldNetwork, worldNetworkOpen } from '../src/network/world-networ
 import { bundledReference, readReference } from '../src/reference';
 import { caKey, spaceBatches } from '../src/school/space-read';
 import ar from '../src/text/ar.json';
-import * as sendSession from '../src/timetable/send-session';
+import * as versionSession from '../src/timetable/version-session';
 import { isolate } from '../src/week/grid-labels';
+import type { SwitchProps } from '../src/components/Switch';
 import { failed } from '../src/demo/world-session';
 import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
@@ -55,6 +59,7 @@ const teacher = new FakeStorage();
 let world = new FakeWorld(teacher);
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const words = ar.ttSend;
+const version = ar.ttVersion;
 
 beforeEach(() => {
   jest.replaceProperty(Platform, 'OS', 'web');
@@ -109,10 +114,13 @@ async function enter(role: 'preparer' | 'director'): Promise<DemoSchool> {
   return directorSchool(seedNationalWorld(worldNetworkOpen()!, zones, workingDays, reference.packs))!;
 }
 
-const fet = (...teachers: readonly string[]) =>
+const fet = (...teachers: readonly (string | readonly [string, string])[]) =>
   '"Activity Id","Day","Hour","Students Sets","Subject","Teachers","Activity Tags","Room","Comments"\n' +
   teachers
-    .map((one, at) => `"${at + 1}","Sunday","08:00-09:00","4AM${at + 1}","math","${one}","","R${at + 1}",""\n`)
+    .map((one, at) => {
+      const [name, hour] = typeof one === 'string' ? [one, '08:00-09:00'] : one;
+      return `"${at + 1}","Sunday","${hour}","4AM${at + 1}","math","${name}","","R${at + 1}",""\n`;
+    })
     .join('');
 
 async function openFile(file: string) {
@@ -121,7 +129,16 @@ async function openFile(file: string) {
   await press('tt-open');
 }
 
-test('the director sends each teacher their part, and is told who was sent it and who was not', async () => {
+/** The parts a code's channel holds, by version and whether for one day. */
+async function partsOn(code: JoinCode) {
+  const batches = await spaceBatches(code.world, code.school, server.send);
+  const ca = { key: await caKey(code.world, server.send), checker: nodeKit };
+  const stream = batches.get(await channelStream(code, nodeKit.mac)) ?? [];
+  const parts = await channelParts(code, stream, ca, null, nodeKit.cipher, nodeKit.mac);
+  return parts.map((one) => [one.part.teacher, one.part.version, one.part.once]);
+}
+
+test('the director checks a version, sees its effect, and publishes it to the teachers it changes', async () => {
   const school = await enter('director');
   await press('world-page-keys');
   await press('keys-start-here');
@@ -134,53 +151,69 @@ test('the director sends each teacher their part, and is told who was sent it an
   await press('world-page-timetable');
   expect(shown('tt-send')).toBe(false);
   await openFile(fet(first.name, second.name, 'مختلق غريب'));
-  expect(shown('tt-send')).toBe(true);
-  expect(texts()).toContain(words.title);
-  expect(texts().some((one) => one.startsWith(words.line.split('{{day}}')[0]))).toBe(true);
+  expect(texts()).toEqual(expect.arrayContaining([words.title, version.line]));
+  expect(shown('tt-version')).toBe(false);
+  await press('tt-send-check');
+  const told = (count: number) => version.told.replace('{{teachers}}', String(count));
+  expect(texts()).toEqual(
+    expect.arrayContaining([version.title.replace('{{version}}', '1'), version.first, told(1), isolate(first.name)]),
+  );
+  expect(texts()).toEqual(expect.arrayContaining([words.noCode, isolate(second.name), isolate('مختلق غريب')]));
+  expect(said('tt-send-said')).toBe(told(1));
   await press('tt-send-go');
   const sent = words.sent.replace('{{teachers}}', '1');
-  expect(texts()).toEqual(
-    expect.arrayContaining([
-      sent,
-      words.noCode,
-      isolate(second.name),
-      words.notStaff,
-      isolate('مختلق غريب'),
-      words.again,
-    ]),
-  );
-  expect(shown('tt-send-too-long')).toBe(false);
+  expect(texts()).toEqual(expect.arrayContaining([sent, version.unchanged.replace('{{teachers}}', '0'), words.again]));
   expect(said('tt-send-said')).toBe(sent);
-  const batches = await spaceBatches(code.world, code.school, server.send);
-  const ca = { key: await caKey(code.world, server.send), checker: nodeKit };
-  const stream = batches.get(await channelStream(code, nodeKit.mac)) ?? [];
-  const part = await readPart(code, stream, ca, null, nodeKit.cipher, nodeKit.mac);
-  expect(part?.part).toMatchObject({ teacher: first.name, version: 1 });
-  await openFile(fet(second.name));
+  expect(shown('tt-version')).toBe(false);
+  expect(await partsOn(code)).toEqual([[first.name, 1, false]]);
+  await openFile(fet([first.name, '09:00-10:00'], second.name));
   expect(shown('tt-send-sent')).toBe(false);
-  expect(shown('tt-send-go')).toBe(true);
+  await press('tt-send-check');
+  expect(texts()).toEqual(
+    expect.arrayContaining([version.title.replace('{{version}}', '2'), version.changed.replace('{{version}}', '1')]),
+  );
+  expect(tree!.root.findAllByProps({ testID: 'tt-version-change' }).length).toBeGreaterThan(0);
+  expect(texts()).toContain(version.others.replace('{{teachers}}', '0'));
+  await ReactTestRenderer.act(async () => {
+    (tree!.root.findAllByProps({ testID: 'tt-send-once' })[0].props as SwitchProps).onValueChange(true);
+    await settle();
+  });
+  expect(texts()).toContain(version.oneDay);
+  const chips = tree!.root.findAll((node) => /^tt-send-day-\d/u.test(String(node.props.testID)) && !!node.type);
+  const day = String(chips[1].props.testID).slice('tt-send-day-'.length);
+  await press(`tt-send-day-${day}`);
+  await press('tt-send-go');
+  expect(await partsOn(code)).toEqual([
+    [first.name, 1, false],
+    [first.name, 2, true],
+  ]);
 });
 
 test('a teacher whose part did not reach the server is named with the problem, as are shared names', async () => {
   const school = await enter('director');
   await press('world-page-timetable');
   await openFile(fet(school.teachers[0].name));
+  const named = { noCode: [], notStaff: [], twoNames: ['Made-up Twin'], tooLong: [] };
+  const draft = {
+    desk: {} as never,
+    version: 1,
+    standing: null,
+    sessions: [],
+    changes: [],
+    teachers: [],
+    ...named,
+    unkept: 0,
+  };
+  jest.spyOn(versionSession, 'draftVersion').mockResolvedValueOnce(draft);
   const problem = failed('Made-up offline', 'E_OFFLINE');
-  jest.spyOn(sendSession, 'sendParts').mockResolvedValueOnce({
-    sent: [],
-    noCode: [],
-    notStaff: [],
-    twoNames: ['Made-up Twin'],
-    tooLong: [],
-    failed: ['Made-up Teacher'],
-    problem,
-  });
+  const result = { sent: [], unchanged: [], failed: ['Made-up Teacher'], problem, ...named };
+  jest.spyOn(versionSession, 'publishVersion').mockResolvedValueOnce(result);
+  await press('tt-send-check');
+  expect(texts()).toEqual(expect.arrayContaining([words.twoNames, '\u2068Made-up Twin\u2069']));
   await press('tt-send-go');
   expect(texts()).toEqual(
     expect.arrayContaining([
       words.sent.replace('{{teachers}}', '0'),
-      words.twoNames,
-      '\u2068Made-up Twin\u2069',
       words.failed,
       '\u2068Made-up Teacher\u2069',
       ar.demo.problem.offline,
@@ -201,15 +234,18 @@ test('the preparer has no sending, and a director with no school key yet is told
   const school = await enter('director');
   await press('world-page-timetable');
   await openFile(fet(school.teachers[0].name));
-  await press('tt-send-go');
+  await press('tt-send-check');
   expect(texts()).toContain(ar.demo.issue.keysFirst);
-  expect(shown('tt-send-sent')).toBe(false);
+  expect(shown('tt-version')).toBe(false);
 });
 
 test('the card’s words read in every language', () => {
   for (const one of [ar, en, fr]) {
     expect(Object.keys(one.ttSend).sort()).toEqual(Object.keys(ar.ttSend).sort());
-    expect(one.ttSend.line).toContain('{{day}}');
+    expect(Object.keys(one.ttVersion).sort()).toEqual(Object.keys(ar.ttVersion).sort());
     expect(one.ttSend.sent).toContain('{{teachers}}');
+    for (const key of ['title', 'publish', 'changed', 'from'] as const)
+      expect(one.ttVersion[key]).toContain('{{version}}');
+    for (const key of ['moved', 'room', 'added', 'removed'] as const) expect(one.ttVersion[key]).toContain('{{what}}');
   }
 });
