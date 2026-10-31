@@ -5002,5 +5002,21 @@
     "readAgain": "Un emploi du temps lu avant cette décision garde l’ancien créneau : relisez-le avant d’en publier une version.",
     "joint": "La séance est commune à plusieurs classes : déplacer cette classe seule la séparerait.",
     "roomDropped": "La proposition ne donne pas de salle : la séance perdrait la salle {{room}}."
+  },
+  "ttReceipt": {
+    "title": "Accusés de réception de l’emploi du temps",
+    "line": "Chaque part envoyée est confirmée depuis le téléphone qui l’a reçue, à la place de la signature de l’avis papier.",
+    "look": "Voir les accusés de réception",
+    "none": "Aucun enseignant n’a encore reçu de part.",
+    "found": "Enseignants ayant reçu une part sur leur téléphone : {{teachers}}. À jour de chaque version en vigueur ou à venir : {{confirmed}}.",
+    "current": "Version {{version}} confirmée le {{day}}",
+    "behind": "Version {{sent}} pas encore confirmée ; version {{version}} confirmée le {{day}}",
+    "never": "Version {{sent}} pas encore confirmée",
+    "looking": "Recherche en cours…",
+    "keys": "Enseignants ayant rejoint avec une clé de sécurité : {{keys}}. La confirmation depuis le PC de la salle des professeurs n’est pas encore dans la démo.",
+    "keyLine": "A rejoint avec une clé de sécurité",
+    "dayDone": "Le {{date}} seulement : version {{version}} confirmée le {{day}}",
+    "dayWaiting": "Le {{date}} seulement : version {{version}} pas encore confirmée",
+    "newCode": "Un enseignant qui reçoit un nouveau code apparaît dès qu’une part lui est envoyée avec ce code."
   }
 }

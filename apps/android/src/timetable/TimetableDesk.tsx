@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The timetable page of the director's and the preparer's workspaces in a demo
-// world (#576, #577, #578): the timetable brought in and checked
+// world (#576 to #579): the timetable brought in and checked
 // (TimetableImport.tsx); for the director, under the checks, the next version
 // checked and published (TimetableSend.tsx), and below it, whether or not a
 // timetable was read, the teachers' proposals waiting for a decision
-// (TimetableProposals.tsx), which work from the standing version.
+// (TimetableProposals.tsx), which work from the standing version, and the
+// teachers' receipts of the versions sent (TimetableReceipts.tsx).
 
 import type { BellData, Day, DemoSchool, Weekday } from '@minhajna/core';
 import type { OpenWorld } from '../demo/world-mode';
@@ -14,6 +15,7 @@ import type { Send, WorldKit } from '../demo/world-session';
 import { levelBells } from './timetable-words';
 import { TimetableImport, type TimetableRead } from './TimetableImport';
 import { TimetableProposals } from './TimetableProposals';
+import { TimetableReceipts } from './TimetableReceipts';
 import { TimetableSend } from './TimetableSend';
 
 export type TimetableDeskProps = {
@@ -63,6 +65,9 @@ export function TimetableDesk({
       </TimetableImport>
       {role === 'director' && (
         <TimetableProposals world={world} school={school} bells={times} kit={kit} send={send} dayText={dayText} />
+      )}
+      {role === 'director' && (
+        <TimetableReceipts world={world} school={school} kit={kit} send={send} dayText={dayText} />
       )}
     </>
   );

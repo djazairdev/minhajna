@@ -3,18 +3,19 @@
 
 // Publishing a version of the timetable from the director's timetable page
 // (#577, #578, answers 605 and 606), against a made-up demo server: the card
-// shows under the checks once a timetable is read, and the proposals card
-// before one is; checking drafts the first version, with every teacher with a
-// code new and the others named apart, and says how many are told; publishing
-// sends the part, says how many were sent it and how many were told nothing,
-// aloud in the page's hidden live region on a PC, and clears the draft; another
-// reading clears what was said; a second version shows what changed from the
-// first and how many others hear nothing, and, for one day, offers the school
-// days and publishes a one-day part; a part that did not reach the server names
-// its teacher with the problem met, and a name the staff list shares is named;
-// the preparer's page has no sending and no proposals; a director's device that
-// holds no school key yet says to start it on the keys page; and the card's
-// words read in every language. Every world, school and person is made up.
+// shows under the checks once a timetable is read, and the proposals and
+// receipts cards before one is; checking drafts the first version, with every
+// teacher with a code new and the others named apart, and says how many are
+// told; publishing sends the part, says how many were sent it and how many were
+// told nothing, aloud in the page's hidden live region on a PC, and clears the
+// draft; another reading clears what was said; a second version shows what
+// changed from the first and how many others hear nothing, and, for one day,
+// offers the school days and publishes a one-day part; a part that did not
+// reach the server names its teacher with the problem met, and a name the staff
+// list shares is named; the preparer's page has no sending, no proposals and no
+// receipts; a director's device that holds no school key yet says to start it
+// on the keys page; and the card's words read in every language. Every world,
+// school and person is made up.
 
 import {
   channelStream,
@@ -149,7 +150,7 @@ test('the director checks a version, sees its effect, and publishes it to the te
   await press('issue-new-code');
   const code = readJoinCode(qrRows.mock.calls.at(-1)![0])!;
   await press('world-page-timetable');
-  expect([shown('tt-send'), shown('tt-proposals')]).toEqual([false, true]);
+  expect([shown('tt-send'), shown('tt-proposals'), shown('tt-receipts')]).toEqual([false, true, true]);
   await openFile(fet(first.name, second.name, 'مختلق غريب'));
   expect(texts()).toEqual(expect.arrayContaining([words.title, version.line]));
   expect(shown('tt-version')).toBe(false);
@@ -227,7 +228,7 @@ test('the preparer has no sending, and a director with no school key yet is told
   await press('world-page-timetable');
   await openFile(fet('مختلق'));
   expect(shown('timetable-import')).toBe(true);
-  expect([shown('tt-send'), shown('tt-proposals')]).toEqual([false, false]);
+  expect([shown('tt-send'), shown('tt-proposals'), shown('tt-receipts')]).toEqual([false, false, false]);
   await ReactTestRenderer.act(() => tree?.unmount());
   leaveWorldNetwork();
   world = new FakeWorld(new FakeStorage());
