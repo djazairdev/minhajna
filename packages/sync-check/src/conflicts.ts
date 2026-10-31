@@ -68,6 +68,7 @@ export function recordKey(entry: Entry): string | null {
     case 'school.joined':
     case 'school.held':
     case 'school.issued':
+    case 'school.waiting':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;

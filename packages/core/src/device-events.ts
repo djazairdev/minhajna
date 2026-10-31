@@ -7,9 +7,10 @@
 // copy came from (#251, answer 525), of the demo world a store belongs to
 // (#560, answer 573), of the schools joined in it (#564, answer 581), and of
 // the school key a director's device holds there and the codes and security
-// keys it issues (#570, answer 596), apart from devices.ts, world-kept.ts,
-// school-joined.ts and school-issue.ts, which read them, so the events module
-// imports no module that imports it back.
+// keys it issues (#570, answer 596), and of a device waiting to be admitted to
+// it (#571, answer 600), apart from devices.ts, world-kept.ts,
+// school-joined.ts, school-issue.ts and school-holder.ts, which read them, so
+// the events module imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
@@ -35,7 +36,9 @@ export type DeviceEvent =
   /** In a demo world's own store: this device's place in a school's key, and the keyring as it holds it. */
   | { readonly kind: 'school.held'; readonly held: SchoolHeld }
   /** In a demo world's own store: a joining code or a security key this device issued for an assignment. */
-  | { readonly kind: 'school.issued'; readonly issued: SchoolIssued };
+  | { readonly kind: 'school.issued'; readonly issued: SchoolIssued }
+  /** In a demo world's own store: this device waiting to be admitted to a school's key, or null once it gave up. */
+  | { readonly kind: 'school.waiting'; readonly waiting: SchoolWaiting | null };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -46,6 +49,15 @@ export interface SchoolHeld {
   /** Its private half, PKCS #8 DER in base64, which never leaves the world's store. */
   readonly pkcs8: string;
   readonly ring: SchoolKeyring;
+}
+
+/** A device waiting to hold a school's key: its ID, its agreement pair and the secret its QR code shows. */
+export interface SchoolWaiting {
+  readonly device: string;
+  readonly publicKey: string;
+  /** Its private half, PKCS #8 DER in base64, which never leaves the world's store. */
+  readonly pkcs8: string;
+  readonly secret: string;
 }
 
 /** A joining code issued for an assignment, or a security key given instead (answer 596); the code is not kept. */
@@ -95,6 +107,7 @@ export const DEVICE_KINDS = {
   'school.joined': true,
   'school.held': true,
   'school.issued': true,
+  'school.waiting': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

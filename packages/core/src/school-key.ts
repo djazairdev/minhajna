@@ -1,41 +1,45 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The school key and the devices that hold it (#550, PRD §5.10, §6.5). The
-// key comes in epochs: the director's device makes the first, and removing a
-// device makes the next, sealed only for the devices that remain, so a
-// removed device opens nothing added after its removal. Each epoch is sealed
-// for each holder's public key, bound to the school, the epoch and the
-// device; adding a device seals every epoch for it. Any holder may add or
-// remove a device, and each keyring names the device that made it (answer
-// 555), which any holder could write, so it records who acted among honest
-// holders and proves nothing against a dishonest one. A keyring carries a tag
-// under its latest key, so neither the server that relays it nor a removed
-// device can change it; each epoch is linked from the one before; and each
-// keyring names the tag of the one it changed, one version up. Devices read
-// the keyrings in the order the school's space holds them and adopt each that
-// changes the one they hold, so of two changes to the same keyring the first
-// in that order wins, and a removed device cannot get ahead of its removal
-// once that is in the space. A device's own change is therefore only
-// proposed: it keeps the keyring it holds, sends the change, and adopts it
-// only when the space gives it back as the next keyring; when another came
-// first, it adopts that one and makes its change again on top. A new device
-// shows a one-time QR code with its ID, its public key and a one-time secret;
-// the device that scans it admits it with a MAC under that secret, which the
-// server never sees, so the server cannot hand it a keyring of its own, and
-// whoever only photographs the code can do nothing without the server. A
-// device's ID and keypair are its own for each school, so the server, which
-// sees them and how many come and go, cannot link them elsewhere. Records are
-// sealed under keys derived from an epoch's key for their purpose, never the
-// epoch's key itself. Every removal adds an epoch for every holder, so a
-// keyring grows with the years; re-keying it is for later.
+// The school key and the devices that hold it (#550, PRD §5.10, §6.5). The key
+// comes in epochs: the director's device makes the first, and removing a device
+// makes the next, sealed only for the devices that remain, so a removed device
+// opens nothing added after its removal. Each epoch is sealed for each holder's
+// public key, bound to the school, the epoch and the device; adding a device
+// seals every epoch for it. Any holder may add or remove a device, and each
+// keyring names the device that made it (answer 555), which any holder could
+// write, so it records who acted among honest holders and proves nothing
+// against a dishonest one. A keyring carries a tag under its latest key, so
+// neither the server that relays it nor a removed device can change it; each
+// epoch is linked from the one before; and each keyring names the tag of the
+// one it changed, one version up. Devices read the keyrings in the order the
+// school's space holds them and adopt each that changes the one they hold, so
+// of two changes to the same keyring the first in that order wins, and a
+// removed device cannot get ahead of its removal once that is in the space. A
+// device's own change is therefore only proposed: it keeps the keyring it
+// holds, sends the change, and adopts it only when the space gives it back as
+// the next keyring; when another came first, it adopts that one and makes its
+// change again on top. A keyring that removes devices carries a proof under the
+// key before it, since a removed device cannot check the new tag, so only a
+// holder can tell a device it was removed, never the server or anyone else who
+// reads the space. A new device shows a one-time QR code (school-holder.ts)
+// with its ID, its public key and a one-time secret; the device that scans it
+// admits it with a MAC under that secret, which the server never sees, so the
+// server cannot hand it a keyring of its own; whoever photographs the code
+// could, through the new device's drop space (school-keyring-stream.ts), so the
+// new device refuses when two keyrings are admitted and shows the keyring's
+// fingerprint to compare with the holder that scanned it. A device's ID and
+// keypair are its own for each school, so the server, which sees them and how
+// many come and go, cannot link them elsewhere. Records are sealed under keys
+// derived from an epoch's key for their purpose, never the epoch's key itself.
+// Every removal adds an epoch for every holder, so a keyring grows with the
+// years; re-keying it is for later.
 
 import { canonicalJson } from './canonical.ts';
 import { toHex, type RandomBytes } from './id.ts';
 import {
   ascii,
   fromHex,
-  ID,
   isHolder,
   isKeyring,
   SCHOOL,
@@ -55,10 +59,7 @@ export interface OpenedKeyring {
   readonly keys: readonly Uint8Array[];
 }
 
-/** What a new device's QR code holds before its ID, public key and one-time secret. */
-export const HOLDER_QR_PREFIX = 'minhajna-holder:1:';
 export const SCHOOL_KEY_BYTES = 32;
-const SECRET_BYTES = 16;
 const PURPOSE = /^[a-z]+(?:-[a-z]+)*$/u;
 
 async function macHex(crypto: KeyCrypto, key: Uint8Array, text: string): Promise<string> {
@@ -79,9 +80,16 @@ function linkOf(crypto: KeyCrypto, school: string, epoch: number, commit: string
 }
 
 function tagOf(crypto: KeyCrypto, ring: Omit<SchoolKeyring, 'tag'>, latest: Uint8Array): Promise<string> {
-  const { school, version, previous, by, holders, epochs } = ring;
-  const text = canonicalJson({ school, version, previous, by, holders, epochs });
-  return macHex(crypto, latest, `minhajna/school-key/ring\n${text}`);
+  const { school, version, previous, by, holders, epochs, removal } = ring;
+  const covered = { school, version, previous, by, holders, epochs, ...(removal === undefined ? {} : { removal }) };
+  return macHex(crypto, latest, `minhajna/school-key/ring\n${canonicalJson(covered)}`);
+}
+
+/** The proof, under the key before a change, that it removes these devices from the keyring it changes. */
+function removalOf(crypto: KeyCrypto, before: SchoolKeyring, removed: readonly string[], key: Uint8Array) {
+  const ids = [...removed].sort().join(',');
+  const text = `minhajna/school-key/removed\n${before.school}\n${before.version + 1}\n${before.tag}\n${ids}`;
+  return macHex(crypto, key, text);
 }
 
 async function sealFor(crypto: KeyCrypto, school: string, epoch: number, key: Uint8Array, holders: readonly Holder[]) {
@@ -188,7 +196,9 @@ async function nextEpoch(
   const link = await linkOf(crypto, ring.school, number, commit, keys.at(-1)!);
   epochs.push({ number, commit, link, sealed: await sealFor(crypto, ring.school, number, key, holders) });
   const change = { school: ring.school, version: ring.version + 1, previous: ring.tag, by };
-  return tagged(crypto, { ...change, holders, epochs }, [...keys, key]);
+  const removed = ring.holders.filter((one) => !kept.has(one.id)).map((one) => one.id);
+  const removal = removed.length === 0 ? {} : { removal: await removalOf(crypto, ring, removed, keys.at(-1)!) };
+  return tagged(crypto, { ...change, holders, epochs, ...removal }, [...keys, key]);
 }
 
 /** Opens a keyring on this device, checking its shape, every key, link and its tag. */
@@ -218,9 +228,11 @@ export async function openKeyring(
  * holders, keeping every epoch it holds. The one it holds again changes
  * nothing. The order is checked before the keyring is opened, so a device
  * is told it was removed only by the keyring that follows the one it holds,
- * never by a change that lost. The server can make any keyring read as
- * 'older' or 'forked', so both mean only that the device skips it and reads
- * the next, not that anything was attacked.
+ * never by a change that lost, and only when that keyring's removal proof
+ * holds under the key the device holds, which no one but a holder has; any
+ * other keyring it cannot open is 'forged'. The server can make any keyring
+ * read as 'older' or 'forked', so both mean only that the device skips it
+ * and reads the next, not that anything was attacked.
  */
 export async function acceptKeyring(
   held: OpenedKeyring,
@@ -234,7 +246,17 @@ export async function acceptKeyring(
   if (ring.version !== held.ring.version + 1 || !sameMac(ring.previous, held.ring.tag)) return 'forked';
   const kept = held.ring.epochs.every((epoch, index) => ring.epochs[index]?.commit === epoch.commit);
   if (!kept || !held.ring.holders.some((one) => one.id === ring.by)) return 'forked';
-  return openKeyring(ring, device, crypto);
+  const opened = await openKeyring(ring, device, crypto);
+  if (opened !== 'removed') return opened;
+  const removed = held.ring.holders.filter((one) => !ring.holders.some((still) => still.id === one.id));
+  if (ring.removal === undefined || !removed.some((one) => one.id === device)) return 'forged';
+  const proof = await removalOf(
+    crypto,
+    held.ring,
+    removed.map((one) => one.id),
+    held.keys.at(-1)!,
+  );
+  return sameMac(proof, ring.removal) ? 'removed' : 'forged';
 }
 
 /** The latest epoch, under which new records are sealed. */
@@ -252,44 +274,4 @@ export async function purposeKey(
   const key = opened.keys[epoch];
   if (key === undefined || !PURPOSE.test(purpose)) throw new RangeError('No such epoch or purpose');
   return crypto.mac(key, ascii(`minhajna/school-key/purpose\n${opened.ring.school}\n${epoch}\n${purpose}`));
-}
-
-/** A new device's one-time secret, which its QR code shows and nothing else holds. */
-export function newHolderSecret(random: RandomBytes): string {
-  return toHex(random(SECRET_BYTES));
-}
-
-/** What a new device's QR code holds. */
-export function holderQr(holder: Holder, secret: string): string {
-  return `${HOLDER_QR_PREFIX}${holder.id}:${holder.publicKey}:${secret}`;
-}
-
-/** The device and secret a scanned QR code holds, exactly as the new device made it, or null. */
-export function readHolderQr(text: string): { readonly holder: Holder; readonly secret: string } | null {
-  if (!text.startsWith(HOLDER_QR_PREFIX)) return null;
-  const [id = '', publicKey = '', secret = '', ...rest] = text.slice(HOLDER_QR_PREFIX.length).split(':');
-  const fine = rest.length === 0 && ID.test(id) && /^(?:[0-9a-f]{2})+$/u.test(publicKey);
-  return fine && /^[0-9a-f]{32}$/u.test(secret) ? { holder: { id, publicKey }, secret } : null;
-}
-
-/** The admission the scanning device sends with the keyring: a MAC of its tag under the new device's secret. */
-export function admission(ring: SchoolKeyring, secret: string, crypto: KeyCrypto): Promise<string> {
-  return macHex(crypto, fromHex(secret), `minhajna/school-key/admit\n${ring.school}\n${ring.tag}`);
-}
-
-/**
- * Opens the first keyring a new device receives, only when the device that
- * scanned its QR code admitted it. The new device forgets its secret once
- * this succeeds.
- */
-export async function openAdmitted(
-  ring: unknown,
-  admitted: string,
-  device: string,
-  secret: string,
-  crypto: KeyCrypto,
-): Promise<OpenedKeyring | KeyringProblem> {
-  if (!isKeyring(ring, crypto.publicKeyBytes)) return 'forged';
-  if (!sameMac(await admission(ring, secret, crypto), admitted)) return 'forged';
-  return openKeyring(ring, device, crypto);
 }

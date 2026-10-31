@@ -87,6 +87,37 @@ export async function sealBatches(
   return batches;
 }
 
+/** One batch opened: whether it starts or ends its change set, and the bytes it carries. */
+export interface OpenedPiece {
+  readonly first: boolean;
+  readonly last: boolean;
+  readonly bytes: Uint8Array;
+}
+
+/** Opens one batch of a stream on its own; it throws if the batch was changed or sealed for another place. */
+export async function openPiece(cipher: BatchCipher, stream: string, batch: SealedBatch): Promise<OpenedPiece> {
+  const plain = await cipher.open(batch.bytes, batchAdditional(stream, batch.number));
+  if (plain.length < BATCH_HEAD_BYTES) throw new RangeError('A batch is shorter than its head');
+  const view = new DataView(plain.buffer, plain.byteOffset, plain.byteLength);
+  const flags = view.getUint8(0);
+  if (flags > (FIRST | LAST)) throw new RangeError('A batch carries flags no batch has');
+  const used = view.getUint32(1);
+  if (used > plain.length - BATCH_HEAD_BYTES) throw new RangeError('A batch claims more bytes than it holds');
+  const bytes = plain.slice(BATCH_HEAD_BYTES, BATCH_HEAD_BYTES + used);
+  return { first: (flags & FIRST) !== 0, last: (flags & LAST) !== 0, bytes };
+}
+
+/** A change set joined from its pieces' bytes, in order. */
+export function joinPieces(pieces: readonly Uint8Array[]): Uint8Array {
+  const set = new Uint8Array(pieces.reduce((total, part) => total + part.length, 0));
+  let offset = 0;
+  for (const part of pieces) {
+    set.set(part, offset);
+    offset += part.length;
+  }
+  return set;
+}
+
 /**
  * Opens batches in order and joins their pieces back into change sets. The
  * list begins at a change set's first piece. It fails if any batch was
@@ -107,24 +138,13 @@ export async function openBatches(
       throw new RangeError('Batches are opened in order, with none missing');
     }
     previous = batch.number;
-    const plain = await cipher.open(batch.bytes, batchAdditional(stream, batch.number));
-    if (plain.length < BATCH_HEAD_BYTES) throw new RangeError('A batch is shorter than its head');
-    const view = new DataView(plain.buffer, plain.byteOffset, plain.byteLength);
-    const flags = view.getUint8(0);
-    if (flags > (FIRST | LAST)) throw new RangeError('A batch carries flags no batch has');
-    if ((flags & FIRST) !== 0 ? pending.length > 0 : pending.length === 0) {
+    const piece = await openPiece(cipher, stream, batch);
+    if (piece.first ? pending.length > 0 : pending.length === 0) {
       throw new RangeError('A change set is missing its start');
     }
-    const used = view.getUint32(1);
-    if (used > plain.length - BATCH_HEAD_BYTES) throw new RangeError('A batch claims more bytes than it holds');
-    pending.push(plain.slice(BATCH_HEAD_BYTES, BATCH_HEAD_BYTES + used));
-    if ((flags & LAST) !== 0) {
-      const set = new Uint8Array(pending.reduce((total, part) => total + part.length, 0));
-      let offset = 0;
-      for (const part of pending) {
-        set.set(part, offset);
-        offset += part.length;
-      }
+    pending.push(piece.bytes);
+    if (piece.last) {
+      const set = joinPieces(pending);
       if (set.length > 0) sets.push(set);
       pending = [];
     }
