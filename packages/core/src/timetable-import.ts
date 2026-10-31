@@ -145,7 +145,7 @@ function sameTime(one: ImportedSession, other: ImportedSession): boolean {
 }
 
 /** Whether two rows are one session taught to several classes together: one teacher, subject, time, week and room. */
-function together(one: ImportedSession, other: ImportedSession): boolean {
+export function jointRows(one: ImportedSession, other: ImportedSession): boolean {
   const rooms = one.room === '' || other.room === '' || key(one.room) === key(other.room);
   const same = (field: 'teacher' | 'subject') => key(one[field]) === key(other[field]);
   const time = one.day === other.day && one.start === other.start && one.end === other.end && one.week === other.week;
@@ -169,9 +169,9 @@ export function clashesOf(before: readonly ImportedSession[], session: ImportedS
     groupWithin(one.group, session.group) ||
     groupWithin(session.group, one.group);
   return [
-    ...first('teacher', (one) => key(one.teacher) === key(session.teacher) && !together(one, session)),
+    ...first('teacher', (one) => key(one.teacher) === key(session.teacher) && !jointRows(one, session)),
     ...first('class', (one) => key(one.class) === key(session.class) && groups(one)),
-    ...first('room', (one) => session.room !== '' && key(one.room) === key(session.room) && !together(one, session)),
+    ...first('room', (one) => session.room !== '' && key(one.room) === key(session.room) && !jointRows(one, session)),
   ];
 }
 
@@ -286,7 +286,7 @@ export function checkSessions<P extends { readonly row: number; readonly kind: s
       problems.push(...clashes);
       continue;
     }
-    const partner = sessions.find((one) => together(one, session));
+    const partner = sessions.find((one) => jointRows(one, session));
     if (partner !== undefined) joined.push({ row: session.row, with: partner.row });
     sessions.push(session);
   }
