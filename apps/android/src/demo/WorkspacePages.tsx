@@ -6,16 +6,18 @@
 // dashboard on the seeded school (#569), the codes page that issues joining
 // codes and security keys (#570), the keys page that maps who holds the school
 // key (#571), the records page that reads the classes' signed weeks with the
-// school key (#585, SchoolRecords.tsx), the director's and the preparer's
+// school key (#585, SchoolRecords.tsx), the director's cover page for the
+// world's date (#586, SchoolCover.tsx), the director's and the preparer's
 // timetable page (#576, #577, #578), kept for the world it was read in, and
 // their own log (#573); any other page has none, and the preparer never opens
-// the records.
+// the records or the cover.
 
-import type { Day, DemoSchool, TrialTerm } from '@minhajna/core';
+import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import { DirectorDashboard } from '../director/DirectorDashboard';
 import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
+import { SchoolCover } from '../director/SchoolCover';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import type { ReferenceResult } from '../reference';
@@ -35,6 +37,8 @@ export type WorkspacePagesProps = {
   readonly dayText: (day: Day) => string;
   /** The trial term's end in the world's year, which the dashboard reads. */
   readonly trial: TrialTerm | null;
+  /** The world's school year, whose terms the cover log counts in. */
+  readonly year: SchoolYear;
   /** The timetable the director or preparer read last, kept for the world it was read in. */
   readonly timetable: { readonly world: string; readonly read: TimetableRead } | null;
   readonly onTimetable: (read: TimetableRead | null) => void;
@@ -46,7 +50,7 @@ export function workspacePage(
   page: WorldPage,
   props: WorkspacePagesProps,
 ): ReactElement | null {
-  const { open, school, reference, kit, send, dayText, trial, timetable, onTimetable } = props;
+  const { open, school, reference, kit, send, dayText, trial, year, timetable, onTimetable } = props;
   if (workspace === 'director' && page === 'dashboard')
     return (
       <DirectorDashboard
@@ -91,5 +95,7 @@ export function workspacePage(
         workingDays={reference.profile.workingDays}
       />
     );
+  if (workspace === 'director' && page === 'cover')
+    return <SchoolCover world={open} school={school} year={year} kit={kit} send={send} dayText={dayText} />;
   return null;
 }
