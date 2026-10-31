@@ -6,7 +6,8 @@
 // sha256sum's lines reproduce; the version in the bundle; a page whose
 // security policy loads nothing from elsewhere and runs no inline script;
 // every font alias of the phone app, every drawable as an SVG, a licence
-// notice for every package in the bundle, and among the files the checksum
+// notice for every package in the bundle, the charts' and maps' libraries
+// and their stylesheet among them (#600), and among the files the checksum
 // covers, the version and the release's notes (answer 517), the notes only
 // when written for that version. A warning stops the build as an error
 // does. The browser's own install and offline start are checked by hand
@@ -116,7 +117,8 @@ describe('the web bundle', () => {
     assert.doesNotMatch(policy, /unsafe|http:|\*/u);
     assert.doesNotMatch(html, /(?:src|href)="(?!\.\/)/u);
     assert.doesNotMatch(html, /<script(?![^>]*src=)/u);
-    assert.doesNotMatch(text('fonts.css') + text('page.css'), /url\((?!'\.\/)/u);
+    assert.doesNotMatch(text('fonts.css') + text('page.css') + text('app.css'), /url\((?!'\.\/)/u);
+    assert.match(html, /<link rel="stylesheet" href="\.\/app\.css" \/>/u);
   });
 
   it('has every font alias of the phone app, and every drawable', () => {
@@ -138,7 +140,16 @@ describe('the web bundle', () => {
     };
     assert.equal(version, first.version);
     const names = notices.map((notice) => notice.name);
-    for (const name of ['data', 'fonts', 'react 19.3.1', 'react-dom 19.3.1', 'react-native-web 0.21.4'])
+    for (const name of [
+      'data',
+      'fonts',
+      'react 19.3.1',
+      'react-dom 19.3.1',
+      'react-native-web 0.21.4',
+      'echarts 6.1.0',
+      'zrender 6.1.0',
+      '@xyflow/react 12.12.0',
+    ])
       assert.ok(names.includes(name), name);
     for (const notice of notices.slice(2)) assert.ok(notice.text.startsWith(`${notice.name}\n\n`), notice.name);
     assert.match(
