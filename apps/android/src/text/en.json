@@ -4205,7 +4205,59 @@
         "join": "Join",
         "notNow": "Not now",
         "note": "This choice is for the trial alone and goes at the national launch: from then on every teacher joins, and “Not now” is no more."
+      },
+      "rejoin": {
+        "open": "A new phone after losing the last one?",
+        "title": "A new phone",
+        "lead": "The last phone was lost, but not the class: the school’s copy stays, and the school gave a new code for one scan.",
+        "scan": "Scan the new code",
+        "removed": "The school removes the lost phone from its key: it receives nothing new, and what it holds stays locked and encrypted.",
+        "binds": "No password, and no reset through the director: the code binds this phone’s key to the official assignment.",
+        "pc": {
+          "open": "A new device after losing the last one?",
+          "title": "A new device",
+          "scan": "Read the new code",
+          "binds": "No password, and no reset through the director: the code binds this device’s key to the official assignment.",
+          "lead": "The last device was lost, but not the class: the school’s copy stays, and the school gave a new code to paste once.",
+          "removed": "The school removes the lost device from its key: it receives nothing new, and what it holds stays locked and encrypted."
+        }
       }
+    },
+    "devices": {
+      "open": "Devices and copies",
+      "title": "Devices and copies",
+      "moved": "On joining, your devices’ sync moves to the Ministry’s server, and the project’s account closes",
+      "since": "Since you joined the school’s space, {{date}}, with your agreement. Neither the Ministry’s server nor its staff read any of it.",
+      "joinedStep": "Joining the school’s space",
+      "joinedLine": "{{date}}, with your agreement",
+      "movedStep": "This phone moves everything to the Ministry’s server",
+      "movedLine": "Encrypted as it is, then checks it all arrived",
+      "closedStep": "The project’s account closes",
+      "closedLine": "Its encrypted data is erased within 10 days",
+      "demo": "The steps below are the national system’s. In this demo, your devices’ sync does not move and nothing closes.",
+      "what": "What moves",
+      "what1": "Every year, encrypted as it is, never decrypted",
+      "what2": "Private notes and reasons: on your devices alone, never in the school’s space",
+      "what3": "The list of my devices, each with its key",
+      "lost": "Nothing is lost",
+      "lost1": "The project’s account closes only once everything has arrived and been checked",
+      "lost2": "And the app works offline as before",
+      "keys": "The keys stay on your devices",
+      "keys1": "The Ministry’s server holds no key, just as the project’s server held none",
+      "keys2": "The recovery sheet stays valid, as the keys do not change",
+      "keys3": "No sign-in name after the move: your devices are known by their keys and your assignment",
+      "sync": "Sync between my devices · on the Ministry’s server · free for teachers",
+      "this": "This phone",
+      "ownKey": "With its own key",
+      "space": "The school’s space",
+      "spaceLine": "What enters it, and what never does",
+      "pc": {
+        "movedStep": "This device moves everything to the Ministry’s server",
+        "this": "This device"
+      },
+      "school": "School ID {{school}}",
+      "step": "Step {{number}}",
+      "stepDone": "Step 1, done"
     }
   },
   "chart": {

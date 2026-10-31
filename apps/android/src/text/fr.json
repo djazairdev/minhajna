@@ -4273,7 +4273,59 @@
         "join": "Rejoindre",
         "notNow": "Pas maintenant",
         "note": "Ce choix vaut pour l’essai seul et disparaît au lancement national : dès le lancement, chaque enseignant rejoint l’espace, et « Pas maintenant » n’existe plus."
+      },
+      "rejoin": {
+        "open": "Un nouveau téléphone après une perte ?",
+        "title": "Un nouveau téléphone",
+        "lead": "L’ancien téléphone est perdu, mais pas la classe : la copie de l’établissement reste, et l’établissement a remis un nouveau code à scanner une fois.",
+        "scan": "Scanner le nouveau code",
+        "removed": "L’établissement retire le téléphone perdu de sa clé : il ne reçoit plus rien de nouveau, et ce qu’il contient reste verrouillé et chiffré.",
+        "binds": "Pas de mot de passe, ni de réinitialisation par le directeur : le code lie la clé de ce téléphone à l’affectation officielle.",
+        "pc": {
+          "open": "Un nouvel appareil après une perte ?",
+          "title": "Un nouvel appareil",
+          "scan": "Lire le nouveau code",
+          "binds": "Pas de mot de passe, ni de réinitialisation par le directeur : le code lie la clé de cet appareil à l’affectation officielle.",
+          "lead": "L’ancien appareil est perdu, mais pas la classe : la copie de l’établissement reste, et l’établissement a remis un nouveau code à coller une fois.",
+          "removed": "L’établissement retire l’appareil perdu de sa clé : il ne reçoit plus rien de nouveau, et ce qu’il contient reste verrouillé et chiffré."
+        }
       }
+    },
+    "devices": {
+      "open": "Appareils et copies",
+      "title": "Appareils et copies",
+      "moved": "À l’adhésion, la synchronisation de vos appareils passe au serveur du ministère, et le compte du projet est fermé",
+      "since": "Depuis votre adhésion à l’espace de l’établissement, {{date}}, avec votre accord. Ni le serveur du ministère ni son personnel n’en lisent rien.",
+      "joinedStep": "Adhésion à l’espace de l’établissement",
+      "joinedLine": "{{date}}, avec votre accord",
+      "movedStep": "Ce téléphone transfère tout au serveur du ministère",
+      "movedLine": "Chiffré tel quel, puis vérifie que tout est arrivé",
+      "closedStep": "Le compte du projet est fermé",
+      "closedLine": "Ses données chiffrées sont effacées sous 10 jours",
+      "demo": "Les étapes ci-dessous sont celles du système national. Dans cette démonstration, la synchronisation de vos appareils ne change pas et rien n’est fermé.",
+      "what": "Ce qui passe",
+      "what1": "Toutes les années, chiffrées telles quelles, sans être déchiffrées",
+      "what2": "Les notes privées et les raisons : sur vos appareils seuls, jamais dans l’espace de l’établissement",
+      "what3": "La liste de mes appareils, chacun avec sa clé",
+      "lost": "Rien ne se perd",
+      "lost1": "Le compte du projet n’est fermé qu’une fois tout arrivé et vérifié",
+      "lost2": "Et l’application marche sans réseau comme avant",
+      "keys": "Les clés restent sur vos appareils",
+      "keys1": "Le serveur du ministère n’a aucune clé, pas plus que celui du projet",
+      "keys2": "La feuille de récupération reste valable, car les clés ne changent pas",
+      "keys3": "Aucun identifiant après le passage : vos appareils sont reconnus par leurs clés et votre affectation",
+      "sync": "Synchronisation entre mes appareils · sur le serveur du ministère · gratuite pour les enseignants",
+      "this": "Ce téléphone",
+      "ownKey": "Avec sa propre clé",
+      "space": "L’espace de l’établissement",
+      "spaceLine": "Ce qui y entre, et ce qui n’y entre jamais",
+      "pc": {
+        "movedStep": "Cet appareil transfère tout au serveur du ministère",
+        "this": "Cet appareil"
+      },
+      "school": "Identifiant de l’établissement {{school}}",
+      "step": "Étape {{number}}",
+      "stepDone": "Étape 1, faite"
     }
   },
   "chart": {

@@ -18,7 +18,8 @@
 // E_JOIN_WORLD for a code of another world, E_JOIN_TAKEN when another device
 // joined on it first, world-session.ts's E_WORLD_SERVER, E_WORLD_BUSY and
 // E_WORLD_KIT, the network's own (world-network.ts), and the store's when it
-// cannot keep the key, or E_WORLD when it kept none.
+// cannot keep the key, or E_WORLD when it kept none; problemOf gives each
+// code's words in the catalogue.
 
 import {
   certificateRequest,
@@ -36,6 +37,7 @@ import {
   type SchoolJoined,
   type SealedBatch,
 } from '@minhajna/core';
+import { errorCode } from '../lock/lock-rules';
 import { worldRequest } from '../network/world-network';
 import type { OpenWorld } from '../demo/world-mode';
 import { failed, kitStep, unexpected, type Send, type WorldKit } from '../demo/world-session';
@@ -175,4 +177,25 @@ async function joinOnce(
     if (answer.status !== 201 && answer.status !== 409) throw unexpected(answer);
   }
   throw failed('The joined record did not stay on the channel', 'E_WORLD_SERVER');
+}
+
+const PROBLEMS = {
+  E_JOIN_CODE: 'demo.school.problem.code',
+  E_JOIN_WORLD: 'demo.school.problem.world',
+  E_JOIN_TAKEN: 'demo.school.problem.taken',
+  E_CALENDAR_CAMERA: 'demo.school.problem.camera',
+  E_WORLD_BUSY: 'demo.problem.busy',
+  E_OFFLINE: 'demo.problem.offline',
+  E_TIMEOUT: 'demo.problem.offline',
+  E_WORLD_KIT: 'demo.problem.device',
+  E_WORLD: 'demo.problem.store',
+  E_KEY_LOST: 'demo.problem.store',
+} as const;
+
+/** The catalogue's words for an error's code. */
+export function problemOf(error: unknown): (typeof PROBLEMS)[keyof typeof PROBLEMS] | 'demo.problem.other' {
+  const code = errorCode(error);
+  return code !== undefined && Object.hasOwn(PROBLEMS, code)
+    ? PROBLEMS[code as keyof typeof PROBLEMS]
+    : 'demo.problem.other';
 }
