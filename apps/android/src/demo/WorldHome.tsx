@@ -59,10 +59,13 @@ export type WorldHomeProps = {
   readonly onLeave: () => void;
   /** Opens reader mode inside the world, for the teacher and the inspector (#563); none when absent. */
   readonly onReader?: () => void;
+  /** Opens School-join, for the teacher of a national world (#564); none when absent. */
+  readonly onSchool?: () => void;
 };
 
 /** The roles of an entered world, then its home. */
-export function WorldHome({ world, date, role, moving, problem, onRole, onMove, onLeave, onReader }: WorldHomeProps) {
+export function WorldHome(props: WorldHomeProps) {
+  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -177,6 +180,9 @@ export function WorldHome({ world, date, role, moving, problem, onRole, onMove, 
                 {heading}
               </Text>
               <Text style={[styles.line, align]}>{t('demo.home.roleNext')}</Text>
+              {role === 'teacher' && onSchool !== undefined && (
+                <Button testID="world-school-open" variant="line" label={t('demo.home.school')} onPress={onSchool} />
+              )}
               {onReader !== undefined && (
                 <Button testID="world-reader-open" variant="line" label={t('demo.home.reader')} onPress={onReader} />
               )}

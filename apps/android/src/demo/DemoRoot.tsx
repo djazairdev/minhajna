@@ -14,7 +14,8 @@
 // being entered, and from a role to the roles; on the roles it does nothing,
 // so a world is left only by its own button. The teacher and the inspector
 // open reader mode inside the world from its home (#563), where reader mode's
-// own back button leads back, and Android's back is reader mode's alone.
+// own back button leads back, and Android's back is reader mode's alone; the
+// teacher of a national world opens School-join the same way (#564).
 
 import { readWorldCode, type CountryProfile, type SchoolCalendar, type WorldKind } from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -30,6 +31,7 @@ import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } fr
 import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from './world-session';
 import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
+import { SchoolJoin } from '../school/SchoolJoin';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -84,6 +86,7 @@ export function DemoRoot({
   const [open, setOpen] = useState<OpenWorld | null>(null);
   const [role, setRole] = useState<WorldRole | null>(null);
   const [reading, setReading] = useState(false);
+  const [joining, setJoining] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ProblemKey | null>(null);
   const working = useRef(false);
@@ -134,23 +137,35 @@ export function DemoRoot({
       setOpen(null);
       setRole(null);
       setReading(false);
+      setJoining(false);
       onLeft();
     });
 
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (reading) return false;
+      if (reading || joining) return false;
       if (open === null && !working.current) onBack();
       if (open !== null) setRole(null);
       return true;
     });
     return () => handler.remove();
-  }, [open, onBack, reading]);
+  }, [open, onBack, reading, joining]);
 
   const shown = problem === null ? null : t(problem);
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
   const date = worldDate(t, open.date, currentLanguage(), profile);
+  if (joining && open.kind === 'national')
+    return (
+      <SchoolJoin
+        world={open}
+        date={date}
+        dayText={(day) => worldDate(t, day, currentLanguage(), profile)}
+        kit={kit}
+        send={send}
+        onClose={() => setJoining(false)}
+      />
+    );
   if (reading && reference !== undefined)
     return (
       <WorldReader
@@ -170,6 +185,7 @@ export function DemoRoot({
       problem={shown}
       onRole={setRole}
       onReader={reference === undefined ? undefined : () => setReading(true)}
+      onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
       onMove={move}
       onLeave={leave}
     />

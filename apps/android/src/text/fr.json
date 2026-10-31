@@ -4172,7 +4172,8 @@
       "move": "Passer au jour annoncé suivant",
       "moveLine": "Seul cet appareil, qui a démarré le monde, en déplace la date.",
       "changeRole": "Changer de rôle",
-      "leave": "Quitter le monde"
+      "leave": "Quitter le monde",
+      "school": "Espace de l’établissement"
     },
     "shell": {
       "name": "Démo nationale",
@@ -4214,6 +4215,54 @@
       "payload": "Les données telles que l’enseignant les voit",
       "world": "Ce monde",
       "empty": "Rien sur cette page dans ce monde pour l’instant."
+    },
+    "school": {
+      "title": "Espace de l’établissement",
+      "notice": "Ceci est un avis avant de commencer. Dans le système national, la semaine signée est le registre officiel : cahier de textes, journal de classe, appel et notes.",
+      "enters": "Ce qui entre dans l’espace de l’établissement",
+      "in1": "L’état de confirmation de chaque séance, tel qu’il arrive à la synchronisation",
+      "in2": "Les semaines signées : cahier de textes, journal de classe, appel et notes, avec leurs corrections",
+      "in3": "L’emploi du temps, les remplacements et les passations",
+      "in4": "Le journal des consultations de chaque enseignant, que l’enseignant voit",
+      "in5": "Les seuils des examens de l’établissement : le seuil, les signatures des concepteurs et les chiffres sur lesquels il repose",
+      "never": "Ce qui n’y entre jamais",
+      "out1": "Les notes privées, et les raisons pour lesquelles une séance n’a pas eu lieu",
+      "out2": "Le travail avant la signature de la semaine, et le jour où chaque séance a été confirmée",
+      "out3": "Les heures, les connexions et la position",
+      "out4": "Toute note ou tout classement de l’enseignant",
+      "kept": "Garanti",
+      "read1": "Seuls l’enseignant et l’établissement le lisent, et l’inspecteur avec une autorisation de consultation. Ni ceux qui font tourner les serveurs ni le personnel du ministère ne le lisent.",
+      "read2": "Le directeur vise la semaine signée ou la commente, sans la modifier.",
+      "read3": "L’inspecteur consulte le seul registre des séances, sur autorisation de l’autorité et non du directeur, pour une durée fixée, et l’enseignant le voit.",
+      "read4": "Qui quitte l’établissement emporte une copie complète du registre de ses séances.",
+      "read5": "Aucun téléphone personnel n’est exigé : le PC de l’établissement avec le téléphone ou une clé de sécurité remise par l’établissement, et le papier reste possible.",
+      "signIn": "Dans le système national, la connexion se fait par empreinte ou par code, et n’est jamais enregistrée. Dans cette démonstration, la clé de signature reste dans le seul stockage de ce monde.",
+      "codeTitle": "Un code issu de la liste officielle des affectations",
+      "codeLine": "L’établissement le remet à chaque enseignant. Il se scanne une fois, sans mot de passe ni compte.",
+      "scan": "Scanner le code de l’établissement",
+      "scanHint": "Pointez la caméra vers le code d’adhésion remis par l’établissement.",
+      "law": "Chaque enseignant reçoit cet avis en arabe avant de commencer (loi 18-07, article 32).",
+      "confirmTitle": "Rejoindre l’espace de l’établissement",
+      "confirmLine": "Identifiant de l’établissement {{school}}. Si vous acceptez, une clé de signature est créée sur cet appareil, certifiée par l’autorité de certification de substitution de ce monde, et l’établissement reçoit la preuve de l’adhésion.",
+      "agree": "J’accepte et je rejoins",
+      "cancel": "Annuler",
+      "joining": "Adhésion en cours…",
+      "checking": "Vérification de l’adhésion…",
+      "joined": "Vous avez rejoint l’espace de l’établissement",
+      "joinedLine": "Adhésion le {{date}} · identifiant de l’établissement {{school}} · clé certifiée par une autorité de substitution, non par l’État",
+      "problem": {
+        "code": "Ce n’est pas un code d’adhésion de la liste des affectations.",
+        "world": "Ce code est celui d’un autre monde de démonstration.",
+        "taken": "Un autre appareil a rejoint avec ce code en premier. Demandez un nouveau code à l’établissement.",
+        "camera": "La caméra ne s’est pas ouverte. Autorisez-la dans les réglages du téléphone, puis réessayez.",
+        "scan": "Le code n’a pas été lu. Réessayez."
+      },
+      "pc": {
+        "scan": "Lire le code",
+        "codeLine": "L’établissement le remet à chaque enseignant. Sur un PC, son texte se colle ici une fois, sans mot de passe ni compte."
+      },
+      "paste": "Texte du code d’adhésion",
+      "pastePlaceholder": "minhajna-join:1:…"
     }
   }
 }
