@@ -2,24 +2,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The classes handed over to the teacher as a substitute, under the band,
-// opened from a joined school's card (#587, Handover-school, §7.5, R-7.5-07,
-// R-6.5-02, answer 615). As it opens it reads the teacher's channel
-// (handover-session.ts): no handover says so; each says in whose place, by
-// which decision and from which day, each class with its last signed week, from
-// its first day to its last working day, or none, and when it has not all
-// arrived, that the school sends it again; that the plan position, progress and
-// pacing come with a plan pack, that a world has no pupil list or roll call,
-// that the classes are in the timetable from the first day, and that access
-// stops when the holder returns while what was taught stays. Adding the classes
-// to the teacher's own signs a receipt, offered once every class arrived whole,
-// says so as soon as it is there, on the page too, even when reading again
-// fails, and then the day it was signed is shown. Below, what never arrives:
-// the holder's private notes, the reasons sessions were not held, and the
-// holder's work before the week is signed. A problem is said in the page's
-// words or the catalogue's, with a way to read again, and a second press while
-// one runs does nothing; what is said goes, on a PC, to the hidden live region,
-// which follows School-join's words, the page's title, until the page says
-// something, and elsewhere it is announced. Going back leads to School-join.
+// opened from a joined school's card (#587, #588, Handover-school,
+// Handover-end-sub, §7.5, R-7.5-07, R-6.5-02, answers 615 and 616). As it opens
+// it reads the teacher's channel (handover-session.ts): no handover says so;
+// each shows as HandoverCard.tsx draws it, while it lasts or once the holder
+// returned. Adding the classes to the teacher's own signs a receipt, offered
+// once every class arrived whole while the appointment lasts, says so as soon
+// as it is there, on the page too, even when reading again fails, and then the
+// day it was signed is shown. Below, what never arrives: the holder's private
+// notes, the reasons sessions were not held, and the holder's work before the
+// week is signed. A problem is said in the page's words or the catalogue's,
+// with a way to read again, and a second press while one runs does nothing;
+// what is said goes, on a PC, to the hidden live region, which follows
+// School-join's words, the page's title, until the page says something, and
+// elsewhere it is announced. Going back leads to School-join.
 
 import { readJoinCode, type Day, type ReadHandover, type SchoolJoined, type Weekday } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -33,9 +29,8 @@ import type { Send, WorldKit } from '../demo/world-session';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import { onPc, useDeviceText } from '../text/device-text';
-import { isolate } from '../week/grid-labels';
-import { weekEnd } from '../week/week-sign-session';
-import { arrivedWhole, handedClasses, readHandovers, receiveHandover } from './handover-session';
+import { HandoverCard } from './HandoverCard';
+import { readHandovers, receiveHandover } from './handover-session';
 import { problemOf } from './school-join-session';
 import { shortSchool } from './SchoolJoined';
 
@@ -176,56 +171,16 @@ export function HandoverSchool(props: HandoverSchoolProps) {
             </View>
           )}
           {handovers?.length === 0 && <Text style={[styles.body, align]}>{t('demo.handover.none')}</Text>}
-          {handovers?.map((one) => {
-            const { appointment, holder, decision, from } = one.signed.value;
-            const whole = arrivedWhole(one);
-            return (
-              <View key={appointment} testID="handover-card" style={styles.card}>
-                <Text accessibilityRole="header" style={[styles.head, align]}>
-                  {t('demo.handover.line', {
-                    holder: isolate(holder),
-                    decision: isolate(decision),
-                    from: dayText(from),
-                  })}
-                </Text>
-                {handedClasses(one).map((each) => (
-                  <View key={each.name} testID="handover-class" style={styles.row}>
-                    <Text style={[styles.body, align]}>
-                      {each.last === null
-                        ? t('demo.handover.noWeek', { class: isolate(each.name) })
-                        : t('demo.handover.lastWeek', {
-                            class: isolate(each.name),
-                            from: dayText(each.last),
-                            to: dayText(weekEnd(each.last, workingDays)),
-                          })}
-                    </Text>
-                    {!each.whole && <Text style={[styles.small, align]}>{t('demo.handover.partial')}</Text>}
-                  </View>
-                ))}
-                <Text style={[styles.small, align]}>{t('demo.handover.plan')}</Text>
-                <Text style={[styles.small, align]}>{t('demo.handover.pupils')}</Text>
-                <Text style={[styles.small, align]}>{t('demo.handover.timetable', { day: dayText(from) })}</Text>
-                <Text style={[styles.small, align]}>{t('demo.handover.ends')}</Text>
-                {one.received !== null ? (
-                  <Text testID="handover-added" style={[styles.body, align]}>
-                    {t('demo.handover.added', { day: dayText(one.received) })}
-                  </Text>
-                ) : (
-                  <>
-                    <Text style={[styles.small, align]}>
-                      {t(whole ? 'demo.handover.addLead' : 'demo.handover.waitWhole')}
-                    </Text>
-                    <Button
-                      testID="handover-add"
-                      label={t('demo.handover.add')}
-                      disabled={!whole || busy}
-                      onPress={() => receive(appointment)}
-                    />
-                  </>
-                )}
-              </View>
-            );
-          })}
+          {handovers?.map((one) => (
+            <HandoverCard
+              key={one.signed.value.appointment}
+              one={one}
+              dayText={dayText}
+              workingDays={workingDays}
+              busy={busy}
+              onReceive={() => receive(one.signed.value.appointment)}
+            />
+          ))}
           <View style={styles.card}>
             <Text accessibilityRole="header" style={[styles.head, align]}>
               {t('demo.handover.never')}
@@ -262,7 +217,6 @@ const styles = StyleSheet.create({
     padding: spacing['space-16'],
     gap: spacing['space-8'],
   },
-  row: { gap: spacing['space-2'] },
   head: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink },
   small: { ...typography.small, color: colors.ink2 },

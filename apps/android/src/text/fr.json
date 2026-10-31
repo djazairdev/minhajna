@@ -5202,6 +5202,44 @@
         "notes": "Les notes privées de la personne titulaire",
         "reasons": "Les motifs des séances non tenues",
         "before": "Le travail de la personne titulaire avant la signature de la semaine"
+      },
+      "ended": "La nomination a pris fin le {{day}}, au retour de la personne titulaire.",
+      "stops": "Ce qui s’arrête",
+      "stop": {
+        "nothing": "Plus rien de ces classes n’arrive ; elles quittent votre emploi du temps dès ce jour, et avec lui Mes classes et le résumé de la semaine.",
+        "keys": "Hors d’un monde, les clés de ces classes quittent ce téléphone, avec leurs listes, l’appel et les notes ; elles restent dans l’espace de l’établissement et chez la personne titulaire."
+      },
+      "stays": "Ce qui vous reste",
+      "stay": {
+        "record": "Votre relevé complet des séances de la suppléance ; hors d’un monde, il s’exporte avec le reste de vos relevés.",
+        "notes": "Les notes privées : sur vos appareils seuls, sans jamais parvenir à la personne titulaire."
+      },
+      "reached": "Ce qui est parvenu à la personne titulaire",
+      "reachedLine": "Les semaines que vous avez signées pour chaque classe pendant la suppléance, telles que signées. Une semaine non signée reste sur ce téléphone."
+    },
+    "return": {
+      "open": "Retour des classes",
+      "title": "Retour des classes",
+      "lead": "Les classes qui vous reviennent dans l’espace de l’établissement à la fin d’une suppléance.",
+      "reading": "Lecture de votre canal…",
+      "none": "Aucune classe ne vous est revenue.",
+      "head": "Retour de {{classes}} dès le {{day}}",
+      "line": "La nomination de {{substitute}} en suppléance (décision {{decision}}) a pris fin à votre retour, comme l’établissement l’a consignée.",
+      "weeks": "{{class}} : semaines signées pendant la suppléance, du {{from}} au {{to}} · {{weeks}}, signées par {{substitute}}",
+      "noWeeks": "{{class}} : aucune semaine signée pendant la suppléance",
+      "weekCount_one": "{{count}} semaine",
+      "weekCount_many": "{{count}} de semaines",
+      "weekCount_other": "{{count}} semaines",
+      "partial": "{{class}} : pas encore revenue en entier ; l’établissement l’envoie de nouveau.",
+      "asSigned": "Ces semaines se lisent telles qu’elles ont été signées et ne changent pas ; rien n’y est écrit depuis ce téléphone.",
+      "plan": "La position atteinte par la classe, le rythme et la ressource suivante viennent avec un pack de plan ; un monde n’en a pas.",
+      "pupils": "Un monde n’a ni liste de la classe, ni appel, ni notes ; hors d’un monde, ils viennent du système du secteur.",
+      "timetable": "Ces classes sont de nouveau dans votre emploi du temps dès le {{day}}.",
+      "never": "Ce qui n’arrive jamais",
+      "nevers": {
+        "notes": "Les notes privées de {{name}}",
+        "reasons": "Les motifs des séances non tenues",
+        "before": "Le travail de {{name}} avant la signature de chaque semaine"
       }
     }
   },

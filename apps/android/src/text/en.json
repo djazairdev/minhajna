@@ -5131,6 +5131,43 @@
         "notes": "The holder’s private notes",
         "reasons": "The reasons sessions were not held",
         "before": "The holder’s work before the week is signed"
+      },
+      "ended": "The appointment ended on {{day}}, with the holder’s return.",
+      "stops": "What stops",
+      "stop": {
+        "nothing": "Nothing new of these classes arrives; they leave your timetable from that day, and with it My classes and the weekly digest.",
+        "keys": "Outside a world, these classes’ keys leave this phone, with their pupil lists, roll call and marks; they stay in the school’s space and with the holder."
+      },
+      "stays": "What stays with you",
+      "stay": {
+        "record": "Your whole record of sessions in the substitution; outside a world it exports with the rest of your records.",
+        "notes": "Private notes: on your devices alone, never reaching the holder."
+      },
+      "reached": "What reached the holder",
+      "reachedLine": "The weeks you signed for each class in the substitution, as signed. A week left unsigned stays on this phone."
+    },
+    "return": {
+      "open": "Classes back",
+      "title": "Classes back",
+      "lead": "The classes that came back to you in the school’s space when a substitution ended.",
+      "reading": "Reading your channel…",
+      "none": "No class has come back to you.",
+      "head": "{{classes}} came back to you from {{day}}",
+      "line": "The appointment of {{substitute}} as substitute (decision {{decision}}) ended with your return, as the school recorded it.",
+      "weeks": "{{class}}: weeks signed during the substitution, {{from}} to {{to}} · {{weeks}}, signed by {{substitute}}",
+      "noWeeks": "{{class}}: no week signed during the substitution",
+      "weekCount_one": "{{count}} week",
+      "weekCount_other": "{{count}} weeks",
+      "partial": "{{class}}: not all of it has come back yet; the school sends it again.",
+      "asSigned": "These weeks read as they were signed and never change; nothing is written into them from this phone.",
+      "plan": "The position the class reached, the pacing and the next resource come with a plan pack; a world has none.",
+      "pupils": "A world has no pupil list, roll call or marks; outside a world they come from the sector’s system.",
+      "timetable": "These classes are in your timetable again from {{day}}.",
+      "never": "What never arrives",
+      "nevers": {
+        "notes": "{{name}}’s private notes",
+        "reasons": "The reasons sessions were not held",
+        "before": "{{name}}’s work before each week is signed"
       }
     }
   },

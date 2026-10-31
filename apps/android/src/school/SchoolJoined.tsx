@@ -8,7 +8,8 @@
 // sign it (WeekSign.tsx, #582), a way to the weekly digest (WeekDigest.tsx,
 // #584) and to the teacher's classes as the director sees them (SchoolMine.tsx,
 // #584), to the classes handed over to the teacher as a substitute
-// (HandoverSchool.tsx, #587), a way to the timetable the school sent
+// (HandoverSchool.tsx, #587) and to those come back at the end of a
+// substitution (ReturnSchool.tsx, #588), a way to the timetable the school sent
 // (TeacherTimetable.tsx, #579), to the teacher's devices and copies once joined
 // (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
 // #567).
@@ -19,6 +20,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
+import type { JoinPage } from './join-view';
 
 /** A school's ID shortened, kept left to right inside a sentence of either direction. */
 export const shortSchool = (school: string) => `\u2066${school.slice(0, 8)}\u2069`;
@@ -26,27 +28,26 @@ export const shortSchool = (school: string) => `\u2066${school.slice(0, 8)}\u206
 export type SchoolJoinedCardsProps = {
   readonly joins: readonly SchoolJoined[];
   readonly dayText: (day: Day) => string;
-  /** Opens the teacher's devices and copies for a join. */
-  readonly onDevices: (join: SchoolJoined) => void;
-  /** Opens what stays and what goes when the teacher leaves the school, when the year's dates read. */
-  readonly onLeave?: (join: SchoolJoined) => void;
-  /** Opens who reads what in the national system, and by which key. */
-  readonly onHelp: (join: SchoolJoined) => void;
-  /** Opens the timetable the school sent on the code's channel. */
-  readonly onTimetable: (join: SchoolJoined) => void;
-  /** Opens each class's week to sign. */
-  readonly onWeek: (join: SchoolJoined) => void;
-  /** Opens the weekly digest. */
-  readonly onDigest: (join: SchoolJoined) => void;
-  /** Opens the teacher's classes as the director sees them. */
-  readonly onMine: (join: SchoolJoined) => void;
-  /** Opens the classes handed over to the teacher as a substitute. */
-  readonly onHandover: (join: SchoolJoined) => void;
+  /** Opens a joined card's page for a join. */
+  readonly onOpen: (page: JoinPage) => (join: SchoolJoined) => void;
+  /** Whether the year's dates read, so what stays and goes on leaving can open. */
+  readonly canLeave: boolean;
 };
 
+/** The card's ways to its pages, in order: the page, its button's words and its test ID, the first filled. */
+const WAYS = [
+  ['week', 'demo.weekSign.open', 'school-week'],
+  ['digest', 'demo.digest.open', 'school-digest'],
+  ['mine', 'demo.mine.open', 'school-mine'],
+  ['handover', 'demo.handover.open', 'school-handover'],
+  ['return', 'demo.return.open', 'school-return'],
+  ['timetable', 'demo.timetable.open', 'school-timetable'],
+  ['devices', 'demo.devices.open', 'school-devices'],
+  ['help', 'demo.help.open', 'school-help'],
+] as const satisfies readonly (readonly [JoinPage, string, string])[];
+
 /** A card for each code that joined the school's space. */
-export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
-  const { joins, dayText, onDevices, onLeave, onHelp, onTimetable, onWeek, onDigest, onMine, onHandover } = props;
+export function SchoolJoinedCards({ joins, dayText, onOpen, canLeave }: SchoolJoinedCardsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -62,25 +63,22 @@ export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
         })}
       </Text>
       <Text style={[styles.small, align]}>{t('demo.weekSign.reminder')}</Text>
-      <Button testID="school-week" label={t('demo.weekSign.open')} onPress={() => onWeek(join)} />
-      <Button testID="school-digest" variant="line" label={t('demo.digest.open')} onPress={() => onDigest(join)} />
-      <Button testID="school-mine" variant="line" label={t('demo.mine.open')} onPress={() => onMine(join)} />
-      <Button
-        testID="school-handover"
-        variant="line"
-        label={t('demo.handover.open')}
-        onPress={() => onHandover(join)}
-      />
-      <Button
-        testID="school-timetable"
-        variant="line"
-        label={t('demo.timetable.open')}
-        onPress={() => onTimetable(join)}
-      />
-      <Button testID="school-devices" variant="line" label={t('demo.devices.open')} onPress={() => onDevices(join)} />
-      <Button testID="school-help" variant="line" label={t('demo.help.open')} onPress={() => onHelp(join)} />
-      {onLeave !== undefined && (
-        <Button testID="school-leave-open" variant="plain" label={t('demo.leave.open')} onPress={() => onLeave(join)} />
+      {WAYS.map(([page, words, testID], at) => (
+        <Button
+          key={page}
+          testID={testID}
+          {...(at === 0 ? {} : { variant: 'line' as const })}
+          label={t(words)}
+          onPress={() => onOpen(page)(join)}
+        />
+      ))}
+      {canLeave && (
+        <Button
+          testID="school-leave-open"
+          variant="plain"
+          label={t('demo.leave.open')}
+          onPress={() => onOpen('leave')(join)}
+        />
       )}
     </View>
   ));
