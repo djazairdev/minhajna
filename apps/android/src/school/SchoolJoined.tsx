@@ -4,39 +4,43 @@
 // The school's space as joined (#564, #565, answer 582): one card for each
 // code that joined, with the world's date its certificate was given and the
 // school's ID shortened, kept left to right inside a sentence of either
-// direction.
+// direction, and a way to the teacher's devices and copies once joined
+// (DevicesMoved.tsx, #566).
 
 import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../components/Button';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 
 /** A school's ID shortened, kept left to right inside a sentence of either direction. */
 export const shortSchool = (school: string) => `\u2066${school.slice(0, 8)}\u2069`;
 
-/** A card for each code that joined the school's space. */
-export function SchoolJoinedCards({
-  joins,
-  dayText,
-}: {
+export type SchoolJoinedCardsProps = {
   readonly joins: readonly SchoolJoined[];
   readonly dayText: (day: Day) => string;
-}) {
+  /** Opens the teacher's devices and copies for a join. */
+  readonly onDevices: (join: SchoolJoined) => void;
+};
+
+/** A card for each code that joined the school's space. */
+export function SchoolJoinedCards({ joins, dayText, onDevices }: SchoolJoinedCardsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  return joins.map(({ certificate, code }) => (
-    <View key={code} testID="school-joined" style={styles.card}>
+  return joins.map((join) => (
+    <View key={join.code} testID="school-joined" style={styles.card}>
       <Text accessibilityRole="header" style={[styles.head, align]}>
         {t('demo.school.joined')}
       </Text>
       <Text style={[styles.small, align]}>
         {t('demo.school.joinedLine', {
-          date: dayText(certificate.issued),
-          school: shortSchool(readJoinCode(code)?.school ?? ''),
+          date: dayText(join.certificate.issued),
+          school: shortSchool(readJoinCode(join.code)?.school ?? ''),
         })}
       </Text>
+      <Button testID="school-devices" variant="line" label={t('demo.devices.open')} onPress={() => onDevices(join)} />
     </View>
   ));
 }

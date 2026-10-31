@@ -15,7 +15,11 @@
 // is shown; a code another device took first is said only when none joined, any
 // other problem always, in the world's words. Going back, by the button or
 // Android's back, returns to the world's home. The page's title is said as it
-// opens, and that kept keys are being checked, when they are.
+// opens, and that kept keys are being checked, when they are; so is each other
+// page's title as it opens. The law, or the new phone's note, sits at the
+// page's foot. Before any join, a link opens the way for a new phone
+// (Rejoin.tsx, #566), and a joined card opens the teacher's devices and copies
+// (DevicesMoved.tsx); going back from either returns here.
 
 import {
   joiningIsVoluntary,
@@ -37,7 +41,9 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
-import { checkKeptJoins, joinSchool } from './school-join-session';
+import { checkKeptJoins, joinSchool, problemOf } from './school-join-session';
+import { DevicesMoved } from './DevicesMoved';
+import { RejoinBinds, RejoinLead, RejoinRemoved } from './Rejoin';
 import { SchoolCodeCard } from './SchoolCodeCard';
 import { SchoolJoinedCards, shortSchool } from './SchoolJoined';
 import { SchoolLaw, SchoolNotice } from './SchoolNotice';
@@ -47,27 +53,6 @@ type Phase =
   | { readonly kind: 'confirm'; readonly text: string; readonly school: string }
   | { readonly kind: 'joining' }
   | { readonly kind: 'checking' };
-
-const PROBLEMS = {
-  E_JOIN_CODE: 'demo.school.problem.code',
-  E_JOIN_WORLD: 'demo.school.problem.world',
-  E_JOIN_TAKEN: 'demo.school.problem.taken',
-  E_CALENDAR_CAMERA: 'demo.school.problem.camera',
-  E_WORLD_BUSY: 'demo.problem.busy',
-  E_OFFLINE: 'demo.problem.offline',
-  E_TIMEOUT: 'demo.problem.offline',
-  E_WORLD_KIT: 'demo.problem.device',
-  E_WORLD: 'demo.problem.store',
-  E_KEY_LOST: 'demo.problem.store',
-} as const;
-
-/** The catalogue's words for an error's code. */
-function problemOf(error: unknown): (typeof PROBLEMS)[keyof typeof PROBLEMS] | 'demo.problem.other' {
-  const code = errorCode(error);
-  return code !== undefined && Object.hasOwn(PROBLEMS, code)
-    ? PROBLEMS[code as keyof typeof PROBLEMS]
-    : 'demo.problem.other';
-}
 
 /** How long the hidden words stay, in milliseconds, so browsing the page does not read them twice. */
 const SAID_FOR = 5000;
@@ -99,7 +84,15 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: 
   const busy = useRef(false);
   const [joins, setJoins] = useState<readonly SchoolJoined[]>([]);
   const [said, setSaid] = useState('');
-  const title = t('demo.school.title');
+  const [view, setView] = useState<'join' | 'rejoin' | SchoolJoined>('join');
+  const rejoin = view === 'rejoin';
+  const title = t(rejoin ? 'demo.school.rejoin.title' : 'demo.school.title');
+  const page = typeof view === 'object' ? 'devices' : view;
+  const leave = () => {
+    if (view === 'join') return onClose();
+    setProblem(null);
+    setView('join');
+  };
   const voluntary = joiningIsVoluntary(trial, world.date) ? trial : null;
   const say = (words: string) => (onPc() ? setSaid(words) : AccessibilityInfo.announceForAccessibility(words));
 
@@ -111,6 +104,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: 
     joinSchool(world, text, kit, send)
       .then((one) => {
         setJoins((all) => [one, ...all.filter((other) => other.code !== one.code)]);
+        setView('join');
         say(t('demo.school.joined'));
       })
       .catch((error: unknown) => setProblem(t(problemOf(error))))
@@ -146,7 +140,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: 
     });
   });
   useEffect(() => resume(), []);
-  const back = useEffectEvent(onClose);
+  const back = useEffectEvent(leave);
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
       back();
@@ -154,13 +148,14 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: 
     });
     return () => handler.remove();
   }, []);
-  const announce = useEffectEvent(() =>
-    say(phase.kind === 'checking' ? `${title}. ${t('demo.school.checking')}` : title),
-  );
+  const announce = useEffectEvent(() => {
+    if (page === 'devices') say(t('demo.devices.title'));
+    else say(phase.kind === 'checking' ? `${title}. ${t('demo.school.checking')}` : title);
+  });
   useEffect(() => {
     const timer = setTimeout(announce, 0);
     return () => clearTimeout(timer);
-  }, []);
+  }, [page]);
   useEffect(() => {
     if (said === '') return;
     const timer = setTimeout(() => setSaid(''), SAID_FOR);
@@ -203,15 +198,19 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: 
     }
     return (
       <SchoolCodeCard
-        trial={joins.length === 0 ? voluntary : null}
+        trial={joins.length === 0 && !rejoin ? voluntary : null}
         dayText={dayText}
         onRead={read}
         onScan={scan}
         onNotNow={onClose}
+        rejoin={rejoin}
+        onRejoin={joins.length === 0 && !rejoin ? () => setView('rejoin') : undefined}
       />
     );
   })();
 
+  if (typeof view === 'object')
+    return <DevicesMoved date={date} join={view} dayText={dayText} onClose={leave} said={said} />;
   return (
     <View testID="school-join" style={[styles.screen, { direction }]}>
       <DemoBand date={date} />
@@ -226,31 +225,36 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: 
           { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] },
         ]}
       >
-        <Button testID="school-back" variant="plain" label={t('demo.entry.back')} onPress={onClose} />
+        <Button testID="school-back" variant="plain" label={t('demo.entry.back')} onPress={leave} />
         <View style={styles.titles}>
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {title}
           </Text>
-          {voluntary !== null && (
+          {voluntary !== null && !rejoin && (
             <Text style={[styles.small, align]}>{t('demo.school.trial.badge', { year: voluntary.year })}</Text>
           )}
         </View>
       </View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <View style={styles.column}>
-          <SchoolNotice
-            lead={
-              voluntary === null
-                ? undefined
-                : t('demo.school.trial.lead', { date: dayText(world.date), term: voluntary.term })
-            }
-          />
-          <SchoolJoinedCards joins={joins} dayText={dayText} />
+          {rejoin ? (
+            <RejoinLead />
+          ) : (
+            <SchoolNotice
+              lead={
+                voluntary === null
+                  ? undefined
+                  : t('demo.school.trial.lead', { date: dayText(world.date), term: voluntary.term })
+              }
+            />
+          )}
+          <SchoolJoinedCards joins={joins} dayText={dayText} onDevices={setView} />
           {card}
+          {rejoin && <RejoinRemoved />}
           <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
             {problem ?? ''}
           </Text>
-          <SchoolLaw />
+          <View style={styles.foot}>{rejoin ? <RejoinBinds /> : <SchoolLaw />}</View>
         </View>
       </ScrollView>
     </View>
@@ -268,7 +272,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['space-16'],
     alignItems: 'center',
   },
-  column: { width: '100%', maxWidth: 640, gap: spacing['space-16'] },
+  column: { flexGrow: 1, width: '100%', maxWidth: 640, gap: spacing['space-16'] },
+  foot: { marginTop: 'auto' },
   card: {
     borderWidth: 1,
     borderColor: colors.line,

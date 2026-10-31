@@ -8,6 +8,8 @@
 // signs, and that paper stays the official record until the national launch; it
 // offers joining and «Not now», which goes back to the world's home with no
 // question why, and a dashed note under it says the choice goes at the launch.
+// For a new phone after a loss (#566), the button scans the school's new code,
+// and before any join a link opens that way (Rejoin.tsx).
 
 import { useLocale } from '@react-navigation/native';
 import type { Day, TrialTerm } from '@minhajna/core';
@@ -30,10 +32,22 @@ export type SchoolCodeCardProps = {
   readonly onScan: () => void;
   /** «Not now», during the trial: back to the world's home. */
   readonly onNotNow: () => void;
+  /** Whether the code is the school's new one for a new phone. */
+  readonly rejoin?: boolean;
+  /** Opens the way for a new phone, offered before any join. */
+  readonly onRejoin?: () => void;
 };
 
 /** The school's joining code, scanned or pasted, and during the trial the teacher's free choice. */
-export function SchoolCodeCard({ trial, dayText, onRead, onScan, onNotNow }: SchoolCodeCardProps) {
+export function SchoolCodeCard({
+  trial,
+  dayText,
+  onRead,
+  onScan,
+  onNotNow,
+  rejoin = false,
+  onRejoin,
+}: SchoolCodeCardProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -57,16 +71,20 @@ export function SchoolCodeCard({ trial, dayText, onRead, onScan, onNotNow }: Sch
       )}
       <Button
         testID="school-scan"
-        label={t(trial === null ? 'demo.school.scan' : 'demo.school.trial.join')}
+        label={t(rejoin ? 'demo.school.rejoin.scan' : trial === null ? 'demo.school.scan' : 'demo.school.trial.join')}
         disabled={pc && text === ''}
         onPress={() => (pc ? onRead(text) : onScan())}
       />
     </>
   );
+  const link = onRejoin !== undefined && (
+    <Button testID="school-rejoin-open" variant="plain" label={t('demo.school.rejoin.open')} onPress={onRejoin} />
+  );
   if (trial === null)
     return (
       <View testID="school-code" style={styles.card}>
         {code}
+        {link}
       </View>
     );
   return (
@@ -81,6 +99,7 @@ export function SchoolCodeCard({ trial, dayText, onRead, onScan, onNotNow }: Sch
         <Text style={[styles.small, align]}>{t('demo.school.trial.paper')}</Text>
         {code}
         <Button testID="school-not-now" variant="line" label={t('demo.school.trial.notNow')} onPress={onNotNow} />
+        {link}
       </View>
       <View style={styles.note}>
         <Text style={[styles.small, align]}>{t('demo.school.trial.note')}</Text>
