@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Issue's state on the director's device (#570, answer 598): on opening, the
-// school key is held (started the first time) and each teacher's assignment
-// worked out; the joined days are then read from the school's space, again with
-// `refresh`. The rows follow the world's store, so each issue recorded shows at
-// once, waiting to be scanned, and codes issued again under a new epoch are
-// counted for the page to say. A problem keeps what the page already shows and
-// is said in the catalogue's words, the page's own failures, such as printing,
-// as well. While an issue is recorded the page says it is busy, so a second tap
-// waits. Leaving the world, or another world opening, drops what a slower
-// answer brings back.
+// D-Issue's state on the director's device (#570, answers 598 and 601): on
+// opening, the school key is held, never started here, since D-Keys asks
+// whether to start it or wait to hold another device's, and each teacher's
+// assignment worked out; the joined days are then read from the school's space,
+// again with `refresh`. The rows follow the world's store, so each issue
+// recorded shows at once, waiting to be scanned, and codes issued again under a
+// new epoch are counted for the page to say. A problem keeps what the page
+// already shows and is said in the catalogue's words, the page's own failures,
+// such as printing, as well. While an issue is recorded the page says it is
+// busy, so a second tap waits. Leaving the world, or another world opening,
+// drops what a slower answer brings back.
 
 import { issueRows, keptIssues, type Day, type DemoTeacher, type IssueRow, type KeptIssue } from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -76,7 +77,7 @@ export function useIssuePage(
   useEffect(() => {
     let open = true;
     void (async () => {
-      const held = await holdSchool(world, kit, send);
+      const held = await holdSchool(world, kit, send, false);
       const assignments = await assignmentsOf(held, teachers, kit);
       if (!open) return;
       setDesk({ desk: held, assignments });

@@ -44,6 +44,9 @@ const ROW = 64;
 const OPENS = ['weeks', 'pupils', 'status'] as const;
 const NONE = ['servers', 'ministry', 'inspector', 'timetable'] as const;
 
+/** A fingerprint spelled out, character by character, for a screen reader. */
+export const spelled = (fingerprint: string) => [...fingerprint].join(' ');
+
 /** D-Keys' map of a keyring, in the screen's words and direction. */
 export function keysMap(t: TFunction, facts: KeysFacts, school: string, rightToLeft: boolean): KeysMap {
   const box = (id: string, label: string, about: string): KeysBox => ({ id, label, about });

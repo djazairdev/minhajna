@@ -22,8 +22,9 @@
 // its channel. Errors carry world-session.ts's codes, E_SCHOOL_KEY for a key
 // that no longer reads or opens, E_KEY_REMOVED and E_KEYRING_CHANGED from
 // following the stream, E_SCHOOL_WAITING on a device waiting to hold the key
-// another device holds (answer 600), which starts nothing, and E_WORLD when the
-// store kept something else or nothing.
+// another device holds (answer 600), which starts nothing, E_NO_SCHOOL_KEY when
+// the key is not to be started here (answer 601: D-Issue leaves that choice to
+// D-Keys), and E_WORLD when the store kept something else or nothing.
 
 import {
   assignmentId,
@@ -70,24 +71,31 @@ export interface HeldDesk extends IssueDesk {
   readonly reissued: number;
 }
 
-/** Holds the school's key on this device, starting it the first time, and answers the desk to issue from. */
-export async function holdSchool(world: IssueWorld, kit: WorldKit, send: Send = worldRequest): Promise<HeldDesk> {
-  const before = going.get(world.world);
+/** Holds the school's key on this device, starting it first when `start`, and answers the desk to issue from. */
+export async function holdSchool(
+  world: IssueWorld,
+  kit: WorldKit,
+  send: Send = worldRequest,
+  start = true,
+): Promise<HeldDesk> {
+  const asked = `${world.world}:${start}`;
+  const before = going.get(asked);
   if (before !== undefined) return before;
-  const holding = inTurn(world.world, () => holdOnce(world, kit, send));
-  going.set(world.world, holding);
+  const holding = inTurn(world.world, () => holdOnce(world, kit, send, start));
+  going.set(asked, holding);
   try {
     return await holding;
   } finally {
-    going.delete(world.world);
+    going.delete(asked);
   }
 }
 
-async function holdOnce(world: IssueWorld, kit: WorldKit, send: Send): Promise<HeldDesk> {
+async function holdOnce(world: IssueWorld, kit: WorldKit, send: Send, start: boolean): Promise<HeldDesk> {
   if (!world.book.entries.some((entry) => eventOf(entry)?.kind === 'school.held')) {
     if (keptWaiting(world.book.entries, PUBLIC_KEY_BYTES) !== null) {
       throw failed('This device waits to hold the key another device holds', 'E_SCHOOL_WAITING');
     }
+    if (!start) throw failed('This device holds no school key yet', 'E_NO_SCHOOL_KEY');
     const pair = await kitStep(() => newDevicePair(kit));
     const holder = { id: newId(kit.random), publicKey: pair.publicKey };
     const school = newSchoolSpace(kit.random);

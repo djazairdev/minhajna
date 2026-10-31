@@ -1,18 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Keys in a national demo world (#571, answer 599), against a made-up demo
-// server: the director's keys page on a PC holds the school key and says one
-// device holds it, the director's own; the drawing kit is handed the map, the
-// holders on the start side, linked to the key, which links to what it
-// opens, and no recovery yet; the same boxes are written out in groups, the
-// key's facts in the panel first, as labelled rows, a box chosen showing its
-// own; the recovery's tab opens on the recovery, says none is made and gives
-// the keyring's fingerprint. A second holder shows by the first four
-// characters of its ID. Two holders that look like a recovery warn on either
-// tab. The map of a recovery links both parts to it and it to the key, and
-// right to left the holders stand on the right. On a phone there is no map
-// and the groups are written out. Every world, school and device is made up.
+// D-Keys in a national demo world (#571, answers 599 and 600), against a
+// made-up demo server: the director's keys page on a PC, holding no key yet,
+// offers to start it there, then holds the school key and says one device holds
+// it, the director's own; the drawing kit is handed the map, the holders on the
+// start side, linked to the key, which links to what it opens, and no recovery
+// yet; the same boxes are written out in groups, the key's facts in the panel
+// first, as labelled rows, a box chosen showing its own; the recovery's tab
+// opens on the recovery, says none is made and gives the keyring's fingerprint.
+// A second holder shows by the first four characters of its ID. Two holders
+// that look like a recovery warn on either tab. The map of a recovery links
+// both parts to it and it to the key, and right to left the holders stand on
+// the right. On a phone there is no map and the groups are written out. Every
+// world, school and device is made up.
 
 import {
   addHolder,
@@ -125,6 +126,8 @@ test('the keys page on a PC maps the director’s device holding the key, and wr
   await press('demo-start-national');
   await press('world-role-director');
   await press('world-page-keys');
+  expect(within('keys-start')).toContain(words.start.title);
+  await press('keys-start-here');
   const id = worldNetworkOpen()!;
   const { zones = [], workingDays } = reference.profile;
   const school = directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs))!;
@@ -251,7 +254,10 @@ test('two holders that look like a recovery warn on either tab', async () => {
     fingerprint: '2-abcd',
   };
   jest.spyOn(keysPage, 'useKeysPage').mockReturnValue({
+    mode: 'holder',
     facts,
+    orphaned: false,
+    choose: () => undefined,
     desk: null,
     busy: false,
     problem: null,

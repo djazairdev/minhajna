@@ -4378,7 +4378,8 @@
         "title": "Joining codes not yet scanned",
         "until": "Valid until {{until}}",
         "handover": "For one scan. Handed over in person, never sent in a message."
-      }
+      },
+      "keysFirst": "This device holds no school key yet. On the keys page, start it here or have a device that holds it add this one."
     },
     "keys": {
       "lead": "{{school}} · {{date}} · Who holds the key, what it opens, and how it is recovered",
@@ -4479,6 +4480,47 @@
         "askPrinted": "Are both sheets printed on paper and readable?",
         "forget": "Yes, both are printed: forget the parts",
         "printed": "This device has forgotten the two parts."
+      },
+      "orphaned": "The device that made the recovery no longer holds the key. Renew the recovery from this device and hand over the new sheets.",
+      "start": {
+        "title": "This device does not hold the school key",
+        "note": "If another device of the school already holds the key, ask it to add this one. Start the key here only on the school’s first device, or a second key would be made.",
+        "wait": "Ask a device that holds the key to add this one",
+        "here": "Start the school key on this device"
+      },
+      "wait": {
+        "title": "Waiting to be added as a holder",
+        "scan": "Scan this code with a device that holds the school key · one time only",
+        "qr": "The code that adds this device as a holder of the school key",
+        "device": "This device's fingerprint: {{fingerprint}}. The holder sees it before adding it.",
+        "check": "Check now",
+        "again": "New code",
+        "compare": "Added. Keyring fingerprint: {{fingerprint}}. Does the holder that added this device show the same?",
+        "same": "The same: keep it",
+        "differ": "Different: start again",
+        "giveUp": "Give up",
+        "contested": "Two different keyrings reached this code. Nothing is kept: start again with a new code, and add it from one device only.",
+        "nothing": "Nothing yet: no holder has added this device."
+      },
+      "add": {
+        "button": "Add a device",
+        "paste": "The new device's one-time code",
+        "placeholder": "minhajna-holder:1:…",
+        "scan": "Scan the new device's code",
+        "hint": "The code shown on the device to add",
+        "notCode": "This is not a code to add a holder of the school key.",
+        "confirm": "Add the device {{fingerprint}} as a holder of the school key? Compare this fingerprint with the one the new device shows.",
+        "yes": "Add it",
+        "done": "Added. Keyring fingerprint: {{fingerprint}}. The new device compares it with this one.",
+        "again": "That device already holds the school key: its keyring was sent to it again. Keyring fingerprint: {{fingerprint}}.",
+        "own": "This code carries this device’s own ID: scan the code shown on the device to add."
+      },
+      "remove": {
+        "button": "Remove {{device}}",
+        "ask": "Remove {{device}}? Nothing new reaches it, and the key stays on the other devices.",
+        "yes": "Remove it",
+        "done": "That device is removed. Nothing added from now on reaches it.",
+        "renewed": "That device is removed. It had made the recovery, so the recovery is renewed: print both new sheets and hand them over."
       }
     }
   },
