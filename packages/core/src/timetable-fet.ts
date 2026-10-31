@@ -74,7 +74,7 @@ export function readFetHour(cell: string, bells: BellTimes = []): readonly [numb
   if (/^\d{1,2}$/u.test(name)) return bells[Number(name) - 1] ?? null;
   const start = readTime(name);
   if (start !== null) return bells.find((bell) => bell[0] === start) ?? null;
-  const parts = name.split(/\s*[-–—]\s*/u);
+  const parts = name.split(/[-\u2013\u2014]/u).map((part) => part.trim());
   if (parts.length !== 2) return null;
   const [from, to] = [readTime(parts[0]!), readTime(parts[1]!)];
   return from !== null && to !== null && from < to ? [from, to] : null;
@@ -84,8 +84,9 @@ export function readFetHour(cell: string, bells: BellTimes = []): readonly [numb
 function classesOf(sets: ReadonlySet<string>, marks: readonly string[]): ReadonlyMap<string, FetGroup> {
   const words = marks.map((mark) => mark.toLowerCase());
   const isMark = (rest: string) => {
-    const found = /^(\D*?)\s*\.?\s*(\d{1,2})$/u.exec(latinDigits(rest).toLowerCase());
-    return /^\d\/\d$/u.test(latinDigits(rest)) || (found !== null && words.includes(found[1]!.trim()));
+    const text = latinDigits(rest).toLowerCase().trim();
+    const word = /^(\D*)\d{1,2}$/u.exec(text)?.[1]?.trim().replace(/\.$/u, '').trim();
+    return /^\d\/\d$/u.test(text) || (word !== undefined && words.includes(word));
   };
   const parentOf = (set: string) =>
     [...sets].find((other) => {
