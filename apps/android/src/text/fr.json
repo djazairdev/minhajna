@@ -4771,6 +4771,34 @@
         "cancelled": "La demande de la clé a été fermée avant la fin, ou cette clé ne contient aucune connexion à Minhajna.",
         "notSet": "Cette clé n’a pas été configurée dans ce monde : l’établissement la configure depuis la page des codes."
       }
+    },
+    "propose": {
+      "title": "Proposer un changement",
+      "line": "Proposez de déplacer une de vos séances vers un créneau libre de l’établissement. L’établissement vérifie la classe et la salle, et la direction décide.",
+      "oneDay": "Un changement pour un seul jour reste dans votre propre semaine : déplacez la séance depuis sa page dans votre emploi du temps, hors du monde de démonstration.",
+      "session": "Séance à déplacer",
+      "joint": "Les séances données à plusieurs classes ensemble ne sont pas proposées : déplacer une seule classe les séparerait.",
+      "day": "Jour",
+      "slot": "Nouvel horaire",
+      "longer": "allonge votre journée",
+      "newDay": "ajoute un jour à votre semaine",
+      "noSlot": "Aucun horaire libre ce jour-là pour une séance de cette durée.",
+      "room": "Salle",
+      "roomHint": "Gardée sauf si vous la changez",
+      "note": "Une note pour la direction",
+      "noteHint": "Par exemple, la raison",
+      "optional": "facultatif",
+      "send": "Envoyer la proposition",
+      "sending": "Envoi de la proposition…",
+      "sent": "Proposition envoyée : la direction décide, et la décision s’affiche ici.",
+      "yours": "Vos propositions",
+      "proposed": "Proposé",
+      "waiting": "En attente de la décision de la direction",
+      "accepted": "Acceptée : la version {{version}} la publie",
+      "declined": "Refusée : votre emploi du temps reste tel quel",
+      "reply": "Note de l’établissement : « {{note}} »",
+      "yourNote": "Votre note : « {{note}} »",
+      "waitingAlready": "Une proposition pour cette séance attend déjà une décision."
     }
   },
   "chart": {

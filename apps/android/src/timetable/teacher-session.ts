@@ -6,21 +6,23 @@
 // Reading opens the teacher's own channel with the code they joined on, and is
 // refused while no device joined there (E_TIMETABLE_UNJOINED) or when another
 // device joined there first (E_JOIN_TAKEN); it answers the parts the school
-// sent, in the channel's order, and the versions this device confirmed, with
-// the world's day of each. On a day, the part that applies is a one-day part
-// for it or the standing part in force; before any applies, the page shows what
-// applies on the first day of any standing part. The week's hours count a
-// session of week A or B half. Each part is shown as a version received, newest
-// first: a standing part with what it changes from the standing part before it,
-// a one-day part with what it changes on its day alone from the standing part
-// in force then, its sessions being those of that day, and the first with the
-// whole timetable. Confirming receipt signs a receipt with the key the device
-// certified when joining, kept in the world's store, names the version and the
-// world's date, and puts it on the channel (send-session.ts). Errors carry
-// world-session.ts's codes and the joining's (school-join-session.ts).
+// sent, in the channel's order, the versions this device confirmed, with the
+// world's day of each, and the teacher's proposals with the decision on each.
+// On a day, the part that applies is a one-day part for it or the standing part
+// in force; before any applies, the page shows what applies on the first day of
+// any standing part. The week's hours count a session of week A or B half. Each
+// part is shown as a version received, newest first: a standing part with what
+// it changes from the standing part before it, a one-day part with what it
+// changes on its day alone from the standing part in force then, its sessions
+// being those of that day, and the first with the whole timetable. Confirming
+// receipt signs a receipt with the key the device certified when joining, kept
+// in the world's store, names the version and the world's date, and puts it on
+// the channel (send-session.ts). Errors carry world-session.ts's codes and the
+// joining's (school-join-session.ts).
 
 import {
   channelParts,
+  channelProposals,
   channelReceipts,
   compareDays,
   partChanges,
@@ -33,6 +35,7 @@ import {
   type JoinCode,
   type PartChange,
   type PartSession,
+  type ProposalOnChannel,
   type SchoolJoined,
   type SignedPart,
   type TimetablePart,
@@ -50,6 +53,8 @@ type TeacherWorld = Pick<OpenWorld, 'world' | 'date'>;
 export interface TeacherChannel {
   readonly parts: readonly SignedPart[];
   readonly receipts: ReadonlyMap<number, Day>;
+  /** The teacher's proposals on the channel, each with the decision that settled it, or null. */
+  readonly proposals: readonly ProposalOnChannel[];
 }
 
 /** A version received: the part, the part it changes from, or null for the first, and what changes. */
@@ -62,7 +67,7 @@ export interface Received {
 }
 
 /** A join's code, which must read. */
-function codeOf(join: SchoolJoined): JoinCode {
+export function codeOf(join: SchoolJoined): JoinCode {
   const code = readJoinCode(join.code);
   if (code === null) throw failed('Not a joining code', 'E_JOIN_CODE');
   return code;
@@ -83,7 +88,8 @@ export async function readTeacherChannel(
   const checker = { key: ca, checker: kit };
   const parts = await kitStep(() => channelParts(code, batches, checker, joined.device, kit.cipher, kit.mac));
   const receipts = await kitStep(() => channelReceipts(code, batches, checker, joined, kit.cipher, kit.mac));
-  return { parts, receipts: new Map(receipts.map((one) => [one.value.version, one.value.day])) };
+  const proposals = await kitStep(() => channelProposals(code, batches, checker, joined, kit.cipher, kit.mac));
+  return { parts, receipts: new Map(receipts.map((one) => [one.value.version, one.value.day])), proposals };
 }
 
 /** The part that applies on a day, a one-day part for it or the standing part in force, or null. */

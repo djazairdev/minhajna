@@ -198,6 +198,7 @@ export function DemoRoot({
         send={send}
         trial={trial}
         year={calendar.year.id}
+        workingDays={reference?.profile.workingDays}
         onClose={() => setJoining(false)}
       />
     );

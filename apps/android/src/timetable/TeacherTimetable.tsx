@@ -17,10 +17,20 @@
 // said in the catalogue's words, with a way to read again. What is said goes,
 // on a PC, to the page's hidden live region, which first holds the page's title
 // and says the same words again when they come again, and elsewhere it is
-// announced. The bar names the school by its short ID; going back leads to
+// announced. Below, the teacher proposes moving a session and sees their
+// proposals with their state (ProposeForm.tsx, TT-propose), once a standing
+// part arrived; sending one says so, on the page too, and reads the channel
+// again. The bar names the school by its short ID; going back leads to
 // School-join.
 
-import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
+import {
+  readJoinCode,
+  type Day,
+  type PartSession,
+  type SchoolJoined,
+  type TimetablePart,
+  type Weekday,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AccessibilityInfo, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -36,7 +46,9 @@ import { onPc, useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { slotText } from './proposal-text';
 import { hoursText } from './version-text';
+import { ProposeForm } from './ProposeForm';
 import { ReceivedCard } from './ReceivedCard';
+import { propose, type Move } from './teacher-propose';
 import {
   confirmReceipt,
   firstToCome,
@@ -58,16 +70,19 @@ export type TeacherTimetableProps = {
   readonly onClose: () => void;
   /** The page's title, said as it opens. */
   readonly said: string;
+  /** The school's days, in the week's order, offered for a proposal. */
+  readonly workingDays?: readonly Weekday[];
 };
 
 /** The version in force, the versions received, and their receipts. */
-export function TeacherTimetable({ world, join, kit, send, dayText, onClose, said }: TeacherTimetableProps) {
+export function TeacherTimetable(props: TeacherTimetableProps) {
+  const { world, join, kit, send, dayText, onClose, said, workingDays } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [channel, setChannel] = useState<TeacherChannel | null>(null);
-  const [step, setStep] = useState<'reading' | 'confirming' | null>('reading');
+  const [step, setStep] = useState<'reading' | 'confirming' | 'proposing' | null>('reading');
   const busy = step !== null;
   const working = useRef(false);
   const [problem, setProblem] = useState<ReturnType<typeof problemOf> | null>(null);
@@ -122,6 +137,25 @@ export function TeacherTimetable({ world, join, kit, send, dayText, onClose, sai
       return load();
     }, refused);
   };
+  const proposeNow = (part: TimetablePart, session: PartSession, move: Move) => {
+    if (working.current) return Promise.resolve(false);
+    working.current = true;
+    setStep('proposing');
+    return propose(world, join, part, session, move, kit, send).then(
+      () => {
+        if (!mounted.current) return false;
+        setDone(t('demo.propose.sent'));
+        say(t('demo.propose.sent'));
+        setStep('reading');
+        void load();
+        return true;
+      },
+      (error: unknown) => {
+        refused(error);
+        return false;
+      },
+    );
+  };
   const now = channel === null ? null : inForce(channel, world.date);
   const today = now ?? (channel === null ? null : firstToCome(channel));
   const shown = today === null ? [] : sessionsOf(today);
@@ -153,7 +187,7 @@ export function TeacherTimetable({ world, join, kit, send, dayText, onClose, sai
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <View style={styles.column}>
           <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
-            {step === null ? '' : t(step === 'reading' ? 'demo.timetable.reading' : 'demo.timetable.confirming')}
+            {step === null ? '' : t(STEPS[step])}
           </Text>
           {done !== null && (
             <Text testID="teacher-done" style={[styles.body, align]}>
@@ -221,11 +255,20 @@ export function TeacherTimetable({ world, join, kit, send, dayText, onClose, sai
             receivedVersions(channel).map((one) => (
               <ReceivedCard key={one.part.version} received={one} busy={busy} onConfirm={confirm} dayText={dayText} />
             ))}
+          {channel !== null && (
+            <ProposeForm channel={channel} workingDays={workingDays} busy={busy} onPropose={proposeNow} />
+          )}
         </View>
       </ScrollView>
     </View>
   );
 }
+
+const STEPS = {
+  reading: 'demo.timetable.reading',
+  confirming: 'demo.timetable.confirming',
+  proposing: 'demo.propose.sending',
+} as const;
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },

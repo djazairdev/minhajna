@@ -133,10 +133,10 @@ const atSlot = (one: { day: number; start: number; end: number; room: string }, 
   one.end === proposal.end &&
   timetableNameKey(one.room) === timetableNameKey(proposal.room);
 
-/** A note cleaned of hidden characters and kept to the most a decision carries, whole characters only. */
-function noteOf(text: string): string {
+/** A note cleaned of hidden characters and kept to the most a record carries, whole characters only. */
+export function noteOf(text: string, most = NOTE_MOST): string {
   const points = [...cleanRecordText(text)];
-  while (points.join('').length > NOTE_MOST) points.pop();
+  while (points.join('').length > most) points.pop();
   return points.join('');
 }
 

@@ -33,6 +33,7 @@ import {
   type Day,
   type SchoolJoined,
   type TrialTerm,
+  type Weekday,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -81,10 +82,13 @@ export type SchoolJoinProps = {
   readonly year: string;
   /** Back to the world's home. */
   readonly onClose: () => void;
+  /** The school's days, in the week's order, offered for a timetable proposal. */
+  readonly workingDays?: readonly Weekday[];
 };
 
 /** The teacher's page for joining the school's space in a world. */
-export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClose }: SchoolJoinProps) {
+export function SchoolJoin(props: SchoolJoinProps) {
+  const { world, date, dayText, kit, send, trial, year, onClose, workingDays } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -195,7 +199,8 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClo
     const shown = { date, join: view.join, dayText, onClose: leave, said };
     if (view.page === 'devices') return <DevicesMoved {...shown} />;
     if (view.page === 'help') return <NationalHelp {...shown} />;
-    if (view.page === 'timetable') return <TeacherTimetable {...shown} world={world} kit={kit} send={send} />;
+    if (view.page === 'timetable')
+      return <TeacherTimetable {...shown} world={world} kit={kit} send={send} workingDays={workingDays} />;
     if (dates !== null) return <Leave {...shown} year={year} dates={dates} onJoin={toCode} />;
   }
   return (

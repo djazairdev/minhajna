@@ -4701,6 +4701,34 @@
         "cancelled": "The key’s prompt was closed before it finished, or this key holds no Minhajna sign-in.",
         "notSet": "This key was not set up in this world: the school sets it up from the codes page."
       }
+    },
+    "propose": {
+      "title": "Propose a change",
+      "line": "Propose moving one of your sessions to a free slot in the school’s bell times. The school checks the class and the room, and the director decides.",
+      "oneDay": "A change for one day only stays in your own week: move the session from its page in your timetable, outside the demo world.",
+      "session": "Session to move",
+      "joint": "Sessions taught to several classes together are not offered: moving one class alone would split them.",
+      "day": "Day",
+      "slot": "New time",
+      "longer": "makes your day longer",
+      "newDay": "adds a day to your week",
+      "noSlot": "No free time that day for a session of this length.",
+      "room": "Room",
+      "roomHint": "Kept unless you change it",
+      "note": "A note for the director",
+      "noteHint": "For example, the reason",
+      "optional": "optional",
+      "send": "Send the proposal",
+      "sending": "Sending the proposal…",
+      "sent": "Proposal sent: the director decides, and the decision shows here.",
+      "yours": "Your proposals",
+      "proposed": "Proposed",
+      "waiting": "Waiting for the director’s decision",
+      "accepted": "Accepted: version {{version}} publishes it",
+      "declined": "Declined: your timetable stays as it is",
+      "reply": "Note from the school: “{{note}}”",
+      "yourNote": "Your note: “{{note}}”",
+      "waitingAlready": "A proposal for this session is already waiting for a decision."
     }
   },
   "chart": {
