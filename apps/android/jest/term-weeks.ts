@@ -4,10 +4,11 @@
 // A made-up term for School-mine's tests (#584): term 2 of the bundled calendar
 // read for the world's school, the country's maths, and a teacher's weeks
 // signed on their channel, each session's state by its weekday, for one group
-// or none, the rest awaiting; and a term with one class's three weekly sessions
-// over two signed weeks: three held, one awaiting, one not held on Yennayer and
-// one not held otherwise, with another class's session never signed; and a new
-// code issued to a teacher, on which a new device joins.
+// or none and the country's maths or a subject given, the rest awaiting; and a
+// term with one class's three weekly sessions over two signed weeks: three
+// held, one awaiting, one not held on Yennayer and one not held otherwise, with
+// another class's session never signed; and a new code issued to a teacher, on
+// which a new device joins.
 
 import { parseDay, readJoinCode, type Day, type SchoolJoined, type Subject } from '@minhajna/core';
 import { assignmentsOf, codeText, holdSchool, issueFor } from '../src/director/issue-session';
@@ -28,7 +29,7 @@ export const TEACHER = 'بلعيد محمد';
 export const MINE: MineCalendar = { profile: read.profile, calendar: read.calendar };
 export const [FIRST, SECOND] = [parseDay('2027-01-05'), parseDay('2027-01-12')];
 
-/** Signs the world's week of a class with each session's state by its weekday, the rest awaiting. */
+/** Signs a class's week, or its given subject's, each session's state by its weekday, the rest awaiting. */
 export async function sign(
   world: { world: string; date: Day },
   joined: SchoolJoined,
@@ -36,9 +37,13 @@ export async function sign(
   of = '1م2',
   start = 480,
   group = '',
+  subject?: Subject,
 ) {
   const { parts } = await readSignChannel(world, joined, kit, server.send);
-  const week = weeksToSign(parts, world.date, DAYS, SUBJECTS).find((one) => one.class === of)!;
+  const known = subject === undefined ? SUBJECTS : [...SUBJECTS, subject];
+  const week = weeksToSign(parts, world.date, DAYS, known).find(
+    (one) => one.class === of && (subject === undefined || one.subject === subject.name.ar),
+  )!;
   const slots = new Map(
     Object.entries(states).map(([day, state]) => [`${day}\n${start}\n${start + 60}\n${group}\nboth`, state]),
   );

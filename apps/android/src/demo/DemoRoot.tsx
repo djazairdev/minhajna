@@ -256,6 +256,7 @@ export function DemoRoot({
               dayText,
               trial,
               year: calendar.year,
+              mine: mineOf(reference, calendar, school),
               timetable,
               onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
             })

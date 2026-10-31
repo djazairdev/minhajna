@@ -4949,6 +4949,34 @@
       "makeUps": "Make-up sessions: none in a demo world. Outside one they come from the make-ups on “Today” and count as held.",
       "foot": "Each class has its own figures: no total for the school and no ranking. The report closes when the term does. “Other” gathers everything the calendar does not hold, without reasons: the reasons stay on your devices alone."
     },
+    "delivery": {
+      "lead": "The school’s own report for the term, from the signed weeks: one row for each subject of each class.",
+      "terms": "Term",
+      "term": "Term {{number}}",
+      "title": "Delivery report · term {{number}}",
+      "closed": "Closed on {{day}} · each subject of each class",
+      "soFar": "To {{day}} · each subject of each class",
+      "levels": "Level",
+      "level": {
+        "primary": "Year {{level}}",
+        "cem": "Year {{level}}",
+        "lycee": "Year {{level}}"
+      },
+      "otherLevel": "Other classes",
+      "none": "No week is signed in this term yet, so the report is empty.",
+      "noTerm": "No term has begun by the world’s date.",
+      "figures": "Confirmed {{confirmed}} · as planned {{held}} · not held, calendar {{calendar}} · not held, other {{other}}",
+      "noneLost": "None",
+      "makeUps": "Make-up sessions: none in a world. Outside a world they come from the make-ups on “Today”, linked to the sessions they replace, and count as held.",
+      "weeks_one": "{{count}} signed week, from {{day}}",
+      "weeks_other": "{{count}} signed weeks, the last from {{day}}",
+      "foot": {
+        "classes": "Each class has its own figures: no total for the school and no ranking.",
+        "other": "“Other” gathers all the calendar does not hold, with no reasons: the reasons stay on the teachers’ devices.",
+        "never": "The report is never used to evaluate anyone, nor for pay.",
+        "print": "Printing and PDF outside a world only: a world exports none of its records, so the report stays on screen."
+      }
+    },
     "records": {
       "readOnly": "Read only: the director changes no signed week or correction, and sees nothing that does not enter the school’s space.",
       "none": "No week is signed yet on the channels of the school’s teachers.",

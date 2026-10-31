@@ -7,7 +7,8 @@
 // codes and security keys (#570), the keys page that maps who holds the school
 // key (#571), the records page that reads the classes' signed weeks with the
 // school key (#585, SchoolRecords.tsx), the director's cover page for the
-// world's date (#586, SchoolCover.tsx), the director's assignments and access
+// world's date (#586, SchoolCover.tsx), the school's term report against its
+// calendar (#589, SchoolDelivery.tsx), the director's assignments and access
 // page for substitutes (#587, SchoolSubstitute.tsx), the director's and the
 // preparer's timetable page (#576, #577, #578), kept for the world it was read
 // in, and their own log (#573); any other page has none, and the preparer never
@@ -19,6 +20,7 @@ import { DirectorDashboard } from '../director/DirectorDashboard';
 import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
 import { SchoolCover } from '../director/SchoolCover';
+import { SchoolDelivery } from '../director/SchoolDelivery';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
@@ -27,6 +29,7 @@ import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
+import type { MineCalendar } from '../week/school-mine-session';
 import type { WorkspaceRole, WorldPage } from './world-pages';
 import type { OpenWorld } from './world-mode';
 import type { Send, WorldKit } from './world-session';
@@ -42,6 +45,8 @@ export type WorkspacePagesProps = {
   readonly trial: TrialTerm | null;
   /** The world's school year, whose terms the cover log counts in. */
   readonly year: SchoolYear;
+  /** The school's calendar, read for its zone and level, which the term report counts against. */
+  readonly mine: MineCalendar;
   /** The timetable the director or preparer read last, kept for the world it was read in. */
   readonly timetable: { readonly world: string; readonly read: TimetableRead } | null;
   readonly onTimetable: (read: TimetableRead | null) => void;
@@ -53,7 +58,7 @@ export function workspacePage(
   page: WorldPage,
   props: WorkspacePagesProps,
 ): ReactElement | null {
-  const { open, school, reference, kit, send, dayText, trial, year, timetable, onTimetable } = props;
+  const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable } = props;
   if (workspace === 'director' && page === 'dashboard')
     return (
       <DirectorDashboard
@@ -100,6 +105,19 @@ export function workspacePage(
     );
   if (workspace === 'director' && page === 'cover')
     return <SchoolCover world={open} school={school} year={year} kit={kit} send={send} dayText={dayText} />;
+  if (workspace === 'director' && page === 'delivery')
+    return (
+      <SchoolDelivery
+        world={open}
+        school={school}
+        year={year}
+        mine={mine}
+        bells={levelBells(reference.bells, school.level)}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+      />
+    );
   if (workspace === 'director' && page === 'access')
     return (
       <SchoolSubstitute
