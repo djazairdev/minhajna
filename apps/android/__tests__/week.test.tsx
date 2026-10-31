@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Setup's fourth step (#28, Setup-5-Week): the week drawn so far, or a line
-// saying it is not drawn yet, the way to draw it, the note that the
-// school's timetable comes later, and a week of two schools with its
-// sessions by school and its clashes. Made-up schools and classes only.
+// saying it is not drawn yet, the way to draw it, the wait for the school's
+// timetable, and a week of two schools with its sessions by school and its
+// clashes. Made-up schools and classes only.
 
 import { formatDay, parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -113,7 +113,7 @@ test('says the week is not drawn yet, offers to draw it, and leads on either way
       text.week.intro,
       text.week.noWeek,
       text.week.draw,
-      text.week.packageLater,
+      text.week.package.waitTitle,
     ]),
   );
   expect(exists('week-card')).toBe(false);

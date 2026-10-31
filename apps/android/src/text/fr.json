@@ -268,7 +268,58 @@
     "title": "Dessiner la semaine",
     "heading": "La semaine",
     "intro": "L’emploi du temps vient de l’établissement, ou se dessine à la main.",
-    "packageLater": "Recevoir l’emploi du temps de l’établissement par code ou fichier viendra dans une version ultérieure. D’ici là, la semaine se dessine à la main.",
+    "package": {
+      "waitTitle": "L’emploi du temps n’est pas arrivé",
+      "waiting": "En attente",
+      "waitLine": "L’établissement l’envoie signé, dans un fichier, ou par son espace une fois votre établissement dans le système national, où vous scannez son code en le rejoignant. Il ne contient aucune donnée sur les élèves.",
+      "open": "Ouvrir un fichier",
+      "checkLine": "La signature est vérifiée avant tout enregistrement. Un fichier non signé, ou modifié après sa signature, est refusé.",
+      "until": "En attendant",
+      "untilLine": "Votre semaine dessinée à la main reste telle quelle. Quand l’emploi du temps de l’établissement arrive, les différences s’affichent avant que vous l’acceptiez.",
+      "ramadan": "Les horaires du Ramadan viennent du calendrier, pas de l’emploi du temps.",
+      "reading": "Lecture du fichier…",
+      "unreadable": "Le fichier n’a pas pu être lu.",
+      "refusedTitle": "Un fichier non accepté",
+      "refused": "Refusé",
+      "reason": {
+        "size": {
+          "title": "Un fichier trop volumineux",
+          "line": "Il dépasse la taille de tout paquet d’emploi du temps."
+        },
+        "format": {
+          "title": "Pas un paquet d’emploi du temps",
+          "line": "Le fichier n’est pas un paquet d’emploi du temps, ou il est endommagé."
+        },
+        "signature": {
+          "title": "La signature n’est pas valide",
+          "line": "Le fichier a changé après sa signature, qui ne lui correspond donc plus. Un fichier non signé est refusé aussi."
+        },
+        "world": {
+          "title": "Signé dans un monde de démonstration",
+          "line": "Cet emploi du temps a été signé dans un monde de démonstration, avec des données fictives, il n’est donc pas accepté ici. L’emploi du temps d’un monde de démonstration reste à l’intérieur."
+        },
+        "certified": {
+          "title": "Aucune clé de confiance",
+          "line": "Aucune clé à laquelle ce téléphone fait confiance ne garantit l’établissement qui l’a signé."
+        }
+      },
+      "checked": "Ce qui a été vérifié",
+      "check": {
+        "format": "Le format : un paquet d’emploi du temps",
+        "school": "Porte le nom {{school}}",
+        "signature": "Le contenu correspond à la signature",
+        "world": "Signé hors de tout monde de démonstration",
+        "certified": "Une clé de confiance garantit le signataire"
+      },
+      "passed": "vérifié",
+      "notPassed": "non vérifié",
+      "saved": "Rien du fichier n’a été enregistré, et votre semaine dessinée reste telle quelle.",
+      "whatTo": "Que faire",
+      "todoSend": "Demander à l’établissement de l’envoyer de nouveau.",
+      "todoWorld": "Ouvrir l’emploi du temps dans le monde de démonstration, depuis la carte de l’établissement.",
+      "another": "Ouvrir un autre fichier",
+      "back": "Retour à la semaine"
+    },
     "drawn": "Dessiné à la main",
     "from": "En vigueur depuis le {{date}}",
     "perWeek": "{{sessions}} par semaine",

@@ -259,7 +259,58 @@
     "title": "Draw the week",
     "heading": "The week",
     "intro": "The timetable comes from the school, or is drawn by hand.",
-    "packageLater": "Receiving the timetable from the school by code or file comes in a later version. Until then, the week is drawn by hand.",
+    "package": {
+      "waitTitle": "The timetable has not arrived",
+      "waiting": "Waiting",
+      "waitLine": "The school sends it signed, as a file, or through its space once your school is in the national system, where you scan its code on joining. It holds no data about pupils.",
+      "open": "Open a file",
+      "checkLine": "The signature is checked before anything is saved. A file that is not signed, or was changed after signing, is refused.",
+      "until": "Until it arrives",
+      "untilLine": "Your week drawn by hand stays as it is. When the school’s timetable arrives, the differences show before you accept it.",
+      "ramadan": "Ramadan times come from the calendar, not from the timetable.",
+      "reading": "Reading the file…",
+      "unreadable": "The file could not be read.",
+      "refusedTitle": "A file not accepted",
+      "refused": "Refused",
+      "reason": {
+        "size": {
+          "title": "A file too large",
+          "line": "It is larger than any timetable package."
+        },
+        "format": {
+          "title": "Not a timetable package",
+          "line": "The file is not a timetable package, or it is damaged."
+        },
+        "signature": {
+          "title": "The signature does not hold",
+          "line": "The file changed after it was signed, so the signature no longer matches it. A file that is not signed is refused too."
+        },
+        "world": {
+          "title": "Signed in a demo world",
+          "line": "This timetable was signed in a demo world, with made-up data, so it is not accepted here. A demo world’s timetable stays inside it."
+        },
+        "certified": {
+          "title": "No key this phone trusts",
+          "line": "No key this phone trusts vouches for the school that signed it."
+        }
+      },
+      "checked": "What was checked",
+      "check": {
+        "format": "The format: a timetable package",
+        "school": "Carries the name {{school}}",
+        "signature": "The content matches the signature",
+        "world": "Signed outside any demo world",
+        "certified": "A trusted key vouches for the signer"
+      },
+      "passed": "passed",
+      "notPassed": "not passed",
+      "saved": "Nothing from the file was saved, and your drawn week stays as it is.",
+      "whatTo": "What to do",
+      "todoSend": "Ask the school to send it again.",
+      "todoWorld": "Open the timetable inside the demo world, from the school’s card.",
+      "another": "Open another file",
+      "back": "Back to the week"
+    },
     "drawn": "Drawn by hand",
     "from": "In force from {{date}}",
     "perWeek": "{{sessions}} a week",
