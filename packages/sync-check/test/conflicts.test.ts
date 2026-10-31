@@ -9,8 +9,9 @@
 // course and term (#240, #241); a class's move to a newer release is a change
 // to its course (#322); a teacher's name in reader mode is one record per key,
 // and a statement received only adds (#246); a demo world kept in its own
-// store, and a school joined there, are the device's own and never conflict
-// (#560, #564). Made-up records only.
+// store, a school joined there, and a school key held there with the codes it
+// issued, are the device's own and never conflict (#560, #564, #570). Made-up
+// records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -246,5 +247,30 @@ test('a school joined in a demo world never conflicts', async () => {
   });
   const [mine, theirs] = await Promise.all([recorded(joined('a'.repeat(32))), recorded(joined('b'.repeat(32)))]);
   assert.deepEqual(mine.map(recordKey), [null]);
+  assert.deepEqual(findConflicts(mine, theirs), []);
+});
+
+test('a school key held in a demo world, and the codes it issued, never conflict', async () => {
+  const school = 'made-up-school-of-the-demo';
+  const held = (device: string): RecordEvent => ({
+    kind: 'school.held',
+    held: { school, device, publicKey: 'ab', pkcs8: 'bWFkZS11cA==', ring: {} as never },
+  });
+  const issued = (keyNumber: string | null): RecordEvent => ({
+    kind: 'school.issued',
+    issued: {
+      school,
+      assignment: 'c'.repeat(32),
+      issue: 1,
+      epoch: 0,
+      access: keyNumber === null ? 'phone' : 'key',
+      keyNumber,
+    },
+  });
+  const [mine, theirs] = await Promise.all([
+    recorded(held('a'.repeat(32)), issued(null)),
+    recorded(held('b'.repeat(32)), issued('0042')),
+  ]);
+  assert.deepEqual(mine.map(recordKey), [null, null]);
   assert.deepEqual(findConflicts(mine, theirs), []);
 });
