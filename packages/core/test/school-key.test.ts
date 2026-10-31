@@ -4,12 +4,14 @@
 // The school key (#550): made on the director's device, sealed for each
 // holder, a device added by its one-time QR code and admitted under its
 // secret, and a device removed by any holder, which opens nothing added
-// after; records are sealed under a key derived for their purpose. Every
-// school and device is made up.
+// after and is told it was removed only by the holder's proof, never by a
+// copy that drops it; records are sealed under a key derived for their
+// purpose. Every school and device is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  acceptKeyring,
   addHolder,
   admission,
   holderQr,
@@ -23,6 +25,8 @@ import {
   startKeyring,
 } from '../src/index.ts';
 import { device, opened, opensRecord, random, SCHOOL, sealRecord } from './school-devices.ts';
+
+const TAG = 'ab'.repeat(32);
 
 describe('the school key', () => {
   it('is made on the director’s device, which alone opens it', async () => {
@@ -103,5 +107,54 @@ describe('the school key', () => {
     await assert.rejects(purposeKey(kept, 2, 'records', director.crypto), /No such epoch/);
     await assert.rejects(removeHolder(after, phone.holder.id, director.holder.id, director.crypto, random), /does not/);
     await assert.rejects(removeHolder(after, deputy.holder.id, phone.holder.id, director.crypto, random), /Only a/);
+  });
+
+  it('tells a device it was removed only by a holder, never by a copy that drops it', async () => {
+    const [director, phone] = [await device(), await device()];
+    const ring = await addHolder(
+      await startKeyring(SCHOOL, director.holder, director.crypto, random),
+      phone.holder,
+      director.holder.id,
+      director.crypto,
+    );
+    const held = opened(await openKeyring(ring.ring, phone.holder.id, phone.crypto));
+    const after = await removeHolder(ring, phone.holder.id, director.holder.id, director.crypto, random);
+    assert.match(after.ring.removal ?? '', /^[0-9a-f]{64}$/u);
+    assert.equal(await acceptKeyring(held, after.ring, phone.holder.id, phone.crypto), 'removed');
+    const unproved: Record<string, unknown> = { ...after.ring };
+    delete unproved.removal;
+    assert.equal(await acceptKeyring(held, unproved, phone.holder.id, phone.crypto), 'forged');
+    assert.equal(await acceptKeyring(held, { ...after.ring, removal: TAG }, phone.holder.id, phone.crypto), 'forged');
+    const dropped = Object.fromEntries(
+      Object.entries(ring.ring.epochs[0]!.sealed).filter(([id]) => id !== phone.holder.id),
+    );
+    const copy = {
+      ...ring.ring,
+      version: ring.ring.version + 1,
+      previous: ring.ring.tag,
+      holders: [director.holder],
+      epochs: [{ ...ring.ring.epochs[0]!, sealed: dropped }],
+      tag: TAG,
+    };
+    assert.equal(await acceptKeyring(held, copy, phone.holder.id, phone.crypto), 'forged');
+    const junk = {
+      ...ring.ring.epochs[0]!,
+      sealed: { ...ring.ring.epochs[0]!.sealed, [phone.holder.id]: 'ab'.repeat(80) },
+    };
+    const kept = { ...copy, holders: ring.ring.holders, epochs: [junk] };
+    assert.equal(await acceptKeyring(held, kept, phone.holder.id, phone.crypto), 'forged');
+    const third = await device();
+    const three = await addHolder(ring, third.holder, director.holder.id, director.crypto);
+    const fromThree = opened(await openKeyring(three.ring, phone.holder.id, phone.crypto));
+    const genuine = await removeHolder(three, third.holder.id, director.holder.id, director.crypto, random);
+    assert.notEqual(await acceptKeyring(fromThree, genuine.ring, phone.holder.id, phone.crypto), 'removed');
+    const grafted = {
+      ...copy,
+      version: three.ring.version + 1,
+      previous: three.ring.tag,
+      removal: genuine.ring.removal,
+    };
+    assert.equal(await acceptKeyring(fromThree, grafted, phone.holder.id, phone.crypto), 'forged');
+    assert.equal(three.ring.removal, undefined);
   });
 });

@@ -145,6 +145,8 @@ export function recordKey(event: RecordEvent): string {
       return `school-joined:${(event.joined?.code ?? '').replace(/:[^:]*$/u, '')}`;
     case 'school.held':
       return `school-held:${event.held?.school ?? ''}`;
+    case 'school.waiting':
+      return 'school-waiting';
     case 'school.issued': {
       const { school = '', assignment = '', issue = '' } = event.issued ?? {};
       return `school-issued:${school}/${assignment}/${issue}`;

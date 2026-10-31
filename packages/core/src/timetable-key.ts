@@ -25,13 +25,13 @@ import {
   acceptKeyring,
   addHolder,
   latestEpoch,
-  openAdmitted,
   openKeyring,
   rekeyKeyring,
   removeHolder,
   startKeyring,
   type OpenedKeyring,
 } from './school-key.ts';
+import { openAdmitted } from './school-holder.ts';
 import {
   grantOf,
   isTimetableChange,

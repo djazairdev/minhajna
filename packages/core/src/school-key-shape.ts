@@ -43,6 +43,11 @@ export interface SchoolKeyring {
   readonly by: string;
   readonly holders: readonly Holder[];
   readonly epochs: readonly SchoolEpoch[];
+  /**
+   * When the keyring removes devices, a MAC under the key before the change, so a removed device, which cannot
+   * check the tag, is told it was removed only by a holder.
+   */
+  readonly removal?: string;
   /** A MAC of all the above under the latest epoch's key. */
   readonly tag: string;
 }
@@ -109,8 +114,10 @@ function isEpoch(value: unknown, index: number, holders: ReadonlySet<string>, la
 /** Whether a keyring that came from elsewhere has exactly the shape of one. */
 export function isKeyring(value: unknown, publicKeyBytes: number): value is SchoolKeyring {
   const fields = ['school', 'version', 'previous', 'by', 'holders', 'epochs', 'tag'];
-  if (!hasOnly(value, fields)) return false;
-  const { school, version, previous, by, holders, epochs, tag } = value;
+  const removing = typeof value === 'object' && value !== null && 'removal' in value;
+  if (!hasOnly(value, removing ? [...fields, 'removal'] : fields)) return false;
+  const { school, version, previous, by, holders, epochs, tag, removal } = value;
+  if (removing && (typeof removal !== 'string' || !MAC.test(removal))) return false;
   if (typeof school !== 'string' || !SCHOOL.test(school) || typeof tag !== 'string' || !MAC.test(tag)) return false;
   if (typeof version !== 'number' || !Number.isSafeInteger(version) || version < 1) return false;
   if (typeof previous !== 'string' || (version === 1 ? previous !== '' : !MAC.test(previous))) return false;
