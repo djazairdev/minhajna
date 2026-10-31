@@ -1,9 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Issue's records in a demo world's store (#570, §7.5, answer 596): the
-// school key this device holds, kept with its agreement pair and the keyring
-// as it holds it, the latest that reads counting; and each joining code or
+// D-Issue's records in a demo world's store (#570, §7.5, answers 596 and
+// 597): the school key this device holds, kept with its agreement pair and the
+// keyring as it holds it, the latest that reads counting, its school named by
+// the space ID the device drew; each assignment named by an HMAC, keyed by
+// the space, of the seeded teacher's ID; and each joining code or
 // security key it issued for an assignment, the first that reads of each issue
 // counting and the highest issue being the assignment's current one. A code is
 // valid for seven days from the day it was issued, to be printed and handed
@@ -20,9 +22,9 @@ import type { DemoTeacher } from './demo-world.ts';
 import type { SchoolHeld, SchoolIssued } from './device-events.ts';
 import { eventOf } from './events.ts';
 import type { Entry } from './history.ts';
-import type { RandomBytes } from './id.ts';
-import { ID, isKeyring, SCHOOL } from './school-key-shape.ts';
-import { PKCS8_TEXT } from './world-keys.ts';
+import { toHex, type RandomBytes } from './id.ts';
+import { ascii, ID, isKeyring, SCHOOL } from './school-key-shape.ts';
+import { PKCS8_TEXT, toBase64Url, type WorldMac } from './world-keys.ts';
 
 export type { SchoolHeld, SchoolIssued } from './device-events.ts';
 
@@ -57,14 +59,32 @@ export function readSchoolHeld(value: unknown, publicKeyBytes: number): SchoolHe
  * leaves the one before it held.
  */
 export function keptHeld(entries: readonly Entry[], school: string, publicKeyBytes: number): SchoolHeld | null {
+  return heldIn(entries, publicKeyBytes, school);
+}
+
+/** The school key this store holds, of whichever school, the latest that reads, or null (answer 597). */
+export function latestHeld(entries: readonly Entry[], publicKeyBytes: number): SchoolHeld | null {
+  return heldIn(entries, publicKeyBytes, null);
+}
+
+function heldIn(entries: readonly Entry[], publicKeyBytes: number, school: string | null): SchoolHeld | null {
   let held: SchoolHeld | null = null;
   for (const entry of entries) {
     const event = eventOf(entry);
     if (event?.kind !== 'school.held') continue;
     const read = readSchoolHeld(event.held, publicKeyBytes);
-    if (read?.school === school) held = read;
+    if (read !== null && (school === null || read.school === school)) held = read;
   }
   return held;
+}
+
+/** A new school space's ID, as the director's device draws it: 16 random bytes in base64url. */
+export const newSchoolSpace = (random: RandomBytes): string => toBase64Url(random(16));
+
+/** A seeded teacher's assignment ID in a school's space: 16 bytes of an HMAC keyed by the space, in hex. */
+export async function assignmentId(school: string, teacher: string, mac: WorldMac): Promise<string> {
+  const made = await mac(ascii(school), ascii(`minhajna/demo/assignment\n${teacher}`));
+  return toHex(made.subarray(0, 16));
 }
 
 /** An issued code or key as the store may keep it, or null when it does not read. */
@@ -144,15 +164,20 @@ export type IssueStatus =
 /** A teacher's row in D-Issue. */
 export interface IssueRow {
   readonly teacher: DemoTeacher;
+  readonly assignment: string | null;
   readonly access: 'phone' | 'key';
   readonly keyNumber: string | null;
   readonly issue: KeptIssue | null;
   readonly status: IssueStatus;
 }
 
-/** The school's teachers as D-Issue lists them, by subject then name as `name` words and compares them. */
+/**
+ * The school's teachers as D-Issue lists them, by subject then name as `name` words and compares them, each with
+ * the assignment `assignments` gives its ID.
+ */
 export function issueRows(
   teachers: readonly DemoTeacher[],
+  assignments: ReadonlyMap<string, string>,
   issues: ReadonlyMap<string, KeptIssue>,
   joined: ReadonlyMap<string, Day>,
   today: Day,
@@ -178,9 +203,10 @@ export function issueRows(
         name.compare(name.person(one), name.person(other)),
     )
     .map((teacher) => {
-      const issue = issues.get(teacher.id) ?? null;
+      const assignment = assignments.get(teacher.id) ?? null;
+      const issue = (assignment === null ? undefined : issues.get(assignment)) ?? null;
       const keyNumber = issue?.keyNumber ?? null;
-      return { teacher, access: issue?.access ?? 'phone', keyNumber, issue, status: status(issue) };
+      return { teacher, assignment, access: issue?.access ?? 'phone', keyNumber, issue, status: status(issue) };
     });
 }
 
