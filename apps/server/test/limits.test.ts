@@ -90,12 +90,15 @@ describe('the rate limits', () => {
       const start = (world: string): Promise<Response> =>
         fetch(`${base}/worlds`, {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          headers: { 'content-type': 'application/json', origin: 'https://minhajna.djazair.dev' },
           body: JSON.stringify({ world, sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [], pass: PASS }),
         });
       assert.equal((await start('K1MT1')).status, 201);
       assert.equal((await start('K1MT2')).status, 201);
-      assert.equal((await start('K1MT3')).status, 429);
+      const refused = await start('K1MT3');
+      assert.equal(refused.status, 429);
+      assert.equal(refused.headers.get('access-control-allow-origin'), 'https://minhajna.djazair.dev');
+      assert.equal(refused.headers.get('access-control-expose-headers'), 'Retry-After');
       const headers = { 'x-world-pass': PASS };
       assert.equal((await fetch(`${base}/worlds/K1MT1`, { headers })).status, 200);
       assert.equal((await fetch(`${base}/worlds/K1MT2/date`, { headers })).status, 200);
