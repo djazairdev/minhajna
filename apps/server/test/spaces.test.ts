@@ -203,7 +203,7 @@ describe('the encrypted relay', () => {
     await small.listen(0, '127.0.0.1');
     const url = await small.getUrl();
     try {
-      const json = { 'content-type': 'application/json', 'x-world-pass': PASS };
+      const json = { 'content-type': 'application/json', 'x-world-pass': PASS, origin: 'https://minhajna.djazair.dev' };
       const start = { world: WORLD, sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [], pass: PASS };
       await fetch(`${url}/worlds`, { method: 'POST', headers: json, body: JSON.stringify(start) });
       await fetch(`${url}/worlds/${WORLD}/spaces/${SCHOOL}`, {
@@ -219,6 +219,8 @@ describe('the encrypted relay', () => {
       assert.equal(res.status, 503);
       assert.equal(res.headers.get('retry-after'), '5');
       assert.equal(res.headers.get('cache-control'), 'no-store');
+      assert.equal(res.headers.get('access-control-allow-origin'), 'https://minhajna.djazair.dev');
+      assert.equal(res.headers.get('access-control-expose-headers'), 'Retry-After');
     } finally {
       await small.close();
     }
