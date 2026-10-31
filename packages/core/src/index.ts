@@ -193,4 +193,5 @@ export * from './timetable-proposal.ts';
 export * from './timetable-receipt.ts';
 export * from './timetable-package-file.ts';
 export * from './timetable-differences.ts';
+export * from './timetable-accept.ts';
 export { clean as cleanRecordText } from './timetable-record.ts';
