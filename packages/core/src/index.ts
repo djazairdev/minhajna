@@ -95,6 +95,7 @@ export * from './grants.ts';
 export * from './certify.ts';
 export * from './week-totals.ts';
 export * from './week-record.ts';
+export * from './course-delivery.ts';
 export * from './total-shares.ts';
 export * from './devices.ts';
 export * from './restore.ts';
