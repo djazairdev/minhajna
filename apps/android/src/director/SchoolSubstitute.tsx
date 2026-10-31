@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The director's assignments and access page in a demo world (#587,
-// D-Substitute, §7.5, §7.8, R-7.5-07, R-7.5-15, R-7.8-11, answer 615): that the
-// appointment is the directorate's decision, which the school only records; as
-// it opens it reads the page (substitute-session.ts), and a problem reading is
-// shown in the catalogue's words, said on the PC in its live line and announced
-// on a phone, with a way to read again. The form (SubstituteForm.tsx) records
-// an appointment, one change at a time, said once kept or in the page's words
-// when refused, and the page is read again, the form emptied. The appointments
-// list each substitute in place of the holder, with the decision, the first day
-// and the classes, counted in the language's plural forms, and whether the
-// handover is all on the substitute's channel, awaiting receipt or received on
-// a day, signed on the substitute's device, or not all there, with a way to
-// send it again; until the first day and while no receipt came, a way to bring
-// it up to date with the weeks signed since. Inspectors' access comes from the
-// supervising authority, never the director, and a world has no grant; nothing
-// grants or extends it here; and the page lists what never happens in Minhajna.
+// The director's assignments and access page in a demo world (#587, #588,
+// D-Substitute, §7.5, §7.8, R-7.5-07, R-7.5-15, R-7.8-11, answers 615 and 616):
+// that the appointment is the directorate's decision, which the school only
+// records; as it opens it reads the page (substitute-session.ts), and a problem
+// reading is shown in the catalogue's words, said on the PC in its live line
+// and announced on a phone, with a way to read again. The form
+// (SubstituteForm.tsx) records an appointment, one change at a time, said once
+// kept or in the page's words when refused, and the page is read again, the
+// form emptied. The appointments list each one as AppointmentRow.tsx shows it:
+// its handover, sent again or brought up to date, its end at the holder's
+// return on a day chosen (substitute-end.ts), and the classes' return, sent
+// again when not all back; each change is said once made or in the page's words
+// when refused, the holder or the substitute not joined included, and the page
+// is read again. Inspectors' access comes from the supervising authority, never
+// the director, and a world has no grant; nothing grants or extends it here;
+// and the page lists what never happens in Minhajna.
 
 import type { BellTimes, Day, DemoSchool, SchoolSubstitution } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -29,7 +29,8 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import { problemOf } from '../school/school-join-session';
 import { onPc, useDeviceText } from '../text/device-text';
-import { isolate } from '../week/grid-labels';
+import { AppointmentRow } from './AppointmentRow';
+import { endSubstitution, sendReturn } from './substitute-end';
 import { appoint, readSubstitutes, sendHandover, type Appointing, type SubstituteDesk } from './substitute-session';
 import { SubstituteForm } from './SubstituteForm';
 
@@ -44,13 +45,21 @@ export type SchoolSubstituteProps = {
 
 const NEVER = ['evaluate', 'transfer', 'pay', 'links'] as const;
 
-/** What a problem appointing says: the page's own words for its codes, or the catalogue's. */
-const problemKey = (error: unknown) =>
-  errorCode(error) === 'E_SUBSTITUTE_NOT_JOINED'
-    ? 'demo.substitute.notJoined'
-    : errorCode(error) === 'E_SUBSTITUTE_CHOICE'
-      ? 'demo.substitute.badChoice'
-      : problemOf(error);
+const PROBLEMS = {
+  E_SUBSTITUTE_NOT_JOINED: 'demo.substitute.notJoined',
+  E_HOLDER_NOT_JOINED: 'demo.substitute.holderNotJoined',
+  E_SUBSTITUTE_CHOICE: 'demo.substitute.badChoice',
+  E_SUBSTITUTE_END: 'demo.substitute.endRefused',
+  E_SUBSTITUTE_TAUGHT: 'demo.substitute.taught',
+} as const;
+
+/** What a problem on this page says: the page's own words for its codes, or the catalogue's. */
+const problemKey = (error: unknown) => {
+  const code = errorCode(error);
+  return code !== undefined && Object.hasOwn(PROBLEMS, code)
+    ? PROBLEMS[code as keyof typeof PROBLEMS]
+    : problemOf(error);
+};
 
 /** The director's assignments and access page: a substitute's appointment, the appointments, and inspectors' access. */
 export function SchoolSubstitute(props: SchoolSubstituteProps) {
@@ -117,6 +126,10 @@ export function SchoolSubstitute(props: SchoolSubstituteProps) {
     void act(() => appoint(world, school, choice, bells, kit, send), t('demo.substitute.recorded'));
   const resend = (one: SchoolSubstitution) =>
     void act(() => sendHandover(world, school, one, kit, send), t('demo.substitute.resent'));
+  const endIt = (one: SchoolSubstitution, day: Day) =>
+    void act(() => endSubstitution(world, school, one.id, day, bells, kit, send), t('demo.substitute.endedSaid'));
+  const sendBack = (one: SchoolSubstitution) =>
+    void act(() => sendReturn(world, school, one, kit, send), t('demo.substitute.returnResent'));
   return (
     <View testID="substitute" style={styles.page}>
       <Text style={[styles.body, align]}>{t('demo.substitute.lead')}</Text>
@@ -140,32 +153,17 @@ export function SchoolSubstitute(props: SchoolSubstituteProps) {
             {t('demo.substitute.appointments')}
           </Text>
           {desk.appointments.map((one) => (
-            <View key={one.id} testID="substitute-appointment" style={styles.row}>
-              <Text style={[styles.body, align]}>
-                {t('demo.substitute.line', {
-                  substitute: isolate(one.substituteName),
-                  holder: isolate(one.holderName),
-                  decision: isolate(one.decision),
-                  from: dayText(one.from),
-                  classes: t('demo.substitute.classCount', { count: one.classes.length }),
-                })}
-              </Text>
-              <Text style={[styles.small, align]}>{one.classes.map(isolate).join(' · ')}</Text>
-              <Text style={[styles.small, align]}>
-                {one.received !== null
-                  ? t('demo.substitute.received', { day: dayText(one.received) })
-                  : t(one.handedOver ? 'demo.substitute.handedOver' : 'demo.substitute.notHandedOver')}
-              </Text>
-              {(!one.handedOver || (one.received === null && world.date < one.from)) && (
-                <Button
-                  testID="substitute-resend"
-                  variant="line"
-                  label={t(one.handedOver ? 'demo.substitute.update' : 'demo.substitute.resend')}
-                  disabled={busy}
-                  onPress={() => resend(one)}
-                />
-              )}
-            </View>
+            <AppointmentRow
+              key={one.id}
+              one={one}
+              days={desk.days}
+              date={world.date}
+              dayText={dayText}
+              busy={busy}
+              onResend={() => resend(one)}
+              onEnd={(day) => endIt(one, day)}
+              onReturn={() => sendBack(one)}
+            />
           ))}
         </View>
       )}
@@ -201,7 +199,6 @@ const styles = StyleSheet.create({
     padding: spacing['space-16'],
     gap: spacing['space-8'],
   },
-  row: { gap: spacing['space-4'] },
   head: { ...typography.label, color: colors.ink },
   body: { ...typography.body, color: colors.ink },
   small: { ...typography.small, color: colors.ink2 },
