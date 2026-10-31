@@ -5,14 +5,24 @@
 // and its subject's code, so once signed it stays signed when a later version
 // names the subject in another language; two subjects of a class are two weeks,
 // each chip named with its subject, a session of week A or B listed with its
-// week, and signing one leaves the other waiting; a one-day part gives its day
-// alone; a week this key signed already is said apart and reading again shows
-// it signed, while a device that did not join first signs nothing; a problem
-// reading is shown with a way to read again; and the confirmations are kept
-// apart by join, school and course, cleared once confirmed in another world,
-// and forgotten once signed. Every school, class and teacher is made up.
+// week, and signing one leaves the other waiting, while the page opened on a
+// course, as the digest opens it, shows that course first, or the first course
+// when it is no longer taught; a one-day part gives its day alone; a week this
+// key signed already is said apart and reading again shows it signed, while a
+// device that did not join first signs nothing; a problem reading is shown with
+// a way to read again; and the confirmations are kept apart by join, school and
+// course, cleared once confirmed in another world, and forgotten once signed.
+// Every school, class and teacher is made up.
 
-import { addDays, parseDay, readJoinCode, type Day, type SchoolJoined, type Subject } from '@minhajna/core';
+import {
+  addDays,
+  parseDay,
+  readJoinCode,
+  timetableNameKey,
+  type Day,
+  type SchoolJoined,
+  type Subject,
+} from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Platform, Text, View, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
@@ -75,7 +85,12 @@ async function act(step: () => void = () => undefined) {
 const press = (testID: string) =>
   act(() => (tree!.root.findAllByProps({ testID })[0].props as PressableProps).onPress?.({} as never));
 
-async function render(world: { world: string; date: Day }, join: SchoolJoined, send: Send = server.send) {
+async function render(
+  world: { world: string; date: Day },
+  join: SchoolJoined,
+  send: Send = server.send,
+  course?: string,
+) {
   await act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">
@@ -89,6 +104,7 @@ async function render(world: { world: string; date: Day }, join: SchoolJoined, s
           said={words.title}
           workingDays={DAYS}
           subjects={SUBJECTS}
+          course={course}
         />
       </LocaleDirContext.Provider>,
     );
@@ -134,6 +150,13 @@ test('two subjects of a class are two weeks, a session of week A or B listed wit
   expect(texts().some((one) => one.includes(ar.ttImport.weekB))).toBe(true);
   await press('week-sign-go');
   expect(texts()).toContain(words.waiting.replace('{{classes}}', isolate(labels[0])));
+  await ReactTestRenderer.act(() => tree?.unmount());
+  const course = `${timetableNameKey('1م2')}\ncode\narabic`;
+  await render({ world: id, date: addDays(partFrom(here.date), 2) }, joined, server.send, course);
+  expect([rows(), has('week-sign-signed')]).toEqual([2, true]);
+  await ReactTestRenderer.act(() => tree?.unmount());
+  await render({ world: id, date: addDays(partFrom(here.date), 2) }, joined, server.send, 'a course no longer taught');
+  expect([rows(), has('week-sign-signed')]).toEqual([1, false]);
 });
 
 test('a one-day part gives its day alone, the standing part every other day', async () => {

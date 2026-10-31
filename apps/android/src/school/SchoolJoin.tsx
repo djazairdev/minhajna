@@ -18,13 +18,13 @@
 // opens, and that kept keys are being checked, when they are; so is each other
 // page's title as it opens. The law, or the new phone's note, sits at the
 // page's foot. Before any join, a link opens the way for a new phone
-// (Rejoin.tsx, #566), and a joined card opens the week to sign (WeekSign.tsx,
-// #582) and the timetable the school sent (TeacherTimetable.tsx, #579), the
-// teacher's devices and copies (DevicesMoved.tsx), who reads what in the
-// national system (NationalHelp.tsx, #568) and what stays and goes on leaving
-// (Leave.tsx, #567), when the year's dates read; going back from any returns
-// here, and Leave's way to the next school returns to the code's card
-// (join-view.ts).
+// (Rejoin.tsx, #566), and a joined card opens its own pages (JoinedPages.tsx):
+// the week to sign (#582), the weekly digest (#584), the timetable the school
+// sent (#579), the teacher's devices and copies, who reads what in the national
+// system (#568) and what stays and goes on leaving (#567), when the year's
+// dates read; going back from any returns here, but from Week-sign opened by
+// the digest, which returns to the digest, and Leave's way to the next school
+// returns to the code's card (join-view.ts).
 
 import {
   joiningIsVoluntary,
@@ -49,12 +49,8 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
-import { TeacherTimetable } from '../timetable/TeacherTimetable';
-import { WeekSign } from '../week/WeekSign';
 import { checkKeptJoins, joinSchool, problemOf } from './school-join-session';
-import { DevicesMoved } from './DevicesMoved';
-import { NationalHelp } from './NationalHelp';
-import { Leave } from './Leave';
+import { joinedPage } from './JoinedPages';
 import { RejoinBinds, RejoinLead, RejoinRemoved } from './Rejoin';
 import { SchoolCodeCard } from './SchoolCodeCard';
 import { SchoolConfirm } from './SchoolConfirm';
@@ -93,7 +89,7 @@ export type SchoolJoinProps = {
 
 /** The teacher's page for joining the school's space in a world. */
 export function SchoolJoin(props: SchoolJoinProps) {
-  const { world, date, dayText, kit, send, trial, year, onClose, workingDays, subjects } = props;
+  const { world, date, dayText, kit, send, trial, year, onClose } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -200,15 +196,10 @@ export function SchoolJoin(props: SchoolJoinProps) {
     );
   })();
 
-  if (typeof view === 'object') {
-    const shown = { date, join: view.join, dayText, onClose: leave, said };
-    const channel = { ...shown, world, kit, send, workingDays };
-    if (view.page === 'devices') return <DevicesMoved {...shown} />;
-    if (view.page === 'help') return <NationalHelp {...shown} />;
-    if (view.page === 'timetable') return <TeacherTimetable {...channel} />;
-    if (view.page === 'week') return <WeekSign {...channel} subjects={subjects} />;
-    if (dates !== null) return <Leave {...shown} year={year} dates={dates} onJoin={toCode} />;
-  }
+  const onWeek = (one: SchoolJoined, course: string) => setView({ page: 'week', join: one, course, back: 'digest' });
+  const shown =
+    typeof view === 'object' && joinedPage(view, { ...props, said, dates, onClose: leave, onJoin: toCode, onWeek });
+  if (shown) return shown;
   return (
     <View testID="school-join" style={[styles.screen, { direction }]}>
       <DemoBand date={date} />
@@ -256,6 +247,7 @@ export function SchoolJoin(props: SchoolJoinProps) {
             onHelp={open('help')}
             onTimetable={open('timetable')}
             onWeek={open('week')}
+            onDigest={open('digest')}
             onLeave={dates === null ? undefined : open('leave')}
           />
           <View onLayout={onCodeLayout} style={styles.code}>

@@ -4896,6 +4896,21 @@
       "signNote": "An electronic signature with this phone’s key, like signing the week. On your own phone the fingerprint or PIN is asked before signing; in a demo world it is not.",
       "done": "Correction {{number}} is signed.",
       "changed": "This week changed since the page opened. Read it again, then correct it."
+    },
+    "digest": {
+      "title": "Weekly digest",
+      "open": "Weekly digest",
+      "subtitle": "{{dates}} · for you alone",
+      "confirmed": "Sessions confirmed: {{confirmed}} of {{total}}",
+      "signed": "Signed this week: {{classes}}.",
+      "noneSigned": "No week is signed yet this week.",
+      "unsigned": "A week not signed",
+      "unsignedLine": "It stays on your devices until it is signed, and after that the director sees only each session’s state.",
+      "sign": "Sign the week of {{class}}",
+      "fixes": "Corrected after signing",
+      "fixLine": "Correction {{number}} · {{course}} · {{session}}: from “{{before}}” to “{{after}}”",
+      "plan": "Each class’s place in its plan, its buffer sessions and the coming exams come with a plan pack.",
+      "foot": "It reaches you alone, and none of it reaches the director. Outside a demo world it arrives on Sunday morning, after the quiet hours."
     }
   },
   "chart": {
