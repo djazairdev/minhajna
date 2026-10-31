@@ -84,7 +84,13 @@
     "schools_other": "{{count}} écoles",
     "groups_one": "{{count}} groupe",
     "groups_many": "{{count}} de groupes",
-    "groups_other": "{{count}} groupes"
+    "groups_other": "{{count}} groupes",
+    "hours_one": "{{count}} heure",
+    "hours_many": "{{count}} d’heures",
+    "hours_other": "{{count}} heures",
+    "minutes_one": "{{count}} minute",
+    "minutes_many": "{{count}} de minutes",
+    "minutes_other": "{{count}} minutes"
   },
   "bottomSheet": {
     "close": "Fermer"
@@ -4366,6 +4372,35 @@
       "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. La liste complète est publiée avec le code source.",
       "moved": "L’application ne contacte plus le serveur de synchronisation du projet : la synchronisation est passée au serveur du ministère le jour de l’adhésion, {{date}}.",
       "privacy": "L’avis de confidentialité, ce que Minhajna conserve et où, se trouve dans l’Aide, hors de ce monde."
+    },
+    "timetable": {
+      "title": "Emploi du temps de l’établissement",
+      "open": "Emploi du temps de l’établissement",
+      "reading": "Lecture du canal de l’établissement…",
+      "again": "Relire",
+      "none": "Pas encore d’emploi du temps de l’établissement : votre part arrive ici dès que l’établissement la publie.",
+      "inForce": "En vigueur aujourd’hui : version {{version}}, à partir du {{day}}",
+      "inForceOnce": "Aujourd’hui seulement : version {{version}}, pour le {{day}}",
+      "notYet": "Pas encore en vigueur : la version {{version}} s’applique à partir du {{day}}",
+      "hours": "{{hours}} par semaine",
+      "received": "Versions reçues",
+      "from": "Version {{version}} · à partir du {{day}}",
+      "once": "Version {{version}} · le {{day}} seulement",
+      "whole": "Séances de votre emploi du temps : {{sessions}}",
+      "nothing": "Rien ne change dans vos séances.",
+      "fromChanges": "À partir du {{day}}, pour vos classes :",
+      "onceChanges": "Le {{day}} seulement, puis la version {{version}} s’applique de nouveau :",
+      "hoursSame": "{{hours}} par semaine, comme avant",
+      "hoursChanged": "De {{before}} à {{after}} par semaine",
+      "confirmed": "Réception confirmée le {{day}}",
+      "confirm": "Confirmer la réception de la version {{version}}",
+      "paper": "Confirmer la réception indique à l’établissement que vous avez reçu cette version, à la place de la signature de l’avis papier.",
+      "done": "Réception de la version {{version}} confirmée.",
+      "hoursAnd": "{{hours}} {{minutes}}",
+      "daySessions": "Ce jour-là : {{sessions}}",
+      "confirming": "Confirmation de la réception…",
+      "affected": "L’établissement ne prévient que les enseignants dont une version change les séances.",
+      "notJoined": "L’adhésion de ce téléphone n’est pas encore sur le canal de l’établissement. Rouvrez l’espace de l’établissement, puis relisez."
     },
     "leave": {
       "open": "Quitter l’établissement",

@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A teacher's proposal in plain words (#578, D-TT-proposal, answer 606): a
-// session's slot, its day and times, class, group and subject, then its room;
-// and the checks of a move against the standing version, each a line: the
-// teacher, the class and, when the move gives one, the room free at the new
-// time or not, or that the session loses its room when the move gives none, the
-// class's hours kept or changed, and whether the move holds in both weeks or
-// only in week A or B, and that a session taught to several classes together
-// would be split. Names are isolated so a name in other letters keeps its
-// place.
+// session's slot, its day and times, its week when it is A or B, class, group
+// and subject, then its room; and the checks of a move against the standing
+// version, each a line: the teacher, the class and, when the move gives one,
+// the room free at the new time or not, or that the session loses its room when
+// the move gives none, the class's hours kept or changed, and whether the move
+// holds in both weeks or only in week A or B, and that a session taught to
+// several classes together would be split. Names are isolated so a name in
+// other letters keeps its place.
 
 import type { ImportedSession } from '@minhajna/core';
 import type { TFunction } from 'i18next';
@@ -18,10 +18,14 @@ import { spanText } from './grid-text';
 import type { WaitingProposal } from './proposal-session';
 
 /** A session's slot: day and times, class, group and subject, and room. */
-export function slotText(t: TFunction, one: ImportedSession): string {
+export function slotText(
+  t: TFunction,
+  one: Pick<ImportedSession, 'class' | 'group' | 'subject' | 'room' | 'day' | 'start' | 'end' | 'week'>,
+): string {
   const lesson = [one.class, one.group, one.subject].filter((name) => name !== '').map(isolate);
   const room = one.room === '' ? [] : [t('ttProposal.room', { room: isolate(one.room) })];
-  return [`${t(`week.days.${one.day}`)} ${spanText(one.start, one.end)}`, ...lesson, ...room].join(' · ');
+  const week = one.week === 'both' ? [] : [t(one.week === 'A' ? 'week.weekA' : 'week.weekB')];
+  return [`${t(`week.days.${one.day}`)} ${spanText(one.start, one.end)}`, ...week, ...lesson, ...room].join(' · ');
 }
 
 /** The checks of a move whose session was found, one line each. */
