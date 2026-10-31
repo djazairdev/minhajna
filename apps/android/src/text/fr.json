@@ -3943,6 +3943,7 @@
       "invalid": "Ce n’est pas un fichier de relevé de progression signé.",
       "version": "Le relevé vient d’une version plus récente de l’application : mettez-la à jour pour le lire.",
       "world": "Ce relevé a été signé dans un monde de démonstration aux données inventées : il n’est ni retenu ici ni placé dans la vue de l’établissement.",
+      "otherWorld": "Ce relevé n’a pas été signé dans ce monde de démonstration : il n’y est ni retenu ni placé dans la vue de l’établissement.",
       "payload": "La signature est valide, mais le contenu du relevé ne suit pas son format : il n’est pas gardé.",
       "unreadable": "Le fichier ou le code n’a pas pu être lu.",
       "noLink": "Aucun relevé n’a été trouvé dans ce PDF. Ouvrez le fichier tel que l’enseignant l’a envoyé, ou scannez son code QR.",
@@ -4165,6 +4166,7 @@
     "home": {
       "role": "Vous agissez en tant que : {{role}}",
       "roleNext": "L’espace de ce rôle s’ouvrira ici dans une version ultérieure de la démonstration.",
+      "reader": "Relevés reçus dans ce monde",
       "code": "Code du monde",
       "codeLine": "Donnez-le à qui rejoint le monde. Il ouvre tous les rôles.",
       "move": "Passer au jour annoncé suivant",

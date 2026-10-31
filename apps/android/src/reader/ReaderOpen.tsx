@@ -6,10 +6,11 @@
 // no account. One whose signature checks is shown as checked at once and kept,
 // the same signed text once, even when opened again before it is saved; one
 // changed after it was issued, of another kind, a PDF without its link or from
-// a newer version of the app says so and is never kept. Opened for a statement
-// already kept, it shows that one, or says it is no longer here.
+// a newer version of the app says so and is never kept, as does one signed in
+// a demo world, or inside a world one signed elsewhere (#563). Opened for a
+// statement already kept, it shows that one, or says it is no longer here.
 
-import { receivedStatements, receiveStatement, type Received } from '@minhajna/core';
+import { receivedStatements, receiveStatement, storeWorld, type Received } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -103,7 +104,15 @@ export function ReaderOpen({ id, onList, onSpot }: ReaderOpenProps) {
           <Text accessibilityRole="header" style={[styles.title, align]}>
             {t('reader.problemTitle')}
           </Text>
-          <Notice testID="reader-refused" icon={controlIcon('info')} message={t(`reader.problems.${shown.problem}`)} />
+          <Notice
+            testID="reader-refused"
+            icon={controlIcon('info')}
+            message={t(
+              shown.problem === 'world' && storeWorld(entries()) !== null
+                ? 'reader.problems.otherWorld'
+                : `reader.problems.${shown.problem}`,
+            )}
+          />
         </>
       )}
       {id !== undefined && one === undefined && (
