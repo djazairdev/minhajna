@@ -4325,6 +4325,59 @@
         "calendar": "Not held: calendar",
         "other": "Not held: other"
       }
+    },
+    "issue": {
+      "lead": "{{date}} · The school's teachers in the demo world: {{number}}",
+      "print": "Print the codes not yet scanned",
+      "refresh": "Refresh",
+      "opening": "Opening the school key on this device…",
+      "filter": "Show",
+      "chip": {
+        "all": "All · {{number}}",
+        "phone": "By phone · {{number}}",
+        "key": "By security key · {{number}}",
+        "waiting": "Codes waiting to be scanned"
+      },
+      "column": {
+        "teacher": "Teacher",
+        "subject": "Subject",
+        "access": "Access",
+        "status": "Status"
+      },
+      "access": {
+        "phone": "Phone",
+        "key": "Security key"
+      },
+      "status": {
+        "none": "No code yet",
+        "waiting": "Code of {{day}} · waiting to be scanned until {{until}}",
+        "keyWaiting": "Key {{number}} · not joined yet",
+        "expired": "Code expired on {{until}}",
+        "joined": "Joined {{day}}",
+        "keyJoined": "Joined {{day}} · key {{number}}"
+      },
+      "none": "No teacher matches this view.",
+      "order": "{{shown}} of {{all}} shown, by subject, then by name.",
+      "noPassword": "No passwords and no resets through the director: the code links the phone's key to the assignment.",
+      "noSignIn": "Sign-ins are not recorded: nothing here shows when anyone signed in, or from where.",
+      "panel": {
+        "qr": "Joining code for {{name}}",
+        "once": "For one scan",
+        "until": "Valid until {{until}}. Scanned from this screen or handed over printed, never sent in a message.",
+        "print": "Print the code",
+        "cancel": "Cancel the code and issue another",
+        "key": "Security key {{number}}",
+        "keyNote": "The key with this number is handed to the teacher who has no smartphone.",
+        "replaceKey": "Replace a lost key",
+        "newCode": "New joining code",
+        "keyInstead": "A security key instead",
+        "restores": "Joining brings back the school's copy of the classes. Private notes come back only from the sync of the teacher's own devices."
+      },
+      "sheet": {
+        "title": "Joining codes not yet scanned",
+        "until": "Valid until {{until}}",
+        "handover": "For one scan. Handed over in person, never sent in a message."
+      }
     }
   },
   "chart": {

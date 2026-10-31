@@ -4393,6 +4393,59 @@
         "calendar": "Non tenues : calendrier",
         "other": "Non tenues : autres"
       }
+    },
+    "issue": {
+      "lead": "{{date}} · Enseignants de l’établissement dans le monde de démonstration : {{number}}",
+      "print": "Imprimer les codes non encore scannés",
+      "refresh": "Actualiser",
+      "opening": "Ouverture de la clé de l’établissement sur cet appareil…",
+      "filter": "Afficher",
+      "chip": {
+        "all": "Tous · {{number}}",
+        "phone": "Par téléphone · {{number}}",
+        "key": "Par clé de sécurité · {{number}}",
+        "waiting": "Codes en attente de scan"
+      },
+      "column": {
+        "teacher": "Enseignant",
+        "subject": "Matière",
+        "access": "Accès",
+        "status": "État"
+      },
+      "access": {
+        "phone": "Téléphone",
+        "key": "Clé de sécurité"
+      },
+      "status": {
+        "none": "Pas encore de code",
+        "waiting": "Code du {{day}} · en attente de scan jusqu’au {{until}}",
+        "keyWaiting": "Clé {{number}} · pas encore rejoint",
+        "expired": "Code expiré le {{until}}",
+        "joined": "A rejoint le {{day}}",
+        "keyJoined": "A rejoint le {{day}} · clé {{number}}"
+      },
+      "none": "Aucun enseignant ne correspond à cet affichage.",
+      "order": "{{shown}} sur {{all}} affichés, par matière, puis par nom.",
+      "noPassword": "Ni mot de passe ni réinitialisation par le directeur : le code lie la clé du téléphone à l’affectation.",
+      "noSignIn": "Les connexions ne sont pas enregistrées : rien ici ne montre quand quelqu’un s’est connecté, ni d’où.",
+      "panel": {
+        "qr": "Code d’adhésion de {{name}}",
+        "once": "Pour un seul scan",
+        "until": "Valable jusqu’au {{until}}. Scanné depuis cet écran ou remis imprimé en main propre, jamais envoyé par message.",
+        "print": "Imprimer le code",
+        "cancel": "Annuler le code et en émettre un autre",
+        "key": "Clé de sécurité {{number}}",
+        "keyNote": "La clé portant ce numéro est remise à l’enseignant qui n’a pas de smartphone.",
+        "replaceKey": "Remplacer une clé perdue",
+        "newCode": "Nouveau code d’adhésion",
+        "keyInstead": "Une clé de sécurité à la place",
+        "restores": "L’adhésion rend la copie des classes de l’établissement. Les notes privées ne reviennent que de la synchronisation des propres appareils de l’enseignant."
+      },
+      "sheet": {
+        "title": "Codes d’adhésion non encore scannés",
+        "until": "Valable jusqu’au {{until}}",
+        "handover": "Pour un seul scan. Remis en main propre, jamais envoyé par message."
+      }
     }
   },
   "chart": {
