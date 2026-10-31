@@ -4086,8 +4086,12 @@
       "ministry": "Ministry",
       "directorate": "Directorate of education",
       "director": "School director",
+      "preparer": "Timetable preparer",
       "inspector": "Inspector",
-      "teacher": "Teacher"
+      "teacher": "Teacher",
+      "curator": "Pack curator",
+      "operator": "System operator",
+      "observatory": "Observatory"
     },
     "home": {
       "role": "You act as: {{role}}",
@@ -4098,6 +4102,47 @@
       "moveLine": "Only this device, which started the world, moves its date.",
       "changeRole": "Change role",
       "leave": "Leave the world"
+    },
+    "shell": {
+      "name": "National demo",
+      "note": {
+        "ministry": "No figure here for a school or a teacher: each figure covers at least 10 teachers and 3 schools.",
+        "directorate": "No figure here for a school or a teacher: each figure covers at least 5 teachers and 3 schools.",
+        "director": "Never comes in here: private notes, reasons, the record before the week is signed, and the day each session was confirmed.",
+        "preparer": "A timetable preparer holds only the timetable key and opens no class record.",
+        "curator": "No pupil data in the editor.",
+        "operator": "No key to a named record in this centre, nor with those who run it.",
+        "observatory": "No session date, no reason, no pupil, nothing that identifies a teacher. The observatory stops once the national system’s totals exist."
+      }
+    },
+    "pages": {
+      "dashboard": "Dashboard",
+      "thresholds": "Threshold",
+      "cover": "Cover",
+      "records": "Class records",
+      "delivery": "Delivery reports",
+      "access": "Assignments and access",
+      "timetable": "Timetable",
+      "codes": "Joining codes",
+      "keys": "School keys",
+      "exchange": "Data exchange",
+      "log": "My log",
+      "totals": "Totals",
+      "grants": "Access grants",
+      "published": "What is published",
+      "calendar": "Calendar",
+      "packs": "Packs",
+      "releases": "Releases",
+      "reports": "Reports",
+      "reviews": "Reviews",
+      "map": "System map",
+      "admin": "Admin log",
+      "problems": "Problem reports",
+      "security": "Security logs",
+      "insights": "Reports",
+      "payload": "The data as the teacher sees it",
+      "world": "This world",
+      "empty": "Nothing on this page in this world yet."
     }
   }
 }

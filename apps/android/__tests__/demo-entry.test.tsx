@@ -4,14 +4,14 @@
 // The demo worlds from a PC's first pages (#560, answers 571, 573 and 575), in
 // the app as the web build runs it, against a made-up demo server: the welcome
 // and the lock page lead to them only on a PC that has the cryptography for
-// worlds; a national world started from the lock page opens with no
-// passphrase, shows the band first, then its roles, then its home with its
-// code, each page announced with the band; its starter moves the date; and
-// leaving shuts the network and the world's store and brings back the lock,
-// or the welcome on a fresh PC, the teacher's history shut meanwhile and
-// untouched; Help on a PC locks behind the passphrase, and its entry starts
-// worlds too. No door shows when the reference data is refused.
-// Every world and passphrase is made up.
+// worlds; a national world started from the lock page opens with no passphrase,
+// shows the band first, then its roles, then a director's workspace, whose
+// world page shows its code, each page announced with the band; its starter
+// moves the date; and leaving shuts the network and the world's store and
+// brings back the lock, or the welcome on a fresh PC, the teacher's history
+// shut meanwhile and untouched; Help on a PC locks behind the passphrase, and
+// its entry starts worlds too. No door shows when the reference data is
+// refused. Every world and passphrase is made up.
 
 import { parseDay, worldCodeGroups } from '@minhajna/core';
 import {
@@ -186,9 +186,10 @@ test('a world started from the lock page opens with no passphrase, and leaving b
 
   await press('world-role-director');
   const heading = text.demo.home.role.replace('{{role}}', text.demo.roles.director);
-  expect(texts()).toContain(heading);
+  expect(texts()).toContain(text.demo.pages.dashboard);
   expect(await heard(heading)).toContain(`${text.demo.band}. `);
   expect(announced).not.toHaveBeenCalled();
+  await press('world-page-world');
   const code = String(tree!.root.findByProps({ testID: 'world-code' }).props.children);
   expect(code.split(' ')).toHaveLength(4);
   expect(worldCodeGroups(code.replaceAll(' ', '')).join(' ')).toBe(code);

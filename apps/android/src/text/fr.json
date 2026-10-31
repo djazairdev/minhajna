@@ -4154,8 +4154,12 @@
       "ministry": "Ministère",
       "directorate": "Direction de l’éducation",
       "director": "Chef d’établissement",
+      "preparer": "Préparateur de l’emploi du temps",
       "inspector": "Inspecteur",
-      "teacher": "Enseignant"
+      "teacher": "Enseignant",
+      "curator": "Responsable des packs",
+      "operator": "Opérateur du système",
+      "observatory": "Observatoire"
     },
     "home": {
       "role": "Vous agissez en tant que : {{role}}",
@@ -4166,6 +4170,47 @@
       "moveLine": "Seul cet appareil, qui a démarré le monde, en déplace la date.",
       "changeRole": "Changer de rôle",
       "leave": "Quitter le monde"
+    },
+    "shell": {
+      "name": "Démo nationale",
+      "note": {
+        "ministry": "Aucun chiffre ici pour un établissement ou un enseignant : chaque chiffre couvre au moins 10 enseignants et 3 établissements.",
+        "directorate": "Aucun chiffre ici pour un établissement ou un enseignant : chaque chiffre couvre au moins 5 enseignants et 3 établissements.",
+        "director": "N’entrent pas ici : les notes privées, les motifs, le registre avant la signature de la semaine, ni le jour où chaque séance a été confirmée.",
+        "preparer": "Le préparateur ne détient que la clé de l’emploi du temps et n’ouvre aucun registre de classe.",
+        "curator": "Aucune donnée d’élève dans l’éditeur.",
+        "operator": "Aucune clé d’un registre nominatif dans ce centre, ni chez ceux qui le font fonctionner.",
+        "observatory": "Ni date de séance, ni motif, ni élève, ni rien qui identifie un enseignant. L’observatoire s’arrête dès que les totaux du système national existent."
+      }
+    },
+    "pages": {
+      "dashboard": "Tableau de bord",
+      "thresholds": "Seuil",
+      "cover": "Remplacements",
+      "records": "Registres des classes",
+      "delivery": "Rapports de réalisation",
+      "access": "Affectations et accès",
+      "timetable": "Emploi du temps",
+      "codes": "Codes d’adhésion",
+      "keys": "Clés de l’établissement",
+      "exchange": "Échanges de données",
+      "log": "Mon journal",
+      "totals": "Totaux",
+      "grants": "Autorisations de consultation",
+      "published": "Ce qui est publié",
+      "calendar": "Calendrier",
+      "packs": "Packs",
+      "releases": "Versions",
+      "reports": "Signalements",
+      "reviews": "Relectures",
+      "map": "Carte du système",
+      "admin": "Journal d’administration",
+      "problems": "Signalements de problèmes",
+      "security": "Journaux de sécurité",
+      "insights": "Rapports",
+      "payload": "Les données telles que l’enseignant les voit",
+      "world": "Ce monde",
+      "empty": "Rien sur cette page dans ce monde pour l’instant."
     }
   }
 }

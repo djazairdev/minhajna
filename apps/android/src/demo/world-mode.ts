@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A demo world once it is started or joined (#560, answers 569, 572 and
-// 573): its own store opens, apart from the teacher's, and keeps the world's
-// kind and code, and the starter token on the device that started it, as a
-// device-layer event that nothing exports; a code entered again on that
+// A demo world once it is started or joined (#560 and #562, answers 569, 572,
+// 573 and 576): its own store opens, apart from the teacher's, and keeps the
+// world's kind and code, and the starter token on the device that started it,
+// as a device-layer event that nothing exports; a code entered again on that
 // device finds its token there. Opening fails with the network shut and the
 // world's store closed. Leaving shuts the network first, then the store; the
 // teacher's history opens again only through its lock. A code the server no
@@ -12,7 +12,8 @@
 // belongs to another code with the same ID, and one kept without its key; to
 // find out, the store opens, so a code this device never kept makes an empty
 // store that is erased at once. The roles are the world's kind's until #518
-// seeds its people; a phone offers only the teacher's and the inspector's.
+// seeds its people; a phone offers only the teacher's and the inspector's, and
+// a PC opens the others' workspaces (world-pages.ts).
 
 import { keptWorld, worldIdOfCode, type Day, type RecordBook, type WorldKept, type WorldKind } from '@minhajna/core';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
@@ -22,12 +23,21 @@ import { onPc } from '../text/device-text';
 import { openWorldBook } from '../storage/world';
 
 /** Who someone acts as in a world. */
-export type WorldRole = 'ministry' | 'directorate' | 'director' | 'inspector' | 'teacher';
+export type WorldRole =
+  | 'ministry'
+  | 'directorate'
+  | 'director'
+  | 'preparer'
+  | 'inspector'
+  | 'teacher'
+  | 'curator'
+  | 'operator'
+  | 'observatory';
 
-/** The roles each kind of world holds, from the Ministry down (answer 573). */
+/** The roles each kind of world holds, from the Ministry down, then those who serve the system (answer 576). */
 export const WORLD_ROLES: Readonly<Record<WorldKind, readonly WorldRole[]>> = {
-  national: ['ministry', 'directorate', 'director', 'inspector', 'teacher'],
-  teachers: ['teacher'],
+  national: ['ministry', 'directorate', 'director', 'preparer', 'inspector', 'teacher', 'curator', 'operator'],
+  teachers: ['teacher', 'observatory'],
 };
 
 /** The roles a phone offers (answer 575); the others are a PC's, for their workspaces (#562). */

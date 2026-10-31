@@ -1,21 +1,23 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A demo world once entered (#560 and #561, answers 571 to 573 and 575): the
-// band with the world's date above everything, so it is read first, then the
-// roles the world holds that this device offers; once one is picked, the
-// world's home names it, shows the world's code in its four groups for others
-// to type, and, on the device that started the world, moves its date to the
-// next announced day. Each role's workspace opens here once #562 brings it.
-// Leaving is always one press away.
+// A demo world once entered (#560 to #562, answers 571 to 573, 575 and 576):
+// the band with the world's date above everything, so it is read first, then
+// the roles the world holds that this device offers; once one is picked, a
+// role above the teacher opens its workspace on its first page, and the
+// teacher's or the inspector's home names it. The world's own facts, on the
+// home and on the workspace's last page, are its code in its four groups for
+// others to type and, on the device that started the world, moving its date
+// to the next announced day. Leaving is always one press away.
 // The button pressed is gone with each new page, so the band and the page's
 // heading are announced as it shows: on a PC through a hidden live region,
 // cleared a few seconds later so browsing does not read it twice, and on the
-// phone through its own announcement.
+// phone through its own announcement; a workspace says its page too, and
+// only its page when the role is the same.
 
 import { useLocale } from '@react-navigation/native';
 import { worldCodeGroups } from '@minhajna/core';
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
@@ -25,6 +27,8 @@ import { colors, spacing, typography } from '../design/tokens';
 import { onPc, useDeviceText } from '../text/device-text';
 import { DemoBand } from './DemoBand';
 import { rolesHere, type OpenWorld, type WorldRole } from './world-mode';
+import { hasWorkspace, ROLE_PAGES, type WorldPage, type WorkspaceRole } from './world-pages';
+import { WorldShell } from './WorldShell';
 
 /** How long the hidden words stay, in milliseconds, so browsing the page does not read them twice. */
 const SAID_FOR = 5000;
@@ -33,8 +37,12 @@ const ROLE_ICONS: Readonly<Record<WorldRole, Parameters<typeof controlIcon>[0]>>
   ministry: 'publisher',
   directorate: 'globe',
   director: 'school',
+  preparer: 'pencil',
   inspector: 'check',
   teacher: 'pupils',
+  curator: 'homework',
+  operator: 'tune',
+  observatory: 'info',
 };
 
 export type WorldHomeProps = {
@@ -58,30 +66,89 @@ export function WorldHome({ world, date, role, moving, problem, onRole, onMove, 
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const side = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
+  const workspace = role !== null && onPc() && hasWorkspace(role) ? role : null;
+  const [chosen, setChosen] = useState<{ role: WorkspaceRole; page: WorldPage } | null>(null);
+  const page = workspace === null ? null : chosen?.role === workspace ? chosen.page : ROLE_PAGES[workspace][0];
   const heading = role === null ? t('demo.roles.title') : t('demo.home.role', { role: t(`demo.roles.${role}`) });
+  const spoken = page === null ? heading : `${heading}. ${t(`demo.pages.${page}`)}`;
   const [said, setSaid] = useState('');
+  const heard = useRef<WorldRole | null | undefined>(undefined);
   const announce = useEffectEvent(() => {
-    const words = `${t('demo.band')}. ${t('demo.date', { date })}. ${heading}`;
+    const samePlace = page !== null && heard.current === role;
+    heard.current = role;
+    const words = samePlace ? t(`demo.pages.${page}`) : `${t('demo.band')}. ${t('demo.date', { date })}. ${spoken}`;
     if (onPc()) setSaid(words);
     else AccessibilityInfo.announceForAccessibility(words);
   });
   useEffect(() => {
     const timer = setTimeout(announce, 0);
     return () => clearTimeout(timer);
-  }, [heading]);
+  }, [spoken]);
   useEffect(() => {
     if (said === '') return;
     const timer = setTimeout(() => setSaid(''), SAID_FOR);
     return () => clearTimeout(timer);
   }, [said]);
+  const facts: ReactNode = (
+    <>
+      <View style={styles.group}>
+        <Text accessibilityRole="header" style={[styles.label, align]}>
+          {t('demo.home.code')}
+        </Text>
+        <Text testID="world-code" selectable style={styles.code}>
+          {worldCodeGroups(world.code).join(' ')}
+        </Text>
+        <Text style={[styles.line, align]}>{t('demo.home.codeLine')}</Text>
+      </View>
+      {world.starter !== null && (
+        <View style={styles.group}>
+          <Button
+            testID="world-move-date"
+            variant="line"
+            label={t('demo.home.move')}
+            onPress={onMove}
+            disabled={moving}
+          />
+          <Text style={[styles.line, align]}>{t('demo.home.moveLine')}</Text>
+        </View>
+      )}
+    </>
+  );
+  const hiddenSaid = onPc() && (
+    <Text testID="world-said" accessibilityLiveRegion="polite" style={styles.hidden}>
+      {said}
+    </Text>
+  );
+  const trouble = (
+    <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
+      {problem ?? ''}
+    </Text>
+  );
+  if (workspace !== null && page !== null)
+    return (
+      <View style={[styles.screen, { direction }]}>
+        <DemoBand date={date} />
+        {hiddenSaid}
+        <WorldShell
+          role={workspace}
+          page={page}
+          moving={moving}
+          onPage={(one) => setChosen({ role: workspace, page: one })}
+          onChangeRole={() => {
+            setChosen(null);
+            onRole(null);
+          }}
+          onLeave={onLeave}
+        >
+          {page === 'world' ? facts : <Text style={[styles.line, align]}>{t('demo.pages.empty')}</Text>}
+          {trouble}
+        </WorldShell>
+      </View>
+    );
   return (
     <View style={[styles.screen, { direction }]}>
       <DemoBand date={date} />
-      {onPc() && (
-        <Text testID="world-said" accessibilityLiveRegion="polite" style={styles.hidden}>
-          {said}
-        </Text>
-      )}
+      {hiddenSaid}
       <ScrollView
         contentContainerStyle={[styles.content, side, { paddingBottom: insets.bottom + spacing['space-16'] }]}
       >
@@ -116,30 +183,8 @@ export function WorldHome({ world, date, role, moving, problem, onRole, onMove, 
               />
             </>
           )}
-          <View style={styles.group}>
-            <Text accessibilityRole="header" style={[styles.label, align]}>
-              {t('demo.home.code')}
-            </Text>
-            <Text testID="world-code" selectable style={styles.code}>
-              {worldCodeGroups(world.code).join(' ')}
-            </Text>
-            <Text style={[styles.line, align]}>{t('demo.home.codeLine')}</Text>
-          </View>
-          {world.starter !== null && (
-            <View style={styles.group}>
-              <Button
-                testID="world-move-date"
-                variant="line"
-                label={t('demo.home.move')}
-                onPress={onMove}
-                disabled={moving}
-              />
-              <Text style={[styles.line, align]}>{t('demo.home.moveLine')}</Text>
-            </View>
-          )}
-          <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
-            {problem ?? ''}
-          </Text>
+          {facts}
+          {trouble}
           <Button
             testID="world-leave"
             variant="plain"
