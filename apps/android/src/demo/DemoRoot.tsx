@@ -21,10 +21,11 @@
 // issues joining codes and security keys (#570), its keys page maps who holds
 // the school key (#571), and the director's and the preparer's timetable page
 // brings in its timetable (#576), kept for the world it was read in, from which
-// the director sends each teacher their part (#577), and the director's My log
-// lists their own actions (#573). The teacher of a national world signs in on a
-// staffroom PC (#572): on the phone it approves a PC's code, and on the PC it
-// is the staffroom PC itself.
+// the director sends each teacher their part (#577), publishes versions and
+// decides the teachers' proposals (#578, TimetableDesk.tsx), and the director's
+// My log lists their own actions (#573). The teacher of a national world signs
+// in on a staffroom PC (#572): on the phone it approves a PC's code, and on the
+// PC it is the staffroom PC itself.
 
 import {
   readWorldCode,
@@ -55,9 +56,8 @@ import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { useDirectorSchool } from '../director/director-world';
-import { TimetableImport, type TimetableRead } from '../timetable/TimetableImport';
-import { TimetableSend } from '../timetable/TimetableSend';
-import { levelBells } from '../timetable/timetable-words';
+import { TimetableDesk } from '../timetable/TimetableDesk';
+import type { TimetableRead } from '../timetable/TimetableImport';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -269,26 +269,18 @@ export function DemoRoot({
           return <OwnLog world={open} school={school} role={workspace} kit={kit} dayText={dayText} />;
         if ((workspace === 'director' || workspace === 'preparer') && page === 'timetable')
           return (
-            <TimetableImport
-              level={school.level}
+            <TimetableDesk
+              role={workspace}
+              world={open}
+              school={school}
               bells={reference.bells}
               workingDays={reference.profile.workingDays}
               read={timetable?.world === open.world ? timetable.read : null}
               onRead={(read) => setTimetable(read === null ? null : { world: open.world, read })}
-            >
-              {workspace === 'director' && timetable?.world === open.world && (
-                <TimetableSend
-                  world={open}
-                  school={school}
-                  sessions={timetable.read.result.sessions}
-                  bells={levelBells(reference.bells, school.level)}
-                  workingDays={reference.profile.workingDays}
-                  kit={kit}
-                  send={send}
-                  dayText={dayText}
-                />
-              )}
-            </TimetableImport>
+              kit={kit}
+              send={send}
+              dayText={dayText}
+            />
           );
         return null;
       }}

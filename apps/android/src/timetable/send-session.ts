@@ -33,7 +33,9 @@ import {
   type Day,
   type DemoSchool,
   type ImportedSession,
+  type Joined,
   type KeySigner,
+  type SealedBatch,
   type TimetablePart,
 } from '@minhajna/core';
 import { joinCode, type IssueDesk } from '../director/issue-session';
@@ -42,6 +44,10 @@ import { spaceBatches } from '../school/space-read';
 
 /** How many times a part is put on its channel before giving up. */
 const TRIES = 3;
+
+/** A code's channel as read before a write. */
+type ChannelRead = { readonly batches: readonly SealedBatch[]; readonly joined: Joined | null };
+type Code = Awaited<ReturnType<typeof joinCode>>;
 
 /** A signing key with its certificate. */
 type Signing = { readonly signer: KeySigner; readonly certificate: Certificate };
@@ -71,6 +77,10 @@ export function signingKey(world: string, desk: IssueDesk, ca: string, kit: Worl
   kept.catch(() => signing.delete(at));
   return kept;
 }
+
+/** This device's signing key for a world when it is kept, without certifying one, or null. */
+export const keptSigning = (world: string, desk: IssueDesk): Promise<Signing> | null =>
+  signing.get(`${world}:${desk.held.device}`) ?? null;
 
 /** The day a part sent on `date` applies from: the next Sunday. */
 export const partFrom = (date: Day): Day => addDays(date, 7 - weekday(date));
@@ -111,24 +121,39 @@ export function byStaff(sessions: readonly ImportedSession[], staff: ReadonlyMap
 }
 
 /**
- * Puts a part on its code's channel at the stream's next number, signed with
- * this device's key at the master version, refused when this key already put
- * one there at that version or a later one, reading the channel again when
- * another write came first.
+ * Puts a record on its code's channel at the stream's next number, reading the
+ * channel again when another write came first: `seal` makes its batches from
+ * the channel as read, numbered from `first`, or refuses.
  */
-export async function putPart(
-  code: Awaited<ReturnType<typeof joinCode>>,
-  part: TimetablePart,
-  key: Signing,
+export async function putOnChannel(
+  code: Code,
   ca: string,
   kit: WorldKit,
   send: Send,
+  seal: (read: ChannelRead, first: number) => Promise<readonly SealedBatch[]>,
 ): Promise<void> {
   const stream = await kitStep(() => channelStream(code, kit.mac));
   for (let tries = 0; tries < TRIES; tries += 1) {
     const batches = (await spaceBatches(code.world, code.school, send)).get(stream) ?? [];
+    const joined = await kitStep(() => readJoined(code, batches, { key: ca, checker: kit }, kit.cipher, kit.mac));
+    const first = batches.reduce((next, one) => Math.max(next, one.number + 1), 0);
+    const sealed = await seal({ batches, joined }, first);
+    const body = { stream, first, batches: sealed.map((one) => toBase64Url(one.bytes)) };
+    const answer = await send({ method: 'POST', path: `/worlds/${code.world}/spaces/${code.school}/batches`, body });
+    if (answer.status === 201) return;
+    if (answer.status !== 409) throw unexpected(answer);
+  }
+  throw failed('Another write kept coming first on the channel', 'E_WORLD_BUSY');
+}
+
+/**
+ * Puts a part on its code's channel, signed with this device's key at the
+ * master version, refused when this key already put one there at that version
+ * or a later one.
+ */
+export const putPart = (code: Code, part: TimetablePart, key: Signing, ca: string, kit: WorldKit, send: Send) =>
+  putOnChannel(code, ca, kit, send, async ({ batches, joined }, first) => {
     const checker = { key: ca, checker: kit };
-    const joined = await kitStep(() => readJoined(code, batches, checker, kit.cipher, kit.mac));
     const parts = await kitStep(() =>
       channelParts(code, batches, checker, joined?.device ?? null, kit.cipher, kit.mac),
     );
@@ -137,12 +162,5 @@ export async function putPart(
       throw failed('This key already put a part at this version or a later one', 'E_WORLD');
     }
     const signed = await kitStep(() => signPart(part, key.certificate, key.signer));
-    const first = batches.reduce((next, one) => Math.max(next, one.number + 1), 0);
-    const sealed = await kitStep(() => sealPart(code, signed, first, kit.cipher, kit.mac));
-    const body = { stream, first, batches: sealed.batches.map((one) => toBase64Url(one.bytes)) };
-    const answer = await send({ method: 'POST', path: `/worlds/${code.world}/spaces/${code.school}/batches`, body });
-    if (answer.status === 201) return;
-    if (answer.status !== 409) throw unexpected(answer);
-  }
-  throw failed('Another write kept coming first on the channel', 'E_WORLD_BUSY');
-}
+    return (await kitStep(() => sealPart(code, signed, first, kit.cipher, kit.mac))).batches;
+  });
