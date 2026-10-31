@@ -18,16 +18,17 @@
 // teacher of a national world opens School-join the same way (#564), in its
 // trial term end while the world's date falls in it (#565), with the country's
 // calendar and bells read for the world's school (school-mine-session.ts),
-// whose term and closures the teacher's classes count (#584). The director's
-// workspace opens on the seeded school's dashboard (#569), its codes page
-// issues joining codes and security keys (#570), its keys page maps who holds
-// the school key (#571), and the director's and the preparer's timetable page
-// brings in its timetable (#576), kept for the world it was read in, from which
-// the director sends each teacher their part (#577), publishes versions and
-// decides the teachers' proposals (#578, TimetableDesk.tsx), and the director's
-// My log lists their own actions (#573). The teacher of a national world signs
-// in on a staffroom PC (#572): on the phone it approves a PC's code, and on the
-// PC it is the staffroom PC itself.
+// whose term and closures the teacher's classes count (#584). The workspaces'
+// pages come from WorkspacePages.tsx: the director's workspace opens on the
+// seeded school's dashboard (#569), its codes page issues joining codes and
+// security keys (#570), its keys page maps who holds the school key (#571), and
+// the director's and the preparer's timetable page brings in its timetable
+// (#576), kept for the world it was read in, from which the director sends each
+// teacher their part (#577), publishes versions and decides the teachers'
+// proposals (#578, TimetableDesk.tsx), the director's My log lists their own
+// actions (#573), and the records page reads the classes' signed weeks (#585).
+// The teacher of a national world signs in on a staffroom PC (#572): on the
+// phone it approves a PC's code, and on the PC it is the staffroom PC itself.
 
 import {
   readWorldCode,
@@ -50,16 +51,11 @@ import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } fr
 import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from './world-session';
 import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
+import { workspacePage } from './WorkspacePages';
 import { SchoolJoin } from '../school/SchoolJoin';
 import { PcApprove } from '../staff/PcApprove';
 import { StaffPc } from '../staff/StaffPc';
-import { DirectorDashboard } from '../director/DirectorDashboard';
-import { IssueCodes } from '../director/IssueCodes';
-import { OwnLog } from '../director/OwnLog';
-import { SchoolKeys } from '../director/SchoolKeys';
 import { useDirectorSchool } from '../director/director-world';
-import { localized } from '../setup/names';
-import { TimetableDesk } from '../timetable/TimetableDesk';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import { mineOf } from '../week/school-mine-session';
 
@@ -248,50 +244,21 @@ export function DemoRoot({
       }
       onMove={move}
       onLeave={leave}
-      pageBody={(workspace, page) => {
-        if (school === null || reference === undefined) return null;
-        if (workspace === 'director' && page === 'dashboard')
-          return (
-            <DirectorDashboard
-              school={school}
-              profile={reference.profile}
-              when={{ trial, date: open.date }}
-              dayText={dayText}
-            />
-          );
-        if (workspace === 'director' && page === 'codes')
-          return (
-            <IssueCodes
-              world={open}
-              school={school}
-              profile={reference.profile}
-              kit={kit}
-              send={send}
-              dayText={dayText}
-            />
-          );
-        if (workspace === 'director' && page === 'keys')
-          return <SchoolKeys world={open} school={school} kit={kit} send={send} dayText={dayText} />;
-        if ((workspace === 'director' || workspace === 'preparer') && page === 'log')
-          return <OwnLog world={open} school={school} role={workspace} kit={kit} dayText={dayText} />;
-        if ((workspace === 'director' || workspace === 'preparer') && page === 'timetable')
-          return (
-            <TimetableDesk
-              role={workspace}
-              world={open}
-              school={school}
-              wilaya={localized(reference.profile.zones?.find((one) => one.code === school.wilaya)?.name ?? {})}
-              bells={reference.bells}
-              workingDays={reference.profile.workingDays}
-              read={timetable?.world === open.world ? timetable.read : null}
-              onRead={(read) => setTimetable(read === null ? null : { world: open.world, read })}
-              kit={kit}
-              send={send}
-              dayText={dayText}
-            />
-          );
-        return null;
-      }}
+      pageBody={(workspace, page) =>
+        school === null || reference === undefined
+          ? null
+          : workspacePage(workspace, page, {
+              open,
+              school,
+              reference,
+              kit,
+              send,
+              dayText,
+              trial,
+              timetable,
+              onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
+            })
+      }
     />
   );
 }

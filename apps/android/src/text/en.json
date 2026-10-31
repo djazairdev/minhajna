@@ -4943,6 +4943,41 @@
       "noCourse": "No week is signed this term yet, so the report is empty.",
       "makeUps": "Make-up sessions: none in a demo world. Outside one they come from the make-ups on “Today” and count as held.",
       "foot": "Each class has its own figures: no total for the school and no ranking. The report closes when the term does. “Other” gathers everything the calendar does not hold, without reasons: the reasons stay on your devices alone."
+    },
+    "records": {
+      "readOnly": "Read only: the director changes no signed week or correction, and sees nothing that does not enter the school’s space.",
+      "none": "No week is signed yet on the channels of the school’s teachers.",
+      "class": "Class",
+      "fixedWeek": "{{dates}} · corrected",
+      "back": "Classes’ records",
+      "week": "Signed week · {{class}}",
+      "weekFixed": "Signed week · {{class}} · corrected",
+      "signed": "Signed electronically with the teacher’s certified key, and not corrected since.",
+      "signedFixed": "Signed electronically with the teacher’s certified key; signed corrections: {{count}}.",
+      "chainWhole": "The chain is whole: every version from the original to the last correction was read and its signature checked.",
+      "chainGap": "The chain has a gap, not read: {{versions}}. Only what was read is shown.",
+      "originalName": "the original",
+      "fixNumber": "correction {{number}}",
+      "shown": "Version shown",
+      "original": "Original",
+      "fixed": "After correction",
+      "bothLabel": "Both",
+      "line": "{{session}}: {{state}}",
+      "both": "{{session}}: original “{{before}}”, after correction “{{after}}”",
+      "fixes": "Corrections to this week",
+      "fix": "Correction {{number}} · {{session}}: from “{{before}}” to “{{after}}”",
+      "asSigned": "The week is shown as signed. A session not held shows without its reason, and no day of signing, correcting or confirming is kept.",
+      "noRoll": "No roll call or marks in a demo world: the signed week holds each session’s state alone.",
+      "paper": "The paper visa on the texts book stays until the Ministry’s text says otherwise.",
+      "never": "Not shown here",
+      "hidden": {
+        "notes": "Private notes",
+        "reasons": "Why a session was not held",
+        "before": "The record before the week is signed",
+        "days": "The day of signing, correcting or confirming, its time and place",
+        "others": "How many corrections the teacher made in other weeks",
+        "ranks": "Any ranking or comparison of teachers"
+      }
     }
   },
   "chart": {

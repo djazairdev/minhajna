@@ -1,0 +1,95 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The pages of the PC's workspaces in a demo world that have a body yet
+// (world-pages.ts), each for the roles its board lists: the director's
+// dashboard on the seeded school (#569), the codes page that issues joining
+// codes and security keys (#570), the keys page that maps who holds the school
+// key (#571), the records page that reads the classes' signed weeks with the
+// school key (#585, SchoolRecords.tsx), the director's and the preparer's
+// timetable page (#576, #577, #578), kept for the world it was read in, and
+// their own log (#573); any other page has none, and the preparer never opens
+// the records.
+
+import type { Day, DemoSchool, TrialTerm } from '@minhajna/core';
+import type { ReactElement } from 'react';
+import { DirectorDashboard } from '../director/DirectorDashboard';
+import { IssueCodes } from '../director/IssueCodes';
+import { OwnLog } from '../director/OwnLog';
+import { SchoolKeys } from '../director/SchoolKeys';
+import { SchoolRecords } from '../director/SchoolRecords';
+import type { ReferenceResult } from '../reference';
+import { localized } from '../setup/names';
+import { TimetableDesk } from '../timetable/TimetableDesk';
+import type { TimetableRead } from '../timetable/TimetableImport';
+import type { WorkspaceRole, WorldPage } from './world-pages';
+import type { OpenWorld } from './world-mode';
+import type { Send, WorldKit } from './world-session';
+
+export type WorkspacePagesProps = {
+  readonly open: OpenWorld;
+  readonly school: DemoSchool;
+  readonly reference: Extract<ReferenceResult, { ok: true }>;
+  readonly kit: WorldKit;
+  readonly send?: Send;
+  readonly dayText: (day: Day) => string;
+  /** The trial term's end in the world's year, which the dashboard reads. */
+  readonly trial: TrialTerm | null;
+  /** The timetable the director or preparer read last, kept for the world it was read in. */
+  readonly timetable: { readonly world: string; readonly read: TimetableRead } | null;
+  readonly onTimetable: (read: TimetableRead | null) => void;
+};
+
+/** A workspace page's body, or null when the page has none yet. */
+export function workspacePage(
+  workspace: WorkspaceRole,
+  page: WorldPage,
+  props: WorkspacePagesProps,
+): ReactElement | null {
+  const { open, school, reference, kit, send, dayText, trial, timetable, onTimetable } = props;
+  if (workspace === 'director' && page === 'dashboard')
+    return (
+      <DirectorDashboard
+        school={school}
+        profile={reference.profile}
+        when={{ trial, date: open.date }}
+        dayText={dayText}
+      />
+    );
+  if (workspace === 'director' && page === 'codes')
+    return (
+      <IssueCodes world={open} school={school} profile={reference.profile} kit={kit} send={send} dayText={dayText} />
+    );
+  if (workspace === 'director' && page === 'keys')
+    return <SchoolKeys world={open} school={school} kit={kit} send={send} dayText={dayText} />;
+  if ((workspace === 'director' || workspace === 'preparer') && page === 'log')
+    return <OwnLog world={open} school={school} role={workspace} kit={kit} dayText={dayText} />;
+  if ((workspace === 'director' || workspace === 'preparer') && page === 'timetable')
+    return (
+      <TimetableDesk
+        role={workspace}
+        world={open}
+        school={school}
+        wilaya={localized(reference.profile.zones?.find((one) => one.code === school.wilaya)?.name ?? {})}
+        bells={reference.bells}
+        workingDays={reference.profile.workingDays}
+        read={timetable?.world === open.world ? timetable.read : null}
+        onRead={onTimetable}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+      />
+    );
+  if (workspace === 'director' && page === 'records')
+    return (
+      <SchoolRecords
+        world={open}
+        school={school}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+        workingDays={reference.profile.workingDays}
+      />
+    );
+  return null;
+}

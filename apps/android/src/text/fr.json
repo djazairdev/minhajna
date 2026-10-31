@@ -5013,6 +5013,41 @@
       "noCourse": "Aucune semaine n’est encore signée ce trimestre : le rapport est vide.",
       "makeUps": "Séances de rattrapage : aucune dans un monde de démonstration. En dehors, elles viennent des rattrapages d’« Aujourd’hui » et comptent comme tenues.",
       "foot": "Chaque classe a ses propres chiffres : ni total pour l’établissement, ni classement. Le rapport se clôt avec le trimestre. « Autre » regroupe tout ce que le calendrier ne contient pas, sans motif : les motifs restent sur vos seuls appareils."
+    },
+    "records": {
+      "readOnly": "En lecture seule : la direction ne modifie aucune semaine signée ni sa correction, et ne voit rien de ce qui n’entre pas dans l’espace de l’établissement.",
+      "none": "Aucune semaine n’est encore signée sur les canaux du personnel enseignant de l’établissement.",
+      "class": "Classe",
+      "fixedWeek": "{{dates}} · corrigée",
+      "back": "Registres des classes",
+      "week": "Semaine signée · {{class}}",
+      "weekFixed": "Semaine signée · {{class}} · corrigée",
+      "signed": "Signée électroniquement avec une clé enseignante certifiée, et non corrigée depuis.",
+      "signedFixed": "Signée électroniquement avec une clé enseignante certifiée ; corrections signées : {{count}}.",
+      "chainWhole": "La chaîne est entière : chaque version, de l’original à la dernière correction, a été lue et sa signature vérifiée.",
+      "chainGap": "La chaîne a une lacune, versions non lues : {{versions}}. Seul ce qui a été lu est montré.",
+      "originalName": "l’original",
+      "fixNumber": "correction {{number}}",
+      "shown": "Version affichée",
+      "original": "Original",
+      "fixed": "Après correction",
+      "bothLabel": "Les deux",
+      "line": "{{session}} : {{state}}",
+      "both": "{{session}} : original « {{before}} », après correction « {{after}} »",
+      "fixes": "Corrections de cette semaine",
+      "fix": "Correction {{number}} · {{session}} : de « {{before}} » à « {{after}} »",
+      "asSigned": "La semaine est montrée telle que signée. Une séance non tenue apparaît sans son motif, et aucun jour de signature, de correction ou de confirmation n’est gardé.",
+      "noRoll": "Ni appel ni notes dans un monde de démonstration : la semaine signée porte seulement l’état de chaque séance.",
+      "paper": "Le visa papier sur le cahier de textes reste, jusqu’à ce que le texte du ministère dise autre chose.",
+      "never": "N’apparaît pas ici",
+      "hidden": {
+        "notes": "Les notes privées",
+        "reasons": "Le motif d’une séance non tenue",
+        "before": "Le registre avant la signature de la semaine",
+        "days": "Le jour de signature, de correction ou de confirmation, son heure et son lieu",
+        "others": "Le nombre de corrections faites dans d’autres semaines",
+        "ranks": "Tout classement ou comparaison au sein du personnel enseignant"
+      }
     }
   },
   "chart": {
