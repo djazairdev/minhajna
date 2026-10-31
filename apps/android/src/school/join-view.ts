@@ -3,17 +3,18 @@
 
 // Which page School-join shows (#566, #567): its own, the way for a new phone,
 // or a joined card's devices and copies, what stays on leaving, or who reads
-// what in the national system (#568), or the timetable from the school (#579).
-// Going back, by a page's button or Android's back, returns to School-join, and
-// from it to the world's home; Leave's way to the next school returns to
-// School-join with the code's card scrolled into view, once it is laid out.
+// what in the national system (#568), or the timetable from the school (#579),
+// or the week to sign (#582). Going back, by a page's button or Android's back,
+// returns to School-join, and from it to the world's home; Leave's way to the
+// next school returns to School-join with the code's card scrolled into view,
+// once it is laid out.
 
 import type { SchoolJoined } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { BackHandler, type LayoutChangeEvent, type ScrollViewInstance } from 'react-native';
 
 /** A joined card's own pages. */
-export type JoinPage = 'devices' | 'leave' | 'help' | 'timetable';
+export type JoinPage = 'devices' | 'leave' | 'help' | 'timetable' | 'week';
 
 export type JoinView = 'join' | 'rejoin' | { readonly page: JoinPage; readonly join: SchoolJoined };
 

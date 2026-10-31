@@ -4804,6 +4804,61 @@
       "reply": "Note from the school: “{{note}}”",
       "yourNote": "Your note: “{{note}}”",
       "waitingAlready": "A proposal for this session is already waiting for a decision."
+    },
+    "weekSign": {
+      "title": "Sign the week",
+      "dates": "From {{from}} to {{to}}",
+      "once": "Once a week for each class, in one step.",
+      "steps": {
+        "reading": "Reading the timetable and the signed weeks…",
+        "signing": "Signing…"
+      },
+      "again": "Read again",
+      "noTimetable": "The week is built from the timetable the school sends, which has not arrived yet.",
+      "noSessions": "No sessions this week so far.",
+      "classes": "Class",
+      "waiting": "Waiting to be signed this week: {{classes}}.",
+      "listJoin": ", ",
+      "allSigned": "Every class’s week is signed this week.",
+      "signed": "The week of {{class}} is signed",
+      "signedLine": "It is now the school’s record and the official record. It can still be corrected: the correction is signed too, and both versions show.",
+      "unknownSubject": "The country’s list of subjects does not know this subject, so its week cannot be signed.",
+      "sign": "Sign the week",
+      "signNote": "An electronic signature with a key made on this phone and certified by the demo world’s certifier; the key never leaves the phone. On your own phone the fingerprint or PIN is asked before signing; in a demo world it is not.",
+      "done": "The week of {{class}} is signed.",
+      "already": "This week was already signed on this phone.",
+      "reminder": "Each class’s week is signed once a week, in one step.",
+      "open": "Sign the week",
+      "awaiting": "Awaiting confirmation",
+      "held": "As planned",
+      "notHeld": "Session not held",
+      "confirmed": "{{session}}: {{state}}.",
+      "next": "Next: {{session}}.",
+      "noneLeft": "Every session this week is confirmed; only signing is left.",
+      "asItStands": "Or sign it as it stands: a session not confirmed is not an absence, and it can be confirmed later as a correction.",
+      "record": "The week’s record",
+      "states": {
+        "held": "As planned",
+        "not-held": "Session not held",
+        "awaiting": "Awaiting confirmation"
+      },
+      "spoken": {
+        "held": "as planned",
+        "not-held": "session not held",
+        "awaiting": "awaiting confirmation"
+      },
+      "undo": "Change",
+      "undoOf": "Change: {{session}}",
+      "also": "Also this week",
+      "alsoLine": "Homework and tests, roll call and marks: a demo world does not record them yet, so they are not in this week.",
+      "privateHead": "Stays on your devices only",
+      "privateLine": "The reason for each session not held, and your private notes. Neither goes into the signed week.",
+      "lines": {
+        "before": "Before signing: a working record that changes freely.",
+        "after": "After signing: the school’s record, and the official record.",
+        "fix": "It can still be corrected: the correction is signed too, and both versions show.",
+        "counted": "The signature counts from the day it is made on the phone, even if the network is late."
+      }
     }
   },
   "chart": {

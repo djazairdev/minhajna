@@ -4874,6 +4874,61 @@
       "reply": "Note de l’établissement : « {{note}} »",
       "yourNote": "Votre note : « {{note}} »",
       "waitingAlready": "Une proposition pour cette séance attend déjà une décision."
+    },
+    "weekSign": {
+      "title": "Signer la semaine",
+      "dates": "Du {{from}} au {{to}}",
+      "once": "Une fois par semaine pour chaque classe, en une étape.",
+      "steps": {
+        "reading": "Lecture de l’emploi du temps et des semaines signées…",
+        "signing": "Signature…"
+      },
+      "again": "Relire",
+      "noTimetable": "La semaine se construit à partir de l’emploi du temps envoyé par l’établissement, qui n’est pas encore arrivé.",
+      "noSessions": "Aucune séance cette semaine pour l’instant.",
+      "classes": "Classe",
+      "waiting": "En attente de signature cette semaine : {{classes}}.",
+      "listJoin": ", ",
+      "allSigned": "La semaine de chaque classe est signée cette semaine.",
+      "signed": "La semaine de {{class}} est signée",
+      "signedLine": "Elle est désormais le registre de l’établissement et le registre officiel. Elle peut encore être corrigée : la correction est signée aussi, et les deux versions restent visibles.",
+      "unknownSubject": "La liste nationale des matières ne connaît pas cette matière : sa semaine ne peut pas être signée.",
+      "sign": "Signer la semaine",
+      "signNote": "Une signature électronique avec une clé créée sur ce téléphone et certifiée par le certificateur du monde de démonstration ; la clé ne quitte jamais le téléphone. Sur votre propre téléphone, l’empreinte ou le code PIN est demandé avant de signer ; dans un monde de démonstration, il ne l’est pas.",
+      "done": "La semaine de {{class}} est signée.",
+      "already": "Cette semaine a déjà été signée sur ce téléphone.",
+      "reminder": "La semaine de chaque classe se signe une fois par semaine, en une étape.",
+      "open": "Signer la semaine",
+      "awaiting": "En attente de confirmation",
+      "held": "Comme prévu",
+      "notHeld": "Séance non tenue",
+      "confirmed": "{{session}} : {{state}}.",
+      "next": "Suivante : {{session}}.",
+      "noneLeft": "Toutes les séances de la semaine sont confirmées ; il ne reste qu’à signer.",
+      "asItStands": "Ou signez-la telle quelle : une séance non confirmée n’est pas une absence, et elle peut être confirmée plus tard comme correction.",
+      "record": "Le registre de la semaine",
+      "states": {
+        "held": "Comme prévu",
+        "not-held": "Séance non tenue",
+        "awaiting": "En attente de confirmation"
+      },
+      "spoken": {
+        "held": "comme prévu",
+        "not-held": "séance non tenue",
+        "awaiting": "en attente de confirmation"
+      },
+      "undo": "Modifier",
+      "undoOf": "Modifier : {{session}}",
+      "also": "Aussi cette semaine",
+      "alsoLine": "Devoirs et contrôles, appel et notes : un monde de démonstration ne les enregistre pas encore, ils ne figurent donc pas dans cette semaine.",
+      "privateHead": "Reste sur vos seuls appareils",
+      "privateLine": "La raison de chaque séance non tenue, et vos notes privées. Ni l’une ni les autres n’entrent dans la semaine signée.",
+      "lines": {
+        "before": "Avant la signature : un registre de travail, modifiable librement.",
+        "after": "Après la signature : le registre de l’établissement, et le registre officiel.",
+        "fix": "La correction reste possible : elle est signée aussi, et les deux versions restent visibles.",
+        "counted": "La signature compte à partir du jour où elle est faite sur le téléphone, même si le réseau tarde."
+      }
     }
   },
   "chart": {

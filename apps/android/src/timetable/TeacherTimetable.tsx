@@ -15,13 +15,13 @@
 // there, on the page too, and reads the channel again; reading and confirming
 // are said apart, and a second press while one runs does nothing. A problem is
 // said in the catalogue's words, with a way to read again. What is said goes,
-// on a PC, to the page's hidden live region, which first holds the page's title
-// and says the same words again when they come again, and elsewhere it is
-// announced. Below, the teacher proposes moving a session and sees their
-// proposals with their state (ProposeForm.tsx, TT-propose), once a standing
-// part arrived; sending one says so, on the page too, and reads the channel
-// again. The bar names the school by its short ID; going back leads to
-// School-join.
+// on a PC, to the page's hidden live region, which follows School-join's words,
+// the page's title, until the page says something, and says the same words
+// again when they come again, and elsewhere it is announced. Below, the teacher
+// proposes moving a session and sees their proposals with their state
+// (ProposeForm.tsx, TT-propose), once a standing part arrived; sending one says
+// so, on the page too, and reads the channel again. The bar names the school by
+// its short ID; going back leads to School-join.
 
 import {
   readJoinCode,
@@ -165,7 +165,7 @@ export function TeacherTimetable(props: TeacherTimetableProps) {
       <DemoBand date={world.date} />
       {onPc() && (
         <Text key={spoken.count} testID="teacher-said" accessibilityLiveRegion="polite" style={styles.hidden}>
-          {spoken.words}
+          {spoken.count === 0 ? said : spoken.words}
         </Text>
       )}
       <View

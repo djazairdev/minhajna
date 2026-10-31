@@ -18,12 +18,13 @@
 // opens, and that kept keys are being checked, when they are; so is each other
 // page's title as it opens. The law, or the new phone's note, sits at the
 // page's foot. Before any join, a link opens the way for a new phone
-// (Rejoin.tsx, #566), and a joined card opens the timetable the school sent
-// (TeacherTimetable.tsx, #579), the teacher's devices and copies
-// (DevicesMoved.tsx), who reads what in the national system (NationalHelp.tsx,
-// #568) and what stays and goes on leaving (Leave.tsx, #567), when the year's
-// dates read; going back from any returns here, and Leave's way to the next
-// school returns to the code's card (join-view.ts).
+// (Rejoin.tsx, #566), and a joined card opens the week to sign (WeekSign.tsx,
+// #582) and the timetable the school sent (TeacherTimetable.tsx, #579), the
+// teacher's devices and copies (DevicesMoved.tsx), who reads what in the
+// national system (NationalHelp.tsx, #568) and what stays and goes on leaving
+// (Leave.tsx, #567), when the year's dates read; going back from any returns
+// here, and Leave's way to the next school returns to the code's card
+// (join-view.ts).
 
 import {
   joiningIsVoluntary,
@@ -32,6 +33,7 @@ import {
   readJoinCode,
   type Day,
   type SchoolJoined,
+  type Subject,
   type TrialTerm,
   type Weekday,
 } from '@minhajna/core';
@@ -48,6 +50,7 @@ import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
 import { TeacherTimetable } from '../timetable/TeacherTimetable';
+import { WeekSign } from '../week/WeekSign';
 import { checkKeptJoins, joinSchool, problemOf } from './school-join-session';
 import { DevicesMoved } from './DevicesMoved';
 import { NationalHelp } from './NationalHelp';
@@ -84,11 +87,13 @@ export type SchoolJoinProps = {
   readonly onClose: () => void;
   /** The school's days, in the week's order, offered for a timetable proposal. */
   readonly workingDays?: readonly Weekday[];
+  /** The country's subjects, which give a week's subject its code. */
+  readonly subjects?: readonly Subject[];
 };
 
 /** The teacher's page for joining the school's space in a world. */
 export function SchoolJoin(props: SchoolJoinProps) {
-  const { world, date, dayText, kit, send, trial, year, onClose, workingDays } = props;
+  const { world, date, dayText, kit, send, trial, year, onClose, workingDays, subjects } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -154,7 +159,7 @@ export function SchoolJoin(props: SchoolJoinProps) {
   });
   useEffect(() => resume(), []);
   const announce = useEffectEvent(() => {
-    if (page !== 'join' && page !== 'rejoin') say(t(`demo.${page}.title`));
+    if (page !== 'join' && page !== 'rejoin') say(t(page === 'week' ? 'demo.weekSign.title' : `demo.${page}.title`));
     else say(phase.kind === 'checking' ? `${title}. ${t('demo.school.checking')}` : title);
   });
   useEffect(() => {
@@ -197,10 +202,11 @@ export function SchoolJoin(props: SchoolJoinProps) {
 
   if (typeof view === 'object') {
     const shown = { date, join: view.join, dayText, onClose: leave, said };
+    const channel = { ...shown, world, kit, send, workingDays };
     if (view.page === 'devices') return <DevicesMoved {...shown} />;
     if (view.page === 'help') return <NationalHelp {...shown} />;
-    if (view.page === 'timetable')
-      return <TeacherTimetable {...shown} world={world} kit={kit} send={send} workingDays={workingDays} />;
+    if (view.page === 'timetable') return <TeacherTimetable {...channel} />;
+    if (view.page === 'week') return <WeekSign {...channel} subjects={subjects} />;
     if (dates !== null) return <Leave {...shown} year={year} dates={dates} onJoin={toCode} />;
   }
   return (
@@ -249,6 +255,7 @@ export function SchoolJoin(props: SchoolJoinProps) {
             onDevices={open('devices')}
             onHelp={open('help')}
             onTimetable={open('timetable')}
+            onWeek={open('week')}
             onLeave={dates === null ? undefined : open('leave')}
           />
           <View onLayout={onCodeLayout} style={styles.code}>
