@@ -1,27 +1,35 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A course's week as its teacher signs it (#582, Week-sign, §3.3, §5.5,
-// R-3.3-26 to R-3.3-29, answers 565 and 610): the week's text is canonical JSON
-// of the week's format, its course, first day, version and totals, which the
-// totals above the school read, then the class and the subject as the timetable
-// names them and each session's day, start, end, group, week and state, held,
-// not held or awaiting confirmation, which is never an absence: at least one
-// session, each once, in the order of day, start, end, group and week, so one
-// week makes one text, and a text that is not canonical does not read. Nothing
-// private: no reason, no clock time of signing, no place. A course's ID is a
-// MAC under the school's ID, which is not secret, of its class by its name key
-// and its subject's country code, so every device that knows the school derives
-// the same one, and a subject the timetable names in another language stays the
-// same course; a week whose course is not the one its class and subject make in
-// the channel's school is neither sealed nor read. A signed week goes on the
-// teacher's own channel (#577) sealed under the channel's key, which the
-// teacher and the school key's holders read; reading the channel keeps the
-// weeks the joined device's certified key signed, each course's week once, at
-// its highest version, a correction (#583) counting up from 0, the lower text
-// winning a tie, as the totals' does (total-shares.ts), in the order of the
-// week, then the course. A record of another format, another key, a week that
-// does not read or a signature that does not check is left out.
+// A course's week as its teacher signs it (#582, Week-sign, #583, Week-fix,
+// §3.3, §5.5, R-3.3-26 to R-3.3-29, R-3.1-08, R-5.5-02, R-5.5-03, answers 565,
+// 610 and 611): the week's text is canonical JSON of the week's format, its
+// course, first day, version and totals, which the totals above the school
+// read, then the class and the subject as the timetable names them and each
+// session's day, start, end, group, week and state, held, not held or awaiting
+// confirmation, which is never an absence: at least one session, each once, in
+// the order of day, start, end, group and week, so one week makes one text, and
+// a text that is not canonical does not read. Nothing private: no reason for a
+// session not held, no clock time of signing, no place. A correction is the
+// whole week again at the next version, one session's state changed, with a
+// reason chosen from a short list, confirmed later, an entry error or other, or
+// none; version 0 carries none, and a correction that changes nothing is not
+// made. What a version changed is each session whose state differs from the
+// version before, or that it added or dropped, by its slot: its day, start,
+// end, group and week. A version is read as the teacher signed it. A course's
+// ID is a MAC under the school's ID, which is not secret, of its class by its
+// name key and its subject's country code, so every device that knows the
+// school derives the same one, and a subject the timetable names in another
+// language stays the same course; a week whose course is not the one its class
+// and subject make in the channel's school is neither sealed nor read. A signed
+// week goes on the teacher's own channel (#577) sealed under the channel's key,
+// which the teacher and the school key's holders read; reading the channel
+// keeps the weeks the joined device's certified key signed, each course's week
+// once, at its highest version, with every version below it and what signed it,
+// oldest first, so both show, one a version, the lower text winning a tie, as
+// the totals' does (total-shares.ts), in the order of the week, then the
+// course. A record of another format, another key, a week that does not read or
+// a signature that does not check is left out.
 
 import type { SealedBatch } from './batches.ts';
 import { canonicalJson } from './canonical.ts';
@@ -44,6 +52,10 @@ export const WEEK_BATCHES = 64;
 
 export const SESSION_STATES = ['held', 'not-held', 'awaiting'] as const;
 export type SessionState = (typeof SESSION_STATES)[number];
+
+/** Why a week was corrected, chosen and never typed. */
+export const WEEK_FIX_REASONS = ['confirmed-later', 'entry-error', 'other'] as const;
+export type WeekFixReason = (typeof WEEK_FIX_REASONS)[number];
 
 /** One session of a signed week, as the timetable gives it, with its state. */
 export interface WeekSession {
@@ -68,6 +80,8 @@ export interface WeekRecord {
   readonly class: string;
   readonly subject: string;
   readonly sessions: readonly WeekSession[];
+  /** A correction's reason, on a version above 0 only, when one was chosen. */
+  readonly reason?: WeekFixReason;
 }
 
 const WEEKS = ['both', 'A', 'B'] as const;
@@ -101,10 +115,12 @@ export function readWeekRecord(text: string): WeekRecord | null {
   const totals = readWeekTotals(text);
   if (totals === null) return null;
   const value = JSON.parse(text) as Record<string, unknown>;
+  const fix = Object.hasOwn(value, 'reason');
   const keys = ['format', 'course', 'week', 'version', 'totals', 'class', 'subject', 'sessions'];
-  if (Object.keys(value).length !== keys.length) return null;
+  if (Object.keys(value).length !== keys.length + (fix ? 1 : 0)) return null;
   if (!keys.every((key) => Object.hasOwn(value, key))) return null;
-  const { class: name, subject, sessions } = value;
+  const { class: name, subject, sessions, reason } = value;
+  if (fix && (totals.version === 0 || !WEEK_FIX_REASONS.includes(reason as never))) return null;
   if (!named(name) || !named(subject) || clean(name) !== name || clean(subject) !== subject) {
     return null;
   }
@@ -112,7 +128,47 @@ export function readWeekRecord(text: string): WeekRecord | null {
   const read = sessions.map(readSession);
   if (read.some((one, at) => one === null || (at > 0 && order(read[at - 1]!, one) >= 0))) return null;
   if (canonicalJson(value) !== text) return null;
-  return { ...totals, class: name, subject, sessions: read as WeekSession[] };
+  const week = { ...totals, class: name, subject, sessions: read as WeekSession[] };
+  return fix ? { ...week, reason: reason as WeekFixReason } : week;
+}
+
+/** A session's slot in its week: its day, start, end, group and week, which a correction keeps. */
+export const sessionSlot = (one: Omit<WeekSession, 'state'>) =>
+  [one.day, one.start, one.end, one.group, one.week].join('\n');
+
+/** A signed week's next version: one session's state changed, with a reason or none; refused when nothing changes. */
+export function correctWeek(
+  latest: WeekRecord,
+  session: Omit<WeekSession, 'state'>,
+  state: SessionState,
+  reason?: WeekFixReason,
+): WeekRecord {
+  const at = latest.sessions.findIndex((one) => sessionSlot(one) === sessionSlot(session));
+  if (at === -1 || latest.sessions[at]!.state === state) throw new RangeError('A correction changes a session');
+  const { course, week, version, totals, class: name, subject } = latest;
+  const sessions = latest.sessions.map((one, index) => (index === at ? { ...one, state } : one));
+  const next = { course, week, version: version + 1, totals, class: name, subject, sessions };
+  return reason === undefined ? next : { ...next, reason };
+}
+
+/** A session a version changed: its slot, the state it had and the state it has, null where it was or is not. */
+export interface WeekChange {
+  readonly slot: Omit<WeekSession, 'state'>;
+  readonly before: SessionState | null;
+  readonly after: SessionState | null;
+}
+
+/** The sessions a version changed from the one before it: a state changed, a session added or a session dropped. */
+export function weekChanges(before: WeekRecord, after: WeekRecord): WeekChange[] {
+  const states = (week: WeekRecord) => new Map(week.sessions.map((one) => [sessionSlot(one), one.state]));
+  const [had, has] = [states(before), states(after)];
+  const slots = [...before.sessions, ...after.sessions.filter((one) => !had.has(sessionSlot(one)))];
+  return slots
+    .map(({ day, start, end, group, week }) => {
+      const slot = { day, start, end, group, week };
+      return { slot, before: had.get(sessionSlot(slot)) ?? null, after: has.get(sessionSlot(slot)) ?? null };
+    })
+    .filter((one) => one.before !== one.after);
 }
 
 /** A course's ID: a MAC under the school's ID of its class, as its name key reads, and its subject's country code. */
@@ -144,17 +200,23 @@ export async function sealWeek(
   return { stream: place.stream, batches };
 }
 
-/** A week read from a channel, with what signed it. */
-export interface ChannelWeek {
+/** A version of a week read from a channel, with what signed it. */
+export interface WeekVersion {
   readonly week: WeekRecord;
   readonly signed: SignedWeek;
 }
 
+/** A week read from a channel at its highest version, with what signed it. */
+export interface ChannelWeek extends WeekVersion {
+  /** The week's versions below this one, oldest first, one a version, with gaps where none was read. */
+  readonly earlier: readonly WeekVersion[];
+}
+
 /**
  * The weeks the joined device signed on a code's channel, each course's week
- * once, at its highest version, the lower text winning a tie as the totals'
- * does, in the order of the week, then the course; none before a device
- * joined.
+ * once, at its highest version with the versions below it, one a version, the
+ * lower text winning a tie as the totals' does, in the order of the week, then
+ * the course; none before a device joined.
  */
 export async function channelWeeks(
   code: JoinCode,
@@ -165,7 +227,7 @@ export async function channelWeeks(
   mac: WorldMac,
 ): Promise<ChannelWeek[]> {
   if (joined === null) return [];
-  const found = new Map<string, ChannelWeek>();
+  const found = new Map<string, Map<number, WeekVersion>>();
   for (const value of await openRecords(await placeOfCode(code, mac), batches, WEEK_BATCHES, cipher)) {
     if (!record(value) || value['format'] !== SIGNED_WEEK_RECORD || Object.keys(value).length !== 4) continue;
     const { text, signature, certificate } = value;
@@ -175,14 +237,16 @@ export async function channelWeeks(
     if (subject !== joined.device || publicKey !== joined.certificate.publicKey) continue;
     const week = readWeekRecord(signed.text);
     if (week === null || !(await ofSchool(week, code.school, mac))) continue;
-    const key = `${week.course}\n${week.week}`;
-    const before = found.get(key);
-    const higher = before === undefined || before.week.version < week.version;
-    if (higher || (before.week.version === week.version && signed.text < before.signed.text)) {
-      found.set(key, { week, signed });
-    }
+    const versions = found.get(`${week.course}\n${week.week}`) ?? new Map<number, WeekVersion>();
+    const before = versions.get(week.version);
+    if (before === undefined || signed.text < before.signed.text) versions.set(week.version, { week, signed });
+    found.set(`${week.course}\n${week.week}`, versions);
   }
+  const latest = (versions: Map<number, WeekVersion>): ChannelWeek => {
+    const all = [...versions.values()].sort((a, b) => a.week.version - b.week.version);
+    return { ...all.at(-1)!, earlier: all.slice(0, -1) };
+  };
   const byWeek = (a: ChannelWeek, b: ChannelWeek) =>
     a.week.week < b.week.week ? -1 : a.week.week > b.week.week ? 1 : a.week.course < b.week.course ? -1 : 1;
-  return [...found.values()].sort(byWeek);
+  return [...found.values()].map(latest).sort(byWeek);
 }
