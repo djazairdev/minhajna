@@ -2,27 +2,26 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Reading a school's timetable from its template (#574, PRD §7.4, R-7.4-08,
-// R-7.4-10, answer 585): a CSV file, which Excel opens and saves, with one row
-// for each weekly session: the class, and the group when only part of it comes,
-// the subject, the teacher, the day, the start and end times, the room, and the
-// week when sessions alternate, A or B. A row in the first five, after any
-// title, names the columns in any order, in the words the app's languages give
-// them, as the day and week cells are, so the core holds no language's words; a
-// header cell it does not know is said without stopping the reading. Names are
-// compared as name-replace.ts compares them, word by word, so two spellings of
-// one name are one person. Each row is checked as it comes in, against every
-// row before it that reads: a teacher, a class or a room in two places at once
-// is a clash, said on the row that makes it, with the row it meets. A group
-// meets the whole class and its own group only, and a session of week A never
+// R-7.4-10, answer 585): a CSV file, as Excel saves it, a row for each weekly
+// session: the class, and the group when only part of it comes, the subject,
+// the teacher, the day, the start and end times, the room, and the week when
+// sessions alternate, A or B. A row in the first five, after any title, names
+// the columns in any order, in any of the app's languages, as the day and week
+// cells are, so the core holds no language's words; an unknown header cell is
+// said without stopping the reading. Names are compared word by word
+// (name-replace.ts), so two spellings of a name are one. Each row is checked
+// against every row before it that reads: a teacher, a class or a room in two
+// places at once is a clash, said on the row that makes it, with the row it
+// meets. A group meets the whole class, its own group, and a group within it or
+// that it is within, as G1 1/2 or G1-2 is within G1; a session of week A never
 // meets one of week B. Rows giving one teacher, subject, time, week and room
-// are one session taught to several classes together, as option languages or
-// sport often are, and said so the preparer can check them, since two classes
-// booked at once with no room read the same; a place that holds several
-// sessions at once, such as the yard, is left without a room. Every problem is
-// said with its row, as a spreadsheet numbers it, and a row with a problem is
-// left out, so the rest can still be read. FET's export goes through the same
-// checks (timetable-fet.ts). Minhajna reads the timetable and never builds one
-// (R-7.4-09).
+// are one session taught to several classes together, as option languages often
+// are, and said so the preparer can check them, since two classes booked at
+// once with no room read the same; a place that holds several sessions at once,
+// such as the yard, is left without a room. Every problem is said with its row,
+// as a spreadsheet numbers it, and its row is left out while the rest are read.
+// FET's export takes the same checks (timetable-fet.ts). Minhajna reads the
+// timetable and never builds one (R-7.4-09).
 
 import type { Weekday } from './day.ts';
 import { nameKey } from './name-replace.ts';
@@ -102,6 +101,15 @@ const key = (cell: string) =>
     .map(nameKey)
     .join(' ');
 
+/** A name as the timetable compares it, so two spellings of one class, group or teacher are one. */
+export const timetableNameKey = key;
+
+/** Whether a group is the other or within it: its name, then a space, - or _ and more, as G1 1/2 or G1-2. */
+export function groupWithin(group: string, outer: string): boolean {
+  const [inner, around] = [key(group), key(outer)];
+  return inner.startsWith(around) && (inner.length === around.length || /^[\s_-]/u.test(inner.slice(around.length)));
+}
+
 /** Each word's key and what it names. Throws when one word names two things, a mistake in the app's words. */
 function lookup<T>(entries: readonly (readonly [T, readonly string[]])[]): ReadonlyMap<string, T> {
   const found = new Map<string, T>();
@@ -147,7 +155,7 @@ function together(one: ImportedSession, other: ImportedSession): boolean {
 /**
  * The clashes a session makes with the sessions before it, at most one of each kind, with the first row it meets: a
  * teacher or a room in two places, unless the rows are one session taught to several classes together, or a class
- * twice, unless they are two different groups of it.
+ * twice, unless they are two different groups of it, neither within the other.
  */
 export function clashesOf(before: readonly ImportedSession[], session: ImportedSession): ImportProblem[] {
   const meets = before.filter((one) => sameTime(one, session));
@@ -156,7 +164,10 @@ export function clashesOf(before: readonly ImportedSession[], session: ImportedS
     return found === undefined ? [] : [{ row: session.row, kind, with: found.row }];
   };
   const groups = (one: ImportedSession) =>
-    one.group === '' || session.group === '' || key(one.group) === key(session.group);
+    one.group === '' ||
+    session.group === '' ||
+    groupWithin(one.group, session.group) ||
+    groupWithin(session.group, one.group);
   return [
     ...first('teacher', (one) => key(one.teacher) === key(session.teacher) && !together(one, session)),
     ...first('class', (one) => key(one.class) === key(session.class) && groups(one)),

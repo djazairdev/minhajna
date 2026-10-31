@@ -8,14 +8,14 @@
 // Latin or Arabic-Indic digits; two spellings of a name, or one with a
 // direction mark, are one person; a teacher, a class or a room in two places at
 // once is a clash on the row that makes it, with the row it meets, even a row
-// left out for its own clash, while two groups of a class, weeks A and B, or
-// classes taught together never meet, and those taught together are listed; a
-// missing column, an empty or unreadable cell, an end before the start, and a
-// column named twice are each said with their row; rows are numbered as a
-// spreadsheet does, past blank rows and cells on two lines, in a file with
-// semicolons and a byte-order mark; a row with a problem is left out while the
-// rest are read; and one word naming two things is a mistake in the app's
-// words. Every school, class and teacher is made up.
+// left out for its own clash, and a group meets a group within it, while two
+// groups of a class, weeks A and B, or classes taught together never meet, and
+// those taught together are listed; a missing column, an empty or unreadable
+// cell, an end before the start, and a column named twice are each said with
+// their row; rows are numbered as a spreadsheet does, past blank rows and cells
+// on two lines, in a file with semicolons and a byte-order mark; a row with a
+// problem is left out while the rest are read; and one word naming two things
+// is a mistake in the app's words. Every school, class and teacher is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -91,6 +91,23 @@ describe('the timetable template', () => {
       sessions.map((one) => one.row),
       [2],
     );
+  });
+
+  it('makes a group meet a group within it, as G1 1/2 or G1-3 is within G1, but not G10 or G1/2', () => {
+    const { problems } = read(
+      'class,group,subject,teacher,day,start,end\n' +
+        '1AM1,G1,science,Teacher S,monday,8:00,9:00\n' +
+        '1AM1,g1 1/2,physics,Teacher P,monday,8:00,9:00\n' +
+        '1AM1,G10,arabic,Teacher A,monday,8:00,9:00\n' +
+        '1AM1,G1 2/2,music,Teacher U,monday,8:00,9:00\n' +
+        '1AM1,G1-3,art,Teacher V,monday,8:00,9:00\n' +
+        '1AM1,G1/2,sport,Teacher W,monday,8:00,9:00\n',
+    );
+    assert.deepEqual(problems, [
+      { row: 3, kind: 'class', with: 2 },
+      { row: 5, kind: 'class', with: 2 },
+      { row: 6, kind: 'class', with: 2 },
+    ]);
   });
 
   it('lets two groups of a class, or weeks A and B, share a time, but not a group with the whole class', () => {
