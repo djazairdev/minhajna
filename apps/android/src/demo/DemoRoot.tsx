@@ -255,6 +255,7 @@ export function DemoRoot({
               send,
               dayText,
               trial,
+              year: calendar.year,
               timetable,
               onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
             })

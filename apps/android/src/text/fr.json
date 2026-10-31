@@ -5064,6 +5064,51 @@
         "others": "Le nombre de corrections faites dans d’autres semaines",
         "ranks": "Tout classement ou comparaison au sein du personnel enseignant"
       }
+    },
+    "cover": {
+      "lead": "Les remplacements du jour, gardés sur ce PC seul : le personnel enseignant ne les voit jamais, et aucun motif ni aucune absence n’est gardé.",
+      "noVersion": "Aucun emploi du temps publié n’est en vigueur ce jour-là : les séances du jour viennent de la version en vigueur.",
+      "day": "Séances du {{date}}",
+      "noSessions": "Aucune séance dans la version en vigueur ce jour-là.",
+      "lastOfDay": "Dernière séance de la classe dans la journée",
+      "mark": "À remplacer",
+      "unmark": "Plus à remplacer",
+      "markedSaid": "{{session}} : à remplacer",
+      "unmarkedSaid": "{{session}} : plus à remplacer",
+      "arrangement": "Solution",
+      "arrangements": {
+        "supervision": "Surveillance",
+        "study": "Salle d’étude",
+        "merge": "Regroupement avec une autre classe",
+        "swap": "Échange ou déplacement d’une séance",
+        "colleague": "Un ou une collègue disponible",
+        "release": "Libérer les élèves"
+      },
+      "release": "Seule la dernière séance de la classe dans la journée permet de libérer les élèves ; à toute autre, les élèves restent dans l’établissement.",
+      "who": "Qui la prend en charge",
+      "person": "{{name}} · {{count}} ce trimestre",
+      "personSuggested": "{{name}} · {{count}} ce trimestre · suggestion",
+      "nameSuggested": "{{name}} · suggestion",
+      "noneFree": "Aucun membre du personnel enseignant n’est libre à cette heure.",
+      "notFree": "{{name}} n’est plus libre à cette heure : choisissez de nouveau.",
+      "toChoose": "à choisir",
+      "nobody": "—",
+      "sheet": "Fiche des remplacements du jour",
+      "sheetLine": "{{span}} · {{class}} · {{room}} · {{arrangement}} · {{who}}",
+      "sheetNone": "Aucune séance n’est à remplacer aujourd’hui.",
+      "sheetNever": "La fiche ne nomme jamais la personne absente, ni le motif.",
+      "sheetWorld": "Hors d’un monde, elle est imprimée ou envoyée au personnel de surveillance. Un monde n’a pas de personnel de surveillance et n’exporte aucun de ses registres : elle reste à l’écran.",
+      "log": "Registre des remplacements · {{term}}",
+      "terms": {
+        "1": "premier trimestre",
+        "2": "deuxième trimestre",
+        "3": "troisième trimestre"
+      },
+      "logLine": "{{name}} : {{count}}",
+      "noTerm": "La date du monde tombe entre deux trimestres : aucun remplacement n’est compté.",
+      "decides": "Il compte les remplacements assurés par chaque personne, pour les répartir équitablement. L’application suggère ; la direction décide.",
+      "makeups": "Les séances de rattrapage sont liées aux séances qu’elles remplacent et viennent avec les rattrapages d’Aujourd’hui hors d’un monde ; un monde n’en a pas. L’effet d’une séance manquée sur la rémunération se règle par la voie officielle, pas ici.",
+      "problem": "Le remplacement n’a pas été gardé. Réessayez."
     }
   },
   "chart": {

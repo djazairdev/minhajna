@@ -4994,6 +4994,51 @@
         "others": "How many corrections the teacher made in other weeks",
         "ranks": "Any ranking or comparison of teachers"
       }
+    },
+    "cover": {
+      "lead": "The day’s cover, kept on this PC alone: the teachers never see it, and no reason or absence is kept.",
+      "noVersion": "No published timetable is in force on this day: the day’s sessions come from the version in force.",
+      "day": "Sessions on {{date}}",
+      "noSessions": "No session in the version in force on this day.",
+      "lastOfDay": "The class’s last session of the day",
+      "mark": "Needs cover",
+      "unmark": "Needs no cover",
+      "markedSaid": "{{session}}: marked for cover",
+      "unmarkedSaid": "{{session}}: no longer marked",
+      "arrangement": "Arrangement",
+      "arrangements": {
+        "supervision": "Supervision",
+        "study": "Study room",
+        "merge": "Merge with another class",
+        "swap": "Swap or move a session",
+        "colleague": "A free colleague",
+        "release": "Let the pupils go"
+      },
+      "release": "Only the class’s last session of the day lets the pupils go; at any other, they stay in the school.",
+      "who": "Who takes it",
+      "person": "{{name}} · {{count}} this term",
+      "personSuggested": "{{name}} · {{count}} this term · suggested",
+      "nameSuggested": "{{name}} · suggested",
+      "noneFree": "No teacher of the staff list is free at this time.",
+      "notFree": "{{name}} is no longer free at this time: choose again.",
+      "toChoose": "to choose",
+      "nobody": "—",
+      "sheet": "Today’s cover sheet",
+      "sheetLine": "{{span}} · {{class}} · {{room}} · {{arrangement}} · {{who}}",
+      "sheetNone": "No session is marked for cover today.",
+      "sheetNever": "The sheet never says who was away, or why.",
+      "sheetWorld": "Outside a world it is printed or sent to the supervisors. A world has no supervisors and exports none of its records, so it stays on screen.",
+      "log": "Cover log · {{term}}",
+      "terms": {
+        "1": "first term",
+        "2": "second term",
+        "3": "third term"
+      },
+      "logLine": "{{name}}: {{count}}",
+      "noTerm": "The world’s date falls between terms: no cover is counted.",
+      "decides": "It counts the cover each person gave, to share it fairly. The app suggests; the director decides.",
+      "makeups": "Make-ups are linked to the sessions they replace and come with Today’s make-ups outside a world; a world has none. Any effect of a missed session on pay is settled in the official channel, not here.",
+      "problem": "The cover was not kept. Try again."
     }
   },
   "chart": {
