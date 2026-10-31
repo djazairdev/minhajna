@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The calendar input module on a PC (#250, part 3, answer 506), on a
-// made-up page: an update or a statement comes as a picked file within the
-// phone's limits, a statement PDF gives only its link, the camera is never
-// asked for, a short key's code has no quiet zone, and a shared file keeps
-// the phone's names and is never downloaded in place of sharing. The files
-// are made up.
+// The calendar input module on a PC (#250, part 3, answer 506), on a made-up
+// page: an update, a timetable's CSV or a statement comes as a picked file
+// within the phone's limits, each dialog offering its own file types, a
+// statement PDF gives only its link, the camera is never asked for, a short
+// key's code has no quiet zone, and a shared file keeps the phone's names and
+// is never downloaded in place of sharing. The files are made up.
 
 import './support/fake-dom.ts';
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
-import { downloads, queued } from './support/fake-dom.ts';
+import { accepted, downloads, queued } from './support/fake-dom.ts';
 import { decoded } from './support/qr-read.ts';
 
 const { default: CalendarInput, statementText } = await import('../src/native/CalendarInput.ts');
@@ -43,6 +43,19 @@ describe('the calendar input module on a PC', () => {
     await assert.rejects(CalendarInput.readFile(), { code: 'E_CALENDAR_INPUT' });
     queued.push(null);
     assert.equal(await CalendarInput.readFile(), null);
+  });
+
+  it('reads a timetable from a CSV dialog as strict UTF-8 within 1 MB', async () => {
+    accepted.length = 0;
+    queued.push(new File(['class,day\n4AM2,sunday\n'], 'timetable.csv'));
+    assert.equal(await CalendarInput.readTable(), 'class,day\n4AM2,sunday\n');
+    assert.equal(accepted[0], '.csv,text/csv,text/comma-separated-values,text/plain');
+    queued.push(new File([new Uint8Array([0x63, 0xe1, 0x0a])], 'cp1256.csv'));
+    await assert.rejects(CalendarInput.readTable(), { code: 'E_CALENDAR_INPUT' });
+    queued.push(new File([new Uint8Array(1_048_577).fill(0x61)], 'big.csv'));
+    await assert.rejects(CalendarInput.readTable(), { code: 'E_CALENDAR_INPUT' });
+    queued.push(null);
+    assert.equal(await CalendarInput.readTable(), null);
   });
 
   it("takes a statement PDF's link and nothing else from it", async () => {

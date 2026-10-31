@@ -7,6 +7,8 @@ import { TurboModuleRegistry } from 'react-native';
 /** Only bounded text crosses the bridge; no file path, camera image, or persistent URI grant. */
 export interface Spec extends TurboModule {
   readFile(): Promise<string | null>;
+  /** A table the director or the preparer chose, a CSV as FET or Excel saves it, read as UTF-8 within 1 MB (#576). */
+  readTable(): Promise<string | null>;
   /** A statement's signed file, or a statement PDF's `minhajna-statement:` link and nothing else of it (#246). */
   readStatement(): Promise<string | null>;
   scanQr(title: string, instruction: string, cancel: string, rtl: boolean): Promise<string | null>;

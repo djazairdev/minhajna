@@ -17,7 +17,9 @@
 // own back button leads back, and Android's back is reader mode's alone; the
 // teacher of a national world opens School-join the same way (#564), in its
 // trial term end while the world's date falls in it (#565). The director's
-// workspace opens on the seeded school's dashboard (#569).
+// workspace opens on the seeded school's dashboard (#569), and the director's
+// and the preparer's timetable page brings in its timetable (#576), kept for
+// the world it was read in.
 
 import {
   readWorldCode,
@@ -43,6 +45,7 @@ import { WorldReader } from './WorldReader';
 import { SchoolJoin } from '../school/SchoolJoin';
 import { DirectorDashboard } from '../director/DirectorDashboard';
 import { useDirectorSchool } from '../director/director-world';
+import { TimetableImport, type TimetableRead } from '../timetable/TimetableImport';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -100,6 +103,7 @@ export function DemoRoot({
   const [joining, setJoining] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ProblemKey | null>(null);
+  const [timetable, setTimetable] = useState<{ world: string; read: TimetableRead } | null>(null);
   const working = useRef(false);
   const school = useDirectorSchool(open, reference);
 
@@ -150,6 +154,7 @@ export function DemoRoot({
       setRole(null);
       setReading(false);
       setJoining(false);
+      setTimetable(null);
       onLeft();
     });
 
@@ -204,16 +209,28 @@ export function DemoRoot({
       onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
       onMove={move}
       onLeave={leave}
-      pageBody={(workspace, page) =>
-        workspace === 'director' && page === 'dashboard' && school !== null && reference !== undefined ? (
-          <DirectorDashboard
-            school={school}
-            profile={reference.profile}
-            when={{ trial, date: open.date }}
-            dayText={dayText}
-          />
-        ) : null
-      }
+      pageBody={(workspace, page) => {
+        if (school === null || reference === undefined) return null;
+        if (workspace === 'director' && page === 'dashboard')
+          return (
+            <DirectorDashboard
+              school={school}
+              profile={reference.profile}
+              when={{ trial, date: open.date }}
+              dayText={dayText}
+            />
+          );
+        if ((workspace === 'director' || workspace === 'preparer') && page === 'timetable')
+          return (
+            <TimetableImport
+              level={school.level}
+              bells={reference.bells}
+              read={timetable?.world === open.world ? timetable.read : null}
+              onRead={(read) => setTimetable(read === null ? null : { world: open.world, read })}
+            />
+          );
+        return null;
+      }}
     />
   );
 }
