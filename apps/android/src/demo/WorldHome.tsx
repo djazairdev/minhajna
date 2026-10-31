@@ -61,11 +61,13 @@ export type WorldHomeProps = {
   readonly onReader?: () => void;
   /** Opens School-join, for the teacher of a national world (#564); none when absent. */
   readonly onSchool?: () => void;
+  /** A workspace page's own content once its part of the demo has landed, or null for the empty page. */
+  readonly pageBody?: (role: WorkspaceRole, page: WorldPage) => ReactNode;
 };
 
 /** The roles of an entered world, then its home. */
 export function WorldHome(props: WorldHomeProps) {
-  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool } = props;
+  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool, pageBody } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -145,7 +147,9 @@ export function WorldHome(props: WorldHomeProps) {
           }}
           onLeave={onLeave}
         >
-          {page === 'world' ? facts : <Text style={[styles.line, align]}>{t('demo.pages.empty')}</Text>}
+          {page === 'world'
+            ? facts
+            : (pageBody?.(workspace, page) ?? <Text style={[styles.line, align]}>{t('demo.pages.empty')}</Text>)}
           {trouble}
         </WorldShell>
       </View>
