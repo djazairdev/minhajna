@@ -9,17 +9,7 @@
 // Every world, key and file is made up.
 
 import assert from 'node:assert/strict';
-import {
-  createCipheriv,
-  createDecipheriv,
-  createHash,
-  createHmac,
-  createPrivateKey,
-  generateKeyPairSync,
-  pbkdf2Sync,
-  randomBytes,
-  sign,
-} from 'node:crypto';
+import { createHash, createPrivateKey, generateKeyPairSync, pbkdf2Sync, sign } from 'node:crypto';
 import { describe, it } from 'node:test';
 import {
   makeWorldCode,
@@ -41,32 +31,12 @@ import {
 } from '../src/index.ts';
 import { makeTestKey, nodeVerifier, signedFile } from './signed-fixtures.ts';
 import { random } from './school-devices.ts';
+import { cipher, mac } from './world-crypto.ts';
 
-const mac = (key: Uint8Array, data: Uint8Array) =>
-  Promise.resolve(new Uint8Array(createHmac('sha256', key).update(data).digest()));
 const kdf: WorldKdf = (secret, salt, rounds) =>
   Promise.resolve(new Uint8Array(pbkdf2Sync(secret, salt, rounds, 32, 'sha256')));
 /** The same derivation in one round, for the tests that do not time it. */
 const quick: WorldKdf = (secret, salt) => kdf(secret, salt, 1);
-
-const cipher: WorldCipher = {
-  seal: (key, plain, additional) => {
-    const nonce = randomBytes(12);
-    const seal = createCipheriv('aes-256-gcm', key, nonce).setAAD(additional);
-    const sealed = Buffer.concat([nonce, seal.update(plain), seal.final(), seal.getAuthTag()]);
-    return Promise.resolve(new Uint8Array(sealed));
-  },
-  open: (key, sealed, additional) => {
-    try {
-      const bytes = Buffer.from(sealed);
-      const open = createDecipheriv('aes-256-gcm', key, bytes.subarray(0, 12)).setAAD(additional);
-      open.setAuthTag(bytes.subarray(-16));
-      return Promise.resolve(new Uint8Array(Buffer.concat([open.update(bytes.subarray(12, -16)), open.final()])));
-    } catch {
-      return Promise.resolve(null);
-    }
-  },
-};
 
 const signWith: WorldSigner = (pkcs8, text) => {
   const key = createPrivateKey({ key: Buffer.from(pkcs8, 'base64'), format: 'der', type: 'pkcs8' });
