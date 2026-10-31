@@ -25,8 +25,6 @@ import {
   certificateRequest,
   channelStream,
   checkCertificate,
-  fromBase64Url,
-  isSigningKey,
   keptJoins,
   newId,
   readJoinCode,
@@ -35,32 +33,18 @@ import {
   toBase64Url,
   type JoinCode,
   type SchoolJoined,
-  type SealedBatch,
 } from '@minhajna/core';
 import { errorCode } from '../lock/lock-rules';
 import { worldRequest } from '../network/world-network';
 import type { OpenWorld } from '../demo/world-mode';
 import { failed, kitStep, unexpected, type Send, type WorldKit } from '../demo/world-session';
+import { caKey, spaceBatches } from './space-read';
 
 /** How many times the record is put on the channel before giving up. */
 const TRIES = 3;
 
 /** The joins on their way, by code, so a second press waits for the first. */
 const going = new Map<string, Promise<SchoolJoined>>();
-
-const isBatch = (one: unknown): one is { seq: number; stream: string; number: number; bytes: string } => {
-  const { seq, stream, number, bytes } = (one ?? {}) as Record<string, unknown>;
-  const counts = Number.isSafeInteger(seq) && Number.isSafeInteger(number) && (number as number) >= 0;
-  return counts && typeof stream === 'string' && typeof bytes === 'string';
-};
-
-/** The world CA's public key. */
-async function caKey(world: string, send: Send): Promise<string> {
-  const answer = await send({ method: 'GET', path: `/worlds/${world}/ca` });
-  const key = (answer.body as { publicKey?: unknown } | null)?.publicKey;
-  if (answer.status !== 200 || !isSigningKey(key)) throw unexpected(answer);
-  return key;
-}
 
 /** A new signing key, certified by the world's CA for a new device ID, as the store keeps it. */
 async function certified(code: JoinCode, text: string, ca: string, kit: WorldKit, send: Send): Promise<SchoolJoined> {
@@ -73,27 +57,6 @@ async function certified(code: JoinCode, text: string, ca: string, kit: WorldKit
   const holds = answer.status === 201 && (await checkCertificate(certificate, code.world, ca, kit));
   if (!holds || certificate.subject !== device || certificate.publicKey !== pair.spki) throw unexpected(answer);
   return { code: text, device, pkcs8: pair.pkcs8, certificate };
-}
-
-/** The channel's batches in the school's space, in the order the relay keeps them. */
-async function channel(code: JoinCode, stream: string, send: Send): Promise<SealedBatch[]> {
-  const found: SealedBatch[] = [];
-  for (let after = 0, more = true; more;) {
-    const path = `/worlds/${code.world}/spaces/${code.school}/batches?after=${after}`;
-    const answer = await send({ method: 'GET', path });
-    const body = answer.body as { batches?: unknown; more?: unknown } | null;
-    if (answer.status !== 200 || !Array.isArray(body?.batches)) throw unexpected(answer);
-    const before = after;
-    for (const one of body.batches as unknown[]) {
-      if (!isBatch(one) || one.seq <= after) throw unexpected(answer);
-      after = one.seq;
-      const bytes = one.stream === stream ? fromBase64Url(one.bytes) : null;
-      if (bytes !== null) found.push({ number: one.number, bytes });
-    }
-    more = body.more === true;
-    if (more && after === before) throw unexpected(answer);
-  }
-  return found;
 }
 
 /** Joins the school whose code was scanned, as this device, and answers what the world's store keeps of it. */
@@ -160,7 +123,7 @@ async function joinOnce(
   if (space.status !== 200 && space.status !== 201) throw unexpected(space);
   const stream = await kitStep(() => channelStream(code, kit.mac));
   for (let tries = 0; tries <= TRIES; tries += 1) {
-    const batches = await channel(code, stream, send);
+    const batches = (await spaceBatches(code.world, code.school, send)).get(stream) ?? [];
     const joined = await kitStep(() => readJoined(code, batches, { key: ca, checker: kit }, kit.cipher, kit.mac));
     if (joined !== null) {
       const ours = joined.device === kept.device && joined.certificate.publicKey === kept.certificate.publicKey;
@@ -190,6 +153,7 @@ const PROBLEMS = {
   E_WORLD_KIT: 'demo.problem.device',
   E_WORLD: 'demo.problem.store',
   E_KEY_LOST: 'demo.problem.store',
+  E_SCHOOL_KEY: 'demo.problem.store',
 } as const;
 
 /** The catalogue's words for an error's code. */
