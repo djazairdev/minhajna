@@ -7,10 +7,11 @@
 // codes and security keys (#570), the keys page that maps who holds the school
 // key (#571), the records page that reads the classes' signed weeks with the
 // school key (#585, SchoolRecords.tsx), the director's cover page for the
-// world's date (#586, SchoolCover.tsx), the director's and the preparer's
-// timetable page (#576, #577, #578), kept for the world it was read in, and
-// their own log (#573); any other page has none, and the preparer never opens
-// the records or the cover.
+// world's date (#586, SchoolCover.tsx), the director's assignments and access
+// page for substitutes (#587, SchoolSubstitute.tsx), the director's and the
+// preparer's timetable page (#576, #577, #578), kept for the world it was read
+// in, and their own log (#573); any other page has none, and the preparer never
+// opens the records or the cover.
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -20,9 +21,11 @@ import { OwnLog } from '../director/OwnLog';
 import { SchoolCover } from '../director/SchoolCover';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
+import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
+import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import type { WorkspaceRole, WorldPage } from './world-pages';
 import type { OpenWorld } from './world-mode';
@@ -97,5 +100,16 @@ export function workspacePage(
     );
   if (workspace === 'director' && page === 'cover')
     return <SchoolCover world={open} school={school} year={year} kit={kit} send={send} dayText={dayText} />;
+  if (workspace === 'director' && page === 'access')
+    return (
+      <SchoolSubstitute
+        world={open}
+        school={school}
+        bells={levelBells(reference.bells, school.level)}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+      />
+    );
   return null;
 }

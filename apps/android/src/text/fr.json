@@ -5109,6 +5109,60 @@
       "decides": "Il compte les remplacements assurés par chaque personne, pour les répartir équitablement. L’application suggère ; la direction décide.",
       "makeups": "Les séances de rattrapage sont liées aux séances qu’elles remplacent et viennent avec les rattrapages d’Aujourd’hui hors d’un monde ; un monde n’en a pas. L’effet d’une séance manquée sur la rémunération se règle par la voie officielle, pas ici.",
       "problem": "Le remplacement n’a pas été gardé. Réessayez."
+    },
+    "substitute": {
+      "lead": "La nomination est une décision de la direction de l’éducation. L’établissement l’enregistre seulement ici.",
+      "appoint": "Enregistrer une suppléance",
+      "appointLead": "La direction de l’éducation nomme ; l’établissement l’enregistre ici, et les classes passent par l’espace de l’établissement.",
+      "noHolders": "Aucun membre du personnel enseignant n’a encore de classes dans l’emploi du temps publié.",
+      "holder": "Titulaire",
+      "substitute": "Personne suppléante",
+      "noSubstitutes": "Aucun autre membre du personnel enseignant n’a rejoint l’espace de l’établissement avec un code ou une clé.",
+      "decision": "Décision de nomination",
+      "decisionHint": "Sa référence, telle que la direction de l’éducation l’a écrite",
+      "classes": "Classes",
+      "from": "À partir du",
+      "until": "Jusqu’au retour de la personne titulaire.",
+      "passes": "Ce que reçoit la personne suppléante, pour chaque classe",
+      "pass": {
+        "position": "La position dans le plan, avec un pack de plan ; un monde n’en a pas.",
+        "weeks": "Les semaines signées du cahier de textes ; l’appel et les notes viennent avec, hors d’un monde.",
+        "pupils": "La liste de la classe, depuis le système du secteur ; un monde n’en a pas.",
+        "next": "La ressource suivante, avec un pack de plan.",
+        "timetable": "L’emploi du temps : une nouvelle version donne ces séances à la personne suppléante dès le premier jour."
+      },
+      "stays": "Ne passe jamais par ici",
+      "stay": {
+        "unsigned": "La semaine non signée de la personne titulaire : elle reste sur son appareil",
+        "reason": "Le motif de l’absence : jamais enregistré",
+        "notes": "Les notes privées de la personne titulaire"
+      },
+      "record": "Enregistrer la nomination et envoyer la progression",
+      "recorded": "La nomination est enregistrée, l’emploi du temps publié et la passation envoyée.",
+      "resent": "La passation est envoyée.",
+      "notJoined": "La personne suppléante n’a pas encore rejoint l’espace de l’établissement.",
+      "badChoice": "La personne titulaire, la personne suppléante, la décision, les classes ou le premier jour ne peuvent pas être enregistrés. Vérifiez-les et réessayez.",
+      "appointments": "Nominations",
+      "line": "{{substitute}} à la place de {{holder}} · décision {{decision}} · à partir du {{from}} · {{classes}}",
+      "classCount_one": "{{count}} classe",
+      "classCount_many": "{{count}} de classes",
+      "classCount_other": "{{count}} classes",
+      "handedOver": "La passation est sur le canal de la personne suppléante, en attente de son accusé de réception.",
+      "notHandedOver": "La passation n’a pas atteint en entier le canal de la personne suppléante.",
+      "received": "Reçue par la personne suppléante le {{day}}, signée sur son appareil.",
+      "resend": "Renvoyer la passation",
+      "update": "Mettre la passation à jour",
+      "grants": "Accès de l’inspection",
+      "grantsLead": "Accordé par l’autorité de tutelle, jamais par la direction : il nomme les classes et les semaines, est limité dans le temps, le personnel enseignant voit l’accès et chaque consultation, et il n’ouvre jamais les dossiers des élèves.",
+      "noGrant": "Un monde n’a aucun accès accordé.",
+      "grantsHere": "Aucun accès n’est accordé ni prolongé ici.",
+      "never": "Jamais dans Minhajna",
+      "nevers": {
+        "evaluate": "Évaluer ou classer le personnel enseignant",
+        "transfer": "Le muter d’un établissement à l’autre",
+        "pay": "Valider des heures supplémentaires ou une rémunération",
+        "links": "Des liens vers des plateformes de l’État hors du système national d’interopérabilité"
+      }
     }
   },
   "chart": {

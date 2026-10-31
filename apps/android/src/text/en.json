@@ -5039,6 +5039,59 @@
       "decides": "It counts the cover each person gave, to share it fairly. The app suggests; the director decides.",
       "makeups": "Make-ups are linked to the sessions they replace and come with Today’s make-ups outside a world; a world has none. Any effect of a missed session on pay is settled in the official channel, not here.",
       "problem": "The cover was not kept. Try again."
+    },
+    "substitute": {
+      "lead": "The appointment is the directorate’s decision. The school only records it here.",
+      "appoint": "Appoint a substitute",
+      "appointLead": "The directorate appoints; the school records it here, and the classes pass over through the school’s space.",
+      "noHolders": "No teacher of the staff list holds classes in the published timetable yet.",
+      "holder": "Holder",
+      "substitute": "Substitute",
+      "noSubstitutes": "No other teacher of the staff list has joined the school’s space on a code or key.",
+      "decision": "Appointment decision",
+      "decisionHint": "Its reference, as the directorate wrote it",
+      "classes": "Classes",
+      "from": "From",
+      "until": "Until the holder returns.",
+      "passes": "What the substitute receives, for each class",
+      "pass": {
+        "position": "The position in the plan, with a plan pack; a world has none.",
+        "weeks": "The signed weeks of the texts book; roll call and marks come with them outside a world.",
+        "pupils": "The class list, from the sector’s system; a world has none.",
+        "next": "The next resource, with a plan pack.",
+        "timetable": "The timetable: a new version gives the substitute these sessions from the first day."
+      },
+      "stays": "Never passes here",
+      "stay": {
+        "unsigned": "The holder’s unsigned week: it stays on their device",
+        "reason": "The reason for the absence: never recorded",
+        "notes": "The holder’s private notes"
+      },
+      "record": "Record the appointment and send the progress",
+      "recorded": "The appointment is recorded, the timetable published and the handover sent.",
+      "resent": "The handover is sent.",
+      "notJoined": "The substitute has not joined the school’s space yet.",
+      "badChoice": "The holder, the substitute, the decision, the classes or the first day cannot be recorded. Check them and try again.",
+      "appointments": "Appointments",
+      "line": "{{substitute}} for {{holder}} · decision {{decision}} · from {{from}} · {{classes}}",
+      "classCount_one": "{{count}} class",
+      "classCount_other": "{{count}} classes",
+      "handedOver": "The handover is on the substitute’s channel, awaiting their receipt.",
+      "notHandedOver": "Not all of the handover has reached the substitute’s channel.",
+      "received": "Received by the substitute on {{day}}, signed on their device.",
+      "resend": "Send the handover again",
+      "update": "Bring the handover up to date",
+      "grants": "Inspectors’ access",
+      "grantsLead": "Granted by the supervising authority, never the director: it names the classes and the weeks, is limited in time, the teacher sees the grant and every reading, and it never opens pupils’ records.",
+      "noGrant": "A world has no grant.",
+      "grantsHere": "No access is granted or extended here.",
+      "never": "Never in Minhajna",
+      "nevers": {
+        "evaluate": "Evaluating or ranking teachers",
+        "transfer": "Moving them between schools",
+        "pay": "Approving overtime or pay",
+        "links": "Links to state platforms outside the national interoperability system"
+      }
     }
   },
   "chart": {
