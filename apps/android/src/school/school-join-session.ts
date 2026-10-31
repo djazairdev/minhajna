@@ -161,6 +161,7 @@ const PROBLEMS = {
   E_SCHOOL_HELD: 'demo.keys.heldHere',
   E_NO_SCHOOL_KEY: 'demo.issue.keysFirst',
   E_REMOVE_SELF: 'demo.keys.removeSelf',
+  E_PC_NOT_JOINED: 'demo.staff.phone.notJoined',
 } as const;
 
 /** The catalogue's words for an error's code. */

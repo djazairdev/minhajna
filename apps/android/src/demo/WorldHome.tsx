@@ -61,13 +61,15 @@ export type WorldHomeProps = {
   readonly onReader?: () => void;
   /** Opens School-join, for the teacher of a national world (#564); none when absent. */
   readonly onSchool?: () => void;
+  /** Signs in on a staffroom PC, from the phone or on the PC, for the teacher of a national world (#572). */
+  readonly onStaff?: () => void;
   /** A workspace page's own content once its part of the demo has landed, or null for the empty page. */
   readonly pageBody?: (role: WorkspaceRole, page: WorldPage) => ReactNode;
 };
 
 /** The roles of an entered world, then its home. */
 export function WorldHome(props: WorldHomeProps) {
-  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool, pageBody } = props;
+  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool, onStaff, pageBody } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -186,6 +188,14 @@ export function WorldHome(props: WorldHomeProps) {
               <Text style={[styles.line, align]}>{t('demo.home.roleNext')}</Text>
               {role === 'teacher' && onSchool !== undefined && (
                 <Button testID="world-school-open" variant="line" label={t('demo.home.school')} onPress={onSchool} />
+              )}
+              {role === 'teacher' && onStaff !== undefined && (
+                <Button
+                  testID="world-staff-open"
+                  variant="line"
+                  label={t(onPc() ? 'demo.home.staffPc' : 'demo.home.pcApprove')}
+                  onPress={onStaff}
+                />
               )}
               {onReader !== undefined && (
                 <Button testID="world-reader-open" variant="line" label={t('demo.home.reader')} onPress={onReader} />
