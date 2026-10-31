@@ -79,6 +79,7 @@ export * from './school-join.ts';
 export * from './school-joined.ts';
 export * from './school-recovery.ts';
 export * from './timetable-key.ts';
+export * from './timetable-import.ts';
 export * from './grants.ts';
 export * from './certify.ts';
 export * from './week-totals.ts';
