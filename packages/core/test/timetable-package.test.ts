@@ -112,6 +112,7 @@ async function setting() {
     teacher: 'بلعيد محمد',
     version,
     from: parseDay('2026-12-06'),
+    once: false,
     sessions,
     bells: [
       [480, 540],
