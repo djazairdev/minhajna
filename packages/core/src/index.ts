@@ -81,6 +81,7 @@ export * from './school-leave.ts';
 export * from './school-trial.ts';
 export * from './school-recovery.ts';
 export * from './timetable-key.ts';
+export * from './timetable-fet.ts';
 export * from './timetable-import.ts';
 export * from './grants.ts';
 export * from './certify.ts';
