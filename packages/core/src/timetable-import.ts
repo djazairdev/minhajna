@@ -20,8 +20,9 @@
 // booked at once with no room read the same; a place that holds several
 // sessions at once, such as the yard, is left without a room. Every problem is
 // said with its row, as a spreadsheet numbers it, and a row with a problem is
-// left out, so the rest can still be read. Minhajna reads the timetable and
-// never builds one (R-7.4-09).
+// left out, so the rest can still be read. FET's export goes through the same
+// checks (timetable-fet.ts). Minhajna reads the timetable and never builds one
+// (R-7.4-09).
 
 import type { Weekday } from './day.ts';
 import { nameKey } from './name-replace.ts';
@@ -113,12 +114,16 @@ function lookup<T>(entries: readonly (readonly [T, readonly string[]])[]): Reado
   return found;
 }
 
+/** A cell with its Arabic-Indic and Persian digits written in Latin ones. */
+export const latinDigits = (cell: string) =>
+  cell.replace(/[\u0660-\u0669\u06F0-\u06F9]/gu, (digit) => String(digit.charCodeAt(0) % 16));
+
 /**
  * The minutes from midnight of a time written H:MM, HH:MM, HhMM or H.MM, with or without :00 seconds, in Latin or
  * Arabic-Indic digits, or null.
  */
 export function readTime(cell: string): number | null {
-  const digits = cell.trim().replace(/[\u0660-\u0669\u06F0-\u06F9]/gu, (digit) => String(digit.charCodeAt(0) % 16));
+  const digits = latinDigits(cell.trim());
   const found = /^(\d{1,2})[:hH.](\d{2})(?::00)?$/u.exec(digits);
   if (found === null) return null;
   const [hours, minutes] = [Number(found[1]), Number(found[2])];
@@ -240,26 +245,45 @@ export function readTimetable(rows: readonly (readonly string[])[], words: Timet
   if (header === undefined)
     return { sessions: [], problems: (tried[0] ?? headerOf([], lookups.columns, 1)).problems, together: [] };
   if (header.problems.length > 0) return { sessions: [], problems: header.problems, together: [] };
-  const read: ImportedSession[] = [];
+  const read = rows.flatMap((cells, index) =>
+    index <= at || cells.every((one) => one.trim() === '') ? [] : [sessionOf(cells, header.places, lookups, index + 1)],
+  );
+  const checked = checkSessions(read);
+  return { ...checked, problems: [...header.unknown, ...checked.problems] };
+}
+
+/**
+ * Checks sessions in their order, each against every one before it that reads, keeping it only when it clashes with
+ * none, so each clash is said in one reading; a problem passed in is kept as it is. Lists the kept sessions taught
+ * together with an earlier one.
+ */
+export function checkSessions<P extends { readonly row: number; readonly kind: string } = ImportProblem>(
+  read: readonly (ImportedSession | P)[],
+): Omit<TimetableImport, 'problems'> & { readonly problems: readonly (P | ImportProblem)[] } {
+  const before: ImportedSession[] = [];
   const sessions: ImportedSession[] = [];
-  const found: ImportProblem[] = [...header.unknown];
+  const problems: (P | ImportProblem)[] = [];
   const joined: { row: number; with: number }[] = [];
-  for (const [index, cells] of rows.entries()) {
-    if (index <= at || cells.every((one) => one.trim() === '')) continue;
-    const session = sessionOf(cells, header.places, lookups, index + 1);
+  for (const session of read) {
     if ('kind' in session) {
-      found.push(session);
+      problems.push(session);
       continue;
     }
-    const clashes = clashesOf(read, session);
-    read.push(session);
+    const clashes = clashesOf(before, session);
+    before.push(session);
     if (clashes.length > 0) {
-      found.push(...clashes);
+      problems.push(...clashes);
       continue;
     }
     const partner = sessions.find((one) => together(one, session));
     if (partner !== undefined) joined.push({ row: session.row, with: partner.row });
     sessions.push(session);
   }
-  return { sessions, problems: found, together: joined };
+  return { sessions, problems, together: joined };
+}
+
+/** Reads a day's name in the app's words, in any letter case. Throws when one word names two days. */
+export function dayReader(days: TimetableWords['days']): (cell: string) => Weekday | undefined {
+  const found = lookup(Object.entries(days).map(([day, list]) => [Number(day) as Weekday, list ?? []] as const));
+  return (cell) => found.get(key(cell));
 }
