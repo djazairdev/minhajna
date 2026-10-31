@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The cryptography a demo world needs on the phone (#561, answers 568 and
-// 572), from the phone's own native code, as the PC's comes from Web Crypto:
-// the world kit module for the derivation, the MAC, the sealing and the
-// world's stand-in signing key, the storage's SecureRandom for random bytes,
-// and the signature module's check, which every signed file already uses.
-// Bytes cross the bridge as lowercase hex. The phone's start hands it to the
-// app, so the PC's bundle never asks for it; a build without the network
-// permission gets none, so it offers no world (answer 575).
+// The cryptography a demo world needs on the phone (#561, answers 568 and 572),
+// from the phone's own native code, as the PC's comes from Web Crypto: the
+// world kit module for the derivation, the MAC, the sealing, the world's
+// stand-in signing key and the key agreement that seals the school key to a
+// device (answer 595), the storage's SecureRandom for random bytes, and the
+// signature module's check, which every signed file already uses. Bytes cross
+// the bridge as lowercase hex. The phone's start hands it to the app, so the
+// PC's bundle never asks for it; a build without the network permission gets
+// none, so it offers no world (answer 575).
 
 import { toHex } from '@minhajna/core';
 import type { Spec as SignatureSpec } from '../native/NativeMinhajnaSignature';
@@ -38,5 +39,10 @@ export function phoneWorldKit(
     sign: (pkcs8, text) => kit.sign(pkcs8, text),
     verify: (spki, payload, signed) => signature.verify(spki, payload, signed),
     newPair: () => kit.newPair(),
+    async newAgreement() {
+      const pair = await kit.newAgreement();
+      return { publicKey: fromHex(pair.publicKey), pkcs8: pair.pkcs8 };
+    },
+    agree: async (pkcs8, publicKey) => fromHex(await kit.agree(pkcs8, toHex(publicKey))),
   };
 }

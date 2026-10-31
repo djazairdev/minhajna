@@ -15,7 +15,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 
 /**
- * Hands a demo world's cryptography (WorldCrypto) to the app (#561), on its
+ * Hands a demo world's cryptography (WorldCrypto) to the app (#561, #570), on its
  * own worker, so the world's 600,000-round derivation never holds the screen
  * or the signature checks. Bytes cross as lowercase hex. Any failure answers
  * E_WORLD_KIT and says nothing of the bytes, the key or the platform's
@@ -56,6 +56,18 @@ class MinhajnaWorldKitModule(context: ReactApplicationContext) : NativeMinhajnaW
       putString("pkcs8", pair.pkcs8)
       putString("fingerprint", pair.fingerprint)
     }
+  }
+
+  override fun newAgreement(promise: Promise) = onWorker(promise) {
+    val pair = WorldCrypto.newAgreement()
+    Arguments.createMap().apply {
+      putString("publicKey", Hashing.hex(pair.publicKey))
+      putString("pkcs8", pair.pkcs8)
+    }
+  }
+
+  override fun agree(pkcs8: String, publicKey: String, promise: Promise) = onWorker(promise) {
+    Hashing.hex(WorldCrypto.agree(pkcs8, bytes(publicKey)))
   }
 
   private fun onWorker(promise: Promise, task: () -> Any?) {

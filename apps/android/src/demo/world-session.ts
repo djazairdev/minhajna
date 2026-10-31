@@ -65,6 +65,13 @@ export interface WorldKit {
    * of the SPKI in hex.
    */
   readonly newPair: () => Promise<{ readonly spki: string; readonly pkcs8: string; readonly fingerprint: string }>;
+  /**
+   * A new P-256 pair for key agreement (answer 595): its public half as the 65-byte uncompressed point, its private
+   * half as PKCS #8 DER in base64.
+   */
+  readonly newAgreement: () => Promise<{ readonly publicKey: Uint8Array; readonly pkcs8: string }>;
+  /** The 32-byte ECDH secret of a PKCS #8 private half and another's uncompressed point; one off the curve throws. */
+  readonly agree: (pkcs8: string, publicKey: Uint8Array) => Promise<Uint8Array>;
 }
 
 export type Send = (request: WorldRequest) => Promise<WorldAnswer>;
