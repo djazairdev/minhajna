@@ -3,26 +3,27 @@
 
 // The demo worlds (#560 and #561, answers 569, 572, 573 and 575), in place of
 // the welcome or the lock page while the teacher's history is shut: the entry
-// starts a world, on a PC only, or enters one by its code, then the world's
-// own store opens and its roles show, then its home. The platform's
-// cryptography comes from its start. Each failure says what went wrong in the
-// catalogue's words, by its code, and leaves the entry as it was; a code the
-// server no longer knows erases what this device kept for it (world-mode.ts).
-// Leaving shuts the network and the world's store, and hands back to the
-// lock, which opens the teacher's history again only through its passphrase
-// or PIN. Android's back button goes back from the entry unless a world is
-// being entered, and from a role to the roles; on the roles it does nothing,
-// so a world is left only by its own button. The teacher and the inspector
-// open reader mode inside the world from its home (#563), where reader mode's
-// own back button leads back, and Android's back is reader mode's alone; the
+// starts a world, on a PC only, or enters one by its code, then the world's own
+// store opens and its roles show, then its home. The platform's cryptography
+// comes from its start. Each failure says what went wrong in the catalogue's
+// words, by its code, and leaves the entry as it was; a code the server no
+// longer knows erases what this device kept for it (world-mode.ts). Leaving
+// shuts the network and the world's store, and hands back to the lock, which
+// opens the teacher's history again only through its passphrase or PIN.
+// Android's back button goes back from the entry unless a world is being
+// entered, and from a role to the roles; on the roles it does nothing, so a
+// world is left only by its own button. The teacher and the inspector open
+// reader mode inside the world from its home (#563), where reader mode's own
+// back button leads back, and Android's back is reader mode's alone; the
 // teacher of a national world opens School-join the same way (#564), in its
 // trial term end while the world's date falls in it (#565). The director's
 // workspace opens on the seeded school's dashboard (#569), its codes page
 // issues joining codes and security keys (#570), its keys page maps who holds
 // the school key (#571), and the director's and the preparer's timetable page
-// brings in its timetable (#576), kept for the world it was read in. The
-// teacher of a national world signs in on a staffroom PC (#572): on the phone
-// it approves a PC's code, and on the PC it is the staffroom PC itself.
+// brings in its timetable (#576), kept for the world it was read in, and their
+// My log lists their own actions (#573). The teacher of a national world signs
+// in on a staffroom PC (#572): on the phone it approves a PC's code, and on the
+// PC it is the staffroom PC itself.
 
 import {
   readWorldCode,
@@ -50,6 +51,7 @@ import { PcApprove } from '../staff/PcApprove';
 import { StaffPc } from '../staff/StaffPc';
 import { DirectorDashboard } from '../director/DirectorDashboard';
 import { IssueCodes } from '../director/IssueCodes';
+import { OwnLog } from '../director/OwnLog';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { useDirectorSchool } from '../director/director-world';
 import { TimetableImport, type TimetableRead } from '../timetable/TimetableImport';
@@ -260,6 +262,8 @@ export function DemoRoot({
           );
         if (workspace === 'director' && page === 'keys')
           return <SchoolKeys world={open} school={school} kit={kit} send={send} dayText={dayText} />;
+        if ((workspace === 'director' || workspace === 'preparer') && page === 'log')
+          return <OwnLog world={open} school={school} role={workspace} kit={kit} dayText={dayText} />;
         if ((workspace === 'director' || workspace === 'preparer') && page === 'timetable')
           return (
             <TimetableImport

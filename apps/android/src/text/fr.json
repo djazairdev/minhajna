@@ -4396,6 +4396,28 @@
         "other": "Non tenues : autres"
       }
     },
+    "ownLog": {
+      "lead": "Ce que vous avez fait dans ce monde, depuis cet appareil.",
+      "none": "Rien n’a encore été fait depuis cet appareil dans ce monde.",
+      "preparer": "L’import d’un emploi du temps n’est pas encore conservé dans le monde : rien ne s’affiche ici.",
+      "rule": "Chaque membre de l’administration voit ses propres actions, et elles seules. L’enseignant voit chaque consultation de ses registres.",
+      "days": "Les jours seulement, jamais l’heure ; les connexions ne sont jamais listées.",
+      "someone": "un enseignant de l’établissement",
+      "line": {
+        "keyStarted": "Clé de l’établissement créée sur cet appareil",
+        "keyAdmitted": "Cet appareil ajouté à la clé de l’établissement",
+        "holdersAdded": "Appareils ajoutés à la clé de l’établissement : {{number}}",
+        "holdersRemoved": "Appareils retirés de la clé de l’établissement : {{number}}",
+        "codeIssued": "Code d’adhésion pour {{name}}",
+        "codeReplaced": "Nouveau code d’adhésion pour {{name}}",
+        "codeReissued": "Nouveau code d’adhésion pour {{name}} après le changement de la clé de l’établissement",
+        "keyIssued": "Clé de sécurité {{number}} pour {{name}}",
+        "keyReplaced": "Clé de sécurité {{number}} pour {{name}}, à la place d’une clé précédente",
+        "recoveryMade": "Récupération de la clé de l’établissement créée",
+        "recoveryRenewed": "Récupération de la clé de l’établissement renouvelée"
+      },
+      "opening": "Calcul du journal…"
+    },
     "issue": {
       "lead": "{{date}} · Enseignants de l’établissement dans le monde de démonstration : {{number}}",
       "print": "Imprimer les codes non encore scannés",
