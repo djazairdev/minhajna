@@ -16,6 +16,8 @@ export type ButtonProps = ControlProps & {
   readonly ref?: Ref<ViewInstance>;
   /** A concise action, sized for one line at enlarged text; put lesson details outside the button. */
   readonly label: string;
+  /** A spoken name for a button repeated in a list, starting with its label, as «Remove entry 3». */
+  readonly name?: string;
 } & (
     | { readonly variant?: 'primary'; readonly icon?: ControlIcon }
     | { readonly variant: Exclude<ButtonVariant, 'primary'>; readonly icon?: never }
@@ -25,6 +27,7 @@ export type ButtonProps = ControlProps & {
 export function Button({
   ref,
   label,
+  name,
   variant = 'primary',
   icon,
   disabled = false,
@@ -41,7 +44,7 @@ export function Button({
       ref={ref}
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={name ?? label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
       disabled={disabled}
