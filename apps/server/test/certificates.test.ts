@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The stand-in CA (#554): each world's own CA key, and certificates for the
-// signing keys of requests the core makes, which the core's own checks
-// take, in that world only. The server does not depend on the core, so the
-// test loads its certify.ts at run time, as Node strips its types. Every
+// P-256 signing keys of requests the core makes (answer 580), which the core's
+// own checks take, in that world only. The server does not depend on the core,
+// so the test loads its certify.ts at run time, as Node strips its types. Every
 // world, device and week here is made up.
 
 import assert from 'node:assert/strict';
@@ -35,17 +35,16 @@ interface Core {
   checkSignedWeek(value: unknown, world: string, caKey: string, checker: Signer): Promise<unknown>;
 }
 
-/** A made-up device's Ed25519 key, signing and checking a text's UTF-8 bytes in hex. */
+/** A made-up device's ECDSA P-256 key, signing and checking a text's UTF-8 bytes, all in base64. */
 function signer(): Signer {
-  const { privateKey, publicKey } = generateKeyPairSync('ed25519');
+  const { privateKey, publicKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
   return {
-    publicKey: Buffer.from(publicKey.export({ format: 'jwk' }).x!, 'base64url').toString('hex'),
-    sign: (text) => Promise.resolve(sign(null, Buffer.from(text, 'utf8'), privateKey).toString('hex')),
+    publicKey: publicKey.export({ format: 'der', type: 'spki' }).toString('base64'),
+    sign: (text) => Promise.resolve(sign('sha256', Buffer.from(text, 'utf8'), privateKey).toString('base64')),
     verify: (key, text, signature) => {
       try {
-        const jwk = { kty: 'OKP', crv: 'Ed25519', x: Buffer.from(key, 'hex').toString('base64url') };
-        const pub = createPublicKey({ key: jwk, format: 'jwk' });
-        return Promise.resolve(verify(null, Buffer.from(text, 'utf8'), pub, Buffer.from(signature, 'hex')));
+        const pub = createPublicKey({ key: Buffer.from(key, 'base64'), format: 'der', type: 'spki' });
+        return Promise.resolve(verify('sha256', Buffer.from(text, 'utf8'), pub, Buffer.from(signature, 'base64')));
       } catch {
         return Promise.resolve(false);
       }
@@ -106,7 +105,7 @@ describe('the stand-in CA', () => {
     assert.equal(res.status, 200);
     assert.equal(res.headers.get('cache-control'), 'no-store');
     const { publicKey } = (await res.json()) as { publicKey: string };
-    assert.match(publicKey, /^[0-9a-f]{64}$/);
+    assert.match(publicKey, /^MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE[A-Za-z0-9+/]{86}==$/);
     assert.deepEqual(await (await caKey(one)).json(), { publicKey });
     assert.notDeepEqual(await (await caKey(two)).json(), { publicKey });
     assert.equal((await caKey(one, { 'x-world-pass': PASS.replace(/^c/, 'd') })).status, 404);
@@ -147,6 +146,7 @@ describe('the stand-in CA', () => {
       { ...request, world: await start() },
       { ...request, extra: 1 },
       { ...request, subject: 'not an id' },
+      { ...request, publicKey: 'ab'.repeat(32), signature: 'cd'.repeat(64) },
       [request],
       'a request',
     ]) {

@@ -16,18 +16,20 @@
 // demo anyone with the world's code acts in any role, so the stand-in
 // certifies the device a request names, and the state's CA must bind it to an
 // identity it checked (answer 564). The signing itself is the platform's
-// Ed25519 over a text's UTF-8 bytes, injected as `KeySigner` and
-// `KeyChecker`, with keys and signatures in hex; the drawn signature on paper
-// documents is signature.ts and has nothing to do with this.
+// ECDSA P-256 over a text's UTF-8 bytes, as for signed files, since Android's
+// platform has Ed25519 only from API 33 (answer 580), injected as `KeySigner`
+// and `KeyChecker`, with each key's SPKI and each signature's DER in base64;
+// the drawn signature on paper documents is signature.ts and has nothing to
+// do with this.
 
 import { isDay, type Day } from './day.ts';
 import { ID } from './school-key-shape.ts';
-import { utf8Length } from './signed-read.ts';
+import { utf8Length, type Verifier } from './signed-read.ts';
 import { isWorldId } from './world-code.ts';
 
 export interface KeyChecker {
-  /** Whether `signature` is an Ed25519 signature of the text's UTF-8 bytes under `publicKey`; never throws. */
-  readonly verify: (publicKey: string, text: string, signature: string) => Promise<boolean>;
+  /** Whether `signature` is an ECDSA P-256 signature of the text's UTF-8 bytes under `publicKey`; a throw is a no. */
+  readonly verify: Verifier;
 }
 
 /** The device's own signing key, which never leaves it. */
@@ -66,8 +68,15 @@ export interface SignedWeek {
 
 export type SignedWeekProblem = 'uncertified' | 'forged';
 
-const PUBLIC_KEY = /^[0-9a-f]{64}$/u;
-const SIGNATURE = /^[0-9a-f]{128}$/u;
+/** A P-256 public key's SPKI, DER in base64, written the one way its 91 bytes encode. */
+const PUBLIC_KEY = /^MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE[A-Za-z0-9+/]{85}[AQgw]==$/u;
+/** The last group of padded base64 written the one way, every bit past the data a zero. */
+const LAST_GROUP = '(?:[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)?';
+/** An ECDSA P-256 signature's DER, 8 to 72 bytes, in padded base64 written the one way. */
+const SIGNATURE = new RegExp(
+  `^(?=[A-Za-z0-9+/=]{12,96}$)(?![A-Za-z0-9+/]{10}==$)(?:[A-Za-z0-9+/]{4})+${LAST_GROUP}$`,
+  'u',
+);
 
 function hasOnly(value: unknown, fields: readonly string[]): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
@@ -76,6 +85,11 @@ function hasOnly(value: unknown, fields: readonly string[]): value is Record<str
 }
 
 const test = (value: unknown, form: RegExp): value is string => typeof value === 'string' && form.test(value);
+
+/** Whether a value is a signing key as certificates name it: a P-256 key's SPKI in base64. */
+export function isSigningKey(value: unknown): value is string {
+  return test(value, PUBLIC_KEY);
+}
 
 /** What a device signs to ask for a certificate. */
 export function requestText(world: string, subject: string, publicKey: string): string {
@@ -113,7 +127,7 @@ export async function checkRequest(value: unknown, checker: KeyChecker): Promise
   if (!isWorldId(world) || !test(subject, ID) || !test(publicKey, PUBLIC_KEY) || !test(signature, SIGNATURE)) {
     return false;
   }
-  return checker.verify(publicKey, requestText(world, subject, publicKey), signature);
+  return checker.verify(publicKey, requestText(world, subject, publicKey), signature).catch(() => false);
 }
 
 /** Whether a value has exactly the shape of a certificate. */
@@ -132,7 +146,7 @@ export async function checkCertificate(
   checker: KeyChecker,
 ): Promise<boolean> {
   if (!isCertificate(value) || value.world !== world) return false;
-  return checker.verify(caKey, certificateText(value), value.signature);
+  return checker.verify(caKey, certificateText(value), value.signature).catch(() => false);
 }
 
 /**
@@ -179,6 +193,6 @@ export async function checkSignedWeek(
   if (typeof text !== 'string' || utf8Length(text) === null || !test(signature, SIGNATURE)) return 'forged';
   if (!(await checkCertificate(certificate, world, caKey, checker))) return 'uncertified';
   const certified = certificate as Certificate;
-  const signed = await checker.verify(certified.publicKey, weekText(certified, text), signature);
+  const signed = await checker.verify(certified.publicKey, weekText(certified, text), signature).catch(() => false);
   return signed ? { text, signature, certificate: certified } : 'forged';
 }
