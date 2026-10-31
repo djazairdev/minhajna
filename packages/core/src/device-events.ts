@@ -4,10 +4,12 @@
 // The device layer's events of the pilot's backups (#247, answer 478), of the
 // working copy handed to the teacher's other device and back (#250, answers 503
 // and 514), of the PC web app's updates (R-6.6-06), and of where a restored
-// copy came from (#251, answer 525), and of the demo world a store belongs to
-// (#560, answer 573), apart from devices.ts and world-kept.ts, which read them,
-// so the events module imports no module that imports it back.
+// copy came from (#251, answer 525), of the demo world a store belongs to
+// (#560, answer 573) and of the schools joined in it (#564, answer 581), apart
+// from devices.ts, world-kept.ts and school-joined.ts, which read them, so the
+// events module imports no module that imports it back.
 
+import type { Certificate } from './certify.ts';
 import type { WorldKind } from './world-keys.ts';
 
 export type DeviceEvent =
@@ -24,13 +26,24 @@ export type DeviceEvent =
   /** A copy restored into the empty history, by its route only: never the file, a key or the other device. */
   | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute } }
   /** In a demo world's own store: its kind and code, and the starter token where the world was started. */
-  | { readonly kind: 'world.kept'; readonly kept: WorldKept };
+  | { readonly kind: 'world.kept'; readonly kept: WorldKept }
+  /** In a demo world's own store: the key this device keeps for a school's joining code. */
+  | { readonly kind: 'school.joined'; readonly joined: SchoolJoined };
 
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
   readonly code: string;
   readonly starter: string | null;
+}
+
+/** A joining code scanned in a demo world, as scanned, with this device's ID there, its signing key and certificate. */
+export interface SchoolJoined {
+  readonly code: string;
+  readonly device: string;
+  /** The signing key's private half, PKCS #8 DER in base64, which never leaves the world's store. */
+  readonly pkcs8: string;
+  readonly certificate: Certificate;
 }
 
 /** A restore's routes: a transfer from the other device, a backup, or an export. */
@@ -48,6 +61,7 @@ export const DEVICE_KINDS = {
   'app.updated': true,
   'copy.received': true,
   'world.kept': true,
+  'school.joined': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

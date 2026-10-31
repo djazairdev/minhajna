@@ -6,11 +6,11 @@
 // both, or changes to different records, give none. A pupil's mark or capture
 // is one record per cell, and a class and subject's formula one record per
 // course, and a descriptive observation or an appreciation one per pupil,
-// course and term (#240, #241); a class's move to a newer release is a
-// change to its course (#322); a teacher's name in reader mode is one record
-// per key, and a statement received only adds (#246); a demo world kept in
-// its own store is the device's own and never conflicts (#560). Made-up
-// records only.
+// course and term (#240, #241); a class's move to a newer release is a change
+// to its course (#322); a teacher's name in reader mode is one record per key,
+// and a statement received only adds (#246); a demo world kept in its own
+// store, and a school joined there, are the device's own and never conflict
+// (#560, #564). Made-up records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -235,6 +235,16 @@ test('a demo world kept on two devices never conflicts', async () => {
     kept: { kind: 'national', code: 'MADE-UP-CODE', starter },
   });
   const [mine, theirs] = await Promise.all([recorded(kept('made-up-starter-token')), recorded(kept(null))]);
+  assert.deepEqual(mine.map(recordKey), [null]);
+  assert.deepEqual(findConflicts(mine, theirs), []);
+});
+
+test('a school joined in a demo world never conflicts', async () => {
+  const joined = (device: string): RecordEvent => ({
+    kind: 'school.joined',
+    joined: { code: 'made-up joining code', device, pkcs8: 'bWFkZS11cA==', certificate: {} as never },
+  });
+  const [mine, theirs] = await Promise.all([recorded(joined('a'.repeat(32))), recorded(joined('b'.repeat(32)))]);
   assert.deepEqual(mine.map(recordKey), [null]);
   assert.deepEqual(findConflicts(mine, theirs), []);
 });

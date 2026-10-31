@@ -17,6 +17,7 @@ import {
 import { holdsPass, holdsStarter, readWorldStart } from '../../server/src/worlds/world-rules';
 import type { WorldKit } from '../src/demo/world-session';
 import { worldRequest, type WorldRequest } from '../src/network/world-network';
+import { WorldRelay } from './world-relay';
 
 /** A Node call as the platform's promise, failing rather than throwing. */
 const later = <T>(make: () => T): Promise<T> => Promise.resolve().then(make);
@@ -83,20 +84,22 @@ export function answer(status: number, body?: unknown, headers?: Record<string, 
 }
 
 /**
- * The demo server's three routes on a map, with the server's own rules for
- * what a start carries, its pass and its starter token: `taken` answers 409 to
- * that many starts, and `busy` 429 to every request while it is set.
+ * The demo server's routes on a map, with the server's own rules for what a
+ * start carries, its pass and its starter token, and its relay and stand-in CA
+ * (world-relay.ts): `taken` answers 409 to that many starts, and `busy` 429 to
+ * every request while it is set.
  */
 export class DemoServer {
   readonly worlds = new Map<string, KeptWorld>();
-  readonly seen: { method: string; path: string; headers: Record<string, string> }[] = [];
+  readonly seen: { method: string; path: string; headers: Record<string, string>; body?: string }[] = [];
+  readonly relay = new WorldRelay();
   taken = 0;
   busy = false;
 
   readonly send = (request: WorldRequest) => worldRequest(request, (address, init) => this.fetch(address, init));
 
   fetch(address: string, init: RequestInit): Promise<Response> {
-    return later(() => this.route(address, init));
+    return Promise.resolve().then(() => this.route(address, init));
   }
 
   reset(): void {
@@ -104,12 +107,19 @@ export class DemoServer {
     this.seen.length = 0;
     this.taken = 0;
     this.busy = false;
+    this.relay.reset();
   }
 
-  private route(address: string, init: RequestInit): Response {
-    const path = new URL(address).pathname;
+  private route(address: string, init: RequestInit): Response | Promise<Response> {
+    const url = new URL(address);
+    const path = url.pathname;
     const headers = init.headers as Record<string, string>;
-    this.seen.push({ method: init.method ?? 'GET', path, headers });
+    this.seen.push({
+      method: init.method ?? 'GET',
+      path,
+      headers,
+      ...(typeof init.body === 'string' && { body: init.body }),
+    });
     if (this.busy) return answer(429, { error: 'busy' }, { 'Retry-After': '12' });
     if (path === '/worlds' && init.method === 'POST') {
       const start = readWorldStart(JSON.parse(init.body as string));
@@ -127,6 +137,18 @@ export class DemoServer {
     const kept = this.worlds.get(world);
     if (kept === undefined || !holdsPass(headers['X-World-Pass'], kept.passHash)) return answer(404, {});
     if (rest === undefined && init.method === 'GET') return answer(200, { sealed: kept.sealed, date: kept.date });
+    if (rest !== undefined && rest !== 'date') {
+      const body: unknown = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
+      const segments = path.split('/').slice(3);
+      return this.relay.route({
+        world,
+        date: kept.date,
+        method: init.method ?? 'GET',
+        segments,
+        query: url.searchParams,
+        body,
+      });
+    }
     if (rest !== 'date' || !holdsStarter(headers.Authorization, kept.starterHash)) return answer(403, {});
     const next = kept.announced.find((day) => day > kept.date);
     if (next === undefined) return answer(409, { error: 'no day left' });

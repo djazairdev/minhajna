@@ -65,6 +65,7 @@ export function recordKey(entry: Entry): string | null {
     case 'app.updated':
     case 'copy.received':
     case 'world.kept':
+    case 'school.joined':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;
