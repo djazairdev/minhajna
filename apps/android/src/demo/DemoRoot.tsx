@@ -282,6 +282,7 @@ export function DemoRoot({
                   school={school}
                   sessions={timetable.read.result.sessions}
                   bells={levelBells(reference.bells, school.level)}
+                  workingDays={reference.profile.workingDays}
                   kit={kit}
                   send={send}
                   dayText={dayText}

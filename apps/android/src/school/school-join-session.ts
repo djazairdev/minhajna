@@ -196,6 +196,7 @@ const PROBLEMS = {
   E_KEY_TAKEN: 'demo.issue.panel.keyTaken',
   E_KEY_SET_UP: 'demo.issue.panel.keySetUp',
   E_NO_SUCH_WORLD: 'demo.problem.none',
+  E_TIMETABLE_ONCE: 'ttVersion.onceFirst',
 } as const;
 
 /** The catalogue's words for an error's code. */
