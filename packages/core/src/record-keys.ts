@@ -149,6 +149,10 @@ export function recordKey(event: RecordEvent): string {
       return 'school-waiting';
     case 'school.timetable':
       return `school-timetable:${event.published?.school ?? ''}/${event.published?.version ?? ''}`;
+    case 'school.cover': {
+      const { school = '', day = '', session = '' } = event.cover ?? {};
+      return `school-cover:${school}/${day}/${session}`;
+    }
     case 'school.issued': {
       const { school = '', assignment = '', issue = '' } = event.issued ?? {};
       return `school-issued:${school}/${assignment}/${issue}`;

@@ -9,9 +9,11 @@
 // the school key a director's device holds there and the codes and security
 // keys it issues (#570, answer 596), of a device waiting to be admitted to it
 // (#571, answer 600), and of the versions of the school's timetable it
-// publishes (#578, answer 606), apart from devices.ts, world-kept.ts,
-// school-joined.ts, school-issue.ts, school-holder.ts and school-timetable.ts,
-// which read them, so the events module imports no module that imports it back.
+// publishes (#578, answer 606), and of the sessions its director marks for
+// cover (#586, answer 614), apart from devices.ts, world-kept.ts,
+// school-joined.ts, school-issue.ts, school-holder.ts, school-timetable.ts and
+// school-cover.ts, which read them, so the events module imports no module that
+// imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -43,7 +45,9 @@ export type DeviceEvent =
   /** In a demo world's own store: this device waiting to be admitted to a school's key, or null once it gave up. */
   | { readonly kind: 'school.waiting'; readonly waiting: SchoolWaiting | null }
   /** In a demo world's own store: a version of a school's timetable this device published (answer 606). */
-  | { readonly kind: 'school.timetable'; readonly published: TimetablePublished };
+  | { readonly kind: 'school.timetable'; readonly published: TimetablePublished }
+  /** In a demo world's own store: a session the director marked for cover on a day, and how it is covered. */
+  | { readonly kind: 'school.cover'; readonly cover: SchoolCover };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -89,6 +93,20 @@ export interface TimetablePublished {
   readonly sessions: readonly Omit<ImportedSession, 'row'>[];
 }
 
+/** How a session needing cover is covered (R-7.7-04): supervision by default. */
+export type CoverArrangement = 'supervision' | 'study' | 'merge' | 'swap' | 'colleague' | 'release';
+
+/** A session marked for cover on a day, by its ID in the school's space, or unmarked; never a reason (answer 614). */
+export interface SchoolCover {
+  readonly school: string;
+  readonly day: Day;
+  readonly session: string;
+  /** How it is covered, or null once unmarked. */
+  readonly arrangement: CoverArrangement | null;
+  /** The staff list's ID of the person who takes it, or null. */
+  readonly by: string | null;
+}
+
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
@@ -125,6 +143,7 @@ export const DEVICE_KINDS = {
   'school.issued': true,
   'school.waiting': true,
   'school.timetable': true,
+  'school.cover': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>
