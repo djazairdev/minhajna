@@ -14,20 +14,27 @@
 import type { Certificate } from './certify.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
 import type { WorldKind } from './world-keys.ts';
+import type { Day } from './day.ts';
+
+/** A file's creation day and the hash of the last history entry it holds; empty only for an empty history. */
+export interface CopyFile {
+  readonly made: Day;
+  readonly last: string;
+}
 
 export type DeviceEvent =
   /** The recovery key the teacher printed or wrote, then typed back to confirm it (answer 478). */
   | { readonly kind: 'recovery.set'; readonly recovery: { readonly key: string } }
-  /** A backup saved through the file picker: only the fact and its day. */
-  | { readonly kind: 'backup.saved' }
+  /** A saved backup's exact snapshot (#485); older facts have no boundary. No name, path or key. */
+  | { readonly kind: 'backup.saved'; readonly backup?: CopyFile }
   /** The other device opened a direct transfer, as the teacher confirmed: the hash of the last entry it held. */
   | { readonly kind: 'handover.sent'; readonly handover: { readonly last: string } }
   /** This device works again: the copy came back from the other device, or the teacher took over here. */
   | { readonly kind: 'handover.ended'; readonly handover: { readonly how: 'back' | 'taken' } }
   /** The PC web app installed an update the teacher accepted: its version and build checksum. */
   | { readonly kind: 'app.updated'; readonly updated: { readonly version: string; readonly build: string } }
-  /** A copy restored into the empty history, by its route only: never the file, a key or the other device. */
-  | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute } }
+  /** A restored copy's route and snapshot, never its name, path, key or the other device. */
+  | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute; readonly file?: CopyFile } }
   /** In a demo world's own store: its kind and code, and the starter token where the world was started. */
   | { readonly kind: 'world.kept'; readonly kept: WorldKept }
   /** In a demo world's own store: the key this device keeps for a school's joining code. */

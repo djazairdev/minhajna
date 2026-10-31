@@ -15,7 +15,7 @@
 // file, or any other refusal, is said under the button, and the key can be
 // typed again; a changed file has its own page. Once all of it is stored, the
 // backup reminder is put off 30 days from the restore (answer 482), the route
-// is noted for the history to keep (answer 525), and the history opens again,
+// and its source file's boundary are kept atomically (#485), and the history opens again,
 // on Today. The copy of the picked file is dropped as soon as it is not needed:
 // on another file or route, once restored, and when the screen closes.
 // «استلام النسخة» (#250, answers 514 and 515) is the same screen for a device
@@ -37,7 +37,6 @@ import { errorCode } from '../lock/lock-rules';
 import files from '../native/NativeMinhajnaFiles';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { putOffFromRestore } from '../settings/backup-later';
-import { noteReceived } from './received';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
 import { nativeDeps } from '../storage/history';
@@ -151,7 +150,6 @@ export function Restore({ storage, onRestored, back = false }: RestoreProps) {
     if (result.ok) {
       drop();
       if (!back) putOffFromRestore(today());
-      if (!back) noteReceived(route);
       onRestored();
       return;
     }
