@@ -4911,6 +4911,25 @@
       "fixLine": "Correction {{number}} · {{course}} · {{session}}: from “{{before}}” to “{{after}}”",
       "plan": "Each class’s place in its plan, its buffer sessions and the coming exams come with a plan pack.",
       "foot": "It reaches you alone, and none of it reaches the director. Outside a demo world it arrives on Sunday morning, after the quiet hours."
+    },
+    "mine": {
+      "title": "My classes in the school’s space",
+      "open": "My classes in the school’s space",
+      "subtitle": "{{date}} · as the director sees them",
+      "term": "Term {{number}} so far: from {{from}} to {{to}}",
+      "noTerm": "No term falls on this date, so nothing is counted.",
+      "hours": "Teaching hours in the timetable: {{hours}}",
+      "weekly": "Weekly sessions in the timetable: {{count}} · {{hours}}",
+      "counts": {
+        "held": "As planned: {{count}}",
+        "awaiting": "Awaiting confirmation: {{count}}",
+        "calendar": "Not held, calendar: {{count}}",
+        "other": "Not held, other: {{count}}"
+      },
+      "lastWeek": "Last signed week: from {{from}} to {{to}}",
+      "plan": "Plan progress and the threshold day come with a plan pack.",
+      "noWeek": "No week of this class is signed this term yet.",
+      "foot": "“Awaiting confirmation” is not an absence, and it is never printed and never leaves the screen. The space keeps no day on which a session was confirmed, no ranking, no colours for people and no clock times."
     }
   },
   "chart": {

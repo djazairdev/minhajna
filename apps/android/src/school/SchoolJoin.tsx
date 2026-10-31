@@ -19,12 +19,13 @@
 // page's title as it opens. The law, or the new phone's note, sits at the
 // page's foot. Before any join, a link opens the way for a new phone
 // (Rejoin.tsx, #566), and a joined card opens its own pages (JoinedPages.tsx):
-// the week to sign (#582), the weekly digest (#584), the timetable the school
-// sent (#579), the teacher's devices and copies, who reads what in the national
-// system (#568) and what stays and goes on leaving (#567), when the year's
-// dates read; going back from any returns here, but from Week-sign opened by
-// the digest, which returns to the digest, and Leave's way to the next school
-// returns to the code's card (join-view.ts).
+// the week to sign (#582), the weekly digest and the teacher's classes as the
+// director sees them (#584), the timetable the school sent (#579), the
+// teacher's devices and copies, who reads what in the national system (#568)
+// and what stays and goes on leaving (#567), when the year's dates read; going
+// back from any returns here, but from Week-sign opened by the digest or the
+// classes, which returns to the page that opened it, and Leave's way to the
+// next school returns to the code's card (join-view.ts).
 
 import {
   joiningIsVoluntary,
@@ -49,6 +50,7 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
+import type { MineCalendar } from '../week/school-mine-session';
 import { checkKeptJoins, joinSchool, problemOf } from './school-join-session';
 import { joinedPage } from './JoinedPages';
 import { RejoinBinds, RejoinLead, RejoinRemoved } from './Rejoin';
@@ -56,7 +58,7 @@ import { SchoolCodeCard } from './SchoolCodeCard';
 import { SchoolConfirm } from './SchoolConfirm';
 import { SchoolJoinedCards, shortSchool } from './SchoolJoined';
 import { SchoolLaw, SchoolNotice } from './SchoolNotice';
-import { useJoinView } from './join-view';
+import { useJoinView, type JoinPage } from './join-view';
 
 type Phase =
   | { readonly kind: 'notice' }
@@ -85,6 +87,8 @@ export type SchoolJoinProps = {
   readonly workingDays?: readonly Weekday[];
   /** The country's subjects, which give a week's subject its code. */
   readonly subjects?: readonly Subject[];
+  /** The joined school's calendar, for the term School-mine counts. */
+  readonly mine?: MineCalendar;
 };
 
 /** The teacher's page for joining the school's space in a world. */
@@ -196,7 +200,8 @@ export function SchoolJoin(props: SchoolJoinProps) {
     );
   })();
 
-  const onWeek = (one: SchoolJoined, course: string) => setView({ page: 'week', join: one, course, back: 'digest' });
+  const onWeek = (one: SchoolJoined, course: string | undefined, back: JoinPage) =>
+    setView({ page: 'week', join: one, course, back });
   const shown =
     typeof view === 'object' && joinedPage(view, { ...props, said, dates, onClose: leave, onJoin: toCode, onWeek });
   if (shown) return shown;
@@ -248,6 +253,7 @@ export function SchoolJoin(props: SchoolJoinProps) {
             onTimetable={open('timetable')}
             onWeek={open('week')}
             onDigest={open('digest')}
+            onMine={open('mine')}
             onLeave={dates === null ? undefined : open('leave')}
           />
           <View onLayout={onCodeLayout} style={styles.code}>

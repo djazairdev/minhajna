@@ -4981,6 +4981,25 @@
       "fixLine": "Correction {{number}} · {{course}} · {{session}} : de « {{before}} » à « {{after}} »",
       "plan": "La position de chaque classe dans son plan, ses séances de réserve et les prochains examens arrivent avec un pack de plan.",
       "foot": "Il n’arrive qu’à vous, et rien n’en arrive à la direction. Hors d’un monde de démonstration, il arrive le dimanche matin, après les heures calmes."
+    },
+    "mine": {
+      "title": "Mes classes dans l’espace de l’établissement",
+      "open": "Mes classes dans l’espace de l’établissement",
+      "subtitle": "{{date}} · comme la direction les voit",
+      "term": "Trimestre {{number}} jusqu’ici : du {{from}} au {{to}}",
+      "noTerm": "Aucun trimestre ne tombe à cette date : rien n’est compté.",
+      "hours": "Heures d’enseignement à l’emploi du temps : {{hours}}",
+      "weekly": "Séances par semaine à l’emploi du temps : {{count}} · {{hours}}",
+      "counts": {
+        "held": "Comme prévu : {{count}}",
+        "awaiting": "En attente de confirmation : {{count}}",
+        "calendar": "Non tenues, calendrier : {{count}}",
+        "other": "Non tenues, autre : {{count}}"
+      },
+      "lastWeek": "Dernière semaine signée : du {{from}} au {{to}}",
+      "plan": "L’avancement du plan et le jour du seuil arrivent avec un pack de plan.",
+      "noWeek": "Aucune semaine de cette classe n’est encore signée ce trimestre.",
+      "foot": "« En attente de confirmation » n’est pas une absence : elle n’est jamais imprimée et ne quitte jamais l’écran. L’espace ne garde ni le jour où une séance a été confirmée, ni classement, ni couleurs pour les personnes, ni heures."
     }
   },
   "chart": {
