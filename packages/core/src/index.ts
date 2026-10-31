@@ -190,4 +190,5 @@ export * from './timetable-package.ts';
 export * from './timetable-sessions.ts';
 export * from './timetable-version.ts';
 export * from './timetable-proposal.ts';
+export * from './timetable-receipt.ts';
 export { clean as cleanRecordText } from './timetable-record.ts';

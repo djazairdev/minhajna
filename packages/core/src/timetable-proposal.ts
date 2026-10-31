@@ -25,34 +25,29 @@
 // to the school.
 
 import type { SealedBatch } from './batches.ts';
-import { canonicalJson } from './canonical.ts';
 import type { Certificate, KeySigner } from './certify.ts';
 import { toHex } from './id.ts';
 import type { Joined, JoinCode } from './school-join.ts';
-import { ascii, ID, SCHOOL } from './school-key-shape.ts';
+import { ascii, ID } from './school-key-shape.ts';
 import { asciiJson, openRecords, sealRecord } from './sealed-stream.ts';
 import { timetableNameKey } from './timetable-import.ts';
 import { channelParts, onChannel, PART_BATCHES, type SignedPart } from './timetable-package.ts';
-import { DAY_MINUTES, named, placeOfCode, record, signedLine, signedRecord, whole } from './timetable-record.ts';
-import type { TimetableCa } from './timetable-record.ts';
+import { CHANNEL, DAY_MINUTES, named, onChannelShape, placeOfCode, record, signedRecord } from './timetable-record.ts';
+import { signedTimetable, whole, type OnChannel, type SignedTimetable, type TimetableCa } from './timetable-record.ts';
+import { isTimetableReceipt, TIMETABLE_RECEIPT_FORMAT, type TimetableReceipt } from './timetable-receipt.ts';
 import type { PartSession } from './timetable-sessions.ts';
 import { sameLesson } from './timetable-version.ts';
 import type { Weekday } from './day.ts';
-import { isWorldId } from './world-code.ts';
 import type { WorldCipher, WorldMac } from './world-keys.ts';
+
+export type { SignedTimetable } from './timetable-record.ts';
 
 /** The format a proposal's record and signed text carry. */
 export const TIMETABLE_PROPOSAL_FORMAT = 'minhajna/timetable-proposal/1';
 /** The format a decision's record and signed text carry. */
 export const TIMETABLE_DECISION_FORMAT = 'minhajna/timetable-decision/1';
-const NOTE_MOST = 280;
 
-interface OnChannel {
-  readonly world: string;
-  readonly school: string;
-  readonly assignment: string;
-  readonly issue: number;
-}
+const NOTE_MOST = 280;
 
 /** A teacher's proposal to move one session of their part. */
 export interface TimetableProposal extends OnChannel {
@@ -78,14 +73,6 @@ export interface TimetableDecision extends OnChannel {
   readonly note: string;
 }
 
-/** A record as its channel carries it. */
-export interface SignedTimetable<T> {
-  readonly value: T;
-  readonly text: string;
-  readonly signature: string;
-  readonly certificate: Certificate;
-}
-
 /** A proposal on its channel, with its ID and the decision that settled it, or null while it waits. */
 export interface ProposalOnChannel {
   readonly id: string;
@@ -93,17 +80,8 @@ export interface ProposalOnChannel {
   readonly decision: SignedTimetable<TimetableDecision> | null;
 }
 
-const CHANNEL = ['world', 'school', 'assignment', 'issue'];
 const PROPOSAL = [...CHANNEL, 'version', 'session', 'day', 'start', 'end', 'room', 'note'];
 const DECISION = [...CHANNEL, 'proposal', 'accepted', 'version', 'note'];
-
-/** Whether a record has these fields only, and names a channel by fields of their shape. */
-function onChannelShape(value: Record<string, unknown>, keys: readonly string[]): boolean {
-  const { world, school, assignment, issue } = value;
-  const fields = Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key));
-  const spaced = typeof school === 'string' && SCHOOL.test(school) && typeof assignment === 'string';
-  return fields && isWorldId(world) && spaced && ID.test(assignment) && whole(issue, 1, 999_999_999);
-}
 
 /** Whether a value is a teacher's proposal, its fields only, each of its shape. */
 export function isTimetableProposal(value: unknown): value is TimetableProposal {
@@ -121,39 +99,29 @@ export function isTimetableDecision(value: unknown): value is TimetableDecision 
   return typeof proposal === 'string' && ID.test(proposal) && versioned && named(note, true, NOTE_MOST);
 }
 
-async function signed<T>(
-  value: T,
-  shaped: (one: unknown) => one is T,
-  format: string,
-  certificate: Certificate,
-  signer: KeySigner,
-): Promise<SignedTimetable<T>> {
-  if (!shaped(value)) throw new RangeError('Not a timetable record of this kind');
-  if (certificate.publicKey !== signer.publicKey) throw new RangeError('The certificate is for another key');
-  if (certificate.world !== (value as OnChannel).world) throw new RangeError('The certificate is of another world');
-  const text = canonicalJson(value);
-  return { value, text, signature: await signer.sign(signedLine(format, certificate, text)), certificate };
-}
-
 /** A proposal signed on the teacher's device with the key its joining certificate names. */
 export const signProposal = (proposal: TimetableProposal, certificate: Certificate, signer: KeySigner) =>
-  signed(proposal, isTimetableProposal, TIMETABLE_PROPOSAL_FORMAT, certificate, signer);
+  signedTimetable(proposal, isTimetableProposal, TIMETABLE_PROPOSAL_FORMAT, certificate, signer);
 
 /** A decision signed on the director's device with the key its certificate names. */
 export const signDecision = (decision: TimetableDecision, certificate: Certificate, signer: KeySigner) =>
-  signed(decision, isTimetableDecision, TIMETABLE_DECISION_FORMAT, certificate, signer);
+  signedTimetable(decision, isTimetableDecision, TIMETABLE_DECISION_FORMAT, certificate, signer);
 
-/** A signed proposal's or decision's batches on its code's channel, numbered from `first`. */
+/** A signed proposal's, decision's or receipt's batches on its code's channel, numbered from `first`. */
 export async function sealTimetableRecord(
   code: JoinCode,
-  signedOne: SignedTimetable<TimetableProposal | TimetableDecision>,
+  signedOne: SignedTimetable<TimetableProposal | TimetableDecision | TimetableReceipt>,
   first: number,
   cipher: WorldCipher,
   mac: WorldMac,
 ): Promise<{ readonly stream: string; readonly batches: readonly SealedBatch[] }> {
   const { value, text, signature, certificate } = signedOne;
   if (!onChannel(value, code)) throw new RangeError('A record goes on its own code’s channel');
-  const format = isTimetableDecision(value) ? TIMETABLE_DECISION_FORMAT : TIMETABLE_PROPOSAL_FORMAT;
+  const format = isTimetableDecision(value)
+    ? TIMETABLE_DECISION_FORMAT
+    : isTimetableReceipt(value)
+      ? TIMETABLE_RECEIPT_FORMAT
+      : TIMETABLE_PROPOSAL_FORMAT;
   const place = await placeOfCode(code, mac);
   const sealed = await sealRecord(place, { format, text, signature, certificate }, first, PART_BATCHES, cipher);
   return { stream: place.stream, batches: sealed };
