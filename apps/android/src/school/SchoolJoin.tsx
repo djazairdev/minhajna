@@ -19,9 +19,10 @@
 // page's title as it opens. The law, or the new phone's note, sits at the
 // page's foot. Before any join, a link opens the way for a new phone
 // (Rejoin.tsx, #566), and a joined card opens the teacher's devices and copies
-// (DevicesMoved.tsx) and what stays and goes on leaving (Leave.tsx, #567),
-// when the year's dates read; going back from any returns here, and Leave's
-// way to the next school returns to the code's card (join-view.ts).
+// (DevicesMoved.tsx), who reads what in the national system (NationalHelp.tsx,
+// #568) and what stays and goes on leaving (Leave.tsx, #567), when the year's
+// dates read; going back from any returns here, and Leave's way to the next
+// school returns to the code's card (join-view.ts).
 
 import {
   joiningIsVoluntary,
@@ -46,6 +47,7 @@ import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
 import { checkKeptJoins, joinSchool, problemOf } from './school-join-session';
 import { DevicesMoved } from './DevicesMoved';
+import { NationalHelp } from './NationalHelp';
 import { Leave } from './Leave';
 import { RejoinBinds, RejoinLead, RejoinRemoved } from './Rejoin';
 import { SchoolCodeCard } from './SchoolCodeCard';
@@ -146,7 +148,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClo
   });
   useEffect(() => resume(), []);
   const announce = useEffectEvent(() => {
-    if (page !== 'join' && page !== 'rejoin') say(t(page === 'devices' ? 'demo.devices.title' : 'demo.leave.title'));
+    if (page !== 'join' && page !== 'rejoin') say(t(`demo.${page}.title`));
     else say(phase.kind === 'checking' ? `${title}. ${t('demo.school.checking')}` : title);
   });
   useEffect(() => {
@@ -190,6 +192,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClo
   if (typeof view === 'object') {
     const shown = { date, join: view.join, dayText, onClose: leave, said };
     if (view.page === 'devices') return <DevicesMoved {...shown} />;
+    if (view.page === 'help') return <NationalHelp {...shown} />;
     if (dates !== null) return <Leave {...shown} year={year} dates={dates} onJoin={toCode} />;
   }
   return (
@@ -236,6 +239,7 @@ export function SchoolJoin({ world, date, dayText, kit, send, trial, year, onClo
             joins={joins}
             dayText={dayText}
             onDevices={open('devices')}
+            onHelp={open('help')}
             onLeave={dates === null ? undefined : open('leave')}
           />
           <View onLayout={onCodeLayout} style={styles.code}>

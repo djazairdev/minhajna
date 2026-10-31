@@ -25,10 +25,12 @@ export type SchoolJoinedCardsProps = {
   readonly onDevices: (join: SchoolJoined) => void;
   /** Opens what stays and what goes when the teacher leaves the school, when the year's dates read. */
   readonly onLeave?: (join: SchoolJoined) => void;
+  /** Opens who reads what in the national system, and by which key. */
+  readonly onHelp: (join: SchoolJoined) => void;
 };
 
 /** A card for each code that joined the school's space. */
-export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave }: SchoolJoinedCardsProps) {
+export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave, onHelp }: SchoolJoinedCardsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -44,6 +46,7 @@ export function SchoolJoinedCards({ joins, dayText, onDevices, onLeave }: School
         })}
       </Text>
       <Button testID="school-devices" variant="line" label={t('demo.devices.open')} onPress={() => onDevices(join)} />
+      <Button testID="school-help" variant="line" label={t('demo.help.open')} onPress={() => onHelp(join)} />
       {onLeave !== undefined && (
         <Button testID="school-leave-open" variant="plain" label={t('demo.leave.open')} onPress={() => onLeave(join)} />
       )}
