@@ -5,11 +5,14 @@
 // working copy handed to the teacher's other device and back (#250, answers 503
 // and 514), of the PC web app's updates (R-6.6-06), and of where a restored
 // copy came from (#251, answer 525), of the demo world a store belongs to
-// (#560, answer 573) and of the schools joined in it (#564, answer 581), apart
-// from devices.ts, world-kept.ts and school-joined.ts, which read them, so the
-// events module imports no module that imports it back.
+// (#560, answer 573), of the schools joined in it (#564, answer 581), and of
+// the school key a director's device holds there and the codes and security
+// keys it issues (#570, answer 596), apart from devices.ts, world-kept.ts,
+// school-joined.ts and school-issue.ts, which read them, so the events module
+// imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
+import type { SchoolKeyring } from './school-key-shape.ts';
 import type { WorldKind } from './world-keys.ts';
 
 export type DeviceEvent =
@@ -28,7 +31,35 @@ export type DeviceEvent =
   /** In a demo world's own store: its kind and code, and the starter token where the world was started. */
   | { readonly kind: 'world.kept'; readonly kept: WorldKept }
   /** In a demo world's own store: the key this device keeps for a school's joining code. */
-  | { readonly kind: 'school.joined'; readonly joined: SchoolJoined };
+  | { readonly kind: 'school.joined'; readonly joined: SchoolJoined }
+  /** In a demo world's own store: this device's place in a school's key, and the keyring as it holds it. */
+  | { readonly kind: 'school.held'; readonly held: SchoolHeld }
+  /** In a demo world's own store: a joining code or a security key this device issued for an assignment. */
+  | { readonly kind: 'school.issued'; readonly issued: SchoolIssued };
+
+/** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
+export interface SchoolHeld {
+  readonly school: string;
+  readonly device: string;
+  /** The agreement pair's public half, in hex, as the keyring names the device. */
+  readonly publicKey: string;
+  /** Its private half, PKCS #8 DER in base64, which never leaves the world's store. */
+  readonly pkcs8: string;
+  readonly ring: SchoolKeyring;
+}
+
+/** A joining code issued for an assignment, or a security key given instead (answer 596); the code is not kept. */
+export interface SchoolIssued {
+  readonly school: string;
+  readonly assignment: string;
+  /** 1, then one more for each code or key that replaces the last. */
+  readonly issue: number;
+  /** The school key's epoch the code was made under. */
+  readonly epoch: number;
+  readonly access: 'phone' | 'key';
+  /** The security key's four-digit number, or null for a code. */
+  readonly keyNumber: string | null;
+}
 
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
@@ -62,6 +93,8 @@ export const DEVICE_KINDS = {
   'copy.received': true,
   'world.kept': true,
   'school.joined': true,
+  'school.held': true,
+  'school.issued': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

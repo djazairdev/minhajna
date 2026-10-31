@@ -143,6 +143,12 @@ export function recordKey(event: RecordEvent): string {
       return 'world-kept';
     case 'school.joined':
       return `school-joined:${(event.joined?.code ?? '').replace(/:[^:]*$/u, '')}`;
+    case 'school.held':
+      return `school-held:${event.held?.school ?? ''}`;
+    case 'school.issued': {
+      const { school = '', assignment = '', issue = '' } = event.issued ?? {};
+      return `school-issued:${school}/${assignment}/${issue}`;
+    }
     case 'statement.shared':
       return `statement-shared:${event.share.id}`;
     case 'statement.sent':
