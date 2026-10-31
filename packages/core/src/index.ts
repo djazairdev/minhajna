@@ -82,6 +82,7 @@ export * from './school-leave.ts';
 export * from './school-trial.ts';
 export * from './school-dashboard.ts';
 export * from './school-recovery.ts';
+export * from './school-keys-map.ts';
 export * from './timetable-key.ts';
 export * from './timetable-fet.ts';
 export * from './timetable-grid.ts';

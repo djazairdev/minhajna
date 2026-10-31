@@ -4378,6 +4378,73 @@
         "until": "Valid until {{until}}",
         "handover": "For one scan. Handed over in person, never sent in a message."
       }
+    },
+    "keys": {
+      "lead": "{{school}} · {{date}} · Who holds the key, what it opens, and how it is recovered",
+      "tabs": "Show",
+      "tab": {
+        "holders": "Holders",
+        "recovery": "Recovery"
+      },
+      "opening": "Opening the school key on this device…",
+      "count": "Devices holding the key: {{number}}",
+      "map": "Map of who holds the school key, what it opens, and how it is recovered",
+      "many": "More than one holder looks like a recovery. Renewing the recovery removes them all.",
+      "fingerprint": "Keyring fingerprint: {{fingerprint}}. Compare it with another holder or the directorate after any recovery.",
+      "chosen": "Selected box",
+      "group": {
+        "holders": "Devices holding the key",
+        "opens": "Opens",
+        "none": "Without the school key",
+        "recovery": "Recovery: both parts together"
+      },
+      "box": {
+        "own": "Director · this device",
+        "device": "Holder device {{id}}",
+        "key": "School key · {{school}}",
+        "weeks": "Signed weeks",
+        "pupils": "Pupils' records",
+        "status": "Session confirmation status",
+        "servers": "Those who run the servers",
+        "ministry": "The Ministry and the directorate",
+        "inspector": "An inspector with a reading grant",
+        "timetable": "Timetable helpers",
+        "schoolPart": "The school's part",
+        "directoratePart": "The directorate's part",
+        "recovery": "Key recovery",
+        "noRecovery": "No recovery yet"
+      },
+      "about": {
+        "own": "This device holds the key under its own private key, which never leaves it.",
+        "device": "Another device holds the key under its own private key. A keyring names no one.",
+        "weeks": "The director and the deputies read them with the school key on their own devices.",
+        "pupils": "Only those holding the school key read them.",
+        "status": "Neutral: never printed, exported or totalled.",
+        "servers": "Encrypted batches only: no names and no sign-in times.",
+        "ministry": "Totals only, above the minimum group sizes.",
+        "inspector": "The grant's courses alone, between its dates, never pupils' records.",
+        "timetable": "The timetable key alone.",
+        "schoolPart": "A sealed envelope in the school's safe.",
+        "directoratePart": "Kept by the education directorate.",
+        "recovery": "Both parts together when every device is lost; neither opens anything alone.",
+        "notMade": "No recovery made yet: it is split between the school and its directorate, so neither opens the records alone."
+      },
+      "link": {
+        "holds": "holds",
+        "opens": "opens",
+        "recovers": "when every device is lost"
+      },
+      "footer": {
+        "map": "The map shows at once who holds the key, what it opens, and who never holds it.",
+        "buttons": "No device is linked by dragging on the map."
+      },
+      "row": {
+        "holds": "Held by",
+        "opens": "Opens",
+        "notHeld": "Never held by",
+        "opensValue": "The signed weeks, the pupils' records and the sessions' confirmation status",
+        "notHeldValue": "Those who run the servers, the Ministry's and the directorate's staff, or anyone who only helps prepare the timetable"
+      }
     }
   },
   "chart": {

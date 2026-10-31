@@ -4446,6 +4446,73 @@
         "until": "Valable jusqu’au {{until}}",
         "handover": "Pour un seul scan. Remis en main propre, jamais envoyé par message."
       }
+    },
+    "keys": {
+      "lead": "{{school}} · {{date}} · Qui détient la clé, ce qu’elle ouvre, et comment elle se récupère",
+      "tabs": "Afficher",
+      "tab": {
+        "holders": "Détenteurs",
+        "recovery": "Récupération"
+      },
+      "opening": "Ouverture de la clé de l’établissement sur cet appareil…",
+      "count": "Appareils détenant la clé : {{number}}",
+      "map": "Carte de qui détient la clé de l’établissement, de ce qu’elle ouvre et de sa récupération",
+      "many": "Plus d’un détenteur ressemble à une récupération. Renouveler la récupération les retire tous.",
+      "fingerprint": "Empreinte du trousseau : {{fingerprint}}. À comparer avec un autre détenteur ou la direction après toute récupération.",
+      "chosen": "Case sélectionnée",
+      "group": {
+        "holders": "Appareils détenant la clé",
+        "opens": "Ouvre",
+        "none": "Sans la clé de l’établissement",
+        "recovery": "Récupération : les deux parts ensemble"
+      },
+      "box": {
+        "own": "Directeur · cet appareil",
+        "device": "Appareil détenteur {{id}}",
+        "key": "Clé de l’établissement · {{school}}",
+        "weeks": "Semaines signées",
+        "pupils": "Dossiers des élèves",
+        "status": "État de confirmation des séances",
+        "servers": "Ceux qui font tourner les serveurs",
+        "ministry": "Le ministère et la direction",
+        "inspector": "Un inspecteur avec une autorisation de consultation",
+        "timetable": "Aides à l’emploi du temps",
+        "schoolPart": "Part de l’établissement",
+        "directoratePart": "Part de la direction",
+        "recovery": "Récupération de la clé",
+        "noRecovery": "Pas encore de récupération"
+      },
+      "about": {
+        "own": "Cet appareil détient la clé sous sa propre clé privée, qui ne le quitte jamais.",
+        "device": "Un autre appareil détient la clé sous sa propre clé privée. Le trousseau ne nomme personne.",
+        "weeks": "Le directeur et les adjoints les lisent avec la clé de l’établissement sur leurs propres appareils.",
+        "pupils": "Seuls ceux qui détiennent la clé de l’établissement les lisent.",
+        "status": "Neutre : jamais imprimé, exporté ni totalisé.",
+        "servers": "Des lots chiffrés seulement : ni noms ni heures de connexion.",
+        "ministry": "Des totaux seulement, au-dessus des tailles minimales de groupe.",
+        "inspector": "Les seules classes de l’autorisation, entre ses dates, jamais les dossiers des élèves.",
+        "timetable": "La seule clé de l’emploi du temps.",
+        "schoolPart": "Une enveloppe scellée dans le coffre de l’établissement.",
+        "directoratePart": "Conservée par la direction de l’éducation.",
+        "recovery": "Les deux parts ensemble quand tous les appareils sont perdus ; aucune n’ouvre rien seule.",
+        "notMade": "Aucune récupération encore : elle est partagée entre l’établissement et sa direction, pour qu’aucune n’ouvre seule les dossiers."
+      },
+      "link": {
+        "holds": "détient",
+        "opens": "ouvre",
+        "recovers": "quand tous les appareils sont perdus"
+      },
+      "footer": {
+        "map": "La carte montre d’un coup qui détient la clé, ce qu’elle ouvre et qui ne la détient jamais.",
+        "buttons": "Aucun appareil ne se relie en le glissant sur la carte."
+      },
+      "row": {
+        "holds": "Détenue par",
+        "opens": "Ouvre",
+        "notHeld": "Jamais détenue par",
+        "opensValue": "Les semaines signées, les dossiers des élèves et l’état de confirmation des séances",
+        "notHeldValue": "Ceux qui font tourner les serveurs, le personnel du ministère et de la direction, ou qui aide seulement à l’emploi du temps"
+      }
     }
   },
   "chart": {
