@@ -7,9 +7,11 @@
 // reminder that each class's week waits to be signed once a week, with a way to
 // sign it (WeekSign.tsx, #582), a way to the weekly digest (WeekDigest.tsx,
 // #584) and to the teacher's classes as the director sees them (SchoolMine.tsx,
-// #584), a way to the timetable the school sent (TeacherTimetable.tsx, #579),
-// to the teacher's devices and copies once joined (DevicesMoved.tsx, #566) and
-// to what stays and goes on leaving (Leave.tsx, #567).
+// #584), to the classes handed over to the teacher as a substitute
+// (HandoverSchool.tsx, #587), a way to the timetable the school sent
+// (TeacherTimetable.tsx, #579), to the teacher's devices and copies once joined
+// (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
+// #567).
 
 import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -38,11 +40,13 @@ export type SchoolJoinedCardsProps = {
   readonly onDigest: (join: SchoolJoined) => void;
   /** Opens the teacher's classes as the director sees them. */
   readonly onMine: (join: SchoolJoined) => void;
+  /** Opens the classes handed over to the teacher as a substitute. */
+  readonly onHandover: (join: SchoolJoined) => void;
 };
 
 /** A card for each code that joined the school's space. */
 export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
-  const { joins, dayText, onDevices, onLeave, onHelp, onTimetable, onWeek, onDigest, onMine } = props;
+  const { joins, dayText, onDevices, onLeave, onHelp, onTimetable, onWeek, onDigest, onMine, onHandover } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -61,6 +65,12 @@ export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
       <Button testID="school-week" label={t('demo.weekSign.open')} onPress={() => onWeek(join)} />
       <Button testID="school-digest" variant="line" label={t('demo.digest.open')} onPress={() => onDigest(join)} />
       <Button testID="school-mine" variant="line" label={t('demo.mine.open')} onPress={() => onMine(join)} />
+      <Button
+        testID="school-handover"
+        variant="line"
+        label={t('demo.handover.open')}
+        onPress={() => onHandover(join)}
+      />
       <Button
         testID="school-timetable"
         variant="line"

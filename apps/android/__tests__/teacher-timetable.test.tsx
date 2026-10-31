@@ -8,9 +8,10 @@
 // confirming a receipt says so, aloud in the hidden live region on a PC, and
 // shows the day it was confirmed, and a receipt put is said and shown even when
 // reading again fails; a problem is said with a way to read again; the joined
-// card opens the page, Week-sign, the weekly digest and the teacher's classes
-// as the director sees them; and the page's words read in every language. Every
-// world, school and teacher is made up.
+// card opens the page, Week-sign, the weekly digest, the teacher's classes as
+// the director sees them and the classes handed over as a substitute; and the
+// page's words read in every language. Every world, school and teacher is made
+// up.
 
 import type { Day, SchoolJoined } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -138,7 +139,7 @@ test('a problem is said, with a way to read again', async () => {
 
 test('the joined card opens the timetable from the school, Week-sign, the digest and my classes', async () => {
   const { joined } = await setting();
-  const [opened, week, digest, mine] = [jest.fn(), jest.fn(), jest.fn(), jest.fn()];
+  const [opened, week, digest, mine, handover] = [jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn()];
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">
@@ -151,6 +152,7 @@ test('the joined card opens the timetable from the school, Week-sign, the digest
           onWeek={week}
           onDigest={digest}
           onMine={mine}
+          onHandover={handover}
         />
       </LocaleDirContext.Provider>,
     );
@@ -163,6 +165,8 @@ test('the joined card opens the timetable from the school, Week-sign, the digest
   expect(digest).toHaveBeenCalledWith(joined);
   await press('school-mine');
   expect(mine).toHaveBeenCalledWith(joined);
+  await press('school-handover');
+  expect(handover).toHaveBeenCalledWith(joined);
   expect(texts()).toContain(ar.demo.weekSign.reminder);
 });
 

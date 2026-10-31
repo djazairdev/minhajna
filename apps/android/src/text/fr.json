@@ -5163,6 +5163,35 @@
         "pay": "Valider des heures supplémentaires ou une rémunération",
         "links": "Des liens vers des plateformes de l’État hors du système national d’interopérabilité"
       }
+    },
+    "handover": {
+      "open": "Classes en suppléance",
+      "title": "Classes en suppléance",
+      "lead": "Les classes qui vous sont confiées dans l’espace de l’établissement quand la direction de l’éducation vous désigne pour une suppléance.",
+      "reading": "Lecture de votre canal…",
+      "receiving": "Signature de l’accusé de réception…",
+      "none": "Aucune classe ne vous est confiée.",
+      "line": "À la place de {{holder}}, décision {{decision}}, dès le {{from}}",
+      "lastWeek": "{{class}} : dernière semaine signée, du {{from}} au {{to}}",
+      "noWeek": "{{class}} : aucune semaine signée",
+      "partial": "Cette classe n’est pas encore arrivée en entier ; l’établissement l’envoie de nouveau.",
+      "plan": "La position dans le plan, l’avancement et le rythme viennent avec un pack de plan ; un monde n’en a pas.",
+      "pupils": "Un monde n’a ni liste de la classe ni appel ; hors d’un monde, ils viennent du système du secteur.",
+      "timetable": "Ces classes sont dans votre emploi du temps dès le {{day}}.",
+      "ends": "Votre accès à ces classes s’arrête au retour de la personne titulaire ; ce que vous avez enseigné reste consigné.",
+      "add": "Ajouter les classes à mes classes",
+      "addLead": "Les ajouter signe un accusé de réception sur ce téléphone, à la place du procès-verbal de passation sur papier.",
+      "added": "Ajoutées à vos classes le {{day}}.",
+      "addedNow": "Les classes sont ajoutées à vos classes.",
+      "waitWhole": "L’accusé de réception attend que chaque classe soit arrivée en entier.",
+      "receivedAlready": "L’accusé de réception de ces classes est déjà signé.",
+      "unknown": "Cette passation n’est plus sur votre canal.",
+      "never": "Ce qui n’arrive jamais",
+      "nevers": {
+        "notes": "Les notes privées de la personne titulaire",
+        "reasons": "Les motifs des séances non tenues",
+        "before": "Le travail de la personne titulaire avant la signature de la semaine"
+      }
     }
   },
   "chart": {

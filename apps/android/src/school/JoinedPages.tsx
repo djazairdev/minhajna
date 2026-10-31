@@ -7,7 +7,8 @@
 // week to sign (WeekSign.tsx), on a course when one was chosen, the weekly
 // digest (WeekDigest.tsx), which opens the week to sign on a course, the
 // teacher's classes as the director sees them (SchoolMine.tsx), which opens the
-// week to sign and the term report (SchoolMineReport.tsx), and what stays and
+// week to sign and the term report (SchoolMineReport.tsx), the classes handed
+// over to the teacher as a substitute (HandoverSchool.tsx), and what stays and
 // goes on leaving (Leave.tsx), when the year's dates read; each gets what
 // School-join said as it opened, and goes back to School-join, but Week-sign
 // opened from the digest or the classes, and the term report, which go back to
@@ -25,6 +26,7 @@ import { SchoolMineReport } from '../week/SchoolMineReport';
 import { WeekDigest } from '../week/WeekDigest';
 import { WeekSign } from '../week/WeekSign';
 import { DevicesMoved } from './DevicesMoved';
+import { HandoverSchool } from './HandoverSchool';
 import { Leave } from './Leave';
 import { NationalHelp } from './NationalHelp';
 import type { JoinedView, JoinPage } from './join-view';
@@ -76,6 +78,7 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
       <SchoolMine {...channel} subjects={subjects} mine={props.mine} onSign={back('week')} onReport={back('report')} />
     );
   }
+  if (view.page === 'handover') return <HandoverSchool {...channel} />;
   if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
   return dates === null ? null : <Leave {...shown} year={year} dates={dates} onJoin={onJoin} />;
 }
