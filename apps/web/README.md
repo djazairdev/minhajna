@@ -34,7 +34,8 @@ The build reads the Android app's code and its TypeScript settings, so it stops 
   find . -type f ! -name build.json | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum | sha256sum
   ```
 - **Nothing loaded from elsewhere:** the page's security policy allows only its own files, and no inline script (R-6.6-01). It may connect to one other address, the demo server `https://minhajna-demo.djazair.dev` (answer 554), for demo worlds only; the host check fails if it names any other.
-- **Licences:** `licences.json` holds a notice for every package in the bundle, with the reference data's and the fonts'.
+- **Licences:** `licences.json` holds a notice for every package in the bundle, with the reference data's and the fonts'. A package's notice carries its NOTICE file and the licences it ships in a `licenses/` folder, as Apache-2.0 asks.
+- **Stylesheets:** a package's stylesheet, imported by the code, is bundled as `app.css`, which the page links after its own.
 
 ## Offline and updates
 
@@ -108,6 +109,14 @@ The third pull request of part 3 (answers 503 and 513 to 515) keeps one working 
 - **Read-only:** while the copy is away, every change is refused in one place, before anything is stored, with a sheet over whichever screen made it that says it was not saved and why. The device still records what never leaves it, its recovery key, its backups and the handover itself, and the log of what it prints or saves.
 - **Taking it back:** «استلام النسخة» opens a transfer file or a backup from the other device, never an export. It is taken only if it continues this device's copy: every entry handed over, but the device layer's, is in it with the same ID and content, in the same order, so the copy can go back and forth any number of times. The history stays append-only: what the other device recorded since is added after this device's own entries, with the same IDs and content, then the end of the handover, all in one write. The device layer stays each device's own, so this device keeps its recovery key and backup facts. An erasure made on the other device applies here too, to entries handed over only. A backup leaves behind what the other device records after it, which the screen says.
 - **Working here again:** «استعادة العمل هنا» ends the handover after asking, as what the other device recorded since would not come here.
+
+## Charts and maps
+
+The PC draws its charts with Apache ECharts and its maps with React Flow (§5.2, answer 574), both pinned here alone, so the Android app never carries them:
+
+- **The kit:** `src/drawing/` gives the app a `Chart` and a `Map` through the `Drawing` context, whose shapes the app defines in its own `src/drawing/drawing-kit.ts`. Where no kit is given, as on the phone, a screen shows the table of the same figures alone.
+- **Charts:** bars and lines, drawn on a canvas with their tooltip, which the page's style policy allows; ECharts' HTML tooltip writes style attributes the policy refuses. ECharts' aria description names the chart. ECharts has no right-to-left mode, so in Arabic the axes are mirrored, the values on the right. Lines differ by their dashes as well as their colours. Text is set in the Arabic face, then the Latin one, and drawn again once both have loaded.
+- **Maps:** read only, with nothing to drag, join, pick or focus, and no zooming by the wheel, so the page scrolls past them. For a screen reader a map is one picture named by its label, as React Flow's own words are English and speak of editing; the screen writes its links out beside it. React Flow's attribution stays, as the design draws it, as a link beside the picture.
 
 ## The native modules
 

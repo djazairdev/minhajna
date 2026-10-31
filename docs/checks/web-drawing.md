@@ -1,0 +1,22 @@
+# The PC's charts and maps (#600)
+
+Checks of 31 October 2026 for [#600](https://github.com/djazairdev/minhajna/issues/600), from the pull request that adds this record (answer 574). Made-up data only.
+
+## What changed
+
+- **New packages,** in the web app alone, pinned exactly: `echarts` 6.1.0 (Apache-2.0) with `zrender` 6.1.0 (BSD-3-Clause) and `tslib` 2.3.0 (0BSD), and `@xyflow/react` 12.12.0 (MIT) with `@xyflow/system`, `zustand`, `classcat` (MIT) and nine d3 modules (ISC), six of them with their types. Every licence is on the allowed list. Neither library calls the network, downloads anything while installing, or runs code from text.
+- **The drawing kit:** the app defines its own shapes for a chart and a read-only map, with a `Drawing` context (`apps/android/src/drawing/drawing-kit.ts`); the PC's start fills it from `apps/web/src/drawing/`. No screen draws with it yet; where no kit is given, as on the phone, a screen shows its table alone.
+- **Charts:** ECharts' modular build, with bar and line charts, the canvas renderer, the grid, legend, tooltip and aria parts. The tooltip is drawn on the canvas too, as ECharts' HTML tooltip writes style attributes the page's policy refuses. In Arabic the axes are mirrored and the legend sits on the right; lines differ by their dashes as well as their colours; a series that misses a category is refused. A chart is made once in its box: new figures replace the last in place, and are drawn again once the Arabic and Latin faces have loaded, since a canvas never redraws by itself.
+- **Maps:** React Flow, read only, fitted to its box, with no handles, no wheel zoom and the page scrolling past it; a link to a box the map does not hold, or two boxes with one ID, is refused. Nothing in it takes the keyboard's focus, from the first render. For a screen reader it is one picture named by the map's label, with React Flow's tree hidden inside, as React Flow's words are English and speak of editing; a screen writes the links out beside it. Its attribution stays, as the design draws it, in the role that meets text contrast, as a link beside the picture.
+- **Stylesheets:** React Flow's base stylesheet and the map's own rules are bundled as `app.css`, linked after `page.css`.
+- **Notices:** a package's notice now carries its `NOTICE` file and the licences in its `licenses/` folder, as Apache-2.0 asks, so ECharts' notice credits its d3 parts.
+
+## Checks
+
+| Check | Result |
+|---|---|
+| Web tests (`apps/web`, 116, 12 new) | Pass:<br>• **charts:** mirrored axes and legend in Arabic, left to right otherwise; solid, dashed and dotted lines; the aria description is the chart's label; a bar chart; no legend for one series; the tooltip on the canvas; a series missing a category refused;<br>• **a chart's life,** with a made-up ECharts: made once, resized with its box, new figures in place, the latest drawn again once the fonts load, nothing drawn after it is disposed, and its box unwatched before it is;<br>• **maps:** read-only, unfocusable boxes and links, each link named by its boxes' labels; React Flow's settings giving nothing to focus or describe; a link to an unknown box and a duplicate ID refused;<br>• **a map rendered,** bundled as the build bundles it: one picture named by its label, React Flow's tree hidden, no tab stop, no description pointed to, and the attribution link beside the picture;<br>• **notices:** ECharts' with its NOTICE and `LICENSE-d3`;<br>• **packages:** pinned in the web app only, and no import of either library under `apps/android/src`;<br>• **the build:** `app.css` linked, its URLs local, and the three new notices in `licences.json`. |
+| The bundle's checksum | Two builds in a row give the same checksum, `8b9069bf…66eb5`, on top of #660. `app.js` grows from about 3.58 MB to 4.28 MB, and `app.css` is 11 KB. Neither holds `eval` or `new Function`. |
+| The page's security policy, in Chromium | A page under the PC's own policy, with the bundled kit, drew a bar chart, a line chart in Arabic and a map, and showed both charts' tooltips under the pointer, with zero `securitypolicyviolation` events: the canvas and React Flow's styles set through the DOM are allowed, and nothing loads from elsewhere. The first Tab reached the attribution link; nothing in the map had a tab stop or a description. |
+| Type checks | Pass: the Android app, and the web app with its scripts and tests |
+| ESLint, Prettier | Pass |

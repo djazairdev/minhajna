@@ -1,0 +1,24 @@
+/* SPDX-FileCopyrightText: 2026 The Minhajna contributors */
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+
+/* A read-only map (#600): the drawing filling its frame, no handles to join
+   boxes by, and React Flow's attribution in the design's map-label colours,
+   given on the frame. */
+
+.minhajna-map-drawing {
+  width: 100%;
+  height: 100%;
+}
+
+.minhajna-map .react-flow__handle {
+  visibility: hidden;
+}
+
+.minhajna-map .react-flow__attribution {
+  background: var(--map-label-ground);
+  font-size: 10px;
+}
+
+.minhajna-map .react-flow__attribution a {
+  color: var(--map-attribution);
+}
