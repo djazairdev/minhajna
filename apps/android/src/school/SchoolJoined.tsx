@@ -5,10 +5,10 @@
 // that joined, with the world's date its certificate was given and the school's
 // ID shortened, kept left to right inside a sentence of either direction, the
 // reminder that each class's week waits to be signed once a week, with a way to
-// sign it (WeekSign.tsx, #582), a way to the timetable the school sent
-// (TeacherTimetable.tsx, #579), to the teacher's devices and copies once joined
-// (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
-// #567).
+// sign it (WeekSign.tsx, #582), a way to the weekly digest (WeekDigest.tsx,
+// #584), a way to the timetable the school sent (TeacherTimetable.tsx, #579),
+// to the teacher's devices and copies once joined (DevicesMoved.tsx, #566) and
+// to what stays and goes on leaving (Leave.tsx, #567).
 
 import { readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -33,11 +33,13 @@ export type SchoolJoinedCardsProps = {
   readonly onTimetable: (join: SchoolJoined) => void;
   /** Opens each class's week to sign. */
   readonly onWeek: (join: SchoolJoined) => void;
+  /** Opens the weekly digest. */
+  readonly onDigest: (join: SchoolJoined) => void;
 };
 
 /** A card for each code that joined the school's space. */
 export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
-  const { joins, dayText, onDevices, onLeave, onHelp, onTimetable, onWeek } = props;
+  const { joins, dayText, onDevices, onLeave, onHelp, onTimetable, onWeek, onDigest } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -54,6 +56,7 @@ export function SchoolJoinedCards(props: SchoolJoinedCardsProps) {
       </Text>
       <Text style={[styles.small, align]}>{t('demo.weekSign.reminder')}</Text>
       <Button testID="school-week" label={t('demo.weekSign.open')} onPress={() => onWeek(join)} />
+      <Button testID="school-digest" variant="line" label={t('demo.digest.open')} onPress={() => onDigest(join)} />
       <Button
         testID="school-timetable"
         variant="line"

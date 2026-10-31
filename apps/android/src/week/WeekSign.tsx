@@ -6,25 +6,26 @@
 // it opens it reads the teacher's channel (week-sign-session.ts); the chosen
 // week's class, subject and dates, and that it is signed once a week for each
 // class in one step; a chip for each class, named with its subject when a class
-// has several, the first chosen until another is; which classes still wait to
-// be signed this week, or that all are; and the chosen class's week
-// (WeekSignWeek.tsx), each session confirmed said with the next awaiting, or
-// that none is, and one changed back said alone; once signed, the sessions
-// shown are those signed; sessions change only while nothing is read or signed.
-// Signing is one step: in a world the fingerprint or PIN is named and not asked
-// (answer 582), the week is signed with the key made on this phone and put on
-// the channel, said, and shows signed, with its dates, the school's record and
-// the official record, with a way to correct it (WeekFix.tsx, #583), after
-// which Week-sign says the correction is signed and shows its states, or, gone
-// back to without one, says its title; either way, and after the week is
-// signed, the channel is read again without a word. Without a timetable from
-// the school, without a session this week, or with a subject the country does
-// not know, the page says so and nothing is signed. Reading and signing are
-// said apart; a second press while one runs does nothing; a problem is shown in
-// the catalogue's words, and said except on a PC, where it is an alert, a week
-// already signed apart, with a way to read again. What is said goes, on a PC,
-// to the page's hidden live region (useSaid.tsx), and elsewhere it is
-// announced; the band, bar and column are WeekPage.tsx's.
+// has several, the one the digest chose (#584), or else the first, chosen until
+// another is; which classes still wait to be signed this week, or that all are;
+// and the chosen class's week (WeekSignWeek.tsx), each session confirmed said
+// with the next awaiting, or that none is, and one changed back said alone;
+// once signed, the sessions shown are those signed; sessions change only while
+// nothing is read or signed. Signing is one step: in a world the fingerprint or
+// PIN is named and not asked (answer 582), the week is signed with the key made
+// on this phone and put on the channel, said, and shows signed, with its dates,
+// the school's record and the official record, with a way to correct it
+// (WeekFix.tsx, #583), after which Week-sign says the correction is signed and
+// shows its states, or, gone back to without one, says its title; either way,
+// and after the week is signed, the channel is read again without a word.
+// Without a timetable from the school, without a session this week, or with a
+// subject the country does not know, the page says so and nothing is signed.
+// Reading and signing are said apart; a second press while one runs does
+// nothing; a problem is shown in the catalogue's words, and said except on a
+// PC, where it is an alert, a week already signed apart, with a way to read
+// again. What is said goes, on a PC, to the page's hidden live region
+// (useSaid.tsx), and elsewhere it is announced; the band, bar and column are
+// WeekPage.tsx's.
 
 import {
   readJoinCode,
@@ -80,6 +81,8 @@ export type WeekSignProps = {
   readonly workingDays?: readonly Weekday[];
   /** The country's subjects, which give each timetable subject its code. */
   readonly subjects?: readonly Subject[];
+  /** The course chosen first, by its key, as the digest opens it. */
+  readonly course?: string;
 };
 
 type Session = Parameters<typeof sessionKey>[0];
@@ -94,7 +97,7 @@ export function WeekSign(props: WeekSignProps) {
   const [channel, setChannel] = useState<SignChannel | null>(null);
   const [step, setStep] = useState<'reading' | 'signing' | 'after' | null>('reading');
   const [problem, setProblem] = useState<ReturnType<typeof problemOf> | 'demo.weekSign.already' | null>(null);
-  const [chosen, setChosen] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<string | null>(props.course ?? null);
   const [sent, setSent] = useState<readonly WeekRecord[]>([]);
   const [, setTick] = useState(0);
   const [fixing, setFixing] = useState(false);

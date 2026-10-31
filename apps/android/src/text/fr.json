@@ -4966,6 +4966,21 @@
       "signNote": "Une signature électronique avec la clé de ce téléphone, comme pour signer la semaine. Sur votre propre téléphone, l’empreinte ou le code PIN est demandé avant de signer ; dans un monde de démonstration, il ne l’est pas.",
       "done": "La correction {{number}} est signée.",
       "changed": "Cette semaine a changé depuis l’ouverture de la page. Relisez-la, puis corrigez-la."
+    },
+    "digest": {
+      "title": "Résumé de la semaine",
+      "open": "Résumé de la semaine",
+      "subtitle": "{{dates}} · pour vous uniquement",
+      "confirmed": "Séances confirmées : {{confirmed}} sur {{total}}",
+      "signed": "Semaines signées cette semaine : {{classes}}.",
+      "noneSigned": "Aucune semaine n’est encore signée cette semaine.",
+      "unsigned": "Une semaine non signée",
+      "unsignedLine": "Elle reste sur vos seuls appareils jusqu’à sa signature, et la direction n’en voit ensuite que l’état de chaque séance.",
+      "sign": "Signer la semaine de {{class}}",
+      "fixes": "Corrigé après la signature",
+      "fixLine": "Correction {{number}} · {{course}} · {{session}} : de « {{before}} » à « {{after}} »",
+      "plan": "La position de chaque classe dans son plan, ses séances de réserve et les prochains examens arrivent avec un pack de plan.",
+      "foot": "Il n’arrive qu’à vous, et rien n’en arrive à la direction. Hors d’un monde de démonstration, il arrive le dimanche matin, après les heures calmes."
     }
   },
   "chart": {
