@@ -183,6 +183,7 @@ test('a clean file says so; one that cannot be read says so, and a cancelled one
   await openFile('fet', FET.split('\n')[0]);
   expect(texts()).toContain(tt.noSessions);
   expect(texts()).not.toContain(tt.clean);
+  expect(texts()).not.toContain(tt.weeksNone);
   await openFile('fet', FET.split('\n').slice(0, 3).join('\n'));
   expect(texts()).toContain(tt.clean);
   calendarInput.readTable.mockResolvedValueOnce(null);
@@ -240,7 +241,13 @@ test('the phone says what was read through TalkBack, and the source waits while 
   const onRead = jest.fn();
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
-      <TimetableImport level="cem" bells={reference.bells} read={null} onRead={onRead} />,
+      <TimetableImport
+        level="cem"
+        bells={reference.bells}
+        workingDays={reference.profile.workingDays}
+        read={null}
+        onRead={onRead}
+      />,
     );
     await settle();
   });

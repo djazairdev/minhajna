@@ -10,18 +10,22 @@
 // a PC in the page's hidden live region, and the checks follow: no clash, or
 // each row left out with its problem in plain words; the columns not read; the
 // sessions shared by several classes, and FET's guessed groups, for the
-// preparer to confirm; and that checking each class's hours against the
-// official grid, and each subject's free half-day, wait for that data. A file
-// with no session says so. A header that cannot be read refuses the whole file,
-// said apart, with a hint to try the other source when the header has no time
-// column the source expects. A file that cannot be read says so, with how to
-// save it from Excel, and keeps what was shown; another source clears it, and
-// the source is fixed while a file is being chosen. The timetable read is kept
-// in memory for the world it was read in, so it outlives a change of page,
-// until it is sent (#577) or the world is left; nothing is uploaded or signed.
-// Minhajna imports the timetable and never builds it.
+// preparer to confirm; whether weeks A and B balance for each group of pupils
+// and each teacher (grid-text.ts, answer 593), counted on the sessions
+// imported; and that checking each class's hours against the official grid, and
+// each subject's free half-day, wait for that data. Each class's week follows
+// as a grid (TimetableGrid.tsx). A file with no session says so. A header that
+// cannot be read refuses the whole file, said apart, with a hint to try the
+// other source when the header has no time column the source expects. A file
+// that cannot be read says so, with how to save it from Excel, and keeps what
+// was shown; another source clears it, and the source is fixed while a file is
+// being chosen. The timetable read is kept in memory for the world it was read
+// in, so it outlives a change of page, until it is sent (#577) or the world is
+// left; nothing is uploaded or signed. Minhajna imports the timetable and never
+// builds it.
 
 import {
+  alternates,
   parseCsv,
   readFetTimetable,
   readTimetable,
@@ -29,6 +33,7 @@ import {
   type FetImport,
   type FetProblem,
   type TimetableImport as TemplateImport,
+  type Weekday,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
@@ -38,8 +43,10 @@ import { SegmentedControl } from '../components/SegmentedControl';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import NativeInput from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
+import { weekCheck } from './grid-text';
 import { problemText, readCounts } from './import-text';
-import { fetWords, levelBells, timetableWords } from './timetable-words';
+import { TimetableGrid } from './TimetableGrid';
+import { afternoonStart, fetWords, levelBells, timetableWords } from './timetable-words';
 
 /** A timetable read from a file, with the source it was read as. */
 export type TimetableRead = {
@@ -60,13 +67,14 @@ export type TimetableImportProps = {
   /** The school's level, whose bell times give FET's numbered hours their times. */
   readonly level: string;
   readonly bells: BellData;
+  readonly workingDays: readonly Weekday[];
   /** The timetable read so far in this world, or null. */
   readonly read: TimetableRead | null;
   readonly onRead: (read: TimetableRead | null) => void;
 };
 
 /** The timetable page: a file brought in and checked. */
-export function TimetableImport({ level, bells, read, onRead }: TimetableImportProps) {
+export function TimetableImport({ level, bells, workingDays, read, onRead }: TimetableImportProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -119,6 +127,7 @@ export function TimetableImport({ level, bells, read, onRead }: TimetableImportP
   const refused = result?.problems.filter(refusedBy) ?? [];
   const left = result?.problems.filter((one) => one.kind !== 'column-unknown' && !refusedBy(one)) ?? [];
   const groups = result !== undefined && 'groups' in result ? result.groups : [];
+  const weeks = result === undefined || result.sessions.length === 0 ? null : weekCheck(t, result.sessions);
   const lines = (testID: string, items: readonly string[]) =>
     items.map((line, index) => (
       <Text key={`${testID}-${index}`} testID={testID} style={[styles.small, align]}>
@@ -187,6 +196,13 @@ export function TimetableImport({ level, bells, read, onRead }: TimetableImportP
             'tt-not-read',
             notRead.map((one) => problemText(t, one)),
           )}
+          {weeks !== null && (
+            <Text style={[weeks.uneven.length > 0 ? styles.label : styles.small, align]}>{weeks.line}</Text>
+          )}
+          {lines('tt-weeks', weeks?.uneven ?? [])}
+          {left.length > 0 && alternates(result.sessions) && (
+            <Text style={[styles.small, align]}>{t('ttImport.weeksKept')}</Text>
+          )}
           <Text style={[styles.small, align]}>{t('ttImport.gridLater')}</Text>
           {result.together.length > 0 && <Text style={[styles.label, align]}>{t('ttImport.together')}</Text>}
           {lines(
@@ -200,6 +216,9 @@ export function TimetableImport({ level, bells, read, onRead }: TimetableImportP
           )}
           {groups.length > 0 && <Text style={[styles.small, align]}>{t('ttImport.groupsLine')}</Text>}
         </View>
+      )}
+      {result !== undefined && refused.length === 0 && result.sessions.length > 0 && (
+        <TimetableGrid sessions={result.sessions} workingDays={workingDays} afternoon={afternoonStart(bells, level)} />
       )}
     </View>
   );

@@ -225,6 +225,7 @@ export function DemoRoot({
             <TimetableImport
               level={school.level}
               bells={reference.bells}
+              workingDays={reference.profile.workingDays}
               read={timetable?.world === open.world ? timetable.read : null}
               onRead={(read) => setTimetable(read === null ? null : { world: open.world, read })}
             />
