@@ -4,6 +4,7 @@
 package dz.minhajna.preview.world
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import dz.minhajna.preview.signature.signingKeyFingerprint
 import dz.minhajna.preview.signature.verifies
 import dz.minhajna.preview.storage.Hashing
@@ -24,7 +25,9 @@ import org.junit.runner.RunWith
  * PC's Web Crypto give (#561): the vectors below were made by Node with
  * made-up inputs, and the web app's tests check the same ones, with a pair
  * this code made, whose private half was thrown away. The 600,000 rounds are
- * the world's own; pairs here are made at runtime and never stored.
+ * the world's own; pairs here are made at runtime and never stored. A debug
+ * build, which holds the network permission for Metro, may connect; a
+ * release build does once #559's notice adds the permission (answer 575).
  */
 @RunWith(AndroidJUnit4::class)
 class WorldCryptoTest {
@@ -93,6 +96,11 @@ class WorldCryptoTest {
     assertFalse(verifies(WorldCrypto.newPair().spki, text, signed))
     assertThrows(Exception::class.java) { WorldCrypto.sign(pair.pkcs8, "\uD800") }
     assertThrows(Exception::class.java) { WorldCrypto.sign(pair.spki, text) }
+  }
+
+  @Test
+  fun aDebugBuildMayConnect() {
+    assertTrue(mayConnect(InstrumentationRegistry.getInstrumentation().targetContext))
   }
 
   @Test

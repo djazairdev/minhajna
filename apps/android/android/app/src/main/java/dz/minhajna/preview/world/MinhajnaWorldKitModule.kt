@@ -3,6 +3,9 @@
 
 package dz.minhajna.preview.world
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -16,10 +19,14 @@ import java.util.concurrent.RejectedExecutionException
  * own worker, so the world's 600,000-round derivation never holds the screen
  * or the signature checks. Bytes cross as lowercase hex. Any failure answers
  * E_WORLD_KIT and says nothing of the bytes, the key or the platform's
- * exception; a seal that does not open answers null, as on a PC.
+ * exception; a seal that does not open answers null, as on a PC. Whether
+ * the app may connect at all is answered at once: a build without the
+ * network permission offers no world (#561, answer 575).
  */
 class MinhajnaWorldKitModule(context: ReactApplicationContext) : NativeMinhajnaWorldKitSpec(context) {
   private val worker = Executors.newSingleThreadExecutor { task -> Thread(task, "minhajna-world-kit") }
+
+  override fun canConnect(): Boolean = mayConnect(reactApplicationContext)
 
   override fun derive(secret: String, salt: String, rounds: Double, promise: Promise) = onWorker(promise) {
     require(rounds == Math.floor(rounds)) { "Invalid rounds" }
@@ -70,6 +77,10 @@ class MinhajnaWorldKitModule(context: ReactApplicationContext) : NativeMinhajnaW
     super.invalidate()
   }
 }
+
+/** Whether the app holds Android's INTERNET permission. */
+internal fun mayConnect(context: Context): Boolean =
+  context.checkSelfPermission(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
 
 /** Lowercase hex as bytes; anything else is refused. */
 internal fun bytes(hex: String): ByteArray {

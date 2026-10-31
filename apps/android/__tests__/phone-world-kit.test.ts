@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The phone's world kit (#561) over its native modules, here stood in for by
-// Node's crypto behind the modules' own shapes: bytes cross as lowercase hex
-// and come back as bytes; the derivation is asked for the world's 600,000
-// rounds; random bytes come from the storage's SecureRandom; a seal that
-// does not open is null; a world started through it is joined through it;
-// and a failing module's E_WORLD_KIT stops a world with the network shut.
-// The device's own test checks the native code against Node's vectors.
+// Node's crypto behind the modules' own shapes: a build that may not connect
+// gets none (answer 575); bytes cross as lowercase hex and come back as bytes;
+// the derivation is asked for the world's 600,000 rounds; random bytes come
+// from the storage's SecureRandom; a seal that does not open is null; a world
+// started through it is joined through it; and a failing module's E_WORLD_KIT
+// stops a world with the network shut. The device's own test checks the native
+// code against Node's vectors.
 
 import { createHash, createHmac } from 'node:crypto';
 import { toHex, WORLD_KDF_ROUNDS, type SchoolCalendar } from '@minhajna/core';
@@ -29,6 +30,7 @@ const HEX = /^(?:[0-9a-f]{2})*$/u;
 function nodeModule(calls: unknown[][]): KitSpec {
   const hex = (...args: string[]) => args.every((arg) => HEX.test(arg)) || Promise.reject(new Error('Not hex'));
   return {
+    canConnect: () => true,
     derive: async (secret, salt, rounds) => {
       calls.push(['derive', secret, salt, rounds]);
       await hex(secret, salt);
@@ -49,13 +51,24 @@ function nodeModule(calls: unknown[][]): KitSpec {
 const storage = { randomBytes: (length: number) => '0a'.repeat(length) };
 const signature = { verify: nodeKit.verify };
 
+/** The phone's kit over a module that may connect. */
+function made(module: KitSpec, random: { randomBytes: (length: number) => string } = storage, check = signature) {
+  const kit = phoneWorldKit(module, random, check);
+  if (kit === null) throw new Error('The module may connect');
+  return kit;
+}
+
 afterEach(() => {
   leaveWorldNetwork();
   server.reset();
 });
 
+test('a build that may not connect gets no kit', () => {
+  expect(phoneWorldKit({ ...nodeModule([]), canConnect: () => false }, storage, signature)).toBeNull();
+});
+
 test('random bytes come from the storage, bytes cross as hex, and a seal that does not open is null', async () => {
-  const kit = phoneWorldKit(nodeModule([]), storage, signature);
+  const kit = made(nodeModule([]), storage, signature);
   expect(kit.random(3)).toEqual(new Uint8Array([10, 10, 10]));
   const key = new Uint8Array(32).fill(1);
   const plain = new TextEncoder().encode('{"made":"up"}');
@@ -67,7 +80,7 @@ test('random bytes come from the storage, bytes cross as hex, and a seal that do
 
 test('a world started through the phone kit is joined through it, with the world’s own rounds', async () => {
   const calls: unknown[][] = [];
-  const kit = phoneWorldKit(nodeModule(calls), { randomBytes: (length) => toHex(nodeKit.random(length)) }, signature);
+  const kit = made(nodeModule(calls), { randomBytes: (length) => toHex(nodeKit.random(length)) }, signature);
   const started = await startWorld('teachers', calendar, kit, server.send);
   leaveWorldNetwork();
   const joined = await joinWorld(started.code, kit, server.send);
@@ -83,7 +96,7 @@ test('a world started through the phone kit is joined through it, with the world
 });
 
 test('a new pair’s fingerprint is the SHA-256 of its SPKI’s bytes', async () => {
-  const pair = await phoneWorldKit(nodeModule([]), storage, signature).newPair();
+  const pair = await made(nodeModule([]), storage, signature).newPair();
   expect(pair.fingerprint).toBe(createHash('sha256').update(Buffer.from(pair.spki, 'base64')).digest('hex'));
 });
 
@@ -91,17 +104,12 @@ test('a failing module stops starting and joining with E_WORLD_KIT and the netwo
   const kitFailure = () =>
     Promise.reject(Object.assign(new Error('The world’s cryptography failed'), { code: 'E_WORLD_KIT' }));
   const failing = { ...nodeModule([]), newPair: kitFailure };
-  const kit = phoneWorldKit(failing, storage, signature);
+  const kit = made(failing, storage, signature);
   expect(await codeOf(startWorld('national', calendar, kit, server.send))).toBe('E_WORLD_KIT');
   expect(worldNetworkOpen()).toBeNull();
-  const started = await startWorld(
-    'national',
-    calendar,
-    phoneWorldKit(nodeModule([]), storage, signature),
-    server.send,
-  );
+  const started = await startWorld('national', calendar, made(nodeModule([]), storage, signature), server.send);
   leaveWorldNetwork();
-  const unsealing = phoneWorldKit({ ...nodeModule([]), open: kitFailure }, storage, signature);
+  const unsealing = made({ ...nodeModule([]), open: kitFailure }, storage, signature);
   expect(await codeOf(joinWorld(started.code, unsealing, server.send))).toBe('E_WORLD_KIT');
   expect(worldNetworkOpen()).toBeNull();
 });

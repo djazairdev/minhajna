@@ -12,12 +12,13 @@
 // belongs to another code with the same ID, and one kept without its key; to
 // find out, the store opens, so a code this device never kept makes an empty
 // store that is erased at once. The roles are the world's kind's until #518
-// seeds its people.
+// seeds its people; a phone offers only the teacher's and the inspector's.
 
 import { keptWorld, worldIdOfCode, type Day, type RecordBook, type WorldKept, type WorldKind } from '@minhajna/core';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import type { Spec as WorldSpec } from '../native/NativeMinhajnaWorld';
 import { leaveWorldNetwork } from '../network/world-network';
+import { onPc } from '../text/device-text';
 import { openWorldBook } from '../storage/world';
 
 /** Who someone acts as in a world. */
@@ -28,6 +29,14 @@ export const WORLD_ROLES: Readonly<Record<WorldKind, readonly WorldRole[]>> = {
   national: ['ministry', 'directorate', 'director', 'inspector', 'teacher'],
   teachers: ['teacher'],
 };
+
+/** The roles a phone offers (answer 575); the others are a PC's, for their workspaces (#562). */
+const PHONE_ROLES: readonly WorldRole[] = ['inspector', 'teacher'];
+
+/** The roles of a world of a kind this device offers. */
+export function rolesHere(kind: WorldKind): readonly WorldRole[] {
+  return onPc() ? WORLD_ROLES[kind] : WORLD_ROLES[kind].filter((role) => PHONE_ROLES.includes(role));
+}
 
 /** A world as it was started or joined. */
 export interface FoundWorld {

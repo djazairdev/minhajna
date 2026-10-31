@@ -3,8 +3,10 @@
 
 // The demo worlds' pages on a PC (#560, answers 572 and 573), against a
 // made-up demo server: a code that does not read, a world nobody started and
-// a busy server each say so; a teachers' world holds a teacher alone, its
-// page announced once on the phone; a world joined from another device shows
+// a busy server each say so; a teachers' world holds a teacher alone; on the
+// phone (#561, answer 575) the entry only enters, a national world offers the
+// inspector and the teacher alone, and its page is announced once; a world
+// joined from another device shows
 // its code but cannot move its date; the starting device finds its starter
 // token again when it enters the code once more; the world's store keeps its
 // kind and code, apart from the teacher's, and goes once the server no longer
@@ -14,7 +16,14 @@
 // day says so. Every world is made up.
 
 import { keptWorld, makeWorldCode, type SchoolCalendar } from '@minhajna/core';
-import { AccessibilityInfo, Text, type PressableProps, type TextInputProps, type TextProps } from 'react-native';
+import {
+  AccessibilityInfo,
+  Platform,
+  Text,
+  type PressableProps,
+  type TextInputProps,
+  type TextProps,
+} from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { FakeStorage } from '../jest/fake-storage';
 import { FakeWorld } from '../jest/fake-world';
@@ -42,6 +51,11 @@ const teacher = new FakeStorage();
 let world = new FakeWorld(teacher);
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const left = jest.fn();
+let os: jest.ReplaceProperty<typeof Platform.OS>;
+
+beforeEach(() => {
+  os = jest.replaceProperty(Platform, 'OS', 'web');
+});
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
@@ -122,13 +136,27 @@ test('a code that does not read, a world nobody started and a busy server each s
   expect(world.open).toBeNull();
 });
 
-test('a teachers’ world holds a teacher alone, and the phone hears its page once', async () => {
-  const announced = jest.spyOn(AccessibilityInfo, 'announceForAccessibility');
-  announced.mockClear();
+test('a teachers’ world holds a teacher alone', async () => {
   await render();
   await press('demo-start-teachers');
   expect(shown('world-role-teacher')).toBe(true);
   expect(shown('world-role-ministry')).toBe(false);
+  expect(shown('world-said')).toBe(true);
+});
+
+test('on the phone the entry only enters, offers the inspector and the teacher, and is heard once', async () => {
+  os.replaceValue('android');
+  const started = await startedElsewhere('national');
+  const announced = jest.spyOn(AccessibilityInfo, 'announceForAccessibility');
+  announced.mockClear();
+  await render();
+  expect(shown('demo-start-national')).toBe(false);
+  expect(shown('demo-start-teachers')).toBe(false);
+  expect(texts()).toContain(text.demo.entry.line);
+  await join(started.code);
+  expect(
+    ['inspector', 'teacher', 'ministry', 'directorate', 'director'].map((role) => shown(`world-role-${role}`)),
+  ).toEqual([true, true, false, false, false]);
   expect(shown('world-said')).toBe(false);
   expect(announced).toHaveBeenCalledTimes(1);
   expect(announced).toHaveBeenCalledWith(expect.stringContaining(text.demo.roles.title));
@@ -166,12 +194,12 @@ test('a store that does not open, or will not close, says so with the network sh
   const refused = Object.assign(new Error('Made-up refusal'), { code: 'E_WORLD' });
   jest.spyOn(world, 'enterWorld').mockRejectedValueOnce(refused);
   await press('demo-start-national');
-  expect(texts()).toContain(text.demo.problem.store);
+  expect(texts()).toContain(text.demo.problem.pc.store);
   expect(worldNetworkOpen()).toBeNull();
   await press('demo-start-national');
   jest.spyOn(world, 'leaveWorld').mockRejectedValueOnce(refused);
   await press('world-leave');
-  expect(texts()).toContain(text.demo.problem.store);
+  expect(texts()).toContain(text.demo.problem.pc.store);
   expect(shown('world-leave')).toBe(true);
   expect(worldNetworkOpen()).toBeNull();
   expect(left).not.toHaveBeenCalled();

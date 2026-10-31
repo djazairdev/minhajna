@@ -7,7 +7,8 @@
 // world's stand-in signing key, the storage's SecureRandom for random bytes,
 // and the signature module's check, which every signed file already uses.
 // Bytes cross the bridge as lowercase hex. The phone's start hands it to the
-// app, so the PC's bundle never asks for it.
+// app, so the PC's bundle never asks for it; a build without the network
+// permission gets none, so it offers no world (answer 575).
 
 import { toHex } from '@minhajna/core';
 import type { Spec as SignatureSpec } from '../native/NativeMinhajnaSignature';
@@ -16,12 +17,13 @@ import type { Spec as KitSpec } from '../native/NativeMinhajnaWorldKit';
 import { fromHex } from '../storage/history';
 import type { WorldKit } from './world-session';
 
-/** A world kit over the phone's native modules. */
+/** A world kit over the phone's native modules, or null where the build may not connect. */
 export function phoneWorldKit(
   kit: KitSpec,
   storage: Pick<StorageSpec, 'randomBytes'>,
   signature: Pick<SignatureSpec, 'verify'>,
-): WorldKit {
+): WorldKit | null {
+  if (!kit.canConnect()) return null;
   return {
     random: (length) => fromHex(storage.randomBytes(length)),
     kdf: async (secret, salt, rounds) => fromHex(await kit.derive(toHex(secret), toHex(salt), rounds)),

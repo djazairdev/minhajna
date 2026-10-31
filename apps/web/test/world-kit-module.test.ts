@@ -31,6 +31,10 @@ const PHONE = {
 };
 
 describe('the world kit module on a PC', () => {
+  it('may always connect, as the page’s policy names the demo server', () => {
+    assert.equal(WorldKit.canConnect(), true);
+  });
+
   it('derives and MACs as Node and the phone do', async () => {
     const derived = await WorldKit.derive(SECRET, SALT, 600_000);
     assert.equal(derived, '6371282357f1bc9d3d403bf482bcd2afa02b49196c9cdb4da7be443f3f0fa3cd');
