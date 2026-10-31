@@ -63,6 +63,7 @@ export * from './course-events.ts';
 export * from './events.ts';
 export * from './extra.ts';
 export * from './extra-records.ts';
+export * from './floors.ts';
 export * from './format.ts';
 export * from './hijri.ts';
 export * from './hijri-read.ts';
