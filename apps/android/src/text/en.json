@@ -4330,6 +4330,7 @@
       "lead": "{{date}} · The school's teachers in the demo world: {{number}}",
       "print": "Print the codes not yet scanned",
       "refresh": "Refresh",
+      "reissued": "Codes issued again under the school key's new epoch: {{number}}. The ones given before no longer join: print or show these again.",
       "opening": "Opening the school key on this device…",
       "filter": "Show",
       "chip": {
@@ -4391,6 +4392,10 @@
       "map": "Map of who holds the school key, what it opens, and how it is recovered",
       "many": "More than one holder looks like a recovery. Renewing the recovery removes them all.",
       "fingerprint": "Keyring fingerprint: {{fingerprint}}. Compare it with another holder or the directorate after any recovery.",
+      "removed": "A holder removed this device from the school key. It opens nothing added since.",
+      "waitingHere": "This device is waiting to be added as a holder of the school key, from the keys page. Finish or give up there first.",
+      "heldHere": "This device already holds the school key.",
+      "removeSelf": "This device cannot remove itself. Remove it from another device that holds the key.",
       "chosen": "Selected box",
       "group": {
         "holders": "Devices holding the key",

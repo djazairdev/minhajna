@@ -19,7 +19,7 @@ import { useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import type { OpenWorld } from '../demo/world-mode';
-import type { WorldKit } from '../demo/world-session';
+import type { Send, WorldKit } from '../demo/world-session';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { problemOf } from '../school/school-join-session';
 import { useDeviceText } from '../text/device-text';
@@ -34,6 +34,8 @@ export type KeysRecoveryProps = {
   /** Whether the keyring already holds a recovery. */
   readonly made: boolean;
   readonly kit: WorldKit;
+  /** The relay's requests, the world's own unless a test gives another. */
+  readonly send?: Send;
   /** The school's name, for the sheets. */
   readonly school: string;
   readonly dayText: (day: Day) => string;
@@ -68,7 +70,7 @@ export function KeysRecovery(props: KeysRecoveryProps) {
     setMaking(true);
     setAsking(false);
     setSaid(t('demo.keys.recovery.making'));
-    void makeRecovery(world, desk, kit, made ? 'renew' : 'make')
+    void makeRecovery(world, desk, kit, made ? 'renew' : 'make', props.send)
       .then((fresh) => {
         setRecovery(fresh);
         setSaid(t('demo.keys.recovery.shown'));

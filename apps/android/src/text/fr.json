@@ -4398,6 +4398,7 @@
       "lead": "{{date}} · Enseignants de l’établissement dans le monde de démonstration : {{number}}",
       "print": "Imprimer les codes non encore scannés",
       "refresh": "Actualiser",
+      "reissued": "Codes émis à nouveau sous la nouvelle époque de la clé de l’établissement : {{number}}. Les précédents ne permettent plus de rejoindre : imprimez ou montrez ceux-ci à nouveau.",
       "opening": "Ouverture de la clé de l’établissement sur cet appareil…",
       "filter": "Afficher",
       "chip": {
@@ -4459,6 +4460,10 @@
       "map": "Carte de qui détient la clé de l’établissement, de ce qu’elle ouvre et de sa récupération",
       "many": "Plus d’un détenteur ressemble à une récupération. Renouveler la récupération les retire tous.",
       "fingerprint": "Empreinte du trousseau : {{fingerprint}}. À comparer avec un autre détenteur ou la direction après toute récupération.",
+      "removed": "Un détenteur a retiré cet appareil de la clé de l’établissement. Il n’ouvre rien de ce qui a été ajouté depuis.",
+      "waitingHere": "Cet appareil attend d’être ajouté comme détenteur de la clé de l’établissement, depuis la page des clés. Terminez ou abandonnez d’abord là-bas.",
+      "heldHere": "Cet appareil détient déjà la clé de l’établissement.",
+      "removeSelf": "Cet appareil ne peut pas se retirer lui-même. Retirez-le depuis un autre appareil qui détient la clé.",
       "chosen": "Case sélectionnée",
       "group": {
         "holders": "Appareils détenant la clé",

@@ -252,7 +252,13 @@ test('a change of tab while the recovery is made keeps the button waiting', asyn
 test('a keyring that gained a recovery behind the page is read again, not renewed unasked', async () => {
   const { open, school } = await director();
   await page(open, school);
-  await keysSession.makeRecovery(open, await issueSession.holdSchool(open, nodeKit, server.send), nodeKit, 'make');
+  await keysSession.makeRecovery(
+    open,
+    await issueSession.holdSchool(open, nodeKit, server.send),
+    nodeKit,
+    'make',
+    server.send,
+  );
   const before = helds(open.book.entries);
   await press('keys-recovery-make');
   expect(helds(open.book.entries)).toBe(before);
