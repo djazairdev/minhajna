@@ -4043,6 +4043,50 @@
   },
   "demo": {
     "band": "Demo version · made-up data",
-    "date": "The world’s date: {{date}}"
+    "date": "The world’s date: {{date}}",
+    "open": "Demo worlds, with made-up data",
+    "entry": {
+      "title": "Demo worlds",
+      "line": "Try Minhajna from the Ministry to the teacher, with made-up data. Your own records stay shut while a world is open.",
+      "warningTitle": "Never enter real names or records",
+      "warning": "Anyone with a world’s code can act in any of its roles. A world is erased on its 7th day.",
+      "national": "Start a national world",
+      "nationalLine": "Every role, from the Ministry to the teacher",
+      "teachers": "Start a teachers’ world",
+      "teachersLine": "Teachers in teacher mode",
+      "code": "A world’s code",
+      "join": "Enter the world",
+      "back": "Back",
+      "working": "Working out the world’s keys…"
+    },
+    "problem": {
+      "code": "This is not a world’s code. Check its 20 characters.",
+      "none": "No world answers to this code. It may have been erased on its 7th day.",
+      "busy": "The demo server is busy. Try again in a moment.",
+      "offline": "The demo server cannot be reached. Check the connection and try again.",
+      "lastDay": "The world’s date is already its last announced day.",
+      "device": "This browser could not work out the world’s keys. Reload the page and try again.",
+      "other": "The demo server did not answer as expected. Try again.",
+      "store": "This browser could not open the world’s store."
+    },
+    "roles": {
+      "title": "Pick a role",
+      "line": "Everyone with the code acts in the same world. Pick who you are in it.",
+      "ministry": "Ministry",
+      "directorate": "Directorate of education",
+      "director": "School director",
+      "inspector": "Inspector",
+      "teacher": "Teacher"
+    },
+    "home": {
+      "role": "You act as: {{role}}",
+      "roleNext": "This role’s workspace opens here in a later version of the demo.",
+      "code": "The world’s code",
+      "codeLine": "Give it to whoever joins the world. It opens every role.",
+      "move": "Move to the next announced day",
+      "moveLine": "Only this device, which started the world, moves its date.",
+      "changeRole": "Change role",
+      "leave": "Leave the world"
+    }
   }
 }

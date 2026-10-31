@@ -8,7 +8,9 @@
 // course, and a descriptive observation or an appreciation one per pupil,
 // course and term (#240, #241); a class's move to a newer release is a
 // change to its course (#322); a teacher's name in reader mode is one record
-// per key, and a statement received only adds (#246). Made-up records only.
+// per key, and a statement received only adds (#246); a demo world kept in
+// its own store is the device's own and never conflicts (#560). Made-up
+// records only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -225,4 +227,14 @@ test('two different files of one calendar release conflict; the same file on bot
     findConflicts(one, other).map((conflict) => conflict.kind),
     ['calendar.updated'],
   );
+});
+
+test('a demo world kept on two devices never conflicts', async () => {
+  const kept = (starter: string | null): RecordEvent => ({
+    kind: 'world.kept',
+    kept: { kind: 'national', code: 'MADE-UP-CODE', starter },
+  });
+  const [mine, theirs] = await Promise.all([recorded(kept('made-up-starter-token')), recorded(kept(null))]);
+  assert.deepEqual(mine.map(recordKey), [null]);
+  assert.deepEqual(findConflicts(mine, theirs), []);
 });

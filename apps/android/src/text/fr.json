@@ -4111,6 +4111,50 @@
   },
   "demo": {
     "band": "Version de démonstration · données inventées",
-    "date": "Date du monde : {{date}}"
+    "date": "Date du monde : {{date}}",
+    "open": "Mondes de démonstration, avec des données inventées",
+    "entry": {
+      "title": "Mondes de démonstration",
+      "line": "Essayez Minhajna du ministère à l’enseignant, avec des données inventées. Vos propres registres restent fermés tant qu’un monde est ouvert.",
+      "warningTitle": "Ne saisissez jamais de vrais noms ni de vrais registres",
+      "warning": "Toute personne qui a le code d’un monde peut y agir dans n’importe quel rôle. Un monde est effacé à son 7e jour.",
+      "national": "Démarrer un monde national",
+      "nationalLine": "Tous les rôles, du ministère à l’enseignant",
+      "teachers": "Démarrer un monde d’enseignants",
+      "teachersLine": "Des enseignants en mode enseignant",
+      "code": "Code d’un monde",
+      "join": "Entrer dans le monde",
+      "back": "Retour",
+      "working": "Calcul des clés du monde…"
+    },
+    "problem": {
+      "code": "Ce n’est pas un code de monde. Vérifiez ses 20 caractères.",
+      "none": "Aucun monde ne répond à ce code. Il a peut-être été effacé à son 7e jour.",
+      "busy": "Le serveur de démonstration est occupé. Réessayez dans un moment.",
+      "offline": "Le serveur de démonstration est injoignable. Vérifiez la connexion et réessayez.",
+      "lastDay": "La date du monde est déjà son dernier jour annoncé.",
+      "device": "Ce navigateur n’a pas pu calculer les clés du monde. Rechargez la page et réessayez.",
+      "other": "Le serveur de démonstration n’a pas répondu comme prévu. Réessayez.",
+      "store": "Ce navigateur n’a pas pu ouvrir le stockage du monde."
+    },
+    "roles": {
+      "title": "Choisissez un rôle",
+      "line": "Toutes les personnes qui ont le code agissent dans le même monde. Choisissez qui vous y êtes.",
+      "ministry": "Ministère",
+      "directorate": "Direction de l’éducation",
+      "director": "Chef d’établissement",
+      "inspector": "Inspecteur",
+      "teacher": "Enseignant"
+    },
+    "home": {
+      "role": "Vous agissez en tant que : {{role}}",
+      "roleNext": "L’espace de ce rôle s’ouvrira ici dans une version ultérieure de la démonstration.",
+      "code": "Code du monde",
+      "codeLine": "Donnez-le à qui rejoint le monde. Il ouvre tous les rôles.",
+      "move": "Passer au jour annoncé suivant",
+      "moveLine": "Seul cet appareil, qui a démarré le monde, en déplace la date.",
+      "changeRole": "Changer de rôle",
+      "leave": "Quitter le monde"
+    }
   }
 }
