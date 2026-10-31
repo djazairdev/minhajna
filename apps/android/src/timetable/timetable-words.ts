@@ -56,6 +56,12 @@ export function fetWords(): FetWords {
   };
 }
 
+/** Where a level's afternoon begins, in minutes from midnight: its first afternoon hour, or noon without bells. */
+export function afternoonStart(bells: BellData, level: string): number {
+  const first = bells.templates.find((one) => one.level === level)?.afternoon[0];
+  return first === undefined ? 12 * 60 : clockMinutes(first.from);
+}
+
 /** The usual bell times of a level's school day, morning then afternoon, the first for hour 1. */
 export function levelBells(bells: BellData, level: string): BellTimes {
   const template = bells.templates.find((one) => one.level === level);

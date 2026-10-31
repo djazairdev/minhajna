@@ -6,7 +6,13 @@
 // columns in the screen's language and FET's as FET writes them; and what was
 // read, counted: the sessions, and the distinct classes, teachers and rooms.
 
-import { nameKey, type FetColumn, type FetProblem, type ImportedSession, type TimetableColumn } from '@minhajna/core';
+import {
+  timetableNameKey,
+  type FetColumn,
+  type FetProblem,
+  type ImportedSession,
+  type TimetableColumn,
+} from '@minhajna/core';
 import type { TFunction } from 'i18next';
 
 /** FET's columns as its export's header writes them. */
@@ -59,7 +65,7 @@ export function readCounts(sessions: readonly ImportedSession[]) {
       sessions
         .map(pick)
         .filter((one) => one.trim() !== '')
-        .map((one) => nameKey(one)),
+        .map((one) => timetableNameKey(one)),
     ).size;
   return {
     sessions: sessions.length,
