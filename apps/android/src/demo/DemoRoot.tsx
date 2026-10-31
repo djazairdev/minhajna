@@ -16,9 +16,17 @@
 // open reader mode inside the world from its home (#563), where reader mode's
 // own back button leads back, and Android's back is reader mode's alone; the
 // teacher of a national world opens School-join the same way (#564), in its
-// trial term end while the world's date falls in it (#565).
+// trial term end while the world's date falls in it (#565). The director's
+// workspace opens on the seeded school's dashboard (#569).
 
-import { readWorldCode, trialTermEnd, type CountryProfile, type SchoolCalendar, type WorldKind } from '@minhajna/core';
+import {
+  readWorldCode,
+  trialTermEnd,
+  type CountryProfile,
+  type Day,
+  type SchoolCalendar,
+  type WorldKind,
+} from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
@@ -33,6 +41,8 @@ import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from '
 import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
 import { SchoolJoin } from '../school/SchoolJoin';
+import { DirectorDashboard } from '../director/DirectorDashboard';
+import { useDirectorSchool } from '../director/director-world';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -91,6 +101,7 @@ export function DemoRoot({
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ProblemKey | null>(null);
   const working = useRef(false);
+  const school = useDirectorSchool(open, reference);
 
   const run = useCallback((step: () => Promise<void>) => {
     if (working.current) return;
@@ -156,15 +167,17 @@ export function DemoRoot({
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
   const date = worldDate(t, open.date, currentLanguage(), profile);
+  const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
+  const trial = trialTermEnd(calendar.year, profile.weekStartsOn);
   if (joining && open.kind === 'national')
     return (
       <SchoolJoin
         world={open}
         date={date}
-        dayText={(day) => worldDate(t, day, currentLanguage(), profile)}
+        dayText={dayText}
         kit={kit}
         send={send}
-        trial={trialTermEnd(calendar.year, profile.weekStartsOn)}
+        trial={trial}
         year={calendar.year.id}
         onClose={() => setJoining(false)}
       />
@@ -191,6 +204,16 @@ export function DemoRoot({
       onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
       onMove={move}
       onLeave={leave}
+      pageBody={(workspace, page) =>
+        workspace === 'director' && page === 'dashboard' && school !== null && reference !== undefined ? (
+          <DirectorDashboard
+            school={school}
+            profile={reference.profile}
+            when={{ trial, date: open.date }}
+            dayText={dayText}
+          />
+        ) : null
+      }
     />
   );
 }

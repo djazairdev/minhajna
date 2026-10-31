@@ -4356,6 +4356,43 @@
         "nextLine": "Rejoindre en collant le code de l’établissement, comme la première fois. Les classes viennent des affectations de {{next}}, pas de cette année.",
         "nothing": "Rien n’est effacé de votre appareil au départ, et rien n’est à faire avant."
       }
+    },
+    "dashboard": {
+      "lead": "{{date}} · mis à jour à chaque lot de synchronisation, quelques fois par jour",
+      "threshold": "Seuil",
+      "noThreshold": "Le calendrier n’a pas encore annoncé le jour où les chiffres du seuil sont pris.",
+      "views": "Affichage",
+      "progress": "Avancement des classes",
+      "awaitingView": "En attente de confirmation",
+      "sessions": "Séances et remplacements",
+      "level": "Niveau",
+      "all": "Tous les niveaux",
+      "behindOnly": "Seulement les classes en retard sur le plan",
+      "behindNote": "Une classe dont les chiffres ne sont pas arrivés dans l’espace de l’établissement n’est pas comptée en retard.",
+      "noTeacher": "Poste vacant",
+      "vacant": "Aucun enseignant pour cette matière dans l’emploi du temps.",
+      "notJoined": "Pas encore rejoint · emploi du temps seul : {{days}} · séances par semaine : {{count}}",
+      "toJoin": "Pas encore rejoint · l’adhésion est requise après la période d’essai",
+      "noFigures": "Rejoint · aucune semaine signée reçue",
+      "standing": "{{position}} · {{delay}} · réserve utilisée : {{buffer}} · non tenues : calendrier {{calendar}} · autres {{other}}",
+      "noPosition": "Aucune ressource enseignée",
+      "noDelay": "Pas de retard",
+      "awaiting": "En attente de confirmation : {{count}} · à l’écran seulement",
+      "load": "Séances par semaine : {{sessions}} · remplacements assurés : {{cover}}",
+      "none": "Aucune classe ne correspond à cet affichage.",
+      "order": "Dans l’ordre de l’établissement : la classe puis la matière. Aucun classement par retard, aucune couleur pour les personnes, aucune heure : les dates seules.",
+      "listSeparator": ", ",
+      "orderStaff": "Les enseignants dans l’ordre de l’établissement, sans classement ni comparaison avec un service statutaire.",
+      "column": {
+        "class": "Classe",
+        "subject": "Matière",
+        "teacher": "Enseignant",
+        "position": "Position dans le plan",
+        "progress": "Avancement",
+        "buffer": "Réserve utilisée",
+        "calendar": "Non tenues : calendrier",
+        "other": "Non tenues : autres"
+      }
     }
   },
   "chart": {

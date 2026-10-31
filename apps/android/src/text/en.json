@@ -4288,6 +4288,43 @@
         "nextLine": "Join by pasting the school’s code, as the first time. Classes come from the {{next}} assignments, not this year’s.",
         "nothing": "Nothing is deleted from your device when you leave, and nothing is needed before it."
       }
+    },
+    "dashboard": {
+      "lead": "{{date}} · updated with each sync batch, a few times a day",
+      "threshold": "Threshold",
+      "noThreshold": "The calendar has not yet announced the day the threshold figures are taken.",
+      "views": "View",
+      "progress": "Classes’ progress",
+      "awaitingView": "Awaiting confirmation",
+      "sessions": "Sessions and cover",
+      "level": "Level",
+      "all": "All levels",
+      "behindOnly": "Only classes behind the plan",
+      "behindNote": "A class whose figures have not reached the school’s space is not counted as behind.",
+      "noTeacher": "Vacant post",
+      "vacant": "No teacher for this subject in the timetable.",
+      "notJoined": "Not joined yet · timetable only: {{days}} · sessions a week: {{count}}",
+      "toJoin": "Not joined yet · joining is required after the trial",
+      "noFigures": "Joined · no signed week received yet",
+      "standing": "{{position}} · {{delay}} · buffer used: {{buffer}} · not held: calendar {{calendar}} · other {{other}}",
+      "noPosition": "No resource taught yet",
+      "noDelay": "No delay",
+      "awaiting": "Awaiting confirmation: {{count}} · on the screen only",
+      "load": "Sessions a week: {{sessions}} · cover given: {{cover}}",
+      "none": "No class matches this view.",
+      "order": "In the school’s order: the class, then the subject. No ranking by delay, no colours for people, no times: dates only.",
+      "listSeparator": ", ",
+      "orderStaff": "Teachers in the school’s order, with no ranking and no comparison with a statutory load.",
+      "column": {
+        "class": "Class",
+        "subject": "Subject",
+        "teacher": "Teacher",
+        "position": "Place in the plan",
+        "progress": "Progress",
+        "buffer": "Buffer used",
+        "calendar": "Not held: calendar",
+        "other": "Not held: other"
+      }
     }
   },
   "chart": {
