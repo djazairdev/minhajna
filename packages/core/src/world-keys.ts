@@ -74,9 +74,11 @@ export interface WorldKeys {
 }
 
 const BASE64URL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-const PKCS8 = /^[A-Za-z0-9+/]{4,400}={0,2}$/u;
+/** A private half as a world keeps it: PKCS #8 DER in base64, at most 400 characters. */
+export const PKCS8_TEXT = /^[A-Za-z0-9+/]{4,400}={0,2}$/u;
 
-function toBase64Url(bytes: Uint8Array): string {
+/** Bytes in base64url without padding, as the relay and the world's pass carry them. */
+export function toBase64Url(bytes: Uint8Array): string {
   let text = '';
   for (let at = 0; at < bytes.length; at += 3) {
     const chunk = (bytes[at]! << 16) | ((bytes[at + 1] ?? 0) << 8) | (bytes[at + 2] ?? 0);
@@ -86,7 +88,8 @@ function toBase64Url(bytes: Uint8Array): string {
   return text;
 }
 
-function fromBase64Url(text: string): Uint8Array | null {
+/** The bytes of base64url without padding, or null when it is not written the one way. */
+export function fromBase64Url(text: string): Uint8Array | null {
   if (text.length % 4 === 1 || [...text].some((one) => !BASE64URL.includes(one))) return null;
   const bytes = new Uint8Array(Math.floor((text.length * 6) / 8));
   let bits = 0;
@@ -134,7 +137,7 @@ function readKeys(value: unknown, world: string): WorldKeys | null {
   const entries = Object.entries(halves);
   if (entries.length !== ids.length || !entries.every(([id, half]) => ids.includes(id) && typeof half === 'string'))
     return null;
-  if (!entries.every(([, half]) => PKCS8.test(half as string))) return null;
+  if (!entries.every(([, half]) => PKCS8_TEXT.test(half as string))) return null;
   return { world, kind: kind as WorldKind, trusted: parsed.value, private: halves as Record<string, string> };
 }
 

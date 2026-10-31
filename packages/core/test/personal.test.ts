@@ -8,17 +8,34 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { forRoute, layerOf, mayTravel, OWN_ROUTES, recordsForRoute, ROUTES, type OutboundRoute } from '../src/index.ts';
+import {
+  forRoute,
+  layerOf,
+  mayTravel,
+  mayTravelAs,
+  OWN_ROUTES,
+  recordsForRoute,
+  ROUTES,
+  type OutboundRoute,
+} from '../src/index.ts';
 import { cemEvents, d, openBook } from './fixtures.ts';
 
 const NAME = 'A made-up teacher name that must never leave the device';
 
 describe("the teacher card's personal fields", () => {
-  it('are in the device layer, which only the documents take', () => {
+  it('are in the device layer, of which only the documents take them, and nothing else', () => {
     assert.equal(layerOf({ kind: 'teacher.personal.set', personal: { name: NAME } }), 'device');
     assert.deepEqual(
       ROUTES.filter((route) => mayTravel('device', route)),
+      [],
+    );
+    assert.deepEqual(
+      ROUTES.filter((route) => mayTravelAs('device', 'teacher.personal.set', route)),
       ['documents'],
+    );
+    assert.deepEqual(
+      ROUTES.filter((route) => mayTravelAs('device', 'school.joined', route)),
+      [],
     );
   });
 

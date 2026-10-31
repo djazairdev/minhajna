@@ -7,7 +7,9 @@
 //
 // The device layer holds the teacher card's personal fields. They never leave
 // the device: not to the teacher's other devices, nor the export, nor anyone
-// else. Only the documents made on the device print them (PRD §3.2, §5.6).
+// else. Only the documents made on the device print them (PRD §3.2, §5.6),
+// and they take those fields alone, never the rest of the layer, which holds
+// a demo world's keys too (#564).
 //
 // Only the teacher's own routes take whole history entries. A route that
 // leaves the teacher takes records: the current version of each one, never
@@ -62,7 +64,7 @@ const ALLOWED: Readonly<Record<Route, readonly Layer[]>> = {
   'own-devices': ['private', 'pupil-records', 'lesson-record', 'shared-statement', 'official-snapshot'],
   'full-export': ['private', 'pupil-records', 'lesson-record', 'shared-statement', 'official-snapshot'],
   'seating-plan-printout': [],
-  documents: ['device', 'pupil-records', 'lesson-record'],
+  documents: ['pupil-records', 'lesson-record'],
   statement: ['lesson-record'],
   handover: ['lesson-record'],
   'handover-direct': ['pupil-records', 'lesson-record'],
@@ -74,10 +76,11 @@ const ALLOWED: Readonly<Record<Route, readonly Layer[]>> = {
 // names and the class they sit in. Roll calls, movements and everything else
 // private stay off it (PRD §3.4). The documents the teacher makes take the
 // lesson notes, which stay off statements, handovers and the school's copy
-// (answer 417).
+// (answer 417), and the teacher card's personal fields, the only records of
+// the device layer they print.
 const ALLOWED_KINDS: Readonly<Partial<Record<Route, readonly string[]>>> = {
   'seating-plan-printout': ['seating.set', 'pupil.set', 'class.set'],
-  documents: ['lesson-note.set'],
+  documents: ['lesson-note.set', 'teacher.personal.set'],
 };
 
 /** Whether a whole layer may travel on `route`. A route that does not exist takes nothing. */

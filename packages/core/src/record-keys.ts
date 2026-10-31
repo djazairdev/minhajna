@@ -141,6 +141,8 @@ export function recordKey(event: RecordEvent): string {
       return 'copy-received';
     case 'world.kept':
       return 'world-kept';
+    case 'school.joined':
+      return `school-joined:${(event.joined?.code ?? '').replace(/:[^:]*$/u, '')}`;
     case 'statement.shared':
       return `statement-shared:${event.share.id}`;
     case 'statement.sent':

@@ -86,18 +86,19 @@ export const WORLD_SIGNER = 'world-ministry';
 const TRIES = 3;
 const TOKEN = /^[A-Za-z0-9_-]{16,128}$/u;
 
-function failed(message: string, code: string, retryAfter: number | null = null): Error {
+/** An error with its code, and the seconds to wait when the server says. */
+export function failed(message: string, code: string, retryAfter: number | null = null): Error {
   return Object.assign(new Error(message), retryAfter === null ? { code } : { code, retryAfter });
 }
 
 /** The error for an answer the caller did not expect. */
-function unexpected(answer: WorldAnswer): Error {
+export function unexpected(answer: WorldAnswer): Error {
   if (answer.status === 429) return failed('The demo server asks to wait', 'E_WORLD_BUSY', answer.retryAfter);
   return failed(`The demo server answered ${answer.status}`, 'E_WORLD_SERVER');
 }
 
 /** The platform's cryptography, its failures given a code. */
-async function kitStep<T>(step: () => Promise<T>): Promise<T> {
+export async function kitStep<T>(step: () => Promise<T>): Promise<T> {
   try {
     return await step();
   } catch (error) {
