@@ -17,9 +17,10 @@
 // own back button leads back, and Android's back is reader mode's alone; the
 // teacher of a national world opens School-join the same way (#564), in its
 // trial term end while the world's date falls in it (#565). The director's
-// workspace opens on the seeded school's dashboard (#569), and the director's
-// and the preparer's timetable page brings in its timetable (#576), kept for
-// the world it was read in.
+// workspace opens on the seeded school's dashboard (#569), its codes page
+// issues joining codes and security keys (#570), and the director's and the
+// preparer's timetable page brings in its timetable (#576), kept for the world
+// it was read in.
 
 import {
   readWorldCode,
@@ -44,6 +45,7 @@ import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
 import { SchoolJoin } from '../school/SchoolJoin';
 import { DirectorDashboard } from '../director/DirectorDashboard';
+import { IssueCodes } from '../director/IssueCodes';
 import { useDirectorSchool } from '../director/director-world';
 import { TimetableImport, type TimetableRead } from '../timetable/TimetableImport';
 
@@ -217,6 +219,17 @@ export function DemoRoot({
               school={school}
               profile={reference.profile}
               when={{ trial, date: open.date }}
+              dayText={dayText}
+            />
+          );
+        if (workspace === 'director' && page === 'codes')
+          return (
+            <IssueCodes
+              world={open}
+              school={school}
+              profile={reference.profile}
+              kit={kit}
+              send={send}
               dayText={dayText}
             />
           );

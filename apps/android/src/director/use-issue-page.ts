@@ -1,0 +1,130 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// D-Issue's state on the director's device (#570, answer 598): on opening, the
+// school key is held (started the first time) and each teacher's assignment
+// worked out; the joined days are then read from the school's space, again
+// with `refresh`. The rows follow the world's store, so each issue recorded
+// shows at once, waiting to be scanned. A problem keeps what
+// the page already shows and is said in the catalogue's words, the page's own
+// failures, such as printing, as well. While an issue is recorded the page
+// says it is busy, so a second tap waits. Leaving the
+// world, or another world opening, drops what a slower answer brings back.
+
+import { issueRows, keptIssues, type Day, type DemoTeacher, type IssueRow, type KeptIssue } from '@minhajna/core';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { OpenWorld } from '../demo/world-mode';
+import type { Send, WorldKit } from '../demo/world-session';
+import { problemOf } from '../school/school-join-session';
+import { assignmentsOf, holdSchool, issueFor, joinedDays, type IssueDesk } from './issue-session';
+
+/** What D-Issue shows, and what it can do. */
+export interface IssuePage {
+  /** The desk to issue from, once the school key is held. */
+  readonly desk: IssueDesk | null;
+  readonly rows: readonly IssueRow[];
+  readonly busy: boolean;
+  /** An issue is being recorded. */
+  readonly issuing: boolean;
+  /** The catalogue key of the last problem, or null. */
+  readonly problem: string | null;
+  /** Issues the next code or key for a teacher, and answers it as kept, or null after a problem. */
+  readonly issue: (teacher: DemoTeacher, access: 'phone' | 'key') => Promise<KeptIssue | null>;
+  readonly refresh: () => void;
+  /** Says a problem of the page's own, such as a print that failed. */
+  readonly fail: (error: unknown) => void;
+}
+
+type Naming = Parameters<typeof issueRows>[5];
+
+/** D-Issue's state for an open world's school. */
+export function useIssuePage(
+  world: Pick<OpenWorld, 'world' | 'book' | 'date'>,
+  teachers: readonly DemoTeacher[],
+  naming: Naming,
+  kit: WorldKit,
+  send?: Send,
+): IssuePage {
+  const [desk, setDesk] = useState<{ desk: IssueDesk; assignments: ReadonlyMap<string, string> } | null>(null);
+  const [joined, setJoined] = useState<ReadonlyMap<string, Day>>(new Map());
+  const [busy, setBusy] = useState(true);
+  const [issuing, setIssuing] = useState(false);
+  const recording = useRef(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [, setKept] = useState(0);
+  const live = useRef<string | null>(null);
+  useEffect(() => {
+    live.current = world.world;
+    return () => {
+      live.current = null;
+    };
+  }, [world.world]);
+
+  const read = useCallback(
+    async (held: IssueDesk) => {
+      const issues = keptIssues(world.book.entries, held.held.school).values();
+      const days = await joinedDays(world.world, held, issues, kit, send);
+      if (live.current === world.world) setJoined(days);
+    },
+    [world, kit, send],
+  );
+
+  useEffect(() => {
+    let open = true;
+    void (async () => {
+      const held = await holdSchool(world, kit, send);
+      const assignments = await assignmentsOf(held, teachers, kit);
+      if (!open) return;
+      setDesk({ desk: held, assignments });
+      await read(held);
+    })()
+      .catch((error: unknown) => open && setProblem(problemOf(error)))
+      .finally(() => open && setBusy(false));
+    return () => {
+      open = false;
+    };
+  }, [world, teachers, kit, send, read]);
+
+  const refresh = () => {
+    if (desk === null) return;
+    setBusy(true);
+    setProblem(null);
+    const asked = world.world;
+    void read(desk.desk)
+      .catch((error: unknown) => live.current === asked && setProblem(problemOf(error)))
+      .finally(() => live.current === asked && setBusy(false));
+  };
+
+  const issue = async (teacher: DemoTeacher, access: 'phone' | 'key') => {
+    const assignment = desk?.assignments.get(teacher.id);
+    if (desk === null || assignment === undefined || recording.current) return null;
+    recording.current = true;
+    setProblem(null);
+    setIssuing(true);
+    try {
+      const kept = await issueFor(world, desk.desk, assignment, access, kit);
+      setKept((count) => count + 1);
+      return kept;
+    } catch (error) {
+      setProblem(problemOf(error));
+      return null;
+    } finally {
+      recording.current = false;
+      setIssuing(false);
+    }
+  };
+  const fail = useCallback((error: unknown) => setProblem(problemOf(error)), []);
+
+  const rows =
+    desk === null
+      ? []
+      : issueRows(
+          teachers,
+          desk.assignments,
+          keptIssues(world.book.entries, desk.desk.held.school),
+          joined,
+          world.date,
+          naming,
+        );
+  return { desk: desk?.desk ?? null, rows, busy, issuing, problem, issue, refresh, fail };
+}
