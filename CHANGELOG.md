@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### Fixed
+
+- After restoring a backup or an archive, Devices and backups, the reminder and the erase screen name that file and its date. The erase warning counts only later changes. Backups also keep the exact changes they contain, even if another change is saved while choosing the file's location.
+  - بعد الاسترجاع من نسخة احتياطية أو أرشيف، تعرض صفحة «الأجهزة والنسخ» والتذكير وشاشة المسح الملف الذي استرجعت منه وتاريخه. ويعدّ تنبيه المسح التغييرات اللاحقة فقط. كما تُحسب محتويات النسخة بدقة، حتى لو سُجّل تغيير أثناء اختيار مكان حفظها.
+
 ### Privacy
 
 - The privacy notice before first use and in «المساعدة والخصوصية» now says that nothing leaves unless you send or save it, and that crash reports stay off unless you turn them on, as 0.5.0 made them. On a PC, it and «ما يتصل به التطبيق، ولماذا» now speak of this PC: what stays in the browser, and what Cloudflare sees when it serves the app.

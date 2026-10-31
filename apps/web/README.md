@@ -89,7 +89,7 @@ The first pull request of [#251](https://github.com/djazairdev/minhajna/issues/2
 
 - **The rail:** at the start of the window, in place of the phone's bottom tabs, the app's name, the teacher and the schools, Today, Classes, which reads «الأقسام والنقاط» on a PC, and Documents, and Settings, which opens over them with its back bar as on the phone, where the design keeps the rail beside it; that waits for the week. The current tab is marked for screen readers.
 - **Its foot:** the banner of a working copy on the other device, a line on where the copy here came from, and «قفل الآن», which locks at once, as the automatic lock does, and comes back to the same screen once unlocked.
-- **Where the copy came from:** there is no sync, so the line states the fact: transferred from the phone, restored from a backup, opened from an export file, or back from the phone, with its day, and nothing on a PC that started fresh. A restore notes its route, and the history keeps it as a device event once it opens, which never leaves the device and shows in the log under the devices.
+- **Where the copy came from:** there is no sync, so the line states the fact: transferred from the phone, restored from a backup, opened from an export file, or back from the phone, with its day, and nothing on a PC that started fresh. A restore keeps its route and source snapshot in a device event in the same write as the restored history (#485). The event never leaves the device and the log shows its route only. Devices and backups, the reminder and the erase screen name a restored backup or archive by its creation day, with only subsequent changes counted as outside it.
 
 ## The week
 
