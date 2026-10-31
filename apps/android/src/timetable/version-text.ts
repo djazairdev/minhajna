@@ -3,14 +3,14 @@
 
 // A version's changes in plain words (#578, R-7.4-15, answer 606), and teaching
 // hours as whole hours and minutes (#579): a session that moves says its class
-// and subject, with the day and time it leaves and the one it takes; a room
-// change, a new session and a removed one say the same, each with its day and
-// time, and a session for a group names it. The changes are listed by class for
-// the director, and each affected teacher's line says from which day their
-// changes apply, or on which day only. A standing version may start on four
-// Sundays from the next one, never before the standing version it is drafted
-// from; a version for one day takes one of the school days of the coming two
-// weeks.
+// and subject, with the day and time it leaves and the one it takes, and its
+// times and week when only those change; a room change, a new session and a
+// removed one say the same, each with its day and time, and a session for a
+// group names it. The changes are listed by class for the director, and each
+// affected teacher's line says from which day their changes apply, or on which
+// day only. A standing version may start on four Sundays from the next one,
+// never before the standing version it is drafted from; a version for one day
+// takes one of the school days of the coming two weeks.
 
 import {
   addDays,
@@ -19,20 +19,29 @@ import {
   type Day,
   type PartChange,
   type PartSession,
+  type TimetableRow,
+  type WeekDifference,
   type Weekday,
 } from '@minhajna/core';
 import type { TFunction } from 'i18next';
 import { isolate } from '../week/grid-labels';
-import { clock } from './grid-text';
+import { clock, spanText } from './grid-text';
 import { partFrom } from './send-session';
 
-const when = (t: TFunction, one: PartSession) => `${t(`week.days.${one.day}`)} ${clock(one.start)}`;
-const lesson = (one: PartSession) =>
+const when = (t: TFunction, one: TimetableRow | PartSession) => `${t(`week.days.${one.day}`)} ${clock(one.start)}`;
+const span = (t: TFunction, one: TimetableRow | PartSession) =>
+  [
+    t(`week.days.${one.day}`),
+    spanText(one.start, one.end),
+    ...(one.week === 'both' ? [] : [t(`week.week${one.week}`)]),
+  ].join(' ');
+const lesson = (one: TimetableRow | PartSession) =>
   [one.class, one.group, one.subject]
     .filter((name) => name !== '')
     .map(isolate)
     .join(' · ');
-const roomOf = (t: TFunction, one: PartSession) => (one.room === '' ? t('ttVersion.noRoom') : isolate(one.room));
+const roomOf = (t: TFunction, one: TimetableRow | PartSession) =>
+  one.room === '' ? t('ttVersion.noRoom') : isolate(one.room);
 
 /** Teaching hours in words, as whole hours and minutes, each with its plural. */
 export function hoursText(t: TFunction, hours: number): string {
@@ -47,12 +56,14 @@ export function hoursText(t: TFunction, hours: number): string {
 }
 
 /** One change in plain words. */
-export function changeText(t: TFunction, change: PartChange): string {
+export function changeText(t: TFunction, change: PartChange | WeekDifference): string {
   const session = change.after ?? change.before;
   const what = lesson(session);
   switch (change.kind) {
-    case 'moved':
-      return t('ttVersion.moved', { what, before: when(t, change.before), after: when(t, change.after) });
+    case 'moved': {
+      const at = when(t, change.before) === when(t, change.after) ? span : when;
+      return t('ttVersion.moved', { what, before: at(t, change.before), after: at(t, change.after) });
+    }
     case 'room':
       return t('ttVersion.room', {
         what,

@@ -4,14 +4,16 @@
 // Getting started, step 4 of 5: the week (#28, Setup-5-Week). The week drawn so
 // far, with the day it starts and its sessions a week, or a line saying it is
 // not drawn yet, and the way to draw it. The school's timetable waits beside
-// it, opened from a file (PackageWait.tsx, #580); a file refused shows why in
-// place of the step (PackageRefused.tsx), until the teacher goes back. The
-// bell-times button opens each slot's time at the school (#29). A week of two
-// schools counts each school's sessions, and a warning lists its clashes, with
-// a button that opens the first on Week-slot.
+// it, opened from a file (PackageWait.tsx, #580); a file read shows in place of
+// the step, refused or with what it changes, until the teacher goes back or
+// accepts it (WeekPackage.tsx), which is then said here until another file is
+// opened. The bell-times button opens each slot's time at the school (#29). A
+// week of two schools counts each school's sessions, and a warning lists its
+// clashes, with a button that opens the first on Week-slot.
 
-import { formatDay, weekGrid, type SchoolClass } from '@minhajna/core';
+import { formatDay, weekGrid, type PackageTrust, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
@@ -23,10 +25,10 @@ import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { gridCell, gridLabels, schoolTally, slotName, weekMarks } from '../week/grid-labels';
 import { classLoads, type Cell } from '../week/week-rules';
-import { PackageRefused } from './PackageRefused';
 import { PackageWait } from './PackageWait';
 import { SETUP_STEPS } from './Teaching';
 import { usePackageInput } from './usePackageInput';
+import { WeekPackage } from './WeekPackage';
 
 /**
  * The fourth step of setup; `onDraw` opens the drawing, `onResolve` opens a clashing slot, `onTimes` the bell times,
@@ -38,18 +40,22 @@ export function Week({
   onTimes,
   onNext,
   editing = false,
+  trust,
 }: {
   onDraw: () => void;
   onResolve: (cell: Cell) => void;
   onTimes: () => void;
   onNext: () => void;
   editing?: boolean;
+  /** Whom a package file is checked against: real mode's by default, which trusts no world. */
+  trust?: PackageTrust;
 }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
   const { state, profile } = useAppData();
-  const input = usePackageInput();
+  const input = usePackageInput(trust);
+  const [accepted, setAccepted] = useState<string | null>(null);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const timetable = state.timetables.at(-1);
@@ -69,21 +75,7 @@ export function Week({
       slot: slotName(t, cell),
       items: (version && gridCell(t, version, lookup, cell, { schools: marks?.schools, shown: true })?.spoken) ?? '',
     });
-  const { read } = input;
-  if (read !== null && !read.ok) {
-    const another = () => void input.open();
-    const back = input.clear;
-    return (
-      <PackageRefused
-        key={input.count}
-        {...read}
-        busy={input.busy}
-        unreadable={input.unreadable}
-        onAnother={another}
-        onBack={back}
-      />
-    );
-  }
+  if (input.read !== null) return <WeekPackage key={input.count} input={input} onAccepted={setAccepted} />;
   return (
     <View style={[styles.screen, { direction }]}>
       {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={4} />}
@@ -144,7 +136,15 @@ export function Week({
         )}
         <Button testID="week-draw" variant="line" label={drawn ? t('week.edit') : t('week.draw')} onPress={onDraw} />
         <Button testID="week-times" variant="line" label={t('week.times')} onPress={onTimes} />
-        <PackageWait busy={input.busy} unreadable={input.unreadable} onOpen={() => void input.open()} />
+        <PackageWait
+          busy={input.busy}
+          unreadable={input.unreadable}
+          accepted={accepted}
+          onOpen={() => {
+            setAccepted(null);
+            void input.open();
+          }}
+        />
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button testID="week-next" label={t(editing ? 'settings.done' : 'setup.next')} onPress={onNext} />
