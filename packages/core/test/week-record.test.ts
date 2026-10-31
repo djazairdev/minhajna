@@ -1,21 +1,26 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A course's week as its teacher signs it (#582, answers 565 and 610): its text
-// reads back as written, its totals as the totals read them; a session's state
-// other than held, not held or awaiting, an empty span, a reason, a day, end or
-// week out of range, a hidden mark, no session, sessions out of order or twice,
-// more than sixty, an untidy name, a field the week does not have or a subject
-// that is not a code is refused, and so is text that is not canonical; a
-// course's ID, pinned, is its class's by name key and its subject's code under
-// the school's ID; and on the channel, among timetable records, the joined
-// device's weeks of the school are kept, each course's week once at its highest
-// version, the lower text winning a tie, while another key's week, the same
-// device under another key, a record with a field more, a text changed under
-// its signature, a course its class and subject do not make, a reading with
-// another CA or before joining keep nothing, and a week of another world, of
-// another school's course or that does not read is not sealed. Every school,
-// class and teacher is made up.
+// A course's week as its teacher signs it (#582, #583, answers 565, 610 and
+// 611): its text reads back as written, its totals as the totals read them; a
+// session's state other than held, not held or awaiting, an empty span, a
+// reason, a day, end or week out of range, a hidden mark, no session, sessions
+// out of order or twice, more than sixty, an untidy name, a field the week does
+// not have or a subject that is not a code is refused, and so is text that is
+// not canonical; a correction is the week again at the next version with one
+// session's state changed and its reason or none, refused when it changes
+// nothing or names no session of the week, what it changed is each session
+// whose state differs, added or dropped, and a reason outside the list, on
+// version 0 or not text is refused; a course's ID, pinned, is its class's by
+// name key and its subject's code under the school's ID; and on the channel,
+// among timetable records, the joined device's weeks of the school are kept,
+// each course's week once at its highest version, even when it came first, with
+// the versions below it and their signatures, gaps left, the lower text winning
+// a tie, while another key's week, the same device under another key, a record
+// with a field more, a text changed under its signature, a course its class and
+// subject do not make, a reading with another CA or before joining keep
+// nothing, and a week of another world, of another school's course or that does
+// not read is not sealed. Every school, class and teacher is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -24,6 +29,7 @@ import {
   channelSealing,
   channelStream,
   channelWeeks,
+  correctWeek,
   courseId,
   issueCertificate,
   makeJoinCode,
@@ -36,6 +42,7 @@ import {
   signPart,
   signWeek,
   startKeyring,
+  weekChanges,
   weekRecordText,
   type Certificate,
   type KeySigner,
@@ -118,6 +125,35 @@ describe('a signed week’s text', () => {
   });
 });
 
+describe('a correction', () => {
+  it('is the week again at the next version, one session changed, with its reason or none', () => {
+    const [first, , , last] = WEEK.sessions as [WeekRecord['sessions'][0], unknown, unknown, WeekRecord['sessions'][0]];
+    const fixed = correctWeek(WEEK, last, 'held', 'confirmed-later');
+    assert.deepEqual(readWeekRecord(weekRecordText(fixed)), fixed);
+    assert.deepEqual([fixed.version, fixed.reason, fixed.sessions.at(-1)?.state], [1, 'confirmed-later', 'held']);
+    const slot = { day: last.day, start: last.start, end: last.end, group: last.group, week: last.week };
+    assert.deepEqual(weekChanges(WEEK, fixed), [{ slot, before: 'awaiting', after: 'held' }]);
+    const again = correctWeek(fixed, first, 'not-held');
+    assert.deepEqual([again.version, Object.hasOwn(again, 'reason')], [2, false]);
+    assert.deepEqual(readWeekRecord(weekRecordText(again)), again);
+    const added = { ...WEEK, sessions: [...WEEK.sessions, { ...last, day: 3 as const }] };
+    assert.deepEqual(weekChanges(WEEK, added), [{ slot: { ...slot, day: 3 }, before: null, after: 'awaiting' }]);
+    const dropped = { ...WEEK, sessions: WEEK.sessions.slice(0, -1) };
+    assert.deepEqual(weekChanges(WEEK, dropped), [{ slot, before: 'awaiting', after: null }]);
+    assert.throws(() => correctWeek(WEEK, first, 'held'), RangeError);
+    assert.throws(() => correctWeek(WEEK, { ...first, start: 1 }, 'not-held'), RangeError);
+  });
+
+  it('carries a reason of the list, on a version above 0 only', () => {
+    const fixed = weekRecordText(correctWeek(WEEK, WEEK.sessions[0]!, 'not-held', 'entry-error'));
+    assert.equal(readWeekRecord(fixed.replace('"entry-error"', '"lost the register"')), null);
+    assert.equal(readWeekRecord(asText({ ...WEEK, reason: 'other' })), null);
+    assert.equal(readWeekRecord(fixed.replace('"entry-error"', '1')), null);
+    const none = readWeekRecord(fixed.replace('"reason":"entry-error",', ''));
+    assert.deepEqual([none?.version, none === null || Object.hasOwn(none, 'reason')], [1, false]);
+  });
+});
+
 describe('a course’s ID', () => {
   it('is its class’s by name key and its subject’s code, under the school’s ID', async () => {
     assert.equal(COURSE, 'ec85e361168aeebe7199c41de333db1c');
@@ -150,6 +186,7 @@ describe('a signed week on the teacher’s channel', () => {
       { ...WEEK, version: 1, sessions: WEEK.sessions.slice(1) },
     ];
     const [lower, higher] = tie.map(weekRecordText).sort() as [string, string];
+    await put({ ...WEEK, version: 3 });
     await put({ ...WEEK, week: parseDay('2026-12-13') });
     await put(readWeekRecord(higher)!);
     const named = { schoolName: 'متوسطة المختلقة', teacher: 'مختلق', sessions: [], bells: [] };
@@ -176,12 +213,13 @@ describe('a signed week on the teacher’s channel', () => {
     await assert.rejects(sealWeek(code, unread, batches.length, cipher, mac), RangeError);
     const read = await channelWeeks(code, batches, { key: ca.publicKey, checker: ca }, joined, cipher, mac);
     assert.deepEqual(
-      read.map((one) => [one.week.week, one.week.version, one.signed.text === lower]),
+      read.map((one) => [one.week.week, one.week.version, one.signed.text === lower, one.earlier.map((v) => v.week)]),
       [
-        [parseDay('2026-12-06'), 1, true],
-        [parseDay('2026-12-13'), 0, false],
+        [parseDay('2026-12-06'), 3, false, [WEEK, readWeekRecord(lower)]],
+        [parseDay('2026-12-13'), 0, false, []],
       ],
     );
+    assert.equal(read[0]?.earlier[0]?.signed.text, weekRecordText(WEEK));
     assert.deepEqual(await channelWeeks(code, batches, { key: ca.publicKey, checker: ca }, null, cipher, mac), []);
     const otherCa = keySigner();
     const elsewhereCa = { key: otherCa.publicKey, checker: otherCa };
