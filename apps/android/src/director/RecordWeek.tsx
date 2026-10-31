@@ -14,22 +14,29 @@
 // each session's state in each; without it, only the latest. Each correction
 // comes numbered by its version, with the session it changed, from what to
 // what, and its reason when it has one (answer 611), between versions read in a
-// row. It says the week is shown as signed, with no reason for a session not
-// held and no day of signing, correcting or confirming, and that a demo world
-// has no roll call or marks.
+// row. The visa (R-7.5-14) is a comment that never changes the week, which the
+// teacher sees in their digest: each visa given, by the version it was given on
+// and its day, the line that in a world a visa shows as given in the school's
+// space, without proof that the director gave it, and a button that gives one
+// on the latest version, one press at a time, which then stays, unpressable,
+// saying the visa is given, so focus stays on it; it says the visa is given, or
+// that one was given meanwhile, or the problem, and reads the records again
+// (visa-session.ts); before the week's first day in the world's date it says no
+// visa is given yet, in place of the button. It says the week is shown as
+// signed, with no reason for a session not held and no day of signing,
+// correcting or confirming, and that a demo world has no roll call or marks.
 
 import {
   sessionDay,
   sessionSlot,
   weekChanges,
-  type ChannelWeek,
   type Day,
   type SessionState,
   type WeekRecord,
   type WeekSession,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { SegmentedControl } from '../components/SegmentedControl';
@@ -37,26 +44,57 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 import { spanText } from '../timetable/grid-text';
 import { isolate } from '../week/grid-labels';
-import { wholeChain, type CourseRecord } from './records-session';
+import { errorCode } from '../lock/lock-rules';
+import { problemOf } from '../school/school-join-session';
+import { wholeChain, type CourseRecord, type RecordedWeek } from './records-session';
 
 type Shown = 'original' | 'fixed' | 'both';
 
+/** The words for a visa refused for a reason of its own. */
+const VISA_WORDS: Readonly<Record<string, 'demo.records.visaAlready' | 'demo.records.visaEarly'>> = {
+  E_WEEK_VISAED: 'demo.records.visaAlready',
+  E_VISA_EARLY: 'demo.records.visaEarly',
+};
+
 export type RecordWeekProps = {
   readonly record: CourseRecord;
-  readonly week: ChannelWeek;
+  readonly week: RecordedWeek;
   /** The week's dates, written out. */
   readonly dates: string;
   readonly dayText: (day: Day) => string;
   /** Back to the classes' records. */
   readonly onBack: () => void;
+  /** Gives the visa on the latest version and reads the records again; a page without it gives none. */
+  readonly onVisa?: () => Promise<void>;
+  /** Whether the world's date has reached the week's first day, before which no visa is given. */
+  readonly started?: boolean;
 };
 
 /** A signed week as the director reads it, and a corrected one with its original, its corrections and its chain. */
-export function RecordWeek({ record, week, dates, dayText, onBack }: RecordWeekProps) {
+export function RecordWeek({ record, week, dates, dayText, onBack, onVisa, started = true }: RecordWeekProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [picked, setShown] = useState<Shown>('fixed');
+  const [giving, setGiving] = useState(false);
+  const going = useRef(false);
+  const [outcome, setOutcome] = useState<string | null>(null);
+  const visaed = week.visas.some((one) => one.value.version === week.week.version);
+  const give = () => {
+    if (onVisa === undefined || going.current) return;
+    going.current = true;
+    setGiving(true);
+    setOutcome(null);
+    onVisa()
+      .then(
+        () => setOutcome(t('demo.records.visaDone')),
+        (error: unknown) => setOutcome(t(VISA_WORDS[errorCode(error) ?? ''] ?? problemOf(error))),
+      )
+      .finally(() => {
+        going.current = false;
+        setGiving(false);
+      });
+  };
   const versions = [...week.earlier, week].map((one) => one.week);
   const original = versions[0];
   const hasOriginal = original.version === 0;
@@ -154,6 +192,33 @@ export function RecordWeek({ record, week, dates, dayText, onBack }: RecordWeekP
           ))}
         </View>
       )}
+      <View testID="record-visa" style={styles.card}>
+        <Text accessibilityRole="header" style={[styles.head, align]}>
+          {t('demo.records.visa')}
+        </Text>
+        <Text style={[styles.small, align]}>{t('demo.records.visaLead')}</Text>
+        {[...week.visas]
+          .sort((a, b) => a.value.version - b.value.version)
+          .map((one) => (
+            <Text key={one.value.version} testID="record-visa-line" style={[styles.body, align]}>
+              {t('demo.records.visaLine', { version: versionName(one.value.version), day: dayText(one.value.day) })}
+            </Text>
+          ))}
+        <Text style={[styles.small, align]}>{t('demo.records.visaDemo')}</Text>
+        <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
+          {giving ? t('demo.records.giving') : (outcome ?? '')}
+        </Text>
+        {onVisa !== undefined && !started && <Text style={[styles.small, align]}>{t('demo.records.visaEarly')}</Text>}
+        {onVisa !== undefined && started && (
+          <Button
+            testID="record-visa-give"
+            variant="primary"
+            disabled={giving || visaed}
+            label={t(visaed ? 'demo.records.visaGiven' : fixed ? 'demo.records.visaGiveFix' : 'demo.records.visaGive')}
+            onPress={give}
+          />
+        )}
+      </View>
       <Text style={[styles.small, align]}>{t('demo.records.asSigned')}</Text>
       <Text style={[styles.small, align]}>{t('demo.records.noRoll')}</Text>
     </View>

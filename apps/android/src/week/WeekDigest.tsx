@@ -20,8 +20,12 @@
 // reaches the teacher alone and nothing of it the director, and outside a world
 // comes on Sunday morning after the quiet hours. Without a timetable from the
 // school, or a session this week, it says so. A problem reading is shown in the
-// catalogue's words, said off a PC, with a way to read again. The director's
-// visa on a week comes with #585.
+// catalogue's words, said off a PC, with a way to read again. Each visa given
+// in the world's week (#585, R-7.5-14, answer 613), on that week or an earlier
+// one, comes with its course, its week's dates, the version it was given on and
+// its day, as a comment that never changes the week, the teacher's access log
+// in a world, with the line that in a world it shows as given in the school's
+// space, without proof that the director gave it.
 
 import { sessionSlot, weekChanges, type Day, type SchoolJoined, type Subject, type Weekday } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -41,6 +45,7 @@ import {
   courseLabel,
   readSignChannel,
   signedWeek,
+  weekEnd,
   weeksToSign,
   weekStart,
   type SignChannel,
@@ -133,6 +138,25 @@ export function WeekDigest(props: WeekDigestProps) {
       }),
     );
   });
+  const weekDates = (from: Day) =>
+    t('demo.weekSign.dates', {
+      from: dayText(from),
+      to: dayText(weekEnd(from, workingDays)),
+    });
+  const visas = (channel?.visas ?? [])
+    .filter((one) => one.value.day >= start && one.value.day <= world.date)
+    .flatMap((one) => {
+      const { course, week, version, day } = one.value;
+      const read = channel?.weeks.find((each) => each.week.course === course && each.week.week === week);
+      if (read === undefined) return [];
+      const text = t('demo.digest.visaLine', {
+        course: isolate(`${read.week.class} · ${read.week.subject}`),
+        dates: weekDates(week),
+        version: version === 0 ? t('demo.digest.visaOriginal') : t('demo.digest.visaFix', { number: version }),
+        day: dayText(day),
+      });
+      return [{ key: `${course}\n${week}\n${version}`, text }];
+    });
   return (
     <WeekPage
       testID="digest"
@@ -194,6 +218,19 @@ export function WeekDigest(props: WeekDigestProps) {
               {line}
             </Text>
           ))}
+        </View>
+      )}
+      {visas.length > 0 && (
+        <View testID="digest-visas" style={styles.card}>
+          <Text accessibilityRole="header" style={[styles.head, align]}>
+            {t('demo.digest.visas')}
+          </Text>
+          {visas.map((one) => (
+            <Text key={one.key} style={[styles.small, align]}>
+              {one.text}
+            </Text>
+          ))}
+          <Text style={[styles.small, align]}>{t('demo.digest.visaDemo')}</Text>
         </View>
       )}
       {weeks.length > 0 && <Text style={[styles.small, align]}>{t('demo.digest.plan')}</Text>}

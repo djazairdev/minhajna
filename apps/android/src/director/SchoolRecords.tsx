@@ -11,13 +11,15 @@
 // classes come as chips in the timetable's order, the first chosen; the chosen
 // class shows each course by subject and teacher, and its signed weeks newest
 // first, each by its dates and whether corrected, each opening the week
-// (RecordWeek.tsx), whose way back returns here. The paper visa on the texts
-// book stays until the Ministry's text, and the page lists what it never shows:
-// private notes, the reasons a session was not held, the record before signing,
-// the day, time and place of signing, correcting or confirming, a teacher's
-// corrections in other weeks, and any ranking or comparison of teachers.
+// (RecordWeek.tsx), whose way back returns here, and whose visa, once given or
+// refused, has the records read again, the week staying open, found again in
+// whichever class it is. The paper visa on the texts book stays until the
+// Ministry's text, and the page lists what it never shows: private notes, the
+// reasons a session was not held, the record before signing, the day, time and
+// place of signing, correcting or confirming, a teacher's corrections in other
+// weeks, and any ranking or comparison of teachers.
 
-import { addDays, timetableNameKey, type Day, type DemoSchool, type Weekday } from '@minhajna/core';
+import { timetableNameKey, type Day, type DemoSchool, type Weekday } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
@@ -29,7 +31,9 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { problemOf } from '../school/school-join-session';
 import { onPc, useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
-import { readRecords, type ClassRecords } from './records-session';
+import { weekEnd } from '../week/week-sign-session';
+import { readRecords, type ClassRecords, type RecordedWeek } from './records-session';
+import { giveVisa } from './visa-session';
 import { RecordWeek } from './RecordWeek';
 
 export type SchoolRecordsProps = {
@@ -78,6 +82,14 @@ export function SchoolRecords(props: SchoolRecordsProps) {
     setSaid('');
     void read();
   };
+  const visa = async (week: RecordedWeek) => {
+    try {
+      await giveVisa(world, week, kit, send);
+    } finally {
+      const found = await readRecords(world, school, kit, send).catch(() => null);
+      if (mounted.current && found !== null) setRecords(found);
+    }
+  };
   const first = useEffectEvent(() => void read());
   useEffect(() => {
     mounted.current = true;
@@ -88,13 +100,12 @@ export function SchoolRecords(props: SchoolRecordsProps) {
   }, []);
   const classes = records ?? [];
   const shown = classes.find((one) => timetableNameKey(one.class) === chosen) ?? classes[0];
-  const last = workingDays.at(-1) ?? 4;
   const dates = (week: Day) =>
     t('demo.weekSign.dates', {
       from: dayText(week),
-      to: dayText(addDays(week, (last - (workingDays[0] ?? 0) + 7) % 7)),
+      to: dayText(weekEnd(week, workingDays)),
     });
-  const course = shown?.courses.find((one) => one.key === open?.key);
+  const course = classes.flatMap((one) => one.courses).find((one) => one.key === open?.key);
   const week = course?.weeks.find((one) => one.week.week === open?.week);
   if (course !== undefined && week !== undefined)
     return (
@@ -104,6 +115,8 @@ export function SchoolRecords(props: SchoolRecordsProps) {
         dates={dates(week.week.week)}
         dayText={dayText}
         onBack={() => setOpen(null)}
+        onVisa={() => visa(week)}
+        started={world.date >= week.week.week}
       />
     );
   return (
