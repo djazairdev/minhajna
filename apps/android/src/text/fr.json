@@ -4446,7 +4446,8 @@
         "title": "Codes d’adhésion non encore scannés",
         "until": "Valable jusqu’au {{until}}",
         "handover": "Pour un seul scan. Remis en main propre, jamais envoyé par message."
-      }
+      },
+      "keysFirst": "Cet appareil ne détient pas encore de clé de l’établissement. Sur la page des clés, créez-la ici ou faites ajouter cet appareil par un appareil qui la détient."
     },
     "keys": {
       "lead": "{{school}} · {{date}} · Qui détient la clé, ce qu’elle ouvre, et comment elle se récupère",
@@ -4547,6 +4548,47 @@
         "askPrinted": "Les deux feuilles sont-elles imprimées sur papier et lisibles ?",
         "forget": "Oui, les deux sont imprimées : oublier les parts",
         "printed": "Cet appareil a oublié les deux parts."
+      },
+      "orphaned": "L’appareil qui a créé la récupération ne détient plus la clé. Renouvelez la récupération depuis cet appareil et remettez les nouvelles feuilles.",
+      "start": {
+        "title": "Cet appareil ne détient pas la clé de l’établissement",
+        "note": "Si un autre appareil de l’établissement détient déjà la clé, demandez-lui d’ajouter celui-ci. Ne créez la clé ici que sur le premier appareil de l’établissement, sinon une seconde clé serait créée.",
+        "wait": "Demander à un appareil qui détient la clé d’ajouter celui-ci",
+        "here": "Créer la clé de l’établissement sur cet appareil"
+      },
+      "wait": {
+        "title": "En attente d’être ajouté comme détenteur",
+        "scan": "Scannez ce code avec un appareil qui détient la clé de l’établissement · une seule fois",
+        "qr": "Le code qui ajoute cet appareil comme détenteur de la clé de l’établissement",
+        "device": "Empreinte de cet appareil : {{fingerprint}}. Le détenteur la voit avant de l’ajouter.",
+        "check": "Vérifier maintenant",
+        "again": "Nouveau code",
+        "compare": "Ajouté. Empreinte du trousseau : {{fingerprint}}. Le détenteur qui a ajouté cet appareil affiche-t-il la même ?",
+        "same": "La même : la garder",
+        "differ": "Différente : recommencer",
+        "giveUp": "Abandonner",
+        "contested": "Deux trousseaux différents ont atteint ce code. Rien n’est gardé : recommencez avec un nouveau code, et ajoutez-le depuis un seul appareil.",
+        "nothing": "Rien pour l’instant : aucun détenteur n’a ajouté cet appareil."
+      },
+      "add": {
+        "button": "Ajouter un appareil",
+        "paste": "Le code à usage unique du nouvel appareil",
+        "placeholder": "minhajna-holder:1:…",
+        "scan": "Scanner le code du nouvel appareil",
+        "hint": "Le code affiché sur l’appareil à ajouter",
+        "notCode": "Ce n’est pas un code pour ajouter un détenteur de la clé de l’établissement.",
+        "confirm": "Ajouter l’appareil {{fingerprint}} comme détenteur de la clé de l’établissement ? Comparez cette empreinte avec celle qu’affiche le nouvel appareil.",
+        "yes": "L’ajouter",
+        "done": "Ajouté. Empreinte du trousseau : {{fingerprint}}. Le nouvel appareil la compare avec celle-ci.",
+        "again": "Cet autre appareil détient déjà la clé de l’établissement : son trousseau lui a été renvoyé. Empreinte du trousseau : {{fingerprint}}.",
+        "own": "Ce code porte l’identifiant de cet appareil : scannez le code affiché sur l’appareil à ajouter."
+      },
+      "remove": {
+        "button": "Retirer {{device}}",
+        "ask": "Retirer {{device}} ? Rien de nouveau ne lui parvient, et la clé reste sur les autres appareils.",
+        "yes": "Le retirer",
+        "done": "Cet appareil est retiré. Rien de ce qui est ajouté désormais ne lui parvient.",
+        "renewed": "Cet appareil est retiré. Il avait créé la récupération, qui est donc renouvelée : imprimez les deux nouvelles feuilles et remettez-les."
       }
     }
   },

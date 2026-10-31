@@ -8,13 +8,14 @@
 // names; it answers the code to show, with the device's fingerprint. Reading
 // the drop space gives nothing yet, the keyring a holder admitted it to with
 // its fingerprint, or 'contested' when two that differ hold, which starts the
-// wait over with a new code. Once the person at the device says the
-// fingerprint is the holder's, it keeps the keyring as it holds it, which ends
-// the wait, and follows the school's stream from there. Giving up ends the
-// wait too; either way the secret is never used again, though the store,
-// which only adds, keeps it until the world is erased. A wait the store no
-// longer keeps is refused with E_SCHOOL_WAITING, and a device that holds a
-// school's key already does not wait (E_SCHOOL_HELD).
+// wait over with a new code. Once the person at the device says the fingerprint
+// is the holder's, it keeps the keyring as it holds it, which ends the wait,
+// and follows the school's stream from there. Giving up ends the wait too;
+// either way the secret is never used again, though the store, which only adds,
+// keeps it until the world is erased. A wait the store no longer keeps is
+// refused with E_SCHOOL_WAITING, a keyring read for an earlier wait is not kept
+// (E_KEYRING_CHANGED), and a device that holds a school's key already does not
+// wait (E_SCHOOL_HELD).
 
 import {
   holderDrop,
@@ -47,9 +48,10 @@ export interface Waiting {
   readonly fingerprint: string;
 }
 
-/** A keyring the device was admitted to, opened, with its school and fingerprint. */
+/** A keyring the device was admitted to, opened, with its school, fingerprint and the wait's secret. */
 export interface Admitted {
   readonly school: string;
+  readonly secret: string;
   readonly opened: OpenedKeyring;
   readonly fingerprint: string;
 }
@@ -108,7 +110,7 @@ export async function readDrop(
   const crypto = cryptoOf(kit, waiting);
   const read = await kitStep(() => readAdmitted(waiting.secret, batches, waiting.device, crypto, kit.cipher, kit.mac));
   if (read === null || read === 'contested') return read;
-  return { ...read, fingerprint: keyringFingerprint(read.opened.ring) };
+  return { ...read, secret: waiting.secret, fingerprint: keyringFingerprint(read.opened.ring) };
 }
 
 /** Keeps the keyring the device was admitted to, which ends the wait, and follows the school's stream. */
@@ -121,6 +123,7 @@ export function keepAdmitted(
 ): Promise<Followed> {
   return inTurn(world.world, async () => {
     checkWaiting(world, waiting);
+    if (admitted.secret !== waiting.secret) throw failed('The keyring was read for another wait', 'E_KEYRING_CHANGED');
     const { device, publicKey, pkcs8 } = waiting;
     const held = { school: admitted.school, device, publicKey, pkcs8, ring: admitted.opened.ring };
     await world.book.record(world.date, { kind: 'school.held', held });

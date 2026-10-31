@@ -1,34 +1,49 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Keys' state on the director's device (#571, answer 599): on opening, the
-// school key is held as D-Issue holds it (started the first time), and the
-// facts of the latest keyring this device holds are worked out, again after a
-// change with `reload`; a reading that fails keeps the facts read before. The
-// recovery just made is kept here, above the tabs, with whether one is being
-// made and what was last said of it, so its parts stay until the director says
-// both sheets are printed or leaves the page, and coming back to the tab while
-// it is made neither makes another nor misses how it ended. A problem is said
-// in the catalogue's words; leaving the world drops a slower answer.
+// D-Keys' state on a device of a demo world (#571, answers 599 and 600). A
+// device that holds the school key holds it as D-Issue does, following the
+// school's stream, and the facts of the latest keyring are worked out, with
+// whether the recovery's maker is gone, again after a change with `reload`; a
+// reading that fails keeps the facts read before. A device that holds none
+// chooses: starting the school's key here, or waiting to hold the key another
+// device holds, which a wait the store keeps resumes. The recovery just made is
+// kept here, above the tabs, with whether one is being made and what was last
+// said of it, so its parts stay until the director says both sheets are printed
+// or leaves the page, and coming back to the tab while it is made neither makes
+// another nor misses how it ended. A problem is said in the catalogue's words;
+// leaving the world drops a slower answer.
 
-import { keysFacts, type KeysFacts } from '@minhajna/core';
+import { keptWaiting, keysFacts, latestHeld, recoveryOrphaned, type KeysFacts } from '@minhajna/core';
 import { useCallback, useEffect, useState } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { problemOf } from '../school/school-join-session';
-import { holdSchool, type IssueDesk } from './issue-session';
+import { holdSchool } from './issue-session';
 import type { MadeRecovery } from './keys-session';
+import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
+
+/** Whether the page opens, asks how to hold the key, waits to be added, or shows the key held. */
+export type KeysMode = 'opening' | 'choose' | 'waiting' | 'holder';
+
+/** How a device that holds no key chose to hold one, or null before it chose. */
+export type KeysChoice = 'start' | 'wait' | null;
 
 /** What D-Keys shows. */
 export interface KeysPage {
+  readonly mode: KeysMode;
   readonly facts: KeysFacts | null;
   /** The desk the facts come from, to change the keyring. */
   readonly desk: IssueDesk | null;
+  /** Whether the keyring holds a recovery whose maker no longer holds the key. */
+  readonly orphaned: boolean;
   readonly busy: boolean;
   /** The catalogue key of the problem, or null. */
   readonly problem: string | null;
   /** Reads the keyring again, after a change. */
   readonly reload: () => void;
+  /** Starts the school's key here, waits to hold another device's, or, with null, reads the store again. */
+  readonly choose: (choice: KeysChoice) => void;
   /** The recovery just made, until its sheets are printed. */
   readonly recovery: MadeRecovery | null;
   readonly setRecovery: (recovery: MadeRecovery | null) => void;
@@ -40,28 +55,47 @@ export interface KeysPage {
   readonly setSaid: (said: string | null) => void;
 }
 
-type Read = Pick<KeysPage, 'facts' | 'desk' | 'busy' | 'problem'>;
+type Read = Pick<KeysPage, 'mode' | 'facts' | 'desk' | 'orphaned' | 'busy' | 'problem'>;
+
+const OPENING: Read = { mode: 'opening', facts: null, desk: null, orphaned: false, busy: true, problem: null };
 
 /** D-Keys' state for an open world's school. */
 export function useKeysPage(world: Pick<OpenWorld, 'world' | 'book' | 'date'>, kit: WorldKit, send?: Send): KeysPage {
-  const [page, setPage] = useState<Read>({ facts: null, desk: null, busy: true, problem: null });
+  const [page, setPage] = useState<Read>(OPENING);
+  const [choice, setChoice] = useState<KeysChoice>(null);
   const [recovery, setRecovery] = useState<MadeRecovery | null>(null);
   const [making, setMaking] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const [round, setRound] = useState(0);
+  const entries = world.book.entries;
+  const holding = choice === 'start' || latestHeld(entries, PUBLIC_KEY_BYTES) !== null;
+  const waiting = choice === 'wait' || keptWaiting(entries, PUBLIC_KEY_BYTES) !== null;
   useEffect(() => {
+    if (!holding) return;
     let open = true;
     void (async () => {
       const desk = await holdSchool(world, kit, send);
       const facts = await keysFacts(desk.opened.ring, desk.held.device, desk.crypto);
-      if (open) setPage({ facts, desk, busy: false, problem: null });
-    })().catch(
-      (error: unknown) => open && setPage((before) => ({ ...before, busy: false, problem: problemOf(error) })),
-    );
+      const orphaned = await recoveryOrphaned(desk.opened.ring, desk.crypto);
+      if (open) setPage({ mode: 'holder', facts, desk, orphaned, busy: false, problem: null });
+    })().catch((error: unknown) => {
+      if (!open) return;
+      const problem = problemOf(error);
+      const removed = problem === 'demo.keys.removed';
+      setPage((before) => ({ ...before, ...(removed && { facts: null, desk: null }), busy: false, problem }));
+      if (latestHeld(world.book.entries, PUBLIC_KEY_BYTES) === null) setChoice(null);
+    });
     return () => {
       open = false;
     };
-  }, [world, kit, send, round]);
+  }, [world, kit, send, round, holding]);
   const reload = useCallback(() => setRound((one) => one + 1), []);
-  return { ...page, reload, recovery, setRecovery, making, setMaking, said, setSaid };
+  const choose = useCallback((one: KeysChoice) => {
+    setPage(OPENING);
+    setChoice(one);
+    setRound((before) => before + 1);
+  }, []);
+  const mode = waiting ? ('waiting' as const) : ('choose' as const);
+  const shown = holding ? page : { ...OPENING, mode, busy: false, problem: page.problem };
+  return { ...shown, reload, choose, recovery, setRecovery, making, setMaking, said, setSaid };
 }

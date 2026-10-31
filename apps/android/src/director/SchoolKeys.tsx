@@ -12,8 +12,14 @@
 // recovery, and adds the keyring's fingerprint, to compare with another holder,
 // and the recovery's making (KeysRecovery.tsx). Under them: the map shows at
 // once who holds the key, what it opens and who never holds it, and no device
-// is linked by dragging on it. Until the key is held the page says it is
-// opening; a problem is said in the world's words.
+// is linked by dragging on it. Answer 600 adds the holders: on the holders'
+// tab, adding a device from its one-time code (HolderAdd.tsx), and in the panel
+// of another holder's box, removing it (HolderRemove.tsx), whose renewed
+// recovery opens the recovery's tab; that tab warns when the recovery's maker
+// no longer holds the key. A device that holds no key chooses how to hold one
+// (KeysStart.tsx) or waits to be added (HolderWait.tsx) instead of the tabs.
+// Until the key is held the page says it is opening; a problem is said in the
+// world's words.
 
 import type { Day, DemoSchool } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -27,8 +33,12 @@ import { useDrawing } from '../drawing/drawing-kit';
 import { onPc, useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { personName } from './dashboard-text';
+import { HolderAdd } from './HolderAdd';
+import { HolderRemove } from './HolderRemove';
+import { HolderWait } from './HolderWait';
 import { keysMap, type KeysBox } from './keys-map';
 import { KeysRecovery } from './KeysRecovery';
+import { KeysStart } from './KeysStart';
 import { useKeysPage } from './use-keys-page';
 
 type KeysTab = 'holders' | 'recovery';
@@ -51,6 +61,7 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
   const page = useKeysPage(world, kit, send);
   const [tab, setTab] = useState<KeysTab>('holders');
   const [chosen, setChosen] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const name = personName(school);
   const map = page.facts === null ? null : keysMap(t, page.facts, name, direction === 'rtl');
   const groups = map?.groups.filter((one) => (tab === 'recovery') === (one.id === 'recovery')) ?? [];
@@ -58,9 +69,37 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
   const opening = tab === 'recovery' ? boxes.find((one) => one.id === 'recovery') : map?.key;
   const shown: KeysBox | null = boxes.find((one) => one.id === chosen) ?? opening ?? null;
   const many = (page.facts?.recoveries.length ?? 0) > 1;
+  const removable = shown?.id.startsWith('holder-') === true && shown.id !== `holder-${page.facts?.own ?? ''}`;
+  const lead = (
+    <Text style={[styles.small, align]}>{t('demo.keys.lead', { school: name, date: dayText(world.date) })}</Text>
+  );
+  const problem = (
+    <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
+      {page.problem === null ? (note ?? '') : t(page.problem as 'demo.problem.other')}
+    </Text>
+  );
+  if (page.mode === 'choose' || page.mode === 'waiting') {
+    return (
+      <View testID="school-keys" style={styles.page}>
+        {lead}
+        {problem}
+        {page.mode === 'choose' ? (
+          <KeysStart onStart={() => page.choose('start')} onWait={() => page.choose('wait')} />
+        ) : (
+          <HolderWait
+            world={world}
+            kit={kit}
+            send={send}
+            onDone={() => page.choose(null)}
+            onWait={() => page.choose('wait')}
+          />
+        )}
+      </View>
+    );
+  }
   return (
     <View testID="school-keys" style={styles.page}>
-      <Text style={[styles.small, align]}>{t('demo.keys.lead', { school: name, date: dayText(world.date) })}</Text>
+      {lead}
       <SegmentedControl
         testID="keys-tab"
         label={t('demo.keys.tabs')}
@@ -72,11 +111,10 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
         onSelect={(one) => {
           setTab(one);
           setChosen(null);
+          setNote(null);
         }}
       />
-      <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
-        {page.problem === null ? '' : t(page.problem as 'demo.problem.other')}
-      </Text>
+      {problem}
       {page.facts === null || map === null ? (
         <Text style={[styles.small, align]}>{page.busy ? t('demo.keys.opening') : ''}</Text>
       ) : (
@@ -87,10 +125,18 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
               {t('demo.keys.many')}
             </Text>
           )}
+          {tab === 'recovery' && page.orphaned && (
+            <Text testID="keys-orphaned" style={[styles.problem, align]}>
+              {t('demo.keys.orphaned')}
+            </Text>
+          )}
           {tab === 'recovery' && (
             <Text style={[styles.small, align]}>
               {t('demo.keys.fingerprint', { fingerprint: isolate(page.facts.fingerprint) })}
             </Text>
+          )}
+          {tab === 'holders' && page.desk !== null && (
+            <HolderAdd world={world} desk={page.desk} kit={kit} send={send} onAdded={page.reload} />
           )}
           {tab === 'recovery' && page.desk !== null && (
             <KeysRecovery
@@ -150,6 +196,26 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
                       <Text style={[styles.value, styles.factValue, align]}>{row.value}</Text>
                     </View>
                   ))
+                )}
+                {removable && page.desk !== null && (
+                  <HolderRemove
+                    key={shown.id}
+                    world={world}
+                    desk={page.desk}
+                    device={shown.id.slice('holder-'.length)}
+                    name={shown.label}
+                    kit={kit}
+                    send={send}
+                    onRemoved={(renewed) => {
+                      if (renewed !== null) {
+                        page.setRecovery(renewed);
+                        setTab('recovery');
+                      }
+                      setNote(t(renewed === null ? 'demo.keys.remove.done' : 'demo.keys.remove.renewed'));
+                      setChosen(null);
+                      page.reload();
+                    }}
+                  />
                 )}
               </View>
             )}

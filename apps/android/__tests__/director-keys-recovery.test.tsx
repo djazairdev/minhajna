@@ -1,19 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Keys' recovery in a national demo world (#571, answers 556 to 558 and
-// 599), against a made-up demo server: the recovery's tab makes the recovery
-// from two new parts, says so, shows them once in their groups with the
-// screen guarded as for a PIN pad, and they recover the keyring the store now
-// holds while the map counts no more devices; each sheet prints in its own
-// job, naming the school, the day and the fingerprint; the parts stay through
-// a change of tab, a failed reading and both prints, until the director says
-// both are printed; renewing asks first, then gives new parts the old ones no
-// longer follow; a printing or a making that fails says so and keeps what it
-// had; a double tap makes one recovery, and so does a change of tab while it
-// is made; and a keyring that changed behind the page is read again rather
-// than renewed unasked. Every world, school and device is
-// made up.
+// D-Keys' recovery in a national demo world (#571, answers 556 to 558 and 599),
+// against a made-up demo server: the recovery's tab makes the recovery from two
+// new parts, says so, shows them once in their groups with the screen guarded
+// as for a PIN pad, and they recover the keyring the store now holds while the
+// map counts no more devices; each sheet prints in its own job, naming the
+// school, the day and the fingerprint; the parts stay through a change of tab,
+// a failed reading and both prints, until the director says both are printed;
+// renewing asks first, then gives new parts the old ones no longer follow; a
+// printing or a making that fails says so and keeps what it had; a double tap
+// makes one recovery, and so does a change of tab while it is made; and a
+// keyring that changed behind the page is read again rather than renewed
+// unasked. Every world, school and device is made up.
 
 import {
   directorSchool,
@@ -119,6 +118,7 @@ async function page(
     await ReactTestRenderer.act(async () => {
       await settle();
     });
+  if (has('keys-start')) await press('keys-start-here');
   await press('keys-tab-recovery');
 }
 
