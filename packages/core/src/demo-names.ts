@@ -176,6 +176,9 @@ function draws(seed: string): (count: number) => number {
   };
 }
 
+/** The same seeded draws, for other made-up demo data. */
+export const demoDraws = draws;
+
 /** Draws, from `count` combinations, one not drawn before; throws once every one is taken. */
 function unused(draw: (count: number) => number, taken: Set<number>, count: number): number {
   if (taken.size >= count) throw new RangeError('No made-up name is left');

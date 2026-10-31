@@ -98,6 +98,7 @@ export * from './timetable-grid.ts';
 export * from './timetable-import.ts';
 export * from './grants.ts';
 export * from './certify.ts';
+export * from './term-send.ts';
 export * from './week-totals.ts';
 export * from './week-record.ts';
 export * from './week-visa.ts';

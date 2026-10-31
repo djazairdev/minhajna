@@ -99,7 +99,11 @@ export function appreciationGaps(listed: readonly string[], chosen: ReadonlyMap<
 }
 
 /** The band of an average on a scale, compared out of 20, a hair under a bound counting at it; null without one. */
-export function bandOf(list: AppreciationList, average: number | null, scale: number): AppreciationBand | null {
+export function bandOf(
+  list: Pick<AppreciationList, 'bands'>,
+  average: number | null,
+  scale: number,
+): AppreciationBand | null {
   if (average === null) return null;
   const value = (average * 20) / scale + 1e-9;
   return (
