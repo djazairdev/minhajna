@@ -5,20 +5,23 @@
 // channel, the appointment, two names, a decision, a first day, classes, one of
 // them and signed weeks, and a reason, a bad ID, an empty or hidden-character
 // name, a long decision, a day that is not one, no class, a class with a space,
-// a class twice, too many classes, a class not among them, a week of another
-// shape, too many weeks or an issue below one is not one; a receipt names an
-// appointment and a day only; and a record of the most weeks fits one request.
-// On the substitute's channel a handover joins its first record and the later
-// ones of the same appointment the same key signed naming the same, keeping
-// each course's week once at its highest version, the lower text on a tie, that
-// checks under the world's CA, of the channel's school and of its record's
-// class, signed by neither the handover's key nor the substitute's subject;
-// another key's record, one naming another decision, the substitute's own, and
-// a text changed under its signature are left out; the substitute's first
-// receipt after the handover counts, never one before it, the director's or one
-// under the substitute's subject with another key; nothing counts before
-// joining or under another CA; and a handover is never sealed on another code's
-// channel nor signed out of shape. Every school, class and teacher is made up.
+// a class twice, too many classes, a class not among them, a part out of its
+// count, a sending that is not an ID, a week of another shape, too many weeks
+// or an issue below one is not one; a receipt names an appointment and a day
+// only; and a record of the most weeks fits one request. On the substitute's
+// channel a handover joins its first record and the later ones of the same
+// appointment signed under the same subject naming the same, one under a new
+// key included, keeping each course's week once at its highest version, the
+// lower text on a tie, that checks under the world's CA, of the channel's
+// school and of its record's class, signed by neither the handover's subject
+// nor the substitute's; it says which classes' records of one sending all
+// arrived, never parts of two sendings; another subject's record, one naming
+// another decision, the substitute's own, and a text changed under its
+// signature are left out; the substitute's first receipt after the handover
+// counts, never one before it, the director's or one under the substitute's
+// subject with another key; nothing counts before joining or under another CA;
+// and a handover is never sealed on another code's channel nor signed out of
+// shape. Every school, class and teacher is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -86,7 +89,14 @@ async function channel() {
   const raw = async (value: object) => batches.push(...(await sealRecord(place, value, batches.length, 64, cipher)));
   const signed = async (one: WeekRecord, by = holder) => signWeek(weekRecordText(one), by.certificate, by.signer);
   const on = { world: WORLD, school: SCHOOL, assignment: code.assignment, issue: code.issue };
-  const handoverOf = (weeks: ClassHandover['weeks'], of = '4م2', appointment = APPOINTMENT): ClassHandover => ({
+  const handoverOf = (
+    weeks: ClassHandover['weeks'],
+    of = '4م2',
+    appointment = APPOINTMENT,
+    part = 0,
+    parts = 1,
+    sending = 'a'.repeat(32),
+  ) => ({
     ...on,
     appointment,
     holder: 'شريفي نسيم',
@@ -95,6 +105,9 @@ async function channel() {
     from: parseDay('2026-12-13'),
     classes: ['4م2', '4م3'],
     class: of,
+    sending,
+    part,
+    parts,
     weeks,
   });
   const handover = async (one: ClassHandover, by = head) => {
@@ -128,6 +141,10 @@ describe('a handover’s shape', () => {
       { ...good, classes: ['4م2', '4م2'] },
       { ...good, classes: Array.from({ length: SUBSTITUTION_CLASSES + 1 }, (_, at) => `4م${at}`) },
       { ...good, class: '4م4' },
+      { ...good, part: 1 },
+      { ...good, parts: 0 },
+      { ...good, part: -1 },
+      { ...good, sending: 'once' },
       { ...good, weeks: [{ text: 'week' }] },
       { ...good, weeks: Array.from({ length: HANDOVER_WEEKS + 1 }, () => good.weeks[0]) },
       { ...good, issue: 0 },
@@ -180,6 +197,10 @@ describe('a handover on the substitute’s channel', () => {
     await handover(handoverOf([fixed, kept, kept]));
     await handover(handoverOf([later, twin], '4م3'));
     await handover(handoverOf([await signed(await weekOf('4م3', '2026-12-20'))], '4م3'), await certified(ca));
+    const headAgain = await certified(ca, keySigner(), head.certificate.subject);
+    const reloaded = await signed(await weekOf('4م3', '2027-01-03'));
+    const byHeadAgain = await signed(await weekOf('4م3', '2027-01-10'), headAgain);
+    await handover(handoverOf([reloaded, byHeadAgain], '4م3'), headAgain);
     const renamed = handoverOf([await signed(await weekOf('4م3', '2026-12-27'))], '4م3');
     await handover({ ...renamed, decision: '2029/118' });
     await handover(handoverOf([kept], '4م2', 'd'.repeat(32)), subjectKey);
@@ -195,11 +216,24 @@ describe('a handover on the substitute’s channel', () => {
       [
         ['4م2', '2026-12-06', 1],
         ['4م3', '2026-12-13', 0],
+        ['4م3', '2027-01-03', 0],
       ],
     );
     assert.equal(found[0]!.weeks[1]!.signed.text, [later.text, twin.text].sort()[0]);
     assert.deepEqual(await read(null as never), []);
     assert.deepEqual(await read(undefined, keySigner()), []);
+  });
+
+  it('says which classes’ records of one sending all arrived, never parts of two', async () => {
+    const { signed, handoverOf, handover, read } = await channel();
+    const week = await signed(await weekOf('4م2'));
+    await handover(handoverOf([week], '4م2', APPOINTMENT, 0, 2));
+    await handover(handoverOf([], '4م3'));
+    assert.deepEqual((await read())[0]!.complete, ['4م3']);
+    await handover(handoverOf([week], '4م2', APPOINTMENT, 1, 2, 'b'.repeat(32)));
+    assert.deepEqual((await read())[0]!.complete, ['4م3']);
+    await handover(handoverOf([week], '4م2', APPOINTMENT, 1, 2));
+    assert.deepEqual((await read())[0]!.complete, ['4م2', '4م3']);
   });
 
   it('counts the substitute’s own first receipt after its handover, under both its subject and its key', async () => {

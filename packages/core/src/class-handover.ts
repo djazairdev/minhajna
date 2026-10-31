@@ -8,23 +8,28 @@
 // holder's and the substitute's names as the staff list writes them, the
 // decision, the first day and the classes, each named once, and carrying some
 // of the holder's signed weeks of one of those classes as the holder signed
-// them, at most 64 a record so a record fits the 128 batches the server takes
-// in one request; nothing else passes, no unsigned week, reason, note, roll
-// call or pupil list. A handover counts from its first record signed by a key
-// the world's CA certified, neither the joined device's subject nor its key,
-// with the later records of the same appointment the same key signed naming the
-// same. The substitute's device checks each week's signature against the
-// world's CA itself and keeps a week of the channel's school and of its
-// record's class, signed by neither the handover's key nor the joined device,
-// each course's week once at its highest version, the lower text winning a tie.
-// The substitute's receipt, signed by the device that joined on the channel on
-// the world's day, replaces the paper record of handover, and counts after its
-// handover, the first of each appointment. Every record names the code's world,
-// school, assignment and issue, and one naming another is left out; neither is
-// sealed on another code's channel. In the demo the CA certifies any device a
-// request names (answer 564), so the handover is shown as given in the school's
-// space, not as proven to be the director's, and its weeks as checked against
-// the world's CA, not as proven to be the holder's.
+// them, with the ID of the sending it was put in, its place among that class's
+// records of that sending and how many there are, at most 64 a record so a
+// record fits the 128 batches the server takes in one request; nothing else
+// passes, no unsigned week, reason, note, roll call or pupil list. A handover
+// counts from its first record signed by a key the world's CA certified,
+// neither the joined device's subject nor its key, with the later records of
+// the same appointment signed under the same certificate subject, the
+// director's device, naming the same, so a handover sent again after a reload,
+// under a new key, joins it and brings it up to date; the classes all of whose
+// records of one sending arrived are said. The substitute's device checks each
+// week's signature against the world's CA itself and keeps a week of the
+// channel's school and of its record's class, signed by neither the handover's
+// subject or keys nor the joined device, each course's week once at its highest
+// version, the lower text winning a tie. The substitute's receipt, signed by
+// the device that joined on the channel on the world's day, replaces the paper
+// record of handover, and counts after its handover, the first of each
+// appointment. Every record names the code's world, school, assignment and
+// issue, and one naming another is left out; neither is sealed on another
+// code's channel. In the demo the CA certifies any device a request names
+// (answer 564), so the handover is shown as given in the school's space, not as
+// proven to be the director's, and its weeks as checked against the world's CA,
+// not as proven to be the holder's.
 
 import type { SealedBatch } from './batches.ts';
 import { checkSignedWeek, isCertificate, type Certificate, type KeySigner, type SignedWeek } from './certify.ts';
@@ -35,7 +40,7 @@ import { distinctClasses, isDecision, SUBSTITUTION_CLASSES } from './school-subs
 import { openRecords, sealRecord } from './sealed-stream.ts';
 import { timetableNameKey } from './timetable-import.ts';
 import { onChannel } from './timetable-package.ts';
-import { CHANNEL, clean, named, onChannelShape, placeOfCode, record, signedRecord } from './timetable-record.ts';
+import { CHANNEL, clean, named, onChannelShape, placeOfCode, record, signedRecord, whole } from './timetable-record.ts';
 import { signedTimetable, type OnChannel, type SignedTimetable, type TimetableCa } from './timetable-record.ts';
 import { ofSchool, readWeekRecord, type WeekVersion } from './week-record.ts';
 import type { WorldCipher, WorldMac } from './world-keys.ts';
@@ -52,6 +57,9 @@ export const HANDOVER_BATCHES = 128;
 /** The most signed weeks one handover record carries; a longer handover goes in several records. */
 export const HANDOVER_WEEKS = 64;
 
+/** The most records one class's weeks take in one sending. */
+export const HANDOVER_PARTS = 64;
+
 /** A record of the classes a substitute takes over, with some of the holder's signed weeks of one of them. */
 export interface ClassHandover extends OnChannel {
   /** The appointment's ID in the director's store. */
@@ -64,6 +72,11 @@ export interface ClassHandover extends OnChannel {
   readonly classes: readonly string[];
   /** The class this record carries weeks of, one of the classes. */
   readonly class: string;
+  /** The sending this record belongs to, one ID for every record put at once. */
+  readonly sending: string;
+  /** This record's place among the records that carry that class's weeks in one sending, from 0, and how many. */
+  readonly part: number;
+  readonly parts: number;
   /** Some of the holder's signed weeks of that class, as the holder signed them. */
   readonly weeks: readonly SignedWeek[];
 }
@@ -82,9 +95,26 @@ export interface ReadHandover {
   readonly weeks: readonly WeekVersion[];
   /** The day the substitute's device signed its receipt, or null. */
   readonly received: Day | null;
+  /** The classes, as the handover names them, whose records of one sending all arrived. */
+  readonly complete: readonly string[];
 }
 
-const HANDOVER = [...CHANNEL, 'appointment', 'holder', 'substitute', 'decision', 'from', 'classes', 'class', 'weeks'];
+const HANDOVER = [
+  ...CHANNEL,
+  ...[
+    'appointment',
+    'holder',
+    'substitute',
+    'decision',
+    'from',
+    'classes',
+    'class',
+    'sending',
+    'part',
+    'parts',
+    'weeks',
+  ],
+];
 const RECEIPT = [...CHANNEL, 'appointment', 'day'];
 
 const written = (value: unknown): value is string => named(value) && clean(value) === value;
@@ -99,7 +129,9 @@ const signedWeek = (value: unknown): value is SignedWeek =>
 /** Whether a value is a handover, its fields only, each of its shape. */
 export function isClassHandover(value: unknown): value is ClassHandover {
   if (!record(value) || !onChannelShape(value, HANDOVER)) return false;
-  const { appointment, holder, substitute, decision, from, classes, class: of, weeks } = value;
+  const { appointment, holder, substitute, decision, from, classes, class: of, sending, part, parts, weeks } = value;
+  if (typeof sending !== 'string' || !ID.test(sending)) return false;
+  if (!whole(parts, 1, HANDOVER_PARTS) || !whole(part, 0, parts - 1)) return false;
   if (typeof appointment !== 'string' || !ID.test(appointment) || !isDecision(decision)) return false;
   if (!written(holder) || !written(substitute) || typeof from !== 'string' || !isDay(from)) return false;
   if (!Array.isArray(classes) || classes.length === 0 || classes.length > SUBSTITUTION_CLASSES) return false;
@@ -187,7 +219,7 @@ export async function channelHandovers(
     const handover = await signedRecord(value, CLASS_HANDOVER_FORMAT, isClassHandover, code.world, ca);
     if (handover !== null && onChannel(handover.value, code) && !theirs(handover.certificate)) {
       const first = handovers.get(handover.value.appointment)?.[0] ?? handover;
-      const same = first.certificate.publicKey === handover.certificate.publicKey;
+      const same = first.certificate.subject === handover.certificate.subject;
       if (same && repeated(first.value) === repeated(handover.value))
         handovers.set(handover.value.appointment, [...(handovers.get(handover.value.appointment) ?? []), handover]);
     }
@@ -198,12 +230,25 @@ export async function channelHandovers(
   }
   const read: ReadHandover[] = [];
   for (const records of handovers.values()) {
-    const signer = records[0]!.certificate.publicKey;
+    const signer = records[0]!.certificate.subject;
+    const keys = new Set(records.map((one) => one.certificate.publicKey));
+    const sent = new Map<string, Map<string, { parts: number; seen: Set<number> }>>();
+    for (const { value } of records) {
+      const of = sent.get(timetableNameKey(value.class)) ?? new Map<string, { parts: number; seen: Set<number> }>();
+      const one = of.get(`${value.sending}\n${value.parts}`) ?? { parts: value.parts, seen: new Set<number>() };
+      of.set(`${value.sending}\n${value.parts}`, { ...one, seen: one.seen.add(value.part) });
+      sent.set(timetableNameKey(value.class), of);
+    }
     const weeks = new Map<string, WeekVersion>();
     for (const { value } of records) {
       for (const one of value.weeks) {
         const checked = await checkSignedWeek(one, code.world, ca.key, ca.checker);
-        if (typeof checked === 'string' || theirs(checked.certificate) || checked.certificate.publicKey === signer)
+        if (
+          typeof checked === 'string' ||
+          theirs(checked.certificate) ||
+          checked.certificate.subject === signer ||
+          keys.has(checked.certificate.publicKey)
+        )
           continue;
         const week = readWeekRecord(checked.text);
         if (week === null || timetableNameKey(week.class) !== timetableNameKey(value.class)) continue;
@@ -216,7 +261,15 @@ export async function channelHandovers(
       }
     }
     const signed = records[0]!;
-    read.push({ signed, weeks: [...weeks.values()], received: receipts.get(signed.value.appointment) ?? null });
+    const arrived = (of: string) =>
+      [...(sent.get(timetableNameKey(of))?.values() ?? [])].some((one) => one.seen.size === one.parts);
+    const complete = signed.value.classes.filter(arrived);
+    read.push({
+      signed,
+      weeks: [...weeks.values()],
+      received: receipts.get(signed.value.appointment) ?? null,
+      complete,
+    });
   }
   return read;
 }
