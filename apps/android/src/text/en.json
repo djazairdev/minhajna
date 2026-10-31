@@ -4261,6 +4261,44 @@
       "step": "Step {{number}}",
       "stepDone": "Step 1, done"
     },
+    "help": {
+      "open": "Who reads what, and by which key",
+      "title": "Help and privacy in the national system",
+      "demo": "This is the national system’s list. In this demo, the app connects only to the project’s demo server, {{address}}.",
+      "reportsHead": "Reports",
+      "connectionsHead": "What the app connects to, and why",
+      "problem": {
+        "title": "Report a problem",
+        "line": "Pupils’ names are replaced, and the whole report is shown for you to read before it is sent."
+      },
+      "crashes": {
+        "title": "Crash reports",
+        "line": "Off unless turned on. If turned on, each report is shown before it is sent, without names or marks, to the Ministry’s server in Algeria."
+      },
+      "updates": {
+        "title": "Plan, calendar and rule updates",
+        "line": "Downloaded with no account and no identifier, from the project’s data repository or its mirror in Algeria.",
+        "key": "The app checks them against the project’s signing key; no key of mine is involved."
+      },
+      "ministry": {
+        "title": "The Ministry’s server in Algeria",
+        "line": "The school’s space: the school’s copy of my records, and each session’s status as it syncs; and the sync between my devices since the move. The server knows this device by its key and my official assignment, and sees only encrypted batches, of fixed size and sent at set times, so it cannot tell when I worked.",
+        "key": "Only the school and I read the school’s copy, with the channel’s key the joining code carries; through this server, marks, and absences where the school chooses, go to the state’s systems, encrypted for them alone; no one else reads my devices’ sync, with my devices’ own keys."
+      },
+      "certifier": {
+        "title": "The state’s certifier",
+        "line": "Once, when joining the school’s space: it certifies the signing key made on this device, so a week’s signature counts.",
+        "key": "The signing key never leaves this device; the certifier sees only its public key and my official assignment."
+      },
+      "sent": {
+        "title": "Reports I send",
+        "line": "When I send them myself, after seeing them, to the Ministry’s server: kept there for 12 months at most.",
+        "key": "The project receives only what the Ministry forwards, without names."
+      },
+      "nothingElse": "Nothing else: no advertising and no analytics. The full list is published with the source code.",
+      "moved": "The app no longer contacts the project’s sync server: the sync moved to the Ministry’s server on the day of joining, {{date}}.",
+      "privacy": "The privacy notice, what Minhajna keeps and where, is in Help, outside this world."
+    },
     "leave": {
       "open": "Leaving the school",
       "title": "Leaving the school",

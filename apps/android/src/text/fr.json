@@ -4329,6 +4329,44 @@
       "step": "Étape {{number}}",
       "stepDone": "Étape 1, faite"
     },
+    "help": {
+      "open": "Qui lit quoi, et avec quelle clé",
+      "title": "Aide et confidentialité dans le système national",
+      "demo": "Voici la liste du système national. Dans cette démo, l’application ne se connecte qu’au serveur de démo du projet, {{address}}.",
+      "reportsHead": "Signalements",
+      "connectionsHead": "Ce à quoi l’application se connecte, et pourquoi",
+      "problem": {
+        "title": "Signaler un problème",
+        "line": "Les noms des élèves sont remplacés, et le rapport entier vous est affiché pour lecture avant son envoi."
+      },
+      "crashes": {
+        "title": "Rapports de plantage",
+        "line": "Désactivés sauf si vous les activez. Activés, chaque rapport est affiché avant son envoi, sans noms ni notes, au serveur du ministère en Algérie."
+      },
+      "updates": {
+        "title": "Mises à jour du plan, du calendrier et des règles",
+        "line": "Téléchargées sans compte ni identifiant, depuis le dépôt de données du projet ou son miroir en Algérie.",
+        "key": "L’application les vérifie avec la clé de signature du projet ; aucune de mes clés n’intervient."
+      },
+      "ministry": {
+        "title": "Le serveur du ministère en Algérie",
+        "line": "L’espace de l’établissement : la copie de mes registres pour l’établissement, et l’état de chaque séance tel qu’il se synchronise ; et la synchronisation entre mes appareils depuis le transfert. Le serveur connaît cet appareil par sa clé et mon affectation officielle, et voit des lots chiffrés de taille fixe envoyés à heures fixes, et leur taille : il ne sait pas quand j’ai travaillé.",
+        "key": "Seuls l’établissement et moi lisons sa copie, avec la clé du canal que porte le code d’adhésion ; par lui, les notes, et les absences si l’établissement le choisit, vont aux systèmes de l’État, chiffrées pour eux seuls ; personne d’autre ne lit la synchronisation de mes appareils, avec leurs propres clés."
+      },
+      "certifier": {
+        "title": "Le certificateur de l’État",
+        "line": "Une seule fois, à l’adhésion à l’espace de l’établissement : il certifie la clé de signature créée sur cet appareil, pour que la signature d’une semaine fasse foi.",
+        "key": "La clé de signature ne quitte jamais cet appareil ; le certificateur n’en voit que la clé publique et mon affectation officielle."
+      },
+      "sent": {
+        "title": "Les rapports que j’envoie",
+        "line": "Quand je les envoie moi-même, après les avoir vus, au serveur du ministère : ils y restent 12 mois au plus.",
+        "key": "Le projet ne reçoit que ce que le ministère lui transmet, sans noms."
+      },
+      "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. La liste complète est publiée avec le code source.",
+      "moved": "L’application ne contacte plus le serveur de synchronisation du projet : la synchronisation est passée au serveur du ministère le jour de l’adhésion, {{date}}.",
+      "privacy": "L’avis de confidentialité, ce que Minhajna conserve et où, se trouve dans l’Aide, hors de ce monde."
+    },
     "leave": {
       "open": "Quitter l’établissement",
       "title": "Quitter l’établissement",
