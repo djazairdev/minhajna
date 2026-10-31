@@ -186,3 +186,6 @@ export * from './variant-read.ts';
 export * from './signed-read.ts';
 export * from './staff-log.ts';
 export * from './timetable-package.ts';
+export * from './timetable-sessions.ts';
+export * from './timetable-version.ts';
+export * from './timetable-proposal.ts';

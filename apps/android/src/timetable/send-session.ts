@@ -153,6 +153,7 @@ export async function sendParts(
       teacher,
       version: 1,
       from,
+      once: false,
       sessions: await kitStep(() => partSessions(desk.held.school, theirs, kit.mac)),
       bells,
     };
