@@ -9,11 +9,12 @@
 // the school key a director's device holds there and the codes and security
 // keys it issues (#570, answer 596), of a device waiting to be admitted to it
 // (#571, answer 600), and of the versions of the school's timetable it
-// publishes (#578, answer 606), and of the sessions its director marks for
-// cover (#586, answer 614), apart from devices.ts, world-kept.ts,
-// school-joined.ts, school-issue.ts, school-holder.ts, school-timetable.ts and
-// school-cover.ts, which read them, so the events module imports no module that
-// imports it back.
+// publishes (#578, answer 606), of the sessions its director marks for cover
+// (#586, answer 614), and of the substitutes' appointments it records (#587,
+// answer 615), apart from devices.ts, world-kept.ts, school-joined.ts,
+// school-issue.ts, school-holder.ts, school-timetable.ts, school-cover.ts and
+// school-substitution.ts, which read them, so the events module imports no
+// module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -47,7 +48,9 @@ export type DeviceEvent =
   /** In a demo world's own store: a version of a school's timetable this device published (answer 606). */
   | { readonly kind: 'school.timetable'; readonly published: TimetablePublished }
   /** In a demo world's own store: a session the director marked for cover on a day, and how it is covered. */
-  | { readonly kind: 'school.cover'; readonly cover: SchoolCover };
+  | { readonly kind: 'school.cover'; readonly cover: SchoolCover }
+  /** In a demo world's own store: a substitute's appointment the director recorded, and its end once recorded. */
+  | { readonly kind: 'school.substitution'; readonly substitution: SchoolSubstitution };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -107,6 +110,23 @@ export interface SchoolCover {
   readonly by: string | null;
 }
 
+/** A substitute's appointment as the director records it: the directorate's decision, for the holder's classes. */
+export interface SchoolSubstitution {
+  readonly school: string;
+  readonly id: string;
+  /** The holder's and the substitute's staff list IDs. */
+  readonly holder: string;
+  readonly substitute: string;
+  /** The directorate's decision reference, as written. */
+  readonly decision: string;
+  readonly classes: readonly string[];
+  readonly from: Day;
+  /** The timetable version that passed the classes over. */
+  readonly version: number;
+  /** The day the holder returned, or null while the appointment lasts. */
+  readonly ended: Day | null;
+}
+
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
@@ -144,6 +164,7 @@ export const DEVICE_KINDS = {
   'school.waiting': true,
   'school.timetable': true,
   'school.cover': true,
+  'school.substitution': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

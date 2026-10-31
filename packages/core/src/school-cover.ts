@@ -16,7 +16,7 @@ import { compareDays, isDay, type Day } from './day.ts';
 import type { CoverArrangement, SchoolCover } from './device-events.ts';
 import { eventOf } from './events.ts';
 import type { Entry } from './history.ts';
-import { ID, SCHOOL } from './school-key-shape.ts';
+import { ID, isStaffId, SCHOOL } from './school-key-shape.ts';
 import { record } from './timetable-record.ts';
 
 export type { CoverArrangement, SchoolCover } from './device-events.ts';
@@ -34,9 +34,6 @@ export const COVER_ARRANGEMENTS: readonly CoverArrangement[] = [
 /** The arrangements in which someone takes the session. */
 export const TAKEN_ARRANGEMENTS: readonly CoverArrangement[] = ['supervision', 'study', 'colleague'];
 
-/** A teacher's ID in a demo school's staff list: lowercase letters and digits in words joined by hyphens. */
-const PERSON = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
-
 /** A cover as the store may keep it, or null when it does not read. */
 export function readSchoolCover(value: unknown): SchoolCover | null {
   if (!record(value)) return null;
@@ -45,7 +42,7 @@ export function readSchoolCover(value: unknown): SchoolCover | null {
   if (typeof day !== 'string' || !isDay(day) || typeof session !== 'string' || !ID.test(session)) return null;
   const known = arrangement === null || COVER_ARRANGEMENTS.includes(arrangement as CoverArrangement);
   const taken = arrangement !== null && TAKEN_ARRANGEMENTS.includes(arrangement as CoverArrangement);
-  const person = by === null || (taken && typeof by === 'string' && by.length <= 64 && PERSON.test(by));
+  const person = by === null || (taken && isStaffId(by));
   if (!known || !person) return null;
   return { school, day, session, arrangement: arrangement as CoverArrangement | null, by };
 }

@@ -153,6 +153,10 @@ export function recordKey(event: RecordEvent): string {
       const { school = '', day = '', session = '' } = event.cover ?? {};
       return `school-cover:${school}/${day}/${session}`;
     }
+    case 'school.substitution': {
+      const { school = '', id = '' } = event.substitution ?? {};
+      return `school-substitution:${school}/${id}`;
+    }
     case 'school.issued': {
       const { school = '', assignment = '', issue = '' } = event.issued ?? {};
       return `school-issued:${school}/${assignment}/${issue}`;

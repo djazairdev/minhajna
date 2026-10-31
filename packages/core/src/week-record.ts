@@ -178,7 +178,7 @@ export async function courseId(school: string, name: string, subjectCode: string
 }
 
 /** Whether a week's course is the one its class and subject make in a school. */
-const ofSchool = async (week: WeekRecord, school: string, mac: WorldMac) =>
+export const ofSchool = async (week: WeekRecord, school: string, mac: WorldMac) =>
   week.course === (await courseId(school, week.class, week.totals.subject, mac));
 
 /** A signed week's batches on its code's channel, numbered from `first`. */
