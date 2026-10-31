@@ -2,18 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What every printed document shares (PRD §3.8, §5.13): the bundled fonts,
-// embedded by the phone's web engine from the app's own resources; A4
-// pages in black and white with a binding margin on the spine's side, the
-// right of a page in Arabic and the left in French or English (R-3.8-51);
-// text escaped, since names and lessons come from the teacher and the class
-// list; and, on a document with pupils' data, «داخلي · سري» at the head and
-// foot of every page (R-5.9-15): the head and foot of a frame table around
-// each page's content, which the web engine repeats on each printed page,
-// as fixed positions are not. Pages break between frames, never inside a
-// cell. The page carries no script, and its policy refuses any. A document's
-// own styles stand apart from the shared ones, and each page can name the
-// book it belongs to, such as a class's texts book, so that the print set
-// (print-set.ts) can bind several documents into one PDF.
+// embedded by the phone's web engine from the app's own resources; A4 pages in
+// black and white with a binding margin on the spine's side, the right of a
+// page in Arabic and the left in French or English (R-3.8-51); text escaped,
+// since names and lessons come from the teacher and the class list; and, on a
+// document with pupils' data, «داخلي · سري» at the head and foot of every page
+// (R-5.9-15): the head and foot of a frame table around each page's content,
+// which the web engine repeats on each printed page, as fixed positions are
+// not; the same frame carries a demo world's mark on a document made in one.
+// Pages break between frames, never inside a cell. The page carries no script,
+// and its policy refuses any. A document's own styles stand apart from the
+// shared ones, and each page can name the book it belongs to, such as a class's
+// texts book, so that the print set (print-set.ts) can bind several documents
+// into one PDF.
 
 /** The bundled fonts, read by the web engine from the APK's resources. */
 const FONTS = [
@@ -80,7 +81,7 @@ export function printDocument(options: {
   pages: readonly string[];
   /** The book each page belongs to, such as a class's, in the order of the pages; one book when not given. */
   books?: readonly string[];
-  /** The mark for a document with pupils' data, such as «داخلي · سري», on every page. */
+  /** A mark at the head and foot of every page: the internal, confidential one for pupils' data, or a demo world's. */
   confidential?: string;
 }): string {
   const { confidential, books } = options;

@@ -3,7 +3,8 @@
 
 // The timetable page of the director's and the preparer's workspaces in a demo
 // world (#576 to #579): the timetable brought in and checked
-// (TimetableImport.tsx); for the director, under the checks, the next version
+// (TimetableImport.tsx); under the checks, for both, its grids printed
+// (TimetablePrint.tsx, #581); for the director, below it, the next version
 // checked and published (TimetableSend.tsx), and below it, whether or not a
 // timetable was read, the teachers' proposals waiting for a decision
 // (TimetableProposals.tsx), which work from the standing version, and the
@@ -14,6 +15,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { levelBells } from './timetable-words';
 import { TimetableImport, type TimetableRead } from './TimetableImport';
+import { TimetablePrint } from './TimetablePrint';
 import { TimetableProposals } from './TimetableProposals';
 import { TimetableReceipts } from './TimetableReceipts';
 import { TimetableSend } from './TimetableSend';
@@ -22,6 +24,8 @@ export type TimetableDeskProps = {
   readonly role: 'director' | 'preparer';
   readonly world: Pick<OpenWorld, 'world' | 'book' | 'date'>;
   readonly school: DemoSchool;
+  /** The school's wilaya, as the reference data names it. */
+  readonly wilaya: string;
   readonly bells: BellData;
   readonly workingDays: readonly Weekday[];
   /** The timetable read so far in this world, or null. */
@@ -38,6 +42,7 @@ export function TimetableDesk({
   role,
   world,
   school,
+  wilaya,
   bells,
   workingDays,
   read,
@@ -50,6 +55,16 @@ export function TimetableDesk({
   return (
     <>
       <TimetableImport level={school.level} bells={bells} workingDays={workingDays} read={read} onRead={onRead}>
+        {read !== null && (
+          <TimetablePrint
+            school={school}
+            wilaya={wilaya}
+            sessions={read.result.sessions}
+            workingDays={workingDays}
+            date={world.date}
+            dayText={dayText}
+          />
+        )}
         {role === 'director' && read !== null && (
           <TimetableSend
             world={world}
