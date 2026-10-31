@@ -9,7 +9,11 @@
 // number are bound into its seal, so a batch moved, swapped or replayed
 // elsewhere fails to open. The cipher comes in from the app, which takes it
 // from the platform's own cryptography: the project writes none of its own
-// (§6.5).
+// (§6.5). The relay takes batches of one size, SYNC_BATCH_BYTES before they
+// are sealed, and a stream sealed under a key of its own, such as a
+// teacher's channel to the school (#564), seals with the world's AES-GCM.
+
+import type { WorldCipher } from './world-keys.ts';
 
 export interface SealedBatch {
   readonly number: number;
@@ -20,6 +24,21 @@ export interface SealedBatch {
 export interface BatchCipher {
   readonly seal: (plain: Uint8Array, additional: Uint8Array) => Promise<Uint8Array>;
   readonly open: (sealed: Uint8Array, additional: Uint8Array) => Promise<Uint8Array>;
+}
+
+/** The one size of the relay's batches before sealing: 4096 bytes, which AES-GCM's nonce and tag bring to 4124. */
+export const SYNC_BATCH_BYTES = 4096;
+
+/** A batch cipher under one key, from the platform's AES-GCM; a batch that does not open throws. */
+export function keyedCipher(key: Uint8Array, cipher: WorldCipher): BatchCipher {
+  return {
+    seal: (plain, additional) => cipher.seal(key, plain, additional),
+    async open(sealed, additional) {
+      const plain = await cipher.open(key, sealed, additional);
+      if (plain === null) throw new RangeError('A batch does not open under this key');
+      return plain;
+    },
+  };
 }
 
 /** A piece's head: flags for the first and last pieces of a change set, then the bytes used. */
