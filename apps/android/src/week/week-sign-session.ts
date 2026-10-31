@@ -3,27 +3,30 @@
 
 // Signing a course's week in a demo world (#582, Week-sign, §3.3, §5.5,
 // R-3.3-26 to R-3.3-29, answer 610). The teacher's channel gives the timetable
-// parts and the weeks this device signed (week-record.ts). The week runs from
-// the school's first working day on or before the world's date to that date,
-// and each working day's sessions are those of the part in force that day, for
-// a one-day part that day's alone; a class, by its name key, and a subject, by
-// its country code, or by its name key without one, make one course, under the
-// class and subject as first written, so a week signed is found again when a
-// later version names its subject in another language. A session of week A or B
-// is listed with its week, since a world does not say which week this is. A
-// subject's country code comes from its name in any language or its code;
-// without one, the week cannot be signed. Each session is held, not held or
-// awaiting confirmation, as confirmed on the page and kept in memory, by join,
-// school, course and week, for the last world a session was confirmed in, until
-// the week is signed; one not confirmed is signed awaiting, never an absence.
-// Signing makes the week's text at version 0, signs it with the key the teacher
-// joined with and puts it on the channel, refused when this key signed that
-// course's week already at that version or above, as when a correction (#583)
-// was put meanwhile, or another device joined on the channel first.
+// parts, the weeks this device signed (week-record.ts) and the visas on them
+// (week-visa.ts, #585). The week runs from the school's first working day on or
+// before the world's date to that date, its last working day closing it on the
+// pages, and each working day's sessions are those of the part in force that
+// day, for a one-day part that day's alone; a class, by its name key, and a
+// subject, by its country code, or by its name key without one, make one
+// course, under the class and subject as first written, so a week signed is
+// found again when a later version names its subject in another language. A
+// session of week A or B is listed with its week, since a world does not say
+// which week this is. A subject's country code comes from its name in any
+// language or its code; without one, the week cannot be signed. Each session is
+// held, not held or awaiting confirmation, as confirmed on the page and kept in
+// memory, by join, school, course and week, for the last world a session was
+// confirmed in, until the week is signed; one not confirmed is signed awaiting,
+// never an absence. Signing makes the week's text at version 0, signs it with
+// the key the teacher joined with and puts it on the channel, refused when this
+// key signed that course's week already at that version or above, as when a
+// correction (#583) was put meanwhile, or another device joined on the channel
+// first.
 
 import {
   addDays,
   channelParts,
+  channelVisas,
   channelWeeks,
   courseId,
   partOn,
@@ -38,9 +41,11 @@ import {
   type SchoolJoined,
   type SessionState,
   type SignedPart,
+  type SignedTimetable,
   type Subject,
   type WeekRecord,
   type WeekSession,
+  type WeekVisa,
   type Weekday,
 } from '@minhajna/core';
 import type { OpenWorld } from '../demo/world-mode';
@@ -57,6 +62,8 @@ type SignWorld = Pick<OpenWorld, 'world' | 'date'>;
 export interface SignChannel {
   readonly parts: readonly SignedPart[];
   readonly weeks: readonly ChannelWeek[];
+  /** The visas on the weeks, the first on each version. */
+  readonly visas: readonly SignedTimetable<WeekVisa>[];
 }
 
 /** A course's week to sign: its class and subject as the timetable names them, and its sessions. */
@@ -83,13 +90,19 @@ export async function readSignChannel(
   const checker = { key: ca, checker: kit };
   const parts = await kitStep(() => channelParts(code, batches, checker, joined.device, kit.cipher, kit.mac));
   const weeks = await kitStep(() => channelWeeks(code, batches, checker, joined, kit.cipher, kit.mac));
-  return { parts, weeks };
+  const visas = await kitStep(() => channelVisas(code, batches, checker, joined, kit.cipher, kit.mac));
+  return { parts, weeks, visas };
 }
 
 /** The week's first day: the school's first working day on or before the day, in its week. */
 export function weekStart(day: Day, workingDays: readonly Weekday[]): Day {
   const first = workingDays[0] ?? 0;
   return addDays(day, -((weekday(day) - first + 7) % 7));
+}
+
+/** The week's last working day, from its first day. */
+export function weekEnd(start: Day, workingDays: readonly Weekday[]): Day {
+  return addDays(start, ((workingDays.at(-1) ?? 4) - (workingDays[0] ?? 0) + 7) % 7);
 }
 
 /** A subject's country code from its name in any language or its code, as their name keys read, or null. */

@@ -25,7 +25,6 @@
 // again.
 
 import {
-  addDays,
   compareDays,
   type CourseDelivery,
   type Day,
@@ -48,7 +47,7 @@ import { classPlace, type MineCalendar } from './school-mine-session';
 import { useSaid } from './useSaid';
 import { WeekPage } from './WeekPage';
 import { useMineTerm } from './useMineTerm';
-import { courseKey, subjectCode } from './week-sign-session';
+import { courseKey, subjectCode, weekEnd } from './week-sign-session';
 
 /** A course on the page: its sessions in the standing timetable in force, and its delivery this term if any. */
 type Row = {
@@ -107,9 +106,8 @@ export function SchoolMine(props: SchoolMineProps) {
             COLLATOR.compare(a.class, b.class) ||
             COLLATOR.compare(a.subject, b.subject),
         );
-  const last = workingDays.at(-1) ?? 4;
-  const weekEnd = (from: Day) => {
-    const end = addDays(from, (last - (workingDays[0] ?? 0) + 7) % 7);
+  const lastDay = (from: Day) => {
+    const end = weekEnd(from, workingDays);
     return compareDays(end, world.date) < 0 ? end : world.date;
   };
   const course = (one: { class: string; subject: string }) => `${isolate(one.class)} · ${isolate(one.subject)}`;
@@ -179,7 +177,7 @@ export function SchoolMine(props: SchoolMineProps) {
               <Text style={[styles.small, align]}>
                 {t('demo.mine.lastWeek', {
                   from: dayText(row.delivery.lastWeek),
-                  to: dayText(weekEnd(row.delivery.lastWeek)),
+                  to: dayText(lastDay(row.delivery.lastWeek)),
                 })}
               </Text>
               <Text style={[styles.small, align]}>{t('demo.mine.plan')}</Text>
