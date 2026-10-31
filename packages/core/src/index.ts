@@ -83,6 +83,7 @@ export * from './school-timetable.ts';
 export * from './school-cover.ts';
 export * from './school-substitution.ts';
 export * from './class-handover.ts';
+export * from './class-return.ts';
 export { isStaffId } from './school-key-shape.ts';
 export * from './school-leave.ts';
 export * from './school-trial.ts';
