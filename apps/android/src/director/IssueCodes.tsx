@@ -28,8 +28,10 @@ import { colors, spacing, typography } from '../design/tokens';
 import { subjectName } from '../extra/extra-rules';
 import qr from '../native/NativeMinhajnaCalendarInput';
 import pdf from '../native/NativeMinhajnaPdf';
-import { currentLanguage } from '../text/i18n';
+import { setUpKey } from '../staff/key-session';
+import { browserKey } from '../staff/security-key';
 import { onPc, useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { personName } from './dashboard-text';
 import { IssueList } from './IssueList';
 import { IssuePanel } from './IssuePanel';
@@ -68,6 +70,7 @@ export function IssueCodes({ world, school, profile, kit, send, dayText }: Issue
     [profile, language],
   );
   const page = useIssuePage(world, school.teachers, naming, kit, send);
+  const key = useMemo(() => (onPc() ? browserKey(kit.random) : null), [kit]);
   const [filter, setFilter] = useState<Filter>('all');
   const [chosen, setChosen] = useState<string | null>(null);
   const [printing, setPrinting] = useState(false);
@@ -108,11 +111,13 @@ export function IssueCodes({ world, school, profile, kit, send, dayText }: Issue
     }
   };
 
-  const panel = row !== null && page.desk !== null && (
+  const desk = page.desk;
+  const issued = row?.issue ?? null;
+  const panel = row !== null && desk !== null && (
     <View style={onPc() ? styles.side : undefined}>
       <IssuePanel
         world={world.world}
-        desk={page.desk}
+        desk={desk}
         row={row}
         subject={subject(row.teacher.subject)}
         busy={page.busy || page.issuing || printing}
@@ -120,6 +125,15 @@ export function IssueCodes({ world, school, profile, kit, send, dayText }: Issue
         onIssue={(access) => void page.issue(row.teacher, access)}
         onPrint={() => void print([row])}
         onProblem={page.fail}
+        onSetUpKey={
+          key === null || issued?.access !== 'key'
+            ? undefined
+            : async () => {
+                const names = { schoolName: personName(school), teacher: personName(row.teacher) };
+                await setUpKey(world, desk, issued, names, key, kit, send);
+                page.refresh();
+              }
+        }
       />
     </View>
   );

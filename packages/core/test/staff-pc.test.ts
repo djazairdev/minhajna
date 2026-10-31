@@ -182,7 +182,7 @@ describe('a staffroom PC’s sign-in', () => {
     const subject = newId(random);
     const request = await certificateRequest(WORLD, subject, keySigner());
     const certificate = await issueCertificate(request, parseDay('2026-12-01'), newId(random), ca);
-    const first = { ...(await session()), signing: { pkcs8: 'ab'.repeat(68), certificate } };
+    const first = { ...(await session()), signing: { pkcs8: 'MIGHAgEA'.repeat(17), certificate } };
     const kept = await sealKeySession(prf, first, 0, cipher, mac);
     assert.deepEqual(await keyPlace(prf, WORLD, mac), { space: kept.space, stream: kept.stream });
     assert.deepEqual(await readKeySession(prf, WORLD, kept.batches, cipher, mac), first);

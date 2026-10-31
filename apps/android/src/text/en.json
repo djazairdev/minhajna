@@ -4374,7 +4374,13 @@
         "replaceKey": "Replace a lost key",
         "newCode": "New joining code",
         "keyInstead": "A security key instead",
-        "restores": "Joining brings back the school's copy of the classes. Private notes come back only from the sync of the teacher's own devices."
+        "restores": "Joining brings back the school's copy of the classes. Private notes come back only from the sync of the teacher's own devices.",
+        "setUpKey": "Set up key {{number}} with the teacher",
+        "keyReady": "Key {{number}} is ready: the teacher signs in with it at any staffroom PC, with its own PIN.",
+        "keyAsking": "Touch key {{number}} and type its PIN…",
+        "keyUnsupported": "This key cannot be set up in this browser: it takes a key and a browser that know the PRF extension, such as Chrome, Edge or Firefox.",
+        "keyTaken": "Another device joined on this key’s code first, so it cannot be set up again: give the teacher another key.",
+        "keySetUp": "This key was already set up and joined: the teacher signs in with it. For another key, give the teacher a new one."
       },
       "sheet": {
         "title": "Joining codes not yet scanned",
@@ -4591,6 +4597,16 @@
         "who": "Session: {{teacher}} · {{school}}",
         "same": "The same: open the session",
         "differ": "Different: new code"
+      },
+      "key": {
+        "title": "With a security key",
+        "note": "For a teacher who does not use their phone: the browser asks for the key and its own PIN.",
+        "none": "This browser does not know security keys: use Chrome, Edge or Firefox.",
+        "button": "Sign in with the security key",
+        "asking": "Asking for the key…",
+        "unsupported": "This key or this browser does not give what the session needs to open.",
+        "cancelled": "The key’s prompt was closed before it finished, or this key holds no Minhajna sign-in.",
+        "notSet": "This key was not set up in this world: the school sets it up from the codes page."
       }
     }
   },
