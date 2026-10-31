@@ -5,7 +5,8 @@
 // whether screenshots are allowed on screens with pupils' records. The
 // native module keeps them outside the history, so the lock screen can say
 // its delay before anything opens. Every screen reading them redraws once
-// one changes.
+// one changes. A part of a screen showing a key, such as the school's recovery
+// parts (#571), keeps the guard up as for a PIN pad while it shows.
 
 import { useSyncExternalStore } from 'react';
 import NativeLock, { type LockSettings } from '../native/NativeMinhajnaLock';
@@ -58,7 +59,25 @@ export async function allowScreenshots(allowed: boolean): Promise<void> {
   changed();
 }
 
-/** Tells the native guard what kind of screen is in front. */
+/** What the screen in front is, and how many keys show on it. */
+let front: ScreenKind = 'records';
+let keys = 0;
+
+/** Tells the native guard what kind of screen is in front; a key showing keeps it guarded as a PIN pad. */
 export function guardScreen(kind: ScreenKind): void {
-  NativeLock.showing(kind);
+  front = kind;
+  NativeLock.showing(keys > 0 ? 'pin' : kind);
+}
+
+/** Guards the screen as a PIN pad while a key shows on it, until the answer is called. */
+export function guardKey(): () => void {
+  keys += 1;
+  NativeLock.showing('pin');
+  let shown = true;
+  return () => {
+    if (!shown) return;
+    shown = false;
+    keys -= 1;
+    NativeLock.showing(keys > 0 ? 'pin' : front);
+  };
 }

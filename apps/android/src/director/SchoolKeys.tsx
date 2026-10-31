@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Keys, who holds the school key in a national demo world (#571, §6.5,
-// answer 599), as the design draws it, under the workspace's title: the
-// school, the world's date and what the page shows; tabs for the holders and
-// the recovery; how many devices hold the key, and a warning when more than
-// one holder looks like a recovery; on the PC, React Flow's read-only map
-// (keys-map.ts), with the panel of the box chosen beside it; and on every
-// device the map's boxes written out in groups, each a button that shows what
-// the panel says of it, said as it changes. The holders' tab opens on the key,
-// the recovery's on the recovery, and adds the keyring's fingerprint, to
-// compare with another holder. Under them: the map shows at once who holds the
-// key, what it opens and who never holds it, and no device is linked by
-// dragging on it. Until the key is held the page says it is opening; a
-// problem is said in the world's words.
+// D-Keys, who holds the school key in a national demo world (#571, §6.5, answer
+// 599), as the design draws it, under the workspace's title: the school, the
+// world's date and what the page shows; tabs for the holders and the recovery;
+// how many devices hold the key, and a warning when more than one holder looks
+// like a recovery; on the PC, React Flow's read-only map (keys-map.ts), with
+// the panel of the box chosen beside it; and on every device the map's boxes
+// written out in groups, each a button that shows what the panel says of it,
+// said as it changes. The holders' tab opens on the key, the recovery's on the
+// recovery, and adds the keyring's fingerprint, to compare with another holder,
+// and the recovery's making (KeysRecovery.tsx). Under them: the map shows at
+// once who holds the key, what it opens and who never holds it, and no device
+// is linked by dragging on it. Until the key is held the page says it is
+// opening; a problem is said in the world's words.
 
 import type { Day, DemoSchool } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -25,8 +25,10 @@ import type { Send, WorldKit } from '../demo/world-session';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDrawing } from '../drawing/drawing-kit';
 import { onPc, useDeviceText } from '../text/device-text';
+import { isolate } from '../week/grid-labels';
 import { personName } from './dashboard-text';
 import { keysMap, type KeysBox } from './keys-map';
+import { KeysRecovery } from './KeysRecovery';
 import { useKeysPage } from './use-keys-page';
 
 type KeysTab = 'holders' | 'recovery';
@@ -87,8 +89,25 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
           )}
           {tab === 'recovery' && (
             <Text style={[styles.small, align]}>
-              {t('demo.keys.fingerprint', { fingerprint: page.facts.fingerprint })}
+              {t('demo.keys.fingerprint', { fingerprint: isolate(page.facts.fingerprint) })}
             </Text>
+          )}
+          {tab === 'recovery' && page.desk !== null && (
+            <KeysRecovery
+              world={world}
+              desk={page.desk}
+              made={page.facts.recoveries.length > 0}
+              kit={kit}
+              school={name}
+              dayText={dayText}
+              recovery={page.recovery}
+              setRecovery={page.setRecovery}
+              making={page.making}
+              setMaking={page.setMaking}
+              said={page.said}
+              setSaid={page.setSaid}
+              onMade={page.reload}
+            />
           )}
           <View style={onPc() ? styles.columns : styles.page}>
             <View style={onPc() ? styles.main : styles.page}>
