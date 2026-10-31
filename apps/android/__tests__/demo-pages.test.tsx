@@ -75,7 +75,7 @@ async function render() {
       <DemoRoot
         kit={nodeKit}
         calendar={calendar}
-        profile={read.ok ? read.profile : {}}
+        profile={read.ok ? read.profile : { weekStartsOn: 0 }}
         storage={teacher.asSpec()}
         world={world.asSpec()}
         send={server.send}

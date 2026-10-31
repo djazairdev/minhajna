@@ -15,9 +15,10 @@
 // so a world is left only by its own button. The teacher and the inspector
 // open reader mode inside the world from its home (#563), where reader mode's
 // own back button leads back, and Android's back is reader mode's alone; the
-// teacher of a national world opens School-join the same way (#564).
+// teacher of a national world opens School-join the same way (#564), in its
+// trial term end while the world's date falls in it (#565).
 
-import { readWorldCode, type CountryProfile, type SchoolCalendar, type WorldKind } from '@minhajna/core';
+import { readWorldCode, trialTermEnd, type CountryProfile, type SchoolCalendar, type WorldKind } from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BackHandler } from 'react-native';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
@@ -58,7 +59,7 @@ function problemOf(error: unknown): ProblemKey {
 export type DemoRootProps = {
   readonly kit: WorldKit;
   readonly calendar: SchoolCalendar;
-  readonly profile: Pick<CountryProfile, 'months'>;
+  readonly profile: Pick<CountryProfile, 'months' | 'weekStartsOn'>;
   readonly storage: Pick<StorageSpec, 'randomBytes' | 'digest'>;
   readonly world?: WorldSpec;
   readonly send?: Send;
@@ -163,6 +164,7 @@ export function DemoRoot({
         dayText={(day) => worldDate(t, day, currentLanguage(), profile)}
         kit={kit}
         send={send}
+        trial={trialTermEnd(calendar.year, profile.weekStartsOn)}
         onClose={() => setJoining(false)}
       />
     );

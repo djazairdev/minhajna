@@ -4263,7 +4263,17 @@
         "codeLine": "L’établissement le remet à chaque enseignant. Sur un PC, son texte se colle ici une fois, sans mot de passe ni compte."
       },
       "paste": "Texte du code d’adhésion",
-      "pastePlaceholder": "minhajna-join:1:…"
+      "pastePlaceholder": "minhajna-join:1:…",
+      "trial": {
+        "badge": "Essai de fin de trimestre · {{year}}",
+        "lead": "{{date}}. Votre établissement essaie le système national en fin de trimestre {{term}}, avant le lancement national. Ceci est un avis avant de commencer.",
+        "title": "Participation volontaire à l’essai de fin de trimestre",
+        "window": "Du {{from}} au {{to}}. En rejoignant, les semaines et les notes du trimestre {{term}} sont signées dans l’espace de l’établissement. Sinon, le mode enseignant continue tel quel, sans qu’on vous demande pourquoi.",
+        "paper": "Pendant l’essai, le cahier papier reste le registre officiel. La semaine signée devient officielle au lancement national.",
+        "join": "Rejoindre",
+        "notNow": "Pas maintenant",
+        "note": "Ce choix vaut pour l’essai seul et disparaît au lancement national : dès le lancement, chaque enseignant rejoint l’espace, et « Pas maintenant » n’existe plus."
+      }
     }
   },
   "chart": {

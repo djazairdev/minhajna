@@ -1,30 +1,35 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// School-join inside a demo world (#564, answer 582), under the band, opened
-// from the teacher's world home: the notice first, then the code's card. The
-// phone scans the school's joining code with its camera, asked for only then; a
-// PC, which scans none, takes the code's text pasted. A code that reads, of
-// this world, shows the school's ID shortened and asks for the teacher's yes;
-// only that yes makes the key and sends anything (school-join-session.ts). The
-// page then says the school's space is joined, on the world's date the
+// School-join inside a demo world (#564, #565, answers 582 and 587), under the
+// band, opened from the teacher's world home: the notice first, then the code's
+// card (SchoolCodeCard.tsx), which during the trial term end makes joining the
+// teacher's free choice, as School-join-trial draws it, with the trial named
+// under the title and opening the notice. A code that reads, of this world,
+// shows the school's ID shortened and asks for the teacher's yes; only that yes
+// makes the key and sends anything (school-join-session.ts). The page then says
+// the school's space is joined (SchoolJoined.tsx), on the world's date the
 // certificate was given, and that is said aloud; the code's card stays below,
-// for a code of another assignment. Every key the world's store already keeps
-// for a code, which the teacher agreed to before, is checked again as the page
-// opens, one after another, the newest first, and each that joined is shown;
-// a code another device took first is said only when none joined, any other
-// problem always. Each problem is said in the world's words; going back,
-// by the button or Android's back, returns to the world's home. The page's
-// title is said as it opens, as the world's other pages say theirs, and that
-// kept keys are being checked, when they are.
+// for a code of another assignment. Every key the world's store keeps for a
+// code is checked again as the page opens, newest first, and each that joined
+// is shown; a code another device took first is said only when none joined, any
+// other problem always, in the world's words. Going back, by the button or
+// Android's back, returns to the world's home. The page's title is said as it
+// opens, and that kept keys are being checked, when they are.
 
-import { keptJoins, readJoinCode, type Day, type SchoolJoined } from '@minhajna/core';
+import {
+  joiningIsVoluntary,
+  keptJoins,
+  readJoinCode,
+  type Day,
+  type SchoolJoined,
+  type TrialTerm,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AccessibilityInfo, BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
-import { TextField } from '../components/TextField';
 import { DemoBand } from '../demo/DemoBand';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
@@ -33,7 +38,9 @@ import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
 import { onPc, useDeviceText } from '../text/device-text';
 import { checkKeptJoins, joinSchool } from './school-join-session';
-import { SchoolCodeHead, SchoolLaw, SchoolNotice } from './SchoolNotice';
+import { SchoolCodeCard } from './SchoolCodeCard';
+import { SchoolJoinedCards, shortSchool } from './SchoolJoined';
+import { SchoolLaw, SchoolNotice } from './SchoolNotice';
 
 type Phase =
   | { readonly kind: 'notice' }
@@ -62,9 +69,6 @@ function problemOf(error: unknown): (typeof PROBLEMS)[keyof typeof PROBLEMS] | '
     : 'demo.problem.other';
 }
 
-/** A school's ID shortened, kept left to right inside a sentence of either direction. */
-const shortSchool = (school: string) => `\u2066${school.slice(0, 8)}\u2069`;
-
 /** How long the hidden words stay, in milliseconds, so browsing the page does not read them twice. */
 const SAID_FOR = 5000;
 
@@ -76,12 +80,14 @@ export type SchoolJoinProps = {
   readonly dayText: (day: Day) => string;
   readonly kit: WorldKit;
   readonly send?: Send;
+  /** The world's trial term end, inside which joining is voluntary (answer 587), or null. */
+  readonly trial: TrialTerm | null;
   /** Back to the world's home. */
   readonly onClose: () => void;
 };
 
 /** The teacher's page for joining the school's space in a world. */
-export function SchoolJoin({ world, date, dayText, kit, send, onClose }: SchoolJoinProps) {
+export function SchoolJoin({ world, date, dayText, kit, send, trial, onClose }: SchoolJoinProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -90,11 +96,11 @@ export function SchoolJoin({ world, date, dayText, kit, send, onClose }: SchoolJ
     keptJoins(world.book.entries).length > 0 ? { kind: 'checking' } : { kind: 'notice' },
   );
   const [problem, setProblem] = useState<string | null>(null);
-  const [pasted, setPasted] = useState('');
   const busy = useRef(false);
   const [joins, setJoins] = useState<readonly SchoolJoined[]>([]);
   const [said, setSaid] = useState('');
   const title = t('demo.school.title');
+  const voluntary = joiningIsVoluntary(trial, world.date) ? trial : null;
   const say = (words: string) => (onPc() ? setSaid(words) : AccessibilityInfo.announceForAccessibility(words));
 
   const join = (text: string) => {
@@ -161,19 +167,6 @@ export function SchoolJoin({ world, date, dayText, kit, send, onClose }: SchoolJ
     return () => clearTimeout(timer);
   }, [said]);
 
-  const joinedCards = joins.map(({ certificate, code }) => (
-    <View key={code} testID="school-joined" style={styles.card}>
-      <Text accessibilityRole="header" style={[styles.head, align]}>
-        {t('demo.school.joined')}
-      </Text>
-      <Text style={[styles.small, align]}>
-        {t('demo.school.joinedLine', {
-          date: dayText(certificate.issued),
-          school: shortSchool(readJoinCode(code)?.school ?? ''),
-        })}
-      </Text>
-    </View>
-  ));
   const card = (() => {
     if (phase.kind === 'checking')
       return (
@@ -209,27 +202,13 @@ export function SchoolJoin({ world, date, dayText, kit, send, onClose }: SchoolJ
       );
     }
     return (
-      <View testID="school-code" style={styles.card}>
-        <SchoolCodeHead />
-        {onPc() && (
-          <TextField
-            testID="school-paste"
-            label={t('demo.school.paste')}
-            placeholder={t('demo.school.pastePlaceholder')}
-            value={pasted}
-            onChangeText={setPasted}
-            textDirection="ltr"
-            returnKeyType="done"
-            onSubmitEditing={() => pasted.trim() !== '' && read(pasted.trim())}
-          />
-        )}
-        <Button
-          testID="school-scan"
-          label={t('demo.school.scan')}
-          disabled={onPc() && pasted.trim() === ''}
-          onPress={() => (onPc() ? read(pasted.trim()) : scan())}
-        />
-      </View>
+      <SchoolCodeCard
+        trial={joins.length === 0 ? voluntary : null}
+        dayText={dayText}
+        onRead={read}
+        onScan={scan}
+        onNotNow={onClose}
+      />
     );
   })();
 
@@ -248,14 +227,25 @@ export function SchoolJoin({ world, date, dayText, kit, send, onClose }: SchoolJ
         ]}
       >
         <Button testID="school-back" variant="plain" label={t('demo.entry.back')} onPress={onClose} />
-        <Text accessibilityRole="header" style={[styles.title, align]}>
-          {title}
-        </Text>
+        <View style={styles.titles}>
+          <Text accessibilityRole="header" style={[styles.title, align]}>
+            {title}
+          </Text>
+          {voluntary !== null && (
+            <Text style={[styles.small, align]}>{t('demo.school.trial.badge', { year: voluntary.year })}</Text>
+          )}
+        </View>
       </View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <View style={styles.column}>
-          <SchoolNotice />
-          {joinedCards}
+          <SchoolNotice
+            lead={
+              voluntary === null
+                ? undefined
+                : t('demo.school.trial.lead', { date: dayText(world.date), term: voluntary.term })
+            }
+          />
+          <SchoolJoinedCards joins={joins} dayText={dayText} />
           {card}
           <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.problem, align]}>
             {problem ?? ''}
@@ -270,7 +260,8 @@ export function SchoolJoin({ world, date, dayText, kit, send, onClose }: SchoolJ
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   bar: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'], paddingVertical: spacing['space-8'] },
-  title: { ...typography['bar-title'], flexShrink: 1, color: colors.ink },
+  titles: { flexShrink: 1 },
+  title: { ...typography['bar-title'], color: colors.ink },
   content: {
     flexGrow: 1,
     paddingTop: spacing['space-12'],
