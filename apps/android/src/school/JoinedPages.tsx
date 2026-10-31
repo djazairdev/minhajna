@@ -7,24 +7,27 @@
 // week to sign (WeekSign.tsx), on a course when one was chosen, the weekly
 // digest (WeekDigest.tsx), which opens the week to sign on a course, the
 // teacher's classes as the director sees them (SchoolMine.tsx), which opens the
-// week to sign, and what stays and goes on leaving (Leave.tsx), when the year's
-// dates read; each gets what School-join said as it opened, and goes back to
-// School-join, but Week-sign opened from the digest or the classes, which goes
-// back to the page that opened it.
+// week to sign and the term report (SchoolMineReport.tsx), and what stays and
+// goes on leaving (Leave.tsx), when the year's dates read; each gets what
+// School-join said as it opened, and goes back to School-join, but Week-sign
+// opened from the digest or the classes, and the term report, which go back to
+// the page that opened them; each opens another page through School-join's
+// view.
 
-import type { Day, LeavingDates, SchoolJoined, Subject, Weekday } from '@minhajna/core';
+import type { Day, LeavingDates, Subject, Weekday } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { TeacherTimetable } from '../timetable/TeacherTimetable';
 import type { MineCalendar } from '../week/school-mine-session';
 import { SchoolMine } from '../week/SchoolMine';
+import { SchoolMineReport } from '../week/SchoolMineReport';
 import { WeekDigest } from '../week/WeekDigest';
 import { WeekSign } from '../week/WeekSign';
 import { DevicesMoved } from './DevicesMoved';
 import { Leave } from './Leave';
 import { NationalHelp } from './NationalHelp';
-import type { JoinPage } from './join-view';
+import type { JoinedView, JoinPage } from './join-view';
 
 export type JoinedPagesProps = {
   readonly world: Pick<OpenWorld, 'world' | 'date'>;
@@ -44,15 +47,12 @@ export type JoinedPagesProps = {
   readonly onJoin: () => void;
   /** The joined school's calendar, for its term and closures. */
   readonly mine?: MineCalendar;
-  /** Opens the week to sign, on a course when one is chosen, going back to the page that opened it. */
-  readonly onWeek: (join: SchoolJoined, course: string | undefined, back: JoinPage) => void;
+  /** Opens another joined page, such as the week to sign on a course, going back to the page that opened it. */
+  readonly onPage: (view: JoinedView) => void;
 };
 
 /** A joined card's page, or null when it has none to show. */
-export function joinedPage(
-  view: { readonly page: JoinPage; readonly join: SchoolJoined; readonly course?: string },
-  props: JoinedPagesProps,
-): ReactElement | null {
+export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElement | null {
   const { world, date, dayText, kit, send, year, workingDays, subjects, said, dates, onClose, onJoin } = props;
   const { join } = view;
   const shown = { date, join, dayText, onClose, said };
@@ -62,11 +62,20 @@ export function joinedPage(
   if (view.page === 'timetable') return <TeacherTimetable {...channel} />;
   if (view.page === 'week') return <WeekSign {...channel} subjects={subjects} course={view.course} />;
   if (view.page === 'digest') {
-    return <WeekDigest {...channel} subjects={subjects} onSign={(course) => props.onWeek(join, course, 'digest')} />;
+    return (
+      <WeekDigest
+        {...channel}
+        subjects={subjects}
+        onSign={(course) => props.onPage({ page: 'week', join, course, back: 'digest' })}
+      />
+    );
   }
   if (view.page === 'mine') {
-    const mine = { subjects, mine: props.mine, onSign: () => props.onWeek(join, undefined, 'mine') };
-    return <SchoolMine {...channel} {...mine} />;
+    const back = (page: JoinPage) => () => props.onPage({ page, join, back: 'mine' });
+    return (
+      <SchoolMine {...channel} subjects={subjects} mine={props.mine} onSign={back('week')} onReport={back('report')} />
+    );
   }
+  if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
   return dates === null ? null : <Leave {...shown} year={year} dates={dates} onJoin={onJoin} />;
 }

@@ -7,23 +7,24 @@
 // counts three, one, one for the calendar and one other, under the term's dates
 // so far, the last signed week's dates, the plan line and the foot, with the
 // hours line and each course's weekly sessions; another class with no signed
-// week is named as waiting; its button opens Week-sign. In the winter holidays,
-// or without the school's calendar, it lists and counts nothing and says why.
-// Courses come in the school's order of classes, a signed one after an unsigned
-// one, with their weekly sessions from the standing timetable when a part for
-// one day applies. A problem reading is shown with a way to read again, and
-// announced on Android; Week-sign opened from it goes back to it; and the words
-// read in every language. Every school, class and teacher is made up.
+// week is named as waiting; its buttons open Week-sign and the term report. In
+// the winter holidays it lists and counts nothing and says no term holds the
+// date, and without the school's calendar says that. Courses come in the
+// school's order of classes, a signed one after an unsigned one, with their
+// weekly sessions from the standing timetable when a part for one day applies.
+// A problem reading is shown with a way to read again, and announced on
+// Android; Week-sign opened from it goes back to it; and the words read in
+// every language. Every school, class and teacher is made up.
 
-import { parseDay, readJoinCode, type Day, type SchoolJoined, type Subject } from '@minhajna/core';
+import { parseDay, type Day, type SchoolJoined } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { AccessibilityInfo, Platform, Text, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
+import { DAYS, FIRST, MINE, SECOND, sign, signedTerm, SUBJECTS, TEACHER } from '../jest/term-weeks';
 import { BELLS, school, sendParts, server, session, setting } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
 import type { Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
-import { bundledReference, readReference } from '../src/reference';
 import { useJoinView } from '../src/school/join-view';
 import ar from '../src/text/ar.json';
 import en from '../src/text/en.json';
@@ -31,7 +32,7 @@ import fr from '../src/text/fr.json';
 import { isolate } from '../src/week/grid-labels';
 import { SchoolMine } from '../src/week/SchoolMine';
 import type { MineCalendar } from '../src/week/school-mine-session';
-import { readSignChannel, signTheWeek, weekRecord, weeksToSign, weekStart } from '../src/week/week-sign-session';
+import { readSignChannel } from '../src/week/week-sign-session';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -39,17 +40,9 @@ jest.mock(
 );
 
 const words = ar.demo.mine;
-const DAYS = [0, 1, 2, 3, 4] as const;
-const SUBJECTS: Subject[] = [
-  { code: 'math', name: { ar: 'رياضيات', fr: 'Mathématiques', en: 'Maths' }, levels: ['cem'] },
-];
-const TEACHER = 'بلعيد محمد';
-const read = readReference(bundledReference);
-if (!read.ok) throw new Error('The bundled reference does not read');
-const MINE: MineCalendar = { profile: read.profile, calendar: read.calendar };
-const [FIRST, SECOND] = [parseDay('2027-01-05'), parseDay('2027-01-12')];
 const weekly = (count: number) => words.weekly.replace('{{count}}', String(count)).split('{{hours}}')[0];
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
+let reported = 0;
 
 beforeEach(() => {
   jest.replaceProperty(Platform, 'OS', 'web');
@@ -96,6 +89,7 @@ async function render(world: { world: string; date: Day }, join: SchoolJoined, m
           subjects={SUBJECTS}
           mine={mine}
           onSign={onSign}
+          onReport={() => (reported += 1)}
         />
       </LocaleDirContext.Provider>,
     );
@@ -103,35 +97,8 @@ async function render(world: { world: string; date: Day }, join: SchoolJoined, m
   return onSign;
 }
 
-/** Signs the world's week of a class with each session's state by its weekday, the rest awaiting. */
-async function sign(
-  world: { world: string; date: Day },
-  joined: SchoolJoined,
-  states: Record<number, 'held' | 'not-held'>,
-  of = '1م2',
-  start = 480,
-) {
-  const { parts } = await readSignChannel(world, joined, kit, server.send);
-  const week = weeksToSign(parts, world.date, DAYS, SUBJECTS).find((one) => one.class === of)!;
-  const slots = new Map(
-    Object.entries(states).map(([day, state]) => [`${day}\n${start}\n${start + 60}\n\nboth`, state]),
-  );
-  const first = weekStart(world.date, DAYS);
-  await signTheWeek(
-    world,
-    joined,
-    await weekRecord(readJoinCode(joined.code)!.school, week, first, slots, kit.mac),
-    kit,
-    server.send,
-  );
-}
-
 test('the term so far counts each course by state, a holiday as the calendar’s, and what waits', async () => {
-  const { id, here, joined } = await setting();
-  const sessions = [0, 1, 2].map((day) => session(TEACHER, day as 0 | 1 | 2, 480));
-  await sendParts(here, school, [...sessions, session(TEACHER, 0, 540, '1م3')], BELLS);
-  await sign({ world: id, date: FIRST }, joined, { 0: 'held', 1: 'not-held' });
-  await sign({ world: id, date: SECOND }, joined, { 0: 'held', 1: 'held', 2: 'not-held' });
+  const { id, joined } = await signedTerm();
   const onSign = await render({ world: id, date: SECOND }, joined, MINE);
   const count = (key: keyof typeof words.counts, value: number) =>
     words.counts[key].replace('{{count}}', String(value));
@@ -156,6 +123,9 @@ test('the term so far counts each course by state, a holiday as the calendar’s
   expect(texts().filter((one) => one.startsWith(weekly(3)) || one.startsWith(weekly(1)))).toHaveLength(2);
   await press('mine-sign');
   expect(onSign).toHaveBeenCalled();
+  const before = reported;
+  await press('mine-report');
+  expect(reported).toBe(before + 1);
 });
 
 test('between terms, or without the school’s calendar, nothing is counted', async () => {
@@ -166,7 +136,7 @@ test('between terms, or without the school’s calendar, nothing is counted', as
   expect([texts().includes(words.noTerm), has('mine-course'), has('mine-unsigned')]).toEqual([true, 0, 0]);
   await ReactTestRenderer.act(() => tree?.unmount());
   await render({ world: id, date: FIRST }, joined);
-  expect([texts().includes(words.noTerm), has('mine-course'), has('mine-unsigned')]).toEqual([true, 0, 0]);
+  expect([texts().includes(words.noCalendar), has('mine-course'), has('mine-unsigned')]).toEqual([true, 0, 0]);
 });
 
 test('each course comes in the school’s order, its week’s sessions from the standing timetable', async () => {
