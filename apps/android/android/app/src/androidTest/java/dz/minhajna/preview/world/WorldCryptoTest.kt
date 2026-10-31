@@ -24,7 +24,8 @@ import org.junit.runner.RunWith
  * A demo world's cryptography on the phone gives what Node's crypto and the
  * PC's Web Crypto give (#561): the vectors below were made by Node with
  * made-up inputs, and the web app's tests check the same ones, with a pair
- * this code made, whose private half was thrown away. The 600,000 rounds are
+ * this code made, whose private half was thrown away, and an agreement of
+ * Node's pairs on P-256 (#570, answer 595). The 600,000 rounds are
  * the world's own; pairs here are made at runtime and never stored. A debug
  * build, which holds the network permission for Metro, may connect; a
  * release build does once #559's notice adds the permission (answer 575).
@@ -38,6 +39,15 @@ class WorldCryptoTest {
   private val sealedByNode =
     bytes("000102030405060708090a0b0a126cf6acb843312d5ec26319905eea2db3bba4ddc3b6fcc62e682acc")
   private val sealedEmptyByNode = bytes("000102030405060708090a0b656e7780606eefe387a3453712bd950a")
+  private val agreementByNode =
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgohIwywKShdnSLjEHQZr4RcOlGe0IRa8HLN7HbdNK" +
+      "KG6hRANCAATE1weEa+3KK3MP+4teu9jNvPYZQTvOm1JoHkCgxhy1M02mVL6EEK9TjofoHkYPTcuWijlxuKVLmUbK4kWZzmJO"
+  private val peerByNode =
+    bytes(
+      "0471b28ea1c5aaa2a8de43d57ca5d4937578e6b022054a4bac19c03d1612a18887" +
+        "b78f81138fc20c93de43eeed64205421211d2e1c0f3556e2765c21239718ab7d",
+    )
+  private val secretByNode = bytes("e2f4f74ef9a375f6f27e02f7d46f3ff681ab551971cbdc02683154d4bd9a10d9")
 
   @Test
   fun derivesAndMacsAsNodeDoes() {
@@ -96,6 +106,19 @@ class WorldCryptoTest {
     assertFalse(verifies(WorldCrypto.newPair().spki, text, signed))
     assertThrows(Exception::class.java) { WorldCrypto.sign(pair.pkcs8, "\uD800") }
     assertThrows(Exception::class.java) { WorldCrypto.sign(pair.spki, text) }
+  }
+
+  @Test
+  fun agreesAsNodeDoesAndRefusesAPointOffTheCurve() {
+    assertArrayEquals(secretByNode, WorldCrypto.agree(agreementByNode, peerByNode))
+    val one = WorldCrypto.newAgreement()
+    val other = WorldCrypto.newAgreement()
+    assertEquals(65, one.publicKey.size)
+    assertEquals(4.toByte(), one.publicKey[0])
+    assertArrayEquals(WorldCrypto.agree(one.pkcs8, other.publicKey), WorldCrypto.agree(other.pkcs8, one.publicKey))
+    val off = peerByNode.copyOf().also { it[64] = (it[64].toInt() xor 1).toByte() }
+    assertThrows(Exception::class.java) { WorldCrypto.agree(agreementByNode, off) }
+    assertThrows(Exception::class.java) { WorldCrypto.agree(agreementByNode, peerByNode.copyOfRange(1, 65)) }
   }
 
   @Test

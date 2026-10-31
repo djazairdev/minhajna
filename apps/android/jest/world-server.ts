@@ -9,6 +9,7 @@ import {
   createPrivateKey,
   createPublicKey,
   generateKeyPairSync,
+  webcrypto,
   pbkdf2Sync,
   randomBytes,
   sign,
@@ -69,6 +70,19 @@ export const nodeKit: WorldKit = {
         fingerprint: createHash('sha256').update(spki).digest('hex'),
       };
     }),
+  async newAgreement() {
+    const pair = await webcrypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
+    const publicKey = new Uint8Array(await webcrypto.subtle.exportKey('raw', pair.publicKey));
+    const pkcs8 = Buffer.from(await webcrypto.subtle.exportKey('pkcs8', pair.privateKey)).toString('base64');
+    return { publicKey, pkcs8 };
+  },
+  async agree(pkcs8, publicKey) {
+    if (publicKey.length !== 65) throw new RangeError('Not an uncompressed point');
+    const curve = { name: 'ECDH', namedCurve: 'P-256' } as const;
+    const own = await webcrypto.subtle.importKey('pkcs8', Buffer.from(pkcs8, 'base64'), curve, false, ['deriveBits']);
+    const theirs = await webcrypto.subtle.importKey('raw', new Uint8Array(publicKey), curve, false, []);
+    return new Uint8Array(await webcrypto.subtle.deriveBits({ name: 'ECDH', public: theirs }, own, 256));
+  },
 };
 
 export interface KeptWorld {

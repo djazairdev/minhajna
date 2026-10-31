@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The world kit module on a PC (#561) gives what Node's crypto and the
-// phone's native code give: the vectors below were made by Node with
-// made-up inputs, and the phone's WorldCryptoTest checks the same ones, at
-// the world's 600,000 rounds. A seal that does not open is null; a fresh
-// seal opens, an empty one too; a pair's halves sign and check, its
-// fingerprint the SHA-256 of its SPKI, and a pair the phone made checks; it
-// refuses what the phone refuses; and every failure is E_WORLD_KIT, saying
-// nothing of the bytes.
+// The world kit module on a PC (#561) gives what Node's crypto and the phone's
+// native code give: the vectors below were made by Node with made-up inputs,
+// and the phone's WorldCryptoTest checks the same ones, at the world's 600,000
+// rounds. A seal that does not open is null; a fresh seal opens, an empty one
+// too; a pair's halves sign and check, its fingerprint the SHA-256 of its SPKI,
+// and a pair the phone made checks; it agrees on P-256 as Node does, and
+// refuses a point off the curve (#570); it refuses what the phone refuses; and
+// every failure is E_WORLD_KIT, saying nothing of the bytes.
 
 import assert from 'node:assert/strict';
 import { createHash, createPublicKey, verify } from 'node:crypto';
@@ -22,6 +22,16 @@ const KEY = '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20';
 const PLAIN = '7b226d616465223a227570227d';
 const SEALED = '000102030405060708090a0b0a126cf6acb843312d5ec26319905eea2db3bba4ddc3b6fcc62e682acc';
 const SEALED_EMPTY = '000102030405060708090a0b656e7780606eefe387a3453712bd950a';
+/** An agreement Node made on P-256 (#570): its private half, another's point, and the bits they agree on. */
+const AGREEMENT = {
+  pkcs8:
+    'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgohIwywKShdnSLjEHQZr4RcOlGe0IRa8HLN7HbdNK' +
+    'KG6hRANCAATE1weEa+3KK3MP+4teu9jNvPYZQTvOm1JoHkCgxhy1M02mVL6EEK9TjofoHkYPTcuWijlxuKVLmUbK4kWZzmJO',
+  peer:
+    '0471b28ea1c5aaa2a8de43d57ca5d4937578e6b022054a4bac19c03d1612a18887' +
+    'b78f81138fc20c93de43eeed64205421211d2e1c0f3556e2765c21239718ab7d',
+  agreed: 'e2f4f74ef9a375f6f27e02f7d46f3ff681ab551971cbdc02683154d4bd9a10d9',
+};
 /** A pair the phone made on an emulator, its private half thrown away, and its signature of `minhajna/world/ABCDE`. */
 const PHONE = {
   spki:
@@ -31,6 +41,16 @@ const PHONE = {
 };
 
 describe('the world kit module on a PC', () => {
+  it('agrees on P-256 as Node and the phone do, and refuses a point off the curve', async () => {
+    assert.equal(await WorldKit.agree(AGREEMENT.pkcs8, AGREEMENT.peer), AGREEMENT.agreed);
+    const [one, other] = [await WorldKit.newAgreement(), await WorldKit.newAgreement()];
+    assert.match(one.publicKey, /^04[0-9a-f]{128}$/u);
+    assert.equal(await WorldKit.agree(one.pkcs8, other.publicKey), await WorldKit.agree(other.pkcs8, one.publicKey));
+    const off = AGREEMENT.peer.slice(0, -2) + (AGREEMENT.peer.endsWith('7d') ? '7c' : '7d');
+    await assert.rejects(WorldKit.agree(AGREEMENT.pkcs8, off), { code: 'E_WORLD_KIT' });
+    await assert.rejects(WorldKit.agree(AGREEMENT.pkcs8, AGREEMENT.peer.slice(2)), { code: 'E_WORLD_KIT' });
+  });
+
   it('may always connect, as the page’s policy names the demo server', () => {
     assert.equal(WorldKit.canConnect(), true);
   });

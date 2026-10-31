@@ -1,22 +1,24 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The cryptography a demo world needs on a PC (#560, answers 568 and 572),
-// all the browser's own Web Crypto, as the PC's vault and signatures use it:
+// The cryptography a demo world needs on a PC (#560, answers 568 and 572), all
+// the browser's own Web Crypto, as the PC's vault and signatures use it:
 // PBKDF2-SHA256 and HMAC-SHA256 for the world's pass and sealing key,
-// AES-256-GCM with a fresh random 12-byte nonce first for its sealed keys,
-// and ECDSA P-256 for its stand-in signing key, made extractable only so its
-// private half can be sealed for the world, with signatures in the phone's
-// DER form, and its fingerprint the SHA-256 of its SPKI. It refuses what the
-// phone refuses: an AES key of another length, an empty secret, and text to
-// sign that is not well-formed. A seal that does not open answers null;
-// nothing here keeps a key.
+// AES-256-GCM with a fresh random 12-byte nonce first for its sealed keys, ECDH
+// P-256 for the key agreement that seals the school key to a device (answer
+// 595), with the public half as its uncompressed point, and ECDSA P-256 for its
+// stand-in signing key, made extractable only so its private half can be sealed
+// for the world, with signatures in the phone's DER form, and its fingerprint
+// the SHA-256 of its SPKI. It refuses what the phone refuses: an AES key of
+// another length, an empty secret, and text to sign that is not well-formed. A
+// seal that does not open answers null; nothing here keeps a key.
 
 import type { WorldKit } from '../../../android/src/demo/world-session';
 import Signature from './Signature.ts';
 import { derOf, fromBase64, toBase64 } from './signing/der.ts';
 
 const P256 = { name: 'ECDSA', namedCurve: 'P-256' } as const;
+const ECDH = { name: 'ECDH', namedCurve: 'P-256' } as const;
 const SHA256 = { name: 'ECDSA', hash: 'SHA-256' } as const;
 const NONCE = 12;
 
@@ -98,5 +100,17 @@ export const worldKit: WorldKit = {
       pkcs8: toBase64(new Uint8Array(pkcs8)),
       fingerprint: hex(await crypto.subtle.digest('SHA-256', spki)),
     };
+  },
+  async newAgreement() {
+    const pair = await crypto.subtle.generateKey(ECDH, true, ['deriveBits']);
+    const publicKey = new Uint8Array(await crypto.subtle.exportKey('raw', pair.publicKey));
+    return { publicKey, pkcs8: toBase64(new Uint8Array(await crypto.subtle.exportKey('pkcs8', pair.privateKey))) };
+  },
+  async agree(pkcs8, publicKey) {
+    const der = fromBase64(pkcs8);
+    if (der === null || publicKey.length !== 65) throw new RangeError('Not a P-256 pair');
+    const own = await crypto.subtle.importKey('pkcs8', der, ECDH, false, ['deriveBits']);
+    const theirs = await crypto.subtle.importKey('raw', buffer(publicKey), ECDH, false, []);
+    return new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: theirs }, own, 256));
   },
 };

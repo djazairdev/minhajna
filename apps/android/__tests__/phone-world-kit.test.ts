@@ -3,12 +3,12 @@
 
 // The phone's world kit (#561) over its native modules, here stood in for by
 // Node's crypto behind the modules' own shapes: a build that may not connect
-// gets none (answer 575); bytes cross as lowercase hex and come back as bytes;
-// the derivation is asked for the world's 600,000 rounds; random bytes come
-// from the storage's SecureRandom; a seal that does not open is null; a world
-// started through it is joined through it; and a failing module's E_WORLD_KIT
-// stops a world with the network shut. The device's own test checks the native
-// code against Node's vectors.
+// gets none (answer 575); bytes cross as lowercase hex and come back as bytes,
+// key agreement's too (#570); the derivation is asked for the world's 600,000
+// rounds; random bytes come from the storage's SecureRandom; a seal that does
+// not open is null; a world started through it is joined through it; and a
+// failing module's E_WORLD_KIT stops a world with the network shut. The
+// device's own test checks the native code against Node's vectors.
 
 import { createHash, createHmac } from 'node:crypto';
 import { toHex, WORLD_KDF_ROUNDS, type SchoolCalendar } from '@minhajna/core';
@@ -45,6 +45,11 @@ function nodeModule(calls: unknown[][]): KitSpec {
     },
     sign: (pkcs8, text) => (calls.push(['sign']), nodeKit.sign(pkcs8, text)),
     newPair: () => (calls.push(['newPair']), nodeKit.newPair()),
+    newAgreement: async () => {
+      const pair = await nodeKit.newAgreement();
+      return { publicKey: toHex(pair.publicKey), pkcs8: pair.pkcs8 };
+    },
+    agree: async (pkcs8, publicKey) => (await hex(publicKey), toHex(await nodeKit.agree(pkcs8, fromHex(publicKey)))),
   };
 }
 
@@ -61,6 +66,13 @@ function made(module: KitSpec, random: { randomBytes: (length: number) => string
 afterEach(() => {
   leaveWorldNetwork();
   server.reset();
+});
+
+test('key agreement crosses as hex and comes back as bytes', async () => {
+  const kit = made(nodeModule([]));
+  const [one, other] = [await kit.newAgreement(), await kit.newAgreement()];
+  expect(one.publicKey).toHaveLength(65);
+  expect(await kit.agree(one.pkcs8, other.publicKey)).toEqual(await kit.agree(other.pkcs8, one.publicKey));
 });
 
 test('a build that may not connect gets no kit', () => {

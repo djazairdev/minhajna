@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The world kit module on a PC (#561): the PC hands the app its Web Crypto
-// kit directly (world-kit.ts), so this is that kit behind the phone's
-// module, bytes as lowercase hex, for any code that reaches the module, and
-// every failure is E_WORLD_KIT, as on the phone. A PC may always connect to
-// the demo server, which its page's policy names.
+// The world kit module on a PC (#561): the PC hands the app its Web Crypto kit
+// directly (world-kit.ts), so this is that kit behind the phone's module, bytes
+// as lowercase hex, its key agreement too, for any code that reaches the
+// module, and every failure is E_WORLD_KIT, as on the phone. A PC may always
+// connect to the demo server, which its page's policy names.
 
 import { toHex } from '@minhajna/core';
 import type { Spec } from '../../../android/src/native/NativeMinhajnaWorldKit';
@@ -36,6 +36,12 @@ const WorldKit: Spec = {
     }),
   sign: (pkcs8, text) => kitted(() => worldKit.sign(pkcs8, text)),
   newPair: () => kitted(() => worldKit.newPair()),
+  newAgreement: () =>
+    kitted(async () => {
+      const pair = await worldKit.newAgreement();
+      return { publicKey: toHex(pair.publicKey), pkcs8: pair.pkcs8 };
+    }),
+  agree: (pkcs8, publicKey) => kitted(async () => toHex(await worldKit.agree(pkcs8, fromHex(publicKey)))),
 };
 
 export default WorldKit;

@@ -7,6 +7,9 @@ import { TurboModuleRegistry } from 'react-native';
 /** A new P-256 pair: its public half as SPKI and its private half as PKCS #8, both DER in base64. */
 export type WorldPair = { spki: string; pkcs8: string; fingerprint: string };
 
+/** A new P-256 pair for key agreement: the public half as the uncompressed point in hex, the private as PKCS #8. */
+export type WorldAgreement = { publicKey: string; pkcs8: string };
+
 /**
  * The cryptography a demo world needs (#561, answers 568 and 572), as the
  * PC's Web Crypto gives it, on a worker so a slow derivation never holds the
@@ -29,6 +32,10 @@ export interface Spec extends TurboModule {
   sign(pkcs8: string, text: string): Promise<string>;
   /** A new pair, with the lowercase SHA-256 of its SPKI's bytes. */
   newPair(): Promise<WorldPair>;
+  /** A new P-256 pair for key agreement (answer 595). */
+  newAgreement(): Promise<WorldAgreement>;
+  /** The 32-byte ECDH secret, in hex, of a PKCS #8 P-256 private key and another's uncompressed point in hex. */
+  agree(pkcs8: string, publicKey: string): Promise<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MinhajnaWorldKit');
