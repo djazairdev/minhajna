@@ -4104,7 +4104,8 @@
       "move": "Move to the next announced day",
       "moveLine": "Only this device, which started the world, moves its date.",
       "changeRole": "Change role",
-      "leave": "Leave the world"
+      "leave": "Leave the world",
+      "school": "The school’s space"
     },
     "shell": {
       "name": "National demo",
@@ -4146,6 +4147,54 @@
       "payload": "The data as the teacher sees it",
       "world": "This world",
       "empty": "Nothing on this page in this world yet."
+    },
+    "school": {
+      "title": "The school’s space",
+      "notice": "This is a notice before you start. In the national system, the signed week is the official record: the texts book, the class journal, roll call and marks.",
+      "enters": "What enters the school’s space",
+      "in1": "Each session’s confirmation status, as it arrives with sync",
+      "in2": "Signed weeks: the texts book, the class journal, roll call and marks, with their corrections",
+      "in3": "The timetable, cover and handovers",
+      "in4": "Each teacher’s access log, which the teacher sees",
+      "in5": "The school’s exam thresholds: the cut, the setters’ signatures and the figures it was built on",
+      "never": "What never enters it",
+      "out1": "Private notes, and the reasons a session did not take place",
+      "out2": "The working record before the week is signed, and the day each session was confirmed",
+      "out3": "Hours, sign-ins and location",
+      "out4": "Any score or ranking of the teacher",
+      "kept": "Guaranteed",
+      "read1": "Only the teacher and the school read it, and the inspector with an access grant. Neither those who run the servers nor the Ministry’s staff read it.",
+      "read2": "The director initials or comments on the signed week, and never changes it.",
+      "read3": "The inspector reads the lesson record alone, granted by the authority, not the director, for a set time, and the teacher sees it.",
+      "read4": "A teacher who leaves the school takes a full copy of their lesson record.",
+      "read5": "No personal phone is needed: the school’s PC with the phone or a security key the school issues, and paper stays possible.",
+      "signIn": "In the national system, signing in uses the fingerprint or a PIN, and is never recorded. In this demo, the signing key stays in this world’s own store alone.",
+      "codeTitle": "A code from the official assignment list",
+      "codeLine": "The school gives one to each teacher. It is scanned once, with no password and no account.",
+      "scan": "Scan the school’s code",
+      "scanHint": "Point the camera at the joining code the school gave you.",
+      "law": "Every teacher is given this notice in Arabic before starting (Law 18-07, article 32).",
+      "confirmTitle": "Join the school’s space",
+      "confirmLine": "School ID {{school}}. When you agree, a signing key is made on this device, certified by this world’s stand-in certification authority, and the school receives proof that you joined.",
+      "agree": "I agree and join",
+      "cancel": "Cancel",
+      "joining": "Joining…",
+      "checking": "Checking the join…",
+      "joined": "Joined the school’s space",
+      "joinedLine": "Joined {{date}} · school ID {{school}} · a key certified by a stand-in authority, not the state’s",
+      "problem": {
+        "code": "This is not a joining code from the assignment list.",
+        "world": "This code belongs to another demo world.",
+        "taken": "Another device joined with this code first. Ask the school for a new code.",
+        "camera": "The camera did not open. Allow it in the phone’s settings, then try again.",
+        "scan": "The code was not read. Try again."
+      },
+      "pc": {
+        "scan": "Read the code",
+        "codeLine": "The school gives one to each teacher. On a PC, paste its text here once, with no password and no account."
+      },
+      "paste": "The joining code’s text",
+      "pastePlaceholder": "minhajna-join:1:…"
     }
   }
 }

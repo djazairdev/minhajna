@@ -10,9 +10,10 @@
 // put on the channel first does not hold it back, and the channel is read past
 // a page; a code another device joined on first is refused; a text that is no
 // code, a code of another world, or a certificate the world's CA did not give
-// keeps nothing; and a busy server, a relay that keeps refusing or does not
-// page on, and failing cryptography each say so. Every world, school and key is
-// made up.
+// keeps nothing; a busy server, a relay that keeps refusing or does not page
+// on, and failing cryptography each say so; and the joins a store keeps are
+// checked again, the newest first, a taken code said only when none held.
+// Every world, school and key is made up.
 
 import {
   channelStream,
@@ -28,10 +29,10 @@ import {
 import { caPublicKey, newCaKey } from '../../server/src/worlds/stand-in-ca';
 import { FakeStorage } from '../jest/fake-storage';
 import { codeOf, DemoServer, nodeKit as kit } from '../jest/world-server';
-import { startWorld } from '../src/demo/world-session';
+import { startWorld, type Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { bundledReference, readReference } from '../src/reference';
-import { joinSchool } from '../src/school/school-join-session';
+import { checkKeptJoins, joinSchool } from '../src/school/school-join-session';
 import { openRecordBook } from '../src/storage/history';
 
 const read = readReference(bundledReference);
@@ -69,6 +70,7 @@ async function schoolReads(code: JoinCode) {
   return readJoined(code, batches, { key, checker: kit }, kit.cipher, kit.mac);
 }
 
+const errorCodeOf = (error: unknown) => (error as { code?: unknown }).code;
 const asked = (path: string) => server.seen.filter((one) => one.path.endsWith(path)).length;
 
 test('a device joins with a certified key kept in the world’s store, and the server holds nothing named', async () => {
@@ -172,4 +174,27 @@ test('a busy server, a server that does not page on, and failing cryptography ea
         : original(request),
     );
   expect(await codeOf(joinSchool(here, text, kit, server.send))).toBe('E_WORLD_SERVER');
+});
+
+test('kept joins are checked again, the newest first, and a taken code is said only when none held', async () => {
+  const { id, text, here, device } = await world();
+  await joinSchool(await device(), text, kit, server.send);
+  expect(await codeOf(joinSchool(here, text, kit, server.send))).toBe('E_JOIN_TAKEN');
+  expect((await checkKeptJoins(here, kit, server.send)).joins).toEqual([]);
+  expect((await checkKeptJoins(here, kit, server.send)).problems.map(errorCodeOf)).toEqual(['E_JOIN_TAKEN']);
+  const opened = { ring: { school: SCHOOL }, keys: [kit.random(32)] } as unknown as OpenedKeyring;
+  const fresh = joinCodeText(await makeJoinCode(opened, id, newId(kit.random), 2, { mac: kit.mac } as never));
+  const joined = await joinSchool(here, fresh, kit, server.send);
+  expect(await checkKeptJoins(here, kit, server.send)).toEqual({ joins: [joined], problems: [] });
+  let spaces = 0;
+  const busyAfterOne: Send = (request) => {
+    if (request.method === 'PUT' && (spaces += 1) > 1) return Promise.resolve({ status: 429, body: {}, retryAfter: 1 });
+    return server.send(request);
+  };
+  const checked = await checkKeptJoins(here, kit, busyAfterOne);
+  expect(checked.joins).toEqual([joined]);
+  expect(checked.problems.map(errorCodeOf)).toEqual(['E_WORLD_BUSY']);
+  const third = joinCodeText(await makeJoinCode(opened, id, newId(kit.random), 3, { mac: kit.mac } as never));
+  const newest = await joinSchool(here, third, kit, server.send);
+  expect(await checkKeptJoins(here, kit, server.send)).toEqual({ joins: [newest, joined], problems: [] });
 });

@@ -12,12 +12,13 @@
 // joined record on its channel at the stream's next number, and reads the
 // channel back until the first record that holds is found: this device's,
 // with its certificate, or another's, which means the code was already used
-// and the school must give a new one. Errors carry a code: E_JOIN_CODE for a
-// text that is no joining code, E_JOIN_WORLD for a code of another world,
-// E_JOIN_TAKEN when another device joined on it first, world-session.ts's
-// E_WORLD_SERVER, E_WORLD_BUSY and E_WORLD_KIT, the network's own
-// (world-network.ts), and the store's when it cannot keep the key, or
-// E_WORLD when it kept none.
+// and the school must give a new one. As the page opens, every join the
+// store keeps is checked again the same way, one after another, the newest
+// first. Errors carry a code: E_JOIN_CODE for a text that is no joining code,
+// E_JOIN_WORLD for a code of another world, E_JOIN_TAKEN when another device
+// joined on it first, world-session.ts's E_WORLD_SERVER, E_WORLD_BUSY and
+// E_WORLD_KIT, the network's own (world-network.ts), and the store's when it
+// cannot keep the key, or E_WORLD when it kept none.
 
 import {
   certificateRequest,
@@ -112,6 +113,26 @@ export async function joinSchool(
   } finally {
     going.delete(text);
   }
+}
+
+/**
+ * Checks again every join the world's store keeps, one after another, the newest first: the joins that hold, newest
+ * first, and the errors to say, a code another device took first only when none held. It never fails.
+ */
+export async function checkKeptJoins(
+  world: Pick<OpenWorld, 'world' | 'book' | 'date'>,
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<{ readonly joins: readonly SchoolJoined[]; readonly problems: readonly unknown[] }> {
+  const joins: SchoolJoined[] = [];
+  const failures: unknown[] = [];
+  for (const { code } of [...keptJoins(world.book.entries)].reverse())
+    await joinSchool(world, code, kit, send).then(
+      (one) => void joins.push(one),
+      (error: unknown) => void failures.push(error),
+    );
+  const taken = (error: unknown) => (error as { code?: unknown } | null)?.code === 'E_JOIN_TAKEN';
+  return { joins, problems: joins.length === 0 ? failures : failures.filter((one) => !taken(one)) };
 }
 
 async function joinOnce(
