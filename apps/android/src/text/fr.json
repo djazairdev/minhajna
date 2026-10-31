@@ -5019,6 +5019,35 @@
       "makeUps": "Séances de rattrapage : aucune dans un monde de démonstration. En dehors, elles viennent des rattrapages d’« Aujourd’hui » et comptent comme tenues.",
       "foot": "Chaque classe a ses propres chiffres : ni total pour l’établissement, ni classement. Le rapport se clôt avec le trimestre. « Autre » regroupe tout ce que le calendrier ne contient pas, sans motif : les motifs restent sur vos seuls appareils."
     },
+    "delivery": {
+      "lead": "Le rapport de l’établissement pour le trimestre, d’après les semaines signées : une ligne par matière dans chaque classe.",
+      "terms": "Trimestre",
+      "term": "Trimestre {{number}}",
+      "title": "Rapport de réalisation · trimestre {{number}}",
+      "closed": "Clos le {{day}} · par matière dans chaque classe",
+      "soFar": "Jusqu’au {{day}} · par matière dans chaque classe",
+      "levels": "Niveau",
+      "level": {
+        "primary": "{{level}} AP",
+        "cem": "{{level}} AM",
+        "lycee": "{{level}} AS"
+      },
+      "otherLevel": "Autres classes",
+      "none": "Aucune semaine n’est encore signée ce trimestre : le rapport est vide.",
+      "noTerm": "Aucun trimestre n’a commencé à la date du monde.",
+      "figures": "Confirmées {{confirmed}} · comme prévu {{held}} · non tenues, calendrier {{calendar}} · non tenues, autre {{other}}",
+      "noneLost": "Aucune",
+      "makeUps": "Séances de rattrapage : aucune dans un monde. Hors d’un monde, elles viennent des rattrapages d’« Aujourd’hui », liées aux séances qu’elles remplacent, et comptent comme tenues.",
+      "weeks_one": "{{count}} semaine signée, du {{day}}",
+      "weeks_many": "{{count}} de semaines signées, la dernière du {{day}}",
+      "weeks_other": "{{count}} semaines signées, la dernière du {{day}}",
+      "foot": {
+        "classes": "Chaque classe a ses propres chiffres : aucun total pour l’établissement, aucun classement.",
+        "other": "« Autre » regroupe tout ce que le calendrier ne contient pas, sans motif : les motifs restent sur les appareils du personnel enseignant.",
+        "never": "Le rapport ne sert jamais à évaluer quiconque, ni à la rémunération.",
+        "print": "Impression et PDF hors d’un monde seulement : un monde n’exporte aucun de ses relevés, le rapport reste donc à l’écran."
+      }
+    },
     "records": {
       "readOnly": "En lecture seule : la direction ne modifie aucune semaine signée ni sa correction, et ne voit rien de ce qui n’entre pas dans l’espace de l’établissement.",
       "none": "Aucune semaine n’est encore signée sur les canaux du personnel enseignant de l’établissement.",

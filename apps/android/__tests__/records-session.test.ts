@@ -3,7 +3,8 @@
 
 // The director's read of the classes' records (#585, answer 613), on the
 // made-up term of term-weeks.ts: each class's courses come in the timetable's
-// order, named by the teacher in the staff list, their weeks newest first with
+// order, by subject, a class gone from the standing timetable after those in
+// it, named by the teacher in the staff list, their weeks newest first with
 // whole chains; a week corrected twice comes with both versions below it, and a
 // chain missing its original is not whole; before any week is signed the
 // director reads none; weeks signed under an earlier code stay after the
@@ -12,7 +13,7 @@
 // version, never a mix. Every school, class and teacher is made up.
 
 import { correctWeek, parseDay, type ChannelWeek } from '@minhajna/core';
-import { FIRST, joinNew, SECOND, sign, signedTerm } from '../jest/term-weeks';
+import { FIRST, joinNew, SECOND, sign, signedTerm, TEACHER } from '../jest/term-weeks';
 import { BELLS, school, sendParts, server, session, setting } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
 import { leaveWorldNetwork } from '../src/network/world-network';
@@ -36,6 +37,22 @@ test('the director reads each class’s signed weeks by course, newest first, in
     ['2027-01-10', '2027-01-03'],
   ]);
   expect(course.weeks.every(wholeChain)).toBe(true);
+});
+
+test('a class’s courses come by subject, and a class gone from the timetable after those still in it', async () => {
+  const { id, here, joined } = await setting();
+  const physics = { code: 'physics', name: { ar: 'فيزياء', fr: 'Physique', en: 'Physics' }, levels: ['cem'] };
+  const first = [session(TEACHER, 0, 480), { ...session(TEACHER, 1, 540), subject: 'فيزياء' }];
+  await sendParts(here, school, [...first, session(TEACHER, 2, 480, '1م1')], BELLS);
+  await sign({ world: id, date: FIRST }, joined, { 1: 'held' }, '1م2', 540, '', physics);
+  await sign({ world: id, date: FIRST }, joined, { 0: 'held' });
+  await sign({ world: id, date: FIRST }, joined, { 2: 'held' }, '1م1');
+  await sendParts(here, school, first, BELLS, server.send, { from: parseDay('2027-01-10'), once: false });
+  const read = await readRecords(here, school, kit, server.send);
+  expect(read.map((one) => [one.class, one.courses.map((each) => each.subject)])).toEqual([
+    ['1م2', ['رياضيات', 'فيزياء']],
+    ['1م1', ['رياضيات']],
+  ]);
 });
 
 test('a corrected week comes with every version below it, and a chain missing one is not whole', async () => {
