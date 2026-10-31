@@ -133,6 +133,7 @@ The PC draws its charts with Apache ECharts and its maps with React Flow (§5.2,
 | Pdf | Printing through the browser's dialog, from a hidden frame of the page. A PDF made without the dialog, to share or keep, and the count of pages before printing are the phone's only. |
 | Update | The server's newer build, through the offline worker, installed only by the checksum the teacher saw. A phone has no such module. |
 | World | A demo world's own history (#558, answer 569): each world in its own IndexedDB database, sealed under a key the browser keeps there and the page cannot read back, as a world holds only made-up records. One world is open at a time in a tab; while it is, the teacher's history is shut there and refuses every step, erasing the PC included; leaving lets the passphrase open it again. Erasing the PC deletes every world's database first. |
+| WorldKit | A demo world's cryptography (#561): the PC's own Web Crypto kit, which the PC's start hands the app directly; this module gives the same kit, bytes as hex, as the phone's does. |
 | Browser | The web's own: whether the browser keeps the data, its install offer, whether this tab has just erased the PC, and sending a report's text through the share menu or the clipboard. A phone has no such module. |
 
 A step that stays on the phone is refused with `E_WEB_PHONE_ONLY`.
