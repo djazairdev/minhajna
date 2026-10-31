@@ -4932,5 +4932,21 @@
     "readAgain": "A timetable read before this decision still has the old slot: read it again before publishing from it.",
     "joint": "The session is taught to several classes together: moving this class alone would split it.",
     "roomDropped": "The proposal gives no room, so the session would lose room {{room}}."
+  },
+  "ttReceipt": {
+    "title": "Receipts of the timetable",
+    "line": "Each part sent is confirmed from the phone that received it, in place of signing the paper notice.",
+    "look": "Look at the receipts",
+    "none": "No teacher has been sent a part yet.",
+    "found": "Teachers sent a part on their phone: {{teachers}}. Up to date with every version that applies now or later: {{confirmed}}.",
+    "current": "Version {{version}} confirmed on {{day}}",
+    "behind": "Version {{sent}} not confirmed yet; version {{version}} confirmed on {{day}}",
+    "never": "Version {{sent}} not confirmed yet",
+    "looking": "Looking…",
+    "keys": "Teachers who joined with a security key: {{keys}}. Confirming from the staffroom PC is not in the demo yet.",
+    "keyLine": "Joined with a security key",
+    "dayDone": "For {{date}} only: version {{version}} confirmed on {{day}}",
+    "dayWaiting": "For {{date}} only: version {{version}} not confirmed yet",
+    "newCode": "A teacher given a new code is listed once a part is sent with it."
   }
 }
