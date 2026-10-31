@@ -5092,6 +5092,35 @@
         "pay": "Approving overtime or pay",
         "links": "Links to state platforms outside the national interoperability system"
       }
+    },
+    "handover": {
+      "open": "Classes taken over",
+      "title": "Classes taken over",
+      "lead": "The classes handed over to you in the school’s space when the directorate appointed you to substitute.",
+      "reading": "Reading your channel…",
+      "receiving": "Signing the receipt…",
+      "none": "No class has been handed over to you.",
+      "line": "In place of {{holder}}, decision {{decision}}, from {{from}}",
+      "lastWeek": "{{class}}: last signed week, {{from}} to {{to}}",
+      "noWeek": "{{class}}: no signed week",
+      "partial": "Not all of this class has arrived yet; the school sends it again.",
+      "plan": "The plan position, progress and pacing come with a plan pack; a world has none.",
+      "pupils": "A world has no pupil list or roll call; outside a world they come from the sector’s system.",
+      "timetable": "These classes are in your timetable from {{day}}.",
+      "ends": "Your access to these classes stops when the holder returns; what you taught stays recorded.",
+      "add": "Add the classes to my classes",
+      "addLead": "Adding them signs a receipt on this phone, in place of the paper record of handover.",
+      "added": "Added to your classes on {{day}}.",
+      "addedNow": "The classes are added to your classes.",
+      "waitWhole": "The receipt waits until every class has arrived whole.",
+      "receivedAlready": "The receipt of these classes is signed already.",
+      "unknown": "This handover is no longer on your channel.",
+      "never": "What never arrives",
+      "nevers": {
+        "notes": "The holder’s private notes",
+        "reasons": "The reasons sessions were not held",
+        "before": "The holder’s work before the week is signed"
+      }
     }
   },
   "chart": {

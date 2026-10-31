@@ -20,13 +20,13 @@
 // page's foot. Before any join, a link opens the way for a new phone
 // (Rejoin.tsx, #566), and a joined card opens its own pages (JoinedPages.tsx):
 // the week to sign (#582), the weekly digest, the teacher's classes as the
-// director sees them and their term report (#584), the timetable the school
-// sent (#579), the teacher's devices and copies, who reads what in the national
-// system (#568) and what stays and goes on leaving (#567), when the year's
-// dates read; going back from any returns here, but from Week-sign opened by
-// the digest or the classes, or the term report, which return to the page that
-// opened them, and Leave's way to the next school returns to the code's card
-// (join-view.ts).
+// director sees them and their term report (#584), the classes handed over as a
+// substitute (#587), the timetable the school sent (#579), the teacher's
+// devices and copies, who reads what in the national system (#568) and what
+// stays and goes on leaving (#567), when the year's dates read; going back from
+// any returns here, but from Week-sign opened by the digest or the classes, or
+// the term report, which return to the page that opened them, and Leave's way
+// to the next school returns to the code's card (join-view.ts).
 
 import {
   joiningIsVoluntary,
@@ -254,6 +254,7 @@ export function SchoolJoin(props: SchoolJoinProps) {
             onWeek={open('week')}
             onDigest={open('digest')}
             onMine={open('mine')}
+            onHandover={open('handover')}
             onLeave={dates === null ? undefined : open('leave')}
           />
           <View onLayout={onCodeLayout} style={styles.code}>
