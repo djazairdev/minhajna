@@ -9,11 +9,12 @@
 // Ministry's server, the state's certifier and reports, each with who reads it
 // and by which key; nothing else; the day the sync moved, the day the teacher
 // joined; and where the privacy notice is. Each joined card opens the page for
-// its own school, and also opens Week-sign and the weekly digest under the band
-// and the school's timetable, each with its title said, Week-sign and the
-// digest leading back; and the page's hidden live region is the PC's alone.
-// Going back, by the button or Android's back, returns to School-join. Every
-// world, school and key is made up.
+// its own school, and also opens Week-sign, the weekly digest and the teacher's
+// classes in the school's space under the band and the school's timetable, each
+// with its title said, Week-sign, the digest and the classes leading back; and
+// the page's hidden live region is the PC's alone. Going back, by the button or
+// Android's back, returns to School-join. Every world, school and key is made
+// up.
 
 import { joinCodeText, makeJoinCode, newId, type OpenedKeyring, type SchoolCalendar } from '@minhajna/core';
 import { BackHandler, Platform, Text, type PressableProps } from 'react-native';
@@ -211,4 +212,15 @@ test('a joined card opens the weekly digest under the band, its title said, and 
   expect(live('digest-said')).toBe(text.demo.digest.title);
   await press('digest-back');
   expect(shown('school-join') && !shown('digest')).toBe(true);
+});
+
+test('a joined card opens the teacher’s classes in the school’s space, its title said, and leads back', async () => {
+  const id = await opened();
+  await joinWith(await issue(id, 1));
+  await press('school-mine');
+  const page = tree!.root.findByProps({ testID: 'mine' });
+  expect(page.findAll((node) => node.props.testID === 'demo-band').length).toBeGreaterThan(0);
+  expect(live('mine-said')).toBe(text.demo.mine.title);
+  await press('mine-back');
+  expect(shown('school-join') && !shown('mine')).toBe(true);
 });

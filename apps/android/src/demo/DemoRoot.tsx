@@ -16,7 +16,9 @@
 // reader mode inside the world from its home (#563), where reader mode's own
 // back button leads back, and Android's back is reader mode's alone; the
 // teacher of a national world opens School-join the same way (#564), in its
-// trial term end while the world's date falls in it (#565). The director's
+// trial term end while the world's date falls in it (#565), with the country's
+// calendar and bells read for the world's school (school-mine-session.ts),
+// whose term and closures the teacher's classes count (#584). The director's
 // workspace opens on the seeded school's dashboard (#569), its codes page
 // issues joining codes and security keys (#570), its keys page maps who holds
 // the school key (#571), and the director's and the preparer's timetable page
@@ -59,6 +61,7 @@ import { useDirectorSchool } from '../director/director-world';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import type { TimetableRead } from '../timetable/TimetableImport';
+import { mineOf } from '../week/school-mine-session';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -201,6 +204,7 @@ export function DemoRoot({
         year={calendar.year.id}
         workingDays={reference?.profile.workingDays}
         subjects={reference?.profile.subjects}
+        mine={reference && mineOf(reference, calendar, school)}
         onClose={() => setJoining(false)}
       />
     );

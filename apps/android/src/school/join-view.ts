@@ -5,17 +5,18 @@
 // or a joined card's devices and copies, what stays on leaving, or who reads
 // what in the national system (#568), or the timetable from the school (#579),
 // or the week to sign (#582), on a course the digest chose, going back to the
-// digest, or the weekly digest (#584). Going back, by a page's button or
-// Android's back, returns to School-join, and from it to the world's home;
-// Leave's way to the next school returns to School-join with the code's card
-// scrolled into view, once it is laid out.
+// page that opened it, or the weekly digest, or the teacher's classes as the
+// director sees them (#584). Going back, by a page's button or Android's back,
+// returns to School-join, and from it to the world's home; Leave's way to the
+// next school returns to School-join with the code's card scrolled into view,
+// once it is laid out.
 
 import type { SchoolJoined } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { BackHandler, type LayoutChangeEvent, type ScrollViewInstance } from 'react-native';
 
 /** A joined card's own pages. */
-export type JoinPage = 'devices' | 'leave' | 'help' | 'timetable' | 'week' | 'digest';
+export type JoinPage = 'devices' | 'leave' | 'help' | 'timetable' | 'week' | 'digest' | 'mine';
 
 export type JoinView =
   | 'join'
