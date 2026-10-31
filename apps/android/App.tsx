@@ -191,6 +191,7 @@ export default function App({
                 storage={storage}
                 onBack={doors.back}
                 onLeft={doors.left}
+                reference={reference}
               />
             ) : (
               <DemoDoor.Provider value={doors.gate}>

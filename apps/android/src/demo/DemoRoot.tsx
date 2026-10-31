@@ -12,7 +12,9 @@
 // lock, which opens the teacher's history again only through its passphrase
 // or PIN. Android's back button goes back from the entry unless a world is
 // being entered, and from a role to the roles; on the roles it does nothing,
-// so a world is left only by its own button.
+// so a world is left only by its own button. The teacher and the inspector
+// open reader mode inside the world from its home (#563), where reader mode's
+// own back button leads back, and Android's back is reader mode's alone.
 
 import { readWorldCode, type CountryProfile, type SchoolCalendar, type WorldKind } from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -21,11 +23,13 @@ import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import NativeWorld, { type Spec as WorldSpec } from '../native/NativeMinhajnaWorld';
 import { onPc, useDeviceText } from '../text/device-text';
 import { currentLanguage } from '../text/i18n';
+import type { ReferenceResult } from '../reference';
 import { DemoEntry } from './DemoEntry';
 import { worldDate } from './world-date';
 import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } from './world-mode';
 import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from './world-session';
 import { WorldHome } from './WorldHome';
+import { WorldReader } from './WorldReader';
 
 type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
 
@@ -60,6 +64,8 @@ export type DemoRootProps = {
   readonly onBack: () => void;
   /** After leaving a world: the lock checks the teacher's history again. */
   readonly onLeft: () => void;
+  /** The bundled reference data, for reader mode inside a world (#563); without it, a world offers none. */
+  readonly reference?: Extract<ReferenceResult, { ok: true }>;
 };
 
 /** The demo worlds' pages, from the entry to a world's home. */
@@ -72,10 +78,12 @@ export function DemoRoot({
   send,
   onBack,
   onLeft,
+  reference,
 }: DemoRootProps) {
   const t = useDeviceText();
   const [open, setOpen] = useState<OpenWorld | null>(null);
   const [role, setRole] = useState<WorldRole | null>(null);
+  const [reading, setReading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ProblemKey | null>(null);
   const working = useRef(false);
@@ -125,29 +133,43 @@ export function DemoRoot({
       await leaveWorld(world);
       setOpen(null);
       setRole(null);
+      setReading(false);
       onLeft();
     });
 
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (reading) return false;
       if (open === null && !working.current) onBack();
       if (open !== null) setRole(null);
       return true;
     });
     return () => handler.remove();
-  }, [open, onBack]);
+  }, [open, onBack, reading]);
 
   const shown = problem === null ? null : t(problem);
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
+  const date = worldDate(t, open.date, currentLanguage(), profile);
+  if (reading && reference !== undefined)
+    return (
+      <WorldReader
+        world={open}
+        date={date}
+        reference={reference}
+        random={kit.random}
+        onClose={() => setReading(false)}
+      />
+    );
   return (
     <WorldHome
       world={open}
-      date={worldDate(t, open.date, currentLanguage(), profile)}
+      date={date}
       role={role}
       moving={busy}
       problem={shown}
       onRole={setRole}
+      onReader={reference === undefined ? undefined : () => setReading(true)}
       onMove={move}
       onLeave={leave}
     />

@@ -60,7 +60,7 @@ function opened(
 }
 
 /** The world a store belongs to, by its ID, or null for the teacher's own. */
-function storeWorld(entries: readonly Entry[]): string | null {
+export function storeWorld(entries: readonly Entry[]): string | null {
   const kept = keptWorld(entries);
   return kept === null ? null : worldIdOfCode(kept.code);
 }
