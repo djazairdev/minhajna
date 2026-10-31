@@ -70,8 +70,8 @@ export function seal(plain: Buffer, point: string, info: string): string {
 
 export const row = (registration: string) => ({
   registration,
-  values: { T: 12.5, F: 'absent', E: 15 },
-  average: 13.75,
+  values: { T: 12.5, F: 11, E: 15 },
+  average: 13.92,
   appreciation: 'عمل مختلق جيد',
 });
 

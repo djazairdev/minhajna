@@ -11,9 +11,11 @@
 // by the world's date (R-5.5-11), the scale, the official formula the averages
 // follow or none, the parts by the core's codes (T, F, E, P, O), each once, and
 // one row for each pupil, at most MAX_ROWS, each with its own registration
-// number, a mark within the scale or absent for every part, since an export is
-// sent only when ready (R-3.6-07), the average under a formula and none without
-// one, and the appreciation, with no field beyond these. Marks may carry two
+// number, a mark within the scale for every part, with two decimals at most as
+// the grade book shows it, or absent from the exam, the practical or the oral,
+// since an export is sent only when ready (R-3.6-07), the average under a
+// formula, none without one or when a part is absent, as the grade book leaves
+// it, and the appreciation, with no field beyond these. Marks may carry two
 // decimals. The text is at most MAX_TEXT bytes. It keeps none of the export:
 // the answer is a receipt, marked a stand-in's, that names no pupil, its ID an
 // HMAC under the receiving key of the signing device and the text, which
@@ -57,7 +59,10 @@ export function hasOnly(value: unknown, fields: readonly string[]): value is Fie
 const isLine = (value: unknown, most: number): value is string =>
   typeof value === 'string' && value.length > 0 && [...value].length <= most && !CONTROL.test(value);
 
-/** Whether a mark is a number within the scale, at most two decimals, or an absence. */
+/** The parts a pupil sits, and so may be absent from: the exam, the practical and the oral. */
+const SAT: readonly unknown[] = ['E', 'P', 'O'];
+
+/** Whether a mark is a number within the scale, at most two decimals as the book shows it, or an absence. */
 const isMark = (value: unknown, scale: number) =>
   value === 'absent' ||
   (typeof value === 'number' && value >= 0 && value <= scale && Math.abs(value * 100 - Math.round(value * 100)) < 1e-6);
@@ -105,11 +110,14 @@ function rowsProblem(rows: unknown, parts: readonly string[], scale: number, ave
       return 'each row has its own registration number';
     }
     seen.add(registration);
-    if (!hasOnly(values, parts) || !parts.every((part) => isMark(values[part], scale))) {
-      return 'a row has a mark within the scale, or absent, for each part and no other';
+    const marked = (fields: Fields, part: string) =>
+      isMark(fields[part], scale) && (fields[part] !== 'absent' || SAT.includes(part));
+    if (!hasOnly(values, parts) || !parts.every((part) => marked(values, part))) {
+      return 'a row has a mark within the scale for each part and no other, or absent from E, P or O';
     }
-    if (averaged ? !(typeof average === 'number' && isMark(average, scale)) : average !== null) {
-      return 'a row has an average within the scale under a formula, and none without one';
+    const counted = averaged && parts.every((part) => values[part] !== 'absent');
+    if (counted ? !(typeof average === 'number' && isMark(average, scale)) : average !== null) {
+      return 'a row has an average within the scale under a formula, and none without one or with a part absent';
     }
     if (!isLine(appreciation, 200)) return 'a row has its appreciation';
   }

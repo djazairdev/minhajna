@@ -4,19 +4,20 @@
 // The stand-in receiving system (#590, answer 618): each world's own receiving
 // key, marked a stand-in's, only with the pass; a term export the core's
 // certificates certify, signed by the teacher's key and sealed for it step by
-// step as the app seals a key to a device, opened, marks with two decimals and
-// an export with no formula and no averages included, kept only as a receipt
-// that names no pupil, the same receipt for the same export sent again, the
-// receipts listed newest first; refused with nothing kept when sealed for
-// another world or kind, signed by a key another world certified or by another
-// key, altered, shaped otherwise in any field, an average missing under a
-// formula or given without one included, or not base64; absences refused while
-// a world records no roll call; a delivery refused before any key was made
-// making none; the largest export of the shape taken over HTTP and a longer
-// text refused; the cap of receipts, erased with the world; and its requests
-// counted with the other world requests. The server does not depend on the
-// core, so the test loads its certify.ts at run time, as Node strips its types.
-// Every world, pupil, mark and teacher here is made up.
+// step as the app seals a key to a device, opened, marks with two decimals, a
+// pupil absent from the exam with no average, and an export with no formula and
+// no averages included, kept only as a receipt that names no pupil, the same
+// receipt for the same export sent again, the receipts listed newest first;
+// refused with nothing kept when sealed for another world or kind, signed by a
+// key another world certified or by another key, altered, shaped otherwise in
+// any field, an average missing under a formula, given without one or beside an
+// absence, or with more than two decimals, and an absence from T included, or
+// not base64; absences refused while a world records no roll call; a delivery
+// refused before any key was made making none; the largest export of the shape
+// taken over HTTP and a longer text refused; the cap of receipts, erased with
+// the world; and its requests counted with the other world requests. The server
+// does not depend on the core, so the test loads its certify.ts at run time, as
+// Node strips its types. Every world, pupil, mark and teacher here is made up.
 
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
@@ -148,10 +149,11 @@ describe('the stand-in receiving system', () => {
     });
     const decimals = {
       ...row('MADE-UP-0003'),
-      values: { T: 9.3, F: 16.4, E: 'absent' },
-      average: 12.29,
+      values: { T: 9.3, F: 16.4, E: 15.75 },
+      average: 14.78,
     };
-    const second = termExport(world, { term: 2, rows: [decimals] });
+    const absent = { ...row('MADE-UP-0005'), values: { T: 10, F: 12, E: 'absent' }, average: null };
+    const second = termExport(world, { term: 2, rows: [decimals, absent] });
     assert.equal((await deliver(world, await sealed(world, await signed(JSON.stringify(second), key)))).status, 201);
     const unaveraged = termExport(world, { term: 3, formula: null, rows: [{ ...row('MADE-UP-0004'), average: null }] });
     assert.equal(
@@ -165,7 +167,7 @@ describe('the stand-in receiving system', () => {
       listed.map((one) => [one['term'], one['rows']]),
       [
         [3, 1],
-        [2, 1],
+        [2, 2],
         [1, 2],
       ],
     );
@@ -200,6 +202,9 @@ describe('the stand-in receiving system', () => {
       { rows: [{ ...row('MADE-UP-0001'), values: { T: 21, F: 1, E: 1 } }] },
       { rows: [{ ...row('MADE-UP-0001'), values: { T: 1, F: null, E: 1 } }] },
       { rows: [{ ...row('MADE-UP-0001'), average: null }] },
+      { rows: [{ ...row('MADE-UP-0001'), values: { T: 1, F: 1, E: 'absent' } }] },
+      { rows: [{ ...row('MADE-UP-0001'), values: { T: 'absent', F: 1, E: 1 }, average: null }] },
+      { rows: [{ ...row('MADE-UP-0001'), average: 13.9166 }] },
       { rows: [{ ...row('MADE-UP-0001'), appreciation: '' }] },
       { rows: [{ ...row('MADE-UP-0001'), name: 'تلميذ مختلق' }] },
       { extra: true },
@@ -248,12 +253,12 @@ describe('the stand-in receiving system', () => {
     assert.deepEqual([await store.receiverKey(world), await store.caKey(world)], [undefined, undefined]);
     const key = await certificate(world);
     const parts = ['T', 'F', 'E', 'P', 'O'];
-    const values = Object.fromEntries(parts.map((part) => [part, 'absent']));
+    const values = Object.fromEntries(parts.map((part) => [part, part === 'T' || part === 'F' ? 12.25 : 'absent']));
     const appreciation = 'مختلق'.repeat(40);
     const rows = Array.from({ length: 80 }, (_, at) => ({
       ...row(`MADE-UP-${String(at).padStart(24, '0')}`),
       values,
-      average: 13.75,
+      average: null,
       appreciation,
     }));
     const largest = JSON.stringify(termExport(world, { parts, rows, class: 'ق'.repeat(32) }));
