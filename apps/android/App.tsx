@@ -23,9 +23,9 @@
 // first screen with content is drawn, so a start can be timed on any phone. In
 // development every problem in the reference data is logged, for whoever keys
 // it; teachers see one short message. Given the cryptography for demo worlds,
-// as a PC's start gives it, the welcome and the lock page lead to the demo
-// worlds, which take their place until a world is left and the lock checks
-// again (#560).
+// as each platform's start gives it, Help leads to the demo worlds, and on a
+// PC the welcome and the lock page too; they take the lock's place until a
+// world is left and the lock checks again (#560, #561).
 
 import type { CountryProfile } from '@minhajna/core';
 import { LocaleDirContext, type InitialState, type NavigationState } from '@react-navigation/native';
@@ -56,8 +56,9 @@ import { nativeDeps } from './src/storage/history';
 import type { BrokenHistory } from './src/storage/broken-history';
 import { useHistory } from './src/storage/use-history';
 import { LogBroken } from './src/log/LogBroken';
-import { DemoDoor } from './src/demo/demo-door';
+import { DemoDoor, HelpDoor } from './src/demo/demo-door';
 import { DemoRoot } from './src/demo/DemoRoot';
+import { useDemoDoors } from './src/demo/use-demo-doors';
 import type { WorldKit } from './src/demo/world-session';
 
 /** Shows the lock, then verifies the bundled reference data and private history before opening the preview. */
@@ -71,7 +72,7 @@ export default function App({
   storage?: Storage;
   /** Called once, when the first screen with content is drawn. */
   reportDrawn?: () => void;
-  /** The platform's cryptography for demo worlds, which the PC's start gives (#560); none offers no world. */
+  /** The platform's cryptography for demo worlds, which each platform's start gives (#560, #561); none offers none. */
   worldKit?: WorldKit | null;
 }) {
   const { delayMinutes: lockMinutes } = useLockSettings();
@@ -95,7 +96,6 @@ export default function App({
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
   const [route, setRoute] = useState<string | undefined>(undefined);
   const [next, setNext] = useState<Begin>('setup');
-  const [demo, setDemo] = useState(false);
   const firstState =
     restore ??
     (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined);
@@ -111,15 +111,12 @@ export default function App({
     },
     [start],
   );
-  const leftWorld = useCallback(() => {
-    setDemo(false);
-    lockNow();
-  }, [lockNow]);
   const lockAway = useCallback(() => {
     setRestore(navigation.current ?? firstState);
     setRoute(undefined);
     lockNow();
   }, [lockNow, firstState]);
+  const doors = useDemoDoors(worldKit !== null && reference.ok, lockAway, lockNow);
   useAutoLock(book !== null || broken !== null, lockMinutes, lockAway);
   const open = phase.kind === 'open' && reference.ok && book !== null;
   const front = route ?? focusedRoute(firstState) ?? (book === null ? 'Welcome' : startRoute(book));
@@ -168,15 +165,17 @@ export default function App({
               <PilotTimings.Provider value={pilot}>
                 <ReopenHistory.Provider value={reopen}>
                   <LockAway.Provider value={lockAway}>
-                    <AppNavigator
-                      initialRouteName={startRoute(book)}
-                      initialState={firstState}
-                      onAction={raiseGuard}
-                      onStateChange={(state) => {
-                        navigation.current = state;
-                        setRoute(focusedRoute(state));
-                      }}
-                    />
+                    <HelpDoor.Provider value={doors.help}>
+                      <AppNavigator
+                        initialRouteName={startRoute(book)}
+                        initialState={firstState}
+                        onAction={raiseGuard}
+                        onStateChange={(state) => {
+                          navigation.current = state;
+                          setRoute(focusedRoute(state));
+                        }}
+                      />
+                    </HelpDoor.Provider>
                   </LockAway.Provider>
                 </ReopenHistory.Provider>
               </PilotTimings.Provider>
@@ -184,17 +183,17 @@ export default function App({
           </AppDataProvider>
         ) : (
           <LocaleDirContext.Provider value={I18nManager.isRTL ? 'rtl' : 'ltr'}>
-            {demo && worldKit !== null && reference.ok ? (
+            {doors.shown && worldKit !== null && reference.ok ? (
               <DemoRoot
                 kit={worldKit}
                 calendar={reference.calendar}
                 profile={reference.profile}
                 storage={storage}
-                onBack={() => setDemo(false)}
-                onLeft={leftWorld}
+                onBack={doors.back}
+                onLeft={doors.left}
               />
             ) : (
-              <DemoDoor.Provider value={worldKit !== null && reference.ok ? () => setDemo(true) : null}>
+              <DemoDoor.Provider value={doors.gate}>
                 <Gate
                   phase={phase}
                   storage={storage}

@@ -4,7 +4,8 @@
 // The world kit module on a PC (#561): the PC hands the app its Web Crypto
 // kit directly (world-kit.ts), so this is that kit behind the phone's
 // module, bytes as lowercase hex, for any code that reaches the module, and
-// every failure is E_WORLD_KIT, as on the phone.
+// every failure is E_WORLD_KIT, as on the phone. A PC may always connect to
+// the demo server, which its page's policy names.
 
 import { toHex } from '@minhajna/core';
 import type { Spec } from '../../../android/src/native/NativeMinhajnaWorldKit';
@@ -22,6 +23,7 @@ async function kitted<T>(step: () => Promise<T>): Promise<T> {
 }
 
 const WorldKit: Spec = {
+  canConnect: () => true,
   derive: (secret, salt, rounds) =>
     kitted(async () => toHex(await worldKit.kdf(fromHex(secret), fromHex(salt), rounds))),
   mac: (key, data) => kitted(async () => toHex(await worldKit.mac(fromHex(key), fromHex(data)))),

@@ -1,29 +1,39 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The demo worlds from a PC's first pages (#560, answers 571 and 573), in the
-// app as the web build runs it, against a made-up demo server: the welcome and
-// the lock page lead to them only where the app has the cryptography for
+// The demo worlds from a PC's first pages (#560, answers 571, 573 and 575), in
+// the app as the web build runs it, against a made-up demo server: the welcome
+// and the lock page lead to them only on a PC that has the cryptography for
 // worlds; a national world started from the lock page opens with no
 // passphrase, shows the band first, then its roles, then its home with its
 // code, each page announced with the band; its starter moves the date; and
 // leaving shuts the network and the world's store and brings back the lock,
 // or the welcome on a fresh PC, the teacher's history shut meanwhile and
-// untouched. No door shows when the reference data is refused.
+// untouched; Help on a PC locks behind the passphrase, and its entry starts
+// worlds too. No door shows when the reference data is refused.
 // Every world and passphrase is made up.
 
-import { worldCodeGroups } from '@minhajna/core';
-import { AccessibilityInfo, Platform, Text, type PressableProps, type TextProps } from 'react-native';
+import { parseDay, worldCodeGroups } from '@minhajna/core';
+import {
+  AccessibilityInfo,
+  Platform,
+  Text,
+  type PressableProps,
+  type TextInputProps,
+  type TextProps,
+} from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { FakeStorage } from '../jest/fake-storage';
 import { FakeWorld } from '../jest/fake-world';
 import { DemoServer, nodeKit } from '../jest/world-server';
+import { TextField } from '../src/components/TextField';
 import { DemoBand } from '../src/demo/DemoBand';
 import { WorldHome } from '../src/demo/WorldHome';
 import NativeWorld from '../src/native/NativeMinhajnaWorld';
 import { leaveWorldNetwork, worldNetworkOpen } from '../src/network/world-network';
 import { bundledReference } from '../src/reference';
+import { openRecordBook } from '../src/storage/history';
 import text from '../src/text/ar.json';
 
 jest.mock('../src/lock/Unlock', () => jest.requireActual<object>('../src/lock/Unlock.web'));
@@ -107,15 +117,19 @@ function texts(): unknown[] {
   return tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
 }
 
-function lockedPc(): FakeStorage {
-  const storage = new FakeStorage();
+/** A PC under a made-up passphrase, with whatever history it already holds. */
+function lockedPc(storage = new FakeStorage()): FakeStorage {
   storage.pinRule = /^.{12,}$/u;
   storage.pin = 'chalk on the green board';
   storage.created = true;
   return storage;
 }
 
-test('only an app with the cryptography for worlds leads to them, from the welcome', async () => {
+test('only a PC with the cryptography for worlds leads to them from the welcome', async () => {
+  await render(<App storage={new FakeStorage().asSpec()} worldKit={nodeKit} />);
+  expect(shown('welcome-demo')).toBe(false);
+  await ReactTestRenderer.act(() => tree!.unmount());
+  jest.replaceProperty(Platform, 'OS', 'web');
   await render(<App storage={new FakeStorage().asSpec()} />);
   expect(shown('welcome-demo')).toBe(false);
   await ReactTestRenderer.act(() => tree!.unmount());
@@ -127,6 +141,7 @@ test('only an app with the cryptography for worlds leads to them, from the welco
 });
 
 test('no door shows on refused reference data, and leaving on a fresh PC brings the welcome back', async () => {
+  jest.replaceProperty(Platform, 'OS', 'web');
   const refused = { ...bundledReference, profile: {} as never };
   await render(<App storage={new FakeStorage().asSpec()} files={refused} worldKit={nodeKit} />);
   expect(shown('welcome-demo')).toBe(false);
@@ -188,4 +203,34 @@ test('a world started from the lock page opens with no passphrase, and leaving b
   expect(worldNetworkOpen()).toBeNull();
   expect(JSON.stringify(storage.rows)).toBe(before);
   expect(storage.opened).toBe(false);
+});
+
+test('Help on a PC locks behind the passphrase, and its entry starts worlds too', async () => {
+  const setUp = new FakeStorage();
+  const book = await openRecordBook(setUp.asSpec());
+  await book.recordAll(parseDay('2026-10-15'), [
+    {
+      kind: 'school.set',
+      school: { id: 's-1', name: 'متوسطة النجاح', levels: ['cem'], subjects: ['arabic'], zone: '16' },
+    },
+    { kind: 'setup.finished' },
+  ]);
+  const storage = lockedPc(setUp);
+  jest.replaceProperty(Platform, 'OS', 'web');
+  await render(<App storage={storage.asSpec()} worldKit={nodeKit} />);
+  const [input] = tree!.root.findAll((node) => node.type === TextField && node.props.testID === 'passphrase');
+  await ReactTestRenderer.act(async () => {
+    (input.props as TextInputProps).onChangeText?.(storage.pin!);
+    await settle();
+  });
+  await press('passphrase-open');
+  await until('today-help');
+  await press('today-help');
+  await until('help-worlds');
+  await press('help-worlds');
+  await until('demo-start-national');
+  expect(shown('demo-start-teachers')).toBe(true);
+  expect(storage.opened).toBe(false);
+  await press('demo-back');
+  await until('passphrase');
 });

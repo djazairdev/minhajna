@@ -52,6 +52,7 @@
     "demo": "Classe de démonstration",
     "demoThere": "Dans vos classes : des élèves imaginaires pour essayer, expliquer, faire des captures d’écran et reproduire un problème avant de le signaler.",
     "demoAdd": "Des élèves imaginaires pour essayer, expliquer et faire des captures d’écran. Elle s’ajoute depuis « Classes et élèves ».",
+    "worldsLine": "Entrez dans un monde démarré sur un PC, par son code, en enseignant ou en inspecteur, avec des données inventées. Vos registres se verrouillent d’abord.",
     "timingsLine": "Mesurés sur ce téléphone, envoyés seulement si vous les partagez",
     "problemLine": "Les noms des élèves, tels que vos listes de classe les écrivent, sont remplacés, et le rapport est affiché avant l’envoi",
     "contact": "Nous contacter",
@@ -62,7 +63,8 @@
     "crashes": "Rapports de plantage",
     "crashesLine": "S’ils sont activés et que l’application s’arrête soudain, seuls le type d’erreur, sa place dans le code et les dernières étapes sont gardés, sans aucun contenu, et vous sont montrés au démarrage suivant pour l’envoyer ou non. Rien n’est gardé tant qu’ils sont désactivés.",
     "pc": {
-      "timingsLine": "Mesurés sur ce PC, envoyés seulement si vous les partagez"
+      "timingsLine": "Mesurés sur ce PC, envoyés seulement si vous les partagez",
+      "worldsLine": "Démarrez un monde ou entrez dans un monde par son code, avec des données inventées. Vos registres se verrouillent d’abord."
     }
   },
   "referenceRefused": "Le calendrier et les données de l’Algérie fournis avec l’application n’ont pas pu être lus : rien n’en a été utilisé.",
@@ -4115,7 +4117,8 @@
     "open": "Mondes de démonstration, avec des données inventées",
     "entry": {
       "title": "Mondes de démonstration",
-      "line": "Essayez Minhajna du ministère à l’enseignant, avec des données inventées. Vos propres registres restent fermés tant qu’un monde est ouvert.",
+      "line": "Entrez dans un monde démarré sur un PC, par son code, en enseignant ou en inspecteur, avec des données inventées. Vos propres registres restent verrouillés tant qu’un monde est ouvert.",
+      "board": "Ne se connecte qu’au serveur de démonstration, et seulement tant qu’un monde est ouvert.",
       "warningTitle": "Ne saisissez jamais de vrais noms ni de vrais registres",
       "warning": "Toute personne qui a le code d’un monde peut y agir dans n’importe quel rôle. Un monde est effacé à son 7e jour.",
       "national": "Démarrer un monde national",
@@ -4125,7 +4128,11 @@
       "code": "Code d’un monde",
       "join": "Entrer dans le monde",
       "back": "Retour",
-      "working": "Calcul des clés du monde…"
+      "working": "Vérification du code ; cela prend quelques secondes…",
+      "pc": {
+        "line": "Essayez Minhajna du ministère à l’enseignant, avec des données inventées. Vos propres registres restent fermés tant qu’un monde est ouvert.",
+        "working": "Calcul des clés du monde…"
+      }
     },
     "problem": {
       "code": "Ce n’est pas un code de monde. Vérifiez ses 20 caractères.",
@@ -4133,9 +4140,13 @@
       "busy": "Le serveur de démonstration est occupé. Réessayez dans un moment.",
       "offline": "Le serveur de démonstration est injoignable. Vérifiez la connexion et réessayez.",
       "lastDay": "La date du monde est déjà son dernier jour annoncé.",
-      "device": "Ce navigateur n’a pas pu calculer les clés du monde. Rechargez la page et réessayez.",
+      "device": "Ce téléphone n’a pas pu calculer les clés du monde. Fermez l’application et réessayez.",
       "other": "Le serveur de démonstration n’a pas répondu comme prévu. Réessayez.",
-      "store": "Ce navigateur n’a pas pu ouvrir le stockage du monde."
+      "store": "Ce téléphone n’a pas pu ouvrir le stockage du monde.",
+      "pc": {
+        "device": "Ce navigateur n’a pas pu calculer les clés du monde. Rechargez la page et réessayez.",
+        "store": "Ce navigateur n’a pas pu ouvrir le stockage du monde."
+      }
     },
     "roles": {
       "title": "Choisissez un rôle",

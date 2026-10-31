@@ -1,21 +1,26 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The demo worlds on a PC (#560, answers 569, 572 and 573), in place of the
-// welcome or the lock page while the teacher's history is shut: the entry
-// starts a world or enters one by its code, then the world's own store opens
-// and its roles show, then its home. The platform's cryptography comes from
-// the PC's start. Each failure says what went wrong in the catalogue's words,
-// by its code, and leaves the entry as it was; a code the server no longer
-// knows erases what this PC kept for it (world-mode.ts). Leaving shuts the
-// network and the world's store, and hands back to the lock, which opens the
-// teacher's history again only through its passphrase.
+// The demo worlds (#560 and #561, answers 569, 572, 573 and 575), in place of
+// the welcome or the lock page while the teacher's history is shut: the entry
+// starts a world, on a PC only, or enters one by its code, then the world's
+// own store opens and its roles show, then its home. The platform's
+// cryptography comes from its start. Each failure says what went wrong in the
+// catalogue's words, by its code, and leaves the entry as it was; a code the
+// server no longer knows erases what this device kept for it (world-mode.ts).
+// Leaving shuts the network and the world's store, and hands back to the
+// lock, which opens the teacher's history again only through its passphrase
+// or PIN. Android's back button goes back from the entry unless a world is
+// being entered, and from a role to the roles; on the roles it does nothing,
+// so a world is left only by its own button.
 
 import { readWorldCode, type CountryProfile, type SchoolCalendar, type WorldKind } from '@minhajna/core';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BackHandler } from 'react-native';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import NativeWorld, { type Spec as WorldSpec } from '../native/NativeMinhajnaWorld';
-import { currentLanguage, useText } from '../text/i18n';
+import { onPc, useDeviceText } from '../text/device-text';
+import { currentLanguage } from '../text/i18n';
 import { DemoEntry } from './DemoEntry';
 import { worldDate } from './world-date';
 import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } from './world-mode';
@@ -68,7 +73,7 @@ export function DemoRoot({
   onBack,
   onLeft,
 }: DemoRootProps) {
-  const t = useText();
+  const t = useDeviceText();
   const [open, setOpen] = useState<OpenWorld | null>(null);
   const [role, setRole] = useState<WorldRole | null>(null);
   const [busy, setBusy] = useState(false);
@@ -123,8 +128,18 @@ export function DemoRoot({
       onLeft();
     });
 
+  useEffect(() => {
+    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (open === null && !working.current) onBack();
+      if (open !== null) setRole(null);
+      return true;
+    });
+    return () => handler.remove();
+  }, [open, onBack]);
+
   const shown = problem === null ? null : t(problem);
-  if (open === null) return <DemoEntry busy={busy} problem={shown} onStart={start} onJoin={join} onBack={onBack} />;
+  if (open === null)
+    return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
   return (
     <WorldHome
       world={open}

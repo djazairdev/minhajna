@@ -15,6 +15,8 @@ export type WorldPair = { spki: string; pkcs8: string; fingerprint: string };
  * travel sealed with the world.
  */
 export interface Spec extends TurboModule {
+  /** Whether the app holds the network permission a world needs, which release builds get with #559's notice. */
+  canConnect(): boolean;
   /** PBKDF2-HMAC-SHA256 to 32 bytes. */
   derive(secret: string, salt: string, rounds: number): Promise<string>;
   /** HMAC-SHA256. */

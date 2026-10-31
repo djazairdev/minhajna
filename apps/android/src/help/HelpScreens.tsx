@@ -11,6 +11,7 @@ import { controlIcon } from '../design/Icon';
 import native from '../native/NativeMinhajnaCrash';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { PILOT_BUILD } from '../pilot/pilot-build';
+import { useHelpDoor } from '../demo/demo-door';
 import { readerOnly } from '../reader/reader-only';
 import { useAppData } from '../storage/AppData';
 import { useDeviceText } from '../text/device-text';
@@ -21,7 +22,8 @@ import { useAppLicences } from './useAppLicences';
 
 /**
  * Help as drawn (#249, answer 483): the demo class, which opens «الأقسام والتلاميذ», and the plan-error row, both
- * left out for a reader with nothing set up (#246, answer 490); «توقيتاتي» in pilot builds;
+ * left out for a reader with nothing set up (#246, answer 490); the demo worlds, where the app has their cryptography,
+ * which lock the history first (#561, answer 575); «توقيتاتي» in pilot builds;
  * «الإبلاغ عن مشكلة», the plan-error row, which opens the Classes tab (answer 301), and a refused update file, by
  * hand (answer 307); «تقارير الأعطال», off until the teacher turns it on, and turning it off deletes a kept report;
  * the teacher's channels; then the privacy notice, connections and licences, and the build.
@@ -31,6 +33,7 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
   const { state } = useAppData();
   const demo = [...state.classes.values()].some((schoolClass) => schoolClass.demo === true);
   const teaching = !readerOnly(state);
+  const worlds = useHelpDoor();
   const [crashes, setCrashes] = useState(() => native.reportsOn());
   const [crashesFailed, setCrashesFailed] = useState(false);
   return (
@@ -42,6 +45,9 @@ export function HelpScreen({ navigation }: NativeStackScreenProps<RootStackParam
           detail={t(demo ? 'help.demoThere' : 'help.demoAdd')}
           onPress={() => navigation.navigate('SettingsClasses')}
         />
+      )}
+      {worlds !== null && (
+        <HelpRow testID="help-worlds" label={t('demo.entry.title')} detail={t('help.worldsLine')} onPress={worlds} />
       )}
       {PILOT_BUILD && (
         <HelpRow

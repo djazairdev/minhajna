@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A demo world once entered, on a PC (#560, answers 571 to 573): the band with
-// the world's date above everything, so it is read first, then the roles the
-// world holds; once one is picked, the world's home names it, shows the
-// world's code in its four groups for others to type, and, on the device that
-// started the world, moves its date to the next announced day. Each role's
-// workspace opens here once #562 brings it. Leaving is always one press away.
+// A demo world once entered (#560 and #561, answers 571 to 573 and 575): the
+// band with the world's date above everything, so it is read first, then the
+// roles the world holds that this device offers; once one is picked, the
+// world's home names it, shows the world's code in its four groups for others
+// to type, and, on the device that started the world, moves its date to the
+// next announced day. Each role's workspace opens here once #562 brings it.
+// Leaving is always one press away.
 // The button pressed is gone with each new page, so the band and the page's
 // heading are announced as it shows: on a PC through a hidden live region,
 // cleared a few seconds later so browsing does not read it twice, and on the
@@ -21,10 +22,9 @@ import { Button } from '../components/Button';
 import { RowLink } from '../components/RowLink';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
-import { onPc } from '../text/device-text';
-import { useText } from '../text/i18n';
+import { onPc, useDeviceText } from '../text/device-text';
 import { DemoBand } from './DemoBand';
-import { WORLD_ROLES, type OpenWorld, type WorldRole } from './world-mode';
+import { rolesHere, type OpenWorld, type WorldRole } from './world-mode';
 
 /** How long the hidden words stay, in milliseconds, so browsing the page does not read them twice. */
 const SAID_FOR = 5000;
@@ -53,7 +53,7 @@ export type WorldHomeProps = {
 
 /** The roles of an entered world, then its home. */
 export function WorldHome({ world, date, role, moving, problem, onRole, onMove, onLeave }: WorldHomeProps) {
-  const t = useText();
+  const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -92,7 +92,7 @@ export function WorldHome({ world, date, role, moving, problem, onRole, onMove, 
                 {heading}
               </Text>
               <Text style={[styles.line, align]}>{t('demo.roles.line')}</Text>
-              {WORLD_ROLES[world.kind].map((one) => (
+              {rolesHere(world.kind).map((one) => (
                 <RowLink
                   key={one}
                   testID={`world-role-${one}`}
