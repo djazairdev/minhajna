@@ -9,7 +9,7 @@ import { request } from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import type { NestNodeApplication } from '@nestjs/platform-node';
 import { createApp } from '../src/app.js';
-import { BATCH_BODY, DRAIN_AT, SMALL_BODY } from '../src/body-guard.js';
+import { BATCH_BODY, DELIVERY_BODY, DRAIN_AT, SMALL_BODY } from '../src/body-guard.js';
 
 let connection: string | undefined;
 
@@ -50,6 +50,10 @@ describe('the body guard', () => {
     assert.notEqual(connection, 'close');
     assert.equal(await send(base, upload, { ...json, 'content-length': String(small.length) }, small), 400);
     assert.equal(await send(base, '/worlds', { ...json, 'content-length': '2' }, '{}'), 400);
+    const delivery = '/worlds/AAAAA/state/deliveries';
+    const larger = 'x'.repeat(DELIVERY_BODY + 1);
+    assert.equal(await send(base, delivery, { ...json, 'content-length': String(larger.length) }, larger), 413);
+    assert.equal(await send(base, delivery, { ...json, 'content-length': String(small.length) }, small), 400);
   });
 
   it('closes the connection instead of draining a body that claims far too much', async () => {

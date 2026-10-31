@@ -14,12 +14,14 @@
 
 import { createPrivateKey, createPublicKey, generateKeyPairSync, randomBytes, sign, verify } from 'node:crypto';
 
-const ID = /^[0-9a-f]{32}$/;
-const PUBLIC_KEY = /^MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE[A-Za-z0-9+/]{85}[AQgw]==$/;
+export const ID = /^[0-9a-f]{32}$/;
+export const PUBLIC_KEY = /^MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE[A-Za-z0-9+/]{85}[AQgw]==$/;
 /** The last group of padded base64 written the one way, every bit past the data a zero. */
 const LAST_GROUP = '(?:[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)?';
 /** An ECDSA P-256 signature's DER, 8 to 72 bytes, in padded base64 written the one way. */
-const SIGNATURE = new RegExp(`^(?=[A-Za-z0-9+/=]{12,96}$)(?![A-Za-z0-9+/]{10}==$)(?:[A-Za-z0-9+/]{4})+${LAST_GROUP}$`);
+export const SIGNATURE = new RegExp(
+  `^(?=[A-Za-z0-9+/=]{12,96}$)(?![A-Za-z0-9+/]{10}==$)(?:[A-Za-z0-9+/]{4})+${LAST_GROUP}$`,
+);
 
 export interface CertificateRequest {
   readonly world: string;
@@ -42,7 +44,8 @@ function requestText({ world, subject, publicKey }: CertificateRequest): string 
   return `minhajna/certificate-request/1\n${world}\n${subject}\n${publicKey}`;
 }
 
-function certificateText(certificate: Omit<Certificate, 'signature'>): string {
+/** The text the CA signs for a certificate. */
+export function certificateText(certificate: Omit<Certificate, 'signature'>): string {
   const { world, subject, publicKey, issued, serial } = certificate;
   return `minhajna/certificate/1\nstand-in\n${world}\n${subject}\n${publicKey}\n${issued}\n${serial}`;
 }
@@ -53,7 +56,8 @@ export function newCaKey(): string {
   return privateKey.export({ format: 'der', type: 'pkcs8' }).toString('base64');
 }
 
-function privateKeyOf(key: string) {
+/** A key the store keeps, PKCS #8 DER in base64, as a private key. */
+export function privateKeyOf(key: string) {
   return createPrivateKey({ key: Buffer.from(key, 'base64'), format: 'der', type: 'pkcs8' });
 }
 
@@ -62,7 +66,8 @@ export function caPublicKey(key: string): string {
   return createPublicKey(privateKeyOf(key)).export({ format: 'der', type: 'spki' }).toString('base64');
 }
 
-function signedBy(publicKey: string, text: string, signature: string): boolean {
+/** Whether a P-256 SPKI in base64 signed the text's UTF-8 bytes with the DER signature in base64. */
+export function signedBy(publicKey: string, text: string, signature: string): boolean {
   try {
     const key = createPublicKey({ key: Buffer.from(publicKey, 'base64'), format: 'der', type: 'spki' });
     return verify('sha256', Buffer.from(text, 'utf8'), key, Buffer.from(signature, 'base64'));

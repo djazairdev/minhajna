@@ -11,7 +11,8 @@
 // may be passed by a few uploads. An upload that waits too long for its
 // turn, which PostgreSQL itself times, is refused as busy, to be tried
 // again. Erasing a world erases its spaces and batches with it, in the
-// database itself.
+// database itself, and the stand-in receiving system's receipts (#590): a
+// world may pass MAX_RECEIPTS by a few receipts sent at the same moment.
 
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '../generated/prisma/client.js';
@@ -25,7 +26,7 @@ import {
   type SpaceStore,
   type StoredBatch,
 } from '../spaces/space-store.js';
-import type { World, WorldStore } from '../worlds/world-store.js';
+import { MAX_RECEIPTS, type Receipt, type World, type WorldStore } from '../worlds/world-store.js';
 
 /** Sealed batches across every world: about 4 GB. */
 export const MAX_DATABASE_BATCHES = 1_000_000;
@@ -110,7 +111,7 @@ export class PrismaWorldStore implements WorldStore {
   }
 
   async get(id: string): Promise<World | undefined> {
-    const row = await this.client.world.findUnique({ where: { id }, omit: { caKey: true } });
+    const row = await this.client.world.findUnique({ where: { id }, omit: { caKey: true, receiverKey: true } });
     if (!row) return undefined;
     return {
       ...row,
@@ -124,11 +125,50 @@ export class PrismaWorldStore implements WorldStore {
     await this.client.world.updateMany({ where: { id }, data: { date: toDate(date) } });
   }
 
-  async caKey(id: string, make: () => string): Promise<string | undefined> {
+  async caKey(id: string, make?: () => string): Promise<string | undefined> {
     const row = await this.client.world.findUnique({ where: { id }, select: { caKey: true } });
-    if (!row || row.caKey !== null) return row?.caKey ?? undefined;
+    if (!row || row.caKey !== null || !make) return row?.caKey ?? undefined;
     await this.client.world.updateMany({ where: { id, caKey: null }, data: { caKey: make() } });
     return (await this.client.world.findUnique({ where: { id }, select: { caKey: true } }))?.caKey ?? undefined;
+  }
+
+  async receiverKey(id: string, make?: () => string): Promise<string | undefined> {
+    const row = await this.client.world.findUnique({ where: { id }, select: { receiverKey: true } });
+    if (!row || row.receiverKey !== null || !make) return row?.receiverKey ?? undefined;
+    await this.client.world.updateMany({ where: { id, receiverKey: null }, data: { receiverKey: make() } });
+    const made = await this.client.world.findUnique({ where: { id }, select: { receiverKey: true } });
+    return made?.receiverKey ?? undefined;
+  }
+
+  async addReceipt(id: string, receipt: Receipt): Promise<'added' | 'kept' | 'full' | 'no-world'> {
+    if (await this.client.receipt.findUnique({ where: { worldId_id: { worldId: id, id: receipt.id } } })) return 'kept';
+    if ((await this.client.receipt.count({ where: { worldId: id } })) >= MAX_RECEIPTS) return 'full';
+    const { id: receiptId, kind, term, subject, rows, signed, received, signer } = receipt;
+    const data = { worldId: id, id: receiptId, kind, term, class: receipt.class, subject, rows, signer };
+    try {
+      await this.client.receipt.create({ data: { ...data, signed: toDate(signed), received: toDate(received) } });
+      return 'added';
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') return 'no-world';
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') return 'kept';
+      throw error;
+    }
+  }
+
+  async receipts(id: string): Promise<Receipt[]> {
+    const rows = await this.client.receipt.findMany({ where: { worldId: id }, orderBy: { seq: 'desc' } });
+    return rows.map((row) => ({
+      standIn: true,
+      id: row.id,
+      kind: 'marks',
+      term: row.term,
+      class: row.class,
+      subject: row.subject,
+      rows: row.rows,
+      signed: toDay(row.signed),
+      received: toDay(row.received),
+      signer: row.signer,
+    }));
   }
 
   async sweep(today: string): Promise<string[]> {

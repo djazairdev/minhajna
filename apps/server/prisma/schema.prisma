@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The demo server's tables (#542, answers 550 and 551): worlds, their spaces
-// and the sealed batches the relay hands on, each row keyed by its world and
-// erased with it. Nothing here is named: ids the devices drew, hashes, days,
-// ciphertext, and each world's stand-in CA key (#554), which certifies
-// nothing outside its world. A space counts its batches, and each batch
-// takes the next of that count as its place in the space, so readers page
-// through a space in the order uploads committed, and learn nothing of
-// other spaces. Each migration is generated from this schema with `prisma
-// migrate diff --script` and committed as plain SQL.
+// The demo server's tables (#542, answers 550 and 551): worlds, their
+// spaces and the sealed batches the relay hands on, each row keyed by its
+// world and erased with it. Nothing here is named: ids the devices drew,
+// hashes, days, ciphertext, each world's stand-in CA key (#554), which
+// certifies nothing outside its world, and the key and receipts of its
+// stand-in receiving system (#590), which name no pupil. A space counts its
+// batches, and each batch takes the next of that count as its place in the
+// space, so readers page through a space in the order uploads committed,
+// and learn nothing of other spaces. Each migration is generated from this
+// schema with `prisma migrate diff --script` and committed as plain SQL.
 
 generator client {
   provider = "prisma-client"
@@ -35,7 +36,9 @@ model World {
   passHash      String     @db.Char(64)
   erasesOn      DateTime   @db.Date
   caKey         String?
+  receiverKey   String?
   spaces        Space[]
+  receipts      Receipt[]
 
   @@index([erasesOn])
   @@map("world")
@@ -65,4 +68,23 @@ model Batch {
   @@id([worldId, spaceId, seq])
   @@unique([worldId, spaceId, stream, number])
   @@map("batch")
+}
+
+model Receipt {
+  seq      Int      @id @default(autoincrement())
+  worldId  String   @db.Char(5)
+  id       String   @db.Char(32)
+  kind     String   @db.VarChar(16)
+  term     Int
+  class    String   @db.VarChar(32)
+  subject  String   @db.VarChar(32)
+  rows     Int
+  signed   DateTime @db.Date
+  received DateTime @db.Date
+  signer   String   @db.Char(32)
+  world    World    @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  @@unique([worldId, id])
+  @@index([worldId, seq])
+  @@map("receipt")
 }
