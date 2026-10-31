@@ -8,10 +8,9 @@
 // confirming a receipt says so, aloud in the hidden live region on a PC, and
 // shows the day it was confirmed, and a receipt put is said and shown even when
 // reading again fails; a problem is said with a way to read again; the joined
-// card opens the page, Week-sign, the weekly digest, the teacher's classes as
-// the director sees them and the classes handed over as a substitute; and the
-// page's words read in every language. Every world, school and teacher is made
-// up.
+// card opens each of its pages, and what stays and goes on leaving once the
+// year's dates read; and the page's words read in every language. Every world,
+// school and teacher is made up.
 
 import type { Day, SchoolJoined } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -137,36 +136,30 @@ test('a problem is said, with a way to read again', async () => {
   expect(has('teacher-again')).toBe(true);
 });
 
-test('the joined card opens the timetable from the school, Week-sign, the digest and my classes', async () => {
+test('the joined card opens each of its pages, and what stays on leaving once the year’s dates read', async () => {
   const { joined } = await setting();
-  const [opened, week, digest, mine, handover] = [jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn()];
-  await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(
-      <LocaleDirContext.Provider value="rtl">
-        <SchoolJoinedCards
-          joins={[joined]}
-          dayText={dayText}
-          onDevices={() => undefined}
-          onHelp={() => undefined}
-          onTimetable={opened}
-          onWeek={week}
-          onDigest={digest}
-          onMine={mine}
-          onHandover={handover}
-        />
-      </LocaleDirContext.Provider>,
-    );
-  });
-  await press('school-timetable');
-  expect(opened).toHaveBeenCalledWith(joined);
-  await press('school-week');
-  expect(week).toHaveBeenCalledWith(joined);
-  await press('school-digest');
-  expect(digest).toHaveBeenCalledWith(joined);
-  await press('school-mine');
-  expect(mine).toHaveBeenCalledWith(joined);
-  await press('school-handover');
-  expect(handover).toHaveBeenCalledWith(joined);
+  const opened: [string, SchoolJoined][] = [];
+  const cards = (canLeave: boolean) =>
+    ReactTestRenderer.act(() => {
+      tree?.unmount();
+      tree = ReactTestRenderer.create(
+        <LocaleDirContext.Provider value="rtl">
+          <SchoolJoinedCards
+            joins={[joined]}
+            dayText={dayText}
+            onOpen={(page) => (join) => opened.push([page, join])}
+            canLeave={canLeave}
+          />
+        </LocaleDirContext.Provider>,
+      );
+    });
+  await cards(false);
+  expect(tree!.root.findAll((node) => node.props.testID === 'school-leave-open')).toEqual([]);
+  const pages = ['week', 'digest', 'mine', 'handover', 'return', 'timetable', 'devices', 'help'];
+  for (const page of pages) await press(`school-${page}`);
+  await cards(true);
+  await press('school-leave-open');
+  expect(opened).toEqual([...pages, 'leave'].map((page) => [page, joined]));
   expect(texts()).toContain(ar.demo.weekSign.reminder);
 });
 

@@ -40,6 +40,13 @@ export interface HandedClass {
   readonly whole: boolean;
 }
 
+/** The device that joined on the channel, refused when none or another device joined on it. */
+export function ownJoin(join: SchoolJoined, joined: Joined | null): Joined {
+  if (joined === null) throw failed('No device joined on the channel yet', 'E_TIMETABLE_UNJOINED');
+  if (joined.device !== join.device) throw failed('Another device joined first', 'E_JOIN_TAKEN');
+  return joined;
+}
+
 /** The channel's handovers, refused when no device or another device joined on it. */
 async function handoversOn(
   code: JoinCode,
@@ -49,9 +56,8 @@ async function handoversOn(
   ca: string,
   kit: WorldKit,
 ) {
-  if (joined === null) throw failed('No device joined on the channel yet', 'E_TIMETABLE_UNJOINED');
-  if (joined.device !== join.device) throw failed('Another device joined first', 'E_JOIN_TAKEN');
-  return kitStep(() => channelHandovers(code, batches, { key: ca, checker: kit }, joined, kit.cipher, kit.mac));
+  const own = ownJoin(join, joined);
+  return kitStep(() => channelHandovers(code, batches, { key: ca, checker: kit }, own, kit.cipher, kit.mac));
 }
 
 /** The handovers on the teacher's channel, in the channel's order. */
