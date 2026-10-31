@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The committed SQL migrations (#542), applied to a real PostgreSQL named
+// The committed SQL migrations (#542, #590), applied to a real PostgreSQL named
 // by TEST_DATABASE_URL, whose database name must end in _test since every
 // test empties it. Without it these tests are skipped; CI always sets it.
 
@@ -57,7 +57,13 @@ describe('the committed migrations', { skip }, () => {
     assert.deepEqual(names, [...names].sort());
     assert.deepEqual(await applyMigrations(client), names);
     assert.deepEqual(await applyMigrations(client), []);
-    assert.deepEqual(await tables(client), ['minhajna_meta.migration', 'public.batch', 'public.space', 'public.world']);
+    assert.deepEqual(await tables(client), [
+      'minhajna_meta.migration',
+      'public.batch',
+      'public.receipt',
+      'public.space',
+      'public.world',
+    ]);
   });
 
   it('applies each migration once when two servers start together', async () => {
@@ -74,7 +80,7 @@ describe('the committed migrations', { skip }, () => {
     }
   });
 
-  it("erases a world's spaces and batches with it, leaving no row", async () => {
+  it("erases a world's spaces, batches and receipts with it, leaving no row", async () => {
     await applyMigrations(client);
     await client.query(
       `INSERT INTO world VALUES ('K7QF3', 'c2VhbGVk', '2026-12-01', '{2026-12-06}', $1, $1, '2026-12-07')`,
@@ -85,8 +91,13 @@ describe('the committed migrations', { skip }, () => {
       `INSERT INTO batch ("worldId", "spaceId", seq, stream, number, bytes)
        VALUES ('K7QF3', 'national', 1, 'c3RyZWFtLW9mLWRlbW8', 0, '\\x00')`,
     );
+    await client.query(
+      `INSERT INTO receipt ("worldId", id, kind, term, class, subject, rows, signed, received, signer)
+       VALUES ('K7QF3', $1, 'marks', 1, '1M2', 'math', 30, '2026-11-29', '2026-12-01', $1)`,
+      ['0'.repeat(32)],
+    );
     await client.query(`DELETE FROM world WHERE id = 'K7QF3'`);
-    for (const table of ['world', 'space', 'batch']) {
+    for (const table of ['world', 'space', 'batch', 'receipt']) {
       const { rows } = await client.query<{ n: number }>(`SELECT count(*)::int AS n FROM ${table}`);
       assert.equal(rows[0]?.n, 0, table);
     }

@@ -1,80 +1,22 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The world and space stores (#541, #542, #554): the same rules, caps,
-// stand-in CA keys and sweep for the memory stores and PostgreSQL's, which
-// run against the database named by TEST_DATABASE_URL, emptied before each
-// test, and are skipped without it; CI always sets it. Then a world kept
-// in PostgreSQL outliving a restart of the server. Every world here is
-// made up.
+// The world and space stores (#541, #542, #554), from store-kinds.ts: the same
+// rules, caps, stand-in CA keys and sweep for the memory stores and
+// PostgreSQL's, which run against the database named by TEST_DATABASE_URL,
+// emptied before each test, and are skipped without it; CI always sets it. Then
+// a world kept in PostgreSQL outliving a restart of the server. Every world
+// here is made up.
 
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
-import process from 'node:process';
 import { beforeEach, describe, it } from 'node:test';
 import pg from 'pg';
 import { SEALED_BATCH_BYTES } from '../src/spaces/space-rules.js';
-import { MAX_BATCHES, MAX_SPACES, MemorySpaceStore, StoreBusy, type SpaceStore } from '../src/spaces/space-store.js';
-import { applyMigrations } from '../src/storage/migrations.js';
+import { MAX_BATCHES, MAX_SPACES, StoreBusy } from '../src/spaces/space-store.js';
 import { PrismaStores } from '../src/storage/prisma-stores.js';
 import { createApp } from '../src/app.js';
-import { MemoryWorldStore, type World, type WorldStore } from '../src/worlds/world-store.js';
-
-const url = process.env['TEST_DATABASE_URL'];
-
-interface Stores {
-  readonly worlds: WorldStore;
-  readonly spaces: SpaceStore;
-  close(): Promise<void>;
-}
-
-/** Empties the test database and applies the migrations. */
-async function emptyDatabase(): Promise<void> {
-  assert.match(new URL(url!).pathname, /_test$/, 'TEST_DATABASE_URL must name a database ending in _test');
-  const client = new pg.Client({ connectionString: url });
-  await client.connect();
-  try {
-    await client.query('DROP SCHEMA IF EXISTS public CASCADE; DROP SCHEMA IF EXISTS minhajna_meta CASCADE');
-    await client.query('CREATE SCHEMA public');
-    await applyMigrations(client);
-  } finally {
-    await client.end();
-  }
-}
-
-function madeUpWorld(id: string, erasesOn = '2026-12-07'): World {
-  return {
-    id,
-    sealed: 'c2VhbGVkLXdvcmxk',
-    date: '2026-12-01',
-    announcedDays: ['2026-12-06', '2026-12-20'],
-    starterHash: 'a'.repeat(64),
-    passHash: 'b'.repeat(64),
-    erasesOn,
-  };
-}
-
-const KINDS = [
-  {
-    name: 'in memory',
-    skip: false as const,
-    reset: (): Promise<void> => Promise.resolve(),
-    open: (most?: number): Stores => ({
-      worlds: new MemoryWorldStore(),
-      spaces: new MemorySpaceStore(most),
-      close: () => Promise.resolve(),
-    }),
-  },
-  {
-    name: 'in PostgreSQL',
-    skip: url ? (false as const) : 'TEST_DATABASE_URL is not set',
-    reset: emptyDatabase,
-    open: (most?: number): Stores => {
-      const stores = new PrismaStores(url!, most === undefined ? {} : { most });
-      return { worlds: stores.worlds, spaces: stores.spaces, close: () => stores.close() };
-    },
-  },
-];
+import { emptyDatabase, KINDS, madeUpWorld, url, type Stores } from './store-kinds.js';
 
 const one = [new Uint8Array([1])];
 
