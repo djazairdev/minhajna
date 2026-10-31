@@ -2,14 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The notice before a teacher joins the school's space (#564, R-7.5-01,
-// R-7.5-04, answer 582), as School-join draws it: what the signed week is,
-// what enters the school's space and what never does, who reads it and what
-// the director and the inspector may do, the full copy a teacher who leaves
-// takes, that no personal phone is needed, and how signing in works in the
-// national system and in the demo. What enters and what never does sit
-// side by side, as the design draws them. Its last line, the legal notice,
-// closes the page centred under the code's card, whose head, the QR code's
-// dashed frame and what the code is, is drawn here too.
+// R-7.5-04, answer 582), as School-join draws it: what the signed week is, what
+// enters the school's space and what never does, who reads it and what the
+// director and the inspector may do, the full copy a teacher who leaves takes,
+// that no personal phone is needed, and how signing in works in the national
+// system and in the demo. During the trial term end (#565, answer 587), a lead
+// that names the trial opens it in place of what the signed week is, and only
+// who reads it is kept, as School-join-trial draws it. What enters and what
+// never does sit side by side, as the design draws them. Its last line, the
+// legal notice, closes the page centred under the code's card, whose head, the
+// QR code's dashed frame and what the code is, is drawn here too.
 
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
@@ -28,8 +30,8 @@ const READS = [
   'demo.school.read5',
 ] as const;
 
-/** What enters the school's space and what never does, and who reads it. */
-export function SchoolNotice() {
+/** What enters the school's space and what never does, and who reads it; `lead`, during the trial, opens it. */
+export function SchoolNotice({ lead }: { readonly lead?: string }) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -47,13 +49,13 @@ export function SchoolNotice() {
   );
   return (
     <View style={styles.notice}>
-      <Text style={[styles.body, align]}>{t('demo.school.notice')}</Text>
+      <Text style={[styles.body, align]}>{lead ?? t('demo.school.notice')}</Text>
       <View style={styles.box}>
         {column(t('demo.school.enters'), ENTERS, 'school-enters')}
         {column(t('demo.school.never'), NEVER, 'school-never')}
       </View>
       <Facts
-        kept={READS.map((key) => ({ id: key, text: t(key), kept: true }))}
+        kept={(lead === undefined ? READS : READS.slice(0, 1)).map((key) => ({ id: key, text: t(key), kept: true }))}
         keptLabel={t('demo.school.kept')}
         notKeptLabel={t('demo.school.kept')}
       />

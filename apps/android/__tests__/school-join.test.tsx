@@ -12,8 +12,9 @@
 // kept key, saying so, and shows the code that joined after a used one, and a
 // check that fails is said; the title and the join are said aloud, on a PC in
 // a hidden live region; two presses on agree join and announce once; and
-// neither the inspector nor a teachers' world offers it. Every world, school
-// and key is made up.
+// neither the inspector nor a teachers' world offers it. A new world opens in
+// its trial term end, so its card is the trial's until a teacher joins
+// (school-join-trial.test.tsx). Every world, school and key is made up.
 
 import {
   joinCodeText,
@@ -108,7 +109,7 @@ async function entered(kind: WorldKind = 'national', role = 'teacher') {
       <DemoRoot
         kit={nodeKit}
         calendar={calendar}
-        profile={read.ok ? read.profile : {}}
+        profile={read.ok ? read.profile : { weekStartsOn: 0 }}
         storage={teacher.asSpec()}
         world={world.asSpec()}
         send={server.send}
@@ -179,7 +180,7 @@ test('a code that is none, of another world or already used, and a camera that f
   NativeInput.scanQr.mockResolvedValueOnce(used);
   await press('school-scan');
   await press('school-cancel');
-  expect(shown('school-code')).toBe(true);
+  expect(shown('school-trial')).toBe(true);
   NativeInput.scanQr.mockResolvedValueOnce(used);
   await press('school-scan');
   await press('school-agree');
@@ -245,7 +246,7 @@ test('reopening shows the code that joined after a used one, and a check that fa
   await press('school-back');
   server.busy = true;
   await press('world-school-open');
-  expect([count('school-joined'), count('school-code')]).toEqual([0, 1]);
+  expect([count('school-joined'), count('school-trial')]).toEqual([0, 1]);
   expect(texts()).toContain(text.demo.problem.busy);
 });
 

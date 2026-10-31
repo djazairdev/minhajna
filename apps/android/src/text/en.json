@@ -4195,7 +4195,17 @@
         "codeLine": "The school gives one to each teacher. On a PC, paste its text here once, with no password and no account."
       },
       "paste": "The joining code’s text",
-      "pastePlaceholder": "minhajna-join:1:…"
+      "pastePlaceholder": "minhajna-join:1:…",
+      "trial": {
+        "badge": "Trial term end · {{year}}",
+        "lead": "{{date}}. Your school is trying the national system at the end of term {{term}}, before the national launch. This is a notice before you start.",
+        "title": "Taking part in the trial term end is voluntary",
+        "window": "From {{from}} to {{to}}. By joining, the weeks and term {{term}}’s marks are signed in the school’s space. Without it, teacher mode goes on as it is, and no one asks why.",
+        "paper": "During the trial, the paper book stays the official record. The signed week becomes official from the national launch.",
+        "join": "Join",
+        "notNow": "Not now",
+        "note": "This choice is for the trial alone and goes at the national launch: from then on every teacher joins, and “Not now” is no more."
+      }
     }
   },
   "chart": {
