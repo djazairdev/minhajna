@@ -78,6 +78,8 @@ export interface SchoolHeld {
   /** Its private half, PKCS #8 DER in base64, which never leaves the world's store. */
   readonly pkcs8: string;
   readonly ring: SchoolKeyring;
+  /** Set when the device took the school's key seeded with its world (#548), never when it started or was added. */
+  readonly seeded?: true;
 }
 
 /** A device waiting to hold a school's key: its ID, its agreement pair and the secret its QR code shows. */

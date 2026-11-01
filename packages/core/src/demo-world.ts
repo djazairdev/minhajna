@@ -2,22 +2,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A seeded national demo world (#547, answer 579), as the device that starts a
-// world first describes it, before #548 joins its staff to their schools with
-// their keys and #549 adds a term of signed weeks: a directorate for each of
-// the twelve wilayas, and in each wilaya one primary school, four CEMs and one
-// lycée, each with a director, a deputy and a timetable preparer, its classes
-// with the demo class's made-up pupils under registration numbers no school
-// gives out, unique in the world, and its teachers: a CEM's three of each of
-// Arabic, mathematics and French each take a 1AM and a 4AM class, a lycée's one
-// of each takes both its classes, and a primary class has its own, so each
-// wilaya's figures by subject pass the floors. Each class's week sits on the
-// morning slots of the working days, two or three sessions a day for a CEM or
-// lycée class and one for a primary class, and is checked so no class and no
-// teacher is in two places at once; a class pins the pack the app would offer
-// first for its grade and subject. Staff alternate between women and men role
-// by role, and from one wilaya to the next. Every name comes from the seed and
-// every ID from the order things are made in, so the same seed gives the same
-// world. The Ministry needs no record here: the world is the Ministry's.
+// world first describes it, whose staff #548's seeding joins to their schools
+// with their keys, before #549 adds a term of signed weeks: a directorate for
+// each of the twelve wilayas, and in each wilaya one primary school, four CEMs
+// and one lycée, each with a director, a deputy and a timetable preparer, its
+// classes with the demo class's made-up pupils under registration numbers no
+// school gives out, unique in the world, and its teachers: a CEM's three of
+// each of Arabic, mathematics and French each take a 1AM and a 4AM class, a
+// lycée's one of each takes both its classes, and a primary class has its own,
+// so each wilaya's figures by subject pass the floors. Each class's week sits
+// on the morning slots of the working days, two or three sessions a day for a
+// CEM or lycée class and one for a primary class, and is checked so no class
+// and no teacher is in two places at once; a class pins the pack the app would
+// offer first for its grade and subject. Staff alternate between women and men
+// role by role, and from one wilaya to the next. Every name comes from the seed
+// and every ID from the order things are made in, so the same seed gives the
+// same world. The Ministry needs no record here: the world is the Ministry's.
 
 import type { Weekday } from './day.ts';
 import type { DemoLevel, DemoName, DemoPerson } from './demo-names.ts';

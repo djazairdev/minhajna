@@ -4484,6 +4484,7 @@
       "someone": "a teacher of the school",
       "line": {
         "keyStarted": "Started the school key on this device",
+        "keyTaken": "Took the school key seeded with the world on this device",
         "keyAdmitted": "This device added to the school key",
         "holdersAdded": "Devices added to the school key: {{number}}",
         "holdersRemoved": "Devices removed from the school key: {{number}}",
@@ -4558,7 +4559,7 @@
         "until": "Valid until {{until}}",
         "handover": "For one scan. Handed over in person, never sent in a message."
       },
-      "keysFirst": "This device holds no school key yet. On the keys page, start it here or have a device that holds it add this one."
+      "keysFirst": "This device holds no school key yet. The keys page says how to hold it on this device."
     },
     "keys": {
       "lead": "{{school}} · {{date}} · Who holds the key, what it opens, and how it is recovered",
@@ -4665,7 +4666,11 @@
         "title": "This device does not hold the school key",
         "note": "If another device of the school already holds the key, ask it to add this one. Start the key here only on the school’s first device, or a second key would be made.",
         "wait": "Ask a device that holds the key to add this one",
-        "here": "Start the school key on this device"
+        "here": "Start the school key on this device",
+        "take": "Take the school key seeded with the world on this device",
+        "seededNote": "This world was created with the school’s key, and its teachers already joined. Take that key here to act as the school’s first device, or ask a device that holds it to add this one; no second key is ever made.",
+        "taken": "Another device already took the school’s seeded key and changed it. Ask a device that holds it to add this one.",
+        "again": "Read again"
       },
       "wait": {
         "title": "Waiting to be added as a holder",
@@ -4984,7 +4989,7 @@
       "absencesOn": "The signed weeks’ absences are sent after each week is signed. A demo world records no absences, so nothing is sent from it.",
       "absencesOff": "Absences are not sent, and the state’s own channel for absences stays as it is.",
       "absencesRule": "The director changes it, and it goes into the school’s log with the date, never the time.",
-      "noKey": "The choice is kept under the school’s space, whose key this device does not hold yet. Start it or join it from the keys page.",
+      "noKey": "The choice is kept under the school’s space, whose key this device does not hold yet. The keys page says how to hold it.",
       "opening": "Reading the receipts…",
       "again": "Read again",
       "keysLink": "Who holds the school key",
@@ -4995,7 +5000,7 @@
         "making": "Making the file…",
         "saved": "The file is saved.",
         "cancelled": "The file was not saved.",
-        "noKey": "The export reads the school’s space, whose key this device does not hold yet. Start it or join it from the keys page.",
+        "noKey": "The export reads the school’s space, whose key this device does not hold yet. The keys page says how to hold it.",
         "failed": "The file could not be made or saved."
       }
     },

@@ -4554,6 +4554,7 @@
       "someone": "un enseignant de l’établissement",
       "line": {
         "keyStarted": "Clé de l’établissement créée sur cet appareil",
+        "keyTaken": "Clé de l’établissement préparée avec le monde prise sur cet appareil",
         "keyAdmitted": "Cet appareil ajouté à la clé de l’établissement",
         "holdersAdded": "Appareils ajoutés à la clé de l’établissement : {{number}}",
         "holdersRemoved": "Appareils retirés de la clé de l’établissement : {{number}}",
@@ -4628,7 +4629,7 @@
         "until": "Valable jusqu’au {{until}}",
         "handover": "Pour un seul scan. Remis en main propre, jamais envoyé par message."
       },
-      "keysFirst": "Cet appareil ne détient pas encore de clé de l’établissement. Sur la page des clés, créez-la ici ou faites ajouter cet appareil par un appareil qui la détient."
+      "keysFirst": "Cet appareil ne détient pas encore de clé de l’établissement. La page des clés indique comment la détenir sur cet appareil."
     },
     "keys": {
       "lead": "{{school}} · {{date}} · Qui détient la clé, ce qu’elle ouvre, et comment elle se récupère",
@@ -4735,7 +4736,11 @@
         "title": "Cet appareil ne détient pas la clé de l’établissement",
         "note": "Si un autre appareil de l’établissement détient déjà la clé, demandez-lui d’ajouter celui-ci. Ne créez la clé ici que sur le premier appareil de l’établissement, sinon une seconde clé serait créée.",
         "wait": "Demander à un appareil qui détient la clé d’ajouter celui-ci",
-        "here": "Créer la clé de l’établissement sur cet appareil"
+        "here": "Créer la clé de l’établissement sur cet appareil",
+        "take": "Prendre sur cet appareil la clé de l’établissement préparée avec le monde",
+        "seededNote": "Ce monde a été créé avec la clé de l’établissement, son personnel enseignant déjà rattaché. Prenez cette clé ici pour agir comme le premier appareil de l’établissement, ou demandez à un appareil qui la détient d’ajouter celui-ci ; aucune seconde clé n’est créée.",
+        "taken": "Un autre appareil a déjà pris la clé préparée de l’établissement et l’a modifiée. Demandez à un appareil qui la détient d’ajouter celui-ci.",
+        "again": "Relire"
       },
       "wait": {
         "title": "En attente d’être ajouté comme détenteur",
@@ -5056,7 +5061,7 @@
       "absencesOn": "Les absences des semaines signées sont envoyées après la signature de chaque semaine. Un monde de démonstration n’enregistre pas d’absences : rien n’en est envoyé.",
       "absencesOff": "Les absences ne sont pas envoyées, et le canal de l’État pour les absences reste tel quel.",
       "absencesRule": "La direction de l’établissement le change, et c’est inscrit au registre de l’établissement avec la date, sans l’heure.",
-      "noKey": "Le choix s’inscrit sous l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. Créez-la ou rejoignez-la depuis la page des clés.",
+      "noKey": "Le choix s’inscrit sous l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. La page des clés indique comment la détenir.",
       "opening": "Lecture des accusés de réception…",
       "again": "Relire",
       "keysLink": "Qui détient la clé de l’établissement",
@@ -5067,7 +5072,7 @@
         "making": "Préparation du fichier…",
         "saved": "Le fichier est enregistré.",
         "cancelled": "Le fichier n’a pas été enregistré.",
-        "noKey": "L’export lit l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. Créez-la ou rejoignez-la depuis la page des clés.",
+        "noKey": "L’export lit l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. La page des clés indique comment la détenir.",
         "failed": "Le fichier n’a pas pu être préparé ou enregistré."
       }
     },
