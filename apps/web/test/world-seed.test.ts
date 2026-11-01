@@ -98,7 +98,7 @@ describe('a seeded world on a PC', () => {
     const started = await seeding.startSeededWorld('national', read.calendar, read, worldKit, send);
     const took = performance.now() - began;
     assert.ok(took < 60_000, `the start took ${Math.round(took)} ms`);
-    assert.deepEqual(seeds, [...Array<string>(4).fill('certificates'), ...Array<string>(6).fill('batches')]);
+    assert.deepEqual(seeds, [...Array<string>(4).fill('certificates'), ...Array<string>(5).fill('batches')]);
     assert.equal(seeding.worldNetworkOpen(), started.keys.world);
     seeding.leaveWorldNetwork();
   });
