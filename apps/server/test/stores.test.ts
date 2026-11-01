@@ -205,7 +205,7 @@ describe('a server keeping its worlds in PostgreSQL', { skip: KINDS[1]!.skip }, 
     const second = await serve('2026-12-05');
     try {
       const join = await fetch(`${second.base}/worlds/K7QF3`, { headers: json });
-      assert.deepEqual(await join.json(), { sealed: 'c2VhbGVk', date: '2026-12-01' });
+      assert.deepEqual(await join.json(), { sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: [] });
       const read = await fetch(`${second.base}/worlds/K7QF3/spaces/national/batches?after=0`, { headers: json });
       const { batches } = (await read.json()) as { batches: { bytes: string }[] };
       assert.deepEqual(
