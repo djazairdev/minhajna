@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { execFileSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -53,8 +54,8 @@ test.each([false, true])(
     const components = calls.filter(
       (call) => ['POST', 'PATCH'].includes(call.method) && typeof call.body?.filemask === 'string',
     );
-    expect(components).toHaveLength(3);
-    const [base, settings, calendar] = components.map((call) => call.body!);
+    expect(components).toHaveLength(4);
+    const [base, settings, erase, calendar] = components.map((call) => call.body!);
     expect(base.repo).toBe('https://example.invalid/source.git');
     expect(base.push).toBe('https://example.invalid/push.git');
     expect(settings.repo).toBe('weblate://minhajna/android-interface');
@@ -63,10 +64,12 @@ test.each([false, true])(
     }
     expect(base.push_branch).toBe('weblate');
     expect(settings.filemask).toBe('apps/android/src/settings/text/*.json');
+    expect(erase.repo).toBe('weblate://minhajna/android-interface');
+    expect(erase.filemask).toBe('apps/android/src/settings/text/erase/*.json');
     expect(calendar.repo).toBe('weblate://minhajna/android-interface');
     expect(calendar.push).toBeUndefined();
     expect(calendar.filemask).toBe('apps/android/src/calendar/text/*.json');
-    for (const component of [base, settings, calendar]) {
+    for (const component of [base, settings, erase, calendar]) {
       expect(component.license).toBe('AGPL-3.0-or-later');
       expect(component.source_language).toBe('ar');
       expect(component.commit_message).toContain('Signed-off-by: {{ author }}');
@@ -76,6 +79,13 @@ test.each([false, true])(
     expect(calls.every((call) => call.url.startsWith('https://weblate.invalid/'))).toBe(true);
   },
 );
+
+test('each settings translation mask contains only language catalogues', () => {
+  for (const folder of ['text', 'text/erase']) {
+    const files = readdirSync(resolve(__dirname, `../src/settings/${folder}`)).filter((name) => name.endsWith('.json'));
+    expect(files.sort()).toEqual(['ar.json', 'en.json', 'fr.json']);
+  }
+});
 
 test.each([false, true])('pulls the main component before linking catalogues to it (existing: %s)', (existing) => {
   const calls = configure(existing);

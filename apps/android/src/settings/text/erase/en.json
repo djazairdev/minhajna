@@ -1,0 +1,7 @@
+{
+  "kept": "The copy you opened on the other device on {{day}}: this erasure does not touch it.",
+  "leftOut": "The teacher card’s personal fields and the drawn signature are neither transferred nor backed up: they go with the erasure.",
+  "lostNone": "No change after the transfer on {{day}}: the changes are on the other device.",
+  "lost_one": "{{count}} change was not in the file transferred on {{day}} or a later backup, and is lost with the erasure.",
+  "lost_other": "{{count}} changes were not in the file transferred on {{day}} or a later backup, and are lost with the erasure."
+}

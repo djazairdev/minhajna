@@ -5,10 +5,12 @@
 // one step that cannot be undone. It says what goes from this phone, with the
 // classes and pupils counted, and what stays outside it (#482): the last backup
 // and its day, and the files saved elsewhere, though no backup holds the
-// personal fields or the drawn signature, with the changes since that backup
-// counted as lost; or, before any backup, nothing, so every change on this
-// phone goes with it. It offers the export first, and erases only once the
-// teacher ticks that it cannot be undone, once however often it is tapped,
+// personal fields or the drawn signature. A confirmed transfer counts as
+// reaching another device (#494), by its snapshot boundary, even after work
+// resumes here. Only changes outside the best copy are counted as lost;
+// before either kind of copy, every change goes. It offers the export first,
+// and erases only once the teacher ticks that it cannot be undone, once
+// however often it is tapped,
 // after the last changes are saved; the app then starts again on the welcome
 // screen. A failure is said, and the screen stays; a PC whose other tabs keep
 // the erase waiting says so and stays busy until it finishes. On a PC it says
@@ -64,18 +66,29 @@ export function EraseDevice({ storage, onExport, onBusy }: EraseDeviceProps) {
     classes: t('ready.classes', { count: state.classes.size }),
     pupils: t('setup.pupils', { count: state.pupils.size }),
   });
-  const { lastBackup, sinceBackup } = deviceFacts(entries());
-  const day = lastBackup === null ? '' : dayName(t, lastBackup, currentLanguage(), profile);
+  const { lastBackup, lastCopy, sinceCopy } = deviceFacts(entries());
+  const transfer = lastCopy?.from === 'transfer';
+  const day = lastCopy === null ? '' : dayName(t, lastCopy.day, currentLanguage(), profile);
+  const backupDay = lastBackup === null ? '' : dayName(t, lastBackup, currentLanguage(), profile);
   const kept =
-    lastBackup === null
+    lastCopy === null
       ? [t('settings.eraseDevice.keptNone')]
-      : [t('settings.eraseDevice.keptBackup', { day }), t('settings.eraseDevice.keptLeftOut')];
+      : [
+          ...(lastBackup === null ? [] : [t('settings.eraseDevice.keptBackup', { day: backupDay })]),
+          ...(transfer ? [t('settings.eraseTransfer.kept', { day })] : []),
+          t(transfer ? 'settings.eraseTransfer.leftOut' : 'settings.eraseDevice.keptLeftOut'),
+        ];
   const lost =
-    lastBackup === null
-      ? t('settings.eraseDevice.lost', { count: sinceBackup })
-      : sinceBackup === 0
-        ? t('settings.eraseDevice.lostNone', { day })
-        : t('settings.eraseDevice.lostSince', { count: sinceBackup, day });
+    lastCopy === null
+      ? t('settings.eraseDevice.lost', { count: sinceCopy })
+      : transfer
+        ? t(sinceCopy === 0 ? 'settings.eraseTransfer.lostNone' : 'settings.eraseTransfer.lost', {
+            count: sinceCopy,
+            day,
+          })
+        : sinceCopy === 0
+          ? t('settings.eraseDevice.lostNone', { day })
+          : t('settings.eraseDevice.lostSince', { count: sinceCopy, day });
   const erase = () => {
     if (pending.current || !understood) return;
     pending.current = true;

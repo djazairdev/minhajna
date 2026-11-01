@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### Fixed
+
+- Before erasing a phone or PC, the warning now recognises a transfer you confirmed opened on your other device. It counts only changes missing from that transfer and your backups. The backup reminder keeps its own date.
+  - قبل مسح الهاتف أو الحاسوب، يحتسب التحذير الآن النسخة التي أكّدت فتحها على جهازك الآخر، ولا يعدّ ضائعةً إلا التغييرات التي لا يحملها ملف النقل ولا النسخ الاحتياطية. ويبقى موعد التذكير بالنسخ الاحتياطي كما هو.
+
 ### Privacy
 
 - The privacy notice before first use and in «المساعدة والخصوصية» now says that nothing leaves unless you send or save it, and that crash reports stay off unless you turn them on, as 0.5.0 made them. On a PC, it and «ما يتصل به التطبيق، ولماذا» now speak of this PC: what stays in the browser, and what Cloudflare sees when it serves the app.

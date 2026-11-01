@@ -1,0 +1,8 @@
+{
+  "kept": "La copie ouverte sur l’autre appareil le {{day}} : cet effacement n’y touche pas.",
+  "leftOut": "Les champs personnels de la fiche de l’enseignant et la signature dessinée ne sont ni transférés ni sauvegardés : ils partent avec l’effacement.",
+  "lostNone": "Aucun changement après le transfert du {{day}} : les changements sont sur l’autre appareil.",
+  "lost_one": "{{count}} changement absent du fichier transféré le {{day}} et de toute sauvegarde ultérieure : il est perdu avec l’effacement.",
+  "lost_many": "{{count}} de changements absents du fichier transféré le {{day}} et de toute sauvegarde ultérieure : ils sont perdus avec l’effacement.",
+  "lost_other": "{{count}} changements absents du fichier transféré le {{day}} et de toute sauvegarde ultérieure : ils sont perdus avec l’effacement."
+}

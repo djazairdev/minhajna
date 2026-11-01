@@ -14,11 +14,14 @@
 // copy comes back or the teacher takes over here. The copy here keeps where it
 // came from, last: a restore's route, or the copy back from the other device
 // (#251, answer 525).
+// The erase warning separately counts the best backup or confirmed transfer
+// (#494), without changing the backup reminder or the active handover.
 
 import { addDays, maxDay, type Day } from './day.ts';
 import { eventOf, type RecordEvent } from './events.ts';
 import { ERASURE, type Entry } from './history.ts';
 import { readRecoveryKey } from './recovery-key.ts';
+import { eraseCoverage, type EraseCoverage } from './erase-coverage.ts';
 
 import { isCopyRoute, type CopyRoute } from './device-events.ts';
 
@@ -28,7 +31,7 @@ export { DEVICE_KINDS, type CopyRoute, type DeviceEvent } from './device-events.
 export const BACKUP_REMINDER_DAYS = 30;
 export const BACKUP_LATER_DAYS = 7;
 
-export interface DeviceFacts {
+export interface DeviceFacts extends EraseCoverage {
   /** The recovery key confirmed last, and its day; null when none is kept. */
   readonly recovery: { readonly key: string; readonly day: Day } | null;
   /** The entries of earlier keys whose content is still kept, which a new sheet erases. */
@@ -54,7 +57,7 @@ function keyOf(event: RecordEvent | null): string | null {
   return typeof key === 'string' && readRecoveryKey(key) === key ? key : null;
 }
 
-/** What the devices page, the recovery sheet and the reminder read from the history. */
+/** What the devices page, recovery sheet, erase warning and reminder read from the history. */
 export function deviceFacts(entries: readonly Entry[]): DeviceFacts {
   let recovery: DeviceFacts['recovery'] = null;
   let lastBackup: Day | null = null;
@@ -88,7 +91,16 @@ export function deviceFacts(entries: readonly Entry[]): DeviceFacts {
   const current = recovery?.key;
   const earlierKeys = keys.filter((entry) => keyOf(eventOf(entry)) !== current).map((entry) => entry.id);
   const first = entries.find((entry) => entry.kind !== ERASURE);
-  return { recovery, earlierKeys, lastBackup, sinceBackup, firstChange: first?.day ?? null, handedOver, received };
+  return {
+    recovery,
+    earlierKeys,
+    lastBackup,
+    sinceBackup,
+    firstChange: first?.day ?? null,
+    handedOver,
+    received,
+    ...eraseCoverage(entries),
+  };
 }
 
 /** The day the backup reminder falls due, never before `later`, the day it was put off to; null before any change. */
