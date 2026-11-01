@@ -14,15 +14,17 @@
 // answer 615), and of the school's choice to send absences (#592, answer 620),
 // and of the key pair an inspector's device keeps in a world and the grant
 // requests a directorate makes there (#593, answer 621), and of the spot-check
-// sheet an inspector's device keeps for a grant (#594, answer 622), apart from
+// sheet an inspector's device keeps for a grant (#594, answer 622), and of the
+// Ministry's draft of a calendar update (#607, answer 623), apart from
 // devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
 // school-holder.ts, school-timetable.ts, school-cover.ts,
 // school-substitution.ts, school-exchange.ts, directorate-space.ts,
-// grant-request.ts and spot-sheet.ts, which read them, so the events module
-// imports no module that imports it back.
+// grant-request.ts, spot-sheet.ts and calendar-draft.ts, which read them, so
+// the events module imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
+import type { CalendarEntry } from './reference.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
 import type { ImportedSession } from './timetable-import.ts';
 import type { WorldKind } from './world-keys.ts';
@@ -63,7 +65,9 @@ export type DeviceEvent =
   /** In a demo world's own store: a grant request this device made as a directorate (answer 621). */
   | { readonly kind: 'grant.requested'; readonly requested: GrantRequested }
   /** In a demo world's own store: the spot-check sheet an inspector's phone keeps for a grant (answer 622). */
-  | { readonly kind: 'inspector.sheet'; readonly sheet: SpotSheet };
+  | { readonly kind: 'inspector.sheet'; readonly sheet: SpotSheet }
+  /** In a demo world's own store: the Ministry's draft of a calendar update, never sent (answer 623). */
+  | { readonly kind: 'ministry.calendar'; readonly draft: CalendarDraft };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -164,6 +168,12 @@ export interface SpotSheet {
   readonly books: readonly { readonly row: string; readonly note: string }[];
 }
 
+/** The Ministry's draft of a calendar update: the entries it adds or changes, and the IDs it takes out. */
+export interface CalendarDraft {
+  readonly entries: readonly CalendarEntry[];
+  readonly removed: readonly string[];
+}
+
 /** A grant request a directorate made, as grant-request.ts reads it. */
 export interface GrantRequested {
   readonly request: unknown;
@@ -211,6 +221,7 @@ export const DEVICE_KINDS = {
   'inspector.device': true,
   'grant.requested': true,
   'inspector.sheet': true,
+  'ministry.calendar': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>
