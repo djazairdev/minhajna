@@ -3,8 +3,9 @@
 
 // The Ministry's calendar page rendered for its tests (#607): the bundled
 // calendar with a made-up wilaya entry, a store of its own, the page or any
-// element in its place, a way to settle its answers, its words and controls,
-// the entries it lists, the draft its store keeps, and unmounting it again.
+// element in its place, a way to settle its answers, its words, controls and
+// fields, the entries it lists, the draft its store keeps, and unmounting it
+// again.
 
 import { keptCalendarDraft, parseDay, type CalendarEntry, type RecordBook } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -16,6 +17,7 @@ import { MinistryCalendar } from '../src/ministry/MinistryCalendar';
 import { openRecordBook } from '../src/storage/history';
 import { FakeStorage } from './fake-storage';
 import { reference } from './grant-world';
+import { nodeKit as kit } from './world-server';
 
 export const storm: CalendarEntry = {
   id: 'world-storm-16',
@@ -67,6 +69,13 @@ export const alerts = () =>
 export const control = (testID: string) =>
   rendered().root.findAll((one) => one.props.testID === testID && one.props.onPress !== undefined)[0];
 export const press = (testID: string) => act(() => (control(testID)?.props as PressableProps).onPress?.({} as never));
+export const type = (testID: string, text: string) =>
+  act(() => {
+    const [node] = rendered().root.findAll(
+      (one) => one.props.testID === testID && one.props.onChangeText !== undefined,
+    );
+    (node?.props as { onChangeText: (text: string) => void }).onChangeText(text);
+  });
 export const has = (testID: string) => rendered().root.findAll((one) => one.props.testID === testID).length > 0;
 export const entries = () =>
   rendered()
@@ -77,14 +86,14 @@ export const entries = () =>
 export async function show(shown: ReactElement) {
   const wrapped = <LocaleDirContext.Provider value="rtl">{shown}</LocaleDirContext.Provider>;
   await act(() => {
-    if (tree === undefined) tree = ReactTestRenderer.create(wrapped);
+    if (tree === undefined) tree = ReactTestRenderer.create(wrapped, { createNodeMock: (node) => node });
     else tree.update(wrapped);
   });
 }
 
 /** Renders the page over a store, as the Ministry's PC opens it. */
 export const render = (book: RecordBook) =>
-  show(<MinistryCalendar world={{ book, date }} reference={withStorm} dayText={(day) => `day ${day}`} />);
+  show(<MinistryCalendar world={{ book, date }} reference={withStorm} kit={kit} dayText={(day) => `day ${day}`} />);
 
 export const newBook = () => openRecordBook(new FakeStorage().asSpec());
 /** The draft the store keeps. */

@@ -4,14 +4,15 @@
 // One entry of the world's calendar on the Ministry's calendar page (#607,
 // answer 623): its name, its effect and days, its source and how sure it is,
 // the days it had and why when it moved, and what the draft does to it, as a
-// badge; then a button to take it out, unless the draft already does, and one
-// to undo the draft's change, each spoken with the entry's name; names, sources
-// and reasons are isolated from the text around them. The buttons wait while
-// the draft is saving.
+// badge; then buttons to change it and to take it out, unless the draft already
+// takes it out, and one to undo the draft's change, each spoken with the
+// entry's name; names, sources and reasons are isolated from the text around
+// them. The buttons wait while the draft is saving.
 
 import type { CalendarEntry, Day, DraftMark } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { StyleSheet, Text, View } from 'react-native';
+import type { Ref } from 'react';
+import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -19,7 +20,7 @@ import { localized } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 
-const EFFECTS = {
+export const EFFECTS = {
   'no-school': 'demo.ministryCalendar.effects.holiday',
   closure: 'demo.ministryCalendar.effects.closure',
   exam: 'demo.ministryCalendar.effects.exam',
@@ -31,12 +32,15 @@ export type CalendarRowProps = {
   readonly mark: DraftMark;
   readonly busy: boolean;
   readonly dayText: (day: Day) => string;
+  readonly onChange: () => void;
+  /** Takes the Change button, which the focus comes back to once the form closes. */
+  readonly changeRef?: Ref<ViewInstance>;
   readonly onTakeOut: () => void;
   readonly onUndo: () => void;
 };
 
 /** An entry of the world's calendar, with what the draft does to it. */
-export function CalendarRow({ entry, mark, busy, dayText, onTakeOut, onUndo }: CalendarRowProps) {
+export function CalendarRow({ entry, mark, busy, dayText, onChange, changeRef, onTakeOut, onUndo }: CalendarRowProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -76,6 +80,17 @@ export function CalendarRow({ entry, mark, busy, dayText, onTakeOut, onUndo }: C
         </Text>
       )}
       <View style={styles.actions}>
+        {mark !== 'removed' && (
+          <Button
+            ref={changeRef}
+            testID={`ministry-change-${entry.id}`}
+            variant="line"
+            label={t('demo.ministryCalendar.change')}
+            name={t('demo.ministryCalendar.changeFor', { name: isolate(name) })}
+            disabled={busy}
+            onPress={onChange}
+          />
+        )}
         {mark !== 'removed' && (
           <Button
             testID={`ministry-take-out-${entry.id}`}

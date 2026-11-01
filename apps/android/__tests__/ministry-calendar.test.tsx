@@ -119,9 +119,9 @@ test('a draft that could not be published, or would be too heavy, is refused bef
     return null;
   }
   await show(<Probe />);
-  await act(() => desk!.save({ entries: [], removed: ['unknown-entry'] }));
+  await act(() => void desk!.save({ entries: [], removed: ['unknown-entry'] }));
   expect([desk!.problem, desk!.problems]).toEqual(['demo.ministryCalendar.refused', 1]);
-  await act(() => desk!.save({ entries: [], removed: ['unknown-entry'] }));
+  await act(() => void desk!.save({ entries: [], removed: ['unknown-entry'] }));
   expect([desk!.problem, desk!.problems]).toEqual(['demo.ministryCalendar.refused', 2]);
   const heavy: CalendarDraft = {
     entries: Array.from({ length: 60 }, (_, at) => ({
@@ -132,7 +132,7 @@ test('a draft that could not be published, or would be too heavy, is refused bef
     })),
     removed: [],
   };
-  await act(() => desk!.save(heavy));
+  await act(() => void desk!.save(heavy));
   expect([desk!.problem, desk!.problems]).toEqual(['demo.ministryCalendar.tooBig', 3]);
   expect(record).not.toHaveBeenCalled();
   expect(draftMark(base, desk!.draft, storm.id)).toBeNull();

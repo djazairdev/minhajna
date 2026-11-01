@@ -5747,7 +5747,42 @@
       "saved": "Draft saved on this PC.",
       "refused": "This change cannot go into an update of the calendar.",
       "tooBig": "The draft would be larger than one update of the calendar can carry.",
-      "foot": "The draft stays on this PC and is sent nowhere until it is published to the world’s schools and teachers."
+      "foot": "The draft stays on this PC and is sent nowhere until it is published to the world’s schools and teachers.",
+      "add": "Add an entry",
+      "change": "Change",
+      "changeFor": "Change {{name}}",
+      "form": {
+        "newTitle": "New entry",
+        "changeTitle": "Change {{name}}",
+        "name": {
+          "ar": "Name in Arabic",
+          "fr": "Name in French",
+          "en": "Name in English"
+        },
+        "nameHint": "As the calendar writes it",
+        "optional": "optional",
+        "days": "Days",
+        "from": "First day",
+        "to": "Last day",
+        "effect": "Effect",
+        "effectKept": "Effect: {{effect}}, not changed here",
+        "term": "Term it closes",
+        "termN": "Term {{number}}",
+        "levels": "Levels it covers; none chosen means every level",
+        "source": "Source",
+        "sourceHint": "The text or notice it comes from",
+        "confidence": "How sure",
+        "reason": "Why the days changed",
+        "reasonHint": "One line, shown with the entry",
+        "save": "Save in the draft",
+        "cancel": "Cancel",
+        "needName": "Give the name in Arabic.",
+        "needSource": "Give the source.",
+        "needReason": "Say why the days changed.",
+        "needLevels": "These levels leave out years the entry covers; choose all their levels, or none.",
+        "missing": "Some fields need attention.",
+        "newIn": "New entry for wilaya {{wilaya}}"
+      }
     }
   },
   "chart": {
