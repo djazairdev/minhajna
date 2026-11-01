@@ -5542,6 +5542,14 @@
       "fix": "Corrections after the term",
       "fixLine": "In the correction window, with both versions and the teacher’s report, outside a demo world.",
       "foot": "Parents see marks in the state’s awlyaa space, not in Minhajna. And Minhajna issues no report cards."
+    },
+    "inspectorKey": {
+      "title": "Your inspection key",
+      "posting": "Posting your key in the directorate’s space…",
+      "posted": "Your key is in the directorate’s space.",
+      "fingerprint": "Your key’s fingerprint",
+      "line": "The inspectorate sends this fingerprint to the school in its official message. The school’s director checks it before opening any signed week to you.",
+      "again": "Try again"
     }
   },
   "chart": {

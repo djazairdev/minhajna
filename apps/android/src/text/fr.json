@@ -5619,6 +5619,14 @@
       "fix": "Correction après le trimestre",
       "fixLine": "Dans la fenêtre de correction, avec ses deux versions et votre rapport, hors d’un monde de démonstration.",
       "foot": "Les parents voient les notes dans l’espace parents de l’État, awlyaa, pas dans Minhajna. Et Minhajna ne produit pas de bulletins."
+    },
+    "inspectorKey": {
+      "title": "Votre clé d’inspection",
+      "posting": "Publication de votre clé dans l’espace de la direction de l’éducation…",
+      "posted": "Votre clé est dans l’espace de la direction de l’éducation.",
+      "fingerprint": "Empreinte de votre clé",
+      "line": "L’inspection envoie cette empreinte à l’établissement dans son courrier officiel. La direction de l’établissement la vérifie avant de vous ouvrir une semaine signée.",
+      "again": "Réessayer"
     }
   },
   "chart": {

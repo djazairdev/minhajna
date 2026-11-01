@@ -3,12 +3,13 @@
 
 // A demo world once entered (#560 to #562, answers 571 to 573, 575 and 576):
 // the band with the world's date above everything, so it is read first, then
-// the roles the world holds that this device offers; once one is picked, a
-// role above the teacher opens its workspace on its first page, and the
-// teacher's or the inspector's home names it. The world's own facts, on the
-// home and on the workspace's last page, are its code in its four groups for
-// others to type and, on the device that started the world, moving its date
-// to the next announced day. Leaving is always one press away.
+// the roles the world holds that this device offers; once one is picked, a role
+// above the teacher opens its workspace on its first page, and the teacher's or
+// the inspector's home names it, the inspector's with its key card (#593). The
+// world's own facts, on the home and on the workspace's last page, are its code
+// in its four groups for others to type and, on the device that started the
+// world, moving its date to the next announced day. Leaving is always one press
+// away.
 // The button pressed is gone with each new page, so the band and the page's
 // heading are announced as it shows: on a PC through a hidden live region,
 // cleared a few seconds later so browsing does not read it twice, and on the
@@ -63,6 +64,8 @@ export type WorldHomeProps = {
   readonly onSchool?: () => void;
   /** Signs in on a staffroom PC, from the phone or on the PC, for the teacher of a national world (#572). */
   readonly onStaff?: () => void;
+  /** The inspector's key card, for the inspector of a national world (#593); none when absent. */
+  readonly inspectorCard?: ReactNode;
   /**
    * A workspace page's own content once its part of the demo has landed, or null for the empty page; it is handed a way
    * to open another page of the workspace.
@@ -72,7 +75,8 @@ export type WorldHomeProps = {
 
 /** The roles of an entered world, then its home. */
 export function WorldHome(props: WorldHomeProps) {
-  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool, onStaff, pageBody } = props;
+  const { world, date, role, moving, problem, onRole, onMove, onLeave, onReader, onSchool, onStaff } = props;
+  const { inspectorCard, pageBody } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -202,6 +206,7 @@ export function WorldHome(props: WorldHomeProps) {
                   onPress={onStaff}
                 />
               )}
+              {role === 'inspector' && inspectorCard}
               {onReader !== undefined && (
                 <Button testID="world-reader-open" variant="line" label={t('demo.home.reader')} onPress={onReader} />
               )}

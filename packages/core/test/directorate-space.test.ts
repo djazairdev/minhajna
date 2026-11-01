@@ -24,16 +24,16 @@ import {
   keptInspectorDevice,
   listedSchools,
   listingPlace,
+  openDirectorateRecords,
   readInspectorDevice,
   readInspectorKey,
   readSchoolListed,
   recordKey,
   schoolListing,
-  DIRECTORATE_RECORD_BATCHES,
+  sealDirectorateRecord,
   INSPECTOR_KEY,
   SCHOOL_LISTED,
 } from '../src/index.ts';
-import { openRecords, sealRecord } from '../src/sealed-stream.ts';
 import { cemEvents, d, openBook } from './fixtures.ts';
 import { device } from './school-devices.ts';
 import { cipher, mac } from './world-crypto.ts';
@@ -79,9 +79,8 @@ describe('a directorate’s space', () => {
       listing('school-5', 'short'),
     ];
     const batches = [];
-    for (const one of records)
-      batches.push(...(await sealRecord(place, one, batches.length, DIRECTORATE_RECORD_BATCHES, cipher)));
-    const read = await openRecords(place, batches, DIRECTORATE_RECORD_BATCHES, cipher);
+    for (const one of records) batches.push(...(await sealDirectorateRecord(place, one, batches.length, cipher)));
+    const read = await openDirectorateRecords(place, batches, cipher);
     assert.deepEqual([...listedSchools(read, WORLD)], [['school-2', 'made-up-space-number-four']]);
     assert.deepEqual(
       readSchoolListed(listing('school-2', 'made-up-space-number-one')),
