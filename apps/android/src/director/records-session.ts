@@ -41,7 +41,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import { kitStep, type Send, type WorldKit } from '../demo/world-session';
 import { worldRequest } from '../network/world-network';
 import { caKey, spaceBatches } from '../school/space-read';
-import { assignmentsOf, holdSchool, joinCode } from './issue-session';
+import { assignmentsOf, holdSchool, joinCode, type IssueDesk } from './issue-session';
 
 type RecordsWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 type Staff = Pick<DemoSchool, 'name' | 'teachers'>;
@@ -90,7 +90,17 @@ export async function readRecords(
   kit: WorldKit,
   send: Send = worldRequest,
 ): Promise<ClassRecords[]> {
-  const desk = await holdSchool(world, kit, send, false);
+  return recordsOf(world, await holdSchool(world, kit, send, false), school, kit, send);
+}
+
+/** The signed weeks on the channels of the school's teachers, by class, with the school key as held. */
+export async function recordsOf(
+  world: RecordsWorld,
+  desk: IssueDesk,
+  school: Staff,
+  kit: WorldKit,
+  send: Send,
+): Promise<ClassRecords[]> {
   const space = desk.held.school;
   const standing = standingVersion(keptVersions(world.book.entries, space));
   const rows = (standing?.sessions ?? []).map((one, at) => ({ ...one, row: at + 1 }));

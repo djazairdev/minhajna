@@ -4,22 +4,23 @@
 // What a device holding the school key keeps when it makes an inspector's grant
 // (#593, answer 621). Each signed week the grant names is archived in the
 // school's space under that week's own key (grants.ts), on a stream named from
-// it, so only the school's holders and the grant's inspector find or open it:
-// every version of the week the device read, as read, oldest first, all signed
-// by one device, and the director's visas on them, each once, a snapshot as the
-// week stood the day the grant was made. It is read back only whole: every
-// version of that course's week, certified by the world's CA, each version
-// once, all signed by one device, and every visa certified, once and on one of
-// those versions; anything else, and the archive is not read, the first that
-// reads winning. The school's record of each grant, with the request it answers
-// and the inspector's label, goes on a stream named from the key for grant
-// records in its epoch, which only the holders derive; each grant counts once.
-// The grant itself reaches the inspector's device through the directorate's
-// space, sealed for that device and bound to the request, on a stream named
-// from its public key, which only the inspector's device opens. The request's
-// ID stays in clear so the directorate sees the school's answer, but anyone who
-// saw the request's ID, the server too, can post a relay for it, so a relay is
-// the school's claim, not proof, as a grant is to the inspector (grants.ts).
+// it and the grant's ID, so each grant keeps the week as it stood the day it
+// was made, and only the school's holders and the grant's inspector find or
+// open it: every version of the week the device read, as read, oldest first,
+// all signed by one device, and the director's visas on them, each once. It is
+// read back only whole: every version of that course's week, certified by the
+// world's CA, each version once, all signed by one device, and every visa
+// certified, once and on one of those versions; anything else, and the archive
+// is not read, the first that reads winning. The school's record of each grant,
+// with the request it answers and the inspector's label, goes on a stream named
+// from the key for grant records in its epoch, which only the holders derive;
+// each grant counts once. The grant itself reaches the inspector's device
+// through the directorate's space, sealed for that device and bound to the
+// request, on a stream named from its public key, which only the inspector's
+// device opens. The request's ID stays in clear so the directorate sees the
+// school's answer, but anyone who saw the request's ID, the server too, can
+// post a relay for it, so a relay is the school's claim, not proof, as a grant
+// is to the inspector (grants.ts).
 
 import type { SealedBatch } from './batches.ts';
 import { checkSignedWeek, type SignedWeek } from './certify.ts';
@@ -75,8 +76,11 @@ export interface GrantRelay {
 
 const signedOf = ({ text, signature, certificate }: SignedWeek): SignedWeek => ({ text, signature, certificate });
 
-/** Where a granted week is archived, from the key its grant shares. */
-export const grantedWeekPlace = (key: Uint8Array, mac: WorldMac): Promise<Place> => placeOf(key, 'granted-week', mac);
+/** Where a grant's week is archived, from the key the grant shares and the grant's ID. */
+export async function grantedWeekPlace(key: Uint8Array, grant: string, mac: WorldMac): Promise<Place> {
+  if (!ID.test(grant)) throw new RangeError('A week is archived for a grant');
+  return placeOf(await mac(key, ascii(`minhajna/granted-week/grant\n${grant}`)), 'granted-week', mac);
+}
 
 /** A course's week as it is archived: every version read, oldest first, and the visas on its versions. */
 export function grantedWeek(
@@ -178,6 +182,14 @@ export function grantMade(request: string, name: string, grant: Grant, publicKey
   if (readGrantMade(made, publicKeyBytes) === null) throw new RangeError('Not a grant record');
   return made;
 }
+
+/** A grant record's batches on its epoch's stream, numbered from `first`. */
+export const sealGrantMade = (place: Place, made: GrantMade, first: number, cipher: WorldCipher) =>
+  sealRecord(place, made, first, GRANT_RECORD_BATCHES, cipher);
+
+/** The records on an epoch's stream of grant records, in their order, for `grantsMade`. */
+export const openGrantsMade = (place: Place, batches: readonly SealedBatch[], cipher: WorldCipher) =>
+  openRecords(place, batches, GRANT_RECORD_BATCHES, cipher);
 
 /** The grants a school made, each once, in the order they were recorded. */
 export function grantsMade(records: readonly unknown[], school: string, publicKeyBytes: number): GrantMade[] {

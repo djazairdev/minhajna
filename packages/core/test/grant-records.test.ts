@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What a holder keeps when it makes an inspector's grant (#593, answer 621):
-// each signed week archived under that week's own key with its versions, signed
-// by one device, and the visas on them, each once, which the grant's inspector
-// opens with the key the grant shares and no other week's key opens, read back
-// only whole, every version and visa certified by the world's CA, of that week,
-// once each and from one signer, so a stray, repeated or uncertified version or
-// visa leaves it unread, and the first record that reads wins; the school's
-// record of each grant on its epoch's stream, which only a holder finds, each
-// grant once and another school's left out; and the grant relayed to its
-// inspector's device, bound to the request it answers, which only that device
-// opens and only when the grant names it, the request's ID in clear for the
-// directorate. Every school, week and device here is made up.
+// each signed week archived for its grant under that week's own key with its
+// versions, signed by one device, and the visas on them, each once, which the
+// grant's inspector opens with the key the grant shares and no other week's key
+// or grant's archive opens, read back only whole, every version and visa
+// certified by the world's CA, of that week, once each and from one signer, so
+// a stray, repeated or uncertified version or visa leaves it unread, and the
+// first record that reads wins; the school's record of each grant on its
+// epoch's stream, which only a holder finds, each grant once and another
+// school's left out; and the grant relayed to its inspector's device, bound to
+// the request it answers, which only that device opens and only when the grant
+// names it, the request's ID in clear for the directorate. Every school, week
+// and device here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -32,6 +33,7 @@ import {
   openGrant,
   openGrantedWeek,
   openGrantRelays,
+  openGrantsMade,
   openRelayed,
   parseDay,
   readWeekRecord,
@@ -40,6 +42,7 @@ import {
   relayPlace,
   sealGrantRelay,
   sealGrantedWeek,
+  sealGrantMade,
   signedWeekKey,
   signVisa,
   signWeek,
@@ -52,7 +55,7 @@ import {
   type WeekRecord,
   type WeekVisa,
 } from '../src/index.ts';
-import { openRecords, sealRecord } from '../src/sealed-stream.ts';
+import { sealRecord } from '../src/sealed-stream.ts';
 import { keySigner } from './key-signers.ts';
 import { device, random, SCHOOL } from './school-devices.ts';
 import { cipher, mac } from './world-crypto.ts';
@@ -127,7 +130,7 @@ describe('a granted week', () => {
     const archived = grantedWeek({ ...second, earlier: [first] }, visas);
     assert.deepEqual([archived.versions.length, archived.visas.length], [2, 2]);
     const key = await signedWeekKey(opened, 0, COURSE, WEEK.week, director.crypto);
-    const place = await grantedWeekPlace(key, mac);
+    const place = await grantedWeekPlace(key, grant.id, mac);
     const stray = await sign({ ...WEEK, version: 2, sessions: WEEK.sessions }, other);
     const batches = await sealGrantedWeek(place, archived, 0, cipher);
     const forged = { ...archived.visas[0]!, signature: archived.visas[1]!.signature };
@@ -147,7 +150,7 @@ describe('a granted week', () => {
     if (typeof opening === 'string') throw new Error(opening);
     const taken = await useGrant(opening, COURSE, WEEK.week, today, inspector.crypto);
     if (taken === null) throw new Error('No key for the week');
-    const theirs = await grantedWeekPlace(taken.key, mac);
+    const theirs = await grantedWeekPlace(taken.key, grant.id, mac);
     const both = [...(await sealGrantedWeek(place, spoilt[0]!, 0, cipher))];
     both.push(...(await sealGrantedWeek(place, archived, both.length, cipher)));
     const read = await openGrantedWeek(theirs, both, COURSE, WEEK.week, WORLD, checks, cipher);
@@ -158,8 +161,13 @@ describe('a granted week', () => {
     assert.deepEqual(read?.visas.map((one) => one.value.version).sort(), [0, 1]);
     const otherWeek = await grantedWeekPlace(
       await signedWeekKey(opened, 0, COURSE, parseDay('2029-10-14'), director.crypto),
+      grant.id,
       mac,
     );
+    const otherGrant = await grantedWeekPlace(key, newId(random), mac);
+    assert.notDeepEqual(otherGrant, place);
+    assert.equal(await openGrantedWeek(otherGrant, batches, COURSE, WEEK.week, WORLD, checks, cipher), null);
+    await assert.rejects(grantedWeekPlace(key, 'not-an-id', mac), RangeError);
     assert.equal(await openGrantedWeek(otherWeek, batches, COURSE, WEEK.week, WORLD, checks, cipher), null);
     const stranger = keySigner();
     const unchecked = { key: stranger.publicKey, checker: stranger };
@@ -183,12 +191,12 @@ describe('the school’s record of a grant', () => {
     const made = grantMade(REQUEST, 'Made-up inspector of district 3', grant, bytes);
     const elsewhere = grantMade(REQUEST, 'Made-up inspector', { ...grant, school: 'another-made-up-school' }, bytes);
     const batches = [];
-    for (const one of [made, made, elsewhere, { ...made, label: ' padded' }]) {
-      batches.push(...(await sealRecord(place, one, batches.length, GRANT_RECORD_BATCHES, cipher)));
-    }
-    assert.deepEqual(grantsMade(await openRecords(place, batches, GRANT_RECORD_BATCHES, cipher), SCHOOL, bytes), [
-      made,
-    ]);
+    for (const one of [made, made, elsewhere])
+      batches.push(...(await sealGrantMade(place, one, batches.length, cipher)));
+    batches.push(
+      ...(await sealRecord(place, { ...made, label: ' padded' }, batches.length, GRANT_RECORD_BATCHES, cipher)),
+    );
+    assert.deepEqual(grantsMade(await openGrantsMade(place, batches, cipher), SCHOOL, bytes), [made]);
     const stranger = await device();
     const theirs = await startKeyring(SCHOOL, stranger.holder, stranger.crypto, random);
     assert.notDeepEqual(await grantRecordPlace(theirs, 0, stranger.crypto, mac), place);
