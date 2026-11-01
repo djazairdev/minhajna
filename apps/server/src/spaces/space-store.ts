@@ -45,8 +45,8 @@ export interface SpaceStore {
 
 export const SPACE_STORE = Symbol('SpaceStore');
 export const MAX_SPACES = 2000;
-/** About 41 MB of sealed batches per world: room for a seeded national world's term. */
-export const MAX_BATCHES = 10_000;
+/** About 68 MB of sealed batches per world: room for every seeded school's term and the seeding (answer 626). */
+export const MAX_BATCHES = 16_384;
 /** About 206 MB across every world the memory store holds. */
 export const MAX_SERVER_BATCHES = 50_000;
 
