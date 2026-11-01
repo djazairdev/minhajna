@@ -120,7 +120,7 @@ export const courseKey = (one: Pick<WeekToSign, 'class' | 'subject' | 'code'>) =
   ].join('\n');
 
 /** A course's name on its chip: its class, with its subject when the class has several courses. */
-export const courseLabel = (weeks: readonly WeekToSign[], one: WeekToSign) =>
+export const courseLabel = (weeks: readonly Pick<WeekToSign, 'class'>[], one: Pick<WeekToSign, 'class' | 'subject'>) =>
   weeks.filter((other) => timetableNameKey(other.class) === timetableNameKey(one.class)).length > 1
     ? `${one.class} · ${one.subject}`
     : one.class;

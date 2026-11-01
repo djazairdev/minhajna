@@ -9,7 +9,8 @@
 // #584) and to the teacher's classes as the director sees them (SchoolMine.tsx,
 // #584), to the classes handed over to the teacher as a substitute
 // (HandoverSchool.tsx, #587) and to those come back at the end of a
-// substitution (ReturnSchool.tsx, #588), a way to the timetable the school sent
+// substitution (ReturnSchool.tsx, #588), to the term's marks to send to the
+// state's stand-in (TermSend.tsx, #591), a way to the timetable the school sent
 // (TeacherTimetable.tsx, #579), to the teacher's devices and copies once joined
 // (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
 // #567).
@@ -41,6 +42,7 @@ const WAYS = [
   ['mine', 'demo.mine.open', 'school-mine'],
   ['handover', 'demo.handover.open', 'school-handover'],
   ['return', 'demo.return.open', 'school-return'],
+  ['termSend', 'demo.termSend.open', 'school-term'],
   ['timetable', 'demo.timetable.open', 'school-timetable'],
   ['devices', 'demo.devices.open', 'school-devices'],
   ['help', 'demo.help.open', 'school-help'],
