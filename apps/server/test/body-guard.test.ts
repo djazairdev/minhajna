@@ -49,6 +49,11 @@ describe('the body guard', () => {
     assert.equal(await send(base, upload, { ...json, 'content-length': String(big.length) }, big), 413);
     assert.notEqual(connection, 'close');
     assert.equal(await send(base, upload, { ...json, 'content-length': String(small.length) }, small), 400);
+    const seeding = '/worlds/AAAAA/seed/batches';
+    assert.equal(await send(base, seeding, { ...json, 'content-length': String(big.length) }, big), 413);
+    assert.equal(await send(base, seeding, { ...json, 'content-length': String(small.length) }, small), 400);
+    const certificates = '/worlds/AAAAA/seed/certificates';
+    assert.equal(await send(base, certificates, { ...json, 'content-length': String(small.length) }, small), 413);
     assert.equal(await send(base, '/worlds', { ...json, 'content-length': '2' }, '{}'), 400);
     const delivery = '/worlds/AAAAA/state/deliveries';
     const larger = 'x'.repeat(DELIVERY_BODY + 1);

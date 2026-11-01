@@ -14,6 +14,7 @@ import { MemorySpaceStore, SPACE_STORE, type SpaceStore } from '../spaces/space-
 import { StateController } from '../state-standins/state.controller.js';
 import { CertificatesController } from './certificates.controller.js';
 import { JOIN_LIMIT, Limiter, RELAY_LIMIT, START_LIMIT, UPLOAD_LIMIT, type Limit } from './limits.js';
+import { SeedController } from './seed.controller.js';
 import { WORLD_LIMITERS, WorldsController, type WorldLimiters } from './worlds.controller.js';
 import { MemoryWorldStore, WORLD_STORE, type WorldStore } from './world-store.js';
 import { WORLD_KEEPING, WorldSweeper, type WorldKeeping } from './world-sweeper.js';
@@ -46,7 +47,7 @@ export class WorldsModule {
     const keeping: WorldKeeping = { now, ...(options.close ? { close: options.close } : {}) };
     return {
       module: WorldsModule,
-      controllers: [WorldsController, SpacesController, CertificatesController, StateController],
+      controllers: [WorldsController, SpacesController, CertificatesController, SeedController, StateController],
       providers: [
         { provide: WORLD_STORE, useValue: options.store ?? new MemoryWorldStore() },
         { provide: SPACE_STORE, useValue: options.spaces ?? new MemorySpaceStore() },
