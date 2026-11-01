@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A directorate's space in a demo world, where its schools and its inspectors
-// reach it (#593, M-Grant, answer 621). Its ID is worked out from the world
-// and the directorate's seeded ID, so every device of the world finds the same
+// reach it (#593, M-Grant, answer 621). Its ID is worked out from the world and
+// the directorate's seeded ID, so every device of the world finds the same
 // space, which the relay opens as a directorate's. On it, a school whose key a
 // device holds lists itself, its random space beside its seeded ID, so the
 // directorate can read that space's keyring for its holders' public keys; and
@@ -18,17 +18,19 @@
 // record that does not read, is left out; the latest listing of a school wins,
 // so whoever can write the stream, the server too, could point a school at
 // another space, which would only misdirect a request that names no teacher and
-// no secret (answer 621). Builders write each record in its one format.
+// no secret (answer 621). Builders write each record in its one format, sealed
+// and opened at its place with the relay's batch size.
 
+import type { SealedBatch } from './batches.ts';
 import type { InspectorDevice } from './device-events.ts';
 import { eventOf } from './events.ts';
 import { inspectorFingerprint } from './grants.ts';
 import type { Entry } from './history.ts';
 import { ascii, ID, isHolder, SCHOOL, type Holder, type KeyCrypto } from './school-key-shape.ts';
-import { placeOf, type Place } from './sealed-stream.ts';
+import { openRecords, placeOf, sealRecord, type Place } from './sealed-stream.ts';
 import { record } from './timetable-record.ts';
 import { isWorldId } from './world-code.ts';
-import { PKCS8_TEXT, toBase64Url, type WorldMac } from './world-keys.ts';
+import { PKCS8_TEXT, toBase64Url, type WorldCipher, type WorldMac } from './world-keys.ts';
 
 export type { InspectorDevice } from './device-events.ts';
 
@@ -69,6 +71,18 @@ export const listingPlace = (space: string, mac: WorldMac): Promise<Place> =>
 /** Where a directorate's space keeps its inspectors' keys. */
 export const inspectorKeyPlace = (space: string, mac: WorldMac): Promise<Place> =>
   placeOf(ascii(space), 'inspector-key', mac);
+
+/** A listing's or an inspector's key's batches at its place in a directorate's space, numbered from `first`. */
+export const sealDirectorateRecord = (
+  place: Place,
+  value: SchoolListed | InspectorKey,
+  first: number,
+  cipher: WorldCipher,
+): Promise<SealedBatch[]> => sealRecord(place, value, first, DIRECTORATE_RECORD_BATCHES, cipher);
+
+/** The records at a place in a directorate's space, in their order, for the readers below. */
+export const openDirectorateRecords = (place: Place, batches: readonly SealedBatch[], cipher: WorldCipher) =>
+  openRecords(place, batches, DIRECTORATE_RECORD_BATCHES, cipher);
 
 /** A school's listing in its directorate's space. */
 export const schoolListing = (world: string, seed: string, space: string): SchoolListed => ({
