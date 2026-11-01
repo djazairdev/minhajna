@@ -30,7 +30,12 @@
 // The teacher of a national world signs in on a staffroom PC (#572): on the
 // phone it approves a PC's code, and on the PC it is the staffroom PC itself.
 // The inspector of a national world posts their key from its home (#593) and
-// reads the grants relayed to their phone there (#594).
+// reads the grants relayed to their phone there (#594). Every page in a world
+// reads the world's calendar (#608, world-calendar-read.ts): the bundled one
+// with the releases the Ministry published laid over it, read with the world's
+// keys and sealing key, which starting or joining gives and this page holds in
+// memory until the world is left; a reading that fails is said on the world's
+// home, and a world starts from the bundled calendar.
 
 import {
   readWorldCode,
@@ -48,6 +53,7 @@ import { onPc, useDeviceText } from '../text/device-text';
 import { currentLanguage } from '../text/i18n';
 import type { ReferenceResult } from '../reference';
 import { DemoEntry } from './DemoEntry';
+import { useWorldCalendar, type HeldWorld } from './world-calendar-read';
 import { worldDate } from './world-date';
 import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } from './world-mode';
 import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from './world-session';
@@ -120,8 +126,11 @@ export function DemoRoot({
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<ProblemKey | null>(null);
   const [timetable, setTimetable] = useState<{ world: string; read: TimetableRead } | null>(null);
+  const [held, setHeld] = useState<HeldWorld | null>(null);
   const working = useRef(false);
   const school = useDirectorSchool(open, reference);
+  const published = useWorldCalendar(open === null ? null : held, open?.date, calendar, reference, kit, send);
+  const { calendar: here, reference: worldReference } = published;
 
   const run = useCallback((step: () => Promise<void>) => {
     if (working.current) return;
@@ -141,6 +150,7 @@ export function DemoRoot({
       const started = await startWorld(kind, calendar, kit, send);
       const found = { world: started.keys.world, kind, code: started.code, date: started.date };
       setOpen(await openWorld({ ...found, starter: started.starter }, storage, world));
+      setHeld({ world: started.keys.world, keys: started.keys, sealing: started.sealing });
     });
 
   const join = (typed: string) =>
@@ -154,6 +164,7 @@ export function DemoRoot({
       const code = 'code' in read ? read.code : typed;
       const found = { world: joined.keys.world, kind: joined.keys.kind, code, date: joined.date };
       setOpen(await openWorld({ ...found, starter: null }, storage, world));
+      setHeld({ world: joined.keys.world, keys: joined.keys, sealing: joined.sealing });
     });
 
   const move = () =>
@@ -167,6 +178,7 @@ export function DemoRoot({
     run(async () => {
       await leaveWorld(world);
       setOpen(null);
+      setHeld(null);
       setRole(null);
       setReading(false);
       setJoining(false);
@@ -185,12 +197,12 @@ export function DemoRoot({
     return () => handler.remove();
   }, [open, onBack, reading, joining, staff]);
 
-  const shown = problem === null ? null : t(problem);
+  const shown = problem !== null ? t(problem) : published.problem !== null ? t('demo.problem.calendar') : null;
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
   const date = worldDate(t, open.date, currentLanguage(), profile);
   const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
-  const trial = trialTermEnd(calendar.year, profile.weekStartsOn);
+  const trial = trialTermEnd(here.year, profile.weekStartsOn);
   if (joining && open.kind === 'national')
     return (
       <SchoolJoin
@@ -200,20 +212,20 @@ export function DemoRoot({
         kit={kit}
         send={send}
         trial={trial}
-        year={calendar.year.id}
+        year={here.year.id}
         workingDays={reference?.profile.workingDays}
         subjects={reference?.profile.subjects}
-        mine={reference && mineOf(reference, calendar, school)}
+        mine={worldReference && mineOf(worldReference, here, school)}
         school={school}
         onClose={() => setJoining(false)}
       />
     );
-  if (staff && open.kind === 'national' && school !== null && reference !== undefined)
+  if (staff && open.kind === 'national' && school !== null && worldReference !== undefined)
     return onPc() ? (
       <StaffPc
         world={open}
         school={school}
-        profile={reference.profile}
+        profile={worldReference.profile}
         date={date}
         dayText={dayText}
         kit={kit}
@@ -223,12 +235,12 @@ export function DemoRoot({
     ) : (
       <PcApprove world={open} school={school} date={date} kit={kit} send={send} onClose={() => setStaff(false)} />
     );
-  if (reading && reference !== undefined)
+  if (reading && worldReference !== undefined)
     return (
       <WorldReader
         world={open}
         date={date}
-        reference={reference}
+        reference={worldReference}
         random={kit.random}
         onClose={() => setReading(false)}
       />
@@ -241,18 +253,18 @@ export function DemoRoot({
       moving={busy}
       problem={shown}
       onRole={setRole}
-      onReader={reference === undefined ? undefined : () => setReading(true)}
+      onReader={worldReference === undefined ? undefined : () => setReading(true)}
       onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
       onStaff={
-        open.kind === 'national' && school !== null && reference !== undefined ? () => setStaff(true) : undefined
+        open.kind === 'national' && school !== null && worldReference !== undefined ? () => setStaff(true) : undefined
       }
       inspectorCard={
-        open.kind === 'national' && school !== null && reference !== undefined ? (
+        open.kind === 'national' && school !== null && worldReference !== undefined ? (
           <InspectorHome
             world={open}
             school={school}
-            reference={reference}
-            mine={mineOf(reference, calendar, school)}
+            reference={worldReference}
+            mine={mineOf(worldReference, here, school)}
             kit={kit}
             send={send}
             dayText={dayText}
@@ -262,18 +274,18 @@ export function DemoRoot({
       onMove={move}
       onLeave={leave}
       pageBody={(workspace, page, onPage) =>
-        school === null || reference === undefined
+        school === null || worldReference === undefined
           ? null
           : workspacePage(workspace, page, {
               open,
               school,
-              reference,
+              reference: worldReference,
               kit,
               send,
               dayText,
               trial,
-              year: calendar.year,
-              mine: mineOf(reference, calendar, school),
+              year: here.year,
+              mine: mineOf(worldReference, here, school),
               timetable,
               onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
               onPage,

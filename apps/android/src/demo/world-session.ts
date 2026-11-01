@@ -4,27 +4,30 @@
 // Starting, joining and dating a demo world (#560, choices D2 and D3 of the
 // 0.7.0 demo, answers 568 and 572), on whatever device holds the platform's
 // cryptography. Starting draws a new code, works out the world's pass and
-// sealing key from it, makes the world's stand-in signing key for calendars
-// and plan packs, seals it with the world's kind, and sends the world's ID,
-// the sealed keys, its date and its announced days to the demo server, which
-// answers the starter token once; an ID already taken draws a new code.
-// Joining works out the same secrets from the code typed, reads the sealed
-// keys and the date, and opens them. A new world's date is the first term's
-// end in the bundled calendar, and its announced days each later term's end
-// and each exam window's first day (answer 36). Only the starter token moves
-// the date, to the next announced day. Starting and joining need the network
-// shut, and refuse with the client's E_NO_WORLD before any slow derivation
-// while a world is open; they open it to the world for the first request, and
-// shut it again if they fail, unless it has been entered again since. A
-// bundled calendar with no term is a fault of the build, a RangeError.
-// The server's and the client's errors carry a code: E_WORLD_CODE for a code
-// that does not read, E_NO_SUCH_WORLD when no world answers to the code or
-// the world was erased, E_WORLD_BUSY with the seconds in retryAfter when the
-// server asks to wait, E_WORLD_LEFT_DAYS when no announced day is left,
-// E_WORLD_SERVER for any other answer, E_WORLD_KIT when the platform's
-// cryptography fails, or the client's own.
+// sealing key from it, makes the world's stand-in signing key for calendars and
+// plan packs, seals it with the world's kind, and sends the world's ID, the
+// sealed keys, its date and its announced days to the demo server, which
+// answers the starter token once; an ID already taken draws a new code. Joining
+// works out the same secrets from the code typed, reads the sealed keys and the
+// date, and opens them. A new world's date is the first term's end in the
+// bundled calendar, and its announced days each later term's end and each exam
+// window's first day (answer 36), as a published calendar's are (#608).
+// Starting and joining give the world's sealing key with its keys, held in
+// memory while the world is open. Only the starter token moves the date, to the
+// next announced day. Starting and joining need the network shut, and refuse
+// with the client's E_NO_WORLD before any slow derivation while a world is
+// open; they open it to the world for the first request, and shut it again if
+// they fail, unless it has been entered again since. A bundled calendar with no
+// term is a fault of the build, a RangeError. The server's and the client's
+// errors carry a code: E_WORLD_CODE for a code that does not read,
+// E_NO_SUCH_WORLD when no world answers to the code or the world was erased,
+// E_WORLD_BUSY with the seconds in retryAfter when the server asks to wait,
+// E_WORLD_LEFT_DAYS when no announced day is left, E_WORLD_SERVER for any other
+// answer, E_WORLD_KIT when the platform's cryptography fails, or the client's
+// own.
 
 import {
+  announcedDaysOf,
   isDay,
   makeWorldCode,
   openWorldKeys,
@@ -81,11 +84,15 @@ export interface StartedWorld {
   readonly keys: WorldKeys;
   readonly date: Day;
   readonly starter: string;
+  /** The world's sealing key, held in memory while the world is open and never kept. */
+  readonly sealing: Uint8Array;
 }
 
 export interface JoinedWorld {
   readonly keys: WorldKeys;
   readonly date: Day;
+  /** The world's sealing key, held in memory while the world is open and never kept. */
+  readonly sealing: Uint8Array;
 }
 
 /** The stand-in for the state's key, which signs a world's calendars and plan packs. */
@@ -120,11 +127,9 @@ function networkShut(): void {
 
 /** A new world's date and announced days, from the bundled calendar (answer 572). */
 export function newWorldDays(calendar: SchoolCalendar): { date: Day; announcedDays: Day[] } {
-  const [first, ...later] = calendar.year.terms;
+  const first = calendar.year.terms[0];
   if (first === undefined) throw new RangeError('The calendar has no term');
-  const exams = calendar.entries.filter((entry) => entry.effect === 'exam').map((entry) => entry.from);
-  const days = [...later.map((term) => term.to), ...exams].filter((day) => day > first.to);
-  return { date: first.to, announcedDays: [...new Set(days)].sort() };
+  return { date: first.to, announcedDays: announcedDaysOf(calendar.year, calendar.entries, first.to) };
 }
 
 async function newKeys(world: string, kind: WorldKind, kit: WorldKit): Promise<WorldKeys> {
@@ -170,7 +175,7 @@ async function startOnce(
     }
     const starter = (answer.body as { starter?: unknown } | null)?.starter;
     if (answer.status !== 201 || typeof starter !== 'string' || !TOKEN.test(starter)) throw unexpected(answer);
-    return { code, keys, date: days.date, starter };
+    return { code, keys, date: days.date, starter, sealing: secrets.sealing };
   } catch (error) {
     leaveWorldEntry(entry);
     throw error;
@@ -209,7 +214,7 @@ export async function joinWorld(typed: string, kit: WorldKit, send: Send = world
     const date = dayOf(answer.body);
     const keys = typeof sealed === 'string' ? await kitStep(() => openWorldKeys(sealed, secrets, kit.cipher)) : null;
     if (keys === null || date === null) throw unexpected(answer);
-    return { keys, date };
+    return { keys, date, sealing: secrets.sealing };
   } catch (error) {
     leaveWorldEntry(entry);
     throw error;

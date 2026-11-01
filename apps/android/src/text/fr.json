@@ -4227,6 +4227,7 @@
       "device": "Ce téléphone n’a pas pu calculer les clés du monde. Fermez l’application et réessayez.",
       "other": "Le serveur de démonstration n’a pas répondu comme prévu. Réessayez.",
       "store": "Ce téléphone n’a pas pu ouvrir le stockage du monde.",
+      "calendar": "Le calendrier publié par le ministère dans ce monde n’a pas pu être lu : les pages montrent le dernier lu, ou celui fourni avec l’application s’il n’a pas encore été lu.",
       "pc": {
         "device": "Ce navigateur n’a pas pu calculer les clés du monde. Rechargez la page et réessayez.",
         "store": "Ce navigateur n’a pas pu ouvrir le stockage du monde."
@@ -5796,7 +5797,7 @@
       "sheetFull": "La fiche a des notes sur plus de séances qu’elle n’en garde : supprimez-en quelques-unes puis enregistrez."
     },
     "ministryCalendar": {
-      "lead": "Le calendrier du monde tel que ce PC le saisit : la version fournie, avec votre brouillon par-dessus ; chaque date porte sa source et son degré de certitude.",
+      "lead": "Le calendrier du monde tel que ce PC le saisit : la version {{release}}, la dernière que le monde détient, avec votre brouillon par-dessus ; chaque date porte sa source et son degré de certitude.",
       "setAside": "Le brouillon gardé sur ce PC ne correspond plus au calendrier du monde ; il a été mis de côté, et la prochaine modification commence un nouveau brouillon.",
       "layer": "Afficher les dates",
       "national": "Nationales",

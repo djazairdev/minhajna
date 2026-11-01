@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The Ministry's calendar page's state on its PC (#607, §4.5, R-4.5-18, answer
-// 623): the world's calendar, its national and wilaya entries as the bundled
-// release holds them, and the draft kept last in the world's store, or none, or
-// none and set aside when it no longer reads against that calendar. Saving
-// reads the draft as a calendar update first, so a change that could not be
-// published is refused in the page's words, apart for a draft too heavy to
-// sign, before anything is kept; it then keeps it in the world's store under
-// the world's date and shows it, and says so, telling the caller whether it was
-// kept. Saving says it is saving, so a second press waits; a problem keeping it
-// is said in the catalogue's words, and the draft shown stays as it was. Each
-// problem is counted, so the same one twice is said twice.
+// 623): the world's calendar, its national and wilaya entries as the latest
+// release the world holds gives them (#608), and the draft kept last in the
+// world's store, or none, or none and set aside when it no longer reads against
+// that calendar. Saving reads the draft as a calendar update first, so a change
+// that could not be published is refused in the page's words, apart for a draft
+// too heavy to sign, before anything is kept; it then keeps it in the world's
+// store under the world's date and shows it, and says so, telling the caller
+// whether it was kept. Saving says it is saving, so a second press waits; a
+// problem keeping it is said in the catalogue's words, and the draft shown
+// stays as it was. Each problem is counted, so the same one twice is said
+// twice.
 
 import {
   keptCalendarDraft,

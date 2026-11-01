@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The Ministry's calendar page in a demo world (#607, §4.5, R-4.5-18, answer
-// 623): it says the page keys the world's calendar, the bundled release with
-// the draft over it, each entry with its source and how sure it is, and that a
-// draft kept before was set aside when it no longer fits, the next change
-// starting a new one; then a choice of the national layer or one wilaya's, the
-// wilayas in the official order, and that layer's entries by their first day,
-// those the draft takes out among them, each with what the draft does to it
-// (CalendarRow.tsx), or that there is none, with a button to add an entry to
-// that layer, or that wilaya. Adding or changing an entry opens the form in the
-// place of the layers and the list (CalendarForm.tsx), a new entry named at
-// random and going where it was added; saving it keeps the draft and closes the
-// form, which stays open when the draft is refused or not kept, and says when
-// fields are missing; closing it brings the focus back to the button that
-// opened it, an entry's Change or the one that adds an entry; taking an entry
-// out or undoing a change keeps the draft at once. A problem is said as an
-// alert, announced on the phone since a PC reads the alert, and each saving is
-// announced on both. The foot says the draft stays on this PC and is sent
-// nowhere until it is published.
+// 623): it says the page keys the world's calendar, the latest release the
+// world holds (#608) with the draft over it, each entry with its source and how
+// sure it is, and that a draft kept before was set aside when it no longer
+// fits, the next change starting a new one; then a choice of the national layer
+// or one wilaya's, the wilayas in the official order, and that layer's entries
+// by their first day, those the draft takes out among them, each with what the
+// draft does to it (CalendarRow.tsx), or that there is none, with a button to
+// add an entry to that layer, or that wilaya. Adding or changing an entry opens
+// the form in the place of the layers and the list (CalendarForm.tsx), a new
+// entry named at random and going where it was added; saving it keeps the draft
+// and closes the form, which stays open when the draft is refused or not kept,
+// and says when fields are missing; closing it brings the focus back to the
+// button that opened it, an entry's Change or the one that adds an entry;
+// taking an entry out or undoing a change keeps the draft at once. A problem is
+// said as an alert, announced on the phone since a PC reads the alert, and each
+// saving is announced on both. The foot says the draft stays on this PC and is
+// sent nowhere until it is published.
 
 import {
   compareDays,
@@ -43,6 +43,7 @@ import { colors, spacing, typography } from '../design/tokens';
 import type { ReferenceResult } from '../reference';
 import { ZonePicker, zoneLabel } from '../setup/ZonePicker';
 import { onPc, useDeviceText } from '../text/device-text';
+import { isolate } from '../week/grid-labels';
 import { useSaid } from '../week/useSaid';
 import { CalendarForm } from './CalendarForm';
 import { useCalendarDesk } from './calendar-desk';
@@ -102,7 +103,9 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
     .sort((a, b) => compareDays(a.from, b.from) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return (
     <View testID="ministry-calendar" style={styles.page}>
-      <Text style={[styles.body, align]}>{t('demo.ministryCalendar.lead')}</Text>
+      <Text style={[styles.body, align]}>
+        {t('demo.ministryCalendar.lead', { release: isolate(reference.calendar.release) })}
+      </Text>
       {desk.setAside && (
         <Text testID="ministry-calendar-set-aside" style={[styles.body, align]}>
           {t('demo.ministryCalendar.setAside')}
