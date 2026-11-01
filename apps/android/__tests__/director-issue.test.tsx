@@ -2,22 +2,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // D-Issue in a national demo world (#570, answers 596 to 598), against a
-// made-up demo server: once D-Keys started the school key on the director's PC
-// (answer 601), the codes page holds it, lists the school in its directorate's
-// space (#593), which D-Keys and a refresh put back when pointed elsewhere, and
-// lists every seeded teacher in a table, by subject then name, none with a code
-// yet, with the chips' counts and the lines under the table; a teacher's panel
-// gives a new code, whose QR is the joining code of this world and school,
-// waiting until its last valid day; cancelling it gives the next at once; the
-// waiting chip shows the codes waiting and how many; printing one code or every
-// code waiting prints the sheet, and a failed print is said; a security key
-// instead shows its number and counts under its chip, which shows it alone, and
-// replacing it gives another number; a teacher who joins on their code is read
-// back on refresh; a busy server is said and keeps the rows; an expired code
-// says its last day and a key joined its number. On a phone the teachers are
-// lines and nothing prints, an issue the store did not keep and a code that
-// cannot be worked out are said, and no QR shows. Every world, school and
-// person is made up.
+// made-up demo server: once D-Keys took the school's seeded key on the
+// director's PC (answer 601, #548), the codes page holds it, lists the school
+// in its directorate's space (#593), which D-Keys and a refresh put back when
+// pointed elsewhere, and lists every seeded teacher in a table, by subject then
+// name, each joined on the code the seeding made, with the chips' counts and
+// the lines under the table; a teacher's panel gives a new code, the second,
+// whose QR is the joining code of this world and school, waiting until its last
+// valid day; cancelling it gives the next at once; the waiting chip shows the
+// codes waiting and how many; printing one code or every code waiting prints
+// the sheet, and a failed print is said; a security key instead shows its
+// number and counts under its chip, which shows it alone, and replacing it
+// gives another number; a teacher who joins on a new code is read back on
+// refresh, every other but the one given a key still joined; a busy server is
+// said and keeps the rows; an expired code says its last day and a key joined
+// its number. On a phone the teachers are lines and nothing prints, an issue
+// the store did not keep and a code that cannot be worked out are said, and no
+// QR shows. Every world, school and person is made up.
 
 import {
   addDays,
@@ -124,7 +125,7 @@ async function codesPage(): Promise<{ id: string; school: DemoSchool }> {
   await press('demo-start-national');
   await press('world-role-director');
   await press('world-page-keys');
-  await press('keys-start-here');
+  await press('keys-take-seeded');
   await press('world-page-codes');
   const id = worldNetworkOpen()!;
   const { zones = [], workingDays } = reference.profile;
@@ -164,19 +165,20 @@ test('the codes page lists every teacher without a code, then gives, cancels and
       words.noSignIn,
     ]),
   );
-  expect(texts().filter((one) => one === words.status.none)).toHaveLength(all);
+  const joinedLine = words.status.joined.split('{{day}}')[0];
+  expect(texts().filter((one) => one.startsWith(joinedLine))).toHaveLength(all);
   expect(has('issue-print-waiting')).toBe(true);
   const [first, second] = rows();
   await press(`issue-row-${first}`);
   expect(texts()).toContain(nameOf(school, first));
   await press('issue-new-code');
   const [code] = codes();
-  expect(readJoinCode(code)).toMatchObject({ world: id, issue: 1 });
+  expect(readJoinCode(code)).toMatchObject({ world: id, issue: 2 });
   expect(has('issue-qr')).toBe(true);
   const waiting = words.status.waiting.split('{{day}}')[0];
   expect(texts().filter((one) => one.startsWith(waiting))).toHaveLength(1);
   await press('issue-cancel');
-  expect(readJoinCode(codes().at(-1)!)).toMatchObject({ world: id, issue: 2 });
+  expect(readJoinCode(codes().at(-1)!)).toMatchObject({ world: id, issue: 3 });
   expect(texts().filter((one) => one.startsWith(waiting))).toHaveLength(1);
   await press('issue-print-code');
   expect(printHtml).toHaveBeenCalledTimes(1);
@@ -240,7 +242,7 @@ test('a key instead counts under its chip, and a teacher who joins is read back 
   expect(joined.certificate.issued).toBe(phone.date);
   await press('issue-refresh');
   const joinedLine = words.status.joined.split('{{day}}')[0];
-  expect(texts().filter((one) => one.startsWith(joinedLine))).toHaveLength(1);
+  expect(texts().filter((one) => one.startsWith(joinedLine))).toHaveLength(school.teachers.length - 1);
   expect(has('issue-cancel')).toBe(false);
   expect(has('issue-new-code')).toBe(true);
   server.busy = true;

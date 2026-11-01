@@ -96,6 +96,7 @@ async function world() {
     world: id,
     date: started.date,
     book: await openRecordBook(new FakeStorage().asSpec()),
+    held: { world: id, keys: started.keys, sealing: started.sealing },
   });
   return { school, director: await device(), deputy: await device() };
 }
@@ -114,7 +115,9 @@ async function render(element: React.ReactElement) {
 }
 
 const keysPage = (open: Device, school: Awaited<ReturnType<typeof world>>['school']) =>
-  render(<SchoolKeys world={open} school={school} kit={nodeKit} send={server.send} dayText={String} />);
+  render(
+    <SchoolKeys world={open} school={school} held={open.held} kit={nodeKit} send={server.send} dayText={String} />,
+  );
 
 test('a reading that lands after a new code is dropped, and a keyring read for another wait is not kept', async () => {
   const { school, director, deputy } = await world();

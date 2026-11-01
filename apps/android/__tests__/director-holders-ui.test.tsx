@@ -100,6 +100,7 @@ async function world() {
     world: id,
     date: started.date,
     book: await openRecordBook(new FakeStorage().asSpec()),
+    held: { world: id, keys: started.keys, sealing: started.sealing },
   });
   return { school, director: await device(), deputy: await device() };
 }
@@ -110,7 +111,7 @@ async function page(
 ) {
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
-      <SchoolKeys world={open} school={school} kit={nodeKit} send={server.send} dayText={String} />,
+      <SchoolKeys world={open} school={school} held={open.held} kit={nodeKit} send={server.send} dayText={String} />,
     );
     await settle();
   });
@@ -227,6 +228,7 @@ test('a pasted text that is no holder’s code says so, and a lost recovery make
     busy: false,
     problem: null,
     reload: () => undefined,
+    seeded: false,
     choose: () => undefined,
     recovery: null,
     setRecovery: () => undefined,

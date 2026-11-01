@@ -3,17 +3,17 @@
 
 // D-Keys in a national demo world (#571, answers 599 and 600), against a
 // made-up demo server: the director's keys page on a PC, holding no key yet,
-// offers to start it there, then holds the school key and says one device holds
-// it, the director's own; the drawing kit is handed the map, the holders on the
-// start side, linked to the key, which links to what it opens, and no recovery
-// yet; the same boxes are written out in groups, the key's facts in the panel
-// first, as labelled rows, a box chosen showing its own; the recovery's tab
-// opens on the recovery, says none is made and gives the keyring's fingerprint.
-// A second holder shows by the first four characters of its ID. Two holders
-// that look like a recovery warn on either tab. The map of a recovery links
-// both parts to it and it to the key, and right to left the holders stand on
-// the right. On a phone there is no map and the groups are written out. Every
-// world, school and device is made up.
+// offers to take the school's key seeded with the world (#548), then holds it
+// and says one device holds it, the director's own; the drawing kit is handed
+// the map, the holders on the start side, linked to the key, which links to
+// what it opens, and no recovery yet; the same boxes are written out in groups,
+// the key's facts in the panel first, as labelled rows, a box chosen showing
+// its own; the recovery's tab opens on the recovery, says none is made and
+// gives the keyring's fingerprint. A second holder shows by the first four
+// characters of its ID. Two holders that look like a recovery warn on either
+// tab. The map of a recovery links both parts to it and it to the key, and
+// right to left the holders stand on the right. On a phone there is no map and
+// the groups are written out. Every world, school and device is made up.
 
 import {
   addHolder,
@@ -127,7 +127,7 @@ test('the keys page on a PC maps the director’s device holding the key, and wr
   await press('world-role-director');
   await press('world-page-keys');
   expect(within('keys-start')).toContain(words.start.title);
-  await press('keys-start-here');
+  await press('keys-take-seeded');
   const id = worldNetworkOpen()!;
   const { zones = [], workingDays } = reference.profile;
   const school = directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs))!;
@@ -202,7 +202,7 @@ test('a second holder shows by its ID, and on a phone the groups are written out
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
       <Drawing.Provider value={null}>
-        <SchoolKeys world={open} school={school} kit={nodeKit} send={server.send} dayText={String} />
+        <SchoolKeys world={open} school={school} held={null} kit={nodeKit} send={server.send} dayText={String} />
       </Drawing.Provider>,
     );
     await settle();
@@ -257,6 +257,7 @@ test('two holders that look like a recovery warn on either tab', async () => {
     mode: 'holder',
     facts,
     orphaned: false,
+    seeded: false,
     choose: () => undefined,
     desk: null,
     busy: false,
@@ -273,7 +274,9 @@ test('two holders that look like a recovery warn on either tab', async () => {
   const { zones = [], workingDays } = reference.profile;
   const school = directorSchool(seedNationalWorld('ABCDE', zones, workingDays, reference.packs))!;
   await ReactTestRenderer.act(async () => {
-    tree = ReactTestRenderer.create(<SchoolKeys world={open} school={school} kit={nodeKit} dayText={String} />);
+    tree = ReactTestRenderer.create(
+      <SchoolKeys world={open} school={school} held={null} kit={nodeKit} dayText={String} />,
+    );
     await settle();
   });
   expect(within('keys-many')).toEqual([words.many]);
