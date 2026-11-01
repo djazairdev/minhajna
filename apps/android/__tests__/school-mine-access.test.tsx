@@ -1,30 +1,38 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The teacher's access log on School-mine (#593, answer 621), on the made-up
-// term of grant-term.ts: before any grant it says none was made; once the
-// director grants a request, the teacher's channel read gives its notice, and
-// the log shows the day it was made and the inspector, then the inspector as
-// labelled, the two signed weeks it opens, counted, of 1م2, and its end, with
-// dates and no clock time; past its end it shows ended; on a new code it shows
-// without classes, which the new device never signed; and two grants come
-// newest first; and its words read in every language, each with its plural
-// forms. Every school, class, teacher and device is made up.
+// The teacher's access log on School-mine (#593, #594, answers 621 and 622), on
+// the made-up term of grant-term.ts: before any grant it says none was made;
+// once the director grants a request, the teacher's channel read gives its
+// notice, and the log shows the day it was made and the inspector, then the
+// inspector as labelled, the two signed weeks it opens, counted, of 1م2, and
+// its end, with dates and no clock time; past its end it shows ended; on a new
+// code it shows without classes, which the new device never signed; it says no
+// access is reported, then each access the inspector's phone reported, by day
+// and week, or, when they cannot be read, the problem as an alert beside the
+// grant; an answer for an earlier reading is dropped; two grants come newest
+// first; and its words read in every language, each with its plural forms.
+// Every school, class, teacher and device is made up.
 
 import { addDays, type Day, type SchoolJoined } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Platform, Text, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
-import { grantTerm, LABEL, STAFFED } from '../jest/grant-term';
+import { grantTerm, LABEL, STAFFED, WEEKS } from '../jest/grant-term';
 import { joinNew, MINE, SUBJECTS } from '../jest/term-weeks';
 import { server } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
+import type { Send } from '../src/demo/world-session';
 import { approveGrant } from '../src/director/grant-make';
+import { openGrantClass } from '../src/inspector/grant-read';
 import { leaveWorldNetwork } from '../src/network/world-network';
+import { problemOf } from '../src/school/school-join-session';
 import ar from '../src/text/ar.json';
 import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
+import { useAccessUses } from '../src/week/access-uses';
 import { isolate } from '../src/week/grid-labels';
+import { deliveryReading } from '../src/week/school-mine-session';
 import { SchoolMine } from '../src/week/SchoolMine';
 import { readSignChannel } from '../src/week/week-sign-session';
 
@@ -57,7 +65,7 @@ const grants = () =>
     .filter((node) => typeof node.type === 'string')
     .map((node) => String(node.props.testID));
 
-async function render(world: { world: string; date: Day }, join: SchoolJoined) {
+async function render(world: { world: string; date: Day }, join: SchoolJoined, send: Send = server.send) {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">
@@ -65,7 +73,7 @@ async function render(world: { world: string; date: Day }, join: SchoolJoined) {
           world={world}
           join={join}
           kit={kit}
-          send={server.send}
+          send={send}
           dayText={day}
           onClose={() => undefined}
           said=""
@@ -122,6 +130,79 @@ test('on a new code the grant shows without classes, which the new device never 
     .replace('{{until}}', day(grant.until));
   expect(texts()).toContain(bare);
   expect(texts().join(' ')).not.toContain('()');
+});
+
+test('the log lists each access the inspector’s phone reported, newest first, or that none is', async () => {
+  const { director, joined, inspector, fingerprint, ask } = await grantTerm();
+  const world = { world: director.world, date: director.date };
+  const grant = await approveGrant(director, STAFFED, (await ask()).id, fingerprint, kit, server.send);
+  await render(world, joined);
+  expect(texts()).toContain(words.noUse);
+  await openGrantClass(inspector, grant, grant.weeks[0].course, deliveryReading(MINE, [], []), kit, server.send);
+  await render(world, joined);
+  expect(texts()).not.toContain(words.noUse);
+  const use = (week: Day) => words.use.replace('{{day}}', day(inspector.date)).replace('{{week}}', day(week));
+  expect(texts()).toEqual(expect.arrayContaining(WEEKS.map(use)));
+});
+
+test('a problem reading the accesses is said as an alert, and the grant still shows', async () => {
+  const { director, joined, fingerprint, ask } = await grantTerm();
+  const grant = await approveGrant(director, STAFFED, (await ask()).id, fingerprint, kit, server.send);
+  const space = `/worlds/${director.world}/spaces/${grant.school}/batches?after=0`;
+  let reads = 0;
+  const refused: Send = (request) =>
+    request.path === space && (reads += 1) > 1
+      ? Promise.resolve({ status: 503, body: null, retryAfter: null })
+      : server.send(request);
+  await render({ world: director.world, date: director.date }, joined, refused);
+  expect(grants()).toEqual([`mine-grant-${grant.id}`]);
+  expect(texts()).not.toContain(words.noUse);
+  const said = problemOf({ code: 'E_WORLD_SERVER' })
+    .split('.')
+    .reduce<unknown>((at, part) => (at as Record<string, unknown>)[part], ar);
+  const alerts = tree!.root
+    .findAllByType(Text)
+    .filter((node) => (node.props as TextProps).accessibilityRole === 'alert')
+    .map((node) => (node.props as TextProps).children);
+  expect([typeof said, alerts]).toEqual(['string', [said]]);
+});
+
+test('an answer for an earlier reading is dropped', async () => {
+  const { director, joined, inspector, fingerprint, ask } = await grantTerm();
+  const grant = await approveGrant(director, STAFFED, (await ask()).id, fingerprint, kit, server.send);
+  await openGrantClass(inspector, grant, grant.weeks[0].course, deliveryReading(MINE, [], []), kit, server.send);
+  const notices = (await readSignChannel(director, joined, kit, server.send)).notices;
+  let release = () => undefined as void;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  let first = true;
+  const slow: Send = async (request) => {
+    if (first && request.path.includes('/spaces/')) {
+      first = false;
+      await held;
+    }
+    return server.send(request);
+  };
+  const seen: (number | null)[] = [];
+  function Probe({ date }: { date: Day }) {
+    const { uses } = useAccessUses(joined, notices, date, kit, slow);
+    seen.push(uses === null ? null : (uses.get(grant.id)?.length ?? 0));
+    return null;
+  }
+  await ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(<Probe date={director.date} />);
+  });
+  await ReactTestRenderer.act(() => tree!.update(<Probe date={addDays(director.date, 1)} />));
+  for (let turn = 0; turn < 40; turn += 1)
+    await ReactTestRenderer.act(async () => {
+      await settle();
+    });
+  expect(seen.at(-1)).toBe(WEEKS.length);
+  seen.length = 0;
+  await ReactTestRenderer.act(async () => {
+    release();
+    for (let turn = 0; turn < 40; turn += 1) await settle();
+  });
+  expect([first, seen]).toEqual([false, []]);
 });
 
 test('two grants come newest first', async () => {

@@ -189,7 +189,15 @@ export function SchoolMine(props: SchoolMineProps) {
       ))}
       <Text style={[styles.small, align]}>{t('demo.mine.foot')}</Text>
       {channel !== null && (
-        <AccessLog notices={channel.notices} weeks={channel.weeks} date={world.date} dayText={dayText} />
+        <AccessLog
+          notices={channel.notices}
+          weeks={channel.weeks}
+          date={world.date}
+          dayText={dayText}
+          join={props.join}
+          kit={props.kit}
+          send={props.send}
+        />
       )}
       <Button testID="mine-report" variant="line" label={t('demo.report.open')} onPress={props.onReport} />
       <Button testID="mine-sign" variant="line" label={t('demo.weekSign.open')} onPress={props.onSign} />

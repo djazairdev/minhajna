@@ -9,11 +9,12 @@
 // would end, and a way to review it (GrantApprove.tsx), or, once past its end,
 // that it lapsed; then the grants made, as D-Substitute shows them: the
 // inspector, what they open to the last working day, the classes, by whom and
-// until when, ended after that day, and, while the inspector's phone has not
-// been reached, a way to finish sending. With neither, it says so; access is
-// granted only at the directorate's request and never extended here. A problem
-// is said as an alert, announced on the phone since a PC reads the alert, and a
-// grant made or sent is announced on both.
+// until when, its last access that checks, by date without a clock time, or
+// that none is recorded yet, ended after that day, and, while the inspector's
+// phone has not been reached, a way to finish sending. With neither, it says
+// so; access is granted only at the directorate's request and never extended
+// here. A problem is said as an alert, announced on the phone since a PC reads
+// the alert, and a grant made or sent is announced on both.
 
 import { compareDays, type Day, type DemoSchool, type Weekday } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -147,6 +148,9 @@ export function GrantAccess(props: GrantAccessProps) {
             {one.opens.length > 0 && <Text style={[styles.small, align]}>{one.opens.map(isolate).join(' · ')}</Text>}
             <Text style={[styles.small, align]}>{t('demo.access.by')}</Text>
             <Text style={[styles.small, align]}>{t('demo.access.until', { until: dayText(grant.until) })}</Text>
+            <Text testID={`grant-last-${grant.id}`} style={[styles.small, align]}>
+              {one.lastUse === null ? t('demo.access.noUse') : t('demo.access.lastUse', { day: dayText(one.lastUse) })}
+            </Text>
             {ended && (
               <Text style={[styles.small, align]}>{t('demo.access.ended', { until: dayText(grant.until) })}</Text>
             )}
