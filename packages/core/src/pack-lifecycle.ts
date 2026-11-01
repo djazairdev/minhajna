@@ -1,0 +1,116 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The pack editor's release lifecycle (#612, PRD section 4.3), prepared on
+// the device for a national demo world. Source status and lifecycle stage
+// are separate. A publisher is a demo role, not an authenticated authority.
+// Only that world's Ministry role publishes an Official pack. Published
+// content is immutable; a correction has another release. Revisions stop
+// stale edits, and dates never go backwards. The codec signs every change
+// and supplies the world's signed publication file before it may travel.
+
+import { compareDays, isDay, type Day } from './day.ts';
+import { compareReleases } from './pack-catalogue.ts';
+import { parsePlanPack, type PlanPack } from './pack.ts';
+import { isWorldId } from './world-code.ts';
+
+export const PACK_STAGES = ['draft', 'under-review', 'published', 'superseded', 'withdrawn'] as const;
+export type PackStage = (typeof PACK_STAGES)[number];
+export type PackPublisher = 'curator' | 'ministry';
+
+export interface PackRelease {
+  readonly world: string;
+  readonly pack: PlanPack;
+  readonly stage: PackStage;
+  readonly revision: number;
+  readonly actor: PackPublisher;
+  readonly day: Day;
+  readonly file: string | null;
+  readonly supersededBy: string | null;
+}
+
+export type PackChange =
+  | { readonly stage: 'draft'; readonly pack: PlanPack }
+  | { readonly stage: 'under-review' | 'published' | 'withdrawn' }
+  | { readonly stage: 'superseded'; readonly by: string };
+
+export interface PackReleaseScope {
+  readonly world: string;
+  readonly day: Day;
+  readonly actor: PackPublisher;
+  readonly expected: number;
+}
+
+export const packReleaseKey = (id: string, release: string): string => `${id}@${release}`;
+
+export function preparePackRelease(
+  current: PackRelease | null,
+  change: PackChange,
+  scope: PackReleaseScope,
+  successor: PackRelease | null = null,
+): PackRelease {
+  if (!isWorldId(scope.world) || !isDay(scope.day) || !['curator', 'ministry'].includes(scope.actor))
+    throw new RangeError('E_PACK_WORLD');
+  if (!PACK_STAGES.includes(change.stage)) throw new RangeError('E_PACK_STAGE');
+  if (!Number.isSafeInteger(scope.expected) || scope.expected !== (current?.revision ?? 0) || scope.expected < 0)
+    throw new RangeError('E_PACK_CHANGED');
+  if (current !== null && (current.world !== scope.world || compareDays(scope.day, current.day) < 0))
+    throw new RangeError('E_PACK_WORLD');
+  if (!Number.isSafeInteger(scope.expected + 1)) throw new RangeError('E_PACK_CHANGED');
+  let pack: PlanPack;
+  if (change.stage === 'draft') {
+    const read = parsePlanPack(change.pack);
+    if (!read.ok || (scope.actor === 'curator' && read.value.status === 'official'))
+      throw new RangeError('E_PACK_SOURCE');
+    pack = read.value;
+    if (
+      current !== null &&
+      (!['draft', 'under-review'].includes(current.stage) ||
+        current.actor !== scope.actor ||
+        current.pack.id !== pack.id ||
+        current.pack.release !== pack.release)
+    )
+      throw new RangeError('E_PACK_STAGE');
+  } else {
+    if (current === null) throw new RangeError('E_PACK_STAGE');
+    pack = current.pack;
+    if (change.stage === 'under-review') {
+      if (current.stage !== 'draft' || current.actor !== scope.actor) throw new RangeError('E_PACK_STAGE');
+    } else if (change.stage === 'published') {
+      if (current.stage !== 'under-review' || (current.actor !== scope.actor && scope.actor !== 'ministry'))
+        throw new RangeError('E_PACK_STAGE');
+      if (scope.actor === 'curator' && pack.status === 'official') throw new RangeError('E_PACK_SOURCE');
+      if (scope.actor === 'ministry') {
+        const official = { ...pack, status: 'official' as const };
+        delete official.staleReason;
+        pack = official;
+      }
+    } else {
+      if (current.stage !== 'published' || current.actor !== scope.actor || current.file === null)
+        throw new RangeError('E_PACK_STAGE');
+      if (
+        change.stage === 'superseded' &&
+        (successor === null ||
+          successor.world !== scope.world ||
+          successor.stage !== 'published' ||
+          successor.file === null ||
+          successor.actor !== current.actor ||
+          compareDays(successor.day, scope.day) > 0 ||
+          successor.pack.id !== pack.id ||
+          successor.pack.release !== change.by ||
+          compareReleases(successor.pack.release, pack.release) <= 0)
+      )
+        throw new RangeError('E_PACK_SUCCESSOR');
+    }
+  }
+  return {
+    world: scope.world,
+    pack,
+    stage: change.stage,
+    revision: scope.expected + 1,
+    actor: scope.actor,
+    day: scope.day,
+    file: change.stage === 'superseded' || change.stage === 'withdrawn' ? current!.file : null,
+    supersededBy: change.stage === 'superseded' ? change.by : null,
+  };
+}
