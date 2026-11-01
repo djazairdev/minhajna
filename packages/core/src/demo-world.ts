@@ -128,9 +128,9 @@ function pinned(packs: readonly PlanPack[], grade: string, subject: string): Pin
 
 /**
  * A class's week: its subjects' sessions take periods 0, 1, 2… in order, and the class at `index` takes period
- * `period + step × index` of the slots, counted day by day, so a CEM or lycée class has two or three sessions a day and a primary class one. `step` is the
- * largest subject's sessions, so one teacher's classes, 1 or 3 apart, meet at different slots while the week has
- * room; the world checks every week for a clash anyway (answer 579).
+ * `period + step × index` of the slots, counted day by day, so a CEM or lycée class has two or three sessions a day and
+ * a primary class one. `step` is the largest subject's sessions, so one teacher's classes, 1 or 3 apart, meet at
+ * different slots while the week has room; the world checks every week for a clash anyway (answer 579).
  */
 function sessions(
   level: DemoLevel,

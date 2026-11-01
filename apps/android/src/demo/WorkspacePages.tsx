@@ -3,25 +3,26 @@
 
 // The pages of the PC's workspaces in a demo world that have a body yet
 // (world-pages.ts), each for the roles its board lists: the director's
-// dashboard on the seeded school (#569), the codes page that issues joining
-// codes and security keys (#570), the keys page that maps who holds the school
-// key (#571), the exchange page that maps what enters and leaves the school
-// (#592, SchoolExchange.tsx), the records page that reads the classes' signed
-// weeks with the school key (#585, SchoolRecords.tsx), the director's cover
-// page for the world's date (#586, SchoolCover.tsx), the school's term report
-// against its calendar (#589, SchoolDelivery.tsx), the director's assignments
-// and access page for substitutes (#587, SchoolSubstitute.tsx), the director's
-// and the preparer's timetable page (#576, #577, #578), kept for the world it
-// was read in, and their own log (#573); any other page has none, and the
-// preparer never opens the records or the cover; the directorate's grants page
-// requests inspectors' grants from its schools (#593, DirectorateGrant.tsx);
-// and the Ministry's calendar page keys a draft of the world's calendar (#607,
-// MinistryCalendar.tsx), afresh over each release the world comes to hold,
-// and publishes it with the world's keys (#608, MinistryCalendarPage.tsx).
+// dashboard on the seeded school (#569), with who joined (#548), the codes page
+// that issues joining codes and security keys (#570), the keys page that maps
+// who holds the school key (#571), the exchange page that maps what enters and
+// leaves the school (#592, SchoolExchange.tsx), the records page that reads the
+// classes' signed weeks with the school key (#585, SchoolRecords.tsx), the
+// director's cover page for the world's date (#586, SchoolCover.tsx), the
+// school's term report against its calendar (#589, SchoolDelivery.tsx), the
+// director's assignments and access page for substitutes (#587,
+// SchoolSubstitute.tsx), the director's and the preparer's timetable page
+// (#576, #577, #578), kept for the world it was read in, and their own log
+// (#573); any other page has none, and the preparer never opens the records or
+// the cover; the directorate's grants page requests inspectors' grants from its
+// schools (#593, DirectorateGrant.tsx); and the Ministry's calendar page keys a
+// draft of the world's calendar (#607, MinistryCalendar.tsx), afresh over each
+// release the world comes to hold, and publishes it with the world's keys
+// (#608, MinistryCalendarPage.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
-import { DirectorDashboard } from '../director/DirectorDashboard';
+import { DashboardPage } from '../director/DashboardPage';
 import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
 import { SchoolCover } from '../director/SchoolCover';
@@ -94,10 +95,13 @@ export function workspacePage(
     );
   if (workspace === 'director' && page === 'dashboard')
     return (
-      <DirectorDashboard
+      <DashboardPage
+        world={open}
         school={school}
         profile={reference.profile}
-        when={{ trial, date: open.date }}
+        trial={trial}
+        kit={kit}
+        send={send}
         dayText={dayText}
       />
     );

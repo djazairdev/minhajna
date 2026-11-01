@@ -3,10 +3,12 @@
 
 // The director's dashboard (#569, answer 591), against a made-up demo server: a
 // national world started on a PC opens the director's workspace on the seeded
-// school's dashboard, the thresholds first, saying no day is announced; every
-// class and subject in the school's order, in a table on the PC, each not
-// joined with its timetable only, its days named, during the trial term end and
-// to join once the world's date moves past it; a level keeps the order, and the
+// school's dashboard, the thresholds first, saying no day is announced, and
+// that this device holds no key to read who joined; every class and subject in
+// the school's order, in a table on the PC, each not joined with its timetable
+// only, its days named, during the trial term end and to join once the world's
+// date moves past it; once the seeded key is taken, every seeded teacher reads
+// joined with no signed week yet (#548); a level keeps the order, and the
 // classes behind count none without figures; each teacher's sessions and cover
 // in the staff's order, the staff's order said under them and the classes'
 // under the others. Given a joined teacher's figures, the PC's table gives the
@@ -69,6 +71,7 @@ const texts = () =>
   tree!.root.findAllByType(Text).map((node) => [(node.props as TextProps).children].flat().map(String).join(''));
 const rows = () => tree!.root.findAll((node) => /^dashboard-row-/u.test(String(node.props.testID)) && !!node.type);
 const shownRows = () => [...new Set(rows().map((node) => String(node.props.testID)))];
+const has = (testID: string) => tree!.root.findAllByProps({ testID }).length > 0;
 
 async function press(testID: string, value?: unknown) {
   for (let turn = 0; turn < 40; turn += 1)
@@ -112,7 +115,7 @@ async function director() {
 test('the director’s workspace opens on the seeded school, every class not joined in the trial', async () => {
   const school = await director();
   expect(tree!.root.findAllByProps({ testID: 'director-dashboard' }).length).toBeGreaterThan(0);
-  expect(texts()).toEqual(expect.arrayContaining([board.threshold, board.noThreshold, board.order]));
+  expect(texts()).toEqual(expect.arrayContaining([board.threshold, board.noThreshold, board.order, board.noKey]));
   const names = school.classes.flatMap((one) => ['arabic', 'math', 'french'].map((subject) => `${one.id}-${subject}`));
   expect(shownRows()).toEqual(names.map((name) => `dashboard-row-${name}`));
   expect(tree!.root.findAll((node) => node.props.role === 'table' && typeof node.type === 'string')).toHaveLength(1);
@@ -157,6 +160,14 @@ test('once the world’s date moves past the trial term end, each class’s teac
   await press('world-page-dashboard');
   expect(texts()).toContain(board.toJoin);
   expect(texts().some((one) => one.startsWith(board.notJoined.split(' · ')[0]) && one !== board.toJoin)).toBe(false);
+});
+
+test('once the seeded key is taken, every seeded teacher reads joined, with no signed week yet', async () => {
+  await director();
+  for (const one of ['world-page-keys', 'keys-take-seeded', 'world-page-dashboard']) await press(one);
+  expect(has('dashboard-note')).toBe(false);
+  expect(texts().filter((one) => one === board.noFigures)).toHaveLength(18);
+  expect(texts().some((one) => one.startsWith(board.notJoined.split(' · ')[0]))).toBe(false);
 });
 
 test('a joined class shows its place, delay, buffer and sessions not held, and awaiting apart', async () => {
