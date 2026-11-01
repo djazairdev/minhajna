@@ -137,7 +137,7 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
 
     const second = await serve('minhajna-image-second');
     const joined = await fetch(`${second}/worlds/K7QF4`, { headers: json });
-    assert.deepEqual(await joined.json(), { sealed: 'c2VhbGVk', date: '2026-12-01' });
+    assert.deepEqual(await joined.json(), { sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: ['2026-12-06'] });
     const read = await fetch(`${second}/worlds/K7QF4/spaces/national/batches?after=0`, { headers: json });
     const kept = (await read.json()) as { batches: { bytes: string }[] };
     assert.deepEqual(
