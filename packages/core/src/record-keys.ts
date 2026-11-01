@@ -161,6 +161,8 @@ export function recordKey(event: RecordEvent): string {
       return `school-absences:${event.absences?.school ?? ''}`;
     case 'inspector.device':
       return `inspector-device:${event.inspector?.device ?? ''}`;
+    case 'inspector.sheet':
+      return `inspector-sheet:${event.sheet?.grant ?? ''}`;
     case 'grant.requested': {
       const request = event.requested?.request as { id?: unknown } | undefined;
       return `grant-requested:${typeof request?.id === 'string' ? request.id : ''}`;

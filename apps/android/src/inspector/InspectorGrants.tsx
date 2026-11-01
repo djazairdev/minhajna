@@ -9,15 +9,25 @@
 // it was made, the span of its weeks to the last one's last working day, how
 // many classes it opens, counted in the language's plural forms, and that each
 // class's teacher sees it; then its classes, each by its number until opened
-// (GrantClass.tsx), in the order the grant first names them. A grant past its
-// end says it has ended and that nothing it opened is kept, and its classes
-// show no button. While reading it says so, and with none relayed it says so; a
-// problem reading is an alert and keeps the grants already read. The foot says
-// what never shows and that each class opened shows in its teacher's access
-// log, by date without a clock time.
+// (GrantClass.tsx), in the order the grant first names them, or, on its second
+// tab, its spot-check sheet (SpotSheet.tsx), the tabs kept by grant on this
+// page. A grant past its end says it has ended and that only its sheet's days
+// and notes are kept, its classes show no button, and its sheet shows what was
+// kept, read only. While reading it says so, and with none relayed it says so;
+// a problem reading is an alert and keeps the grants already read. The foot
+// says what never shows and that each class opened shows in its teacher's
+// access log, by date without a clock time.
 
-import { compareDays, type Day, type DeliveryReading, type DemoSchool, type Weekday } from '@minhajna/core';
+import {
+  compareDays,
+  keptSpotSheet,
+  type Day,
+  type DeliveryReading,
+  type DemoSchool,
+  type Weekday,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
@@ -26,7 +36,9 @@ import { useDeviceText } from '../text/device-text';
 import { personName } from '../director/dashboard-text';
 import { isolate } from '../week/grid-labels';
 import { weekEnd } from '../week/week-sign-session';
+import { SegmentedControl } from '../components/SegmentedControl';
 import { GrantClass } from './GrantClass';
+import { SpotSheet } from './SpotSheet';
 import { useInspectorGrants } from './grant-state';
 
 export type InspectorGrantsProps = {
@@ -44,13 +56,16 @@ export type InspectorGrantsProps = {
   readonly dayText: (day: Day) => string;
 };
 
-/** The grants relayed to the inspector's phone, and their classes. */
+type Tab = 'classes' | 'sheet';
+
+/** The grants relayed to the inspector's phone, their classes and their spot-check sheets. */
 export function InspectorGrants(props: InspectorGrantsProps) {
   const { world, directorate, schools, reading, workingDays, kit, send, dayText } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const state = useInspectorGrants(world, directorate, reading, kit, send);
+  const [tabs, setTabs] = useState<ReadonlyMap<string, Tab>>(new Map());
   const nameOf = (school: string | null) => {
     const found = schools.find((one) => one.id === school);
     return found === undefined ? t('demo.inspectorGrant.unlisted') : personName(found);
@@ -74,6 +89,7 @@ export function InspectorGrants(props: InspectorGrantsProps) {
       {state.grants?.map(({ grant, school, ended }) => {
         const courses = [...new Set(grant.weeks.map((one) => one.course))];
         const days = grant.weeks.map((one) => one.week).sort(compareDays);
+        const tab = tabs.get(grant.id) ?? 'classes';
         return (
           <View key={grant.id} testID={`inspector-grant-${grant.id}`} style={styles.grant}>
             <Text style={[styles.title, align]}>{isolate(nameOf(school))}</Text>
@@ -91,22 +107,42 @@ export function InspectorGrants(props: InspectorGrantsProps) {
                 {t('demo.inspectorGrant.ended', { until: dayText(grant.until) })}
               </Text>
             )}
-            <Text accessibilityRole="header" style={[styles.label, align]}>
-              {t('demo.inspectorGrant.classesHead')}
-            </Text>
-            {courses.map((course, at) => (
-              <GrantClass
-                key={course}
-                testID={`inspector-grant-${grant.id}-class-${at + 1}`}
-                number={at + 1}
-                weeks={grant.weeks.filter((one) => one.course === course).map((one) => one.week)}
-                workingDays={workingDays}
-                opened={state.classOf(grant.id, course)}
+            <SegmentedControl
+              testID={`inspector-grant-${grant.id}-tabs`}
+              label={t('demo.inspectorGrant.tabs')}
+              choices={[
+                { value: 'classes', label: t('demo.inspectorGrant.tabClasses') },
+                { value: 'sheet', label: t('demo.inspectorGrant.tabSheet') },
+              ]}
+              selected={tab}
+              onSelect={(value) => setTabs((before) => new Map(before).set(grant.id, value))}
+            />
+            {tab === 'sheet' ? (
+              <SpotSheet
+                testID={`inspector-grant-${grant.id}-sheet`}
+                state={state.sheetOf(grant.id)}
                 ended={ended}
+                kept={ended ? keptSpotSheet(world.book.entries, grant.id) : null}
+                courses={courses}
                 dayText={dayText}
-                onOpen={() => state.open(grant, course)}
+                onOpen={() => state.openSheet(grant)}
+                onSave={state.saveSheet}
               />
-            ))}
+            ) : (
+              courses.map((course, at) => (
+                <GrantClass
+                  key={course}
+                  testID={`inspector-grant-${grant.id}-class-${at + 1}`}
+                  number={at + 1}
+                  weeks={grant.weeks.filter((one) => one.course === course).map((one) => one.week)}
+                  workingDays={workingDays}
+                  opened={state.classOf(grant.id, course)}
+                  ended={ended}
+                  dayText={dayText}
+                  onOpen={() => state.open(grant, course)}
+                />
+              ))
+            )}
           </View>
         );
       })}

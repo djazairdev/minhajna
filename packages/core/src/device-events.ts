@@ -13,12 +13,13 @@
 // (#586, answer 614), and of the substitutes' appointments it records (#587,
 // answer 615), and of the school's choice to send absences (#592, answer 620),
 // and of the key pair an inspector's device keeps in a world and the grant
-// requests a directorate makes there (#593, answer 621), apart from
+// requests a directorate makes there (#593, answer 621), and of the spot-check
+// sheet an inspector's device keeps for a grant (#594, answer 622), apart from
 // devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
 // school-holder.ts, school-timetable.ts, school-cover.ts,
-// school-substitution.ts, school-exchange.ts, directorate-space.ts and
-// grant-request.ts, which read them, so the events module imports no module
-// that imports it back.
+// school-substitution.ts, school-exchange.ts, directorate-space.ts,
+// grant-request.ts and spot-sheet.ts, which read them, so the events module
+// imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -60,7 +61,9 @@ export type DeviceEvent =
   /** In a demo world's own store: the key pair this device keeps as an inspector there (answer 621). */
   | { readonly kind: 'inspector.device'; readonly inspector: InspectorDevice }
   /** In a demo world's own store: a grant request this device made as a directorate (answer 621). */
-  | { readonly kind: 'grant.requested'; readonly requested: GrantRequested };
+  | { readonly kind: 'grant.requested'; readonly requested: GrantRequested }
+  /** In a demo world's own store: the spot-check sheet an inspector's phone keeps for a grant (answer 622). */
+  | { readonly kind: 'inspector.sheet'; readonly sheet: SpotSheet };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -152,6 +155,15 @@ export interface InspectorDevice {
   readonly pkcs8: string;
 }
 
+/** An inspector's spot-check sheet for a grant: the days drawn, and the notes, never sent (answer 622). */
+export interface SpotSheet {
+  readonly grant: string;
+  readonly days: readonly Day[];
+  readonly notes: string;
+  /** What the pupils' exercise books show, by the key of a drawn day's row. */
+  readonly books: readonly { readonly row: string; readonly note: string }[];
+}
+
 /** A grant request a directorate made, as grant-request.ts reads it. */
 export interface GrantRequested {
   readonly request: unknown;
@@ -198,6 +210,7 @@ export const DEVICE_KINDS = {
   'school.absences': true,
   'inspector.device': true,
   'grant.requested': true,
+  'inspector.sheet': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

@@ -13,11 +13,11 @@
 // stream of the school's space, once a day (school/stream-put.ts), and only
 // then reads each week's archive (grant-records.ts), which the class's delivery
 // is counted from (course-delivery.ts), with how many corrections and
-// director's visas the weeks hold, or null when no week's archive reads. A
-// grant that has ended is E_GRANT_ENDED, and one that no longer opens for this
-// device E_GRANT_FORGED. A directorate's space not there yet holds no grant.
-// Errors otherwise carry world-session.ts's codes and those of
-// school/stream-put.ts.
+// director's visas the weeks hold and every version read, or null when no
+// week's archive reads. A grant that has ended is E_GRANT_ENDED, and one that
+// no longer opens for this device E_GRANT_FORGED. A directorate's space not
+// there yet holds no grant. Errors otherwise carry world-session.ts's codes and
+// those of school/stream-put.ts.
 
 import {
   addDays,
@@ -115,6 +115,8 @@ export interface GrantClassRead {
   /** Versions above the first, over the class's weeks. */
   readonly corrections: number;
   readonly visas: number;
+  /** Every version of the class's weeks read from the archive. */
+  readonly weeks: readonly WeekRecord[];
 }
 
 /** Opens a class of a grant, its uses posted first, and answers what its archived weeks give, or null. */
@@ -170,5 +172,5 @@ export async function openGrantClass(
   const days = weeks.map((one) => one.week).sort(compareDays);
   const last: Day = addDays(days.at(-1)!, 6);
   const [delivery] = courseDeliveries(records, days[0], last, reading);
-  return delivery === undefined ? null : { delivery, corrections, visas };
+  return delivery === undefined ? null : { delivery, corrections, visas, weeks: records };
 }
