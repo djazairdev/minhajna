@@ -1,29 +1,29 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Grants for inspectors (#553, PRD §5.10, §6.5): a device that holds the
-// school key shares, with one inspector's device, the keys of the signed
-// weeks a grant names, course by course, between its dates (answer 562). Each
-// signed week is sealed in the school's archive under a key derived for it
-// alone from the epoch's key for signed weeks, so a grant's keys open those
-// weeks and nothing else: no other week, no pupil record and no session's
-// confirmation status as it syncs. The inspector's public key reaches the
-// school through the server, so the director's device grants only when the
-// key's fingerprint matches the one the inspector's app shows, which reaches
-// the director by a channel Minhajna's server does not carry, such as the
-// inspectorate's official message, and which the director types or compares
-// on screen, never filled in from the request (answer 563); device signing
-// keys (#554) will vouch for it instead. Each key is sealed for the
-// inspector's device bound to the grant, its dates, its maker and its week,
-// so the server cannot move the dates of a grant the school made or give it
-// to another device; until signing keys, the inspector's device cannot tell a
-// school's grant from one the server made, so a reading is not evidence. The
-// dates are kept by the inspector's app, which takes a key only between them
-// by the world's date and deletes the grant after; the inspector's device
-// holds the keys, so the dates are a rule of the app, not of the crypto. Each
-// key it takes comes with an entry for the teacher's access log and a proof
-// under the grant's own log key, which only its inspector's device holds
-// besides the school, so the school's devices check each entry against their
+// Grants for inspectors (#553, PRD §5.10, §6.5): a device that holds the school
+// key shares, with one inspector's device, the keys of the signed weeks a grant
+// names, course by course, between its dates (answer 562). Each signed week is
+// sealed in the school's archive under a key derived for it alone from the
+// epoch's key for signed weeks, so a grant's keys open those weeks and nothing
+// else: no other week, no pupil record and no session's confirmation status as
+// it syncs. The inspector's public key reaches the school through the server,
+// so the director's device grants only when the key's fingerprint matches the
+// one the inspector's app shows, which reaches the director by a channel
+// Minhajna's server does not carry, such as the inspectorate's official
+// message, and which the director types or compares on screen, never filled in
+// from the request (answer 563); device signing keys (#554) will vouch for it
+// instead. Each key is sealed for the inspector's device bound to the grant,
+// its dates, its maker and its week, so the server cannot move the dates of a
+// grant the school made or give it to another device; until signing keys, the
+// inspector's device cannot tell a school's grant from one the server made, so
+// a reading is not evidence. The dates are kept by the inspector's app, which
+// takes a key only between them by the world's date and deletes the grant
+// after; the inspector's device holds the keys, so the dates are a rule of the
+// app, not of the crypto. Each key it takes comes with an entry for the
+// teacher's access log, a proof under the grant's own log key, which only its
+// inspector's device holds besides the school, and the key of its course's uses
+// (grant-uses.ts), so the school's devices check each entry against their
 // record of the grant and neither the server nor another inspector can forge
 // one, though the server can drop it; the teacher's log shows each grant over
 // their weeks from the school's space, and each use as the inspector's device
@@ -31,6 +31,7 @@
 // weeks it needs.
 
 import { compareDays, isDay, type Day } from './day.ts';
+import { inspectorFingerprint, plainFingerprint } from './grant-fingerprint.ts';
 import { toHex } from './id.ts';
 import { ascii, fromHex, ID, isHolder, sameMac, SCHOOL, type Holder, type KeyCrypto } from './school-key-shape.ts';
 import { latestEpoch, purposeKey, type OpenedKeyring } from './school-key.ts';
@@ -119,9 +120,6 @@ async function logKey(school: OpenedKeyring, epoch: number, grant: string, crypt
   return crypto.mac(key, ascii(`minhajna/grant/log\n${grant}`));
 }
 
-/** A fingerprint as typed, to compare: lower case, without spaces, hyphens or dashes. */
-export const plainFingerprint = (typed: string) => typed.toLowerCase().replace(/[\s\u2010-\u2015-]/gu, '');
-
 function hasOnly(value: unknown, fields: readonly string[]): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const keys = Object.keys(value);
@@ -152,12 +150,6 @@ function goodWeeks(weeks: readonly GrantWeek[], epochs: number): boolean {
     (one) => ID.test(one.course) && isDay(one.week) && Number.isSafeInteger(one.epoch) && one.epoch >= 0,
   );
   return fine && weeks.length > 0 && names.size === weeks.length && weeks.every((one) => one.epoch < epochs);
-}
-
-/** The fingerprint of an inspector's key that its app shows and the director confirms: 64 bits in four groups. */
-export async function inspectorFingerprint(publicKey: string, crypto: KeyCrypto): Promise<string> {
-  const mac = toHex(await crypto.mac(fromHex(publicKey), ascii('minhajna/grant/inspector')));
-  return (mac.slice(0, 16).match(/.{4}/gu) ?? []).join('-');
 }
 
 /** A grant to one inspector's device, made on a device that holds the school key. */
@@ -237,6 +229,8 @@ export async function openGrant(
   return result;
 }
 
+const useKeyText = (course: string, week: Day) => `minhajna/grant/use-key\n${course}\n${week}`;
+
 function useText(use: Omit<GrantUse, 'proof'>): string {
   const { grant, inspector, course, week, epoch, day } = use;
   return `minhajna/grant/use\n${grant}\n${inspector}\n${course}\n${week}\n${epoch}\n${day}`;
@@ -244,8 +238,9 @@ function useText(use: Omit<GrantUse, 'proof'>): string {
 
 /**
  * A week's key on the inspector's device, with the entry for the teacher's
- * access log that goes with it, proved under the grant's log key; null when the
- * grant does not name the week or the world's date is outside the grant's.
+ * access log that goes with it, proved under the grant's log key, and the key
+ * of that week's uses (grant-uses.ts); null when the grant does not name the
+ * week or the world's date is outside the grant's.
  */
 export async function useGrant(
   grant: OpenedGrant,
@@ -253,7 +248,7 @@ export async function useGrant(
   week: Day,
   today: Day,
   crypto: KeyCrypto,
-): Promise<{ readonly key: Uint8Array; readonly use: GrantUse } | null> {
+): Promise<{ readonly key: Uint8Array; readonly use: GrantUse; readonly useKey: Uint8Array } | null> {
   const keys = grantKeys.get(grant);
   const key = keys?.weeks.get(weekName(course, week));
   const named = grant.grant.weeks.find((one) => one.course === course && one.week === week);
@@ -267,7 +262,21 @@ export async function useGrant(
     day: today,
   };
   const proof = toHex(await crypto.mac(keys.log, ascii(useText(entry))));
-  return { key, use: { ...entry, proof } };
+  return { key, use: { ...entry, proof }, useKey: await crypto.mac(keys.log, ascii(useKeyText(course, week))) };
+}
+
+/** The key of a week's uses of a grant, on a device that holds the school key, for the week's teacher. */
+export async function grantUseKey(
+  school: OpenedKeyring,
+  grant: Pick<Grant, 'id' | 'log'>,
+  course: string,
+  week: Day,
+  crypto: KeyCrypto,
+) {
+  const { epoch } = grant.log;
+  if (!ID.test(course) || !isDay(week) || !Number.isSafeInteger(epoch) || epoch < 0 || epoch >= school.keys.length)
+    throw new RangeError('A use key is for a week of a grant');
+  return crypto.mac(await logKey(school, epoch, grant.id, crypto), ascii(useKeyText(course, week)));
 }
 
 /**

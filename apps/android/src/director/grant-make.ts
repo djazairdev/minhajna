@@ -16,13 +16,14 @@
 // later grant over a corrected week gets the week as corrected; the school's
 // record of the grant on its epoch's stream, unless one for the request is on
 // any epoch's stream, the first recorded winning from then on; each teacher
-// told of their own weeks once, on the channel of their current code or key, or
-// of the one their weeks came under when this device kept none, signed with
-// this device's key (send-session.ts), unless a notice of the grant is there;
-// and only then the grant relayed, sealed for the inspector's device, on its
-// stream of the directorate's space, put each time, since anyone who saw the
-// request can post a relay for it and the inspector's device keeps each grant
-// once. A week no longer read is neither archived nor told. Errors carry
+// told of their own weeks once, with the key of each of their weeks' uses
+// (grant-uses.ts, #594), on the channel of their current code or key, or of the
+// one their weeks came under when this device kept none, signed with this
+// device's key (send-session.ts), unless a notice of the grant is there; and
+// only then the grant relayed, sealed for the inspector's device, on its stream
+// of the directorate's space, put each time, since anyone who saw the request
+// can post a relay for it and the inspector's device keeps each grant once. A
+// week no longer read is neither archived nor told. Errors carry
 // world-session.ts's codes, those of holding the school key and those of
 // school/stream-put.ts.
 
@@ -34,6 +35,7 @@ import {
   grantMade,
   grantRecordPlace,
   grantsMade,
+  grantUseKey,
   inspectorFingerprint,
   keptIssues,
   latestEpoch,
@@ -50,6 +52,7 @@ import {
   sealGrantRelay,
   signedWeekKey,
   signGrantNotice,
+  toHex,
   type Grant,
   type GrantNotice,
   type KeptIssue,
@@ -154,6 +157,11 @@ async function tell(
   for (const [assignment, theirs] of byTeacher) {
     const issue = issues.get(assignment) ?? theirs[0].found.recorded.issue;
     const code = await joinCode(world, desk, issue);
+    const uses = [];
+    for (const { week } of theirs) {
+      const useKey = await kitStep(() => grantUseKey(desk.opened, grant, week.course, week.week, desk.crypto));
+      uses.push({ course: week.course, week: week.week, key: toHex(useKey) });
+    }
     const notice: GrantNotice = {
       world,
       school: desk.held.school,
@@ -162,6 +170,7 @@ async function tell(
       grant: grant.id,
       inspector: label,
       weeks: theirs.map(({ week }) => ({ course: week.course, week: week.week })),
+      uses,
       from: grant.from,
       until: grant.until,
     };
