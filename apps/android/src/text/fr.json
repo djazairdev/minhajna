@@ -5794,6 +5794,45 @@
       "sheetKept": "{{row}} : {{note}}",
       "sheetEndedKept": "L’accès a pris fin : sa fiche ne s’ouvre plus. Voici ce qu’en garde ce téléphone : ses jours et vos notes.",
       "sheetFull": "La fiche a des notes sur plus de séances qu’elle n’en garde : supprimez-en quelques-unes puis enregistrez."
+    },
+    "ministryCalendar": {
+      "lead": "Le calendrier du monde tel que ce PC le saisit : la version fournie, avec votre brouillon par-dessus ; chaque date porte sa source et son degré de certitude.",
+      "setAside": "Le brouillon gardé sur ce PC ne correspond plus au calendrier du monde ; il a été mis de côté, et la prochaine modification commence un nouveau brouillon.",
+      "layer": "Afficher les dates",
+      "national": "Nationales",
+      "wilaya": "Wilaya",
+      "none": "Aucune date ici.",
+      "days": "du {{from}} au {{to}}",
+      "line": "{{effect}} · {{days}}",
+      "source": "Source : {{source}}",
+      "confidence": "Certitude : {{confidence}}",
+      "moved": "Était {{days}} : {{reason}}",
+      "effects": {
+        "holiday": "Congé",
+        "closure": "Fermeture",
+        "exam": "Examens",
+        "marker": "Événement",
+        "other": "Autre effet"
+      },
+      "confidences": {
+        "announced": "annoncée",
+        "expected": "attendue",
+        "projected": "prévisionnelle"
+      },
+      "marks": {
+        "new": "Nouvelle dans le brouillon",
+        "changed": "Modifiée dans le brouillon",
+        "removed": "Retirée dans le brouillon"
+      },
+      "takeOut": "Retirer",
+      "takeOutFor": "Retirer {{name}}",
+      "undo": "Annuler la modification",
+      "undoFor": "Annuler la modification : {{name}}",
+      "saving": "Enregistrement du brouillon…",
+      "saved": "Brouillon enregistré sur ce PC.",
+      "refused": "Cette modification ne peut pas entrer dans une mise à jour du calendrier.",
+      "tooBig": "Le brouillon dépasserait ce qu’une mise à jour du calendrier peut contenir.",
+      "foot": "Le brouillon reste sur ce PC et n’est envoyé nulle part tant qu’il n’est pas publié pour les établissements et le personnel enseignant du monde."
     }
   },
   "chart": {

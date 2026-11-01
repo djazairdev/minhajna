@@ -14,7 +14,9 @@
 // and the preparer's timetable page (#576, #577, #578), kept for the world it
 // was read in, and their own log (#573); any other page has none, and the
 // preparer never opens the records or the cover; the directorate's grants page
-// requests inspectors' grants from its schools (#593, DirectorateGrant.tsx).
+// requests inspectors' grants from its schools (#593, DirectorateGrant.tsx);
+// and the Ministry's calendar page keys a draft of the world's calendar (#607,
+// MinistryCalendar.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -32,6 +34,7 @@ import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
+import { MinistryCalendar } from '../ministry/MinistryCalendar';
 import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import type { MineCalendar } from '../week/school-mine-session';
@@ -66,6 +69,8 @@ export function workspacePage(
   props: WorkspacePagesProps,
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
+  if (workspace === 'ministry' && page === 'calendar')
+    return <MinistryCalendar key={open.world} world={open} reference={reference} dayText={dayText} />;
   if (workspace === 'directorate' && page === 'grants')
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />

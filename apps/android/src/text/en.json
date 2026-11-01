@@ -5709,6 +5709,45 @@
       "sheetKept": "{{row}}: {{note}}",
       "sheetEndedKept": "The grant has ended, so its sheet does not open. This is what the phone kept of it: its days and your notes.",
       "sheetFull": "The sheet has notes on more sessions than it keeps: delete some, then save."
+    },
+    "ministryCalendar": {
+      "lead": "The world’s calendar as this PC keys it: the bundled release with your draft over it, each entry with its source and how sure it is.",
+      "setAside": "The draft kept on this PC no longer fits the world’s calendar, so it was set aside; the next change starts a new draft.",
+      "layer": "Show entries",
+      "national": "National",
+      "wilaya": "Wilaya",
+      "none": "No entry here.",
+      "days": "{{from}} to {{to}}",
+      "line": "{{effect}} · {{days}}",
+      "source": "Source: {{source}}",
+      "confidence": "How sure: {{confidence}}",
+      "moved": "Was {{days}}: {{reason}}",
+      "effects": {
+        "holiday": "Holiday",
+        "closure": "Closure",
+        "exam": "Exams",
+        "marker": "Event",
+        "other": "Other effect"
+      },
+      "confidences": {
+        "announced": "announced",
+        "expected": "expected",
+        "projected": "projected"
+      },
+      "marks": {
+        "new": "New in the draft",
+        "changed": "Changed in the draft",
+        "removed": "Taken out in the draft"
+      },
+      "takeOut": "Take out",
+      "takeOutFor": "Take out {{name}}",
+      "undo": "Undo the change",
+      "undoFor": "Undo the change: {{name}}",
+      "saving": "Saving the draft…",
+      "saved": "Draft saved on this PC.",
+      "refused": "This change cannot go into an update of the calendar.",
+      "tooBig": "The draft would be larger than one update of the calendar can carry.",
+      "foot": "The draft stays on this PC and is sent nowhere until it is published to the world’s schools and teachers."
     }
   },
   "chart": {
