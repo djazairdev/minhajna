@@ -3,18 +3,19 @@
 
 // D-Keys' state on a device of a demo world (#571, answers 599 and 600). A
 // device that holds the school key holds it as D-Issue does, following the
-// school's stream, and the facts of the latest keyring are worked out, with
-// whether the recovery's maker is gone, again after a change with `reload`; a
-// reading that fails keeps the facts read before. A device that holds none
-// chooses: starting the school's key here, or waiting to hold the key another
-// device holds, which a wait the store keeps resumes. The recovery just made is
-// kept here, above the tabs, with whether one is being made and what was last
-// said of it, so its parts stay until the director says both sheets are printed
-// or leaves the page, and coming back to the tab while it is made neither makes
-// another nor misses how it ended. A problem is said in the catalogue's words;
-// leaving the world drops a slower answer.
+// school's stream, and lists the school quietly in its directorate's space
+// (school-listing.ts, #593), and the facts of the latest keyring are worked
+// out, with whether the recovery's maker is gone, again after a change with
+// `reload`; a reading that fails keeps the facts read before. A device that
+// holds none chooses: starting the school's key here, or waiting to hold the
+// key another device holds, which a wait the store keeps resumes. The recovery
+// just made is kept here, above the tabs, with whether one is being made and
+// what was last said of it, so its parts stay until the director says both
+// sheets are printed or leaves the page, and coming back to the tab while it is
+// made neither makes another nor misses how it ended. A problem is said in the
+// catalogue's words; leaving the world drops a slower answer.
 
-import { keptWaiting, keysFacts, latestHeld, recoveryOrphaned, type KeysFacts } from '@minhajna/core';
+import { keptWaiting, keysFacts, latestHeld, recoveryOrphaned, type DemoSchool, type KeysFacts } from '@minhajna/core';
 import { useCallback, useEffect, useState } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
@@ -22,6 +23,7 @@ import { problemOf } from '../school/school-join-session';
 import { holdSchool } from './issue-session';
 import type { MadeRecovery } from './keys-session';
 import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
+import { listQuietly } from './school-listing';
 
 /** Whether the page opens, asks how to hold the key, waits to be added, or shows the key held. */
 export type KeysMode = 'opening' | 'choose' | 'waiting' | 'holder';
@@ -60,7 +62,12 @@ type Read = Pick<KeysPage, 'mode' | 'facts' | 'desk' | 'orphaned' | 'busy' | 'pr
 const OPENING: Read = { mode: 'opening', facts: null, desk: null, orphaned: false, busy: true, problem: null };
 
 /** D-Keys' state for an open world's school. */
-export function useKeysPage(world: Pick<OpenWorld, 'world' | 'book' | 'date'>, kit: WorldKit, send?: Send): KeysPage {
+export function useKeysPage(
+  world: Pick<OpenWorld, 'world' | 'book' | 'date'>,
+  school: Pick<DemoSchool, 'id' | 'directorateId'>,
+  kit: WorldKit,
+  send?: Send,
+): KeysPage {
   const [page, setPage] = useState<Read>(OPENING);
   const [choice, setChoice] = useState<KeysChoice>(null);
   const [recovery, setRecovery] = useState<MadeRecovery | null>(null);
@@ -75,6 +82,7 @@ export function useKeysPage(world: Pick<OpenWorld, 'world' | 'book' | 'date'>, k
     let open = true;
     void (async () => {
       const desk = await holdSchool(world, kit, send);
+      if (open) listQuietly(world.world, school, desk.held.school, kit, send);
       const facts = await keysFacts(desk.opened.ring, desk.held.device, desk.crypto);
       const orphaned = await recoveryOrphaned(desk.opened.ring, desk.crypto);
       if (open) setPage({ mode: 'holder', facts, desk, orphaned, busy: false, problem: null });
@@ -88,7 +96,7 @@ export function useKeysPage(world: Pick<OpenWorld, 'world' | 'book' | 'date'>, k
     return () => {
       open = false;
     };
-  }, [world, kit, send, round, holding]);
+  }, [world, school, kit, send, round, holding]);
   const reload = useCallback(() => setRound((one) => one + 1), []);
   const choose = useCallback((one: KeysChoice) => {
     setPage(OPENING);

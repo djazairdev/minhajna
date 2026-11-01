@@ -3,19 +3,21 @@
 
 // D-Issue in a national demo world (#570, answers 596 to 598), against a
 // made-up demo server: once D-Keys started the school key on the director's PC
-// (answer 601), the codes page holds it and lists every seeded teacher in a
-// table, by subject then name, none with a code yet, with the chips' counts and
-// the lines under the table; a teacher's panel gives a new code, whose QR is
-// the joining code of this world and school, waiting until its last valid day;
-// cancelling it gives the next at once; the waiting chip shows the codes
-// waiting and how many; printing one code or every code waiting prints the
-// sheet, and a failed print is said; a security key instead shows its number
-// and counts under its chip, which shows it alone, and replacing it gives
-// another number; a teacher who joins on their code is read back on refresh; a
-// busy server is said and keeps the rows; an expired code says its last day and
-// a key joined its number. On a phone the teachers are lines and nothing
-// prints, an issue the store did not keep and a code that cannot be worked out
-// are said, and no QR shows. Every world, school and person is made up.
+// (answer 601), the codes page holds it, lists the school in its directorate's
+// space (#593), which D-Keys and a refresh put back when pointed elsewhere, and
+// lists every seeded teacher in a table, by subject then name, none with a code
+// yet, with the chips' counts and the lines under the table; a teacher's panel
+// gives a new code, whose QR is the joining code of this world and school,
+// waiting until its last valid day; cancelling it gives the next at once; the
+// waiting chip shows the codes waiting and how many; printing one code or every
+// code waiting prints the sheet, and a failed print is said; a security key
+// instead shows its number and counts under its chip, which shows it alone, and
+// replacing it gives another number; a teacher who joins on their code is read
+// back on refresh; a busy server is said and keeps the rows; an expired code
+// says its last day and a key joined its number. On a phone the teachers are
+// lines and nothing prints, an issue the store did not keep and a code that
+// cannot be worked out are said, and no QR shows. Every world, school and
+// person is made up.
 
 import {
   addDays,
@@ -30,11 +32,13 @@ import { Platform, Text, type PressableProps, type TextProps } from 'react-nativ
 import ReactTestRenderer from 'react-test-renderer';
 import { FakeStorage } from '../jest/fake-storage';
 import { FakeWorld } from '../jest/fake-world';
+import { listedAs, schools } from '../jest/grant-world';
 import { DemoServer, nodeKit } from '../jest/world-server';
 import { DemoRoot } from '../src/demo/DemoRoot';
 import { failed, startWorld } from '../src/demo/world-session';
 import { personName } from '../src/director/dashboard-text';
 import { IssueCodes } from '../src/director/IssueCodes';
+import { listSchool } from '../src/director/school-listing';
 import * as issueSession from '../src/director/issue-session';
 import { statusText } from '../src/director/issue-text';
 import { subjectName } from '../src/extra/extra-rules';
@@ -132,6 +136,15 @@ const nameOf = (school: DemoSchool, id: string) => personName(school.teachers.fi
 test('the codes page lists every teacher without a code, then gives, cancels and prints codes', async () => {
   const { id, school } = await codesPage();
   expect(has('issue-table')).toBe(true);
+  const [space] = [...(await schools(id, school.directorateId, server.send)).listed.values()];
+  expect(await listedAs(id, school, space, server.send)).toBe(space);
+  await listSchool(id, school, 'another-made-up-space-id', nodeKit, server.send);
+  await press('world-page-keys');
+  expect(await listedAs(id, school, space, server.send)).toBe(space);
+  await press('world-page-codes');
+  await listSchool(id, school, 'another-made-up-space-id', nodeKit, server.send);
+  await press('issue-refresh');
+  expect(await listedAs(id, school, space, server.send)).toBe(space);
   const collator = new Intl.Collator('ar');
   const subject = (code: string) => subjectName(reference.profile, code);
   const ordered = [...school.teachers].sort(

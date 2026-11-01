@@ -1,30 +1,31 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A directorate's request for an inspector's grant (#593, M-Grant, answer
-// 621), which a device holding the school key turns into a grant (answer 562).
-// The request names the inspector's device, a label for the inspector, the
-// subject by its country code, up to sixteen classes by name, each once as the
+// A directorate's request for an inspector's grant (#593, M-Grant, answer 621),
+// which a device holding the school key turns into a grant (answer 562). The
+// request names the inspector's device, a label for the inspector, the subject
+// by its country code, up to sixteen classes by name, each once as the
 // timetable's name key reads it, the signed weeks' range, the day the grant
-// ends, on or after the range's last day, and the world's date it was asked
-// on. It names no teacher and carries no fingerprint, which reaches the school
-// only in the inspectorate's official message (answer 563), and it is not
-// signed, since the stand-in CA certifies any device without a role. It goes on
-// a stream of the school's space named from the space's ID: one fresh content
-// key seals the request, bound to the school and the request's ID, and that
-// key is sealed for each holder of the school's latest keyring, so only a
-// holder opens it; the directorate cannot check a keyring's tag, so a forged
-// keyring would let the server read it, which is why it carries no name of a
-// person and no secret. A holder opens what is sealed for its device, keeping
-// a request only when it reads and names the school and the ID its envelope
-// does, each request once. The classes then name the courses whose signed
-// weeks the grant opens: each class's course is worked out from the school,
-// its name and the subject (week-record.ts), and every signed week of it whose
-// first day lies in the range is named once, under the epoch given, in the
-// order of the classes and the weeks; the classes with none are said. The
-// directorate keeps each request it made as a device event in the world's
-// store.
+// ends, on or after the range's last day, and the world's date it was asked on.
+// It names no teacher and carries no fingerprint, which reaches the school only
+// in the inspectorate's official message (answer 563), and it is not signed,
+// since the stand-in CA certifies any device without a role. It goes on a
+// stream of the school's space named from the space's ID: one fresh content key
+// seals the request, bound to the school and the request's ID, and that key is
+// sealed for each holder of the school's latest keyring, so only a holder opens
+// it, while anyone reading the stream sees by ID which requests' envelopes
+// reached it; the directorate cannot check a keyring's tag, so a forged keyring
+// would let whoever forged it read it, which is why it carries no name of a
+// person and no secret. A holder opens what is sealed for its device, keeping a
+// request only when it reads and names the school and the ID its envelope does,
+// each request once. The classes then name the courses whose signed weeks the
+// grant opens: each class's course is worked out from the school, its name and
+// the subject (week-record.ts), and every signed week of it whose first day
+// lies in the range is named once, under the epoch given, in the order of the
+// classes and the weeks; the classes with none are said. The directorate keeps
+// each request it made as a device event in the world's store.
 
+import type { SealedBatch } from './batches.ts';
 import { compareDays, isDay, type Day } from './day.ts';
 import type { GrantRequested } from './device-events.ts';
 import { eventOf } from './events.ts';
@@ -33,7 +34,7 @@ import type { Entry } from './history.ts';
 import type { RandomBytes } from './id.ts';
 import { ENTRY_ID } from './reference-fields.ts';
 import { ascii, fromHex, ID, isHolder, SCHOOL, type Holder, type KeyCrypto } from './school-key-shape.ts';
-import { asciiJson, parsedAscii, placeOf, type Place } from './sealed-stream.ts';
+import { asciiJson, openRecords, parsedAscii, placeOf, sealRecord, type Place } from './sealed-stream.ts';
 import { timetableNameKey } from './timetable-import.ts';
 import { clean, named, NAME_MOST, record } from './timetable-record.ts';
 import { courseId } from './week-record.ts';
@@ -141,6 +142,14 @@ export async function sealGrantRequest(
   return { format: GRANT_ENVELOPE, school: request.school, id: request.id, sealed, body };
 }
 
+/** An envelope's batches on its school's request stream, numbered from `first`. */
+export const sealGrantEnvelope = (place: Place, envelope: GrantEnvelope, first: number, cipher: WorldCipher) =>
+  sealRecord(place, envelope, first, GRANT_REQUEST_BATCHES, cipher);
+
+/** The records on a school's request stream, in their order, for the readers below. */
+export const openGrantEnvelopes = (place: Place, batches: readonly SealedBatch[], cipher: WorldCipher) =>
+  openRecords(place, batches, GRANT_REQUEST_BATCHES, cipher);
+
 function readEnvelope(value: unknown): GrantEnvelope | null {
   if (!record(value)) return null;
   const { format, school, id, sealed, body, ...rest } = value;
@@ -176,6 +185,16 @@ export async function openGrantRequests(
     if (request?.school === school && request.id === envelope.id) found.set(request.id, request);
   }
   return [...found.values()];
+}
+
+/** The requests whose envelopes reached a school's stream, by ID, as anyone who reads the stream sees them. */
+export function envelopesFor(records: readonly unknown[], school: string): ReadonlySet<string> {
+  const ids = new Set<string>();
+  for (const one of records) {
+    const read = readEnvelope(one);
+    if (read?.school === school) ids.add(read.id);
+  }
+  return ids;
 }
 
 /** A signed week a holder's device has read, by its course and first day. */

@@ -69,7 +69,7 @@ export function IssueCodes({ world, school, profile, kit, send, dayText }: Issue
     }),
     [profile, language],
   );
-  const page = useIssuePage(world, school.teachers, naming, kit, send);
+  const page = useIssuePage(world, school, naming, kit, send);
   const key = useMemo(() => (onPc() ? browserKey(kit.random) : null), [kit]);
   const [filter, setFilter] = useState<Filter>('all');
   const [chosen, setChosen] = useState<string | null>(null);

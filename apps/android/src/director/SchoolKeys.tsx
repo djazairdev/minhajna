@@ -58,7 +58,7 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const drawing = useDrawing();
-  const page = useKeysPage(world, kit, send);
+  const page = useKeysPage(world, school, kit, send);
   const [tab, setTab] = useState<KeysTab>('holders');
   const [chosen, setChosen] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
