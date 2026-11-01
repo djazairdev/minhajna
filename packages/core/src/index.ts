@@ -84,6 +84,7 @@ export * from './school-timetable.ts';
 export * from './school-cover.ts';
 export * from './school-substitution.ts';
 export * from './school-exchange.ts';
+export * from './spot-sheet.ts';
 export * from './class-handover.ts';
 export * from './class-return.ts';
 export { isStaffId } from './school-key-shape.ts';
