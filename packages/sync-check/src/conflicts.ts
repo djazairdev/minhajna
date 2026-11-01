@@ -72,6 +72,7 @@ export function recordKey(entry: Entry): string | null {
     case 'school.timetable':
     case 'school.cover':
     case 'school.substitution':
+    case 'school.absences':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;

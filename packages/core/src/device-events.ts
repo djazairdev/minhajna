@@ -11,10 +11,11 @@
 // (#571, answer 600), and of the versions of the school's timetable it
 // publishes (#578, answer 606), of the sessions its director marks for cover
 // (#586, answer 614), and of the substitutes' appointments it records (#587,
-// answer 615), apart from devices.ts, world-kept.ts, school-joined.ts,
-// school-issue.ts, school-holder.ts, school-timetable.ts, school-cover.ts and
-// school-substitution.ts, which read them, so the events module imports no
-// module that imports it back.
+// answer 615), and of the school's choice to send absences (#592, answer 620),
+// apart from devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
+// school-holder.ts, school-timetable.ts, school-cover.ts,
+// school-substitution.ts and school-exchange.ts, which read them, so the events
+// module imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -50,7 +51,9 @@ export type DeviceEvent =
   /** In a demo world's own store: a session the director marked for cover on a day, and how it is covered. */
   | { readonly kind: 'school.cover'; readonly cover: SchoolCover }
   /** In a demo world's own store: a substitute's appointment the director recorded, and its end once recorded. */
-  | { readonly kind: 'school.substitution'; readonly substitution: SchoolSubstitution };
+  | { readonly kind: 'school.substitution'; readonly substitution: SchoolSubstitution }
+  /** In a demo world's own store: whether the school sends absences to the sector's system (answer 620). */
+  | { readonly kind: 'school.absences'; readonly absences: SchoolAbsences };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -127,6 +130,12 @@ export interface SchoolSubstitution {
   readonly ended: Day | null;
 }
 
+/** The school's choice to send absences to the sector's system, by its space; never a clock time (answer 620). */
+export interface SchoolAbsences {
+  readonly school: string;
+  readonly send: boolean;
+}
+
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
@@ -165,6 +174,7 @@ export const DEVICE_KINDS = {
   'school.timetable': true,
   'school.cover': true,
   'school.substitution': true,
+  'school.absences': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>
