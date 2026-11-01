@@ -2,22 +2,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // D-Exchange, what the school exchanges, in a national demo world (#592, §7.5,
-// §7.11, R-3.4-05, R-7.5-18, R-7.12-02, answer 620), under the workspace's
-// title: the school, the world's date and what the page shows; that everything
-// leaving the school is on the map and nothing else, and how many lines pass
-// between the school and outside; on the PC, the legend, a solid line passing
-// always, a dashed one on a condition and a faint dotted one not passing now,
-// and React Flow's read-only map (exchange-map.ts); on every device its boxes
-// and lines written out, each a button that opens its panel beside them, the
-// school's space at first, said as it changes as D-Keys' is, and from the
-// school's space a link to the keys page; that the map is read and its one
-// choice is sending absences; and the choice itself, a switch off until the
-// director turns it on, kept under the school's space and so waiting for the
-// school key on this device, with what it means and that it goes into the
+// §7.11, R-3.4-05, R-7.5-18, R-7.11-02, R-7.12-02, answer 620), under the
+// workspace's title: the school, the world's date and what the page shows; that
+// everything leaving the school is on the map and nothing else, and how many
+// lines pass between the school and outside; on the PC, the legend, a solid
+// line passing always, a dashed one on a condition and a faint dotted one not
+// passing now, and React Flow's read-only map (exchange-map.ts); on every
+// device its boxes and lines written out, each a button that opens its panel
+// beside them, the school's space at first, said as it changes as D-Keys' is,
+// and from the school's space a link to the keys page; that the map is read and
+// its one choice is sending absences; and the choice itself, a switch off until
+// the director turns it on, kept under the school's space and so waiting for
+// the school key on this device, with what it means and that it goes into the
 // school's log by its date, never the time (use-exchange-page.ts); turning it
 // opens the absences line's panel, and a choice not kept is said under it.
 // Reading the stand-in's receipts is said, a problem in the world's words with
-// a way to read again.
+// a way to read again. Last, the school's space is exported whole
+// (SpaceExport.tsx).
 
 import type { Day, DemoSchool } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -34,6 +35,7 @@ import { useDrawing } from '../drawing/drawing-kit';
 import { onPc, useDeviceText } from '../text/device-text';
 import { personName } from './dashboard-text';
 import { exchangeMap, type ExchangeId, type ExchangeItem } from './exchange-map';
+import { SpaceExport } from './SpaceExport';
 import { useExchangePage } from './use-exchange-page';
 
 export type SchoolExchangeProps = {
@@ -178,6 +180,7 @@ export function SchoolExchange({ world, school, send, dayText, onKeys }: SchoolE
           </Text>
         )}
       </View>
+      <SpaceExport world={world} school={page.school} {...(send === undefined ? {} : { send })} />
     </View>
   );
 }

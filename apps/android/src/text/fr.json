@@ -5058,7 +5058,17 @@
       "noKey": "Le choix s’inscrit sous l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. Créez-la ou rejoignez-la depuis la page des clés.",
       "opening": "Lecture des accusés de réception…",
       "again": "Relire",
-      "keysLink": "Qui détient la clé de l’établissement"
+      "keysLink": "Qui détient la clé de l’établissement",
+      "export": {
+        "title": "Exporter tout l’espace de l’établissement",
+        "line": "Un seul fichier avec tout ce que le serveur garde pour l’espace de l’établissement, scellé tel quel et jamais ouvert : seules la clé de l’établissement et les clés du personnel enseignant le lisent. Le fichier indique qu’il vient d’un monde de démonstration.",
+        "button": "Exporter l’espace",
+        "making": "Préparation du fichier…",
+        "saved": "Le fichier est enregistré.",
+        "cancelled": "Le fichier n’a pas été enregistré.",
+        "noKey": "L’export lit l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. Créez-la ou rejoignez-la depuis la page des clés.",
+        "failed": "Le fichier n’a pas pu être préparé ou enregistré."
+      }
     },
     "staff": {
       "title": "PC de la salle des professeurs",
