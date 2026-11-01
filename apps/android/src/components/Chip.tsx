@@ -40,7 +40,7 @@ export type ChipGroupProps<T extends string> = Common<T> &
  */
 export function ChipGroup<T extends string>(props: ChipGroupProps<T>) {
   const { direction } = useLocale();
-  const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const align = { writingDirection: direction, textAlign: direction === 'rtl' ? 'right' : 'left' } as const;
   const chosen = (value: T) => (props.multiple ? props.selected.includes(value) : props.selected === value);
   const press = (value: T) => {
     if (!props.multiple) return props.onSelect(value);
@@ -104,6 +104,7 @@ function Chip({
       accessibilityRole={role}
       accessibilityLabel={label}
       accessibilityState={role === 'button' ? undefined : { checked: selected }}
+      aria-checked={role === 'button' ? undefined : selected}
       onPress={onPress}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}

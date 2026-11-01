@@ -1,0 +1,11 @@
+{
+  "intro": "Les progressions et leurs versions, avec le statut et la source de chacune.",
+  "filter": "Statut de la progression",
+  "all": "Tous",
+  "empty": "Aucune progression dans cette démonstration.",
+  "noMatch": "Aucune progression avec ce statut.",
+  "identity": "Identifiant : {{id}}",
+  "refused_one": "{{count}} fichier de progression n’a pas pu être lu et ne figure pas dans la liste.",
+  "refused_many": "{{count}} fichiers de progression n’ont pas pu être lus et ne figurent pas dans la liste.",
+  "refused_other": "{{count}} fichiers de progression n’ont pas pu être lus et ne figurent pas dans la liste."
+}

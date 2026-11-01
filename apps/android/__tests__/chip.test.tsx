@@ -69,6 +69,7 @@ describe.each(['rtl', 'ltr'] as const)('ChipGroup (%s)', (direction) => {
       ['level-middle', 'radio', true],
       ['level-secondary', 'radio', false],
     ]);
+    expect(chips().map((chip) => chip['aria-checked'])).toEqual([false, true, false]);
     const row = tree.root.findAll((node) => (node.props as ViewProps).accessibilityRole === 'radiogroup')[0];
     expect((row.props as ViewProps).accessibilityLabel).toBe(text.level);
     for (const chip of chips()) {
@@ -99,6 +100,7 @@ describe.each(['rtl', 'ltr'] as const)('ChipGroup (%s)', (direction) => {
       ['checkbox', false],
       ['checkbox', true],
     ]);
+    expect(chips().map((chip) => chip['aria-checked'])).toEqual([false, false, true]);
     expect(tree.root.findAll((node) => (node.props as ViewProps).accessibilityRole === 'radiogroup')).toEqual([]);
     expect(tree.root.findAllByType(Text).map((node) => (node.props as TextProps).children)).toContain(text.levelHint);
     await press(0);
