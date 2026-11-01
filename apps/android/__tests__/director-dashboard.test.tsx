@@ -8,15 +8,15 @@
 // the school's order, in a table on the PC, each not joined with its timetable
 // only, its days named, during the trial term end and to join once the world's
 // date moves past it; once the seeded key is taken, every seeded teacher reads
-// joined with no signed week yet (#548); a level keeps the order, and the
-// classes behind count none without figures; each teacher's sessions and cover
-// in the staff's order, the staff's order said under them and the classes'
-// under the others. Given a joined teacher's figures, the PC's table gives the
-// place in the plan, the pace, how far the class reached and the sessions not
-// held, closures' and others' apart, each in its column (answer 627), the
-// phone's row the same in one line, the sessions awaiting confirmation in their
-// own view, and a vacant post says so. Every world, school and person is made
-// up.
+// joined and every class its standing from the term of signed weeks the take
+// filled (#548, answers 626 and 627); a level keeps the order, and the classes
+// behind count none without figures; each teacher's sessions and cover in the
+// staff's order, the staff's order said under them and the classes' under the
+// others. Given a joined teacher's figures, the PC's table gives the place in
+// the plan, the pace, how far the class reached and the sessions not held,
+// closures' and others' apart, each in its column (answer 627), the phone's row
+// the same in one line, the sessions awaiting confirmation in their own view,
+// and a vacant post says so. Every world, school and person is made up.
 
 import {
   dashboardCourses,
@@ -161,11 +161,12 @@ test('once the world’s date moves past the trial term end, each class’s teac
   expect(texts().some((one) => one.startsWith(board.notJoined.split(' · ')[0]) && one !== board.toJoin)).toBe(false);
 });
 
-test('once the seeded key is taken, every seeded teacher reads joined, with no signed week yet', async () => {
+test('once the seeded key is taken, every class reads its term of signed weeks', async () => {
   await director();
   for (const one of ['world-page-keys', 'keys-take-seeded', 'world-page-dashboard']) await press(one);
   expect(has('dashboard-note')).toBe(false);
-  expect(texts().filter((one) => one === board.noFigures)).toHaveLength(18);
+  expect(texts().filter((one) => one === board.noFigures)).toHaveLength(0);
+  expect(texts().filter((one) => one === board.onPace || one === board.runsLong)).toHaveLength(18);
   expect(texts().some((one) => one.startsWith(board.notJoined.split(' · ')[0]))).toBe(false);
 });
 

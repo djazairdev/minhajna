@@ -7,7 +7,8 @@
 // the class's place in the plan is the furthest item of its pinned pack, in the
 // plan's order, that any signed week worked on, so going back over an earlier
 // item does not move it back, an item the pack does not hold left out; how far
-// it has reached and whether it runs long come from its latest week; the
+// it has reached and whether it runs long come from its latest week, the one
+// that reached furthest when two teachers in turn each signed part of it; the
 // sessions not held are those lost to a closure, as the weeks' totals count
 // them, and those for any other cause, every session not held on a day that is
 // neither a closure nor an exam day, since exams replace lessons and are not
@@ -40,7 +41,7 @@ export function weekStanding(
   items: readonly PackItem[],
   calendar: { readonly closure: (day: Day) => boolean; readonly exam: (day: Day) => boolean },
 ): CourseStanding | null {
-  const sorted = [...weeks].sort((a, b) => compareDays(a.week, b.week));
+  const sorted = [...weeks].sort((a, b) => compareDays(a.week, b.week) || a.totals.reached - b.totals.reached);
   const latest = sorted.at(-1);
   if (latest === undefined) return null;
   const order = new Map(items.map((one, at) => [one.id, at]));

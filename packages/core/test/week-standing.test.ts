@@ -5,11 +5,12 @@
 // place in the plan is the furthest item worked on, in the plan's order,
 // whatever order the weeks come in and an earlier item gone back over, an item
 // the plan does not hold and one passed over left out; how far it reached and
-// whether it runs long come from its latest week; the sessions not held count
-// those closed, as the totals say, a closure on an exam day among them, and the
-// others, exam days left out, each session's day counted from its week's own
-// first day; the sessions awaiting confirmation are counted; and a course with
-// no week has no standing. Every course and item is made up.
+// whether it runs long come from its latest week, the furthest reached when two
+// teachers each signed part of it; the sessions not held count those closed, as
+// the totals say, a closure on an exam day among them, and the others, exam
+// days left out, each session's day counted from its week's own first day; the
+// sessions awaiting confirmation are counted; and a course with no week has no
+// standing. Every course and item is made up.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -65,6 +66,10 @@ test('the place, the reach and the pace come from the plan’s order and the lat
   assert.deepEqual([standing.reached, standing.runsLong], [650, false]);
   assert.equal(weekStanding(weeks.slice(0, 1), items, calendar)!.runsLong, true);
   assert.equal(weekStanding(weeks, [], calendar)!.position, null);
+  const shared = week('2026-12-06', [session(2, 'held')], [], { reached: 640, runsLong: true });
+  const both = weekStanding([weeks[2]!, shared], items, calendar)!;
+  assert.deepEqual([both.reached, both.runsLong], [650, false]);
+  assert.deepEqual(weekStanding([shared, weeks[2]!], items, calendar), both);
 });
 
 test('sessions not held count closures and other causes, never exams, and awaiting ones are counted', () => {
