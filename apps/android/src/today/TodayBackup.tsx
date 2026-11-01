@@ -34,6 +34,7 @@ import { currentLanguage } from '../text/i18n';
 import { dayName } from './DayMark';
 import { TodayAppUpdate } from './TodayAppUpdate';
 import { takesUpdates } from '../settings/update-offer';
+import { backupLine } from '../settings/backup-line';
 
 export type TodayBackupProps = {
   /** Today. */
@@ -126,7 +127,11 @@ export function TodayBackup({ day, onSheet }: TodayBackupProps) {
         {t('notify.backupTitle')}
       </Text>
       <Text testID="today-backup-last" style={[styles.body, align]}>
-        {facts.lastBackup === null ? t('today.backup.none') : t('today.backup.last', { day: name(facts.lastBackup) })}
+        {facts.restoredFile !== null && facts.restoredFile.from !== 'phone'
+          ? backupLine(t, entries(), profile)
+          : facts.lastBackup === null
+            ? t('today.backup.none')
+            : t('today.backup.last', { day: name(facts.lastBackup) })}
       </Text>
       <Text style={[styles.note, align]}>{t('today.backup.body')}</Text>
       {said === 'failed' && (

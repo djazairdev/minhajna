@@ -6,7 +6,7 @@
 // with no bottom bar, Classes named as on the board; a tab and Settings open
 // from it; «قفل الآن» locks at once, shown only where App gives the lock; its
 // foot says where the copy here came from, last, and nothing on a fresh PC; a
-// noted restore is recorded once; the phone keeps its bottom bar; the log names
+// restored history is not recorded again; the phone keeps its bottom bar; the log names
 // a restored copy's route; and every new text is in French and English. Made-up
 // records.
 
@@ -21,7 +21,6 @@ import { LockAway } from '../src/lock/lock-away';
 import { lineText } from '../src/log/log-text';
 import { HomeTabs } from '../src/navigation/HomeTabs';
 import { HomeTabBar } from '../src/navigation/NavigationChrome';
-import { noteReceived, useRecordReceived } from '../src/restore/received';
 import settings from '../src/settings/text/ar.json';
 import text from '../src/text/ar.json';
 import en from '../src/text/en.json';
@@ -65,11 +64,6 @@ const selected = (testID: string) =>
   root().findAll((node) => node.props.testID === testID && node.props['aria-selected'] !== undefined)[0]?.props[
     'aria-selected'
   ] as boolean | undefined;
-
-function Received() {
-  useRecordReceived();
-  return null;
-}
 
 test('on a PC the home tabs are a rail with the schools, the current tab and Settings', async () => {
   const data = await withPupils();
@@ -140,12 +134,12 @@ test('the foot says where the copy came from, last', async () => {
   expect(texts()).toContain(i18n.t('shell.from.back', { day: dayAndMonth(back, 'ar', data.profile) }));
 });
 
-test('a noted restore is recorded once, in the device layer', async () => {
+test('opening a restored history does not record its receipt again', async () => {
   const data = await withPupils();
-  noteReceived('phone');
-  await mount(data, <Received />);
+  await data.book.record(DAY, { kind: 'copy.received', received: { from: 'phone' } });
+  await mount(data, <HomeTabBar {...bar()} />);
   await unmount();
-  await mount(data, <Received />);
+  await mount(data, <HomeTabBar {...bar()} />);
   const kept = data.book.entries.filter((entry) => entry.kind === 'copy.received');
   expect(kept.map((entry) => [entry.layer, entry.content?.body])).toEqual([
     ['device', { kind: 'copy.received', received: { from: 'phone' } }],

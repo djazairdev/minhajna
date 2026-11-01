@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { execFileSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -53,8 +54,8 @@ test.each([false, true])(
     const components = calls.filter(
       (call) => ['POST', 'PATCH'].includes(call.method) && typeof call.body?.filemask === 'string',
     );
-    expect(components).toHaveLength(3);
-    const [base, settings, calendar] = components.map((call) => call.body!);
+    expect(components).toHaveLength(4);
+    const [base, settings, backup, calendar] = components.map((call) => call.body!);
     expect(base.repo).toBe('https://example.invalid/source.git');
     expect(base.push).toBe('https://example.invalid/push.git');
     expect(settings.repo).toBe('weblate://minhajna/android-interface');
@@ -66,11 +67,21 @@ test.each([false, true])(
     expect(calendar.repo).toBe('weblate://minhajna/android-interface');
     expect(calendar.push).toBeUndefined();
     expect(calendar.filemask).toBe('apps/android/src/calendar/text/*.json');
-    for (const component of [base, settings, calendar]) {
+    expect(backup.repo).toBe('weblate://minhajna/android-interface');
+    expect(backup.push).toBeUndefined();
+    expect(backup.filemask).toBe('apps/android/src/settings/text/backup/*.json');
+    expect(backup.template).toBe('apps/android/src/settings/text/backup/ar.json');
+    for (const component of [base, settings, backup, calendar]) {
       expect(component.license).toBe('AGPL-3.0-or-later');
       expect(component.source_language).toBe('ar');
       expect(component.commit_message).toContain('Signed-off-by: {{ author }}');
       expect(component.agreement).toBe(base.agreement);
+      const folder = resolve(__dirname, '../../..', String(component.filemask).replace('*.json', ''));
+      expect(
+        readdirSync(folder)
+          .filter((file) => file.endsWith('.json'))
+          .sort(),
+      ).toEqual(['ar.json', 'en.json', 'fr.json']);
     }
     expect(calls.some((call) => call.body?.extra_flags === 'ignore-i18next-interpolation')).toBe(true);
     expect(calls.every((call) => call.url.startsWith('https://weblate.invalid/'))).toBe(true);

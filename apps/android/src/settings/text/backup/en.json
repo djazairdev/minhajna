@@ -1,0 +1,9 @@
+{
+  "backup": "The data was restored from a backup made on {{day}}.",
+  "archive": "The data was restored from an archive made on {{day}}.",
+  "keptBackup": "The backup used for the restore, made on {{day}}, is not touched by the erasure.",
+  "keptArchive": "The archive used for the restore, made on {{day}}, is not touched by the erasure.",
+  "leftOut": "The teacher card’s personal fields and the drawn signature are not in the restore file.",
+  "lost": "Changes recorded since the restore and not in the file: {{count}}. Erasing this device loses them.",
+  "none": "No changes since the restore. The restore file stays outside the app."
+}
