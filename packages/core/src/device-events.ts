@@ -12,11 +12,13 @@
 // publishes (#578, answer 606), of the sessions its director marks for cover
 // (#586, answer 614), and of the substitutes' appointments it records (#587,
 // answer 615), and of the school's choice to send absences (#592, answer 620),
-// and of the key pair an inspector's device keeps in a world (#593, answer
-// 621), apart from devices.ts, world-kept.ts, school-joined.ts,
-// school-issue.ts, school-holder.ts, school-timetable.ts, school-cover.ts,
-// school-substitution.ts, school-exchange.ts and directorate-space.ts, which
-// read them, so the events module imports no module that imports it back.
+// and of the key pair an inspector's device keeps in a world and the grant
+// requests a directorate makes there (#593, answer 621), apart from
+// devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
+// school-holder.ts, school-timetable.ts, school-cover.ts,
+// school-substitution.ts, school-exchange.ts, directorate-space.ts and
+// grant-request.ts, which read them, so the events module imports no module
+// that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -56,7 +58,9 @@ export type DeviceEvent =
   /** In a demo world's own store: whether the school sends absences to the sector's system (answer 620). */
   | { readonly kind: 'school.absences'; readonly absences: SchoolAbsences }
   /** In a demo world's own store: the key pair this device keeps as an inspector there (answer 621). */
-  | { readonly kind: 'inspector.device'; readonly inspector: InspectorDevice };
+  | { readonly kind: 'inspector.device'; readonly inspector: InspectorDevice }
+  /** In a demo world's own store: a grant request this device made as a directorate (answer 621). */
+  | { readonly kind: 'grant.requested'; readonly requested: GrantRequested };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -148,6 +152,11 @@ export interface InspectorDevice {
   readonly pkcs8: string;
 }
 
+/** A grant request a directorate made, as grant-request.ts reads it. */
+export interface GrantRequested {
+  readonly request: unknown;
+}
+
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
@@ -188,6 +197,7 @@ export const DEVICE_KINDS = {
   'school.substitution': true,
   'school.absences': true,
   'inspector.device': true,
+  'grant.requested': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>
