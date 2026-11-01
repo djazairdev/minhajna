@@ -9,7 +9,7 @@
 // Every world, key and file is made up.
 
 import assert from 'node:assert/strict';
-import { createHash, createPrivateKey, generateKeyPairSync, pbkdf2Sync, sign } from 'node:crypto';
+import { pbkdf2Sync } from 'node:crypto';
 import { describe, it } from 'node:test';
 import {
   makeWorldCode,
@@ -25,39 +25,19 @@ import {
   worldSignedFile,
   type WorldCipher,
   type WorldKdf,
-  type WorldKeys,
   type WorldSecrets,
-  type WorldSigner,
 } from '../src/index.ts';
 import { makeTestKey, nodeVerifier, signedFile } from './signed-fixtures.ts';
 import { random } from './school-devices.ts';
 import { cipher, mac } from './world-crypto.ts';
+import { signWith, worldKeys } from './world-signing.ts';
 
 const kdf: WorldKdf = (secret, salt, rounds) =>
   Promise.resolve(new Uint8Array(pbkdf2Sync(secret, salt, rounds, 32, 'sha256')));
 /** The same derivation in one round, for the tests that do not time it. */
 const quick: WorldKdf = (secret, salt) => kdf(secret, salt, 1);
 
-const signWith: WorldSigner = (pkcs8, text) => {
-  const key = createPrivateKey({ key: Buffer.from(pkcs8, 'base64'), format: 'der', type: 'pkcs8' });
-  return Promise.resolve(sign('sha256', Buffer.from(text, 'utf8'), key).toString('base64'));
-};
-
 const PAIR = { sign: signWith, verify: nodeVerifier };
-
-function worldKeys(world: string): WorldKeys {
-  const { privateKey, publicKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
-  const der = publicKey.export({ type: 'spki', format: 'der' });
-  const trusted = {
-    id: 'world-ministry',
-    holder: { ar: 'وزارة مختلقة', en: 'A made-up ministry 𝓜' },
-    spki: der.toString('base64'),
-    fingerprint: createHash('sha256').update(der).digest('hex'),
-    signs: ['calendar' as const, 'packs' as const],
-  };
-  const pkcs8 = privateKey.export({ type: 'pkcs8', format: 'der' }).toString('base64');
-  return { world, kind: 'national', trusted: [trusted], private: { 'world-ministry': pkcs8 } };
-}
 
 describe('a world’s secrets', () => {
   it('derives the pass and the sealing key from the code alone, slowly, salted with the world', async () => {
