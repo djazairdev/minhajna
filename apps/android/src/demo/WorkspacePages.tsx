@@ -16,8 +16,8 @@
 // preparer never opens the records or the cover; the directorate's grants page
 // requests inspectors' grants from its schools (#593, DirectorateGrant.tsx);
 // and the Ministry's calendar page keys a draft of the world's calendar (#607,
-// MinistryCalendar.tsx), afresh over each release the world comes to hold
-// (#608).
+// MinistryCalendar.tsx), afresh over each release the world comes to hold,
+// and publishes it with the world's keys (#608, MinistryCalendarPage.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -35,12 +35,13 @@ import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
-import { MinistryCalendar } from '../ministry/MinistryCalendar';
+import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
 import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import type { MineCalendar } from '../week/school-mine-session';
 import type { WorkspaceRole, WorldPage } from './world-pages';
 import type { OpenWorld } from './world-mode';
+import type { HeldWorld } from './world-calendar-read';
 import type { Send, WorldKit } from './world-session';
 
 export type WorkspacePagesProps = {
@@ -61,6 +62,10 @@ export type WorkspacePagesProps = {
   readonly onTimetable: (read: TimetableRead | null) => void;
   /** Opens another page of the same workspace. */
   readonly onPage?: (page: WorldPage) => void;
+  /** The world's keys and sealing key, held while it is open, which the Ministry publishes with. */
+  readonly held: HeldWorld | null;
+  /** Reads the world's calendar again, as after the Ministry publishes. */
+  readonly onCalendar: () => void;
 };
 
 /** A workspace page's body, or null when the page has none yet. */
@@ -70,14 +75,17 @@ export function workspacePage(
   props: WorkspacePagesProps,
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
+  const { held, onCalendar } = props;
   if (workspace === 'ministry' && page === 'calendar')
     return (
-      <MinistryCalendar
-        key={`${open.world}@${reference.calendar.release}`}
+      <MinistryCalendarPage
         world={open}
+        held={held}
         reference={reference}
         kit={kit}
+        send={send}
         dayText={dayText}
+        onPublished={onCalendar}
       />
     );
   if (workspace === 'directorate' && page === 'grants')

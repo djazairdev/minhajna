@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Putting one record on a stream of a demo world's space, once (#593, answer
-// 621): the space is opened as its kind first, then the stream is read, and
+// 621): the space, a school's, a directorate's or the world's national one
+// (#608), is opened as its kind first, then the stream is read, and
 // when it already holds the record nothing is put; otherwise the record is
 // sealed at the stream's next number. When another device took that number
 // first, the stream is read again and the record put on top, until it holds it;
@@ -22,7 +23,7 @@ const TRIES = 3;
 export interface StreamPut {
   readonly world: string;
   readonly space: string;
-  readonly kind: 'school' | 'directorate';
+  readonly kind: 'school' | 'directorate' | 'national';
   readonly stream: string;
   /** The stream's records, opened from its batches. */
   readonly open: (batches: readonly SealedBatch[]) => Promise<readonly unknown[]>;
