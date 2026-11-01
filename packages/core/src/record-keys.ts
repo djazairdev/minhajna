@@ -159,6 +159,8 @@ export function recordKey(event: RecordEvent): string {
     }
     case 'school.absences':
       return `school-absences:${event.absences?.school ?? ''}`;
+    case 'inspector.device':
+      return `inspector-device:${event.inspector?.device ?? ''}`;
     case 'school.issued': {
       const { school = '', assignment = '', issue = '' } = event.issued ?? {};
       return `school-issued:${school}/${assignment}/${issue}`;

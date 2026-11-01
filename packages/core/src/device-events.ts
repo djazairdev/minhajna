@@ -12,10 +12,11 @@
 // publishes (#578, answer 606), of the sessions its director marks for cover
 // (#586, answer 614), and of the substitutes' appointments it records (#587,
 // answer 615), and of the school's choice to send absences (#592, answer 620),
-// apart from devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
-// school-holder.ts, school-timetable.ts, school-cover.ts,
-// school-substitution.ts and school-exchange.ts, which read them, so the events
-// module imports no module that imports it back.
+// and of the key pair an inspector's device keeps in a world (#593, answer
+// 621), apart from devices.ts, world-kept.ts, school-joined.ts,
+// school-issue.ts, school-holder.ts, school-timetable.ts, school-cover.ts,
+// school-substitution.ts, school-exchange.ts and directorate-space.ts, which
+// read them, so the events module imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -53,7 +54,9 @@ export type DeviceEvent =
   /** In a demo world's own store: a substitute's appointment the director recorded, and its end once recorded. */
   | { readonly kind: 'school.substitution'; readonly substitution: SchoolSubstitution }
   /** In a demo world's own store: whether the school sends absences to the sector's system (answer 620). */
-  | { readonly kind: 'school.absences'; readonly absences: SchoolAbsences };
+  | { readonly kind: 'school.absences'; readonly absences: SchoolAbsences }
+  /** In a demo world's own store: the key pair this device keeps as an inspector there (answer 621). */
+  | { readonly kind: 'inspector.device'; readonly inspector: InspectorDevice };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -136,6 +139,15 @@ export interface SchoolAbsences {
   readonly send: boolean;
 }
 
+/** An inspector's device in a world: its ID and its agreement pair, which grants are sealed for (answer 621). */
+export interface InspectorDevice {
+  readonly device: string;
+  /** The agreement pair's public half, in hex, as the inspector's key is posted. */
+  readonly publicKey: string;
+  /** Its private half, PKCS #8 DER in base64, which never leaves the world's store. */
+  readonly pkcs8: string;
+}
+
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
@@ -175,6 +187,7 @@ export const DEVICE_KINDS = {
   'school.cover': true,
   'school.substitution': true,
   'school.absences': true,
+  'inspector.device': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>
