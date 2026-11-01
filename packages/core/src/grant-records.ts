@@ -195,6 +195,14 @@ export const relayPlace = (inspector: Holder, mac: WorldMac): Promise<Place> =>
 
 const relayInfo = (request: string) => `${GRANT_RELAY}\n${request}`;
 
+/** A relay's batches on its inspector's stream of the directorate's space, numbered from `first`. */
+export const sealGrantRelay = (place: Place, relay: GrantRelay, first: number, cipher: WorldCipher) =>
+  sealRecord(place, relay, first, GRANT_RECORD_BATCHES, cipher);
+
+/** The records on an inspector's relay stream, in their order, for the readers below. */
+export const openGrantRelays = (place: Place, batches: readonly SealedBatch[], cipher: WorldCipher) =>
+  openRecords(place, batches, GRANT_RECORD_BATCHES, cipher);
+
 /** A grant sealed for its inspector's device, bound to the request it answers. */
 export async function relayGrant(request: string, grant: Grant, crypto: Pick<KeyCrypto, 'seal'>): Promise<GrantRelay> {
   if (!ID.test(request)) throw new RangeError('A grant answers a request');

@@ -48,6 +48,8 @@ export const GRANT_ENVELOPE = 'minhajna/grant-envelope/1';
 /** The most batches a request's envelope may take. */
 export const GRANT_REQUEST_BATCHES = 8;
 export const MOST_GRANT_CLASSES = 16;
+/** The most characters a request's label for the inspector may take. */
+export const GRANT_LABEL_MOST = 80;
 
 export interface GrantRequest {
   readonly format: typeof GRANT_REQUEST;
@@ -77,7 +79,6 @@ export interface GrantEnvelope {
 }
 
 const BASE64URL = /^[A-Za-z0-9_-]+$/u;
-const LABEL_MOST = 80;
 /** A class's name as the timetable records it. */
 const CLASS_MOST = NAME_MOST;
 
@@ -90,7 +91,7 @@ export function readGrantRequest(value: unknown, publicKeyBytes: number): GrantR
   const { format, id, world, school, inspector, label, subject, classes, weeks, until, asked, ...rest } = value;
   if (Object.keys(rest).length > 0 || format !== GRANT_REQUEST || typeof id !== 'string' || !ID.test(id)) return null;
   if (!isWorldId(world) || typeof school !== 'string' || !SCHOOL.test(school)) return null;
-  if (!isHolder(inspector, publicKeyBytes) || !name(label, LABEL_MOST)) return null;
+  if (!isHolder(inspector, publicKeyBytes) || !name(label, GRANT_LABEL_MOST)) return null;
   if (typeof subject !== 'string' || !ENTRY_ID.test(subject) || !Array.isArray(classes)) return null;
   const listed = classes as unknown[];
   if (listed.length === 0 || listed.length > MOST_GRANT_CLASSES || !listed.every((one) => name(one, CLASS_MOST))) {

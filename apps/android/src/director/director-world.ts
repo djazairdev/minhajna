@@ -6,11 +6,18 @@
 // bundled reference data, so the same world gives the same school everywhere
 // and nothing is uploaded for it; the director runs its first CEM. A teachers'
 // world, or one entered without the reference data, has no director's school.
+// The directorate's grants page seeds the same world for its schools (#593).
 
-import { directorSchool, seedNationalWorld, type DemoSchool } from '@minhajna/core';
+import { directorSchool, seedNationalWorld, type DemoSchool, type DemoWorld } from '@minhajna/core';
 import { useMemo } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { ReferenceResult } from '../reference';
+
+/** A national world as every device seeds it from its ID and the bundled reference. */
+export function seededWorld(id: string, reference: Extract<ReferenceResult, { ok: true }>): DemoWorld {
+  const { zones = [], workingDays } = reference.profile;
+  return seedNationalWorld(id, zones, workingDays, reference.packs);
+}
 
 /** The director's school in an open world, made once for each world, or null. */
 export function useDirectorSchool(
@@ -20,7 +27,6 @@ export function useDirectorSchool(
   const id = open?.kind === 'national' ? open.world : null;
   return useMemo(() => {
     if (id === null || reference === undefined) return null;
-    const { zones = [], workingDays } = reference.profile;
-    return directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs));
+    return directorSchool(seededWorld(id, reference));
   }, [id, reference]);
 }
