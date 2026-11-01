@@ -57,6 +57,7 @@ export * from './day.ts';
 export * from './demo-names.ts';
 export * from './demo-pupils.ts';
 export * from './demo-world.ts';
+export * from './directorate-space.ts';
 export * from './name-replace.ts';
 export * from './engine.ts';
 export * from './course-events.ts';
