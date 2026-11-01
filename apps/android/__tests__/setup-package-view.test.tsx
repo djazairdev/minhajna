@@ -11,8 +11,9 @@
 // sessions, and the school's bell times, then returns to the week saying so; a
 // session the week cannot place is named, and accepting waits; going back
 // records nothing; a school picked is not kept for the next package; and the
-// acceptance is said once the card is back. Every world, school and teacher is
-// made up.
+// acceptance is said once the card is back, its timer held until the card has
+// mounted, since an awaited act can let it run first. Every world, school and
+// teacher is made up.
 
 import {
   certificateRequest,
@@ -271,12 +272,17 @@ test('the school picked for one package is not kept for the next', async () => {
 });
 
 test('a package accepted is said once the card is back, not already there as it mounts', async () => {
-  await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(
-      <PackageWait busy={false} unreadable={false} accepted="Made-up" onOpen={jest.fn()} />,
-    );
-  });
-  expect(texts()).not.toContain('Made-up');
-  await act();
-  expect(texts()).toContain('Made-up');
+  jest.useFakeTimers();
+  try {
+    await ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(
+        <PackageWait busy={false} unreadable={false} accepted="Made-up" onOpen={jest.fn()} />,
+      );
+    });
+    expect(texts()).not.toContain('Made-up');
+    await ReactTestRenderer.act(() => jest.runOnlyPendingTimers());
+    expect(texts()).toContain('Made-up');
+  } finally {
+    jest.useRealTimers();
+  }
 });
