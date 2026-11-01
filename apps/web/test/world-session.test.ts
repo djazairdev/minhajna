@@ -89,7 +89,7 @@ describe('a demo world on a PC', () => {
     session.leaveWorldNetwork();
 
     const joined = await session.joinWorld(started.code, worldKit, send);
-    assert.deepEqual(joined, { keys: started.keys, date: started.date });
+    assert.deepEqual(joined, { keys: started.keys, date: started.date, sealing: started.sealing });
     session.leaveWorldNetwork();
 
     const [key] = started.keys.trusted;
