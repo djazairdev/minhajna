@@ -123,7 +123,7 @@ export function byStaff(sessions: readonly ImportedSession[], staff: ReadonlyMap
 /**
  * Puts a record on its code's channel at the stream's next number, reading the
  * channel again when another write came first: `seal` makes its batches from
- * the channel as read, numbered from `first`, or refuses.
+ * the channel as read, numbered from `first`, or refuses; none puts nothing.
  */
 export async function putOnChannel(
   code: Code,
@@ -138,6 +138,7 @@ export async function putOnChannel(
     const joined = await kitStep(() => readJoined(code, batches, { key: ca, checker: kit }, kit.cipher, kit.mac));
     const first = batches.reduce((next, one) => Math.max(next, one.number + 1), 0);
     const sealed = await seal({ batches, joined }, first);
+    if (sealed.length === 0) return;
     const body = { stream, first, batches: sealed.map((one) => toBase64Url(one.bytes)) };
     const answer = await send({ method: 'POST', path: `/worlds/${code.world}/spaces/${code.school}/batches`, body });
     if (answer.status === 201) return;

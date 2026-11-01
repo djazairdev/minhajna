@@ -6,7 +6,8 @@
 // the release that world holds, and another world over its own, while a reading
 // that fails says so on the world's home and leaves the bundled calendar; over
 // a new release the Ministry's page sets aside a kept draft that no longer
-// fits; and a problem of the world's own is said before the calendar's. Every
+// fits; and a problem of the world's own is said before the calendar's, read
+// after the start published the world's made-up closure (answer 626). Every
 // world and entry is made up.
 
 import { draftUpdate, EMPTY_DRAFT, takeOutDraftEntry, worldSecrets, type CalendarUpdate } from '@minhajna/core';
@@ -19,7 +20,7 @@ import { calendar, exam, flakySend, moving, profile, publish, reference } from '
 import { DemoServer, nodeKit } from '../jest/world-server';
 import { TextField } from '../src/components/TextField';
 import { DemoRoot } from '../src/demo/DemoRoot';
-import { startWorld } from '../src/demo/world-session';
+import { startWorld, type Send } from '../src/demo/world-session';
 import { enterWorldNetwork, leaveWorldNetwork } from '../src/network/world-network';
 import { isolate } from '../src/week/grid-labels';
 import ar from '../src/text/ar.json';
@@ -47,7 +48,13 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 const texts = () => tree!.root.findAllByType(Text).map((node): unknown => (node.props as TextProps).children);
 const lead = (release: string) => ar.demo.ministryCalendar.lead.replace('{{release}}', isolate(release));
 let failing = false;
-const flaky = flakySend(server, () => failing);
+/** Whether the national space fails once the world's start has published its closure. */
+let arming = false;
+const flaky: Send = async (request) => {
+  const answer = await flakySend(server, () => failing)(request);
+  if (arming && request.path.endsWith('/announced-days')) failing = true;
+  return answer;
+};
 
 async function press(testID: string) {
   for (let turn = 0; turn < 40; turn += 1)
@@ -163,7 +170,7 @@ test('the Ministry’s page keys over a new release, setting aside a draft that 
 });
 
 test('a problem of the world’s own comes before the calendar’s', async () => {
-  failing = true;
+  arming = true;
   try {
     await render();
     await press('demo-start-national');
@@ -177,6 +184,6 @@ test('a problem of the world’s own comes before the calendar’s', async () =>
     expect(texts()).toContain(ar.demo.problem.lastDay);
     expect(texts()).not.toContain(ar.demo.problem.calendar);
   } finally {
-    failing = false;
+    [arming, failing] = [false, false];
   }
 });

@@ -4126,6 +4126,7 @@
     "historyRefused": "Your records could not be opened on this PC, so none of them are shown."
   },
   "demo": {
+    "closure": "Closure made up for the demo",
     "band": "Demo version · made-up data",
     "date": "The world’s date: {{date}}",
     "open": "Demo worlds, with made-up data",

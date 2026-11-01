@@ -1,24 +1,28 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Starting a national demo world seeds it (#548, answer 625), against a
-// made-up demo server: the seeded staff's keys and joins go up in about a
-// dozen requests under the starter token, each waiting the seeding's longer
-// time, in well under a minute; the world's sealing key alone opens the seeded
-// keys, one school for each seeded school, and a seeded school's keyring reads
-// back from its space; a teachers' world, or a start without the reference
-// data, seeds nothing; and a busy server, a refused or unanswered request, or
-// certificates that are not the ones asked for, fail the start as a whole with
-// the network shut. Every world and key is made up.
+// Starting a national demo world seeds it (#548, answer 625), against a made-up
+// demo server: the seeded staff's keys and joins go up in about a dozen
+// requests under the starter token, each waiting the seeding's longer time, in
+// well under a minute; the world's sealing key alone opens the seeded keys, one
+// school for each seeded school, and a seeded school's keyring reads back from
+// its space; the world's calendar holds, as its first release, the world's
+// made-up closure (answer 626); a teachers' world, or a start without the
+// reference data, seeds and publishes nothing; and a busy server, a refused or
+// unanswered request, a closure the relay refused, or certificates that are not
+// the ones asked for, fail the start as a whole with the network shut. Every
+// world and key is made up.
 
 import { keyringStream, openSeededKeys, readKeyrings, seededKeysPlace } from '@minhajna/core';
 import { calendar, reference } from '../jest/world-calendar';
 import { codeOf, DemoServer, nodeKit } from '../jest/world-server';
 import { SEED_TIMEOUT_MS, startSeededWorld } from '../src/demo/world-seed';
+import { readWorldCalendar } from '../src/demo/world-calendar-read';
 import { failed, type Send } from '../src/demo/world-session';
 import { seededWorld } from '../src/director/director-world';
 import { leaveWorldNetwork, worldNetworkOpen, type WorldRequest } from '../src/network/world-network';
 import { spaceBatches } from '../src/school/space-read';
+import en from '../src/text/en.json';
 
 const server = new DemoServer();
 
@@ -56,6 +60,10 @@ test('a national world is seeded in about a dozen requests, its keys opened with
   const { space } = keys!.schools[0];
   const stream = (await spaceBatches(world, space, server.send)).get(await keyringStream(space, nodeKit.mac)) ?? [];
   expect(await readKeyrings(space, stream, 65, nodeKit.cipher, nodeKit.mac)).toHaveLength(1);
+  const held = { world, keys: started.keys, sealing: started.sealing };
+  const read = await readWorldCalendar(held, { profile: reference.profile, calendar }, nodeKit, server.send);
+  const names = read.updates.map((one) => one.entries.map((entry) => [entry.id, entry.name.en]));
+  expect(names).toEqual([[['demo-closure', en.demo.closure]]]);
   expect(worldNetworkOpen()).toBe(world);
 });
 
@@ -64,6 +72,7 @@ test('a teachers’ world, or a national one without the reference data, seeds n
   leaveWorldNetwork();
   await startSeededWorld('national', calendar, undefined, nodeKit, server.send);
   expect(seedings()).toEqual([]);
+  expect(server.seen.filter((one) => one.path.endsWith('/spaces/national/batches') && one.body)).toEqual([]);
 });
 
 test.each([
@@ -77,6 +86,15 @@ test.each([
     return typeof answer === 'string' ? Promise.reject(failed('A made-up failure', answer)) : Promise.resolve(answer);
   };
   expect(await codeOf(startSeededWorld('national', calendar, reference, nodeKit, failing))).toBe(code);
+  expect(worldNetworkOpen()).toBeNull();
+});
+
+test('a closure the relay refused fails the start as a whole, with the network shut', async () => {
+  const refusing: Send = (request) =>
+    request.method === 'POST' && request.path.endsWith('/spaces/national/batches')
+      ? Promise.resolve({ status: 403, body: null, retryAfter: null })
+      : server.send(request);
+  expect(await codeOf(startSeededWorld('national', calendar, reference, nodeKit, refusing))).toBe('E_WORLD_SERVER');
   expect(worldNetworkOpen()).toBeNull();
 });
 

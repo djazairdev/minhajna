@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Publishing from the Ministry's calendar page on a PC (#608, answer 624),
-// against a made-up demo server: with no change in the draft nothing is
+// against a made-up demo server, after the release of the made-up closure the
+// world's start publishes (answer 626): with no change in the draft nothing is
 // offered; once it holds one, publishing asks to confirm with how many entries
 // it adds, changes and takes out, and cancelling publishes nothing; a draft
 // changed meanwhile drops the question; every change waits while publishing;
@@ -52,6 +53,10 @@ const texts = () => tree!.root.findAllByType(Text).map((node): unknown => (node.
 const has = (testID: string) => tree!.root.findAllByProps({ testID }).length > 0;
 const said = () => String(tree!.root.findByProps({ testID: 'ministry-publish-said' }).props.children);
 const lead = (release: string) => words.lead.replace('{{release}}', isolate(release));
+const puts = () =>
+  server.seen.filter((one) => one.path.endsWith(`/spaces/${NATIONAL_SPACE}/batches`) && one.body).length;
+const after = (release: string) => `${release.split('.')[0]}.${Number(release.split('.')[1]) + 1}`;
+const started = after(calendar.release);
 
 async function press(testID: string) {
   for (let turn = 0; turn < 40; turn += 1)
@@ -96,39 +101,42 @@ test('a draft is published once confirmed, said, and the page keys over the new 
   expect(texts()).toEqual(expect.arrayContaining([words.publish.title, counts, words.publish.explain]));
   await press('ministry-publish-no');
   expect([has('ministry-publish-confirm'), has('ministry-publish')]).toEqual([false, true]);
-  expect(server.seen.some((one) => one.path.includes(`/spaces/${NATIONAL_SPACE}/batches`) && one.body)).toBe(false);
+  expect(puts()).toBe(1);
   await press('ministry-publish');
   await press('ministry-publish-yes');
-  const [major, minor] = calendar.release.split('.');
-  const release = `${major}.${Number(minor) + 1}`;
+  const release = after(started);
   expect(texts()).toContain(lead(release));
   expect(said()).toBe(words.publish.done.replace('{{release}}', isolate(release)));
   expect([has('ministry-publish'), has(`ministry-entry-${exam.id}`)]).toEqual([false, false]);
-  expect(server.seen.filter((one) => one.method === 'PUT' && one.path.endsWith('/announced-days'))).toHaveLength(1);
+  expect(server.seen.filter((one) => one.method === 'PUT' && one.path.endsWith('/announced-days'))).toHaveLength(2);
 });
 
 test('a release the relay did not keep is said as an alert, and the draft is kept', async () => {
+  let live = false;
   const racing: Send = (request) =>
-    request.method === 'POST' && request.path.endsWith(`/spaces/${NATIONAL_SPACE}/batches`)
+    live && request.method === 'POST' && request.path.endsWith(`/spaces/${NATIONAL_SPACE}/batches`)
       ? Promise.resolve({ status: 201, body: { added: 1 }, retryAfter: null })
       : server.send(request);
   await ministryPage(racing);
+  live = true;
   await press(`ministry-take-out-${exam.id}`);
   await press('ministry-publish');
   await press('ministry-publish-yes');
   expect(texts()).toContain(words.publish.race);
-  expect(texts()).toContain(lead(calendar.release));
+  expect(texts()).toContain(lead(started));
   expect(has('ministry-publish')).toBe(true);
 });
 
 test('every change waits while publishing, and a draft changed meanwhile drops the question', async () => {
   let open: () => void = () => undefined;
-  const gate = new Promise<void>((resolve) => (open = resolve));
+  let gate: Promise<void> | null = null;
   const slow: Send = async (request) => {
-    if (request.method === 'POST' && request.path.endsWith(`/spaces/${NATIONAL_SPACE}/batches`)) await gate;
+    if (gate !== null && request.method === 'POST' && request.path.endsWith(`/spaces/${NATIONAL_SPACE}/batches`))
+      await gate;
     return server.send(request);
   };
   await ministryPage(slow);
+  gate = new Promise<void>((resolve) => (open = resolve));
   await press(`ministry-take-out-${exam.id}`);
   await press('ministry-publish');
   await press(`ministry-undo-${exam.id}`);

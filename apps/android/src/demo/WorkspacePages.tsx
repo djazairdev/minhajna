@@ -110,7 +110,17 @@ export function workspacePage(
       <IssueCodes world={open} school={school} profile={reference.profile} kit={kit} send={send} dayText={dayText} />
     );
   if (workspace === 'director' && page === 'keys')
-    return <SchoolKeys world={open} school={school} held={held} kit={kit} send={send} dayText={dayText} />;
+    return (
+      <SchoolKeys
+        world={open}
+        school={school}
+        held={held}
+        reference={reference}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+      />
+    );
   if (workspace === 'director' && page === 'exchange')
     return (
       <SchoolExchange

@@ -14,7 +14,9 @@
 // again, so the code is never shown and nothing is retried: the start is made
 // again, with a new code, and the half-seeded world is erased on its seventh
 // day. A teachers' world, or one started without the bundled reference data, is
-// not seeded.
+// not seeded. Once seeded, the world's calendar gets, as the Ministry publishes
+// it, the world's made-up closure (#549, answer 626), from which every seeded
+// school's term counts its closed sessions.
 
 import {
   checkSeedCertificates,
@@ -29,6 +31,8 @@ import {
   type WorldKind,
 } from '@minhajna/core';
 import { seededWorld } from '../director/director-world';
+import { worldClosure } from '../director/seeded-fill';
+import { publishCalendar } from '../ministry/calendar-publish';
 import { leaveWorldNetwork, worldNetworkOpen, worldRequest } from '../network/world-network';
 import type { ReferenceResult } from '../reference';
 import { caKey } from '../school/space-read';
@@ -101,7 +105,12 @@ export async function startSeededWorld(
   const started = await startWorld(kind, calendar, kit, send);
   if (kind !== 'national' || reference === undefined) return started;
   try {
-    await seedWorld(started, seededWorld(started.keys.world, reference), kit, send);
+    const demo = seededWorld(started.keys.world, reference);
+    await seedWorld(started, demo, kit, send);
+    const held = { world: started.keys.world, keys: started.keys, sealing: started.sealing };
+    const draft = { entries: [worldClosure(demo, reference)], removed: [] };
+    const publishing = { held, date: started.date, reference: { profile: reference.profile, calendar }, draft, kit };
+    await publishCalendar(publishing, send);
   } catch (error) {
     if (worldNetworkOpen() === started.keys.world) leaveWorldNetwork();
     throw error;

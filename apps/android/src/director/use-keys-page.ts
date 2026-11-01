@@ -16,12 +16,13 @@
 // world's keys, or after a take refused because another device took the key,
 // only waiting is offered; a device that takes the seeded key never starts one,
 // and one that holds a taken key finishes a take that stopped partway each time
-// it holds it. The recovery just made is kept here, above the tabs, with
-// whether one is being made and what was last said of it, so its parts stay
-// until the director says both sheets are printed or leaves the page, and
-// coming back to the tab while it is made neither makes another nor misses how
-// it ended. A problem is said in the catalogue's words; leaving the world drops
-// a slower answer.
+// it holds it and, once the key shows, fills that school's term of signed weeks
+// (seeded-fill.ts), a fill that failed said as the page's problem. The recovery
+// just made is kept here, above the tabs, with whether one is being made and
+// what was last said of it, so its parts stay until the director says both
+// sheets are printed or leaves the page, and coming back to the tab while it is
+// made neither makes another nor misses how it ended. A problem is said in the
+// catalogue's words; leaving the world drops a slower answer.
 
 import { keptWaiting, keysFacts, latestHeld, recoveryOrphaned, type DemoSchool, type KeysFacts } from '@minhajna/core';
 import type { HeldWorld } from '../demo/world-calendar-read';
@@ -33,6 +34,7 @@ import { holdSchool } from './issue-session';
 import type { MadeRecovery } from './keys-session';
 import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
 import { listQuietly } from './school-listing';
+import { fillTakenTerm, type TermReference } from './seeded-fill';
 import { seededKeyOf, takeSeededKey, tookSeeded } from './seeded-key';
 
 /** Whether the page opens, asks how to hold the key, waits to be added, or shows the key held. */
@@ -78,6 +80,7 @@ export function useKeysPage(
   world: Pick<OpenWorld, 'world' | 'book' | 'date'>,
   school: Pick<DemoSchool, 'id' | 'directorateId' | 'teachers'>,
   held: HeldWorld | null,
+  reference: TermReference | null,
   kit: WorldKit,
   send?: Send,
 ): KeysPage {
@@ -101,6 +104,9 @@ export function useKeysPage(
       const facts = await keysFacts(desk.opened.ring, desk.held.device, desk.crypto);
       const orphaned = await recoveryOrphaned(desk.opened.ring, desk.crypto);
       if (open) setPage({ mode: 'holder', facts, desk, orphaned, busy: false, problem: null });
+      if (held !== null && reference !== null && tookSeeded(world)) {
+        await fillTakenTerm(world, desk, held, school, reference, kit, send);
+      }
     })().catch((error: unknown) => {
       if (!open) return;
       const problem = problemOf(error);
@@ -111,7 +117,7 @@ export function useKeysPage(
     return () => {
       open = false;
     };
-  }, [world, school, held, kit, send, round, holding, choice]);
+  }, [world, school, held, reference, kit, send, round, holding, choice]);
   useEffect(() => {
     if (holding || waiting || held === null) return;
     let open = true;

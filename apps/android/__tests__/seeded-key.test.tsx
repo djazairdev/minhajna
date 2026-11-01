@@ -10,9 +10,11 @@
 // the key. A school the world seeded no key for, a device that holds none of
 // the world's keys, or one waiting to be added, takes nothing, and a keyring
 // that is not there does not open; once the taker changed the keyring, another
-// device is told to be added instead and offered only waiting. While the seeded
-// keys cannot be read, D-Keys says why and offers only waiting, and reading
-// again offers the take. Every world, school and device is made up.
+// device is told to be added instead and offered only waiting. With the
+// reference data, the take fills the school's term of signed weeks (answer
+// 626). While the seeded keys cannot be read, D-Keys says why and offers only
+// waiting, and reading again offers the take. Every world, school and device is
+// made up.
 
 import {
   directorSchool,
@@ -35,7 +37,8 @@ import { addDevice } from '../src/director/holders-session';
 import { holdSchool, joinedDays } from '../src/director/issue-session';
 import { PUBLIC_KEY_BYTES } from '../src/director/school-desk';
 import { SchoolKeys } from '../src/director/SchoolKeys';
-import { takeSeededKey } from '../src/director/seeded-key';
+import { fillSeededTerm } from '../src/director/seeded-fill';
+import { seededKeyOf, takeSeededKey } from '../src/director/seeded-key';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { openRecordBook } from '../src/storage/history';
 import text from '../src/text/ar.json';
@@ -83,10 +86,23 @@ async function seeded() {
 
 type Seeded = Awaited<ReturnType<typeof seeded>>;
 
-async function page(world: Seeded, send: Send = server.send, open: Seeded['director'] = world.director) {
+async function page(
+  world: Seeded,
+  send: Send = server.send,
+  open: Seeded['director'] = world.director,
+  filling = false,
+) {
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
-      <SchoolKeys world={open} school={world.school} held={world.held} kit={nodeKit} send={send} dayText={String} />,
+      <SchoolKeys
+        world={open}
+        school={world.school}
+        held={world.held}
+        kit={nodeKit}
+        send={send}
+        dayText={String}
+        reference={filling ? reference : undefined}
+      />,
     );
     await settle();
   });
@@ -115,6 +131,20 @@ test('D-Keys offers to take the seeded key, never to start one, and taking it ho
   const before = world.director.book.entries.length;
   await takeSeededKey(world.director, world.held, world.school, nodeKit, server.send);
   expect(world.director.book.entries).toHaveLength(before);
+});
+
+test('with the reference data, taking the seeded key fills the school’s term', async () => {
+  const world = await seeded();
+  await page(world, server.send, world.director, true);
+  await press('keys-take-seeded');
+  expect(has('keys-tab')).toBe(true);
+  const desk = await holdSchool(world.director, nodeKit, server.send, false);
+  const key = (await seededKeyOf(world.held, world.school.id, nodeKit, server.send))!;
+  const before = server.seen.filter((one) => one.method === 'POST').length;
+  await fillSeededTerm(world.director, desk, key, reference, nodeKit, server.send);
+  expect(server.seen.filter((one) => one.method === 'POST')).toHaveLength(before);
+  const filled = server.seen.filter((one) => one.method === 'POST' && one.path.includes(`/spaces/${key.space}/`));
+  expect(filled.length).toBeGreaterThanOrEqual(world.school.teachers.length);
 });
 
 test('no seeded key, no keys of the world, a wait, or a missing keyring takes nothing', async () => {
