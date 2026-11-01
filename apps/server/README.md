@@ -23,11 +23,11 @@ A world is named by the first five characters of its code; the rest of the code 
 
 Inside a world, with its pass, clients exchange sealed records through spaces: one per school and per directorate, whose ids the clients draw, and the one national space, named `national` (PRD §5.8).
 
-| Request                                                                     | Does                                                                                               | Answers                                                                     |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `PUT /worlds/:world/spaces/:space` with `{kind}`                            | Opens a space of kind `school`, `directorate` or `national`                                        | `{kind}`; `409` if it exists with another kind                              |
-| `POST /worlds/:world/spaces/:space/batches` with `{stream, first, batches}` | Adds a stream's next 1 to 128 sealed batches, all or none; a stream is numbered from 0 with no gap | `201 {added}`; `409` naming the stream's next number when `first` is not it |
-| `GET /worlds/:world/spaces/:space/batches?after=n`                          | Reads up to 128 batches after arrival number `n`                                                   | `{batches: [{seq, stream, number, bytes}], more}`                           |
+| Request                                                                     | Does                                                                                               | Answers                                                                         |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `PUT /worlds/:world/spaces/:space` with `{kind}`                            | Opens a space of kind `school`, `directorate` or `national`                                        | `{kind}`; `409` if it exists with another kind, or the world holds 2,000 spaces |
+| `POST /worlds/:world/spaces/:space/batches` with `{stream, first, batches}` | Adds a stream's next 1 to 128 sealed batches, all or none; a stream is numbered from 0 with no gap | `201 {added}`; `409` naming the stream's next number when `first` is not it     |
+| `GET /worlds/:world/spaces/:space/batches?after=n`                          | Reads up to 128 batches after arrival number `n`                                                   | `{batches: [{seq, stream, number, bytes}], more}`                               |
 
 - **One size:** every batch is exactly 4,124 bytes: the core's 4,096-byte batch sealed with AES-256-GCM. Anything else is refused, so a batch's size says nothing.
 - **The minimum:** the server keeps each space's id and kind, and each batch's stream, number, arrival order and sealed bytes. No names, no times, no addresses.
