@@ -4,11 +4,14 @@
 // The PC's charts and maps (#600, answer 574): a chart's latest figures solid
 // in the board's colour and earlier ones dashed, then dotted; its axes mirrored
 // for right to left; its label as the screen reader's description; a map whose
-// boxes and links are only read, refusing a link to a box it does not hold;
-// ECharts' notice carrying its NOTICE file and the d3 licence it embeds; a
-// chart's tooltip on the canvas; a figure held back left out; React Flow given
-// nothing to focus, edit or describe; and neither library anywhere in the
-// Android app. The figures are made up.
+// boxes and links are only read, a link on a condition dashed and one that does
+// not pass now faint, dotted and struck through without an arrowhead, links
+// straight between the boxes' facing edges and those between the same two boxes
+// side by side, refusing a link to a box it does not hold; ECharts' notice
+// carrying its NOTICE file and the d3 licence it embeds; a chart's tooltip on
+// the canvas; a figure held back left out; React Flow given nothing to focus,
+// edit or describe; and neither library anywhere in the Android app. The
+// figures are made up.
 
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -16,7 +19,7 @@ import { describe, it } from 'node:test';
 import type { ChartSpec, MapSpec } from '../../android/src/drawing/drawing-kit.ts';
 import { packageNotice } from '../scripts/licences.ts';
 import { chartOption, type ChartInk } from '../src/drawing/chart-option.ts';
-import { mapElements, READ_ONLY, type MapInk } from '../src/drawing/map-elements.ts';
+import { betweenPath, mapElements, READ_ONLY, type MapInk } from '../src/drawing/map-elements.ts';
 
 const INK: ChartInk = {
   ink: '#111111',
@@ -166,6 +169,61 @@ describe('a map', () => {
     );
     assert.equal(READ_ONLY.proOptions.hideAttribution, true);
     assert.deepEqual(new Set(Object.values(READ_ONLY.ariaLabelConfig)), new Set(['']));
+  });
+
+  it('dashes a link that passes only on a condition, and fades one that does not pass now', () => {
+    const links = [
+      ...KEYS.links,
+      { from: 'director', to: 'deputy', label: 'grant', conditional: true },
+      { from: 'director', to: 'deputy', label: 'absences', conditional: true, idle: true },
+    ];
+    const { edges } = mapElements({ ...KEYS, links }, MAP_INK);
+    assert.deepEqual(
+      edges.map((edge) => [edge.style.strokeDasharray, edge.style.stroke, edge.markerEnd?.type]),
+      [
+        [undefined, '#555555', 'arrowclosed'],
+        [undefined, '#555555', 'arrowclosed'],
+        ['6 6', '#555555', 'arrowclosed'],
+        ['3 7', MAP_INK.line, undefined],
+      ],
+    );
+    assert.deepEqual(
+      edges.map((edge) => edge.labelStyle.textDecoration),
+      [undefined, undefined, undefined, 'line-through'],
+    );
+  });
+
+  it('sets links between the same two boxes, either way, side by side, their labels staggered', () => {
+    const third = { from: 'director', to: 'deputy', label: 'grant' };
+    const { edges } = mapElements({ ...KEYS, links: [...KEYS.links, third] }, MAP_INK);
+    assert.deepEqual(
+      edges.map((edge) => [edge.type, edge.data.shift, Math.round(edge.data.at * 100)]),
+      [
+        ['between', -64, 34],
+        ['between', 0, 50],
+        ['between', 64, 66],
+      ],
+    );
+    const alone = mapElements({ ...KEYS, links: [KEYS.links[0]] }, MAP_INK).edges[0];
+    assert.deepEqual(alone.data, { shift: 0, at: 0.5 });
+  });
+
+  it('draws a link straight between the boxes’ facing edges, across by its lane', () => {
+    const top = { x: 0, y: 0, width: 160, height: 40 };
+    const below = { x: 0, y: 200, width: 160, height: 40 };
+    assert.deepEqual(betweenPath(top, below, { shift: 0, at: 0.5 }), {
+      path: 'M80,40 L80,200',
+      labelX: 80,
+      labelY: 120,
+    });
+    assert.deepEqual(betweenPath(below, top, { shift: 64, at: 0.25 }), {
+      path: 'M144,200 L144,40',
+      labelX: 144,
+      labelY: 160,
+    });
+    const beside = { x: 300, y: 0, width: 160, height: 40 };
+    assert.equal(betweenPath(top, beside, { shift: 64, at: 0.5 }).path, 'M160,34 L300,34');
+    assert.equal(betweenPath(beside, top, { shift: 0, at: 0.5 }).path, 'M300,20 L160,20');
   });
 
   it('refuses a link to a box it does not hold, and two boxes with one ID', () => {

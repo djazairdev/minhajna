@@ -6,14 +6,15 @@
 // this device took in the world, worked out from its history and the key it
 // holds as the page opens, in the history's order and never with a clock time:
 // the school key started or this device added to it, devices added to or
-// removed from it, its recovery made or renewed, and each joining code or
-// security key issued, its teacher named from the school's staff list by the
-// line's school and assignment, or as a teacher of the school when none
-// matches. The rows show once the names are worked out, and a failure to work
-// them out is said. The preparer's actions are not kept in a world yet, so its
-// page says so, and the director's lines never show there. Under the rows: each
-// member of the administration sees their own actions alone, the teacher every
-// reading of their records, and days only, signing in never listed.
+// removed from it, its recovery made or renewed, each change of the school's
+// choice to send absences (#592), and each joining code or security key issued,
+// its teacher named from the school's staff list by the line's school and
+// assignment, or as a teacher of the school when none matches. The rows show
+// once the names are worked out, and a failure to work them out is said. The
+// preparer's actions are not kept in a world yet, so its page says so, and the
+// director's lines never show there. Under the rows: each member of the
+// administration sees their own actions alone, the teacher every reading of
+// their records, and days only, signing in never listed.
 
 import {
   assignmentId,
@@ -73,6 +74,10 @@ function lineText(t: Words, line: StaffLine, names: ReadonlyMap<string, string>)
       return t('demo.ownLog.line.recoveryMade');
     case 'recovery-renewed':
       return t('demo.ownLog.line.recoveryRenewed');
+    case 'absences-on':
+      return t('demo.ownLog.line.absencesOn');
+    case 'absences-off':
+      return t('demo.ownLog.line.absencesOff');
     case 'holders-added':
       return t('demo.ownLog.line.holdersAdded', { number: line.count });
     case 'holders-removed':

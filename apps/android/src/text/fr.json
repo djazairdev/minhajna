@@ -4562,7 +4562,9 @@
         "keyIssued": "Clé de sécurité {{number}} pour {{name}}",
         "keyReplaced": "Clé de sécurité {{number}} pour {{name}}, à la place d’une clé précédente",
         "recoveryMade": "Récupération de la clé de l’établissement créée",
-        "recoveryRenewed": "Récupération de la clé de l’établissement renouvelée"
+        "recoveryRenewed": "Récupération de la clé de l’établissement renouvelée",
+        "absencesOn": "Choix d’envoyer les absences au système du secteur",
+        "absencesOff": "Arrêt de l’envoi des absences au système du secteur"
       },
       "opening": "Calcul du journal…"
     },
@@ -4768,6 +4770,295 @@
         "done": "Cet appareil est retiré. Rien de ce qui est ajouté désormais ne lui parvient.",
         "renewed": "Cet appareil est retiré. Il avait créé la récupération, qui est donc renouvelée : imprimez les deux nouvelles feuilles et remettez-les."
       }
+    },
+    "exchange": {
+      "title": "Échanges de données",
+      "lead": "{{school}} · {{date}} · Ce qui entre dans l’établissement et ce qui en sort, et par où",
+      "only": "Tout ce qui sort de l’établissement est sur cette carte, et rien d’autre.",
+      "map": "Carte de ce qui entre dans l’établissement et de ce qui en sort",
+      "always": "Passe toujours",
+      "conditional": "Sous condition : une autorisation de consultation, ou le choix de l’établissement",
+      "idle": "Ne passe pas pour l’instant",
+      "readOnly": "La carte se lit : aucun lien ne s’ajoute ni ne s’enlève en glissant. Le seul choix de l’établissement est l’envoi des absences.",
+      "boxes": "Les entités",
+      "lines": "Ce qui passe entre elles",
+      "chosen": "Sélection sur la carte",
+      "onGrant": "{{line}} · avec une autorisation de consultation",
+      "onChoice": "{{line}} · au choix de l’établissement",
+      "notSent": "{{line}} · non envoyées",
+      "teachers_one": "{{count}} membre du personnel enseignant",
+      "teachers_many": "{{count}} membres du personnel enseignant",
+      "teachers_other": "{{count}} membres du personnel enseignant",
+      "count_one": "{{count}} lien entre l’établissement et l’extérieur · un seul choix pour l’établissement",
+      "count_many": "{{count}} liens entre l’établissement et l’extérieur · un seul choix pour l’établissement",
+      "count_other": "{{count}} liens entre l’établissement et l’extérieur · un seul choix pour l’établissement",
+      "box": {
+        "devices": "Appareils du personnel enseignant",
+        "notes": "Notes privées et motifs",
+        "inspector": "Inspection avec autorisation",
+        "space": "Espace de l’établissement",
+        "directorate": "Direction de l’éducation et ministère",
+        "interop": "Système national d’interopérabilité",
+        "sector": "Système d’information du secteur",
+        "parents": "Espace des parents"
+      },
+      "sub": {
+        "devices": "{{teachers}} · fonctionnent hors ligne",
+        "notes": "Ne quittent pas les appareils de la personne qui enseigne",
+        "inspector": "Avec la clé de l’autorisation, jusqu’à son terme",
+        "space": "Chiffré par la clé de l’établissement",
+        "directorate": "Totaux au-dessus du seuil",
+        "interop": "Le réseau de l’État pour l’échange de données entre administrations",
+        "sector": "La référence officielle des listes et des notes",
+        "parents": "Géré par l’État"
+      },
+      "line": {
+        "weeks": "Semaines signées",
+        "lists": "Listes et emploi du temps",
+        "grant": "Classes de l’autorisation",
+        "totals": "Parts des totaux",
+        "marks": "Notes",
+        "absences": "Absences",
+        "roster": "Listes et affectations",
+        "publish": "L’État publie les notes et les absences",
+        "publishOff": "L’État publie les notes"
+      },
+      "facts": {
+        "devices": {
+          "a": {
+            "k": "Contiennent",
+            "v": "Tout le registre de travail, qui fonctionne hors ligne"
+          },
+          "b": {
+            "k": "Envoient",
+            "v": "Ce que signe le personnel enseignant, et l’état des séances de la semaine"
+          },
+          "c": {
+            "k": "Reçoivent",
+            "v": "Les listes, l’emploi du temps, le paquet et les visas"
+          },
+          "note": "La copie de travail est sur l’appareil ; le serveur en garde une copie chiffrée."
+        },
+        "notes": {
+          "a": {
+            "k": "Où",
+            "v": "Sur les seuls appareils de la personne qui enseigne, et leur synchronisation chiffrée"
+          },
+          "b": {
+            "k": "Ne vont pas",
+            "v": "À l’établissement, ni à personne"
+          },
+          "note": "Aucun lien n’en part sur cette carte. Elles ne suivent pas l’adhésion à l’établissement."
+        },
+        "inspector": {
+          "a": {
+            "k": "Accordée par",
+            "v": "L’autorité de tutelle, pas la direction de l’établissement"
+          },
+          "b": {
+            "k": "Voit",
+            "v": "Le cahier de textes et le cahier journal, dans les classes et les semaines que nomme l’autorisation"
+          },
+          "c": {
+            "k": "Prend fin",
+            "v": "À sa date, et son appareil efface ce qu’il a reçu"
+          },
+          "note": "Le personnel enseignant voit l’autorisation et sa portée avant la visite. Ce que voit l’inspection est sur sa propre page, pas parmi celles de la direction de l’établissement."
+        },
+        "space": {
+          "a": {
+            "k": "Où",
+            "v": "Sur les serveurs du ministère, chiffré par la clé de l’établissement"
+          },
+          "b": {
+            "k": "Lu par",
+            "v": "Le personnel enseignant et l’établissement, et l’inspection avec autorisation"
+          },
+          "c": {
+            "k": "Pas lu par",
+            "v": "Qui fait tourner les serveurs, ni la direction de l’éducation, ni le ministère"
+          },
+          "note": "La part de l’établissement dans les totaux s’y prépare. Aucun nom n’en sort, sauf vers le système du secteur ou une inspection avec autorisation."
+        },
+        "directorate": {
+          "a": {
+            "k": "Voient",
+            "v": "Les totaux de la direction, de la wilaya et du pays, au-dessus du seuil des groupes"
+          },
+          "b": {
+            "k": "Ne voient pas",
+            "v": "Le chiffre d’un établissement ou d’une personne, ni l’état de confirmation des séances"
+          },
+          "note": "L’espace de chaque établissement prépare sa part de chaque total, et les parts s’additionnent entre établissements : le serveur ne connaît le chiffre d’aucun établissement. La direction de l’éducation voit les totaux sur sa propre page, pas parmi celles de la direction de l’établissement."
+        },
+        "interop": {
+          "a": {
+            "k": "Ce que c’est",
+            "v": "Le réseau officiel de l’État pour l’échange de données entre administrations"
+          },
+          "b": {
+            "k": "Y passent",
+            "v": "Les notes, les absences, les listes et les affectations",
+            "vOff": "Les notes, les listes et les affectations"
+          },
+          "note": "Minhajna ne se relie au système du secteur que par lui."
+        },
+        "sector": {
+          "a": {
+            "k": "Envoie",
+            "v": "Les listes d’élèves et de classes, et les affectations du personnel enseignant"
+          },
+          "b": {
+            "k": "Reçoit",
+            "v": "Les notes et les absences",
+            "vOff": "Les notes"
+          },
+          "c": {
+            "k": "Publie",
+            "v": "Les notes et les absences pour les parents, dans leur espace",
+            "vOff": "Les notes pour les parents, dans leur espace"
+          },
+          "note": "C’est la référence officielle des notes, pas Minhajna."
+        },
+        "parents": {
+          "a": {
+            "k": "Géré par",
+            "v": "L’État, depuis le système du secteur"
+          },
+          "b": {
+            "k": "Les parents y voient",
+            "v": "Les notes et les absences",
+            "vOff": "Les notes"
+          },
+          "note": "Minhajna ne construit rien pour les élèves ni pour les parents."
+        },
+        "weeks": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "Le cahier de textes, le cahier journal, l’appel et les notes, une fois la semaine signée"
+          },
+          "b": {
+            "k": "Avec",
+            "v": "L’état des séances de la semaine, pour le tableau de suivi"
+          },
+          "c": {
+            "k": "Chiffrées",
+            "v": "Par la clé de l’établissement"
+          },
+          "note": "Le registre de travail ne passe pas avant la signature, ni le jour où une séance est confirmée."
+        },
+        "lists": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "Les listes et les affectations, l’emploi du temps et le paquet du plan"
+          },
+          "b": {
+            "k": "Avec",
+            "v": "Les visas de la direction de l’établissement sur les semaines signées"
+          },
+          "note": "Tout cela arrive sur le téléphone et y reste : il fonctionne hors ligne."
+        },
+        "grant": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "Le cahier de textes et le cahier journal des semaines signées, pour les classes que nomme l’autorisation, dans ses semaines"
+          },
+          "b": {
+            "k": "Avec une clé",
+            "v": "Propre à l’autorisation, qui prend fin avec elle"
+          },
+          "note": "Ni les dossiers des élèves, ni l’état de confirmation des séances, ni ce qui n’est pas signé ne passent. L’inspection voit ces classes sur sa propre page, pas parmi celles de la direction de l’établissement."
+        },
+        "totals": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "La part de l’établissement dans chaque total, préparée à partir de ses registres par un appareil qui détient sa clé"
+          },
+          "b": {
+            "k": "À condition",
+            "v": "D’au moins 5 membres du personnel enseignant et 3 établissements pour un chiffre de direction, et de 10 membres et 3 établissements pour la wilaya et le pays"
+          },
+          "c": {
+            "k": "Ne passent pas",
+            "v": "Le chiffre d’un établissement ou d’une personne, l’état de confirmation, ni les motifs"
+          },
+          "note": "Elle s’additionne aux parts des autres établissements. Ce qui est sous le seuil est masqué, avec toute case qui le révélerait par soustraction. Les totaux tels que les voit la direction de l’éducation sont sur sa propre page, pas parmi celles de la direction de l’établissement."
+        },
+        "marks": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "Les notes du trimestre telles qu’elles ont été signées"
+          },
+          "b": {
+            "k": "Quand",
+            "v": "À leur signature, pas avant"
+          },
+          "c": {
+            "k": "Dernière réception par le substitut",
+            "v": "{{term}} · {{class}}, le {{day}}",
+            "vOff": "Le substitut du système du secteur n’a encore reçu aucune note"
+          },
+          "note": "Elles arrivent directement au système du secteur, et les parents les y voient, pas dans Minhajna. Elles partent du téléphone de la personne qui enseigne, depuis « Notes du trimestre »."
+        },
+        "absences": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "Les absences des seules semaines signées"
+          },
+          "b": {
+            "k": "Quand",
+            "v": "Après la signature de chaque semaine"
+          },
+          "c": {
+            "k": "Vues par",
+            "v": "Les parents, dans leur espace"
+          },
+          "note": "Les corrections après signature arrivent avec leurs deux versions. Un monde de démonstration n’enregistre pas d’absences : rien n’en est envoyé."
+        },
+        "absencesOff": {
+          "a": {
+            "k": "État",
+            "v": "Non envoyées"
+          },
+          "b": {
+            "k": "Restent",
+            "v": "Un registre pour le personnel enseignant et l’établissement"
+          },
+          "note": "Le canal de l’État pour les absences reste tel quel."
+        },
+        "roster": {
+          "a": {
+            "k": "Ce qui passe",
+            "v": "Les listes d’élèves et de classes, et les affectations du personnel enseignant avec leurs programmes"
+          },
+          "b": {
+            "k": "Quand",
+            "v": "À chaque changement dans le système du secteur"
+          },
+          "note": "Elles arrivent sur les téléphones par l’espace de l’établissement. Dans un monde de démonstration, les listes viennent de l’établissement inventé du monde."
+        },
+        "publish": {
+          "a": {
+            "k": "Qui publie",
+            "v": "Le système du secteur, pas Minhajna"
+          },
+          "b": {
+            "k": "Ce qui est publié",
+            "v": "Les notes et les absences",
+            "vOff": "Les notes"
+          },
+          "note": "Les parents le voient dans leur espace, pas dans Minhajna."
+        }
+      },
+      "choice": "Choix de l’établissement",
+      "absences": "Envoyer les absences au système du secteur",
+      "absencesOn": "Les absences des semaines signées sont envoyées après la signature de chaque semaine. Un monde de démonstration n’enregistre pas d’absences : rien n’en est envoyé.",
+      "absencesOff": "Les absences ne sont pas envoyées, et le canal de l’État pour les absences reste tel quel.",
+      "absencesRule": "La direction de l’établissement le change, et c’est inscrit au registre de l’établissement avec la date, sans l’heure.",
+      "noKey": "Le choix s’inscrit sous l’espace de l’établissement, dont cet appareil ne détient pas encore la clé. Créez-la ou rejoignez-la depuis la page des clés.",
+      "opening": "Lecture des accusés de réception…",
+      "again": "Relire",
+      "keysLink": "Qui détient la clé de l’établissement"
     },
     "staff": {
       "title": "PC de la salle des professeurs",

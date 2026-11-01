@@ -44,6 +44,10 @@ export interface MapLink {
   readonly from: string;
   readonly to: string;
   readonly label?: string;
+  /** Whether it passes only on a condition, drawn dashed. */
+  readonly conditional?: boolean;
+  /** Whether it does not pass now, drawn faint and dotted, with no arrowhead and its label struck through. */
+  readonly idle?: boolean;
 }
 
 /** A read-only map: who holds what, and what goes where. */

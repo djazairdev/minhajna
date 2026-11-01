@@ -10,16 +10,18 @@
 // holder made and this device followed, devices added to or removed from the
 // key, counted without the recovery, and the recovery made or renewed, its old
 // holder's removal being part of the renewal; each joining code, new when it
-// replaces a code or a key, and said as after the key changed when the code
-// it replaces was made under an older epoch, as D-Issue issues stale codes
-// again; and each security key, by its number, replacing an earlier one when
-// it follows another. An issue kept twice is listed once. Each line names its
-// school's space, and teachers by their assignment, for the app to name.
-// Signing in is never listed.
+// replaces a code or a key, and said as after the key changed when the code it
+// replaces was made under an older epoch, as D-Issue issues stale codes again;
+// and each security key, by its number, replacing an earlier one when it
+// follows another; and each change of the school's choice to send absences
+// (answer 620), from the one before it, off at first. An issue kept twice is
+// listed once. Each line names its school's space, and teachers by their
+// assignment, for the app to name. Signing in is never listed.
 
 import type { Day } from './day.ts';
 import { eventOf } from './events.ts';
 import type { Entry } from './history.ts';
+import { readSchoolAbsences } from './school-exchange.ts';
 import { joinedKey, readSchoolHeld, readSchoolIssued } from './school-issue.ts';
 import type { Holder, KeyCrypto, SchoolKeyring } from './school-key-shape.ts';
 import { isRecoveryHolder } from './school-recovery.ts';
@@ -27,6 +29,7 @@ import { isRecoveryHolder } from './school-recovery.ts';
 /** A line of the role's own log. */
 export type StaffLine = { readonly day: Day; readonly school: string } & (
   | { readonly kind: 'key-started' | 'key-admitted' | 'recovery-made' | 'recovery-renewed' }
+  | { readonly kind: 'absences-on' | 'absences-off' }
   | { readonly kind: 'holders-added' | 'holders-removed'; readonly count: number }
   | { readonly kind: 'code-issued' | 'code-replaced' | 'code-reissued'; readonly assignment: string }
   | { readonly kind: 'key-issued' | 'key-replaced'; readonly assignment: string; readonly number: string }
@@ -68,6 +71,7 @@ export async function staffLog(entries: readonly Entry[], crypto: KeyCrypto): Pr
   const rings = new Map<string, Held>();
   const issues = new Set<string>();
   const last = new Map<string, { readonly access: 'phone' | 'key'; readonly epoch: number }>();
+  const absences = new Map<string, boolean>();
   for (const entry of entries) {
     const event = eventOf(entry);
     const { day } = entry;
@@ -78,6 +82,11 @@ export async function staffLog(entries: readonly Entry[], crypto: KeyCrypto): Pr
       const before = kept?.device === held.device ? kept : undefined;
       lines.push(...(await ringLines(day, held, before, crypto)));
       if (before === undefined || held.ring.version > before.ring.version) rings.set(held.school, held);
+    } else if (event?.kind === 'school.absences') {
+      const read = readSchoolAbsences(event.absences);
+      if (read === null || read.send === (absences.get(read.school) ?? false)) continue;
+      absences.set(read.school, read.send);
+      lines.push({ kind: read.send ? 'absences-on' : 'absences-off', day, school: read.school });
     } else if (event?.kind === 'school.issued') {
       const issued = readSchoolIssued(event.issued);
       const at = issued === null ? '' : `${issued.school}:${joinedKey(issued.assignment, issued.issue)}`;

@@ -10,14 +10,24 @@
 // beside it. React Flow's attribution stays, as the design draws it, outside
 // the picture so it is still reached as a link.
 
-import { Background, BackgroundVariant, ReactFlow, type Edge, type Node } from '@xyflow/react';
+import {
+  BaseEdge,
+  Background,
+  BackgroundVariant,
+  ReactFlow,
+  useInternalNode,
+  type Edge,
+  type EdgeProps,
+  type InternalNode,
+  type Node,
+} from '@xyflow/react';
 import '@xyflow/react/dist/base.css';
 import './map.css';
 import { useMemo, type CSSProperties } from 'react';
 import type { MapSpec } from '../../../android/src/drawing/drawing-kit';
 import { colorRoles, colors } from '../../../android/src/design/tokens';
 import { FONT } from './font.ts';
-import { mapElements, READ_ONLY, type MapInk } from './map-elements.ts';
+import { betweenPath, mapElements, READ_ONLY, type Lane, type MapInk } from './map-elements.ts';
 
 const INK: MapInk = {
   ink: colors.ink,
@@ -40,19 +50,58 @@ const FRAME = {
   '--map-attribution': colorRoles.mapAttribution,
 } as CSSProperties;
 
+const measured = (node: InternalNode) => ({
+  ...node.internals.positionAbsolute,
+  width: node.measured.width ?? 0,
+  height: node.measured.height ?? 0,
+});
+
+/** A link drawn straight from one box to the other, in its lane. */
+function BetweenEdge({
+  id,
+  source,
+  target,
+  data,
+  style,
+  label,
+  labelStyle,
+  labelBgStyle,
+  markerEnd,
+}: EdgeProps<Edge<Lane>>) {
+  const from = useInternalNode(source);
+  const to = useInternalNode(target);
+  if (from === undefined || to === undefined || data === undefined) return null;
+  const { path, labelX, labelY } = betweenPath(measured(from), measured(to), data);
+  return (
+    <BaseEdge
+      id={id}
+      path={path}
+      labelX={labelX}
+      labelY={labelY}
+      label={label}
+      style={style}
+      labelStyle={labelStyle}
+      labelBgStyle={labelBgStyle}
+      markerEnd={markerEnd}
+    />
+  );
+}
+
+const EDGE_TYPES = { between: BetweenEdge };
+
 /** Draws a map that is read, never edited. */
 export function FlowMap({ spec, testID }: { readonly spec: MapSpec; readonly testID?: string }) {
   const { nodes, edges } = useMemo(() => {
     const drawn = mapElements(spec, INK);
     return {
       nodes: drawn.nodes.map((node): Node => ({ ...node, style: { ...node.style } })),
-      edges: drawn.edges.map((edge): Edge => ({ ...edge })),
+      edges: drawn.edges.map((edge): Edge<Lane> => ({ ...edge, data: { ...edge.data } })),
     };
   }, [spec]);
   return (
     <div data-testid={testID} className="minhajna-map" style={FRAME}>
       <div role="img" aria-label={spec.label} className="minhajna-map-drawing">
-        <ReactFlow aria-hidden nodes={nodes} edges={edges} {...READ_ONLY} fitView>
+        <ReactFlow aria-hidden nodes={nodes} edges={edges} edgeTypes={EDGE_TYPES} {...READ_ONLY} fitView>
           <Background variant={BackgroundVariant.Dots} gap={18} size={1.1} color={colors['map-dots']} />
         </ReactFlow>
       </div>
