@@ -24,7 +24,7 @@
 import type { SealedBatch } from './batches.ts';
 import type { InspectorDevice } from './device-events.ts';
 import { eventOf } from './events.ts';
-import { inspectorFingerprint } from './grants.ts';
+import { inspectorFingerprint, plainFingerprint as plain } from './grants.ts';
 import type { Entry } from './history.ts';
 import { ascii, ID, isHolder, SCHOOL, type Holder, type KeyCrypto } from './school-key-shape.ts';
 import { openRecords, placeOf, sealRecord, type Place } from './sealed-stream.ts';
@@ -135,7 +135,6 @@ export async function inspectorByFingerprint(
   typed: string,
   crypto: KeyCrypto,
 ): Promise<Holder | null> {
-  const plain = (text: string) => text.toLowerCase().replace(/[\s\u2010-\u2015-]/gu, '');
   if (plain(typed) === '') return null;
   for (const one of records) {
     const read = readInspectorKey(one, crypto.publicKeyBytes);

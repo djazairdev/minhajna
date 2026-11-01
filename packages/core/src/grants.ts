@@ -119,8 +119,8 @@ async function logKey(school: OpenedKeyring, epoch: number, grant: string, crypt
   return crypto.mac(key, ascii(`minhajna/grant/log\n${grant}`));
 }
 
-/** A fingerprint as typed: lower case, without spaces or dashes. */
-const plain = (fingerprint: string) => fingerprint.toLowerCase().replace(/[\s-]/gu, '');
+/** A fingerprint as typed, to compare: lower case, without spaces, hyphens or dashes. */
+export const plainFingerprint = (typed: string) => typed.toLowerCase().replace(/[\s\u2010-\u2015-]/gu, '');
 
 function hasOnly(value: unknown, fields: readonly string[]): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
@@ -173,7 +173,7 @@ export async function makeGrant(
   if (!isDay(from) || !isDay(until) || compareDays(from, until) > 0)
     throw new RangeError('A grant runs between two days');
   if (!goodWeeks(weeks, opened.keys.length)) throw new RangeError('A grant names each signed week once');
-  if (plain(fingerprint) !== plain(await inspectorFingerprint(inspector.publicKey, crypto))) {
+  if (plainFingerprint(fingerprint) !== plainFingerprint(await inspectorFingerprint(inspector.publicKey, crypto))) {
     throw new RangeError('The inspector’s key does not match the fingerprint confirmed');
   }
   const head = { id, inspector: { id: inspector.id, publicKey: inspector.publicKey }, from, until, by };

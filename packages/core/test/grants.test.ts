@@ -104,7 +104,9 @@ describe('a grant to an inspector', () => {
   it('takes an access log entry only from its own inspector, even with another grant over the same week', async () => {
     const { director, deputy, two, course, terms, grant } = await school();
     const other = await device();
-    const typed = (await inspectorFingerprint(other.holder.publicKey, other.crypto)).replace(/-/gu, '').toUpperCase();
+    const typed = (await inspectorFingerprint(other.holder.publicKey, other.crypto))
+      .replace(/-/gu, '\u2013')
+      .toUpperCase();
     const second = await makeGrant(
       two,
       { ...terms, id: newId(random), inspector: other.holder, fingerprint: typed },
