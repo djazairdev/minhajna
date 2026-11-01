@@ -115,6 +115,7 @@ export * from './term-send.ts';
 export * from './week-totals.ts';
 export * from './week-record.ts';
 export * from './week-visa.ts';
+export * from './week-standing.ts';
 export * from './course-delivery.ts';
 export * from './total-shares.ts';
 export * from './devices.ts';

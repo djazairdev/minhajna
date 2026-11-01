@@ -3,13 +3,13 @@
 
 // The words of the director's dashboard (#569, answer 591), shared by its row
 // on the phone and its table on the PC: a person's name in the interface's
-// letters; a delay in weeks for a week pack and in sessions otherwise, in the
-// words the class's own plan uses; and, for a class whose figures are not in
-// the school's space, why: a vacant post, not joined during the trial term end
-// with its timetable only, its days named, to join after it, or joined with no
-// signed week yet.
+// letters; a class's pace, running long or on pace for the year, its place in
+// the plan and how far it reached, in whole percent, from its signed weeks
+// (answer 627); and, for a class whose figures are not in the school's space,
+// why: a vacant post, not joined during the trial term end with its timetable
+// only, its days named, to join after it, or joined with no signed week yet.
 
-import { classWeek, type DashboardCourse, type DemoSchool, type ProgressStatement } from '@minhajna/core';
+import { classWeek, type CourseStanding, type DashboardCourse, type DemoSchool } from '@minhajna/core';
 import type { TFunction } from 'i18next';
 import { currentLanguage } from '../text/i18n';
 
@@ -18,18 +18,18 @@ export function personName(person: { readonly name: string; readonly latinName: 
   return currentLanguage() === 'ar' ? person.name : person.latinName;
 }
 
-/** No delay, or the delay after every buffer, in weeks for a week pack and in sessions otherwise. */
-export function delayText(t: TFunction, statement: ProgressStatement): string {
-  const { sessions, weeks } = statement.delay;
-  if (sessions === 0) return t('demo.dashboard.noDelay');
-  if (weeks !== null && weeks > 0) return t('classPlan.weeksBehind', { weeks: t('count.weeks', { count: weeks }) });
-  return t('classes.behind', { sessions: t('count.sessions', { count: sessions }) });
+/** Whether a class runs long at its pace, or is on pace for the year. */
+export function paceText(t: TFunction, standing: CourseStanding): string {
+  return t(standing.runsLong ? 'demo.dashboard.runsLong' : 'demo.dashboard.onPace');
 }
 
-/** Where a class's place in the plan stands. */
-export function positionText(t: TFunction, statement: ProgressStatement): string {
-  return statement.lastResource?.title ?? statement.lastUnit?.title ?? t('demo.dashboard.noPosition');
+/** The furthest item of the plan, in its order, that a class's signed weeks worked on. */
+export function positionText(t: TFunction, standing: CourseStanding): string {
+  return standing.position?.title ?? t('demo.dashboard.noPosition');
 }
+
+/** How far a class has reached, in whole percent of its plan. */
+export const reachedText = (standing: CourseStanding) => String(Math.floor(standing.reached / 10));
 
 /** Why a row has no figures, or null when it has them. */
 export function waitingText(t: TFunction, school: DemoSchool, course: DashboardCourse): string | null {

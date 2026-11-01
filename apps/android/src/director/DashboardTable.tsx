@@ -5,8 +5,8 @@
 // answer 591): a table with a column for each figure, so they compare down a
 // column and a keyboard or screen reader moves cell by cell, as the chart's
 // table does (ChartFigure.tsx). Its head names the class, the subject, the
-// teacher, the place in the plan, the delay, the buffer used, and the sessions
-// not held, the calendar's and others' apart; each row's class is its row
+// teacher, the place in the plan, the pace, how far the class reached, and the
+// sessions not held, closures' and others' apart; each row's class is its row
 // header. A row without figures says why in one cell across the figures'
 // columns, which says it spans them (dashboard-text.ts).
 
@@ -15,9 +15,9 @@ import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
-import { delayText, personName, positionText, waitingText } from './dashboard-text';
+import { paceText, personName, positionText, reachedText, waitingText } from './dashboard-text';
 
-const FIGURES = ['position', 'progress', 'buffer', 'calendar', 'other'] as const;
+const FIGURES = ['position', 'pace', 'reached', 'closure', 'other'] as const;
 
 export type DashboardTableProps = {
   readonly school: DemoSchool;
@@ -57,7 +57,7 @@ export function DashboardTable({ school, courses, subject }: DashboardTableProps
       </View>
       {courses.map((course) => {
         const waiting = waitingText(t, school, course);
-        const statement = course.standing?.statement;
+        const standing = course.standing;
         return (
           <View
             key={`${course.classId}-${course.subject}-${course.teacher?.id ?? ''}`}
@@ -72,14 +72,14 @@ export function DashboardTable({ school, courses, subject }: DashboardTableProps
               course.teacher === null ? t('demo.dashboard.noTeacher') : personName(course.teacher),
               'cell',
             )}
-            {waiting !== null || statement === undefined
+            {waiting !== null || standing === null
               ? cell('waiting', waiting ?? '', 'cell', FIGURES.length)
               : [
-                  cell('position', positionText(t, statement), 'cell'),
-                  cell('progress', delayText(t, statement), 'cell'),
-                  cell('buffer', String(statement.delay.bufferUsed), 'cell'),
-                  cell('calendar', String(statement.notHeld.calendar), 'cell'),
-                  cell('other', String(statement.notHeld.other), 'cell'),
+                  cell('position', positionText(t, standing), 'cell'),
+                  cell('pace', paceText(t, standing), 'cell'),
+                  cell('reached', t('demo.dashboard.percent', { percent: reachedText(standing) }), 'cell'),
+                  cell('closure', String(standing.notHeld.closure), 'cell'),
+                  cell('other', String(standing.notHeld.other), 'cell'),
                 ]}
           </View>
         );
