@@ -5627,7 +5627,9 @@
       "finished": "The grant is sent to the inspector’s phone.",
       "gone": "The request is no longer addressed to this device.",
       "wrongPrint": "The fingerprint does not match the inspector’s key. Check it against the inspectorate’s official message.",
-      "lapsedRefused": "The request has lapsed, so it cannot be granted."
+      "lapsedRefused": "The request has lapsed, so it cannot be granted.",
+      "lastUse": "Last access: {{day}}",
+      "noUse": "No access has been recorded for this grant yet."
     },
     "accessLog": {
       "title": "Access log",
@@ -5638,8 +5640,10 @@
       "weeks_one": "one signed week",
       "weeks_other": "{{count}} signed weeks",
       "ended": "The grant ended on {{until}}.",
-      "foot": "Grants of access to my records show here, by date and without a time.",
-      "given": "A grant shows as it was given in the school’s space."
+      "foot": "Grants of access to my records, and each access, show here by date and without a time.",
+      "given": "A grant shows as it was given in the school’s space, and each access as the inspector’s phone reported it; only the school’s devices can check it.",
+      "use": "{{day}}: the signed week of {{week}} was read",
+      "noUse": "No access has been reported for this grant yet."
     },
     "inspectorGrant": {
       "title": "Inspection grants",

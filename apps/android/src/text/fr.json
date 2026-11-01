@@ -5706,7 +5706,9 @@
       "finished": "L’accès est envoyé au téléphone de l’inspection.",
       "gone": "La demande n’est plus adressée à cet appareil.",
       "wrongPrint": "L’empreinte ne correspond pas à la clé de l’inspection. Vérifiez-la dans le courrier officiel de l’inspection.",
-      "lapsedRefused": "La demande a expiré : elle ne peut plus être accordée."
+      "lapsedRefused": "La demande a expiré : elle ne peut plus être accordée.",
+      "lastUse": "Dernière consultation : {{day}}",
+      "noUse": "Aucune consultation n’est encore enregistrée pour cet accès."
     },
     "accessLog": {
       "title": "Journal des consultations",
@@ -5718,8 +5720,10 @@
       "weeks_many": "{{count}} semaines signées",
       "weeks_other": "{{count}} semaines signées",
       "ended": "L’accès a pris fin le {{until}}.",
-      "foot": "Les accès à mes registres apparaissent ici, avec leur date et sans heure.",
-      "given": "L’accès s’affiche tel qu’il figure dans l’espace de l’établissement."
+      "foot": "Les accès à mes registres et chaque consultation apparaissent ici, avec leur date et sans heure.",
+      "given": "L’accès s’affiche tel qu’il figure dans l’espace de l’établissement, et chaque consultation telle que le téléphone de l’inspection l’a signalée ; seuls les appareils de l’établissement peuvent la vérifier.",
+      "use": "{{day}} : consultation de la semaine signée du {{week}}",
+      "noUse": "Aucune consultation n’a encore été signalée pour cet accès."
     },
     "inspectorGrant": {
       "title": "Accès accordés",

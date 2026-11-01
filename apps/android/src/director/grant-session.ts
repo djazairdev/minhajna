@@ -14,7 +14,8 @@
 // taken at its highest version, the first read winning a tie. A request reads
 // as lapsed once the world's date is past its end, and as relayed when a relay
 // for it is on its inspector's stream of the directorate's space, a claim; a
-// directorate's space not there yet holds none. Errors carry world-session.ts's
+// directorate's space not there yet holds none. A grant made comes with its
+// last access that checks (grant-last-use.ts). Errors carry world-session.ts's
 // codes and those of holding the key.
 
 import {
@@ -31,6 +32,7 @@ import {
   relayedRequests,
   relayPlace,
   requestPlace,
+  type Day,
   type DemoSchool,
   type GrantMade,
   type GrantRequest,
@@ -42,6 +44,7 @@ import { worldRequest } from '../network/world-network';
 import { spaceBatches } from '../school/space-read';
 import { readingMissing } from '../school/stream-put';
 import { holdSchool, PUBLIC_KEY_BYTES, type HeldDesk } from './issue-session';
+import { lastUseOf } from './grant-last-use';
 import { recordsOf, type RecordedWeek } from './records-session';
 
 export type GrantWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
@@ -68,6 +71,8 @@ export interface AskedGrant {
   readonly lapsed: boolean;
   /** Whether a relay for it is on its inspector's stream of the directorate's space: a claim. */
   readonly relayed: boolean;
+  /** The grant made's last access that checks, or null before any or with no grant made. */
+  readonly lastUse: Day | null;
 }
 
 /** What the access page reads: the desk held, the signed weeks by course and first day, and the requests. */
@@ -166,6 +171,7 @@ export async function readGrants(
       missing: resolved.missing,
       lapsed: compareDays(world.date, request.until) > 0,
       relayed: relayed.get(request.inspector.publicKey)?.has(request.id) ?? false,
+      lastUse: kept === null ? null : await lastUseOf(desk, kept.grant, batches, kit),
     });
   }
   return { desk, signed, asked };
