@@ -41,6 +41,7 @@ import { HolderWait } from './HolderWait';
 import { keysMap, type KeysBox } from './keys-map';
 import { KeysRecovery } from './KeysRecovery';
 import { KeysStart } from './KeysStart';
+import type { TermReference } from './seeded-fill';
 import { useKeysPage } from './use-keys-page';
 
 type KeysTab = 'holders' | 'recovery';
@@ -50,6 +51,8 @@ export type SchoolKeysProps = {
   readonly school: DemoSchool;
   /** What the device holds of the world, to read its seeded keys, or null. */
   readonly held: HeldWorld | null;
+  /** The bundled reference data, to fill a taken school's term; none fills nothing. */
+  readonly reference?: TermReference;
   readonly kit: WorldKit;
   readonly send?: Send;
   /** A day of the world, written out as the band writes it. */
@@ -57,12 +60,12 @@ export type SchoolKeysProps = {
 };
 
 /** The director's map of the school key. */
-export function SchoolKeys({ world, school, held, kit, send, dayText }: SchoolKeysProps) {
+export function SchoolKeys({ world, school, held, reference, kit, send, dayText }: SchoolKeysProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const drawing = useDrawing();
-  const page = useKeysPage(world, school, held, kit, send);
+  const page = useKeysPage(world, school, held, reference ?? null, kit, send);
   const [tab, setTab] = useState<KeysTab>('holders');
   const [chosen, setChosen] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);

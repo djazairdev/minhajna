@@ -4196,6 +4196,7 @@
     "historyRefused": "Vos registres n’ont pas pu être ouverts sur ce PC : rien n’en est affiché."
   },
   "demo": {
+    "closure": "Fermeture inventée pour la démo",
     "band": "Version de démonstration · données inventées",
     "date": "Date du monde : {{date}}",
     "open": "Mondes de démonstration, avec des données inventées",
