@@ -4492,7 +4492,9 @@
         "keyIssued": "Security key {{number}} for {{name}}",
         "keyReplaced": "Security key {{number}} for {{name}}, replacing an earlier key",
         "recoveryMade": "Made the school key’s recovery",
-        "recoveryRenewed": "Renewed the school key’s recovery"
+        "recoveryRenewed": "Renewed the school key’s recovery",
+        "absencesOn": "Chose to send absences to the sector’s system",
+        "absencesOff": "Stopped sending absences to the sector’s system"
       },
       "opening": "Working out the log…"
     },
@@ -4698,6 +4700,293 @@
         "done": "That device is removed. Nothing added from now on reaches it.",
         "renewed": "That device is removed. It had made the recovery, so the recovery is renewed: print both new sheets and hand them over."
       }
+    },
+    "exchange": {
+      "title": "Data exchange",
+      "lead": "{{school}} · {{date}} · What comes into the school and what leaves it, and which way",
+      "only": "Everything that leaves the school is on this map, and nothing else.",
+      "map": "Map of what comes into the school and what leaves it",
+      "always": "Always passes",
+      "conditional": "On a condition: an inspection grant, or the school’s choice",
+      "idle": "Does not pass now",
+      "readOnly": "The map is for reading: no line is added or removed by dragging. The school’s one choice on it is sending absences.",
+      "boxes": "The parties",
+      "lines": "What passes between them",
+      "chosen": "Chosen on the map",
+      "onGrant": "{{line}} · with an inspection grant",
+      "onChoice": "{{line}} · as the school chooses",
+      "notSent": "{{line}} · not sent",
+      "teachers_one": "{{count}} teacher",
+      "teachers_other": "{{count}} teachers",
+      "count_one": "{{count}} line between the school and outside · one choice for the school",
+      "count_other": "{{count}} lines between the school and outside · one choice for the school",
+      "box": {
+        "devices": "Teachers’ devices",
+        "notes": "Private notes and reasons",
+        "inspector": "Inspector with a grant",
+        "space": "The school’s space",
+        "directorate": "Directorate and Ministry",
+        "interop": "National interoperability system",
+        "sector": "The sector’s information system",
+        "parents": "Parents’ space"
+      },
+      "sub": {
+        "devices": "{{teachers}} · work offline",
+        "notes": "Never leave the teacher’s devices",
+        "inspector": "With the grant’s key, until it ends",
+        "space": "Encrypted with the school key",
+        "directorate": "Totals above the floor",
+        "interop": "The state’s network for data exchange between administrations",
+        "sector": "The official reference for lists and marks",
+        "parents": "Run by the state"
+      },
+      "line": {
+        "weeks": "Signed weeks",
+        "lists": "Lists and timetable",
+        "grant": "The grant’s classes",
+        "totals": "Shares of the totals",
+        "marks": "Marks",
+        "absences": "Absences",
+        "roster": "Lists and assignments",
+        "publish": "The state publishes marks and absences",
+        "publishOff": "The state publishes marks"
+      },
+      "facts": {
+        "devices": {
+          "a": {
+            "k": "Hold",
+            "v": "The whole working record, which works offline"
+          },
+          "b": {
+            "k": "Send",
+            "v": "What the teacher signs, and the state of this week’s sessions"
+          },
+          "c": {
+            "k": "Receive",
+            "v": "The lists, the timetable, the pack and the visas"
+          },
+          "note": "The working copy is on the device; the server keeps an encrypted copy."
+        },
+        "notes": {
+          "a": {
+            "k": "Where",
+            "v": "On the teacher’s own devices alone, and their encrypted sync"
+          },
+          "b": {
+            "k": "Never go",
+            "v": "To the school, or to anyone"
+          },
+          "note": "No line leaves them on this map. They do not move when the teacher joins the school."
+        },
+        "inspector": {
+          "a": {
+            "k": "Granted by",
+            "v": "The supervising authority, not the director"
+          },
+          "b": {
+            "k": "Sees",
+            "v": "The texts book and the daily log, in the classes and weeks the grant names"
+          },
+          "c": {
+            "k": "Ends",
+            "v": "On its date, and the inspector’s device erases what it received"
+          },
+          "note": "The teacher sees the grant and its reach before the visit. What the inspector sees is on the inspector’s own page, not among the director’s."
+        },
+        "space": {
+          "a": {
+            "k": "Where",
+            "v": "On the Ministry’s servers, encrypted with the school key"
+          },
+          "b": {
+            "k": "Read by",
+            "v": "The teachers and the school, and an inspector with a grant"
+          },
+          "c": {
+            "k": "Not read by",
+            "v": "Whoever runs the servers, nor the directorate, nor the Ministry"
+          },
+          "note": "The school’s share of the totals is prepared in it. No name leaves it but to the sector’s system, or to an inspector with a grant."
+        },
+        "directorate": {
+          "a": {
+            "k": "See",
+            "v": "The directorate’s, wilaya’s and country’s totals, above the groups’ floor"
+          },
+          "b": {
+            "k": "Never see",
+            "v": "A school’s or a teacher’s figure, or whether sessions were confirmed"
+          },
+          "note": "Each school’s space prepares its share of each total, and the shares are added up across schools, so the server never knows a school’s figure. The directorate sees the totals on its own page, not among the director’s."
+        },
+        "interop": {
+          "a": {
+            "k": "What it is",
+            "v": "The state’s official network for data exchange between administrations"
+          },
+          "b": {
+            "k": "Passing through",
+            "v": "Marks, absences, lists and assignments",
+            "vOff": "Marks, lists and assignments"
+          },
+          "note": "Minhajna reaches the sector’s system only through it."
+        },
+        "sector": {
+          "a": {
+            "k": "Sends",
+            "v": "The lists of pupils and classes, and the teachers’ assignments"
+          },
+          "b": {
+            "k": "Receives",
+            "v": "Marks and absences",
+            "vOff": "Marks"
+          },
+          "c": {
+            "k": "Publishes",
+            "v": "Marks and absences for parents, in their space",
+            "vOff": "Marks for parents, in their space"
+          },
+          "note": "It is the official reference for marks, not Minhajna."
+        },
+        "parents": {
+          "a": {
+            "k": "Run by",
+            "v": "The state, from the sector’s system"
+          },
+          "b": {
+            "k": "Parents see there",
+            "v": "Marks and absences",
+            "vOff": "Marks"
+          },
+          "note": "Minhajna builds nothing for pupils or parents."
+        },
+        "weeks": {
+          "a": {
+            "k": "What passes",
+            "v": "The texts book, the daily log, the roll call and the marks, once the week is signed"
+          },
+          "b": {
+            "k": "With them",
+            "v": "The state of this week’s sessions, for the dashboard"
+          },
+          "c": {
+            "k": "Encrypted",
+            "v": "With the school key"
+          },
+          "note": "The working record does not pass before signing, nor the day any session was confirmed."
+        },
+        "lists": {
+          "a": {
+            "k": "What passes",
+            "v": "The lists and assignments, the timetable and the plan’s pack"
+          },
+          "b": {
+            "k": "With them",
+            "v": "The director’s visas on the signed weeks"
+          },
+          "note": "All of it reaches the phone and stays there, so it works offline."
+        },
+        "grant": {
+          "a": {
+            "k": "What passes",
+            "v": "The texts book and daily log of the signed weeks, for the classes the grant names, in its weeks"
+          },
+          "b": {
+            "k": "With a key",
+            "v": "The grant’s own, which ends with it"
+          },
+          "note": "No pupil records, no confirmation of sessions, and nothing unsigned passes. The inspector sees these classes on the inspector’s own page, not among the director’s."
+        },
+        "totals": {
+          "a": {
+            "k": "What passes",
+            "v": "The school’s share of each total, prepared from its records by a device that holds its key"
+          },
+          "b": {
+            "k": "On condition",
+            "v": "At least 5 teachers and 3 schools for a directorate’s figure, and 10 teachers and 3 schools for the wilaya and the country"
+          },
+          "c": {
+            "k": "Never passes",
+            "v": "A school’s or a teacher’s figure, whether sessions were confirmed, or reasons"
+          },
+          "note": "It is added to the other schools’ shares. What falls below the floor is hidden, with every cell that would reveal it by subtraction. The totals as the directorate sees them are on its own page, not among the director’s."
+        },
+        "marks": {
+          "a": {
+            "k": "What passes",
+            "v": "The term’s marks as the teacher signed them"
+          },
+          "b": {
+            "k": "When",
+            "v": "When they are signed, not before"
+          },
+          "c": {
+            "k": "Last received by the stand-in",
+            "v": "{{term}} · {{class}}, on {{day}}",
+            "vOff": "The sector system’s stand-in has received no marks yet"
+          },
+          "note": "They reach the sector’s system directly, and parents see them there, not in Minhajna. The teacher sends them from their phone, in Term marks."
+        },
+        "absences": {
+          "a": {
+            "k": "What passes",
+            "v": "The absences of the signed weeks only"
+          },
+          "b": {
+            "k": "When",
+            "v": "After each week is signed"
+          },
+          "c": {
+            "k": "Seen by",
+            "v": "Parents, in their space"
+          },
+          "note": "Corrections after signing arrive with both versions. A demo world records no absences, so nothing is sent from it."
+        },
+        "absencesOff": {
+          "a": {
+            "k": "State",
+            "v": "Not sent"
+          },
+          "b": {
+            "k": "Stay",
+            "v": "A record for the teacher and the school"
+          },
+          "note": "The state’s own channel for absences stays as it is."
+        },
+        "roster": {
+          "a": {
+            "k": "What passes",
+            "v": "The lists of pupils and classes, and the teachers’ assignments and their syllabuses"
+          },
+          "b": {
+            "k": "When",
+            "v": "At each change in the sector’s system"
+          },
+          "note": "They reach the teachers’ phones through the school’s space. In a demo world, the lists come from the world’s made-up school."
+        },
+        "publish": {
+          "a": {
+            "k": "Who publishes",
+            "v": "The sector’s system, not Minhajna"
+          },
+          "b": {
+            "k": "What is published",
+            "v": "Marks and absences",
+            "vOff": "Marks"
+          },
+          "note": "Parents see it in their space, not in Minhajna."
+        }
+      },
+      "choice": "The school’s choice",
+      "absences": "Send absences to the sector’s system",
+      "absencesOn": "The signed weeks’ absences are sent after each week is signed. A demo world records no absences, so nothing is sent from it.",
+      "absencesOff": "Absences are not sent, and the state’s own channel for absences stays as it is.",
+      "absencesRule": "The director changes it, and it goes into the school’s log with the date, never the time.",
+      "noKey": "The choice is kept under the school’s space, whose key this device does not hold yet. Start it or join it from the keys page.",
+      "opening": "Reading the receipts…",
+      "again": "Read again",
+      "keysLink": "Who holds the school key"
     },
     "staff": {
       "title": "Staffroom PC",

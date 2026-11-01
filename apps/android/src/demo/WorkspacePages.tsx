@@ -5,14 +5,15 @@
 // (world-pages.ts), each for the roles its board lists: the director's
 // dashboard on the seeded school (#569), the codes page that issues joining
 // codes and security keys (#570), the keys page that maps who holds the school
-// key (#571), the records page that reads the classes' signed weeks with the
-// school key (#585, SchoolRecords.tsx), the director's cover page for the
-// world's date (#586, SchoolCover.tsx), the school's term report against its
-// calendar (#589, SchoolDelivery.tsx), the director's assignments and access
-// page for substitutes (#587, SchoolSubstitute.tsx), the director's and the
-// preparer's timetable page (#576, #577, #578), kept for the world it was read
-// in, and their own log (#573); any other page has none, and the preparer never
-// opens the records or the cover.
+// key (#571), the exchange page that maps what enters and leaves the school
+// (#592, SchoolExchange.tsx), the records page that reads the classes' signed
+// weeks with the school key (#585, SchoolRecords.tsx), the director's cover
+// page for the world's date (#586, SchoolCover.tsx), the school's term report
+// against its calendar (#589, SchoolDelivery.tsx), the director's assignments
+// and access page for substitutes (#587, SchoolSubstitute.tsx), the director's
+// and the preparer's timetable page (#576, #577, #578), kept for the world it
+// was read in, and their own log (#573); any other page has none, and the
+// preparer never opens the records or the cover.
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -21,6 +22,7 @@ import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
 import { SchoolCover } from '../director/SchoolCover';
 import { SchoolDelivery } from '../director/SchoolDelivery';
+import { SchoolExchange } from '../director/SchoolExchange';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
@@ -50,6 +52,8 @@ export type WorkspacePagesProps = {
   /** The timetable the director or preparer read last, kept for the world it was read in. */
   readonly timetable: { readonly world: string; readonly read: TimetableRead } | null;
   readonly onTimetable: (read: TimetableRead | null) => void;
+  /** Opens another page of the same workspace. */
+  readonly onPage?: (page: WorldPage) => void;
 };
 
 /** A workspace page's body, or null when the page has none yet. */
@@ -58,7 +62,7 @@ export function workspacePage(
   page: WorldPage,
   props: WorkspacePagesProps,
 ): ReactElement | null {
-  const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable } = props;
+  const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
   if (workspace === 'director' && page === 'dashboard')
     return (
       <DirectorDashboard
@@ -74,6 +78,16 @@ export function workspacePage(
     );
   if (workspace === 'director' && page === 'keys')
     return <SchoolKeys world={open} school={school} kit={kit} send={send} dayText={dayText} />;
+  if (workspace === 'director' && page === 'exchange')
+    return (
+      <SchoolExchange
+        world={open}
+        school={school}
+        send={send}
+        dayText={dayText}
+        {...(onPage === undefined ? {} : { onKeys: () => onPage('keys') })}
+      />
+    );
   if ((workspace === 'director' || workspace === 'preparer') && page === 'log')
     return <OwnLog world={open} school={school} role={workspace} kit={kit} dayText={dayText} />;
   if ((workspace === 'director' || workspace === 'preparer') && page === 'timetable')

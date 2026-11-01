@@ -63,8 +63,11 @@ export type WorldHomeProps = {
   readonly onSchool?: () => void;
   /** Signs in on a staffroom PC, from the phone or on the PC, for the teacher of a national world (#572). */
   readonly onStaff?: () => void;
-  /** A workspace page's own content once its part of the demo has landed, or null for the empty page. */
-  readonly pageBody?: (role: WorkspaceRole, page: WorldPage) => ReactNode;
+  /**
+   * A workspace page's own content once its part of the demo has landed, or null for the empty page; it is handed a way
+   * to open another page of the workspace.
+   */
+  readonly pageBody?: (role: WorkspaceRole, page: WorldPage, onPage: (page: WorldPage) => void) => ReactNode;
 };
 
 /** The roles of an entered world, then its home. */
@@ -151,7 +154,9 @@ export function WorldHome(props: WorldHomeProps) {
         >
           {page === 'world'
             ? facts
-            : (pageBody?.(workspace, page) ?? <Text style={[styles.line, align]}>{t('demo.pages.empty')}</Text>)}
+            : (pageBody?.(workspace, page, (one) => setChosen({ role: workspace, page: one })) ?? (
+                <Text style={[styles.line, align]}>{t('demo.pages.empty')}</Text>
+              ))}
           {trouble}
         </WorldShell>
       </View>

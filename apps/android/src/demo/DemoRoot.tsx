@@ -245,7 +245,7 @@ export function DemoRoot({
       }
       onMove={move}
       onLeave={leave}
-      pageBody={(workspace, page) =>
+      pageBody={(workspace, page, onPage) =>
         school === null || reference === undefined
           ? null
           : workspacePage(workspace, page, {
@@ -260,6 +260,7 @@ export function DemoRoot({
               mine: mineOf(reference, calendar, school),
               timetable,
               onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
+              onPage,
             })
       }
     />

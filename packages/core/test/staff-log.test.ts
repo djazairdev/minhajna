@@ -10,7 +10,9 @@
 // ID; codes issued, replaced, by a code or a key, and issued again after the
 // key changed, and security keys issued and replacing an earlier one, each by
 // its day and school and in the history's order, an issue kept twice once and a
-// record that does not read never. Every school, device and teacher is made up.
+// record that does not read never; and each change of the absences choice from
+// the one before, off at first, by school. Every school, device and teacher is
+// made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -123,6 +125,25 @@ describe('the log of a director’s own actions', () => {
       { kind: 'key-replaced', ...at('2026-10-23'), assignment: Y, number: '0043' },
       { kind: 'key-issued', ...at('2026-10-23'), assignment: Z, number: '0044' },
       { kind: 'code-replaced', ...at('2026-10-24'), assignment: Z },
+    ]);
+  });
+
+  it('lists each change of the school’s absences choice from the one before, off at first', async () => {
+    const book = await openBook(cemEvents());
+    const put = (day: string, send: unknown, school = SCHOOL) =>
+      book.record(d(day), { kind: 'school.absences', absences: { school, send } as never });
+    await put('2026-11-02', false);
+    await put('2026-11-02', 'yes');
+    await put('2026-11-03', true);
+    await put('2026-11-03', true);
+    await put('2026-11-04', true, 'another-made-up-space');
+    await put('2026-11-05', false);
+    await put('2026-11-05', true);
+    assert.deepEqual(await staffLog(book.entries, (await device()).crypto), [
+      { kind: 'absences-on', day: d('2026-11-03'), school: SCHOOL },
+      { kind: 'absences-on', day: d('2026-11-04'), school: 'another-made-up-space' },
+      { kind: 'absences-off', day: d('2026-11-05'), school: SCHOOL },
+      { kind: 'absences-on', day: d('2026-11-05'), school: SCHOOL },
     ]);
   });
 });
