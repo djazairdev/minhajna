@@ -29,7 +29,8 @@
 // actions (#573), and the records page reads the classes' signed weeks (#585).
 // The teacher of a national world signs in on a staffroom PC (#572): on the
 // phone it approves a PC's code, and on the PC it is the staffroom PC itself.
-// The inspector of a national world posts their key from its home (#593).
+// The inspector of a national world posts their key from its home (#593) and
+// reads the grants relayed to their phone there (#594).
 
 import {
   readWorldCode,
@@ -53,7 +54,7 @@ import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from '
 import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
 import { workspacePage } from './WorkspacePages';
-import { InspectorKey } from '../inspector/InspectorKey';
+import { InspectorHome } from '../inspector/InspectorHome';
 import { SchoolJoin } from '../school/SchoolJoin';
 import { PcApprove } from '../staff/PcApprove';
 import { StaffPc } from '../staff/StaffPc';
@@ -246,8 +247,16 @@ export function DemoRoot({
         open.kind === 'national' && school !== null && reference !== undefined ? () => setStaff(true) : undefined
       }
       inspectorCard={
-        open.kind === 'national' && school !== null ? (
-          <InspectorKey world={open} directorate={school.directorateId} kit={kit} send={send} />
+        open.kind === 'national' && school !== null && reference !== undefined ? (
+          <InspectorHome
+            world={open}
+            school={school}
+            reference={reference}
+            mine={mineOf(reference, calendar, school)}
+            kit={kit}
+            send={send}
+            dayText={dayText}
+          />
         ) : undefined
       }
       onMove={move}
