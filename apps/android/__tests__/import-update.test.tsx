@@ -1,9 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { CALENDAR_UPDATE_FORMAT } from '@minhajna/core';
+// Importing a signed calendar update in real mode (#223, R-4.8-03 to R-4.8-05):
+// a file a trusted key signed is checked, previewed and applied in each
+// language; one already applied is held; a file changed after signing, a newer
+// format inside a valid signature, an unknown key, another year, another kind
+// and a file that is not signed are each refused in their own words, nothing
+// changing; a file naming a demo world or signed with a world's key is refused
+// before its signature is checked (#608); and cancelling a second read keeps
+// the update shown. Every key, entry and world is made up.
+
+import { CALENDAR_UPDATE_FORMAT, worldSignedFile } from '@minhajna/core';
 import { useWindowDimensions } from 'react-native';
 import { makeTestKey, signedFile } from '../../../packages/core/test/signed-fixtures';
+import { signWith, worldKeys } from '../../../packages/core/test/world-signing';
 import { accessibilityProblems } from '../jest/accessibility';
 import { calendarInput as NativeInput } from '../jest/calendar-input';
 import {
@@ -16,6 +26,7 @@ import {
 import { withDay } from '../jest/today-day';
 import { ImportUpdate } from '../src/calendar/ImportUpdate';
 import { fingerprintText } from '../src/calendar/UpdateDetails';
+import { checksFor } from '../src/calendar/UpdateRefused';
 import { catalogues, i18n, missingKeys } from '../src/text/i18n';
 
 jest.mock(
@@ -24,6 +35,7 @@ jest.mock(
 );
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({ __esModule: true, default: jest.fn() }));
 
+const words = catalogues.ar.calendarView.update;
 const key = makeTestKey();
 const stranger = makeTestKey('example-stranger');
 const closure = (id: string, zone: string) => ({
@@ -140,9 +152,37 @@ test.each([
   ['another year', (): string => signedFile(key, { ...payload, year: '2027-2028' }), 'year'],
   ['not a calendar update', (): string => signedFile(key, { format: 'minhajna.pack' }), 'kind'],
   ['not a signed file', (): string => '{}', 'invalid'],
+  [
+    'a file naming a demo world',
+    (): string => JSON.stringify({ ...JSON.parse(signedFile(key, payload)), world: 'K7QF4' }),
+    'world',
+  ],
+  [
+    'a file signed with a world’s key',
+    (): string => JSON.stringify({ ...JSON.parse(signedFile(key, payload)), key: 'world-ministry' }),
+    'world',
+  ],
 ] as const)('refuses %s', async (_name, file, problem) => {
   const data = await open(file());
   expect(settingsTexts()).toContain(catalogues.ar.calendarView.update.problems[problem].title);
   expect(has('update-apply')).toBe(false);
   expect(data.book.state.calendarUpdates).toEqual([]);
+});
+
+test('a file a demo world’s key signed is refused in its own words, failing the first check only', async () => {
+  const world = worldKeys('K7QF4');
+  await open(await worldSignedFile(world, 'world-ministry', JSON.stringify(payload), signWith));
+  const check = (outcome: 'passed' | 'failed' | 'skipped', name: keyof typeof words.checks) =>
+    words.check[outcome].replace('{{check}}', words.checks[name]);
+  expect(settingsTexts()).toEqual(
+    expect.arrayContaining([
+      words.problems.world.title,
+      check('failed', 'format'),
+      check('skipped', 'key'),
+      check('skipped', 'signature'),
+      check('skipped', 'content'),
+    ]),
+  );
+  expect(has('update-apply')).toBe(false);
+  expect(checksFor('world')).toEqual({ format: 'failed', key: 'skipped', signature: 'skipped', content: 'skipped' });
 });
