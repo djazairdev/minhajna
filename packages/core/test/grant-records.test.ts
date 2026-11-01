@@ -31,12 +31,14 @@ import {
   newId,
   openGrant,
   openGrantedWeek,
+  openGrantRelays,
   openRelayed,
   parseDay,
   readWeekRecord,
   relayedRequests,
   relayGrant,
   relayPlace,
+  sealGrantRelay,
   sealGrantedWeek,
   signedWeekKey,
   signVisa,
@@ -203,7 +205,10 @@ describe('a grant relayed to its inspector', () => {
     const moved = { ...relay, request: 'fedcba9876543210fedcba9876543210' };
     const place = await relayPlace(inspector.holder, mac);
     assert.notDeepEqual(place, await relayPlace(stranger.holder, mac));
-    const records = [moved, relay, relay, { format: 'other' }];
+    const batches = [];
+    for (const one of [moved, relay, relay])
+      batches.push(...(await sealGrantRelay(place, one, batches.length, cipher)));
+    const records = [...(await openGrantRelays(place, batches, cipher)), { format: 'other' }];
     assert.deepEqual(relayedRequests(records), new Set([moved.request, REQUEST]));
     assert.deepEqual(await openRelayed(records, inspector.holder, inspector.crypto), [{ request: REQUEST, grant }]);
     assert.deepEqual(await openRelayed(records, stranger.holder, stranger.crypto), []);

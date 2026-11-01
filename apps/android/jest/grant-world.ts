@@ -36,10 +36,19 @@ const calendar = read.calendar;
 
 export const SCHOOL = { id: 'school-2', directorateId: 'directorate-1' };
 
-/** A started world whose school is listed and whose inspector posted a key, and a directorate's device. */
-export async function listed() {
+/** The reference the tests read, for a page that seeds the world's schools. */
+export const reference = read;
+
+type Seeded = { readonly id: string; readonly directorateId: string };
+
+/**
+ * A started world whose school, SCHOOL unless `pick` names a seeded one, is
+ * listed and whose inspector posted a key, and a directorate's device.
+ */
+export async function listed(pick: (world: string) => Seeded = () => SCHOOL) {
   const started = await startWorld('national', calendar, kit, server.send);
   const id = started.keys.world;
+  const school = pick(id);
   const device = async () => ({
     world: id,
     date: started.date,
@@ -47,10 +56,10 @@ export async function listed() {
   });
   const director = await device();
   const desk = await holdSchool(director, kit, server.send);
-  await listSchool(id, SCHOOL, desk.held.school, kit, server.send);
-  const { fingerprint } = await postInspectorKey(await device(), SCHOOL.directorateId, kit, server.send);
+  await listSchool(id, school, desk.held.school, kit, server.send);
+  const { fingerprint } = await postInspectorKey(await device(), school.directorateId, kit, server.send);
   const form = (change: Partial<GrantForm> = {}): GrantForm => ({
-    school: SCHOOL.id,
+    school: school.id,
     fingerprint,
     label: 'Made-up inspector of district 3',
     subject: 'arabic',
@@ -59,7 +68,7 @@ export async function listed() {
     until: addDays(started.date, 42),
     ...change,
   });
-  return { id, device, desk, directorate: await device(), form };
+  return { id, device, desk, fingerprint, directorate: await device(), form };
 }
 
 /** The schools listed in the directorate's space, and how many batches the listing stream holds. */

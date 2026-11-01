@@ -49,9 +49,11 @@ test('a request is kept, delivered once and opened by the director’s device', 
   await deliverRequest(id, request, kit, server.send);
   expect(await count()).toBe(once);
   expect(await opened(id, desk)).toEqual([request]);
-  expect(await requestsOf(directorate, kit, server.send)).toEqual([{ request, delivered: true, lapsed: false }]);
+  expect(await requestsOf(directorate, SCHOOL.directorateId, kit, server.send)).toEqual([
+    { request, seed: SCHOOL.id, delivered: true, granted: false, lapsed: false },
+  ]);
   const later = { ...directorate, date: addDays(request.until, 1) };
-  expect((await requestsOf(later, kit, server.send))[0].lapsed).toBe(true);
+  expect((await requestsOf(later, SCHOOL.directorateId, kit, server.send))[0].lapsed).toBe(true);
 });
 
 test('what cannot be requested is refused before anything is kept', async () => {
@@ -67,7 +69,7 @@ test('what cannot be requested is refused before anything is kept', async () => 
   for (const [one, code] of refused) {
     expect(await codeOf(requestGrant(directorate, SCHOOL.directorateId, one, kit, server.send))).toBe(code);
   }
-  expect(await requestsOf(directorate, kit, server.send)).toEqual([]);
+  expect(await requestsOf(directorate, SCHOOL.directorateId, kit, server.send)).toEqual([]);
 });
 
 test('a request kept but not delivered is delivered again', async () => {
@@ -77,9 +79,9 @@ test('a request kept but not delivered is delivered again', async () => {
       ? { status: 429, body: { error: 'busy' }, retryAfter: 12 }
       : server.send(request);
   expect(await codeOf(requestGrant(directorate, SCHOOL.directorateId, form(), kit, busy))).toBe('E_WORLD_BUSY');
-  const [kept] = await requestsOf(directorate, kit, server.send);
+  const [kept] = await requestsOf(directorate, SCHOOL.directorateId, kit, server.send);
   expect(kept.delivered).toBe(false);
   await deliverRequest(id, kept.request, kit, server.send);
   expect(await opened(id, desk)).toEqual([kept.request]);
-  expect((await requestsOf(directorate, kit, server.send))[0].delivered).toBe(true);
+  expect((await requestsOf(directorate, SCHOOL.directorateId, kit, server.send))[0].delivered).toBe(true);
 });

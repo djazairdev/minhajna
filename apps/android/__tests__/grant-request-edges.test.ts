@@ -59,13 +59,13 @@ test('a space with no keyring, or of another kind, is no school to send to', asy
   await listSchool(id, { ...SCHOOL, id: 'school-4' }, bare, kit, server.send);
   const empty = requestGrant(directorate, SCHOOL.directorateId, form({ school: 'school-4' }), kit, server.send);
   expect(await codeOf(empty)).toBe('E_GRANT_UNLISTED');
-  expect(await requestsOf(directorate, kit, server.send)).toEqual([]);
+  expect(await requestsOf(directorate, SCHOOL.directorateId, kit, server.send)).toEqual([]);
   const other = await directorateSpace(id, SCHOOL.directorateId, kit.mac);
   await putRing(id, { ...desk.opened.ring, school: other });
   await listSchool(id, { ...SCHOOL, id: 'school-5' }, other, kit, server.send);
   const kind = requestGrant(directorate, SCHOOL.directorateId, form({ school: 'school-5' }), kit, server.send);
   expect(await codeOf(kind)).toBe('E_GRANT_UNLISTED');
-  expect(await requestsOf(directorate, kit, server.send)).toEqual([]);
+  expect(await requestsOf(directorate, SCHOOL.directorateId, kit, server.send)).toEqual([]);
   const full: Send = async (request) =>
     request.method === 'PUT' ? { status: 409, body: { error: 'full' }, retryAfter: null } : server.send(request);
   expect(await codeOf(openSpace(id, newSchoolSpace(kit.random), 'school', full))).toBe('E_WORLD_SERVER');
@@ -85,7 +85,7 @@ test('an erased world is said as erased, and a store that keeps nothing is said'
   const steps = [
     requestGrant(directorate, SCHOOL.directorateId, form(), kit, server.send),
     deliverRequest(id, request, kit, server.send),
-    requestsOf(directorate, kit, server.send),
+    requestsOf(directorate, SCHOOL.directorateId, kit, server.send),
     listSchool(id, SCHOOL, desk.held.school, kit, server.send),
   ];
   for (const step of steps) expect(await codeOf(step)).toBe('E_NO_SUCH_WORLD');
@@ -101,7 +101,7 @@ test('two schools’ requests are each read as delivered', async () => {
   await listSchool(id, { ...SCHOOL, id: 'school-3' }, other.held.school, kit, server.send);
   const first = await requestGrant(directorate, SCHOOL.directorateId, form(), kit, server.send);
   const second = await requestGrant(directorate, SCHOOL.directorateId, form({ school: 'school-3' }), kit, server.send);
-  const rows = await requestsOf(directorate, kit, server.send);
+  const rows = await requestsOf(directorate, SCHOOL.directorateId, kit, server.send);
   expect(rows.map((one) => [one.request.id, one.delivered])).toEqual([
     [first.id, true],
     [second.id, true],

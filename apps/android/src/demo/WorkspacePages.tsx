@@ -13,7 +13,8 @@
 // and access page for substitutes (#587, SchoolSubstitute.tsx), the director's
 // and the preparer's timetable page (#576, #577, #578), kept for the world it
 // was read in, and their own log (#573); any other page has none, and the
-// preparer never opens the records or the cover.
+// preparer never opens the records or the cover; the directorate's grants page
+// requests inspectors' grants from its schools (#593, DirectorateGrant.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -26,6 +27,7 @@ import { SchoolExchange } from '../director/SchoolExchange';
 import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
+import { DirectorateGrant } from '../directorate/DirectorateGrant';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
@@ -63,6 +65,10 @@ export function workspacePage(
   props: WorkspacePagesProps,
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
+  if (workspace === 'directorate' && page === 'grants')
+    return (
+      <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
+    );
   if (workspace === 'director' && page === 'dashboard')
     return (
       <DirectorDashboard
