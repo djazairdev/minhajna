@@ -107,7 +107,11 @@ export function laterUpdates(builtIn: string, applied: readonly AppliedUpdate[])
   return [...byRelease.values()].sort((a, b) => compareReleases(a.update.release, b.update.release));
 }
 
-function layered(entries: readonly CalendarEntry[], updates: readonly CalendarUpdate[]): Map<string, CalendarEntry> {
+/** The entries with the updates laid over them in the order given: each update's removals, then its entries by ID. */
+export function layeredCalendar(
+  entries: readonly CalendarEntry[],
+  updates: readonly CalendarUpdate[],
+): Map<string, CalendarEntry> {
   const byId = new Map(entries.map((entry) => [entry.id, entry]));
   for (const update of updates) {
     for (const id of update.removed) byId.delete(id);
@@ -126,7 +130,7 @@ export function updatedCalendar(
   return updates.length === 0
     ? [...entries]
     : [
-        ...layered(
+        ...layeredCalendar(
           entries,
           updates.map((one) => one.update),
         ).values(),
@@ -141,7 +145,7 @@ export function updatedReference(ref: Reference, applied: readonly AppliedUpdate
   return {
     ...ref,
     calendar: [
-      ...layered(
+      ...layeredCalendar(
         ref.calendar,
         updates.map((one) => one.update),
       ).values(),
@@ -181,7 +185,7 @@ export interface UpdateChange {
 export function updateChanges(context: Context, update: CalendarUpdate): UpdateChange[] {
   const now = new Map(context.ref.calendar.map((entry) => [entry.id, entry]));
   const later = laterUpdates(update.release, context.state.calendarUpdates).map((one) => one.update);
-  const after = layered(context.ref.calendar, [update, ...later]);
+  const after = layeredCalendar(context.ref.calendar, [update, ...later]);
   const changes: UpdateChange[] = [];
   for (const [id, entry] of after) {
     const before = now.get(id);

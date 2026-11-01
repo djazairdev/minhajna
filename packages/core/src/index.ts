@@ -86,6 +86,7 @@ export * from './school-substitution.ts';
 export * from './school-exchange.ts';
 export * from './spot-sheet.ts';
 export * from './calendar-draft.ts';
+export * from './world-calendar.ts';
 export * from './class-handover.ts';
 export * from './class-return.ts';
 export { isStaffId } from './school-key-shape.ts';
