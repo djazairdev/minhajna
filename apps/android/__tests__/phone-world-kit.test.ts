@@ -96,7 +96,7 @@ test('a world started through the phone kit is joined through it, with the world
   const started = await startWorld('teachers', calendar, kit, server.send);
   leaveWorldNetwork();
   const joined = await joinWorld(started.code, kit, server.send);
-  expect(joined).toEqual({ keys: started.keys, date: started.date });
+  expect(joined).toEqual({ keys: started.keys, date: started.date, sealing: started.sealing });
   const derived = calls.filter(([name]) => name === 'derive');
   expect(derived).toHaveLength(2);
   for (const [, secret, salt, rounds] of derived) {

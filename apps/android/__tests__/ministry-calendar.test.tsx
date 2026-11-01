@@ -59,7 +59,7 @@ test('the page lists the national entries, then a wilaya’s once chosen', async
   expect(entries()).toEqual(national);
   expect(texts()).toEqual(
     expect.arrayContaining([
-      words.lead,
+      words.lead.replace('{{release}}', isolate(withStorm.calendar.release)),
       words.source.replace('{{source}}', isolate(base[0].source)),
       words.confidence.replace('{{confidence}}', words.confidences.announced),
       words.foot,

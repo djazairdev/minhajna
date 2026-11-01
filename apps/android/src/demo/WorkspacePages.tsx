@@ -16,7 +16,8 @@
 // preparer never opens the records or the cover; the directorate's grants page
 // requests inspectors' grants from its schools (#593, DirectorateGrant.tsx);
 // and the Ministry's calendar page keys a draft of the world's calendar (#607,
-// MinistryCalendar.tsx).
+// MinistryCalendar.tsx), afresh over each release the world comes to hold
+// (#608).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -70,7 +71,15 @@ export function workspacePage(
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
   if (workspace === 'ministry' && page === 'calendar')
-    return <MinistryCalendar key={open.world} world={open} reference={reference} kit={kit} dayText={dayText} />;
+    return (
+      <MinistryCalendar
+        key={`${open.world}@${reference.calendar.release}`}
+        world={open}
+        reference={reference}
+        kit={kit}
+        dayText={dayText}
+      />
+    );
   if (workspace === 'directorate' && page === 'grants')
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />

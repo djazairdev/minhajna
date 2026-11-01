@@ -4157,6 +4157,7 @@
       "device": "This phone could not work out the world’s keys. Close the app and try again.",
       "other": "The demo server did not answer as expected. Try again.",
       "store": "This phone could not open the world’s store.",
+      "calendar": "The calendar the Ministry published in this world could not be read, so the pages show the one last read, or the one bundled with the app if none was read yet.",
       "pc": {
         "device": "This browser could not work out the world’s keys. Reload the page and try again.",
         "store": "This browser could not open the world’s store."
@@ -5711,7 +5712,7 @@
       "sheetFull": "The sheet has notes on more sessions than it keeps: delete some, then save."
     },
     "ministryCalendar": {
-      "lead": "The world’s calendar as this PC keys it: the bundled release with your draft over it, each entry with its source and how sure it is.",
+      "lead": "The world’s calendar as this PC keys it: release {{release}}, the latest the world holds, with your draft over it, each entry with its source and how sure it is.",
       "setAside": "The draft kept on this PC no longer fits the world’s calendar, so it was set aside; the next change starts a new draft.",
       "layer": "Show entries",
       "national": "National",
