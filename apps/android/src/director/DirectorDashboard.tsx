@@ -15,8 +15,10 @@
 // ranked by delay, coloured by person or timed. The row's panel, with the last
 // signed week, the threshold day's forecast and the visa, follows #549 and
 // #529; the teacher's own view, its classes alone, comes with the teacher's
-// world mode. Until #548 joins the seeded staff, no teacher has joined, so the
-// space holds no figures and each class shows where its teacher stands.
+// world mode. Who has joined is given (DashboardPage.tsx), with a line while it
+// is not known and an alert, with reading again, when the reading failed. Until
+// #549 signs a term of weeks the space holds no figures, so each class shows
+// where its teacher stands.
 
 import {
   dashboardCourses,
@@ -32,6 +34,7 @@ import {
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Switch } from '../components/Switch';
@@ -42,6 +45,7 @@ import { onPc, useDeviceText } from '../text/device-text';
 import { personName } from './dashboard-text';
 import { DashboardRow } from './DashboardRow';
 import { DashboardTable } from './DashboardTable';
+import type { JoinedNote, JoinedProblem } from './use-joined-teachers';
 
 type DashboardView = 'progress' | 'awaiting' | 'sessions';
 
@@ -51,17 +55,24 @@ export type DirectorDashboardProps = {
   readonly when: { readonly trial: TrialTerm | null; readonly date: Day };
   /** A day of the world, written out as the band writes it. */
   readonly dayText: (day: Day) => string;
-  /** Whether a teacher has joined the school's space; none has until #548. */
+  /** Whether a teacher has joined the school's space; none when not given. */
   readonly joined?: (teacherId: string) => boolean;
   /** A joined teacher's figures for a class and subject, as the school's space holds them. */
   readonly standing?: (classId: string, subject: string) => CourseStanding | null;
   /** The cover a teacher gave, from the cover log. */
   readonly cover?: (teacherId: string) => number;
+  /** What is said while who joined is not known, or null. */
+  readonly note?: JoinedNote | null;
+  /** Why reading who joined failed, or null. */
+  readonly problem?: JoinedProblem | null;
+  /** Reads who joined again, after a problem. */
+  readonly onAgain?: () => void;
 };
 
 /** The school's operational view for its director. */
 export function DirectorDashboard(props: DirectorDashboardProps) {
   const { school, profile, when, dayText, joined = () => false, standing = () => null, cover = () => 0 } = props;
+  const { note = null, problem = null, onAgain } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -77,6 +88,21 @@ export function DirectorDashboard(props: DirectorDashboardProps) {
   return (
     <View testID="director-dashboard" style={styles.page}>
       <Text style={[styles.small, align]}>{t('demo.dashboard.lead', { date: dayText(when.date) })}</Text>
+      {note === null ? null : (
+        <Text testID="dashboard-note" accessibilityLiveRegion="polite" style={[styles.small, align]}>
+          {t(note)}
+        </Text>
+      )}
+      {problem === null ? null : (
+        <View style={styles.card}>
+          <Text testID="dashboard-problem" accessibilityRole="alert" style={[styles.problem, align]}>
+            {t(problem)}
+          </Text>
+          {onAgain === undefined ? null : (
+            <Button testID="dashboard-again" variant="line" label={t('demo.dashboard.again')} onPress={onAgain} />
+          )}
+        </View>
+      )}
       <View testID="dashboard-threshold" style={styles.card}>
         <Text accessibilityRole="header" style={[styles.head, align]}>
           {t('demo.dashboard.threshold')}
@@ -169,4 +195,5 @@ const styles = StyleSheet.create({
   load: { paddingVertical: spacing['space-4'], gap: spacing['space-2'] },
   head: { ...typography.label, color: colors.ink },
   small: { ...typography.small, color: colors.ink2 },
+  problem: { ...typography.small, color: colors['error-ink'] },
 });
