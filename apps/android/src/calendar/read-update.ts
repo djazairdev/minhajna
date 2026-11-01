@@ -5,12 +5,15 @@
 // the signature is checked with a key the app trusts before anything in the
 // file is read, then the payload must be a calendar update for this country
 // and school year, or a plan pack's release for this country, of a kind the
-// key may sign. A calendar update weighs what a QR code carries; a pack, up
+// key may sign. A file that names a demo world, or is signed with a world's
+// key, is refused before its signature is checked, in words of its own (#608,
+// answer 624). A calendar update weighs what a QR code carries; a pack, up
 // to 1 MB. Only the outcome is kept: the file's text goes into the record
 // when the teacher applies it, and nowhere else.
 
 import {
   keySigns,
+  namesWorld,
   openSigned,
   PACK_BYTES,
   parseCalendarUpdate,
@@ -28,8 +31,9 @@ import {
   type Verifier,
 } from '@minhajna/core';
 
-/** Why a file was refused: its signature, its key's kinds, or what it holds once it checks. */
-export type UpdateProblem = SignedProblem | 'kind' | 'key-kind' | 'update-version' | 'country' | 'year' | 'content';
+/** Why a file was refused: a demo world's file, its signature, its key's kinds, or what it holds once it checks. */
+export type UpdateProblem =
+  SignedProblem | 'world' | 'kind' | 'key-kind' | 'update-version' | 'country' | 'year' | 'content';
 
 export type ReadUpdate =
   | {
@@ -68,6 +72,7 @@ export async function readUpdate(
   profile: CountryProfile,
   year: SchoolYear,
 ): Promise<ReadUpdate> {
+  if (text.length <= PACK_BYTES && namesWorld(text)) return { ok: false, problem: 'world' };
   const opened = await openSigned(text, keys, verify, PACK_BYTES);
   if (!opened.ok) return opened;
   const { key, payload } = opened;
