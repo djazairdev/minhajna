@@ -5832,7 +5832,42 @@
       "saved": "Brouillon enregistré sur ce PC.",
       "refused": "Cette modification ne peut pas entrer dans une mise à jour du calendrier.",
       "tooBig": "Le brouillon dépasserait ce qu’une mise à jour du calendrier peut contenir.",
-      "foot": "Le brouillon reste sur ce PC et n’est envoyé nulle part tant qu’il n’est pas publié pour les établissements et le personnel enseignant du monde."
+      "foot": "Le brouillon reste sur ce PC et n’est envoyé nulle part tant qu’il n’est pas publié pour les établissements et le personnel enseignant du monde.",
+      "add": "Ajouter une date",
+      "change": "Modifier",
+      "changeFor": "Modifier {{name}}",
+      "form": {
+        "newTitle": "Nouvelle date",
+        "changeTitle": "Modifier {{name}}",
+        "name": {
+          "ar": "Nom en arabe",
+          "fr": "Nom en français",
+          "en": "Nom en anglais"
+        },
+        "nameHint": "Tel qu’il figure au calendrier",
+        "optional": "facultatif",
+        "days": "Jours",
+        "from": "Premier jour",
+        "to": "Dernier jour",
+        "effect": "Effet",
+        "effectKept": "Effet : {{effect}}, qui ne se modifie pas ici",
+        "term": "Trimestre qu’elle clôt",
+        "termN": "Trimestre {{number}}",
+        "levels": "Cycles concernés ; aucun choix signifie tous les cycles",
+        "source": "Source",
+        "sourceHint": "Le texte ou le communiqué dont elle vient",
+        "confidence": "Certitude",
+        "reason": "Pourquoi les jours ont changé",
+        "reasonHint": "Une ligne, montrée avec la date",
+        "save": "Enregistrer dans le brouillon",
+        "cancel": "Annuler",
+        "needName": "Indiquez le nom en arabe.",
+        "needSource": "Indiquez la source.",
+        "needReason": "Indiquez pourquoi les jours ont changé.",
+        "needLevels": "Ces cycles laissent de côté des années que la date couvre ; choisissez tous leurs cycles, ou aucun.",
+        "missing": "Certains champs sont à corriger.",
+        "newIn": "Nouvelle date pour la wilaya {{wilaya}}"
+      }
     }
   },
   "chart": {

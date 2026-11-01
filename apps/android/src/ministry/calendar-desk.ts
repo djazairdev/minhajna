@@ -8,10 +8,10 @@
 // reads the draft as a calendar update first, so a change that could not be
 // published is refused in the page's words, apart for a draft too heavy to
 // sign, before anything is kept; it then keeps it in the world's store under
-// the world's date and shows it, and says so. Saving says it is saving, so a
-// second press waits; a problem keeping it is said in the catalogue's words,
-// and the draft shown stays as it was. Each problem is counted, so the same one
-// twice is said twice.
+// the world's date and shows it, and says so, telling the caller whether it was
+// kept. Saving says it is saving, so a second press waits; a problem keeping it
+// is said in the catalogue's words, and the draft shown stays as it was. Each
+// problem is counted, so the same one twice is said twice.
 
 import {
   keptCalendarDraft,
@@ -48,7 +48,8 @@ export interface CalendarDesk {
   readonly problems: number;
   /** How many savings this page made. */
   readonly saved: number;
-  readonly save: (draft: CalendarDraft) => void;
+  /** Keeps the draft; true once kept, false when refused, failed or already saving. */
+  readonly save: (draft: CalendarDraft) => Promise<boolean>;
 }
 
 /** The Ministry's draft of the world's calendar, kept on this PC. */
@@ -65,30 +66,29 @@ export function useCalendarDesk(world: Pick<OpenWorld, 'book' | 'date'>, referen
     said.current += 1;
     setProblem({ words, count: said.current });
   };
-  const save = (next: CalendarDraft) => {
-    if (working.current) return;
+  const save = async (next: CalendarDraft) => {
+    if (working.current) return false;
     const read = readCalendarDraft(next, base, profile, calendar.year);
     if ('problems' in read) {
       const heavy = read.problems.some((one) => one.path === 'size');
       say(heavy ? 'demo.ministryCalendar.tooBig' : 'demo.ministryCalendar.refused');
-      return;
+      return false;
     }
     working.current = true;
     setSaving(true);
     setProblem(null);
-    world.book
-      .record(world.date, { kind: 'ministry.calendar', draft: read.draft })
-      .then(
-        () => {
-          setKept({ draft: read.draft, setAside: false });
-          setSaved((count) => count + 1);
-        },
-        (error: unknown) => say(problemOf(error)),
-      )
-      .finally(() => {
-        working.current = false;
-        setSaving(false);
-      });
+    try {
+      await world.book.record(world.date, { kind: 'ministry.calendar', draft: read.draft });
+      setKept({ draft: read.draft, setAside: false });
+      setSaved((count) => count + 1);
+      return true;
+    } catch (error) {
+      say(problemOf(error));
+      return false;
+    } finally {
+      working.current = false;
+      setSaving(false);
+    }
   };
   return {
     base,

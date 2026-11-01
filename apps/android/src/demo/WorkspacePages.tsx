@@ -70,7 +70,7 @@ export function workspacePage(
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
   if (workspace === 'ministry' && page === 'calendar')
-    return <MinistryCalendar key={open.world} world={open} reference={reference} dayText={dayText} />;
+    return <MinistryCalendar key={open.world} world={open} reference={reference} kit={kit} dayText={dayText} />;
   if (workspace === 'directorate' && page === 'grants')
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
