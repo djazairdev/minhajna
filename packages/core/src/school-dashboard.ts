@@ -13,26 +13,18 @@
 // where that teacher stands with the school's space on the world's date:
 // joined, not joined during the trial term end, which leaves the class with its
 // timetable only, or to join after it. Once a joined teacher's figures are in
-// the space, it holds the class's standing: the progress statement every reader
-// sees, never the record before signing, whose delay counts only what the
-// buffers did not absorb, so ahead reads as no delay; and the sessions awaiting
-// confirmation, a count on the screen alone. Each teacher's weekly sessions
-// come from the timetable, in the school's order of its staff, with the cover
-// they gave, never set against a statutory load. Nothing here names a cause, a
-// clock time or a score, and nothing counts collective action (R-1.11-04). In a
-// demo world, the director's school is the world's first CEM.
+// the space, it holds the class's standing, read from the course's signed weeks
+// (week-standing.ts, answer 627), never the record before signing, and a class
+// is behind its plan when its latest week runs long. Each teacher's weekly
+// sessions come from the timetable, in the school's order of its staff, with
+// the cover they gave, never set against a statutory load. Nothing here names a
+// cause, a clock time or a score, and nothing counts collective action
+// (R-1.11-04). In a demo world, the director's school is the world's first CEM.
 
 import type { Day } from './day.ts';
 import type { DemoSchool, DemoSession, DemoTeacher, DemoWorld } from './demo-world.ts';
 import { spaceStanding, type SpaceStanding, type TrialTerm } from './school-trial.ts';
-import type { ProgressStatement } from './statement-read.ts';
-
-/** What the school's space holds for a class and subject once its teacher has joined. */
-export interface CourseStanding {
-  readonly statement: ProgressStatement;
-  /** Sessions awaiting confirmation: shown on the screen only, never printed, exported, totalled or kept. */
-  readonly awaiting: number;
-}
+import type { CourseStanding } from './week-standing.ts';
 
 /** A row of the dashboard: a class and subject, its teacher, where they stand, and the class's standing. */
 export interface DashboardCourse {
@@ -99,9 +91,9 @@ export function dashboardCourses(
   });
 }
 
-/** Whether a row's class is behind its plan: a whole session or more of delay, on its latest statement. */
+/** Whether a row's class is behind its plan: its latest signed week runs long. */
 export function courseBehind(course: DashboardCourse): boolean {
-  return (course.standing?.statement.delay.sessions ?? 0) > 0;
+  return course.standing?.runsLong === true;
 }
 
 /** The rows of one grade and one teacher, each of all when null, and only those behind when asked, in order. */

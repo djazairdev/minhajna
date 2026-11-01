@@ -12,17 +12,16 @@
 // classes behind count none without figures; each teacher's sessions and cover
 // in the staff's order, the staff's order said under them and the classes'
 // under the others. Given a joined teacher's figures, the PC's table gives the
-// place in the plan, the delay in weeks for a week pack and in sessions
-// otherwise, the buffer and the sessions not held apart, each in its column,
-// the phone's row the same in one line, the sessions awaiting confirmation in
-// their own view, and a vacant post says so. Every world, school and person is
-// made up.
+// place in the plan, the pace, how far the class reached and the sessions not
+// held, closures' and others' apart, each in its column (answer 627), the
+// phone's row the same in one line, the sessions awaiting confirmation in their
+// own view, and a vacant post says so. Every world, school and person is made
+// up.
 
 import {
   dashboardCourses,
   directorSchool,
   seedNationalWorld,
-  STATEMENT_FORMAT,
   type CourseStanding,
   type Day,
   type SchoolCalendar,
@@ -170,23 +169,15 @@ test('once the seeded key is taken, every seeded teacher reads joined, with no s
   expect(texts().some((one) => one.startsWith(board.notJoined.split(' · ')[0]))).toBe(false);
 });
 
-test('a joined class shows its place, delay, buffer and sessions not held, and awaiting apart', async () => {
+test('a joined class shows its place, pace, reach and sessions not held, and awaiting apart', async () => {
   const { zones = [], workingDays } = reference.profile;
   const school = directorSchool(seedNationalWorld('ABCDE', zones, workingDays, reference.packs))!;
   const first = school.classes[0];
   const late: CourseStanding = {
-    statement: {
-      format: STATEMENT_FORMAT,
-      version: { major: 1, minor: 0 },
-      day: '2026-12-01' as Day,
-      class: { level: 'cem', grade: first.grade, section: '1', subject: 'math', year: '2026-2027' },
-      pack: { id: 'made-up-pack', release: '2026.1' },
-      lastUnit: null,
-      lastResource: { id: 'r4', title: 'Made-up resource 4', status: 'done' },
-      delay: { sessions: 2, weeks: 1, bufferUsed: 3, bufferLeft: 0 },
-      notHeld: { calendar: 1, other: 2 },
-      td: { calendar: 0, other: 0 },
-    },
+    position: { id: 'r4', title: 'Made-up resource 4' },
+    reached: 437,
+    runsLong: true,
+    notHeld: { closure: 1, other: 2 },
     awaiting: 3,
   };
   const vacant = { ...school, teachers: school.teachers.filter((one) => one.subject !== 'french') };
@@ -203,7 +194,7 @@ test('a joined class shows its place, delay, buffer and sessions not held, and a
     );
     await settle();
   });
-  const weeks = text.classPlan.weeksBehind.replace('{{weeks}}', text.count.weeks_one);
+  const long = board.runsLong;
   const cells = (testID: string) =>
     tree!.root
       .findAll((node) => node.props.testID === testID && typeof node.type === 'string')[0]
@@ -216,7 +207,7 @@ test('a joined class shows its place, delay, buffer and sessions not held, and a
           .map((one) => [(one.props as TextProps).children].flat().map(String).join(''))
           .join(''),
       );
-  expect(cells(`dashboard-row-${first.id}-math`).slice(3)).toEqual(['Made-up resource 4', weeks, '3', '1', '2']);
+  expect(cells(`dashboard-row-${first.id}-math`).slice(3)).toEqual(['Made-up resource 4', long, '43%', '1', '2']);
   expect(texts()).toEqual(expect.arrayContaining([board.noFigures, board.vacant, board.noTeacher]));
   const spans = tree!.root.findAll((node) => node.props['aria-colspan'] !== undefined && typeof node.type === 'string');
   expect(spans.length).toBeGreaterThan(0);
@@ -233,18 +224,17 @@ test('a joined class shows its place, delay, buffer and sessions not held, and a
   expect(shownRows()).toEqual([`dashboard-row-${first.id}-math`]);
   await press('dashboard-view-awaiting');
   expect(texts()).toContain(board.awaiting.replace('{{count}}', '3'));
-  expect(texts()).not.toContain(weeks);
+  expect(texts()).not.toContain(long);
   jest.replaceProperty(Platform, 'OS', 'android');
   await press('dashboard-view-progress');
-  const sessions = text.classes.behind.replace('{{sessions}}', text.count.sessions_two);
-  const line = (delay: string) =>
+  const line = (pace: string) =>
     board.standing
       .replace('{{position}}', 'Made-up resource 4')
-      .replace('{{delay}}', delay)
-      .replace('{{buffer}}', '3')
-      .replace('{{calendar}}', '1')
+      .replace('{{pace}}', pace)
+      .replace('{{reached}}', '43')
+      .replace('{{closure}}', '1')
       .replace('{{other}}', '2');
-  expect(texts()).toContain(line(weeks));
+  expect(texts()).toContain(line(long));
   expect(tree!.root.findAll((node) => node.props.role === 'table' && typeof node.type === 'string')).toHaveLength(0);
   await ReactTestRenderer.act(async () => {
     tree!.update(
@@ -255,13 +245,18 @@ test('a joined class shows its place, delay, buffer and sessions not held, and a
         dayText={(day) => day}
         joined={() => true}
         standing={(classId, subject) =>
-          classId === first.id && subject === 'math'
-            ? { ...late, statement: { ...late.statement, delay: { ...late.statement.delay, weeks: null } } }
-            : null
+          classId === first.id && subject === 'math' ? { ...late, runsLong: false, position: null } : null
         }
       />,
     );
     await settle();
   });
-  expect(texts()).toContain(line(sessions));
+  expect(shownRows()).toEqual([]);
+  await press('dashboard-behind', false);
+  expect(texts()).toContain(line(board.onPace).replace('Made-up resource 4', board.noPosition));
+  jest.replaceProperty(Platform, 'OS', 'web');
+  await press('dashboard-view-awaiting');
+  await press('dashboard-view-progress');
+  expect(cells(`dashboard-row-${first.id}-math`).slice(3)).toEqual([board.noPosition, board.onPace, '43%', '1', '2']);
+  expect(texts()).toEqual(expect.arrayContaining(Object.values(board.column)));
 });

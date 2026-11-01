@@ -4,17 +4,17 @@
 // A row of the director's dashboard (#569, answer 591), as one element for
 // TalkBack: the class and subject, the teacher the timetable names or the
 // vacant post, and one line for the chosen view. A joined class with figures
-// gives its place in the plan, its delay, the buffer used and the sessions not
-// held, the calendar's and others' apart, or the sessions awaiting
-// confirmation; a class without them says why (dashboard-text.ts). On a PC the
-// progress view is a table instead (DashboardTable.tsx).
+// gives its place in the plan, its pace, how far it reached and the sessions
+// not held, closures' and others' apart, or the sessions awaiting confirmation;
+// a class without them says why (dashboard-text.ts). On a PC the progress view
+// is a table instead (DashboardTable.tsx).
 
 import type { DashboardCourse, DemoSchool } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
-import { delayText, personName, positionText, waitingText } from './dashboard-text';
+import { paceText, personName, positionText, reachedText, waitingText } from './dashboard-text';
 
 export type DashboardRowProps = {
   readonly school: DemoSchool;
@@ -37,11 +37,11 @@ export function DashboardRow({ school, course, subject, view }: DashboardRowProp
       : view === 'awaiting'
         ? t('demo.dashboard.awaiting', { count: standing.awaiting })
         : t('demo.dashboard.standing', {
-            position: positionText(t, standing.statement),
-            delay: delayText(t, standing.statement),
-            buffer: standing.statement.delay.bufferUsed,
-            calendar: standing.statement.notHeld.calendar,
-            other: standing.statement.notHeld.other,
+            position: positionText(t, standing),
+            pace: paceText(t, standing),
+            reached: reachedText(standing),
+            closure: standing.notHeld.closure,
+            other: standing.notHeld.other,
           }));
   return (
     <View testID={`dashboard-row-${course.classId}-${course.subject}`} accessible style={styles.row}>
