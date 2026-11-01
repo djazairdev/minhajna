@@ -5707,6 +5707,19 @@
       "gone": "La demande n’est plus adressée à cet appareil.",
       "wrongPrint": "L’empreinte ne correspond pas à la clé de l’inspection. Vérifiez-la dans le courrier officiel de l’inspection.",
       "lapsedRefused": "La demande a expiré : elle ne peut plus être accordée."
+    },
+    "accessLog": {
+      "title": "Journal des consultations",
+      "none": "Aucun accès n’a été accordé à mes registres.",
+      "when": "{{day}} · inspection",
+      "grant": "{{label}} : accès accordé par la direction de l’éducation au cahier de textes et au journal de classe pour {{weeks}} ({{classes}}), jusqu’au {{until}}",
+      "grantNoClasses": "{{label}} : accès accordé par la direction de l’éducation au cahier de textes et au journal de classe pour {{weeks}}, jusqu’au {{until}}",
+      "weeks_one": "une semaine signée",
+      "weeks_many": "{{count}} semaines signées",
+      "weeks_other": "{{count}} semaines signées",
+      "ended": "L’accès a pris fin le {{until}}.",
+      "foot": "Les accès à mes registres apparaissent ici, avec leur date et sans heure.",
+      "given": "L’accès s’affiche tel qu’il figure dans l’espace de l’établissement."
     }
   },
   "chart": {

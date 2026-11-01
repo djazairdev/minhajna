@@ -5628,6 +5628,18 @@
       "gone": "The request is no longer addressed to this device.",
       "wrongPrint": "The fingerprint does not match the inspector’s key. Check it against the inspectorate’s official message.",
       "lapsedRefused": "The request has lapsed, so it cannot be granted."
+    },
+    "accessLog": {
+      "title": "Access log",
+      "none": "No access to my records has been granted.",
+      "when": "{{day}} · inspector",
+      "grant": "{{label}}: access granted by the directorate to the texts book and daily notebook for {{weeks}} ({{classes}}), until {{until}}",
+      "grantNoClasses": "{{label}}: access granted by the directorate to the texts book and daily notebook for {{weeks}}, until {{until}}",
+      "weeks_one": "one signed week",
+      "weeks_other": "{{count}} signed weeks",
+      "ended": "The grant ended on {{until}}.",
+      "foot": "Grants of access to my records show here, by date and without a time.",
+      "given": "A grant shows as it was given in the school’s space."
     }
   },
   "chart": {

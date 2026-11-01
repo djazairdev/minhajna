@@ -18,11 +18,12 @@
 // threshold day come with a plan pack, or else that no week of it is signed
 // this term; between terms no course is listed; that awaiting confirmation is
 // no absence, is never printed and never leaves the screen, and that the space
-// keeps no confirmation day, ranking, colours for people or clock times; and
-// buttons that open the term report (SchoolMineReport.tsx) and Week-sign, whose
-// ways back return here; what it reads comes from useMineTerm.ts. A problem
-// reading is shown in the catalogue's words, said off a PC, with a way to read
-// again.
+// keeps no confirmation day, ranking, colours for people or clock times; the
+// access log of inspectors' grants over the teacher's weeks (AccessLog.tsx,
+// #593); and buttons that open the term report (SchoolMineReport.tsx) and
+// Week-sign, whose ways back return here; what it reads comes from
+// useMineTerm.ts. A problem reading is shown in the catalogue's words, said off
+// a PC, with a way to read again.
 
 import {
   compareDays,
@@ -42,6 +43,7 @@ import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 import { hoursOf } from '../timetable/teacher-session';
 import { hoursText } from '../timetable/version-text';
+import { AccessLog } from './AccessLog';
 import { isolate } from './grid-labels';
 import { classPlace, type MineCalendar } from './school-mine-session';
 import { useSaid } from './useSaid';
@@ -186,6 +188,9 @@ export function SchoolMine(props: SchoolMineProps) {
         </View>
       ))}
       <Text style={[styles.small, align]}>{t('demo.mine.foot')}</Text>
+      {channel !== null && (
+        <AccessLog notices={channel.notices} weeks={channel.weeks} date={world.date} dayText={dayText} />
+      )}
       <Button testID="mine-report" variant="line" label={t('demo.report.open')} onPress={props.onReport} />
       <Button testID="mine-sign" variant="line" label={t('demo.weekSign.open')} onPress={props.onSign} />
     </WeekPage>
