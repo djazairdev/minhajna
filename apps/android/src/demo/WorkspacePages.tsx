@@ -28,6 +28,7 @@ import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
+import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
@@ -147,6 +148,8 @@ export function workspacePage(
         kit={kit}
         send={send}
         dayText={dayText}
+        subjectName={(code) => subjectName(reference.profile, code)}
+        workingDays={reference.profile.workingDays}
       />
     );
   return null;

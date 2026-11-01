@@ -43,8 +43,8 @@ import { SECOND, signedTerm } from './term-weeks';
 import { school, server } from './timetable-send';
 import { nodeKit as kit } from './world-server';
 
-/** The term's school as the director's device knows it, with its directorate. */
-export const STAFFED = { ...school, directorateId: SCHOOL.directorateId };
+/** The term's school as the director's device knows it, with its seeded ID and directorate. */
+export const STAFFED = { ...school, ...SCHOOL };
 export const LABEL = 'Made-up inspector of district 3';
 /** The two weeks of 1م2 the term signed, by their first days. */
 export const WEEKS = [parseDay('2027-01-03'), parseDay('2027-01-10')];

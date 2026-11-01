@@ -4,16 +4,18 @@
 // The grant requests on the director's device in a demo world (#593, answer
 // 621): with the school key held on this device, not started, the requests on
 // the school's request stream sealed for this device, each once, in the order
-// they came, and the school's records of the grants it made, read on the
-// stream of every epoch of the keyring, each grant once. Each request resolves
-// to the signed weeks of its classes' courses in its range, as the director
-// reads the records (records-session.ts), each with its class and teacher, and
-// to the classes with none, under the keyring's latest epoch; a course's week
-// read from two teachers' channels is taken at its highest version, the first
-// read winning a tie. A request reads as lapsed once the world's date is past
-// its end, and as relayed when a relay for it is on its inspector's stream of
-// the directorate's space, a claim; a directorate's space not there yet holds
-// none. Errors carry world-session.ts's codes and those of holding the key.
+// they came, and the school's records of the grants it made, read on the stream
+// of every epoch of the keyring, each grant once. Each request resolves to the
+// signed weeks of its classes' courses in its range, as the director reads the
+// records (records-session.ts), each with its class and teacher, and to the
+// classes with none, under the keyring's latest epoch, and to the classes it
+// opens: those of the grant made, as this device reads its weeks, or else those
+// of its signed weeks; a course's week read from two teachers' channels is
+// taken at its highest version, the first read winning a tie. A request reads
+// as lapsed once the world's date is past its end, and as relayed when a relay
+// for it is on its inspector's stream of the directorate's space, a claim; a
+// directorate's space not there yet holds none. Errors carry world-session.ts's
+// codes and those of holding the key.
 
 import {
   compareDays,
@@ -59,6 +61,8 @@ export interface AskedGrant {
   /** The school's record of the grant made for it, the first recorded, or null. */
   readonly made: GrantMade | null;
   readonly weeks: readonly ResolvedWeek[];
+  /** The classes the grant made opens, or else those its signed weeks would, each once, as their weeks name them. */
+  readonly opens: readonly string[];
   /** The classes the request names that have no signed week in its range. */
   readonly missing: readonly string[];
   readonly lapsed: boolean;
@@ -150,10 +154,15 @@ export async function readGrants(
   const asked: AskedGrant[] = [];
   for (const request of requests) {
     const resolved = await kitStep(() => grantWeeksOf(request, seen, epoch, kit.mac));
+    const kept = made.find((one) => one.request === request.id) ?? null;
+    const named = (kept?.grant.weeks ?? resolved.weeks).flatMap(
+      (one) => signed.get(weekName(one.course, one.week)) ?? [],
+    );
     asked.push({
       request,
-      made: made.find((one) => one.request === request.id) ?? null,
+      made: kept,
       weeks: resolved.weeks.flatMap((one) => signed.get(weekName(one.course, one.week)) ?? []),
+      opens: [...new Set(named.map((one) => one.class))],
       missing: resolved.missing,
       lapsed: compareDays(world.date, request.until) > 0,
       relayed: relayed.get(request.inspector.publicKey)?.has(request.id) ?? false,

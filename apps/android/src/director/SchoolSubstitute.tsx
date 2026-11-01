@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The director's assignments and access page in a demo world (#587, #588,
-// D-Substitute, §7.5, §7.8, R-7.5-07, R-7.5-15, R-7.8-11, answers 615 and 616):
-// that the appointment is the directorate's decision, which the school only
-// records; as it opens it reads the page (substitute-session.ts), and a problem
-// reading is shown in the catalogue's words, said on the PC in its live line
-// and announced on a phone, with a way to read again. The form
+// The director's assignments and access page in a demo world (#587, #588, #593,
+// D-Substitute, §7.5, §7.8, R-7.5-07, R-7.5-15, R-7.8-11, answers 615, 616 and
+// 621): that the appointment is the directorate's decision, which the school
+// only records; as it opens it reads the page (substitute-session.ts), and a
+// problem reading is shown in the catalogue's words, said on the PC in its live
+// line and announced on a phone, with a way to read again. The form
 // (SubstituteForm.tsx) records an appointment, one change at a time, said once
 // kept or in the page's words when refused, and the page is read again, the
 // form emptied. The appointments list each one as AppointmentRow.tsx shows it:
@@ -14,11 +14,11 @@
 // return on a day chosen (substitute-end.ts), and the classes' return, sent
 // again when not all back; each change is said once made or in the page's words
 // when refused, the holder or the substitute not joined included, and the page
-// is read again. Inspectors' access comes from the supervising authority, never
-// the director, and a world has no grant; nothing grants or extends it here;
-// and the page lists what never happens in Minhajna.
+// is read again. The inspectors' access (GrantAccess.tsx) lists the
+// directorate's requests to this device and the grants made, read again with
+// the page; and the page lists what never happens in Minhajna.
 
-import type { BellTimes, Day, DemoSchool, SchoolSubstitution } from '@minhajna/core';
+import type { BellTimes, Day, DemoSchool, SchoolSubstitution, Weekday } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
@@ -30,6 +30,7 @@ import { errorCode } from '../lock/lock-rules';
 import { problemOf } from '../school/school-join-session';
 import { onPc, useDeviceText } from '../text/device-text';
 import { AppointmentRow } from './AppointmentRow';
+import { GrantAccess } from './GrantAccess';
 import { endSubstitution, sendReturn } from './substitute-end';
 import { appoint, readSubstitutes, sendHandover, type Appointing, type SubstituteDesk } from './substitute-session';
 import { SubstituteForm } from './SubstituteForm';
@@ -41,6 +42,8 @@ export type SchoolSubstituteProps = {
   readonly kit: WorldKit;
   readonly send?: Send;
   readonly dayText: (day: Day) => string;
+  readonly subjectName: (code: string) => string;
+  readonly workingDays: readonly Weekday[];
 };
 
 const NEVER = ['evaluate', 'transfer', 'pay', 'links'] as const;
@@ -63,7 +66,7 @@ const problemKey = (error: unknown) => {
 
 /** The director's assignments and access page: a substitute's appointment, the appointments, and inspectors' access. */
 export function SchoolSubstitute(props: SchoolSubstituteProps) {
-  const { world, school, bells, kit, send, dayText } = props;
+  const { world, school, bells, kit, send, dayText, subjectName, workingDays } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -72,6 +75,7 @@ export function SchoolSubstitute(props: SchoolSubstituteProps) {
   const [problem, setProblem] = useState<ReturnType<typeof problemOf> | null>(null);
   const [said, setSaid] = useState('');
   const [busy, setBusy] = useState(false);
+  const [round, setRound] = useState(0);
   const mounted = useRef(true);
   const going = useRef(false);
   const say = (text: string) => {
@@ -94,6 +98,7 @@ export function SchoolSubstitute(props: SchoolSubstituteProps) {
       },
     );
   const load = () => {
+    setRound((before) => before + 1);
     setReading(true);
     setProblem(null);
     setSaid('');
@@ -167,14 +172,16 @@ export function SchoolSubstitute(props: SchoolSubstituteProps) {
           ))}
         </View>
       )}
-      <View testID="substitute-grants" style={styles.card}>
-        <Text accessibilityRole="header" style={[styles.head, align]}>
-          {t('demo.substitute.grants')}
-        </Text>
-        <Text style={[styles.small, align]}>{t('demo.substitute.grantsLead')}</Text>
-        <Text style={[styles.body, align]}>{t('demo.substitute.noGrant')}</Text>
-        <Text style={[styles.small, align]}>{t('demo.substitute.grantsHere')}</Text>
-      </View>
+      <GrantAccess
+        world={world}
+        school={school}
+        subjectName={subjectName}
+        workingDays={workingDays}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+        round={round}
+      />
       <View style={styles.card}>
         <Text accessibilityRole="header" style={[styles.head, align]}>
           {t('demo.substitute.never')}
