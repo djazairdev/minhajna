@@ -4,11 +4,13 @@
 // The demo server's relay and stand-in CA for the app's tests (#564), on the
 // server's own code: its memory store of spaces and sealed batches, its rules
 // for what a space and an upload carry, and its CA, whose key each world gets
-// when first asked and which certifies on the world's date.
+// when first asked and which certifies on the world's date, and its stand-in
+// for the state's receiving system (state-standin.ts, #591).
 
 import { isSpaceId, MAX_PAGE, readSpace, readUpload } from '../../server/src/spaces/space-rules';
 import { MemorySpaceStore } from '../../server/src/spaces/space-store';
 import { caPublicKey, issueCertificate, newCaKey, readCertificateRequest } from '../../server/src/worlds/stand-in-ca';
+import { StateStandIn } from './state-standin';
 
 const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 
@@ -26,11 +28,13 @@ export interface RelayRequest {
 
 export class WorldRelay {
   spaces = new MemorySpaceStore();
+  readonly state = new StateStandIn();
   private readonly cas = new Map<string, string>();
 
   reset(): void {
     this.spaces = new MemorySpaceStore();
     this.cas.clear();
+    this.state.reset();
   }
 
   /** The world's CA key, made when first asked. */
@@ -50,6 +54,9 @@ export class WorldRelay {
       return typeof read === 'string'
         ? reply(400, { error: read })
         : reply(201, issueCertificate(read, date, this.caKey(world)));
+    }
+    if (first === 'state' && last === undefined) {
+      return this.state.route(world, date, method, space, body, () => this.caKey(world));
     }
     if (first !== 'spaces' || more.length > 0) return reply(404, {});
     if (last === undefined && method === 'PUT') {

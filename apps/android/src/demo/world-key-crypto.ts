@@ -15,7 +15,8 @@
 // whatever the platform's import checks, and what does not open answer null,
 // while any other failure, such as a broken private half or a kit that is
 // closed, is thrown, so it never reads as a device removed from the keyring.
-// The MAC is the kit's.
+// The MAC is the kit's. The same sealing seals a term's marks for the state's
+// stand-in receiving system (#591), to its public half.
 
 import { toHex, type KeyCrypto } from '@minhajna/core';
 import { fromHex } from '../storage/history';
@@ -62,19 +63,22 @@ async function hkdf(kit: WorldKit, secret: Uint8Array, salt: Uint8Array, info: s
   return kit.mac(pseudo, join(encoder.encode(info), new Uint8Array([1])));
 }
 
+/** Seals bytes to a P-256 public half under `info`: the fresh public half, then the kit's cipher output. */
+export async function sealTo(kit: WorldKit, plain: Uint8Array, publicKey: Uint8Array, info: string) {
+  if (!isPoint(publicKey)) throw new RangeError('Not a device’s public key');
+  const fresh = await kit.newAgreement();
+  const secret = await kit.agree(fresh.pkcs8, publicKey);
+  const sealing = await hkdf(kit, secret, join(fresh.publicKey, publicKey), info);
+  return join(fresh.publicKey, await kit.cipher.seal(sealing, plain, encoder.encode(info)));
+}
+
 /** The device's KeyCrypto in a world, from the world kit and the device's own pair. */
 export function worldKeyCrypto(kit: WorldKit, own: DevicePair): KeyCrypto {
   const mine = fromHex(own.publicKey);
   return {
     publicKeyBytes: POINT,
     mac: (key, data) => kit.mac(key, data),
-    async seal(key, publicKey, info) {
-      if (!isPoint(publicKey)) throw new RangeError('Not a device’s public key');
-      const fresh = await kit.newAgreement();
-      const secret = await kit.agree(fresh.pkcs8, publicKey);
-      const sealing = await hkdf(kit, secret, join(fresh.publicKey, publicKey), info);
-      return join(fresh.publicKey, await kit.cipher.seal(sealing, key, encoder.encode(info)));
-    },
+    seal: (key, publicKey, info) => sealTo(kit, key, publicKey, info),
     async open(sealed, info) {
       if (sealed.length < SHORTEST) return null;
       const fresh = sealed.subarray(0, POINT);

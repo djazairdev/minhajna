@@ -9,13 +9,14 @@
 // teacher's classes as the director sees them (SchoolMine.tsx), which opens the
 // week to sign and the term report (SchoolMineReport.tsx), the classes handed
 // over to the teacher as a substitute (HandoverSchool.tsx), those come back at
-// the end of one (ReturnSchool.tsx), and what stays and goes on leaving
-// (Leave.tsx), when the year's dates read; each gets what School-join said as
-// it opened, and goes back to School-join, but Week-sign opened from the digest
-// or the classes, and the term report, which go back to the page that opened
-// them; each opens another page through School-join's view.
+// the end of one (ReturnSchool.tsx), the term's marks to send to the state's
+// stand-in (TermSend.tsx), and what stays and goes on leaving (Leave.tsx), when
+// the year's dates read; each gets what School-join said as it opened, and goes
+// back to School-join, but Week-sign opened from the digest or the classes, and
+// the term report, which go back to the page that opened them; each opens
+// another page through School-join's view.
 
-import type { Day, LeavingDates, Subject, Weekday } from '@minhajna/core';
+import type { Day, DemoSchool, LeavingDates, Subject, Weekday } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
@@ -30,6 +31,7 @@ import { HandoverSchool } from './HandoverSchool';
 import { Leave } from './Leave';
 import { NationalHelp } from './NationalHelp';
 import { ReturnSchool } from './ReturnSchool';
+import { TermSend } from './TermSend';
 import type { JoinedView, JoinPage } from './join-view';
 
 export type JoinedPagesProps = {
@@ -50,6 +52,8 @@ export type JoinedPagesProps = {
   readonly onJoin: () => void;
   /** The joined school's calendar, for its term and closures. */
   readonly mine?: MineCalendar;
+  /** The world's school, rebuilt from the world's ID, whose classes list their pupils. */
+  readonly school?: DemoSchool | null;
   /** Opens another joined page, such as the week to sign on a course, going back to the page that opened it. */
   readonly onPage: (view: JoinedView) => void;
 };
@@ -82,5 +86,8 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
   if (view.page === 'handover') return <HandoverSchool {...channel} />;
   if (view.page === 'return') return <ReturnSchool {...channel} />;
   if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
+  if (view.page === 'termSend') {
+    return <TermSend {...channel} subjects={subjects} mine={props.mine} school={props.school} />;
+  }
   return dates === null ? null : <Leave {...shown} year={year} dates={dates} onJoin={onJoin} />;
 }

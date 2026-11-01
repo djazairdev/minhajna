@@ -8,10 +8,10 @@
 // page that opened it, or the weekly digest, or the teacher's classes as the
 // director sees them, or their term report, opened from the classes and going
 // back to them (#584), or the classes handed over as a substitute (#587), or
-// those come back at its end (#588). Going back, by a page's button or
-// Android's back, returns to School-join, and from it to the world's home;
-// Leave's way to the next school returns to School-join with the code's card
-// scrolled into view, once it is laid out.
+// those come back at its end (#588), or the term's marks to send (#591). Going
+// back, by a page's button or Android's back, returns to School-join, and from
+// it to the world's home; Leave's way to the next school returns to School-join
+// with the code's card scrolled into view, once it is laid out.
 
 import type { SchoolJoined } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -19,7 +19,17 @@ import { BackHandler, type LayoutChangeEvent, type ScrollViewInstance } from 're
 
 /** A joined card's own pages. */
 export type JoinPage =
-  'devices' | 'leave' | 'help' | 'timetable' | 'week' | 'digest' | 'mine' | 'report' | 'handover' | 'return';
+  | 'devices'
+  | 'leave'
+  | 'help'
+  | 'timetable'
+  | 'week'
+  | 'digest'
+  | 'mine'
+  | 'report'
+  | 'handover'
+  | 'return'
+  | 'termSend';
 
 /** A joined card's page on view: on a course when one was chosen, and the page its way back returns to. */
 export type JoinedView = {

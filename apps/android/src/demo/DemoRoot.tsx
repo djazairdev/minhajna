@@ -201,6 +201,7 @@ export function DemoRoot({
         workingDays={reference?.profile.workingDays}
         subjects={reference?.profile.subjects}
         mine={reference && mineOf(reference, calendar, school)}
+        school={school}
         onClose={() => setJoining(false)}
       />
     );
