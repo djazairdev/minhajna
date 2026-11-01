@@ -18,7 +18,7 @@ A world is named by the first five characters of its code; the rest of the code 
 
 - **Probing:** a wrong pass answers exactly as an unknown id, and takes as long. Only a start can tell that an id is taken (`409`), and starts are the most limited requests.
 - **The starter token** is kept only as its SHA-256 hash, so the store alone cannot move a date. No answer may be cached (`Cache-Control: no-store`).
-- **Rate limits:** each address may start 5 worlds an hour, make 60 other world requests and 1,200 relay requests in 10 minutes, and store 20,000 batches a day (about 82 MB), with totals for everyone (140,000 batches a day, so a week of them fits the server's cap). Only batches stored count: a refused upload costs nothing. An IPv6 address counts by its /64. Addresses stay in memory until the first request after their window, up to a day for uploads, and are never logged or stored. `TRUST_PROXY=cloudflare` reads the address from Cloudflare's header.
+- **Rate limits:** each address may start 5 worlds an hour, make 60 other world requests and 1,200 relay requests in 10 minutes, and store 20,000 batches a day (about 82 MB), with totals for everyone (140,000 batches a day, so a week of them fits the server's cap: about 11 seeded worlds a day whose every school's term is filled, answer 626). Only batches stored count: a refused upload costs nothing. An IPv6 address counts by its /64. Addresses stay in memory until the first request after their window, up to a day for uploads, and are never logged or stored. `TRUST_PROXY=cloudflare` reads the address from Cloudflare's header.
 
 ## The encrypted relay
 
@@ -34,7 +34,7 @@ Inside a world, with its pass, clients exchange sealed records through spaces: o
 - **Seeding:** only the device that started a world, with its starter token, seeds it (the server cannot tell a world's kind, so any world may be seeded), in about a dozen requests for 68 schools and 462 teachers (answers 625 and 626). A seeding counts once against the relay's limit and by batch against the daily quota; a refusal stops it there and keeps what came before, so a start that fails is started again, and the half-seeded world is erased on its 7th day, since nobody holds its code.
 - **One size:** every batch is exactly 4,124 bytes: the core's 4,096-byte batch sealed with AES-256-GCM. Anything else is refused, so a batch's size says nothing.
 - **The minimum:** the server keeps each space's id and kind, and each batch's stream, number, arrival order and sealed bytes. No names, no times, no addresses.
-- **Caps:** a world holds at most 2,000 spaces and 10,000 batches (about 41 MB). The server holds at most 1,000,000 batches in PostgreSQL (about 4 GB), or 50,000 in memory (about 206 MB), and answers `507` beyond; uploads to different worlds at the same moment may pass that cap by a few.
+- **Caps:** a world holds at most 2,000 spaces and 16,384 batches (about 68 MB), room for every seeded school's term (answer 626). The server holds at most 1,000,000 batches in PostgreSQL (about 4 GB), or 50,000 in memory (about 206 MB), and answers `507` beyond; uploads to different worlds at the same moment may pass that cap by a few.
 
 ## The stand-in CA
 

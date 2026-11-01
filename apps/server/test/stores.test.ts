@@ -121,7 +121,7 @@ for (const kind of KINDS) {
         assert.equal(await spaces.addSpace('AAAAA', 'space-0', 'school'), 'same');
         assert.equal(await spaces.addSpace('AAAAA', 'space-0', 'national'), 'other');
         assert.equal(await spaces.addSpace('BBBBB', 'one-too-many', 'school'), 'added');
-        const chunk = Array.from({ length: 2_000 }, () => new Uint8Array(1));
+        const chunk = Array.from({ length: 2_048 }, () => new Uint8Array(1));
         for (let first = 0; first < MAX_BATCHES; first += chunk.length) {
           assert.equal(await spaces.addBatches('AAAAA', 'space-0', 'stream', first, chunk), 'added');
         }
