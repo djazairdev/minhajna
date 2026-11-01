@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the server accepts for a world (choice D3 of the 0.7.0 demo): an id
-// of five characters from the world code's alphabet, a sealed world in
-// base64url, a date and the announced days the date moves through, and the
-// world's pass, which the device derives from the code's secret. The server
-// keeps the pass and the starter token only as hashes: whoever reads the
-// store can neither enter the world nor move its date.
+// What the server accepts for a world (choice D3 of the 0.7.0 demo): an id of
+// five characters from the world code's alphabet, a sealed world in base64url,
+// a date and the announced days the date moves through, and the world's pass,
+// which the device derives from the code's secret; later, the announced days
+// after the date that a published calendar gives (#608). The server keeps the
+// pass and the starter token only as hashes: whoever reads the store can
+// neither enter the world nor move its date.
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
@@ -52,6 +53,27 @@ export function readWorldStart(body: unknown): WorldStart | string {
   }
   if (typeof pass !== 'string' || !PASS.test(pass)) return 'pass must be 32 bytes in base64url';
   return { id: world, sealed, date, announcedDays: [...new Set(announcedDays)].sort(), passHash: hashToken(pass) };
+}
+
+/**
+ * The announced days a world keeps once a device sends those after its date:
+ * the days on or before the date as they were, then the days sent, each after
+ * the date, sorted once each; or why they were refused, such as for a field
+ * other than the days.
+ */
+export function readLaterDays(body: unknown, date: string, kept: readonly string[]): string[] | string {
+  const fields = (typeof body === 'object' && body !== null ? body : {}) as Record<string, unknown>;
+  if (Object.keys(fields).some((key) => key !== 'announcedDays')) return 'only announcedDays may be sent';
+  const { announcedDays } = fields;
+  const before = kept.filter((day) => day <= date);
+  if (
+    !Array.isArray(announcedDays) ||
+    !announcedDays.every((day) => isDay(day) && day > date) ||
+    before.length + new Set(announcedDays).size > MAX_ANNOUNCED_DAYS
+  ) {
+    return `announcedDays must list days after the date, written YYYY-MM-DD, at most ${MAX_ANNOUNCED_DAYS} in all`;
+  }
+  return [...before, ...new Set(announcedDays as string[])].sort();
 }
 
 /** The first announced day after the world's date, or null when none is left. */

@@ -121,8 +121,16 @@ export class PrismaWorldStore implements WorldStore {
     };
   }
 
-  async setDate(id: string, date: string): Promise<void> {
-    await this.client.world.updateMany({ where: { id }, data: { date: toDate(date) } });
+  async setDate(id: string, date: string, was: Pick<World, 'date' | 'announcedDays'>): Promise<boolean> {
+    const where = { id, date: toDate(was.date), announcedDays: { equals: was.announcedDays.map(toDate) } };
+    const { count } = await this.client.world.updateMany({ where, data: { date: toDate(date) } });
+    return count > 0;
+  }
+
+  async setAnnouncedDays(id: string, date: string, announcedDays: readonly string[]): Promise<boolean> {
+    const where = { id, date: toDate(date) };
+    const { count } = await this.client.world.updateMany({ where, data: { announcedDays: announcedDays.map(toDate) } });
+    return count > 0;
   }
 
   async caKey(id: string, make?: () => string): Promise<string | undefined> {

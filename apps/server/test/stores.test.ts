@@ -34,14 +34,23 @@ for (const kind of KINDS) {
       }
     }
 
-    it('keeps a world as it was started, once per id, and moves its date', () =>
+    it('keeps a world as it was started, once per id, and moves its date and announced days', () =>
       withStores(async ({ worlds }) => {
         assert.deepEqual(await worlds.get('AAAAA'), madeUpWorld('AAAAA'));
         assert.equal(await worlds.add(madeUpWorld('AAAAA', '2027-01-01')), false);
         assert.equal(await worlds.get('CCCCC'), undefined);
-        await worlds.setDate('AAAAA', '2026-12-06');
+        const was = madeUpWorld('AAAAA');
+        assert.equal(await worlds.setDate('AAAAA', '2026-12-06', { ...was, announcedDays: ['2026-12-06'] }), false);
+        assert.equal(await worlds.setDate('AAAAA', '2026-12-06', { ...was, date: '2026-11-30' }), false);
+        assert.equal(await worlds.setDate('AAAAA', '2026-12-06', was), true);
         assert.equal((await worlds.get('AAAAA'))?.date, '2026-12-06');
-        await worlds.setDate('CCCCC', '2026-12-06');
+        assert.equal(await worlds.setDate('CCCCC', '2026-12-06', was), false);
+        assert.equal(await worlds.setAnnouncedDays('AAAAA', '2026-12-01', ['2026-12-13']), false);
+        assert.equal(await worlds.setAnnouncedDays('AAAAA', '2026-12-06', ['2026-12-13', '2027-01-10']), true);
+        assert.deepEqual((await worlds.get('AAAAA'))?.announcedDays, ['2026-12-13', '2027-01-10']);
+        assert.deepEqual(await worlds.get('BBBBB'), madeUpWorld('BBBBB'));
+        assert.equal(await worlds.setAnnouncedDays('CCCCC', '2026-12-06', ['2026-12-13']), false);
+        assert.equal(await worlds.get('CCCCC'), undefined);
       }));
 
     it('makes a world’s stand-in CA key once, keeps it apart from the world, and erases it with the world', () =>
