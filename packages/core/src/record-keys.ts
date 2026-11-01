@@ -161,6 +161,10 @@ export function recordKey(event: RecordEvent): string {
       return `school-absences:${event.absences?.school ?? ''}`;
     case 'inspector.device':
       return `inspector-device:${event.inspector?.device ?? ''}`;
+    case 'grant.requested': {
+      const request = event.requested?.request as { id?: unknown } | undefined;
+      return `grant-requested:${typeof request?.id === 'string' ? request.id : ''}`;
+    }
     case 'school.issued': {
       const { school = '', assignment = '', issue = '' } = event.issued ?? {};
       return `school-issued:${school}/${assignment}/${issue}`;

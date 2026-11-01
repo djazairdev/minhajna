@@ -98,6 +98,7 @@ export * from './timetable-key.ts';
 export * from './timetable-fet.ts';
 export * from './timetable-grid.ts';
 export * from './timetable-import.ts';
+export * from './grant-request.ts';
 export * from './grants.ts';
 export * from './certify.ts';
 export * from './term-send.ts';
