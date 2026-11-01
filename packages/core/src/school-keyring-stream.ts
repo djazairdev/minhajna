@@ -4,20 +4,21 @@
 // How the school's keyring travels between its holders (#571, answers 555 and
 // 600). Each keyring goes on one stream of the school's space, whose name and
 // sealing key come from the space's ID, so every device that knows the space,
-// the relay and the teachers too, reads it and can write to it: a keyring
-// holds nothing secret, and the sealing only gives it the relay's one batch
-// size. No one but a holder can change a keyring, whose tag is under the
-// latest key, or tell a device it was removed (school-key.ts); a writer can
-// only take the stream's next number, which delays a holder's change until it
-// is made again. A keyring may take up to KEYRING_BATCHES batches; each batch
-// is opened once, and what does not open as a keyring of the school is
-// skipped. A holder follows the stream from the keyring it holds, adopting
-// each next one, and stops when one removes it. A new device, which knows
-// neither the space nor the key, is reached through a drop space: its ID,
-// stream and sealing key come from the one-time secret its QR code shows,
-// which the relay never sees; the holder that scanned it puts there the
-// school's space ID, the keyring and the admission. Whoever photographed the
-// code could put another there, so two admitted keyrings that differ are
+// the relay and the teachers too, reads it and can write to it: a keyring holds
+// nothing secret, and the sealing only gives it the relay's one batch size. No
+// one but a holder can change a keyring, whose tag is under the latest key, or
+// tell a device it was removed (school-key.ts); a writer can only take the
+// stream's next number, which delays a holder's change until it is made again.
+// A keyring may take up to KEYRING_BATCHES batches; each batch is opened once,
+// and what does not open as a keyring of the school is skipped. A holder
+// follows the stream from the keyring it holds, adopting each next one, and
+// stops when one removes it; one who holds none, such as a directorate, reads
+// the chain from the first keyring by tags alone, the stream's claim. A new
+// device, which knows neither the space nor the key, is reached through a drop
+// space: its ID, stream and sealing key come from the one-time secret its QR
+// code shows, which the relay never sees; the holder that scanned it puts there
+// the school's space ID, the keyring and the admission. Whoever photographed
+// the code could put another there, so two admitted keyrings that differ are
 // refused, and the new device shows the keyring's fingerprint to compare with
 // the holder's before it keeps anything.
 
@@ -64,6 +65,21 @@ export async function readKeyrings(
 ): Promise<readonly SchoolKeyring[]> {
   const sets = await openRecords(await placeOf(ascii(school), 'keyring', mac), batches, KEYRING_BATCHES, cipher);
   return sets.filter((one): one is SchoolKeyring => isKeyring(one, publicKeyBytes) && one.school === school);
+}
+
+/**
+ * The latest keyring as one who holds none reads the stream, such as a
+ * directorate: from the first keyring, each next one that names the one
+ * before by its tag, one version up, the first of each version in the
+ * stream's order; null when the stream holds no first keyring. Such a reader
+ * cannot check a tag, so this is the stream's claim, not proof.
+ */
+export function keyringOnStream(rings: readonly SchoolKeyring[]): SchoolKeyring | null {
+  let latest = rings.find((one) => one.version === 1 && one.previous === '') ?? null;
+  for (const ring of rings) {
+    if (latest !== null && ring.version === latest.version + 1 && ring.previous === latest.tag) latest = ring;
+  }
+  return latest;
 }
 
 /**

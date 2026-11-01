@@ -16,7 +16,9 @@
 // while any other failure, such as a broken private half or a kit that is
 // closed, is thrown, so it never reads as a device removed from the keyring.
 // The MAC is the kit's. The same sealing seals a term's marks for the state's
-// stand-in receiving system (#591), to its public half.
+// stand-in receiving system (#591), to its public half, and a device with no
+// pair of its own, such as a directorate's, seals with it and opens nothing
+// (#593).
 
 import { toHex, type KeyCrypto } from '@minhajna/core';
 import { fromHex } from '../storage/history';
@@ -87,5 +89,15 @@ export function worldKeyCrypto(kit: WorldKit, own: DevicePair): KeyCrypto {
       const sealing = await hkdf(kit, secret, join(fresh, mine), info);
       return kit.cipher.open(sealing, sealed.subarray(POINT), encoder.encode(info));
     },
+  };
+}
+
+/** A KeyCrypto for a device with no pair of its own in a world, such as a directorate's: it seals, opens nothing. */
+export function sealingCrypto(kit: WorldKit): KeyCrypto {
+  return {
+    publicKeyBytes: POINT,
+    mac: (key, data) => kit.mac(key, data),
+    seal: (key, publicKey, info) => sealTo(kit, key, publicKey, info),
+    open: () => Promise.resolve(null),
   };
 }

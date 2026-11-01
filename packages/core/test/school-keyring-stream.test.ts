@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The keyring's stream and a new device's drop space (#571, answer 600): a
-// keyring of many holders goes over several batches and comes back whole,
-// past batches that do not open, a keyring of another school and a cut one;
-// a holder follows the stream, adopting each next keyring and skipping the
-// ones that lost, until one removes it; a keyring too long to travel is
-// refused; and a new device's drop space, named by its secret alone, gives
-// the keyring only when the admission holds, refuses two that differ, and
-// skips records of another shape. Every school and device is made up.
+// keyring of many holders goes over several batches and comes back whole, past
+// batches that do not open, a keyring of another school and a cut one; a holder
+// follows the stream, adopting each next keyring and skipping the ones that
+// lost, until one removes it; one who holds none reads the chain along its
+// tags, the first of each version in the stream's order, past one that skips a
+// version or names the right tag at the wrong one; a keyring too long to travel
+// is refused; and a new device's drop space, named by its secret alone, gives
+// the keyring only when the admission holds, refuses two that differ, and skips
+// records of another shape. Every school and device is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -21,6 +23,7 @@ import {
   holderFingerprint,
   keyedCipher,
   KEYRING_BATCHES,
+  keyringOnStream,
   keyringStream,
   newHolderSecret,
   openKeyring,
@@ -104,6 +107,22 @@ describe('the keyring stream', () => {
     const removed = await removeHolder(three, deputy.holder.id, director.holder.id, director.crypto, random);
     const after = await followKeyrings(followed.latest, [removed.ring], deputy.holder.id, deputy.crypto);
     assert.equal(after, 'removed');
+  });
+
+  it('is read by one who holds no keyring along its tags, the first of each version', async () => {
+    const { director, ring } = await started();
+    const two = await addHolder(ring, (await device()).holder, director.holder.id, director.crypto);
+    const lost = await addHolder(ring, (await device()).holder, director.holder.id, director.crypto);
+    const three = await addHolder(two, (await device()).holder, director.holder.id, director.crypto);
+    const mine = await startKeyring(SCHOOL, (await device()).holder, director.crypto, random);
+    const rings = [ring.ring, two.ring, lost.ring, mine.ring, three.ring];
+    assert.equal(keyringOnStream(rings)?.tag, three.ring.tag);
+    assert.equal(keyringOnStream([two.ring, three.ring]), null);
+    assert.equal(keyringOnStream([]), null);
+    assert.equal(keyringOnStream([three.ring, ring.ring, two.ring])?.tag, two.ring.tag);
+    const skipped = { ...three.ring, version: 4, previous: ring.ring.tag };
+    const misnumbered = { ...two.ring, version: 3 };
+    assert.equal(keyringOnStream([ring.ring, skipped, misnumbered])?.tag, ring.ring.tag);
   });
 });
 

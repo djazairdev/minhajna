@@ -5,20 +5,30 @@
 // opening, the school key is held, never started here, since D-Keys asks
 // whether to start it or wait to hold another device's, and each teacher's
 // assignment worked out; the joined days are then read from the school's space,
-// again with `refresh`. The rows follow the world's store, so each issue
-// recorded shows at once, waiting to be scanned, and codes issued again under a
-// new epoch are counted for the page to say. A problem keeps what the page
-// already shows and is said in the catalogue's words, the page's own failures,
-// such as printing, as well. While an issue is recorded the page says it is
-// busy, so a second tap waits. Leaving the world, or another world opening,
-// drops what a slower answer brings back.
+// again with `refresh`, and the school listed quietly in its directorate's
+// space as the key is held and on each refresh (school-listing.ts, #593). The
+// rows follow the world's store, so each issue recorded shows at once, waiting
+// to be scanned, and codes issued again under a new epoch are counted for the
+// page to say. A problem keeps what the page already shows and is said in the
+// catalogue's words, the page's own failures, such as printing, as well. While
+// an issue is recorded the page says it is busy, so a second tap waits. Leaving
+// the world, or another world opening, drops what a slower answer brings back.
 
-import { issueRows, keptIssues, type Day, type DemoTeacher, type IssueRow, type KeptIssue } from '@minhajna/core';
+import {
+  issueRows,
+  keptIssues,
+  type Day,
+  type DemoSchool,
+  type DemoTeacher,
+  type IssueRow,
+  type KeptIssue,
+} from '@minhajna/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { problemOf } from '../school/school-join-session';
 import { assignmentsOf, holdSchool, issueFor, joinedDays, type IssueDesk } from './issue-session';
+import { listQuietly } from './school-listing';
 
 /** What D-Issue shows, and what it can do. */
 export interface IssuePage {
@@ -44,7 +54,7 @@ type Naming = Parameters<typeof issueRows>[5];
 /** D-Issue's state for an open world's school. */
 export function useIssuePage(
   world: Pick<OpenWorld, 'world' | 'book' | 'date'>,
-  teachers: readonly DemoTeacher[],
+  school: Pick<DemoSchool, 'id' | 'directorateId' | 'teachers'>,
   naming: Naming,
   kit: WorldKit,
   send?: Send,
@@ -78,10 +88,11 @@ export function useIssuePage(
     let open = true;
     void (async () => {
       const held = await holdSchool(world, kit, send, false);
-      const assignments = await assignmentsOf(held, teachers, kit);
+      const assignments = await assignmentsOf(held, school.teachers, kit);
       if (!open) return;
       setDesk({ desk: held, assignments });
       setReissued(held.reissued);
+      listQuietly(world.world, school, held.held.school, kit, send);
       await read(held);
     })()
       .catch((error: unknown) => open && setProblem(problemOf(error)))
@@ -89,13 +100,14 @@ export function useIssuePage(
     return () => {
       open = false;
     };
-  }, [world, teachers, kit, send, read]);
+  }, [world, school, kit, send, read]);
 
   const refresh = () => {
     if (desk === null) return;
     setBusy(true);
     setProblem(null);
     const asked = world.world;
+    listQuietly(world.world, school, desk.desk.held.school, kit, send);
     void read(desk.desk)
       .catch((error: unknown) => live.current === asked && setProblem(problemOf(error)))
       .finally(() => live.current === asked && setBusy(false));
@@ -127,7 +139,7 @@ export function useIssuePage(
     desk === null
       ? []
       : issueRows(
-          teachers,
+          school.teachers,
           desk.assignments,
           keptIssues(world.book.entries, desk.desk.held.school),
           joined,

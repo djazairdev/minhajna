@@ -7,32 +7,35 @@
 // holder, and only when it reads, travelling on its stream of the school's
 // space, opened by every holder and by no other device, each request once,
 // another school's, an envelope bound to another ID, one whose request inside
-// names another ID or school and what does not open left out;
-// its classes turned into the signed weeks in its range, course by course in
-// the order of its classes and weeks, each once, under the epoch given, with
-// the classes that name none; and the requests a directorate made read from its
-// world's store, each once, under their own key. Every world, school, class and
-// device here is made up.
+// names another ID or school and what does not open left out, and the stream
+// showing by ID which envelopes reached it; its classes turned into the signed
+// weeks in its range, course by course in the order of its classes and weeks,
+// each once, under the epoch given, with the classes that name none; and the
+// requests a directorate made read from its world's store, each once, under
+// their own key. Every world, school, class and device here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   courseId,
+  envelopesFor,
   grantRequested,
   grantWeeksOf,
+  openGrantEnvelopes,
   openGrantRequests,
   readGrantRequest,
   recordKey,
   requestPlace,
   requestsMade,
   toBase64Url,
+  sealGrantEnvelope,
   sealGrantRequest,
   GRANT_REQUEST,
   GRANT_REQUEST_BATCHES,
   type GrantRequest,
 } from '../src/index.ts';
 import { ascii, fromHex } from '../src/school-key-shape.ts';
-import { asciiJson, openRecords, sealRecord } from '../src/sealed-stream.ts';
+import { asciiJson, sealRecord } from '../src/sealed-stream.ts';
 import { cemEvents, d, openBook } from './fixtures.ts';
 import { device, random } from './school-devices.ts';
 import { cipher, mac } from './world-crypto.ts';
@@ -101,7 +104,10 @@ describe('a grant request', () => {
     for (const one of [{ ...swapped, school: SPACE }, envelope, envelope, elsewhere, { format: 'other' }]) {
       batches.push(...(await sealRecord(place, one, batches.length, GRANT_REQUEST_BATCHES, cipher)));
     }
-    const records = await openRecords(place, batches, GRANT_REQUEST_BATCHES, cipher);
+    const records = await openGrantEnvelopes(place, batches, cipher);
+    assert.deepEqual([...envelopesFor(records, SPACE)], [asked.id]);
+    const alone = await openGrantEnvelopes(place, await sealGrantEnvelope(place, envelope, 0, cipher), cipher);
+    assert.deepEqual(alone, [envelope]);
     for (const one of [first, second]) {
       assert.deepEqual(await openGrantRequests(records, SPACE, one.holder.id, one.crypto, cipher), [asked]);
     }
