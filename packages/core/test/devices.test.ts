@@ -42,6 +42,8 @@ describe('the devices and backups', () => {
       earlierKeys: [],
       lastBackup: null,
       sinceBackup: book.entries.length,
+      lastCopy: null,
+      sinceCopy: book.entries.length,
       firstChange: book.entries[0]!.day,
       handedOver: null,
       received: null,

@@ -23,6 +23,12 @@ path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/and
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
+# Supplemental erase-warning translations.
+[[annotations]]
+path = ["apps/android/src/settings/text/erase/*.json"]
+SPDX-FileCopyrightText = "2026 The Minhajna contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
 # TypeScript settings based on React Native's app template.
 [[annotations]]
 path = "apps/android/tsconfig.json"
