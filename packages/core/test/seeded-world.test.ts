@@ -84,16 +84,16 @@ describe('a seeded national world', () => {
   });
 
   it('plans every school and teacher, each with a device of its own', () => {
-    assert.equal(plan.schools.length, 72);
+    assert.equal(plan.schools.length, 68);
     assert.deepEqual(
       plan.schools.map((school) => school.seed),
       demo.schools.map((school) => school.id),
     );
     const teachers = plan.schools.flatMap((school) => school.teachers);
-    assert.equal(teachers.length, 492);
+    assert.equal(teachers.length, 462);
     const devices = [...plan.schools.map((school) => school.holder.id), ...teachers.map((one) => one.device)];
     assert.equal(new Set(devices).size, devices.length);
-    assert.equal(new Set(plan.schools.map((school) => school.opened.ring.school)).size, 72);
+    assert.equal(new Set(plan.schools.map((school) => school.opened.ring.school)).size, 68);
     assert.ok(teachers.every((one) => one.code.issue === 1 && one.code.epoch === 0 && one.code.world === WORLD));
   });
 
@@ -106,7 +106,7 @@ describe('a seeded national world', () => {
       for (const { space } of body.spaces) opened.add(space);
       assert.ok(body.streams.every((one) => opened.has(one.space)));
     }
-    assert.equal(opened.size, 1 + 12 + 72);
+    assert.equal(opened.size, 1 + 12 + 68);
     assert.ok(Math.ceil(seedRequests(plan).length / SEED_MOST) <= 4);
     for (const { spaces, streams } of bodies) {
       const sent = streams.map(({ batches, ...rest }) => ({
@@ -139,13 +139,13 @@ describe('a seeded national world', () => {
     assert.equal(await openSeededKeys(place, batchesOf('national', place.stream), 'ABCDE', cipher), null);
     const other = await seededKeysPlace(random(32), mac);
     assert.equal(await openSeededKeys(other, batchesOf('national', place.stream), WORLD, cipher), null);
-    assert.equal(keys.schools.length, 72);
+    assert.equal(keys.schools.length, 68);
     for (const [at, school] of keys.schools.entries()) {
       const ring = batchesOf(school.space, await keyringStream(school.space, mac));
       const rings = await readKeyrings(school.space, ring, 32, cipher, mac);
       assert.equal(rings.length, 1);
       const held = opened(await openKeyring(rings[0], school.device, await cryptoOf(school.agreement)));
-      if (![0, 1, 71].includes(at)) continue;
+      if (![0, 1, keys.schools.length - 1].includes(at)) continue;
       for (const teacher of school.teachers) {
         const code = await makeJoinCode(
           held,

@@ -88,6 +88,7 @@ export * from './spot-sheet.ts';
 export * from './calendar-draft.ts';
 export * from './world-calendar.ts';
 export * from './seeded-keys.ts';
+export * from './seeded-term.ts';
 export * from './seeded-world.ts';
 export * from './class-handover.ts';
 export * from './class-return.ts';

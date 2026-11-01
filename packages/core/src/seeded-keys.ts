@@ -19,7 +19,7 @@ import { isWorldId } from './world-code.ts';
 import { PKCS8_TEXT, type WorldCipher, type WorldMac } from './world-keys.ts';
 
 export const SEEDED_KEYS_FORMAT = 'minhajna/seeded-keys/1';
-/** The most batches the record may take: about 384 KB, over twice the 36 a seeded world of 492 teachers takes. */
+/** The most batches the record may take: about 384 KB, over twice what a seeded world of 462 teachers takes. */
 export const SEEDED_KEYS_BATCHES = 96;
 
 const SEED = /^[a-z]+-[1-9][0-9]{0,5}$/u;

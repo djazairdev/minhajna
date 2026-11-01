@@ -91,5 +91,5 @@ test('a start whose store does not open leaves no world and the network shut', a
   await entry(server.send);
   await press('demo-start-national');
   expect([has('world-role-ministry'), worldNetworkOpen()]).toEqual([false, null]);
-  expect(server.seen.filter((one) => one.path.endsWith('/seed/batches'))).toHaveLength(6);
+  expect(server.seen.filter((one) => one.path.endsWith('/seed/batches'))).toHaveLength(5);
 });

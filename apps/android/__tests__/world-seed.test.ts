@@ -41,11 +41,11 @@ test('a national world is seeded in about a dozen requests, its keys opened with
   const sent = seedings();
   expect(sent.map((one) => one.path.split('/').at(-1))).toEqual([
     ...Array.from({ length: 4 }, () => 'certificates'),
-    ...Array.from({ length: 6 }, () => 'batches'),
+    ...Array.from({ length: 5 }, () => 'batches'),
   ]);
   expect(sent.every((one) => one.headers.Authorization === `Bearer ${started.starter}`)).toBe(true);
   const timed = asked.filter((one) => one.path.includes('/seed/')).map((one) => one.timeoutMs);
-  expect(timed).toEqual(Array.from({ length: 10 }, () => SEED_TIMEOUT_MS));
+  expect(timed).toEqual(Array.from({ length: 9 }, () => SEED_TIMEOUT_MS));
   const { world } = started.keys;
   const place = await seededKeysPlace(started.sealing, nodeKit.mac);
   const national = (await spaceBatches(world, 'national', server.send)).get(place.stream) ?? [];
