@@ -4986,7 +4986,17 @@
       "noKey": "The choice is kept under the school’s space, whose key this device does not hold yet. Start it or join it from the keys page.",
       "opening": "Reading the receipts…",
       "again": "Read again",
-      "keysLink": "Who holds the school key"
+      "keysLink": "Who holds the school key",
+      "export": {
+        "title": "Export the school’s space whole",
+        "line": "One file with everything the server keeps for the school’s space, sealed as it is and never opened, so only the school key and the teachers’ own keys read it. The file says it comes from a demo world.",
+        "button": "Export the space",
+        "making": "Making the file…",
+        "saved": "The file is saved.",
+        "cancelled": "The file was not saved.",
+        "noKey": "The export reads the school’s space, whose key this device does not hold yet. Start it or join it from the keys page.",
+        "failed": "The file could not be made or saved."
+      }
     },
     "staff": {
       "title": "Staffroom PC",
