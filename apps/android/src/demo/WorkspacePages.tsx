@@ -21,6 +21,7 @@
 // calendar page keys a draft of the world's calendar (#607,
 // MinistryCalendar.tsx), afresh over each release the world comes to hold, and
 // publishes it with the world's keys (#608, MinistryCalendarPage.tsx).
+// The curator's pack list reads source releases only (#611, PackList.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -34,6 +35,7 @@ import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
+import { PackList } from '../editor/PackList';
 import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
@@ -192,5 +194,7 @@ export function workspacePage(
         workingDays={reference.profile.workingDays}
       />
     );
+  if (workspace === 'curator' && page === 'packs')
+    return <PackList packs={reference.packs} profile={reference.profile} refusedPacks={reference.refusedPacks} />;
   return null;
 }

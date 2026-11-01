@@ -10,5 +10,11 @@
     "slug": "android-calendar",
     "filemask": "apps/android/src/calendar/text/*.json",
     "template": "apps/android/src/calendar/text/ar.json"
+  },
+  {
+    "name": "Pack editor",
+    "slug": "pack-editor",
+    "filemask": "apps/android/src/editor/text/*.json",
+    "template": "apps/android/src/editor/text/ar.json"
   }
 ]
