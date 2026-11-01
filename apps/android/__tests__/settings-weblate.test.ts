@@ -53,8 +53,8 @@ test.each([false, true])(
     const components = calls.filter(
       (call) => ['POST', 'PATCH'].includes(call.method) && typeof call.body?.filemask === 'string',
     );
-    expect(components).toHaveLength(3);
-    const [base, settings, calendar] = components.map((call) => call.body!);
+    expect(components).toHaveLength(4);
+    const [base, settings, calendar, editor] = components.map((call) => call.body!);
     expect(base.repo).toBe('https://example.invalid/source.git');
     expect(base.push).toBe('https://example.invalid/push.git');
     expect(settings.repo).toBe('weblate://minhajna/android-interface');
@@ -66,7 +66,13 @@ test.each([false, true])(
     expect(calendar.repo).toBe('weblate://minhajna/android-interface');
     expect(calendar.push).toBeUndefined();
     expect(calendar.filemask).toBe('apps/android/src/calendar/text/*.json');
-    for (const component of [base, settings, calendar]) {
+    expect(editor.repo).toBe('weblate://minhajna/android-interface');
+    expect(editor.filemask).toBe('apps/android/src/editor/text/*.json');
+    expect(editor.template).toBe('apps/android/src/editor/text/ar.json');
+    for (const option of ['vcs', 'branch', 'push', 'push_branch', 'merge_style']) {
+      expect(editor[option]).toBeUndefined();
+    }
+    for (const component of [base, settings, calendar, editor]) {
       expect(component.license).toBe('AGPL-3.0-or-later');
       expect(component.source_language).toBe('ar');
       expect(component.commit_message).toContain('Signed-off-by: {{ author }}');
