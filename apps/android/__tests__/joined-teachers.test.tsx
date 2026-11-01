@@ -3,23 +3,27 @@
 
 // Who has joined, for the director's dashboard (#569, #548, answer 625),
 // against a made-up demo server: once the seeded key is taken every seeded
-// teacher reads joined, and still does after being given a new code; a school
-// whose key was started here reads none joined; and the dashboard page says
-// when this device holds no key and while it reads, says a failed reading as an
-// alert, with no teacher read as joined, and reads again when asked. Every
-// world, school and teacher is made up.
+// teacher reads joined, and still does after being given a new code; once the
+// term is filled, each class reads its standing from its signed weeks (answer
+// 627), and when only the weeks cannot be read who joined is still given, with
+// the problem said; a school whose key was started here reads none joined; and
+// the dashboard page says when this device holds no key and while it reads,
+// says a failed reading as an alert, with no teacher read as joined, and reads
+// again when asked. Every world, school and teacher is made up.
 
-import { directorSchool, seedNationalWorld } from '@minhajna/core';
+import { directorSchool, seededTerm, seedNationalWorld } from '@minhajna/core';
 import { Text, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { FakeStorage } from '../jest/fake-storage';
 import { calendar, reference } from '../jest/world-calendar';
 import { DemoServer, nodeKit } from '../jest/world-server';
 import { startSeededWorld } from '../src/demo/world-seed';
-import { startWorld, type Send } from '../src/demo/world-session';
+import { newWorldDays, startWorld, type Send } from '../src/demo/world-session';
 import { DashboardPage } from '../src/director/DashboardPage';
 import { assignmentsOf, holdSchool, issueFor } from '../src/director/issue-session';
-import { takeSeededKey } from '../src/director/seeded-key';
+import { seededWorld } from '../src/director/director-world';
+import { fillSeededTerm, termReference, worldClosure } from '../src/director/seeded-fill';
+import { seededKeyOf, takeSeededKey } from '../src/director/seeded-key';
 import { joinedTeachers } from '../src/director/use-joined-teachers';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { openRecordBook } from '../src/storage/history';
@@ -75,7 +79,7 @@ async function page(open: Awaited<ReturnType<typeof world>>, send: Send = server
       <DashboardPage
         world={open.director}
         school={open.school}
-        profile={reference.profile}
+        reference={reference}
         trial={null}
         kit={nodeKit}
         send={send}
@@ -100,6 +104,41 @@ test('every seeded teacher reads joined once the key is taken, and still after a
   await page(seeded);
   expect(texts().filter((one) => one === board.noFigures)).toHaveLength(18);
   expect(texts()).not.toContain(board.reading);
+});
+
+test('once the term is filled, each class reads its standing from its signed weeks', async () => {
+  const seeded = await world(true);
+  const { director, school } = seeded;
+  await takeSeededKey(director, seeded.held, school, nodeKit, server.send);
+  const desk = await holdSchool(director, nodeKit, server.send, false);
+  const key = (await seededKeyOf(seeded.held, school.id, nodeKit, server.send))!;
+  await fillSeededTerm(director, desk, key, reference, nodeKit, server.send);
+  await page(seeded);
+  expect(texts().filter((one) => one === board.noFigures)).toHaveLength(0);
+  const demo = seededWorld(director.world, reference);
+  const until = newWorldDays(reference.calendar).date;
+  const input = { seed: director.world, school, space: key.space, reference: termReference(reference) };
+  const more = { closures: [worldClosure(demo, reference)], bells: reference.bells, until };
+  const term = await seededTerm({ ...input, ...more }, nodeKit.mac);
+  const first = school.classes[0];
+  const latest = term.filter((one) => one.classId === first.id && one.versions[0].subject === 'math').at(-1)!;
+  const { totals } = latest.versions.at(-1)!;
+  const line = within(`dashboard-row-${first.id}-math`).map(String).join(' ');
+  expect(line).toContain(`${Math.floor(totals.reached / 10)}%`);
+  expect(line).toContain(totals.runsLong ? board.runsLong : board.onPace);
+});
+
+test('when only the weeks cannot be read, who joined is still given, with the problem said', async () => {
+  const seeded = await world(true);
+  await takeSeededKey(seeded.director, seeded.held, seeded.school, nodeKit, server.send);
+  let reads = 0;
+  const reading: Send = (request) => {
+    if (request.path.endsWith('/ca')) reads += 1;
+    return reads > 1 ? Promise.resolve({ status: 500, body: null, retryAfter: null }) : server.send(request);
+  };
+  await page(seeded, reading);
+  expect(within('dashboard-problem')).toEqual([text.demo.problem.other]);
+  expect(texts().filter((one) => one === board.noFigures)).toHaveLength(18);
 });
 
 test('a school whose key was started here reads none joined', async () => {

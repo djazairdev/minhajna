@@ -132,7 +132,17 @@ class Plan {
   }
 }
 
-function classOf(school: DemoSchool, one: DemoClass): SchoolClass {
+/** A demo school as the calendar reads it: its level, and its wilaya as its zone. */
+export const demoSchoolPlace = (school: DemoSchool): School => ({
+  id: school.id,
+  name: school.name,
+  levels: [school.level],
+  subjects: [],
+  zone: school.wilaya,
+});
+
+/** A demo school's class as the calendar reads it, with its whole-class group. */
+export function demoSchoolClass(school: DemoSchool, one: DemoClass): SchoolClass {
   const groups = [{ id: `${one.id}-whole`, kind: 'whole' as const, name: one.name }];
   return { id: one.id, schoolId: school.id, level: school.level, grade: one.grade, name: one.name, groups };
 }
@@ -141,7 +151,7 @@ function classOf(school: DemoSchool, one: DemoClass): SchoolClass {
 export async function seededTerm(input: SeededTermInput, mac: WorldMac): Promise<SeededCourseWeek[]> {
   const { seed, school, space, reference, closures, bells, until } = input;
   const view = new CalendarView(reference, closures);
-  const place: School = { id: school.id, name: school.name, levels: [school.level], subjects: [], zone: school.wilaya };
+  const place = demoSchoolPlace(school);
   const template = templateFor(bells, school.level, 'single') ?? bells.templates[0];
   if (template === undefined) throw new RangeError('The bells hold no template');
   const { weekStartsOn } = reference.country;
@@ -151,7 +161,7 @@ export async function seededTerm(input: SeededTermInput, mac: WorldMac): Promise
   const lastWeek = weeks.at(-1)?.start;
   const out: SeededCourseWeek[] = [];
   for (const one of school.classes) {
-    const schoolClass = classOf(school, one);
+    const schoolClass = demoSchoolClass(school, one);
     for (const subject of [...new Set(school.week.filter((s) => s.classId === one.id).map((s) => s.subject))]) {
       const slots = school.week.filter((s) => s.classId === one.id && s.subject === subject);
       const teacherId = slots[0]!.teacherId;

@@ -13,12 +13,12 @@
 // each row on the phone; the third lists the staff in the school's order, never
 // against a statutory load. Its last line says the order, and that nothing is
 // ranked by delay, coloured by person or timed. The row's panel, with the last
-// signed week, the threshold day's forecast and the visa, follows #549 and
-// #529; the teacher's own view, its classes alone, comes with the teacher's
-// world mode. Who has joined is given (DashboardPage.tsx), with a line while it
-// is not known and an alert, with reading again, when the reading failed. Until
-// #549 signs a term of weeks the space holds no figures, so each class shows
-// where its teacher stands.
+// signed week, the threshold day's forecast and the visa, follows #529; the
+// teacher's own view, its classes alone, comes with the teacher's world mode.
+// Who has joined and each class's standing from its signed weeks (answer 627)
+// are given (DashboardPage.tsx), with a line while they are not known and an
+// alert, with reading again, when the reading failed; a joined class with no
+// signed week yet says so.
 
 import {
   dashboardCourses,

@@ -256,12 +256,13 @@ export function DemoRoot({
       onMove={move}
       onLeave={leave}
       pageBody={(workspace, page, onPage) =>
-        school === null || worldReference === undefined
+        school === null || reference === undefined || worldReference === undefined
           ? null
           : workspacePage(workspace, page, {
               open,
               school,
               reference: worldReference,
+              bundled: reference,
               kit,
               send,
               dayText,

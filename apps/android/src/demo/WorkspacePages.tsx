@@ -3,22 +3,24 @@
 
 // The pages of the PC's workspaces in a demo world that have a body yet
 // (world-pages.ts), each for the roles its board lists: the director's
-// dashboard on the seeded school (#569), with who joined (#548), the codes page
-// that issues joining codes and security keys (#570), the keys page that maps
-// who holds the school key (#571), the exchange page that maps what enters and
-// leaves the school (#592, SchoolExchange.tsx), the records page that reads the
-// classes' signed weeks with the school key (#585, SchoolRecords.tsx), the
-// director's cover page for the world's date (#586, SchoolCover.tsx), the
-// school's term report against its calendar (#589, SchoolDelivery.tsx), the
-// director's assignments and access page for substitutes (#587,
-// SchoolSubstitute.tsx), the director's and the preparer's timetable page
-// (#576, #577, #578), kept for the world it was read in, and their own log
-// (#573); any other page has none, and the preparer never opens the records or
-// the cover; the directorate's grants page requests inspectors' grants from its
-// schools (#593, DirectorateGrant.tsx); and the Ministry's calendar page keys a
-// draft of the world's calendar (#607, MinistryCalendar.tsx), afresh over each
-// release the world comes to hold, and publishes it with the world's keys
-// (#608, MinistryCalendarPage.tsx).
+// dashboard on the seeded school (#569), with who joined (#548) and each
+// class's standing from its signed weeks (answer 627), the codes page that
+// issues joining codes and security keys (#570), the keys page that maps who
+// holds the school key (#571) and fills a taken seeded school's term from the
+// bundled reference data, never the world's releases (answer 626), the exchange
+// page that maps what enters and leaves the school (#592, SchoolExchange.tsx),
+// the records page that reads the classes' signed weeks with the school key
+// (#585, SchoolRecords.tsx), the director's cover page for the world's date
+// (#586, SchoolCover.tsx), the school's term report against its calendar (#589,
+// SchoolDelivery.tsx), the director's assignments and access page for
+// substitutes (#587, SchoolSubstitute.tsx), the director's and the preparer's
+// timetable page (#576, #577, #578), kept for the world it was read in, and
+// their own log (#573); any other page has none, and the preparer never opens
+// the records or the cover; the directorate's grants page requests inspectors'
+// grants from its schools (#593, DirectorateGrant.tsx); and the Ministry's
+// calendar page keys a draft of the world's calendar (#607,
+// MinistryCalendar.tsx), afresh over each release the world comes to hold, and
+// publishes it with the world's keys (#608, MinistryCalendarPage.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -49,6 +51,8 @@ export type WorkspacePagesProps = {
   readonly open: OpenWorld;
   readonly school: DemoSchool;
   readonly reference: Extract<ReferenceResult, { ok: true }>;
+  /** The bundled reference data, without the world's releases, which a seeded school's term is worked out from. */
+  readonly bundled: Extract<ReferenceResult, { ok: true }>;
   readonly kit: WorldKit;
   readonly send?: Send;
   readonly dayText: (day: Day) => string;
@@ -76,7 +80,7 @@ export function workspacePage(
   props: WorkspacePagesProps,
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
-  const { held, onCalendar } = props;
+  const { held, onCalendar, bundled } = props;
   if (workspace === 'ministry' && page === 'calendar')
     return (
       <MinistryCalendarPage
@@ -98,7 +102,7 @@ export function workspacePage(
       <DashboardPage
         world={open}
         school={school}
-        profile={reference.profile}
+        reference={reference}
         trial={trial}
         kit={kit}
         send={send}
@@ -115,7 +119,7 @@ export function workspacePage(
         world={open}
         school={school}
         held={held}
-        reference={reference}
+        reference={bundled}
         kit={kit}
         send={send}
         dayText={dayText}
