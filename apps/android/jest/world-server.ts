@@ -8,8 +8,8 @@ import {
   createHmac,
   createPrivateKey,
   createPublicKey,
+  diffieHellman,
   generateKeyPairSync,
-  webcrypto,
   pbkdf2Sync,
   randomBytes,
   sign,
@@ -70,19 +70,30 @@ export const nodeKit: WorldKit = {
         fingerprint: createHash('sha256').update(spki).digest('hex'),
       };
     }),
-  async newAgreement() {
-    const pair = await webcrypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
-    const publicKey = new Uint8Array(await webcrypto.subtle.exportKey('raw', pair.publicKey));
-    const pkcs8 = Buffer.from(await webcrypto.subtle.exportKey('pkcs8', pair.privateKey)).toString('base64');
-    return { publicKey, pkcs8 };
-  },
-  async agree(pkcs8, publicKey) {
-    if (publicKey.length !== 65) throw new RangeError('Not an uncompressed point');
-    const curve = { name: 'ECDH', namedCurve: 'P-256' } as const;
-    const own = await webcrypto.subtle.importKey('pkcs8', Buffer.from(pkcs8, 'base64'), curve, false, ['deriveBits']);
-    const theirs = await webcrypto.subtle.importKey('raw', new Uint8Array(publicKey), curve, false, []);
-    return new Uint8Array(await webcrypto.subtle.deriveBits({ name: 'ECDH', public: theirs }, own, 256));
-  },
+  newAgreement: () =>
+    later(() => {
+      const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+      const { x = '', y = '' } = publicKey.export({ format: 'jwk' });
+      const point = Buffer.concat([Buffer.from([4]), Buffer.from(x, 'base64url'), Buffer.from(y, 'base64url')]);
+      return {
+        publicKey: new Uint8Array(point),
+        pkcs8: privateKey.export({ type: 'pkcs8', format: 'der' }).toString('base64'),
+      };
+    }),
+  agree: (pkcs8, publicKey) =>
+    later(() => {
+      if (publicKey.length !== 65 || publicKey[0] !== 4) throw new RangeError('Not an uncompressed point');
+      const bytes = Buffer.from(publicKey);
+      const jwk = {
+        kty: 'EC',
+        crv: 'P-256',
+        x: bytes.subarray(1, 33).toString('base64url'),
+        y: bytes.subarray(33).toString('base64url'),
+      };
+      const theirs = createPublicKey({ key: jwk, format: 'jwk' });
+      const own = createPrivateKey({ key: Buffer.from(pkcs8, 'base64'), format: 'der', type: 'pkcs8' });
+      return new Uint8Array(diffieHellman({ privateKey: own, publicKey: theirs }));
+    }),
 };
 
 export interface KeptWorld {
@@ -99,9 +110,10 @@ export function answer(status: number, body?: unknown, headers?: Record<string, 
 
 /**
  * The demo server's routes on a map, with the server's own rules for what a
- * start carries, its pass and its starter token, and its relay and stand-in CA
- * (world-relay.ts): `taken` answers 409 to that many starts, and `busy` 429 to
- * every request while it is set.
+ * start carries, its pass and its starter token, which moving the date and
+ * seeding (#548) need, and its relay and stand-in CA (world-relay.ts):
+ * `taken` answers 409 to that many starts, and `busy` 429 to every request
+ * while it is set.
  */
 export class DemoServer {
   readonly worlds = new Map<string, KeptWorld>();
@@ -160,6 +172,7 @@ export class DemoServer {
       kept.announced = days;
       return answer(200, { announcedDays: days });
     }
+    if (rest === 'seed' && !holdsStarter(headers.Authorization, kept.starterHash)) return answer(403, {});
     if (rest !== undefined && rest !== 'date') {
       const body: unknown = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
       const segments = path.split('/').slice(3);

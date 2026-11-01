@@ -6,10 +6,11 @@
 // the demo server inside one, through fetch, XMLHttpRequest and WebSocket
 // alike, whatever the address hides; the world's client sends only to the open
 // world's paths, with its pass and nothing else of the device's, and refuses
-// what comes back too late, too long or not as JSON, or after the world was
-// left; entering the same world again keeps what is on its way, and leaving
-// by a stale entry leaves a later one open. No test connects: every request
-// lands in a stand-in. The worlds and passes are made up.
+// what comes back too late, after TIMEOUT_MS or the longer time a request
+// names, too long or not as JSON, or after the world was left; entering the
+// same world again keeps what is on its way, and leaving by a stale entry
+// leaves a later one open. No test connects: every request lands in a stand-in.
+// The worlds and passes are made up.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -241,6 +242,17 @@ describe('the world’s client', () => {
     const waiting = worldRequest(get, hanging);
     jest.advanceTimersByTime(TIMEOUT_MS);
     await expect(waiting).rejects.toMatchObject({ code: 'E_TIMEOUT' });
+    let named: 'late' | 'answered' = 'answered';
+    const longer = worldRequest({ ...get, timeoutMs: 3 * TIMEOUT_MS }, hanging).catch((error: { code?: unknown }) => {
+      named = error.code === 'E_TIMEOUT' ? 'late' : 'answered';
+    });
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS);
+    expect(named).toBe('answered');
+    await jest.advanceTimersByTimeAsync(2 * TIMEOUT_MS);
+    await longer;
+    expect(named).toBe('late');
+    for (const timeoutMs of [0, -1, Number.NaN, Number.POSITIVE_INFINITY, 2 ** 31])
+      await expect(worldRequest({ ...get, timeoutMs }, hanging)).rejects.toThrow(RangeError);
   });
 
   it('leaves by an entry only while that entry is the open one', () => {
