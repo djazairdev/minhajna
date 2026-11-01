@@ -136,7 +136,7 @@ const nameOf = (school: DemoSchool, id: string) => personName(school.teachers.fi
 test('the codes page lists every teacher without a code, then gives, cancels and prints codes', async () => {
   const { id, school } = await codesPage();
   expect(has('issue-table')).toBe(true);
-  const [space] = [...(await schools(id, school.directorateId, server.send)).listed.values()];
+  const space = (await schools(id, school.directorateId, server.send)).listed.get(school.id)!;
   expect(await listedAs(id, school, space, server.send)).toBe(space);
   await listSchool(id, school, 'another-made-up-space-id', nodeKit, server.send);
   await press('world-page-keys');

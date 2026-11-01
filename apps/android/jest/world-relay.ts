@@ -4,11 +4,13 @@
 // The demo server's relay and stand-in CA for the app's tests (#564), on the
 // server's own code: its memory store of spaces and sealed batches, its rules
 // for what a space and an upload carry, and its CA, whose key each world gets
-// when first asked and which certifies on the world's date, and its stand-in
+// when first asked and which certifies on the world's date, its seeding
+// requests (#548), whose starter token world-server.ts checks, and its stand-in
 // for the state's receiving system (state-standin.ts, #591).
 
 import { isSpaceId, MAX_PAGE, readSpace, readUpload } from '../../server/src/spaces/space-rules';
 import { MemorySpaceStore } from '../../server/src/spaces/space-store';
+import { readSeedBatches, readSeedCertificates } from '../../server/src/worlds/seed-rules';
 import { caPublicKey, issueCertificate, newCaKey, readCertificateRequest } from '../../server/src/worlds/stand-in-ca';
 import { StateStandIn } from './state-standin';
 
@@ -55,6 +57,7 @@ export class WorldRelay {
         ? reply(400, { error: read })
         : reply(201, issueCertificate(read, date, this.caKey(world)));
     }
+    if (first === 'seed' && last === undefined && method === 'POST') return this.seed(world, date, space, body);
     if (first === 'state' && last === undefined) {
       return this.state.route(world, date, method, space, body, () => this.caKey(world));
     }
@@ -79,5 +82,29 @@ export class WorldRelay {
     if (typeof upload === 'string') return reply(400, { error: upload });
     const added = await this.spaces.addBatches(world, space, upload.stream, upload.first, upload.batches);
     return added === 'added' ? reply(201, { added: upload.batches.length }) : reply(409, { error: added });
+  }
+
+  /** A seeding's certificates or spaces and streams, as the server takes them; its starter token is checked before. */
+  private async seed(world: string, date: string, part: string, body: unknown): Promise<Response> {
+    if (part === 'certificates') {
+      const read = readSeedCertificates(body, world);
+      if (typeof read === 'string') return reply(400, { error: read });
+      return reply(201, { certificates: read.map((one) => issueCertificate(one, date, this.caKey(world))) });
+    }
+    const read = part === 'batches' ? readSeedBatches(body) : 'no such seeding';
+    if (typeof read === 'string') return reply(part === 'batches' ? 400 : 404, { error: read });
+    for (const { space, kind } of read.spaces) {
+      const opened = await this.spaces.addSpace(world, space, kind);
+      if (opened !== 'added' && opened !== 'same') return reply(409, { error: opened });
+    }
+    for (const { space, stream, first, batches } of read.streams) {
+      if ((await this.spaces.kindOf(world, space)) === undefined) return reply(400, { error: 'no such space' });
+      const added = await this.spaces.addBatches(world, space, stream, first, batches);
+      if (added !== 'added') return reply(409, { error: added });
+    }
+    return reply(201, {
+      opened: read.spaces.length,
+      added: read.streams.reduce((sum, one) => sum + one.batches.length, 0),
+    });
   }
 }

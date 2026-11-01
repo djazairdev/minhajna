@@ -4,9 +4,11 @@
 // The director's school in a national demo world (#569, answer 591): every
 // device rebuilds the seeded world (#547) from the world's own ID and the
 // bundled reference data, so the same world gives the same school everywhere
-// and nothing is uploaded for it; the director runs its first CEM. A teachers'
-// world, or one entered without the reference data, has no director's school.
-// The directorate's grants page seeds the same world for its schools (#593).
+// and nothing named is uploaded for it, the starting device uploading only its
+// staff's keys and joins (world-seed.ts, #548); the director runs its first
+// CEM. A teachers' world, or one entered without the reference data, has no
+// director's school. The directorate's grants page seeds the same world for its
+// schools (#593).
 
 import { directorSchool, seedNationalWorld, type DemoSchool, type DemoWorld } from '@minhajna/core';
 import { useMemo } from 'react';
