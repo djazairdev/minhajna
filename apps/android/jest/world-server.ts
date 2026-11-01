@@ -15,7 +15,7 @@ import {
   sign,
   verify,
 } from 'node:crypto';
-import { holdsPass, holdsStarter, readWorldStart } from '../../server/src/worlds/world-rules';
+import { holdsPass, holdsStarter, readLaterDays, readWorldStart } from '../../server/src/worlds/world-rules';
 import type { WorldKit } from '../src/demo/world-session';
 import { worldRequest, type WorldRequest } from '../src/network/world-network';
 import { WorldRelay } from './world-relay';
@@ -88,7 +88,7 @@ export const nodeKit: WorldKit = {
 export interface KeptWorld {
   sealed: string;
   date: string;
-  readonly announced: string[];
+  announced: string[];
   readonly passHash: string;
   readonly starterHash: string;
 }
@@ -150,7 +150,16 @@ export class DemoServer {
     const [, , world, rest] = path.split('/');
     const kept = this.worlds.get(world);
     if (kept === undefined || !holdsPass(headers['X-World-Pass'], kept.passHash)) return answer(404, {});
-    if (rest === undefined && init.method === 'GET') return answer(200, { sealed: kept.sealed, date: kept.date });
+    const announcedDays = kept.announced;
+    if (rest === undefined && init.method === 'GET')
+      return answer(200, { sealed: kept.sealed, date: kept.date, announcedDays });
+    if (rest === 'date' && init.method === 'GET') return answer(200, { date: kept.date, announcedDays });
+    if (rest === 'announced-days' && init.method === 'PUT') {
+      const days = readLaterDays(JSON.parse(init.body as string), kept.date, kept.announced);
+      if (typeof days === 'string') return answer(400, { error: days });
+      kept.announced = days;
+      return answer(200, { announcedDays: days });
+    }
     if (rest !== undefined && rest !== 'date') {
       const body: unknown = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
       const segments = path.split('/').slice(3);

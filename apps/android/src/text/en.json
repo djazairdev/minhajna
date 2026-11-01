@@ -5748,6 +5748,18 @@
       "saved": "Draft saved on this PC.",
       "refused": "This change cannot go into an update of the calendar.",
       "tooBig": "The draft would be larger than one update of the calendar can carry.",
+      "publish": {
+        "button": "Publish the draft",
+        "title": "Publish this draft to the world?",
+        "counts": "Entries added: {{added}} · changed: {{changed}} · taken out: {{removed}}",
+        "explain": "It becomes the world’s next calendar release, signed with the world’s key. Every device in the world lays it over its calendar, and the world’s announced days follow it. It cannot be taken back; a later release can change it again.",
+        "confirm": "Publish",
+        "cancel": "Cancel",
+        "busy": "Publishing…",
+        "done": "Release {{release}} published to the world.",
+        "race": "The release could not be read back as published. Your draft is kept: check the world’s calendar, then publish again.",
+        "notEmptied": "The release is out, but this PC could not empty the draft: take its changes out yourself."
+      },
       "foot": "The draft stays on this PC and is sent nowhere until it is published to the world’s schools and teachers.",
       "add": "Add an entry",
       "change": "Change",

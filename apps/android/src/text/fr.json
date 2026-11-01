@@ -5833,6 +5833,18 @@
       "saved": "Brouillon enregistré sur ce PC.",
       "refused": "Cette modification ne peut pas entrer dans une mise à jour du calendrier.",
       "tooBig": "Le brouillon dépasserait ce qu’une mise à jour du calendrier peut contenir.",
+      "publish": {
+        "button": "Publier le brouillon",
+        "title": "Publier ce brouillon dans le monde ?",
+        "counts": "Dates ajoutées : {{added}} · modifiées : {{changed}} · retirées : {{removed}}",
+        "explain": "Il devient la prochaine version du calendrier du monde, signée avec la clé du monde. Chaque appareil du monde la pose sur son calendrier, et les jours annoncés du monde la suivent. Elle ne peut pas être retirée ; une version ultérieure peut la modifier.",
+        "confirm": "Publier",
+        "cancel": "Annuler",
+        "busy": "Publication…",
+        "done": "Version {{release}} publiée dans le monde.",
+        "race": "La version n’a pas pu être relue une fois publiée. Votre brouillon est conservé : vérifiez le calendrier du monde, puis publiez-le à nouveau.",
+        "notEmptied": "La version est publiée, mais ce PC n’a pas pu vider le brouillon : retirez-en les changements vous-même."
+      },
       "foot": "Le brouillon reste sur ce PC et n’est envoyé nulle part tant qu’il n’est pas publié pour les établissements et le personnel enseignant du monde.",
       "add": "Ajouter une date",
       "change": "Modifier",

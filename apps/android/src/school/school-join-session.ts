@@ -200,6 +200,7 @@ const PROBLEMS = {
   E_TIMETABLE_PROPOSAL: 'ttProposal.refused',
   E_TIMETABLE_DECIDED: 'ttProposal.decided',
   E_TIMETABLE_UNJOINED: 'demo.timetable.notJoined',
+  E_CALENDAR_RACE: 'demo.ministryCalendar.publish.race',
 } as const;
 
 /** The catalogue's words for an error's code. */

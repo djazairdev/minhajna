@@ -67,28 +67,7 @@ import { StaffPc } from '../staff/StaffPc';
 import { useDirectorSchool } from '../director/director-world';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import { mineOf } from '../week/school-mine-session';
-
-type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
-
-/** The catalogue's words for an error's code. */
-const PROBLEMS: Readonly<Record<string, ProblemKey>> = {
-  E_WORLD_CODE: 'demo.problem.code',
-  E_NO_SUCH_WORLD: 'demo.problem.none',
-  E_WORLD_BUSY: 'demo.problem.busy',
-  E_OFFLINE: 'demo.problem.offline',
-  E_TIMEOUT: 'demo.problem.offline',
-  E_REFUSED: 'demo.problem.device',
-  E_WORLD_KIT: 'demo.problem.device',
-  E_NO_WORLD: 'demo.problem.device',
-  E_WORLD_LEFT_DAYS: 'demo.problem.lastDay',
-  E_WORLD: 'demo.problem.store',
-  E_KEY_LOST: 'demo.problem.store',
-};
-
-function problemOf(error: unknown): ProblemKey {
-  const code = (error as { code?: unknown } | null)?.code;
-  return (typeof code === 'string' ? PROBLEMS[code] : undefined) ?? 'demo.problem.other';
-}
+import { problemOf, type ProblemKey } from './world-problems';
 
 export type DemoRootProps = {
   readonly kit: WorldKit;
@@ -289,6 +268,8 @@ export function DemoRoot({
               timetable,
               onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
               onPage,
+              held,
+              onCalendar: published.again,
             })
       }
     />

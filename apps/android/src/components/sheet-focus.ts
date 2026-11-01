@@ -6,7 +6,7 @@ import { findNodeHandle, type ViewInstance } from 'react-native';
 import NativeInterface from '../native/NativeMinhajnaInterface';
 
 /** The native interface accepts only an ephemeral view identifier, never its label or contents. */
-function focus(target: ViewInstance | null) {
+export function focusTarget(target: ViewInstance | null) {
   if (target && target.isConnected !== false) {
     const tag = findNodeHandle(target);
     if (typeof tag === 'number') NativeInterface.focusView(tag);
@@ -25,11 +25,11 @@ export function useSheetFocus(visible: boolean, returnFocusRef: RefObject<ViewIn
     NativeInterface.cancelFocusRequest();
     const closing = wasVisible.current && !visible;
     wasVisible.current = visible;
-    const frame = closing ? requestAnimationFrame(() => focus(returnFocusRef.current)) : undefined;
+    const frame = closing ? requestAnimationFrame(() => focusTarget(returnFocusRef.current)) : undefined;
     return () => {
       if (frame !== undefined) cancelAnimationFrame(frame);
       NativeInterface.cancelFocusRequest();
     };
   }, [visible, returnFocusRef]);
-  return { heading, focusHeading: () => focus(heading.current) };
+  return { heading, focusHeading: () => focusTarget(heading.current) };
 }

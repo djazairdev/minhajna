@@ -17,8 +17,12 @@
 // button that opened it, an entry's Change or the one that adds an entry;
 // taking an entry out or undoing a change keeps the draft at once. A problem is
 // said as an alert, announced on the phone since a PC reads the alert, and each
-// saving is announced on both. The foot says the draft stays on this PC and is
-// sent nowhere until it is published.
+// saving is announced on both. When the page is given publishing and the draft
+// holds a change, it offers to publish it (PublishPanel.tsx), says while it
+// publishes, every change waiting meanwhile, and why it could not as an alert;
+// opening over the release just published, it brings the focus to the button
+// that adds an entry. The foot says the draft stays on this PC and is sent
+// nowhere until it is published.
 
 import {
   compareDays,
@@ -28,6 +32,7 @@ import {
   setDraftEntry,
   takeOutDraftEntry,
   undoDraftEntry,
+  type CalendarDraft,
   type CalendarEntry,
   type Day,
 } from '@minhajna/core';
@@ -36,7 +41,7 @@ import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from 're
 import { StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { Button } from '../components/Button';
 import { SegmentedControl } from '../components/SegmentedControl';
-import { useSheetFocus } from '../components/sheet-focus';
+import { focusTarget, useSheetFocus } from '../components/sheet-focus';
 import type { OpenWorld } from '../demo/world-mode';
 import type { WorldKit } from '../demo/world-session';
 import { colors, spacing, typography } from '../design/tokens';
@@ -48,6 +53,7 @@ import { useSaid } from '../week/useSaid';
 import { CalendarForm } from './CalendarForm';
 import { useCalendarDesk } from './calendar-desk';
 import { CalendarRow } from './CalendarRow';
+import { PublishPanel } from './PublishPanel';
 
 export type MinistryCalendarProps = {
   readonly world: Pick<OpenWorld, 'book' | 'date'>;
@@ -55,10 +61,19 @@ export type MinistryCalendarProps = {
   /** The world's kit, whose random bytes name a new entry. */
   readonly kit: Pick<WorldKit, 'random'>;
   readonly dayText: (day: Day) => string;
+  /** Publishing the draft, when this PC holds the world's keys: whether it is under way, and why it failed. */
+  readonly publish?: {
+    readonly busy: boolean;
+    readonly problem: string | null;
+    readonly problems: number;
+    readonly onPublish: (draft: CalendarDraft) => void;
+    /** The page opens over the release just published, so the focus goes to the button that adds an entry. */
+    readonly justPublished: boolean;
+  };
 };
 
 /** The Ministry's draft of the world's calendar, layer by layer. */
-export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCalendarProps) {
+export function MinistryCalendar({ world, reference, kit, dayText, publish }: MinistryCalendarProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -66,6 +81,7 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
   const [layer, setLayer] = useState<'national' | 'zone'>('national');
   const [zone, setZone] = useState(zones[0]?.code ?? '');
   const desk = useCalendarDesk(world, reference);
+  const busy = desk.saving || publish?.busy === true;
   const [editing, setEditing] = useState<{
     entry: CalendarEntry | null;
     place: Pick<CalendarEntry, 'id' | 'layer' | 'zone'>;
@@ -79,6 +95,12 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
     else opener.current = (closed.current === null ? null : changes.current.get(closed.current)) ?? add.current;
   }, [editing]);
   useSheetFocus(editing !== null, opener);
+  const landed = useEffectEvent(() => {
+    if (publish?.justPublished !== true) return;
+    const frame = requestAnimationFrame(() => focusTarget(add.current));
+    return () => cancelAnimationFrame(frame);
+  });
+  useEffect(() => landed(), []);
   const wilayaName = (place: Pick<CalendarEntry, 'layer' | 'zone'>) => {
     const found = zones.find((one) => one.code === place.zone);
     return place.layer === 'zone' && found !== undefined ? zoneLabel(found) : null;
@@ -131,7 +153,7 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
           ref={add}
           testID="ministry-calendar-add"
           label={t('demo.ministryCalendar.add')}
-          disabled={desk.saving || (layer === 'zone' && zone === '')}
+          disabled={busy || (layer === 'zone' && zone === '')}
           onPress={() =>
             setEditing({
               entry: null,
@@ -149,7 +171,7 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
           date={world.date}
           year={reference.calendar.year}
           profile={reference.profile}
-          busy={desk.saving}
+          busy={busy}
           dayText={dayText}
           onSave={(entry, reason) =>
             void desk.save(setDraftEntry(desk.base, desk.draft, entry, reason)).then((kept) => kept && setEditing(null))
@@ -167,7 +189,7 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
             key={entry.id}
             entry={entry}
             mark={draftMark(desk.base, desk.draft, entry.id)}
-            busy={desk.saving}
+            busy={busy}
             dayText={dayText}
             onChange={() => setEditing({ entry, place: entry })}
             changeRef={(node) => {
@@ -177,7 +199,16 @@ export function MinistryCalendar({ world, reference, kit, dayText }: MinistryCal
             onUndo={() => void desk.save(undoDraftEntry(desk.draft, entry.id))}
           />
         ))}
+      {editing === null && publish !== undefined && (
+        <PublishPanel base={desk.base} draft={desk.draft} busy={busy} onPublish={publish.onPublish} />
+      )}
       {desk.saving && <Text style={[styles.small, align]}>{t('demo.ministryCalendar.saving')}</Text>}
+      {publish?.busy === true && <Text style={[styles.small, align]}>{t('demo.ministryCalendar.publish.busy')}</Text>}
+      {publish?.problem != null && (
+        <Text key={`publish-${publish.problems}`} accessibilityRole="alert" style={[styles.problem, align]}>
+          {publish.problem}
+        </Text>
+      )}
       {problem !== null && (
         <Text key={desk.problems} accessibilityRole="alert" style={[styles.problem, align]}>
           {problem}
