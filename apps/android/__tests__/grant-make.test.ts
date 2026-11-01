@@ -5,12 +5,13 @@
 // grant-term.ts: a request addressed to this device resolves to 1م2's signed
 // weeks, with their class and teacher, and to 1م3 as having none; approving it
 // archives each week, records the grant, tells the teacher and relays it, so
-// the inspector's device opens both weeks and the teacher reads one notice;
-// approving again finishes the same grant without archiving, recording or
-// telling twice; a relay that failed is put on the next approval; and a wrong
-// fingerprint, a request with no signed week, one past its end and one no
-// longer there are refused before anything is put. Every school, class,
-// teacher and device is made up.
+// the inspector's device opens both weeks and the teacher reads one notice,
+// with the key of each week's uses the inspector's device gets; approving again
+// finishes the same grant without archiving, recording or telling twice; a
+// relay that failed is put on the next approval; and a wrong fingerprint, a
+// request with no signed week, one past its end and one no longer there are
+// refused before anything is put. Every school, class, teacher and device is
+// made up.
 
 import { addDays, directorateSpace } from '@minhajna/core';
 import { SCHOOL } from '../jest/grant-world';
@@ -62,6 +63,7 @@ test('approving archives, records, tells and relays, and approving again finishe
     [WEEKS[1]],
   ]);
   const told = await noticesOf(joined);
+  expect(told.map((one) => one.value.uses)).toEqual([await seen.useKeys(seen.relayed[0].grant)]);
   expect(told.map((one) => [one.value.grant, one.value.inspector, one.value.weeks.map((each) => each.week)])).toEqual([
     [grant.id, LABEL, WEEKS],
   ]);

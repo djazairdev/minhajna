@@ -7,11 +7,13 @@
 // the school key's holders read. It names the grant, the inspector as the
 // request labels them, the signed weeks it opens by course and first day, each
 // once, as the director's device wrote them from that teacher's own channel,
-// and the days the grant runs, from the world's day it was made, and nothing
-// else: no other teacher, no clock time. It counts when signed by a key the
-// world's CA certified, neither the joined device's subject nor its key, and
-// the first notice of a grant counts; a record that is not of its shape is left
-// out without stopping the others. Every record names the code's world, school,
+// the key of each of those weeks' uses (grant-uses.ts, #594, answer 622), so
+// the teacher reads the inspector's uses of their own weeks, and the days the
+// grant runs, from the world's day it was made, and nothing else: no other
+// teacher, no clock time. It counts when signed by a key the world's CA
+// certified, neither the joined device's subject nor its key, and the first
+// notice of a grant counts; a record that is not of its shape is left out
+// without stopping the others. Every record names the code's world, school,
 // assignment and issue, and one naming another is left out. In the demo the CA
 // certifies any device a request names (answer 564), so the teacher's page says
 // a notice is shown as given in the school's space, without proof.
@@ -39,19 +41,22 @@ export interface GrantNotice extends OnChannel {
   /** The inspector, as the request labels them. */
   readonly inspector: string;
   readonly weeks: readonly { readonly course: string; readonly week: Day }[];
+  /** The key of each week's uses (grant-uses.ts), one for each week named, in the same order, in hex. */
+  readonly uses: readonly { readonly course: string; readonly week: Day; readonly key: string }[];
   /** The world's day the grant was made, from which it runs. */
   readonly from: Day;
   readonly until: Day;
 }
 
-const NOTICE = [...CHANNEL, 'grant', 'inspector', 'weeks', 'from', 'until'];
+const NOTICE = [...CHANNEL, 'grant', 'inspector', 'weeks', 'uses', 'from', 'until'];
+const KEY = /^[0-9a-f]{64}$/u;
 
 const day = (value: unknown): value is Day => typeof value === 'string' && isDay(value);
 
 /** Whether a value is a notice, its fields only, each of its shape. */
 export function isGrantNotice(value: unknown): value is GrantNotice {
   if (!record(value) || !onChannelShape(value, NOTICE)) return false;
-  const { grant, inspector, weeks, from, until } = value;
+  const { grant, inspector, weeks, uses, from, until } = value;
   if (typeof grant !== 'string' || !ID.test(grant) || !named(inspector) || clean(inspector) !== inspector) return false;
   if (!day(from) || !day(until) || compareDays(from, until) > 0) return false;
   if (!Array.isArray(weeks) || weeks.length === 0 || weeks.length > MOST_NOTICE_WEEKS) return false;
@@ -62,8 +67,17 @@ export function isGrantNotice(value: unknown): value is GrantNotice {
     ID.test(one['course']) &&
     day(one['week']);
   if (!weeks.every(shaped)) return false;
-  const names = new Set((weeks as { course: string; week: string }[]).map((one) => `${one.course}/${one.week}`));
-  return names.size === weeks.length;
+  const listed = weeks as { course: string; week: string }[];
+  const names = new Set(listed.map((one) => `${one.course}/${one.week}`));
+  if (names.size !== weeks.length || !Array.isArray(uses)) return false;
+  const keyed = (one: unknown, at: number) =>
+    record(one) &&
+    Object.keys(one).length === 3 &&
+    one['course'] === listed[at]?.course &&
+    one['week'] === listed[at]?.week &&
+    typeof one['key'] === 'string' &&
+    KEY.test(one['key']);
+  return uses.length === weeks.length && uses.every(keyed);
 }
 
 /** A notice signed on the director's device with the key its certificate names. */

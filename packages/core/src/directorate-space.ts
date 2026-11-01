@@ -24,7 +24,7 @@
 import type { SealedBatch } from './batches.ts';
 import type { InspectorDevice } from './device-events.ts';
 import { eventOf } from './events.ts';
-import { inspectorFingerprint, plainFingerprint as plain } from './grants.ts';
+import { inspectorFingerprint, plainFingerprint as plain } from './grant-fingerprint.ts';
 import type { Entry } from './history.ts';
 import { ascii, ID, isHolder, SCHOOL, type Holder, type KeyCrypto } from './school-key-shape.ts';
 import { openRecords, placeOf, sealRecord, type Place } from './sealed-stream.ts';

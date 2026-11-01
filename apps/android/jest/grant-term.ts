@@ -6,8 +6,8 @@
 // directorate's space, an inspector's key posted there, and the directorate
 // asking for a grant over 1م2 and 1م3; a new epoch of the school's keyring;
 // what the inspector's device opens of the grants relayed to it, each week's
-// archive with the key a grant shares, and the notices on the teacher's
-// channel.
+// archive with the key a grant shares and the keys of its weeks' uses, and
+// the notices on the teacher's channel.
 
 import {
   channelGrantNotices,
@@ -23,6 +23,7 @@ import {
   readJoinCode,
   readJoined,
   relayPlace,
+  toHex,
   useGrant as weekKey,
   type Day,
   type Grant,
@@ -117,7 +118,17 @@ export async function relayedTo(inspector: Parameters<typeof inspectorDevice>[0]
     }
     return read;
   };
-  return { relayed, count: batches.length, weeks };
+  const useKeys = async (grant: Grant) => {
+    const opened = await openGrant(grant, today, own.device, crypto);
+    if (typeof opened === 'string') return opened;
+    const keys = [];
+    for (const week of grant.weeks) {
+      const used = await weekKey(opened, week.course, week.week, today, crypto);
+      if (used !== null) keys.push({ course: week.course, week: week.week, key: toHex(used.useKey) });
+    }
+    return keys;
+  };
+  return { relayed, count: batches.length, weeks, useKeys };
 }
 
 /** The grant notices on the teacher's channel, as the joined device reads them. */
