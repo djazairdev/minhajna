@@ -18,8 +18,8 @@ import { createApp } from '../src/app.js';
 import { MemoryShareStore } from '../src/totals/share-store.js';
 import { MemoryWorldStore } from '../src/worlds/world-store.js';
 import { WorldSweeper } from '../src/worlds/world-sweeper.js';
-import { madeUpShare } from './share-kit.js';
-import { freshId, OPEN, PASS, WITH_PASS } from './state-kit.js';
+import { announcedWorld, madeUpShare } from './share-kit.js';
+import { OPEN, WITH_PASS } from './state-kit.js';
 
 describe('the schools’ shares of the totals', () => {
   let app: NestNodeApplication;
@@ -39,28 +39,7 @@ describe('the schools’ shares of the totals', () => {
     await app.close();
   });
 
-  /** A world dated 2026-12-01, its date moved onto its first announced day, 2026-12-06. */
-  async function world(): Promise<string> {
-    const id = freshId();
-    const body = {
-      world: id,
-      sealed: 'c2VhbGVkLXdvcmxk',
-      date: '2026-12-01',
-      announcedDays: ['2026-12-06', '2026-12-20'],
-    };
-    const res = await fetch(`${base}/worlds`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...body, pass: PASS }),
-    });
-    const { starter } = (await res.json()) as { starter: string };
-    const moved = await fetch(`${base}/worlds/${id}/date`, {
-      method: 'POST',
-      headers: { ...WITH_PASS, authorization: `Bearer ${starter}` },
-    });
-    assert.deepEqual(await moved.json(), { date: '2026-12-06' });
-    return id;
-  }
+  const world = () => announcedWorld(base);
 
   const put = (id: string, day: string, body: unknown, headers: Record<string, string> = WITH_PASS) =>
     fetch(`${base}/worlds/${id}/totals/${day}/shares`, {

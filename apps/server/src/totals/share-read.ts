@@ -27,7 +27,7 @@ const NAME = /^[A-Za-z0-9._-]{1,64}$/;
 const MAC = /^[0-9a-f]{64}$/;
 
 /** Whether a value is a name of the reference data's shape that no object already holds. */
-const isName = (value: unknown): value is string =>
+export const isName = (value: unknown): value is string =>
   typeof value === 'string' && NAME.test(value) && !value.startsWith('__') && !(value in Object.prototype);
 
 /** How many bytes a value takes as JSON. */

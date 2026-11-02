@@ -6,22 +6,29 @@
 // uploads as the sealed batches its bytes would fill, so no address fills the
 // store with shares either. PUT /worlds/:world/totals/:day/shares takes a
 // school's share for one of the world's announced days that the world's date
-// has reached, the day in the path and the share's own, and keeps it by its
-// ID, answered 201 when new and 200 when it replaced one, its ID alone sent
-// back; a share is never shown back. A day not announced, or not reached yet,
-// is refused, so no series of totals forms between announced days.
+// has reached, the day in the path and the share's own, and keeps it by its ID,
+// answered 201 when new and 200 when it replaced one, its ID alone sent back; a
+// share is never shown back. GET /worlds/:world/totals/:day answers the day's
+// totals for the Ministry, every directorate's and the nation's, and with
+// ?directorate= one directorate's own, every figure under its floor hidden
+// (share-sums.ts). A day holds a bounded set of names and bytes, a share past
+// them refused with 409, and its sums stay worked out until a share comes in
+// (totals-days.ts). A day not announced, or not reached yet, is refused, so no
+// series of totals forms between announced days.
 
 import {
   BadRequestException,
   Body,
   ConflictException,
   Controller,
+  Get,
   Header,
   Headers,
   HttpCode,
   Inject,
   Param,
   Put,
+  Query,
   Req,
   Res,
   UnprocessableEntityException,
@@ -33,8 +40,10 @@ import { limitRequest, noWorld, openWorld, tooMany } from '../worlds/world-acces
 import { isDay } from '../worlds/world-rules.js';
 import { WORLD_STORE, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
-import { readShare, shareBytes } from './share-read.js';
+import { isName, readShare, shareBytes } from './share-read.js';
 import { MAX_SHARES, SHARE_STORE, type ShareStore } from './share-store.js';
+import type { DayTotals } from './share-sums.js';
+import { TotalsDays } from './totals-days.js';
 
 @Controller('worlds/:world/totals')
 export class TotalsController {
@@ -42,6 +51,7 @@ export class TotalsController {
     @Inject(WORLD_STORE) private readonly worlds: WorldStore,
     @Inject(SHARE_STORE) private readonly shares: ShareStore,
     @Inject(WORLD_LIMITERS) private readonly limiters: WorldLimiters,
+    @Inject(TotalsDays) private readonly days: TotalsDays,
   ) {}
 
   @Put(':day/shares')
@@ -63,12 +73,33 @@ export class TotalsController {
     const address = clientAddress(request, this.limiters.trustCloudflare);
     const cost = Math.ceil(shareBytes(share) / SEALED_BATCH_BYTES);
     if (!this.limiters.uploads.fits(address, cost)) throw tooMany();
+    const refused = await this.days.take(world, share, () => this.shares.shares(world.id, day));
+    if (refused !== null) throw new ConflictException(refused);
     const kept = await this.shares.put(world.id, share);
     if (kept === 'added' || kept === 'replaced') this.limiters.uploads.charge(address, cost);
     if (kept === 'no-world') throw noWorld();
     if (kept === 'full') throw new ConflictException(`a world keeps at most ${MAX_SHARES} shares a day`);
+    this.days.changed(world, day);
     if (kept === 'replaced') response.statusCode = 200;
     return { id: share.id };
+  }
+
+  @Get(':day')
+  @Header('Cache-Control', 'no-store')
+  async totals(
+    @Param('world') id: string,
+    @Param('day') day: string,
+    @Query('directorate') directorate: unknown,
+    @Headers('x-world-pass') pass: string | undefined,
+    @Req() request: IncomingMessage,
+  ): Promise<DayTotals> {
+    const world = await this.enter(id, pass, request);
+    announced(world, day);
+    if (directorate !== undefined && (typeof directorate !== 'string' || !isName(directorate))) {
+      throw new BadRequestException('a directorate is named as the reference data names it');
+    }
+    const sums = await this.days.sums(world, day, () => this.shares.shares(world.id, day));
+    return sums.view(directorate ?? null);
   }
 
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
