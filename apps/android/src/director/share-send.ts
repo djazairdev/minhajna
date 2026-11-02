@@ -14,10 +14,10 @@
 // course not theirs never counts, with each subject's staffing as the timetable
 // shows it (school-dashboard.ts), and put on the server under the share's ID,
 // so a share sent again replaces the first; a share the same as the last one
-// put for its day in this session is not put again. A day the server does not
-// take, not announced or not reached on its side, is passed over; any other
-// answer throws, with world-session.ts's codes, and the dashboard tries again
-// when it next reads.
+// put for its day in the last ten minutes is not put again. A day the server
+// does not take, not announced or not reached on its side, is passed over; any
+// other answer throws, with world-session.ts's codes, and the dashboard tries
+// again when it next reads.
 
 import {
   announcedDaysOf,
@@ -38,8 +38,10 @@ import type { IssueDesk } from './school-desk';
 
 type ShareWorld = Pick<OpenWorld, 'world' | 'date'>;
 
-/** The last share put for each world and day in this session, as JSON, so one the same is not put again. */
-const lastPut = new Map<string, string>();
+/** How long a share put stays remembered, so one the same is put again after it, as a server may lose it. */
+const REMEMBERED_MS = 10 * 60 * 1000;
+/** The last share put for each world and day, as JSON, and when, so one the same is not put again meanwhile. */
+const lastPut = new Map<string, { readonly text: string; readonly at: number }>();
 
 /** By course, the keys its records were signed with on the channels of the teachers the timetable names for it. */
 export async function courseSigners(
@@ -102,11 +104,12 @@ export async function sendShares(
     const input = { school: desk.opened, day, from, directorate: school.directorateId, weeks, signers, ca, staffing };
     const share = await kitStep(() => prepareShare(input, desk.crypto));
     const [key, text] = [JSON.stringify([world.world, day]), JSON.stringify(share)];
-    if (lastPut.get(key) !== text) {
+    const last = lastPut.get(key);
+    if (last?.text !== text || Date.now() - last.at > REMEMBERED_MS) {
       const answer = await send({ method: 'PUT', path: `/worlds/${world.world}/totals/${day}/shares`, body: share });
       if (answer.status === 422) continue;
       if (answer.status !== 200 && answer.status !== 201) throw unexpected(answer);
-      lastPut.set(key, text);
+      lastPut.set(key, { text, at: Date.now() });
     }
     sent.push(share);
   }

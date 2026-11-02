@@ -114,6 +114,8 @@ test('a course counts only the keys of the teachers the timetable names for it',
   const teacherOf = (one: (typeof courses)[number]) => one.key.split('\n')[0];
   const mine = courses[0];
   const other = courses.find((one) => teacherOf(one) !== teacherOf(mine))!;
+  const named = school.week.filter((one) => one.teacherId === teacherOf(other)).map((one) => one.subject);
+  expect(named).not.toContain(mine.subject);
   const theirs = { ...mine, key: `${teacherOf(other)}\n${mine.course}`, weeks: other.weeks };
   const posed = [{ class: mine.class, courses: [mine, theirs] }];
   const keys = (await courseSigners(desk.held.school, school, posed, nodeKit.mac))[mine.course];
