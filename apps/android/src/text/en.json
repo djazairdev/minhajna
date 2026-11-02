@@ -5807,6 +5807,31 @@
         "missing": "Some fields need attention.",
         "newIn": "New entry for wilaya {{wilaya}}"
       }
+    },
+    "totals": {
+      "lead": "No figure here is a school’s or a teacher’s: every figure covers at least 5 teachers and 3 schools.",
+      "none": "The world’s date has not reached an announced day after the first term’s end yet: totals are added up only on announced days, such as a term’s end.",
+      "header": "Directorate of education · {{wilaya}} · {{day}} · term {{number}}, from {{from}} to {{to}}",
+      "asOf": "The figures as added up on the announced day, {{day}}.",
+      "day": "Announced day",
+      "notYet": "This day’s totals are not added up yet: no school’s share has come in.",
+      "reading": "Reading the totals…",
+      "owed": "What the system owes teachers",
+      "owedLead": "What teachers gave and what they lacked: the cover they gave, vacant posts and hours without a teacher, and sessions lost to an exceptional closure.",
+      "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. The server hides enough cells that no hidden one can be worked out by subtraction.",
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking, or for a decision about a teacher.",
+      "hidden": "Hidden: under the minimum group sizes",
+      "atLeast": "at least {{figure}}",
+      "all": "Every subject",
+      "column": {
+        "subject": "Subject",
+        "teachers": "Teachers",
+        "schools": "Schools",
+        "cover": "Cover sessions given",
+        "vacantPosts": "Vacant posts",
+        "hoursWithoutTeacher": "Weekly hours without a teacher",
+        "closed": "Sessions lost to closures"
+      }
     }
   },
   "chart": {
