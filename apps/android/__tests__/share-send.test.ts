@@ -5,12 +5,13 @@
 // 628), against a made-up demo server: for an announced day the world's date
 // reached, the share prepared from the school's signed weeks in the day's term,
 // with the timetable's staffing, is put once and replaces itself when sent
-// again; a day the server does not take, such as an exam day it does not list,
-// is passed over; a day not reached is not sent; and a seeded school's key
-// sends nothing, its share being the starter's. The term is filled as a seeded
-// school's is, then read as one whose key the device started, with a calendar
-// whose first term is cut short so the filled weeks fall in the day's term.
-// Every world, school and teacher is made up.
+// again, though not put again while the same; a day the server does not take,
+// such as an exam day it does not list, is passed over; a course counts only
+// the keys of the teachers the timetable names for it; a day not reached is not
+// sent; and a seeded school's key sends nothing, its share being the starter's.
+// The term is filled as a seeded school's is, then read as one whose key the
+// device started, with a calendar whose first term is cut short so the filled
+// weeks fall in the day's term. Every world, school and teacher is made up.
 
 import {
   addDays,
@@ -28,7 +29,7 @@ import { holdSchool } from '../src/director/issue-session';
 import { recordsOf } from '../src/director/records-session';
 import { fillSeededTerm } from '../src/director/seeded-fill';
 import { seededKeyOf, takeSeededKey } from '../src/director/seeded-key';
-import { sendShares, sharedDays } from '../src/director/share-send';
+import { courseSigners, sendShares, sharedDays } from '../src/director/share-send';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { openRecordBook } from '../src/storage/history';
 
@@ -89,9 +90,8 @@ test('the share of an announced day reached is put once, and replaces itself whe
   const [again] = await sendShares(director, started, school, records, short, nodeKit, server.send);
   expect(again).toEqual(share);
   expect(server.shares.size).toBe(1);
-  expect(server.seen.filter((one) => one.method === 'PUT' && one.path.includes('/totals/'))).toHaveLength(
-    2 * days.length,
-  );
+  const puts = (on: string) => server.seen.filter((one) => one.method === 'PUT' && one.path.includes(`/totals/${on}/`));
+  expect([puts(day).length, puts(days[0].day).length]).toEqual([1, 2]);
 });
 
 test('a day the server does not take is passed over, and a day not reached is not sent', async () => {
@@ -105,6 +105,21 @@ test('a day the server does not take is passed over, and a day not reached is no
     await sendShares({ ...director, date: before }, started, school, records, short, nodeKit, server.send),
   ).toEqual([]);
   expect(sharedDays(reference.calendar, director.date)).toEqual([]);
+});
+
+test('a course counts only the keys of the teachers the timetable names for it', async () => {
+  const { school, desk, records } = await filled();
+  const signers = await courseSigners(desk.held.school, school, records, nodeKit.mac);
+  const courses = records.flatMap((one) => one.courses);
+  const teacherOf = (one: (typeof courses)[number]) => one.key.split('\n')[0];
+  const mine = courses[0];
+  const other = courses.find((one) => teacherOf(one) !== teacherOf(mine))!;
+  const theirs = { ...mine, key: `${teacherOf(other)}\n${mine.course}`, weeks: other.weeks };
+  const posed = [{ class: mine.class, courses: [mine, theirs] }];
+  const keys = (await courseSigners(desk.held.school, school, posed, nodeKit.mac))[mine.course];
+  expect(keys).toEqual(signers[mine.course]);
+  expect(keys).not.toContain(other.weeks[0].signed.certificate.publicKey);
+  expect(Object.keys(signers).sort()).toEqual([...new Set(courses.map((one) => one.course))].sort());
 });
 
 test('a seeded school’s key sends nothing, its share being the starter’s', async () => {

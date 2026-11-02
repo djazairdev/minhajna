@@ -127,7 +127,7 @@ export function teacherLoads(school: DemoSchool, cover: (teacherId: string) => n
   }));
 }
 
-/** By subject, the staffing the timetable shows: teachers, classes with a vacant post, sessions without one. */
+/** By subject, the staffing the timetable shows: teachers, classes with a vacant post, sessions (hours) without one. */
 export function schoolStaffing(school: DemoSchool): Record<string, Staffing> {
   const known = new Set(school.teachers.map((one) => one.id));
   const subjects = new Map<string, { teachers: Set<string>; vacant: Set<string>; hours: number }>();
