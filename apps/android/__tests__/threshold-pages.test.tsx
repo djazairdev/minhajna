@@ -5,17 +5,18 @@
 // cut-room.ts: the exams list names the exam, its days, that no cut is proposed
 // and the class's items reached and forecast, as the pack names them, and opens
 // the exam's page on its room by a button named with the exam; it lists the
-// exams above the school the phone's classes sit, from its own weeks, by name,
-// level and days, with the class's items on the day they are taken and what
-// each level shows, and none without the world's school, or says so when the
-// phone's weeks do not read; with no room it says none has come; the exam's
-// page shows the chart's table and the item every class reached, proposes a cut
-// chosen from the plan, which settles it while the phone is the one setter,
-// says it, with the day it was signed, then signs no cut, which leaves it to
-// the director; a problem reading is shown, said, and read again once however
-// quickly pressed twice; the joined pages open both, and a threshold page with
-// no room shows nothing; and the pages' words read in every language. Every
-// school, teacher and pack is made up.
+// school's exams before their figures day and the exams above the school the
+// phone's classes sit, from its own weeks, by name, level and days, with the
+// class's items on the day they are taken and what each level shows, and none
+// without the world's school, or says so when the phone's weeks do not read;
+// with no room it says none has come; the exam's page shows the chart's table
+// and the item every class reached, proposes a cut chosen from the plan, which
+// settles it while the phone is the one setter, says it, with the day it was
+// signed, then signs no cut, which leaves it to the director; a problem reading
+// is shown, said, and read again once however quickly pressed twice; the joined
+// pages open both, and a threshold page with no room shows nothing; and the
+// pages' words read in every language. Every school, teacher and pack is made
+// up.
 
 import { addDays } from '@minhajna/core';
 import type { ButtonProps } from '../src/components/Button';
@@ -88,7 +89,9 @@ test('lists the exams above the school its classes sit, from its own weeks, and 
   const chart = { exam: 'bem', subject: 'math', grade: '1am', forecastDay: addDays(date, 29), pack, items };
   const classes = [{ name: '1م2', position: items[0], forecast: items[2] }];
   const mock = { ...exam, id: 'mock', setBy: 'directorate', figuresDay: addDays(date, 10) };
+  const term = { ...exam, id: 'term-2', setBy: 'school', figuresDay: addDays(date, 5) };
   const shown = [
+    { exam: term, asOf: date, charts: [{ ...chart, exam: 'term-2', classes }] },
     { exam: mock, asOf: date, charts: [{ ...chart, exam: 'mock', classes }] },
     { exam: { ...exam, figuresDay: addDays(date, 20) }, asOf: date, charts: [{ ...chart, classes }] },
   ];
@@ -112,6 +115,8 @@ test('lists the exams above the school its classes sit, from its own weeks, and 
       list.shows.national,
       list.level.directorate,
       list.shows.directorate,
+      list.level.school,
+      list.shows.school,
       list.notes.phone,
     ]),
   );

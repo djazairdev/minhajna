@@ -1,17 +1,20 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The directorate's and national exams on a teacher's phone (#601, answers 632
-// and 633), worked out on the phone from the teacher's own signed weeks and
-// never sent: each such exam up to its last day, with, for each grade and
-// subject the teacher signed weeks in for a class of the world's school that
-// sits it, those classes' positions and forecasts as the school's charts give
-// them (exam-charts.ts), taken on the day before the world's date before the
-// figures day, so a week begun that day does not count before its days do, and
-// on the figures day from then on, each class matched by its name key, its
+// The exams on a teacher's phone that it reads no room for (#601, #602, answers
+// 632 to 634): the school's exams before their figures day, whose rooms are not
+// open yet, and the directorate's and national exams, worked out on the phone
+// from the teacher's own signed weeks and never sent: each school exam until
+// its figures day and each other exam up to its last day, with, for each grade
+// and subject the teacher signed weeks in for a class of the world's school
+// that sits it, those classes' positions and forecasts as the school's charts
+// give them (exam-charts.ts), taken on the day before the world's date before
+// the figures day, so a week begun that day does not count before its days do,
+// and on the figures day from then on, each class matched by its name key, its
 // spellings together, and counted only when its teacher signed a week of it in
 // that subject; an exam none of whose classes is the teacher's is left out.
-// There is no cut on the phone for these exams.
+// There is no cut on the phone for these exams: a school exam's comes with its
+// room.
 
 import {
   addDays,
@@ -50,7 +53,7 @@ function recordsOf(weeks: readonly WeekRecord[]): StandingRecords[] {
   }));
 }
 
-/** The directorate's and national exams up to their last day, with the teacher's classes in each. */
+/** The school's exams before their figures day and the others up to their last day, with the teacher's classes. */
 export function ownExams(
   weeks: readonly WeekRecord[],
   school: DemoSchool,
@@ -62,7 +65,8 @@ export function ownExams(
   const { year, entries } = reference.calendar;
   const found: OwnExam[] = [];
   for (const exam of worldExams(year, entries)) {
-    if (exam.setBy === 'school' || compareDays(date, exam.to) > 0) continue;
+    if (compareDays(date, exam.to) > 0) continue;
+    if (exam.setBy === 'school' && compareDays(date, exam.figuresDay) >= 0) continue;
     const asOf = compareDays(date, exam.figuresDay) < 0 ? addDays(date, -1) : exam.figuresDay;
     const charts = chartDrafts(exam, school, records, reference, asOf)
       .map(({ chart }) => ({
