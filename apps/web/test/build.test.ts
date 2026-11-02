@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { androidVersion, releaseNotes, stopsBuild } from '../scripts/build.ts';
 import { checksum, fileHashes } from '../scripts/hashes.ts';
-import { addressProblems } from '../scripts/host.ts';
+import { addressProblems, typeOf } from '../scripts/host.ts';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);
@@ -48,6 +48,17 @@ describe('the web bundle', () => {
     const others = files.filter((name) => name !== 'build.json');
     assert.deepEqual(first.files, fileHashes(dist, others));
     assert.equal(checksum(first.files), first.sha256);
+  });
+
+  it('ships a local PDF worker and only permitted source-viewing assets', () => {
+    assert.ok('pdf-worker.js' in first.files);
+    for (const name of Object.keys(first.files)) assert.notEqual(typeOf(name), undefined, name);
+    assert.ok(Object.keys(first.files).some((name) => name.endsWith('.bcmap')));
+    assert.ok(Object.keys(first.files).some((name) => name.endsWith('FoxitSymbol.pfb')));
+    assert.ok(Object.keys(first.files).every((name) => !name.includes('Liberation')));
+    const licences = text('licences.json');
+    assert.ok(licences.includes('pdfjs-dist 6.5.438') && licences.includes('PDF.js standard_fonts'));
+    assert.match(text('pdf-worker.js'), /indexedDB/u);
   });
 
   it('gives a checksum that sha256sum’s lines reproduce', () => {
