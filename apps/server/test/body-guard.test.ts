@@ -9,13 +9,19 @@ import { request } from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import type { NestNodeApplication } from '@nestjs/platform-node';
 import { createApp } from '../src/app.js';
-import { BATCH_BODY, DELIVERY_BODY, DRAIN_AT, SMALL_BODY } from '../src/body-guard.js';
+import { BATCH_BODY, DELIVERY_BODY, DRAIN_AT, SHARE_BODY, SMALL_BODY } from '../src/body-guard.js';
 
 let connection: string | undefined;
 
-function send(base: string, path: string, headers: Record<string, string>, body = ''): Promise<number> {
+function send(
+  base: string,
+  path: string,
+  headers: Record<string, string>,
+  body = '',
+  method = 'POST',
+): Promise<number> {
   return new Promise((done, fail) => {
-    const req = request(new URL(path, base), { method: 'POST', headers }, (res) => {
+    const req = request(new URL(path, base), { method, headers }, (res) => {
       res.resume();
       connection = res.headers.connection;
       done(res.statusCode ?? 0);
@@ -59,6 +65,11 @@ describe('the body guard', () => {
     const larger = 'x'.repeat(DELIVERY_BODY + 1);
     assert.equal(await send(base, delivery, { ...json, 'content-length': String(larger.length) }, larger), 413);
     assert.equal(await send(base, delivery, { ...json, 'content-length': String(small.length) }, small), 400);
+    const share = '/worlds/AAAAA/totals/2026-12-06/shares';
+    const largest = 'x'.repeat(SHARE_BODY + 1);
+    assert.equal(await send(base, share, { ...json, 'content-length': String(largest.length) }, largest, 'PUT'), 413);
+    assert.equal(await send(base, share, { ...json, 'content-length': String(small.length) }, small, 'PUT'), 400);
+    assert.equal(await send(base, share, { ...json, 'content-length': String(small.length) }, small), 413);
   });
 
   it('closes the connection instead of draining a body that claims far too much', async () => {
