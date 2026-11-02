@@ -23,7 +23,9 @@
 // secure aggregation comes later (choice D2). A share's ID is a MAC under the
 // school key's first epoch for its day, so a share sent again replaces the
 // first and the ID links no two days; a device removed from the school key can
-// still work it out (answer 567).
+// still work it out (answer 567). A seeded school's share is prepared the same
+// way from the term generator's weeks worked out up to the day, which are never
+// signed, by the device that started the world (answer 628).
 
 import { checkSignedWeek, isSigningKey, type KeyChecker } from './certify.ts';
 import { addDays, isDay, type Day } from './day.ts';
@@ -195,9 +197,10 @@ function isStaffing(value: unknown): value is Staffing {
   return counts.every(([, count]) => Number.isSafeInteger(count) && (count as number) >= 0);
 }
 
-/** The school's share for an announced day, prepared on a device that holds the school key. */
-export async function prepareShare(input: ShareInput, crypto: KeyCrypto): Promise<TotalsShare> {
-  const { school, day, from, directorate, staffing } = input;
+type Common = Pick<ShareInput, 'school' | 'day' | 'from' | 'directorate' | 'staffing'>;
+
+/** Refuses a share's day, term, directorate or staffing written otherwise. */
+function checkCommon({ day, from, directorate, staffing }: Common): void {
   if (!isDay(day) || !isDay(from) || from > day || !ENTRY_ID.test(directorate)) {
     throw new RangeError('A share names its directorate and its term');
   }
@@ -205,12 +208,13 @@ export async function prepareShare(input: ShareInput, crypto: KeyCrypto): Promis
   if (!names.every((name) => ENTRY_ID.test(name) && isStaffing(staffing[name]))) {
     throw new RangeError('Staffing is counted by subject');
   }
-  const isKeys = (keys: unknown) => Array.isArray(keys) && keys.every(isSigningKey);
-  const listed = isMap(input.signers) ? Object.entries(input.signers) : [['', null] as const];
-  if (!listed.every(([course, keys]) => ID.test(course) && isKeys(keys))) {
-    throw new RangeError('Signers are listed by course and key');
-  }
-  const tallies = tally(await countedWeeks(input));
+}
+
+/** The share of each course's counted weeks, in order, with the staffing, under its ID for the day. */
+async function shareOf(input: Common, courses: WeekForTotals[][], crypto: KeyCrypto): Promise<TotalsShare> {
+  const { school, day, directorate, staffing } = input;
+  const tallies = tally(courses);
+  const names = Object.keys(staffing);
   const subjects = [...new Set([...tallies.keys(), ...names])].map((subject): [string, SubjectShare] => {
     const { items, ...sums } = tallies.get(subject) ?? newTally();
     const { teachers, vacantPosts, hoursWithoutTeacher } = staffing[subject] ?? {
@@ -223,4 +227,35 @@ export async function prepareShare(input: ShareInput, crypto: KeyCrypto): Promis
   const key = await purposeKey(school, 0, 'total-shares', crypto);
   const id = toHex(await crypto.mac(key, ascii(`minhajna/total-share\n${school.ring.school}\n${day}`)));
   return { format: SHARE_FORMAT, id, day, directorate, subjects: sorted(subjects) };
+}
+
+/** The school's share for an announced day, prepared on a device that holds the school key. */
+export async function prepareShare(input: ShareInput, crypto: KeyCrypto): Promise<TotalsShare> {
+  checkCommon(input);
+  const isKeys = (keys: unknown) => Array.isArray(keys) && keys.every(isSigningKey);
+  const listed = isMap(input.signers) ? Object.entries(input.signers) : [['', null] as const];
+  if (!listed.every(([course, keys]) => ID.test(course) && isKeys(keys))) {
+    throw new RangeError('Signers are listed by course and key');
+  }
+  return shareOf(input, await countedWeeks(input), crypto);
+}
+
+/**
+ * A seeded school's share for an announced day, from the term generator's weeks worked out up to that day
+ * (seeded-term.ts) rather than signed ones, each course's weeks in the term counted at their latest version.
+ */
+export async function seededShare(
+  input: Common & { readonly weeks: readonly { readonly versions: readonly WeekForTotals[] }[] },
+  crypto: KeyCrypto,
+): Promise<TotalsShare> {
+  checkCommon(input);
+  const { from, day } = input;
+  const courses = new Map<string, WeekForTotals[]>();
+  for (const { versions } of input.weeks) {
+    const latest = versions.at(-1);
+    if (latest === undefined || addDays(latest.week, 6) < from || latest.week > day) continue;
+    courses.set(latest.course, [...(courses.get(latest.course) ?? []), latest]);
+  }
+  const inOrder = [...courses.values()].map((weeks) => weeks.sort((a, b) => (a.week < b.week ? -1 : 1)));
+  return shareOf(input, inOrder, crypto);
 }

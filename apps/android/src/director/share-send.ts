@@ -77,9 +77,14 @@ export function sharedDays(calendar: SchoolCalendar, date: Day): { day: Day; fro
   return announcedDaysOf(calendar.year, calendar.entries, terms[0].to)
     .filter((day) => day <= date)
     .flatMap((day) => {
-      const term = terms.filter((one) => one.from <= day).at(-1);
-      return term === undefined ? [] : [{ day, from: term.from }];
+      const from = termStart(calendar, day);
+      return from === null ? [] : [{ day, from }];
     });
+}
+
+/** The first day of the term a day falls in: the latest that has begun by then, or null before the first. */
+export function termStart(calendar: SchoolCalendar, day: Day): Day | null {
+  return calendar.year.terms.filter((one) => one.from <= day).at(-1)?.from ?? null;
 }
 
 /** The school's shares for the announced days reached, prepared from its records and put on the server. */
