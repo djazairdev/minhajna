@@ -18,6 +18,7 @@ import { useEffect, useEffectEvent } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
+import { termName } from '../director/dashboard-text';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
 import { colors, spacing, typography } from '../design/tokens';
@@ -39,8 +40,6 @@ export type DirectorateTotalsProps = {
   /** A subject's name in the interface's language. */
   readonly subjectName: (code: string) => string;
 };
-
-const termKey = (number: number) => (number === 1 ? '1' : number === 2 ? '2' : '3');
 
 /** The directorate's totals for the announced days the world's date reached. */
 export function DirectorateTotals({
@@ -77,7 +76,7 @@ export function DirectorateTotals({
             {t('demo.totals.header', {
               wilaya,
               day: dayText(view.day.day),
-              term: t(`demo.cover.terms.${termKey(view.day.term.number)}`),
+              term: termName(t, view.day.term.number),
               from: dayText(view.day.term.from),
               to: dayText(view.day.term.to),
             })}

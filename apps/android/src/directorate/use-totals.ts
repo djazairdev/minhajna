@@ -9,11 +9,11 @@
 // chosen day, read when the page opens, when the world's date moves, when
 // another day is chosen and when asked again, never on a timer. While a day is
 // read its figures wait; a day the server does not answer yet is null; a
-// problem is said in the catalogue's words. Leaving the page, the date moving
-// or another day chosen drops a slower answer.
+// problem is said in the catalogue's words. Any new reading, and leaving the
+// page, drops a slower answer.
 
 import type { Day, SchoolCalendar, Term } from '@minhajna/core';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
 import { sharedDays } from '../director/share-send';
@@ -62,22 +62,21 @@ export function useDirectorateTotals(
   directorate: string,
   send: Send = worldRequest,
 ): TotalsView {
-  const days = useMemo(() => totalsDays(calendars, world.date), [calendars, world.date]);
+  const days = totalsDays(calendars, world.date);
   const [chosen, setChosen] = useState<Day | null>(null);
   const [round, setRound] = useState(0);
   const day = days.find((one) => one.day === chosen) ?? days.at(-1) ?? null;
   const asked = day?.day ?? null;
   const key = JSON.stringify([world.world, world.date, directorate, asked, round]);
   const [read, setRead] = useState<Read | null>(null);
-  const live = useRef(key);
   useEffect(() => {
-    live.current = key;
     if (asked === null) return;
+    let live = true;
     readTotals(world.world, asked, directorate, send)
-      .then((figures) => live.current === key && setRead({ key, figures }))
-      .catch((error: unknown) => live.current === key && setRead({ key, problem: problemOf(error) }));
+      .then((figures) => live && setRead({ key, figures }))
+      .catch((error: unknown) => live && setRead({ key, problem: problemOf(error) }));
     return () => {
-      live.current = '';
+      live = false;
     };
   }, [key, world.world, asked, directorate, send]);
   const now = read?.key === key ? read : null;
