@@ -5954,7 +5954,20 @@
       "notes": {
         "school": "Le graphique est calculé dans l’établissement à partir des seules semaines signées, et ne quitte jamais l’espace de l’établissement.",
         "monthly": "Les devoirs mensuels restent à chaque enseignant, sans seuil ni signature.",
-        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit.",
+        "phone": "Le téléphone calcule ces positions à partir du plan de chaque classe, et aucune ne le quitte. Le jour des chiffres, seule la part de l’établissement dans les totaux quitte l’établissement, à partir des seules semaines signées."
+      },
+      "above": "Au-dessus de l’établissement",
+      "level": {
+        "directorate": "Préparé par la direction de l’éducation",
+        "national": "Préparé par le ministère"
+      },
+      "ownDays": "Examen : {{from}} · Chiffres : {{figures}}",
+      "asOf": "Où en étaient vos classes le {{day}}, calculé sur ce téléphone à partir de vos semaines signées.",
+      "ownFailed": "Vos examens au-dessus de l’établissement n’ont pas pu être calculés sur ce téléphone : vos semaines signées n’ont pas pu être lues.",
+      "shows": {
+        "directorate": "Le seuil de la direction n’apparaît pas avant l’examen. Après le jour des chiffres, vos classes apparaîtront face à ses totaux.",
+        "national": "Le seuil national est publié pour tous après l’examen, avec ses chiffres et la façon dont il a orienté les questions."
       }
     },
     "threshold": {
@@ -6011,6 +6024,10 @@
       "problem": {
         "closed": "Le seuil ne peut plus être signé : le délai de signature est passé ou le directeur a décidé.",
         "notSetter": "Ce téléphone n’est pas l’un des rédacteurs de cet examen."
+      },
+      "exams": {
+        "mock": "L’examen blanc unifié",
+        "bem": "Le BEM"
       }
     }
   },

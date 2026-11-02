@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The rooms a threshold page shows (#601, answer 633), read as it opens
-// (teacher-rooms.ts), with a way to read them again and to sign a cut, which
-// reads them again once signed or refused, the problem kept; a second press
-// while one runs does nothing. A problem is said in the catalogue's words, as
-// is a cut signed (useSaid.tsx).
+// (teacher-rooms.ts), with, when asked, the weeks the phone signed on its
+// channel, with a way to read them again and to sign a cut, which reads them
+// again once signed or refused, the problem kept; a second press while one runs
+// does nothing. A problem is said in the catalogue's words, as is a cut signed
+// (useSaid.tsx).
 
-import type { SchoolJoined } from '@minhajna/core';
+import type { SchoolJoined, WeekRecord } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { problemOf } from '../school/school-join-session';
 import { useDeviceText } from '../text/device-text';
 import { useSaid } from '../week/useSaid';
-import { readTeacherRooms, type TeacherRoom } from './teacher-rooms';
+import { readTeacherExams, type TeacherRoom } from './teacher-rooms';
 
 /** The rooms as read, whether a reading or a signing runs, its problem, and the page's hidden live region. */
 export function useTeacherRooms(
@@ -24,9 +25,11 @@ export function useTeacherRooms(
   send: Send | undefined,
   said: string,
   testID: string,
+  own = false,
 ) {
   const t = useDeviceText();
   const [rooms, setRooms] = useState<readonly TeacherRoom[] | null>(null);
+  const [weeks, setWeeks] = useState<readonly WeekRecord[] | null>(null);
   const [reading, setReading] = useState(true);
   const [problem, setProblem] = useState<ReturnType<typeof problemOf> | null>(null);
   const { say, region } = useSaid(said, `${testID}-said`);
@@ -40,10 +43,11 @@ export function useTeacherRooms(
     say(t(problemOf(error)));
   };
   const load = () =>
-    readTeacherRooms(world, join, kit, send).then((read) => {
+    readTeacherExams(world, join, kit, send, own).then((read) => {
       if (!mounted.current) return;
       working.current = false;
-      setRooms(read);
+      setRooms(read.rooms);
+      setWeeks(read.weeks);
       setReading(false);
     }, failed);
   const first = useEffectEvent(() => {
@@ -72,6 +76,7 @@ export function useTeacherRooms(
   };
   return {
     rooms,
+    weeks,
     reading,
     problem,
     region,

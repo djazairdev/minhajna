@@ -5869,7 +5869,20 @@
       "notes": {
         "school": "The chart is worked out in the school from signed weeks only, and never leaves the school’s space.",
         "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
-        "never": "Nothing here is used to evaluate or rank anyone."
+        "never": "Nothing here is used to evaluate or rank anyone.",
+        "phone": "The phone works out these positions from each class’s plan, and none of them leaves it. On the figures day only the school’s share of the totals leaves the school, from signed weeks only."
+      },
+      "above": "Above the school",
+      "level": {
+        "directorate": "Set by the directorate",
+        "national": "Set by the Ministry"
+      },
+      "ownDays": "Exam: {{from}} · Figures: {{figures}}",
+      "asOf": "Where your classes stood on {{day}}, worked out on this phone from your signed weeks.",
+      "ownFailed": "Your exams above the school could not be worked out on this phone: your signed weeks did not read.",
+      "shows": {
+        "directorate": "The directorate’s cut does not show before the exam. After the figures day, your classes will show against its totals.",
+        "national": "The national cut is published to all after the exam, with its figures and how it shaped the questions."
       }
     },
     "threshold": {
@@ -5926,6 +5939,10 @@
       "problem": {
         "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
         "notSetter": "This phone is not one of this exam’s setters."
+      },
+      "exams": {
+        "mock": "The unified mock exam",
+        "bem": "The BEM"
       }
     }
   },

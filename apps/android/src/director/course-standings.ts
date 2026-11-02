@@ -13,7 +13,7 @@
 // as it stands, its closures and exam days read for the school's zone and the
 // class, each day once, as the seeded term reads them. An exam's chart takes
 // the standing on its figures day, from the weeks that begin by then (answer
-// 631).
+// 631), or, on a teacher's phone, from their own signed weeks (answer 633).
 
 import {
   CalendarView,
@@ -32,9 +32,14 @@ import { termReference, type TermReference } from './seeded-fill';
 
 const key = (classId: string, subject: string) => `${classId}\n${subject}`;
 
+/** A class's signed weeks, course by course, as the standings read them: the director's records or a teacher's own. */
+export type StandingRecords = Pick<ClassRecords, 'class'> & {
+  readonly courses: readonly { readonly key: string; readonly weeks: readonly { readonly week: WeekRecord }[] }[];
+};
+
 /** Each class and subject's standing from its signed weeks, those that begin by `until` when given. */
 export function courseStandings(
-  records: readonly ClassRecords[],
+  records: readonly StandingRecords[],
   school: DemoSchool,
   reference: TermReference,
   until?: Day,

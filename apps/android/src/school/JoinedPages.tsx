@@ -95,7 +95,7 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
   if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
   if (view.page === 'thresholds') {
     const onRoom = (room: string) => props.onPage({ page: 'threshold', join, room, back: 'thresholds' });
-    return <ExamThresholds {...channel} reference={props.reference} onRoom={onRoom} />;
+    return <ExamThresholds {...channel} reference={props.reference} school={props.school} onRoom={onRoom} />;
   }
   if (view.page === 'threshold') {
     return view.room === undefined ? null : <ExamThreshold {...channel} reference={props.reference} room={view.room} />;
