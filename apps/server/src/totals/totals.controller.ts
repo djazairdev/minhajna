@@ -12,9 +12,10 @@
 // totals for the Ministry, every directorate's and the nation's, and with
 // ?directorate= one directorate's own, every figure under its floor hidden
 // (share-sums.ts). A day holds a bounded set of names and bytes, a share past
-// them refused with 409, and its sums stay worked out until a share comes in
-// (totals-days.ts). A day not announced, or not reached yet, is refused, so no
-// series of totals forms between announced days.
+// them refused with 409, or kept without its grades when only they are past
+// them, and its sums stay worked out until a share comes in (totals-days.ts). A
+// day not announced, or not reached yet, is refused, so no series of totals
+// forms between announced days.
 
 import {
   BadRequestException,
@@ -67,14 +68,14 @@ export class TotalsController {
   ): Promise<{ id: string }> {
     const world = await this.enter(id, pass, request);
     announced(world, day);
-    const share = readShare(body);
-    if (typeof share === 'string') throw new BadRequestException(share);
-    if (share.day !== day) throw new BadRequestException('the share is for another day');
+    const read = readShare(body);
+    if (typeof read === 'string') throw new BadRequestException(read);
+    if (read.day !== day) throw new BadRequestException('the share is for another day');
     const address = clientAddress(request, this.limiters.trustCloudflare);
-    const cost = Math.ceil(shareBytes(share) / SEALED_BATCH_BYTES);
+    const cost = Math.ceil(shareBytes(read) / SEALED_BATCH_BYTES);
     if (!this.limiters.uploads.fits(address, cost)) throw tooMany();
-    const refused = await this.days.take(world, share, () => this.shares.shares(world.id, day));
-    if (refused !== null) throw new ConflictException(refused);
+    const share = await this.days.take(world, read, () => this.shares.shares(world.id, day));
+    if (typeof share === 'string') throw new ConflictException(share);
     const kept = await this.shares.put(world.id, share);
     if (kept === 'added' || kept === 'replaced') this.limiters.uploads.charge(address, cost);
     if (kept === 'no-world') throw noWorld();

@@ -23,21 +23,30 @@
 // directorate's own view shows anyway. A plan item is hidden within a figure
 // shown when fewer schools than the floor's did it, and so is another, the
 // fewest schools' first, when one alone of the nation's and the directorates'
-// would be hidden. A hidden figure or item is null. The floors keep one day's
-// answer from showing one school's figures; two announced days' answers may
-// still differ by one school's, as when its first share comes in, a known
-// limit. The figures are added up in maps, so no name a share holds can reach
-// an object's own properties.
+// would be hidden. A subject's figure shown gives, when the shares give them,
+// how far each grade's classes got, hidden under the floors as well, each
+// subject's grades checked against the figures as their check left them, which
+// runs again whenever the grades hide a figure (share-reach.ts). A hidden
+// figure or item is null. The floors keep one day's answer from showing one
+// school's figures; two announced days' answers may still differ by one
+// school's, as when its first share comes in, a known limit. The figures are
+// added up in maps, so no name a share holds can reach an object's own
+// properties.
 
 import { FLOORS, hiddenCells, passesFloor, type FloorCell, type FloorScope, type FloorSum } from './floors.js';
 import type { ItemShare, Share, SubjectShare } from './share-read.js';
+import { HIDDEN, sumReach, type GradeTotal, type SummedReach } from './share-reach.js';
 
 const COUNTS = ['vacantPosts', 'hoursWithoutTeacher', 'classes', 'cover', 'closed', 'reached', 'runLong'] as const;
 type Count = (typeof COUNTS)[number];
 
-/** A figure: what it covers, its counts, and by plan item what the classes did, for a subject; null when hidden. */
+/**
+ * A figure: what it covers, its counts, and for a subject by plan item what the classes did and, when the shares
+ * give them, by grade how far its classes got; null when hidden.
+ */
 export type Total = { teachers: number; schools: number } & Record<Count, number> & {
     items?: Record<string, ItemShare | null>;
+    grades?: Record<string, GradeTotal | null>;
   };
 
 export interface DirectorateTotals {
@@ -105,6 +114,34 @@ const cell = (id: string, scope: FloorScope, figure: Adding): FloorCell => ({
 const passes = (figure: Total, scope: FloorScope) =>
   (figure.teachers === 0 && figure.schools === 0) || passesFloor({ scope, ...figure });
 
+/**
+ * What the floors hide of the figures and the grades: the figures' check, then each subject's grades' against the
+ * figures as it left them, the figures' check run again whenever a subject's grades hide one of its figures.
+ */
+function hiddenWithGrades(
+  cells: readonly FloorCell[],
+  sums: readonly FloorSum[],
+  reach: SummedReach,
+  figuresOf: (subject: string) => string[],
+): ReadonlySet<string> {
+  const byId = new Map(cells.map((one) => [one.id, one]));
+  const forced = new Set<string>();
+  for (;;) {
+    const hidden = hiddenCells(
+      cells.map((one) => (forced.has(one.id) ? { ...one, ...HIDDEN } : one)),
+      sums,
+    );
+    const all = new Set(hidden);
+    for (const subject of reach.subjects) {
+      const figures = figuresOf(subject).map((id) => byId.get(id)!);
+      for (const id of reach.hiddenFor(subject, figures, hidden)) all.add(id);
+    }
+    const newly = [...all].filter((id) => byId.has(id) && !hidden.has(id));
+    if (newly.length === 0) return all;
+    for (const id of newly) forced.add(id);
+  }
+}
+
 /** A day's shares added up, with what is hidden in every view, to answer each view. */
 export interface SummedShares {
   view(directorate: string | null): DayTotals;
@@ -156,7 +193,8 @@ export function sumShares(day: string, shares: readonly Share[]): SummedShares {
   for (const subject of [...subjects, null]) {
     if (ids.length > 0) sums.push({ total: key('', subject), parts: ids.map((id) => key(id, subject)) });
   }
-  const hidden = hiddenCells(cells, sums);
+  const reach = sumReach(shares, key);
+  const hidden = hiddenWithGrades(cells, sums, reach, (subject) => ['', ...ids].map((id) => key(id, subject)));
   const hiddenItems = new Map<string, Set<string>>();
   for (const subject of subjects) {
     const holding = new Map<string, string[]>();
@@ -181,7 +219,9 @@ export function sumShares(day: string, shares: readonly Share[]): SummedShares {
   const shown = (id: string, subject: string | null, scope: FloorScope) => {
     const under = hiddenItems.get(key(id, subject));
     const figure = figureOf(id, subject).done(subject === null ? null : (item) => under?.has(item) === true);
-    return hidden.has(key(id, subject)) || !passes(figure, scope) ? null : figure;
+    const grades = subject === null ? undefined : reach.grades(id, subject, scope, hidden);
+    if (hidden.has(key(id, subject)) || !passes(figure, scope)) return null;
+    return grades === undefined ? figure : { ...figure, grades };
   };
   const row = (id: string, held: readonly string[], scope: FloorScope) => ({
     id,
