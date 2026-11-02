@@ -3,13 +3,13 @@
 
 // The floors under the totals above the school (#595): a figure under its
 // scope's floor of teachers and schools is hidden, unless it covers no school;
-// and so is the smallest other figure of a sum, until no combination of the
-// sums works a hidden figure out exactly: across rows and columns, past a
-// hidden figure joining two hidden blocks, and round a cycle of sums sharing
-// figures; a sum naming a figure twice is refused; and a range over the
-// wilayas shows only when at least 8 pass the wilaya floor, covering only
-// those. Each case was checked against an exact rank test outside the code.
-// Every figure is made up.
+// and so is the smallest other figure of a sum, never one covering no school,
+// whose value is known, until no combination of the sums works a hidden figure
+// out exactly: across rows and columns, past a hidden figure joining two hidden
+// blocks, and round a cycle of sums sharing figures; a sum naming a figure
+// twice is refused; and a range over the wilayas shows only when at least 8
+// pass the wilaya floor, covering only those. Each case was checked against an
+// exact rank test outside the code. Every figure is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -142,6 +142,44 @@ describe('the floors', () => {
       { total: 'z', parts: ['c', 'a'] },
     ];
     assert.deepEqual([...hiddenCells(cells, sums)].sort(), ['a', 'b', 'c', 'y']);
+  });
+
+  it('never hides a figure covering no school to protect another, as its value is known', () => {
+    const cells = [cell('nation', 40, 9), cell('d0', 12), cell('d1', 12), cell('d2', 12, 2), cell('d3', 0, 0)];
+    const hidden = hiddenCells(cells, [{ total: 'nation', parts: ['d0', 'd1', 'd2', 'd3'] }]);
+    assert.deepEqual([...hidden].sort(), ['d0', 'd2']);
+  });
+
+  it('protects a hidden figure across a table with others, never with the subjects a directorate does not hold', () => {
+    const table: [string, number, number][] = [
+      ['d0s0', 0, 0],
+      ['d0s1', 14, 5],
+      ['d0all', 14, 5],
+      ['d1s0', 15, 5],
+      ['d1s1', 8, 4],
+      ['d1all', 15, 5],
+      ['d2s0', 0, 0],
+      ['d2s1', 11, 1],
+      ['d2all', 11, 1],
+      ['d3s0', 4, 5],
+      ['d3s1', 6, 3],
+      ['d3all', 6, 5],
+    ];
+    const cells = [
+      ...table.map(([id, teachers, schools]) => cell(id, teachers, schools, 'directorate')),
+      ...[
+        ['ns0', 19, 10],
+        ['ns1', 39, 13],
+        ['nall', 46, 16],
+      ].map(([id, teachers, schools]) => cell(id as string, teachers as number, schools as number, 'national')),
+    ];
+    const directorates = ['d0', 'd1', 'd2', 'd3'];
+    const sums = [
+      ...directorates.map((one) => ({ total: `${one}all`, parts: [`${one}s0`, `${one}s1`] })),
+      ...['s0', 's1', 'all'].map((one) => ({ total: `n${one}`, parts: directorates.map((each) => `${each}${one}`) })),
+      { total: 'nall', parts: ['ns0', 'ns1'] },
+    ];
+    assert.deepEqual([...hiddenCells(cells, sums)].sort(), ['d1s0', 'd1s1', 'd2all', 'd2s1', 'd3all', 'd3s0', 'd3s1']);
   });
 
   it('refuses two figures with one ID, and a sum with no parts, naming a figure twice or one it was not given', () => {

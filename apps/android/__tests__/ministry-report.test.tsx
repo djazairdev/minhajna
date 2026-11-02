@@ -49,7 +49,7 @@ test('each subject shows its range across the wilayas from 8 of them, and waits 
   const demo = seededWorld(id, reference);
   const ids = [...new Set(demo.schools.map((one) => one.directorateId))];
   put(id, day, ids);
-  for (const directorate of ids.slice(0, 3))
+  for (const directorate of ids)
     for (let at = 0; at < 3; at += 1) putShare(id, day, directorate, { physics: subject(4) });
   for (const [at, directorate] of ids.slice(3, 6).entries())
     putShare(id, day, directorate, { math: { ...subject(3), reached: 1200 + 1000 * (at + 1) } });

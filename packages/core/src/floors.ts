@@ -5,8 +5,9 @@
 // answers 539, 545, 549 and 584): a directorate's figure covers at least 5
 // teachers and 3 schools, a wilaya's or the nation's at least 10 teachers and 3
 // schools, and a figure under its floor is hidden; a figure that covers no
-// school at all is known to be empty and stays shown. So is hidden any figure
-// that would let a hidden one be worked out exactly by subtraction. Each sum, a
+// school at all is known to be empty and stays shown, never hidden to protect
+// another, which its known value would not do. So is hidden any figure that
+// would let a hidden one be worked out exactly by subtraction. Each sum, a
 // total and its parts, is an equation, and the hidden figures are its unknowns;
 // while any one of them is fixed by some combination of the sums, worked out
 // with exact integers, a shown figure of a sum that holds one is hidden too:
@@ -192,7 +193,7 @@ export function hiddenCells(cells: readonly FloorCell[], sums: readonly FloorSum
     const local = (cell: FloorCell) => [
       ...new Set([...open.group, ...(sumsOf.get(cell.id) ?? []).flatMap((sum) => groupOf.get(sum) ?? [sum])]),
     ];
-    const shown = (among: Sums) => [...new Set(among.flat().filter((cell) => !hidden.has(cell.id)))];
+    const shown = (among: Sums) => [...new Set(among.flat().filter((cell) => !hidden.has(cell.id) && !empty(cell)))];
     const holding = shown(open.group.filter((sum) => sum.some((cell) => open.given.includes(cell.id))));
     const candidates = (holding.length > 0 ? holding : shown(open.group)).sort(smaller);
     const next = candidates.find((cell) => changeAfter(local(cell), hidden, cell.id) < 0) ?? candidates[0];
