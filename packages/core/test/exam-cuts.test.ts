@@ -28,19 +28,25 @@ describe('where a school exam’s cut stands', () => {
     assert.deepEqual([none.signed.size, none.proposed, none.settled, none.director], [0, null, null, false]);
     await put('cut', cut('u2.w1'), first);
     const waits = cutState(await read(), day('2029-11-23'))!;
-    assert.deepEqual([waits.proposed, waits.settled, waits.director], [{ item: 'u2.w1', by: one }, null, false]);
+    assert.deepEqual(
+      [waits.proposed, waits.settled, waits.director],
+      [{ item: 'u2.w1', by: one, day: day('2029-11-23') }, null, false],
+    );
+    await put('cut', cut('u2.w1', '2029-11-24', 1), first);
+    const kept = cutState(await read(), day('2029-11-24'))!;
+    assert.deepEqual([kept.proposed?.day, kept.days.get(one!)], [day('2029-11-23'), day('2029-11-24')]);
     await put('cut', cut('u2'), second);
     const settled = cutState(await read(), day('2029-11-24'))!;
     assert.deepEqual(settled.settled, { item: 'u2', by: 'setters' });
-    assert.deepEqual(settled.proposed, { item: 'u2', by: two });
-    await put('cut', cut('u1.w2', '2029-11-27', 1), first);
+    assert.deepEqual(settled.proposed, { item: 'u2', by: two, day: day('2029-11-23') });
+    await put('cut', cut('u1.w2', '2029-11-27', 2), first);
     await put('cut', cut('u1', '2029-11-28', 1), second);
     const later = cutState(await read(), day('2029-11-30'))!;
     assert.deepEqual(
       [later.settled, later.proposed],
       [
         { item: 'u1.w2', by: 'setters' },
-        { item: 'u1.w2', by: one },
+        { item: 'u1.w2', by: one, day: day('2029-11-27') },
       ],
     );
     assert.deepEqual(
@@ -48,6 +54,13 @@ describe('where a school exam’s cut stands', () => {
       [
         [one, 'u1.w2'],
         [two, 'u2'],
+      ],
+    );
+    assert.deepEqual(
+      [...later.days],
+      [
+        [one, day('2029-11-27')],
+        [two, day('2029-11-23')],
       ],
     );
   });

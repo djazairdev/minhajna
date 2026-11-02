@@ -10,10 +10,11 @@
 // setter's no cut, or the deadline passing unsettled, leaves the decision to
 // the director, whose first decision once it falls to them is final. The cut
 // proposed is the earliest item the setters' cuts name, with the setter whose
-// cut has named it the longest. A cut's day is its setter's own word, so a cut
-// signed past the deadline but dated on it counts until the director decides, a
-// known limit that the director's final decision bounds. A cut is optional:
-// with no record the paper is set as today.
+// cut has named it the longest and the day they first did; each setter's cut
+// that counts is given with its day. A cut's day is its setter's own word, so a
+// cut signed past the deadline but dated on it counts until the director
+// decides, a known limit that the director's final decision bounds. A cut is
+// optional: with no record the paper is set as today.
 
 import { compareDays, type Day } from './day.ts';
 import type { ExamChart } from './exam-chart.ts';
@@ -23,8 +24,10 @@ import type { ExamCut, RoomRecords } from './exam-room.ts';
 export interface CutState {
   /** Each setter's latest cut by the deadline, by assignment: an item, or null for no cut. */
   readonly signed: ReadonlyMap<string, string | null>;
-  /** The earliest item proposed, with the setter who first signed it, or null. */
-  readonly proposed: { readonly item: string; readonly by: string } | null;
+  /** Each setter's latest cut's day, by assignment, as its setter dated it. */
+  readonly days: ReadonlyMap<string, Day>;
+  /** The earliest item proposed, with the setter who first signed it and the day they first did, or null. */
+  readonly proposed: { readonly item: string; readonly by: string; readonly day: Day } | null;
   /** The cut that applies, or null for no cut, with who settled it; null while unsettled. */
   readonly settled: { readonly item: string | null; readonly by: 'setters' | 'director' } | null;
   /** Whether the decision has fallen to the director. */
@@ -32,7 +35,14 @@ export interface CutState {
 }
 
 /** A setter's cut that counts, the highest version, the lower text breaking a tie, and since when it names it. */
-type Held = { readonly item: string | null; readonly version: number; readonly text: string; readonly since: number };
+type Held = {
+  readonly item: string | null;
+  readonly version: number;
+  readonly text: string;
+  readonly day: Day;
+  readonly since: number;
+  readonly first: Day;
+};
 
 /** Where the cut stands on `today`, from the room's records. */
 export function cutState(records: RoomRecords, today: Day): CutState | null {
@@ -58,8 +68,9 @@ export function cutState(records: RoomRecords, today: Day): CutState | null {
     const newer =
       cut.version > (before?.version ?? -1) || (cut.version === before?.version && record.text < before.text);
     if (!newer) continue;
-    const since = before !== undefined && before.item === cut.item ? before.since : at;
-    held.set(setter, { item: cut.item, version: cut.version, text: record.text, since });
+    const kept = before !== undefined && before.item === cut.item;
+    const [since, first] = kept ? [before.since, before.first] : [at, cut.day];
+    held.set(setter, { item: cut.item, version: cut.version, text: record.text, day: cut.day, since, first });
   }
   const settled = settledBy(chartOf, signed());
   return {
@@ -81,14 +92,17 @@ function earliest(chart: ExamChart, items: readonly string[]): string | undefine
   return [...items].sort((a, b) => order.get(a)! - order.get(b)!)[0];
 }
 
-/** The setters' cuts, and the earliest item proposed, by the setter whose cut has named it the longest. */
+/** The setters' cuts and days, and the earliest item proposed, by whoever has named it the longest, and since when. */
 function standing(chart: ExamChart, held: ReadonlyMap<string, Held>) {
   const signed = new Map([...held].map(([setter, one]) => [setter, one.item]));
+  const days = new Map([...held].map(([setter, one]) => [setter, one.day]));
   const item = earliest(
     chart,
     [...signed.values()].filter((one): one is string => one !== null),
   );
-  if (item === undefined) return { signed, proposed: null };
-  const [by] = [...held].filter(([, one]) => one.item === item).sort(([, a], [, b]) => a.since - b.since)[0]!;
-  return { signed, proposed: { item, by } };
+  if (item === undefined) return { signed, days, proposed: null };
+  const [by, { first }] = [...held]
+    .filter(([, one]) => one.item === item)
+    .sort(([, a], [, b]) => a.since - b.since)[0]!;
+  return { signed, days, proposed: { item, by, day: first } };
 }

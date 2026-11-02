@@ -202,6 +202,8 @@ const PROBLEMS = {
   E_TIMETABLE_DECIDED: 'ttProposal.decided',
   E_TIMETABLE_UNJOINED: 'demo.timetable.notJoined',
   E_CALENDAR_RACE: 'demo.ministryCalendar.publish.race',
+  E_CUT_CLOSED: 'demo.threshold.problem.closed',
+  E_CUT_NOT_SETTER: 'demo.threshold.problem.notSetter',
 } as const;
 
 /** The catalogue's words for an error's code. */

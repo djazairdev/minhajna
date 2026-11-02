@@ -22,12 +22,14 @@
 // the week to sign (#582), the weekly digest, the teacher's classes as the
 // director sees them and their term report (#584), the classes handed over as a
 // substitute (#587) and those come back at its end (#588), the term's marks to
-// send to the state's stand-in (#591), the timetable the school sent (#579),
-// the teacher's devices and copies, who reads what in the national system
-// (#568) and what stays and goes on leaving (#567), when the year's dates read;
-// going back from any returns here, but from Week-sign opened by the digest or
-// the classes, or the term report, which return to the page that opened them,
-// and Leave's way to the next school returns to the code's card (join-view.ts).
+// send to the state's stand-in (#591), the exams with a common paper and an
+// exam's threshold (#601), the timetable the school sent (#579), the teacher's
+// devices and copies, who reads what in the national system (#568) and what
+// stays and goes on leaving (#567), when the year's dates read; going back from
+// any returns here, but from Week-sign opened by the digest or the classes, or
+// the term report, or an exam's threshold, which return to the page that opened
+// them, and Leave's way to the next school returns to the code's card
+// (join-view.ts).
 
 import {
   joiningIsVoluntary,
@@ -49,6 +51,7 @@ import { Button } from '../components/Button';
 import { DemoBand } from '../demo/DemoBand';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
+import type { TermReference } from '../director/seeded-fill';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { errorCode } from '../lock/lock-rules';
 import scanner from '../native/NativeMinhajnaCalendarInput';
@@ -94,6 +97,8 @@ export type SchoolJoinProps = {
   readonly mine?: MineCalendar;
   /** The world's school, for the class lists the term's marks are sent for. */
   readonly school?: DemoSchool | null;
+  /** The world's reference, which names the subjects, grades and plan items. */
+  readonly reference?: TermReference;
 };
 
 /** The teacher's page for joining the school's space in a world. */

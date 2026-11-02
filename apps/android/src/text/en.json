@@ -5857,6 +5857,76 @@
       "reportLead": "The curriculum report for the nation. The wilayas show in it as a range, never named or ranked.",
       "range": "How far classes got across the wilayas: from {{low}}% to {{high}}%, the middle half from {{middleLow}}% to {{middleHigh}}%.",
       "noRange": "The range across the wilayas shows once at least 8 wilayas show their figure for this subject, with classes."
+    },
+    "thresholds": {
+      "open": "Exams with a common paper",
+      "title": "Exams with a common paper",
+      "lead": "Each school exam whose figures day has come in your subjects and grades: its days, where its cut stands, and where each class stood on the figures day.",
+      "empty": "No school exam’s figures day has come yet in your subjects and grades.",
+      "days": "Exam: {{from}} · Figures: {{figures}} · Cut signed by {{signBy}}",
+      "classLine": "{{class}}: done: {{reached}} · expected by {{day}}: {{forecast}}",
+      "room": "Open the exam’s threshold",
+      "notes": {
+        "school": "The chart is worked out in the school from signed weeks only, and never leaves the school’s space.",
+        "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
+        "never": "Nothing here is used to evaluate or rank anyone."
+      }
+    },
+    "threshold": {
+      "title": "The exam’s threshold",
+      "head": "{{exam}} · {{subject}} · {{grade}}",
+      "termExam": "The {{term}} exam",
+      "noItem": "nothing yet",
+      "itemAt": "item {{n}} of the plan",
+      "quoted": "“{{item}}”",
+      "state": {
+        "director": "Decided by the director: up to {{item}}.",
+        "directorNone": "Decided by the director: no cut for this exam.",
+        "settled": "Signed by every setter: up to {{item}}.",
+        "toDirector": "The decision falls to the director.",
+        "none": "No cut proposed. A cut is optional.",
+        "proposed": "{{name}} proposed up to {{item}} on {{day}}.",
+        "awaiting": "{{name}} proposed up to {{item}} on {{day}}, awaiting your signature or another proposal."
+      },
+      "setter": {
+        "waiting": "{{name}}: nothing signed yet",
+        "none": "{{name}}: no cut, signed on {{day}}",
+        "cut": "{{name}}: up to {{item}}, signed on {{day}}"
+      },
+      "chart": "Where each class stood on {{day}}",
+      "reached": "Done in signed weeks",
+      "forecast": "Expected before the exam, by the class’s plan",
+      "reading": "Reading your exams…",
+      "notSetter": "This phone is not one of this exam’s setters: you see the chart and where the cut stands, with nothing to sign.",
+      "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
+      "pick": "The last plan item the paper covers",
+      "proposeSign": "Sign the proposal",
+      "done": "Your cut is signed: up to {{item}}.",
+      "sign": "Sign the cut up to {{item}}",
+      "propose": "Propose a cut",
+      "proposeOther": "Propose another cut",
+      "noCut": "No cut for this exam",
+      "noneDone": "Signed: no cut for this exam. The decision falls to the director.",
+      "dates": "The school’s figures were taken on {{figures}}, the cut is signed by {{signBy}}, and the exam starts on {{from}}.",
+      "class": "Class",
+      "every": "Every class had finished up to {{item}}.",
+      "everyNone": "At least one class had not yet reached any item of the plan.",
+      "forecastLine": "The expected items run to {{day}}, the last school day before the exam, at each class’s own pace.",
+      "sameView": "The director and this subject’s setters at this grade see the same chart.",
+      "cut": "The cut",
+      "gone": "This exam is no longer shared with this phone.",
+      "roomNotes": {
+        "optional": "A cut is optional: without one the paper is set as today, and nothing is published or counted.",
+        "earliest": "When the setters differ, the earliest cut in the plan applies.",
+        "seen": "Before the exam, only the setters and the director see the cut.",
+        "published": "After the exam, the cut is published in the school’s space with its figures.",
+        "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
+        "never": "Nothing here is used to evaluate or rank anyone."
+      },
+      "problem": {
+        "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
+        "notSetter": "This phone is not one of this exam’s setters."
+      }
     }
   },
   "chart": {
