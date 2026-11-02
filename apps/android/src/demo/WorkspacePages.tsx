@@ -19,10 +19,11 @@
 // the records or the cover; the directorate's grants page requests inspectors'
 // grants from its schools (#593, DirectorateGrant.tsx) and its totals page says
 // what the system owes teachers on announced days, with the curriculum report
-// (#598, DirectorateTotals.tsx); and the Ministry's calendar page keys a draft
-// of the world's calendar (#607, MinistryCalendar.tsx), afresh over each
-// release the world comes to hold, and publishes it with the world's keys
-// (#608, MinistryCalendarPage.tsx).
+// (#598, DirectorateTotals.tsx); and the Ministry's totals page says it by
+// wilaya (#599, MinistryTotals.tsx), and its calendar page keys a draft of the
+// world's calendar (#607, MinistryCalendar.tsx), afresh over each release the
+// world comes to hold, and publishes it with the world's keys (#608,
+// MinistryCalendarPage.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -42,6 +43,7 @@ import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
+import { MinistryTotals } from '../ministry/MinistryTotals';
 import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import type { MineCalendar } from '../week/school-mine-session';
@@ -99,6 +101,17 @@ export function workspacePage(
   if (workspace === 'directorate' && page === 'grants')
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
+    );
+  if (workspace === 'ministry' && page === 'totals')
+    return (
+      <MinistryTotals
+        world={open}
+        calendars={[reference.calendar, bundled.calendar]}
+        send={send}
+        dayText={dayText}
+        subjectName={(code) => subjectName(reference.profile, code)}
+        bundled={bundled}
+      />
     );
   if (workspace === 'directorate' && page === 'totals')
     return (

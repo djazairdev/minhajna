@@ -1,17 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The directorate's own totals for an announced day (#598, answer 629), as the
+// The directorate's own totals for an announced day (#598, answer 629), and the
+// Ministry's, every directorate's and the nation's (#599, answer 630), as the
 // demo server adds them up from the schools' shares (answer 628), every figure
-// under the directorate floor already hidden there: by subject and over every
-// subject, each figure's teachers, schools and counts, and by plan item what
-// the classes did, a hidden figure or item null. A day the server does not
-// answer yet, not announced or not reached on its side, or for which no share
-// of the directorate's schools came in, gives null; an answer not of that
-// shape, or for another directorate, throws E_WORLD_SERVER, and any other
-// answer throws with world-session.ts's codes. Subjects and items are kept as
-// lists of pairs, in the server's order, so no name it sends can reach an
-// object's own properties.
+// under its floor already hidden there: by subject and over every subject, each
+// figure's teachers, schools and counts, and by plan item what the classes did,
+// a hidden figure or item null. A day the server does not answer yet, not
+// announced or not reached on its side, or for which no share of the
+// directorate's schools, or of any school for the Ministry, came in, gives
+// null; an answer not of that shape, for another directorate, or naming a
+// directorate with no ID or twice, throws E_WORLD_SERVER, and any other answer
+// throws with world-session.ts's codes. Subjects and items are kept as lists of
+// pairs, in the server's order, so no name it sends can reach an object's own
+// properties.
 
 import type { Day } from '@minhajna/core';
 import { failed, unexpected, type Send } from '../demo/world-session';
@@ -56,20 +58,52 @@ function readFigure(value: unknown): Figure | null | undefined {
   return { ...counts, items: read as Figure['items'] } as Figure;
 }
 
-/** The directorate's figures for an announced day, or null when the server does not answer that day yet. */
-export async function readTotals(world: string, day: Day, directorate: string, send: Send) {
-  const path = `/worlds/${world}/totals/${day}?directorate=${encodeURIComponent(directorate)}`;
-  const answer = await send({ method: 'GET', path });
+/** One directorate's figures as the server gives them, or undefined when they do not read. */
+function readFigures(value: unknown): DirectorateFigures | undefined {
+  const all = isMap(value) ? readFigure(value.all) : undefined;
+  const subjects = isMap(value) && isMap(value.subjects) ? Object.entries(value.subjects) : null;
+  const read = subjects?.map(([subject, figure]) => [subject, readFigure(figure)] as const) ?? null;
+  if (all === undefined || read === null || read.some(([, figure]) => figure === undefined)) return undefined;
+  return { subjects: read as DirectorateFigures['subjects'], all };
+}
+
+/** The day's answer, or null when the server does not answer that day yet. */
+async function dayAnswer(world: string, day: Day, query: string, send: Send) {
+  const answer = await send({ method: 'GET', path: `/worlds/${world}/totals/${day}${query}` });
   if (answer.status === 422) return null;
   if (answer.status !== 200) throw unexpected(answer);
-  const body = answer.body;
-  const one = isMap(body) && Array.isArray(body.directorates) ? (body.directorates as unknown[]) : [];
-  const own = one.length === 1 && isMap(one[0]) && one[0].id === directorate ? one[0] : null;
-  const all = own === null ? undefined : readFigure(own.all);
-  const subjects = own !== null && isMap(own.subjects) ? Object.entries(own.subjects) : null;
-  const read = subjects?.map(([subject, figure]) => [subject, readFigure(figure)] as const) ?? null;
-  if (all === undefined || read === null || read.some(([, figure]) => figure === undefined)) {
-    throw failed('The demo server’s totals do not read', 'E_WORLD_SERVER');
-  }
-  return read.length === 0 ? null : ({ subjects: read, all } as DirectorateFigures);
+  return isMap(answer.body) ? answer.body : {};
+}
+
+const notRead = () => failed('The demo server’s totals do not read', 'E_WORLD_SERVER');
+
+/** The directorate's figures for an announced day, or null when the server does not answer that day yet. */
+export async function readTotals(world: string, day: Day, directorate: string, send: Send) {
+  const body = await dayAnswer(world, day, `?directorate=${encodeURIComponent(directorate)}`, send);
+  if (body === null) return null;
+  const one = Array.isArray(body.directorates) ? (body.directorates as unknown[]) : [];
+  const own = one.length === 1 && isMap(one[0]) && one[0].id === directorate ? readFigures(one[0]) : undefined;
+  if (own === undefined) throw notRead();
+  return own.subjects.length === 0 ? null : own;
+}
+
+/** The Ministry's figures for a day: every directorate's, by its ID, and the nation's. */
+export interface MinistryFigures {
+  readonly directorates: readonly (readonly [string, DirectorateFigures])[];
+  readonly national: DirectorateFigures;
+}
+
+/** The Ministry's figures for an announced day, or null when the server does not answer that day yet. */
+export async function readMinistryTotals(world: string, day: Day, send: Send): Promise<MinistryFigures | null> {
+  const body = await dayAnswer(world, day, '', send);
+  if (body === null) return null;
+  const rows = Array.isArray(body.directorates) ? (body.directorates as unknown[]) : [];
+  const directorates = rows.map((one) => [isMap(one) ? one.id : null, readFigures(one)] as const);
+  const national = readFigures(body.national);
+  const ids = directorates.map(([id]) => id);
+  const named = directorates.every(([id, figures]) => typeof id === 'string' && id !== '' && figures !== undefined);
+  const once = new Set(ids).size === ids.length;
+  if (!Array.isArray(body.directorates) || !named || !once || national === undefined) throw notRead();
+  if (directorates.length === 0) return null;
+  return { directorates: directorates as MinistryFigures['directorates'], national };
 }

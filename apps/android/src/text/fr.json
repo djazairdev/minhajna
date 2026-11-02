@@ -5929,6 +5929,16 @@
       "reportLine": "Classes : {{classes}} · avancement moyen : {{reached}} % du plan · plans qui débordent de l’année à leur rythme : {{long}}",
       "items": "Les éléments de progression en {{subject}}",
       "noItems": "Aucun élément enregistré pour cette matière."
+    },
+    "ministryTotals": {
+      "lead": "Aucun chiffre ici n’est celui d’un établissement ou d’un membre du personnel enseignant : chaque chiffre couvre au moins 10 membres du personnel enseignant et 3 établissements.",
+      "header": "Ministère de l’Éducation nationale · {{day}} · {{term}}, du {{from}} au {{to}}",
+      "owedLead": "Ce que le personnel enseignant a donné et ce qui lui a manqué, pour chaque wilaya nommée, afin d’affecter les postes là où ils manquent. Les wilayas suivent leur ordre officiel ; le tableau n’est jamais trié ni coloré.",
+      "subject": "Matière",
+      "wilaya": "Wilaya",
+      "nation": "Le pays",
+      "closures": "Les séances perdues sont comptées d’après le calendrier et les avis de fermeture, jamais d’après une absence. Une wilaya de moins de 10 membres du personnel enseignant ou de 3 établissements est masquée ; avec chaque case sous le seuil d’une direction de l’éducation, 5 membres du personnel enseignant et 3 établissements, le serveur masque chaque case qui la révélerait par soustraction.",
+      "never": "L’espace de chaque établissement prépare sa part de ces totaux, sans nommer de classe, d’établissement ni de personne, et le serveur ne montre que ce qui est cumulé au-dessus des tailles minimales de groupe. Dans cette démo, le serveur voit chaque part en les cumulant ; le cumul chiffré viendra plus tard. Ces totaux ne servent jamais à un seuil d’examen, à un classement des wilayas ni à une décision sur une personne."
     }
   },
   "chart": {

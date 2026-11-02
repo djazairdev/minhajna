@@ -67,7 +67,7 @@ test('the owed table shows the server’s view, a subject under the floor hidden
     expect(row(`owed-row-${code}`)).toEqual([`subject ${code}`, ...figures]);
   }
   const over = view.all === null ? [words.hidden] : [words.atLeast.replace('{{figure}}', String(view.all.teachers))];
-  expect(row('owed-all').slice(0, 2)).toEqual([words.all, ...over]);
+  expect(row('owed-row-all').slice(0, 2)).toEqual([words.all, ...over]);
   expect(all.join(' ')).toContain(`day ${day}`);
 }, 60_000);
 
