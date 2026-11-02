@@ -22,5 +22,11 @@
     "slug": "pack-editor",
     "filemask": "apps/android/src/editor/text/*.json",
     "template": "apps/android/src/editor/text/ar.json"
+  },
+  {
+    "name": "Android pack item editor",
+    "slug": "android-pack-items",
+    "filemask": "apps/android/src/editor/item-text/*.json",
+    "template": "apps/android/src/editor/item-text/ar.json"
   }
 ]
