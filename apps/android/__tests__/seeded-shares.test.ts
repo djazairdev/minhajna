@@ -5,10 +5,10 @@
 // world (#596, answer 628), against a made-up demo server: once the date moves
 // onto an announced day, every seeded school's share for it is put, from the
 // term generator's weeks up to that day, under the ID the director's device
-// makes once it took the school's key, and is not put again while the same; a
-// send that failed partway is finished by the next, which puts only what is
-// missing; a day the server does not take puts none; and a world with no seeded
-// key sends none. Every world, school and teacher is made up.
+// makes once it took the school's key, and is not worked out or put again while
+// the same; a send that failed partway is finished by the next, which puts only
+// what is missing; a day the server does not take puts none; and a world with
+// no seeded key sends none. Every world, school and teacher is made up.
 
 import {
   directorSchool,
@@ -74,8 +74,10 @@ test('every seeded school’s share is put for the day reached, under the ID its
   const theirs = await seededShare({ ...common, weeks }, desk.crypto);
   expect(shares).toContainEqual(theirs);
   expect(theirs.subjects.math.classes).toBeGreaterThan(0);
+  const before = server.seen.length;
   expect(await sendSeededShares(held, day, reference, nodeKit, server.send)).toBe(0);
   expect(server.shares.size).toBe(demo.schools.length);
+  expect(server.seen.length - before).toBeLessThan(demo.schools.length);
   expect(started.date < day).toBe(true);
 }, 120_000);
 

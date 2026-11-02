@@ -12,13 +12,15 @@
 // server, a share sent again replacing the first and one the same as the last
 // put in the last ten minutes not put again (share-send.ts), so a send that
 // failed partway is finished by the next. A seeded school's share stays the
-// generator's even once a director took its key and its teachers sign weeks,
-// as the director's device sends none for a seeded key. The generator runs on
-// the bundled reference data, as the fill does (answer 626), so every device
-// works out the same weeks. Schools are sent a few at a time. A school the
-// world holds no seeded key for is passed over, and so is a day the server
-// does not take; any other answer throws, with world-session.ts's codes and
-// those of opening a seeded key.
+// generator's even once a director took its key and its teachers sign weeks, as
+// the director's device sends none for a seeded key. The generator runs on the
+// bundled reference data, as the fill does (answer 626), so every device works
+// out the same weeks, and a share once worked out is kept in memory for the
+// world's session, so a day already worked out is not worked out again. Schools
+// are sent a few at a time, a group's sends all ending before a failure is
+// said. A school the world holds no seeded key for is passed over, and so is a
+// day the server does not take; any other answer throws, with
+// world-session.ts's codes and those of opening a seeded key.
 
 import {
   schoolStaffing,
@@ -27,6 +29,7 @@ import {
   type Day,
   type DemoSchool,
   type SeededSchoolKey,
+  type TotalsShare,
 } from '@minhajna/core';
 import { seededWorld } from '../director/director-world';
 import { termReference, worldClosure, type TermReference } from '../director/seeded-fill';
@@ -38,6 +41,8 @@ import { kitStep, type Send, type WorldKit } from './world-session';
 
 /** How many schools are sent at once. */
 const AT_ONCE = 4;
+/** The shares worked out, by world, seeded space and day, as the generator gives the same each time. */
+const worked = new Map<string, TotalsShare>();
 
 /** Puts every seeded school's shares for the announced days the world's date reached, and answers how many were put. */
 export async function sendSeededShares(
@@ -58,13 +63,22 @@ export async function sendSeededShares(
   });
   const refused = new Set<Day>();
   const sendSchool = async ({ school, seeded }: { school: DemoSchool; seeded: SeededSchoolKey }) => {
-    const { opened, crypto } = await openSeededRing(held.world, seeded, kit, send);
+    const keyOf = (day: Day) => JSON.stringify([held.world, seeded.space, day]);
+    const ring = days.every((one) => worked.has(keyOf(one.day)))
+      ? null
+      : await openSeededRing(held.world, seeded, kit, send);
     const input = { seed: held.world, school, space: seeded.space, reference: termReference(reference), closures };
-    const common = { school: opened, directorate: school.directorateId, staffing: schoolStaffing(school) };
+    const work = async (day: Day, from: Day) => {
+      const { opened, crypto } = ring!;
+      const weeks = await kitStep(() => seededTerm({ ...input, bells: reference.bells, until: day }, kit.mac));
+      const common = { school: opened, directorate: school.directorateId, staffing: schoolStaffing(school) };
+      const share = await kitStep(() => seededShare({ ...common, day, from, weeks }, crypto));
+      worked.set(keyOf(day), share);
+      return share;
+    };
     let put = 0;
     for (const { day, from } of days.filter((one) => !refused.has(one.day))) {
-      const weeks = await kitStep(() => seededTerm({ ...input, bells: reference.bells, until: day }, kit.mac));
-      const share = await kitStep(() => seededShare({ ...common, day, from, weeks }, crypto));
+      const share = worked.get(keyOf(day)) ?? (await work(day, from));
       const answer = await putShare(held.world, share, send);
       if (answer === 'refused') refused.add(day);
       if (answer === 'put') put += 1;
@@ -73,7 +87,11 @@ export async function sendSeededShares(
   };
   let put = 0;
   for (let at = 0; at < schools.length; at += AT_ONCE) {
-    for (const one of await Promise.all(schools.slice(at, at + AT_ONCE).map(sendSchool))) put += one;
+    const group = await Promise.allSettled(schools.slice(at, at + AT_ONCE).map(sendSchool));
+    for (const one of group) {
+      if (one.status === 'rejected') throw one.reason;
+      put += one.value;
+    }
   }
   return put;
 }
