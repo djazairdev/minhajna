@@ -8,20 +8,25 @@
 // school's share for one of the world's announced days that the world's date
 // has reached, the day in the path and the share's own, and keeps it by its
 // ID, answered 201 when new and 200 when it replaced one, its ID alone sent
-// back; a share is never shown back. A day not announced, or not reached yet,
-// is refused, so no series of totals forms between announced days.
+// back; a share is never shown back. GET /worlds/:world/totals/:day answers
+// the day's totals for the Ministry, every directorate's and the nation's, and
+// with ?directorate= one directorate's own, every figure under its floor hidden
+// (share-sums.ts). A day not announced, or not reached yet, is refused, so no
+// series of totals forms between announced days.
 
 import {
   BadRequestException,
   Body,
   ConflictException,
   Controller,
+  Get,
   Header,
   Headers,
   HttpCode,
   Inject,
   Param,
   Put,
+  Query,
   Req,
   Res,
   UnprocessableEntityException,
@@ -33,8 +38,9 @@ import { limitRequest, noWorld, openWorld, tooMany } from '../worlds/world-acces
 import { isDay } from '../worlds/world-rules.js';
 import { WORLD_STORE, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
-import { readShare, shareBytes } from './share-read.js';
+import { isName, readShare, shareBytes } from './share-read.js';
 import { MAX_SHARES, SHARE_STORE, type ShareStore } from './share-store.js';
+import { dayTotals, type DayTotals } from './share-sums.js';
 
 @Controller('worlds/:world/totals')
 export class TotalsController {
@@ -69,6 +75,23 @@ export class TotalsController {
     if (kept === 'full') throw new ConflictException(`a world keeps at most ${MAX_SHARES} shares a day`);
     if (kept === 'replaced') response.statusCode = 200;
     return { id: share.id };
+  }
+
+  @Get(':day')
+  @Header('Cache-Control', 'no-store')
+  async totals(
+    @Param('world') id: string,
+    @Param('day') day: string,
+    @Query('directorate') directorate: unknown,
+    @Headers('x-world-pass') pass: string | undefined,
+    @Req() request: IncomingMessage,
+  ): Promise<DayTotals> {
+    const world = await this.enter(id, pass, request);
+    announced(world, day);
+    if (directorate !== undefined && (typeof directorate !== 'string' || !isName(directorate))) {
+      throw new BadRequestException('a directorate is named as the reference data names it');
+    }
+    return dayTotals(day, await this.shares.shares(world.id, day), directorate ?? null);
   }
 
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
