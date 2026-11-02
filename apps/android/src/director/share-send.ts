@@ -12,20 +12,25 @@
 // weeks counting under the keys that signed them on the channels of the
 // teachers the timetable names for it, so a week another teacher signed for a
 // course not theirs never counts, with each subject's staffing as the timetable
-// shows it (school-dashboard.ts), and put on the server under the share's ID,
-// so a share sent again replaces the first; a share the same as the last one
-// put for its day in the last ten minutes is not put again. A day the server
-// does not take, not announced or not reached on its side, is passed over; any
-// other answer throws, with world-session.ts's codes, and the dashboard tries
-// again when it next reads.
+// shows it (school-dashboard.ts), and how far each grade got, from each
+// course's plan as the timetable and the classes' pinned packs give it
+// (share-plans.ts, answer 631), each class's position taken over the year's
+// weeks up to the day, and put on the server under the share's ID, so a share
+// sent again replaces the first; a share the same as the last one put for its
+// day in the last ten minutes is not put again. A day the server does not take,
+// not announced or not reached on its side, is passed over; any other answer
+// throws, with world-session.ts's codes, and the dashboard tries again when it
+// next reads.
 
 import {
   announcedDaysOf,
   courseId,
   prepareShare,
+  schoolPlans,
   schoolStaffing,
   type Day,
   type DemoSchool,
+  type PinnedPack,
   type SchoolCalendar,
   type TotalsShare,
   type WorldMac,
@@ -34,6 +39,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import { kitStep, unexpected, type Send, type WorldKit } from '../demo/world-session';
 import { caKey } from '../school/space-read';
 import type { ClassRecords } from './records-session';
+import type { TermReference } from './seeded-fill';
 import type { IssueDesk } from './school-desk';
 
 type ShareWorld = Pick<OpenWorld, 'world' | 'date'>;
@@ -108,10 +114,11 @@ export async function sendShares(
   desk: IssueDesk,
   school: DemoSchool,
   records: readonly ClassRecords[],
-  calendar: SchoolCalendar,
+  reference: Pick<TermReference, 'calendar' | 'packs'>,
   kit: WorldKit,
   send: Send,
 ): Promise<TotalsShare[]> {
+  const { calendar, packs } = reference;
   const days = sharedDays(calendar, world.date);
   if (days.length === 0 || desk.held.seeded === true) return [];
   const courses = records.flatMap((one) => one.courses);
@@ -119,10 +126,14 @@ export async function sendShares(
   const signers = await kitStep(() => courseSigners(desk.held.school, school, records, kit.mac));
   const ca = { world: world.world, key: await caKey(world.world, send), checker: kit };
   const staffing = schoolStaffing(school);
+  const itemsOf = ({ id, release }: PinnedPack) =>
+    packs.find((pack) => pack.id === id && pack.release === release)?.items.map((item) => item.id);
+  const plans = await kitStep(() => schoolPlans(desk.held.school, school, itemsOf, kit.mac));
+  const yearFrom = calendar.year.from;
   const sent: TotalsShare[] = [];
   for (const { day, from } of days) {
-    const input = { school: desk.opened, day, from, directorate: school.directorateId, weeks, signers, ca, staffing };
-    const share = await kitStep(() => prepareShare(input, desk.crypto));
+    const input = { school: desk.opened, day, from, yearFrom, directorate: school.directorateId, weeks, signers };
+    const share = await kitStep(() => prepareShare({ ...input, ca, staffing, plans }, desk.crypto));
     if ((await putShare(world.world, share, send)) !== 'refused') sent.push(share);
   }
   return sent;
