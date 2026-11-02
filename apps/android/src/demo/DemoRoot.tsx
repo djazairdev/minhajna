@@ -38,9 +38,10 @@
 // starting or joining gives and this page holds in memory until the world is
 // left; a reading that fails is said on the world's home, and a world starts
 // from the bundled calendar. When the device that started a world moves its
-// date onto an announced day, it sends the seeded schools' shares of the
-// totals for that day (seeded-shares.ts, #596) while it still shows busy, and
-// a failed send is said as any failure is, the date already moved.
+// date onto an announced day, and when it enters it again, it sends the seeded
+// schools' shares of the totals for the days reached (seeded-shares.ts, #596)
+// while it still shows busy, and a failed send is said as any failure is, the
+// date already moved, to be finished by the next.
 
 import {
   readWorldCode,
@@ -149,8 +150,13 @@ export function DemoRoot({
       });
       const code = 'code' in read ? read.code : typed;
       const found = { world: joined.keys.world, kind: joined.keys.kind, code, date: joined.date };
-      setOpen(await openWorld({ ...found, starter: null }, storage, world));
-      setHeld({ world: joined.keys.world, keys: joined.keys, sealing: joined.sealing });
+      const opened = await openWorld({ ...found, starter: null }, storage, world);
+      const holding = { world: joined.keys.world, keys: joined.keys, sealing: joined.sealing };
+      setOpen(opened);
+      setHeld(holding);
+      if (opened.starter !== null && reference !== undefined) {
+        await sendSeededShares(holding, opened.date, reference, kit, send);
+      }
     });
 
   const move = () =>

@@ -105,7 +105,10 @@ async function keepSeededIssues(world: TakeWorld, space: string, school: Pick<De
   }
 }
 
-/** Keeps the school's seeded key here, with each teacher's first code, or finishes keeping it. */
+/**
+ * Keeps the school's seeded key here, with each teacher's first code, or finishes keeping it. The first keyring is
+ * opened before a key another device changed is refused, so a ring that does not open says so first.
+ */
 export function takeSeededKey(
   world: TakeWorld,
   held: HeldWorld | null,

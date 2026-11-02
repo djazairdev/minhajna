@@ -28,7 +28,7 @@
 // signed, by the device that started the world (answer 628).
 
 import { checkSignedWeek, isSigningKey, type KeyChecker } from './certify.ts';
-import { addDays, isDay, type Day } from './day.ts';
+import { addDays, compareDays, isDay, type Day } from './day.ts';
 import { toHex } from './id.ts';
 import { ENTRY_ID } from './reference-fields.ts';
 import { ascii, ID, type KeyCrypto } from './school-key-shape.ts';
@@ -256,6 +256,6 @@ export async function seededShare(
     if (latest === undefined || addDays(latest.week, 6) < from || latest.week > day) continue;
     courses.set(latest.course, [...(courses.get(latest.course) ?? []), latest]);
   }
-  const inOrder = [...courses.values()].map((weeks) => weeks.sort((a, b) => (a.week < b.week ? -1 : 1)));
+  const inOrder = [...courses.values()].map((weeks) => weeks.sort((a, b) => compareDays(a.week, b.week)));
   return shareOf(input, inOrder, crypto);
 }

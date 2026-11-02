@@ -40,8 +40,23 @@ type ShareWorld = Pick<OpenWorld, 'world' | 'date'>;
 
 /** How long a share put stays remembered, so one the same is put again after it, as a server may lose it. */
 const REMEMBERED_MS = 10 * 60 * 1000;
-/** The last share put for each world and day, as JSON, and when, so one the same is not put again meanwhile. */
+/** The last share put for each world, day and ID, as JSON, and when, so one the same is not put again meanwhile. */
 const lastPut = new Map<string, { readonly text: string; readonly at: number }>();
+
+/**
+ * Puts a share for its day, unless the same was put in the last ten minutes: answers whether it was put, the same,
+ * or refused for a day the server does not take; any other answer throws.
+ */
+export async function putShare(world: string, share: TotalsShare, send: Send): Promise<'put' | 'same' | 'refused'> {
+  const [key, text] = [JSON.stringify([world, share.day, share.id]), JSON.stringify(share)];
+  const last = lastPut.get(key);
+  if (last?.text === text && Date.now() - last.at <= REMEMBERED_MS) return 'same';
+  const answer = await send({ method: 'PUT', path: `/worlds/${world}/totals/${share.day}/shares`, body: share });
+  if (answer.status === 422) return 'refused';
+  if (answer.status !== 200 && answer.status !== 201) throw unexpected(answer);
+  lastPut.set(key, { text, at: Date.now() });
+  return 'put';
+}
 
 /** By course, the keys its records were signed with on the channels of the teachers the timetable names for it. */
 export async function courseSigners(
@@ -108,15 +123,7 @@ export async function sendShares(
   for (const { day, from } of days) {
     const input = { school: desk.opened, day, from, directorate: school.directorateId, weeks, signers, ca, staffing };
     const share = await kitStep(() => prepareShare(input, desk.crypto));
-    const [key, text] = [JSON.stringify([world.world, day]), JSON.stringify(share)];
-    const last = lastPut.get(key);
-    if (last?.text !== text || Date.now() - last.at > REMEMBERED_MS) {
-      const answer = await send({ method: 'PUT', path: `/worlds/${world.world}/totals/${day}/shares`, body: share });
-      if (answer.status === 422) continue;
-      if (answer.status !== 200 && answer.status !== 201) throw unexpected(answer);
-      lastPut.set(key, { text, at: Date.now() });
-    }
-    sent.push(share);
+    if ((await putShare(world.world, share, send)) !== 'refused') sent.push(share);
   }
   return sent;
 }
