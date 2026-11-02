@@ -46,7 +46,6 @@ export type SchoolCoverProps = {
   readonly dayText: (day: Day) => string;
 };
 
-/** A term's key in the catalogue, by its number in the year. */
 /** The director's cover for the world's date: the sessions to cover, the day's sheet and the term's log. */
 export function SchoolCover(props: SchoolCoverProps) {
   const { world, school, year, kit, send, dayText } = props;

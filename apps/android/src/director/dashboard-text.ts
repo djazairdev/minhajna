@@ -14,12 +14,12 @@ import { classWeek, type CourseStanding, type DashboardCourse, type DemoSchool }
 import type { TFunction } from 'i18next';
 import { currentLanguage } from '../text/i18n';
 
-/** A made-up person's name in Arabic letters for an Arabic interface, and in Latin letters otherwise. */
 /** A term's name: the first, the second, or the third or any later. */
 export function termName(t: TFunction, number: number): string {
   return t(`demo.cover.terms.${number === 1 ? '1' : number === 2 ? '2' : '3'}`);
 }
 
+/** A made-up person's name in Arabic letters for an Arabic interface, and in Latin letters otherwise. */
 export function personName(person: { readonly name: string; readonly latinName: string }): string {
   return currentLanguage() === 'ar' ? person.name : person.latinName;
 }
