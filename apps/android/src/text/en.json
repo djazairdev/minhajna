@@ -5830,9 +5830,20 @@
         "cover": "Cover sessions given",
         "vacantPosts": "Vacant posts",
         "hoursWithoutTeacher": "Weekly hours without a teacher",
-        "closed": "Sessions lost to closures"
+        "closed": "Sessions lost to closures",
+        "item": "Item",
+        "sessions": "Sessions",
+        "merged": "Classes that merged it",
+        "skipped": "Classes that skipped it",
+        "retaught": "Classes that retaught it"
       },
-      "again": "Read again"
+      "again": "Read again",
+      "tabs": "What the totals show",
+      "report": "Curriculum report",
+      "reportLead": "How the plans went in the classes: sessions per item, items merged, skipped or retaught, how far the classes got, and plans that run long. No figure in it is a class’s or a school’s.",
+      "reportLine": "Classes: {{classes}} · reached on average: {{reached}}% of their plans · plans running long for the year at their pace: {{long}}",
+      "items": "The plan items in {{subject}}",
+      "noItems": "No item recorded for this subject."
     }
   },
   "chart": {

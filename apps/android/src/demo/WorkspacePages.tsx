@@ -18,11 +18,11 @@
 // their own log (#573); any other page has none, and the preparer never opens
 // the records or the cover; the directorate's grants page requests inspectors'
 // grants from its schools (#593, DirectorateGrant.tsx) and its totals page says
-// what the system owes teachers on announced days (#598,
-// DirectorateTotals.tsx); and the Ministry's calendar page keys a draft of the
-// world's calendar (#607, MinistryCalendar.tsx), afresh over each release the
-// world comes to hold, and publishes it with the world's keys (#608,
-// MinistryCalendarPage.tsx).
+// what the system owes teachers on announced days, with the curriculum report
+// (#598, DirectorateTotals.tsx); and the Ministry's calendar page keys a draft
+// of the world's calendar (#607, MinistryCalendar.tsx), afresh over each
+// release the world comes to hold, and publishes it with the world's keys
+// (#608, MinistryCalendarPage.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -110,6 +110,7 @@ export function workspacePage(
         send={send}
         dayText={dayText}
         subjectName={(code) => subjectName(reference.profile, code)}
+        bundled={bundled}
       />
     );
   if (workspace === 'director' && page === 'dashboard')
