@@ -5853,7 +5853,10 @@
       "wilaya": "Wilaya",
       "nation": "The nation",
       "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. A wilaya with fewer than 10 teachers or 3 schools is hidden; with every cell under a directorate’s floor, 5 teachers and 3 schools, the server hides every cell that would reveal it by subtraction.",
-      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking of wilayas, or for a decision about a teacher."
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking of wilayas, or for a decision about a teacher.",
+      "reportLead": "The curriculum report for the nation. The wilayas show in it as a range, never named or ranked.",
+      "range": "How far classes got across the wilayas: from {{low}}% to {{high}}%, the middle half from {{middleLow}}% to {{middleHigh}}%.",
+      "noRange": "The range across the wilayas shows once at least 8 wilayas show their figure for this subject, with classes."
     }
   },
   "chart": {
