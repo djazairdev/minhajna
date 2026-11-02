@@ -10,11 +10,12 @@
 // part goes to the wrong teacher. The device's signing key is made the first
 // time it sends in a world, certified by the world's CA for the device's own
 // ID, and kept in memory only, for the last world it sent in, so a reload makes
-// a new one. A part goes on its code's channel at the next number, its version
-// the master version, refused when this key already put one there at that
-// version or a later one, so a version's number always comes from the world's
-// store; the channel is read again after another write came first. A version
-// applies from the next Sunday by default (partFrom).
+// a new one; a pair given, such as a cut room's decider's (room-open.ts), is
+// certified the same way. A part goes on its code's channel at the next number,
+// its version the master version, refused when this key already put one there
+// at that version or a later one, so a version's number always comes from the
+// world's store; the channel is read again after another write came first. A
+// version applies from the next Sunday by default (partFrom).
 
 import {
   addDays,
@@ -55,8 +56,16 @@ type Signing = { readonly signer: KeySigner; readonly certificate: Certificate }
 /** This device's certified signing key, by world and device, in memory only. */
 const signing = new Map<string, Promise<Signing>>();
 
-async function certify(world: string, device: string, ca: string, kit: WorldKit, send: Send): Promise<Signing> {
-  const pair = await kitStep(() => kit.newPair());
+/** A key pair certified by the world's CA for a device, a new pair unless one is given. */
+export async function certify(
+  world: string,
+  device: string,
+  ca: string,
+  kit: WorldKit,
+  send: Send,
+  given?: { readonly spki: string; readonly pkcs8: string },
+): Promise<Signing> {
+  const pair = given ?? (await kitStep(() => kit.newPair()));
   const signer = { publicKey: pair.spki, sign: (one: string) => kit.sign(pair.pkcs8, one), verify: kit.verify };
   const request = await kitStep(() => certificateRequest(world, device, signer));
   const answer = await send({ method: 'POST', path: `/worlds/${world}/certificates`, body: request });

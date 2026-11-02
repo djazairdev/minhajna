@@ -2,16 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Each class's standing on the director's dashboard, from the school's signed
-// weeks as D-Record reads them (records-session.ts), for #549 and answer 627:
-// a class of the school is matched by its name key, a class the school does
-// not list left out; each week counts under the subject code its totals name,
+// weeks as D-Record reads them (records-session.ts), for #549 and answer 627: a
+// class of the school is matched by its name key, a class the school does not
+// list left out; each week counts under the subject code its totals name,
 // whatever name the timetable gives the subject; a subject's weeks are gathered
 // from every course of the class in it, each teacher's chain apart, so two
 // teachers in turn who each signed part of a week both count, a week once for
-// each teacher at the highest version read; and the core works out the
-// standing (week-standing.ts) against the class's pinned pack and the world's
-// calendar as it stands, its closures and exam days read for the school's zone
-// and the class, each day once, as the seeded term reads them.
+// each teacher at the highest version read; and the core works out the standing
+// (week-standing.ts) against the class's pinned pack and the world's calendar
+// as it stands, its closures and exam days read for the school's zone and the
+// class, each day once, as the seeded term reads them. An exam's chart takes
+// the standing on its figures day, from the weeks that begin by then (answer
+// 631).
 
 import {
   CalendarView,
@@ -30,11 +32,12 @@ import { termReference, type TermReference } from './seeded-fill';
 
 const key = (classId: string, subject: string) => `${classId}\n${subject}`;
 
-/** Each class and subject's standing from its signed weeks, by class ID and subject code. */
+/** Each class and subject's standing from its signed weeks, those that begin by `until` when given. */
 export function courseStandings(
   records: readonly ClassRecords[],
   school: DemoSchool,
   reference: TermReference,
+  until?: Day,
 ): (classId: string, subject: string) => CourseStanding | null {
   const view = new CalendarView(termReference(reference), []);
   const place = demoSchoolPlace(school);
@@ -49,6 +52,7 @@ export function courseStandings(
     const bySubject = new Map<string, Map<string, WeekRecord>>();
     for (const course of one.courses)
       for (const { week } of course.weeks) {
+        if (until !== undefined && week.week > until) continue;
         const weeks = bySubject.get(week.totals.subject) ?? new Map<string, WeekRecord>();
         const at = `${course.key}\n${week.week}`;
         if ((weeks.get(at)?.version ?? -1) < week.version) weeks.set(at, week);

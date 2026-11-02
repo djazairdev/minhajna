@@ -19,8 +19,10 @@
 // none while it is read; when only the weeks could not be read, who joined is
 // still given, with no standing and the problem said. Once the weeks are read,
 // the school's share of the totals is sent for the announced days reached
-// (share-send.ts), after the page has what it reads; a failed send is not said,
-// and is tried again with the next reading.
+// (share-send.ts), and the cut rooms of the school exams whose figures day it
+// reached are opened (room-open.ts, answer 632), the one whatever the other
+// did, after the page has what it reads; a failed send, or a room that failed,
+// is not said, and is tried again with the next reading.
 
 import {
   issuesIn,
@@ -41,6 +43,7 @@ import { recordsOf, type ClassRecords } from './records-session';
 import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
 import type { TermReference } from './seeded-fill';
 import { sendShares } from './share-send';
+import { openRooms } from '../threshold/room-open';
 
 type JoinedWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 
@@ -119,7 +122,11 @@ export function useJoinedTeachers(
       const joined = await joinedOn(world, desk, school.teachers, kit, send);
       try {
         const records: ClassRecords[] = await recordsOf(world, desk, school, kit, send);
-        const sharing = () => sendShares(world, desk, school, records, reference, kit, send);
+        const sharing = () =>
+          Promise.allSettled([
+            sendShares(world, desk, school, records, reference, kit, send),
+            openRooms(world, desk, school, records, reference, kit, send),
+          ]);
         return { joined, standing: courseStandings(records, school, reference), problem: null, sharing };
       } catch (error) {
         return { joined, standing: NO_STANDING, problem: problemOf(error) };
