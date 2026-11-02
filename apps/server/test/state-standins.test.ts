@@ -15,9 +15,10 @@
 // not base64; absences refused while a world records no roll call; a delivery
 // refused before any key was made making none; the largest export of the shape
 // taken over HTTP and a longer text refused; the cap of receipts, erased with
-// the world; and its requests counted with the other world requests. The server
-// does not depend on the core, so the test loads its certify.ts at run time, as
-// Node strips its types. Every world, pupil, mark and teacher here is made up.
+// the world, on a fixed clock so the world is erased by 7 December whatever the
+// day; and its requests counted with the other world requests. The server does
+// not depend on the core, so the test loads its certify.ts at run time, as Node
+// strips its types. Every world, pupil, mark and teacher here is made up.
 
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
@@ -28,6 +29,7 @@ import { MAX_TEXT } from '../src/state-standins/term-export-read.js';
 import { MAX_RECEIPTS, MemoryWorldStore } from '../src/worlds/world-store.js';
 import {
   freshId,
+  NOW,
   OPEN,
   PASS,
   row,
@@ -103,7 +105,7 @@ describe('the stand-in receiving system', () => {
   before(async () => {
     const certifyTs = new URL('../../../../packages/core/src/certify.ts', import.meta.url);
     core = (await import(certifyTs.href)) as Core;
-    app = await createApp(false, { store, starts: OPEN, joins: OPEN });
+    app = await createApp(false, { store, starts: OPEN, joins: OPEN, now: NOW });
     await app.listen(0, '127.0.0.1');
     base = await app.getUrl();
   });
