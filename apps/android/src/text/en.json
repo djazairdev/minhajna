@@ -5844,6 +5844,16 @@
       "reportLine": "Classes: {{classes}} · reached on average: {{reached}}% of their plans · plans running long for the year at their pace: {{long}}",
       "items": "The plan items in {{subject}}",
       "noItems": "No item recorded for this subject."
+    },
+    "ministryTotals": {
+      "lead": "No figure here is a school’s or a teacher’s: every figure covers at least 10 teachers and 3 schools.",
+      "header": "Ministry of National Education · {{day}} · {{term}}, from {{from}} to {{to}}",
+      "owedLead": "What teachers gave and what they lacked, for each wilaya by name, to place posts where they are lacking. The wilayas come in their official order; the table is never sorted or coloured.",
+      "subject": "Subject",
+      "wilaya": "Wilaya",
+      "nation": "The nation",
+      "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. A wilaya with fewer than 10 teachers or 3 schools is hidden; with every cell under a directorate’s floor, 5 teachers and 3 schools, the server hides every cell that would reveal it by subtraction.",
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking of wilayas, or for a decision about a teacher."
     }
   },
   "chart": {
