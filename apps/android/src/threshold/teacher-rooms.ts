@@ -9,19 +9,21 @@
 // room whose decider's chart is in place is read with where its cut stands on
 // the world's date (exam-cuts.ts), whether this phone is one of its setters,
 // and this phone's highest cut's version, the rooms in the order of their
-// exams. A setter signs a cut, an item of the chart or none for no cut, with
-// the key the phone certified when joining, dated the world's date and numbered
-// past their highest in the room as read when it is put, put in the room once,
-// so signing twice from one reading keeps the later; signing is refused for a
-// phone the chart does not name (E_CUT_NOT_SETTER) and once the deadline has
-// passed or, in the room as read then, the director has decided (E_CUT_CLOSED).
-// A setter may change their cut, a no cut among them, until then. The space is
-// read once for a reading. Errors carry world-session.ts's codes and the
-// joining's (school-join-session.ts).
+// exams, with, when asked, the weeks the phone signed on its channel from the
+// same reading, none when they do not read. A setter signs a cut, an item of
+// the chart or none for no cut, with the key the phone certified when joining,
+// dated the world's date and numbered past their highest in the room as read
+// when it is put, put in the room once, so signing twice from one reading keeps
+// the later; signing is refused for a phone the chart does not name
+// (E_CUT_NOT_SETTER) and once the deadline has passed or, in the room as read
+// then, the director has decided (E_CUT_CLOSED). A setter may change their cut,
+// a no cut among them, until then. The space is read once for a reading. Errors
+// carry world-session.ts's codes and the joining's (school-join-session.ts).
 
 import {
   channelRooms,
   channelStream,
+  channelWeeks,
   compareDays,
   cutState,
   handedKey,
@@ -37,6 +39,7 @@ import {
   type ExamRoom,
   type RoomRecords,
   type SchoolJoined,
+  type WeekRecord,
 } from '@minhajna/core';
 import type { OpenWorld } from '../demo/world-mode';
 import { failed, kitStep, type Send, type WorldKit } from '../demo/world-session';
@@ -72,6 +75,20 @@ export async function readTeacherRooms(
   kit: WorldKit,
   send: Send = worldRequest,
 ): Promise<TeacherRoom[]> {
+  return (await readTeacherExams(world, join, kit, send, false)).rooms;
+}
+
+/**
+ * The rooms handed on the phone's channel and, when asked, the weeks it signed
+ * there, from one reading of the space; weeks that do not read are null.
+ */
+export async function readTeacherExams(
+  world: TeacherWorld,
+  join: SchoolJoined,
+  kit: WorldKit,
+  send: Send = worldRequest,
+  own = true,
+): Promise<{ readonly rooms: TeacherRoom[]; readonly weeks: WeekRecord[] | null }> {
   const code = codeOf(join);
   const ca = await caKey(world.world, send);
   const checker = { key: ca, checker: kit };
@@ -96,7 +113,13 @@ export async function readTeacherRooms(
     const mine = records.chart.value.setters.find((one) => one.key === key) ?? null;
     rooms.push({ room, chart: records.chart.value, state, mine, version: versionOf(records, key), ca });
   }
-  return rooms.sort((a, b) => compareDays(a.chart.from, b.chart.from));
+  rooms.sort((a, b) => compareDays(a.chart.from, b.chart.from));
+  if (!own) return { rooms, weeks: null };
+  const weeks = await channelWeeks(code, batches, checker, joined, kit.cipher, kit.mac).then(
+    (read) => read.map((one) => one.week),
+    () => null,
+  );
+  return { rooms, weeks };
 }
 
 /** The highest version of a key's cuts in a room's records, or -1 before any. */

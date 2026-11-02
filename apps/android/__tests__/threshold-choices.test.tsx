@@ -50,7 +50,7 @@ async function stated(state: (date: Day, items: readonly string[]) => Partial<te
   const [room] = await teacherRooms.readTeacherRooms({ world: id, date }, joined, kit, server.send);
   const chart = { ...room.chart, setters: [...room.chart.setters, OTHER] };
   const made = { ...room, chart, state: { ...room.state, ...state(date, items) } };
-  const reads = jest.spyOn(teacherRooms, 'readTeacherRooms').mockResolvedValue([made]);
+  const reads = jest.spyOn(teacherRooms, 'readTeacherExams').mockResolvedValue({ rooms: [made], weeks: null });
   return { world: { world: id, date }, joined, items, pack, room: made, reads };
 }
 
@@ -72,7 +72,7 @@ test('signs a cut another setter proposed, with its day, and offers no such choi
   await press('threshold-sign');
   expect(signs.mock.calls[0][3]).toBe(items[0]);
   const settled = { ...room.state, settled: { item: items[0], by: 'setters' as const } };
-  reads.mockResolvedValue([{ ...room, state: settled }]);
+  reads.mockResolvedValue({ rooms: [{ ...room, state: settled }], weeks: null });
   await unmount();
   await show(<ExamThreshold {...props(world, joined)} said={page.title} room={ROOM} />);
   expect([texts().includes(page.state.settled.replace('{{item}}', item)), controls('threshold-sign').length]).toEqual([
@@ -93,7 +93,7 @@ test('a refused cut is shown and the room read again', async () => {
 
 test('a phone the chart does not name, or past the deadline, has no choice', async () => {
   const { world, joined, room, reads } = await stated(() => ({}));
-  reads.mockResolvedValueOnce([{ ...room, mine: null }]);
+  reads.mockResolvedValueOnce({ rooms: [{ ...room, mine: null }], weeks: null });
   await show(<ExamThreshold {...props(world, joined)} said={page.title} room={ROOM} />);
   expect([texts().includes(page.notSetter), controls('threshold-propose').length]).toEqual([true, 0]);
   await unmount();
@@ -114,7 +114,10 @@ test('says the director’s decisions, an exam no longer shared, and items by th
     true,
   ]);
   await unmount();
-  reads.mockResolvedValue([{ ...room, state: { ...room.state, settled: { item: null, by: 'director' } } }]);
+  reads.mockResolvedValue({
+    rooms: [{ ...room, state: { ...room.state, settled: { item: null, by: 'director' } } }],
+    weeks: null,
+  });
   await show(<ExamThreshold {...props(world, joined)} reference={undefined} said={page.title} room={ROOM} />);
   expect(texts()).toEqual(
     expect.arrayContaining([

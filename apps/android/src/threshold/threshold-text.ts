@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What the teacher's threshold pages say of a room (#601, answer 633): an exam
-// by its term, a plan item as the pack the world's reference holds names it, or
-// by its place in the plan when the reference does not hold the pack, an ID the
-// reference does not name kept apart from the words around it, where the cut
-// stands, with the day the cut proposed was first signed, whether it waits for
-// this phone, each setter's latest cut with its day, the item every class
-// reached on the figures day, and the chart of each class's item reached and
-// forecast, each as its place in the plan, none counting as 0.
+// by its term, the mock exam and the BEM a demo world adds by their names, a
+// plan item as the pack the world's reference holds names it, or by its place
+// in the plan when the reference does not hold the pack, an ID the reference
+// does not name kept apart from the words around it, where the cut stands, with
+// the day the cut proposed was first signed, whether it waits for this phone,
+// each setter's latest cut with its day, the item every class reached on the
+// figures day, and the chart of each class's item reached and forecast, each as
+// its place in the plan, none counting as 0.
 
 import type { Day, ExamChart, ExamRoom } from '@minhajna/core';
 import type { TFunction } from 'i18next';
@@ -24,14 +25,23 @@ import type { TeacherRoom } from './teacher-rooms';
 export const roomId = (room: Pick<ExamRoom, 'exam' | 'subject' | 'grade'>) =>
   JSON.stringify([room.exam, room.subject, room.grade]);
 
-/** An exam by its term, or by its ID when it names none. */
+/** The exams a demo world adds above the school, by their IDs. */
+const MADE = ['mock', 'bem'] as const;
+
+/** An exam by its term, the directorate's mock exam and the BEM by their names, or another by its ID. */
 export function examName(t: TFunction, exam: string): string {
+  const made = MADE.find((one) => one === exam);
+  if (made !== undefined) return t(`demo.threshold.exams.${made}`);
   const term = /^term-(\d+)/u.exec(exam)?.[1];
   return term === undefined ? isolate(exam) : t('demo.threshold.termExam', { term: termName(t, Number(term)) });
 }
 
 /** An exam's heading: its name, subject and grade, named by the reference when it is there. */
-export function headText(t: TFunction, chart: ExamChart, reference: TermReference | undefined): string {
+export function headText(
+  t: TFunction,
+  chart: Pick<ExamChart, 'exam' | 'subject' | 'grade'>,
+  reference: TermReference | undefined,
+): string {
   const named = (code: string, name: string | undefined) =>
     name === undefined || name === code ? isolate(code) : name;
   const subject = named(chart.subject, reference && subjectName(reference.profile, chart.subject));
@@ -40,7 +50,11 @@ export function headText(t: TFunction, chart: ExamChart, reference: TermReferenc
 }
 
 /** A plan item's name, quoted, as the room's pack names it, or by its place in the plan. */
-export function itemNamer(t: TFunction, chart: ExamChart, packs: TermReference['packs'] | undefined) {
+export function itemNamer(
+  t: TFunction,
+  chart: Pick<ExamChart, 'pack' | 'items'>,
+  packs: TermReference['packs'] | undefined,
+) {
   const pack = packs?.find((one) => one.id === chart.pack.id && one.release === chart.pack.release);
   const titles = new Map(pack?.items.map((one) => [one.id, one.title]));
   return (item: string | null): string => {

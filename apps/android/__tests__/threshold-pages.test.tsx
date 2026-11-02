@@ -4,14 +4,18 @@
 // The teacher's threshold pages (#601, answer 633), on the made-up room of
 // cut-room.ts: the exams list names the exam, its days, that no cut is proposed
 // and the class's items reached and forecast, as the pack names them, and opens
-// the exam's page on its room by a button named with the exam; with no room it
-// says none has come; the exam's page shows the chart's table and the item
-// every class reached, proposes a cut chosen from the plan, which settles it
-// while the phone is the one setter, says it, with the day it was signed, then
-// signs no cut, which leaves it to the director; a problem reading is shown,
-// said, and read again once however quickly pressed twice; the joined pages
-// open both, and a threshold page with no room shows nothing; and the pages'
-// words read in every language. Every school, teacher and pack is made up.
+// the exam's page on its room by a button named with the exam; it lists the
+// exams above the school the phone's classes sit, from its own weeks, by name,
+// level and days, with the class's items on the day they are taken and what
+// each level shows, and none without the world's school, or says so when the
+// phone's weeks do not read; with no room it says none has come; the exam's
+// page shows the chart's table and the item every class reached, proposes a cut
+// chosen from the plan, which settles it while the phone is the one setter,
+// says it, with the day it was signed, then signs no cut, which leaves it to
+// the director; a problem reading is shown, said, and read again once however
+// quickly pressed twice; the joined pages open both, and a threshold page with
+// no room shows nothing; and the pages' words read in every language. Every
+// school, teacher and pack is made up.
 
 import { addDays } from '@minhajna/core';
 import type { ButtonProps } from '../src/components/Button';
@@ -26,6 +30,7 @@ import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
 import { ExamThreshold } from '../src/threshold/ExamThreshold';
 import { ExamThresholds } from '../src/threshold/ExamThresholds';
+import * as ownExamsModule from '../src/threshold/own-exams';
 import * as teacherRooms from '../src/threshold/teacher-rooms';
 import { roomId } from '../src/threshold/threshold-text';
 import { isolate } from '../src/week/grid-labels';
@@ -77,6 +82,55 @@ test('lists the room with its days, where its cut stands and each class, and ope
   expect(onRoom).toHaveBeenCalledWith(ROOM);
 });
 
+test('lists the exams above the school its classes sit, from its own weeks, and none without the school', async () => {
+  const { id, date, joined, pack, items } = await openedRoom();
+  const exam = { id: 'bem', setBy: 'national', term: 3, from: addDays(date, 30), to: addDays(date, 32) } as const;
+  const chart = { exam: 'bem', subject: 'math', grade: '1am', forecastDay: addDays(date, 29), pack, items };
+  const classes = [{ name: '1م2', position: items[0], forecast: items[2] }];
+  const mock = { ...exam, id: 'mock', setBy: 'directorate', figuresDay: addDays(date, 10) };
+  const shown = [
+    { exam: mock, asOf: date, charts: [{ ...chart, exam: 'mock', classes }] },
+    { exam: { ...exam, figuresDay: addDays(date, 20) }, asOf: date, charts: [{ ...chart, classes }] },
+  ];
+  const own = jest.spyOn(ownExamsModule, 'ownExams').mockReturnValue(shown as never);
+  const school = { id: 'made-up-school' } as never;
+  await show(
+    <ExamThresholds {...props({ world: id, date }, joined)} school={school} said={list.title} onRoom={jest.fn()} />,
+  );
+  expect(own).toHaveBeenCalledWith([], school, expect.anything(), date);
+  expect(texts()).toEqual(
+    expect.arrayContaining([
+      list.above,
+      list.level.national,
+      list.ownDays.replace('{{from}}', `day ${exam.from}`).replace('{{figures}}', `day ${addDays(date, 20)}`),
+      list.asOf.replace('{{day}}', `day ${date}`),
+      list.classLine
+        .replace('{{class}}', isolate('1م2'))
+        .replace('{{reached}}', quoted(pack.items[0].title))
+        .replace('{{forecast}}', quoted(pack.items[2].title))
+        .replace('{{day}}', `day ${addDays(date, 29)}`),
+      list.shows.national,
+      list.level.directorate,
+      list.shows.directorate,
+      list.notes.phone,
+    ]),
+  );
+  expect([page.exams.mock, page.exams.bem].map((name) => texts().some((one) => one.startsWith(name)))).toEqual([
+    true,
+    true,
+  ]);
+  await unmount();
+  own.mockClear();
+  await show(<ExamThresholds {...props({ world: id, date }, joined)} said={list.title} onRoom={jest.fn()} />);
+  expect([own.mock.calls.length, texts().includes(list.above)]).toEqual([0, false]);
+  await unmount();
+  jest.spyOn(teacherRooms, 'readTeacherExams').mockResolvedValueOnce({ rooms: [], weeks: null });
+  await show(
+    <ExamThresholds {...props({ world: id, date }, joined)} school={school} said={list.title} onRoom={jest.fn()} />,
+  );
+  expect(texts()).toContain(list.ownFailed);
+});
+
 test('says so when no room is handed to the phone', async () => {
   const { id, here, joined } = await setting();
   await show(
@@ -123,7 +177,7 @@ test('proposes a cut from the plan, which settles it, then signs no cut, which l
 test('a problem reading is shown, said, and read again once', async () => {
   const { id, date, joined } = await openedRoom();
   const reads = jest
-    .spyOn(teacherRooms, 'readTeacherRooms')
+    .spyOn(teacherRooms, 'readTeacherExams')
     .mockRejectedValueOnce(Object.assign(new Error('made up'), { code: 'E_TIMETABLE_UNJOINED' }));
   await show(<ExamThresholds {...props({ world: id, date }, joined)} said={list.title} onRoom={jest.fn()} />);
   expect(alerts()).toEqual([ar.demo.timetable.notJoined]);

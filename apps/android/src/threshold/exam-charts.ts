@@ -8,13 +8,13 @@
 // the teachers it names for them, in the timetable's order, those of classes
 // pinning another pack among them, as they set the same paper, and the pack
 // most of those classes pin, ties to the first pinned; the classes pinning that
-// pack, each named once, with their position on the figures day, the furthest
-// item their signed weeks to then worked on (course-standings.ts), and their
-// forecast on the last school day before the exam, at their own pace over the
-// school days, the country's working days that are school days without a
-// closure or an exam for the class, each class's days counted once for an exam.
-// A pack the reference does not hold, with no item, or with more than a chart
-// holds, has no chart.
+// pack, each named once, with their position on the figures day, or on a day
+// before it the teacher's phone gives, the furthest item their signed weeks to
+// then worked on (course-standings.ts), and their forecast on the last school
+// day before the exam, at their own pace over the school days to that day, the
+// country's working days that are school days without a closure or an exam for
+// the class, each class's days counted once for an exam. A pack the reference
+// does not hold, with no item, or with more than a chart holds, has no chart.
 
 import {
   addDays,
@@ -36,8 +36,7 @@ import {
   type PinnedPack,
   type WorldExam,
 } from '@minhajna/core';
-import { courseStandings } from '../director/course-standings';
-import type { ClassRecords } from '../director/records-session';
+import { courseStandings, type StandingRecords } from '../director/course-standings';
 import { termReference, type TermReference } from '../director/seeded-fill';
 
 /** A chart as the school's records give it, before its setters, with the teachers the timetable names for it. */
@@ -73,13 +72,14 @@ function mostPinned(classes: readonly DemoClass[], subject: string): PinnedPack 
 export function chartDrafts(
   exam: WorldExam,
   school: DemoSchool,
-  records: readonly ClassRecords[],
+  records: readonly StandingRecords[],
   reference: TermReference,
+  asOf: Day = exam.figuresDay,
 ): ChartDraft[] {
   const calendar = termReference(reference);
   const view = new CalendarView(calendar, []);
   const place = demoSchoolPlace(school);
-  const standing = courseStandings(records, school, reference, exam.figuresDay);
+  const standing = courseStandings(records, school, reference, asOf);
   const where = { level: school.level, zone: school.wilaya, schoolId: school.id };
   const sitting = school.classes.filter((one) => examsFor([exam], { ...where, grade: one.grade }).length > 0);
   const groups = new Map<string, { grade: string; subject: string; classes: Set<string>; teachers: string[] }>();
@@ -102,7 +102,7 @@ export function chartDrafts(
     };
   };
   const pace = new Map<string, { before: number; left: number }>();
-  const forecastDay = forecastDayOf(exam.figuresDay, exam.from, opens());
+  const forecastDay = forecastDayOf(asOf, exam.from, opens());
   const drafts: ChartDraft[] = [];
   for (const { grade, subject, classes, teachers } of groups.values()) {
     const taught = sitting.filter((one) => classes.has(one.id));
@@ -119,8 +119,8 @@ export function chartDrafts(
       const at = items.indexOf(standing(one.id, subject)?.position?.id ?? '');
       const open = opens(one);
       const counted = pace.get(one.id) ?? {
-        before: openDays(reference.calendar.year.from, exam.figuresDay, open),
-        left: openDays(addDays(exam.figuresDay, 1), forecastDay, open),
+        before: openDays(reference.calendar.year.from, asOf, open),
+        left: openDays(addDays(asOf, 1), forecastDay, open),
       };
       pace.set(one.id, counted);
       const { before, left } = counted;

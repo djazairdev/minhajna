@@ -8,17 +8,21 @@
 // setter, and their no cut then leaves it to the director; signing is refused
 // past the deadline, for a phone the chart does not name, and once the director
 // has decided in the room as read when it is put; two cuts signed from one
-// reading keep the later; and a phone that is not the one joined on the code
-// reads nothing. Every world, school, teacher and pack is made up.
+// reading keep the later; a phone that is not the one joined on the code reads
+// nothing; and, when asked, the weeks the phone signed come from the same
+// reading, as Week-sign reads them, none when they do not read, the rooms kept.
+// Every world, school, teacher and pack is made up.
 
 import { addDays, deciderSeed, handedKey, roomPlace, sealRoomRecord, signRoomRecord } from '@minhajna/core';
 import { openedRoom } from '../jest/cut-room';
+import { SECOND, signedTerm } from '../jest/term-weeks';
 import { server } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { putOnce } from '../src/school/stream-put';
 import { deciderSigning } from '../src/threshold/decider-key';
-import { readTeacherRooms, signCut } from '../src/threshold/teacher-rooms';
+import { readTeacherExams, readTeacherRooms, signCut } from '../src/threshold/teacher-rooms';
+import { readSignChannel } from '../src/week/week-sign-session';
 
 afterEach(() => {
   leaveWorldNetwork();
@@ -108,4 +112,26 @@ test('refuses a cut once the director has decided, in the room as read when it i
   });
   const [read] = await readTeacherRooms(world, joined, kit, server.send);
   expect(read.state.settled).toEqual({ item: items[0], by: 'director' });
+}, 60_000);
+
+test('reads the phone’s own signed weeks from the same reading, when asked', async () => {
+  const { id, here, joined } = await signedTerm();
+  const world = { world: id, date: SECOND };
+  const own = await readTeacherExams(world, joined, kit, server.send);
+  const { weeks } = await readSignChannel(world, joined, kit, server.send);
+  expect([own.rooms, own.weeks]).toEqual([[], weeks.map((one) => one.week)]);
+  expect(own.weeks!.map((one) => one.class)).toEqual(['1م2', '1م2']);
+  expect((await readTeacherExams({ world: id, date: here.date }, joined, kit, server.send, false)).weeks).toBeNull();
+}, 60_000);
+
+test('keeps the rooms and gives no weeks when the weeks do not read', async () => {
+  const { id, joined } = await signedTerm();
+  const world = { world: id, date: SECOND };
+  let [calls, most] = [0, Infinity];
+  const mac: typeof kit.mac = (key, data) =>
+    ++calls > most ? Promise.reject(new Error('made up')) : kit.mac(key, data);
+  const counting = { ...kit, mac };
+  const rooms = await readTeacherExams(world, joined, counting, server.send, false);
+  [calls, most] = [0, calls];
+  expect(await readTeacherExams(world, joined, counting, server.send)).toEqual({ rooms: rooms.rooms, weeks: null });
 }, 60_000);
