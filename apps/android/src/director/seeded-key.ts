@@ -50,6 +50,20 @@ import { PUBLIC_KEY_BYTES } from './school-desk';
 
 type TakeWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 
+/** Every school's seeded key, none when the world holds none. */
+export async function seededKeys(
+  held: HeldWorld,
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<readonly SeededSchoolKey[]> {
+  const place = await kitStep(() => seededKeysPlace(held.sealing, kit.mac));
+  const empty = () => ({ status: 200, body: { batches: [], more: false }, retryAfter: null });
+  const reading = readingMissing(held.world, send, empty);
+  const batches = (await spaceBatches(held.world, NATIONAL_SPACE, reading)).get(place.stream) ?? [];
+  const keys = await kitStep(() => openSeededKeys(place, batches, held.world, kit.cipher));
+  return keys?.schools ?? [];
+}
+
 /** The seeded key of a school, by its seeded ID, or null when the world holds none for it. */
 export async function seededKeyOf(
   held: HeldWorld,
@@ -57,12 +71,23 @@ export async function seededKeyOf(
   kit: WorldKit,
   send: Send = worldRequest,
 ): Promise<SeededSchoolKey | null> {
-  const place = await kitStep(() => seededKeysPlace(held.sealing, kit.mac));
-  const empty = () => ({ status: 200, body: { batches: [], more: false }, retryAfter: null });
-  const reading = readingMissing(held.world, send, empty);
-  const batches = (await spaceBatches(held.world, NATIONAL_SPACE, reading)).get(place.stream) ?? [];
-  const keys = await kitStep(() => openSeededKeys(place, batches, held.world, kit.cipher));
-  return keys?.schools.find((one) => one.seed === school) ?? null;
+  return (await seededKeys(held, kit, send)).find((one) => one.seed === school) ?? null;
+}
+
+/** The school's first keyring, opened with the seeded device's key, and how many keyrings its stream holds. */
+export async function openSeededRing(world: string, seeded: SeededSchoolKey, kit: WorldKit, send: Send) {
+  const stream = await kitStep(() => keyringStream(seeded.space, kit.mac));
+  const batches = (await spaceBatches(world, seeded.space, send)).get(stream) ?? [];
+  const rings = await kitStep(() => readKeyrings(seeded.space, batches, PUBLIC_KEY_BYTES, kit.cipher, kit.mac));
+  const [ring] = rings;
+  const publicKey = ring?.holders.find((one) => one.id === seeded.device)?.publicKey;
+  if (ring === undefined || publicKey === undefined) {
+    throw failed('The seeded keyring is not there', 'E_SCHOOL_KEY');
+  }
+  const crypto = worldKeyCrypto(kit, { publicKey, pkcs8: seeded.agreement });
+  const opened = await kitStep(() => openKeyring(ring, seeded.device, crypto));
+  if (typeof opened === 'string') throw failed(`The seeded key does not open here: ${opened}`, 'E_SCHOOL_KEY');
+  return { ring, publicKey, crypto, opened, keyrings: rings.length };
 }
 
 /** Whether the key this device holds is a school's seeded key it took. */
@@ -80,7 +105,10 @@ async function keepSeededIssues(world: TakeWorld, space: string, school: Pick<De
   }
 }
 
-/** Keeps the school's seeded key here, with each teacher's first code, or finishes keeping it. */
+/**
+ * Keeps the school's seeded key here, with each teacher's first code, or finishes keeping it. The first keyring is
+ * opened before a key another device changed is refused, so a ring that does not open says so first.
+ */
 export function takeSeededKey(
   world: TakeWorld,
   held: HeldWorld | null,
@@ -99,18 +127,8 @@ export function takeSeededKey(
     }
     const seeded = held === null ? null : await seededKeyOf(held, school.id, kit, send);
     if (seeded === null) throw failed('The world holds no seeded key for this school', 'E_NO_SCHOOL_KEY');
-    const stream = await kitStep(() => keyringStream(seeded.space, kit.mac));
-    const batches = (await spaceBatches(world.world, seeded.space, send)).get(stream) ?? [];
-    const rings = await kitStep(() => readKeyrings(seeded.space, batches, PUBLIC_KEY_BYTES, kit.cipher, kit.mac));
-    if (rings.length > 1) throw failed('Another device took the seeded key and changed it', 'E_SEED_TAKEN');
-    const [ring] = rings;
-    const publicKey = ring?.holders.find((one) => one.id === seeded.device)?.publicKey;
-    if (ring === undefined || publicKey === undefined) {
-      throw failed('The seeded keyring is not there', 'E_SCHOOL_KEY');
-    }
-    const crypto = worldKeyCrypto(kit, { publicKey, pkcs8: seeded.agreement });
-    const opened = await kitStep(() => openKeyring(ring, seeded.device, crypto));
-    if (typeof opened === 'string') throw failed(`The seeded key does not open here: ${opened}`, 'E_SCHOOL_KEY');
+    const { ring, publicKey, keyrings } = await openSeededRing(world.world, seeded, kit, send);
+    if (keyrings > 1) throw failed('Another device took the seeded key and changed it', 'E_SEED_TAKEN');
     const kept = { school: seeded.space, device: seeded.device, publicKey, pkcs8: seeded.agreement, ring };
     await world.book.record(world.date, { kind: 'school.held', held: { ...kept, seeded: true as const } });
     await keepSeededIssues(world, seeded.space, school, kit);
