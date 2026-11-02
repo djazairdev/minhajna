@@ -15,7 +15,8 @@ import {
   sign,
   verify,
 } from 'node:crypto';
-import { readShare } from '../../server/src/totals/share-read';
+import { readShare, type Share } from '../../server/src/totals/share-read';
+import { dayTotals } from '../../server/src/totals/share-sums';
 import { holdsPass, holdsStarter, readLaterDays, readWorldStart } from '../../server/src/worlds/world-rules';
 import type { WorldKit } from '../src/demo/world-session';
 import { worldRequest, type WorldRequest } from '../src/network/world-network';
@@ -113,7 +114,8 @@ export function answer(status: number, body?: unknown, headers?: Record<string, 
  * The demo server's routes on a map, with the server's own rules for what a
  * start carries, its pass and its starter token, which moving the date and
  * seeding (#548) need, its relay and stand-in CA (world-relay.ts), and the
- * schools' shares of the totals (#596), kept by world, day and ID in `shares`:
+ * schools' shares of the totals (#596), kept by world, day and ID in `shares`
+ * and added up by the server's own sums (#598):
  * `taken` answers 409 to that many starts, and `busy` 429 to every request
  * while it is set.
  */
@@ -185,6 +187,20 @@ export class DemoServer {
       const replaced = this.shares.has(key);
       this.shares.set(key, share);
       return answer(replaced ? 200 : 201, { id: share.id });
+    }
+    if (rest === 'totals' && init.method === 'GET') {
+      const [day] = path.split('/').slice(4);
+      if (!kept.announced.includes(day) || day > kept.date) return answer(422, { error: 'not announced' });
+      const held = [...this.shares].filter(([key]) => key.startsWith(`${world}\n${day}\n`));
+      const directorate = url.searchParams.get('directorate');
+      return answer(
+        200,
+        dayTotals(
+          day,
+          held.map(([, share]) => share as Share),
+          directorate,
+        ),
+      );
     }
     if (rest === 'seed' && !holdsStarter(headers.Authorization, kept.starterHash)) return answer(403, {});
     if (rest !== undefined && rest !== 'date') {

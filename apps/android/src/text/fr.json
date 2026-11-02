@@ -5892,6 +5892,32 @@
         "missing": "Certains champs sont à corriger.",
         "newIn": "Nouvelle date pour la wilaya {{wilaya}}"
       }
+    },
+    "totals": {
+      "lead": "Aucun chiffre ici n’est celui d’un établissement ou d’un membre du personnel enseignant : chaque chiffre couvre au moins 5 membres du personnel enseignant et 3 établissements.",
+      "none": "La date du monde n’a pas encore atteint un jour annoncé après la fin du premier trimestre : les totaux ne sont calculés que les jours annoncés, comme la fin d’un trimestre.",
+      "header": "Direction de l’éducation · {{wilaya}} · {{day}} · {{term}}, du {{from}} au {{to}}",
+      "asOf": "Les chiffres tels que calculés le jour annoncé, {{day}}.",
+      "day": "Jour annoncé",
+      "notYet": "Les totaux de ce jour ne sont pas encore calculés : aucune part d’établissement n’est arrivée.",
+      "reading": "Lecture des totaux…",
+      "owed": "Ce que le système doit au personnel enseignant",
+      "owedLead": "Ce que le personnel enseignant a donné et ce qui lui a manqué : les remplacements assurés, les postes vacants et les heures sans enseignement assuré, et les séances perdues à une fermeture exceptionnelle.",
+      "closures": "Les séances perdues sont comptées d’après le calendrier et les avis de fermeture, jamais d’après une absence. Le serveur masque assez de cases pour qu’aucune case masquée ne se déduise par soustraction.",
+      "never": "L’espace de chaque établissement prépare sa part de ces totaux, sans nommer de classe, d’établissement ni de personne, et le serveur ne montre que ce qui est cumulé au-dessus des tailles minimales de groupe. Dans cette démo, le serveur voit chaque part en les cumulant ; le cumul chiffré viendra plus tard. Ces totaux ne servent jamais à un seuil d’examen, à un classement ni à une décision sur une personne.",
+      "hidden": "Masqué : sous les tailles minimales de groupe",
+      "atLeast": "au moins {{figure}}",
+      "all": "Toutes les matières",
+      "column": {
+        "subject": "Matière",
+        "teachers": "Personnel enseignant",
+        "schools": "Établissements",
+        "cover": "Séances de remplacement assurées",
+        "vacantPosts": "Postes vacants",
+        "hoursWithoutTeacher": "Heures hebdomadaires non assurées",
+        "closed": "Séances perdues aux fermetures"
+      },
+      "again": "Relire"
     }
   },
   "chart": {
