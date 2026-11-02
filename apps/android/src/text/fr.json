@@ -5915,9 +5915,20 @@
         "cover": "Séances de remplacement assurées",
         "vacantPosts": "Postes vacants",
         "hoursWithoutTeacher": "Heures hebdomadaires non assurées",
-        "closed": "Séances perdues aux fermetures"
+        "closed": "Séances perdues aux fermetures",
+        "item": "Élément",
+        "sessions": "Séances",
+        "merged": "Classes qui l’ont regroupé",
+        "skipped": "Classes qui l’ont sauté",
+        "retaught": "Classes qui l’ont repris"
       },
-      "again": "Relire"
+      "again": "Relire",
+      "tabs": "Ce que montrent les totaux",
+      "report": "Bilan du programme",
+      "reportLead": "Comment les progressions se sont déroulées dans les classes : séances par élément, éléments regroupés, sautés ou repris, avancement des classes et plans qui débordent. Aucun chiffre n’y est celui d’une classe ou d’un établissement.",
+      "reportLine": "Classes : {{classes}} · avancement moyen : {{reached}} % du plan · plans qui débordent de l’année à leur rythme : {{long}}",
+      "items": "Les éléments de progression en {{subject}}",
+      "noItems": "Aucun élément enregistré pour cette matière."
     }
   },
   "chart": {

@@ -12,17 +12,12 @@
 // phone, and read again on asking. The reader refuses an answer for another
 // directorate. Every world, directorate and share is made up.
 
-import { parseDay, type Day } from '@minhajna/core';
-import { randomBytes } from 'node:crypto';
-import { LocaleDirContext } from '@react-navigation/native';
-import { AccessibilityInfo, Platform, Text, type TextProps } from 'react-native';
-import type { Share } from '../../server/src/totals/share-read';
+import { parseDay } from '@minhajna/core';
+import { AccessibilityInfo, Platform } from 'react-native';
 import { dayTotals } from '../../server/src/totals/share-sums';
-import { press, rendered, show, texts, unmount } from '../jest/grant-page';
-import { calendar } from '../jest/world-calendar';
-import { DemoServer, nodeKit } from '../jest/world-server';
-import { moveWorldDate, startWorld, type Send } from '../src/demo/world-session';
-import { DirectorateTotals } from '../src/directorate/DirectorateTotals';
+import { press, texts, unmount } from '../jest/grant-page';
+import { OWN, page, put, row, server, shares, world } from '../jest/totals-page';
+import type { Send } from '../src/demo/world-session';
 import { readTotals } from '../src/directorate/totals-read';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import ar from '../src/text/ar.json';
@@ -33,8 +28,6 @@ jest.mock(
 );
 
 const words = ar.demo.totals;
-const server = new DemoServer();
-const OWN = 'dir-a';
 
 beforeEach(() => {
   jest.replaceProperty(Platform, 'OS', 'web');
@@ -46,68 +39,6 @@ afterEach(async () => {
   server.reset();
   jest.restoreAllMocks();
 });
-
-const subject = (teachers: number) => ({
-  teachers,
-  vacantPosts: 1,
-  hoursWithoutTeacher: 3,
-  classes: 4,
-  cover: 2,
-  closed: 5,
-  reached: 1200,
-  runLong: 1,
-  items: { 'u1-2': { sessions: 6, merged: 0, skipped: 1, retaught: 0 } },
-});
-
-/** Puts made-up shares for a day: `schools` of each directorate with math and French, two with Arabic too. */
-function put(world: string, day: Day, directorates: readonly string[], schools = 4) {
-  for (const directorate of directorates) {
-    for (let at = 0; at < schools; at += 1) {
-      const id = randomBytes(32).toString('hex');
-      const both = { math: subject(3), french: subject(4) };
-      const subjects = at < 2 ? { arabic: subject(2), ...both } : both;
-      server.shares.set(`${world}\n${day}\n${id}`, {
-        format: 'minhajna/total-share/1',
-        id,
-        day,
-        directorate,
-        subjects,
-      });
-    }
-  }
-}
-
-async function world(moves = 1) {
-  const started = await startWorld('national', calendar, nodeKit, server.send);
-  const days = [started.date];
-  for (let at = 0; at < moves; at += 1)
-    days.push(await moveWorldDate(started.keys.world, started.starter, days.at(-1)!, server.send));
-  return { id: started.keys.world, days };
-}
-
-const page = (id: string, date: Day, send: Send = server.send) =>
-  show(
-    <LocaleDirContext.Provider value="rtl">
-      <DirectorateTotals
-        world={{ world: id, date }}
-        school={{ directorateId: OWN }}
-        wilaya="ولاية مختلقة"
-        calendars={[calendar]}
-        send={send}
-        dayText={(day) => `day ${day}`}
-        subjectName={(code) => `subject ${code}`}
-      />
-    </LocaleDirContext.Provider>,
-  );
-
-const row = (testID: string) =>
-  rendered()
-    .root.findByProps({ testID })
-    .findAllByType(Text)
-    .map((node) => [(node.props as TextProps).children].flat().map(String).join(''));
-
-const shares = (id: string, day: Day) =>
-  [...server.shares].filter(([key]) => key.startsWith(`${id}\n${day}\n`)).map(([, share]) => share as Share);
 
 test('before an announced day it says totals wait for one, and on one with no share it says so', async () => {
   const { id, days } = await world();
