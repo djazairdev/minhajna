@@ -4,7 +4,9 @@
 // The encrypted relay (#541): spaces inside a world, sealed batches of one
 // size added all or none and read back in order, and a store that holds
 // nothing in clear after two clients exchange records. The clients seal as
-// the core does: 4096-byte pieces under AES-256-GCM. Made-up records only.
+// the core does: 4096-byte pieces under AES-256-GCM. The server's clock is
+// fixed, so no date the world keeps, such as the day it is erased, can match a
+// record's by chance. Made-up records only.
 
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
@@ -14,6 +16,7 @@ import { createApp } from '../src/app.js';
 import { SEALED_BATCH_BYTES } from '../src/spaces/space-rules.js';
 import { MemorySpaceStore, StoreBusy } from '../src/spaces/space-store.js';
 import { MemoryWorldStore } from '../src/worlds/world-store.js';
+import { NOW } from './state-kit.js';
 
 const OPEN = { perAddress: 10_000, total: 10_000, windowMs: 60_000 };
 const PASS = 'cGFzcy1mb3ItYS1tYWRlLXVwLWRlbW8td29ybGQtMDI';
@@ -54,7 +57,7 @@ describe('the encrypted relay', () => {
   }
 
   before(async () => {
-    app = await createApp(false, { store: worlds, spaces, starts: OPEN, joins: OPEN, relay: OPEN });
+    app = await createApp(false, { store: worlds, spaces, starts: OPEN, joins: OPEN, relay: OPEN, now: NOW });
     await app.listen(0, '127.0.0.1');
     base = await app.getUrl();
     const res = await fetch(`${base}/worlds`, {
