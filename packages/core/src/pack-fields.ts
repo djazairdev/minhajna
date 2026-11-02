@@ -7,11 +7,14 @@
 // each with its code, its name in the app's languages and its sessions a
 // week. An item names its activity by code, and a pack with a model refuses
 // a code outside it; a pack without one keeps activities as free codes.
+// An item's ID, unit and stages never start with `__` nor name what an object
+// already holds, such as `constructor`: the totals server refuses such names,
+// so a week naming one would leave the share with nothing saying why (#601).
 
 import type { PackItem, TimeAnchor } from './pack.ts';
 import { isFields, Reader } from './read.ts';
 import type { LocalizedText } from './reference.ts';
-import { CODE, readName } from './reference-fields.ts';
+import { CODE, named, readName } from './reference-fields.ts';
 
 /** The closed list of item kinds (PRD §4.2). */
 export const ITEM_KINDS = [
@@ -31,6 +34,8 @@ export const ITEM_KINDS = [
 
 /** An item's ID, as a pack or a class's own list writes it. */
 export const ITEM_ID = /^[A-Za-z0-9._-]{1,64}$/;
+/** An item's ID as a pack may write it: none an object already holds, which the totals could not count. */
+export const ITEM_NAME = named(ITEM_ID);
 
 /** The pack's time anchor. */
 export function readAnchor(reader: Reader, value: unknown): TimeAnchor | undefined {
@@ -51,18 +56,18 @@ export function readItem(reader: Reader, value: unknown, path: string): PackItem
     reader.fail(path, 'invalid');
     return undefined;
   }
-  const id = reader.requiredText(value, 'id', path, ITEM_ID);
+  const id = reader.requiredText(value, 'id', path, ITEM_NAME);
   const kind = reader.oneOf(value, 'kind', path, ITEM_KINDS);
   const title = reader.requiredText(value, 'title', path);
   if (kind === undefined) return undefined;
-  const unit = reader.text(value, 'unit', path, ITEM_ID);
+  const unit = reader.text(value, 'unit', path, ITEM_NAME);
   const term = reader.number(value, 'term', path, true);
   const week = reader.number(value, 'week', path, true);
   const budget = reader.number(value, 'budget', path, false);
   const activity = reader.text(value, 'activity', path);
   const optional = reader.flag(value, 'optional', path);
   const buffer = reader.flag(value, 'buffer', path);
-  const stages = reader.text(value, 'stages', path, ITEM_ID);
+  const stages = reader.text(value, 'stages', path, ITEM_NAME);
   const pages = reader.text(value, 'pages', path);
   const sourcePage = reader.number(value, 'sourcePage', path, true);
   return {

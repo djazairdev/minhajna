@@ -33,10 +33,10 @@ import { isSigningKey, type KeyChecker } from './certify.ts';
 import { utf8Length } from './signed-read.ts';
 import { addDays, compareDays, isDay, type Day } from './day.ts';
 import { toHex } from './id.ts';
-import { ENTRY_ID } from './reference-fields.ts';
+import { ENTRY_ID, isName } from './reference-fields.ts';
 import { ascii, ID, type KeyCrypto } from './school-key-shape.ts';
 import { purposeKey, type OpenedKeyring } from './school-key.ts';
-import { checkPlans, gradeReach, isName, shareable, type CoursePlan, type GradeReach } from './share-grades.ts';
+import { checkPlans, gradeReach, shareable, type CoursePlan, type GradeReach } from './share-grades.ts';
 import { countedWeeks } from './share-weeks.ts';
 import type { ItemOutcome, WeekForTotals } from './week-totals.ts';
 

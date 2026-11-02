@@ -27,6 +27,11 @@ export const LANGUAGE = /^[a-z]{2,3}$/;
 
 export type Fields = Readonly<Record<string, unknown>>;
 
+/** What a text must match, such as a regular expression. */
+export interface Shape {
+  test(value: string): boolean;
+}
+
 export function isFields(value: unknown): value is Fields {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -64,7 +69,7 @@ export class Reader {
     this.problems.push({ path, problem });
   }
 
-  text(fields: Fields, key: string, path: string, pattern?: RegExp): string | undefined {
+  text(fields: Fields, key: string, path: string, pattern?: Shape): string | undefined {
     const value = fields[key];
     if (value === undefined) return undefined;
     if (
@@ -79,7 +84,7 @@ export class Reader {
     return value;
   }
 
-  requiredText(fields: Fields, key: string, path: string, pattern?: RegExp): string {
+  requiredText(fields: Fields, key: string, path: string, pattern?: Shape): string {
     if (fields[key] === undefined) this.fail(at(path, key), 'required');
     return this.text(fields, key, path, pattern) ?? '';
   }

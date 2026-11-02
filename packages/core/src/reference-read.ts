@@ -3,12 +3,22 @@
 
 // Reads a country profile from parsed JSON. It comes in as a file, so it is
 // untrusted: every field is checked, and only the format's fields are kept
-// (PRD §5.9).
+// (PRD §5.9). A grade or subject code never names what an object already
+// holds, such as `constructor`, as the totals server refuses such names (#601).
 
 import type { Weekday } from './day.ts';
 import { isFields, LANGUAGE, Reader, RELEASE, type Fields, type ParseResult } from './read.ts';
 import { QUEUES, ROLL_CALL_UNITS, type CountryProfile, type Level, type MonthNames, type Zone } from './reference.ts';
-import { CODE, COUNTRY, distinct, PLACE, readName, readWeekday, type KnownCodes } from './reference-fields.ts';
+import {
+  CODE,
+  COUNTRY,
+  distinct,
+  NAMED_CODE,
+  PLACE,
+  readName,
+  readWeekday,
+  type KnownCodes,
+} from './reference-fields.ts';
 
 /** The level's code counts as known even when another field is wrong, so the problem is reported once. */
 function readLevel(reader: Reader, raw: unknown, path: string, known: KnownCodes): Level | undefined {
@@ -30,7 +40,7 @@ function readLevel(reader: Reader, raw: unknown, path: string, known: KnownCodes
         reader.fail(gradePath, 'invalid');
         return undefined;
       }
-      const gradeCode = reader.requiredText(rawGrade, 'code', gradePath, CODE);
+      const gradeCode = reader.requiredText(rawGrade, 'code', gradePath, NAMED_CODE);
       distinct(reader, known.grades, gradeCode, gradePath);
       const gradeName = readName(reader, rawGrade, gradePath);
       return gradeName === undefined ? undefined : { code: gradeCode, name: gradeName };
@@ -128,7 +138,7 @@ export function parseCountryProfile(input: unknown): ParseResult<CountryProfile>
         reader.fail(path, 'invalid');
         return undefined;
       }
-      const subjectCode = reader.requiredText(raw, 'code', path, CODE);
+      const subjectCode = reader.requiredText(raw, 'code', path, NAMED_CODE);
       distinct(reader, subjectCodes, subjectCode, path);
       const name = readName(reader, raw, path);
       const subjectLevels = reader.codes(raw, 'levels', path, [...known.levels], true);

@@ -6,7 +6,7 @@
 // is read as untrusted: it is checked against the format, and fields outside
 // the format are dropped (PRD §5.9). Its fields are read in pack-fields.ts.
 
-import { ITEM_ID, ITEM_KINDS, readActivities, readAnchor, readItem, type PackActivity } from './pack-fields.ts';
+import { ITEM_KINDS, ITEM_NAME, readActivities, readAnchor, readItem, type PackActivity } from './pack-fields.ts';
 import { hasBidiControl, isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
 import type { LocalizedText, Queue } from './reference.ts';
 import { readMigration, type PackMigration } from './pack-migration.ts';
@@ -139,7 +139,7 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
     rawTemplates.forEach((raw: unknown, index) => {
       const path = `stageTemplates[${index}]`;
       if (!isFields(raw)) return reader.fail(path, 'invalid');
-      const templateId = reader.requiredText(raw, 'id', path, ITEM_ID);
+      const templateId = reader.requiredText(raw, 'id', path, ITEM_NAME);
       const stages = raw['stages'];
       if (
         !Array.isArray(stages) ||

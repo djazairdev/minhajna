@@ -5,7 +5,7 @@
 // does not export them: they are not part of the core's interface.
 
 import type { Weekday } from './day.ts';
-import { at, hasBidiControl, isFields, LANGUAGE, Reader, type Fields } from './read.ts';
+import { at, hasBidiControl, isFields, LANGUAGE, Reader, type Fields, type Shape } from './read.ts';
 import type { CountryProfile, LocalizedText } from './reference.ts';
 
 export const COUNTRY = /^[a-z]{2}$/;
@@ -13,6 +13,13 @@ export const COUNTRY = /^[a-z]{2}$/;
 export const CODE = /^[a-z0-9][a-z0-9-]{0,31}$/;
 export const YEAR_ID = /^(\d{4})-(\d{4})$/;
 export const ENTRY_ID = /^[A-Za-z0-9._-]{1,64}$/;
+/** Whether a name has the shape `shape` and is none an object already holds, as the totals server takes names. */
+export const isName = (name: unknown, shape: RegExp): name is string =>
+  typeof name === 'string' && shape.test(name) && !name.startsWith('__') && !(name in Object.prototype);
+/** The names of the shape `shape` that `isName` takes, for a reader. */
+export const named = (shape: RegExp): Shape => ({ test: (name) => isName(name, shape) });
+/** A grade or subject code, which the totals name, so none an object already holds. */
+export const NAMED_CODE = named(CODE);
 /** A zone or a school, as the layers name them. */
 export const PLACE = /^[A-Za-z0-9._-]{1,64}$/;
 /** The teacher's own layer never comes in a file: it stays on the teacher's devices (PRD §4.5). */
