@@ -90,6 +90,7 @@ export * from './world-calendar.ts';
 export * from './world-exams.ts';
 export * from './exam-chart.ts';
 export * from './exam-cuts.ts';
+export * from './exam-moves.ts';
 export * from './exam-room.ts';
 export * from './seeded-keys.ts';
 export * from './seeded-term.ts';

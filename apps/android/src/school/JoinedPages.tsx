@@ -18,7 +18,7 @@
 // term report and an exam's threshold, which go back to the page that opened
 // them; each opens another page through School-join's view.
 
-import type { Day, DemoSchool, LeavingDates, Subject, Weekday } from '@minhajna/core';
+import type { CalendarUpdate, Day, DemoSchool, LeavingDates, Subject, Weekday } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
@@ -61,6 +61,8 @@ export type JoinedPagesProps = {
   readonly school?: DemoSchool | null;
   /** The world's reference, which names the subjects, grades and plan items. */
   readonly reference?: TermReference;
+  /** The world's calendar updates, which say when and why an exam moved. */
+  readonly updates?: readonly CalendarUpdate[];
   /** Opens another joined page, such as the week to sign on a course, going back to the page that opened it. */
   readonly onPage: (view: JoinedView) => void;
 };
@@ -95,10 +97,19 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
   if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
   if (view.page === 'thresholds') {
     const onRoom = (room: string) => props.onPage({ page: 'threshold', join, room, back: 'thresholds' });
-    return <ExamThresholds {...channel} reference={props.reference} school={props.school} onRoom={onRoom} />;
+    return (
+      <ExamThresholds
+        {...channel}
+        reference={props.reference}
+        updates={props.updates}
+        school={props.school}
+        onRoom={onRoom}
+      />
+    );
   }
   if (view.page === 'threshold') {
-    return view.room === undefined ? null : <ExamThreshold {...channel} reference={props.reference} room={view.room} />;
+    if (view.room === undefined) return null;
+    return <ExamThreshold {...channel} reference={props.reference} updates={props.updates} room={view.room} />;
   }
   if (view.page === 'termSend') {
     return <TermSend {...channel} subjects={subjects} mine={props.mine} school={props.school} />;

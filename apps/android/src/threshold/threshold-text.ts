@@ -8,10 +8,26 @@
 // does not name kept apart from the words around it, where the cut stands, with
 // the day the cut proposed was first signed, whether it waits for this phone,
 // each setter's latest cut with its day, the item every class reached on the
-// figures day, and the chart of each class's item reached and forecast, each as
-// its place in the plan, none counting as 0.
+// figures day, an exam an update of the world's calendar moved, with the days
+// it had and has, its cut's signing deadline for a school exam alone, the day
+// it was announced and why, and that the phone's calendar moved with it, a move
+// within the exam's week keeping its figures day, one of its last day alone,
+// and a room whose chart was taken on a figures day, or signs by a deadline,
+// its exam no longer has, which, when an update moved its exam, still signs by
+// its chart's deadline, so its move names no new deadline nor figures day, and
+// the chart of each class's item reached and forecast, each as its place in the
+// plan, none counting as 0.
 
-import type { Day, ExamChart, ExamRoom } from '@minhajna/core';
+import {
+  examMoves,
+  worldExams,
+  type CalendarUpdate,
+  type Day,
+  type ExamChart,
+  type ExamMove,
+  type ExamRoom,
+  type WorldExam,
+} from '@minhajna/core';
 import type { TFunction } from 'i18next';
 import { termName } from '../director/dashboard-text';
 import type { TermReference } from '../director/seeded-fill';
@@ -127,4 +143,99 @@ export function chartSpec(t: TFunction, chart: ExamChart, day: string): Omit<Cha
       { name: t('demo.threshold.forecast'), values: chart.classes.map((one) => place(one.forecast)) },
     ],
   };
+}
+
+/**
+ * What a moved exam's card and page say: its days before and now, the day it was announced, and why; for a room whose
+ * chart is `stale`, neither its signing deadline nor its figures day as moving it.
+ */
+export function movedLines(
+  t: TFunction,
+  move: ExamMove | undefined,
+  now: Pick<WorldExam, 'from' | 'to' | 'figuresDay' | 'signBy' | 'setBy'>,
+  dayText: (day: Day) => string,
+  stale = false,
+): string[] {
+  if (move === undefined) return [];
+  const { before } = move;
+  const week = before.figuresDay === now.figuresDay;
+  const sign = now.setBy === 'school' && !stale;
+  const moved = week ? (sign ? 'movedWeek' : 'movedWeekAbove') : sign ? 'moved' : 'movedAbove';
+  const key = before.from === now.from ? 'movedEnd' : moved;
+  return [
+    t(`demo.thresholds.${key}`, {
+      was: dayText(before.from),
+      is: dayText(now.from),
+      wasFigures: dayText(before.figuresDay),
+      isFigures: dayText(now.figuresDay),
+      wasSign: dayText(before.signBy),
+      isSign: dayText(now.signBy),
+      wasEnd: dayText(before.to),
+      isEnd: dayText(now.to),
+    }),
+    ...(move.announced === null ? [] : [t('demo.thresholds.movedAnnounced', { day: dayText(move.announced) })]),
+    ...(move.reason === null ? [] : [t('demo.thresholds.movedReason', { reason: isolate(move.reason) })]),
+    ...(stale || week ? [] : [t('demo.thresholds.movedFigures')]),
+    t('demo.thresholds.movedCalendar'),
+  ];
+}
+
+/** The world's exams as its calendar now has them, by ID. */
+export function examsOf(reference: TermReference | undefined): ReadonlyMap<string, WorldExam> {
+  if (reference === undefined) return new Map();
+  const { year, entries } = reference.calendar;
+  return new Map(worldExams(year, entries).map((one) => [one.id, one]));
+}
+
+/** What a room's card and page say when its chart's figures day or signing deadline is no longer its exam's. */
+export function staleLines(
+  t: TFunction,
+  chart: Pick<ExamChart, 'figuresDay' | 'signBy'>,
+  now: WorldExam | undefined,
+  dayText: (day: Day) => string,
+): string[] {
+  if (now === undefined || (now.figuresDay === chart.figuresDay && now.signBy === chart.signBy)) return [];
+  return [
+    t(now.figuresDay === chart.figuresDay ? 'demo.threshold.staleSign' : 'demo.threshold.stale', {
+      day: dayText(chart.figuresDay),
+      now: dayText(now.figuresDay),
+      signBy: dayText(chart.signBy),
+    }),
+  ];
+}
+
+/** A room's exam as the calendar now has it, when an update moved it. */
+export function movedExam(
+  chart: Pick<ExamChart, 'exam'>,
+  moves: ReadonlyMap<string, ExamMove>,
+  exams: ReadonlyMap<string, WorldExam>,
+): WorldExam | undefined {
+  return moves.has(chart.exam) ? exams.get(chart.exam) : undefined;
+}
+
+/**
+ * What a room's card and page say of its exam's move: the move, as a stale chart has it, then that it is stale; nothing
+ * when the calendar does not hold its exam, which no move then names.
+ */
+export function roomMoves(
+  t: TFunction,
+  chart: ExamChart,
+  moves: ReadonlyMap<string, ExamMove>,
+  exams: ReadonlyMap<string, WorldExam>,
+  dayText: (day: Day) => string,
+): string[] {
+  const now = movedExam(chart, moves, exams);
+  if (now === undefined) return [];
+  const stale = staleLines(t, chart, now, dayText);
+  return [...movedLines(t, moves.get(chart.exam), now, dayText, stale.length > 0), ...stale];
+}
+
+/** The exams the world's calendar updates moved, by exam ID. */
+export function movesOf(
+  reference: TermReference | undefined,
+  updates: readonly CalendarUpdate[] | undefined,
+): ReadonlyMap<string, ExamMove> {
+  if (reference === undefined) return new Map();
+  const { year, entries } = reference.calendar;
+  return new Map(examMoves(year, entries, updates ?? []).map((one) => [one.exam, one]));
 }

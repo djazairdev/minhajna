@@ -196,6 +196,7 @@ export function DemoRoot({
         mine={worldReference && mineOf(worldReference, here, school)}
         school={school}
         reference={worldReference}
+        updates={published.read?.updates}
         onClose={() => setJoining(false)}
       />
     );

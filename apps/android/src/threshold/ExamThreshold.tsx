@@ -5,9 +5,11 @@
 // T-Threshold-propose, §7.10, R-3.3-34 to R-3.3-38, R-7.10-02 to R-7.10-04,
 // answers 582, 632 and 633), opened from the exams list: as it opens it reads
 // the rooms again (useTeacherRooms.ts) and shows the one opened, or says it is
-// no longer handed to the phone; its figures day, signing deadline and first
-// day; the chart of each class's item reached on the figures day and its
-// forecast, with the table of the same figures (ChartFigure.tsx), the item
+// no longer handed to the phone; its chart's figures day and signing deadline
+// and the exam's first day as it now is, and a move of its days, with when it
+// was announced and why, and that its chart was taken on a figures day the exam
+// no longer has; the chart of each class's item reached on the figures day and
+// its forecast, with the table of the same figures (ChartFigure.tsx), the item
 // every class reached, and that the director and the setters see the same; then
 // where the cut stands and each setter's latest cut, each with its day. A
 // setter the chart names may, until the deadline or the director's decision,
@@ -22,9 +24,9 @@
 // teacher's own, and that nothing here serves to evaluate or rank anyone. Going
 // back leads to the exams list.
 
-import { compareDays, type Day, type SchoolJoined } from '@minhajna/core';
+import { compareDays, type CalendarUpdate, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { OptionRow } from '../components/OptionRow';
@@ -38,9 +40,13 @@ import {
   awaitingMine,
   chartSpec,
   everyReached,
+  examsOf,
   headText,
   itemNamer,
+  movedExam,
+  movesOf,
   roomId,
+  roomMoves,
   setterLines,
   stateText,
 } from './threshold-text';
@@ -56,6 +62,8 @@ export type ExamThresholdProps = {
   readonly dayText: (day: Day) => string;
   /** The world's reference, which names the plan items. */
   readonly reference?: TermReference;
+  /** The world's calendar updates, which say when and why an exam moved. */
+  readonly updates?: readonly CalendarUpdate[];
   /** The room's key (threshold-text.ts). */
   readonly room: string;
   /** Back to the exams list. */
@@ -67,11 +75,13 @@ const NOTES = ['optional', 'earliest', 'seen', 'published', 'monthly', 'never'] 
 
 /** One school exam's chart, where its cut stands, and the setter's choices. */
 export function ExamThreshold(props: ExamThresholdProps) {
-  const { world, date, join, kit, send, dayText, reference, room, onClose, said } = props;
+  const { world, date, join, kit, send, dayText, reference, updates, room, onClose, said } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const read = useTeacherRooms(world, join, kit, send, said, 'threshold');
+  const moves = useMemo(() => movesOf(reference, updates), [reference, updates]);
+  const exams = useMemo(() => examsOf(reference), [reference]);
   const busy = read.reading;
   const [picking, setPicking] = useState(false);
   const [chosen, setChosen] = useState<string | null>(null);
@@ -169,9 +179,10 @@ export function ExamThreshold(props: ExamThresholdProps) {
           {t('demo.threshold.dates', {
             figures: dayText(chart.figuresDay),
             signBy: dayText(chart.signBy),
-            from: dayText(chart.from),
+            from: dayText(movedExam(chart, moves, exams)?.from ?? chart.from),
           })}
         </Text>
+        {roomMoves(t, chart, moves, exams, dayText).map((line, at) => small(line, `moved-${at}`))}
         <ChartFigure
           testID="threshold-chart"
           spec={chartSpec(t, chart, dayText(chart.figuresDay))}

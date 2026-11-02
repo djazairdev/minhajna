@@ -5959,6 +5959,7 @@
       },
       "above": "Au-dessus de l’établissement",
       "level": {
+        "school": "Préparé par l’établissement",
         "directorate": "Préparé par la direction de l’éducation",
         "national": "Préparé par le ministère"
       },
@@ -5966,9 +5967,19 @@
       "asOf": "Où en étaient vos classes le {{day}}, calculé sur ce téléphone à partir de vos semaines signées.",
       "ownFailed": "Vos examens au-dessus de l’établissement n’ont pas pu être calculés sur ce téléphone : vos semaines signées n’ont pas pu être lues.",
       "shows": {
+        "school": "Pas encore de seuil. Le seuil est facultatif : les rédacteurs peuvent en proposer un après le jour des chiffres.",
         "directorate": "Le seuil de la direction n’apparaît pas avant l’examen. Après le jour des chiffres, vos classes apparaîtront face à ses totaux.",
         "national": "Le seuil national est publié pour tous après l’examen, avec ses chiffres et la façon dont il a orienté les questions."
-      }
+      },
+      "moved": "L’examen a été déplacé du {{was}} au {{is}} : son jour des chiffres du {{wasFigures}} au {{isFigures}}, et le délai de signature de son seuil du {{wasSign}} au {{isSign}}.",
+      "movedAnnounced": "Annoncé le {{day}}.",
+      "movedReason": "Motif : {{reason}}",
+      "movedFigures": "Les chiffres sont pris le nouveau jour des chiffres seul, à partir des semaines signées ; ce jour ne bouge qu’avec son examen.",
+      "movedAbove": "L’examen a été déplacé du {{was}} au {{is}} : son jour des chiffres du {{wasFigures}} au {{isFigures}}.",
+      "movedWeek": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}, et le délai de signature de son seuil passe du {{wasSign}} au {{isSign}}.",
+      "movedWeekAbove": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}.",
+      "movedEnd": "Le dernier jour de l’examen a été déplacé du {{wasEnd}} au {{isEnd}} ; son premier jour et son jour des chiffres restent les mêmes.",
+      "movedCalendar": "Les dates de l’examen ont changé dans le calendrier sur ce téléphone."
     },
     "threshold": {
       "title": "Le seuil de l’examen",
@@ -6028,7 +6039,9 @@
       "exams": {
         "mock": "L’examen blanc unifié",
         "bem": "Le BEM"
-      }
+      },
+      "stale": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son nouveau jour des chiffres est le {{now}}, et le graphique n’est pas repris, donc son seuil se signe toujours au plus tard le {{signBy}}.",
+      "staleSign": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son jour des chiffres reste le même, et son seuil se signe toujours au plus tard le {{signBy}}."
     }
   },
   "chart": {
