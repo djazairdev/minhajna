@@ -3,14 +3,16 @@
 
 // The curriculum report, M-Totals' second tab (#598, R-7.9-06, answer 629): for
 // each subject the directorate holds, its classes, how far they got on average,
-// in percent of their plans, and the plans that run long, then a table with a
-// row for each plan item, in the packs' order, named by its title when the
-// packs agree on one (item-names.ts) and by its ID otherwise, and a column for
-// its sessions and for the classes that merged, skipped or re-taught it, as the
-// owed table does (OwedTable.tsx), the item's column twice as wide; a subject
-// with no item says so. A hidden subject or item says it is under the minimum
-// group sizes, an item in one cell across the figures' columns. Every item is
-// drawn at once, as the demo's packs hold under 100 each (answer 629).
+// in whole percent of their plans, and the plans that run long, then a table
+// with a row for each plan item, in the packs' order, named by its title when
+// the packs agree on one (item-names.ts) and by its ID otherwise, and a column
+// for its sessions and for the classes that merged, skipped or retaught it, as
+// the owed table does (OwedTable.tsx), the item's column twice as wide; a
+// subject with no item says so. A hidden subject or item says it is under the
+// minimum group sizes, an item in one cell across the figures' columns. Every
+// item is drawn at once, as the demo's packs hold under 100 each (answer 629).
+// N-Totals gives the nation's report, with a line more under each subject for
+// its range across the wilayas (#599).
 
 import { useLocale } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
@@ -26,6 +28,8 @@ export type CurriculumReportProps = {
   /** A subject's name in the interface's language. */
   readonly subject: (code: string) => string;
   readonly names: ItemNames;
+  /** A line more under a subject's own, such as the range across the wilayas. */
+  readonly more?: (code: string) => string | null;
 };
 
 /** How far a subject's classes got on average, in whole percent never above it, as the dashboard says it. */
@@ -33,7 +37,7 @@ export const averageReached = (figure: Pick<Figure, 'reached' | 'classes'>) =>
   figure.classes === 0 ? 0 : Math.floor(figure.reached / figure.classes / 10);
 
 /** The report's sections, one for each subject the directorate holds. */
-export function CurriculumReport({ figures, subject, names }: CurriculumReportProps) {
+export function CurriculumReport({ figures, subject, names, more }: CurriculumReportProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -46,6 +50,9 @@ export function CurriculumReport({ figures, subject, names }: CurriculumReportPr
     >
       <Text style={[role === 'cell' ? styles.value : styles.label, align]}>{words}</Text>
     </View>
+  );
+  const lines = new Map(
+    figures.subjects.map(([code, figure]) => [code, figure === null || more === undefined ? null : more(code)]),
   );
   return (
     <View testID="curriculum-report" style={styles.report}>
@@ -65,6 +72,11 @@ export function CurriculumReport({ figures, subject, names }: CurriculumReportPr
                   long: figure.runLong,
                 })}
               </Text>
+              {(lines.get(code) ?? null) !== null && (
+                <Text testID={`report-${code}-more`} style={[styles.body, align]}>
+                  {lines.get(code)}
+                </Text>
+              )}
               {figure.items.length === 0 ? (
                 <Text style={[styles.body, align]}>{t('demo.totals.noItems')}</Text>
               ) : (

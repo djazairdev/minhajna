@@ -9,9 +9,11 @@
 // back to every subject, with a row for each wilaya by its code and name, in
 // the official order and never sorted or coloured by a figure, and one for the
 // nation (wilaya-rows.ts), every figure under the wilaya floor hidden by the
-// server, with where the sessions lost come from. The last words say the totals
-// never serve an exam threshold, a ranking of wilayas or a decision about a
-// teacher.
+// server, with where the sessions lost come from; and the curriculum report is
+// the nation's, with each subject's range across the wilayas when 8 show it
+// (report-range.ts), its items named by the packs every seeded class pins. The
+// last words say the totals never serve an exam threshold, a ranking of wilayas
+// or a decision about a teacher.
 
 import type { Day, SchoolCalendar, Zone } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -22,6 +24,8 @@ import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
 import { termName } from '../director/dashboard-text';
 import { seededWorld } from '../director/director-world';
+import { CurriculumReport } from '../directorate/CurriculumReport';
+import { itemNames } from '../directorate/item-names';
 import { OwedTable } from '../directorate/OwedTable';
 import { TotalsFrame } from '../directorate/TotalsFrame';
 import { useMinistryTotals } from '../directorate/use-totals';
@@ -29,6 +33,7 @@ import { colors, typography } from '../design/tokens';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
+import { reportRange } from './report-range';
 import { wilayaRows } from './wilaya-rows';
 
 const EVERY = '*';
@@ -53,6 +58,7 @@ export function MinistryTotals({ world, calendars, send, dayText, subjectName, b
   const view = useMinistryTotals(world, calendars, send);
   const [subject, setSubject] = useState(EVERY);
   const schools = useMemo(() => seededWorld(world.world, bundled).schools, [world.world, bundled]);
+  const names = useMemo(() => itemNames(schools, bundled.packs), [schools, bundled]);
   const zones = bundled.profile.zones ?? [];
   return (
     <TotalsFrame
@@ -92,6 +98,20 @@ export function MinistryTotals({ world, calendars, send, dayText, subjectName, b
           </>
         );
       }}
+      report={(figures) => (
+        <>
+          <Text style={[styles.body, align]}>{t('demo.ministryTotals.reportLead')}</Text>
+          <CurriculumReport
+            figures={figures.national}
+            subject={subjectName}
+            names={names}
+            more={(code) => {
+              const range = reportRange(figures, code);
+              return range === null ? t('demo.ministryTotals.noRange') : t('demo.ministryTotals.range', { ...range });
+            }}
+          />
+        </>
+      )}
     />
   );
 }
