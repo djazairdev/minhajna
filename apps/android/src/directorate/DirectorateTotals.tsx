@@ -1,21 +1,22 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// M-Totals, the directorate's totals page in a national demo world (#598,
-// §7.9, R-7.9-05 to R-7.9-08, answer 629): it says no figure here is a
-// school's or a teacher's, then, once the world's date has reached an
-// announced day after the first term's end, the directorate, its wilaya, the
-// day chosen and its term, the choice among the days reached, and what the
-// system owes teachers on that day (OwedTable.tsx), with where the sessions
-// lost come from and that the server never learns one school's figure; before
-// such a day, that totals are added up only on announced days. A day not added
-// up yet says so, and a problem is said as an alert, announced on the phone
-// since a PC reads the alert.
+// M-Totals, the directorate's totals page in a national demo world (#598, §7.9,
+// R-7.9-05 to R-7.9-08, answer 629): it says no figure here is a school's or a
+// teacher's, then, once the world's date has reached an announced day after the
+// first term's end, the directorate, its wilaya, the day chosen and its term,
+// the choice among the days reached, and what the system owes teachers on that
+// day (OwedTable.tsx), with where the sessions lost come from and that the
+// server shows only figures above the floors, though in the demo it sees each
+// share; before such a day, that totals are added up only on announced days. A
+// day not added up yet says so, and a problem is said as an alert, announced on
+// the phone since a PC reads the alert, with a button that reads the day again.
 
 import type { Day, DemoSchool, SchoolCalendar } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
@@ -31,19 +32,22 @@ export type DirectorateTotalsProps = {
   readonly school: Pick<DemoSchool, 'directorateId'>;
   /** The wilaya's name in the interface's language. */
   readonly wilaya: string;
-  readonly calendar: SchoolCalendar;
+  /** The world's calendar and the bundled one, whose announced days the shares are sent for. */
+  readonly calendars: readonly SchoolCalendar[];
   readonly send?: Send;
   readonly dayText: (day: Day) => string;
   /** A subject's name in the interface's language. */
   readonly subjectName: (code: string) => string;
 };
 
+const termKey = (number: number) => (number === 1 ? '1' : number === 2 ? '2' : '3');
+
 /** The directorate's totals for the announced days the world's date reached. */
 export function DirectorateTotals({
   world,
   school,
   wilaya,
-  calendar,
+  calendars,
   send,
   dayText,
   subjectName,
@@ -51,7 +55,7 @@ export function DirectorateTotals({
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const view = useDirectorateTotals(world, calendar, school.directorateId, send);
+  const view = useDirectorateTotals(world, calendars, school.directorateId, send);
   const { say, region } = useSaid('', 'totals-said');
   const problem = view.problem === null ? null : t(view.problem);
   const announce = useEffectEvent((words: string | null) => {
@@ -60,11 +64,10 @@ export function DirectorateTotals({
   useEffect(() => {
     announce(problem !== null && !onPc() ? problem : null);
   }, [problem]);
-  const term = calendar.year.terms.filter((one) => view.day !== null && one.from <= view.day).at(-1);
   return (
     <View testID="directorate-totals" style={styles.page}>
       <Text style={[styles.body, align]}>{t('demo.totals.lead')}</Text>
-      {view.day === null || term === undefined ? (
+      {view.day === null ? (
         <Text testID="totals-none" style={[styles.body, align]}>
           {t('demo.totals.none')}
         </Text>
@@ -73,26 +76,29 @@ export function DirectorateTotals({
           <Text testID="totals-header" style={[styles.heading, align]}>
             {t('demo.totals.header', {
               wilaya,
-              day: dayText(view.day),
-              number: term.number,
-              from: dayText(term.from),
-              to: dayText(term.to),
+              day: dayText(view.day.day),
+              term: t(`demo.cover.terms.${termKey(view.day.term.number)}`),
+              from: dayText(view.day.term.from),
+              to: dayText(view.day.term.to),
             })}
           </Text>
-          <Text style={[styles.body, align]}>{t('demo.totals.asOf', { day: dayText(view.day) })}</Text>
+          <Text style={[styles.body, align]}>{t('demo.totals.asOf', { day: dayText(view.day.day) })}</Text>
           {view.days.length > 1 && (
             <ChipGroup
               testID="totals-day"
               label={t('demo.totals.day')}
               choices={view.days.map(({ day }) => ({ value: day, label: dayText(day) }))}
-              selected={view.day}
+              selected={view.day.day}
               onSelect={view.choose}
             />
           )}
           {problem !== null && (
-            <Text accessibilityRole="alert" style={[styles.problem, align]}>
-              {problem}
-            </Text>
+            <>
+              <Text accessibilityRole="alert" style={[styles.problem, align]}>
+                {problem}
+              </Text>
+              <Button testID="totals-again" variant="line" label={t('demo.totals.again')} onPress={view.again} />
+            </>
           )}
           {view.figures === null && (
             <Text testID="totals-waiting" style={[styles.body, align]}>

@@ -6,15 +6,16 @@
 // day it says totals wait for one; on one, with no share in, it says the day
 // is not added up yet; with shares in, it shows what the system owes teachers
 // by subject as the server's view gives it, a subject under the floor said as
-// hidden and the row over every subject counting teachers at least, never the
-// directorate's schools by name; the latest day reached is shown, another can
-// be chosen, and a problem is said. The reader refuses an answer for another
+// hidden and the row over every subject counting teachers at least; the latest
+// day reached is shown, another can be chosen and stays chosen as the date
+// moves, a day being read says so, and a problem is said, announced on the
+// phone, and read again on asking. The reader refuses an answer for another
 // directorate. Every world, directorate and share is made up.
 
 import { parseDay, type Day } from '@minhajna/core';
 import { randomBytes } from 'node:crypto';
 import { LocaleDirContext } from '@react-navigation/native';
-import { Platform, Text, type TextProps } from 'react-native';
+import { AccessibilityInfo, Platform, Text, type TextProps } from 'react-native';
 import type { Share } from '../../server/src/totals/share-read';
 import { dayTotals } from '../../server/src/totals/share-sums';
 import { press, rendered, show, texts, unmount } from '../jest/grant-page';
@@ -91,7 +92,7 @@ const page = (id: string, date: Day, send: Send = server.send) =>
         world={{ world: id, date }}
         school={{ directorateId: OWN }}
         wilaya="ولاية مختلقة"
-        calendar={calendar}
+        calendars={[calendar]}
         send={send}
         dayText={(day) => `day ${day}`}
         subjectName={(code) => `subject ${code}`}
@@ -139,17 +140,35 @@ test('the owed table shows the server’s view, a subject under the floor hidden
   expect(all.join(' ')).toContain(`day ${day}`);
 }, 60_000);
 
-test('the latest day reached is shown, another can be chosen, and a problem is said', async () => {
-  const { id, days } = await world(2);
+test('the latest day is shown, a day chosen stays chosen as the date moves, and the day is read again', async () => {
+  const { id, days } = await world(3);
   put(id, days[1], [OWN, 'dir-b', 'dir-c'], 4);
   await page(id, days[2]);
   expect(texts()).toContain(words.notYet);
   await press(`totals-day-${days[1]}`);
   expect(texts()).toContain(words.hidden);
-  const failing: Send = () => Promise.resolve({ status: 500, body: null, retryAfter: null });
-  await page(id, days[2], failing);
+  await page(id, days[3]);
+  expect(texts()).toContain(words.hidden);
+  let fails = 1;
+  const once: Send = (request) =>
+    fails-- > 0 ? Promise.resolve({ status: 500, body: null, retryAfter: null }) : server.send(request);
+  await page(id, days[3], once);
   expect(texts()).toContain(ar.demo.problem.other);
   expect(texts()).not.toContain(words.hidden);
+  await press('totals-again');
+  expect(texts()).not.toContain(ar.demo.problem.other);
+  expect(texts()).toContain(words.hidden);
+}, 60_000);
+
+test('a day being read says so, and on the phone a problem is announced', async () => {
+  const { id, days } = await world();
+  await page(id, days[1], () => new Promise(() => undefined));
+  expect(texts()).toContain(words.reading);
+  await unmount();
+  jest.replaceProperty(Platform, 'OS', 'android');
+  const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => undefined);
+  await page(id, days[1], () => Promise.resolve({ status: 500, body: null, retryAfter: null }));
+  expect(announce).toHaveBeenCalledWith(ar.demo.problem.other);
 }, 60_000);
 
 test('the reader refuses an answer for another directorate, and takes a day not reached as none', async () => {

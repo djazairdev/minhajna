@@ -5896,7 +5896,7 @@
     "totals": {
       "lead": "Aucun chiffre ici n’est celui d’un établissement ou d’un membre du personnel enseignant : chaque chiffre couvre au moins 5 membres du personnel enseignant et 3 établissements.",
       "none": "La date du monde n’a pas encore atteint un jour annoncé après la fin du premier trimestre : les totaux ne sont calculés que les jours annoncés, comme la fin d’un trimestre.",
-      "header": "Direction de l’éducation · {{wilaya}} · {{day}} · trimestre {{number}}, du {{from}} au {{to}}",
+      "header": "Direction de l’éducation · {{wilaya}} · {{day}} · {{term}}, du {{from}} au {{to}}",
       "asOf": "Les chiffres tels que calculés le jour annoncé, {{day}}.",
       "day": "Jour annoncé",
       "notYet": "Les totaux de ce jour ne sont pas encore calculés : aucune part d’établissement n’est arrivée.",
@@ -5916,7 +5916,8 @@
         "vacantPosts": "Postes vacants",
         "hoursWithoutTeacher": "Heures hebdomadaires non assurées",
         "closed": "Séances perdues aux fermetures"
-      }
+      },
+      "again": "Relire"
     }
   },
   "chart": {

@@ -58,7 +58,7 @@ function readFigure(value: unknown): Figure | null | undefined {
 
 /** The directorate's figures for an announced day, or null when the server does not answer that day yet. */
 export async function readTotals(world: string, day: Day, directorate: string, send: Send) {
-  const path = `/worlds/${world}/totals/${day}?directorate=${directorate}`;
+  const path = `/worlds/${world}/totals/${day}?directorate=${encodeURIComponent(directorate)}`;
   const answer = await send({ method: 'GET', path });
   if (answer.status === 422) return null;
   if (answer.status !== 200) throw unexpected(answer);

@@ -5811,7 +5811,7 @@
     "totals": {
       "lead": "No figure here is a school’s or a teacher’s: every figure covers at least 5 teachers and 3 schools.",
       "none": "The world’s date has not reached an announced day after the first term’s end yet: totals are added up only on announced days, such as a term’s end.",
-      "header": "Directorate of education · {{wilaya}} · {{day}} · term {{number}}, from {{from}} to {{to}}",
+      "header": "Directorate of education · {{wilaya}} · {{day}} · {{term}}, from {{from}} to {{to}}",
       "asOf": "The figures as added up on the announced day, {{day}}.",
       "day": "Announced day",
       "notYet": "This day’s totals are not added up yet: no school’s share has come in.",
@@ -5831,7 +5831,8 @@
         "vacantPosts": "Vacant posts",
         "hoursWithoutTeacher": "Weekly hours without a teacher",
         "closed": "Sessions lost to closures"
-      }
+      },
+      "again": "Read again"
     }
   },
   "chart": {

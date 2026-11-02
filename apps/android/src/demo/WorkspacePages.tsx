@@ -106,7 +106,7 @@ export function workspacePage(
         world={open}
         school={school}
         wilaya={localized(reference.profile.zones?.find((one) => one.code === school.wilaya)?.name ?? {})}
-        calendar={reference.calendar}
+        calendars={[reference.calendar, bundled.calendar]}
         send={send}
         dayText={dayText}
         subjectName={(code) => subjectName(reference.profile, code)}
