@@ -4,11 +4,12 @@
 // The days whose totals the server keeps worked out (#596, answer 628): a day
 // takes the shares of at most MAX_DIRECTORATES directorates, MAX_SUBJECTS
 // subjects and MAX_ITEMS plan items, in MAX_DAY_BYTES, a share sent again
-// counting its bytes once and a name once taken counting while the day is
-// kept; the day is read from the store once, and its sums worked out once
-// until a share comes in, not kept when one came in while they were added up;
-// a world started again under the same ID keeps its own days; and an erased
-// world's days are forgotten. Every world and share here is made up.
+// counting its bytes once and a name once taken counting while the day is kept;
+// the day is read from the store once, and its sums worked out once until a
+// share comes in, for the last days whose shares take twice a day's bytes in
+// all, not kept when one came in while they were added up; a world started
+// again under the same ID keeps its own days; and an erased world's days are
+// forgotten. Every world and share here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -85,6 +86,28 @@ describe('the days of totals kept', () => {
     days.forget(['K7QF3']);
     await days.sums(WORLD, '2026-12-06', read);
     await days.sums(WORLD, '2026-12-06', read);
+    assert.equal(reads, 4);
+  });
+
+  it('keeps the sums of the last days whose shares take twice a day’s bytes in all', async () => {
+    const days = new TotalsDays();
+    const names = Array.from({ length: 1800 }, (_, at) => `item-${at}-${'x'.repeat(48)}`);
+    const big = share(1, 'dir-01', names, 99_999_999);
+    const count = Math.ceil((0.7 * MAX_DAY_BYTES) / Buffer.byteLength(JSON.stringify(big)));
+    let reads = 0;
+    const read = () => {
+      reads += 1;
+      return Promise.resolve([share(1)]);
+    };
+    const dated = (day: string) => ({ ...WORLD, id: `D${day.slice(-4).replace('-', '')}` }) as World;
+    for (const day of ['2026-12-06', '2026-12-13', '2026-12-20']) {
+      for (let at = 1; at <= count; at += 1) await days.take(dated(day), { ...big, id: madeUpShare(at).id, day }, none);
+      await days.sums(dated(day), day, read);
+    }
+    await days.sums(dated('2026-12-20'), '2026-12-20', read);
+    await days.sums(dated('2026-12-13'), '2026-12-13', read);
+    assert.equal(reads, 3);
+    await days.sums(dated('2026-12-06'), '2026-12-06', read);
     assert.equal(reads, 4);
   });
 

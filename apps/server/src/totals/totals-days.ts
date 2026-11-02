@@ -7,12 +7,15 @@
 // shares hold and their bytes, so a day holds the shares of at most
 // MAX_DIRECTORATES directorates, MAX_SUBJECTS subjects and MAX_ITEMS plan items
 // over them, in MAX_DAY_BYTES of JSON, and adding a day up stays quick and
-// small; and, for the last MAX_SUMS of them, the day's sums, worked out once
-// until a share comes in. A name once taken counts for the day while it is
-// kept, even when the share that held it is replaced or refused by the store;
-// a day no longer kept is read again from the store. A day is kept under its
-// world's ID and starter's hash, so a world started again under the same ID
-// never reads another's, and the sweeper forgets an erased world's days.
+// small; and, for the last of them whose shares take MAX_SUMS_BYTES in all, the
+// day's sums, worked out once until a share comes in. A name once taken counts
+// for the day while it is kept, even when the share that held it is replaced or
+// refused by the store; a day no longer kept is read again from the store. A
+// day is kept under its world's ID and starter's hash, so a world started again
+// under the same ID never reads another's, and the sweeper forgets an erased
+// world's days. Asking for other days may push a large day out, to be read and
+// added up again when asked for, as anyone with the pass may: a second at most
+// for a day at its caps, under the relay's limits.
 
 import { Injectable } from '@nestjs/common';
 import type { World } from '../worlds/world-store.js';
@@ -28,7 +31,8 @@ export const MAX_ITEMS = 20_000;
 /** The most JSON a day's shares take, in bytes. */
 export const MAX_DAY_BYTES = 64 * 1024 * 1024;
 const MAX_DAYS = 64;
-const MAX_SUMS = 8;
+/** The most JSON the days whose sums are kept take in all: twice a day's. */
+const MAX_SUMS_BYTES = 2 * MAX_DAY_BYTES;
 
 /** What a day's shares hold. */
 interface Day {
@@ -56,12 +60,20 @@ function refusal(day: Day, share: Share): string | null {
   if (day.subjects.size + added(day.subjects, subjects) > MAX_SUBJECTS) {
     return `a day’s shares hold at most ${MAX_SUBJECTS} subjects`;
   }
-  if (day.items.size + added(day.items, items) > MAX_ITEMS)
+  if (day.items.size + added(day.items, items) > MAX_ITEMS) {
     return `a day’s shares hold at most ${MAX_ITEMS} plan items`;
+  }
   let bytes = shareBytes(share);
   for (const [id, held] of day.bytes) if (id !== share.id) bytes += held;
   if (bytes > MAX_DAY_BYTES) return `a day’s shares take at most ${MAX_DAY_BYTES} bytes`;
   return null;
+}
+
+/** How many bytes the day's shares take. */
+function bytesOf(day: Day): number {
+  let bytes = 0;
+  for (const held of day.bytes.values()) bytes += held;
+  return bytes;
 }
 
 function hold(day: Day, share: Share): void {
@@ -100,7 +112,13 @@ export class TotalsDays {
     if (kept.sums !== undefined) return kept.sums;
     const sums = sumShares(day, shares ?? (await read()));
     if (this.changes === before) {
-      for (const other of this.days.values()) if (other !== kept && this.summed() >= MAX_SUMS) delete other.sums;
+      let held = bytesOf(kept);
+      for (const other of this.days.values()) if (other !== kept && other.sums !== undefined) held += bytesOf(other);
+      for (const other of this.days.values()) {
+        if (other === kept || other.sums === undefined || held <= MAX_SUMS_BYTES) continue;
+        delete other.sums;
+        held -= bytesOf(other);
+      }
       kept.sums = sums;
     }
     return sums;
@@ -110,10 +128,6 @@ export class TotalsDays {
   forget(worlds: readonly string[]): void {
     const gone = new Set(worlds);
     for (const [key, day] of this.days) if (gone.has(day.world)) this.days.delete(key);
-  }
-
-  private summed(): number {
-    return [...this.days.values()].filter((day) => day.sums !== undefined).length;
   }
 
   /** The day kept, made from the store's shares when it was not, with those shares. */
