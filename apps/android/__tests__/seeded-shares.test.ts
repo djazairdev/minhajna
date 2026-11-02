@@ -14,6 +14,7 @@ import {
   directorSchool,
   seededShare,
   seededTerm,
+  schoolPlans,
   schoolStaffing,
   seedNationalWorld,
   type TotalsShare,
@@ -71,9 +72,14 @@ test('every seeded school’s share is put for the day reached, under the ID its
     directorate: school.directorateId,
     staffing: schoolStaffing(school),
   };
-  const theirs = await seededShare({ ...common, weeks }, desk.crypto);
+  const itemsOf = ({ id: pack, release }: { id: string; release: string }) =>
+    reference.packs.find((one) => one.id === pack && one.release === release)?.items.map((item) => item.id);
+  const plans = await schoolPlans(seeded.space, school, itemsOf, nodeKit.mac);
+  const yearFrom = reference.calendar.year.from;
+  const theirs = await seededShare({ ...common, plans, yearFrom, weeks }, desk.crypto);
   expect(shares).toContainEqual(theirs);
   expect(theirs.subjects.math.classes).toBeGreaterThan(0);
+  expect(Object.keys(theirs.subjects.math.grades ?? {}).length).toBeGreaterThan(0);
   const before = server.seen.length;
   expect(await sendSeededShares(held, day, reference, nodeKit, server.send)).toBe(0);
   expect(server.shares.size).toBe(demo.schools.length);

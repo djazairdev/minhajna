@@ -119,7 +119,7 @@ export function useJoinedTeachers(
       const joined = await joinedOn(world, desk, school.teachers, kit, send);
       try {
         const records: ClassRecords[] = await recordsOf(world, desk, school, kit, send);
-        const sharing = () => sendShares(world, desk, school, records, reference.calendar, kit, send);
+        const sharing = () => sendShares(world, desk, school, records, reference, kit, send);
         return { joined, standing: courseStandings(records, school, reference), problem: null, sharing };
       } catch (error) {
         return { joined, standing: NO_STANDING, problem: problemOf(error) };

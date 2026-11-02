@@ -5,9 +5,10 @@
 // report, each subject with its range across the wilayas when at least 8 show
 // their figure for it, from the lowest average to the highest and the middle
 // half, never naming a wilaya, and otherwise a line that the range waits for 8
-// wilayas; the range itself counts only the wilayas shown that hold a class,
-// and takes the middle half at the nearest ranks below and above. Every world,
-// wilaya figure and share is made up.
+// wilayas, as for a subject only some of them show; the range itself counts
+// only the wilayas shown that hold a class, and takes the middle half at the
+// nearest ranks below and above. Every world, wilaya figure and share is made
+// up.
 
 import { RANGE_WILAYAS } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -51,6 +52,8 @@ test('each subject shows its range across the wilayas from 8 of them, and waits 
   put(id, day, ids);
   for (const directorate of ids)
     for (let at = 0; at < 3; at += 1) putShare(id, day, directorate, { physics: subject(4) });
+  for (const directorate of ids.slice(0, 5))
+    for (let at = 0; at < 3; at += 1) putShare(id, day, directorate, { history: subject(30) });
   for (const [at, directorate] of ids.slice(3, 6).entries())
     putShare(id, day, directorate, { math: { ...subject(3), reached: 1200 + 1000 * (at + 1) } });
   const view = dayTotals(day, shares(id, day), null);
@@ -65,6 +68,10 @@ test('each subject shows its range across the wilayas from 8 of them, and waits 
   const lines = shown.map(([code]) => [code, reportRange(figures, code)] as const);
   expect(lines.some(([, range]) => range !== null)).toBe(true);
   expect(lines.some(([, range]) => range === null)).toBe(true);
+  const history = view.directorates.filter((one) => (one.subjects['history']?.classes ?? 0) > 0);
+  expect(history.length).toBeGreaterThan(0);
+  expect(history.length).toBeLessThan(RANGE_WILAYAS);
+  expect(lines).toContainEqual(['history', null]);
   const math = lines.find(([code]) => code === 'math')?.[1];
   expect(math !== null && math !== undefined && math.low < math.high).toBe(true);
   for (const [code, range] of lines)
