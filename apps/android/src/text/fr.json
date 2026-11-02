@@ -5942,6 +5942,76 @@
       "reportLead": "Le bilan du programme pour le pays. Les wilayas y figurent en fourchette, jamais nommées ni classées.",
       "range": "Avancement des classes selon les wilayas : de {{low}} % à {{high}} %, la moitié centrale de {{middleLow}} % à {{middleHigh}} %.",
       "noRange": "La fourchette entre wilayas s’affiche dès qu’au moins 8 wilayas montrent leur chiffre pour cette matière, avec des classes."
+    },
+    "thresholds": {
+      "open": "Examens à sujet commun",
+      "title": "Examens à sujet commun",
+      "lead": "Chaque examen de l’établissement dont le jour des chiffres est venu dans vos matières et vos niveaux : ses dates, où en est son seuil, et où en était chaque classe le jour des chiffres.",
+      "empty": "Le jour des chiffres d’aucun examen de l’établissement n’est encore venu dans vos matières et vos niveaux.",
+      "days": "Examen : {{from}} · Chiffres : {{figures}} · Seuil signé au plus tard le {{signBy}}",
+      "classLine": "{{class}} : fait : {{reached}} · attendu au {{day}} : {{forecast}}",
+      "room": "Ouvrir le seuil de l’examen",
+      "notes": {
+        "school": "Le graphique est calculé dans l’établissement à partir des seules semaines signées, et ne quitte jamais l’espace de l’établissement.",
+        "monthly": "Les devoirs mensuels restent à chaque enseignant, sans seuil ni signature.",
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+      }
+    },
+    "threshold": {
+      "title": "Le seuil de l’examen",
+      "head": "{{exam}} · {{subject}} · {{grade}}",
+      "termExam": "L’examen du {{term}}",
+      "noItem": "rien encore",
+      "itemAt": "élément {{n}} du plan",
+      "quoted": "« {{item}} »",
+      "state": {
+        "director": "Décidé par le directeur : jusqu’à {{item}}.",
+        "directorNone": "Décidé par le directeur : pas de seuil pour cet examen.",
+        "settled": "Signé par tous les rédacteurs : jusqu’à {{item}}.",
+        "toDirector": "La décision revient au directeur.",
+        "none": "Aucun seuil proposé. Le seuil est facultatif.",
+        "proposed": "{{name}} a proposé jusqu’à {{item}} le {{day}}.",
+        "awaiting": "{{name}} a proposé jusqu’à {{item}} le {{day}}, en attente de votre signature ou d’une autre proposition."
+      },
+      "setter": {
+        "waiting": "{{name}} : rien de signé encore",
+        "none": "{{name}} : pas de seuil, signé le {{day}}",
+        "cut": "{{name}} : jusqu’à {{item}}, signé le {{day}}"
+      },
+      "chart": "Où en était chaque classe le {{day}}",
+      "reached": "Fait dans les semaines signées",
+      "forecast": "Attendu avant l’examen, selon le plan de la classe",
+      "reading": "Lecture de vos examens…",
+      "notSetter": "Ce téléphone n’est pas l’un des rédacteurs de cet examen : vous voyez le graphique et où en est le seuil, sans rien à signer.",
+      "closed": "Le seuil ne peut plus être signé : le délai de signature est passé ou le directeur a décidé.",
+      "pick": "Le dernier élément du plan que couvre le sujet",
+      "proposeSign": "Signer la proposition",
+      "done": "Votre seuil est signé : jusqu’à {{item}}.",
+      "sign": "Signer le seuil jusqu’à {{item}}",
+      "propose": "Proposer un seuil",
+      "proposeOther": "Proposer un autre seuil",
+      "noCut": "Pas de seuil pour cet examen",
+      "noneDone": "Signé : pas de seuil pour cet examen. La décision revient au directeur.",
+      "dates": "Les chiffres de l’établissement ont été pris le {{figures}}, le seuil se signe au plus tard le {{signBy}}, et l’examen commence le {{from}}.",
+      "class": "Classe",
+      "every": "Toutes les classes avaient terminé jusqu’à {{item}}.",
+      "everyNone": "Au moins une classe n’avait encore atteint aucun élément du plan.",
+      "forecastLine": "Les éléments attendus vont jusqu’au {{day}}, dernier jour de classe avant l’examen, au rythme de chaque classe.",
+      "sameView": "Le directeur et les rédacteurs de cette matière à ce niveau voient le même graphique.",
+      "cut": "Le seuil",
+      "gone": "Cet examen n’est plus partagé avec ce téléphone.",
+      "roomNotes": {
+        "optional": "Le seuil est facultatif : sans lui, le sujet se rédige comme aujourd’hui, et rien n’est publié ni compté.",
+        "earliest": "Quand les rédacteurs diffèrent, le seuil le plus tôt dans le plan s’applique.",
+        "seen": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
+        "published": "Après l’examen, le seuil est publié dans l’espace de l’établissement avec ses chiffres.",
+        "monthly": "Les devoirs mensuels restent à chaque enseignant, sans seuil ni signature.",
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+      },
+      "problem": {
+        "closed": "Le seuil ne peut plus être signé : le délai de signature est passé ou le directeur a décidé.",
+        "notSetter": "Ce téléphone n’est pas l’un des rédacteurs de cet examen."
+      }
     }
   },
   "chart": {

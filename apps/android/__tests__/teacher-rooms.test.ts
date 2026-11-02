@@ -11,25 +11,13 @@
 // reading keep the later; and a phone that is not the one joined on the code
 // reads nothing. Every world, school, teacher and pack is made up.
 
-import {
-  addDays,
-  deciderSeed,
-  handedKey,
-  readJoinCode,
-  roomPlace,
-  sealRoomRecord,
-  signRoomRecord,
-  type ExamChart,
-} from '@minhajna/core';
-import { server, setting, STAFF } from '../jest/timetable-send';
-import { reference } from '../jest/world-calendar';
+import { addDays, deciderSeed, handedKey, roomPlace, sealRoomRecord, signRoomRecord } from '@minhajna/core';
+import { openedRoom } from '../jest/cut-room';
+import { server } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
-import { holdSchool } from '../src/director/issue-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
-import { caKey, spaceBatches } from '../src/school/space-read';
 import { putOnce } from '../src/school/stream-put';
 import { deciderSigning } from '../src/threshold/decider-key';
-import { openRoom } from '../src/threshold/room-open';
 import { readTeacherRooms, signCut } from '../src/threshold/teacher-rooms';
 
 afterEach(() => {
@@ -38,32 +26,9 @@ afterEach(() => {
 });
 
 async function opened() {
-  const { id, here, joined } = await setting();
-  const desk = await holdSchool(here, kit, server.send, false);
-  const pack = reference.packs.find((one) => one.items.length >= 3)!;
-  const items = pack.items.map((one) => one.id);
-  const date = here.date;
-  const draft: Omit<ExamChart, 'world' | 'school' | 'setters'> = {
-    exam: 'term-1',
-    subject: 'math',
-    grade: '1am',
-    from: addDays(date, 7),
-    figuresDay: date,
-    signBy: addDays(date, 2),
-    forecastDay: addDays(date, 5),
-    pack: { id: pack.id, release: pack.release },
-    items,
-    classes: [{ name: '1م2', position: items[1], forecast: items[2] }],
-  };
-  const code = readJoinCode(joined.code)!;
-  const setter = { assignment: code.assignment, name: STAFF[0].name, key: joined.certificate.publicKey, code };
-  const space = await spaceBatches(id, desk.held.school, server.send);
-  const ca = await caKey(id, server.send);
-  expect(await openRoom({ world: id }, desk, draft, [setter], space, ca, kit, server.send)).toEqual({
-    handed: 1,
-    failed: 0,
-  });
-  return { id, date, joined, items, desk };
+  const room = await openedRoom();
+  expect(room.opened).toEqual({ handed: 1, failed: 0 });
+  return room;
 }
 
 test('reads the room, signs a cut that settles it, then a no cut that leaves it to the director', async () => {

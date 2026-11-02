@@ -195,6 +195,7 @@ export function DemoRoot({
         subjects={reference?.profile.subjects}
         mine={worldReference && mineOf(worldReference, here, school)}
         school={school}
+        reference={worldReference}
         onClose={() => setJoining(false)}
       />
     );
