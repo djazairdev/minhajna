@@ -32,7 +32,7 @@
 // OpsProblems.tsx); and the observatory's reports page, whose world has no
 // school, reads a term's figures (#627, ObsReport.tsx). Only that page goes
 // without a school; any other stays empty in such a world.
-// The curator's pack list reads source releases only (#611, PackList.tsx).
+// The curator's source-only draft desk reads and edits releases (#611, #613).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -48,7 +48,7 @@ import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
 import { DirectorateTotals } from '../directorate/DirectorateTotals';
-import { PackList } from '../editor/PackList';
+import { PacksPage } from '../editor/PacksPage';
 import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
@@ -263,6 +263,16 @@ export function workspacePage(
       />
     );
   if (workspace === 'curator' && page === 'packs')
-    return <PackList packs={reference.packs} profile={reference.profile} refusedPacks={reference.refusedPacks} />;
+    return (
+      <PacksPage
+        world={open}
+        held={held}
+        kit={kit}
+        send={send}
+        packs={reference.packs}
+        profile={reference.profile}
+        refusedPacks={reference.refusedPacks}
+      />
+    );
   return null;
 }

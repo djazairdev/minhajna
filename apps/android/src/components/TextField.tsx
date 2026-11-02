@@ -3,7 +3,7 @@
 
 import { useLocale } from '@react-navigation/native';
 import { useId, useState, type Ref } from 'react';
-import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Platform, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import type { TextInputInstance, TextInputProps } from 'react-native';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
 import type { ControlIcon } from './control';
@@ -49,6 +49,9 @@ export type TextFieldProps = Pick<
  * value. Its label includes any error, independently of optional speech hints.
  * Android's content-size event already includes the input's compound padding.
  * Until that first event, a text area keeps its native intrinsic height.
+ * On the web a hidden text mirror sets its intrinsic height instead: browser
+ * content-size events include the assigned height and can create a resize loop.
+ * The mirror is outside the accessibility tree and never intercepts input.
  * Each change counts as use of the app, for the automatic lock (#210).
  * Autofill is off unless the screen names the field, as a PC's passphrase.
  */
@@ -77,6 +80,7 @@ export function TextField({
   const displayLabel = optionalLabel ? `${label} (${optionalLabel})` : label;
   const spokenLabel = error ? `${displayLabel}. ${error}` : displayLabel;
   const inputDirection = textDirection ?? direction;
+  const webMirror = multiline && Platform.OS === 'web';
   const minimum = Math.max(
     multiline ? 80 : sizes.target,
     typography.body.lineHeight * fontScale + spacing['space-10'] * 2 + 1.5 * 2,
@@ -99,6 +103,30 @@ export function TextField({
         labelText
       )}
       <View>
+        {webMirror && (
+          <View
+            pointerEvents="none"
+            aria-hidden
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={styles.mirror}
+          >
+            <Text
+              accessible={false}
+              style={[
+                styles.input,
+                {
+                  minHeight: minimum,
+                  direction: inputDirection,
+                  writingDirection: inputDirection,
+                  textAlign: inputDirection === 'rtl' ? 'right' : 'left',
+                },
+              ]}
+            >
+              {value + '\u200b'}
+            </Text>
+          </View>
+        )}
         <TextInput
           {...inputProps}
           ref={ref}
@@ -128,7 +156,7 @@ export function TextField({
             onBlur?.(event);
           }}
           onContentSizeChange={
-            multiline
+            multiline && !webMirror
               ? ({ nativeEvent }) => {
                   const height = nativeEvent.contentSize.height;
                   if (Number.isFinite(height) && height >= 0) setContentHeight(Math.ceil(height));
@@ -144,7 +172,8 @@ export function TextField({
               textAlign: inputDirection === 'rtl' ? 'right' : 'left',
               textAlignVertical: multiline ? 'top' : 'center',
             },
-            multiline && contentHeight > 0 && { height: Math.max(minimum, contentHeight) },
+            multiline && !webMirror && contentHeight > 0 && { height: Math.max(minimum, contentHeight) },
+            webMirror && styles.webInput,
           ]}
         />
         {focused && <View pointerEvents="none" accessible={false} style={styles.focus} />}
@@ -159,6 +188,8 @@ export function TextField({
 }
 
 const styles = StyleSheet.create({
+  webInput: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, height: '100%' },
+  mirror: { opacity: 0 },
   group: { gap: spacing['space-6'], alignSelf: 'stretch' },
   label: { ...typography.label, color: colors.ink2 },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-6'] },
