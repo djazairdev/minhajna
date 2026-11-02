@@ -11,31 +11,38 @@
 // weekly hours without a teacher, sessions lost to closures) and of the
 // curriculum report (sessions per plan item, the classes whose latest word on
 // it is merged, skipped or re-taught, how far classes got, and plans that run
-// long). A week counts only when signed with a key the school lists for its
-// course, whatever device its certificate names, so no other signer adds or
-// replaces one; of each week only the latest correction counts, the lower text
-// breaking a tie, since only its signer controls the text while anyone can
-// alter an ECDSA signature; and only weeks with a day in the term up to the
-// announced day. Each week's sums go to its own subject; a class counts under
-// its latest week's subject, and how far it got is that week's. A share has no
-// row for a teacher or a class. In the demo the server sees each school's share
-// before adding them up, and keeps only figures above the floors; cryptographic
-// secure aggregation comes later (choice D2). A share's ID is a MAC under the
-// school key's first epoch for its day, so a share sent again replaces the
-// first and the ID links no two days; a device removed from the school key can
-// still work it out (answer 567). A seeded school's share is prepared the same
-// way from the term generator's weeks worked out up to the day, which are never
-// signed, by the device that started the world (answer 628).
+// long). Which signed weeks count is share-weeks.ts's: under the keys the
+// school lists for each course, the latest correction of each, named as the
+// server takes names, and with a day in the term up to the announced day, but
+// for how far each grade got, given when the school's plans are
+// (share-grades.ts, answer 631), which takes each class's position over the
+// year's weeks up to the day, the last subjects' grades left out when the share
+// would take more than SHARE_BYTES. Each week's sums go to its own subject; a
+// class counts under its latest week's subject, and how far it got is that
+// week's. A share has no row for a teacher or a class. In the demo the server
+// sees each school's share before adding them up, and keeps only figures above
+// the floors; cryptographic secure aggregation comes later (choice D2). A
+// share's ID is a MAC under the school key's first epoch for its day, so a
+// share sent again replaces the first and the ID links no two days; a device
+// removed from the school key can still work it out (answer 567). A seeded
+// school's share is prepared the same way from the term generator's weeks
+// worked out up to the day, which are never signed, by the device that started
+// the world (answer 628).
 
-import { checkSignedWeek, isSigningKey, type KeyChecker } from './certify.ts';
+import { isSigningKey, type KeyChecker } from './certify.ts';
+import { utf8Length } from './signed-read.ts';
 import { addDays, compareDays, isDay, type Day } from './day.ts';
 import { toHex } from './id.ts';
 import { ENTRY_ID } from './reference-fields.ts';
 import { ascii, ID, type KeyCrypto } from './school-key-shape.ts';
 import { purposeKey, type OpenedKeyring } from './school-key.ts';
-import { readWeekTotals, WEEK_TEXT_BYTES, type ItemOutcome, type WeekForTotals } from './week-totals.ts';
+import { checkPlans, gradeReach, isName, shareable, type CoursePlan, type GradeReach } from './share-grades.ts';
+import { countedWeeks } from './share-weeks.ts';
+import type { ItemOutcome, WeekForTotals } from './week-totals.ts';
 
 export const SHARE_FORMAT = 'minhajna/total-share/1';
+/** The most JSON a share may take, in bytes, as the server takes it. */
+export const SHARE_BYTES = 256 * 1024;
 
 /** What a school's assignments show for a subject. */
 export interface Staffing {
@@ -63,6 +70,8 @@ export interface SubjectShare extends Staffing {
   readonly runLong: number;
   /** By item, in order. */
   readonly items: Readonly<Record<string, ItemShare>>;
+  /** By grade, in order, when the school's plans are given (share-grades.ts). */
+  readonly grades?: Readonly<Record<string, GradeReach>>;
 }
 
 export interface TotalsShare {
@@ -93,11 +102,10 @@ export interface ShareInput {
   readonly ca: { readonly world: string; readonly key: string; readonly checker: KeyChecker };
   /** By subject, from the school's assignments. */
   readonly staffing: Readonly<Record<string, Staffing>>;
-}
-
-interface Checked {
-  readonly read: WeekForTotals;
-  readonly text: string;
+  /** By course, its class's grade, its teacher and its pinned pack's items, to give how far each grade got. */
+  readonly plans?: Readonly<Record<string, CoursePlan>>;
+  /** The school year's first day, from which each class's position in its plan is taken; the term's when not given. */
+  readonly yearFrom?: Day;
 }
 
 type ItemCount = { -readonly [K in keyof ItemShare]: number };
@@ -112,43 +120,6 @@ interface Tally {
 }
 
 const newTally = (): Tally => ({ classes: 0, cover: 0, closed: 0, reached: 0, runLong: 0, items: new Map() });
-
-/** Whether `a` comes before `b` among a course's weeks: an earlier week, a lower version, a lower text. */
-function before(a: Checked, b: Checked): boolean {
-  if (a.read.week !== b.read.week) return a.read.week < b.read.week;
-  if (a.read.version !== b.read.version) return a.read.version < b.read.version;
-  return a.text < b.text;
-}
-
-const tooLong = (value: unknown): boolean =>
-  typeof value === 'object' &&
-  value !== null &&
-  'text' in value &&
-  typeof value.text === 'string' &&
-  value.text.length > WEEK_TEXT_BYTES;
-
-/** Each course's weeks that count, in order: under its listed keys, the latest correction of each, in the term. */
-async function countedWeeks({ weeks, signers, ca, from, day }: ShareInput): Promise<WeekForTotals[][]> {
-  const latest = new Map<string, Checked>();
-  for (const value of weeks) {
-    if (tooLong(value)) continue;
-    const signed = await checkSignedWeek(value, ca.world, ca.key, ca.checker);
-    const read = typeof signed === 'string' ? null : readWeekTotals(signed.text);
-    if (typeof signed === 'string' || read === null) continue;
-    const { course, week, version } = read;
-    if (!signers[course]?.includes(signed.certificate.publicKey) || addDays(week, 6) < from || week > day) continue;
-    const one = { read, text: signed.text };
-    const held = latest.get(`${course}\n${week}`);
-    const kept = held?.read.version ?? -1;
-    if (kept > version || (kept === version && held!.text <= one.text)) continue;
-    latest.set(`${course}\n${week}`, one);
-  }
-  const courses = new Map<string, WeekForTotals[]>();
-  for (const { read } of [...latest.values()].sort((a, b) => (before(a, b) ? -1 : 1))) {
-    courses.set(read.course, [...(courses.get(read.course) ?? []), read]);
-  }
-  return [...courses.values()];
-}
 
 function tally(courses: readonly WeekForTotals[][]): Map<string, Tally> {
   const subjects = new Map<string, Tally>();
@@ -197,36 +168,65 @@ function isStaffing(value: unknown): value is Staffing {
   return counts.every(([, count]) => Number.isSafeInteger(count) && (count as number) >= 0);
 }
 
-type Common = Pick<ShareInput, 'school' | 'day' | 'from' | 'directorate' | 'staffing'>;
+type Common = Pick<ShareInput, 'school' | 'day' | 'from' | 'directorate' | 'staffing' | 'plans' | 'yearFrom'>;
 
 /** Refuses a share's day, term, directorate or staffing written otherwise. */
-function checkCommon({ day, from, directorate, staffing }: Common): void {
-  if (!isDay(day) || !isDay(from) || from > day || !ENTRY_ID.test(directorate)) {
+function checkCommon({ day, from, directorate, staffing, plans, yearFrom = from }: Common): void {
+  if (
+    !isDay(day) ||
+    !isDay(from) ||
+    from > day ||
+    !isName(directorate, ENTRY_ID) ||
+    !isDay(yearFrom) ||
+    yearFrom > from
+  ) {
     throw new RangeError('A share names its directorate and its term');
   }
+  if (plans !== undefined) checkPlans(plans);
   const names = isMap(staffing) ? Object.keys(staffing) : [''];
-  if (!names.every((name) => ENTRY_ID.test(name) && isStaffing(staffing[name]))) {
+  if (!names.every((name) => isName(name, ENTRY_ID) && isStaffing(staffing[name]))) {
     throw new RangeError('Staffing is counted by subject');
   }
 }
 
-/** The share of each course's counted weeks, in order, with the staffing, under its ID for the day. */
-async function shareOf(input: Common, courses: WeekForTotals[][], crypto: KeyCrypto): Promise<TotalsShare> {
-  const { school, day, directorate, staffing } = input;
+/**
+ * The share of each course's weeks over the year up to the day, each course's in order, its figures from those in
+ * the term, with the staffing and, when plans are given, how far each grade got, under its ID for the day.
+ */
+async function shareOf(input: Common, year: WeekForTotals[][], crypto: KeyCrypto): Promise<TotalsShare> {
+  const { school, day, directorate, staffing, from, plans } = input;
+  const courses = year
+    .map((weeks) => weeks.filter((one) => addDays(one.week, 6) >= from))
+    .filter((one) => one.length > 0);
   const tallies = tally(courses);
+  const reach =
+    plans === undefined ? null : gradeReach(courses, new Map(year.map((weeks) => [weeks[0]!.course, weeks])), plans);
   const names = Object.keys(staffing);
-  const subjects = [...new Set([...tallies.keys(), ...names])].map((subject): [string, SubjectShare] => {
+  const rows = [...new Set([...tallies.keys(), ...names])].map((subject) => {
     const { items, ...sums } = tallies.get(subject) ?? newTally();
     const { teachers, vacantPosts, hoursWithoutTeacher } = staffing[subject] ?? {
       teachers: 0,
       vacantPosts: 0,
       hoursWithoutTeacher: 0,
     };
-    return [subject, { teachers, vacantPosts, hoursWithoutTeacher, ...sums, items: sorted(items) }];
+    const figures: SubjectShare = { teachers, vacantPosts, hoursWithoutTeacher, ...sums, items: sorted(items) };
+    return { subject, figures, grades: reach?.get(subject) };
   });
   const key = await purposeKey(school, 0, 'total-shares', crypto);
   const id = toHex(await crypto.mac(key, ascii(`minhajna/total-share\n${school.ring.school}\n${day}`)));
-  return { format: SHARE_FORMAT, id, day, directorate, subjects: sorted(subjects) };
+  const shareWithout = (dropped: ReadonlySet<string>): TotalsShare => {
+    const subjects = rows.map(({ subject, figures, grades }): [string, SubjectShare] => [
+      subject,
+      grades === undefined || dropped.has(subject) ? figures : { ...figures, grades },
+    ]);
+    return { format: SHARE_FORMAT, id, day, directorate, subjects: sorted(subjects) };
+  };
+  const dropped = new Set<string>();
+  for (const { subject } of [...rows].sort((a, b) => (a.subject < b.subject ? 1 : -1))) {
+    if (utf8Length(JSON.stringify(shareWithout(dropped)))! <= SHARE_BYTES) break;
+    dropped.add(subject);
+  }
+  return shareWithout(dropped);
 }
 
 /** The school's share for an announced day, prepared on a device that holds the school key. */
@@ -237,23 +237,23 @@ export async function prepareShare(input: ShareInput, crypto: KeyCrypto): Promis
   if (!listed.every(([course, keys]) => ID.test(course) && isKeys(keys))) {
     throw new RangeError('Signers are listed by course and key');
   }
-  return shareOf(input, await countedWeeks(input), crypto);
+  return shareOf(input, await countedWeeks({ ...input, from: input.yearFrom ?? input.from }), crypto);
 }
 
 /**
  * A seeded school's share for an announced day, from the term generator's weeks worked out up to that day
- * (seeded-term.ts) rather than signed ones, each course's weeks in the term counted at their latest version.
+ * (seeded-term.ts) rather than signed ones, each course's weeks counted at their latest version.
  */
 export async function seededShare(
   input: Common & { readonly weeks: readonly { readonly versions: readonly WeekForTotals[] }[] },
   crypto: KeyCrypto,
 ): Promise<TotalsShare> {
   checkCommon(input);
-  const { from, day } = input;
+  const { yearFrom = input.from, day } = input;
   const courses = new Map<string, WeekForTotals[]>();
   for (const { versions } of input.weeks) {
     const latest = versions.at(-1);
-    if (latest === undefined || addDays(latest.week, 6) < from || latest.week > day) continue;
+    if (latest === undefined || !shareable(latest) || addDays(latest.week, 6) < yearFrom || latest.week > day) continue;
     courses.set(latest.course, [...(courses.get(latest.course) ?? []), latest]);
   }
   const inOrder = [...courses.values()].map((weeks) => weeks.sort((a, b) => compareDays(a.week, b.week)));

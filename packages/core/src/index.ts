@@ -118,6 +118,7 @@ export * from './week-record.ts';
 export * from './week-visa.ts';
 export * from './week-standing.ts';
 export * from './course-delivery.ts';
+export * from './share-grades.ts';
 export * from './total-shares.ts';
 export * from './devices.ts';
 export * from './restore.ts';

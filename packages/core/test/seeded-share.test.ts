@@ -4,8 +4,15 @@
 // A seeded school's share of the totals (#596, answer 628): prepared from the
 // term generator's weeks, never signed, it is the share the school's signed
 // copies of the same weeks give, ID included: each course's weeks in the term
-// up to the day, at their latest version, and none outside it. Every world,
-// school, teacher, class and week is made up.
+// up to the day, at their latest version, and none outside it; and, with the
+// school's plans, how far each grade got, each class's position taken over the
+// year's weeks up to the day, an item no class reached left out and a subject
+// without plans giving no grades (#601, answer 631); the last subjects' grades
+// left out when the share would be heavier than the server takes; a week naming
+// a subject or item as an object's own left out; and plans written otherwise,
+// an item twice or a name an object holds among them, or a year starting after
+// the term, are refused. Every world, school, teacher, class and week is made
+// up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -14,8 +21,10 @@ import {
   issueCertificate,
   newId,
   parseDay,
+  MOST_GRADE_ITEMS,
   prepareShare,
   seededShare,
+  SHARE_BYTES,
   signWeek,
   startKeyring,
   WEEK_FORMAT,
@@ -85,5 +94,70 @@ describe('a seeded school’s share', () => {
     );
     assert.deepEqual(Object.keys(share.subjects['math']!.items), ['u1.l2', 'u1.l3']);
     assert.deepEqual(Object.keys(share.subjects['science']!.items), ['s1.l1']);
+    assert.equal('grades' in share.subjects['math']!, false);
+    const plans = { [one]: { grade: '1am', teacher: 'teacher-1', items: ['u1.l1', 'u1.l2', 'u1.l3', 'u1.l4'] } };
+    const graded = { ...common, plans, yearFrom: parseDay('2026-09-06') };
+    const reach = await seededShare({ ...graded, weeks }, director.crypto);
+    assert.deepEqual(reach, await prepareShare({ ...graded, weeks: signed, signers, ca: caKey }, director.crypto));
+    assert.deepEqual(reach.subjects['math']!.grades, {
+      '1am': { teachers: 1, classes: 1, items: { 'u1.l1': 1, 'u1.l2': 1, 'u1.l3': 1 } },
+    });
+    assert.equal('grades' in reach.subjects['science']!, false);
+    assert.deepEqual(
+      { ...reach.subjects['math']!, grades: undefined },
+      { ...share.subjects['math']!, grades: undefined },
+    );
+  });
+
+  it('leaves out the last subjects’ grades when the share would be heavier than the server takes', async () => {
+    const director = await device();
+    const opened = await startKeyring(SCHOOL, director.holder, director.crypto, random);
+    const items = Array.from(
+      { length: MOST_GRADE_ITEMS },
+      (_, at) => `unit-${String(at).padStart(4, '0')}.${'x'.repeat(54)}`,
+    );
+    const courses = ['math', 'science'].map((subject) => ({ subject, course: newId(random) }));
+    const weeks = courses.map(({ subject, course }) => ({
+      versions: [{ course, week: parseDay('2026-10-04'), version: 0, totals: totals(subject, 900, items.at(-1)!) }],
+    }));
+    const plans = Object.fromEntries(
+      courses.map(({ course }) => [course, { grade: '4am', teacher: 'teacher-1', items }]),
+    );
+    const common = { school: opened, day, from, directorate: '16-east', staffing: STAFFING, plans };
+    const share = await seededShare({ ...common, weeks }, director.crypto);
+    assert.equal(Object.keys(share.subjects['math']!.grades!['4am']!.items).length, MOST_GRADE_ITEMS);
+    assert.equal('grades' in share.subjects['science']!, false);
+    assert.equal(JSON.stringify(share).length <= SHARE_BYTES, true);
+  });
+
+  it('leaves out a week naming a subject or item as an object’s own', async () => {
+    const director = await device();
+    const opened = await startKeyring(SCHOOL, director.holder, director.crypto, random);
+    const course = newId(random);
+    const week = (subject: string, item: string) => ({
+      versions: [{ course, week: parseDay('2026-10-04'), version: 0, totals: totals(subject, 100, item) }],
+    });
+    const common = { school: opened, day, from, directorate: '16-east', staffing: {} };
+    for (const weeks of [[week('constructor', 'u1.l1')], [week('math', '__proto__')]]) {
+      const share = await seededShare({ ...common, weeks }, director.crypto);
+      assert.deepEqual(share.subjects, {});
+    }
+  });
+
+  it('refuses plans written otherwise, and a year that starts after the term', async () => {
+    const director = await device();
+    const opened = await startKeyring(SCHOOL, director.holder, director.crypto, random);
+    const common = { school: opened, day, from, directorate: '16-east', staffing: STAFFING, weeks: [] };
+    const plan = { grade: '1am', teacher: 'teacher-1', items: ['u1.l1'] };
+    const refused = (changes: object) =>
+      assert.rejects(seededShare({ ...common, ...changes }, director.crypto), RangeError);
+    await refused({ plans: { 'not-a-course': plan } });
+    await refused({ plans: { [newId(random)]: { ...plan, grade: '' } } });
+    await refused({ plans: { [newId(random)]: { ...plan, items: ['bad item'] } } });
+    await refused({ plans: [] });
+    await refused({ plans: { [newId(random)]: { ...plan, items: ['u1.l1', 'u1.l1'] } } });
+    await refused({ plans: { [newId(random)]: { ...plan, grade: 'constructor' } } });
+    await refused({ plans: { [newId(random)]: { ...plan, items: ['__proto__'] } } });
+    await refused({ yearFrom: parseDay('2026-10-01') });
   });
 });

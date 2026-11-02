@@ -32,32 +32,25 @@ const year: SchoolYear = {
   source: 'made up',
 };
 
-const window = (id: string, term: number, from: string, to: string, more: Partial<CalendarEntry> = {}) =>
-  ({
-    id,
-    layer: 'national',
-    from: d(from),
-    to: d(to),
-    effect: 'exam',
-    term,
-    name: { en: id },
-    ...more,
-  }) as CalendarEntry;
+const window = (
+  id: string,
+  term: number,
+  from: string,
+  to: string,
+  more: Partial<CalendarEntry> = {},
+): CalendarEntry => ({
+  id,
+  layer: 'national',
+  from: d(from),
+  to: d(to),
+  effect: 'exam',
+  term,
+  name: { en: id },
+  source: 'made up',
+  confidence: 'announced',
+  ...more,
+});
 
-const others = ['1am', '2am', '3am'];
-const entries = [
-  window('t1', 1, '2026-12-06', '2026-12-10', { grades: [...others, '4am'] }),
-  window('t2a', 2, '2027-03-02', '2027-03-04', { grades: others }),
-  window('t2a-4am', 2, '2027-03-02', '2027-03-04', { grades: ['4am'] }),
-  window('t2b', 2, '2027-03-07', '2027-03-08', { grades: [...others, '4am'] }),
-  window('t3-4am', 3, '2027-05-09', '2027-05-11', { grades: ['4am'] }),
-  window('t3', 3, '2027-05-23', '2027-05-27', { grades: others }),
-  window('primary', 3, '2027-05-30', '2027-06-01', { levels: ['primary'] }),
-  window('zone', 2, '2027-02-14', '2027-02-15', { layer: 'zone', zone: '16', grades: ['1am'] }),
-  { ...window('holiday', 1, '2026-12-20', '2026-12-31'), effect: 'no-school' } as CalendarEntry,
-];
-
-const ids = (list: readonly { id: string }[]) => list.map((one) => one.id);
 const closed = (id: string, from: string, to = from) =>
   ({
     id,
@@ -69,6 +62,21 @@ const closed = (id: string, from: string, to = from) =>
     source: 'made up',
     confidence: 'announced',
   }) satisfies CalendarEntry;
+
+const others = ['1am', '2am', '3am'];
+const entries = [
+  window('t1', 1, '2026-12-06', '2026-12-10', { grades: [...others, '4am'] }),
+  window('t2a', 2, '2027-03-02', '2027-03-04', { grades: others }),
+  window('t2a-4am', 2, '2027-03-02', '2027-03-04', { grades: ['4am'] }),
+  window('t2b', 2, '2027-03-07', '2027-03-08', { grades: [...others, '4am'] }),
+  window('t3-4am', 3, '2027-05-09', '2027-05-11', { grades: ['4am'] }),
+  window('t3', 3, '2027-05-23', '2027-05-27', { grades: others }),
+  window('primary', 3, '2027-05-30', '2027-06-01', { levels: ['primary'] }),
+  window('zone', 2, '2027-02-14', '2027-02-15', { layer: 'zone', zone: '16', grades: ['1am'] }),
+  closed('holiday', '2026-12-20', '2026-12-31'),
+];
+
+const ids = (list: readonly { id: string }[]) => list.map((one) => one.id);
 
 describe('a demo world’s exams', () => {
   const exams = worldExams(year, entries);
@@ -153,11 +161,11 @@ describe('a demo world’s exams', () => {
   });
 
   it('adds no mock exam without term 3 exams, and no BEM after the year', () => {
-    const short = {
+    const short: SchoolYear = {
       ...year,
       to: d('2027-05-31'),
       terms: [...year.terms.slice(0, 2), { ...year.terms[2]!, to: d('2027-05-31') }],
-    } as SchoolYear;
+    };
     assert.deepEqual(ids(worldExams(short, entries.slice(0, 4))), ['term-1', 'term-2']);
   });
 });
