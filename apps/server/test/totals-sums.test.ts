@@ -7,8 +7,9 @@
 // ?directorate= one directorate's own, each as share-sums.ts adds them up;
 // a day not announced or not reached is refused, and so is a directorate not
 // named as the reference data names one, __proto__ among them, or named twice;
-// and a day with no share shows only the nation's known zeros. Every world and
-// share here is made up.
+// a day with no share shows only the nation's known zeros; and a share that
+// comes in shows in the next answer, though the sums are kept worked out. Every
+// world and share here is made up.
 
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
@@ -59,6 +60,20 @@ describe('the day’s totals', () => {
     assert.deepEqual(await own.json(), dayTotals('2026-12-06', kept(), 'dir-01'));
     const none = await get(id, '2026-12-06', '?directorate=dir-09');
     assert.deepEqual(await none.json(), dayTotals('2026-12-06', kept(), 'dir-09'));
+  });
+
+  it('answers anew once a share comes in', async () => {
+    const id = await announcedWorld(base);
+    for (const share of kept()) assert.equal(await shares.put(id, share), 'added');
+    assert.deepEqual(await (await get(id, '2026-12-06')).json(), dayTotals('2026-12-06', kept(), null));
+    const more = { ...madeUpShare(12, '2026-12-06', 4), directorate: 'dir-01' };
+    const sent = await fetch(`${base}/worlds/${id}/totals/2026-12-06/shares`, {
+      method: 'PUT',
+      headers: { ...WITH_PASS, 'content-type': 'application/json' },
+      body: JSON.stringify(more),
+    });
+    assert.equal(sent.status, 201);
+    assert.deepEqual(await (await get(id, '2026-12-06')).json(), dayTotals('2026-12-06', [...kept(), more], null));
   });
 
   it('refuses a day not announced or not reached, and a directorate not named right', async () => {

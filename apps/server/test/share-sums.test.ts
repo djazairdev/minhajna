@@ -9,8 +9,10 @@
 // directorate's own view shows its figures under the directorate floor, a
 // subject of too few teachers hidden with what would give it away, and hides
 // as well what would give away, with the Ministry's view, a figure hidden in
-// both; a directorate with no share shows nothing but zeros; and no figure is
-// ever one share's. Every share is made up.
+// both; a plan item fewer than three schools did is hidden, with another so it
+// is not the nation's less the others; a teacher of several subjects counts
+// once over every subject, at least; a directorate with no share shows nothing
+// but zeros; and no figure is ever one share's. Every share is made up.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -18,6 +20,8 @@ import { describe, it } from 'node:test';
 import type { Share } from '../src/totals/share-read.js';
 import { dayTotals } from '../src/totals/share-sums.js';
 import { madeUpShare } from './share-kit.js';
+
+const ITEM = { sessions: 0, merged: 0, skipped: 0, retaught: 0 };
 
 /** A made-up share of a directorate, with its math and, when given, its Arabic teachers. */
 function share(at: number, directorate: string, math: number, arabic = 0): Share {
@@ -102,6 +106,36 @@ describe('the day’s totals', () => {
     const math = ministry.directorates.map((one) => one.subjects['math']?.teachers ?? null);
     assert.deepEqual(math, [null, 16, 16]);
     assert.deepEqual([ministry.directorates[0]!.all, ministry.national!.all!.teachers], [null, 38]);
+  });
+
+  it('hides a plan item fewer than three schools did, and another so it is not the nation less the others', () => {
+    const withItem = (one: Share, item: string, sessions: number): Share => {
+      const math = one.subjects['math']!;
+      return { ...one, subjects: { math: { ...math, items: { ...math.items, [item]: { ...ITEM, sessions } } } } };
+    };
+    const shares = [
+      ...schools(1, 3, 'dir-01', 4).map((one, at) => (at === 2 ? withItem(one, 'item-02', 7) : one)),
+      ...schools(4, 4, 'dir-02', 4).map((one) => withItem(one, 'item-02', 5)),
+      ...schools(8, 4, 'dir-03', 4).map((one) => withItem(one, 'item-02', 6)),
+    ];
+    const ministry = dayTotals('2026-12-06', shares, null);
+    const items = ministry.directorates.map((one) => one.subjects['math']?.items?.['item-02']?.sessions ?? null);
+    assert.deepEqual(items, [null, null, 24]);
+    assert.equal(ministry.national!.subjects['math']!.items!['item-02']!.sessions, 51);
+    assert.equal(ministry.directorates[1]!.subjects['math']!.items!['item-01']!.sessions, 48);
+    assert.equal(dayTotals('2026-12-06', shares, 'dir-01').directorates[0]!.subjects['math']!.items!['item-02'], null);
+    const lone = dayTotals(
+      '2026-12-06',
+      [...schools(1, 3, 'dir-01', 4), withItem(share(4, 'dir-01', 4), 'item-09', 2)],
+      'dir-01',
+    );
+    assert.equal(lone.directorates[0]!.subjects['math']!.items!['item-09'], null);
+  });
+
+  it('counts a teacher of several subjects once over every subject, at least', () => {
+    const own = dayTotals('2026-12-06', schools(1, 4, 'dir-01', 3, 3), 'dir-01').directorates[0]!;
+    assert.deepEqual([own.subjects['math']!.teachers, own.subjects['arabic']!.teachers], [12, 12]);
+    assert.deepEqual([own.all!.teachers, own.all!.schools], [12, 4]);
   });
 
   it('never shows one share’s figures', () => {
