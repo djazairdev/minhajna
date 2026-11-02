@@ -20,10 +20,14 @@
 // the cover they gave, never set against a statutory load. Nothing here names a
 // cause, a clock time or a score, and nothing counts collective action
 // (R-1.11-04). In a demo world, the director's school is the world's first CEM.
+// For the school's share of the totals (#596, answer 628), each subject's
+// staffing comes from the timetable too: the teachers who take it, the classes
+// with a vacant post in it, and its weekly sessions with no teacher.
 
 import type { Day } from './day.ts';
 import type { DemoSchool, DemoSession, DemoTeacher, DemoWorld } from './demo-world.ts';
 import { spaceStanding, type SpaceStanding, type TrialTerm } from './school-trial.ts';
+import type { Staffing } from './total-shares.ts';
 import type { CourseStanding } from './week-standing.ts';
 
 /** A row of the dashboard: a class and subject, its teacher, where they stand, and the class's standing. */
@@ -121,4 +125,24 @@ export function teacherLoads(school: DemoSchool, cover: (teacherId: string) => n
     sessions: school.week.filter((session) => session.teacherId === teacher.id).length,
     cover: cover(teacher.id),
   }));
+}
+
+/** By subject, the staffing the timetable shows: teachers, classes with a vacant post, sessions without one. */
+export function schoolStaffing(school: DemoSchool): Record<string, Staffing> {
+  const known = new Set(school.teachers.map((one) => one.id));
+  const subjects = new Map<string, { teachers: Set<string>; vacant: Set<string>; hours: number }>();
+  for (const session of school.week) {
+    const one = subjects.get(session.subject) ?? { teachers: new Set(), vacant: new Set(), hours: 0 };
+    subjects.set(session.subject, one);
+    if (known.has(session.teacherId)) one.teachers.add(session.teacherId);
+    else {
+      one.vacant.add(session.classId);
+      one.hours += 1;
+    }
+  }
+  const staffing = [...subjects].map(([subject, one]): [string, Staffing] => [
+    subject,
+    { teachers: one.teachers.size, vacantPosts: one.vacant.size, hoursWithoutTeacher: one.hours },
+  ]);
+  return Object.fromEntries(staffing.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
 }

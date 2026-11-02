@@ -17,7 +17,10 @@
 // answer. The same reading, the school key held once, gives each class's
 // standing from the school's signed weeks (course-standings.ts, answer 627),
 // none while it is read; when only the weeks could not be read, who joined is
-// still given, with no standing and the problem said.
+// still given, with no standing and the problem said. Once the weeks are read,
+// the school's share of the totals is sent for the announced days reached
+// (share-send.ts), after the page has what it reads; a failed send is not said,
+// and is tried again with the next reading.
 
 import {
   issuesIn,
@@ -34,9 +37,10 @@ import { worldRequest } from '../network/world-network';
 import { problemOf } from '../school/school-join-session';
 import { courseStandings } from './course-standings';
 import { assignmentsOf, holdSchool, joinedDays } from './issue-session';
-import { recordsOf } from './records-session';
+import { recordsOf, type ClassRecords } from './records-session';
 import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
 import type { TermReference } from './seeded-fill';
+import { sendShares } from './share-send';
 
 type JoinedWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 
@@ -87,7 +91,9 @@ async function joinedOn(
   return new Set(teachers.filter((one) => joined.has(assignments.get(one.id) ?? '')).map((one) => one.id));
 }
 
-type Found = Pick<JoinedRead, 'joined' | 'standing' | 'problem'>;
+type Found = Pick<JoinedRead, 'joined' | 'standing' | 'problem'> & {
+  readonly sharing?: () => Promise<unknown>;
+};
 type Read = { readonly world: string; readonly school: string; readonly round: number } & (
   Found | { readonly problem: JoinedProblem }
 );
@@ -112,15 +118,18 @@ export function useJoinedTeachers(
       const desk = await holdSchool(world, kit, send, false);
       const joined = await joinedOn(world, desk, school.teachers, kit, send);
       try {
-        const records = await recordsOf(world, desk, school, kit, send);
-        return { joined, standing: courseStandings(records, school, reference), problem: null };
+        const records: ClassRecords[] = await recordsOf(world, desk, school, kit, send);
+        const sharing = () => sendShares(world, desk, school, records, reference.calendar, kit, send);
+        return { joined, standing: courseStandings(records, school, reference), problem: null, sharing };
       } catch (error) {
         return { joined, standing: NO_STANDING, problem: problemOf(error) };
       }
     };
     reading().then(
-      (found) => {
-        if (open) setRead({ ...of, ...found });
+      ({ sharing, ...found }) => {
+        if (!open) return;
+        setRead({ ...of, ...found });
+        sharing?.().catch(() => undefined);
       },
       (error: unknown) => {
         if (open) setRead({ ...of, problem: problemOf(error) });

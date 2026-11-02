@@ -12,7 +12,9 @@
 // keep the order, and a class is behind when its latest week runs long; a
 // class's week is its timetable; the grades come in the school's order; and
 // each teacher's weekly sessions come from the timetable, in the staff's order,
-// with the cover they gave. Every school, class and person is made up.
+// with the cover they gave; and each subject's staffing comes from the
+// timetable, a vacant post counting its class and its sessions. Every school,
+// class and person is made up.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -25,6 +27,7 @@ import {
   parseCountryProfile,
   parsePlanPack,
   schoolGrades,
+  schoolStaffing,
   seedNationalWorld,
   shownCourses,
   teacherLoads,
@@ -206,4 +209,22 @@ test('each teacher’s weekly sessions come from the timetable, in the staff’s
     loads.map((one) => one.cover),
     school.teachers.map((_, index) => (index === 1 ? 2 : 0)),
   );
+});
+
+test('each subject’s staffing comes from the timetable, a vacant post counting its class and sessions', () => {
+  const full = schoolStaffing(school);
+  const subjects = [...new Set(school.week.map((session) => session.subject))].sort();
+  assert.deepEqual(Object.keys(full), subjects);
+  for (const subject of subjects) {
+    const teachers = new Set(school.week.filter((one) => one.subject === subject).map((one) => one.teacherId));
+    assert.deepEqual(full[subject], { teachers: teachers.size, vacantPosts: 0, hoursWithoutTeacher: 0 });
+  }
+  const gone = school.teachers[0]!;
+  const vacant = schoolStaffing({ ...school, teachers: school.teachers.slice(1) });
+  const theirs = school.week.filter((one) => one.teacherId === gone.id);
+  assert.deepEqual(vacant[gone.subject], {
+    teachers: full[gone.subject]!.teachers - 1,
+    vacantPosts: new Set(theirs.map((one) => one.classId)).size,
+    hoursWithoutTeacher: theirs.length,
+  });
 });
