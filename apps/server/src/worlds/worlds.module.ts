@@ -14,6 +14,7 @@ import { StoreBusyFilter } from '../spaces/store-busy.filter.js';
 import { MemorySpaceStore, SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
 import { StateController } from '../state-standins/state.controller.js';
 import { MemoryShareStore, SHARE_STORE, type ShareStore } from '../totals/share-store.js';
+import { TotalsDays } from '../totals/totals-days.js';
 import { TotalsController } from '../totals/totals.controller.js';
 import { CertificatesController } from './certificates.controller.js';
 import { JOIN_LIMIT, Limiter, RELAY_LIMIT, START_LIMIT, UPLOAD_LIMIT, type Limit } from './limits.js';
@@ -65,6 +66,7 @@ export class WorldsModule {
         { provide: SHARE_STORE, useValue: options.shares ?? new MemoryShareStore() },
         { provide: WORLD_LIMITERS, useValue: limiters },
         { provide: WORLD_KEEPING, useValue: keeping },
+        TotalsDays,
         WorldSweeper,
         { provide: APP_FILTER, useClass: StoreBusyFilter },
       ],

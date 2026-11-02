@@ -11,12 +11,10 @@
 // share is never shown back. GET /worlds/:world/totals/:day answers the day's
 // totals for the Ministry, every directorate's and the nation's, and with
 // ?directorate= one directorate's own, every figure under its floor hidden
-// (share-sums.ts). The sums of the last SUMS_KEPT days asked for stay worked
-// out until a share comes in for the day, as the demo runs one server, and are
-// not kept when a share came in while they were added up; a day's shares are of
-// at most MAX_DIRECTORATES directorates, refused with 409 beyond. A day not
-// announced, or not reached yet, is refused, so no series of totals forms
-// between announced days.
+// (share-sums.ts). A day holds a bounded set of names and bytes, a share past
+// them refused with 409, and its sums stay worked out until a share comes in
+// (totals-days.ts). A day not announced, or not reached yet, is refused, so no
+// series of totals forms between announced days.
 
 import {
   BadRequestException,
@@ -43,21 +41,17 @@ import { isDay } from '../worlds/world-rules.js';
 import { WORLD_STORE, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
 import { isName, readShare, shareBytes } from './share-read.js';
-import { MAX_DIRECTORATES, MAX_SHARES, SHARE_STORE, type ShareStore } from './share-store.js';
-import { sumShares, type DayTotals, type SummedShares } from './share-sums.js';
-
-/** How many days' sums the server keeps worked out. */
-const SUMS_KEPT = 64;
+import { MAX_SHARES, SHARE_STORE, type ShareStore } from './share-store.js';
+import type { DayTotals } from './share-sums.js';
+import { TotalsDays } from './totals-days.js';
 
 @Controller('worlds/:world/totals')
 export class TotalsController {
-  private readonly sums = new Map<string, SummedShares>();
-  private kept = 0;
-
   constructor(
     @Inject(WORLD_STORE) private readonly worlds: WorldStore,
     @Inject(SHARE_STORE) private readonly shares: ShareStore,
     @Inject(WORLD_LIMITERS) private readonly limiters: WorldLimiters,
+    @Inject(TotalsDays) private readonly days: TotalsDays,
   ) {}
 
   @Put(':day/shares')
@@ -79,15 +73,13 @@ export class TotalsController {
     const address = clientAddress(request, this.limiters.trustCloudflare);
     const cost = Math.ceil(shareBytes(share) / SEALED_BATCH_BYTES);
     if (!this.limiters.uploads.fits(address, cost)) throw tooMany();
+    const refused = await this.days.take(world, share, () => this.shares.shares(world.id, day));
+    if (refused !== null) throw new ConflictException(refused);
     const kept = await this.shares.put(world.id, share);
     if (kept === 'added' || kept === 'replaced') this.limiters.uploads.charge(address, cost);
     if (kept === 'no-world') throw noWorld();
     if (kept === 'full') throw new ConflictException(`a world keeps at most ${MAX_SHARES} shares a day`);
-    if (kept === 'directorates') {
-      throw new ConflictException(`a world keeps the shares of at most ${MAX_DIRECTORATES} directorates a day`);
-    }
-    this.kept += 1;
-    this.sums.delete(JSON.stringify([world.id, day]));
+    this.days.changed(world, day);
     if (kept === 'replaced') response.statusCode = 200;
     return { id: share.id };
   }
@@ -106,15 +98,8 @@ export class TotalsController {
     if (directorate !== undefined && (typeof directorate !== 'string' || !isName(directorate))) {
       throw new BadRequestException('a directorate is named as the reference data names it');
     }
-    const key = JSON.stringify([world.id, day]);
-    const before = this.kept;
-    const summed = this.sums.get(key) ?? sumShares(day, await this.shares.shares(world.id, day));
-    if (this.kept === before) {
-      this.sums.delete(key);
-      this.sums.set(key, summed);
-      for (const old of this.sums.keys()) if (this.sums.size > SUMS_KEPT) this.sums.delete(old);
-    }
-    return summed.view(directorate ?? null);
+    const sums = await this.days.sums(world, day, () => this.shares.shares(world.id, day));
+    return sums.view(directorate ?? null);
   }
 
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {

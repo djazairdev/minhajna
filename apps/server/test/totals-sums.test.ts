@@ -7,8 +7,9 @@
 // ?directorate= one directorate's own, each as share-sums.ts adds them up;
 // a day not announced or not reached is refused, and so is a directorate not
 // named as the reference data names one, __proto__ among them, or named twice;
-// a day with no share shows only the nation's known zeros; and a share that
-// comes in shows in the next answer, though the sums are kept worked out. Every
+// a day with no share shows only the nation's known zeros; a share that
+// comes in shows in the next answer, though the sums are kept worked out; and a
+// share past a day's names is refused with 409, nothing kept. Every
 // world and share here is made up.
 
 import assert from 'node:assert/strict';
@@ -18,6 +19,7 @@ import { createApp } from '../src/app.js';
 import type { Share } from '../src/totals/share-read.js';
 import { MemoryShareStore } from '../src/totals/share-store.js';
 import { dayTotals } from '../src/totals/share-sums.js';
+import { MAX_DIRECTORATES } from '../src/totals/totals-days.js';
 import { MemoryWorldStore } from '../src/worlds/world-store.js';
 import { announcedWorld, madeUpShare } from './share-kit.js';
 import { OPEN, WITH_PASS } from './state-kit.js';
@@ -74,6 +76,20 @@ describe('the day’s totals', () => {
     });
     assert.equal(sent.status, 201);
     assert.deepEqual(await (await get(id, '2026-12-06')).json(), dayTotals('2026-12-06', [...kept(), more], null));
+  });
+
+  it('refuses with 409 a share past a day’s directorates, keeping nothing', async () => {
+    const id = await announcedWorld(base);
+    for (let at = 1; at <= MAX_DIRECTORATES; at += 1) {
+      assert.equal(await shares.put(id, { ...madeUpShare(at), directorate: `d-${at}` }), 'added');
+    }
+    const past = await fetch(`${base}/worlds/${id}/totals/2026-12-06/shares`, {
+      method: 'PUT',
+      headers: { ...WITH_PASS, 'content-type': 'application/json' },
+      body: JSON.stringify({ ...madeUpShare(100), directorate: 'd-new' }),
+    });
+    assert.equal(past.status, 409);
+    assert.equal((await shares.shares(id, '2026-12-06')).length, MAX_DIRECTORATES);
   });
 
   it('refuses a day not announced or not reached, and a directorate not named right', async () => {

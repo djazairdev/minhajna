@@ -4,13 +4,12 @@
 // The store of the schools' shares of the totals (#596, answer 628), in memory
 // and in PostgreSQL: each world's shares for a day in the order first kept, a
 // share sent again replacing the first in its place, apart from other days and
-// worlds, up to MAX_SHARES a day of MAX_DIRECTORATES directorates, and erased
-// with the world. Every world and
+// worlds, up to MAX_SHARES a day, and erased with the world. Every world and
 // share here is made up.
 
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
-import { MAX_DIRECTORATES, MAX_SHARES } from '../src/totals/share-store.js';
+import { MAX_SHARES } from '../src/totals/share-store.js';
 import { madeUpShare } from './share-kit.js';
 import { KINDS, madeUpWorld, type Stores } from './store-kinds.js';
 
@@ -37,18 +36,6 @@ for (const kind of KINDS) {
         assert.equal(await shares.put('AAAAA', madeUpShare(1, '2026-12-20')), 'added');
         assert.deepEqual(await shares.shares('AAAAA', '2026-12-20'), [madeUpShare(1, '2026-12-20')]);
         assert.deepEqual(await shares.shares('BBBBB', '2026-12-06'), []);
-      }));
-
-    it('keeps the shares of at most MAX_DIRECTORATES directorates a day', () =>
-      withStores(async ({ shares }) => {
-        const of = (at: number, directorate: string) => ({ ...madeUpShare(at), directorate });
-        for (let at = 1; at <= MAX_DIRECTORATES; at += 1)
-          assert.equal(await shares.put('AAAAA', of(at, `d-${at}`)), 'added');
-        assert.equal(await shares.put('AAAAA', of(MAX_DIRECTORATES + 1, 'd-new')), 'directorates');
-        assert.equal(await shares.put('AAAAA', of(MAX_DIRECTORATES + 1, 'd-1')), 'added');
-        assert.equal(await shares.put('AAAAA', of(1, 'd-new')), 'directorates');
-        assert.equal(await shares.put('AAAAA', of(2, 'd-new')), 'replaced');
-        assert.equal(await shares.put('AAAAA', { ...of(1, 'd-other'), day: '2026-12-20' }), 'added');
       }));
 
     it('keeps at most MAX_SHARES a day, and erases them with the world', () =>
