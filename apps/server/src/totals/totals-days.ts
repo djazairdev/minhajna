@@ -14,7 +14,7 @@
 // day is kept under its world's ID and starter's hash, so a world started again
 // under the same ID never reads another's, and the sweeper forgets an erased
 // world's days. Asking for other days may push a large day out, to be read and
-// added up again when asked for, as anyone with the pass may: a second at most
+// added up again when asked for, as anyone with the pass may: about a second
 // for a day at its caps, under the relay's limits.
 
 import { Injectable } from '@nestjs/common';
