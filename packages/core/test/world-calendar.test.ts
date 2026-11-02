@@ -196,18 +196,25 @@ describe('the world’s calendar as devices read it', () => {
     assert.deepEqual([now?.from, now?.source], [d('2026-12-13'), 'A later made-up notice']);
   });
 
-  it('announces the later terms’ ends and each exam window’s first day, in any layer, after the date', () => {
+  it('announces later terms’ ends, exam windows’ first days and exams’ figures days, after the date', () => {
     const zone = { ...exams, id: 'zone-exams', layer: 'zone' as const, zone: '16', from: d('2027-02-01') };
     const entries = [...base, { ...zone, to: d('2027-02-03') }];
+    const [zoneFigures, bemFigures, bem] = [d('2027-01-21'), d('2027-05-27'), d('2027-06-06')];
     assert.deepEqual(announcedDaysOf(year, entries, d('2026-12-01')), [
       d('2026-12-06'),
+      zoneFigures,
       d('2027-02-01'),
       d('2027-03-18'),
+      bemFigures,
+      bem,
       d('2027-06-10'),
     ]);
     assert.deepEqual(announcedDaysOf(year, entries, d('2026-12-06')), [
+      zoneFigures,
       d('2027-02-01'),
       d('2027-03-18'),
+      bemFigures,
+      bem,
       d('2027-06-10'),
     ]);
     const laid = worldCalendar(base, '2026.1', [moving]).entries;

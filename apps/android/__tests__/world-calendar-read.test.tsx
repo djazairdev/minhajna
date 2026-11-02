@@ -175,7 +175,7 @@ test('a problem of the world’s own comes before the calendar’s', async () =>
     await render();
     await press('demo-start-national');
     expect(texts()).toContain(ar.demo.problem.calendar);
-    for (let move = 0; move < 12 && !texts().includes(ar.demo.problem.lastDay); move += 1) {
+    for (let move = 0; move < 24 && !texts().includes(ar.demo.problem.lastDay); move += 1) {
       await press('world-role-ministry');
       await press('world-page-world');
       await press('world-move-date');
