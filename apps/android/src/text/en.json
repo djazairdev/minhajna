@@ -5010,6 +5010,193 @@
         "failed": "The file could not be made or saved."
       }
     },
+    "ops": {
+      "map": "The demo server's map: what each part holds, and what crosses its edges",
+      "lead": "The demo server · {{date}} · what each part holds, and what crosses its edges",
+      "only": "The map is read-only: it is drawn from what the server says of itself, so nothing it does not run shows, and no line is added by hand.",
+      "passes": "Passes",
+      "closed": "Closed",
+      "noKey": "No school's or teacher's key in any box",
+      "reading": "Reading the server's state…",
+      "again": "Read again",
+      "boxes": "Parts",
+      "lines": "What crosses",
+      "chosen": "Chosen on the map",
+      "row": {
+        "holds": "Holds",
+        "sees": "The operator sees",
+        "never": "Never sees",
+        "carries": "Carries"
+      },
+      "box": {
+        "devices": "Teachers' devices and browsers",
+        "outside": "Outside services",
+        "gateway": "The server's gateway",
+        "relay": "Batch store",
+        "totals": "Totals service",
+        "standins": "Stand-ins for the state's systems",
+        "storage": "Storage",
+        "screens": "Directorates' and Ministry's screens",
+        "backups": "Backups"
+      },
+      "sub": {
+        "devices": "The Minhajna app, and staffroom PCs",
+        "outside": "Analytics, ads, fonts",
+        "gateway": "Receives, never opens",
+        "relay": "Encrypted, one size",
+        "totals": "Adds up shares only",
+        "standins": "The certificate authority and the receiving system, for the demo only",
+        "storage": {
+          "postgresql": "PostgreSQL, in the container",
+          "memory": "In memory, lost when the server stops"
+        },
+        "screens": "Totals only",
+        "backups": "Outside the container, sealed when the deployment sets a key"
+      },
+      "facts": {
+        "devices": {
+          "holds": "The records, and their keys, which never leave",
+          "sees": "What reaches the server: encrypted batches, schools' count shares, exports sealed for the stand-in, and certificate requests",
+          "never": "A school's or a teacher's key, or a readable record"
+        },
+        "outside": {
+          "holds": "Nothing from this server",
+          "sees": "That the server calls none of them",
+          "never": "A request: no analytics, ads, fonts or error tracker; the only outside address is the backup bucket, when backups are kept"
+        },
+        "gateway": {
+          "holds": "Nothing: it hands requests to their parts",
+          "sees": "A request's size, the world's ID and its pass, kept only as a hash",
+          "never": "Addresses: held in memory for the rate limits, a day at most, never stored or logged; and no request times"
+        },
+        "relay": {
+          "holds": "Batches of one size, encrypted for keys it does not hold",
+          "sees": "Their size, their order, and each space's ID and kind",
+          "never": "A name, a mark, a lesson or a note"
+        },
+        "totals": {
+          "holds": "Schools' shares: counts only, by subject",
+          "sees": "The counts before they are added up, in this demo",
+          "never": "A school, class or teacher: no share names anyone"
+        },
+        "standins": {
+          "holds": "Each world's CA key and receiving key, and the receiving system's receipts",
+          "sees": "Each export's head and its number of rows",
+          "never": "Pupils and their marks: an export is opened, never kept"
+        },
+        "storage": {
+          "postgresql": {
+            "holds": "Worlds, their spaces and batches, shares, keys and receipts, erased on their 7th day",
+            "sees": "IDs, numbers and encrypted bytes",
+            "never": "A named record, or a key to a school's or a teacher's space"
+          },
+          "memory": {
+            "holds": "Worlds, their spaces and batches, shares, keys and receipts, while the server runs, erased on their 7th day",
+            "sees": "IDs, numbers and encrypted bytes",
+            "never": "A named record, or a key to a school's or a teacher's space"
+          }
+        },
+        "screens": {
+          "holds": "Totals above the floor",
+          "sees": "Nothing of them: they are worked out when asked",
+          "never": "A figure under its floor: 5 teachers or 3 schools for a directorate, 10 or 3 above it"
+        },
+        "backups": {
+          "holds": "Copies of the database and its write-ahead log, sealed when the deployment sets a key",
+          "sees": "The copies' size and times",
+          "never": "A named record, sealed or not"
+        },
+        "line": {
+          "batches": {
+            "carries": "Encrypted batches of one size, schools' count shares, exports sealed for the stand-in, and certificate requests",
+            "sees": "Their size, space and counts"
+          },
+          "back": {
+            "carries": "The same batches, to whoever holds the world's pass",
+            "sees": "Their size and space"
+          },
+          "kept": {
+            "carries": "The batches as they came",
+            "sees": "Their size and order"
+          },
+          "shares": {
+            "carries": "Each school's share, counts only",
+            "sees": "The counts"
+          },
+          "totals": {
+            "carries": "Totals above the floor",
+            "sees": "What the screens see"
+          },
+          "exports": {
+            "carries": "Exports sealed for the receiving system's stand-in, and certificate requests",
+            "sees": "The receipt alone"
+          },
+          "rows": {
+            "carries": "IDs, numbers and encrypted bytes",
+            "sees": "The rows as they are"
+          },
+          "copies": {
+            "carries": "Copies of the database, all the time",
+            "sees": "Their size and time"
+          },
+          "held": {
+            "carries": "The shares as they came",
+            "sees": "The counts"
+          },
+          "receipts": {
+            "carries": "Keys and receipts",
+            "sees": "Each receipt's head"
+          },
+          "closed": {
+            "carries": "Nothing: closed",
+            "sees": "Nothing"
+          }
+        }
+      },
+      "note": {
+        "devices": "The keys stay on the devices, so the server opens nothing they hold.",
+        "outside": "The server calls no outside service, except the backup bucket when backups are kept.",
+        "gateway": "The gateway stores no addresses and logs no sign-in times.",
+        "relay": "Even if the operator read the whole disk, they would find no readable record.",
+        "totals": "In this demo the server sees each share before adding them up; cryptographic secure aggregation comes later.",
+        "standins": "In the national system the state's systems stay outside this centre, and the connector passes without opening. In the demo the server stands in for them.",
+        "storage": {
+          "postgresql": "The stand-ins' keys are kept here too, with their world. Even if the operator read the whole disk, they would find no readable record.",
+          "memory": "Nothing outlives the server, and nothing is backed up."
+        },
+        "screens": "No figure for a school or a teacher.",
+        "backups": "When the deployment sets a key, the host keeps it with the bucket's credentials, not the server, so whoever reads the bucket reads none of what they hold. An erased world stays there for about two days. The whole demo is restored from them when a container starts on an empty disk."
+      },
+      "line": {
+        "batches": "Batches, shares and exports",
+        "back": "Batches to whoever holds the pass",
+        "kept": "Kept as they came",
+        "shares": "Schools' shares",
+        "totals": "Totals above the floor",
+        "exports": "Sealed exports",
+        "rows": "Encrypted rows",
+        "copies": "Database copies",
+        "held": "Shares kept",
+        "receipts": "Keys and receipts",
+        "closed": "Closed"
+      },
+      "state": {
+        "title": "The system's state",
+        "version": "Server version {{version}} from the project",
+        "matches": "Matches the server version published with this app.",
+        "differs": "Differs from server version {{release}}, published with this app.",
+        "fingerprint": "The fingerprint of its built code, which anyone can compare by rebuilding the published source:",
+        "noFingerprint": "The server could not read its built code, so it has no fingerprint.",
+        "answering": "The database answers.",
+        "failing": "The database is not answering now.",
+        "memory": "Worlds are in memory, and lost when the server stops.",
+        "archiveOn": "The database archives its write-ahead log, which keeps the backups.",
+        "archiveOff": "No backups: the database does not archive its write-ahead log.",
+        "archiveUnknown": "Whether backups are kept is unknown while the database is not answering.",
+        "offline": "Installing and updating from the published release with no internet wait for a real deployment.",
+        "fixes": "Critical security fixes ship within 7 days, and are installed in the same window."
+      }
+    },
     "staff": {
       "title": "Staffroom PC",
       "lead": "The records on a wide screen, and nothing left on it afterwards.",

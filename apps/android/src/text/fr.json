@@ -5082,6 +5082,193 @@
         "failed": "Le fichier n’a pas pu être préparé ou enregistré."
       }
     },
+    "ops": {
+      "map": "La carte du serveur de démonstration : ce que porte chaque partie, et ce qui en franchit les limites",
+      "lead": "Le serveur de démonstration · {{date}} · ce que porte chaque partie, et ce qui en franchit les limites",
+      "only": "La carte se lit seulement : elle est tracée d’après ce que le serveur dit de lui-même ; rien de ce qu’il ne fait pas tourner n’y figure, et aucun lien n’y est ajouté à la main.",
+      "passes": "Passe",
+      "closed": "Fermé",
+      "noKey": "Aucune clé d’établissement ni d’enseignant dans les cases",
+      "reading": "Lecture de l’état du serveur…",
+      "again": "Relire",
+      "boxes": "Les parties",
+      "lines": "Ce qui passe",
+      "chosen": "Sélection sur la carte",
+      "row": {
+        "holds": "Porte",
+        "sees": "L’opérateur voit",
+        "never": "Ne voit jamais",
+        "carries": "Porte"
+      },
+      "box": {
+        "devices": "Appareils et navigateurs des enseignants",
+        "outside": "Services extérieurs",
+        "gateway": "La passerelle du serveur",
+        "relay": "Le dépôt des lots",
+        "totals": "Le service des totaux",
+        "standins": "Substituts des systèmes de l’État",
+        "storage": "Le stockage",
+        "screens": "Écrans des directions et du ministère",
+        "backups": "Les sauvegardes"
+      },
+      "sub": {
+        "devices": "L’application Minhajna, et les PC des salles des professeurs",
+        "outside": "Statistiques, publicités, polices",
+        "gateway": "Reçoit sans ouvrir",
+        "relay": "Chiffrés, d’une seule taille",
+        "totals": "N’additionne que des parts",
+        "standins": "L’autorité de certification et le système de réception, pour la démonstration seulement",
+        "storage": {
+          "postgresql": "PostgreSQL, dans le conteneur",
+          "memory": "En mémoire, perdu à l’arrêt du serveur"
+        },
+        "screens": "Des totaux seulement",
+        "backups": "Hors du conteneur, scellées si le déploiement fixe une clé"
+      },
+      "facts": {
+        "devices": {
+          "holds": "Les registres, et leurs clés, qui n’en sortent jamais",
+          "sees": "Ce qui parvient au serveur : des lots chiffrés, les parts de comptes des établissements, des exports scellés pour le substitut, et des demandes de certificat",
+          "never": "Une clé d’établissement ou d’enseignant, ou un registre lisible"
+        },
+        "outside": {
+          "holds": "Rien de ce serveur",
+          "sees": "Que le serveur n’en appelle aucun",
+          "never": "Une requête : ni statistiques, ni publicités, ni polices, ni suivi d’erreurs ; la seule adresse extérieure est le dépôt des sauvegardes, quand elles sont gardées"
+        },
+        "gateway": {
+          "holds": "Rien : elle remet les requêtes à leurs parties",
+          "sees": "La taille d’une requête, l’identifiant du monde et son mot de passe, gardé seulement haché",
+          "never": "Les adresses : en mémoire pour les limites de requêtes, un jour au plus, jamais stockées ni journalisées ; et aucune heure de requête"
+        },
+        "relay": {
+          "holds": "Des lots d’une seule taille, chiffrés pour des clés qu’il n’a pas",
+          "sees": "Leur taille, leur ordre, et l’identifiant et le type de chaque espace",
+          "never": "Un nom, une note, une séance ou une remarque"
+        },
+        "totals": {
+          "holds": "Les parts des établissements : des comptes seulement, par matière",
+          "sees": "Les comptes avant leur addition, dans cette démonstration",
+          "never": "Un établissement, une classe ou un enseignant : aucune part ne nomme personne"
+        },
+        "standins": {
+          "holds": "La clé de l’autorité de certification et la clé de réception de chaque monde, et les accusés du système de réception",
+          "sees": "L’en-tête de chaque export et son nombre de lignes",
+          "never": "Les élèves et leurs notes : un export est ouvert, jamais gardé"
+        },
+        "storage": {
+          "postgresql": {
+            "holds": "Les mondes, leurs espaces et lots, les parts, les clés et les accusés, effacés le 7e jour",
+            "sees": "Des identifiants, des nombres et des octets chiffrés",
+            "never": "Un registre nominatif, ou une clé de l’espace d’un établissement ou d’un enseignant"
+          },
+          "memory": {
+            "holds": "Les mondes, leurs espaces et lots, les parts, les clés et les accusés, tant que le serveur tourne, effacés le 7e jour",
+            "sees": "Des identifiants, des nombres et des octets chiffrés",
+            "never": "Un registre nominatif, ou une clé de l’espace d’un établissement ou d’un enseignant"
+          }
+        },
+        "screens": {
+          "holds": "Les totaux au-dessus du seuil",
+          "sees": "Rien : ils sont calculés à la demande",
+          "never": "Un chiffre sous son seuil : 5 enseignants ou 3 établissements pour une direction, 10 ou 3 au-dessus"
+        },
+        "backups": {
+          "holds": "Des copies de la base et de son journal d’écriture, scellées si le déploiement fixe une clé",
+          "sees": "La taille et l’heure des copies",
+          "never": "Un registre nominatif, qu’elles soient scellées ou non"
+        },
+        "line": {
+          "batches": {
+            "carries": "Des lots chiffrés d’une seule taille, les parts de comptes des établissements, des exports scellés pour le substitut, et des demandes de certificat",
+            "sees": "Leur taille, leur espace et les comptes"
+          },
+          "back": {
+            "carries": "Les mêmes lots, à qui détient le mot de passe du monde",
+            "sees": "Leur taille et leur espace"
+          },
+          "kept": {
+            "carries": "Les lots tels qu’ils sont arrivés",
+            "sees": "Leur taille et leur ordre"
+          },
+          "shares": {
+            "carries": "La part de chaque établissement, des comptes seulement",
+            "sees": "Les comptes"
+          },
+          "totals": {
+            "carries": "Les totaux au-dessus du seuil",
+            "sees": "Ce que voient les écrans"
+          },
+          "exports": {
+            "carries": "Des exports scellés pour le substitut du système de réception, et des demandes de certificat",
+            "sees": "L’accusé seul"
+          },
+          "rows": {
+            "carries": "Des identifiants, des nombres et des octets chiffrés",
+            "sees": "Les lignes telles quelles"
+          },
+          "copies": {
+            "carries": "Des copies de la base, en continu",
+            "sees": "Leur taille et leur heure"
+          },
+          "held": {
+            "carries": "Les parts telles qu’elles sont arrivées",
+            "sees": "Les comptes"
+          },
+          "receipts": {
+            "carries": "Les clés et les accusés",
+            "sees": "L’en-tête de chaque accusé"
+          },
+          "closed": {
+            "carries": "Rien : fermé",
+            "sees": "Rien"
+          }
+        }
+      },
+      "note": {
+        "devices": "Les clés restent sur les appareils : le serveur n’ouvre rien de ce qu’ils portent.",
+        "outside": "Le serveur n’appelle aucun service extérieur, sauf le dépôt des sauvegardes quand elles sont gardées.",
+        "gateway": "La passerelle ne stocke pas les adresses et ne journalise pas les heures de connexion.",
+        "relay": "Même en lisant tout le disque, l’opérateur n’y trouverait aucun registre lisible.",
+        "totals": "Dans cette démonstration, le serveur voit chaque part avant de les additionner ; l’agrégation sécurisée par chiffrement viendra plus tard.",
+        "standins": "Dans le système national, les systèmes de l’État restent hors de ce centre, et le connecteur transmet sans ouvrir. Dans la démonstration, le serveur les remplace.",
+        "storage": {
+          "postgresql": "Les clés des substituts y sont gardées aussi, avec leur monde. Même en lisant tout le disque, l’opérateur n’y trouverait aucun registre lisible.",
+          "memory": "Rien ne survit à l’arrêt du serveur, et rien n’est sauvegardé."
+        },
+        "screens": "Aucun chiffre pour un établissement ou un enseignant.",
+        "backups": "Si le déploiement fixe une clé, l’hébergeur la garde avec les accès au dépôt, pas le serveur : qui lit le dépôt ne lit rien de leur contenu. Un monde effacé y reste environ deux jours. Toute la démonstration en est restaurée quand un conteneur démarre sur un disque vide."
+      },
+      "line": {
+        "batches": "Lots, parts et exports",
+        "back": "Les lots à qui détient le mot de passe",
+        "kept": "Gardés tels quels",
+        "shares": "Parts des établissements",
+        "totals": "Totaux au-dessus du seuil",
+        "exports": "Exports scellés",
+        "rows": "Lignes chiffrées",
+        "copies": "Copies de la base",
+        "held": "Parts gardées",
+        "receipts": "Clés et accusés",
+        "closed": "Fermé"
+      },
+      "state": {
+        "title": "L’état du système",
+        "version": "Serveur du projet, version {{version}}",
+        "matches": "Conforme à la version du serveur publiée avec cette application.",
+        "differs": "Différente de la version {{release}} du serveur, publiée avec cette application.",
+        "fingerprint": "L’empreinte de son code construit, que chacun peut comparer en reconstruisant la source publiée :",
+        "noFingerprint": "Le serveur n’a pas pu lire son code construit : il n’a pas d’empreinte.",
+        "answering": "La base de données répond.",
+        "failing": "La base de données ne répond pas en ce moment.",
+        "memory": "Les mondes sont en mémoire, et perdus à l’arrêt du serveur.",
+        "archiveOn": "La base archive son journal d’écriture, qui garde les sauvegardes.",
+        "archiveOff": "Aucune sauvegarde : la base n’archive pas son journal d’écriture.",
+        "archiveUnknown": "On ne sait pas si les sauvegardes sont gardées tant que la base ne répond pas.",
+        "offline": "L’installation et la mise à jour hors ligne depuis la version publiée attendent un vrai déploiement.",
+        "fixes": "Les correctifs de sécurité critiques paraissent sous 7 jours, et sont installés dans le même délai."
+      }
+    },
     "staff": {
       "title": "PC de la salle des professeurs",
       "lead": "Le registre sur un grand écran, et rien n’y reste après.",
