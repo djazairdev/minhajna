@@ -5,11 +5,13 @@
 // answer 637), against a made-up demo server: with no room open it says so;
 // once the rooms are open it lists the first grade's subjects, none settled,
 // and opens the first, marked shown, with no decision before the deadline; once
-// the deadline passed unsettled it offers no cut alone, as nothing was
-// proposed, which signs the decision, says it and shows the cut decided; after
-// the exam it shows the cut as published; another grade chosen lists its own
-// subjects; and a problem reading is said with a way to read again. The term is
-// filled as a seeded school's is. Every world, school and teacher is made up.
+// the deadline passed unsettled it says when the cut applies and will be
+// published, and offers no cut alone, as nothing was proposed, which signs the
+// decision, says it and shows the cut decided; after the exam it shows the cut
+// as published, and neither of those lines; another grade chosen lists its own
+// subjects, its first open; and a problem reading is said with a way to read
+// again. The term is filled as a seeded school's is. Every world, school and
+// teacher is made up.
 
 import { addDays, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -21,8 +23,9 @@ import { DirectorThresholds } from '../src/director/DirectorThresholds';
 import { subjectName } from '../src/extra/extra-rules';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import ar from '../src/text/ar.json';
-import { examGroups } from '../src/threshold/exam-charts';
 import { openRooms } from '../src/threshold/room-open';
+import { readSchoolRooms } from '../src/threshold/school-rooms';
+import { gradeName } from '../src/setup/names';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -61,13 +64,23 @@ test('lists the rooms, decides a cut that fell to the director, and shows it aft
   await unmount();
   await openRooms({ ...director, date: exam.figuresDay }, desk, school, records, reference, nodeKit, server.send);
   await show(at(exam.figuresDay));
-  const grades = examGroups(exam, school).map((one) => one.grade);
+  const read = await readSchoolRooms(
+    { ...director, date: exam.figuresDay },
+    desk,
+    school,
+    reference,
+    nodeKit,
+    server.send,
+  );
+  const grades = [...new Set(read.map((one) => one.chart.grade))];
   const namesOf = (grade: string) =>
-    examGroups(exam, school)
-      .filter((one) => one.grade === grade)
-      .map((one) => subjectName(reference.profile, one.subject));
+    read.filter((one) => one.chart.grade === grade).map((one) => subjectName(reference.profile, one.chart.subject));
   const listed = () => controls('schoolThreshold-open').map((one) => (one.props as { name: string }).name);
-  const among = (grade: string) => listed().every((one) => namesOf(grade).some((name) => one.endsWith(name)));
+  const among = (grade: string) => {
+    const [first, ...rest] = namesOf(grade);
+    const headed = texts().some((line) => line.includes(gradeName(reference.profile, grade)) && line.includes(first));
+    return headed && listed().length === rest.length && listed().every((one, at) => one.endsWith(rest[at]));
+  };
   expect([texts().includes(words.shown), among(grades[0]), texts().includes(page.state.none)]).toEqual([
     true,
     true,
@@ -78,13 +91,15 @@ test('lists the rooms, decides a cut that fell to the director, and shows it aft
   const due = addDays(exam.signBy, 1);
   await show(at(due));
   expect([controls('schoolThreshold-adopt').length, controls('schoolThreshold-none').length]).toEqual([0, 1]);
+  const lines = (key: 'applies' | 'publishes') => texts().some((line) => line.startsWith(words[key].split('{{')[0]));
+  expect([lines('applies'), lines('publishes')]).toEqual([true, true]);
   await press('schoolThreshold-none');
   expect(texts()).toEqual(expect.arrayContaining([words.noneDone, page.state.directorNone]));
   expect(controls('schoolThreshold-none')).toHaveLength(0);
   await unmount();
   await show(at(addDays(exam.to, 1)));
   expect(texts()).toEqual(expect.arrayContaining([page.after.cut, page.after.directorNone]));
-  expect(texts().some((line) => line.startsWith(words.applies.split('{{')[0]))).toBe(false);
+  expect([lines('applies'), lines('publishes')]).toEqual([false, false]);
   const other = grades.find((one) => one !== grades[0])!;
   const chip = () => controls(`schoolThreshold-grades-${other}`)[0].props as { selected: boolean };
   expect(chip().selected).toBe(false);

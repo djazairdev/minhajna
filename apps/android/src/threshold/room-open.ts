@@ -84,8 +84,8 @@ async function latestIssues(world: RoomWorld, desk: IssueDesk, school: DemoSchoo
 }
 
 /**
- * The room's epoch, key and place, its decider's public key, its records as read, and the decider's chart or null;
- * the decider's key is worked out only for a room that holds records, null otherwise.
+ * The room's epoch, key and place, its decider's seed and public key, its records as read, and the decider's chart or
+ * null; the decider's seed and key are worked out only for a room that holds records, null otherwise.
  */
 export async function roomFound(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
   const checker = { key: ca, checker: kit };
@@ -93,10 +93,11 @@ export async function roomFound(desk: IssueDesk, name: RoomName, space: Space, c
     const key = await kitStep(() => roomKey(desk.opened, epoch, name, desk.crypto));
     const place = await kitStep(() => roomPlace(key, kit.mac));
     const held = space.get(place.stream) ?? [];
-    if (held.length === 0) return { epoch, key, place, decider: null, records: null, chart: null };
-    const decider = deciderKey(await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto)));
+    if (held.length === 0) return { epoch, key, place, seed: null, decider: null, records: null, chart: null };
+    const seed = await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto));
+    const decider = deciderKey(seed);
     const read = await roomRecords(place, held, checker, { name, decider }, kit.cipher);
-    return { epoch, key, place, decider, records: read, chart: read.chart?.value ?? null };
+    return { epoch, key, place, seed, decider, records: read, chart: read.chart?.value ?? null };
   };
   const latest = await at(latestEpoch(desk.opened));
   for (let epoch = latest.epoch - 1; latest.chart === null && epoch >= 0; epoch -= 1) {
@@ -106,13 +107,13 @@ export async function roomFound(desk: IssueDesk, name: RoomName, space: Space, c
   return latest;
 }
 
-/** A room as roomFound found it, with its decider's public key worked out when it holds nothing yet. */
+/** A room as roomFound found it, with its decider's seed and public key worked out when it holds nothing yet. */
 async function withDecider(desk: IssueDesk, name: RoomName, room: Awaited<ReturnType<typeof roomFound>>) {
-  const seed = () => kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto));
-  return { ...room, decider: room.decider ?? deciderKey(await seed()) };
+  const seed = room.seed ?? (await kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto)));
+  return { ...room, seed, decider: room.decider ?? deciderKey(seed) };
 }
 
-/** The room as roomFound finds it, with its decider's public key worked out when it holds nothing yet. */
+/** The room as roomFound finds it, with its decider's seed and public key worked out when it holds nothing yet. */
 export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
   return withDecider(desk, name, await roomFound(desk, name, space, ca, kit));
 }
@@ -147,8 +148,7 @@ export async function openRoom(
   const found = await roomFound(desk, name, space, ca, kit);
   if (found.chart === null && after) return { handed: 0, failed: 0 };
   const room = await withDecider(desk, name, found);
-  const seed = await kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto));
-  const signing = () => deciderSigning(world.world, desk, seed, ca, kit, send);
+  const signing = () => deciderSigning(world.world, desk, room.seed, ca, kit, send);
   let chart = room.chart;
   if (chart === null) {
     const made: ExamChart = {

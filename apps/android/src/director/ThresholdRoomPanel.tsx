@@ -8,16 +8,17 @@
 // the exam, that the cut was published to every teacher of the subject at the
 // grade with the figures of its figures day; the chart of each class's item
 // reached on the figures day and its forecast, with the table of the same
-// figures (ChartFigure.tsx) and the item every class reached; where its cut
-// stands, or after the exam the cut as published (published-text.ts), with each
-// setter's latest cut and day; while the decision is the director's, before the
-// exam's first day as the chart has it and while the exam is not over, why (a
-// setter's no cut, or the deadline passed unsettled) and until when, with the
-// two choices, the cut proposed when there is one and no cut, which cannot be
-// pressed while the rooms are read or a decision is signed; once that day came
-// with the decision left untaken, in place of where the cut stands, that it
-// closed and no cut applies; and before the exam, when the cut applies and when
-// it will be published.
+// figures (ChartFigure.tsx), the item every class reached and the forecast day;
+// where its cut stands, or after the exam the cut as published
+// (published-text.ts), with each setter's latest cut and day; while the
+// decision is the director's, before the exam's first day as the chart has it
+// and while the exam is not over, why (a setter's no cut, or the deadline
+// passed unsettled) and until when, with the two choices, the cut proposed when
+// there is one and no cut, which cannot be pressed while the rooms are read or
+// a decision is signed, and a note that the decision is signed with the room's
+// decider key; once that day came with the decision left untaken, in place of
+// where the cut stands, that it closed and no cut applies; and before the exam,
+// when the cut applies and when it will be published.
 
 import { addDays, type CalendarUpdate, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';

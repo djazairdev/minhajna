@@ -21,7 +21,6 @@
 import {
   compareDays,
   cutState,
-  deciderSeed,
   roomRecords,
   sealRoomRecord,
   signRoomRecord,
@@ -113,7 +112,7 @@ export async function decideCut(
   const space = await spaceBatches(world.world, desk.held.school, send);
   const room = await roomOf(desk, name, space, ca, kit);
   if (room.epoch !== epoch || room.chart === null) throw closed();
-  const seed = await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto));
+  const { seed } = room;
   const checker = { key: ca, checker: kit };
   const decider = { name, decider: room.decider };
   let records: RoomRecords | null = null;

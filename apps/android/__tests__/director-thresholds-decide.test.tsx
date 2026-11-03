@@ -8,14 +8,23 @@
 // director's, a press signing it once, the choices held while it signs, then
 // said and the rooms read again, and from the exam's first day no choice is
 // offered and the decision is said to have lapsed, after the exam given as
-// published, none settled; a refusal is said in the director's words until
-// read again, and what was said holds for its date alone, a new date read
-// again; on a phone what is opened, decided or refused is announced, and
-// nothing once the page is left; after the year's last day it says the year
-// has ended, holding no key; and the page is the director's alone. Every
-// world, school, setter and class is made up.
+// published, none settled; a refusal is said in the director's words until read
+// again, and what was said holds for its date alone, a new date read again; an
+// exam moved since its chart says when and why; on a phone a problem reading,
+// and what is opened, decided or refused, is announced, and nothing once the
+// page is left; after the year's last day it says the year has ended, holding
+// no key; and the page is the director's alone. Every world, school, setter and
+// class is made up.
 
-import { addDays, worldExams, type CutState, type Day, type ExamChart, type WorldExam } from '@minhajna/core';
+import {
+  addDays,
+  worldExams,
+  type CalendarUpdate,
+  type CutState,
+  type Day,
+  type ExamChart,
+  type WorldExam,
+} from '@minhajna/core';
 import { AccessibilityInfo, Platform } from 'react-native';
 import { act, alerts, controls, press, show, texts, unmount, update } from '../jest/threshold-page';
 import { calendar, reference } from '../jest/world-calendar';
@@ -155,6 +164,37 @@ test('after the exam a lapsed decision gives the cut as published, none settled'
   await show(page(addDays(latest.to, 1)));
   expect(texts()).toEqual(expect.arrayContaining([ar.demo.threshold.after.none]));
   expect(texts()).not.toContain(words.lapsed);
+});
+
+test('an exam moved since its chart says when and why, and a problem reading is announced on a phone', async () => {
+  const reason = 'A made-up reason';
+  const entries = reference.calendar.entries.map((one) =>
+    one.effect === 'exam' && one.term === latest.term
+      ? { ...one, from: addDays(one.from, 7), to: addDays(one.to, 7), moved: { from: one.from, to: one.to, reason } }
+      : one,
+  );
+  const moved = { ...reference, calendar: { ...reference.calendar, entries } };
+  const published = addDays(latest.from, -21);
+  const update = { published, entries: entries.filter((one) => one.moved !== undefined) } as unknown as CalendarUpdate;
+  const shown = (send = false) => (
+    <DirectorThresholds
+      world={{ world: 'made-up-world', date, book: {} as never }}
+      school={{} as never}
+      reference={moved}
+      kit={nodeKit}
+      dayText={(day: Day) => `day ${day}`}
+      updates={send ? [update] : []}
+    />
+  );
+  await show(shown(true));
+  const said = (words: string) => texts().some((line) => line.includes(words));
+  expect([said(reason), said(`day ${addDays(latest.from, 7)}`)]).toEqual([true, true]);
+  await unmount();
+  jest.replaceProperty(Platform, 'OS', 'android');
+  const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => undefined);
+  jest.mocked(schoolRooms.readSchoolRooms).mockRejectedValue(failed('down', 'E_WORLD_SERVER'));
+  await show(shown());
+  expect([alerts().length, announce.mock.lastCall?.[0]]).toEqual([1, alerts()[0]]);
 });
 
 test('after the year’s last day it says the year has ended', async () => {
