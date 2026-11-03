@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Schools' marks (#626, answer 677): a school keeps one mark in a world for
-// the run, another school another, each world apart, a later world of the same
-// ID afresh; a mark shows nothing of its code; past a world's cap or every
-// world's, a school is UNCOUNTED, and forgetting a world frees its marks; and a
-// figure's schools are the most distinct marks of any one run, UNCOUNTED left
-// out. Every code here is made up.
+// the run, another school another, never one drawn before in the run; each
+// world apart, and a world of the same ID but another start apart too; a mark
+// given back frees its room; past a world's cap or every world's, a school is
+// UNCOUNTED, and forgetting a world frees its marks; and a figure's schools
+// are the most distinct marks of any one run, anything else left out. Every
+// code here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -15,42 +16,51 @@ import { MARK, SchoolMarks, schoolsIn, UNCOUNTED } from '../src/insights/school-
 const code = (school: number) => school.toString(16).padStart(64, 'c');
 
 describe('schools’ marks', () => {
-  it('gives a school one mark in a world for the run, and another school another', () => {
+  it('gives a school one mark in a world for the run, another school another, never one drawn before', () => {
     const marks = new SchoolMarks();
     const first = marks.mark('AAAAA', 'start', code(1));
-    assert.match(first, MARK);
-    assert.equal(marks.mark('AAAAA', 'start', code(1)), first);
-    const second = marks.mark('AAAAA', 'start', code(2));
-    assert.notEqual(second, first);
-    assert.equal(second.slice(0, 9), first.slice(0, 9));
-    assert.equal(first.includes(code(1).slice(0, 8)), false);
-    const elsewhere = marks.mark('BBBBB', 'start', code(1));
-    assert.match(elsewhere, MARK);
-    assert.notEqual(new SchoolMarks().mark('AAAAA', 'start', code(1)).slice(0, 8), first.slice(0, 8));
+    assert.match(first.mark, MARK);
+    assert.equal(first.fresh, true);
+    assert.deepEqual(marks.mark('AAAAA', 'start', code(1)), { ...first, fresh: false });
+    const second = marks.mark('AAAAA', 'start', code(2)).mark;
+    assert.notEqual(second, first.mark);
+    assert.equal(second.slice(0, 17), first.mark.slice(0, 17));
+    const elsewhere = marks.mark('BBBBB', 'start', code(1)).mark;
+    const later = marks.mark('AAAAA', 'start-2', code(1)).mark;
+    assert.equal(new Set([first.mark, second, elsewhere, later]).size, 4);
+    assert.notEqual(new SchoolMarks().mark('AAAAA', 'start', code(1)).mark.slice(0, 16), first.mark.slice(0, 16));
   });
 
-  it('starts afresh for a later world of the same ID', () => {
-    const marks = new SchoolMarks();
-    marks.mark('AAAAA', 'start-1', code(1));
-    const fresh = marks.mark('AAAAA', 'start-2', code(2));
-    assert.equal(fresh.endsWith('.0'), true);
+  it('frees a mark given back, and never draws its number again', () => {
+    const marks = new SchoolMarks(1, 10);
+    const given = marks.mark('AAAAA', 'start', code(1));
+    marks.release('AAAAA', 'start', given.school);
+    assert.equal(marks.size, 0);
+    const next = marks.mark('AAAAA', 'start', code(2));
+    assert.equal(next.fresh, true);
+    assert.notEqual(next.mark, given.mark);
+    marks.release('AAAAA', 'other-start', next.school);
+    assert.equal(marks.size, 1);
   });
 
   it('marks a school UNCOUNTED past a world’s cap or every world’s, and frees a world’s marks with it', () => {
     const marks = new SchoolMarks(2, 3);
-    assert.match(marks.mark('AAAAA', 'start', code(1)), MARK);
-    assert.match(marks.mark('AAAAA', 'start', code(2)), MARK);
-    assert.equal(marks.mark('AAAAA', 'start', code(3)), UNCOUNTED);
-    assert.match(marks.mark('BBBBB', 'start', code(1)), MARK);
-    assert.equal(marks.mark('BBBBB', 'start', code(2)), UNCOUNTED);
+    assert.match(marks.mark('AAAAA', 'start', code(1)).mark, MARK);
+    assert.match(marks.mark('AAAAA', 'start', code(2)).mark, MARK);
+    assert.deepEqual(marks.mark('AAAAA', 'start', code(3)).mark, UNCOUNTED);
+    assert.match(marks.mark('BBBBB', 'start', code(1)).mark, MARK);
+    assert.equal(marks.mark('BBBBB', 'start', code(2)).mark, UNCOUNTED);
+    assert.equal(marks.size, 3);
     marks.forget(['AAAAA']);
-    assert.match(marks.mark('BBBBB', 'start', code(2)), MARK);
+    assert.equal(marks.size, 1);
+    assert.match(marks.mark('BBBBB', 'start', code(2)).mark, MARK);
   });
 
-  it('counts a figure’s schools as the most distinct marks of any one run, UNCOUNTED left out', () => {
+  it('counts a figure’s schools as the most distinct marks of any one run, anything else left out', () => {
+    const run = (prefix: string, at: number) => `${prefix.repeat(16)}.${at}`;
     assert.equal(schoolsIn([]), 0);
-    assert.equal(schoolsIn([UNCOUNTED, UNCOUNTED]), 0);
-    assert.equal(schoolsIn(['0000000a.0', '0000000a.1', '0000000a.0', UNCOUNTED]), 2);
-    assert.equal(schoolsIn(['0000000a.0', '0000000a.1', '0000000b.0', '0000000b.1', '0000000b.2']), 3);
+    assert.equal(schoolsIn([UNCOUNTED, undefined, 7, 'not-a-mark']), 0);
+    assert.equal(schoolsIn([run('a', 1), run('a', 2), run('a', 1), UNCOUNTED]), 2);
+    assert.equal(schoolsIn([run('a', 1), run('a', 2), run('b', 1), run('b', 2), run('b', 3)]), 3);
   });
 });

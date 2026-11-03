@@ -19,7 +19,8 @@
 // nothing, and requests at the same moment may pass a limit by a few. Each
 // sending's school-and-term code is turned into its school's mark for the run
 // on receipt (school-marks.ts), then dropped, never stored or logged, and a
-// sending is never shown back.
+// sending is never shown back. GET /worlds/:world/insights/figures?year=&term=
+// answers a term's figures, each under the floors hidden (figures.ts).
 
 import {
   BadRequestException,
@@ -27,6 +28,7 @@ import {
   ConflictException,
   Controller,
   ForbiddenException,
+  Get,
   Header,
   Headers,
   HttpCode,
@@ -34,6 +36,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
@@ -45,8 +48,9 @@ import { holdsStarter } from '../worlds/world-rules.js';
 import { WORLD_STORE, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
 import { INSIGHT_STORE, MAX_SENDINGS, type InsightStore, type SendingKept } from './insight-store.js';
-import { SchoolMarks } from './school-marks.js';
-import { kept, readSending, type KeptSending, type Sending } from './sending-read.js';
+import { SchoolMarks, UNCOUNTED } from './school-marks.js';
+import { kept, readSending, YEAR, type KeptSending, type Sending } from './sending-read.js';
+import { termFigures, type PackFigures } from './figures.js';
 
 /** The most sendings one opening of an observatory keeps. */
 export const SEED_SENDINGS = 256;
@@ -96,12 +100,13 @@ export class InsightsController {
     if (!holdsStarter(authorization, world.starterHash)) {
       throw new ForbiddenException('only the device that started the world opens its observatory');
     }
-    const sendings = readSeeding(body).map((read) => this.kept(world, read));
+    const read = readSeeding(body);
+    const unmarked = read.map((one) => kept(one, UNCOUNTED));
     const address = clientAddress(request, this.limiters.trustCloudflare);
-    if (!this.limiters.uploads.fits(address, cost(sendings))) throw tooMany();
+    if (!this.limiters.uploads.fits(address, cost(unmarked))) throw tooMany();
     if (!(await this.insights.open(world.id))) throw noWorld();
-    const outcomes = await this.insights.put(world.id, sendings);
-    this.limiters.uploads.charge(address, cost(sendings.filter((_, at) => isKept(outcomes[at] ?? 'closed'))));
+    const outcomes = await this.keep(world, read);
+    this.limiters.uploads.charge(address, cost(unmarked.filter((_, at) => isKept(outcomes[at] ?? 'closed'))));
     const failed = outcomes.findIndex((outcome) => !isKept(outcome));
     if (failed >= 0) throw refusal(outcomes[failed], failed) ?? new ConflictException('a sending was refused');
     return { kept: outcomes.length };
@@ -120,10 +125,10 @@ export class InsightsController {
     const world = await this.enter(id, pass, request);
     const read = readSending(body);
     if (typeof read === 'string') throw new BadRequestException(read);
-    const sending = [this.kept(world, read)];
+    const sending = [kept(read, UNCOUNTED)];
     const address = clientAddress(request, this.limiters.trustCloudflare);
     if (!this.limiters.sendings.fits(address) || !this.limiters.uploads.fits(address, cost(sending))) throw tooMany();
-    const [outcome] = await this.insights.put(world.id, sending);
+    const [outcome] = await this.keep(world, [read]);
     const refused = refusal(outcome);
     if (refused !== null) throw refused;
     this.limiters.sendings.charge(address, 1);
@@ -132,9 +137,44 @@ export class InsightsController {
     return { id: read.id };
   }
 
-  /** The sending as the server keeps it, its code turned into its school's mark and going no further. */
-  private kept(world: World, sending: Sending): KeptSending {
-    return kept(sending, this.marks.mark(world.id, world.starterHash, sending.schoolTerm));
+  @Get('figures')
+  @Header('Cache-Control', 'no-store')
+  async figures(
+    @Param('world') id: string,
+    @Query('year') year: unknown,
+    @Query('term') term: unknown,
+    @Headers('x-world-pass') pass: string | undefined,
+    @Req() request: IncomingMessage,
+  ): Promise<{ year: string; term: number; figures: PackFigures[] }> {
+    const world = await this.enter(id, pass, request);
+    if (typeof year !== 'string' || !YEAR.test(year) || (term !== '1' && term !== '2' && term !== '3')) {
+      throw new BadRequestException('a term is asked for as ?year=YYYY-YYYY&term=1, 2 or 3');
+    }
+    const figures = termFigures(await this.insights.sendings(world.id), year, Number(term));
+    return { year, term: Number(term), figures };
+  }
+
+  /**
+   * Keeps the sendings, each code turned into its school's mark and going no further; a mark drawn for a sending the
+   * store refuses, or for every one when the store fails, is given back.
+   */
+  private async keep(world: World, sendings: readonly Sending[]): Promise<SendingKept[]> {
+    const marked = sendings.map((one) => this.marks.mark(world.id, world.starterHash, one.schoolTerm));
+    const giveBack = (refused: (at: number) => boolean) =>
+      marked.forEach(({ school, fresh }, at) => {
+        if (fresh && refused(at)) this.marks.release(world.id, world.starterHash, school);
+      });
+    try {
+      const outcomes = await this.insights.put(
+        world.id,
+        sendings.map((one, at) => kept(one, marked[at]!.mark)),
+      );
+      giveBack((at) => !isKept(outcomes[at] ?? 'closed'));
+      return outcomes;
+    } catch (error) {
+      giveBack(() => true);
+      throw error;
+    }
   }
 
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {

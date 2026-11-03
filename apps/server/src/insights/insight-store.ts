@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Where the server keeps a world's observatory (#621, answer 676): whether its
-// starter opened one, and the insights sendings it took, each by its sending
-// ID with its token and never with its school-and-term code, a sending sent
-// again with the same ID and token replacing the first in its place, at most
-// MAX_SENDINGS a world, every one erased with the world. This store keeps them
-// in memory, for tests and development; storage/prisma-insights.ts keeps them
-// in PostgreSQL.
+// starter opened one, and the insights sendings it took, each by its sending ID
+// with its token and its school's mark for the run (answer 677), never with its
+// school-and-term code, a sending sent again with the same ID and token
+// replacing the first in its place, at most MAX_SENDINGS a world, every one
+// erased with the world. This store keeps them in memory, for tests and
+// development; storage/prisma-insights.ts keeps them in PostgreSQL.
 
 import type { KeptSending } from './sending-read.js';
 

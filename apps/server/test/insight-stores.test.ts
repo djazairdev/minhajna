@@ -16,7 +16,7 @@ import { MAX_SENDINGS } from '../src/insights/insight-store.js';
 import { keptOf, madeUpSending } from './insights-kit.js';
 import { KINDS, madeUpWorld, type Stores } from './store-kinds.js';
 
-const sending = (at: number, teacher = 1) => keptOf(madeUpSending(at, teacher), `0a0b0c0d.${at}`);
+const sending = (at: number, teacher = 1) => keptOf(madeUpSending(at, teacher), `0a0b0c0d0a0b0c0d.${at}`);
 
 for (const kind of KINDS) {
   describe(`the observatories’ store ${kind.name}`, { skip: kind.skip }, () => {

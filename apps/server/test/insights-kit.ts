@@ -29,7 +29,7 @@ export const madeUpSending = (at: number, teacher = 1, school = 1): Sending => (
 });
 
 /** The sending as the server keeps it, with no school-and-term code, and a made-up mark in its place. */
-export function keptOf(sending: Sending, mark = '0a0b0c0d.0'): KeptSending {
+export function keptOf(sending: Sending, mark = '0a0b0c0d0a0b0c0d.0'): KeptSending {
   return { ...(unmarked([sending])[0] as Omit<KeptSending, 'mark'>), mark };
 }
 
