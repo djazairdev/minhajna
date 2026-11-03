@@ -6334,7 +6334,7 @@
       "adopt": "Retenir le seuil proposé : {{item}}",
       "adopted": "Décidé : le sujet couvre jusqu’à {{item}}.",
       "noneDone": "Décidé : pas de seuil pour cet examen.",
-      "signNote": "Signé avec la clé de décision de la salle, tenue par la clé de l’établissement.",
+      "signNote": "Signé avec la clé de décision de la salle, dérivée de la clé de l’établissement.",
       "seenBefore": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
       "applies": "Un seuil s’applique quand tous les rédacteurs le signent, le plus tôt s’ils diffèrent ; si l’un a choisi de ne fixer aucun seuil, ou si aucun accord n’est venu d’ici le {{signBy}}, le directeur décide.",
       "publishes": "Il sera publié dans l’espace de l’établissement après le {{to}}, avec les chiffres du {{figures}}.",
@@ -6346,8 +6346,10 @@
       },
       "closed": "Le seuil ne peut plus être décidé : il est arrêté, la décision ne vous revient pas, ou l’examen a commencé.",
       "signing": "Signature de la décision…",
-      "opened": "Affiché ci-dessous : {{subject}}.",
-      "shown": "Affichée ci-dessous."
+      "opened": "Affichée ci-dessous : {{subject}}.",
+      "shown": "Affichée ci-dessous.",
+      "lapsed": "La décision s’est close au début de l’examen sans avoir été prise : aucun seuil ne s’applique, et le sujet est préparé comme d’habitude.",
+      "ended": "L’année scolaire est terminée : les salles de ses examens ne sont plus lues ici."
     }
   },
   "chart": {

@@ -6248,9 +6248,9 @@
       "adopt": "Adopt the proposed cut: {{item}}",
       "adopted": "Decided: the paper covers up to {{item}}.",
       "noneDone": "Decided: no cut for this exam.",
-      "signNote": "Signed with the room’s decider key, held through the school key.",
+      "signNote": "Signed with the room’s decider key, derived from the school key.",
       "seenBefore": "Before the exam, only the setters and the director see the cut.",
-      "applies": "A cut applies when every setter signs it, the earliest when they differ; if one chose no cut, or none settled it by {{signBy}}, the director decides.",
+      "applies": "A cut applies when every setter signs it, the earliest when they differ; if one chose no cut, or it is not settled by {{signBy}}, the director decides.",
       "publishes": "It will be published in the school’s space after {{to}}, with the figures of {{figures}}.",
       "notes": {
         "signed": "The figures are taken on the announced day alone, from signed weeks; the classes’ own plans give the forecast only.",
@@ -6261,7 +6261,9 @@
       "closed": "The cut can no longer be decided: it is settled, the decision is not yours, or the exam has begun.",
       "signing": "Signing the decision…",
       "opened": "Shown below: {{subject}}.",
-      "shown": "Shown below."
+      "shown": "Shown below.",
+      "lapsed": "The decision closed when the exam began without it being taken: no cut applies, and the paper is set as usual.",
+      "ended": "The school year has ended: its exams’ rooms are no longer read here."
     }
   },
   "chart": {

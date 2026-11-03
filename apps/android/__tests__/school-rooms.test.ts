@@ -4,7 +4,8 @@
 // The school exams' rooms on the director's device (#603, answers 632 and 637),
 // against a made-up demo server: before an exam's figures day no room is read;
 // once the rooms are open each grade and subject's room is read with its chart,
-// in the timetable's order, with where its cut stands; the director's decision
+// in the timetable's order, with where its cut stands, and still once its exam
+// has moved later, but not after the year's last day; the director's decision
 // is refused before it falls to them and on or after the exam's first day, and
 // once the signing deadline passed unsettled it is signed with the room's
 // decider key, put once, settles the cut, and a second decision is refused; a
@@ -42,6 +43,17 @@ test('reads each room with its chart and cut, and decides a cut that fell to the
   const named = rooms.map((one) => `${one.chart.grade} ${one.chart.subject}`);
   expect([rooms.length > 0, named.every((one) => opened.includes(one))]).toEqual([true, true]);
   expect(named).toEqual(opened.filter((one) => named.includes(one)));
+  const entries = calendar.entries.map((one) =>
+    one.from === exam.from && one.to === exam.to
+      ? { ...one, from: addDays(one.from, 14), to: addDays(one.to, 14) }
+      : one,
+  );
+  const later = { calendar: { ...calendar, entries } };
+  const moved = worldExams(calendar.year, entries).find((one) => one.id === exam.id)!;
+  expect(moved.figuresDay > exam.figuresDay).toBe(true);
+  const still = await readSchoolRooms(on(exam.figuresDay), desk, school, later, nodeKit, server.send);
+  expect(still.map((one) => one.chart.subject)).toEqual(rooms.map((one) => one.chart.subject));
+  expect(await read(addDays(calendar.year.to, 1))).toEqual([]);
   const [room] = rooms;
   expect([room.exam.id, room.state.settled, room.state.director, mayDecide(room, exam.figuresDay)]).toEqual([
     exam.id,

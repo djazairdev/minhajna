@@ -8,13 +8,15 @@
 // school key derives for it (room-open.ts), the space read once, each room
 // whose decider's chart is in place, its figures day reached, given with where
 // its cut stands on the world's date (exam-cuts.ts), so that a room stays shown
-// when its exam has moved later since; a room not opened is left out. The
-// director's decision, the cut proposed or no cut, is signed with the room's
-// decider key (decider-key.ts), dated the world's date, and put in the room
-// once; it is refused (E_CUT_CLOSED) unless the decision has fallen to the
-// director, the cut is unsettled and the world's date is before the exam's
-// first day as the chart has it, in the room as read when it is put. Errors
-// carry world-session.ts's codes.
+// when its exam has moved later since; a room not opened is left out, with no
+// decider key worked out for it. The director's decision, the cut proposed or
+// no cut, is signed with the room's decider key (decider-key.ts), dated the
+// world's date, and put in the room once; it is refused (E_CUT_CLOSED) when the
+// room now stands under another epoch or holds no chart, and unless the
+// decision has fallen to the director, the cut is unsettled and the world's
+// date is before the exam's first day as the chart has it, in the room as read
+// when it is put. A decision left untaken until that day has lapsed, until the
+// exam is over. Errors carry world-session.ts's codes.
 
 import {
   compareDays,
@@ -40,7 +42,7 @@ import { caKey, spaceBatches } from '../school/space-read';
 import { putOnce } from '../school/stream-put';
 import { deciderSigning } from './decider-key';
 import { examGroups } from './exam-charts';
-import { roomOf } from './room-open';
+import { roomFound, roomOf } from './room-open';
 
 type RoomWorld = Pick<OpenWorld, 'world' | 'date'>;
 
@@ -75,7 +77,7 @@ export async function readSchoolRooms(
   for (const exam of exams)
     for (const { grade, subject } of examGroups(exam, school)) {
       const name = { world: world.world, school: desk.held.school, exam: exam.id, subject, grade };
-      const room = await roomOf(desk, name, space, ca, kit);
+      const room = await roomFound(desk, name, space, ca, kit);
       const state = room.records === null ? null : cutState(room.records, world.date);
       const { chart } = room;
       if (chart === null || state === null || compareDays(chart.figuresDay, world.date) > 0) continue;
@@ -87,6 +89,11 @@ export async function readSchoolRooms(
 /** Whether the director may still decide a room's cut on a day: it fell to them, unsettled, before the exam. */
 export function mayDecide({ chart, state }: Pick<SchoolRoom, 'chart' | 'state'>, date: RoomWorld['date']): boolean {
   return state.director && state.settled === null && compareDays(date, chart.from) < 0;
+}
+
+/** Whether the decision fell to the director and was left untaken until the exam's first day, before it is over. */
+export function lapsed({ chart, state }: Pick<SchoolRoom, 'chart' | 'state'>, date: RoomWorld['date'], over: boolean) {
+  return !over && state.director && state.settled === null && compareDays(date, chart.from) >= 0;
 }
 
 /** Signs the director's decision in a room, the cut proposed or null for no cut, and puts it there once. */

@@ -3,23 +3,26 @@
 
 // The director's decision on D-Threshold (#603, answer 637), with the rooms
 // read and the decision put stood in for: the exams are offered as chips, the
-// latest chosen; opening a subject says so and marks its row; a cut proposed
-// is offered to adopt until the day before the exam, a press signing it once,
-// the choices held while it signs, then said and the rooms read again, and
-// from the exam's first day no choice is offered; a refusal is said in the
-// director's words until read again, and what was said holds for its date
-// alone, a new date read again; and the page is the director's alone. Every
-// world, school, setter and class is made up.
+// latest chosen; opening a subject says so and marks its row; a cut proposed is
+// offered to adopt until the day before the exam, a press signing it once, the
+// choices held while it signs, then said and the rooms read again, and from the
+// exam's first day no choice is offered and the decision is said to have
+// lapsed; a refusal is said in the director's words until read again, and what
+// was said holds for its date alone, a new date read again; on a phone what is
+// opened, decided or refused is announced; after the year's last day it says
+// the year has ended; and the page is the director's alone. Every world,
+// school, setter and class is made up.
 
 import { addDays, worldExams, type CutState, type Day, type ExamChart, type WorldExam } from '@minhajna/core';
-import { Platform } from 'react-native';
-import { alerts, controls, press, show, texts, unmount, update } from '../jest/threshold-page';
+import { AccessibilityInfo, Platform } from 'react-native';
+import { act, alerts, controls, press, show, texts, unmount, update } from '../jest/threshold-page';
 import { calendar, reference } from '../jest/world-calendar';
 import { nodeKit } from '../jest/world-server';
 import { failed } from '../src/demo/world-session';
 import { workspacePage, type WorkspacePagesProps } from '../src/demo/WorkspacePages';
 import { DirectorThresholds } from '../src/director/DirectorThresholds';
 import * as issueSession from '../src/director/issue-session';
+import { subjectName } from '../src/extra/extra-rules';
 import ar from '../src/text/ar.json';
 import * as schoolRooms from '../src/threshold/school-rooms';
 
@@ -94,8 +97,13 @@ test('offers the latest exam, adopts the cut proposed once, and says it', async 
   const open = controls('schoolThreshold-open').length;
   const shown = texts().filter((line) => line === words.shown).length;
   expect([chip(earlier.id).selected, chip(latest.id).selected, open, shown]).toEqual([false, true, 1, 1]);
+  const named = () => controls('schoolThreshold-open').map((one) => (one.props as { name: string }).name);
+  expect(named()[0]).toContain(subjectName(reference.profile, 'arabic'));
   await press('schoolThreshold-open');
-  expect(texts().some((line) => line.startsWith(words.opened.split('{{')[0]))).toBe(true);
+  expect([texts().some((line) => line.startsWith(words.opened.split('{{')[0])), named()[0]]).toEqual([
+    true,
+    expect.stringContaining(subjectName(reference.profile, 'math')),
+  ]);
   expect(texts()).toContain(words.decideWhy.replace('{{until}}', `day ${addDays(latest.from, -1)}`));
   await press('schoolThreshold-adopt');
   expect([
@@ -106,14 +114,34 @@ test('offers the latest exam, adopts the cut proposed once, and says it', async 
   expect(decide).toHaveBeenCalledTimes(1);
   expect(decide.mock.calls[0][3]).toBe(items[1]);
   const reads = jest.mocked(schoolRooms.readSchoolRooms).mock.calls.length;
-  await press('schoolThreshold-open');
-  done();
-  await press('schoolThreshold-open');
+  await act(() => done());
   const adopted = () => texts().some((line) => line.startsWith(words.adopted.split('{{')[0]));
   expect([jest.mocked(schoolRooms.readSchoolRooms).mock.calls.length, adopted()]).toEqual([reads + 1, true]);
   await update(page(latest.from));
   expect([jest.mocked(schoolRooms.readSchoolRooms).mock.calls.length, adopted()]).toEqual([reads + 2, false]);
   expect([controls('schoolThreshold-adopt').length, controls('schoolThreshold-none').length]).toEqual([0, 0]);
+  expect(texts()).toContain(words.lapsed);
+});
+
+test('on a phone what is opened, decided or refused is announced', async () => {
+  jest.replaceProperty(Platform, 'OS', 'android');
+  const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => undefined);
+  jest.spyOn(schoolRooms, 'decideCut').mockRejectedValueOnce(failed('closed', 'E_CUT_CLOSED'));
+  await show(page());
+  await press('schoolThreshold-open');
+  expect(announce).toHaveBeenLastCalledWith(expect.stringContaining(words.opened.split('{{')[0]));
+  await press('schoolThreshold-none');
+  expect([announce.mock.lastCall?.[0], alerts()]).toEqual([words.closed, [words.closed]]);
+  jest.mocked(schoolRooms.decideCut).mockResolvedValueOnce({} as never);
+  await press('schoolThreshold-none');
+  expect([announce.mock.lastCall?.[0], alerts()]).toEqual([words.noneDone, []]);
+});
+
+test('after the year’s last day it says the year has ended', async () => {
+  jest.mocked(schoolRooms.readSchoolRooms).mockResolvedValue([]);
+  await show(page(addDays(calendar.year.to, 1)));
+  expect(texts()).toEqual(expect.arrayContaining([words.ended]));
+  expect(texts()).not.toContain(words.none);
 });
 
 test('a refusal is said in the director’s words, and the page is the director’s alone', async () => {

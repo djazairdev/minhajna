@@ -4,13 +4,13 @@
 // D-Threshold's state on the director's device (#603, answer 637): as the page
 // opens, when the world's date moves and when asked again, the school key is
 // held, never started here, and the rooms read (school-rooms.ts), the rooms
-// last read kept on view meanwhile; a problem is said in the catalogue's
-// words, with a way to read again. A decision is signed once, a second press
-// while one runs doing nothing, said when made, and the rooms read again, a
-// refusal said as a problem in the director's words until the next decision
-// or reading asked for. What was said, and a refusal, hold for the world's
-// date they were said on. Any new reading, and leaving the page, drops a
-// slower answer.
+// last read kept on view meanwhile; a problem is said in the catalogue's words,
+// shown as an alert and announced on a phone, never in place of what was said.
+// A decision is signed once, a second press while one runs doing nothing, said
+// when made, and the rooms read again, a refusal a problem in the director's
+// words until the next decision or reading asked for. What was said, and a
+// refusal, hold for the world's date they were said on. Any new reading, and
+// leaving the page, drops a slower answer.
 
 import type { DemoSchool } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -52,7 +52,10 @@ export function useSchoolRooms(
   };
   const desk = () => holdSchool(world, kit, send, false);
   const reading = useEffectEvent(async () => readSchoolRooms(world, await desk(), school, reference, kit, send));
-  const told = useEffectEvent((problem: Problem) => say(t(problem)));
+  const tell = (problem: Problem) => {
+    if (!onPc()) AccessibilityInfo.announceForAccessibility(t(problem));
+  };
+  const told = useEffectEvent(tell);
   useEffect(() => {
     let live = true;
     reading().then(
@@ -101,7 +104,7 @@ export function useSchoolRooms(
             const shown = problemOf(error);
             const problem = shown === CLOSED ? 'demo.schoolThreshold.closed' : shown;
             setRefused({ place: at, problem });
-            say(t(problem), at);
+            tell(problem);
           },
         )
         .finally(() => {

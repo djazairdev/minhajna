@@ -119,7 +119,6 @@ export function chartDrafts(
   const view = new CalendarView(calendar, []);
   const place = demoSchoolPlace(school);
   const standing = courseStandings(records, school, reference, asOf);
-  const sitting = sittingClasses(exam, school);
   const working = (day: Day) => calendar.country.workingDays.includes(weekday(day));
   const opens = (one?: DemoClass) => {
     const of = one === undefined ? undefined : demoSchoolClass(school, one);
@@ -133,7 +132,7 @@ export function chartDrafts(
   const forecastDay = forecastDayOf(asOf, exam.from, opens());
   const drafts: ChartDraft[] = [];
   for (const { grade, subject, classes, teachers } of examGroups(exam, school)) {
-    const taught = sitting.filter((one) => classes.has(one.id));
+    const taught = school.classes.filter((one) => classes.has(one.id));
     const pin = mostPinned(taught, subject);
     const pack = reference.packs.find((one) => one.id === pin?.id && one.release === pin.release);
     if (pin === undefined || pack === undefined || pack.items.length === 0 || pack.items.length > CHART_MOST.items)

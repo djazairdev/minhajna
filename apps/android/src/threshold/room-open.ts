@@ -24,7 +24,8 @@
 // already in place is told from the space as read once, and only what is
 // missing is put. A room or a setter that fails is passed over, counted, and
 // tried again with the next reading; a channel's rooms are read once for all
-// the rooms of one reading of the space.
+// the rooms of one reading of the space. A room is found with its decider's key
+// worked out only when it holds records or is about to be opened.
 
 import {
   channelRooms,
@@ -82,16 +83,20 @@ async function latestIssues(world: RoomWorld, desk: IssueDesk, school: DemoSchoo
   return latest;
 }
 
-/** The room's epoch, key and place, its decider's public key, its records as read, and the decider's chart or null. */
-export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+/**
+ * The room's epoch, key and place, its decider's public key, its records as read, and the decider's chart or null;
+ * the decider's key is worked out only for a room that holds records, null otherwise.
+ */
+export async function roomFound(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
   const checker = { key: ca, checker: kit };
   const at = async (epoch: number) => {
     const key = await kitStep(() => roomKey(desk.opened, epoch, name, desk.crypto));
     const place = await kitStep(() => roomPlace(key, kit.mac));
-    const decider = deciderKey(await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto)));
     const held = space.get(place.stream) ?? [];
-    const read = held.length === 0 ? null : await roomRecords(place, held, checker, { name, decider }, kit.cipher);
-    return { epoch, key, place, decider, records: read, chart: read?.chart?.value ?? null };
+    if (held.length === 0) return { epoch, key, place, decider: null, records: null, chart: null };
+    const decider = deciderKey(await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto)));
+    const read = await roomRecords(place, held, checker, { name, decider }, kit.cipher);
+    return { epoch, key, place, decider, records: read, chart: read.chart?.value ?? null };
   };
   const latest = await at(latestEpoch(desk.opened));
   for (let epoch = latest.epoch - 1; latest.chart === null && epoch >= 0; epoch -= 1) {
@@ -99,6 +104,13 @@ export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: 
     if (room.chart !== null) return room;
   }
   return latest;
+}
+
+/** The room as roomFound finds it, with its decider's public key worked out when it holds nothing yet. */
+export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+  const room = await roomFound(desk, name, space, ca, kit);
+  const seed = () => kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto));
+  return { ...room, decider: room.decider ?? deciderKey(await seed()) };
 }
 
 /** The rooms a channel's batches as read hold, read once for every room a reading of the space opens. */
