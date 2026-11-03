@@ -67,9 +67,7 @@ test('an accepted write reported as a conflict is found once on retry', async ()
   expect(uploads).toHaveLength(2);
 });
 
-test('a damaged stream cannot be treated as an editable earlier version', async () => {
-  const f = await packService();
-  const draft = await f.change(null, { stage: 'draft', pack: source });
+async function damageLastStream(f: Awaited<ReturnType<typeof packService>>) {
   const upload = f.server.seen.filter((one) => one.method === 'POST' && one.path.endsWith('/batches')).at(-1)!;
   const body = JSON.parse(upload.body!) as { stream: string; first: number; batches: string[] };
   await f.server.send({
@@ -81,7 +79,28 @@ test('a damaged stream cannot be treated as an editable earlier version', async 
       batches: [Buffer.alloc(4124).toString('base64url')],
     },
   });
+}
+
+test('a damaged stream cannot be treated as an editable earlier version', async () => {
+  const f = await packService();
+  const draft = await f.change(null, { stage: 'draft', pack: source });
+  await damageLastStream(f);
   const before = f.server.seen.filter((one) => one.method === 'POST').length;
-  await expect(f.change(draft, { stage: 'under-review' })).rejects.toThrow('E_PACK_HISTORY');
+  expect((await readPackReleases(f.editor, f.server.send)).get(packReleaseKey(source.id, source.release))).toEqual(
+    draft,
+  );
+  await expect(f.change(draft, { stage: 'under-review' })).rejects.toMatchObject({ code: 'E_PACK_HISTORY' });
   expect(f.server.seen.filter((one) => one.method === 'POST')).toHaveLength(before);
+});
+
+test('damage arriving between reads keeps its history error code', async () => {
+  const f = await packService();
+  const draft = await f.change(null, { stage: 'draft', pack: source });
+  const send: Send = async (request) => {
+    if (request.method === 'PUT' && request.path.endsWith('/national')) await damageLastStream(f);
+    return f.server.send(request);
+  };
+  await expect(f.change(draft, { stage: 'under-review' }, 'curator', send)).rejects.toMatchObject({
+    code: 'E_PACK_HISTORY',
+  });
 });

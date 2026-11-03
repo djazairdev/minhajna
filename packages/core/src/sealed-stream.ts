@@ -74,6 +74,8 @@ export async function sealRecord(
  * and a number given twice only the first time: a batch that does not open, a
  * gap, or a record longer than `most` batches drops what was gathered, and a
  * record that starts again before it ends keeps only the new start.
+ * Strict mode requires a complete, contiguous stream from zero and
+ * throws on damage or conflicting duplicate numbers.
  */
 export async function openRecords(
   place: Place,

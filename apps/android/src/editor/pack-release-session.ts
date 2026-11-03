@@ -12,7 +12,9 @@
 
 import {
   canonicalJson,
+  checkPackPublicationSize,
   checkPackReleaseSize,
+  PackReleaseError,
   isDay,
   openPackReleaseBatches,
   packReleaseKey,
@@ -67,7 +69,7 @@ async function desk({ world, held, kit }: PackEditor, send: Send) {
 }
 
 type Desk = Awaited<ReturnType<typeof desk>>;
-async function releases(held: Desk, { profile, kit }: PackEditor, send: Send) {
+async function releases(held: Desk, { profile, kit }: PackEditor, send: Send, strict: boolean) {
   const missing = readingMissing(held.world.world, send, () => ({
     status: 200,
     body: { batches: [], more: false },
@@ -75,17 +77,17 @@ async function releases(held: Desk, { profile, kit }: PackEditor, send: Send) {
   }));
   const batches = (await spaceBatches(held.world.world, NATIONAL_SPACE, missing)).get(held.place.stream) ?? [];
   return packReleaseRecords(
-    await openPackReleaseBatches(held.place, batches, kit.cipher),
+    await openPackReleaseBatches(held.place, batches, kit.cipher, strict),
     held.keys,
     profile,
     held.world.date,
     kit.verify,
-    true,
+    strict,
   );
 }
 
 export async function readPackReleases(editor: PackEditor, send: Send = worldRequest) {
-  return releases(await desk(editor, send), editor, send);
+  return releases(await desk(editor, send), editor, send, false);
 }
 
 export async function changePackRelease(
@@ -96,9 +98,9 @@ export async function changePackRelease(
   send: Send = worldRequest,
 ): Promise<PackRelease> {
   if (actor !== 'curator' && actor !== 'ministry') throw failed('Not a publishing demo role', 'E_PACK_ROLE');
-  if (parsePackId(target.id)?.country !== editor.profile.code) throw new RangeError('E_PACK_SOURCE');
+  if (parsePackId(target.id)?.country !== editor.profile.code) throw new PackReleaseError('E_PACK_SOURCE');
   if (change.stage === 'draft' && (change.pack.id !== target.id || change.pack.release !== target.release))
-    throw new RangeError('E_PACK_SOURCE');
+    throw new PackReleaseError('E_PACK_SOURCE');
   const held = await desk(editor, send);
   const { kit, profile } = editor;
   const id = packReleaseKey(target.id, target.release);
@@ -110,7 +112,9 @@ export async function changePackRelease(
       scope,
       change.stage === 'superseded' ? (all.get(packReleaseKey(target.id, change.by)) ?? null) : null,
     );
-  const prepared = next(await releases(held, editor, send));
+  const prepared = next(await releases(held, editor, send, true));
+  if (prepared.stage === 'draft' || prepared.stage === 'under-review')
+    await checkPackPublicationSize(prepared, held.keys);
   const signed = await kitStep(() => signPackRelease(prepared, held.keys, kit.sign));
   checkPackReleaseSize(signed.file);
   let latest: ReadonlyMap<string, PackRelease> = new Map();
@@ -134,7 +138,7 @@ export async function changePackRelease(
       there: () => {
         const now = latest.get(id);
         if (now !== undefined && canonicalJson(now) === canonicalJson(signed.release)) return true;
-        if (canonicalJson(next(latest)) !== canonicalJson(prepared)) throw new RangeError('E_PACK_CHANGED');
+        if (canonicalJson(next(latest)) !== canonicalJson(prepared)) throw new PackReleaseError('E_PACK_CHANGED');
         return false;
       },
       seal: (first) => sealPackRelease(held.place, signed.file, first, kit.cipher),

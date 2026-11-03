@@ -18,6 +18,7 @@ import { parsePackId } from './pack-catalogue.ts';
 import {
   packReleaseKey,
   PACK_STAGES,
+  PackReleaseError,
   preparePackRelease,
   type PackChange,
   type PackRelease,
@@ -27,7 +28,7 @@ import { parsePlanPack } from './pack.ts';
 import { isFields } from './read.ts';
 import type { CountryProfile } from './reference.ts';
 import { asciiJson, openRecords, placeOf, sealRecord, type Place } from './sealed-stream.ts';
-import { openSigned, PACK_BYTES, WORLD_KEY_PREFIX, type Verifier } from './signed-read.ts';
+import { openSigned, PACK_BYTES, SIGNED_SIGNATURE_MAX, WORLD_KEY_PREFIX, type Verifier } from './signed-read.ts';
 import { isWorldId } from './world-code.ts';
 import { worldSignedFile, type WorldCipher, type WorldKeys, type WorldMac, type WorldSigner } from './world-keys.ts';
 
@@ -35,7 +36,8 @@ export const PACK_RELEASE_FORMAT = 'minhajna/pack-release/1';
 export const PACK_RELEASE_BATCHES = 128;
 
 export function checkPackReleaseSize(file: string): void {
-  if (asciiJson(file).length > PACK_RELEASE_BATCHES * pieceRoom(SYNC_BATCH_BYTES)) throw new RangeError('E_PACK_SIZE');
+  if (asciiJson(file).length > PACK_RELEASE_BATCHES * pieceRoom(SYNC_BATCH_BYTES))
+    throw new PackReleaseError('E_PACK_SIZE');
 }
 
 export const packReleasePlace = (sealing: Uint8Array, mac: WorldMac): Promise<Place> =>
@@ -44,20 +46,26 @@ export const packReleasePlace = (sealing: Uint8Array, mac: WorldMac): Promise<Pl
 export const sealPackRelease = (place: Place, file: string, first: number, cipher: WorldCipher) =>
   sealRecord(place, file, first, PACK_RELEASE_BATCHES, cipher);
 
-export const openPackReleaseBatches = (place: Place, batches: readonly SealedBatch[], cipher: WorldCipher) =>
-  openRecords(place, batches, PACK_RELEASE_BATCHES, cipher, true).catch((error: unknown) => {
-    if (error instanceof RangeError) throw new RangeError('E_PACK_HISTORY');
+/** Opens a complete history for edits, or intact records only for read-only lists. */
+export const openPackReleaseBatches = (
+  place: Place,
+  batches: readonly SealedBatch[],
+  cipher: WorldCipher,
+  strict = true,
+) =>
+  openRecords(place, batches, PACK_RELEASE_BATCHES, cipher, strict).catch((error: unknown) => {
+    if (error instanceof RangeError) throw new PackReleaseError('E_PACK_HISTORY');
     throw error;
   });
 
 export async function signPackRelease(release: PackRelease, keys: WorldKeys, sign: WorldSigner) {
   if (keys.kind !== 'national' || !isWorldId(keys.world) || keys.world !== release.world)
-    throw new RangeError('E_PACK_WORLD');
+    throw new PackReleaseError('E_PACK_WORLD');
   const key = keys.trusted.find((one) => one.id.startsWith(WORLD_KEY_PREFIX) && keySigns(one, 'packs'));
-  if (key === undefined) throw new RangeError('E_PACK_SIGNER');
+  if (key === undefined || keys.private[key.id] === undefined) throw new PackReleaseError('E_PACK_SIGNER');
   const signed = (value: unknown) => worldSignedFile(keys, key.id, canonicalJson(value), sign);
   const country = parsePackId(release.pack.id)?.country;
-  if (country === undefined) throw new RangeError('E_PACK_SOURCE');
+  if (country === undefined) throw new PackReleaseError('E_PACK_SOURCE');
   const file =
     release.stage === 'published' && release.file === null
       ? await signed({
@@ -70,6 +78,26 @@ export async function signPackRelease(release: PackRelease, keys: WorldKeys, sig
       : release.file;
   const value = { ...release, file };
   return { release: value, file: await signed({ format: PACK_RELEASE_FORMAT, release: value }) };
+}
+
+/** Bounds the eventual double-signed publication before accepting a draft or review. */
+export async function checkPackPublicationSize(release: PackRelease, keys: WorldKeys): Promise<void> {
+  const signature: WorldSigner = () => Promise.resolve('A'.repeat(SIGNED_SIGNATURE_MAX));
+  const review = { ...release, stage: 'under-review' as const, revision: Number.MAX_SAFE_INTEGER - 1 };
+  for (const actor of new Set([release.actor, 'ministry'] as const)) {
+    const published = preparePackRelease(
+      review,
+      { stage: 'published' },
+      {
+        world: release.world,
+        day: release.day,
+        actor,
+        expected: review.revision,
+      },
+    );
+    const { file } = await signPackRelease(published, keys, signature);
+    checkPackReleaseSize(file);
+  }
 }
 
 function releaseOf(value: unknown): PackRelease | null {
@@ -115,11 +143,11 @@ export async function packReleaseRecords(
   verify: Verifier,
   strict = false,
 ): Promise<ReadonlyMap<string, PackRelease>> {
-  if (keys.kind !== 'national' || !isWorldId(keys.world) || !isDay(day)) throw new RangeError('E_PACK_WORLD');
+  if (keys.kind !== 'national' || !isWorldId(keys.world) || !isDay(day)) throw new PackReleaseError('E_PACK_WORLD');
   const found = new Map<string, PackRelease>();
   const seen = new Set<string>();
   const invalid = () => {
-    if (strict) throw new RangeError('E_PACK_HISTORY');
+    if (strict) throw new PackReleaseError('E_PACK_HISTORY');
   };
   for (const record of records) {
     if (typeof record !== 'string') {

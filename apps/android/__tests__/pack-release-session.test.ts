@@ -10,6 +10,7 @@ import {
   openSigned,
   PACK_BYTES,
   packReleaseKey,
+  publishedPackSuccessor,
   sealWorldCalendar,
   toBase64Url,
   worldCalendarFile,
@@ -30,11 +31,14 @@ test('the lifecycle survives a reload from the national space, with fixed-size c
   const official = await f.published('2026.1', 'ministry');
   const newer = await f.published('2026.2', 'ministry');
   const superseded = await f.change(official, { stage: 'superseded', by: '2026.2' }, 'ministry');
+  const beforeWithdrawal = await readPackReleases(f.editor, f.server.send);
+  expect(publishedPackSuccessor(superseded, beforeWithdrawal)).toEqual(newer);
   const withdrawn = await f.change(newer, { stage: 'withdrawn' }, 'ministry');
   const read = await readPackReleases(f.editor, f.server.send);
   expect([...read.values()].map((one) => one.stage)).toEqual(['superseded', 'withdrawn']);
   expect(read.get(packReleaseKey(source.id, '2026.1'))).toEqual(superseded);
   expect(read.get(packReleaseKey(source.id, '2026.2'))).toEqual(withdrawn);
+  expect(publishedPackSuccessor(superseded, read)).toBeNull();
   expect(superseded.file).toBe(official.file);
   expect(withdrawn.file).toBe(newer.file);
   expect(official.pack.status).toBe('official');
@@ -80,6 +84,22 @@ test('an oversized source is refused before creating a space or uploading anythi
   await expect(f.change(null, { stage: 'draft', pack: large })).rejects.toThrow('E_PACK_SIZE');
   expect(f.server.seen.every((one) => one.method === 'GET')).toBe(true);
   expect((await readPackReleases(f.editor, f.server.send)).size).toBe(0);
+});
+
+test('a draft that fits on its own is refused if the signed publication would be too large', async () => {
+  const f = await packService();
+  f.server.seen.length = 0;
+  const pack = { ...source, provenance: { ...source.provenance, issuer: 'x'.repeat(300_000) } };
+  await expect(f.change(null, { stage: 'draft', pack })).rejects.toMatchObject({ code: 'E_PACK_SIZE' });
+  expect(f.server.seen.every((one) => one.method === 'GET')).toBe(true);
+});
+
+test('a missing signing key is reported as a pack error', async () => {
+  const f = await packService();
+  const editor = { ...f.editor, held: { ...f.editor.held, keys: { ...f.made.keys, private: {} } } };
+  await expect(
+    changePackRelease(editor, 'curator', f.target(null), { stage: 'draft', pack: source }, f.server.send),
+  ).rejects.toMatchObject({ code: 'E_PACK_SIGNER' });
 });
 
 test('real mode and a teachers’ world cannot open the pack editor', async () => {
