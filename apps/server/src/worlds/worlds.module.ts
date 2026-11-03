@@ -6,7 +6,7 @@
 // the operators' view of the server (#618) and the observatory (#621), with
 // their stores, rate limits and sweeper. The server runs it with the memory
 // stores, or PostgreSQL's when it has a database; tests pass their own stores,
-// probe, limits and clock.
+// probe, limits, clock and schools' marks.
 
 import { Module, type DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
@@ -18,6 +18,7 @@ import { MemorySpaceStore, SPACE_STORE, type SpaceStore } from '../spaces/space-
 import { StateController } from '../state-standins/state.controller.js';
 import { INSIGHT_STORE, MemoryInsightStore, type InsightStore } from '../insights/insight-store.js';
 import { InsightsController } from '../insights/insights.controller.js';
+import { SchoolMarks } from '../insights/school-marks.js';
 import { MemoryShareStore, SHARE_STORE, type ShareStore } from '../totals/share-store.js';
 import { TotalsDays } from '../totals/totals-days.js';
 import { TotalsController } from '../totals/totals.controller.js';
@@ -35,6 +36,7 @@ export interface WorldsOptions {
   /** What the operators' console asks of the storage. */
   readonly probe?: SystemProbe;
   readonly insights?: InsightStore;
+  readonly marks?: SchoolMarks;
   readonly starts?: Limit;
   readonly joins?: Limit;
   readonly relay?: Limit;
@@ -83,6 +85,7 @@ export class WorldsModule {
         { provide: WORLD_LIMITERS, useValue: limiters },
         { provide: WORLD_KEEPING, useValue: keeping },
         TotalsDays,
+        { provide: SchoolMarks, useValue: options.marks ?? new SchoolMarks() },
         WorldSweeper,
         { provide: APP_FILTER, useClass: StoreBusyFilter },
       ],
