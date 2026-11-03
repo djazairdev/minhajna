@@ -218,5 +218,6 @@ test('a refusal is said in the directorâ€™s words, and the page is the directorâ
   expect(alerts()).toEqual([]);
   const props = { open: {}, school: {}, reference: { profile: {} } } as unknown as WorkspacePagesProps;
   expect(workspacePage('director', 'thresholds', props)?.type).toBe(DirectorThresholds);
-  expect(workspacePage('teacher' as never, 'thresholds', props)).toBeNull();
+  const others = (['ministry', 'directorate'] as const).map((role) => workspacePage(role, 'thresholds', props)?.type);
+  expect(others.includes(DirectorThresholds)).toBe(false);
 });
