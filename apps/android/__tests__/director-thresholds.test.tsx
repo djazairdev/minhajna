@@ -44,7 +44,7 @@ afterEach(async () => {
   jest.restoreAllMocks();
 });
 
-test('lists the open rooms, decides a cut that fell to the director, and shows it published after the exam', async () => {
+test('lists the rooms, decides a cut that fell to the director, and shows it after the exam', async () => {
   const { school, director, desk, records } = await filled();
   const at = (date: Day) => (
     <DirectorThresholds

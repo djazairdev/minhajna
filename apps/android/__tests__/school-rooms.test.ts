@@ -27,7 +27,7 @@ afterEach(() => {
 
 const exam = worldExams(calendar.year, calendar.entries).find((one) => one.setBy === 'school')!;
 
-test('reads each open room with its chart and where its cut stands, and decides a cut that fell to the director', async () => {
+test('reads each room with its chart and cut, and decides a cut that fell to the director', async () => {
   const { school, director, desk, records } = await filled();
   const on = (date: Day) => ({ ...director, date });
   const read = (date: Day) => readSchoolRooms(on(date), desk, school, reference, nodeKit, server.send);
