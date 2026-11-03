@@ -19,7 +19,6 @@ import type { Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../components/Button';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -27,6 +26,8 @@ import { useDrawing } from '../drawing/drawing-kit';
 import { onPc, useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { opsMap, type OpsId, type OpsItem } from './ops-map';
+import { OpsReading } from './OpsReading';
+import { opsStyles } from './ops-styles';
 import { fingerprintText, SERVER_RELEASE, type SystemView } from './ops-system';
 import { useOpsSystem } from './use-ops-system';
 
@@ -102,17 +103,7 @@ export function OpsConsole({ world, send, dayText }: OpsConsoleProps) {
           <Text style={[styles.small, align]}>{t('demo.ops.noKey')}</Text>
         </View>
       )}
-      <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
-        {page.reading ? t('demo.ops.reading') : ''}
-      </Text>
-      {page.problem !== null && (
-        <View style={styles.card}>
-          <Text accessibilityRole="alert" style={[styles.problem, align]}>
-            {t(page.problem)}
-          </Text>
-          <Button testID="ops-again" variant="line" label={t('demo.ops.again')} onPress={page.reload} />
-        </View>
-      )}
+      <OpsReading reading={page.reading} problem={page.problem} onAgain={page.reload} testID="ops" />
       {map !== null && view !== null && shown !== undefined && (
         <View style={onPc() ? styles.columns : styles.page}>
           <View style={onPc() ? styles.main : styles.page}>
@@ -167,8 +158,7 @@ export function OpsConsole({ world, send, dayText }: OpsConsoleProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  page: { gap: spacing['space-12'] },
+const own = StyleSheet.create({
   columns: { flexDirection: 'row', gap: spacing['space-16'], alignItems: 'flex-start' },
   main: { flex: 2, minWidth: 0, gap: spacing['space-12'] },
   side: { flex: 1, minWidth: 0 },
@@ -180,26 +170,14 @@ const styles = StyleSheet.create({
   fact: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-8'] },
   factLabel: { ...typography.small, color: colors.ink, minWidth: 72, flexShrink: 0 },
   factValue: { flexGrow: 1, flexBasis: 160 },
-  card: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius['radius-card'],
-    backgroundColor: colors.sheet,
-    padding: spacing['space-16'],
-    gap: spacing['space-4'],
-  },
   box: {
     paddingVertical: spacing['space-8'],
     paddingHorizontal: spacing['space-8'],
     borderRadius: radius['radius-card'],
   },
   chosen: { backgroundColor: colors.well, borderStartWidth: 4, borderStartColor: colors.ink },
-  head: { ...typography.label, color: colors.ink },
   label: { ...typography.label, color: colors.ink },
-  body: { ...typography.body, color: colors.ink },
-  value: { ...typography.small, color: colors.ink2 },
-  small: { ...typography.small, color: colors.ink2 },
   code: { ...typography['body-latin'], color: colors.ink },
   ltr: { direction: 'ltr', writingDirection: 'ltr', textAlign: 'left' },
-  problem: { ...typography.body, color: colors['error-ink'] },
 });
+const styles = { ...opsStyles, ...own };

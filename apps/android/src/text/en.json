@@ -5195,6 +5195,37 @@
         "archiveUnknown": "Whether backups are kept is unknown while the database is not answering.",
         "offline": "Installing and updating from the published release with no internet wait for a real deployment.",
         "fixes": "Critical security fixes ship within 7 days, and are installed in the same window."
+      },
+      "admin": {
+        "lead": "The demo server's admin log: each administrative action by its day, with no clock time and no name.",
+        "named": "This demo has no named operator: the operator is a role like the others. A real deployment logs each action under the name of whoever took it, after a two-factor sign-in, and nobody administers it from abroad.",
+        "kept": "With a database, the log is kept for 12 months at most; with the worlds in memory, it is lost when the server stops. Its newest 200 lines are shown.",
+        "lines": "Lines, newest first",
+        "none": "Nothing in the log yet.",
+        "started": "The server started, version {{version}}",
+        "startedMigrations": "The server started, version {{version}}, and applied {{migrations}} to the database",
+        "joiner": ", ",
+        "erased_one": "{{count}} world erased on its 7th day",
+        "erased_other": "{{count}} worlds erased on their 7th day",
+        "fixed": "A problem report was marked fixed and erased ({{id}})",
+        "other": "An administrative action this version of the app does not read"
+      },
+      "security": {
+        "lead": "The demo server's security logs: the requests refused, counted each day.",
+        "apart": "Kept apart from everything else: in the server's memory alone, never in the database or the backups.",
+        "kept_one": "Kept for {{count}} day, and lost when the server stops. A real deployment keeps them for the shortest time the law allows.",
+        "kept_other": "Kept for {{count}} days, and lost when the server stops. A real deployment keeps them for the shortest time the law allows.",
+        "never": "Counts only: no address, world or time, so they are never used to measure or judge teachers.",
+        "none": "Nothing was refused in the days kept.",
+        "kind": {
+          "rate-limited": "Requests over the rate limits",
+          "pass-refused": "World codes that opened nothing",
+          "starter-refused": "Starter tokens refused",
+          "certificate-refused": "Certificate requests refused",
+          "delivery-refused": "Deliveries to the receiving system's stand-in refused"
+        },
+        "others": "Refusals of kinds this version of the app does not know",
+        "row": "{{kind}}: {{count}}"
       }
     },
     "staff": {
