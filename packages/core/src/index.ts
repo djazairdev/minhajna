@@ -125,6 +125,7 @@ export * from './course-delivery.ts';
 export * from './share-grades.ts';
 export * from './share-plans.ts';
 export * from './total-shares.ts';
+export * from './insights.ts';
 export * from './devices.ts';
 export * from './restore.ts';
 export * from './handover.ts';
