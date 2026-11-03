@@ -3,13 +3,17 @@
 
 // Erases worlds on their 7th day (answer 548): when the server starts, and
 // every hour after, so a world is gone within the hour its 7th day begins, in
-// UTC, with its spaces, the schools' shares of its totals and the days of them
-// kept worked out, and its observatory with its schools' marks, those of a
-// world started meanwhile under the same ID spared (school-marks.ts). A failed
-// sweep is logged and tried again the next hour. When the server stops, the
-// sweeper stops and the stores close.
+// UTC, with its spaces, the schools' shares of its totals, the days of them
+// kept worked out, its observatory with its schools' marks, those of a world
+// started meanwhile under the same ID spared (school-marks.ts), and its problem
+// reports; the admin log says how many, as soon as they are erased, and loses
+// its lines older than 12 months, as problem reports do (#619, answer 656), a
+// failure of either logged without failing the sweep. A failed sweep is logged
+// and tried again the next hour. When the server stops, the sweeper stops and
+// the stores close.
 
 import { Inject, Injectable, Logger, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
+import { ADMIN_STORE, daysBefore, KEPT_DAYS, type AdminStore } from '../admin/admin-store.js';
 import { SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
 import { INSIGHT_STORE, type InsightStore } from '../insights/insight-store.js';
 import { SchoolMarks } from '../insights/school-marks.js';
@@ -38,6 +42,7 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
     @Inject(WORLD_KEEPING) private readonly keeping: WorldKeeping,
     @Inject(TotalsDays) private readonly days: TotalsDays,
     @Inject(SchoolMarks) private readonly marks: SchoolMarks,
+    @Inject(ADMIN_STORE) private readonly admin: AdminStore,
   ) {}
 
   /** Erases the worlds whose 7th day has come, and answers how many. */
@@ -46,15 +51,30 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
     const turn = this.marks.turn;
     const gone = await this.worlds.sweep(today);
     this.marks.forget(gone, turn);
+    if (gone.length > 0) await this.quietly('log', () => this.logErased(today, gone.length));
     await this.spaces.forget(gone);
     await this.shares.forget(gone);
     await this.insights.forget(gone);
     this.days.forget(gone);
+    await this.quietly('trim', () => this.admin.sweep(daysBefore(today, KEPT_DAYS), gone));
     const looked = this.marks.turn;
     const held = this.marks.holding(gone);
     const now = new Map((await Promise.all(held.map((id) => this.worlds.get(id)))).map((one) => [one?.id, one]));
     this.marks.forget(held, looked, (id) => now.get(id)?.starterHash);
     return gone.length;
+  }
+
+  private logErased(day: string, count: number): Promise<void> {
+    return this.admin.log({ day, action: 'worlds.erased', detail: { count } });
+  }
+
+  /** Runs an admin step whose failure must not undo or hide the sweep itself. */
+  private async quietly(step: string, run: () => Promise<void>): Promise<void> {
+    try {
+      await run();
+    } catch (error) {
+      this.logger.error(`admin ${step} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   private async sweepQuietly(): Promise<void> {

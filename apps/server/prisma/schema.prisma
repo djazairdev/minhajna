@@ -6,12 +6,14 @@
 // erased with it. Nothing here is named: ids the devices drew, hashes, days,
 // ciphertext, each world's stand-in CA key (#554), which certifies nothing
 // outside its world, and the key and receipts of its stand-in receiving system
-// (#590), which name no pupil, and each world's observatory (#621), whose
-// sendings keep no school-and-term code. A space counts its batches, and each
-// batch takes the next of that count as its place in the space, so readers page
-// through a space in the order uploads committed, and learn nothing of other
-// spaces. Each migration is generated from this schema with `prisma migrate
-// diff --script` and committed as plain SQL.
+// (#590), which name no pupil, each world's observatory (#621), whose
+// sendings keep no school-and-term code, the admin log, whose lines name
+// nobody, and each world's problem reports, whose notes the device rid of
+// pupils' names (#619). A space counts its batches, and each batch takes the
+// next of that count as its place in the space, so readers page through a space
+// in the order uploads committed, and learn nothing of other spaces. Each
+// migration is generated from this schema with `prisma migrate diff --script`
+// and committed as plain SQL.
 
 generator client {
   provider = "prisma-client"
@@ -42,6 +44,7 @@ model World {
   receipts      Receipt[]
   shares        Share[]
   observatory   Observatory?
+  problems      Problem[]
 
   @@index([erasesOn])
   @@map("world")
@@ -124,4 +127,31 @@ model Sending {
   @@unique([worldId, id])
   @@index([worldId, seq])
   @@map("sending")
+}
+
+model AdminLine {
+  seq    Int      @id @default(autoincrement())
+  day    DateTime @db.Date
+  action String   @db.VarChar(32)
+  detail Json
+
+  @@index([day])
+  @@map("admin_line")
+}
+
+model Problem {
+  seq       Int      @id @default(autoincrement())
+  worldId   String   @db.Char(5)
+  id        String   @db.Char(32)
+  part      String   @db.VarChar(16)
+  note      String   @db.VarChar(1000)
+  version   String   @db.VarChar(32)
+  received  DateTime @db.Date
+  tokenHash String   @db.Char(64)
+  world     World    @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  @@unique([worldId, id])
+  @@index([worldId, seq])
+  @@index([received])
+  @@map("problem")
 }

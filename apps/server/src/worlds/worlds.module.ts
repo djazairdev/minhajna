@@ -3,14 +3,20 @@
 
 // The worlds module: worlds, their spaces, the relay, the stand-in CA, the
 // stand-in receiving system (#590), the schools' shares of the totals (#596),
-// the operators' view of the server (#618) and the observatory (#621), with
-// their stores, rate limits and sweeper. The server runs it with the memory
-// stores, or PostgreSQL's when it has a database; tests pass their own stores,
-// probe, limits, clock and schools' marks.
+// the operators' view of the server (#618), the observatory (#621), and the
+// admin log, problem reports and security logs (#619), with their stores, rate
+// limits and sweeper. The server runs it with the memory stores, or
+// PostgreSQL's when it has a database; tests pass their own stores, probe,
+// limits, clock and schools' marks.
 
 import { Module, type DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AdminController } from '../admin/admin.controller.js';
+import { AdminJournal, ADMIN_START } from '../admin/admin-journal.js';
+import { ADMIN_STORE, MemoryAdminStore, type AdminStore } from '../admin/admin-store.js';
+import { LogsController } from '../admin/logs.controller.js';
+import { ProblemsController } from '../admin/problems.controller.js';
+import { SECURITY_LOG, SecurityFilter, SecurityLog } from '../admin/security-log.js';
 import { MemoryProbe, SYSTEM_PROBE, type SystemProbe } from '../admin/system-probe.js';
 import { SpacesController } from '../spaces/spaces.controller.js';
 import { StoreBusyFilter } from '../spaces/store-busy.filter.js';
@@ -37,6 +43,10 @@ export interface WorldsOptions {
   readonly probe?: SystemProbe;
   readonly insights?: InsightStore;
   readonly marks?: SchoolMarks;
+  /** The admin log and the problem reports. */
+  readonly admin?: AdminStore;
+  /** The migrations applied as the server started, for the admin log. */
+  readonly migrations?: readonly string[];
   readonly starts?: Limit;
   readonly joins?: Limit;
   readonly relay?: Limit;
@@ -64,6 +74,7 @@ export class WorldsModule {
       now,
     };
     const keeping: WorldKeeping = { now, ...(options.close ? { close: options.close } : {}) };
+    const admin = options.admin ?? new MemoryAdminStore(exists);
     return {
       module: WorldsModule,
       controllers: [
@@ -75,6 +86,8 @@ export class WorldsModule {
         TotalsController,
         AdminController,
         InsightsController,
+        LogsController,
+        ProblemsController,
       ],
       providers: [
         { provide: WORLD_STORE, useValue: store },
@@ -82,11 +95,16 @@ export class WorldsModule {
         { provide: SHARE_STORE, useValue: options.shares ?? new MemoryShareStore() },
         { provide: SYSTEM_PROBE, useValue: options.probe ?? new MemoryProbe() },
         { provide: INSIGHT_STORE, useValue: options.insights ?? new MemoryInsightStore(exists) },
+        { provide: ADMIN_STORE, useValue: admin },
+        { provide: ADMIN_START, useValue: { now, migrations: options.migrations ?? [] } },
+        { provide: SECURITY_LOG, useValue: new SecurityLog(now) },
+        AdminJournal,
         { provide: WORLD_LIMITERS, useValue: limiters },
         { provide: WORLD_KEEPING, useValue: keeping },
         TotalsDays,
         { provide: SchoolMarks, useValue: options.marks ?? new SchoolMarks() },
         WorldSweeper,
+        { provide: APP_FILTER, useClass: SecurityFilter },
         { provide: APP_FILTER, useClass: StoreBusyFilter },
       ],
     };
