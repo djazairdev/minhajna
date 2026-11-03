@@ -23,7 +23,9 @@
 // wilaya (#599, MinistryTotals.tsx), and its calendar page keys a draft of the
 // world's calendar (#607, MinistryCalendar.tsx), afresh over each release the
 // world comes to hold, and publishes it with the world's keys (#608,
-// MinistryCalendarPage.tsx).
+// MinistryCalendarPage.tsx); and the operators' system map draws the demo
+// server from what it says of itself, with its version and health (#618,
+// OpsConsole.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -44,6 +46,7 @@ import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
 import { MinistryTotals } from '../ministry/MinistryTotals';
+import { OpsConsole } from '../operators/OpsConsole';
 import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import type { MineCalendar } from '../week/school-mine-session';
@@ -98,6 +101,7 @@ export function workspacePage(
         onPublished={onCalendar}
       />
     );
+  if (workspace === 'operator' && page === 'map') return <OpsConsole world={open} send={send} dayText={dayText} />;
   if (workspace === 'directorate' && page === 'grants')
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
