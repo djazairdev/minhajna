@@ -5267,6 +5267,39 @@
         "archiveUnknown": "On ne sait pas si les sauvegardes sont gardées tant que la base ne répond pas.",
         "offline": "L’installation et la mise à jour hors ligne depuis la version publiée attendent un vrai déploiement.",
         "fixes": "Les correctifs de sécurité critiques paraissent sous 7 jours, et sont installés dans le même délai."
+      },
+      "admin": {
+        "lead": "Le journal d’administration du serveur de démonstration : chaque action d’administration par son jour, sans heure ni nom.",
+        "named": "Cette démonstration n’a pas d’opérateur nommé : l’opérateur est un rôle comme les autres. Un vrai déploiement journalise chaque action au nom de qui l’a faite, après une connexion à deux facteurs, et personne ne l’administre depuis l’étranger.",
+        "kept": "Avec une base de données, le journal est gardé 12 mois au plus ; avec les mondes en mémoire, il est perdu à l’arrêt du serveur. Ses 200 lignes les plus récentes sont affichées.",
+        "lines": "Lignes, les plus récentes d’abord",
+        "none": "Rien dans le journal pour l’instant.",
+        "started": "Le serveur a démarré, version {{version}}",
+        "startedMigrations": "Le serveur a démarré, version {{version}}, et a appliqué {{migrations}} à la base",
+        "joiner": ", ",
+        "erased_one": "{{count}} monde effacé à son 7e jour",
+        "erased_many": "{{count}} de mondes effacés à leur 7e jour",
+        "erased_other": "{{count}} mondes effacés à leur 7e jour",
+        "fixed": "Un signalement de problème a été marqué corrigé et effacé ({{id}})",
+        "other": "Une action d’administration que cette version de l’application ne lit pas"
+      },
+      "security": {
+        "lead": "Les journaux de sécurité du serveur de démonstration : les requêtes refusées, comptées chaque jour.",
+        "apart": "Gardés à part de tout le reste : dans la mémoire du serveur seulement, jamais dans la base ni dans les sauvegardes.",
+        "kept_one": "Gardés {{count}} jour, et perdus à l’arrêt du serveur. Un vrai déploiement les garde le moins longtemps que la loi le permet.",
+        "kept_many": "Gardés {{count}} de jours, et perdus à l’arrêt du serveur. Un vrai déploiement les garde le moins longtemps que la loi le permet.",
+        "kept_other": "Gardés {{count}} jours, et perdus à l’arrêt du serveur. Un vrai déploiement les garde le moins longtemps que la loi le permet.",
+        "never": "Des comptes seulement : ni adresse, ni monde, ni heure ; ils ne servent jamais à mesurer ni à juger les enseignants.",
+        "none": "Rien n’a été refusé dans les jours gardés.",
+        "kind": {
+          "rate-limited": "Requêtes au-delà des limites",
+          "pass-refused": "Codes de monde qui n’ont rien ouvert",
+          "starter-refused": "Jetons de démarrage refusés",
+          "certificate-refused": "Demandes de certificat refusées",
+          "delivery-refused": "Envois refusés au substitut du système de réception"
+        },
+        "others": "Refus d’autres types que cette version de l’application ne connaît pas",
+        "row": "{{kind}} : {{count}}"
       }
     },
     "staff": {

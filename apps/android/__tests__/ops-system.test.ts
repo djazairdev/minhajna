@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What the operators' console reads of the demo server (#618, answer 655): the
-// server version published with this app equal to the server package's own;
-// the server's description taken in each shape the server gives, 503 only
-// when the database is failing, and refused when shaped otherwise; the same
-// keys and placeholders in every language's words; its map
-// drawn only from that description, the backups only while the database
-// archives, the line to outside services closed, every box and line written
-// out with its rows, and mirrored left to right; and the fingerprint in groups
-// of four.
+// server version published with this app equal to the server package's own; the
+// server's description taken in each shape the server gives, 503 only when the
+// database is failing, and refused when shaped otherwise; the same keys and
+// placeholders in every language's words, plural forms aside; its map drawn
+// only from that description, the backups only while the database archives, the
+// line to outside services closed, every box and line written out with its
+// rows, and mirrored left to right; and the fingerprint in groups of four.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -138,11 +137,14 @@ test('writes every box and line out with its rows, the line to outside closed, m
   expect(at(ltr.spec, 'relay')).toBe(at(map.spec, 'relay'));
 });
 
-test('the console’s words have the same keys and placeholders in every language', () => {
+test('the console’s words have the same keys and placeholders in every language, plural forms aside', () => {
+  const plural = /_(zero|one|two|few|many|other)$/u;
   const places = (value: unknown): unknown =>
     typeof value === 'string'
       ? (value.match(/\{\{\w+\}\}/gu) ?? []).sort()
-      : Object.entries(value as object).map(([key, one]) => [key, places(one)]);
+      : Object.entries(value as object)
+          .filter(([key]) => !plural.test(key))
+          .map(([key, one]) => [key, places(one)]);
   for (const one of [en, fr]) expect(places(one.demo.ops)).toEqual(places(ar.demo.ops));
 });
 
