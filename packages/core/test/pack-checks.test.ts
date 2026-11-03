@@ -6,6 +6,7 @@
 // findings traced to the affected items, without changing the source pack.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { checkWeekPack, parsePlanPack, type PackItem, type PlanPack } from '../src/index.ts';
 import { languagePackSource, mathPack } from './fixtures.ts';
@@ -28,44 +29,50 @@ function pack(items = [1, 2, 3].flatMap(week), activities: typeof model | undefi
   return read.value;
 }
 
+function findings(source: PlanPack, weeks: number) {
+  const result = checkWeekPack(source, weeks);
+  assert.ok(result.status === 'checked');
+  return result.findings;
+}
+
 describe('week-pack release checks', () => {
   it('accepts every declared week with exactly its weekly model', () => {
-    assert.deepEqual(checkWeekPack(pack(), 3), []);
+    assert.deepEqual(findings(pack(), 3), []);
   });
 
   it('finds leading and trailing missing weeks, without inventing an item ID', () => {
-    assert.deepEqual(checkWeekPack(pack(week(2)), 3), [
+    assert.deepEqual(findings(pack(week(2)), 3), [
       { kind: 'missing-weeks', week: 1, through: 1, items: [] },
       { kind: 'missing-weeks', week: 3, through: 3, items: [] },
     ]);
   });
 
   it('groups consecutive missing weeks, including a very long empty horizon', () => {
-    assert.deepEqual(checkWeekPack(pack([...week(1), ...week(4)]), 4), [
+    assert.deepEqual(findings(pack([...week(1), ...week(4)]), 4), [
       { kind: 'missing-weeks', week: 2, through: 3, items: [] },
     ]);
-    assert.deepEqual(checkWeekPack(pack(week(1)), Number.MAX_SAFE_INTEGER), [
+    assert.deepEqual(findings(pack(week(1)), Number.MAX_SAFE_INTEGER), [
       { kind: 'missing-weeks', week: 2, through: Number.MAX_SAFE_INTEGER, items: [] },
     ]);
   });
 
   it('names the items outside the declared horizon and still checks their activities', () => {
     const outside = week(3).map((item) => ({ ...item, budget: 1 }));
-    assert.deepEqual(checkWeekPack(pack([...week(1), ...week(2), ...outside]), 2), [
+    assert.deepEqual(findings(pack([...week(1), ...week(2), ...outside]), 2), [
       { kind: 'outside-horizon', week: 3, items: ['r3', 'w3'] },
       { kind: 'activity-sessions', week: 3, activity: 'reading', expected: 2, actual: 1, items: ['r3'] },
     ]);
   });
 
   it('reports an absent activity in a present week as zero sessions', () => {
-    assert.deepEqual(checkWeekPack(pack([week(1)[0]!]), 1), [
+    assert.deepEqual(findings(pack([week(1)[0]!]), 1), [
       { kind: 'activity-sessions', week: 1, activity: 'writing', expected: 1, actual: 0, items: [] },
     ]);
   });
 
   it('reports both too few and too many sessions with the contributing item IDs', () => {
     const items = week(1).map((item) => ({ ...item, budget: item.activity === 'reading' ? 1 : 2 }));
-    assert.deepEqual(checkWeekPack(pack(items), 1), [
+    assert.deepEqual(findings(pack(items), 1), [
       { kind: 'activity-sessions', week: 1, activity: 'reading', expected: 2, actual: 1, items: ['r1'] },
       { kind: 'activity-sessions', week: 1, activity: 'writing', expected: 1, actual: 2, items: ['w1'] },
     ]);
@@ -74,53 +81,71 @@ describe('week-pack release checks', () => {
   it('adds all items of an activity using the engine’s rounding and default budgets', () => {
     const [reading, writing] = week(1);
     assert.deepEqual(
-      checkWeekPack(pack([{ ...reading!, budget: 1.4 }, { ...reading!, id: 'r1-extra', budget: 1.4 }, writing!]), 1),
+      findings(pack([{ ...reading!, budget: 1.4 }, { ...reading!, id: 'r1-extra', budget: 1.4 }, writing!]), 1),
       [],
     );
   });
 
-  it('names unclassified items rather than assigning them an activity', () => {
+  it('allows unclassified items for untyped slots', () => {
     const extra: PackItem = { id: 'untagged', kind: 'lesson', title: 'Made-up lesson', week: 1 };
-    assert.deepEqual(checkWeekPack(pack([...week(1), extra]), 1), [
-      { kind: 'missing-activity', week: 1, items: ['untagged'] },
-    ]);
+    assert.deepEqual(findings(pack([...week(1), extra]), 1), []);
   });
 
-  it('reports a missing model while keeping older packs readable', () => {
+  it('checks the horizon when there is no weekly model', () => {
     const source = { ...languagePackSource, items: week(1), activities: undefined, merges: [] };
     const read = parsePlanPack(source);
     assert.ok(read.ok);
-    assert.deepEqual(checkWeekPack(read.value, 1), [{ kind: 'missing-model', week: null, items: ['r1', 'w1'] }]);
+    assert.deepEqual(findings(read.value, 1), []);
+    assert.deepEqual(findings(read.value, 2), [{ kind: 'missing-weeks', week: 2, through: 2, items: [] }]);
   });
 
   it('keeps unit headings and the TD queue out of the weekly activity count', () => {
     const unit: PackItem = { id: 'u1', kind: 'unit', title: 'Made-up unit' };
     const td: PackItem = { id: 'td1', kind: 'td', title: 'Made-up TD', week: 1, budget: 20 };
-    assert.deepEqual(checkWeekPack(pack([unit, ...week(1), td]), 1), []);
-    assert.deepEqual(checkWeekPack(pack([unit, td]), 1), [{ kind: 'missing-weeks', week: 1, through: 1, items: [] }]);
+    assert.deepEqual(findings(pack([unit, ...week(1), td]), 1), []);
+    assert.deepEqual(findings(pack([unit, td]), 1), [{ kind: 'missing-weeks', week: 1, through: 1, items: [] }]);
   });
 
-  it('checks optional and buffer items when they take sessions in the weekly model', () => {
-    const items = week(1).map((item) => ({ ...item, optional: true, buffer: true }));
-    assert.deepEqual(checkWeekPack(pack(items), 1), []);
+  it('counts assessment and buffer weeks toward the horizon without applying the ordinary model', () => {
+    const diagnostic: PackItem = { id: 'diagnostic', kind: 'assessment-remediation', title: 'Made up', week: 1 };
+    const buffer: PackItem = { id: 'buffer', kind: 'lesson', title: 'Made up', week: 2, buffer: true };
+    assert.deepEqual(findings(pack([diagnostic, buffer]), 2), []);
+  });
+
+  it('checks the repository example with untyped lessons and an assessment week', () => {
+    const file = new URL('../../../data/dz/packs/dz.primary.5ap.arabic.example@2026.1.json', import.meta.url);
+    const read = parsePlanPack(JSON.parse(readFileSync(file, 'utf8')));
+    assert.ok(read.ok);
+    assert.deepEqual(findings(read.value, 4), []);
+  });
+
+  it('reports an invalid in-memory week without masking the surrounding gap', () => {
+    const original = pack([...week(1), ...week(3)]);
+    const missing: PackItem = { id: 'no-week', kind: 'lesson', title: 'Made up' };
+    assert.deepEqual(findings({ ...original, items: [missing, ...original.items] }, 3), [
+      { kind: 'invalid-week', week: null, items: ['no-week'] },
+      { kind: 'missing-weeks', week: 2, through: 2, items: [] },
+    ]);
   });
 
   it('leaves budget and hybrid packs for their own checks', () => {
-    assert.deepEqual(checkWeekPack(mathPack, 3), []);
-    assert.deepEqual(checkWeekPack({ ...mathPack, anchor: { kind: 'hybrid', unit: 'hours' } }, 3), []);
+    assert.deepEqual(checkWeekPack(mathPack, 3), { status: 'not-applicable' });
+    assert.deepEqual(checkWeekPack({ ...mathPack, anchor: { kind: 'hybrid', unit: 'hours' } }, 3), {
+      status: 'not-applicable',
+    });
   });
 
   it('orders findings by week without sorting or changing the pack', () => {
     const original = pack([...week(3), ...week(1)]);
     const before = JSON.stringify(original);
-    assert.deepEqual(checkWeekPack(original, 3), [{ kind: 'missing-weeks', week: 2, through: 2, items: [] }]);
+    assert.deepEqual(findings(original, 3), [{ kind: 'missing-weeks', week: 2, through: 2, items: [] }]);
     assert.equal(JSON.stringify(original), before);
-    assert.deepEqual(checkWeekPack(original, 3), checkWeekPack(original, 3));
+    assert.deepEqual(findings(original, 3), findings(original, 3));
   });
 
   it('requires a positive, safe, whole number of plan weeks', () => {
     for (const weeks of [0, -1, 1.5, Number.NaN, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
-      assert.throws(() => checkWeekPack(pack(), weeks), RangeError);
+      assert.throws(() => findings(pack(), weeks), RangeError);
     }
   });
 });

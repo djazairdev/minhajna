@@ -6,20 +6,14 @@
 // A finding names its week and contributing item IDs; an absent week or
 // activity has no invented item ID. Consecutive gaps are ranges, so even a
 // mistyped, very large horizon never allocates or visits every missing week.
-// The model's sessions are checked exactly, using the engine's week-budget
-// rules; the minute argument is immaterial for weeks. Unit headings and TD
-// belong outside the main weekly model. A missing model is a finding, not a
-// new import restriction: older files remain readable. These checks read no
-// class progress, change no pack and carry no translated interface wording.
-// Missing ranges include both week and through. An empty items list means
-// the source contains no matching item; missing-model is a pack-level finding.
-// checkWeekPack accepts a parsed pack and a positive safe whole-week horizon;
-// other anchors have no findings here, and an invalid horizon throws.
+// Only a supplied model is checked. Unclassified items remain available
+// for untyped slots, and a week reserved for assessment or remediation can
+// have a different mix. The checks read no class progress or teacher data.
 
 import { budgetInSessions, queueItems, type PackActivity, type PackItem, type PlanPack } from './pack.ts';
 
 export type WeekPackFinding =
-  | { readonly kind: 'missing-model'; readonly week: null; readonly items: readonly string[] }
+  | { readonly kind: 'invalid-week'; readonly week: null; readonly items: readonly string[] }
   | {
       readonly kind: 'missing-weeks';
       readonly week: number;
@@ -27,7 +21,7 @@ export type WeekPackFinding =
       readonly items: readonly string[];
     }
   | {
-      readonly kind: 'outside-horizon' | 'missing-activity';
+      readonly kind: 'outside-horizon';
       readonly week: number;
       readonly items: readonly string[];
     }
@@ -40,6 +34,10 @@ export type WeekPackFinding =
       readonly items: readonly string[];
     };
 
+/** Whether the weekly check applies, with source findings when it does. */
+export type WeekPackCheck =
+  { readonly status: 'not-applicable' } | { readonly status: 'checked'; readonly findings: readonly WeekPackFinding[] };
+
 function activityFindings(
   pack: PlanPack,
   week: number,
@@ -47,8 +45,6 @@ function activityFindings(
   model: readonly PackActivity[],
 ): WeekPackFinding[] {
   const findings: WeekPackFinding[] = [];
-  const missing = items.filter((item) => item.activity === undefined).map((item) => item.id);
-  if (missing.length > 0) findings.push({ kind: 'missing-activity', week, items: missing });
   for (const activity of model) {
     const held = items.filter((item) => item.activity === activity.code);
     const actual = held.reduce((sum, item) => sum + budgetInSessions(pack, item, 60), 0);
@@ -65,28 +61,35 @@ function activityFindings(
   return findings;
 }
 
-export function checkWeekPack(pack: PlanPack, weeks: number): readonly WeekPackFinding[] {
+/** Checks source weeks against an explicit horizon and, where present, a weekly model. */
+export function checkWeekPack(pack: PlanPack, weeks: number): WeekPackCheck {
   if (!Number.isSafeInteger(weeks) || weeks < 1) throw new RangeError('Invalid plan horizon');
-  if (pack.anchor.kind !== 'weeks') return [];
+  if (pack.anchor.kind !== 'weeks') return { status: 'not-applicable' };
   const main = queueItems(pack, 'main');
   const held = new Map<number, PackItem[]>();
+  const invalid: string[] = [];
   for (const item of main) {
-    const week = item.week!;
+    const week = item.week;
+    if (week === undefined || !Number.isSafeInteger(week) || week < 1) {
+      invalid.push(item.id);
+      continue;
+    }
     const items = held.get(week) ?? [];
     items.push(item);
     held.set(week, items);
   }
   const findings: WeekPackFinding[] = [];
   const model = pack.activities;
-  if (model === undefined) findings.push({ kind: 'missing-model', week: null, items: main.map((item) => item.id) });
+  if (invalid.length > 0) findings.push({ kind: 'invalid-week', week: null, items: invalid });
   let next = 1;
   for (const [week, items] of [...held].sort(([a], [b]) => a - b)) {
     if (week > next && next <= weeks)
       findings.push({ kind: 'missing-weeks', week: next, through: Math.min(week - 1, weeks), items: [] });
     if (week > weeks) findings.push({ kind: 'outside-horizon', week, items: items.map((item) => item.id) });
-    if (model !== undefined) findings.push(...activityFindings(pack, week, items, model));
+    const regular = items.some((item) => !item.buffer && item.kind !== 'assessment-remediation');
+    if (model !== undefined && regular) findings.push(...activityFindings(pack, week, items, model));
     next = week + 1;
   }
   if (next <= weeks) findings.push({ kind: 'missing-weeks', week: next, through: weeks, items: [] });
-  return findings;
+  return { status: 'checked', findings };
 }
