@@ -6167,6 +6167,61 @@
         "server": "From signed weeks only: a class has reached an item once a signed week worked on it or on a later one, and no forecast enters. In this demo the server sees each school’s share as it adds them up.",
         "never": "Nothing here is used to evaluate or rank anyone."
       }
+    },
+    "insights": {
+      "title": "Anonymous insights",
+      "row": {
+        "teacher": "Off · exactly what is sent is shown before you turn them on",
+        "school": "Off for the school space’s classes",
+        "retired": "Stopped: the national system’s totals replaced them"
+      },
+      "sub": {
+        "teacher": "Optional · in teacher mode, before the national system",
+        "school": "The national system",
+        "retired": "Stopped · the national system"
+      },
+      "purpose": "They show curriculum designers which items need more time than the plan gives. They describe the plan, not classes or teachers.",
+      "participation": "Taking part",
+      "off": "Taking part is off. Before you turn it on, exactly what is sent about each class is shown here.",
+      "never": {
+        "head": "Never sent",
+        "dates": "The dates of sessions",
+        "reasons": "Why a session was not held",
+        "pupils": "Any data about pupils",
+        "me": "Anything that identifies me",
+        "school": "Data from institution mode"
+      },
+      "floors": "Each figure is published only when it covers at least 10 teachers and 3 schools; anything below that, or that would reveal it by subtraction, is hidden. The figures are never used to set the scope of exams, to rank anyone, or for decisions about teachers.",
+      "school": {
+        "off": "Off for the school space’s classes: the national system’s data never enters the insights.",
+        "none": "This phone has not joined a school’s space yet. In this world the insights do not run: the figures of my classes are formed in the national system.",
+        "perClass": "For each class",
+        "mine": "My classes",
+        "inSpace": "In the space of {{school}} since {{date}}",
+        "stopped": "Off",
+        "nationalHead": "These classes’ figures are formed in the national system",
+        "nationalLine": "As totals above the school, from the signed weeks, in the curriculum report. Nothing of them is sent to the insights server.",
+        "working": "Working out my classes in each space…"
+      },
+      "retired": {
+        "head": "The anonymous insights have stopped: the national system’s totals replaced them",
+        "line": "There is no switch to take part any more, and nothing goes from this phone to the insights server.",
+        "since": "Since {{date}}, the first day totals above the school were formed.",
+        "report": "In the national system, the curriculum report takes the place of these insights: totals above the school, from the signed weeks",
+        "holdsHead": "What it holds",
+        "holds": {
+          "median": "The sessions each item of the pack took, as a median",
+          "changed": "The items most often merged, skipped, split or re-taught, in bands",
+          "reached": "How far classes got by the end of each term: the median and the quartiles",
+          "floors": "For the directorate and the nation; each directorate figure covers at least 5 teachers and 3 schools"
+        },
+        "neverHead": "What it never holds",
+        "never": {
+          "figures": "A figure for a class, a school or a teacher: each school’s space prepares its share, and the shares are added up",
+          "dates": "The dates of sessions, why any was not held, and pupils’ data"
+        },
+        "uses": "Nor is it used for an exam threshold, to rank anyone, or for a decision about a teacher."
+      }
     }
   },
   "chart": {

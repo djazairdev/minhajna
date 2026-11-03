@@ -6252,6 +6252,61 @@
         "server": "À partir des seules semaines signées : une classe a atteint un élément dès qu’une semaine signée a porté sur lui ou sur un élément suivant, et aucune prévision n’y entre. Dans cette démo, le serveur voit la part de chaque établissement en les additionnant.",
         "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
       }
+    },
+    "insights": {
+      "title": "Statistiques anonymes",
+      "row": {
+        "teacher": "Désactivées · ce qui est envoyé, exactement, s’affiche avant de les activer",
+        "school": "Désactivées pour les classes de l’espace de l’établissement",
+        "retired": "Arrêtées : les totaux du système national les ont remplacées"
+      },
+      "sub": {
+        "teacher": "Facultatives · en mode enseignant, avant le système national",
+        "school": "Le système national",
+        "retired": "Arrêtées · le système national"
+      },
+      "purpose": "Elles montrent aux concepteurs des programmes quels éléments demandent plus de temps que la progression n’en donne. Elles décrivent la progression, pas les classes ni les enseignants.",
+      "participation": "Participation",
+      "off": "La participation est désactivée. Avant de l’activer, ce qui est envoyé, exactement, pour chaque classe s’affiche ici.",
+      "never": {
+        "head": "Jamais envoyé",
+        "dates": "Les dates des séances",
+        "reasons": "Pourquoi une séance n’a pas eu lieu",
+        "pupils": "Aucune donnée sur les élèves",
+        "me": "Rien qui m’identifie",
+        "school": "Les données du mode établissement"
+      },
+      "floors": "Chaque chiffre n’est publié que s’il couvre au moins 10 enseignants et 3 établissements ; ce qui est en dessous, ou le révélerait par soustraction, est masqué. Les chiffres ne servent jamais à fixer le périmètre des examens, à classer qui que ce soit, ni à des décisions sur les enseignants.",
+      "school": {
+        "off": "Désactivées pour les classes de l’espace de l’établissement : les données du système national n’entrent jamais dans les statistiques.",
+        "none": "Ce téléphone n’a encore rejoint aucun espace d’établissement. Dans ce monde, les statistiques ne fonctionnent pas : les chiffres de mes classes sont formés dans le système national.",
+        "perClass": "Par classe",
+        "mine": "Mes classes",
+        "inSpace": "Dans l’espace de {{school}} depuis le {{date}}",
+        "stopped": "Désactivées",
+        "nationalHead": "Les chiffres de ces classes sont formés dans le système national",
+        "nationalLine": "En totaux au-dessus de l’établissement, à partir des semaines signées, dans le rapport sur les programmes. Rien n’en est envoyé au serveur des statistiques.",
+        "working": "Recherche de mes classes dans chaque espace…"
+      },
+      "retired": {
+        "head": "Les statistiques anonymes sont arrêtées : les totaux du système national les ont remplacées",
+        "line": "Il n’y a plus d’interrupteur pour participer, et rien ne part de ce téléphone vers le serveur des statistiques.",
+        "since": "Depuis le {{date}}, premier jour où des totaux au-dessus de l’établissement ont été formés.",
+        "report": "Dans le système national, le rapport sur les programmes remplace ces statistiques : des totaux au-dessus de l’établissement, à partir des semaines signées",
+        "holdsHead": "Ce qu’il contient",
+        "holds": {
+          "median": "Les séances prises par chaque élément du paquet, en médiane",
+          "changed": "Les éléments le plus souvent fusionnés, sautés, scindés ou repris, par tranches",
+          "reached": "Où en étaient les classes à la fin de chaque trimestre : la médiane et les quartiles",
+          "floors": "Pour la direction et le pays ; chaque chiffre d’une direction couvre au moins 5 enseignants et 3 établissements"
+        },
+        "neverHead": "Ce qu’il ne contient jamais",
+        "never": {
+          "figures": "Un chiffre pour une classe, un établissement ou un enseignant : l’espace de chaque établissement prépare sa part, et les parts sont additionnées",
+          "dates": "Les dates des séances, les raisons de celles qui n’ont pas eu lieu, et les données des élèves"
+        },
+        "uses": "Il ne sert pas non plus à un seuil d’examen, à classer qui que ce soit, ni à une décision sur un enseignant."
+      }
     }
   },
   "chart": {
