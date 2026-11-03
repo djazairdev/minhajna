@@ -6,7 +6,7 @@
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=26.13.0"
   },
   "scripts": {
     "tools": "npm ci --no-audit --no-fund --prefix tools/prisma",

@@ -26,7 +26,7 @@ describe('the dev container', () => {
     assert.deepEqual(config.dockerComposeFile, ['../apps/server/compose.yaml', 'compose.yaml']);
     assert.deepEqual(config.runServices, ['workspace', 'database', 'objects']);
     assert.deepEqual(config.forwardPorts, [3000, 4180]);
-    assert.match(compose, /image: node:22\.\d+\.\d+-trixie@sha256:[0-9a-f]{64}\n/);
+    assert.match(compose, /image: node:26\.\d+\.\d+-trixie@sha256:[0-9a-f]{64}\n/);
     assert.match(compose, /network_mode: service:database\n/);
     assert.equal(compose.match(/ports: !reset \[\]/g)?.length, 2);
     assert.match(compose, new RegExp(`MINHAJNA_DEMO_DATABASE: ${DEMO}\n`));

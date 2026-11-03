@@ -11,9 +11,11 @@
 # when the container runs, never from the image (README.md). The start
 # script runs as root only to start PostgreSQL as postgres and the server
 # as minhajna. TypeScript and its types, which npm keeps as an optional
-# peer of Prisma's client, are dropped from the image.
+# peer of Prisma's client, are dropped from the image. Node.js comes from
+# its own image with the one library it needs that PostgreSQL's lacks,
+# libatomic, both images being Debian trixie.
 
-FROM node:22.23.4-trixie-slim@sha256:2117f713a417f3aff682ac8f5bc2ebbdf1beed51f36e67ab1e0fd3866b6d2d8f AS build
+FROM node:26.13.0-trixie-slim@sha256:e4db4c914bf8ad241bd24804fc25d272d89bad97e68cdc8a1414862790a02c39 AS build
 WORKDIR /minhajna
 COPY tsconfig.base.json ./
 WORKDIR /minhajna/apps/server
@@ -25,6 +27,7 @@ COPY apps/server/tsconfig.json ./
 COPY apps/server/prisma prisma
 COPY apps/server/src src
 RUN npm run build && npm prune --omit=dev --no-audit --no-fund && rm -rf node_modules/typescript node_modules/@types
+RUN mkdir /node-libs && cp -L /usr/lib/*-linux-gnu/libatomic.so.1 /node-libs/
 
 FROM scratch AS wal-g-amd64
 ADD --checksum=sha256:4f03ee4679db7f660bfd1b2b8291ac5df247cd2ec48074b60c112f4897299f24 \
@@ -38,6 +41,8 @@ FROM wal-g-${TARGETARCH} AS wal-g
 
 FROM postgres:18.6-trixie@sha256:979bccfde35445db618c65107d27d08c6c21339d8dc3ad4c830c6633947be0e4
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
+COPY --from=build /node-libs/libatomic.so.1 /usr/local/lib/libatomic.so.1
+RUN ldconfig && node --version
 RUN --mount=type=bind,from=wal-g,target=/wal-g \
     tar -xzf /wal-g/wal-g.tar.gz -C /tmp && install -m 755 /tmp/wal-g-pg-* /usr/local/bin/wal-g && rm /tmp/wal-g-pg-*
 WORKDIR /srv/minhajna

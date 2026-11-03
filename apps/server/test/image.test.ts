@@ -150,7 +150,7 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
       'f',
     );
     const asServer = ['exec', '-u', 'minhajna', 'minhajna-image-second', 'sh', '-c'];
-    const server = docker(...asServer, 'cat /proc/$(pgrep -x -u minhajna node)/environ');
+    const server = docker(...asServer, 'cat /proc/$(pgrep -o -u minhajna -f "^node dist/src/main.js")/environ');
     assert.doesNotMatch(server, /AWS_|WALG_/);
     const written = `${logs('minhajna-image-first')}\n${logs('minhajna-image-second')}`;
     assert.match(written, /restoring the latest backup/);

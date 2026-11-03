@@ -21,7 +21,7 @@ It is the first part of the field-check prototype: setup, Today and roll call ([
 
 ## Running the tests
 
-The core needs Node.js 22.18 or later, which runs TypeScript directly. It has no runtime dependencies. TypeScript itself is a development dependency of the repository, for the type check only.
+The core needs Node.js 26.13 or later, which runs TypeScript directly. It has no runtime dependencies. TypeScript itself is a development dependency of the repository, for the type check only.
 
 ```bash
 npm test

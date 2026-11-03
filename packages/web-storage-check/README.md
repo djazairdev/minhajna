@@ -2,7 +2,7 @@
 
 A standalone developer tool for [#79](https://github.com/djazairdev/minhajna/issues/79), supporting the browser matrix in [#46](https://github.com/djazairdev/minhajna/issues/46). It is **not the teacher web app** and accepts no real records. It depends on the full-year generator from #77 (PR #118).
 
-From the repository root, with Node.js 22.18 or later:
+From the repository root, with Node.js 26.13 or later:
 
 ```sh
 npm ci --no-audit

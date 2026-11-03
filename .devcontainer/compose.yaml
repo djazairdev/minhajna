@@ -16,7 +16,7 @@ name: minhajna-dev
 
 services:
   workspace:
-    image: node:22.23.4-trixie@sha256:ead00acb9f552752e0fe17a428d692094ab5f9e021e7bb97202fa7b0cd702a04
+    image: node:26.13.0-trixie@sha256:6d2c7d5d074bf72f81ddc252b4fbb5d625bc028eeda49cb4b8c2ff8eda1ee617
     command: [sh, -c, 'chown node:node $$MODULES && exec sleep infinity']
     network_mode: service:database
     depends_on:

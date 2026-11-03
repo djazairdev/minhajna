@@ -26,7 +26,7 @@ defaults:
 
 jobs:
   test:
-    name: Node.js 22
+    name: Node.js
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -55,7 +55,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 26
           # No dependency cache: the install is small, and a cache would be
           # one more service to call and to trust.
           package-manager-cache: false

@@ -123,7 +123,7 @@ docker build -f apps/server/Dockerfile -t minhajna-server .
 
 ## Build and try it
 
-From this folder, with Node.js 22.18 or later:
+From this folder, with Node.js 26.13 or later:
 
 ```bash
 npm ci
@@ -140,7 +140,7 @@ Then <http://127.0.0.1:3000/health> answers the package's version. The server li
 
 ## The whole demo on this computer
 
-From the repository's root, with Node.js 22.18 or later and Docker with Compose v2:
+From the repository's root, with Node.js 26.13 or later and Docker with Compose v2:
 
 ```bash
 npm run demo

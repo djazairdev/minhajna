@@ -6,7 +6,7 @@ Minhajna is a free, open-source app for teachers in Algeria. The shared core in 
 
 ## Run the checks
 
-Node.js 22.18 or later. The same commands CI runs:
+Node.js 26.13 or later. The same commands CI runs:
 
 ```bash
 npm ci --no-audit
