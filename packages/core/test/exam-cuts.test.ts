@@ -8,8 +8,8 @@
 // the proposer being the setter who has named it the longest; a cut signed past
 // the deadline does not count; and a setter's no cut, or the deadline passing
 // unsettled, leaves the decision to the director, whose first decision once it
-// falls to them is final, an earlier one not counting. Every school, class and
-// teacher is made up.
+// falls to them is final, an earlier one not counting, nor one dated on or
+// after the exam's first day. Every school, class and teacher is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -87,6 +87,16 @@ describe('where a school exam’s cut stands', () => {
     await put('chart', chart, decider);
     await put('decision', cut(null, '2029-11-28'), decider);
     assert.deepEqual(cutState(await read(), day('2029-11-28'))!.settled, { item: null, by: 'director' });
+  });
+
+  it('takes no decision dated on or after the exam’s first day', async () => {
+    const { decider, chart, put, cut, read } = await madeUpRoom();
+    await put('chart', chart, decider);
+    await put('decision', cut('u1', '2029-12-02'), decider);
+    const late = cutState(await read(), day('2029-12-10'))!;
+    assert.deepEqual([late.settled, late.director], [null, true]);
+    await put('decision', cut('u2', '2029-12-01'), decider);
+    assert.deepEqual(cutState(await read(), day('2029-12-10'))!.settled, { item: 'u2', by: 'director' });
   });
 
   it('counts each setter’s highest version, so an older cut put again never wins', async () => {

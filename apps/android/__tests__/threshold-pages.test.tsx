@@ -37,7 +37,7 @@ import { roomId } from '../src/threshold/threshold-text';
 import { isolate } from '../src/week/grid-labels';
 
 const [list, page] = [ar.demo.thresholds, ar.demo.threshold];
-const ROOM = roomId({ exam: 'term-1', subject: 'math', grade: '1am' });
+const ROOM = roomId({ exam: 'term-2', subject: 'math', grade: '1am' });
 
 jest.mock(
   'react-native-safe-area-context',
@@ -78,7 +78,7 @@ test('lists the room with its days, where its cut stands and each class, and ope
       list.notes.never,
     ]),
   );
-  const exam = page.termExam.replace('{{term}}', ar.demo.cover.terms[1]);
+  const exam = page.termExam.replace('{{term}}', ar.demo.cover.terms[2]);
   expect(texts().some((one) => one.startsWith(exam))).toBe(true);
   expect((controls('thresholds-open')[0].props as ButtonProps).name).toContain(exam);
   await press('thresholds-open');
@@ -91,9 +91,9 @@ test('lists the exams above the school its classes sit, from its own weeks, and 
   const chart = { exam: 'bem', subject: 'math', grade: '1am', forecastDay: addDays(date, 29), pack, items };
   const classes = [{ name: '1م2', position: items[0], forecast: items[2] }];
   const mock = { ...exam, id: 'mock', setBy: 'directorate', figuresDay: addDays(date, 10) };
-  const term = { ...exam, id: 'term-2', setBy: 'school', figuresDay: addDays(date, 5) };
+  const term = { ...exam, id: 'term-1', setBy: 'school', figuresDay: addDays(date, 5) };
   const shown = [
-    { exam: term, asOf: date, charts: [{ ...chart, exam: 'term-2', classes }] },
+    { exam: term, asOf: date, charts: [{ ...chart, exam: 'term-1', classes }] },
     { exam: mock, asOf: date, charts: [{ ...chart, exam: 'mock', classes }] },
     { exam: { ...exam, figuresDay: addDays(date, 20) }, asOf: date, charts: [{ ...chart, classes }] },
   ];

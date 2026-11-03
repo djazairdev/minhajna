@@ -6219,7 +6219,8 @@
         "seen": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
         "published": "Après l’examen, le seuil est publié dans l’espace de l’établissement avec ses chiffres.",
         "monthly": "Les devoirs mensuels restent à chaque enseignant, sans seuil ni signature.",
-        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit.",
+        "kept": "Le seuil est conservé avec les chiffres sur lesquels il repose et les signatures des rédacteurs."
       },
       "problem": {
         "closed": "Le seuil ne peut plus être signé : le délai de signature est passé ou le directeur a décidé.",
@@ -6230,7 +6231,17 @@
         "bem": "Le BEM"
       },
       "stale": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son nouveau jour des chiffres est le {{now}}, et le graphique n’est pas repris, donc son seuil se signe toujours au plus tard le {{signBy}}.",
-      "staleSign": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son jour des chiffres reste le même, et son seuil se signe toujours au plus tard le {{signBy}}."
+      "staleSign": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son jour des chiffres reste le même, et son seuil se signe toujours au plus tard le {{signBy}}.",
+      "after": {
+        "lead": "Publié dans l’espace de l’établissement après l’examen, avec les chiffres pris le {{figures}} sur lesquels il repose. Chaque enseignant de cette matière à ce niveau le voit.",
+        "cut": "Le seuil publié",
+        "setters": "Signé par tous les rédacteurs : le sujet couvrait jusqu’à {{item}}.",
+        "director": "Décidé par le directeur : le sujet couvrait jusqu’à {{item}}.",
+        "directorNone": "Décidé par le directeur : pas de seuil pour cet examen, le sujet a donc été rédigé comme d’habitude.",
+        "none": "Aucun seuil appliqué : aucun n’a été arrêté, le sujet a donc été rédigé comme d’habitude.",
+        "dates": "Les chiffres de l’établissement ont été pris le {{figures}}, et l’examen a commencé le {{from}}.",
+        "unsigned": "{{name}} : n’a rien signé"
+      }
     },
     "examTotals": {
       "title": "Les totaux de la direction",

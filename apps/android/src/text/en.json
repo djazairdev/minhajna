@@ -6134,7 +6134,8 @@
         "seen": "Before the exam, only the setters and the director see the cut.",
         "published": "After the exam, the cut is published in the school’s space with its figures.",
         "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
-        "never": "Nothing here is used to evaluate or rank anyone."
+        "never": "Nothing here is used to evaluate or rank anyone.",
+        "kept": "The cut is kept with the figures it was built on and the setters’ signatures."
       },
       "problem": {
         "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
@@ -6145,7 +6146,17 @@
         "bem": "The BEM"
       },
       "stale": "This chart was taken on {{day}}, before the exam moved; its new figures day is {{now}}, and the chart is not taken again, so its cut is still signed by {{signBy}}.",
-      "staleSign": "This chart was taken on {{day}}, before the exam moved; its figures day stays the same, and its cut is still signed by {{signBy}}."
+      "staleSign": "This chart was taken on {{day}}, before the exam moved; its figures day stays the same, and its cut is still signed by {{signBy}}.",
+      "after": {
+        "lead": "Published in the school’s space after the exam, with the figures taken on {{figures}} that it was built on. Every teacher of this subject at this grade sees it.",
+        "cut": "The published cut",
+        "setters": "Signed by every setter: the paper covered up to {{item}}.",
+        "director": "Decided by the director: the paper covered up to {{item}}.",
+        "directorNone": "Decided by the director: no cut for this exam, so the paper was set as usual.",
+        "none": "No cut applied: none was settled, so the paper was set as usual.",
+        "dates": "The school’s figures were taken on {{figures}}, and the exam began on {{from}}.",
+        "unsigned": "{{name}}: did not sign"
+      }
     },
     "examTotals": {
       "title": "The directorate’s totals",
