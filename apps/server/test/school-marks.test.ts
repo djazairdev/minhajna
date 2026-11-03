@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Schools' marks (#626, answer 677): a school keeps one mark in a world for
-// the run, another school another, never one drawn before in the run; each
-// world apart, and a world of the same ID but another start apart too; a mark
-// given back frees its room; past a world's cap or every world's, a school is
-// UNCOUNTED, and forgetting a world frees its marks; and a figure's schools
-// are the most distinct marks of any one run, anything else left out. Every
-// code here is made up.
+// Schools' marks (#626, answer 677): a school keeps one mark in a world for the
+// run, another school another, never one drawn before in the run; each world
+// apart, and a world of the same ID but another start apart too; a mark given
+// back frees its room, unless another call took it meanwhile; past a world's
+// cap or every world's, a school is UNCOUNTED, and forgetting a world frees its
+// marks; and a figure's schools are the most distinct marks of any one run,
+// anything else left out. Every code here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -41,6 +41,17 @@ describe('schools’ marks', () => {
     assert.notEqual(next.mark, given.mark);
     marks.release('AAAAA', 'other-start', next.school);
     assert.equal(marks.size, 1);
+  });
+
+  it('keeps a mark another call took before it was given back, so one school never holds two', () => {
+    const marks = new SchoolMarks();
+    const drawn = marks.mark('AAAAA', 'start', code(1));
+    const taken = marks.mark('AAAAA', 'start', code(1));
+    assert.equal(taken.fresh, false);
+    marks.release('AAAAA', 'start', drawn.school);
+    assert.equal(marks.size, 1);
+    assert.equal(marks.mark('AAAAA', 'start', code(1)).mark, drawn.mark);
+    assert.equal(schoolsIn([taken.mark, marks.mark('AAAAA', 'start', code(1)).mark]), 1);
   });
 
   it('marks a school UNCOUNTED past a world’s cap or every world’s, and frees a world’s marks with it', () => {

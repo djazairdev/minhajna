@@ -217,7 +217,7 @@ export interface WilayaRange {
 }
 
 /** The value `at` of the way through sorted values, between the two nearest, as a spreadsheet's QUARTILE.INC. */
-function quantile(sorted: readonly number[], at: number): number {
+export function quantile(sorted: readonly number[], at: number): number {
   const place = (sorted.length - 1) * at;
   const below = Math.floor(place);
   const low = sorted[below]!;

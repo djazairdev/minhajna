@@ -156,25 +156,18 @@ export class InsightsController {
 
   /**
    * Keeps the sendings, each code turned into its school's mark and going no further; a mark drawn for a sending the
-   * store refuses, or for every one when the store fails, is given back.
+   * store refuses is given back, never when the store fails, as it may have kept the sending all the same.
    */
   private async keep(world: World, sendings: readonly Sending[]): Promise<SendingKept[]> {
     const marked = sendings.map((one) => this.marks.mark(world.id, world.starterHash, one.schoolTerm));
-    const giveBack = (refused: (at: number) => boolean) =>
-      marked.forEach(({ school, fresh }, at) => {
-        if (fresh && refused(at)) this.marks.release(world.id, world.starterHash, school);
-      });
-    try {
-      const outcomes = await this.insights.put(
-        world.id,
-        sendings.map((one, at) => kept(one, marked[at]!.mark)),
-      );
-      giveBack((at) => !isKept(outcomes[at] ?? 'closed'));
-      return outcomes;
-    } catch (error) {
-      giveBack(() => true);
-      throw error;
-    }
+    const outcomes = await this.insights.put(
+      world.id,
+      sendings.map((one, at) => kept(one, marked[at]!.mark)),
+    );
+    marked.forEach(({ school, fresh }, at) => {
+      if (fresh && !isKept(outcomes[at] ?? 'closed')) this.marks.release(world.id, world.starterHash, school);
+    });
+    return outcomes;
   }
 
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {

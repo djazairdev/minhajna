@@ -6,7 +6,8 @@
 // code, one school's sendings one mark, so a figure counts each school once;
 // after the run the store and the logs hold no code and no hash of one; a
 // sending sent again takes its new mark in place of its old; a refused sending
-// keeps nothing and uses up no mark; a server started again on the same store
+// keeps nothing and uses up no mark, while a store that fails keeps its mark,
+// as it may have kept the sending; a server started again on the same store
 // marks a school afresh, so a school seen before and after counts once at most;
 // and erasing a world frees its marks. Every world, school and sending here is
 // made up.
@@ -98,7 +99,7 @@ describe('the observatory’s count of schools', () => {
     assert.equal(new Set(kept.map((one) => one.mark.slice(0, 16))).size, 2);
   });
 
-  it('uses up no mark for a refused sending, and frees a world’s marks when it is erased', async () => {
+  it('uses up no mark for a refused sending, keeps one when the store fails, and frees a world’s marks when it is erased', async () => {
     const base = await server();
     const marks = apps.at(-1)!.get(SchoolMarks);
     const { id, starter } = await startedWorld(base);
@@ -114,6 +115,14 @@ describe('the observatory’s count of schools', () => {
     assert.equal(marks.size, before + 1);
     assert.equal((await send(base, id, madeUpSending(1, 2, 9))).status, 409);
     assert.equal(marks.size, before + 1);
+    const put = insights.put.bind(insights);
+    insights.put = () => Promise.reject(new Error('the store failed'));
+    try {
+      assert.equal((await send(base, id, madeUpSending(1, 3, 10))).status, 500);
+    } finally {
+      insights.put = put;
+    }
+    assert.equal(marks.size, before + 2);
     clock = Date.UTC(2026, 11, 7, 1);
     await apps.at(-1)!.get(WorldSweeper).sweep();
     assert.equal(marks.size, 0);
