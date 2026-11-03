@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the teacher's threshold pages say of a school exam's cut after the exam
-// (#602, T-Threshold-after, R-3.3-39, R-7.10-04, answer 634): an exam is over
-// from the day after its last day as the world's calendar now has it, an exam
-// the calendar no longer holds never; and its cut as published: the cut that
-// applied, signed by every setter or decided by the director, or none, either
-// because the director decided no cut or because none was settled, so the
-// paper was set as usual.
+// What the threshold pages, the teacher's and the director's D-Threshold, say
+// of a school exam's cut after the exam (#602, T-Threshold-after, R-3.3-39,
+// R-7.10-04, answer 634): an exam is over from the day after its last day as
+// the world's calendar now has it, an exam the calendar no longer holds never;
+// and its cut as published: the cut that applied, signed by every setter or
+// decided by the director, or none, either because the director decided no cut
+// or because none was settled, so the paper was set as usual.
 
 import type { Day, ExamChart, WorldExam } from '@minhajna/core';
 import type { TFunction } from 'i18next';

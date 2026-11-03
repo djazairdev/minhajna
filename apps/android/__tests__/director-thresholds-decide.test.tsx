@@ -4,14 +4,16 @@
 // The director's decision on D-Threshold (#603, answer 637), with the rooms
 // read and the decision put stood in for: the exams are offered as chips, the
 // latest chosen; opening a subject says so and marks its row; a cut proposed is
-// offered to adopt until the day before the exam, a press signing it once, the
-// choices held while it signs, then said and the rooms read again, and from the
-// exam's first day no choice is offered and the decision is said to have
-// lapsed; a refusal is said in the director's words until read again, and what
-// was said holds for its date alone, a new date read again; on a phone what is
-// opened, decided or refused is announced; after the year's last day it says
-// the year has ended; and the page is the director's alone. Every world,
-// school, setter and class is made up.
+// offered to adopt until the day before the exam, with why the decision is the
+// director's, a press signing it once, the choices held while it signs, then
+// said and the rooms read again, and from the exam's first day no choice is
+// offered and the decision is said to have lapsed, after the exam given as
+// published, none settled; a refusal is said in the director's words until
+// read again, and what was said holds for its date alone, a new date read
+// again; on a phone what is opened, decided or refused is announced, and
+// nothing once the page is left; after the year's last day it says the year
+// has ended, holding no key; and the page is the director's alone. Every
+// world, school, setter and class is made up.
 
 import { addDays, worldExams, type CutState, type Day, type ExamChart, type WorldExam } from '@minhajna/core';
 import { AccessibilityInfo, Platform } from 'react-native';
@@ -38,7 +40,7 @@ const date = addDays(latest.signBy, 1);
 const pack = reference.packs.find((one) => one.items.length >= 3)!;
 const items = pack.items.map((one) => one.id);
 
-const roomOf = (exam: WorldExam, subject: string): schoolRooms.SchoolRoom => {
+const roomOf = (exam: WorldExam, subject: string, none = false): schoolRooms.SchoolRoom => {
   const chart: ExamChart = {
     world: 'made-up-world',
     school: 'made-up-school',
@@ -55,9 +57,9 @@ const roomOf = (exam: WorldExam, subject: string): schoolRooms.SchoolRoom => {
     classes: [{ name: '1م1', position: items[1], forecast: items[2] }],
   };
   const state: CutState = {
-    signed: new Map([['made-up-assignment', items[1]]]),
+    signed: new Map([['made-up-assignment', none ? null : items[1]]]),
     days: new Map([['made-up-assignment', exam.figuresDay]]),
-    proposed: { item: items[1], by: 'made-up-assignment', day: exam.figuresDay },
+    proposed: none ? null : { item: items[1], by: 'made-up-assignment', day: exam.figuresDay },
     settled: null,
     director: true,
   };
@@ -104,7 +106,7 @@ test('offers the latest exam, adopts the cut proposed once, and says it', async 
     true,
     expect.stringContaining(subjectName(reference.profile, 'math')),
   ]);
-  expect(texts()).toContain(words.decideWhy.replace('{{until}}', `day ${addDays(latest.from, -1)}`));
+  expect(texts()).toContain(words.why.late.replace('{{until}}', `day ${addDays(latest.from, -1)}`));
   await press('schoolThreshold-adopt');
   expect([
     texts().includes(words.signing),
@@ -127,14 +129,32 @@ test('on a phone what is opened, decided or refused is announced', async () => {
   jest.replaceProperty(Platform, 'OS', 'android');
   const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => undefined);
   jest.spyOn(schoolRooms, 'decideCut').mockRejectedValueOnce(failed('closed', 'E_CUT_CLOSED'));
+  jest.mocked(schoolRooms.readSchoolRooms).mockResolvedValue([roomOf(latest, 'math'), roomOf(latest, 'arabic', true)]);
   await show(page());
   await press('schoolThreshold-open');
   expect(announce).toHaveBeenLastCalledWith(expect.stringContaining(words.opened.split('{{')[0]));
+  expect(texts()).toContain(words.why.none.replace('{{until}}', `day ${addDays(latest.from, -1)}`));
+  expect(controls('schoolThreshold-adopt')).toHaveLength(0);
   await press('schoolThreshold-none');
   expect([announce.mock.lastCall?.[0], alerts()]).toEqual([words.closed, [words.closed]]);
   jest.mocked(schoolRooms.decideCut).mockResolvedValueOnce({} as never);
   await press('schoolThreshold-none');
   expect([announce.mock.lastCall?.[0], alerts()]).toEqual([words.noneDone, []]);
+  let done = () => undefined as void;
+  jest
+    .mocked(schoolRooms.decideCut)
+    .mockImplementationOnce(() => new Promise((resolve) => (done = () => resolve({} as never))));
+  await press('schoolThreshold-none');
+  const calls = announce.mock.calls.length;
+  await unmount();
+  await act(() => done());
+  expect(announce.mock.calls.length).toBe(calls);
+});
+
+test('after the exam a lapsed decision gives the cut as published, none settled', async () => {
+  await show(page(addDays(latest.to, 1)));
+  expect(texts()).toEqual(expect.arrayContaining([ar.demo.threshold.after.none]));
+  expect(texts()).not.toContain(words.lapsed);
 });
 
 test('after the year’s last day it says the year has ended', async () => {
@@ -142,6 +162,7 @@ test('after the year’s last day it says the year has ended', async () => {
   await show(page(addDays(calendar.year.to, 1)));
   expect(texts()).toEqual(expect.arrayContaining([words.ended]));
   expect(texts()).not.toContain(words.none);
+  expect(issueSession.holdSchool).not.toHaveBeenCalled();
 });
 
 test('a refusal is said in the director’s words, and the page is the director’s alone', async () => {

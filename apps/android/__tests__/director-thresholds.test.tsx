@@ -84,7 +84,7 @@ test('lists the rooms, decides a cut that fell to the director, and shows it aft
   await unmount();
   await show(at(addDays(exam.to, 1)));
   expect(texts()).toEqual(expect.arrayContaining([page.after.cut, page.after.directorNone]));
-  expect(texts().includes(words.seenBefore)).toBe(false);
+  expect(texts().some((line) => line.startsWith(words.applies.split('{{')[0]))).toBe(false);
   const other = grades.find((one) => one !== grades[0])!;
   const chip = () => controls(`schoolThreshold-grades-${other}`)[0].props as { selected: boolean };
   expect(chip().selected).toBe(false);

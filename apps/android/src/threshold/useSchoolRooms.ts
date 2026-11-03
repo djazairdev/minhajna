@@ -4,15 +4,16 @@
 // D-Threshold's state on the director's device (#603, answer 637): as the page
 // opens, when the world's date moves and when asked again, the school key is
 // held, never started here, and the rooms read (school-rooms.ts), the rooms
-// last read kept on view meanwhile; a problem is said in the catalogue's words,
-// shown as an alert and announced on a phone, never in place of what was said.
-// A decision is signed once, a second press while one runs doing nothing, said
-// when made, and the rooms read again, a refusal a problem in the director's
-// words until the next decision or reading asked for. What was said, and a
-// refusal, hold for the world's date they were said on. Any new reading, and
-// leaving the page, drops a slower answer.
+// last read kept on view meanwhile; after the year's last day no room is read
+// and no key held; a problem is said in the catalogue's words, shown as an
+// alert and announced on a phone, never in place of what was said. A decision
+// is signed once, a second press while one runs doing nothing, said when made,
+// and the rooms read again, a refusal a problem in the director's words until
+// the next decision or reading asked for. What was said, and a refusal, hold
+// for the world's date they were said on. Any new reading, and leaving the
+// page, drops a slower answer.
 
-import type { DemoSchool } from '@minhajna/core';
+import { compareDays, type DemoSchool } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 import type { OpenWorld } from '../demo/world-mode';
@@ -51,7 +52,11 @@ export function useSchoolRooms(
     else AccessibilityInfo.announceForAccessibility(text);
   };
   const desk = () => holdSchool(world, kit, send, false);
-  const reading = useEffectEvent(async () => readSchoolRooms(world, await desk(), school, reference, kit, send));
+  const reading = useEffectEvent(async () =>
+    compareDays(world.date, reference.calendar.year.to) > 0
+      ? []
+      : readSchoolRooms(world, await desk(), school, reference, kit, send),
+  );
   const tell = (problem: Problem) => {
     if (!onPc()) AccessibilityInfo.announceForAccessibility(t(problem));
   };

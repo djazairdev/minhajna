@@ -38,6 +38,7 @@ test('reads each room with its chart and cut, and decides a cut that fell to the
   expect(await read(addDays(exam.figuresDay, -1))).toEqual([]);
   expect(await read(exam.figuresDay)).toEqual([]);
   await openRooms(on(exam.figuresDay), desk, school, records, reference, nodeKit, server.send);
+  expect(await read(addDays(exam.figuresDay, -1))).toEqual([]);
   const rooms = await read(exam.figuresDay);
   const opened = examGroups(exam, school).map((one) => `${one.grade} ${one.subject}`);
   const named = rooms.map((one) => `${one.chart.grade} ${one.chart.subject}`);

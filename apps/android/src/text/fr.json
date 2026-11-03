@@ -6330,12 +6330,14 @@
       "setters_other": "{{count}} rédacteurs",
       "open": "Ouvrir la matière",
       "decision": "La décision du directeur",
-      "decideWhy": "Un rédacteur a choisi de ne fixer aucun seuil, ou le délai de signature est passé sans accord : la décision vous revient, jusqu’au {{until}}. Les rédacteurs la voient, et elle est définitive.",
+      "why": {
+        "none": "Un rédacteur a choisi de ne fixer aucun seuil : la décision vous revient, jusqu’au {{until}}. Les rédacteurs la voient, et elle est définitive.",
+        "late": "Le délai de signature est passé sans accord sur le seuil : la décision vous revient, jusqu’au {{until}}. Les rédacteurs la voient, et elle est définitive."
+      },
       "adopt": "Retenir le seuil proposé : {{item}}",
       "adopted": "Décidé : le sujet couvre jusqu’à {{item}}.",
       "noneDone": "Décidé : pas de seuil pour cet examen.",
       "signNote": "Signé avec la clé de décision de la salle, dérivée de la clé de l’établissement.",
-      "seenBefore": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
       "applies": "Un seuil s’applique quand tous les rédacteurs le signent, le plus tôt s’ils diffèrent ; si l’un a choisi de ne fixer aucun seuil, ou si aucun accord n’est venu d’ici le {{signBy}}, le directeur décide.",
       "publishes": "Il sera publié dans l’espace de l’établissement après le {{to}}, avec les chiffres du {{figures}}.",
       "notes": {

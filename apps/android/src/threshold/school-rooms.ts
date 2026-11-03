@@ -117,8 +117,7 @@ export async function decideCut(
   const checker = { key: ca, checker: kit };
   const decider = { name, decider: room.decider };
   let records: RoomRecords | null = null;
-  let made: { cut: ExamCut; signature: string } | null = null;
-  let shut = false;
+  const out: { made: { cut: ExamCut; signature: string } | null; shut: boolean } = { made: null, shut: false };
   await putOnce(
     {
       world: world.world,
@@ -130,21 +129,21 @@ export async function decideCut(
         return records.cuts.map((one) => one.record.signature);
       },
       there: (signatures) => {
-        if (made !== null && signatures.includes(made.signature)) return true;
+        if (out.made !== null && signatures.includes(out.made.signature)) return true;
         const state = records === null ? null : cutState(records, world.date);
-        shut = state === null || !mayDecide({ chart, state }, world.date);
-        return shut;
+        out.shut = state === null || !mayDecide({ chart, state }, world.date);
+        return out.shut;
       },
       seal: async (first) => {
         const { certificate, signer } = await deciderSigning(world.world, desk, seed, ca, kit, send);
         const cut: ExamCut = { ...name, item, day: world.date, version: 0 };
         const signed = await kitStep(() => signRoomRecord('decision', cut, certificate, signer));
-        made = { cut, signature: signed.signed.signature };
+        out.made = { cut, signature: signed.signed.signature };
         return sealRoomRecord(room.place, signed, first, kit.cipher);
       },
     },
     send,
   );
-  if (made === null || shut) throw closed();
-  return (made as { cut: ExamCut }).cut;
+  if (out.made === null || out.shut) throw closed();
+  return out.made.cut;
 }

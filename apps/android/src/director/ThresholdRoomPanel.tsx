@@ -4,19 +4,20 @@
 // One subject's room on D-Threshold (#603, answers 636 and 637), as its setters
 // see it: its heading; the day its figures were taken, the day its cut is
 // signed by, which is left out once the exam is over, and the day its exam
-// begins on as the calendar now has it, with when and why the exam moved;
-// after the exam, that the cut was published to every teacher of the subject
-// at the grade with the figures of its figures day; the chart of each class's
-// item reached on the figures day and its forecast, with the table of the same
+// begins on as the calendar now has it, with when and why the exam moved; after
+// the exam, that the cut was published to every teacher of the subject at the
+// grade with the figures of its figures day; the chart of each class's item
+// reached on the figures day and its forecast, with the table of the same
 // figures (ChartFigure.tsx) and the item every class reached; where its cut
-// stands, or after the exam the cut as published (published-text.ts), with
-// each setter's latest cut and day; while the decision is the director's,
-// before the exam's first day as the chart has it and while the exam is not
-// over, why and until when, with the two choices, the cut proposed when there
-// is one and no cut, which cannot be pressed while the rooms are read or a
-// decision is signed; once that day came with the decision left untaken, that
-// it closed and no cut applies; and before the exam, who sees the cut, when it
-// applies and when it will be published.
+// stands, or after the exam the cut as published (published-text.ts), with each
+// setter's latest cut and day; while the decision is the director's, before the
+// exam's first day as the chart has it and while the exam is not over, why (a
+// setter's no cut, or the deadline passed unsettled) and until when, with the
+// two choices, the cut proposed when there is one and no cut, which cannot be
+// pressed while the rooms are read or a decision is signed; once that day came
+// with the decision left untaken, in place of where the cut stands, that it
+// closed and no cut applies; and before the exam, when the cut applies and when
+// it will be published.
 
 import { addDays, type CalendarUpdate, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -103,17 +104,22 @@ export function ThresholdRoomPanel(props: ThresholdRoomPanelProps) {
         {t(over ? 'demo.threshold.after.cut' : 'demo.threshold.cut')}
       </Text>
       <Text style={[styles.body, align]}>
-        {over ? publishedText(t, shown, item) : stateText(t, shown, item, dayText)}
+        {over
+          ? publishedText(t, shown, item)
+          : lapsed(room, date, over)
+            ? t('demo.schoolThreshold.lapsed')
+            : stateText(t, shown, item, dayText)}
       </Text>
       {setterLines(t, shown, item, dayText, over).map(({ key, line }) => small(line, key))}
-      {lapsed(room, date, over) && small(t('demo.schoolThreshold.lapsed'))}
       {!over && mayDecide(room, date) && (
         <View testID="schoolThreshold-decide" style={styles.card}>
           <Text accessibilityRole="header" style={[styles.head, align]}>
             {t('demo.schoolThreshold.decision')}
           </Text>
           <Text style={[styles.body, align]}>
-            {t('demo.schoolThreshold.decideWhy', { until: dayText(addDays(chart.from, -1)) })}
+            {t(`demo.schoolThreshold.why.${[...state.signed.values()].includes(null) ? 'none' : 'late'}`, {
+              until: dayText(addDays(chart.from, -1)),
+            })}
           </Text>
           {proposed !== null && (
             <Button
@@ -133,7 +139,6 @@ export function ThresholdRoomPanel(props: ThresholdRoomPanelProps) {
           {small(t('demo.schoolThreshold.signNote'))}
         </View>
       )}
-      {!over && small(t('demo.schoolThreshold.seenBefore'))}
       {!over && small(t('demo.schoolThreshold.applies', { signBy: dayText(chart.signBy) }))}
       {!over &&
         small(t('demo.schoolThreshold.publishes', { to: dayText(lastDay), figures: dayText(chart.figuresDay) }))}

@@ -12,16 +12,16 @@
 // the calendar now has it, and a grade, the first, then lists that grade's
 // subjects in the timetable's order, never by progress, each with how many
 // setters it has, the item every class reached, and where its cut stands or,
-// after the exam, the cut as published (published-text.ts), with a lapsed
-// decision said; a subject chosen, the first by default, opens its room
+// after the exam, the cut as published (published-text.ts), or that the
+// decision lapsed; a subject chosen, the first by default, opens its room
 // (ThresholdRoomPanel.tsx), said as it opens and marked on its row, where the
 // director decides while it is theirs. With no room it says no school exam's
 // figures day has come or no room is open yet, or after the year's last day
-// that the year has ended. It says that the figures come from signed weeks
-// only and never leave the school's space, that each cut is signed and kept
-// with its figures, that the setters see the cut before the exam and every
-// teacher of the subject at the grade once it is published, and that nothing
-// here evaluates, ranks or serves a personnel decision.
+// that the year has ended. It says that the figures come from signed weeks only
+// and never leave the school's space, that each cut is signed and kept with its
+// figures, that the setters see the cut before the exam and every teacher of
+// the subject at the grade once it is published, and that nothing here
+// evaluates, ranks or serves a personnel decision.
 
 import { compareDays, type CalendarUpdate, type Day, type DemoSchool, type WorldExam } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -90,7 +90,11 @@ export function DirectorThresholds(props: DirectorThresholdsProps) {
     const every = everyReached(chart);
     const shown = { chart, state, mine: null };
     const over = examOver(chart, calendar, world.date);
-    const where = over ? publishedText(t, shown, item) : stateText(t, shown, item, dayText);
+    const where = over
+      ? publishedText(t, shown, item)
+      : lapsed(one, world.date, over)
+        ? t('demo.schoolThreshold.lapsed')
+        : stateText(t, shown, item, dayText);
     const named = subjectName(reference.profile, chart.subject);
     const subject = named === chart.subject ? isolate(named) : named;
     return (
@@ -101,7 +105,6 @@ export function DirectorThresholds(props: DirectorThresholdsProps) {
         {small(t('demo.schoolThreshold.setters', { count: chart.setters.length }))}
         {small(every === null ? t('demo.threshold.everyNone') : t('demo.threshold.every', { item: item(every) }))}
         <Text style={[styles.body, align]}>{where}</Text>
-        {lapsed(one, world.date, over) && small(t('demo.schoolThreshold.lapsed'))}
         {one === open ? (
           small(t('demo.schoolThreshold.shown'))
         ) : (
