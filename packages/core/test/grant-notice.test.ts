@@ -3,12 +3,13 @@
 
 // The teacher's notice of an inspector's grant (#593, answer 621): read only
 // when every field is of its shape, each week once and the days in order, at
-// most 256 weeks; signed on the director's device and put on the teacher's
-// channel, refused for another code's channel; counted when the world's CA
-// certified its key, neither the joined device's subject nor its key, even
-// under another subject, the first of each grant, one naming another channel,
-// one not of its shape or before any device joined left out without stopping
-// the others. Every school, week and device here is made up.
+// most 256 weeks, with one use key for each week, in their order (#594); signed
+// on the director's device and put on the teacher's channel, refused for
+// another code's channel; counted when the world's CA certified its key,
+// neither the joined device's subject nor its key, even under another subject,
+// the first of each grant, one naming another channel, one not of its shape or
+// before any device joined left out without stopping the others. Every school,
+// week and device here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -68,6 +69,10 @@ async function channel() {
       { course: COURSE, week: parseDay('2029-09-30') },
       { course: COURSE, week: parseDay('2029-10-07') },
     ],
+    uses: [
+      { course: COURSE, week: parseDay('2029-09-30'), key: 'a'.repeat(64) },
+      { course: COURSE, week: parseDay('2029-10-07'), key: 'b'.repeat(64) },
+    ],
     from: parseDay('2029-10-15'),
     until: parseDay('2029-11-27'),
     ...change,
@@ -87,6 +92,7 @@ describe('a grant notice', () => {
     const { notice } = await channel();
     assert.equal(isGrantNotice(notice()), true);
     const week = { course: COURSE, week: parseDay('2029-09-30') };
+    const use = (at: number) => notice().uses[at];
     const broken: Partial<Record<keyof GrantNotice | 'note' | 'day', unknown>>[] = [
       { note: 'hello' },
       { grant: 'not-an-id' },
@@ -100,6 +106,15 @@ describe('a grant notice', () => {
       },
       { weeks: [null] },
       { weeks: [week, null] },
+      { weeks: [week, { course: '0'.repeat(32), week: week.week }] },
+      { uses: [] },
+      { uses: 'keys' },
+      { uses: [null, null] },
+      { uses: [{ ...use(0), key: 'ab' }, use(1)] },
+      { uses: [use(1), use(0)] },
+      { uses: [use(0)] },
+      { uses: [{ ...use(0), course: '0'.repeat(32) }, use(1)] },
+      { uses: [{ ...use(0), note: 'hello' }, use(1)] },
       { from: parseDay('2029-11-28') },
       { day: parseDay('2029-10-15') },
       { issue: 0 },

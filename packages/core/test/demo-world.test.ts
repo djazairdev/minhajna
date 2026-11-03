@@ -4,14 +4,16 @@
 // A seeded national demo world (#547, answer 579), from the bundled reference
 // data: the same seed gives the same world, pinned by its first names and IDs,
 // and another seed other names; a directorate for each of the twelve wilayas,
-// and six schools in each, with their staff, classes, pupils and teachers;
-// every wilaya's figures by subject pass both the directorate's floor and the
-// wilaya's, at the CEMs alone and at every level; no class and no teacher is in
-// two places at once, with five or six working days, and each class has its
-// sessions of each subject, a CEM or lycée class two or three a day; classes
-// pin the pack the app offers first; IDs and registration numbers never repeat
-// in a world, nor do names; staff are half women and half men; and a short week
-// is refused.
+// and six schools in each but the last, which keeps a primary school and a CEM
+// (answer 626), with their staff, classes, pupils and teachers; every wilaya's
+// figures by subject pass both the directorate's floor and the wilaya's, at the
+// CEMs alone and at every level, and the small wilaya's pass neither; no class
+// and no teacher is in two places at once, with five or six working days, and
+// each class has its sessions of each subject, a CEM or lycée class two or
+// three a day; classes pin the pack the app offers first; IDs and registration
+// numbers never repeat in a world, nor do names; staff are half women and half
+// men, a school's director alternating from one wilaya to the next; and a short
+// week is refused.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -30,6 +32,7 @@ const packs: PlanPack[] = readdirSync(new URL('../../../data/dz/packs/', import.
 const zones = profile.value.zones ?? [];
 const days = profile.value.workingDays;
 const world = seedNationalWorld('ABCDE', zones, days, packs);
+const last = world.directorates.length - 1;
 const people = (one: DemoWorld) => one.schools.flatMap((s) => [s.director, s.deputy, s.preparer, ...s.teachers]);
 
 test('the same seed gives the same world, pinned by its first names and IDs, and another seed others', () => {
@@ -50,18 +53,19 @@ test('the same seed gives the same world, pinned by its first names and IDs, and
   );
 });
 
-test('a directorate for each of twelve wilayas, and six schools in each with staff, classes and teachers', () => {
+test('twelve directorates, six schools in each but the last, with staff, classes and teachers', () => {
   assert.equal(world.directorates.length, 12);
-  for (const { id, wilaya } of world.directorates) {
+  for (const [place, { id, wilaya }] of world.directorates.entries()) {
+    const small = place === last;
     const here = world.schools.filter((one) => one.wilaya === wilaya.code);
     assert.ok(here.every((one) => one.directorateId === id));
     assert.deepEqual(
       here.map((one) => one.level),
-      ['primary', 'cem', 'cem', 'cem', 'cem', 'lycee'],
+      small ? ['primary', 'cem'] : ['primary', 'cem', 'cem', 'cem', 'cem', 'lycee'],
     );
     assert.equal(
       here.reduce((sum, one) => sum + one.teachers.length, 0),
-      41,
+      small ? 11 : 41,
     );
   }
   const name = (school: DemoWorld['schools'][number], classId: string) =>
@@ -87,14 +91,19 @@ test('a directorate for each of twelve wilayas, and six schools in each with sta
   }
 });
 
-test('every wilaya’s figures by subject pass the directorate’s floor and the wilaya’s', () => {
-  for (const { wilaya } of world.directorates)
+test('every wilaya’s figures by subject pass the directorate’s floor and the wilaya’s, but the small one’s', () => {
+  for (const [place, { wilaya }] of world.directorates.entries())
     for (const subject of ['arabic', 'math', 'french'])
       for (const levels of [['cem'], ['primary', 'cem', 'lycee']]) {
         const schools = world.schools.filter((one) => one.wilaya === wilaya.code && levels.includes(one.level));
         const teaching = schools.filter((one) => one.teachers.some((teacher) => teacher.subject === subject));
         const teachers = schools.flatMap((one) => one.teachers).filter((teacher) => teacher.subject === subject);
-        assert.ok(teachers.length >= 10 && teaching.length >= 3, `${wilaya.code} ${subject} ${levels.join()}`);
+        const passes = {
+          directorate: teachers.length >= 5 && teaching.length >= 3,
+          wilaya: teachers.length >= 10 && teaching.length >= 3,
+        };
+        const small = place === last;
+        assert.deepEqual(passes, { directorate: !small, wilaya: !small }, `${wilaya.code} ${subject} ${levels.join()}`);
       }
 });
 
@@ -147,8 +156,11 @@ test('IDs, registration numbers and names never repeat, staff are half women, an
   assert.equal(everyone.filter((one) => one.sex === 'f').length, everyone.length / 2);
   for (const role of ['director', 'deputy', 'preparer'] as const)
     assert.equal(world.schools.filter((one) => one[role].sex === 'f').length, world.schools.length / 2);
-  const directors = (at: number) => world.schools.filter((_, index) => index % 6 === at).map((one) => one.director.sex);
-  for (let at = 0; at < 6; at += 1) assert.equal(directors(at).filter((sex) => sex === 'f').length, 6);
+  const directors = (at: number) =>
+    world.directorates.map(({ wilaya }) => world.schools.filter((one) => one.wilaya === wilaya.code)[at]?.director.sex);
+  for (let at = 0; at < 6; at += 1)
+    for (const [place, sex] of directors(at).entries())
+      if (sex !== undefined && place > 0) assert.notEqual(sex, directors(at)[place - 1]);
   assert.equal(new Set(world.schools.map((one) => one.name)).size, world.schools.length);
   assert.throws(() => seedNationalWorld('ABCDE', zones, [0, 1, 2, 3], packs), /five working days/u);
   assert.throws(() => seedNationalWorld('ABCDE', zones, [0, 1, 2, 3, 3], packs), /five working days/u);

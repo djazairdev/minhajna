@@ -3,9 +3,11 @@
 
 // The demo worlds (#560 and #561, answers 569, 572, 573 and 575), in place of
 // the welcome or the lock page while the teacher's history is shut: the entry
-// starts a world, on a PC only, or enters one by its code, then the world's own
-// store opens and its roles show, then its home. The platform's cryptography
-// comes from its start. Each failure says what went wrong in the catalogue's
+// starts a world, on a PC only, a national one seeded with its staff's keys
+// before its code is shown (world-seed.ts, #548), or enters one by its code,
+// then the world's own store opens and its roles show, then its home. The
+// platform's cryptography comes from its start. One step runs at a time
+// (use-run-step.ts), and each failure says what went wrong in the catalogue's
 // words, by its code, and leaves the entry as it was; a code the server no
 // longer knows erases what this device kept for it (world-mode.ts). Leaving
 // shuts the network and the world's store, and hands back to the lock, which
@@ -29,7 +31,17 @@
 // actions (#573), and the records page reads the classes' signed weeks (#585).
 // The teacher of a national world signs in on a staffroom PC (#572): on the
 // phone it approves a PC's code, and on the PC it is the staffroom PC itself.
-// The inspector of a national world posts their key from its home (#593).
+// The inspector of a national world posts their key from its home (#593) and
+// reads the grants relayed to their phone there (#594). Every page in a world
+// reads the world's calendar (#608, world-calendar-read.ts): the bundled one
+// with the releases the Ministry published laid over it, read with the world's
+// keys and sealing key, which starting or joining gives and this page holds in
+// memory until the world is left; a reading that fails is said on the world's
+// home, and a world starts from the bundled calendar. When the device that
+// started a world moves its date onto an announced day, and when it enters it
+// again, it sends the seeded schools' shares of the totals for the days reached
+// (seeded-shares.ts, #596) while it still shows busy, and a failed send is said
+// as any failure is, the date already moved, to be finished by the next.
 
 import {
   readWorldCode,
@@ -39,7 +51,7 @@ import {
   type SchoolCalendar,
   type WorldKind,
 } from '@minhajna/core';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import NativeWorld, { type Spec as WorldSpec } from '../native/NativeMinhajnaWorld';
@@ -47,41 +59,23 @@ import { onPc, useDeviceText } from '../text/device-text';
 import { currentLanguage } from '../text/i18n';
 import type { ReferenceResult } from '../reference';
 import { DemoEntry } from './DemoEntry';
+import { sendSeededShares } from './seeded-shares';
+import { useRunStep } from './use-run-step';
+import { useWorldCalendar, type HeldWorld } from './world-calendar-read';
 import { worldDate } from './world-date';
 import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } from './world-mode';
-import { joinWorld, moveWorldDate, startWorld, type Send, type WorldKit } from './world-session';
+import { startSeededWorld } from './world-seed';
+import { joinWorld, moveWorldDate, type Send, type WorldKit } from './world-session';
 import { WorldHome } from './WorldHome';
 import { WorldReader } from './WorldReader';
 import { workspacePage } from './WorkspacePages';
-import { InspectorKey } from '../inspector/InspectorKey';
+import { InspectorHome } from '../inspector/InspectorHome';
 import { SchoolJoin } from '../school/SchoolJoin';
 import { PcApprove } from '../staff/PcApprove';
 import { StaffPc } from '../staff/StaffPc';
 import { useDirectorSchool } from '../director/director-world';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import { mineOf } from '../week/school-mine-session';
-
-type ProblemKey = `demo.problem.${'code' | 'none' | 'busy' | 'offline' | 'lastDay' | 'store' | 'device' | 'other'}`;
-
-/** The catalogue's words for an error's code. */
-const PROBLEMS: Readonly<Record<string, ProblemKey>> = {
-  E_WORLD_CODE: 'demo.problem.code',
-  E_NO_SUCH_WORLD: 'demo.problem.none',
-  E_WORLD_BUSY: 'demo.problem.busy',
-  E_OFFLINE: 'demo.problem.offline',
-  E_TIMEOUT: 'demo.problem.offline',
-  E_REFUSED: 'demo.problem.device',
-  E_WORLD_KIT: 'demo.problem.device',
-  E_NO_WORLD: 'demo.problem.device',
-  E_WORLD_LEFT_DAYS: 'demo.problem.lastDay',
-  E_WORLD: 'demo.problem.store',
-  E_KEY_LOST: 'demo.problem.store',
-};
-
-function problemOf(error: unknown): ProblemKey {
-  const code = (error as { code?: unknown } | null)?.code;
-  return (typeof code === 'string' ? PROBLEMS[code] : undefined) ?? 'demo.problem.other';
-}
 
 export type DemoRootProps = {
   readonly kit: WorldKit;
@@ -116,30 +110,19 @@ export function DemoRoot({
   const [reading, setReading] = useState(false);
   const [joining, setJoining] = useState(false);
   const [staff, setStaff] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [problem, setProblem] = useState<ProblemKey | null>(null);
   const [timetable, setTimetable] = useState<{ world: string; read: TimetableRead } | null>(null);
-  const working = useRef(false);
+  const [held, setHeld] = useState<HeldWorld | null>(null);
+  const { busy, problem, working, run } = useRunStep();
   const school = useDirectorSchool(open, reference);
-
-  const run = useCallback((step: () => Promise<void>) => {
-    if (working.current) return;
-    working.current = true;
-    setBusy(true);
-    setProblem(null);
-    step()
-      .catch((error: unknown) => setProblem(problemOf(error)))
-      .finally(() => {
-        working.current = false;
-        setBusy(false);
-      });
-  }, []);
+  const published = useWorldCalendar(open === null ? null : held, open?.date, calendar, reference, kit, send);
+  const { calendar: here, reference: worldReference } = published;
 
   const start = (kind: WorldKind) =>
     run(async () => {
-      const started = await startWorld(kind, calendar, kit, send);
+      const started = await startSeededWorld(kind, calendar, reference, kit, send);
       const found = { world: started.keys.world, kind, code: started.code, date: started.date };
       setOpen(await openWorld({ ...found, starter: started.starter }, storage, world));
+      setHeld({ world: started.keys.world, keys: started.keys, sealing: started.sealing });
     });
 
   const join = (typed: string) =>
@@ -152,7 +135,13 @@ export function DemoRoot({
       });
       const code = 'code' in read ? read.code : typed;
       const found = { world: joined.keys.world, kind: joined.keys.kind, code, date: joined.date };
-      setOpen(await openWorld({ ...found, starter: null }, storage, world));
+      const opened = await openWorld({ ...found, starter: null }, storage, world);
+      const holding = { world: joined.keys.world, keys: joined.keys, sealing: joined.sealing };
+      setOpen(opened);
+      setHeld(holding);
+      if (opened.starter !== null && reference !== undefined) {
+        await sendSeededShares(holding, opened.date, reference, kit, send);
+      }
     });
 
   const move = () =>
@@ -160,12 +149,14 @@ export function DemoRoot({
       if (open?.starter == null) return;
       const date = await moveWorldDate(open.world, open.starter, open.date, send);
       setOpen({ ...open, date });
+      if (held !== null && reference !== undefined) await sendSeededShares(held, date, reference, kit, send);
     });
 
   const leave = () =>
     run(async () => {
       await leaveWorld(world);
       setOpen(null);
+      setHeld(null);
       setRole(null);
       setReading(false);
       setJoining(false);
@@ -182,14 +173,14 @@ export function DemoRoot({
       return true;
     });
     return () => handler.remove();
-  }, [open, onBack, reading, joining, staff]);
+  }, [open, onBack, reading, joining, staff, working]);
 
-  const shown = problem === null ? null : t(problem);
+  const shown = problem !== null ? t(problem) : published.problem !== null ? t('demo.problem.calendar') : null;
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
   const date = worldDate(t, open.date, currentLanguage(), profile);
   const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
-  const trial = trialTermEnd(calendar.year, profile.weekStartsOn);
+  const trial = trialTermEnd(here.year, profile.weekStartsOn);
   if (joining && open.kind === 'national')
     return (
       <SchoolJoin
@@ -199,20 +190,22 @@ export function DemoRoot({
         kit={kit}
         send={send}
         trial={trial}
-        year={calendar.year.id}
+        year={here.year.id}
         workingDays={reference?.profile.workingDays}
         subjects={reference?.profile.subjects}
-        mine={reference && mineOf(reference, calendar, school)}
+        mine={worldReference && mineOf(worldReference, here, school)}
         school={school}
+        reference={worldReference}
+        updates={published.read?.updates}
         onClose={() => setJoining(false)}
       />
     );
-  if (staff && open.kind === 'national' && school !== null && reference !== undefined)
+  if (staff && open.kind === 'national' && school !== null && worldReference !== undefined)
     return onPc() ? (
       <StaffPc
         world={open}
         school={school}
-        profile={reference.profile}
+        profile={worldReference.profile}
         date={date}
         dayText={dayText}
         kit={kit}
@@ -222,12 +215,12 @@ export function DemoRoot({
     ) : (
       <PcApprove world={open} school={school} date={date} kit={kit} send={send} onClose={() => setStaff(false)} />
     );
-  if (reading && reference !== undefined)
+  if (reading && worldReference !== undefined)
     return (
       <WorldReader
         world={open}
         date={date}
-        reference={reference}
+        reference={worldReference}
         random={kit.random}
         onClose={() => setReading(false)}
       />
@@ -240,34 +233,45 @@ export function DemoRoot({
       moving={busy}
       problem={shown}
       onRole={setRole}
-      onReader={reference === undefined ? undefined : () => setReading(true)}
+      onReader={worldReference === undefined ? undefined : () => setReading(true)}
       onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
       onStaff={
-        open.kind === 'national' && school !== null && reference !== undefined ? () => setStaff(true) : undefined
+        open.kind === 'national' && school !== null && worldReference !== undefined ? () => setStaff(true) : undefined
       }
       inspectorCard={
-        open.kind === 'national' && school !== null ? (
-          <InspectorKey world={open} directorate={school.directorateId} kit={kit} send={send} />
+        open.kind === 'national' && school !== null && worldReference !== undefined ? (
+          <InspectorHome
+            world={open}
+            school={school}
+            reference={worldReference}
+            mine={mineOf(worldReference, here, school)}
+            kit={kit}
+            send={send}
+            dayText={dayText}
+          />
         ) : undefined
       }
       onMove={move}
       onLeave={leave}
       pageBody={(workspace, page, onPage) =>
-        school === null || reference === undefined
+        school === null || reference === undefined || worldReference === undefined
           ? null
           : workspacePage(workspace, page, {
               open,
               school,
-              reference,
+              reference: worldReference,
+              bundled: reference,
               kit,
               send,
               dayText,
               trial,
-              year: calendar.year,
-              mine: mineOf(reference, calendar, school),
+              year: here.year,
+              mine: mineOf(worldReference, here, school),
               timetable,
               onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
               onPage,
+              held,
+              onCalendar: published.again,
             })
       }
     />

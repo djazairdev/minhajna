@@ -20,7 +20,7 @@
 // E_WORLD_KIT, the network's own (world-network.ts), and the store's when it
 // cannot keep the key, or E_WORLD when it kept none; problemOf gives each
 // code's words in the catalogue, D-Keys' E_KEYRING_CHANGED, E_KEY_REMOVED,
-// E_SCHOOL_WAITING, E_SCHOOL_HELD and E_REMOVE_SELF too.
+// E_SCHOOL_WAITING, E_SCHOOL_HELD, E_SEED_TAKEN and E_REMOVE_SELF too.
 
 import {
   certificateRequest,
@@ -186,6 +186,7 @@ const PROBLEMS = {
   E_KEY_REMOVED: 'demo.keys.removed',
   E_SCHOOL_WAITING: 'demo.keys.waitingHere',
   E_SCHOOL_HELD: 'demo.keys.heldHere',
+  E_SEED_TAKEN: 'demo.keys.start.taken',
   E_NO_SCHOOL_KEY: 'demo.issue.keysFirst',
   E_REMOVE_SELF: 'demo.keys.removeSelf',
   E_PC_NOT_JOINED: 'demo.staff.phone.notJoined',
@@ -200,6 +201,9 @@ const PROBLEMS = {
   E_TIMETABLE_PROPOSAL: 'ttProposal.refused',
   E_TIMETABLE_DECIDED: 'ttProposal.decided',
   E_TIMETABLE_UNJOINED: 'demo.timetable.notJoined',
+  E_CALENDAR_RACE: 'demo.ministryCalendar.publish.race',
+  E_CUT_CLOSED: 'demo.threshold.problem.closed',
+  E_CUT_NOT_SETTER: 'demo.threshold.problem.notSetter',
 } as const;
 
 /** The catalogue's words for an error's code. */

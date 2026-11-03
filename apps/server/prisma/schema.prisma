@@ -39,6 +39,7 @@ model World {
   receiverKey   String?
   spaces        Space[]
   receipts      Receipt[]
+  shares        Share[]
 
   @@index([erasesOn])
   @@map("world")
@@ -87,4 +88,17 @@ model Receipt {
   @@unique([worldId, id])
   @@index([worldId, seq])
   @@map("receipt")
+}
+
+model Share {
+  seq     Int      @id @default(autoincrement())
+  worldId String   @db.Char(5)
+  day     DateTime @db.Date
+  id      String   @db.Char(64)
+  body    Json
+  world   World    @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  @@unique([worldId, day, id])
+  @@index([worldId, day, seq])
+  @@map("share")
 }

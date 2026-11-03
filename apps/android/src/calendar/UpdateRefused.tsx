@@ -23,7 +23,7 @@ type Outcome = 'passed' | 'failed' | 'skipped';
 /** How far the checks went: each passed until the one that failed, and none after it was made. */
 export function checksFor(problem: UpdateProblem): Record<Check, Outcome> {
   const failed: Check =
-    problem === 'invalid' || problem === 'version'
+    problem === 'invalid' || problem === 'version' || problem === 'world'
       ? 'format'
       : problem === 'unknown-key'
         ? 'key'

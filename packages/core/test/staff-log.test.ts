@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // My log in a demo world (#573, answer 603): the school key started on this
-// device; devices added and removed, counted without the recovery, and the
+// device, or taken as the world's seeded key (#548), which only a true mark
+// says, whose first codes, the seeding's, are never listed, so a code after one
+// replaces it; devices added and removed, counted without the recovery, and the
 // recovery made and renewed, only in keyrings this device made, never one
 // another holder made and this device followed, the old recovery's removal and
 // a device's removal with a renewal each said once; a device another holder
@@ -21,6 +23,7 @@ import {
   addRecovery,
   makeRecoveryParts,
   removeDevice,
+  readSchoolHeld,
   renewRecovery,
   staffLog,
   startKeyring,
@@ -125,6 +128,25 @@ describe('the log of a director’s own actions', () => {
       { kind: 'key-replaced', ...at('2026-10-23'), assignment: Y, number: '0043' },
       { kind: 'key-issued', ...at('2026-10-23'), assignment: Z, number: '0044' },
       { kind: 'code-replaced', ...at('2026-10-24'), assignment: Z },
+    ]);
+  });
+
+  it('reads a key marked taken, says so, and never the seeding’s codes, so a later code replaces one', async () => {
+    const mine = await device();
+    const ring = (await startKeyring(SCHOOL, mine.holder, mine.crypto, random)).ring;
+    const book = await openBook(cemEvents());
+    const taken: SchoolHeld = { ...held(mine.holder, { ring } as OpenedKeyring), seeded: true };
+    assert.deepEqual(readSchoolHeld(taken, 32), taken);
+    for (const seeded of [false, 'yes']) assert.equal(readSchoolHeld({ ...taken, seeded }, 32), null);
+    await book.record(d('2026-10-20'), { kind: 'school.held', held: taken });
+    for (const one of [issued(X, 1, 0), issued(Y, 1, 0), issued(X, 2, 0), issued(Z, 1, 0, '0042')]) {
+      await book.record(d('2026-10-21'), { kind: 'school.issued', issued: one });
+    }
+    const at = (day: string) => ({ day: d(day), school: SCHOOL });
+    assert.deepEqual(await staffLog(book.entries, mine.crypto), [
+      { kind: 'key-taken', ...at('2026-10-20') },
+      { kind: 'code-replaced', ...at('2026-10-21'), assignment: X },
+      { kind: 'key-issued', ...at('2026-10-21'), assignment: Z, number: '0042' },
     ]);
   });
 

@@ -59,7 +59,7 @@ test('a started world opens with its code alone, of its kind, and nothing secret
   leaveWorldNetwork();
 
   const joined = await joinWorld(worldCodeGroups(started.code).join(' ').toLowerCase(), kit, send);
-  expect(joined).toEqual({ keys: started.keys, date: started.date });
+  expect(joined).toEqual({ keys: started.keys, date: started.date, sealing: started.sealing });
   expect(worldNetworkOpen()).toBe(started.keys.world);
   expect(server.seen[1].headers['X-World-Pass']).toMatch(/^[A-Za-z0-9_-]{43}$/u);
 });

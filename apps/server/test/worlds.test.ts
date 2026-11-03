@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The worlds API (#540): starting a world from the first half of its code,
-// joining it, reading its date, and moving the date only with the starter
-// token. Every world here is made up.
+// joining it, reading its date and announced days, moving the date only with
+// the starter token, and replacing the announced days after the date with the
+// pass (#608), which the date then moves through, each refused when the other
+// changed meanwhile. Every world here is made up.
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { after, before, describe, it } from 'node:test';
+import { after, before, describe, it, mock } from 'node:test';
 import type { NestNodeApplication } from '@nestjs/platform-node';
 import { createApp } from '../src/app.js';
-import { MemoryWorldStore } from '../src/worlds/world-store.js';
+import { MemoryWorldStore, type World } from '../src/worlds/world-store.js';
 
 const OPEN = { perAddress: 1000, total: 1000, windowMs: 60_000 };
 const PASS = 'cGFzcy1mb3ItYS1tYWRlLXVwLWRlbW8td29ybGQtMDE';
@@ -77,9 +79,11 @@ describe('the worlds API', () => {
     const join = await fetch(`${base}/worlds/${world}`, { headers: WITH_PASS });
     assert.equal(join.status, 200);
     assert.equal(join.headers.get('cache-control'), 'no-store');
-    assert.deepEqual(await join.json(), { sealed: 'c2VhbGVkLXdvcmxk', date: '2026-12-01' });
+    const days = ['2026-11-30', '2026-12-06', '2026-12-20', '2027-02-14'];
+    assert.deepEqual(await join.json(), { sealed: 'c2VhbGVkLXdvcmxk', date: '2026-12-01', announcedDays: days });
     assert.deepEqual(await (await fetch(`${base}/worlds/${world}/date`, { headers: WITH_PASS })).json(), {
       date: '2026-12-01',
+      announcedDays: days,
     });
   });
 
@@ -168,6 +172,86 @@ describe('the worlds API', () => {
     assert.equal(last.status, 409);
     assert.equal(last.headers.get('cache-control'), 'no-store');
     assert.equal((await store.get(world))?.date, '2027-02-14');
+  });
+
+  it('replaces the announced days after the date with the pass, and the date then moves through them', async () => {
+    const { world, starter } = await start();
+    const path = `/worlds/${world}/announced-days`;
+    const put = (body: unknown, headers: Record<string, string> = WITH_PASS) =>
+      fetch(`${base}${path}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json', ...headers },
+        body: JSON.stringify(body),
+      });
+    const sent = ['2027-01-10', '2026-12-13', '2027-01-10'];
+    const res = await put({ announcedDays: sent });
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('cache-control'), 'no-store');
+    const kept = ['2026-11-30', '2026-12-13', '2027-01-10'];
+    assert.deepEqual(await res.json(), { announcedDays: kept });
+    assert.deepEqual((await store.get(world))?.announcedDays, kept);
+    const read = await fetch(`${base}/worlds/${world}/date`, { headers: WITH_PASS });
+    assert.deepEqual(await read.json(), { date: '2026-12-01', announcedDays: kept });
+    for (const body of [
+      {},
+      { announcedDays: ['2027-01-10'], date: '2027-01-10' },
+      { announcedDays: '2027-01-10' },
+      { announcedDays: ['2026-12-01'] },
+      { announcedDays: ['2026-11-15'] },
+      { announcedDays: ['2027-02-30'] },
+      {
+        announcedDays: Array.from({ length: 400 }, (_, at) =>
+          new Date(Date.UTC(2027, 0, 1 + at)).toISOString().slice(0, 10),
+        ),
+      },
+    ]) {
+      assert.equal((await put(body)).status, 400);
+    }
+    assert.equal((await put({ announcedDays: [] }, {})).status, 404);
+    assert.equal((await put({ announcedDays: [] }, { 'x-world-pass': PASS.replace(/.$/, 'A') })).status, 404);
+    assert.deepEqual((await store.get(world))?.announcedDays, kept);
+    const auth = { ...WITH_PASS, authorization: `Bearer ${starter}` };
+    assert.deepEqual(await (await post(`/worlds/${world}/date`, {}, auth)).json(), { date: '2026-12-13' });
+    assert.deepEqual(await (await put({ announcedDays: [] })).json(), { announcedDays: ['2026-11-30', '2026-12-13'] });
+    assert.equal((await post(`/worlds/${world}/date`, {}, auth)).status, 409);
+  });
+
+  it('keeps 400 announced days in all, and refuses a change when the other moved meanwhile', async () => {
+    const { world, starter } = await start();
+    const put = (announcedDays: readonly string[]) =>
+      fetch(`${base}/worlds/${world}/announced-days`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json', ...WITH_PASS },
+        body: JSON.stringify({ announcedDays }),
+      });
+    const later = Array.from({ length: 399 }, (_, at) =>
+      new Date(Date.UTC(2027, 0, 1 + at)).toISOString().slice(0, 10),
+    );
+    assert.equal((await put(later)).status, 200);
+    assert.equal((await store.get(world))?.announcedDays.length, 400);
+    const kept = store.setAnnouncedDays.bind(store);
+    const moved = mock.method(store, 'setAnnouncedDays', async (id: string, date: string, days: readonly string[]) => {
+      await store.setDate(id, '2026-12-06', (await store.get(id))!);
+      return kept(id, date, days);
+    });
+    try {
+      assert.equal((await put(['2026-12-20'])).status, 409);
+    } finally {
+      moved.mock.restore();
+    }
+    assert.equal((await store.get(world))?.announcedDays.length, 400);
+    const date = store.setDate.bind(store);
+    const changed = mock.method(store, 'setDate', async (id: string, day: string, was: World) => {
+      await store.setAnnouncedDays(id, was.date, ['2027-05-01']);
+      return date(id, day, was);
+    });
+    try {
+      const auth = { ...WITH_PASS, authorization: `Bearer ${starter}` };
+      assert.equal((await post(`/worlds/${world}/date`, {}, auth)).status, 409);
+    } finally {
+      changed.mock.restore();
+    }
+    assert.equal((await store.get(world))?.date, '2026-12-06');
   });
 
   it("does not move a world's date with another world's token", async () => {

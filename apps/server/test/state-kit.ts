@@ -3,8 +3,10 @@
 
 // What the stand-in receiving system's tests send (#590, answer 618): a made-up
 // device's signing key, sealing for a receiving key step by step as
-// apps/android's world-key-crypto.ts seals a key to a device, and a made-up
-// term export of two pupils' marks. Every pupil and mark here is made up.
+// apps/android's world-key-crypto.ts seals a key to a device, a made-up term
+// export of two pupils' marks, and a fixed clock for the server, so no date a
+// world keeps, such as the day it is erased, depends on the day the tests run.
+// Every pupil and mark here is made up.
 
 import {
   createCipheriv,
@@ -20,6 +22,8 @@ import {
 export const OPEN = { perAddress: 1000, total: 1000, windowMs: 60_000 };
 export const PASS = 'cGFzcy1mb3ItYS1tYWRlLXVwLWRlbW8td29ybGQtMDE';
 export const WITH_PASS = { 'x-world-pass': PASS };
+/** The server's clock in tests: 30 Nov 2026, 10:00 UTC, so a world started now is erased on 6 Dec. */
+export const NOW = (): number => Date.UTC(2026, 10, 30, 10);
 const SPKI_HEAD = Buffer.from('3059301306072a8648ce3d020106082a8648ce3d030107034200', 'hex');
 
 export interface Signer {

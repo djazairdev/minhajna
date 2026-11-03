@@ -67,7 +67,7 @@ const within = (day: Day, from: Day, to: Day) => compareDays(day, from) >= 0 && 
 const byName = new Intl.Collator('ar', { numeric: true }).compare;
 
 /** Each course and week once: the highest version, the lower text winning a tie as on the channel. */
-function inForce(weeks: readonly WeekRecord[]): WeekRecord[] {
+export function weeksInForce(weeks: readonly WeekRecord[]): WeekRecord[] {
   const found = new Map<string, WeekRecord>();
   for (const week of weeks) {
     const key = `${week.course}\n${week.week}`;
@@ -93,7 +93,7 @@ export function courseDeliveries(
   reading: DeliveryReading,
 ): CourseDelivery[] {
   const found = new Map<string, WeekRecord[]>();
-  for (const week of inForce(weeks)) {
+  for (const week of weeksInForce(weeks)) {
     const inSpan = week.sessions.some((one) => within(sessionDay(week.week, one), from, to));
     if (inSpan) found.set(week.course, [...(found.get(week.course) ?? []), week]);
   }

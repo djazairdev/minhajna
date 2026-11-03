@@ -5,17 +5,17 @@
 // (#577, #578, answers 605 and 606), against a made-up demo server: the card
 // shows under the checks once a timetable is read, and the proposals and
 // receipts cards before one is; checking drafts the first version, with every
-// teacher with a code new and the others named apart, and says how many are
-// told; publishing sends the part, says how many were sent it and how many were
-// told nothing, aloud in the page's hidden live region on a PC, and clears the
-// draft; another reading clears what was said; a second version shows what
-// changed from the first and how many others hear nothing, and, for one day,
-// offers the school days and publishes a one-day part; a part that did not
-// reach the server names its teacher with the problem met, and a name the staff
-// list shares is named; the preparer's page has no sending, no proposals and no
-// receipts; a director's device that holds no school key yet says to start it
-// on the keys page; and the card's words read in every language. Every world,
-// school and person is made up.
+// teacher with a code new, as every seeded teacher is (#548), and the others
+// named apart, and says how many are told; publishing sends the part, says how
+// many were sent it and how many were told nothing, aloud in the page's hidden
+// live region on a PC, and clears the draft; another reading clears what was
+// said; a second version shows what changed from the first and how many others
+// hear nothing, and, for one day, offers the school days and publishes a
+// one-day part; a part that did not reach the server names its teacher with the
+// problem met, and a name the staff list shares is named; the preparer's page
+// has no sending, no proposals and no receipts; a director's device that holds
+// no school key yet says to start it on the keys page; and the card's words
+// read in every language. Every world, school and person is made up.
 
 import {
   channelStream,
@@ -142,7 +142,7 @@ async function partsOn(code: JoinCode) {
 test('the director checks a version, sees its effect, and publishes it to the teachers it changes', async () => {
   const school = await enter('director');
   await press('world-page-keys');
-  await press('keys-start-here');
+  await press('keys-take-seeded');
   await press('world-page-codes');
   const qrRows = jest.spyOn(qr, 'qrRows');
   const [first, second] = school.teachers;
@@ -157,12 +157,19 @@ test('the director checks a version, sees its effect, and publishes it to the te
   await press('tt-send-check');
   const told = (count: number) => version.told.replace('{{teachers}}', String(count));
   expect(texts()).toEqual(
-    expect.arrayContaining([version.title.replace('{{version}}', '1'), version.first, told(1), isolate(first.name)]),
+    expect.arrayContaining([
+      version.title.replace('{{version}}', '1'),
+      version.first,
+      told(2),
+      isolate(first.name),
+      isolate(second.name),
+    ]),
   );
-  expect(texts()).toEqual(expect.arrayContaining([words.noCode, isolate(second.name), isolate('مختلق غريب')]));
-  expect(said('tt-send-said')).toBe(told(1));
+  expect(texts()).toEqual(expect.arrayContaining([words.notStaff, isolate('مختلق غريب')]));
+  expect(texts()).not.toContain(words.noCode);
+  expect(said('tt-send-said')).toBe(told(2));
   await press('tt-send-go');
-  const sent = words.sent.replace('{{teachers}}', '1');
+  const sent = words.sent.replace('{{teachers}}', '2');
   expect(texts()).toEqual(expect.arrayContaining([sent, version.unchanged.replace('{{teachers}}', '0'), words.again]));
   expect(said('tt-send-said')).toBe(sent);
   expect(shown('tt-version')).toBe(false);
@@ -174,7 +181,7 @@ test('the director checks a version, sees its effect, and publishes it to the te
     expect.arrayContaining([version.title.replace('{{version}}', '2'), version.changed.replace('{{version}}', '1')]),
   );
   expect(tree!.root.findAllByProps({ testID: 'tt-version-change' }).length).toBeGreaterThan(0);
-  expect(texts()).toContain(version.others.replace('{{teachers}}', '0'));
+  expect(texts()).toContain(version.others.replace('{{teachers}}', '1'));
   await ReactTestRenderer.act(async () => {
     (tree!.root.findAllByProps({ testID: 'tt-send-once' })[0].props as SwitchProps).onValueChange(true);
     await settle();

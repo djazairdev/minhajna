@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The committed SQL migrations (#542, #590), applied to a real PostgreSQL named
-// by TEST_DATABASE_URL, whose database name must end in _test since every
+// The committed SQL migrations (#542, #590, #596), applied to a real PostgreSQL
+// named by TEST_DATABASE_URL, whose database name must end in _test since every
 // test empties it. Without it these tests are skipped; CI always sets it.
 
 import assert from 'node:assert/strict';
@@ -61,6 +61,7 @@ describe('the committed migrations', { skip }, () => {
       'minhajna_meta.migration',
       'public.batch',
       'public.receipt',
+      'public.share',
       'public.space',
       'public.world',
     ]);
@@ -80,7 +81,7 @@ describe('the committed migrations', { skip }, () => {
     }
   });
 
-  it("erases a world's spaces, batches and receipts with it, leaving no row", async () => {
+  it("erases a world's spaces, batches, receipts and shares with it, leaving no row", async () => {
     await applyMigrations(client);
     await client.query(
       `INSERT INTO world VALUES ('K7QF3', 'c2VhbGVk', '2026-12-01', '{2026-12-06}', $1, $1, '2026-12-07')`,
@@ -96,8 +97,11 @@ describe('the committed migrations', { skip }, () => {
        VALUES ('K7QF3', $1, 'marks', 1, '1M2', 'math', 30, '2026-11-29', '2026-12-01', $1)`,
       ['0'.repeat(32)],
     );
+    await client.query(`INSERT INTO share ("worldId", day, id, body) VALUES ('K7QF3', '2026-12-06', $1, '{}')`, [
+      '0'.repeat(64),
+    ]);
     await client.query(`DELETE FROM world WHERE id = 'K7QF3'`);
-    for (const table of ['world', 'space', 'batch', 'receipt']) {
+    for (const table of ['world', 'space', 'batch', 'receipt', 'share']) {
       const { rows } = await client.query<{ n: number }>(`SELECT count(*)::int AS n FROM ${table}`);
       assert.equal(rows[0]?.n, 0, table);
     }

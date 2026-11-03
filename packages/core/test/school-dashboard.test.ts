@@ -5,15 +5,16 @@
 // world: the director's school is the world's first CEM; its rows come in the
 // school's order, each class then each subject as its week gives it, with the
 // teacher its sessions name, a row for each of two, or none for a vacant post,
-// which stands as vacant; a teacher who has not
-// joined is not joined during the trial term end and to join after it, and
-// their class has no standing, whatever the space would give, while a joined
-// teacher's class may have none yet; a level, a teacher and the classes behind
-// their plan are filters that keep the order, and a class is behind by a whole
-// session or more; a class's week is its timetable; the grades come in the
-// school's order; and each teacher's weekly sessions come from the timetable,
-// in the staff's order, with the cover they gave. Every school, class and
-// person is made up.
+// which stands as vacant; a teacher who has not joined is not joined during the
+// trial term end and to join after it, and their class has no standing,
+// whatever the space would give, while a joined teacher's class may have none
+// yet; a level, a teacher and the classes behind their plan are filters that
+// keep the order, and a class is behind when its latest week runs long; a
+// class's week is its timetable; the grades come in the school's order; and
+// each teacher's weekly sessions come from the timetable, in the staff's order,
+// with the cover they gave; and each subject's staffing comes from the
+// timetable, a vacant post counting its class and its sessions. Every school,
+// class and person is made up.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -26,9 +27,9 @@ import {
   parseCountryProfile,
   parsePlanPack,
   schoolGrades,
+  schoolStaffing,
   seedNationalWorld,
   shownCourses,
-  STATEMENT_FORMAT,
   teacherLoads,
   type CourseStanding,
   type Day,
@@ -51,20 +52,12 @@ const trial: TrialTerm = { from: '2026-11-29' as Day, to: '2026-12-24' as Day, t
 const during = { trial, date: '2026-12-01' as Day };
 const after = { trial, date: '2027-01-10' as Day };
 
-/** A class's standing with a delay in sessions. */
-const standing = (sessions: number): CourseStanding => ({
-  statement: {
-    format: STATEMENT_FORMAT,
-    version: { major: 1, minor: 0 },
-    day: '2026-10-14' as never,
-    class: { level: 'cem', grade: '4am', section: '2', subject: 'arabic', year: '2026-2027' },
-    pack: { id: 'made-up-pack', release: '2026.1' },
-    lastUnit: null,
-    lastResource: null,
-    delay: { sessions, weeks: sessions === 0 ? 0 : 1, bufferUsed: 1, bufferLeft: 2 },
-    notHeld: { calendar: 0, other: 1 },
-    td: { calendar: 0, other: 0 },
-  },
+/** A class's standing, running long or not. */
+const standing = (runsLong: boolean): CourseStanding => ({
+  position: null,
+  reached: 420,
+  runsLong,
+  notHeld: { closure: 0, other: 1 },
   awaiting: 2,
 });
 
@@ -82,7 +75,7 @@ test('rows come in the school’s order, with each class’s teacher, and no sta
     school,
     during,
     (teacher) => teacher === school.teachers[0]!.id,
-    () => standing(0),
+    () => standing(false),
   );
   assert.deepEqual(
     rows.slice(0, 4).map((row) => [row.className, row.subject]),
@@ -103,7 +96,7 @@ test('rows come in the school’s order, with each class’s teacher, and no sta
     school,
     after,
     () => false,
-    () => standing(0),
+    () => standing(false),
   );
   assert.ok(later.every((row) => row.space === 'to-join' && row.standing === null));
   const empty = dashboardCourses(
@@ -122,7 +115,7 @@ test('a vacant post keeps its row, with no teacher, and a class’s week is its 
     vacant,
     during,
     () => true,
-    () => standing(0),
+    () => standing(false),
   );
   assert.equal(rows.length, school.classes.length * 3);
   const empty = rows.filter((row) => row.teacher === null);
@@ -167,7 +160,7 @@ test('a level and the classes behind are filters that keep the order', () => {
     school,
     during,
     () => true,
-    (classId, subject) => standing(late.has(classId) && subject === 'math' ? 1 : 0),
+    (classId, subject) => standing(late.has(classId) && subject === 'math'),
   );
   assert.deepEqual(rows.slice(0, 2).map(courseBehind), [false, true]);
   assert.deepEqual(schoolGrades(school), ['1am', '4am']);
@@ -193,7 +186,7 @@ test('a level and the classes behind are filters that keep the order', () => {
     school,
     during,
     () => false,
-    () => standing(5),
+    () => standing(true),
   );
   assert.deepEqual(shownCourses(notJoined, { grade: null, teacherId: null, behindOnly: true }), []);
 });
@@ -216,4 +209,22 @@ test('each teacher’s weekly sessions come from the timetable, in the staff’s
     loads.map((one) => one.cover),
     school.teachers.map((_, index) => (index === 1 ? 2 : 0)),
   );
+});
+
+test('each subject’s staffing comes from the timetable, a vacant post counting its class and sessions', () => {
+  const full = schoolStaffing(school);
+  const subjects = [...new Set(school.week.map((session) => session.subject))].sort();
+  assert.deepEqual(Object.keys(full), subjects);
+  for (const subject of subjects) {
+    const teachers = new Set(school.week.filter((one) => one.subject === subject).map((one) => one.teacherId));
+    assert.deepEqual(full[subject], { teachers: teachers.size, vacantPosts: 0, hoursWithoutTeacher: 0 });
+  }
+  const gone = school.teachers[0]!;
+  const vacant = schoolStaffing({ ...school, teachers: school.teachers.slice(1) });
+  const theirs = school.week.filter((one) => one.teacherId === gone.id);
+  assert.deepEqual(vacant[gone.subject], {
+    teachers: full[gone.subject]!.teachers - 1,
+    vacantPosts: new Set(theirs.map((one) => one.classId)).size,
+    hoursWithoutTeacher: theirs.length,
+  });
 });

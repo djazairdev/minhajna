@@ -8,14 +8,16 @@ import {
   createHmac,
   createPrivateKey,
   createPublicKey,
+  diffieHellman,
   generateKeyPairSync,
-  webcrypto,
   pbkdf2Sync,
   randomBytes,
   sign,
   verify,
 } from 'node:crypto';
-import { holdsPass, holdsStarter, readWorldStart } from '../../server/src/worlds/world-rules';
+import { readShare, type Share } from '../../server/src/totals/share-read';
+import { dayTotals } from '../../server/src/totals/share-sums';
+import { holdsPass, holdsStarter, readLaterDays, readWorldStart } from '../../server/src/worlds/world-rules';
 import type { WorldKit } from '../src/demo/world-session';
 import { worldRequest, type WorldRequest } from '../src/network/world-network';
 import { WorldRelay } from './world-relay';
@@ -70,25 +72,36 @@ export const nodeKit: WorldKit = {
         fingerprint: createHash('sha256').update(spki).digest('hex'),
       };
     }),
-  async newAgreement() {
-    const pair = await webcrypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
-    const publicKey = new Uint8Array(await webcrypto.subtle.exportKey('raw', pair.publicKey));
-    const pkcs8 = Buffer.from(await webcrypto.subtle.exportKey('pkcs8', pair.privateKey)).toString('base64');
-    return { publicKey, pkcs8 };
-  },
-  async agree(pkcs8, publicKey) {
-    if (publicKey.length !== 65) throw new RangeError('Not an uncompressed point');
-    const curve = { name: 'ECDH', namedCurve: 'P-256' } as const;
-    const own = await webcrypto.subtle.importKey('pkcs8', Buffer.from(pkcs8, 'base64'), curve, false, ['deriveBits']);
-    const theirs = await webcrypto.subtle.importKey('raw', new Uint8Array(publicKey), curve, false, []);
-    return new Uint8Array(await webcrypto.subtle.deriveBits({ name: 'ECDH', public: theirs }, own, 256));
-  },
+  newAgreement: () =>
+    later(() => {
+      const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+      const { x = '', y = '' } = publicKey.export({ format: 'jwk' });
+      const point = Buffer.concat([Buffer.from([4]), Buffer.from(x, 'base64url'), Buffer.from(y, 'base64url')]);
+      return {
+        publicKey: new Uint8Array(point),
+        pkcs8: privateKey.export({ type: 'pkcs8', format: 'der' }).toString('base64'),
+      };
+    }),
+  agree: (pkcs8, publicKey) =>
+    later(() => {
+      if (publicKey.length !== 65 || publicKey[0] !== 4) throw new RangeError('Not an uncompressed point');
+      const bytes = Buffer.from(publicKey);
+      const jwk = {
+        kty: 'EC',
+        crv: 'P-256',
+        x: bytes.subarray(1, 33).toString('base64url'),
+        y: bytes.subarray(33).toString('base64url'),
+      };
+      const theirs = createPublicKey({ key: jwk, format: 'jwk' });
+      const own = createPrivateKey({ key: Buffer.from(pkcs8, 'base64'), format: 'der', type: 'pkcs8' });
+      return new Uint8Array(diffieHellman({ privateKey: own, publicKey: theirs }));
+    }),
 };
 
 export interface KeptWorld {
   sealed: string;
   date: string;
-  readonly announced: string[];
+  announced: string[];
   readonly passHash: string;
   readonly starterHash: string;
 }
@@ -99,14 +112,18 @@ export function answer(status: number, body?: unknown, headers?: Record<string, 
 
 /**
  * The demo server's routes on a map, with the server's own rules for what a
- * start carries, its pass and its starter token, and its relay and stand-in CA
- * (world-relay.ts): `taken` answers 409 to that many starts, and `busy` 429 to
- * every request while it is set.
+ * start carries, its pass and its starter token, which moving the date and
+ * seeding (#548) need, its relay and stand-in CA (world-relay.ts), and the
+ * schools' shares of the totals (#596), kept by world, day and ID in `shares`
+ * and added up by the server's own sums (#598):
+ * `taken` answers 409 to that many starts, and `busy` 429 to every request
+ * while it is set.
  */
 export class DemoServer {
   readonly worlds = new Map<string, KeptWorld>();
   readonly seen: { method: string; path: string; headers: Record<string, string>; body?: string }[] = [];
   readonly relay = new WorldRelay();
+  readonly shares = new Map<string, unknown>();
   taken = 0;
   busy = false;
 
@@ -122,6 +139,7 @@ export class DemoServer {
     this.taken = 0;
     this.busy = false;
     this.relay.reset();
+    this.shares.clear();
   }
 
   private route(address: string, init: RequestInit): Response | Promise<Response> {
@@ -150,7 +168,41 @@ export class DemoServer {
     const [, , world, rest] = path.split('/');
     const kept = this.worlds.get(world);
     if (kept === undefined || !holdsPass(headers['X-World-Pass'], kept.passHash)) return answer(404, {});
-    if (rest === undefined && init.method === 'GET') return answer(200, { sealed: kept.sealed, date: kept.date });
+    const announcedDays = kept.announced;
+    if (rest === undefined && init.method === 'GET')
+      return answer(200, { sealed: kept.sealed, date: kept.date, announcedDays });
+    if (rest === 'date' && init.method === 'GET') return answer(200, { date: kept.date, announcedDays });
+    if (rest === 'announced-days' && init.method === 'PUT') {
+      const days = readLaterDays(JSON.parse(init.body as string), kept.date, kept.announced);
+      if (typeof days === 'string') return answer(400, { error: days });
+      kept.announced = days;
+      return answer(200, { announcedDays: days });
+    }
+    if (rest === 'totals' && init.method === 'PUT') {
+      const [day] = path.split('/').slice(4);
+      if (!kept.announced.includes(day) || day > kept.date) return answer(422, { error: 'not announced' });
+      const share = readShare(JSON.parse(init.body as string));
+      if (typeof share === 'string' || share.day !== day) return answer(400, { error: 'not a share' });
+      const key = `${world}\n${day}\n${share.id}`;
+      const replaced = this.shares.has(key);
+      this.shares.set(key, share);
+      return answer(replaced ? 200 : 201, { id: share.id });
+    }
+    if (rest === 'totals' && init.method === 'GET') {
+      const [day] = path.split('/').slice(4);
+      if (!kept.announced.includes(day) || day > kept.date) return answer(422, { error: 'not announced' });
+      const held = [...this.shares].filter(([key]) => key.startsWith(`${world}\n${day}\n`));
+      const directorate = url.searchParams.get('directorate');
+      return answer(
+        200,
+        dayTotals(
+          day,
+          held.map(([, share]) => share as Share),
+          directorate,
+        ),
+      );
+    }
+    if (rest === 'seed' && !holdsStarter(headers.Authorization, kept.starterHash)) return answer(403, {});
     if (rest !== undefined && rest !== 'date') {
       const body: unknown = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
       const segments = path.split('/').slice(3);

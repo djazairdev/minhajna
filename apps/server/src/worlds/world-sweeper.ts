@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Erases worlds on their 7th day (answer 548): when the server starts, and
-// every hour after, so a world is gone within the hour its 7th day begins,
-// in UTC. A failed sweep is logged and tried again the next hour. When the
-// server stops, the sweeper stops and the stores close.
+// every hour after, so a world is gone within the hour its 7th day begins, in
+// UTC, with its spaces, the schools' shares of its totals and the days of them
+// kept worked out. A failed sweep is logged and tried again the next hour. When
+// the server stops, the sweeper stops and the stores close.
 
 import { Inject, Injectable, Logger, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
+import { SHARE_STORE, type ShareStore } from '../totals/share-store.js';
+import { TotalsDays } from '../totals/totals-days.js';
 import { WORLD_STORE, type WorldStore } from './world-store.js';
 
 export const SWEEP_EVERY = 60 * 60 * 1000;
@@ -26,7 +29,9 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
   constructor(
     @Inject(WORLD_STORE) private readonly worlds: WorldStore,
     @Inject(SPACE_STORE) private readonly spaces: SpaceStore,
+    @Inject(SHARE_STORE) private readonly shares: ShareStore,
     @Inject(WORLD_KEEPING) private readonly keeping: WorldKeeping,
+    @Inject(TotalsDays) private readonly days: TotalsDays,
   ) {}
 
   /** Erases the worlds whose 7th day has come, and answers how many. */
@@ -34,6 +39,8 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
     const today = new Date(this.keeping.now()).toISOString().slice(0, 10);
     const gone = await this.worlds.sweep(today);
     await this.spaces.forget(gone);
+    await this.shares.forget(gone);
+    this.days.forget(gone);
     return gone.length;
   }
 

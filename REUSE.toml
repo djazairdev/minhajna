@@ -23,9 +23,9 @@ path = ["apps/android/package.json", "apps/android/package-lock.json", "apps/and
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
-# Supplemental erase-warning translations.
+# Small backup/restore-file messages, bundled in Settings' namespace.
 [[annotations]]
-path = ["apps/android/src/settings/text/erase/*.json"]
+path = "apps/android/src/settings/text/backup/*.json"
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 

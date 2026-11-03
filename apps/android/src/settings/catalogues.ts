@@ -4,13 +4,13 @@
 import ar from './text/ar.json';
 import fr from './text/fr.json';
 import en from './text/en.json';
-import eraseAr from './text/erase/ar.json';
-import eraseFr from './text/erase/fr.json';
-import eraseEn from './text/erase/en.json';
+import arBackup from './text/backup/ar.json';
+import frBackup from './text/backup/fr.json';
+import enBackup from './text/backup/en.json';
 
 /** Settings' bundled namespace; no translation is downloaded. */
 export const settingsCatalogues = {
-  ar: { ...ar, eraseTransfer: eraseAr },
-  fr: { ...fr, eraseTransfer: eraseFr },
-  en: { ...en, eraseTransfer: eraseEn },
+  ar: { ...ar, savedFile: arBackup },
+  fr: { ...fr, savedFile: frBackup },
+  en: { ...en, savedFile: enBackup },
 } as const;

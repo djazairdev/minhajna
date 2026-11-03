@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // My log in a national demo world (#573, answer 603), against a made-up demo
-// server: before the director acts it says nothing was done; once the school
-// key is started on this PC and codes and a key issued, it lists them, dated,
-// each teacher named, a replaced code as new, with the rule and days only;
-// the preparer's page on the same device says its actions are not kept yet
-// and shows none of the director's; and an issue for no teacher of the staff
-// list names a teacher of the school. Every world, school and teacher is made
-// up.
+// server: before the director acts it says nothing was done; once the school's
+// seeded key is taken on this PC (#548) and codes and a key issued, it lists
+// them, dated, each teacher named, the seeding's codes never, so a code that
+// replaces a seeded one is new, with the rule and days only; the preparer's
+// page on the same device says its actions are not kept yet and shows none of
+// the director's; and an issue for no teacher of the staff list names a teacher
+// of the school. Every world, school and teacher is made up.
 
 import { directorSchool, seedNationalWorld, type Day, type DemoSchool, type SchoolCalendar } from '@minhajna/core';
 import { Platform, Text, type PressableProps, type TextProps } from 'react-native';
@@ -98,7 +98,7 @@ test('the director’s log lists the key and the codes, and the preparer’s sho
   await press('world-page-log');
   expect(has('own-log-none')).toBe(true);
   expect(texts()).toEqual(expect.arrayContaining([words.none, words.rule, words.days]));
-  for (const one of ['world-page-keys', 'keys-start-here', 'world-page-codes']) await press(one);
+  for (const one of ['world-page-keys', 'keys-take-seeded', 'world-page-codes']) await press(one);
   const id = worldNetworkOpen()!;
   const { zones = [], workingDays } = reference.profile;
   const school: DemoSchool = directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs))!;
@@ -112,8 +112,8 @@ test('the director’s log lists the key and the codes, and the preparer’s sho
   const lines = logRows();
   const name = (one: typeof first) => isolate(personName(one));
   expect(lines).toHaveLength(4);
-  expect(lines[0].endsWith(` · ${words.line.keyStarted}`)).toBe(true);
-  expect(lines[1].endsWith(` · ${words.line.codeIssued.replace('{{name}}', name(first))}`)).toBe(true);
+  expect(lines[0].endsWith(` · ${words.line.keyTaken}`)).toBe(true);
+  expect(lines[1].endsWith(` · ${words.line.codeReplaced.replace('{{name}}', name(first))}`)).toBe(true);
   expect(lines[2].endsWith(` · ${words.line.codeReplaced.replace('{{name}}', name(first))}`)).toBe(true);
   const key = words.line.keyIssued.replace('{{name}}', name(second)).split('{{number}}');
   expect(lines[3]).toMatch(new RegExp(`· ${key[0]}\\d{4}${key[1]}$`, 'u'));

@@ -19,6 +19,10 @@ module.exports = {
     // The server's own modules, which the demo server's tests import, name
     // the files they import as Node runs them, compiled.
     '^\\.\\./worlds/(stand-in-ca|world-rules)\\.js$': '<rootDir>/../server/src/worlds/$1.ts',
+    '^\\.\\./spaces/(space-rules|space-store)\\.js$': '<rootDir>/../server/src/spaces/$1.ts',
+    '^\\.\\./state-standins/term-export-read\\.js$': '<rootDir>/../server/src/state-standins/term-export-read.ts',
+    '^\\./stand-in-ca\\.js$': '<rootDir>/../server/src/worlds/stand-in-ca.ts',
+    '^\\./(floors|share-reach|share-read)\\.js$': '<rootDir>/../server/src/totals/$1.ts',
   },
   // Core files are outside the app, but use the app's Babel runtime helpers.
   modulePaths: ['<rootDir>/node_modules'],

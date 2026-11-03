@@ -21,7 +21,6 @@ import { mount, press, root, settle, texts, unmount } from '../jest/components-s
 import { FakeStorage } from '../jest/fake-storage';
 import { withPupils } from '../jest/roll-class';
 import files from '../src/native/NativeMinhajnaFiles';
-import { useRecordReceived } from '../src/restore/received';
 import { Restore } from '../src/restore/Restore';
 import { backupLater, setBackupLater } from '../src/settings/backup-later';
 import { openRecordBook } from '../src/storage/history';
@@ -51,12 +50,6 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
   jest.clearAllMocks();
 });
-
-/** Records the route a restore noted, as the opened history does. */
-function Received() {
-  useRecordReceived();
-  return null;
-}
 
 /** The made-up class's backup text. */
 async function backupText(): Promise<string> {
@@ -142,8 +135,8 @@ test('restores a backup with the typed key, drops the copy, puts the reminder of
   expect((await openRecordBook(storage.asSpec())).state.pupils.size).toBeGreaterThan(0);
   await unmount();
   const restored = await openTestData(storage);
-  await mount(restored, <Received />);
   expect(deviceFacts(restored.book.entries).received).toEqual({ day: '2026-10-15', from: 'backup' });
+  expect(deviceFacts(restored.book.entries).restoredFile).toEqual({ day: '2026-10-15', from: 'backup', since: 0 });
 });
 
 test('says a key that does not open the file, and clears it as the key is typed again', async () => {

@@ -35,6 +35,7 @@ import { LocaleDirContext } from '@react-navigation/native';
 import { Platform, Text, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { FakeStorage } from '../jest/fake-storage';
+import { SCHOOL } from '../jest/grant-world';
 import { DAYS, joinNew, SECOND, sign, signedTerm, SUBJECTS, TEACHER } from '../jest/term-weeks';
 import { BELLS, channel, school, sendParts, server, session, STAFF } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
@@ -53,7 +54,7 @@ jest.mock(
 );
 
 const words = ar.demo.substitute;
-const STAFFED = { ...school, teachers: STAFF } as unknown as DemoSchool;
+const STAFFED = { ...school, ...SCHOOL, teachers: STAFF } as unknown as DemoSchool;
 const BACK = parseDay('2027-01-24');
 const HISTORY: Subject = { code: 'history', name: { ar: 'تاريخ', fr: 'Histoire', en: 'History' }, levels: ['cem'] };
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
@@ -137,6 +138,8 @@ function render(world: Awaited<ReturnType<typeof appointed>>['world']) {
           kit={kit}
           send={server.send}
           dayText={(day) => `day ${day}`}
+          subjectName={(code) => code}
+          workingDays={[0, 1, 2, 3, 4]}
         />
       </LocaleDirContext.Provider>,
     );

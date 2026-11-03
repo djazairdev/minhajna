@@ -17,7 +17,8 @@
 // of another holder's box, removing it (HolderRemove.tsx), whose renewed
 // recovery opens the recovery's tab; that tab warns when the recovery's maker
 // no longer holds the key. A device that holds no key chooses how to hold one
-// (KeysStart.tsx) or waits to be added (HolderWait.tsx) instead of the tabs.
+// (KeysStart.tsx), taking the school's seeded key in a world seeded when it
+// started (#548), or waits to be added (HolderWait.tsx) instead of the tabs.
 // Until the key is held the page says it is opening; a problem is said in the
 // world's words.
 
@@ -26,6 +27,7 @@ import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SegmentedControl } from '../components/SegmentedControl';
+import type { HeldWorld } from '../demo/world-calendar-read';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -39,6 +41,7 @@ import { HolderWait } from './HolderWait';
 import { keysMap, type KeysBox } from './keys-map';
 import { KeysRecovery } from './KeysRecovery';
 import { KeysStart } from './KeysStart';
+import type { TermReference } from './seeded-fill';
 import { useKeysPage } from './use-keys-page';
 
 type KeysTab = 'holders' | 'recovery';
@@ -46,6 +49,10 @@ type KeysTab = 'holders' | 'recovery';
 export type SchoolKeysProps = {
   readonly world: Pick<OpenWorld, 'world' | 'book' | 'date'>;
   readonly school: DemoSchool;
+  /** What the device holds of the world, to read its seeded keys, or null. */
+  readonly held: HeldWorld | null;
+  /** The bundled reference data, to fill a taken school's term; none fills nothing. */
+  readonly reference?: TermReference;
   readonly kit: WorldKit;
   readonly send?: Send;
   /** A day of the world, written out as the band writes it. */
@@ -53,12 +60,12 @@ export type SchoolKeysProps = {
 };
 
 /** The director's map of the school key. */
-export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProps) {
+export function SchoolKeys({ world, school, held, reference, kit, send, dayText }: SchoolKeysProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const drawing = useDrawing();
-  const page = useKeysPage(world, school, kit, send);
+  const page = useKeysPage(world, school, held, reference ?? null, kit, send);
   const [tab, setTab] = useState<KeysTab>('holders');
   const [chosen, setChosen] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -84,7 +91,14 @@ export function SchoolKeys({ world, school, kit, send, dayText }: SchoolKeysProp
         {lead}
         {problem}
         {page.mode === 'choose' ? (
-          <KeysStart onStart={() => page.choose('start')} onWait={() => page.choose('wait')} />
+          <KeysStart
+            seeded={page.seeded}
+            failed={page.problem !== null}
+            onStart={() => page.choose('start')}
+            onTake={() => page.choose('take')}
+            onAgain={() => page.choose(null)}
+            onWait={() => page.choose('wait')}
+          />
         ) : (
           <HolderWait
             world={world}

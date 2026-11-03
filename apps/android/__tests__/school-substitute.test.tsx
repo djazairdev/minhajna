@@ -11,11 +11,11 @@
 // joined, the holder as substitute, a class not theirs, no class, an empty
 // decision or a day not offered is refused; the page records an appointment,
 // says so, lists it, and brings it up to date with a week corrected since, and
-// says a world grants no inspector access; a handover cut short after its first
-// record shows as not all there and is sent again whole; sending to a
-// substitute who has not joined says so; a class's weeks go in records of at
-// most 64, a class with none in one of its own; and a problem reading is shown
-// and read again. Every school, class and teacher is made up.
+// says no inspector's access is asked or granted yet; a handover cut short
+// after its first record shows as not all there and is sent again whole;
+// sending to a substitute who has not joined says so; a class's weeks go in
+// records of at most 64, a class with none in one of its own; and a problem
+// reading is shown and read again. Every school, class and teacher is made up.
 
 import {
   channelHandovers,
@@ -33,6 +33,7 @@ import { LocaleDirContext } from '@react-navigation/native';
 import { Platform, Text, type PressableProps, type TextProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
 import { FakeStorage } from '../jest/fake-storage';
+import { SCHOOL } from '../jest/grant-world';
 import { joinNew, SECOND, signedTerm } from '../jest/term-weeks';
 import { BELLS, channel, school, server, STAFF } from '../jest/timetable-send';
 import { nodeKit as kit } from '../jest/world-server';
@@ -54,7 +55,7 @@ jest.mock(
 );
 
 const words = ar.demo.substitute;
-const STAFFED = { ...school, teachers: STAFF } as unknown as DemoSchool;
+const STAFFED = { ...school, ...SCHOOL, teachers: STAFF } as unknown as DemoSchool;
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 
 beforeEach(() => {
@@ -127,6 +128,8 @@ function render(world: Awaited<ReturnType<typeof staffed>>['world'], send = serv
           kit={kit}
           send={send}
           dayText={(day) => `day ${day}`}
+          subjectName={(code) => code}
+          workingDays={[0, 1, 2, 3, 4]}
         />
       </LocaleDirContext.Provider>,
     );
@@ -179,7 +182,7 @@ test('refuses a substitute not joined, the holder as substitute or a class not t
     });
 });
 
-test('the page records an appointment, lists it, brings it up to date, and says a world grants no access', async () => {
+test('the page records an appointment, lists it, brings it up to date, and says no access is asked yet', async () => {
   const { world, substitute, holder } = await staffed();
   await render(world);
   expect(texts()).toEqual(expect.arrayContaining([words.lead, words.noGrant, words.grantsHere, words.stay.reason]));

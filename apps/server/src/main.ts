@@ -9,6 +9,7 @@
 // there; without it, in memory, lost when it stops.
 
 import pg from 'pg';
+import { PostgresProbe } from './admin/system-probe.js';
 import { createApp } from './app.js';
 import { applyMigrations } from './storage/migrations.js';
 import { PrismaStores } from './storage/prisma-stores.js';
@@ -37,7 +38,15 @@ if (url) {
 const stores = url ? new PrismaStores(url) : undefined;
 const worlds: WorldsOptions = {
   trustCloudflare: process.env['TRUST_PROXY'] === 'cloudflare',
-  ...(stores ? { store: stores.worlds, spaces: stores.spaces, close: () => stores.close() } : {}),
+  ...(stores
+    ? {
+        store: stores.worlds,
+        spaces: stores.spaces,
+        shares: stores.shares,
+        probe: new PostgresProbe(stores.client),
+        close: () => stores.close(),
+      }
+    : {}),
 };
 const app = await createApp(undefined, worlds);
 await app.listen(port, host);

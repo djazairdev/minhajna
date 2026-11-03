@@ -2,14 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The worlds API (#540, choice D3 of the 0.7.0 demo). POST /worlds starts a
-// world from the first half of its code, the sealed world and the world's
-// pass, and answers the starter token once. With the pass in X-World-Pass,
-// GET /worlds/:world joins it and GET /worlds/:world/date reads its date; a
-// wrong pass answers as if no world had the id. POST /worlds/:world/date,
-// with the pass too, moves the date to the next announced day, only for the
-// starter token's holder. Only a start can tell that an id is taken, and
-// starts are the most limited requests. No answer may be cached: they carry
-// the starter token and sealed worlds.
+// world from the first half of its code, the sealed world and the world's pass,
+// and answers the starter token once. With the pass in X-World-Pass, GET
+// /worlds/:world joins it and GET /worlds/:world/date reads its date, each with
+// its announced days; a wrong pass answers as if no world had the id. POST
+// /worlds/:world/date, with the pass too, moves the date to the next announced
+// day, only for the starter token's holder, refused when the days changed
+// meanwhile. PUT /worlds/:world/announced-days, with the pass, replaces the
+// announced days after the date with those a published calendar gives (#608,
+// answer 624), keeping the date and the days before it, and refused when the
+// date moved meanwhile. Only a start can tell that an id is taken, and starts
+// are the most limited requests. No answer may be cached: they carry the
+// starter token and sealed worlds.
 
 import {
   BadRequestException,
@@ -25,12 +29,20 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import type { Limiter } from './limits.js';
 import { limitRequest, openWorld } from './world-access.js';
-import { hashToken, holdsStarter, newStarterToken, nextAnnouncedDay, readWorldStart } from './world-rules.js';
+import {
+  hashToken,
+  holdsStarter,
+  newStarterToken,
+  nextAnnouncedDay,
+  readLaterDays,
+  readWorldStart,
+} from './world-rules.js';
 import { seventhDay, WORLD_STORE, type WorldStore } from './world-store.js';
 
 export const WORLD_LIMITERS = Symbol('WorldLimiters');
@@ -73,10 +85,10 @@ export class WorldsController {
     @Param('world') id: string,
     @Headers('x-world-pass') pass: string | undefined,
     @Req() request: IncomingMessage,
-  ): Promise<{ sealed: string; date: string }> {
+  ): Promise<{ sealed: string; date: string; announcedDays: readonly string[] }> {
     this.limit(this.limiters.joins, request);
     const world = await openWorld(this.store, id, pass);
-    return { sealed: world.sealed, date: world.date };
+    return { sealed: world.sealed, date: world.date, announcedDays: world.announcedDays };
   }
 
   @Get(':world/date')
@@ -85,9 +97,28 @@ export class WorldsController {
     @Param('world') id: string,
     @Headers('x-world-pass') pass: string | undefined,
     @Req() request: IncomingMessage,
-  ): Promise<{ date: string }> {
+  ): Promise<{ date: string; announcedDays: readonly string[] }> {
     this.limit(this.limiters.joins, request);
-    return { date: (await openWorld(this.store, id, pass)).date };
+    const world = await openWorld(this.store, id, pass);
+    return { date: world.date, announcedDays: world.announcedDays };
+  }
+
+  @Put(':world/announced-days')
+  @Header('Cache-Control', 'no-store')
+  async announce(
+    @Param('world') id: string,
+    @Headers('x-world-pass') pass: string | undefined,
+    @Body() body: unknown,
+    @Req() request: IncomingMessage,
+  ): Promise<{ announcedDays: readonly string[] }> {
+    this.limit(this.limiters.joins, request);
+    const world = await openWorld(this.store, id, pass);
+    const announcedDays = readLaterDays(body, world.date, world.announcedDays);
+    if (typeof announcedDays === 'string') throw new BadRequestException(announcedDays);
+    if (!(await this.store.setAnnouncedDays(world.id, world.date, announcedDays))) {
+      throw new ConflictException("the world's date moved meanwhile; send the days again");
+    }
+    return { announcedDays };
   }
 
   @Post(':world/date')
@@ -106,7 +137,9 @@ export class WorldsController {
     }
     const next = nextAnnouncedDay(world.date, world.announcedDays);
     if (next === null) throw new ConflictException("no announced day is left after the world's date");
-    await this.store.setDate(world.id, next);
+    if (!(await this.store.setDate(world.id, next, world))) {
+      throw new ConflictException("the world's announced days changed meanwhile; move the date again");
+    }
     return { date: next };
   }
 

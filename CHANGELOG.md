@@ -8,8 +8,11 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### Fixed
 
-- Before erasing a phone or PC, the warning now recognises a transfer you confirmed opened on your other device. It counts only changes missing from that transfer and your backups. The backup reminder keeps its own date.
-  - قبل مسح الهاتف أو الحاسوب، يحتسب التحذير الآن النسخة التي أكّدت فتحها على جهازك الآخر، ولا يعدّ ضائعةً إلا التغييرات التي لا يحملها ملف النقل ولا النسخ الاحتياطية. ويبقى موعد التذكير بالنسخ الاحتياطي كما هو.
+- The erase warning counts a confirmed transfer while the handover is active. After work resumes on this device, the warning uses the backup or archive you have here to work out what erasing would lose.
+  - يحتسب تنبيه المسح النقل المؤكّد ما دام العمل على الجهاز الآخر. عند استئناف العمل على هذا الجهاز، يعتمد التنبيه على النسخة الاحتياطية أو الأرشيف لتحديد ما ستفقده عند المسح.
+
+- After restoring a backup or an archive, Devices and backups, the reminder and the erase screen name that file and its date. The erase warning counts only later changes. Backups also keep the exact changes they contain, even if another change is saved while choosing the file's location.
+  - بعد الاسترجاع من نسخة احتياطية أو أرشيف، تعرض صفحة «الأجهزة والنسخ» والتذكير وشاشة المسح الملف الذي استرجعت منه وتاريخه. ويعدّ تنبيه المسح التغييرات اللاحقة فقط. كما تُحسب محتويات النسخة بدقة، حتى لو سُجّل تغيير أثناء اختيار مكان حفظها.
 
 ### Privacy
 

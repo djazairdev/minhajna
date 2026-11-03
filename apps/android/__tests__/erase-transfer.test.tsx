@@ -105,6 +105,16 @@ describe.each(['android', 'web'] as const)('a confirmed transfer on %s', (platfo
     );
   });
 
+  test.each(['taken', 'back'] as const)('stops claiming the copy is safe after handover ends: %s', async (how) => {
+    const data = await transferred();
+    await data.book.record(day, { kind: 'handover.ended', handover: { how } });
+    await screen(data, 'en');
+    expect(texts()).not.toContain(lines[2].kept);
+    expect(
+      texts().some((text) => text.startsWith(`${data.book.entries.length - 2} changes have reached neither`)),
+    ).toBe(true);
+  });
+
   test('uses a newer backup instead of the earlier transfer', async () => {
     const data = await transferred();
     await data.book.record(parseDay('2026-10-22'), { kind: 'backup.saved' });

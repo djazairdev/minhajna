@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The two kinds of store the store tests run against (#541, #542, #590): the
-// memory stores, and PostgreSQL's on the database TEST_DATABASE_URL names,
+// The two kinds of store the store tests run against (#541, #542, #590, #596):
+// the memory stores, and PostgreSQL's on the database TEST_DATABASE_URL names,
 // emptied and migrated before each test and skipped without it; and a made-up
 // world to keep in them.
 
@@ -12,6 +12,7 @@ import pg from 'pg';
 import { MemorySpaceStore, type SpaceStore } from '../src/spaces/space-store.js';
 import { applyMigrations } from '../src/storage/migrations.js';
 import { PrismaStores } from '../src/storage/prisma-stores.js';
+import { MemoryShareStore, type ShareStore } from '../src/totals/share-store.js';
 import { MemoryWorldStore, type World, type WorldStore } from '../src/worlds/world-store.js';
 
 export const url = process.env['TEST_DATABASE_URL'];
@@ -19,6 +20,7 @@ export const url = process.env['TEST_DATABASE_URL'];
 export interface Stores {
   readonly worlds: WorldStore;
   readonly spaces: SpaceStore;
+  readonly shares: ShareStore;
   close(): Promise<void>;
 }
 
@@ -56,6 +58,7 @@ export const KINDS = [
     open: (most?: number): Stores => ({
       worlds: new MemoryWorldStore(),
       spaces: new MemorySpaceStore(most),
+      shares: new MemoryShareStore(),
       close: () => Promise.resolve(),
     }),
   },
@@ -65,7 +68,7 @@ export const KINDS = [
     reset: emptyDatabase,
     open: (most?: number): Stores => {
       const stores = new PrismaStores(url!, most === undefined ? {} : { most });
-      return { worlds: stores.worlds, spaces: stores.spaces, close: () => stores.close() };
+      return { worlds: stores.worlds, spaces: stores.spaces, shares: stores.shares, close: () => stores.close() };
     },
   },
 ];

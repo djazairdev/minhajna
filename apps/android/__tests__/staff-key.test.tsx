@@ -87,7 +87,7 @@ test('D-Issue sets a key up with its teacher, and the key reads back the session
       reference={reference}
     />,
   );
-  for (const one of ['demo-start-national', 'world-role-director', 'world-page-keys', 'keys-start-here'])
+  for (const one of ['demo-start-national', 'world-role-director', 'world-page-keys', 'keys-take-seeded'])
     await press(one);
   await press('world-page-codes');
   const id = worldNetworkOpen()!;

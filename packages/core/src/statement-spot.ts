@@ -5,10 +5,11 @@
 // days drawn at random from a statement's period, from the first day of the
 // school year to the statement's day, so the days are not known before the
 // visit. School days are the country's working days that the app's calendar
-// keeps for the statement's level and grade; a reader knows no school, so
-// only the national layer counts, with any Eid date the reader confirmed. A
-// statement of another school year than the app's calendar, or dated before
-// its first day, has no period. Nothing is kept.
+// keeps for the statement's level and grade; a reader knows no school, so only
+// the national layer counts, with any Eid date the reader confirmed. A
+// statement of another school year than the app's calendar, or dated before its
+// first day, has no period. Nothing is kept. The draw, each candidate as likely
+// as another, is the inspector's spot-check sheet's too (spot-sheet.ts).
 
 import type { School, SchoolClass } from './records.ts';
 import type { Context } from './context.ts';
@@ -49,12 +50,16 @@ export function spotSchoolDays(context: Context, statement: ProgressStatement): 
   );
 }
 
-/** Up to three of the period's school days, drawn at random, in order. */
-export function spotDays(context: Context, statement: ProgressStatement, random: RandomBytes): Day[] {
-  const days = spotSchoolDays(context, statement);
-  for (let at = 0; at < Math.min(SPOT_DAYS, days.length); at += 1) {
+/** Up to `count` of the candidates, each once, drawn at random, each as likely as another, in order. */
+export function drawSpotDays(candidates: readonly Day[], random: RandomBytes, count = SPOT_DAYS): Day[] {
+  const days = [...new Set(candidates)];
+  for (let at = 0; at < Math.min(count, days.length); at += 1) {
     const pick = at + below(days.length - at, random);
     [days[at], days[pick]] = [days[pick]!, days[at]!];
   }
-  return days.slice(0, SPOT_DAYS).sort(compareDays);
+  return days.slice(0, count).sort(compareDays);
 }
+
+/** Up to three of the period's school days, drawn at random, in order. */
+export const spotDays = (context: Context, statement: ProgressStatement, random: RandomBytes): Day[] =>
+  drawSpotDays(spotSchoolDays(context, statement), random);

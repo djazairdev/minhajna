@@ -14,15 +14,17 @@
 // request stream once (school/stream-put.ts), so a request kept but not
 // delivered, as after a failure, is delivered again. The directorate needs no
 // key pair of its own, since each seal makes a fresh one. Each request made
-// reads as delivered when its envelope is on the school's stream, and as lapsed
-// once the world's date is past its end, since a request is never declined. A
-// request goes to the holders of the keyring at its delivery; one added later
-// opens it only once the directorate asks again. Errors carry codes:
-// world-session.ts's, E_GRANT_UNLISTED for a school not listed, whose space is
-// not there, is open as another kind or holds no keyring, E_GRANT_FINGERPRINT
-// for a fingerprint no key gives, E_GRANT_FORM for a request that does not
-// read, E_NO_SUCH_WORLD once the world is erased, and E_WORLD when the store
-// kept nothing.
+// reads with its school's seed, as the latest listing names its space, as
+// delivered when its envelope is on the school's stream, as granted when a
+// relay for it is on its inspector's stream of the directorate's space, the
+// school's claim, and as lapsed once the world's date is past its end, since a
+// request is never declined. A request goes to the holders of the keyring at
+// its delivery; one added later opens it only once the directorate asks again.
+// Errors carry codes: world-session.ts's, E_GRANT_UNLISTED for a school not
+// listed, whose space is not there, is open as another kind or holds no
+// keyring, E_GRANT_FINGERPRINT for a fingerprint no key gives, E_GRANT_FORM for
+// a request that does not read, E_NO_SUCH_WORLD once the world is erased, and
+// E_WORLD when the store kept nothing.
 
 import {
   compareDays,
@@ -38,8 +40,11 @@ import {
   newId,
   openDirectorateRecords,
   openGrantEnvelopes,
+  openGrantRelays,
   readGrantRequest,
   readKeyrings,
+  relayedRequests,
+  relayPlace,
   requestPlace,
   requestsMade,
   sealGrantEnvelope,
@@ -76,7 +81,12 @@ export interface GrantForm {
 /** A request the directorate made, and how it stands. */
 export interface RequestMade {
   readonly request: GrantRequest;
+  /** The school's seeded ID, as the latest listing names its space, or null when none does. */
+  readonly seed: string | null;
   readonly delivered: boolean;
+  /** Whether a relay in the directorate's space says the school made the grant: its claim, not proof. */
+  readonly granted: boolean;
+  /** Whether the world's date is past the request's end. */
   readonly lapsed: boolean;
 }
 
@@ -93,7 +103,7 @@ async function readDirectorate(world: string, directorate: string, kit: WorldKit
       openDirectorateRecords(keys, batches.get(keys.stream) ?? [], kit.cipher),
     ]),
   );
-  return { schools: listedSchools(listed, world), posted };
+  return { schools: listedSchools(listed, world), posted, batches };
 }
 
 /** Makes a request from what M-Grant filled in, keeps it in the world's store, then delivers it. */
@@ -168,9 +178,20 @@ async function deliver(world: string, request: GrantRequest, holders: readonly H
   await putOnce(put, send).catch(notSchool);
 }
 
-/** The requests this directorate made, in the order made, each delivered or not, and lapsed or not. */
-export async function requestsOf(world: DirectorateWorld, kit: WorldKit, send: Send = worldRequest) {
+/**
+ * The requests this directorate made, in the order made, each with its school's
+ * seed, delivered or not, granted or not (the relay's claim), and lapsed or not.
+ */
+export async function requestsOf(
+  world: DirectorateWorld,
+  directorate: string,
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<RequestMade[]> {
   const made = requestsMade(world.book.entries, PUBLIC_KEY_BYTES);
+  const read = await readDirectorate(world.world, directorate, kit, send);
+  const seeds = new Map([...read.schools].map(([seed, space]) => [space, seed]));
+  const relayed = new Map<string, ReadonlySet<string>>();
   const empty = { status: 200, body: { batches: [], more: false }, retryAfter: null };
   const reading = readingMissing(world.world, send, () => empty);
   const seen = new Map<string, ReadonlySet<string>>();
@@ -182,8 +203,19 @@ export async function requestsOf(world: DirectorateWorld, kit: WorldKit, send: S
       const records = await kitStep(() => openGrantEnvelopes(place, batches, kit.cipher));
       seen.set(request.school, envelopesFor(records, request.school));
     }
-    const delivered = seen.get(request.school)?.has(request.id) === true;
-    rows.push({ request, delivered, lapsed: compareDays(world.date, request.until) > 0 });
+    const inspector = request.inspector.publicKey;
+    if (!relayed.has(inspector)) {
+      const place = await kitStep(() => relayPlace(request.inspector, kit.mac));
+      const records = await kitStep(() => openGrantRelays(place, read.batches.get(place.stream) ?? [], kit.cipher));
+      relayed.set(inspector, relayedRequests(records));
+    }
+    rows.push({
+      request,
+      seed: seeds.get(request.school) ?? null,
+      delivered: seen.get(request.school)?.has(request.id) === true,
+      granted: relayed.get(inspector)?.has(request.id) === true,
+      lapsed: compareDays(world.date, request.until) > 0,
+    });
   }
   return rows;
 }

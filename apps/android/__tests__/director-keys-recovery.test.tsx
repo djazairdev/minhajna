@@ -100,7 +100,13 @@ async function director() {
   const id = started.keys.world;
   const { zones = [], workingDays } = reference.profile;
   const school = directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs))!;
-  const open = { world: id, date: started.date, book: await openRecordBook(new FakeStorage().asSpec()) };
+  const book = await openRecordBook(new FakeStorage().asSpec());
+  const open = {
+    world: id,
+    date: started.date,
+    book,
+    held: { world: id, keys: started.keys, sealing: started.sealing },
+  };
   return { open, school };
 }
 
@@ -110,7 +116,7 @@ async function page(
 ) {
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
-      <SchoolKeys world={open} school={school} kit={nodeKit} send={server.send} dayText={String} />,
+      <SchoolKeys world={open} school={school} held={open.held} kit={nodeKit} send={server.send} dayText={String} />,
     );
     await settle();
   });

@@ -54,7 +54,10 @@ export interface WorldStore {
   /** Adds the world, or answers false when its id is taken. */
   add(world: World): Promise<boolean>;
   get(id: string): Promise<World | undefined>;
-  setDate(id: string, date: string): Promise<void>;
+  /** Moves the world's date while its date and announced days are still `was`; false when either changed. */
+  setDate(id: string, date: string, was: Pick<World, 'date' | 'announcedDays'>): Promise<boolean>;
+  /** Replaces the world's announced days while its date is still `date`; false when it moved or the world is gone. */
+  setAnnouncedDays(id: string, date: string, announcedDays: readonly string[]): Promise<boolean>;
   /** The world's stand-in CA key, made with `make` the first time; undefined without it or the world. */
   caKey(id: string, make?: () => string): Promise<string | undefined>;
   /** The world's stand-in receiving key, made with `make` the first time; undefined without it or the world. */
@@ -85,10 +88,18 @@ export class MemoryWorldStore implements WorldStore {
     return Promise.resolve(this.worlds.get(id));
   }
 
-  setDate(id: string, date: string): Promise<void> {
+  setDate(id: string, date: string, was: Pick<World, 'date' | 'announcedDays'>): Promise<boolean> {
     const world = this.worlds.get(id);
-    if (world) this.worlds.set(id, { ...world, date });
-    return Promise.resolve();
+    const same = world?.date === was.date && world.announcedDays.join() === was.announcedDays.join();
+    if (world && same) this.worlds.set(id, { ...world, date });
+    return Promise.resolve(same);
+  }
+
+  setAnnouncedDays(id: string, date: string, announcedDays: readonly string[]): Promise<boolean> {
+    const world = this.worlds.get(id);
+    if (world?.date !== date) return Promise.resolve(false);
+    this.worlds.set(id, { ...world, announcedDays: [...announcedDays] });
+    return Promise.resolve(true);
   }
 
   caKey(id: string, make?: () => string): Promise<string | undefined> {

@@ -12,7 +12,8 @@
 // turn, which PostgreSQL itself times, is refused as busy, to be tried
 // again. Erasing a world erases its spaces and batches with it, in the
 // database itself, and the stand-in receiving system's receipts (#590): a
-// world may pass MAX_RECEIPTS by a few receipts sent at the same moment.
+// world may pass MAX_RECEIPTS by a few receipts sent at the same moment. The
+// schools' shares of the totals have their own store (prisma-shares.ts).
 
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '../generated/prisma/client.js';
@@ -26,7 +27,9 @@ import {
   type SpaceStore,
   type StoredBatch,
 } from '../spaces/space-store.js';
+import type { ShareStore } from '../totals/share-store.js';
 import { MAX_RECEIPTS, type Receipt, type World, type WorldStore } from '../worlds/world-store.js';
+import { PrismaShareStore } from './prisma-shares.js';
 
 /** Sealed batches across every world: about 4 GB. */
 export const MAX_DATABASE_BATCHES = 1_000_000;
@@ -78,11 +81,13 @@ export class PrismaStores {
   readonly client: PrismaClient;
   readonly worlds: WorldStore;
   readonly spaces: SpaceStore;
+  readonly shares: ShareStore;
 
   constructor(url: string, options: StoreOptions = {}) {
     this.client = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }), errorFormat: 'minimal' });
     this.worlds = new PrismaWorldStore(this.client);
     this.spaces = new PrismaSpaceStore(this.client, options);
+    this.shares = new PrismaShareStore(this.client);
   }
 
   close(): Promise<void> {
@@ -121,8 +126,16 @@ export class PrismaWorldStore implements WorldStore {
     };
   }
 
-  async setDate(id: string, date: string): Promise<void> {
-    await this.client.world.updateMany({ where: { id }, data: { date: toDate(date) } });
+  async setDate(id: string, date: string, was: Pick<World, 'date' | 'announcedDays'>): Promise<boolean> {
+    const where = { id, date: toDate(was.date), announcedDays: { equals: was.announcedDays.map(toDate) } };
+    const { count } = await this.client.world.updateMany({ where, data: { date: toDate(date) } });
+    return count > 0;
+  }
+
+  async setAnnouncedDays(id: string, date: string, announcedDays: readonly string[]): Promise<boolean> {
+    const where = { id, date: toDate(date) };
+    const { count } = await this.client.world.updateMany({ where, data: { announcedDays: announcedDays.map(toDate) } });
+    return count > 0;
   }
 
   async caKey(id: string, make?: () => string): Promise<string | undefined> {

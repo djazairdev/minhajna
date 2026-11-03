@@ -43,15 +43,16 @@ const record = (value: unknown): value is Record<string, unknown> =>
 /** A held school key as the store may keep it, or null when it does not read. */
 export function readSchoolHeld(value: unknown, publicKeyBytes: number): SchoolHeld | null {
   if (!record(value)) return null;
-  const { school, device, publicKey, pkcs8, ring, ...rest } = value;
+  const { school, device, publicKey, pkcs8, ring, seeded, ...rest } = value;
   if (Object.keys(rest).length > 0 || typeof school !== 'string' || !SCHOOL.test(school)) return null;
+  if (seeded !== undefined && seeded !== true) return null;
   if (typeof device !== 'string' || !ID.test(device) || typeof pkcs8 !== 'string' || !PKCS8_TEXT.test(pkcs8)) {
     return null;
   }
   if (typeof publicKey !== 'string' || publicKey.length !== publicKeyBytes * 2 || !HEX.test(publicKey)) return null;
   if (!isKeyring(ring, publicKeyBytes) || ring.school !== school) return null;
   if (!ring.holders.some((one) => one.id === device && one.publicKey === publicKey)) return null;
-  return { school, device, publicKey, pkcs8, ring };
+  return { school, device, publicKey, pkcs8, ring, ...(seeded === true && { seeded }) };
 }
 
 /**

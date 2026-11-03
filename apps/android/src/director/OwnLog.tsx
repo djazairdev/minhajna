@@ -68,6 +68,8 @@ function lineText(t: Words, line: StaffLine, names: ReadonlyMap<string, string>)
   switch (line.kind) {
     case 'key-started':
       return t('demo.ownLog.line.keyStarted');
+    case 'key-taken':
+      return t('demo.ownLog.line.keyTaken');
     case 'key-admitted':
       return t('demo.ownLog.line.keyAdmitted');
     case 'recovery-made':

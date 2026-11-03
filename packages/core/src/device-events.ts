@@ -13,32 +13,41 @@
 // (#586, answer 614), and of the substitutes' appointments it records (#587,
 // answer 615), and of the school's choice to send absences (#592, answer 620),
 // and of the key pair an inspector's device keeps in a world and the grant
-// requests a directorate makes there (#593, answer 621), apart from
+// requests a directorate makes there (#593, answer 621), and of the spot-check
+// sheet an inspector's device keeps for a grant (#594, answer 622), and of the
+// Ministry's draft of a calendar update (#607, answer 623), apart from
 // devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
 // school-holder.ts, school-timetable.ts, school-cover.ts,
-// school-substitution.ts, school-exchange.ts, directorate-space.ts and
-// grant-request.ts, which read them, so the events module imports no module
-// that imports it back.
+// school-substitution.ts, school-exchange.ts, directorate-space.ts,
+// grant-request.ts, spot-sheet.ts and calendar-draft.ts, which read them, so
+// the events module imports no module that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
+import type { CalendarEntry } from './reference.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
 import type { ImportedSession } from './timetable-import.ts';
 import type { WorldKind } from './world-keys.ts';
 
+/** A file's creation day and the hash of the last history entry it holds; empty only for an empty history. */
+export interface CopyFile {
+  readonly made: Day;
+  readonly last: string;
+}
+
 export type DeviceEvent =
   /** The recovery key the teacher printed or wrote, then typed back to confirm it (answer 478). */
   | { readonly kind: 'recovery.set'; readonly recovery: { readonly key: string } }
-  /** A backup saved through the file picker: only the fact and its day. */
-  | { readonly kind: 'backup.saved' }
+  /** A saved backup's exact snapshot (#485); older facts have no boundary. No name, path or key. */
+  | { readonly kind: 'backup.saved'; readonly backup?: CopyFile }
   /** The other device opened a direct transfer, as the teacher confirmed: the hash of the last entry it held. */
   | { readonly kind: 'handover.sent'; readonly handover: { readonly last: string } }
   /** This device works again: the copy came back from the other device, or the teacher took over here. */
   | { readonly kind: 'handover.ended'; readonly handover: { readonly how: 'back' | 'taken' } }
   /** The PC web app installed an update the teacher accepted: its version and build checksum. */
   | { readonly kind: 'app.updated'; readonly updated: { readonly version: string; readonly build: string } }
-  /** A copy restored into the empty history, by its route only: never the file, a key or the other device. */
-  | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute } }
+  /** A restored copy's route and snapshot, never its name, path, key or the other device. */
+  | { readonly kind: 'copy.received'; readonly received: { readonly from: CopyRoute; readonly file?: CopyFile } }
   /** In a demo world's own store: its kind and code, and the starter token where the world was started. */
   | { readonly kind: 'world.kept'; readonly kept: WorldKept }
   /** In a demo world's own store: the key this device keeps for a school's joining code. */
@@ -60,7 +69,11 @@ export type DeviceEvent =
   /** In a demo world's own store: the key pair this device keeps as an inspector there (answer 621). */
   | { readonly kind: 'inspector.device'; readonly inspector: InspectorDevice }
   /** In a demo world's own store: a grant request this device made as a directorate (answer 621). */
-  | { readonly kind: 'grant.requested'; readonly requested: GrantRequested };
+  | { readonly kind: 'grant.requested'; readonly requested: GrantRequested }
+  /** In a demo world's own store: the spot-check sheet an inspector's phone keeps for a grant (answer 622). */
+  | { readonly kind: 'inspector.sheet'; readonly sheet: SpotSheet }
+  /** In a demo world's own store: the Ministry's draft of a calendar update, never sent (answer 623). */
+  | { readonly kind: 'ministry.calendar'; readonly draft: CalendarDraft };
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -71,6 +84,8 @@ export interface SchoolHeld {
   /** Its private half, PKCS #8 DER in base64, which never leaves the world's store. */
   readonly pkcs8: string;
   readonly ring: SchoolKeyring;
+  /** Set when the device took the school's key seeded with its world (#548), never when it started or was added. */
+  readonly seeded?: true;
 }
 
 /** A device waiting to hold a school's key: its ID, its agreement pair and the secret its QR code shows. */
@@ -152,6 +167,21 @@ export interface InspectorDevice {
   readonly pkcs8: string;
 }
 
+/** An inspector's spot-check sheet for a grant: the days drawn, and the notes, never sent (answer 622). */
+export interface SpotSheet {
+  readonly grant: string;
+  readonly days: readonly Day[];
+  readonly notes: string;
+  /** What the pupils' exercise books show, by the key of a drawn day's row. */
+  readonly books: readonly { readonly row: string; readonly note: string }[];
+}
+
+/** The Ministry's draft of a calendar update: the entries it adds or changes, and the IDs it takes out. */
+export interface CalendarDraft {
+  readonly entries: readonly CalendarEntry[];
+  readonly removed: readonly string[];
+}
+
 /** A grant request a directorate made, as grant-request.ts reads it. */
 export interface GrantRequested {
   readonly request: unknown;
@@ -198,6 +228,8 @@ export const DEVICE_KINDS = {
   'school.absences': true,
   'inspector.device': true,
   'grant.requested': true,
+  'inspector.sheet': true,
+  'ministry.calendar': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

@@ -6,10 +6,10 @@
     "template": "apps/android/src/settings/text/ar.json"
   },
   {
-    "name": "Android erase transfers",
-    "slug": "android-erase-transfers",
-    "filemask": "apps/android/src/settings/text/erase/*.json",
-    "template": "apps/android/src/settings/text/erase/ar.json"
+    "name": "Backup and restore files",
+    "slug": "android-backup-files",
+    "filemask": "apps/android/src/settings/text/backup/*.json",
+    "template": "apps/android/src/settings/text/backup/ar.json"
   },
   {
     "name": "Android calendar",

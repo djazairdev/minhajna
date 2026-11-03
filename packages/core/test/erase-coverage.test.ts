@@ -48,17 +48,30 @@ describe('the copy counted before erasing', () => {
     assert.equal(deviceFacts(book.entries).sinceCopy, 1);
   });
 
-  it('keeps the reached copy after work is taken back here', async () => {
+  it('clears the transfer on either handover ending', async () => {
     for (const how of ['taken', 'back'] as const) {
       const book = await openBook(cemEvents());
       await confirm(book);
       await book.record(d('2026-10-24'), { kind: 'handover.ended', handover: { how } });
-      await change(book);
       const facts = deviceFacts(book.entries);
       assert.equal(facts.handedOver, null);
-      assert.deepEqual(facts.lastCopy, { from: 'transfer', day: d('2026-10-23') });
-      assert.equal(facts.sinceCopy, 2);
+      assert.equal(facts.lastCopy, null);
+      assert.equal(facts.sinceCopy, book.entries.length - 2);
+      await change(book);
+      assert.equal(deviceFacts(book.entries).sinceCopy, facts.sinceCopy + 1);
     }
+  });
+
+  it('falls back to the saved file boundary, including edits made while saving', async () => {
+    const book = await openBook(cemEvents());
+    const made = d('2026-10-22');
+    const last = book.entries.at(-1)!.hash;
+    await change(book);
+    await book.record(made, { kind: 'backup.saved', backup: { made, last } });
+    await confirm(book);
+    await book.record(d('2026-10-24'), { kind: 'handover.ended', handover: { how: 'taken' } });
+    assert.deepEqual(deviceFacts(book.entries).lastCopy, { from: 'backup', day: made });
+    assert.equal(deviceFacts(book.entries).sinceCopy, 1);
   });
 
   it('uses a later transfer after a backup, without resetting the backup facts', async () => {

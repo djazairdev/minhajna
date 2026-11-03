@@ -266,6 +266,10 @@
     "reportHint": "Help says what to send: the file's name and why it was refused, not its content.",
     "everyUpdate": "Every update is checked like this before it is applied: if it was changed after signing, it shows here and is not applied.",
     "problems": {
+      "world": {
+        "title": "This update was published in a demo world, so it was not applied",
+        "body": "It is used only inside that demo world, whose made-up calendar it changes. Real calendars come only from the keys the app trusts."
+      },
       "invalid": {
         "title": "Not an update file in Minhajna's format, so it was not applied",
         "body": "It may be another file, or an incomplete copy."

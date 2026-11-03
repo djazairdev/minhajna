@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { courseSetup } from '@minhajna/core';
+import { courseSetup, deviceFacts } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -113,7 +113,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
     export: t('settings.exportLine'),
     retention: retentionLine(t, state),
     erase: t('settings.eraseLine'),
-    backup: backupLine(t, entries(), profile),
+    backup: backupLine(t, deviceFacts(entries()), profile),
     statement: t('settings.statementLine'),
     received: t('settings.receivedLine'),
   };

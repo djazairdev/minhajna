@@ -9,16 +9,19 @@
 // never does. A request carries no cookie and is never cached or sent with a
 // referrer; a redirect fails it where the platform's fetch can refuse one, and
 // the demo server sends none; on the phone, React Native follows one itself,
-// pass and all. It stops after TIMEOUT_MS, and an answer over MOST_ANSWER
-// characters is refused. An answer that comes back after the world was left is
-// dropped. The guard (guard.ts) refuses other connections. Errors carry a
-// code: E_NO_WORLD outside a world or for another world's path, E_REFUSED from
-// the guard (guard.ts), E_OFFLINE, E_TIMEOUT, or E_ANSWER for an answer that is
-// not JSON or too long. A status the server answers, as 409 or 429, is the
-// caller's to read.
+// pass and all. It stops after TIMEOUT_MS, or the time a request names, and an
+// answer over MOST_ANSWER characters is refused. An answer that comes back
+// after the world was left is dropped. The guard (guard.ts) refuses other
+// connections. Errors carry a code: E_NO_WORLD outside a world or for another
+// world's path, E_REFUSED from the guard (guard.ts), E_OFFLINE, E_TIMEOUT, or
+// E_ANSWER for an answer that is not JSON or too long. A status the server
+// answers, as 409 or 429, is the caller's to read. A time to wait out of range
+// is a RangeError, the caller's mistake.
 
 export const DEMO_SERVER = 'https://minhajna-demo.djazair.dev';
 export const TIMEOUT_MS = 20_000;
+/** The longest a timer waits on every platform. */
+const MOST_WAIT = 2 ** 31 - 1;
 /** The longest answer, in characters: 128 batches in base64 fit with room to spare. */
 export const MOST_ANSWER = 1024 * 1024;
 
@@ -72,8 +75,10 @@ export interface WorldRequest {
   /** `/worlds` to start the open world, or `/worlds/<its ID>` and what follows. */
   readonly path: string;
   readonly body?: unknown;
-  /** The starter token, for moving the world's date. */
+  /** The starter token, for moving the world's date and seeding the world. */
   readonly starter?: string;
+  /** How long to wait for the answer, when not TIMEOUT_MS, as for a seeding's larger uploads: 1 to 2³¹ − 1 ms. */
+  readonly timeoutMs?: number;
 }
 
 export interface WorldAnswer {
@@ -109,7 +114,10 @@ export async function worldRequest(request: WorldRequest, fetcher: Fetch = globa
   const headers = headersFor(request, held.pass);
   const body = request.body === undefined ? undefined : JSON.stringify(request.body);
   const control = new AbortController();
-  const timer = setTimeout(() => control.abort(), TIMEOUT_MS);
+  const patience = request.timeoutMs ?? TIMEOUT_MS;
+  if (!Number.isSafeInteger(patience) || patience < 1 || patience > MOST_WAIT)
+    throw new RangeError('Not a time to wait');
+  const timer = setTimeout(() => control.abort(), patience);
   let text: string;
   let response: Response;
   try {
