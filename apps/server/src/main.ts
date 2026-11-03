@@ -24,12 +24,13 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 }
 
 const url = process.env['DATABASE_URL'];
+let migrations: string[] = [];
 if (url) {
   const client = new pg.Client({ connectionString: url });
   await client.connect();
   try {
-    const applied = await applyMigrations(client);
-    if (applied.length > 0) process.stdout.write(`log [Migrations] applied ${applied.join(', ')}\n`);
+    migrations = await applyMigrations(client);
+    if (migrations.length > 0) process.stdout.write(`log [Migrations] applied ${migrations.join(', ')}\n`);
   } finally {
     await client.end();
   }
@@ -38,6 +39,7 @@ if (url) {
 const stores = url ? new PrismaStores(url) : undefined;
 const worlds: WorldsOptions = {
   trustCloudflare: process.env['TRUST_PROXY'] === 'cloudflare',
+  migrations,
   ...(stores
     ? {
         store: stores.worlds,
@@ -45,6 +47,7 @@ const worlds: WorldsOptions = {
         shares: stores.shares,
         probe: new PostgresProbe(stores.client),
         insights: stores.insights,
+        admin: stores.admin,
         close: () => stores.close(),
       }
     : {}),

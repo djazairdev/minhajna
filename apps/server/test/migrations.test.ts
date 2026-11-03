@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The committed SQL migrations (#542, #590, #596), applied to a real PostgreSQL
-// named by TEST_DATABASE_URL, whose database name must end in _test since every
-// test empties it. Without it these tests are skipped; CI always sets it.
+// The committed SQL migrations (#542, #590, #596, #619, #621), applied to a
+// real PostgreSQL named by TEST_DATABASE_URL, whose database name must end in
+// _test since every test empties it. Without it these tests are skipped; CI
+// always sets it.
 
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -59,8 +60,10 @@ describe('the committed migrations', { skip }, () => {
     assert.deepEqual(await applyMigrations(client), []);
     assert.deepEqual(await tables(client), [
       'minhajna_meta.migration',
+      'public.admin_line',
       'public.batch',
       'public.observatory',
+      'public.problem',
       'public.receipt',
       'public.sending',
       'public.share',
