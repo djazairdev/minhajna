@@ -6,7 +6,8 @@
 // with no bottom bar, Classes named as on the board; a tab and Settings open
 // from it; «قفل الآن» locks at once, shown only where App gives the lock; its
 // foot says where the copy here came from, last, and nothing on a fresh PC; a
-// restored history is not recorded again; the phone keeps its bottom bar; the log names
+// restored history is not recorded again; the phone keeps its bottom bar; the
+// log names
 // a restored copy's route; and every new text is in French and English. Made-up
 // records.
 

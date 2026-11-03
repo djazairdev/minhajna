@@ -132,5 +132,9 @@ test('a transferred file is not presented as a retained backup', async () => {
     data,
     <Devices onTransfer={jest.fn()} onSheet={jest.fn()} backupNow={false} onBackupStarted={jest.fn()} />,
   );
-  expect(texts()).toContain(i18n.t('settings.devices.noBackup'));
+  expect(texts()).toContain(i18n.t('settings.savedFile.phone', { day: dayName(i18n.t, RESTORED, 'ar', data.profile) }));
+  await unmount();
+  await mount(data, <EraseDevice storage={data.storage.asSpec()} onExport={jest.fn()} />, RESTORED);
+  expect(texts()).toContain(i18n.t('settings.savedFile.phoneUnconfirmed'));
+  expect(texts()).toContain(i18n.t('settings.savedFile.phoneErase'));
 });

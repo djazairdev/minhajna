@@ -14,9 +14,9 @@ A transfer records where the copy came from, but is not called a retained backup
 
 ## Compatibility and privacy
 
-- Older backup facts without a boundary keep their original day and counting behaviour.
+- The backup save day drives reminders and Today. The file creation day is kept separately for the erase warning. Older backups without a boundary keep their original day and counting behaviour.
 - Older restore receipts keep their route without inventing a recoverable file.
-- An unknown hash, a malformed or future date, or user changes between a claimed restore boundary and its receipt grant no coverage.
+- An unknown hash, a malformed date, or user changes between a restore boundary and its receipt grant no coverage. A valid source file can be dated ahead of the local restore day. In that case the reminder counts from the receipt day.
 - Snapshot metadata stays in the device layer, outside every archive, backup and transfer body. It contains no filename, location, password, pupil data or key.
 - Existing history entries are never rewritten. The archive stays at version 1.0; its documentation explains these device-only facts.
 - No new dependency, permission or network call. NETWORK.md, PRIVACY.md and the PRD are unchanged.

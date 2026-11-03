@@ -53,7 +53,8 @@ test('a backup keeps the file creation day even when saving finishes on a later 
     kind: 'backup.saved',
     backup: { last: book.entries.at(-1)!.hash, made: MADE },
   });
-  assert.equal(deviceFacts(book.entries).lastBackup, MADE);
+  assert.equal(deviceFacts(book.entries).lastBackup, RESTORED);
+  assert.equal(deviceFacts(book.entries).backupMade, MADE);
   assert.equal(deviceFacts(book.entries).sinceBackup, 0);
 });
 
@@ -169,4 +170,12 @@ test('malformed restore metadata preserves the route without claiming a recovera
   await book.record(RESTORED, { kind: 'setup.finished' });
   await book.record(RESTORED, { kind: 'copy.received', received: { from: 'backup', file: { made: MADE, last } } });
   assert.equal(deviceFacts(book.entries).restoredFile, null);
+});
+
+test('a trusted restore boundary still counts when the source device was a day ahead', async () => {
+  const { opened } = await source();
+  const before = d('2026-10-19');
+  const facts = deviceFacts(await restoredHistory(opened, before, deps, 'backup'));
+  assert.deepEqual(facts.restoredFile, { from: 'backup', day: MADE, since: 0 });
+  assert.equal(backupReminderDay(facts, null), d('2026-11-18'));
 });

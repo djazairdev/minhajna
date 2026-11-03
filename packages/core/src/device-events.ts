@@ -28,7 +28,6 @@ import type { CalendarEntry } from './reference.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
 import type { ImportedSession } from './timetable-import.ts';
 import type { WorldKind } from './world-keys.ts';
-import type { Day } from './day.ts';
 
 /** A file's creation day and the hash of the last history entry it holds; empty only for an empty history. */
 export interface CopyFile {

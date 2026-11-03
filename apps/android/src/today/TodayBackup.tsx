@@ -127,8 +127,9 @@ export function TodayBackup({ day, onSheet }: TodayBackupProps) {
         {t('notify.backupTitle')}
       </Text>
       <Text testID="today-backup-last" style={[styles.body, align]}>
-        {facts.restoredFile !== null && facts.restoredFile.from !== 'phone'
-          ? backupLine(t, entries(), profile)
+        {(facts.restoredFile !== null && facts.restoredFile.from !== 'phone') ||
+        (facts.lastBackup === null && facts.received?.from === 'phone')
+          ? backupLine(t, facts, profile)
           : facts.lastBackup === null
             ? t('today.backup.none')
             : t('today.backup.last', { day: name(facts.lastBackup) })}

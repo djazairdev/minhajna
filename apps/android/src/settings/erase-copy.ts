@@ -19,16 +19,24 @@ export function eraseCopyLines(t: Translate, facts: DeviceFacts, profile: Pick<C
       lost: t(file.since === 0 ? 'settings.savedFile.none' : 'settings.savedFile.lost', { count: file.since }),
     };
   }
-  const { lastBackup, sinceBackup } = facts;
+  const { backupMade: lastBackup, sinceBackup } = facts;
   const day = lastBackup === null ? '' : dayName(t, lastBackup, currentLanguage(), profile);
   return {
     kept:
       lastBackup === null
-        ? [t('settings.eraseDevice.keptNone')]
+        ? [
+            t(
+              facts.received?.from === 'phone'
+                ? 'settings.savedFile.phoneUnconfirmed'
+                : 'settings.eraseDevice.keptNone',
+            ),
+          ]
         : [t('settings.eraseDevice.keptBackup', { day }), t('settings.eraseDevice.keptLeftOut')],
     lost:
       lastBackup === null
-        ? t('settings.eraseDevice.lost', { count: sinceBackup })
+        ? t(facts.received?.from === 'phone' ? 'settings.savedFile.phoneErase' : 'settings.eraseDevice.lost', {
+            count: sinceBackup,
+          })
         : sinceBackup === 0
           ? t('settings.eraseDevice.lostNone', { day })
           : t('settings.eraseDevice.lostSince', { count: sinceBackup, day }),

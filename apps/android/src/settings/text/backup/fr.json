@@ -4,6 +4,11 @@
   "keptBackup": "La sauvegarde utilisée pour la restauration, créée le {{day}}, n’est pas touchée par l’effacement.",
   "keptArchive": "L’archive utilisée pour la restauration, créée le {{day}}, n’est pas touchée par l’effacement.",
   "leftOut": "Les champs personnels de la fiche de l’enseignant et la signature dessinée ne sont pas dans le fichier de restauration.",
-  "lost": "Modifications enregistrées depuis la restauration et absentes du fichier : {{count}}. L’effacement les supprime.",
-  "none": "Aucune modification depuis la restauration. Le fichier de restauration reste en dehors de l’application."
+  "none": "Aucune modification depuis la restauration. Le fichier de restauration reste en dehors de l’application.",
+  "phone": "Les données ont été transférées depuis un autre appareil le {{day}}.",
+  "phoneUnconfirmed": "Les données viennent d’un autre appareil. Vérifiez que vous en avez toujours une copie avant d’effacer.",
+  "lost_one": "Une modification depuis la restauration manque dans le fichier. L’effacement la supprime.",
+  "lost_many": "{{count}} modifications depuis la restauration manquent dans le fichier. L’effacement les supprime.",
+  "lost_other": "{{count}} modifications depuis la restauration manquent dans le fichier. L’effacement les supprime.",
+  "phoneErase": "L’effacement supprime les données de cet appareil. Faites d’abord une sauvegarde si vous en avez encore besoin."
 }
