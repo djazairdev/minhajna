@@ -5283,6 +5283,19 @@
         "fixed": "Un signalement de problème a été marqué corrigé et effacé ({{id}})",
         "other": "Une action d’administration que cette version de l’application ne lit pas"
       },
+      "problems": {
+        "lead": "Les signalements de problème envoyés depuis ce monde : la partie de l’application, ce qui s’est passé (les noms des élèves déjà remplacés sur l’appareil), la version de l’application et le jour d’arrivée. Rien sur qui l’a envoyé.",
+        "kept": "Chaque signalement est gardé jusqu’à ce qu’il soit marqué corrigé ou que son auteur le supprime, 200 au plus par monde et 12 mois au plus, et il est effacé avec le monde. Le marquer corrigé l’efface et ajoute une ligne au journal d’administration.",
+        "reports": "Signalements, les plus récents d’abord",
+        "none": "Aucun signalement de problème dans ce monde.",
+        "facts": "Arrivé le {{day}} · version {{version}} · {{id}}",
+        "fix": "Marquer corrigé",
+        "ask": "Ce signalement sera effacé et sa correction inscrite au journal d’administration. Continuer ?",
+        "yes": "Marquer corrigé et effacer",
+        "keep": "Le garder",
+        "fixed": "Le signalement {{id}} a été marqué corrigé, effacé et inscrit au journal d’administration.",
+        "gone": "Le signalement {{id}} n’est plus dans ce monde."
+      },
       "security": {
         "lead": "Les journaux de sécurité du serveur de démonstration : les requêtes refusées, comptées chaque jour.",
         "apart": "Gardés à part de tout le reste : dans la mémoire du serveur seulement, jamais dans la base ni dans les sauvegardes.",

@@ -5210,6 +5210,19 @@
         "fixed": "A problem report was marked fixed and erased ({{id}})",
         "other": "An administrative action this version of the app does not read"
       },
+      "problems": {
+        "lead": "Problem reports sent from inside this world: the part of the app, what happened, with pupils’ names already replaced on the device, the app’s version and the day it came. Nothing about who sent it.",
+        "kept": "Each report is kept until it is marked fixed or its sender deletes it, at most 200 in a world and 12 months at most, and is erased with the world. Marking it fixed erases it and adds a line to the admin log.",
+        "reports": "Reports, newest first",
+        "none": "No problem report in this world.",
+        "facts": "Came on {{day}} · version {{version}} · {{id}}",
+        "fix": "Mark fixed",
+        "ask": "This report will be erased and its fix logged in the admin log. Go on?",
+        "yes": "Mark fixed and erase",
+        "keep": "Keep it",
+        "fixed": "Report {{id}} was marked fixed, erased and logged in the admin log.",
+        "gone": "Report {{id}} is no longer in this world."
+      },
       "security": {
         "lead": "The demo server's security logs: the requests refused, counted each day.",
         "apart": "Kept apart from everything else: in the server's memory alone, never in the database or the backups.",

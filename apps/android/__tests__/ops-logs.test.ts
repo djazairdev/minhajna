@@ -7,9 +7,9 @@
 // know, and a line without its day, action or detail object refused; the
 // security log's days with every kind counted, the kinds it does not know
 // counted together, and refused otherwise; each asked through the world for its
-// own path, a refused or odd answer thrown as the world's problem; and the log
-// pages' counts in each language's own plural forms, each with its count where
-// the language writes it.
+// own path, a refused or odd answer thrown as the world's problem, a world that
+// is gone as erased; and the log pages' counts in each language's own plural
+// forms, each with its count where the language writes it.
 
 import type { WorldAnswer } from '../src/network/world-network';
 import { adminLine, readAdminLog, readSecurity, securityDay } from '../src/operators/ops-logs';
@@ -17,6 +17,8 @@ import ar from '../src/text/ar.json';
 import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
 
+const NO_WORLD = { statusCode: 404, message: 'no world has this id and pass' };
+const UNKNOWN = { statusCode: 404, message: 'Cannot GET /worlds/AAAAA/admin/log' };
 const answer = (status: number, body: unknown) => () =>
   Promise.resolve<WorldAnswer>({ status, body, retryAfter: null });
 const ID = '0123456789abcdef'.repeat(2);
@@ -100,6 +102,9 @@ test('reads each log through the world for its own path, and throws a refused or
   });
   await expect(readAdminLog('AAAAA', answer(200, {}))).rejects.toMatchObject({ code: 'E_WORLD_SERVER' });
   await expect(readAdminLog('AAAAA', answer(429, null))).rejects.toMatchObject({ code: 'E_WORLD_BUSY' });
+  await expect(readAdminLog('AAAAA', answer(404, NO_WORLD))).rejects.toMatchObject({ code: 'E_NO_SUCH_WORLD' });
+  await expect(readSecurity('AAAAA', answer(404, NO_WORLD))).rejects.toMatchObject({ code: 'E_NO_SUCH_WORLD' });
+  await expect(readAdminLog('AAAAA', answer(404, UNKNOWN))).rejects.toMatchObject({ code: 'E_WORLD_SERVER' });
   const days = { keptDays: 7, days: [{ day: '2026-12-01', counts }] };
   const security = jest.fn(answer(200, days));
   await expect(readSecurity('AAAAA', security)).resolves.toEqual({
