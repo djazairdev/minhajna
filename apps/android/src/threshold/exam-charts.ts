@@ -3,18 +3,20 @@
 
 // The school's charts for its exams, as the director's device works them out
 // from the school's signed weeks (#601, answers 631 and 632): the school exams
-// whose figures day the world's date has reached, up to their last day; for
-// each, every grade and subject the timetable gives a class that sits it, with
-// the teachers it names for them, in the timetable's order, those of classes
-// pinning another pack among them, as they set the same paper, and the pack
-// most of those classes pin, ties to the first pinned; the classes pinning that
-// pack, each named once, with their position on the figures day, or on a day
-// before it the teacher's phone gives, the furthest item their signed weeks to
-// then worked on (course-standings.ts), and their forecast on the last school
-// day before the exam, at their own pace over the school days to that day, the
-// country's working days that are school days without a closure or an exam for
-// the class, each class's days counted once for an exam. A pack the reference
-// does not hold, with no item, or with more than a chart holds, has no chart.
+// whose figures day the world's date has reached, up to their last day, and
+// those whose last day it has passed, up to the year's last day (#602, answer
+// 634); for each, every grade and subject the timetable gives a class that sits
+// it, with the teachers it names for them, in the timetable's order, those of
+// classes pinning another pack among them, as they set the same paper, and the
+// pack most of those classes pin, ties to the first pinned; the classes pinning
+// that pack, each named once, with their position on the figures day, or on a
+// day before it the teacher's phone gives, the furthest item their signed weeks
+// to then worked on (course-standings.ts), and their forecast on the last
+// school day before the exam, at their own pace over the school days to that
+// day, the country's working days that are school days without a closure or an
+// exam for the class, each class's days counted once for an exam. A pack the
+// reference does not hold, with no item, or with more than a chart holds, has
+// no chart.
 
 import {
   addDays,
@@ -49,6 +51,13 @@ export interface ChartDraft {
 export function examsOpen(reference: Pick<TermReference, 'calendar'>, date: Day): WorldExam[] {
   const { year, entries } = reference.calendar;
   return worldExams(year, entries).filter((one) => one.setBy === 'school' && one.figuresDay <= date && date <= one.to);
+}
+
+/** The school exams whose last day the date has passed, up to the year's last day. */
+export function examsAfter(reference: Pick<TermReference, 'calendar'>, date: Day): WorldExam[] {
+  const { year, entries } = reference.calendar;
+  if (date > year.to) return [];
+  return worldExams(year, entries).filter((one) => one.setBy === 'school' && one.to < date);
 }
 
 const pinKey = (pin: PinnedPack | undefined) => (pin === undefined ? '' : JSON.stringify([pin.id, pin.release]));

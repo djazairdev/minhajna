@@ -8,18 +8,20 @@
 // grade, the first day the exam now has, the figures day and signing deadline
 // of its chart, a move of its days as they now are, with when it was announced
 // and why, and that its chart was taken on a figures day the exam no longer
-// has, where its cut stands, and each class of its chart with the item it
-// reached on the figures day and its forecast, with a way to the exam's page
-// (ExamThreshold.tsx), named with its exam; then, from the weeks the phone
-// signed, the school's exams before their figures day, but those whose room is
-// listed, and the exams above the school its classes sit (OwnExamCards.tsx), a
-// directorate's opening its totals from its figures day (ExamTotals.tsx), when
-// the world's reference and school are there, or that they could not be worked
-// out when the phone's weeks do not read; with none, it says no school exam's
-// figures day has come for the teacher's subjects. It says that the chart is
-// worked out in the school from signed weeks only and never leaves its space,
-// that monthly tests stay each teacher's own, and that nothing here serves to
-// evaluate or rank anyone. Going back leads to School-join.
+// has, where its cut stands, or, after the exam, its first day and figures day
+// alone and the cut as published (published-text.ts), and each class of its
+// chart with the item it reached on the figures day and its forecast, with a
+// way to the exam's page (ExamThreshold.tsx), named with its exam; then, from
+// the weeks the phone signed, the school's exams before their figures day, but
+// those whose room is listed, and the exams above the school its classes sit
+// (OwnExamCards.tsx), a directorate's opening its totals from its figures day
+// (ExamTotals.tsx), when the world's reference and school are there, or that
+// they could not be worked out when the phone's weeks do not read; with none,
+// it says no school exam's figures day has come for the teacher's subjects. It
+// says that the chart is worked out in the school from signed weeks only and
+// never leaves its space, that monthly tests stay each teacher's own, and that
+// nothing here serves to evaluate or rank anyone. Going back leads to
+// School-join.
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -33,6 +35,7 @@ import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { ownExams } from './own-exams';
 import { OwnExamCards } from './OwnExamCards';
+import { examOver, publishedText } from './published-text';
 import { examsOf, headText, itemNamer, movedExam, movesOf, roomId, roomMoves, stateText } from './threshold-text';
 import { ThresholdFrame, thresholdStyles as styles } from './ThresholdFrame';
 import { useTeacherRooms } from './useTeacherRooms';
@@ -103,20 +106,23 @@ export function ExamThresholds(props: ExamThresholdsProps) {
       {read.rooms?.map((one) => {
         const { chart } = one;
         const item = itemNamer(t, chart, reference?.packs);
+        const over = examOver(chart, exams, world.date);
         return (
           <View key={roomId(one.room)} testID="thresholds-room" style={styles.card}>
             <Text accessibilityRole="header" style={[styles.head, align]}>
               {headText(t, chart, reference)}
             </Text>
             {small(
-              t('demo.thresholds.days', {
+              t(over ? 'demo.thresholds.ownDays' : 'demo.thresholds.days', {
                 from: dayText(movedExam(chart, moves, exams)?.from ?? chart.from),
                 figures: dayText(chart.figuresDay),
                 signBy: dayText(chart.signBy),
               }),
             )}
             {roomMoves(t, chart, moves, exams, dayText).map((line, at) => small(line, `moved-${at}`))}
-            <Text style={[styles.body, align]}>{stateText(t, one, item, dayText)}</Text>
+            <Text style={[styles.body, align]}>
+              {over ? publishedText(t, one, item) : stateText(t, one, item, dayText)}
+            </Text>
             {chart.classes.map((each, at) =>
               small(
                 t('demo.thresholds.classLine', {

@@ -21,8 +21,16 @@
 // deadline or the decision, sees why it has no choice. The page says that a cut
 // is optional, that only the setters and the director see it before the exam,
 // that it is published after it with its figures, that monthly tests stay each
-// teacher's own, and that nothing here serves to evaluate or rank anyone. Going
-// back leads to the exams list.
+// teacher's own, and that nothing here serves to evaluate or rank anyone. The
+// choices wait for the world's reference, which says whether the exam is over.
+// From the day after the exam's last day (#602, T-Threshold-after, answer 634),
+// the page shows the cut as published (published-text.ts): when the figures
+// were taken and the exam held, that it was published in the school's space
+// with the figures of the chart it was built on, seen by every teacher of the
+// subject at the grade, the cut that applied or none and who settled it, each
+// setter's cut and day or that they signed none, no choice, and, in place of
+// the notes before the exam, that it is kept with its figures and signatures.
+// Going back leads to the exams list.
 
 import { compareDays, type CalendarUpdate, type Day, type SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -35,6 +43,7 @@ import type { Send, WorldKit } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
 import { ChartFigure } from '../drawing/ChartFigure';
 import { useDeviceText } from '../text/device-text';
+import { examOver, publishedText } from './published-text';
 import { signCut, type TeacherRoom } from './teacher-rooms';
 import {
   awaitingMine,
@@ -72,6 +81,7 @@ export type ExamThresholdProps = {
 };
 
 const NOTES = ['optional', 'earliest', 'seen', 'published', 'monthly', 'never'] as const;
+const AFTER = ['kept', 'monthly', 'never'] as const;
 
 /** One school exam's chart, where its cut stands, and the setter's choices. */
 export function ExamThreshold(props: ExamThresholdProps) {
@@ -86,6 +96,7 @@ export function ExamThreshold(props: ExamThresholdProps) {
   const [picking, setPicking] = useState(false);
   const [chosen, setChosen] = useState<string | null>(null);
   const one = read.rooms?.find((each) => roomId(each.room) === room);
+  const over = one !== undefined && examOver(one.chart, exams, world.date);
   const small = (words: string, key?: string) => (
     <Text key={key} style={[styles.small, align]}>
       {words}
@@ -176,13 +187,18 @@ export function ExamThreshold(props: ExamThresholdProps) {
           {headText(t, chart, reference)}
         </Text>
         <Text style={[styles.body, align]}>
-          {t('demo.threshold.dates', {
+          {t(over ? 'demo.threshold.after.dates' : 'demo.threshold.dates', {
             figures: dayText(chart.figuresDay),
             signBy: dayText(chart.signBy),
             from: dayText(movedExam(chart, moves, exams)?.from ?? chart.from),
           })}
         </Text>
         {roomMoves(t, chart, moves, exams, dayText).map((line, at) => small(line, `moved-${at}`))}
+        {over && (
+          <Text style={[styles.body, align]}>
+            {t('demo.threshold.after.lead', { figures: dayText(chart.figuresDay) })}
+          </Text>
+        )}
         <ChartFigure
           testID="threshold-chart"
           spec={chartSpec(t, chart, dayText(chart.figuresDay))}
@@ -190,15 +206,17 @@ export function ExamThreshold(props: ExamThresholdProps) {
         />
         {small(every === null ? t('demo.threshold.everyNone') : t('demo.threshold.every', { item: item(every) }))}
         {small(t('demo.threshold.forecastLine', { day: dayText(chart.forecastDay) }))}
-        {small(t('demo.threshold.sameView'))}
+        {!over && small(t('demo.threshold.sameView'))}
         <View testID="threshold-cut" style={styles.card}>
           <Text accessibilityRole="header" style={[styles.head, align]}>
-            {t('demo.threshold.cut')}
+            {t(over ? 'demo.threshold.after.cut' : 'demo.threshold.cut')}
           </Text>
-          <Text style={[styles.body, align]}>{stateText(t, shown, item, dayText)}</Text>
-          {setterLines(t, shown, item, dayText).map(({ key, line }) => small(line, key))}
+          <Text style={[styles.body, align]}>
+            {over ? publishedText(t, shown, item) : stateText(t, shown, item, dayText)}
+          </Text>
+          {setterLines(t, shown, item, dayText, over).map(({ key, line }) => small(line, key))}
         </View>
-        {choices(shown, item)}
+        {!over && reference !== undefined && choices(shown, item)}
       </>
     );
   };
@@ -216,7 +234,7 @@ export function ExamThreshold(props: ExamThresholdProps) {
     >
       {read.rooms !== null && one === undefined && <Text style={[styles.body, align]}>{t('demo.threshold.gone')}</Text>}
       {one !== undefined && page(one)}
-      {NOTES.map((key) => small(t(`demo.threshold.roomNotes.${key}`), key))}
+      {(over ? AFTER : NOTES).map((key) => small(t(`demo.threshold.roomNotes.${key}`), key))}
     </ThresholdFrame>
   );
 }

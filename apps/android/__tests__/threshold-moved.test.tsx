@@ -3,7 +3,7 @@
 
 // An exam whose days an update of the world's calendar moved, on the teacher's
 // threshold pages (#602, answer 634, R-7.10-06), on the made-up room of
-// cut-room.ts: the term 1 exam windows moved a week later by a made-up update
+// cut-room.ts: the term 2 exam windows moved a week later by a made-up update
 // make the exams list and the exam's page say the days it had and has, its
 // figures day among them, the room opened before the move signing by its
 // chart's deadline, the day the update was published and its reason, kept apart
@@ -39,7 +39,7 @@ jest.mock(
 );
 
 const list = ar.demo.thresholds;
-const ROOM = roomId({ exam: 'term-1', subject: 'math', grade: '1am' });
+const ROOM = roomId({ exam: 'term-2', subject: 'math', grade: '1am' });
 const REASON = 'قرار مختلق لمجلس الأساتذة';
 
 beforeEach(() => {
@@ -53,14 +53,14 @@ afterEach(async () => {
   server.reset();
 });
 
-/** The reference with the term 1 exam windows a week later, and the made-up update that moved them. */
+/** The reference with the term 2 exam windows a week later, and the made-up update that moved them. */
 function movedTerm() {
   const entries = reference.calendar.entries.map((one) =>
-    one.effect === 'exam' && one.term === 1
+    one.effect === 'exam' && one.term === 2
       ? {
           ...one,
           from: addDays(one.from, 7),
-          to: addDays(one.to, 5),
+          to: addDays(one.to, 7),
           moved: { from: one.from, to: one.to, reason: REASON },
         }
       : one,
@@ -76,7 +76,7 @@ test('the list and the exam’s page say the days it had and has, when it was an
   const { id, date, joined } = await openedRoom();
   const { moved, update, move, published } = movedTerm();
   const now = moved.calendar.entries.find((one) => one.moved !== undefined)!;
-  expect(move.exam).toBe('term-1');
+  expect(move.exam).toBe('term-2');
   expect(move.before.from).not.toBe(now.from);
   const said = [
     list.movedAnnounced.replace('{{day}}', `day ${published}`),
@@ -111,10 +111,10 @@ test('says nothing of a move without an update moving the exam', async () => {
 test('a room opened before its exam moved says its chart is old, with no second card', async () => {
   const { id, date, joined, pack, items } = await openedRoom();
   const { moved } = movedTerm();
-  const now = examsOf(moved).get('term-1')!;
+  const now = examsOf(moved).get('term-2')!;
   expect(now.figuresDay).not.toBe(date);
   const coming = { ...now, setBy: 'school' as const };
-  const chart = { exam: 'term-1', subject: 'math', grade: '1am', forecastDay: date, pack, items, classes: [] };
+  const chart = { exam: 'term-2', subject: 'math', grade: '1am', forecastDay: date, pack, items, classes: [] };
   const one = { name: '1م2', position: items[0], forecast: items[1] };
   jest
     .spyOn(ownExamsModule, 'ownExams')
