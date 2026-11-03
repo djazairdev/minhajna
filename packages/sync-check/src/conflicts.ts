@@ -77,6 +77,7 @@ export function recordKey(entry: Entry): string | null {
     case 'grant.requested':
     case 'inspector.sheet':
     case 'ministry.calendar':
+    case 'insights.drawn':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;

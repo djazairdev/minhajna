@@ -43,7 +43,8 @@
 // (seeded-shares.ts, #596) while it still shows busy, and a failed send is said
 // as any failure is, the date already moved, to be finished by the next. The
 // teacher's home carries the insights' row, which opens their page (#624),
-// where Android's back is the page's own.
+// where Android's back is the page's own, with each class's exact sending in a
+// teachers' world (#622).
 
 import {
   readWorldCode,
@@ -121,7 +122,16 @@ export function DemoRoot({
   const { calendar: here, reference: worldReference } = published;
   const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
   const date = open === null ? '' : dayText(open.date);
-  const insights = useWorldInsights({ open, calendars: [calendar, here], school, kit, date, dayText });
+  const insights = useWorldInsights({
+    open,
+    calendars: [calendar, here],
+    school,
+    kit,
+    reference,
+    storage,
+    date,
+    dayText,
+  });
 
   const start = (kind: WorldKind) =>
     run(async () => {

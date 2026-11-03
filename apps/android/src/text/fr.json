@@ -6317,6 +6317,46 @@
           "dates": "Les dates des séances, les raisons de celles qui n’ont pas eu lieu, et les données des élèves"
         },
         "uses": "Il ne sert pas non plus à un seuil d’examen, à classer qui que ce soit, ni à une décision sur un enseignant."
+      },
+      "preview": {
+        "head": "Ce qui est envoyé, exactement, pour chaque classe, au {{term}}",
+        "working": "Calcul de ce qui est envoyé pour chaque classe…",
+        "none": "Aucun trimestre n’est encore terminé à la date de ce monde : rien n’est envoyé.",
+        "failed": "Ce qui est envoyé pour cette classe n’a pas pu être calculé.",
+        "noPack": "Cette classe n’épingle aucun paquet de progression : rien n’est envoyé pour elle, ses séances sont saisies librement et ne décrivent aucune progression.",
+        "failedAll": "Ce qui est envoyé pour chaque classe n’a pas pu être calculé."
+      },
+      "payload": {
+        "level": "Niveau et matière",
+        "wilaya": "Wilaya",
+        "pack": "Paquet et version",
+        "sessions": "Séances par élément",
+        "sessionsLine": "{{items}} : {{named}}{{more}}",
+        "itemSessions": "{{item}} : {{count}}",
+        "separator": " · ",
+        "more": " …",
+        "changed": "Ce qui a changé",
+        "unchanged": "Rien",
+        "changes": {
+          "merged": "Fusionné : {{item}}",
+          "skipped": "Sauté : {{item}}",
+          "split": "Scindé : {{item}}",
+          "retaught": "Repris : {{item}}"
+        },
+        "reached": {
+          "1": "Fin du premier trimestre",
+          "2": "Fin du deuxième trimestre",
+          "3": "Fin du troisième trimestre"
+        },
+        "reachedLine": "La classe a atteint {{percent}} % de la progression",
+        "token": "Le jeton aléatoire du trimestre",
+        "schoolTerm": "Le code de l’établissement et du trimestre, compté puis effacé",
+        "text": "Le texte tel qu’il est envoyé",
+        "terms": {
+          "1": "premier trimestre",
+          "2": "deuxième trimestre",
+          "3": "troisième trimestre"
+        }
       }
     }
   },
