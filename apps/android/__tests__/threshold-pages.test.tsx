@@ -58,7 +58,9 @@ afterEach(async () => {
 test('lists the room with its days, where its cut stands and each class, and opens it', async () => {
   const { id, date, joined, pack } = await openedRoom();
   const onRoom = jest.fn();
-  await show(<ExamThresholds {...props({ world: id, date }, joined)} said={list.title} onRoom={onRoom} />);
+  await show(
+    <ExamThresholds {...props({ world: id, date }, joined)} said={list.title} onRoom={onRoom} onTotals={jest.fn()} />,
+  );
   const [, reached, forecast] = pack.items.map((one) => quoted(one.title));
   expect(texts()).toEqual(
     expect.arrayContaining([
@@ -98,7 +100,13 @@ test('lists the exams above the school its classes sit, from its own weeks, and 
   const own = jest.spyOn(ownExamsModule, 'ownExams').mockReturnValue(shown as never);
   const school = { id: 'made-up-school' } as never;
   await show(
-    <ExamThresholds {...props({ world: id, date }, joined)} school={school} said={list.title} onRoom={jest.fn()} />,
+    <ExamThresholds
+      {...props({ world: id, date }, joined)}
+      school={school}
+      said={list.title}
+      onRoom={jest.fn()}
+      onTotals={jest.fn()}
+    />,
   );
   expect(own).toHaveBeenCalledWith([], school, expect.anything(), date);
   expect(texts()).toEqual(
@@ -126,12 +134,25 @@ test('lists the exams above the school its classes sit, from its own weeks, and 
   ]);
   await unmount();
   own.mockClear();
-  await show(<ExamThresholds {...props({ world: id, date }, joined)} said={list.title} onRoom={jest.fn()} />);
+  await show(
+    <ExamThresholds
+      {...props({ world: id, date }, joined)}
+      said={list.title}
+      onRoom={jest.fn()}
+      onTotals={jest.fn()}
+    />,
+  );
   expect([own.mock.calls.length, texts().includes(list.above)]).toEqual([0, false]);
   await unmount();
   jest.spyOn(teacherRooms, 'readTeacherExams').mockResolvedValueOnce({ rooms: [], weeks: null });
   await show(
-    <ExamThresholds {...props({ world: id, date }, joined)} school={school} said={list.title} onRoom={jest.fn()} />,
+    <ExamThresholds
+      {...props({ world: id, date }, joined)}
+      school={school}
+      said={list.title}
+      onRoom={jest.fn()}
+      onTotals={jest.fn()}
+    />,
   );
   expect(texts()).toContain(list.ownFailed);
 });
@@ -139,7 +160,12 @@ test('lists the exams above the school its classes sit, from its own weeks, and 
 test('says so when no room is handed to the phone', async () => {
   const { id, here, joined } = await setting();
   await show(
-    <ExamThresholds {...props({ world: id, date: here.date }, joined)} said={list.title} onRoom={jest.fn()} />,
+    <ExamThresholds
+      {...props({ world: id, date: here.date }, joined)}
+      said={list.title}
+      onRoom={jest.fn()}
+      onTotals={jest.fn()}
+    />,
   );
   expect(texts()).toContain(list.empty);
 });
@@ -184,7 +210,14 @@ test('a problem reading is shown, said, and read again once', async () => {
   const reads = jest
     .spyOn(teacherRooms, 'readTeacherExams')
     .mockRejectedValueOnce(Object.assign(new Error('made up'), { code: 'E_TIMETABLE_UNJOINED' }));
-  await show(<ExamThresholds {...props({ world: id, date }, joined)} said={list.title} onRoom={jest.fn()} />);
+  await show(
+    <ExamThresholds
+      {...props({ world: id, date }, joined)}
+      said={list.title}
+      onRoom={jest.fn()}
+      onTotals={jest.fn()}
+    />,
+  );
   expect(alerts()).toEqual([ar.demo.timetable.notJoined]);
   expect(said('thresholds')).toEqual([ar.demo.timetable.notJoined]);
   const again = (controls('thresholds-again')[0].props as { onPress: () => void }).onPress;

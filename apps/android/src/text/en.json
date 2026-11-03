@@ -5884,7 +5884,8 @@
       "shows": {
         "school": "No cut yet. A cut is optional: the setters may propose one after the figures day.",
         "directorate": "The directorate’s cut does not show before the exam. After the figures day, your classes will show against its totals.",
-        "national": "The national cut is published to all after the exam, with its figures and how it shaped the questions."
+        "national": "The national cut is published to all after the exam, with its figures and how it shaped the questions.",
+        "totals": "The directorate’s cut does not show before the exam. Its totals for the figures day are open, with your classes listed under them from this phone."
       },
       "moved": "The exam moved from {{was}} to {{is}}: its figures day from {{wasFigures}} to {{isFigures}}, and its cut’s signing deadline from {{wasSign}} to {{isSign}}.",
       "movedAnnounced": "Announced on {{day}}.",
@@ -5894,7 +5895,8 @@
       "movedWeek": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}, and its cut’s signing deadline moved from {{wasSign}} to {{isSign}}.",
       "movedWeekAbove": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}.",
       "movedEnd": "The exam’s last day moved from {{wasEnd}} to {{isEnd}}; its first day and figures day stay as they were.",
-      "movedCalendar": "The exam’s days changed in the calendar on this phone."
+      "movedCalendar": "The exam’s days changed in the calendar on this phone.",
+      "totals": "The directorate’s totals"
     },
     "threshold": {
       "title": "The exam’s threshold",
@@ -5957,6 +5959,27 @@
       },
       "stale": "This chart was taken on {{day}}, before the exam moved; its new figures day is {{now}}, and the chart is not taken again, so its cut is still signed by {{signBy}}.",
       "staleSign": "This chart was taken on {{day}}, before the exam moved; its figures day stays the same, and its cut is still signed by {{signBy}}."
+    },
+    "examTotals": {
+      "title": "The directorate’s totals",
+      "days": "The directorate’s totals for the figures day, {{figures}}. Exam: {{from}}.",
+      "notYet": "The directorate’s totals for this subject and grade are not added up yet: no school’s share for that day holds them.",
+      "hidden": "The directorate’s totals for this subject and grade are hidden: they cover fewer than 5 teachers or 3 schools, or would let a hidden figure be worked out.",
+      "counts": "The directorate’s teachers: {{teachers}} · classes: {{classes}} · schools: {{schools}}",
+      "chart": "Share of the directorate’s classes that reached each item, on {{day}} (%)",
+      "share": "Classes that reached it (%)",
+      "item": "Plan item",
+      "mine": "My classes on {{day}}, from this phone",
+      "mineLine": "{{class}}: done: {{reached}}",
+      "mineNote": "Worked out on this phone alone, from your signed weeks, and never put on the directorate’s figures. The server receives only the school’s share, which names no class, and the directorate only the totals.",
+      "gone": "This exam’s totals are not open on this phone: its figures day has not come, or it is no longer among your exams.",
+      "ownFailed": "Your classes could not be worked out on this phone: your signed weeks did not read.",
+      "notes": {
+        "noCut": "The cut does not show before the exam: the committee and the exams office see it, and it is published after the exam with these figures.",
+        "floors": "No figure of the directorate here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is hidden, also from subtraction.",
+        "server": "From signed weeks only: a class has reached an item once a signed week worked on it or on a later one, and no forecast enters. In this demo the server sees each school’s share as it adds them up.",
+        "never": "Nothing here is used to evaluate or rank anyone."
+      }
     }
   },
   "chart": {

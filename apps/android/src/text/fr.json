@@ -5969,7 +5969,8 @@
       "shows": {
         "school": "Pas encore de seuil. Le seuil est facultatif : les rédacteurs peuvent en proposer un après le jour des chiffres.",
         "directorate": "Le seuil de la direction n’apparaît pas avant l’examen. Après le jour des chiffres, vos classes apparaîtront face à ses totaux.",
-        "national": "Le seuil national est publié pour tous après l’examen, avec ses chiffres et la façon dont il a orienté les questions."
+        "national": "Le seuil national est publié pour tous après l’examen, avec ses chiffres et la façon dont il a orienté les questions.",
+        "totals": "Le seuil de la direction n’apparaît pas avant l’examen. Ses totaux du jour des chiffres sont ouverts, avec vos classes indiquées en dessous depuis ce téléphone."
       },
       "moved": "L’examen a été déplacé du {{was}} au {{is}} : son jour des chiffres du {{wasFigures}} au {{isFigures}}, et le délai de signature de son seuil du {{wasSign}} au {{isSign}}.",
       "movedAnnounced": "Annoncé le {{day}}.",
@@ -5979,7 +5980,8 @@
       "movedWeek": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}, et le délai de signature de son seuil passe du {{wasSign}} au {{isSign}}.",
       "movedWeekAbove": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}.",
       "movedEnd": "Le dernier jour de l’examen a été déplacé du {{wasEnd}} au {{isEnd}} ; son premier jour et son jour des chiffres restent les mêmes.",
-      "movedCalendar": "Les dates de l’examen ont changé dans le calendrier sur ce téléphone."
+      "movedCalendar": "Les dates de l’examen ont changé dans le calendrier sur ce téléphone.",
+      "totals": "Les totaux de la direction"
     },
     "threshold": {
       "title": "Le seuil de l’examen",
@@ -6042,6 +6044,27 @@
       },
       "stale": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son nouveau jour des chiffres est le {{now}}, et le graphique n’est pas repris, donc son seuil se signe toujours au plus tard le {{signBy}}.",
       "staleSign": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son jour des chiffres reste le même, et son seuil se signe toujours au plus tard le {{signBy}}."
+    },
+    "examTotals": {
+      "title": "Les totaux de la direction",
+      "days": "Les totaux de la direction au jour des chiffres, {{figures}}. Examen : {{from}}.",
+      "notYet": "Les totaux de la direction pour cette matière et ce niveau ne sont pas encore additionnés : aucune part d’établissement de ce jour ne les contient.",
+      "hidden": "Les totaux de la direction pour cette matière et ce niveau sont masqués : ils couvrent moins de 5 enseignants ou 3 établissements, ou permettraient de retrouver un chiffre masqué.",
+      "counts": "Enseignants de la direction : {{teachers}} · classes : {{classes}} · établissements : {{schools}}",
+      "chart": "Part des classes de la direction ayant atteint chaque élément, le {{day}} (%)",
+      "share": "Classes l’ayant atteint (%)",
+      "item": "Élément du plan",
+      "mine": "Mes classes le {{day}}, depuis ce téléphone",
+      "mineLine": "{{class}} : fait : {{reached}}",
+      "mineNote": "Calculées sur ce seul téléphone, à partir de vos semaines signées, et jamais placées sur les chiffres de la direction. Le serveur ne reçoit que la part de l’établissement, qui ne nomme aucune classe, et la direction que les totaux.",
+      "gone": "Les totaux de cet examen ne sont pas ouverts sur ce téléphone : son jour des chiffres n’est pas venu, ou il n’est plus parmi vos examens.",
+      "ownFailed": "Vos classes n’ont pas pu être calculées sur ce téléphone : vos semaines signées n’ont pas été lues.",
+      "notes": {
+        "noCut": "Le seuil n’apparaît pas avant l’examen : la commission et le service des examens le voient, et il est publié après l’examen avec ces chiffres.",
+        "floors": "Aucun chiffre de la direction ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 établissements, et tout ce qui est plus petit est masqué, y compris par soustraction.",
+        "server": "À partir des seules semaines signées : une classe a atteint un élément dès qu’une semaine signée a porté sur lui ou sur un élément suivant, et aucune prévision n’y entre. Dans cette démo, le serveur voit la part de chaque établissement en les additionnant.",
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+      }
     }
   },
   "chart": {
