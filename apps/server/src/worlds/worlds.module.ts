@@ -18,6 +18,7 @@ import { MemorySpaceStore, SPACE_STORE, type SpaceStore } from '../spaces/space-
 import { StateController } from '../state-standins/state.controller.js';
 import { INSIGHT_STORE, MemoryInsightStore, type InsightStore } from '../insights/insight-store.js';
 import { InsightsController } from '../insights/insights.controller.js';
+import { SchoolMarks } from '../insights/school-marks.js';
 import { MemoryShareStore, SHARE_STORE, type ShareStore } from '../totals/share-store.js';
 import { TotalsDays } from '../totals/totals-days.js';
 import { TotalsController } from '../totals/totals.controller.js';
@@ -83,6 +84,7 @@ export class WorldsModule {
         { provide: WORLD_LIMITERS, useValue: limiters },
         { provide: WORLD_KEEPING, useValue: keeping },
         TotalsDays,
+        { provide: SchoolMarks, useValue: new SchoolMarks() },
         WorldSweeper,
         { provide: APP_FILTER, useClass: StoreBusyFilter },
       ],

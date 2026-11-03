@@ -17,8 +17,9 @@
 // uploads as the sealed batches its bytes would fill, as a school's share does,
 // so no address fills the store with sendings either; a refused one costs
 // nothing, and requests at the same moment may pass a limit by a few. Each
-// sending's school-and-term code is dropped on receipt, never stored or logged,
-// and a sending is never shown back.
+// sending's school-and-term code is turned into its school's mark for the run
+// on receipt (school-marks.ts), then dropped, never stored or logged, and a
+// sending is never shown back.
 
 import {
   BadRequestException,
@@ -44,7 +45,8 @@ import { holdsStarter } from '../worlds/world-rules.js';
 import { WORLD_STORE, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
 import { INSIGHT_STORE, MAX_SENDINGS, type InsightStore, type SendingKept } from './insight-store.js';
-import { kept, readSending, type KeptSending } from './sending-read.js';
+import { SchoolMarks } from './school-marks.js';
+import { kept, readSending, type KeptSending, type Sending } from './sending-read.js';
 
 /** The most sendings one opening of an observatory keeps. */
 export const SEED_SENDINGS = 256;
@@ -77,6 +79,7 @@ export class InsightsController {
     @Inject(WORLD_STORE) private readonly worlds: WorldStore,
     @Inject(INSIGHT_STORE) private readonly insights: InsightStore,
     @Inject(WORLD_LIMITERS) private readonly limiters: WorldLimiters,
+    @Inject(SchoolMarks) private readonly marks: SchoolMarks,
   ) {}
 
   @Post()
@@ -93,7 +96,7 @@ export class InsightsController {
     if (!holdsStarter(authorization, world.starterHash)) {
       throw new ForbiddenException('only the device that started the world opens its observatory');
     }
-    const sendings = readSeeding(body);
+    const sendings = readSeeding(body).map((read) => this.kept(world, read));
     const address = clientAddress(request, this.limiters.trustCloudflare);
     if (!this.limiters.uploads.fits(address, cost(sendings))) throw tooMany();
     if (!(await this.insights.open(world.id))) throw noWorld();
@@ -117,7 +120,7 @@ export class InsightsController {
     const world = await this.enter(id, pass, request);
     const read = readSending(body);
     if (typeof read === 'string') throw new BadRequestException(read);
-    const sending = [kept(read)];
+    const sending = [this.kept(world, read)];
     const address = clientAddress(request, this.limiters.trustCloudflare);
     if (!this.limiters.sendings.fits(address) || !this.limiters.uploads.fits(address, cost(sending))) throw tooMany();
     const [outcome] = await this.insights.put(world.id, sending);
@@ -129,14 +132,19 @@ export class InsightsController {
     return { id: read.id };
   }
 
+  /** The sending as the server keeps it, its code turned into its school's mark and going no further. */
+  private kept(world: World, sending: Sending): KeptSending {
+    return kept(sending, this.marks.mark(world.id, world.starterHash, sending.schoolTerm));
+  }
+
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
     limitRequest(this.limiters.relay, request, this.limiters.trustCloudflare);
     return openWorld(this.worlds, id, pass);
   }
 }
 
-/** The made-up sendings an opening keeps, each without its school-and-term code. */
-function readSeeding(body: unknown): KeptSending[] {
+/** The made-up sendings of an opening, each read. */
+function readSeeding(body: unknown): Sending[] {
   const sendings = typeof body === 'object' && body !== null && !Array.isArray(body) ? body : {};
   const list = Object.keys(sendings).length === 1 ? (sendings as { sendings?: unknown }).sendings : undefined;
   if (!Array.isArray(list) || list.length > SEED_SENDINGS) {
@@ -148,6 +156,6 @@ function readSeeding(body: unknown): KeptSending[] {
     if (typeof read === 'string') throw new BadRequestException(`sending ${at}: ${read}`);
     if (ids.has(read.id)) throw new BadRequestException(`sending ${at}: its ID is given twice`);
     ids.add(read.id);
-    return kept(read);
+    return read;
   });
 }

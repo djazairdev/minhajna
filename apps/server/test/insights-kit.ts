@@ -28,9 +28,16 @@ export const madeUpSending = (at: number, teacher = 1, school = 1): Sending => (
   reached: 310,
 });
 
-/** The sending as the server keeps it, with no school-and-term code. */
-export function keptOf(sending: Sending): KeptSending {
-  return Object.fromEntries(Object.entries(sending).filter(([field]) => field !== 'schoolTerm')) as KeptSending;
+/** The sending as the server keeps it, with no school-and-term code, and a made-up mark in its place. */
+export function keptOf(sending: Sending, mark = '0a0b0c0d.0'): KeptSending {
+  return { ...(unmarked([sending])[0] as Omit<KeptSending, 'mark'>), mark };
+}
+
+/** Kept sendings without their marks, or sendings without their codes, to compare what the server kept. */
+export function unmarked(sendings: readonly (KeptSending | Sending)[]): Record<string, unknown>[] {
+  return sendings.map((one) =>
+    Object.fromEntries(Object.entries(one).filter(([field]) => field !== 'mark' && field !== 'schoolTerm')),
+  );
 }
 
 /** A made-up world started on the server at `base`, with its starter token. */

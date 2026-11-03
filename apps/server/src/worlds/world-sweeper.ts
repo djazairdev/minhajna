@@ -4,13 +4,14 @@
 // Erases worlds on their 7th day (answer 548): when the server starts, and
 // every hour after, so a world is gone within the hour its 7th day begins, in
 // UTC, with its spaces, the schools' shares of its totals and the days of them
-// kept worked out, and its observatory. A failed sweep is logged and tried
-// again the next hour. When the server stops, the sweeper stops and the stores
-// close.
+// kept worked out, and its observatory with its schools' marks. A failed sweep
+// is logged and tried again the next hour. When the server stops, the sweeper
+// stops and the stores close.
 
 import { Inject, Injectable, Logger, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
 import { INSIGHT_STORE, type InsightStore } from '../insights/insight-store.js';
+import { SchoolMarks } from '../insights/school-marks.js';
 import { SHARE_STORE, type ShareStore } from '../totals/share-store.js';
 import { TotalsDays } from '../totals/totals-days.js';
 import { WORLD_STORE, type WorldStore } from './world-store.js';
@@ -35,12 +36,14 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
     @Inject(INSIGHT_STORE) private readonly insights: InsightStore,
     @Inject(WORLD_KEEPING) private readonly keeping: WorldKeeping,
     @Inject(TotalsDays) private readonly days: TotalsDays,
+    @Inject(SchoolMarks) private readonly marks: SchoolMarks,
   ) {}
 
   /** Erases the worlds whose 7th day has come, and answers how many. */
   async sweep(): Promise<number> {
     const today = new Date(this.keeping.now()).toISOString().slice(0, 10);
     const gone = await this.worlds.sweep(today);
+    this.marks.forget(gone);
     await this.spaces.forget(gone);
     await this.shares.forget(gone);
     await this.insights.forget(gone);
