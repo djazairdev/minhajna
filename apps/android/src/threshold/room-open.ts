@@ -24,7 +24,8 @@
 // already in place is told from the space as read once, and only what is
 // missing is put. A room or a setter that fails is passed over, counted, and
 // tried again with the next reading; a channel's rooms are read once for all
-// the rooms of one reading of the space.
+// the rooms of one reading of the space. A room is found with its decider's key
+// worked out only when it holds records or is about to be opened.
 
 import {
   channelRooms,
@@ -82,16 +83,21 @@ async function latestIssues(world: RoomWorld, desk: IssueDesk, school: DemoSchoo
   return latest;
 }
 
-/** The room's epoch, key and place, its decider's public key, and the decider's chart it holds, or null. */
-async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+/**
+ * The room's epoch, key and place, its decider's seed and public key, its records as read, and the decider's chart or
+ * null; the decider's seed and key are worked out only for a room that holds records, null otherwise.
+ */
+export async function roomFound(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
   const checker = { key: ca, checker: kit };
   const at = async (epoch: number) => {
     const key = await kitStep(() => roomKey(desk.opened, epoch, name, desk.crypto));
     const place = await kitStep(() => roomPlace(key, kit.mac));
-    const decider = deciderKey(await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto)));
     const held = space.get(place.stream) ?? [];
-    const read = held.length === 0 ? null : await roomRecords(place, held, checker, { name, decider }, kit.cipher);
-    return { epoch, key, place, decider, chart: read?.chart?.value ?? null };
+    if (held.length === 0) return { epoch, key, place, seed: null, decider: null, records: null, chart: null };
+    const seed = await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto));
+    const decider = deciderKey(seed);
+    const read = await roomRecords(place, held, checker, { name, decider }, kit.cipher);
+    return { epoch, key, place, seed, decider, records: read, chart: read.chart?.value ?? null };
   };
   const latest = await at(latestEpoch(desk.opened));
   for (let epoch = latest.epoch - 1; latest.chart === null && epoch >= 0; epoch -= 1) {
@@ -99,6 +105,17 @@ async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string,
     if (room.chart !== null) return room;
   }
   return latest;
+}
+
+/** A room as roomFound found it, with its decider's seed and public key worked out when it holds nothing yet. */
+async function withDecider(desk: IssueDesk, name: RoomName, room: Awaited<ReturnType<typeof roomFound>>) {
+  const seed = room.seed ?? (await kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto)));
+  return { ...room, seed, decider: room.decider ?? deciderKey(seed) };
+}
+
+/** The room as roomFound finds it, with its decider's seed and public key worked out when it holds nothing yet. */
+export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+  return withDecider(desk, name, await roomFound(desk, name, space, ca, kit));
 }
 
 /** The rooms a channel's batches as read hold, read once for every room a reading of the space opens. */
@@ -128,10 +145,10 @@ export async function openRoom(
   const checker = { key: ca, checker: kit };
   const school = desk.held.school;
   const name = { exam: draft.exam, subject: draft.subject, grade: draft.grade, world: world.world, school };
-  const room = await roomOf(desk, name, space, ca, kit);
-  if (room.chart === null && after) return { handed: 0, failed: 0 };
-  const seed = await kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto));
-  const signing = () => deciderSigning(world.world, desk, seed, ca, kit, send);
+  const found = await roomFound(desk, name, space, ca, kit);
+  if (found.chart === null && after) return { handed: 0, failed: 0 };
+  const room = await withDecider(desk, name, found);
+  const signing = () => deciderSigning(world.world, desk, room.seed, ca, kit, send);
   let chart = room.chart;
   if (chart === null) {
     const made: ExamChart = {
