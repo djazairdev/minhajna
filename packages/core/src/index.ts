@@ -7,7 +7,6 @@
 export * from './added-days.ts';
 export * from './bells.ts';
 export * from './bells-read.ts';
-export * from './budget-pack-checks.ts';
 export * from './assessment.ts';
 export * from './assessment-read.ts';
 export * from './captures.ts';
@@ -135,6 +134,7 @@ export * from './plan-view.ts';
 export * from './pack.ts';
 export * from './pack-catalogue.ts';
 export * from './pack-migration.ts';
+export * from './budget-pack-checks.ts';
 export * from './migration-carry.ts';
 export * from './progress.ts';
 export * from './progress-statement.ts';

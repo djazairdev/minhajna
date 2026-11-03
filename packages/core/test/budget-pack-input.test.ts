@@ -47,6 +47,12 @@ describe('budget-check source inputs', () => {
     ]) {
       assert.throws(() => checkBudgetPack({ ...source(), id }, ref, scope), RangeError);
     }
+    const withoutZones = { ...ref.country };
+    delete withoutZones.zones;
+    assert.throws(
+      () => checkBudgetPack(source(), { ...ref, country: withoutZones }, { ...scope, zone: '31' }),
+      RangeError,
+    );
     const named = { ...ref, country: { ...ref.country, zones: [{ code: '16', name: { en: 'Made up' } }] } };
     assert.throws(() => checkBudgetPack(source(), named, { ...scope, zone: '31' }), RangeError);
   });

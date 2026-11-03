@@ -186,6 +186,32 @@ describe('budget-pack release checks', () => {
     assert.equal(result.findings[0]?.shortfall, 1);
   });
 
+  it('omits a term deadline that passed before the supplied horizon', () => {
+    const pack = source([{ id: 't1', kind: 'lesson', title: 'Made up', term: 1, budget: 1 }]);
+    const reference = { ...ref, calendar: [calendar({ effect: 'exam', term: 1 })] };
+    const result = checked(pack, reference, { ...scope, from: d('2026-09-21') });
+    assert.deepEqual(
+      result.periods.map((period) => period.term),
+      [null],
+    );
+    assert.deepEqual(result.findings, []);
+  });
+
+  it('checks a hybrid week checkpoint even when the entire source fits', () => {
+    const items = [
+      { id: 'first', kind: 'lesson', title: 'Made up', budget: 1 },
+      { id: 'target', kind: 'lesson', title: 'Made up', budget: 2, week: 1 },
+    ] as const;
+    const pack = { ...source(items), anchor: { kind: 'hybrid', unit: 'hours' } as const, items };
+    const result = checked(pack);
+    assert.deepEqual(result.periods[0]?.main, { needs: 3, gives: 2 });
+    assert.equal(result.periods[0]?.week, 1);
+    assert.deepEqual(
+      result.findings.map(({ week, items }) => ({ week, items })),
+      [{ week: 1, items: ['target'] }],
+    );
+  });
+
   it('checks stale and hybrid source packs without changing import behaviour', () => {
     const pack = source();
     assert.deepEqual(checked({ ...pack, status: 'stale' }).periods, checked(pack).periods);

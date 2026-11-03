@@ -83,11 +83,7 @@ export function budgetPackContext(
   const parts = parsePackId(pack.id);
   if (parts === null || parts.country !== ref.country.code) throw new RangeError('Unknown pack profile');
   const level = ref.country.levels.find((one) => one.code === parts.level);
-  if (
-    scope.zone !== undefined &&
-    ref.country.zones !== undefined &&
-    !ref.country.zones.some((zone) => zone.code === scope.zone)
-  )
+  if (scope.zone !== undefined && !ref.country.zones?.some((zone) => zone.code === scope.zone))
     throw new RangeError('Unknown calendar zone');
   if (
     level === undefined ||

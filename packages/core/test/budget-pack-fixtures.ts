@@ -28,6 +28,13 @@ export const scope: BudgetPackScope = { from: d('2026-09-20'), to: d('2026-10-01
 
 export const ref: Reference = {
   ...reference,
+  country: {
+    ...reference.country,
+    zones: [
+      { code: '16', name: { en: 'Made-up zone 16' } },
+      { code: '31', name: { en: 'Made-up zone 31' } },
+    ],
+  },
   calendar: [],
   year: { ...reference.year, from: scope.from, to: scope.to, terms: [{ number: 1, from: scope.from, to: scope.to }] },
 };
