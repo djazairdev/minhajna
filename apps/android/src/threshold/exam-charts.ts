@@ -77,6 +77,36 @@ function mostPinned(classes: readonly DemoClass[], subject: string): PinnedPack 
   )?.pin;
 }
 
+/** The school's classes that sit the exam. */
+function sittingClasses(exam: WorldExam, school: DemoSchool): DemoClass[] {
+  const where = { level: school.level, zone: school.wilaya, schoolId: school.id };
+  return school.classes.filter((one) => examsFor([exam], { ...where, grade: one.grade }).length > 0);
+}
+
+/** A grade and subject the timetable gives a class sitting an exam, with those classes and their teachers. */
+export interface ExamGroup {
+  readonly grade: string;
+  readonly subject: string;
+  readonly classes: ReadonlySet<string>;
+  readonly teachers: readonly string[];
+}
+
+/** Each grade and subject the timetable gives the classes sitting an exam, in the timetable's order. */
+export function examGroups(exam: WorldExam, school: DemoSchool): ExamGroup[] {
+  const sitting = sittingClasses(exam, school);
+  const groups = new Map<string, { grade: string; subject: string; classes: Set<string>; teachers: string[] }>();
+  for (const session of school.week) {
+    const one = sitting.find((each) => each.id === session.classId);
+    if (one === undefined) continue;
+    const key = `${one.grade}\n${session.subject}`;
+    const group = groups.get(key) ?? { grade: one.grade, subject: session.subject, classes: new Set(), teachers: [] };
+    group.classes.add(one.id);
+    if (!group.teachers.includes(session.teacherId)) group.teachers.push(session.teacherId);
+    groups.set(key, group);
+  }
+  return [...groups.values()];
+}
+
 /** The exam's charts, one for each grade and subject its sitting classes are taught. */
 export function chartDrafts(
   exam: WorldExam,
@@ -89,18 +119,7 @@ export function chartDrafts(
   const view = new CalendarView(calendar, []);
   const place = demoSchoolPlace(school);
   const standing = courseStandings(records, school, reference, asOf);
-  const where = { level: school.level, zone: school.wilaya, schoolId: school.id };
-  const sitting = school.classes.filter((one) => examsFor([exam], { ...where, grade: one.grade }).length > 0);
-  const groups = new Map<string, { grade: string; subject: string; classes: Set<string>; teachers: string[] }>();
-  for (const session of school.week) {
-    const one = sitting.find((each) => each.id === session.classId);
-    if (one === undefined) continue;
-    const key = `${one.grade}\n${session.subject}`;
-    const group = groups.get(key) ?? { grade: one.grade, subject: session.subject, classes: new Set(), teachers: [] };
-    group.classes.add(one.id);
-    if (!group.teachers.includes(session.teacherId)) group.teachers.push(session.teacherId);
-    groups.set(key, group);
-  }
+  const sitting = sittingClasses(exam, school);
   const working = (day: Day) => calendar.country.workingDays.includes(weekday(day));
   const opens = (one?: DemoClass) => {
     const of = one === undefined ? undefined : demoSchoolClass(school, one);
@@ -113,7 +132,7 @@ export function chartDrafts(
   const pace = new Map<string, { before: number; left: number }>();
   const forecastDay = forecastDayOf(asOf, exam.from, opens());
   const drafts: ChartDraft[] = [];
-  for (const { grade, subject, classes, teachers } of groups.values()) {
+  for (const { grade, subject, classes, teachers } of examGroups(exam, school)) {
     const taught = sitting.filter((one) => classes.has(one.id));
     const pin = mostPinned(taught, subject);
     const pack = reference.packs.find((one) => one.id === pin?.id && one.release === pin.release);

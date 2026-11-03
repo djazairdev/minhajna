@@ -4,25 +4,27 @@
 // The pages of the PC's workspaces in a demo world that have a body yet
 // (world-pages.ts), each for the roles its board lists: the director's
 // dashboard on the seeded school (#569), with who joined (#548) and each
-// class's standing from its signed weeks (answer 627), the codes page that
-// issues joining codes and security keys (#570), the keys page that maps who
-// holds the school key (#571) and fills a taken seeded school's term from the
-// bundled reference data, never the world's releases (answer 626), the exchange
-// page that maps what enters and leaves the school (#592, SchoolExchange.tsx),
-// the records page that reads the classes' signed weeks with the school key
-// (#585, SchoolRecords.tsx), the director's cover page for the world's date
-// (#586, SchoolCover.tsx), the school's term report against its calendar (#589,
-// SchoolDelivery.tsx), the director's assignments and access page for
-// substitutes (#587, SchoolSubstitute.tsx), the director's and the preparer's
-// timetable page (#576, #577, #578), kept for the world it was read in, and
-// their own log (#573); any other page has none, and the preparer never opens
-// the records or the cover; the directorate's grants page requests inspectors'
-// grants from its schools (#593, DirectorateGrant.tsx) and its totals page says
-// what the system owes teachers on announced days, with the curriculum report
-// (#598, DirectorateTotals.tsx); and the Ministry's totals page says it by
-// wilaya (#599, MinistryTotals.tsx), and its calendar page keys a draft of the
-// world's calendar (#607, MinistryCalendar.tsx), afresh over each release the
-// world comes to hold, and publishes it with the world's keys (#608,
+// class's standing from its signed weeks (answer 627), the school's exam
+// thresholds, where the director decides a cut that falls to them (#603,
+// DirectorThresholds.tsx), the codes page that issues joining codes and
+// security keys (#570), the keys page that maps who holds the school key (#571)
+// and fills a taken seeded school's term from the bundled reference data, never
+// the world's releases (answer 626), the exchange page that maps what enters
+// and leaves the school (#592, SchoolExchange.tsx), the records page that reads
+// the classes' signed weeks with the school key (#585, SchoolRecords.tsx), the
+// director's cover page for the world's date (#586, SchoolCover.tsx), the
+// school's term report against its calendar (#589, SchoolDelivery.tsx), the
+// director's assignments and access page for substitutes (#587,
+// SchoolSubstitute.tsx), the director's and the preparer's timetable page
+// (#576, #577, #578), kept for the world it was read in, and their own log
+// (#573); any other page has none, and the preparer never opens the records or
+// the cover; the directorate's grants page requests inspectors' grants from its
+// schools (#593, DirectorateGrant.tsx) and its totals page says what the system
+// owes teachers on announced days, with the curriculum report (#598,
+// DirectorateTotals.tsx); and the Ministry's totals page says it by wilaya
+// (#599, MinistryTotals.tsx), and its calendar page keys a draft of the world's
+// calendar (#607, MinistryCalendar.tsx), afresh over each release the world
+// comes to hold, and publishes it with the world's keys (#608,
 // MinistryCalendarPage.tsx); and the operators' system map draws the demo
 // server from what it says of itself, with its version and health (#618,
 // OpsConsole.tsx).
@@ -30,6 +32,7 @@
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import { DashboardPage } from '../director/DashboardPage';
+import { DirectorThresholds } from '../director/DirectorThresholds';
 import { IssueCodes } from '../director/IssueCodes';
 import { OwnLog } from '../director/OwnLog';
 import { SchoolCover } from '../director/SchoolCover';
@@ -141,6 +144,10 @@ export function workspacePage(
         send={send}
         dayText={dayText}
       />
+    );
+  if (workspace === 'director' && page === 'thresholds')
+    return (
+      <DirectorThresholds world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
     );
   if (workspace === 'director' && page === 'codes')
     return (

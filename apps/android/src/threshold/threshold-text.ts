@@ -89,7 +89,7 @@ export function awaitingMine({ state, mine }: Pick<TeacherRoom, 'state' | 'mine'
 /** Where a room's cut stands, as one line. */
 export function stateText(
   t: TFunction,
-  room: TeacherRoom,
+  room: Pick<TeacherRoom, 'state' | 'chart' | 'mine'>,
   item: (id: string | null) => string,
   dayText: (day: Day) => string,
 ): string {
@@ -111,7 +111,7 @@ export function stateText(
 /** Each setter's latest cut with its day, one line each by their assignment in the chart's order, `over` the exam. */
 export function setterLines(
   t: TFunction,
-  room: TeacherRoom,
+  room: Pick<TeacherRoom, 'state' | 'chart'>,
   item: (id: string | null) => string,
   dayText: (day: Day) => string,
   over = false,

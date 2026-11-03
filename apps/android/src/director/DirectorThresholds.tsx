@@ -1,0 +1,150 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The school's exam thresholds in the director's workspace (D-Threshold, #603,
+// §7.10, R-7.10-02, R-7.10-03, R-7.10-11, R-7.10-12, R-7.10-19, R-7.10-23,
+// answers 101, 632 and 637): as it opens, and when the world's date moves, it
+// reads the rooms of the school exams whose figures day has come
+// (useSchoolRooms.ts), and a problem reading is said in the catalogue's words,
+// in its live line on the PC and announced on a phone, with a way to read
+// again. It chooses an exam, the latest by default, and a grade, the first,
+// then lists that grade's subjects in the timetable's order, never by
+// progress, each with how many setters it has, the item every class reached,
+// the cut proposed or settled and where it stands; a subject chosen, the first
+// by default, opens its room (ThresholdRoomPanel.tsx), where the director
+// decides while it is theirs. With no room it says no school exam's figures
+// day has come or no room is open yet. It says that the figures come from
+// signed weeks only and never leave the school's space, that each teacher sees
+// this page for their subject and grade, and that nothing here evaluates or
+// ranks anyone.
+
+import type { Day, DemoSchool } from '@minhajna/core';
+import { useLocale } from '@react-navigation/native';
+import { useState } from 'react';
+import { Text, View } from 'react-native';
+import { Button } from '../components/Button';
+import { ChipGroup } from '../components/Chip';
+import type { OpenWorld } from '../demo/world-mode';
+import type { Send, WorldKit } from '../demo/world-session';
+import { spacing } from '../design/tokens';
+import { subjectName } from '../extra/extra-rules';
+import { gradeName } from '../setup/names';
+import { useDeviceText } from '../text/device-text';
+import { publishedText } from '../threshold/published-text';
+import type { SchoolRoom } from '../threshold/school-rooms';
+import { everyReached, examName, itemNamer, stateText } from '../threshold/threshold-text';
+import { thresholdStyles as styles } from '../threshold/ThresholdFrame';
+import { useSchoolRooms } from '../threshold/useSchoolRooms';
+import { isolate } from '../week/grid-labels';
+import type { TermReference } from './seeded-fill';
+import { ThresholdRoomPanel } from './ThresholdRoomPanel';
+
+export type DirectorThresholdsProps = {
+  readonly world: Pick<OpenWorld, 'world' | 'date' | 'book'>;
+  readonly school: DemoSchool;
+  readonly reference: TermReference;
+  readonly kit: WorldKit;
+  readonly send?: Send;
+  readonly dayText: (day: Day) => string;
+};
+
+const NOTES = ['signed', 'teachers', 'never'] as const;
+const page = { gap: spacing['space-12'] } as const;
+
+/** The school's exams with a common paper, by grade and subject, and the room of the subject chosen. */
+export function DirectorThresholds({ world, school, reference, kit, send, dayText }: DirectorThresholdsProps) {
+  const t = useDeviceText();
+  const { direction } = useLocale();
+  const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const read = useSchoolRooms(world, school, reference, kit, send);
+  const [chosen, setChosen] = useState<{ exam?: string; grade?: string; subject?: string }>({});
+  const rooms = read.rooms ?? [];
+  const exams = [...new Map(rooms.map((one) => [one.exam.id, one.exam])).values()];
+  const exam = exams.find((one) => one.id === chosen.exam) ?? exams.at(-1);
+  const ofExam = rooms.filter((one) => one.exam.id === exam?.id);
+  const grades = [...new Set(ofExam.map((one) => one.chart.grade))];
+  const grade = grades.find((one) => one === chosen.grade) ?? grades[0];
+  const rows = ofExam.filter((one) => one.chart.grade === grade);
+  const open = rows.find((one) => one.chart.subject === chosen.subject) ?? rows[0];
+  const small = (words: string, key?: string) => (
+    <Text key={key} style={[styles.small, align]}>
+      {words}
+    </Text>
+  );
+  const row = (one: SchoolRoom) => {
+    const { chart, state } = one;
+    const item = itemNamer(t, chart, reference.packs);
+    const every = everyReached(chart);
+    const shown = { chart, state, mine: null };
+    const where = one.exam.to < world.date ? publishedText(t, shown, item) : stateText(t, shown, item, dayText);
+    const named = subjectName(reference.profile, chart.subject);
+    const subject = named === chart.subject ? isolate(named) : named;
+    return (
+      <View key={chart.subject} testID="schoolThreshold-row" style={styles.card}>
+        <Text accessibilityRole="header" style={[styles.head, align]}>
+          {subject}
+        </Text>
+        {small(t('demo.schoolThreshold.setters', { count: chart.setters.length }))}
+        {small(t('demo.schoolThreshold.every', { item: every === null ? t('demo.threshold.noItem') : item(every) }))}
+        <Text style={[styles.body, align]}>{where}</Text>
+        <Button
+          testID="schoolThreshold-open"
+          variant="line"
+          label={t('demo.schoolThreshold.open')}
+          name={`${t('demo.schoolThreshold.open')}${t('chart.colon')}${subject}`}
+          onPress={() => setChosen({ exam: exam?.id, grade, subject: chart.subject })}
+        />
+      </View>
+    );
+  };
+  return (
+    <View testID="schoolThreshold" style={page}>
+      <Text style={[styles.body, align]}>{t('demo.schoolThreshold.lead')}</Text>
+      <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
+        {read.reading ? t('demo.schoolThreshold.reading') : read.said}
+      </Text>
+      {read.problem !== null && (
+        <View style={styles.card}>
+          <Text accessibilityRole="alert" style={[styles.body, align]}>
+            {t(read.problem)}
+          </Text>
+          <Button testID="schoolThreshold-again" variant="line" label={t('demo.weekSign.again')} onPress={read.again} />
+        </View>
+      )}
+      {read.rooms?.length === 0 && <Text style={[styles.body, align]}>{t('demo.schoolThreshold.none')}</Text>}
+      {exams.length > 1 && (
+        <ChipGroup
+          testID="schoolThreshold-exams"
+          label={t('demo.schoolThreshold.exam')}
+          choices={exams.map((one) => ({
+            value: one.id,
+            label: `${examName(t, one.id)} · ${dayText(one.from)}`,
+          }))}
+          selected={exam?.id ?? null}
+          onSelect={(id) => setChosen({ exam: id })}
+        />
+      )}
+      {grades.length > 0 && (
+        <ChipGroup
+          testID="schoolThreshold-grades"
+          label={t('demo.schoolThreshold.grade')}
+          choices={grades.map((one) => ({ value: one, label: gradeName(reference.profile, one) }))}
+          selected={grade ?? null}
+          onSelect={(one) => setChosen({ exam: exam?.id, grade: one })}
+        />
+      )}
+      {rows.map(row)}
+      {open !== undefined && (
+        <ThresholdRoomPanel
+          room={open}
+          date={world.date}
+          dayText={dayText}
+          reference={reference}
+          busy={read.reading}
+          onDecide={(item, done) => read.decide(open, item, done)}
+        />
+      )}
+      {NOTES.map((key) => small(t(`demo.schoolThreshold.notes.${key}`), key))}
+    </View>
+  );
+}

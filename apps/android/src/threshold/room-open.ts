@@ -82,8 +82,8 @@ async function latestIssues(world: RoomWorld, desk: IssueDesk, school: DemoSchoo
   return latest;
 }
 
-/** The room's epoch, key and place, its decider's public key, and the decider's chart it holds, or null. */
-async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+/** The room's epoch, key and place, its decider's public key, its records as read, and the decider's chart or null. */
+export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
   const checker = { key: ca, checker: kit };
   const at = async (epoch: number) => {
     const key = await kitStep(() => roomKey(desk.opened, epoch, name, desk.crypto));
@@ -91,7 +91,7 @@ async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string,
     const decider = deciderKey(await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto)));
     const held = space.get(place.stream) ?? [];
     const read = held.length === 0 ? null : await roomRecords(place, held, checker, { name, decider }, kit.cipher);
-    return { epoch, key, place, decider, chart: read?.chart?.value ?? null };
+    return { epoch, key, place, decider, records: read, chart: read?.chart?.value ?? null };
   };
   const latest = await at(latestEpoch(desk.opened));
   for (let epoch = latest.epoch - 1; latest.chart === null && epoch >= 0; epoch -= 1) {

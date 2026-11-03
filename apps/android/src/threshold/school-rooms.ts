@@ -1,0 +1,137 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The school exams' cut rooms on the director's device (#603, D-Threshold,
+// answers 632 and 637), with the school key held: reading takes every school
+// exam whose figures day the world's date has reached, up to the year's last
+// day, and for each grade and subject the timetable gives a class sitting it
+// (exam-charts.ts), the room the school key derives for it (room-open.ts),
+// the space read once, each room whose decider's chart is in place given with
+// where its cut stands on the world's date (exam-cuts.ts); a room not opened is
+// left out. The director's decision, the cut proposed or no cut, is signed with
+// the room's decider key (decider-key.ts), dated the world's date, and put in
+// the room once; it is refused (E_CUT_CLOSED) unless the decision has fallen
+// to the director, the cut is unsettled and the world's date is before the
+// exam's first day as the chart has it, in the room as read when it is put.
+// Errors carry world-session.ts's codes.
+
+import {
+  compareDays,
+  cutState,
+  deciderSeed,
+  roomRecords,
+  sealRoomRecord,
+  signRoomRecord,
+  type CutState,
+  type DemoSchool,
+  type ExamChart,
+  type ExamCut,
+  type RoomRecords,
+  type WorldExam,
+} from '@minhajna/core';
+import type { OpenWorld } from '../demo/world-mode';
+import { failed, kitStep, type Send, type WorldKit } from '../demo/world-session';
+import type { IssueDesk } from '../director/school-desk';
+import type { TermReference } from '../director/seeded-fill';
+import { worldRequest } from '../network/world-network';
+import { caKey, spaceBatches } from '../school/space-read';
+import { putOnce } from '../school/stream-put';
+import { deciderSigning } from './decider-key';
+import { examGroups, examsAfter, examsOpen } from './exam-charts';
+import { roomOf } from './room-open';
+
+type RoomWorld = Pick<OpenWorld, 'world' | 'date'>;
+
+/** A room as the director's device reads it. */
+export interface SchoolRoom {
+  readonly exam: WorldExam;
+  readonly chart: ExamChart;
+  readonly state: CutState;
+  /** The epoch of the school key the room stands under. */
+  readonly epoch: number;
+  /** The world CA's key the room was read with. */
+  readonly ca: string;
+}
+
+/** The rooms of the school exams whose figures day the date reached, in the order of the exams and the timetable. */
+export async function readSchoolRooms(
+  world: RoomWorld,
+  desk: IssueDesk,
+  school: DemoSchool,
+  reference: Pick<TermReference, 'calendar'>,
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<SchoolRoom[]> {
+  const exams = [...examsOpen(reference, world.date), ...examsAfter(reference, world.date)];
+  exams.sort((a, b) => compareDays(a.from, b.from));
+  if (exams.length === 0) return [];
+  const ca = await caKey(world.world, send);
+  const space = await spaceBatches(world.world, desk.held.school, send);
+  const rooms: SchoolRoom[] = [];
+  for (const exam of exams)
+    for (const { grade, subject } of examGroups(exam, school)) {
+      const name = { world: world.world, school: desk.held.school, exam: exam.id, subject, grade };
+      const room = await roomOf(desk, name, space, ca, kit);
+      const state = room.records === null ? null : cutState(room.records, world.date);
+      if (room.chart !== null && state !== null) rooms.push({ exam, chart: room.chart, state, epoch: room.epoch, ca });
+    }
+  return rooms;
+}
+
+/** Whether the director may still decide a room's cut on a day: it fell to them, unsettled, before the exam. */
+export function mayDecide({ chart, state }: Pick<SchoolRoom, 'chart' | 'state'>, date: RoomWorld['date']): boolean {
+  return state.director && state.settled === null && compareDays(date, chart.from) < 0;
+}
+
+/** Signs the director's decision in a room, the cut proposed or null for no cut, and puts it there once. */
+export async function decideCut(
+  world: RoomWorld,
+  desk: IssueDesk,
+  read: Pick<SchoolRoom, 'chart' | 'epoch' | 'ca'>,
+  item: string | null,
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<ExamCut> {
+  const { chart, epoch, ca } = read;
+  const closed = () => failed('The cut can no longer be decided', 'E_CUT_CLOSED');
+  if (item !== null && !chart.items.includes(item)) throw new RangeError('A decision names an item of the chart');
+  const { world: id, school, exam, subject, grade } = chart;
+  const name = { world: id, school, exam, subject, grade };
+  const space = await spaceBatches(world.world, desk.held.school, send);
+  const room = await roomOf(desk, name, space, ca, kit);
+  if (room.epoch !== epoch || room.chart === null) throw closed();
+  const seed = await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto));
+  const checker = { key: ca, checker: kit };
+  const decider = { name, decider: room.decider };
+  let records: RoomRecords | null = null;
+  let made: { cut: ExamCut; signature: string } | null = null;
+  let shut = false;
+  await putOnce(
+    {
+      world: world.world,
+      space: school,
+      kind: 'school',
+      stream: room.place.stream,
+      open: async (held) => {
+        records = await roomRecords(room.place, held, checker, decider, kit.cipher);
+        return records.cuts.map((one) => one.record.signature);
+      },
+      there: (signatures) => {
+        if (made !== null && signatures.includes(made.signature)) return true;
+        const state = records === null ? null : cutState(records, world.date);
+        shut = state === null || !mayDecide({ chart, state }, world.date);
+        return shut;
+      },
+      seal: async (first) => {
+        const { certificate, signer } = await deciderSigning(world.world, desk, seed, ca, kit, send);
+        const cut: ExamCut = { ...name, item, day: world.date, version: 0 };
+        const signed = await kitStep(() => signRoomRecord('decision', cut, certificate, signer));
+        made = { cut, signature: signed.signed.signature };
+        return sealRoomRecord(room.place, signed, first, kit.cipher);
+      },
+    },
+    send,
+  );
+  if (made === null || shut) throw closed();
+  return (made as { cut: ExamCut }).cut;
+}
