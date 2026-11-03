@@ -8,13 +8,13 @@ The curator's Packs page in a national demo world now lists the supplied referen
 
 Every release stays visible, newest first within its pack ID. An older release is not silently hidden, promoted to Stale or given a lifecycle state. A filter changes only the list; All restores it. An empty catalogue, a filter with no match and unreadable source files have distinct messages. A teacher's own list never enters the catalogue.
 
-This is #611's list, following PRD section 4.2 and R-4.2-23. Draft metadata editing, publication authority and release lifecycle are #612's work; item editing is #613's. This page changes no reference pack, teacher pin, history or record. It accepts reference inputs only and adds no storage, dependency, permission or network call.
+This covers the read-only reference list for #611. The #613 editor reads saved releases through the demo lifecycle service. Assigning the source status remains follow-up work for #611. Keep #611 open until the status workflow is available. This page changes no reference pack, teacher pin, history or record. It accepts reference inputs only and adds no storage, dependency, permission or network call.
 
 The maintainer asked to proceed before #515 has a pack-list board. The page therefore uses the existing workspace, badges and filters, as the demo's other pages do before their design exports. This is an implementation for review, not approval of a new canvas board. The route is limited to the curator's Packs page. The Ministry's calendar route from #763 is preserved.
 
 ## Translations and accessibility
 
-New words live in the bundled `editorPacks` namespace, in `apps/android/src/editor/text/ar.json`, `fr.json` and `en.json`. The main language catalogues are unchanged. The namespace is covered by REUSE and registered for the existing Weblate configuration; tests use a fake API, and no translation service was contacted.
+New words live in the bundled `editorPacks` namespace, in `apps/android/src/editor/text/ar.json`, `fr.json` and `en.json`. The main language catalogues are unchanged. The namespace is covered by REUSE and registered for the existing Weblate configuration. Run the configuration again after this merges so Weblate picks up the new component.
 
 The shared chip control now exposes `aria-checked` as well as the native checked state, and aligns its label for the current direction. Browser review caught that the web version previously omitted the selected state. The pack list's Arabic paragraphs explicitly align right. Labels can wrap, with no line clamp or text scaling cap.
 

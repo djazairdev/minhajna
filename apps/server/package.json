@@ -14,6 +14,7 @@
     "generate": "node tools/prisma/node_modules/prisma/build/index.js generate --config tools/prisma/prisma.config.ts",
     "start": "node dist/src/main.js",
     "migrate": "node dist/src/storage/migrate.js",
+    "fingerprint": "node -e \"import('./dist/src/admin/fingerprint.js').then(({ FINGERPRINT: f }) => { console.log(f); process.exitCode = f ? 0 : 1; })\"",
     "diff": "node tools/prisma/node_modules/prisma/build/index.js migrate diff --config tools/prisma/prisma.config.ts --from-config-datasource --to-schema=prisma/schema.prisma",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test --test-concurrency=1 \"dist/test/*.test.js\""

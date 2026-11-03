@@ -2,7 +2,7 @@
 
 The server package ([PRD §5.2](../../docs/prd/PRD.md#52-architecture)): one package, installed by whoever runs it. In 0.7.0 it is **the demo server** ([#516](https://github.com/djazairdev/minhajna/issues/516)): it holds made-up demo worlds in which every role, from the Ministry to the teacher, runs the national flow. It never holds real data, and it never holds a key to a school's or a teacher's records.
 
-**Status:** the health check ([#538](https://github.com/djazairdev/minhajna/issues/538)), the worlds API ([#540](https://github.com/djazairdev/minhajna/issues/540)), the encrypted relay ([#541](https://github.com/djazairdev/minhajna/issues/541)) and the stand-in CA ([#554](https://github.com/djazairdev/minhajna/issues/554)), kept in PostgreSQL and erased on their 7th day ([#542](https://github.com/djazairdev/minhajna/issues/542)).
+**Status:** the health check ([#538](https://github.com/djazairdev/minhajna/issues/538)), the worlds API ([#540](https://github.com/djazairdev/minhajna/issues/540)), the encrypted relay ([#541](https://github.com/djazairdev/minhajna/issues/541)) and the stand-in CA ([#554](https://github.com/djazairdev/minhajna/issues/554)), kept in PostgreSQL and erased on their 7th day ([#542](https://github.com/djazairdev/minhajna/issues/542)), and the operators' view of the server ([#618](https://github.com/djazairdev/minhajna/issues/618)).
 
 ## The worlds API
 
@@ -55,6 +55,23 @@ Each world has its own stand-in certificate authority ([#554](https://github.com
 - **What a share holds:** its directorate and, by subject, counts only: what the school's assignments show and what its signed weeks add up to. It names no school, class or teacher, the server never shows one back, and every share of a world is erased with it. In the demo the server sees each share before adding them up; cryptographic secure aggregation comes later (choice D2).
 - **The day's totals:** `GET /worlds/:world/totals/:day`, with the pass, answers the Ministry's view of the shares kept for an announced day the date has reached, every directorate's figures by subject and over every subject and the nation's, and with `?directorate=` one directorate's own: `422` for a day not announced or not reached yet, `400` for a directorate not named as the reference data names one. As anyone with the pass may ask for every view, the figures hidden are worked out over all of them together, through a copy of the core's floors: under the directorate floor (5 teachers and 3 schools), the nation's under its own, and any figure that would let a hidden one be worked out by subtraction; the Ministry's view hides, as well, a directorate under the wilaya floor (10 teachers and 3 schools). A directorate's own view lists the subjects it holds, the Ministry's every subject. Over every subject, a figure counts each school's teachers as its largest subject's, at least, since one teacher may teach several. Plan items show only by subject, each hidden when fewer than 3 schools did it, and another with it when it alone would be hidden. A hidden figure or item is `null`. The server keeps the names of the last 64 days, and the sums of the last days whose shares take 128 MB in all, worked out until a share comes in, in memory, as the demo runs one server, and forgets them with the world. The floors protect one answer: two announced days' answers may still differ by one school's figures, as when its first share comes in, a known limit.
 - **No series:** only announced days are taken, so no weekly or monthly totals form (R-5.10-11).
+
+## The operators' console
+
+`GET /worlds/:world/admin/system`, with the pass, answers what the operators' console shows of the server ([#618](https://github.com/djazairdev/minhajna/issues/618), answer 655). In the demo the operator is a role like the others, so any world's pass opens it; named administrators with two-factor sign-in wait for a real deployment (choice D11). It counts with the other world requests.
+
+| Field         | Holds                                                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `version`     | The package's version                                                                                                    |
+| `fingerprint` | The SHA-256 of the server's built code, or `null` when it cannot be read                                                 |
+| `parts`       | The parts its code runs: `gateway`, `relay`, `totals` and `standins`, the state's stand-ins                              |
+| `storage`     | `postgresql` or `memory`                                                                                                 |
+| `database`    | With PostgreSQL, `ok`, or `failing` when it refuses, answers oddly or takes more than 2 seconds                          |
+| `archive`     | With PostgreSQL answering, `on` when it is set to archive its write-ahead log, which is what keeps the backups, or `off` |
+
+- **The same answer through every world:** it describes the server as a whole and names no world, space or person.
+- **When the database fails:** if checking the pass takes more than 2 seconds or fails, the answer is `503` with `storage` `postgresql` and `database` `failing`, the same to everyone, so the console can still say so; it gives the version and the fingerprint to a caller without the pass then, which `/health` and the published release give anyway.
+- **The fingerprint** covers the server's built code alone, every file under `dist/src`, not `node_modules`, `package.json` or the migrations. For each file, in the order of the paths' code units: its path from `dist/src`, with `/` between folders, a newline, the lowercase hex SHA-256 of its bytes, and a newline; the fingerprint is the lowercase hex SHA-256 of all of that. It is worked out as the server loads, so it describes the code it runs, and is `null` when that code holds anything but folders and plain files. A build of the same source gives the same one with the same `package-lock.json`, `tools/prisma/package-lock.json` (Prisma's version shapes the generated client), `tsconfig.base.json` and `prisma/schema.prisma`, so anyone can rebuild the published source and compare: `npm run build && npm run fingerprint`.
 
 ## Storage
 

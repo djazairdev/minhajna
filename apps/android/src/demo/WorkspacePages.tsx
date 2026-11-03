@@ -17,10 +17,13 @@
 // timetable page (#576, #577, #578), kept for the world it was read in, and
 // their own log (#573); any other page has none, and the preparer never opens
 // the records or the cover; the directorate's grants page requests inspectors'
-// grants from its schools (#593, DirectorateGrant.tsx); and the Ministry's
-// calendar page keys a draft of the world's calendar (#607,
-// MinistryCalendar.tsx), afresh over each release the world comes to hold, and
-// publishes it with the world's keys (#608, MinistryCalendarPage.tsx).
+// grants from its schools (#593, DirectorateGrant.tsx) and its totals page says
+// what the system owes teachers on announced days, with the curriculum report
+// (#598, DirectorateTotals.tsx); and the Ministry's totals page says it by
+// wilaya (#599, MinistryTotals.tsx), and its calendar page keys a draft of the
+// world's calendar (#607, MinistryCalendar.tsx), afresh over each release the
+// world comes to hold, and publishes it with the world's keys (#608,
+// MinistryCalendarPage.tsx).
 // The curator's pack list reads source releases only (#611, PackList.tsx).
 
 import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
@@ -35,12 +38,14 @@ import { SchoolKeys } from '../director/SchoolKeys';
 import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
+import { DirectorateTotals } from '../directorate/DirectorateTotals';
 import { PackList } from '../editor/PackList';
 import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
+import { MinistryTotals } from '../ministry/MinistryTotals';
 import { levelBells } from '../timetable/timetable-words';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import type { MineCalendar } from '../week/school-mine-session';
@@ -98,6 +103,30 @@ export function workspacePage(
   if (workspace === 'directorate' && page === 'grants')
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
+    );
+  if (workspace === 'ministry' && page === 'totals')
+    return (
+      <MinistryTotals
+        world={open}
+        calendars={[reference.calendar, bundled.calendar]}
+        send={send}
+        dayText={dayText}
+        subjectName={(code) => subjectName(reference.profile, code)}
+        bundled={bundled}
+      />
+    );
+  if (workspace === 'directorate' && page === 'totals')
+    return (
+      <DirectorateTotals
+        world={open}
+        school={school}
+        wilaya={localized(reference.profile.zones?.find((one) => one.code === school.wilaya)?.name ?? {})}
+        calendars={[reference.calendar, bundled.calendar]}
+        send={send}
+        dayText={dayText}
+        subjectName={(code) => subjectName(reference.profile, code)}
+        bundled={bundled}
+      />
     );
   if (workspace === 'director' && page === 'dashboard')
     return (

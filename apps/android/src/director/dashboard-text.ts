@@ -7,11 +7,17 @@
 // the plan and how far it reached, in whole percent, from its signed weeks
 // (answer 627); and, for a class whose figures are not in the school's space,
 // why: a vacant post, not joined during the trial term end with its timetable
-// only, its days named, to join after it, or joined with no signed week yet.
+// only, its days named, to join after it, or joined with no signed week yet;
+// and a term's name, which the cover log and the totals page give too.
 
 import { classWeek, type CourseStanding, type DashboardCourse, type DemoSchool } from '@minhajna/core';
 import type { TFunction } from 'i18next';
 import { currentLanguage } from '../text/i18n';
+
+/** A term's name: the first, the second, or the third or any later. */
+export function termName(t: TFunction, number: number): string {
+  return t(`demo.cover.terms.${number === 1 ? '1' : number === 2 ? '2' : '3'}`);
+}
 
 /** A made-up person's name in Arabic letters for an Arabic interface, and in Latin letters otherwise. */
 export function personName(person: { readonly name: string; readonly latinName: string }): string {

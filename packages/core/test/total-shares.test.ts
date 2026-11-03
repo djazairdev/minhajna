@@ -10,7 +10,9 @@
 // under its own subject and each class under its latest, with its latest word
 // on each item, teachers from the assignments, no row for a class, and an ID
 // that every device of the school, and only the school's key, makes for that
-// day. Every world, school, teacher, class and week is made up.
+// day; a week whose latest correction names its subject or an item as an
+// object's own is left out, and a directorate or staffing so named is refused.
+// Every world, school, teacher, class and week is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -239,6 +241,21 @@ describe('a school’s share of the totals', () => {
       assert.equal((await share([...order, ...edges])).subjects['math']!.reached, kept + 700);
     }
     assert.equal((await share(edges)).subjects['math']!.closed, 3);
+  });
+
+  it('leaves out a week whose latest correction names a subject or item as an object’s own', async () => {
+    const { director, opened } = await school();
+    const [ca, one] = [keySigner(), newId(random)];
+    const a = await teacher(ca);
+    const good = await signed(a, weekText(one, first, 0, totals({ reached: 100 })));
+    const share = (changes: Partial<ShareInput>) =>
+      prepareShare(inputOf(opened, ca, { signers: { [one]: [a.signer.publicKey] }, ...changes }), director.crypto);
+    assert.equal((await share({ weeks: [good] })).subjects['math']!.reached, 100);
+    const item = { item: '__proto__', sessions: 1, outcome: 'taught' };
+    for (const bad of [totals({ subject: 'constructor' }), totals({ items: [item] as never })])
+      assert.deepEqual((await share({ weeks: [good, await signed(a, weekText(one, first, 1, bad))] })).subjects, {});
+    for (const changes of [{ directorate: 'constructor' }, { staffing: { __x: NONE } }])
+      await assert.rejects(share(changes), RangeError);
   });
 
   it('names the share for its school and day only, on every device of the school and after a rekey', async () => {

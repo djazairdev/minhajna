@@ -4,20 +4,20 @@
 // The world's calendar in a demo world (#608, §4.5, §7.10, choice D4, answers
 // 568, 572 and 624). The Ministry's draft becomes an update, the release after
 // the latest the world holds, published on the world's date, signed with the
-// world's key as a file naming the world, and no heavier than a signed
-// calendar update may be. The files travel on one stream of the world's
-// national space, under a key derived from the world's secret, so only devices
-// holding the code read them; each is kept when it opens with a world key that
-// signs calendars and names this world, reads as an update of the world's
-// country and year, and is after the bundled release, the first for each
-// release counting. The world's calendar is the bundled one with those updates
-// laid over it in the order of their releases, and its announced days are the
-// later terms' ends and each exam window's first day, in any layer, after the
-// world's date, as that calendar gives them. A publisher checks that the
-// update counting for its release is its own, since two devices may publish
-// the same release and the first put counts. A file that names a world, or is
-// signed with a world's key, is told apart so real mode can say why it refuses
-// it.
+// world's key as a file naming the world, and no heavier than a signed calendar
+// update may be. The files travel on one stream of the world's national space,
+// under a key derived from the world's secret, so only devices holding the code
+// read them; each is kept when it opens with a world key that signs calendars
+// and names this world, reads as an update of the world's country and year, and
+// is after the bundled release, the first for each release counting. The
+// world's calendar is the bundled one with those updates laid over it in the
+// order of their releases, and its announced days are the later terms' ends,
+// each exam window's first day, in any layer, and each of the world's exams'
+// first days and figures days (answer 631), after the world's date, as that
+// calendar gives them. A publisher checks that the update counting for its
+// release is its own, since two devices may publish the same release and the
+// first put counts. A file that names a world, or is signed with a world's key,
+// is told apart so real mode can say why it refuses it.
 
 import { compareDays, type Day } from './day.ts';
 import type { CalendarDraft } from './device-events.ts';
@@ -42,6 +42,7 @@ import {
   type TrustedKey,
   type Verifier,
 } from './signed-read.ts';
+import { worldExams } from './world-exams.ts';
 import { worldSignedFile, type WorldCipher, type WorldKeys, type WorldMac, type WorldSigner } from './world-keys.ts';
 
 /** The most batches one signed file takes on the stream, its characters past ASCII escaped. */
@@ -155,11 +156,15 @@ export function updateCounts(updates: readonly CalendarUpdate[], update: Calenda
   return counting !== undefined && canonicalJson(counting) === canonicalJson(update);
 }
 
-/** The announced days after a date: the later terms' ends and each exam window's first day, in any layer. */
+/**
+ * The announced days after a date: the later terms' ends, each exam window's first day, in any layer, and each of
+ * the world's exams' first days and figures days (world-exams.ts).
+ */
 export function announcedDaysOf(year: SchoolYear, entries: readonly CalendarEntry[], date: Day): Day[] {
   const ends = year.terms.slice(1).map((term) => term.to);
-  const exams = entries.filter((entry) => entry.effect === 'exam').map((entry) => entry.from);
-  return [...new Set([...ends, ...exams])].filter((day) => compareDays(day, date) > 0).sort(compareDays);
+  const windows = entries.filter((entry) => entry.effect === 'exam').map((entry) => entry.from);
+  const exams = worldExams(year, entries).flatMap((exam) => [exam.from, exam.figuresDay]);
+  return [...new Set([...ends, ...windows, ...exams])].filter((day) => compareDays(day, date) > 0).sort(compareDays);
 }
 
 /** Whether a signed file names a world or is signed with a world's key, which real mode refuses. */

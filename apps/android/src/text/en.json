@@ -5807,6 +5807,156 @@
         "missing": "Some fields need attention.",
         "newIn": "New entry for wilaya {{wilaya}}"
       }
+    },
+    "totals": {
+      "lead": "No figure here is a school’s or a teacher’s: every figure covers at least 5 teachers and 3 schools.",
+      "none": "The world’s date has not reached an announced day after the first term’s end yet: totals are added up only on announced days, such as a term’s end.",
+      "header": "Directorate of education · {{wilaya}} · {{day}} · {{term}}, from {{from}} to {{to}}",
+      "asOf": "The figures as added up on the announced day, {{day}}.",
+      "day": "Announced day",
+      "notYet": "This day’s totals are not added up yet: no school’s share has come in.",
+      "reading": "Reading the totals…",
+      "owed": "What the system owes teachers",
+      "owedLead": "What teachers gave and what they lacked: the cover they gave, vacant posts and hours without a teacher, and sessions lost to an exceptional closure.",
+      "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. The server hides enough cells that no hidden one can be worked out by subtraction.",
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking, or for a decision about a teacher.",
+      "hidden": "Hidden: under the minimum group sizes",
+      "atLeast": "at least {{figure}}",
+      "all": "Every subject",
+      "column": {
+        "subject": "Subject",
+        "teachers": "Teachers",
+        "schools": "Schools",
+        "cover": "Cover sessions given",
+        "vacantPosts": "Vacant posts",
+        "hoursWithoutTeacher": "Weekly hours without a teacher",
+        "closed": "Sessions lost to closures",
+        "item": "Item",
+        "sessions": "Sessions",
+        "merged": "Classes that merged it",
+        "skipped": "Classes that skipped it",
+        "retaught": "Classes that retaught it"
+      },
+      "again": "Read again",
+      "tabs": "What the totals show",
+      "report": "Curriculum report",
+      "reportLead": "How the plans went in the classes: sessions per item, items merged, skipped or retaught, how far the classes got, and plans that run long. No figure in it is a class’s or a school’s.",
+      "reportLine": "Classes: {{classes}} · reached on average: {{reached}}% of their plans · plans running long for the year at their pace: {{long}}",
+      "items": "The plan items in {{subject}}",
+      "noItems": "No item recorded for this subject."
+    },
+    "ministryTotals": {
+      "lead": "No figure here is a school’s or a teacher’s: every figure covers at least 10 teachers and 3 schools.",
+      "header": "Ministry of National Education · {{day}} · {{term}}, from {{from}} to {{to}}",
+      "owedLead": "What teachers gave and what they lacked, for each wilaya by name, to place posts where they are lacking. The wilayas come in their official order; the table is never sorted or coloured.",
+      "subject": "Subject",
+      "wilaya": "Wilaya",
+      "nation": "The nation",
+      "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. A wilaya with fewer than 10 teachers or 3 schools is hidden; with every cell under a directorate’s floor, 5 teachers and 3 schools, the server hides every cell that would reveal it by subtraction.",
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking of wilayas, or for a decision about a teacher.",
+      "reportLead": "The curriculum report for the nation. The wilayas show in it as a range, never named or ranked.",
+      "range": "How far classes got across the wilayas: from {{low}}% to {{high}}%, the middle half from {{middleLow}}% to {{middleHigh}}%.",
+      "noRange": "The range across the wilayas shows once at least 8 wilayas show their figure for this subject, with classes."
+    },
+    "thresholds": {
+      "open": "Exams with a common paper",
+      "title": "Exams with a common paper",
+      "lead": "Each school exam whose figures day has come in your subjects and grades: its days, where its cut stands, and where each class stood on the figures day.",
+      "empty": "No school exam’s figures day has come yet in your subjects and grades.",
+      "days": "Exam: {{from}} · Figures: {{figures}} · Cut signed by {{signBy}}",
+      "classLine": "{{class}}: done: {{reached}} · expected by {{day}}: {{forecast}}",
+      "room": "Open the exam’s threshold",
+      "notes": {
+        "school": "The chart is worked out in the school from signed weeks only, and never leaves the school’s space.",
+        "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
+        "never": "Nothing here is used to evaluate or rank anyone.",
+        "phone": "The phone works out these positions from each class’s plan, and none of them leaves it. On the figures day only the school’s share of the totals leaves the school, from signed weeks only."
+      },
+      "above": "Above the school",
+      "level": {
+        "school": "Set by the school",
+        "directorate": "Set by the directorate",
+        "national": "Set by the Ministry"
+      },
+      "ownDays": "Exam: {{from}} · Figures: {{figures}}",
+      "asOf": "Where your classes stood on {{day}}, worked out on this phone from your signed weeks.",
+      "ownFailed": "Your exams above the school could not be worked out on this phone: your signed weeks did not read.",
+      "shows": {
+        "school": "No cut yet. A cut is optional: the setters may propose one after the figures day.",
+        "directorate": "The directorate’s cut does not show before the exam. After the figures day, your classes will show against its totals.",
+        "national": "The national cut is published to all after the exam, with its figures and how it shaped the questions."
+      },
+      "moved": "The exam moved from {{was}} to {{is}}: its figures day from {{wasFigures}} to {{isFigures}}, and its cut’s signing deadline from {{wasSign}} to {{isSign}}.",
+      "movedAnnounced": "Announced on {{day}}.",
+      "movedReason": "Reason: {{reason}}",
+      "movedFigures": "The figures are taken on the new figures day alone, from signed weeks; that day moves only with its exam.",
+      "movedAbove": "The exam moved from {{was}} to {{is}}: its figures day from {{wasFigures}} to {{isFigures}}.",
+      "movedWeek": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}, and its cut’s signing deadline moved from {{wasSign}} to {{isSign}}.",
+      "movedWeekAbove": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}.",
+      "movedEnd": "The exam’s last day moved from {{wasEnd}} to {{isEnd}}; its first day and figures day stay as they were.",
+      "movedCalendar": "The exam’s days changed in the calendar on this phone."
+    },
+    "threshold": {
+      "title": "The exam’s threshold",
+      "head": "{{exam}} · {{subject}} · {{grade}}",
+      "termExam": "The {{term}} exam",
+      "noItem": "nothing yet",
+      "itemAt": "item {{n}} of the plan",
+      "quoted": "“{{item}}”",
+      "state": {
+        "director": "Decided by the director: up to {{item}}.",
+        "directorNone": "Decided by the director: no cut for this exam.",
+        "settled": "Signed by every setter: up to {{item}}.",
+        "toDirector": "The decision falls to the director.",
+        "none": "No cut proposed. A cut is optional.",
+        "proposed": "{{name}} proposed up to {{item}} on {{day}}.",
+        "awaiting": "{{name}} proposed up to {{item}} on {{day}}, awaiting your signature or another proposal."
+      },
+      "setter": {
+        "waiting": "{{name}}: nothing signed yet",
+        "none": "{{name}}: no cut, signed on {{day}}",
+        "cut": "{{name}}: up to {{item}}, signed on {{day}}"
+      },
+      "chart": "Where each class stood on {{day}}",
+      "reached": "Done in signed weeks",
+      "forecast": "Expected before the exam, by the class’s plan",
+      "reading": "Reading your exams…",
+      "notSetter": "This phone is not one of this exam’s setters: you see the chart and where the cut stands, with nothing to sign.",
+      "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
+      "pick": "The last plan item the paper covers",
+      "proposeSign": "Sign the proposal",
+      "done": "Your cut is signed: up to {{item}}.",
+      "sign": "Sign the cut up to {{item}}",
+      "propose": "Propose a cut",
+      "proposeOther": "Propose another cut",
+      "noCut": "No cut for this exam",
+      "noneDone": "Signed: no cut for this exam. The decision falls to the director.",
+      "dates": "The school’s figures were taken on {{figures}}, the cut is signed by {{signBy}}, and the exam starts on {{from}}.",
+      "class": "Class",
+      "every": "Every class had finished up to {{item}}.",
+      "everyNone": "At least one class had not yet reached any item of the plan.",
+      "forecastLine": "The expected items run to {{day}}, the last school day before the exam, at each class’s own pace.",
+      "sameView": "The director and this subject’s setters at this grade see the same chart.",
+      "cut": "The cut",
+      "gone": "This exam is no longer shared with this phone.",
+      "roomNotes": {
+        "optional": "A cut is optional: without one the paper is set as today, and nothing is published or counted.",
+        "earliest": "When the setters differ, the earliest cut in the plan applies.",
+        "seen": "Before the exam, only the setters and the director see the cut.",
+        "published": "After the exam, the cut is published in the school’s space with its figures.",
+        "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
+        "never": "Nothing here is used to evaluate or rank anyone."
+      },
+      "problem": {
+        "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
+        "notSetter": "This phone is not one of this exam’s setters."
+      },
+      "exams": {
+        "mock": "The unified mock exam",
+        "bem": "The BEM"
+      },
+      "stale": "This chart was taken on {{day}}, before the exam moved; its new figures day is {{now}}, and the chart is not taken again, so its cut is still signed by {{signBy}}.",
+      "staleSign": "This chart was taken on {{day}}, before the exam moved; its figures day stays the same, and its cut is still signed by {{signBy}}."
     }
   },
   "chart": {

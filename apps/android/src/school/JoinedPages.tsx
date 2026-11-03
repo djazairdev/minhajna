@@ -10,16 +10,21 @@
 // week to sign and the term report (SchoolMineReport.tsx), the classes handed
 // over to the teacher as a substitute (HandoverSchool.tsx), those come back at
 // the end of one (ReturnSchool.tsx), the term's marks to send to the state's
-// stand-in (TermSend.tsx), and what stays and goes on leaving (Leave.tsx), when
-// the year's dates read; each gets what School-join said as it opened, and goes
-// back to School-join, but Week-sign opened from the digest or the classes, and
-// the term report, which go back to the page that opened them; each opens
-// another page through School-join's view.
+// stand-in (TermSend.tsx), the exams with a common paper (ExamThresholds.tsx),
+// which opens an exam's threshold on its room (ExamThreshold.tsx), named by the
+// world's reference, and what stays and goes on leaving (Leave.tsx), when the
+// year's dates read; each gets what School-join said as it opened, and goes
+// back to School-join, but Week-sign opened from the digest or the classes, the
+// term report and an exam's threshold, which go back to the page that opened
+// them; each opens another page through School-join's view.
 
-import type { Day, DemoSchool, LeavingDates, Subject, Weekday } from '@minhajna/core';
+import type { CalendarUpdate, Day, DemoSchool, LeavingDates, Subject, Weekday } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
+import type { TermReference } from '../director/seeded-fill';
+import { ExamThreshold } from '../threshold/ExamThreshold';
+import { ExamThresholds } from '../threshold/ExamThresholds';
 import { TeacherTimetable } from '../timetable/TeacherTimetable';
 import type { MineCalendar } from '../week/school-mine-session';
 import { SchoolMine } from '../week/SchoolMine';
@@ -54,6 +59,10 @@ export type JoinedPagesProps = {
   readonly mine?: MineCalendar;
   /** The world's school, rebuilt from the world's ID, whose classes list their pupils. */
   readonly school?: DemoSchool | null;
+  /** The world's reference, which names the subjects, grades and plan items. */
+  readonly reference?: TermReference;
+  /** The world's calendar updates, which say when and why an exam moved. */
+  readonly updates?: readonly CalendarUpdate[];
   /** Opens another joined page, such as the week to sign on a course, going back to the page that opened it. */
   readonly onPage: (view: JoinedView) => void;
 };
@@ -86,6 +95,22 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
   if (view.page === 'handover') return <HandoverSchool {...channel} />;
   if (view.page === 'return') return <ReturnSchool {...channel} />;
   if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
+  if (view.page === 'thresholds') {
+    const onRoom = (room: string) => props.onPage({ page: 'threshold', join, room, back: 'thresholds' });
+    return (
+      <ExamThresholds
+        {...channel}
+        reference={props.reference}
+        updates={props.updates}
+        school={props.school}
+        onRoom={onRoom}
+      />
+    );
+  }
+  if (view.page === 'threshold') {
+    if (view.room === undefined) return null;
+    return <ExamThreshold {...channel} reference={props.reference} updates={props.updates} room={view.room} />;
+  }
   if (view.page === 'termSend') {
     return <TermSend {...channel} subjects={subjects} mine={props.mine} school={props.school} />;
   }

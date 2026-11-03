@@ -34,6 +34,7 @@ import { spanText } from '../timetable/grid-text';
 import { isolate } from '../week/grid-labels';
 import { markCover, readCover, type CoverDay, type CoverSession } from './cover-session';
 import { CoverCard } from './CoverCard';
+import { termName } from './dashboard-text';
 
 export type SchoolCoverProps = {
   readonly world: Pick<OpenWorld, 'world' | 'book' | 'date'>;
@@ -44,9 +45,6 @@ export type SchoolCoverProps = {
   readonly send?: Send;
   readonly dayText: (day: Day) => string;
 };
-
-/** A term's key in the catalogue, by its number in the year. */
-const termKey = (number: number) => (number === 1 ? '1' : number === 2 ? '2' : '3');
 
 /** The director's cover for the world's date: the sessions to cover, the day's sheet and the term's log. */
 export function SchoolCover(props: SchoolCoverProps) {
@@ -198,7 +196,7 @@ export function SchoolCover(props: SchoolCoverProps) {
           ) : (
             <>
               <Text accessibilityRole="header" style={[styles.head, align]}>
-                {t('demo.cover.log', { term: t(`demo.cover.terms.${termKey(day.term.number)}`) })}
+                {t('demo.cover.log', { term: termName(t, day.term.number) })}
               </Text>
               {day.log.map((one) => (
                 <Text key={one.id} testID="cover-log-line" style={[styles.body, align]}>
