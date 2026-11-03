@@ -2,18 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The school exams' cut rooms on the director's device (#603, D-Threshold,
-// answers 632 and 637), with the school key held: reading takes every school
-// exam whose figures day the world's date has reached, up to the year's last
-// day, and for each grade and subject the timetable gives a class sitting it
-// (exam-charts.ts), the room the school key derives for it (room-open.ts),
-// the space read once, each room whose decider's chart is in place given with
-// where its cut stands on the world's date (exam-cuts.ts); a room not opened is
-// left out. The director's decision, the cut proposed or no cut, is signed with
-// the room's decider key (decider-key.ts), dated the world's date, and put in
-// the room once; it is refused (E_CUT_CLOSED) unless the decision has fallen
-// to the director, the cut is unsettled and the world's date is before the
-// exam's first day as the chart has it, in the room as read when it is put.
-// Errors carry world-session.ts's codes.
+// answers 632 and 637), with the school key held: up to the year's last day,
+// reading takes every school exam the calendar holds, and for each grade and
+// subject the timetable gives a class sitting it (exam-charts.ts), the room the
+// school key derives for it (room-open.ts), the space read once, each room
+// whose decider's chart is in place, its figures day reached, given with where
+// its cut stands on the world's date (exam-cuts.ts), so that a room stays shown
+// when its exam has moved later since; a room not opened is left out. The
+// director's decision, the cut proposed or no cut, is signed with the room's
+// decider key (decider-key.ts), dated the world's date, and put in the room
+// once; it is refused (E_CUT_CLOSED) unless the decision has fallen to the
+// director, the cut is unsettled and the world's date is before the exam's
+// first day as the chart has it, in the room as read when it is put. Errors
+// carry world-session.ts's codes.
 
 import {
   compareDays,
@@ -22,6 +23,7 @@ import {
   roomRecords,
   sealRoomRecord,
   signRoomRecord,
+  worldExams,
   type CutState,
   type DemoSchool,
   type ExamChart,
@@ -37,7 +39,7 @@ import { worldRequest } from '../network/world-network';
 import { caKey, spaceBatches } from '../school/space-read';
 import { putOnce } from '../school/stream-put';
 import { deciderSigning } from './decider-key';
-import { examGroups, examsAfter, examsOpen } from './exam-charts';
+import { examGroups } from './exam-charts';
 import { roomOf } from './room-open';
 
 type RoomWorld = Pick<OpenWorld, 'world' | 'date'>;
@@ -53,7 +55,7 @@ export interface SchoolRoom {
   readonly ca: string;
 }
 
-/** The rooms of the school exams whose figures day the date reached, in the order of the exams and the timetable. */
+/** The opened rooms of the year’s school exams whose figures day the date reached, in order. */
 export async function readSchoolRooms(
   world: RoomWorld,
   desk: IssueDesk,
@@ -62,7 +64,9 @@ export async function readSchoolRooms(
   kit: WorldKit,
   send: Send = worldRequest,
 ): Promise<SchoolRoom[]> {
-  const exams = [...examsOpen(reference, world.date), ...examsAfter(reference, world.date)];
+  const { year, entries } = reference.calendar;
+  if (compareDays(world.date, year.to) > 0) return [];
+  const exams = worldExams(year, entries).filter((one) => one.setBy === 'school');
   exams.sort((a, b) => compareDays(a.from, b.from));
   if (exams.length === 0) return [];
   const ca = await caKey(world.world, send);
@@ -73,7 +77,9 @@ export async function readSchoolRooms(
       const name = { world: world.world, school: desk.held.school, exam: exam.id, subject, grade };
       const room = await roomOf(desk, name, space, ca, kit);
       const state = room.records === null ? null : cutState(room.records, world.date);
-      if (room.chart !== null && state !== null) rooms.push({ exam, chart: room.chart, state, epoch: room.epoch, ca });
+      const { chart } = room;
+      if (chart === null || state === null || compareDays(chart.figuresDay, world.date) > 0) continue;
+      rooms.push({ exam, chart, state, epoch: room.epoch, ca });
     }
   return rooms;
 }

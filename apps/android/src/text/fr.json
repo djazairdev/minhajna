@@ -6330,15 +6330,14 @@
       "setters_other": "{{count}} rédacteurs",
       "open": "Ouvrir la matière",
       "decision": "La décision du directeur",
-      "decideWhy": "Un rédacteur a choisi « pas de seuil », ou le délai de signature est passé sans accord : la décision vous revient, jusqu’au {{until}}. Les rédacteurs la voient, et elle est définitive.",
+      "decideWhy": "Un rédacteur a choisi de ne fixer aucun seuil, ou le délai de signature est passé sans accord : la décision vous revient, jusqu’au {{until}}. Les rédacteurs la voient, et elle est définitive.",
       "adopt": "Retenir le seuil proposé : {{item}}",
       "adopted": "Décidé : le sujet couvre jusqu’à {{item}}.",
       "noneDone": "Décidé : pas de seuil pour cet examen.",
       "signNote": "Signé avec la clé de décision de la salle, tenue par la clé de l’établissement.",
       "seenBefore": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
-      "seenAfter": "Publié dans l’espace de l’établissement après l’examen : chaque enseignant de cette matière à ce niveau le voit.",
-      "applies": "Un seuil s’applique quand tous les rédacteurs le signent, le plus tôt s’ils diffèrent ; si l’un a choisi « pas de seuil », ou si aucun accord n’est venu au {{signBy}}, le directeur décide.",
-      "publishes": "Publié dans l’espace de l’établissement après le {{to}}, avec les chiffres du {{figures}}.",
+      "applies": "Un seuil s’applique quand tous les rédacteurs le signent, le plus tôt s’ils diffèrent ; si l’un a choisi de ne fixer aucun seuil, ou si aucun accord n’est venu d’ici le {{signBy}}, le directeur décide.",
+      "publishes": "Il sera publié dans l’espace de l’établissement après le {{to}}, avec les chiffres du {{figures}}.",
       "notes": {
         "signed": "Les chiffres sont pris le seul jour annoncé, à partir des semaines signées ; les plans propres des classes ne donnent que la prévision.",
         "kept": "Chaque seuil est signé et conservé avec les chiffres sur lesquels il a été établi.",
@@ -6347,7 +6346,8 @@
       },
       "closed": "Le seuil ne peut plus être décidé : il est arrêté, la décision ne vous revient pas, ou l’examen a commencé.",
       "signing": "Signature de la décision…",
-      "opened": "Affiché ci-dessous : {{subject}}."
+      "opened": "Affiché ci-dessous : {{subject}}.",
+      "shown": "Affichée ci-dessous."
     }
   },
   "chart": {

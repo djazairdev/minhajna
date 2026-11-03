@@ -4,12 +4,12 @@
 // The school's exam thresholds in the director's workspace (#603, D-Threshold,
 // answer 637), against a made-up demo server: with no room open it says so;
 // once the rooms are open it lists the first grade's subjects, none settled,
-// and opens the first with no decision before the deadline; once the deadline
-// passed unsettled it offers no cut alone, as nothing was proposed, which
-// signs the decision, says it and shows the cut decided; after the exam it
-// shows the cut as published; another grade chosen lists its own subjects;
-// and a problem reading is said with a way to read again. The term is filled
-// as a seeded school's is. Every world, school and teacher is made up.
+// and opens the first, marked shown, with no decision before the deadline; once
+// the deadline passed unsettled it offers no cut alone, as nothing was
+// proposed, which signs the decision, says it and shows the cut decided; after
+// the exam it shows the cut as published; another grade chosen lists its own
+// subjects; and a problem reading is said with a way to read again. The term is
+// filled as a seeded school's is. Every world, school and teacher is made up.
 
 import { addDays, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -61,12 +61,19 @@ test('lists the rooms, decides a cut that fell to the director, and shows it aft
   await unmount();
   await openRooms({ ...director, date: exam.figuresDay }, desk, school, records, reference, nodeKit, server.send);
   await show(at(exam.figuresDay));
-  const rows = controls('schoolThreshold-open').length;
-  expect([rows > 0, texts().includes(page.state.none), controls('schoolThreshold-none').length]).toEqual([
+  const grades = examGroups(exam, school).map((one) => one.grade);
+  const namesOf = (grade: string) =>
+    examGroups(exam, school)
+      .filter((one) => one.grade === grade)
+      .map((one) => subjectName(reference.profile, one.subject));
+  const listed = () => controls('schoolThreshold-open').map((one) => (one.props as { name: string }).name);
+  const among = (grade: string) => listed().every((one) => namesOf(grade).some((name) => one.endsWith(name)));
+  expect([texts().includes(words.shown), among(grades[0]), texts().includes(page.state.none)]).toEqual([
     true,
     true,
-    0,
+    true,
   ]);
+  expect(controls('schoolThreshold-none')).toHaveLength(0);
   await unmount();
   const due = addDays(exam.signBy, 1);
   await show(at(due));
@@ -76,18 +83,13 @@ test('lists the rooms, decides a cut that fell to the director, and shows it aft
   expect(controls('schoolThreshold-none')).toHaveLength(0);
   await unmount();
   await show(at(addDays(exam.to, 1)));
-  expect(texts()).toEqual(expect.arrayContaining([page.after.cut, page.after.directorNone, words.seenAfter]));
-  const grades = examGroups(exam, school).map((one) => one.grade);
+  expect(texts()).toEqual(expect.arrayContaining([page.after.cut, page.after.directorNone]));
+  expect(texts().includes(words.seenBefore)).toBe(false);
   const other = grades.find((one) => one !== grades[0])!;
   const chip = () => controls(`schoolThreshold-grades-${other}`)[0].props as { selected: boolean };
   expect(chip().selected).toBe(false);
   await press(`schoolThreshold-grades-${other}`);
-  const names = examGroups(exam, school)
-    .filter((one) => one.grade === other)
-    .map((one) => subjectName(reference.profile, one.subject));
-  const shown = controls('schoolThreshold-open').map((one) => (one.props as { name: string }).name);
-  expect([chip().selected, shown.length > 0]).toEqual([true, true]);
-  expect(shown.every((one) => names.some((name) => one.endsWith(name)))).toBe(true);
+  expect([chip().selected, texts().includes(words.shown), among(other)]).toEqual([true, true, true]);
 }, 180_000);
 
 test('a problem reading is said, with a way to read again', async () => {

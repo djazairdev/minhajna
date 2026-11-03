@@ -9,21 +9,21 @@
 // was decided; a problem reading or deciding is said in the catalogue's words,
 // in its live line on the PC and announced on a phone, with a way to read
 // again. It chooses an exam, the latest by default, and a grade, the first,
-// then lists that grade's subjects in the timetable's order, never by
-// progress, each with how many setters it has, the item every class reached,
-// the cut proposed or settled and where it stands; a subject chosen, the first
-// by default, opens its room (ThresholdRoomPanel.tsx), said as it opens, where
-// the director decides while it is theirs. With no room it says no school
-// exam's figures day has come or no room is open yet. It says that the figures
-// come from signed weeks only and never leave the school's space, that each
-// cut is signed and kept with its figures, that the setters see the cut before
-// the exam and every teacher of the subject at the grade once it is
-// published, and that nothing here evaluates, ranks or serves a personnel
-// decision.
+// then lists that grade's subjects in the timetable's order, never by progress,
+// each with how many setters it has, the item every class reached, the cut
+// proposed or settled and where it stands; a subject chosen, the first by
+// default, opens its room (ThresholdRoomPanel.tsx), said as it opens and marked
+// on its row, where the director decides while it is theirs. With no room it
+// says no school exam's figures day has come or no room is open yet. It says
+// that the figures come from signed weeks only and never leave the school's
+// space, that each cut is signed and kept with its figures, that the setters
+// see the cut before the exam and every teacher of the subject at the grade
+// once it is published, and that nothing here evaluates, ranks or serves a
+// personnel decision.
 
 import type { CalendarUpdate, Day, DemoSchool } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
@@ -33,9 +33,9 @@ import { colors, spacing, typography } from '../design/tokens';
 import { subjectName } from '../extra/extra-rules';
 import { gradeName } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
-import { publishedText } from '../threshold/published-text';
+import { examOver, publishedText } from '../threshold/published-text';
 import type { SchoolRoom } from '../threshold/school-rooms';
-import { everyReached, examName, itemNamer, stateText } from '../threshold/threshold-text';
+import { everyReached, examName, examsOf, itemNamer, stateText } from '../threshold/threshold-text';
 import { thresholdStyles as styles } from '../threshold/ThresholdFrame';
 import { useSchoolRooms } from '../threshold/useSchoolRooms';
 import { isolate } from '../week/grid-labels';
@@ -56,6 +56,7 @@ export type DirectorThresholdsProps = {
 const NOTES = ['signed', 'kept', 'teachers', 'never'] as const;
 const page = { gap: spacing['space-12'] } as const;
 const problem = { ...typography.body, color: colors['error-ink'] } as const;
+const chosenRow = { backgroundColor: colors.well, borderStartWidth: 4, borderStartColor: colors.ink } as const;
 
 /** The school's exams with a common paper, by grade and subject, and the room of the subject chosen. */
 export function DirectorThresholds(props: DirectorThresholdsProps) {
@@ -66,6 +67,7 @@ export function DirectorThresholds(props: DirectorThresholdsProps) {
   const read = useSchoolRooms(world, school, reference, kit, send);
   const [chosen, setChosen] = useState<{ exam?: string; grade?: string; subject?: string }>({});
   const rooms = read.rooms ?? [];
+  const calendar = useMemo(() => examsOf(reference), [reference]);
   const exams = [...new Map(rooms.map((one) => [one.exam.id, one.exam])).values()];
   const exam = exams.find((one) => one.id === chosen.exam) ?? exams.at(-1);
   const ofExam = rooms.filter((one) => one.exam.id === exam?.id);
@@ -83,27 +85,32 @@ export function DirectorThresholds(props: DirectorThresholdsProps) {
     const item = itemNamer(t, chart, reference.packs);
     const every = everyReached(chart);
     const shown = { chart, state, mine: null };
-    const where = one.exam.to < world.date ? publishedText(t, shown, item) : stateText(t, shown, item, dayText);
+    const over = examOver(chart, calendar, world.date);
+    const where = over ? publishedText(t, shown, item) : stateText(t, shown, item, dayText);
     const named = subjectName(reference.profile, chart.subject);
     const subject = named === chart.subject ? isolate(named) : named;
     return (
-      <View key={chart.subject} testID="schoolThreshold-row" style={styles.card}>
+      <View key={chart.subject} testID="schoolThreshold-row" style={[styles.card, one === open && chosenRow]}>
         <Text accessibilityRole="header" style={[styles.head, align]}>
           {subject}
         </Text>
         {small(t('demo.schoolThreshold.setters', { count: chart.setters.length }))}
         {small(every === null ? t('demo.threshold.everyNone') : t('demo.threshold.every', { item: item(every) }))}
         <Text style={[styles.body, align]}>{where}</Text>
-        <Button
-          testID="schoolThreshold-open"
-          variant="line"
-          label={t('demo.schoolThreshold.open')}
-          name={`${t('demo.schoolThreshold.open')}${t('chart.colon')}${subject}`}
-          onPress={() => {
-            setChosen({ exam: exam?.id, grade, subject: chart.subject });
-            read.say(t('demo.schoolThreshold.opened', { subject }));
-          }}
-        />
+        {one === open ? (
+          small(t('demo.schoolThreshold.shown'))
+        ) : (
+          <Button
+            testID="schoolThreshold-open"
+            variant="line"
+            label={t('demo.schoolThreshold.open')}
+            name={`${t('demo.schoolThreshold.open')}${t('chart.colon')}${subject}`}
+            onPress={() => {
+              setChosen({ exam: exam?.id, grade, subject: chart.subject });
+              read.say(t('demo.schoolThreshold.opened', { subject }));
+            }}
+          />
+        )}
       </View>
     );
   };
@@ -142,7 +149,10 @@ export function DirectorThresholds(props: DirectorThresholdsProps) {
         <ChipGroup
           testID="schoolThreshold-grades"
           label={t('demo.schoolThreshold.grade')}
-          choices={grades.map((one) => ({ value: one, label: gradeName(reference.profile, one) }))}
+          choices={grades.map((one) => {
+            const named = gradeName(reference.profile, one);
+            return { value: one, label: named === one ? isolate(named) : named };
+          })}
           selected={grade ?? null}
           onSelect={(one) => setChosen({ exam: exam?.id, grade: one })}
         />

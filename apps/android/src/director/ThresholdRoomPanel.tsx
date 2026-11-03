@@ -4,24 +4,26 @@
 // One subject's room on D-Threshold (#603, answer 637), as its setters see it:
 // its heading, the days its figures were taken, its cut is signed by (until
 // the exam is over) and its exam begins on as the calendar now has it, and
-// when and why the exam moved; after the exam, that the cut was published with
-// the figures of its figures day; the chart of each class's item reached on
+// when and why the exam moved; after the exam, that the cut was published to
+// every teacher of the subject at the grade with the figures of its figures
+// day; the chart of each class's item reached on
 // the figures day and its forecast, with the table of the same figures
 // (ChartFigure.tsx) and the item every class reached; where its cut stands, or
 // after the exam the cut as published (published-text.ts), with each setter's
 // latest cut and day; while the decision is the director's, before the exam's
 // first day as the chart has it, why and until when, with the two choices, the
 // cut proposed when there is one and no cut, which cannot be pressed while the
-// rooms are read or a decision is signed; and who sees the cut now, when it
-// applies and when it is published.
+// rooms are read or a decision is signed; and before the exam, who sees the
+// cut, when it applies and when it will be published.
 
 import { addDays, type CalendarUpdate, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { ChartFigure } from '../drawing/ChartFigure';
 import { useDeviceText } from '../text/device-text';
-import { publishedText } from '../threshold/published-text';
+import { examOver, publishedText } from '../threshold/published-text';
 import { mayDecide, type SchoolRoom } from '../threshold/school-rooms';
 import {
   chartSpec,
@@ -56,13 +58,13 @@ export function ThresholdRoomPanel(props: ThresholdRoomPanelProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { chart, state, exam } = room;
+  const { chart, state } = room;
   const item = itemNamer(t, chart, reference.packs);
   const every = everyReached(chart);
-  const over = exam.to < date;
+  const moves = useMemo(() => movesOf(reference, updates), [reference, updates]);
+  const exams = useMemo(() => examsOf(reference), [reference]);
+  const over = examOver(chart, exams, date);
   const shown = { chart, state, mine: null };
-  const moves = movesOf(reference, updates);
-  const exams = examsOf(reference);
   const small = (words: string, key?: string) => (
     <Text key={key} style={[styles.small, align]}>
       {words}
@@ -78,7 +80,7 @@ export function ThresholdRoomPanel(props: ThresholdRoomPanelProps) {
         {t(over ? 'demo.threshold.after.dates' : 'demo.threshold.dates', {
           figures: dayText(chart.figuresDay),
           signBy: dayText(chart.signBy),
-          from: dayText(movedExam(chart, moves, exams)?.from ?? exam.from),
+          from: dayText(movedExam(chart, moves, exams)?.from ?? chart.from),
         })}
       </Text>
       {roomMoves(t, chart, moves, exams, dayText).map((line, at) => small(line, `moved-${at}`))}
@@ -127,9 +129,10 @@ export function ThresholdRoomPanel(props: ThresholdRoomPanelProps) {
           {small(t('demo.schoolThreshold.signNote'))}
         </View>
       )}
-      {small(t(over ? 'demo.schoolThreshold.seenAfter' : 'demo.schoolThreshold.seenBefore'))}
-      {small(t('demo.schoolThreshold.applies', { signBy: dayText(chart.signBy) }))}
-      {small(t('demo.schoolThreshold.publishes', { to: dayText(exam.to), figures: dayText(chart.figuresDay) }))}
+      {!over && small(t('demo.schoolThreshold.seenBefore'))}
+      {!over && small(t('demo.schoolThreshold.applies', { signBy: dayText(chart.signBy) }))}
+      {!over &&
+        small(t('demo.schoolThreshold.publishes', { to: dayText(room.exam.to), figures: dayText(chart.figuresDay) }))}
     </View>
   );
 }

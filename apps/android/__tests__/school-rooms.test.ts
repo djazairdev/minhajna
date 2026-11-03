@@ -1,18 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The school exams' rooms on the director's device (#603, answers 632 and
-// 637), against a made-up demo server: before an exam's figures day no room is
-// read; once the rooms are open each grade and subject's room is read with its
-// chart, in the timetable's order, with where its cut stands; the director's
-// decision is refused before it falls to them and on or after the exam's first
-// day, and once the signing deadline passed unsettled it is signed with the
-// room's decider key, put once, settles the cut, and a second decision is
-// refused; a room read under another epoch is refused; of two decisions put at
-// once one settles the cut and the other is refused; and a decision whose
-// answer was lost, the server having stored it, is found there and not put
-// again. The term is filled as a seeded school's is. Every world, school and
-// teacher is made up.
+// The school exams' rooms on the director's device (#603, answers 632 and 637),
+// against a made-up demo server: before an exam's figures day no room is read;
+// once the rooms are open each grade and subject's room is read with its chart,
+// in the timetable's order, with where its cut stands; the director's decision
+// is refused before it falls to them and on or after the exam's first day, and
+// once the signing deadline passed unsettled it is signed with the room's
+// decider key, put once, settles the cut, and a second decision is refused; a
+// room read under another epoch is refused; of two decisions put at once one
+// settles the cut and the other is refused; and a decision the server stored
+// but answered as taken is found there and not put again. The term is filled as
+// a seeded school's is. Every world, school and teacher is made up.
 
 import { addDays, worldExams, type Day } from '@minhajna/core';
 import type { Send } from '../src/demo/world-session';
