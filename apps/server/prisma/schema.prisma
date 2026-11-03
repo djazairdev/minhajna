@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The demo server's tables (#542, answers 550 and 551): worlds, their
-// spaces and the sealed batches the relay hands on, each row keyed by its
-// world and erased with it. Nothing here is named: ids the devices drew,
-// hashes, days, ciphertext, each world's stand-in CA key (#554), which
-// certifies nothing outside its world, and the key and receipts of its
-// stand-in receiving system (#590), which name no pupil. A space counts its
-// batches, and each batch takes the next of that count as its place in the
-// space, so readers page through a space in the order uploads committed,
-// and learn nothing of other spaces. Each migration is generated from this
-// schema with `prisma migrate diff --script` and committed as plain SQL.
+// The demo server's tables (#542, answers 550 and 551): worlds, their spaces
+// and the sealed batches the relay hands on, each row keyed by its world and
+// erased with it. Nothing here is named: ids the devices drew, hashes, days,
+// ciphertext, each world's stand-in CA key (#554), which certifies nothing
+// outside its world, and the key and receipts of its stand-in receiving system
+// (#590), which name no pupil, and each world's observatory (#621), whose
+// sendings keep no school-and-term code. A space counts its batches, and each
+// batch takes the next of that count as its place in the space, so readers page
+// through a space in the order uploads committed, and learn nothing of other
+// spaces. Each migration is generated from this schema with `prisma migrate
+// diff --script` and committed as plain SQL.
 
 generator client {
   provider = "prisma-client"
@@ -40,6 +41,7 @@ model World {
   spaces        Space[]
   receipts      Receipt[]
   shares        Share[]
+  observatory   Observatory?
 
   @@index([erasesOn])
   @@map("world")
@@ -101,4 +103,25 @@ model Share {
   @@unique([worldId, day, id])
   @@index([worldId, day, seq])
   @@map("share")
+}
+
+model Observatory {
+  worldId  String    @id @db.Char(5)
+  world    World     @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  sendings Sending[]
+
+  @@map("observatory")
+}
+
+model Sending {
+  seq         Int         @id @default(autoincrement())
+  worldId     String      @db.Char(5)
+  id          String      @db.Char(32)
+  token       String      @db.Char(32)
+  body        Json
+  observatory Observatory @relation(fields: [worldId], references: [worldId], onDelete: Cascade)
+
+  @@unique([worldId, id])
+  @@index([worldId, seq])
+  @@map("sending")
 }

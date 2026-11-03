@@ -44,6 +44,7 @@ const worlds: WorldsOptions = {
         spaces: stores.spaces,
         shares: stores.shares,
         probe: new PostgresProbe(stores.client),
+        insights: stores.insights,
         close: () => stores.close(),
       }
     : {}),
