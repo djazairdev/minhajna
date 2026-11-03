@@ -16,7 +16,9 @@
 // day. A teachers' world, or one started without the bundled reference data, is
 // not seeded. Once seeded, the world's calendar gets, as the Ministry publishes
 // it, the world's made-up closure (#549, answer 626), from which every seeded
-// school's term counts its closed sessions.
+// school's term counts its closed sessions. A teachers' world's starter opens
+// its observatory instead (#622, answer 697), so that its teachers' insights
+// can be sent there; a refusal fails that start too.
 
 import {
   checkSeedCertificates,
@@ -94,7 +96,33 @@ export async function seedWorld(
   }
 }
 
-/** Starts a world of a kind, a national one seeded before it is given; the network is shut again if seeding fails. */
+/** Opens a teachers' world's observatory, holding no sending yet, under the starter token. */
+export async function openObservatory(started: Pick<StartedWorld, 'keys' | 'starter'>, send: Send): Promise<void> {
+  const path = `/worlds/${started.keys.world}/insights`;
+  const answer = await send({ method: 'POST', path, body: { sendings: [] }, starter: started.starter });
+  if (answer.status !== 200) throw unexpected(answer);
+}
+
+/** Seeds a national world and publishes its calendar with the world's made-up closure. */
+async function seedNational(
+  started: StartedWorld,
+  calendar: SchoolCalendar,
+  reference: Extract<ReferenceResult, { ok: true }>,
+  kit: WorldKit,
+  send: Send,
+): Promise<void> {
+  const demo = seededWorld(started.keys.world, reference);
+  await seedWorld(started, demo, kit, send);
+  const held = { world: started.keys.world, keys: started.keys, sealing: started.sealing };
+  const draft = { entries: [worldClosure(demo, reference)], removed: [] };
+  const publishing = { held, date: started.date, reference: { profile: reference.profile, calendar }, draft, kit };
+  await publishCalendar(publishing, send);
+}
+
+/**
+ * Starts a world of a kind, a national one seeded and a teachers' one's observatory opened before it is given; the
+ * network is shut again if either fails.
+ */
 export async function startSeededWorld(
   kind: WorldKind,
   calendar: SchoolCalendar,
@@ -103,14 +131,9 @@ export async function startSeededWorld(
   send: Send = worldRequest,
 ): Promise<StartedWorld> {
   const started = await startWorld(kind, calendar, kit, send);
-  if (kind !== 'national' || reference === undefined) return started;
   try {
-    const demo = seededWorld(started.keys.world, reference);
-    await seedWorld(started, demo, kit, send);
-    const held = { world: started.keys.world, keys: started.keys, sealing: started.sealing };
-    const draft = { entries: [worldClosure(demo, reference)], removed: [] };
-    const publishing = { held, date: started.date, reference: { profile: reference.profile, calendar }, draft, kit };
-    await publishCalendar(publishing, send);
+    if (kind === 'teachers') await openObservatory(started, send);
+    else if (reference !== undefined) await seedNational(started, calendar, reference, kit, send);
   } catch (error) {
     if (worldNetworkOpen() === started.keys.world) leaveWorldNetwork();
     throw error;

@@ -91,7 +91,7 @@ test.each((['ar', 'fr', 'en'] as const).flatMap((language) => STATES.map((state)
   async (language, state) => {
     await render(
       <View>
-        <InsightsRow state={state} onPress={() => undefined} />
+        <InsightsRow state={state} on={false} onPress={() => undefined} />
         {page(state)}
       </View>,
       language,

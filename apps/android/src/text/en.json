@@ -6184,7 +6184,8 @@
       "row": {
         "teacher": "Off · exactly what is sent is shown before you turn them on",
         "school": "Off for the school space’s classes",
-        "retired": "Stopped: the national system’s totals replaced them"
+        "retired": "Stopped: the national system’s totals replaced them",
+        "on": "On · one sending for each class with a plan pack, at the end of each term"
       },
       "sub": {
         "teacher": "Optional · in teacher mode, before the national system",
@@ -6194,6 +6195,17 @@
       "purpose": "They show curriculum designers which items need more time than the plan gives. They describe the plan, not classes or teachers.",
       "participation": "Taking part",
       "off": "Taking part is off. Before you turn it on, exactly what is sent about each class is shown here.",
+      "on": "Taking part is on. At the end of each term, while this world is open, one sending for each class that follows a plan pack goes to the demo world’s insights server, exactly as shown below. You can turn it off at any time.",
+      "unkept": "Your choice could not be kept, so taking part is as it was. Try again.",
+      "sending": {
+        "working": "Sending what is due…",
+        "done_one": "{{count}} sending went to the insights server.",
+        "done_other": "{{count}} sendings went to the insights server.",
+        "upToDate": "Nothing is waiting: every sending due has gone.",
+        "partial": "What is due went, except for classes whose sending could not be worked out; trying again would not change that.",
+        "failed": "What is due could not be sent. It is tried again when the world’s date moves; you can also try again now.",
+        "retry": "Try again"
+      },
       "never": {
         "head": "Never sent",
         "dates": "The dates of sessions",

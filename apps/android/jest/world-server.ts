@@ -20,6 +20,7 @@ import { dayTotals } from '../../server/src/totals/share-sums';
 import { holdsPass, holdsStarter, readLaterDays, readWorldStart } from '../../server/src/worlds/world-rules';
 import type { WorldKit } from '../src/demo/world-session';
 import { worldRequest, type WorldRequest } from '../src/network/world-network';
+import { WorldObservatory } from './world-observatory';
 import { WorldRelay } from './world-relay';
 
 /** A Node call as the platform's promise, failing rather than throwing. */
@@ -115,7 +116,8 @@ export function answer(status: number, body?: unknown, headers?: Record<string, 
  * start carries, its pass and its starter token, which moving the date and
  * seeding (#548) need, its relay and stand-in CA (world-relay.ts), and the
  * schools' shares of the totals (#596), kept by world, day and ID in `shares`
- * and added up by the server's own sums (#598):
+ * and added up by the server's own sums (#598), and each world's observatory
+ * of insights (world-observatory.ts, #622):
  * `taken` answers 409 to that many starts, and `busy` 429 to every request
  * while it is set.
  */
@@ -124,6 +126,7 @@ export class DemoServer {
   readonly seen: { method: string; path: string; headers: Record<string, string>; body?: string }[] = [];
   readonly relay = new WorldRelay();
   readonly shares = new Map<string, unknown>();
+  readonly observatory = new WorldObservatory();
   taken = 0;
   busy = false;
 
@@ -140,6 +143,7 @@ export class DemoServer {
     this.busy = false;
     this.relay.reset();
     this.shares.clear();
+    this.observatory.reset();
   }
 
   private route(address: string, init: RequestInit): Response | Promise<Response> {
@@ -200,6 +204,17 @@ export class DemoServer {
           held.map(([, share]) => share as Share),
           directorate,
         ),
+      );
+    }
+    if (rest === 'insights') {
+      const body: unknown = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
+      const starter = holdsStarter(headers.Authorization, kept.starterHash);
+      return this.observatory.route(
+        world,
+        init.method ?? 'GET',
+        path.slice(`/worlds/${world}/insights`.length),
+        body,
+        starter,
       );
     }
     if (rest === 'seed' && !holdsStarter(headers.Authorization, kept.starterHash)) return answer(403, {});

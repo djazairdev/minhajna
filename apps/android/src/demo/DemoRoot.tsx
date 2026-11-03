@@ -129,6 +129,7 @@ export function DemoRoot({
     kit,
     reference,
     storage,
+    send,
     date,
     dayText,
   });

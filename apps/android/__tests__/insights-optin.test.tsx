@@ -9,7 +9,8 @@
 // the page opens again; the class with no pack says it sends nothing; opening
 // it sends nothing to the server; once the world's date moves past the next
 // term's end, the next term shows with a new token, the first kept; with no
-// term ended, or a working out that fails, it says so. The opt-in and its
+// term ended, or a working out that fails, it says so; a partial or failed
+// sending says so, with a retry only after a failure. The opt-in and its
 // payload name every control and field, in every language and both directions,
 // at text 200%. Every world is made up.
 
@@ -169,7 +170,19 @@ test.each([
   const digest = (text: string) => Promise.resolve(text);
   await ReactTestRenderer.act(async () => {
     tree = ReactTestRenderer.create(
-      <WorldOptin world="K7QF4" date={date} book={book} reference={reference} kit={failing} digest={digest} />,
+      <WorldOptin
+        world="K7QF4"
+        date={date}
+        book={book}
+        reference={reference}
+        kit={failing}
+        digest={digest}
+        choice={{ on: false, since: null }}
+        status={{ kind: 'off' }}
+        onChoose={() => undefined}
+        onRetry={() => undefined}
+        unkept={false}
+      />,
     );
     await settle();
   });
@@ -178,6 +191,31 @@ test.each([
   expect(texts()).toContain(words.preview[key]);
   expect(host('insights-payload')).toHaveLength(0);
   await world.leaveWorld();
+});
+
+test.each([
+  ['partial', false],
+  ['failed', true],
+] as const)('says how the sending stands, with a retry only after a failure (%s)', async (kind, retry) => {
+  const sendings = { kind: 'none' } as const;
+  const on = { on: true, since: calendar.year.terms[0].to };
+  const none = () => undefined;
+  await ReactTestRenderer.act(async () => {
+    tree = ReactTestRenderer.create(
+      <InsightsOptin
+        reference={reference}
+        choice={on}
+        status={{ kind }}
+        onChoose={none}
+        onRetry={none}
+        unkept={false}
+        sendings={sendings}
+      />,
+    );
+    await settle();
+  });
+  expect(texts()).toContain(words.sending[kind]);
+  expect(host('insights-retry').length > 0).toBe(retry);
 });
 
 test.each(
@@ -212,6 +250,11 @@ test.each(
         <View>
           <InsightsOptin
             reference={reference}
+            choice={{ on: true, since: calendar.year.terms[0].to }}
+            status={{ kind: 'failed' }}
+            onChoose={() => undefined}
+            onRetry={() => undefined}
+            unkept
             sendings={{
               kind: 'shown',
               term: 1,
