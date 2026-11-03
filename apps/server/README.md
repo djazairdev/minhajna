@@ -82,7 +82,7 @@ Each world has its own stand-in certificate authority ([#554](https://github.com
 
 ## Storage
 
-With `DATABASE_URL`, worlds, spaces and batches are kept in PostgreSQL ([#542](https://github.com/djazairdev/minhajna/issues/542), answer 550), so they outlive a restart; without it, in memory, and lost when the server stops. Their tables are described in [`prisma/schema.prisma`](prisma/schema.prisma), and the server queries them through the Prisma Client generated from it (Prisma 7, answer 551), which needs no download and no engine.
+With `DATABASE_URL`, worlds, spaces and batches, and observatories with their sendings ([#621](https://github.com/djazairdev/minhajna/issues/621)), are kept in PostgreSQL ([#542](https://github.com/djazairdev/minhajna/issues/542), answer 550), so they outlive a restart; without it, in memory, and lost when the server stops. Their tables are described in [`prisma/schema.prisma`](prisma/schema.prisma), and the server queries them through the Prisma Client generated from it (Prisma 7, answer 551), which needs no download and no engine.
 
 - **A world is erased on its 7th day** (answer 548), counting the day it started, in UTC: the server sweeps when it starts and every hour, so a world is gone within the hour its 7th day begins, its spaces and batches with it.
 - **Uploads to one world take turns:** each locks its world's row, so a world's caps and its streams' numbers hold. One that waits more than 5 seconds for a connection or 8 for its turn, or takes more than 10 once started, is answered `503` with `Retry-After`, to be sent again.
