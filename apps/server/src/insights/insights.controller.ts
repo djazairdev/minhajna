@@ -13,13 +13,15 @@
 // when new and 200 when it replaced its own, its ID alone sent back, and kept
 // only within the daily limit of sendings by address. A sending whose ID is
 // another token's, one past MAX_SENDINGS, or one for a world with no
-// observatory is refused with 409. Every sending kept costs the daily quota of
-// uploads as the sealed batches its bytes as sent would fill, its mark's few
-// bytes left out, as a school's share does, so no address fills the store with
-// sendings either; a refused one costs nothing, and requests at the same moment
-// may pass a limit by a few. Each sending's school-and-term code is turned into
-// its school's mark for the run on receipt (school-marks.ts), then dropped,
-// never stored or logged, and a sending is never shown back.
+// observatory is refused with 409, as is one for a term whose collection ended,
+// or replacing a sending of such a term (figures.controller.ts). Every sending
+// kept costs the daily quota of uploads as the sealed batches its bytes as sent
+// would fill, its mark's few bytes left out, as a school's share does, so no
+// address fills the store with sendings either; a refused one costs nothing,
+// and requests at the same moment may pass a limit by a few. Each sending's
+// school-and-term code is turned into its school's mark for the run on receipt
+// (school-marks.ts), then dropped, never stored or logged, and a sending is
+// never shown back.
 
 import {
   BadRequestException,
@@ -53,6 +55,7 @@ export const SEED_SENDINGS = 256;
 
 const REFUSED: Readonly<Partial<Record<SendingKept, string>>> = {
   taken: 'a sending with this ID was sent with another token',
+  ended: 'the collection of this sending’s term, or of the one it replaces, has ended',
   full: `a world keeps at most ${MAX_SENDINGS} sendings`,
   closed: 'this world holds no observatory',
 };
