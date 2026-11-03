@@ -52,6 +52,8 @@ export interface WorldLimiters {
   readonly joins: Limiter;
   readonly relay: Limiter;
   readonly uploads: Limiter;
+  /** Insights sendings kept, by address (#621). */
+  readonly sendings: Limiter;
   readonly trustCloudflare: boolean;
   /** The clock: rate limits, and the day a world starts on and is erased. */
   readonly now: () => number;
