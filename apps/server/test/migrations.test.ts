@@ -60,7 +60,9 @@ describe('the committed migrations', { skip }, () => {
     assert.deepEqual(await tables(client), [
       'minhajna_meta.migration',
       'public.batch',
+      'public.observatory',
       'public.receipt',
+      'public.sending',
       'public.share',
       'public.space',
       'public.world',
