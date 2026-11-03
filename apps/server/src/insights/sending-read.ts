@@ -1,17 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// One class's anonymous insights sending as the server takes it (#621,
-// answer 675), under the rules packages/core's insights.ts builds it by: its
-// format, the class's sending ID for the term and the term's token, each 32 hex
-// digits, the school-and-term code in 64, the school year and term, the
-// wilaya, grade and subject, the pack and release, the sessions spent on at
-// most 512 items, each from 0 to 500, the items merged, skipped, split or
-// re-taught, each list in order and once each, all but the split ones among the
-// items with sessions, and how far the class got in thousandths, in at most 48
-// KB of JSON. A name is never one an object already holds, such as __proto__.
-// Anything else is refused with the reason. What the server keeps is the
-// sending without its school-and-term code, which it never stores.
+// One class's anonymous insights sending as the server takes it (#621, answer
+// 675), under the rules packages/core's insights.ts builds it by: its format,
+// the class's sending ID for the term and the term's token, each 32 hex digits,
+// the school-and-term code in 64, the school year and term, the wilaya, grade
+// and subject, the pack and release, the sessions spent on at most 512 items,
+// each from 0 to 500, the items merged, skipped, split or re-taught, each list
+// in order and once each, all but the split ones among the items with sessions,
+// and how far the class got in thousandths, in at most 48 KB of JSON. A name is
+// never one an object already holds, such as __proto__. Anything else is
+// refused with the reason. What the server keeps is the sending without its
+// school-and-term code, which it never stores, and with the school's mark for
+// the run in its place (school-marks.ts).
 
 import { isName } from '../totals/share-read.js';
 
@@ -42,8 +43,10 @@ const YEAR = /^(\d{4})-(\d{4})$/;
 const PACK = /^[a-z]{2}(\.[a-z0-9-]+){4,5}$/;
 const RELEASE = /^\d{4}\.\d+$/;
 
-/** A sending as the server keeps it: never its school-and-term code. */
+/** A sending as the server keeps it: never its school-and-term code, but the school's mark for the run. */
 export interface KeptSending {
+  /** The school's mark for this run of the server (school-marks.ts), or UNCOUNTED. */
+  readonly mark: string;
   readonly format: typeof INSIGHTS_FORMAT;
   readonly id: string;
   readonly token: string;
@@ -60,7 +63,7 @@ export interface KeptSending {
 }
 
 /** A sending as it arrives. */
-export interface Sending extends KeptSending {
+export interface Sending extends Omit<KeptSending, 'mark'> {
   readonly schoolTerm: string;
 }
 
@@ -128,8 +131,8 @@ export function readSending(value: unknown): Sending | string {
   return problem === null ? (value as unknown as Sending) : `a sending’s ${problem}`;
 }
 
-/** The sending as the server keeps it: each of its fields but the school-and-term code, which is dropped. */
-export function kept(sending: Sending): KeptSending {
+/** The sending as the server keeps it: each of its fields but the school-and-term code, in its place the mark. */
+export function kept(sending: Sending, mark: string): KeptSending {
   const { format, id, token, year, term, wilaya, grade, subject, pack, release, sessions, changed, reached } = sending;
-  return { format, id, token, year, term, wilaya, grade, subject, pack, release, sessions, changed, reached };
+  return { format, id, token, year, term, wilaya, grade, subject, pack, release, sessions, changed, reached, mark };
 }

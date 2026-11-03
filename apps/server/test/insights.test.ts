@@ -24,7 +24,7 @@ import { SEED_SENDINGS } from '../src/insights/insights.controller.js';
 import { PlainLogger } from '../src/plain-logger.js';
 import { MemoryWorldStore } from '../src/worlds/world-store.js';
 import { WorldSweeper } from '../src/worlds/world-sweeper.js';
-import { keptOf, madeUpSending, startedWorld } from './insights-kit.js';
+import { madeUpSending, startedWorld, unmarked } from './insights-kit.js';
 import { OPEN, WITH_PASS } from './state-kit.js';
 
 describe('a world’s observatory', () => {
@@ -94,7 +94,7 @@ describe('a world’s observatory', () => {
     }
     assert.deepEqual(await insights.sendings(id), []);
     assert.deepEqual(await (await open(id, starter, { sendings: seeded })).json(), { kept: 2 });
-    assert.deepEqual(await insights.sendings(id), seeded.map(keptOf));
+    assert.deepEqual(unmarked(await insights.sendings(id)), unmarked(seeded));
   });
 
   it('keeps a sending once, replaced only with its token, and drops its school-and-term code', async () => {
@@ -108,7 +108,7 @@ describe('a world’s observatory', () => {
     const again = { ...madeUpSending(1, 1, 7), reached: 400 };
     assert.equal((await send(id, again)).status, 200);
     assert.equal((await send(id, madeUpSending(1, 2))).status, 409);
-    assert.deepEqual(await insights.sendings(id), [keptOf(again)]);
+    assert.deepEqual(unmarked(await insights.sendings(id)), unmarked([again]));
     const code = madeUpSending(1, 1, 7).schoolTerm;
     assert.equal(JSON.stringify(await insights.sendings(id)).includes(code), false);
     assert.equal(JSON.stringify(await insights.sendings(id)).includes('schoolTerm'), false);
@@ -163,7 +163,7 @@ describe('a world’s observatory', () => {
     const refused = await open(id, starter, { sendings: [madeUpSending(2), madeUpSending(1, 9), madeUpSending(3)] });
     assert.equal(refused.status, 409);
     assert.match(((await refused.json()) as { message: string }).message, /^sending 1: .*another token/);
-    assert.deepEqual(await insights.sendings(id), [madeUpSending(1), madeUpSending(2)].map(keptOf));
+    assert.deepEqual(unmarked(await insights.sendings(id)), unmarked([madeUpSending(1), madeUpSending(2)]));
   });
 
   it('opens no observatory on a refused opening', async () => {

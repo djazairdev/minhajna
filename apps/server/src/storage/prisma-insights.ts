@@ -3,13 +3,14 @@
 
 // Each world's observatory in PostgreSQL (#621, answer 676), through Prisma's
 // client, under the memory store's rules: the observatory a row of its own,
-// each sending kept by its world and sending ID with its token, never with its
-// school-and-term code, a sending sent again with the same ID and token
-// replacing the first in its place, at most MAX_SENDINGS a world. Sendings to
-// one world take turns, its observatory's row locked while they are kept, so
-// the cap holds, and those that wait too long for their turn are refused as
-// busy (in-turn.ts). Erasing a world erases its observatory and sendings in the
-// database itself, so forgetting a world here does nothing more.
+// each sending kept by its world and sending ID with its token, its school's
+// mark for the run in its body, never with its school-and-term code, a sending
+// sent again with the same ID and token replacing the first in its place, at
+// most MAX_SENDINGS a world. Sendings to one world take turns, its
+// observatory's row locked while they are kept, so the cap holds, and those
+// that wait too long for their turn are refused as busy (in-turn.ts). Erasing a
+// world erases its observatory and sendings in the database itself, so
+// forgetting a world here does nothing more.
 
 import { Prisma, type PrismaClient } from '../generated/prisma/client.js';
 import { outcome, type InsightStore, type SendingKept } from '../insights/insight-store.js';
