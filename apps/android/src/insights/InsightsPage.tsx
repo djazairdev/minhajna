@@ -4,7 +4,8 @@
 // The insights page in a demo world (#624, answer 695), under the band, opened
 // from the row on the teacher's world home: Insights-optin in the state the
 // world gives. In a teachers' world, what the insights are for, that taking
-// part is off until the teacher turns it on, what is never sent, and the floors
+// part is off until the teacher turns it on, with exactly what each class
+// would send (InsightsOptin.tsx, #622), what is never sent, and the floors
 // and the uses the figures are kept to; in a national world, the classes
 // stopped in their school's space (InsightsStopped.tsx), or the insights
 // retired. Its title and state are said as it opens, on a PC in a hidden live
@@ -13,7 +14,7 @@
 
 import type { Day, InsightsState } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useEffectEvent, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, BackHandler, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
@@ -37,12 +38,14 @@ export type InsightsPageProps = {
   /** The world's date, written out for the band. */
   readonly date: string;
   readonly dayText: (day: Day) => string;
+  /** The opt-in with each class's exact sending, in a teachers' world (#622); the plain off card when absent. */
+  readonly optin?: ReactNode;
   /** Back to the world's home. */
   readonly onClose: () => void;
 };
 
 /** The insights in the state the world gives. */
-export function InsightsPage({ state, stopped, date, dayText, onClose }: InsightsPageProps) {
+export function InsightsPage({ state, stopped, date, dayText, optin, onClose }: InsightsPageProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
@@ -99,12 +102,14 @@ export function InsightsPage({ state, stopped, date, dayText, onClose }: Insight
           {state.kind !== 'retired' && <Text style={[styles.note, align]}>{t('demo.insights.purpose')}</Text>}
           {state.kind === 'teacher' && (
             <>
-              <View testID="insights-off" style={styles.card}>
-                <Text accessibilityRole="header" style={[styles.head, align]}>
-                  {t('demo.insights.participation')}
-                </Text>
-                <Text style={[styles.small, align]}>{t('demo.insights.off')}</Text>
-              </View>
+              {optin ?? (
+                <View testID="insights-off" style={styles.card}>
+                  <Text accessibilityRole="header" style={[styles.head, align]}>
+                    {t('demo.insights.participation')}
+                  </Text>
+                  <Text style={[styles.small, align]}>{t('demo.insights.off')}</Text>
+                </View>
+              )}
               <View testID="insights-never" style={styles.card}>
                 <Text accessibilityRole="header" style={[styles.head, align]}>
                   {t('demo.insights.never.head')}

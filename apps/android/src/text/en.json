@@ -6221,6 +6221,46 @@
           "dates": "The dates of sessions, why any was not held, and pupils’ data"
         },
         "uses": "Nor is it used for an exam threshold, to rank anyone, or for a decision about a teacher."
+      },
+      "preview": {
+        "head": "Exactly what is sent about each class, for {{term}}",
+        "working": "Working out what is sent about each class…",
+        "none": "No term has ended yet on this world’s date, so nothing is sent.",
+        "failed": "What is sent about this class could not be worked out.",
+        "noPack": "This class pins no plan pack, so nothing is sent about it: its sessions are entered freely and describe no plan.",
+        "failedAll": "What is sent about each class could not be worked out."
+      },
+      "payload": {
+        "level": "Grade and subject",
+        "wilaya": "Wilaya",
+        "pack": "Pack and release",
+        "sessions": "Sessions on each item",
+        "sessionsLine": "{{items}}: {{named}}{{more}}",
+        "itemSessions": "{{item}}: {{count}}",
+        "separator": " · ",
+        "more": " …",
+        "changed": "What changed",
+        "unchanged": "Nothing",
+        "changes": {
+          "merged": "Merged {{item}}",
+          "skipped": "Skipped {{item}}",
+          "split": "Split {{item}}",
+          "retaught": "Re-taught {{item}}"
+        },
+        "reached": {
+          "1": "End of the first term",
+          "2": "End of the second term",
+          "3": "End of the third term"
+        },
+        "reachedLine": "The class reached {{percent}}% of the plan",
+        "token": "The term’s random token",
+        "schoolTerm": "The school and term’s code, counted then dropped",
+        "text": "The text as sent",
+        "terms": {
+          "1": "the first term",
+          "2": "the second term",
+          "3": "the third term"
+        }
       }
     }
   },

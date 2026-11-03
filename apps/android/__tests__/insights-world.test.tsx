@@ -246,14 +246,19 @@ test('a working out that fails leaves a row for each join', async () => {
       },
     ],
   };
-  const open = { kind: 'national', date: '2026-12-17', book } as unknown as Pick<OpenWorld, 'kind' | 'date' | 'book'>;
-  const failing = { mac: () => Promise.reject(new Error('Made-up failure')) };
+  const open = { world: 'K7QF4', kind: 'national', date: '2026-12-17', book } as unknown as Pick<
+    OpenWorld,
+    'world' | 'kind' | 'date' | 'book'
+  >;
+  const failing = { mac: () => Promise.reject(new Error('Made-up failure')), random: nodeKit.random };
+  const storage = teacher.asSpec();
   function Harness() {
     const insights = useWorldInsights({
       open,
       calendars: [calendar],
       school,
       kit: failing,
+      storage,
       date: '«2026-12-17»',
       dayText: (one) => `«${one}»`,
     });

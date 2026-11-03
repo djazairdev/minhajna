@@ -7,9 +7,10 @@
 // its totals are formed, each time the page draws, since the store's entries
 // grow in place; the row the teacher's world home carries in place of Settings'
 // own, which real mode does not show in 0.7.0; and the insights page it opens,
-// until it is closed or the world is left. The classes a national world stops
-// are worked out once for each set of joins, and a working out that fails
-// leaves a row for each join.
+// until it is closed or the world is left; in a teachers' world, the page opens
+// with each class's exact sending (InsightsOptin.tsx, #622). The classes a
+// national world stops are worked out once for each set of joins, and a working
+// out that fails leaves a row for each join.
 
 import {
   insightsState,
@@ -22,28 +23,39 @@ import {
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { WorldKit } from '../demo/world-session';
+import type { TermReference } from '../director/seeded-fill';
+import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
+import { WorldOptin } from './InsightsOptin';
 import { InsightsPage } from './InsightsPage';
 import { InsightsRow } from './InsightsRow';
 import { joinRows, stoppedClasses, type StoppedClass } from './stopped-classes';
 
 export type WorldInsightsInput = {
-  readonly open: Pick<OpenWorld, 'kind' | 'date' | 'book'> | null;
+  readonly open: Pick<OpenWorld, 'world' | 'kind' | 'date' | 'book'> | null;
   /** The world's calendars: the bundled one, and the one it published laid over it. */
   readonly calendars: readonly SchoolCalendar[];
   readonly school: DemoSchool | null;
-  readonly kit: Pick<WorldKit, 'mac'>;
+  readonly kit: Pick<WorldKit, 'mac' | 'random'>;
+  /** The bundled reference data, from which a teachers' world's sendings are worked out; none without it. */
+  readonly reference?: TermReference;
+  readonly storage: Pick<StorageSpec, 'digest'>;
   /** The world's date, written out for the band. */
   readonly date: string;
   readonly dayText: (day: Day) => string;
 };
 
 /** The insights' row and, while it is open, their page, with a way to close it. */
-export function useWorldInsights({ open, calendars, school, kit, date, dayText }: WorldInsightsInput): {
+export function useWorldInsights(input: WorldInsightsInput): {
   readonly row: ReactNode;
   readonly page: ReactNode;
   readonly close: () => void;
 } {
+  const { open, calendars, school, kit, reference, storage, date, dayText } = input;
   const [shown, setShown] = useState(false);
+  const digest = useMemo(
+    () => (text: string) => storage.digest([text]).then(([hash]) => hash ?? Promise.reject(new Error('No digest'))),
+    [storage],
+  );
   const [stopped, setStopped] = useState<{ joins: unknown; rows: readonly StoppedClass[] } | null>(null);
   const state = open === null ? null : insightsState(open.kind, open.date, keptJoins(open.book.entries), calendars);
   const key = JSON.stringify(state?.kind === 'school' ? state.joins : null);
@@ -69,6 +81,18 @@ export function useWorldInsights({ open, calendars, school, kit, date, dayText }
         stopped={stopped !== null && stopped.joins === joins ? stopped.rows : null}
         date={date}
         dayText={dayText}
+        optin={
+          open !== null && reference !== undefined ? (
+            <WorldOptin
+              world={open.world}
+              date={open.date}
+              book={open.book}
+              reference={reference}
+              kit={kit}
+              digest={digest}
+            />
+          ) : undefined
+        }
         onClose={close}
       />
     ) : null,
