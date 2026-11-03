@@ -11,12 +11,13 @@
 // over to the teacher as a substitute (HandoverSchool.tsx), those come back at
 // the end of one (ReturnSchool.tsx), the term's marks to send to the state's
 // stand-in (TermSend.tsx), the exams with a common paper (ExamThresholds.tsx),
-// which opens an exam's threshold on its room (ExamThreshold.tsx), named by the
-// world's reference, and what stays and goes on leaving (Leave.tsx), when the
-// year's dates read; each gets what School-join said as it opened, and goes
-// back to School-join, but Week-sign opened from the digest or the classes, the
-// term report and an exam's threshold, which go back to the page that opened
-// them; each opens another page through School-join's view.
+// which opens an exam's threshold on its room (ExamThreshold.tsx) and a
+// directorate exam's totals (ExamTotals.tsx), named by the world's reference,
+// and what stays and goes on leaving (Leave.tsx), when the year's dates read;
+// each gets what School-join said as it opened, and goes back to School-join,
+// but Week-sign opened from the digest or the classes, the term report, an
+// exam's threshold and its totals, which go back to the page that opened them;
+// each opens another page through School-join's view.
 
 import type { CalendarUpdate, Day, DemoSchool, LeavingDates, Subject, Weekday } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -25,6 +26,7 @@ import type { Send, WorldKit } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
 import { ExamThreshold } from '../threshold/ExamThreshold';
 import { ExamThresholds } from '../threshold/ExamThresholds';
+import { ExamTotals } from '../threshold/ExamTotals';
 import { TeacherTimetable } from '../timetable/TeacherTimetable';
 import type { MineCalendar } from '../week/school-mine-session';
 import { SchoolMine } from '../week/SchoolMine';
@@ -96,14 +98,27 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
   if (view.page === 'return') return <ReturnSchool {...channel} />;
   if (view.page === 'report') return <SchoolMineReport {...channel} mine={props.mine} />;
   if (view.page === 'thresholds') {
-    const onRoom = (room: string) => props.onPage({ page: 'threshold', join, room, back: 'thresholds' });
+    const to = (page: JoinPage) => (room: string) => props.onPage({ page, join, room, back: 'thresholds' });
     return (
       <ExamThresholds
         {...channel}
         reference={props.reference}
         updates={props.updates}
         school={props.school}
-        onRoom={onRoom}
+        onRoom={to('threshold')}
+        onTotals={to('examTotals')}
+      />
+    );
+  }
+  if (view.page === 'examTotals') {
+    if (view.room === undefined) return null;
+    return (
+      <ExamTotals
+        {...channel}
+        reference={props.reference}
+        updates={props.updates}
+        school={props.school}
+        room={view.room}
       />
     );
   }

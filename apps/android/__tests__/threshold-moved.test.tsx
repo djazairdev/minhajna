@@ -83,7 +83,7 @@ test('the list and the exam’s page say the days it had and has, when it was an
     list.movedReason.replace('{{reason}}', isolate(REASON)),
   ];
   const page = { ...props({ world: id, date }, joined), reference: moved, updates: [update] };
-  await show(<ExamThresholds {...page} said={list.title} onRoom={jest.fn()} />);
+  await show(<ExamThresholds {...page} said={list.title} onRoom={jest.fn()} onTotals={jest.fn()} />);
   const line = texts().find((one) => one.startsWith(list.moved.split('{{')[0]))!;
   expect(line).toContain(`day ${move.before.from}`);
   expect(line).toContain(`day ${move.before.figuresDay}`);
@@ -97,7 +97,13 @@ test('the list and the exam’s page say the days it had and has, when it was an
 test('says nothing of a move without an update moving the exam', async () => {
   const { id, date, joined } = await openedRoom();
   await show(
-    <ExamThresholds {...props({ world: id, date }, joined)} updates={[]} said={list.title} onRoom={jest.fn()} />,
+    <ExamThresholds
+      {...props({ world: id, date }, joined)}
+      updates={[]}
+      said={list.title}
+      onRoom={jest.fn()}
+      onTotals={jest.fn()}
+    />,
   );
   expect(texts().some((one) => one.startsWith(list.moved.split('{{')[0]))).toBe(false);
 });
@@ -114,7 +120,7 @@ test('a room opened before its exam moved says its chart is old, with no second 
     .spyOn(ownExamsModule, 'ownExams')
     .mockReturnValue([{ exam: coming, asOf: date, charts: [{ ...chart, classes: [one] }] }] as never);
   const page = { ...props({ world: id, date }, joined), reference: moved, updates: [], school: {} as never };
-  await show(<ExamThresholds {...page} said={list.title} onRoom={jest.fn()} />);
+  await show(<ExamThresholds {...page} said={list.title} onRoom={jest.fn()} onTotals={jest.fn()} />);
   const stale = ar.demo.threshold.stale
     .replace('{{day}}', `day ${date}`)
     .replace('{{now}}', `day ${now.figuresDay}`)
@@ -157,7 +163,7 @@ test('an exam above the school says its days moved, with no signing deadline, it
   const moved = { ...reference, calendar: { ...reference.calendar, entries } };
   const move = examMoves(moved.calendar.year, entries, []).find((each) => each.exam === 'mock')!;
   const page = { ...props({ world: id, date }, joined), reference: moved, updates: [], school: {} as never };
-  await show(<ExamThresholds {...page} said={list.title} onRoom={jest.fn()} />);
+  await show(<ExamThresholds {...page} said={list.title} onRoom={jest.fn()} onTotals={jest.fn()} />);
   expect(move.reason).toBe(reason);
   const line = texts().find((each) => each.startsWith(list.movedAbove.split('{{')[0]))!;
   expect(line).not.toContain(`day ${move.before.signBy}`);

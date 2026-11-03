@@ -12,13 +12,14 @@
 // reached on the figures day and its forecast, with a way to the exam's page
 // (ExamThreshold.tsx), named with its exam; then, from the weeks the phone
 // signed, the school's exams before their figures day, but those whose room is
-// listed, and the exams above the school its classes sit (OwnExamCards.tsx),
-// when the world's reference and school are there, or that they could not be
-// worked out when the phone's weeks do not read; with none, it says no school
-// exam's figures day has come for the teacher's subjects. It says that the
-// chart is worked out in the school from signed weeks only and never leaves its
-// space, that monthly tests stay each teacher's own, and that nothing here
-// serves to evaluate or rank anyone. Going back leads to School-join.
+// listed, and the exams above the school its classes sit (OwnExamCards.tsx), a
+// directorate's opening its totals from its figures day (ExamTotals.tsx), when
+// the world's reference and school are there, or that they could not be worked
+// out when the phone's weeks do not read; with none, it says no school exam's
+// figures day has come for the teacher's subjects. It says that the chart is
+// worked out in the school from signed weeks only and never leaves its space,
+// that monthly tests stay each teacher's own, and that nothing here serves to
+// evaluate or rank anyone. Going back leads to School-join.
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -53,13 +54,15 @@ export type ExamThresholdsProps = {
   readonly said: string;
   /** Opens an exam's page by its room's key. */
   readonly onRoom: (room: string) => void;
+  /** Opens a directorate exam's totals by its exam, subject and grade's key. */
+  readonly onTotals: (room: string) => void;
 };
 
 const NOTES = ['school', 'monthly', 'never'] as const;
 
 /** The school exams whose rooms the phone reads, with where each class stands. */
 export function ExamThresholds(props: ExamThresholdsProps) {
-  const { world, date, join, kit, send, dayText, reference, updates, school, onClose, said, onRoom } = props;
+  const { world, date, join, kit, send, dayText, reference, updates, school, onClose, said, onRoom, onTotals } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -138,7 +141,7 @@ export function ExamThresholds(props: ExamThresholdsProps) {
       {reference !== undefined && (
         <>
           <OwnExamCards exams={coming} dayText={dayText} reference={reference} moves={moves} />
-          <OwnExamCards exams={above} dayText={dayText} reference={reference} moves={moves} above />
+          <OwnExamCards exams={above} dayText={dayText} reference={reference} moves={moves} above onTotals={onTotals} />
         </>
       )}
       {read.rooms !== null && weeks === null && reference !== undefined && school != null && (
