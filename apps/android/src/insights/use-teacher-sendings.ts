@@ -3,21 +3,16 @@
 
 // The sendings the teacher of a teachers' world would make (#622, answer 696),
 // worked out on the device from the world's description and its bundled
-// reference data, as every device rebuilds them: for the latest term the
-// world's date has ended, each class of the world's teacher with its sending or
-// why it makes none. The term's token and sending IDs are the draw the world's
-// store keeps for it, or a new one, kept there before anything is shown, so
-// what is shown is what would be sent; of two drawn at once, the first kept
-// counts. Nothing is sent here. A world with no teacher, or a working out that
-// fails, says so, and is tried again when the world's date moves. The term is
-// read from the bundled calendar, as a teachers' world has no Ministry to
-// publish another.
+// reference data (term-sendings.ts), as every device rebuilds them: for the
+// latest term the world's date has ended, each class of the world's teacher
+// with its sending or why it makes none, under the draw the world's store
+// keeps for the term. Nothing is sent here. A world with no teacher, or a
+// working out that fails, says so, and is tried again when the world's date
+// moves. The term is read from the bundled calendar, as a teachers' world has
+// no Ministry to publish another.
 
 import {
-  drawInsights,
   endedTerm,
-  keptDraw,
-  teacherSendings,
   worldTeacher,
   type ClassSending,
   type Day,
@@ -28,7 +23,8 @@ import {
 } from '@minhajna/core';
 import { useEffect, useMemo, useState } from 'react';
 import { seededWorld } from '../director/director-world';
-import { termReference, type TermReference } from '../director/seeded-fill';
+import type { TermReference } from '../director/seeded-fill';
+import { termSendings } from './term-sendings';
 
 /** A class of the world's teacher, with its sending for the term or why it makes none. */
 export interface ClassShown extends ClassSending {
@@ -67,23 +63,8 @@ export function useTeacherSendings({
   useEffect(() => {
     if (mine === null || term === null) return;
     let live = true;
-    const year = reference.calendar.year.id;
     const work = async () => {
-      if (keptDraw(book.entries, year, term.number) === null) {
-        const drawn = drawInsights(year, term.number, mine.teacher.classIds, kit.random);
-        await book.record(date, { kind: 'insights.drawn', drawn });
-      }
-      const draw = keptDraw(book.entries, year, term.number);
-      if (draw === null) throw new Error('The draw kept does not read');
-      const input = {
-        seed: world,
-        teacher: mine,
-        reference: termReference(reference),
-        bells: reference.bells,
-        term,
-        draw,
-      };
-      const sent = await teacherSendings(input, kit.mac, digest);
+      const sent = await termSendings({ world, mine, term, book, date, reference, kit, digest });
       const classes = sent.map((one) => ({
         ...one,
         schoolClass: mine.school.classes.find((each) => each.id === one.classId)!,

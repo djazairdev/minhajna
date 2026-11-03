@@ -6302,7 +6302,8 @@
       "row": {
         "teacher": "Désactivées · ce qui est envoyé, exactement, s’affiche avant de les activer",
         "school": "Désactivées pour les classes de l’espace de l’établissement",
-        "retired": "Arrêtées : les totaux du système national les ont remplacées"
+        "retired": "Arrêtées : les totaux du système national les ont remplacées",
+        "on": "Activées · un envoi par classe suivant un paquet de progression, à la fin de chaque trimestre"
       },
       "sub": {
         "teacher": "Facultatives · en mode enseignant, avant le système national",
@@ -6312,6 +6313,18 @@
       "purpose": "Elles montrent aux concepteurs des programmes quels éléments demandent plus de temps que la progression n’en donne. Elles décrivent la progression, pas les classes ni les enseignants.",
       "participation": "Participation",
       "off": "La participation est désactivée. Avant de l’activer, ce qui est envoyé, exactement, pour chaque classe s’affiche ici.",
+      "on": "La participation est activée. À la fin de chaque trimestre, tant que ce monde est ouvert, un envoi pour chaque classe qui suit un paquet de progression part vers le serveur des statistiques du monde de démonstration, exactement tel qu’affiché ci-dessous. Vous pouvez la désactiver à tout moment.",
+      "unkept": "Votre choix n’a pas pu être gardé : la participation reste comme avant. Réessayez.",
+      "sending": {
+        "working": "Envoi de ce qui est dû…",
+        "done_one": "{{count}} envoi est parti vers le serveur des statistiques.",
+        "done_many": "{{count}} d’envois sont partis vers le serveur des statistiques.",
+        "done_other": "{{count}} envois sont partis vers le serveur des statistiques.",
+        "upToDate": "Rien n’attend : chaque envoi dû est parti.",
+        "partial": "Ce qui est dû est parti, sauf pour les classes dont l’envoi n’a pas pu être établi ; réessayer n’y changerait rien.",
+        "failed": "Ce qui est dû n’a pas pu être envoyé. Un nouvel essai a lieu quand la date du monde avance ; vous pouvez aussi réessayer maintenant.",
+        "retry": "Réessayer"
+      },
       "never": {
         "head": "Jamais envoyé",
         "dates": "Les dates des séances",
