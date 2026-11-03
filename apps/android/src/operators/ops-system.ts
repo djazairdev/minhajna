@@ -1,16 +1,27 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the operators' console reads of the demo server (#618, answer 655),
-// with the world's pass: the server's version and the fingerprint of its built
-// code, the parts its code runs, where it keeps worlds, and whether the
-// database answers and is set to archive its write-ahead log. A 503 that says
-// the database is failing is read as such, since the server answers so when it
-// cannot check the pass. The server version this release of the app ships,
-// which the console compares the server's with, is kept equal to the server
-// package's own by a test.
+// What the operators' console reads of the demo server (#618, answer 655), with
+// the world's pass: the server's version and the fingerprint of its built code,
+// the parts its code runs, where it keeps worlds, and whether the database
+// answers and is set to archive its write-ahead log. A 503 that says the
+// database is failing is read as such, since the server answers so when it
+// cannot check the pass, and its answer that no world has this ID and pass as
+// the world erased. The server version this release of the app ships, which the
+// console compares the server's with, is kept equal to the server package's own
+// by a test.
 
-import { unexpected, type Send } from '../demo/world-session';
+import { failed, unexpected, type Send } from '../demo/world-session';
+import type { WorldAnswer } from '../network/world-network';
+
+/** The server's word for a world ID and pass that open nothing, unlike a path it does not know. */
+const NO_WORLD = 'no world has this id and pass';
+
+/** Throws the server's answer that the world is gone as the world erased. */
+export function goneWorld(answer: WorldAnswer): void {
+  if (answer.status === 404 && (answer.body as { message?: unknown } | null)?.message === NO_WORLD)
+    throw failed('The world was erased', 'E_NO_SUCH_WORLD');
+}
 
 /** The demo server's version published in the same release as this app. */
 export const SERVER_RELEASE = '0.1.0';
@@ -63,6 +74,7 @@ export function systemView(value: unknown): SystemView | null {
 /** Reads the server's description through the world. */
 export async function readSystem(world: string, send: Send): Promise<SystemView> {
   const answer = await send({ method: 'GET', path: `/worlds/${world}/admin/system` });
+  goneWorld(answer);
   const view = systemView(answer.body);
   const failing = view?.storage === 'postgresql' && view.database === 'failing';
   if (view === null || !(answer.status === 200 || (answer.status === 503 && failing))) throw unexpected(answer);

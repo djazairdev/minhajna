@@ -23,7 +23,6 @@ import { StoreBusyFilter } from '../spaces/store-busy.filter.js';
 import { MemorySpaceStore, SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
 import { StateController } from '../state-standins/state.controller.js';
 import { INSIGHT_STORE, MemoryInsightStore, type InsightStore } from '../insights/insight-store.js';
-import { FiguresController } from '../insights/figures.controller.js';
 import { InsightsController } from '../insights/insights.controller.js';
 import { SchoolMarks } from '../insights/school-marks.js';
 import { MemoryShareStore, SHARE_STORE, type ShareStore } from '../totals/share-store.js';
@@ -89,7 +88,6 @@ export class WorldsModule {
         InsightsController,
         LogsController,
         ProblemsController,
-        FiguresController,
       ],
       providers: [
         { provide: WORLD_STORE, useValue: store },

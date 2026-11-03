@@ -62,14 +62,12 @@ describe('the committed migrations', { skip }, () => {
       'minhajna_meta.migration',
       'public.admin_line',
       'public.batch',
-      'public.ended_term',
       'public.observatory',
       'public.problem',
       'public.receipt',
       'public.sending',
       'public.share',
       'public.space',
-      'public.term_pack',
       'public.world',
     ]);
   });

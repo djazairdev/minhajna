@@ -8,10 +8,11 @@
 // server's lines still read; and the security log's counts by day and kind,
 // newest first, the kinds it does not know counted together, with how many
 // days it keeps. Each answer is checked field by field, and refused when
-// shaped otherwise.
+// shaped otherwise; a world that is gone is said as erased.
 
 import { isDay, type Day } from '@minhajna/core';
 import { unexpected, type Send } from '../demo/world-session';
+import { goneWorld } from './ops-system';
 
 /** An admin log line as the console shows it. */
 export type AdminLine =
@@ -87,6 +88,7 @@ export function securityDay(value: unknown): SecurityDay | null {
 /** The admin log's lines, newest first. */
 export async function readAdminLog(world: string, send: Send): Promise<AdminLine[]> {
   const answer = await send({ method: 'GET', path: `/worlds/${world}/admin/log` });
+  goneWorld(answer);
   const lines = record(answer.body)?.['lines'];
   const read = Array.isArray(lines) ? lines.map(adminLine) : null;
   if (answer.status !== 200 || read === null || read.some((one) => one === null)) throw unexpected(answer);
@@ -99,6 +101,7 @@ export async function readSecurity(
   send: Send,
 ): Promise<{ readonly keptDays: number; readonly days: SecurityDay[] }> {
   const answer = await send({ method: 'GET', path: `/worlds/${world}/admin/security` });
+  goneWorld(answer);
   const body = record(answer.body);
   const days = body?.['days'];
   const keptDays = body?.['keptDays'];

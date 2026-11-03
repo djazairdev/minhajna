@@ -4,11 +4,12 @@
 // What the operators' console reads of the demo server (#618, answer 655): the
 // server version published with this app equal to the server package's own; the
 // server's description taken in each shape the server gives, 503 only when the
-// database is failing, and refused when shaped otherwise; the same keys and
-// placeholders in every language's words, plural forms aside; its map drawn
-// only from that description, the backups only while the database archives, the
-// line to outside services closed, every box and line written out with its
-// rows, and mirrored left to right; and the fingerprint in groups of four.
+// database is failing, a world that is gone said as erased, and refused when
+// shaped otherwise; the same keys and placeholders in every language's words,
+// plural forms aside; its map drawn only from that description, the backups
+// only while the database archives, the line to outside services closed, every
+// box and line written out with its rows, and mirrored left to right; and the
+// fingerprint in groups of four.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -32,6 +33,7 @@ const t = ((key: string) =>
     .split('.')
     .reduce<unknown>((at, part) => (at as Record<string, unknown>)[part], words)) as never;
 
+const NO_WORLD = { statusCode: 404, message: 'no world has this id and pass' };
 const answer = (status: number, body: unknown) => () =>
   Promise.resolve<WorldAnswer>({ status, body, retryAfter: null });
 
@@ -71,6 +73,10 @@ test('takes the server’s description in each shape it gives, and refuses any o
     code: 'E_WORLD_SERVER',
   });
   await expect(readSystem('AAAAA', answer(429, null))).rejects.toMatchObject({ code: 'E_WORLD_BUSY' });
+  await expect(readSystem('AAAAA', answer(404, NO_WORLD))).rejects.toMatchObject({ code: 'E_NO_SUCH_WORLD' });
+  await expect(readSystem('AAAAA', answer(404, { message: 'Cannot GET' }))).rejects.toMatchObject({
+    code: 'E_WORLD_SERVER',
+  });
 });
 
 test('asks through the world for its own path', async () => {
