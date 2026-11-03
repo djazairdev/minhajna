@@ -3,14 +3,13 @@
 
 // The school's exam thresholds in the director's workspace (#603, D-Threshold,
 // answer 637), against a made-up demo server: with no room open it says so;
-// once the rooms are open it lists the first grade's subjects with their
-// setters and where each cut stands, and opens the first with its chart and no
-// decision before the deadline; once the deadline passed unsettled it offers
-// no cut alone, as nothing was proposed, which signs the decision, says it and
-// shows the cut decided; after the exam it shows the cut as published; another
-// grade chosen lists its own subjects; and a problem reading is said with a
-// way to read again. The term is filled as a seeded school's is. Every world,
-// school and teacher is made up.
+// once the rooms are open it lists the first grade's subjects, none settled,
+// and opens the first with no decision before the deadline; once the deadline
+// passed unsettled it offers no cut alone, as nothing was proposed, which
+// signs the decision, says it and shows the cut decided; after the exam it
+// shows the cut as published; another grade chosen lists its own subjects;
+// and a problem reading is said with a way to read again. The term is filled
+// as a seeded school's is. Every world, school and teacher is made up.
 
 import { addDays, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -19,6 +18,7 @@ import { alerts, controls, press, show, texts, unmount } from '../jest/threshold
 import { calendar, reference } from '../jest/world-calendar';
 import { nodeKit } from '../jest/world-server';
 import { DirectorThresholds } from '../src/director/DirectorThresholds';
+import { subjectName } from '../src/extra/extra-rules';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import ar from '../src/text/ar.json';
 import { examGroups } from '../src/threshold/exam-charts';
@@ -82,7 +82,12 @@ test('lists the rooms, decides a cut that fell to the director, and shows it aft
   const chip = () => controls(`schoolThreshold-grades-${other}`)[0].props as { selected: boolean };
   expect(chip().selected).toBe(false);
   await press(`schoolThreshold-grades-${other}`);
-  expect([chip().selected, controls('schoolThreshold-open').length > 0]).toEqual([true, true]);
+  const names = examGroups(exam, school)
+    .filter((one) => one.grade === other)
+    .map((one) => subjectName(reference.profile, one.subject));
+  const shown = controls('schoolThreshold-open').map((one) => (one.props as { name: string }).name);
+  expect([chip().selected, shown.length > 0]).toEqual([true, true]);
+  expect(shown.every((one) => names.some((name) => one.endsWith(name)))).toBe(true);
 }, 180_000);
 
 test('a problem reading is said, with a way to read again', async () => {

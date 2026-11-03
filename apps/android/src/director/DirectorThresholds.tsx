@@ -3,22 +3,25 @@
 
 // The school's exam thresholds in the director's workspace (D-Threshold, #603,
 // §7.10, R-7.10-02, R-7.10-03, R-7.10-11, R-7.10-12, R-7.10-19, R-7.10-23,
-// answers 101, 632 and 637): as it opens, and when the world's date moves, it
-// reads the rooms of the school exams whose figures day has come
-// (useSchoolRooms.ts), and a problem reading is said in the catalogue's words,
+// answers 101, 614, 632 and 637): as it opens, and when the world's date moves,
+// it reads the rooms of the school exams whose figures day has come
+// (useSchoolRooms.ts), its live line saying while it reads or signs and what
+// was decided; a problem reading or deciding is said in the catalogue's words,
 // in its live line on the PC and announced on a phone, with a way to read
 // again. It chooses an exam, the latest by default, and a grade, the first,
 // then lists that grade's subjects in the timetable's order, never by
 // progress, each with how many setters it has, the item every class reached,
 // the cut proposed or settled and where it stands; a subject chosen, the first
-// by default, opens its room (ThresholdRoomPanel.tsx), where the director
-// decides while it is theirs. With no room it says no school exam's figures
-// day has come or no room is open yet. It says that the figures come from
-// signed weeks only and never leave the school's space, that each teacher sees
-// this page for their subject and grade, and that nothing here evaluates or
-// ranks anyone.
+// by default, opens its room (ThresholdRoomPanel.tsx), said as it opens, where
+// the director decides while it is theirs. With no room it says no school
+// exam's figures day has come or no room is open yet. It says that the figures
+// come from signed weeks only and never leave the school's space, that each
+// cut is signed and kept with its figures, that the setters see the cut before
+// the exam and every teacher of the subject at the grade once it is
+// published, and that nothing here evaluates, ranks or serves a personnel
+// decision.
 
-import type { Day, DemoSchool } from '@minhajna/core';
+import type { CalendarUpdate, Day, DemoSchool } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
@@ -26,7 +29,7 @@ import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
-import { spacing } from '../design/tokens';
+import { colors, spacing, typography } from '../design/tokens';
 import { subjectName } from '../extra/extra-rules';
 import { gradeName } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
@@ -46,13 +49,17 @@ export type DirectorThresholdsProps = {
   readonly kit: WorldKit;
   readonly send?: Send;
   readonly dayText: (day: Day) => string;
+  /** The world's calendar updates, which say when and why an exam moved. */
+  readonly updates?: readonly CalendarUpdate[];
 };
 
-const NOTES = ['signed', 'teachers', 'never'] as const;
+const NOTES = ['signed', 'kept', 'teachers', 'never'] as const;
 const page = { gap: spacing['space-12'] } as const;
+const problem = { ...typography.body, color: colors['error-ink'] } as const;
 
 /** The school's exams with a common paper, by grade and subject, and the room of the subject chosen. */
-export function DirectorThresholds({ world, school, reference, kit, send, dayText }: DirectorThresholdsProps) {
+export function DirectorThresholds(props: DirectorThresholdsProps) {
+  const { world, school, reference, kit, send, dayText, updates } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -85,14 +92,17 @@ export function DirectorThresholds({ world, school, reference, kit, send, dayTex
           {subject}
         </Text>
         {small(t('demo.schoolThreshold.setters', { count: chart.setters.length }))}
-        {small(t('demo.schoolThreshold.every', { item: every === null ? t('demo.threshold.noItem') : item(every) }))}
+        {small(every === null ? t('demo.threshold.everyNone') : t('demo.threshold.every', { item: item(every) }))}
         <Text style={[styles.body, align]}>{where}</Text>
         <Button
           testID="schoolThreshold-open"
           variant="line"
           label={t('demo.schoolThreshold.open')}
           name={`${t('demo.schoolThreshold.open')}${t('chart.colon')}${subject}`}
-          onPress={() => setChosen({ exam: exam?.id, grade, subject: chart.subject })}
+          onPress={() => {
+            setChosen({ exam: exam?.id, grade, subject: chart.subject });
+            read.say(t('demo.schoolThreshold.opened', { subject }));
+          }}
         />
       </View>
     );
@@ -101,11 +111,15 @@ export function DirectorThresholds({ world, school, reference, kit, send, dayTex
     <View testID="schoolThreshold" style={page}>
       <Text style={[styles.body, align]}>{t('demo.schoolThreshold.lead')}</Text>
       <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
-        {read.reading ? t('demo.schoolThreshold.reading') : read.said}
+        {read.deciding
+          ? t('demo.schoolThreshold.signing')
+          : read.reading
+            ? t('demo.schoolThreshold.reading')
+            : read.said}
       </Text>
       {read.problem !== null && (
         <View style={styles.card}>
-          <Text accessibilityRole="alert" style={[styles.body, align]}>
+          <Text accessibilityRole="alert" style={[problem, align]}>
             {t(read.problem)}
           </Text>
           <Button testID="schoolThreshold-again" variant="line" label={t('demo.weekSign.again')} onPress={read.again} />
@@ -140,7 +154,8 @@ export function DirectorThresholds({ world, school, reference, kit, send, dayTex
           date={world.date}
           dayText={dayText}
           reference={reference}
-          busy={read.reading}
+          updates={updates}
+          busy={read.reading || read.deciding}
           onDecide={(item, done) => read.decide(open, item, done)}
         />
       )}

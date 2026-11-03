@@ -8,10 +8,14 @@
 // decision is refused before it falls to them and on or after the exam's first
 // day, and once the signing deadline passed unsettled it is signed with the
 // room's decider key, put once, settles the cut, and a second decision is
-// refused. The term is filled as a seeded school's is. Every world, school and
+// refused; a room read under another epoch is refused; of two decisions put at
+// once one settles the cut and the other is refused; and a decision whose
+// answer was lost, the server having stored it, is found there and not put
+// again. The term is filled as a seeded school's is. Every world, school and
 // teacher is made up.
 
 import { addDays, worldExams, type Day } from '@minhajna/core';
+import type { Send } from '../src/demo/world-session';
 import { filled, server } from '../jest/room-school';
 import { calendar, reference } from '../jest/world-calendar';
 import { nodeKit } from '../jest/world-server';
@@ -46,19 +50,32 @@ test('reads each room with its chart and cut, and decides a cut that fell to the
     false,
     false,
   ]);
-  const decide = (date: Day, item: string | null) => decideCut(on(date), desk, room, item, nodeKit, server.send);
+  const decide = (date: Day, item: string | null, send: Send = server.send, read = room) =>
+    decideCut(on(date), desk, read, item, nodeKit, send);
   await expect(decide(exam.figuresDay, null)).rejects.toMatchObject({ code: 'E_CUT_CLOSED' });
   await expect(decide(exam.from, null)).rejects.toMatchObject({ code: 'E_CUT_CLOSED' });
   await expect(decide(exam.figuresDay, 'not-an-item')).rejects.toThrow(RangeError);
   const due = addDays(exam.signBy, 1);
   const [late] = await read(due);
   expect([late.state.director, mayDecide(late, due)]).toEqual([true, true]);
-  const cut = await decide(due, room.chart.items[0]);
-  expect([cut.item, cut.day]).toEqual([room.chart.items[0], due]);
-  const [decided] = await read(due);
-  expect([decided.state.settled, mayDecide(decided, due)]).toEqual([
-    { item: room.chart.items[0], by: 'director' },
-    false,
-  ]);
+  await expect(decide(due, null, server.send, { ...room, epoch: room.epoch + 1 })).rejects.toMatchObject({
+    code: 'E_CUT_CLOSED',
+  });
+  const both = await Promise.allSettled([decide(due, room.chart.items[0]), decide(due, null)]);
+  const won = both.flatMap((one) => (one.status === 'fulfilled' ? [one.value.item] : []));
+  const lost = both.flatMap((one) => (one.status === 'rejected' ? [(one.reason as { code?: string }).code] : []));
+  expect([won.length, lost]).toEqual([1, ['E_CUT_CLOSED']]);
+  const [decided, other] = await read(due);
+  expect([decided.state.settled, mayDecide(decided, due)]).toEqual([{ item: won[0], by: 'director' }, false]);
   await expect(decide(due, null)).rejects.toMatchObject({ code: 'E_CUT_CLOSED' });
+  let posts = 0;
+  const lossy: Send = async (request) => {
+    const answer = await server.send(request);
+    if (request.method !== 'POST' || !request.path.endsWith('/batches')) return answer;
+    posts += 1;
+    return posts === 1 ? { ...answer, status: 409 } : answer;
+  };
+  const cut = await decide(due, null, lossy, other);
+  const [, kept] = await read(due);
+  expect([cut.item, cut.day, posts, kept.state.settled]).toEqual([null, due, 1, { item: null, by: 'director' }]);
 }, 180_000);

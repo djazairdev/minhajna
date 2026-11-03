@@ -29,7 +29,7 @@
 // server from what it says of itself, with its version and health (#618,
 // OpsConsole.tsx).
 
-import type { Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
+import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
 import { DashboardPage } from '../director/DashboardPage';
 import { DirectorThresholds } from '../director/DirectorThresholds';
@@ -82,6 +82,8 @@ export type WorkspacePagesProps = {
   readonly held: HeldWorld | null;
   /** Reads the world's calendar again, as after the Ministry publishes. */
   readonly onCalendar: () => void;
+  /** The world's calendar updates, which say when and why an exam moved. */
+  readonly updates?: readonly CalendarUpdate[];
 };
 
 /** A workspace page's body, or null when the page has none yet. */
@@ -147,7 +149,15 @@ export function workspacePage(
     );
   if (workspace === 'director' && page === 'thresholds')
     return (
-      <DirectorThresholds world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
+      <DirectorThresholds
+        world={open}
+        school={school}
+        reference={reference}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+        updates={props.updates}
+      />
     );
   if (workspace === 'director' && page === 'codes')
     return (

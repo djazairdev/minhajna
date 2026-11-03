@@ -6328,23 +6328,26 @@
       "setters_one": "{{count}} rédacteur",
       "setters_many": "{{count}} de rédacteurs",
       "setters_other": "{{count}} rédacteurs",
-      "every": "Toutes les classes ont terminé jusqu’à : {{item}}",
       "open": "Ouvrir la matière",
       "decision": "La décision du directeur",
-      "decideWhy": "Un rédacteur a choisi pas de seuil, ou le délai de signature est passé sans accord : la décision vous revient, jusqu’à la veille de l’examen. Les rédacteurs la voient, et elle est définitive.",
+      "decideWhy": "Un rédacteur a choisi « pas de seuil », ou le délai de signature est passé sans accord : la décision vous revient, jusqu’au {{until}}. Les rédacteurs la voient, et elle est définitive.",
       "adopt": "Retenir le seuil proposé : {{item}}",
       "adopted": "Décidé : le sujet couvre jusqu’à {{item}}.",
       "noneDone": "Décidé : pas de seuil pour cet examen.",
       "signNote": "Signé avec la clé de décision de la salle, tenue par la clé de l’établissement.",
       "seenBefore": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
       "seenAfter": "Publié dans l’espace de l’établissement après l’examen : chaque enseignant de cette matière à ce niveau le voit.",
-      "applies": "Un seuil s’applique quand tous les rédacteurs le signent, le plus tôt s’ils diffèrent ; si l’un a choisi pas de seuil, ou si aucun accord n’est venu au {{signBy}}, le directeur décide.",
+      "applies": "Un seuil s’applique quand tous les rédacteurs le signent, le plus tôt s’ils diffèrent ; si l’un a choisi « pas de seuil », ou si aucun accord n’est venu au {{signBy}}, le directeur décide.",
       "publishes": "Publié dans l’espace de l’établissement après le {{to}}, avec les chiffres du {{figures}}.",
       "notes": {
         "signed": "Les chiffres sont pris le seul jour annoncé, à partir des semaines signées ; les plans propres des classes ne donnent que la prévision.",
-        "teachers": "Chaque enseignant voit cette page pour sa matière et son niveau, telle qu’elle est vue ici.",
-        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit, et aucun chiffre de classe ou d’enseignant ne quitte l’espace de l’établissement."
-      }
+        "kept": "Chaque seuil est signé et conservé avec les chiffres sur lesquels il a été établi.",
+        "teachers": "Avant l’examen, seuls les rédacteurs et le directeur voient un seuil ; une fois publié après l’examen, chaque enseignant de la matière à ce niveau le voit.",
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit, ni à une décision sur le personnel, et aucun chiffre de classe ou d’enseignant ne quitte l’espace de l’établissement."
+      },
+      "closed": "Le seuil ne peut plus être décidé : il est arrêté, la décision ne vous revient pas, ou l’examen a commencé.",
+      "signing": "Signature de la décision…",
+      "opened": "Affiché ci-dessous : {{subject}}."
     }
   },
   "chart": {

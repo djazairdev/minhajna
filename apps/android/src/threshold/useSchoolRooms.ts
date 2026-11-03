@@ -7,7 +7,9 @@
 // last read kept on view meanwhile; a problem is said in the catalogue's
 // words, with a way to read again. A decision is signed once, a second press
 // while one runs doing nothing, said when made, and the rooms read again, a
-// refusal said as a problem. Any new reading, and leaving the page, drops a
+// refusal said as a problem in the director's words until the next decision
+// or reading asked for. What was said, and a refusal, hold for the world's
+// date they were said on. Any new reading, and leaving the page, drops a
 // slower answer.
 
 import type { DemoSchool } from '@minhajna/core';
@@ -21,7 +23,9 @@ import { problemOf } from '../school/school-join-session';
 import { onPc, useDeviceText } from '../text/device-text';
 import { decideCut, readSchoolRooms, type SchoolRoom } from './school-rooms';
 
-type Problem = ReturnType<typeof problemOf>;
+type Problem = ReturnType<typeof problemOf> | 'demo.schoolThreshold.closed';
+
+const CLOSED = 'demo.threshold.problem.closed';
 
 /** The rooms as read, whether a reading or a decision runs, its problem, and what the page's live line says. */
 export function useSchoolRooms(
@@ -33,15 +37,17 @@ export function useSchoolRooms(
 ) {
   const t = useDeviceText();
   const [round, setRound] = useState(0);
-  const key = JSON.stringify([world.world, world.date, round]);
+  const place = JSON.stringify([world.world, world.date]);
+  const key = JSON.stringify([place, round]);
   const [got, setGot] = useState<{ key: string; rooms: readonly SchoolRoom[] } | null>(null);
   const [failed, setFailed] = useState<{ key: string; problem: Problem } | null>(null);
+  const [refused, setRefused] = useState<{ place: string; problem: Problem } | null>(null);
   const [deciding, setDeciding] = useState(false);
-  const [said, setSaid] = useState('');
+  const [said, setSaid] = useState<{ place: string; text: string } | null>(null);
   const working = useRef(false);
   const mounted = useRef(true);
-  const say = (text: string) => {
-    if (onPc()) setSaid(text);
+  const say = (text: string, at = place) => {
+    if (onPc()) setSaid({ place: at, text });
     else AccessibilityInfo.announceForAccessibility(text);
   };
   const desk = () => holdSchool(world, kit, send, false);
@@ -67,28 +73,35 @@ export function useSchoolRooms(
       mounted.current = false;
     };
   }, []);
-  const again = () => {
-    setSaid('');
-    setRound((one) => one + 1);
-  };
   return {
     rooms: got?.rooms ?? null,
-    reading: deciding || (got?.key !== key && failed?.key !== key),
-    problem: failed?.key === key ? failed.problem : null,
-    said,
-    again,
+    reading: got?.key !== key && failed?.key !== key,
+    deciding,
+    problem: failed?.key === key ? failed.problem : refused?.place === place ? refused.problem : null,
+    said: said?.place === place ? said.text : '',
+    say,
+    again: () => {
+      setSaid(null);
+      setRefused(null);
+      setRound((one) => one + 1);
+    },
     decide: (room: SchoolRoom, item: string | null, done: string) => {
       if (working.current) return;
       working.current = true;
+      const at = place;
       setDeciding(true);
+      setSaid(null);
+      setRefused(null);
       void desk()
         .then((held) => decideCut(world, held, room, item, kit, send))
         .then(
-          () => mounted.current && say(done),
+          () => mounted.current && say(done, at),
           (error: unknown) => {
             if (!mounted.current) return;
-            setFailed({ key: JSON.stringify([world.world, world.date, round + 1]), problem: problemOf(error) });
-            say(t(problemOf(error)));
+            const shown = problemOf(error);
+            const problem = shown === CLOSED ? 'demo.schoolThreshold.closed' : shown;
+            setRefused({ place: at, problem });
+            say(t(problem), at);
           },
         )
         .finally(() => {

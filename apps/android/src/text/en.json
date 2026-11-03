@@ -6242,10 +6242,9 @@
       "grade": "Grade",
       "setters_one": "{{count}} setter",
       "setters_other": "{{count}} setters",
-      "every": "Every class finished up to: {{item}}",
       "open": "Open the subject",
       "decision": "The director’s decision",
-      "decideWhy": "A setter chose no cut, or the signing deadline passed unsettled: the decision is yours, until the day before the exam. The setters see it, and it is final.",
+      "decideWhy": "A setter chose no cut, or the signing deadline passed unsettled: the decision is yours, until {{until}}. The setters see it, and it is final.",
       "adopt": "Adopt the proposed cut: {{item}}",
       "adopted": "Decided: the paper covers up to {{item}}.",
       "noneDone": "Decided: no cut for this exam.",
@@ -6256,9 +6255,13 @@
       "publishes": "Published in the school’s space after {{to}}, with the figures of {{figures}}.",
       "notes": {
         "signed": "The figures are taken on the announced day alone, from signed weeks; the classes’ own plans give the forecast only.",
-        "teachers": "Each teacher sees this page for their own subject and grade, as it is seen here.",
-        "never": "Nothing here is used to evaluate or rank anyone, and no class’s or teacher’s figure leaves the school’s space."
-      }
+        "kept": "Each cut is signed and kept with the figures it was built on.",
+        "teachers": "Before the exam only the setters and the director see a cut; once published after the exam, every teacher of the subject at the grade sees it.",
+        "never": "Nothing here is used to evaluate or rank anyone or in any personnel decision, and no class’s or teacher’s figure leaves the school’s space."
+      },
+      "closed": "The cut can no longer be decided: it is settled, the decision is not yours, or the exam has begun.",
+      "signing": "Signing the decision…",
+      "opened": "Shown below: {{subject}}."
     }
   },
   "chart": {
