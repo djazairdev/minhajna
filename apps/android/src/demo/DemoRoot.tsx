@@ -273,7 +273,7 @@ export function DemoRoot({
       onMove={move}
       onLeave={leave}
       pageBody={(workspace, page, onPage) =>
-        school === null || reference === undefined || worldReference === undefined
+        reference === undefined || worldReference === undefined
           ? null
           : workspacePage(workspace, page, {
               open,

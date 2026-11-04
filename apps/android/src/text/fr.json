@@ -6578,6 +6578,47 @@
       "shown": "Affichée ci-dessous.",
       "lapsed": "La décision s’est close au début de l’examen sans avoir été prise : aucun seuil ne s’applique, et le sujet est préparé comme d’habitude.",
       "ended": "L’année scolaire est terminée : les salles de ses examens ne sont plus lues ici."
+    },
+    "obsReport": {
+      "heading": "Rapport du {{term}}",
+      "reading": "Lecture des chiffres du trimestre…",
+      "again": "Relire",
+      "none": "Aucun trimestre n’est encore terminé à la date de ce monde. Le rapport s’ouvre le dernier jour d’un trimestre.",
+      "waiting": "La collecte de ce trimestre est encore ouverte. L’appareil qui a lancé ce monde la clôt quand sa page Rapports s’ouvre.",
+      "forming": "Les chiffres de ce trimestre sont en cours de calcul.",
+      "empty": "Aucun pack n’a atteint l’effectif minimal ce trimestre : il n’y a pas de chiffres à montrer.",
+      "pack": "Pack",
+      "counts": "Classes : {{classes}} · Enseignants : {{teachers}} · Établissements : {{schools}} · Wilayas affichées : {{wilayas}}",
+      "chosen": "Échantillon volontaire : les enseignants ont choisi de participer, ces chiffres ne représentent donc pas toutes les classes. Ils décrivent le plan, ni les classes ni les enseignants.",
+      "hidden": "Une wilaya sous l’effectif minimal, ou qui en révélerait une autre par soustraction, n’est pas affichée.",
+      "setAside": "Classes mises de côté, aucune vraie classe n’envoyant rien de tel : {{classes}}",
+      "medians": "Médiane des séances par élément",
+      "item": "Élément du pack",
+      "plan": "Prévu",
+      "median": "Médiane",
+      "noPlan": "—",
+      "above": "{{median}}, au-dessus du plan",
+      "itemClasses": "Classes par élément : de {{low}} à {{high}}",
+      "changed": "Éléments les plus modifiés",
+      "most": {
+        "split": "Les plus scindés",
+        "merged": "Les plus fusionnés",
+        "skipped": "Les plus omis",
+        "retaught": "Les plus repris"
+      },
+      "band": {
+        "under": "Moins de {{high}} %",
+        "over": "{{low}} % et plus",
+        "between": "{{low}} à {{high}} %"
+      },
+      "bands": "Les parts sont en tranches, jamais en chiffres exacts.",
+      "reached": "Où en étaient les classes à la fin du trimestre",
+      "reachedMedian": "Médiane : {{median}} % du plan",
+      "reachedMiddle": "La moitié des classes entre {{low}} % et {{high}} % du plan",
+      "figureClasses": "Classes : {{classes}}",
+      "noNation": "Les chiffres de ce pack ne sont pas affichés : trop peu de classes.",
+      "sameBand": "Autres éléments dans la même tranche : {{others}}",
+      "itemClassesSame": "Classes par élément : {{classes}}"
     }
   },
   "chart": {
