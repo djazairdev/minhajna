@@ -151,21 +151,27 @@ function previous(packs: readonly PlanPack[], pack: PlanPack): string | null {
   return earlier[0]?.release ?? null;
 }
 
-/** Whether a release's entries fit the release they start from (see the head of this file). */
-function fits(step: MigrationStep): boolean {
+/** The IDs that keep a release's entries from fitting the release they start from (see the head of this file). */
+export function misfits(step: MigrationStep): string[] {
   const before = new Map(step.before.items.map((item) => [item.id, item]));
   const after = new Map(step.after.items.map((item) => [item.id, item]));
   const changed = new Set(step.entries.flatMap(oldIds));
-  for (const id of before.keys()) if (!after.has(id) && !changed.has(id)) return false;
+  const found = new Set<string>();
+  for (const id of before.keys()) if (!after.has(id) && !changed.has(id)) found.add(id);
   for (const entry of step.entries) {
-    const old = oldIds(entry).map((id) => before.get(id));
-    if (old.some((item) => item === undefined)) return false;
-    if (newIds(entry).some((id) => before.has(id))) return false;
-    const sorts = new Set([...old, ...newIds(entry).map((id) => after.get(id))].map((item) => sortOf(item!)));
-    if (sorts.size > 1) return false;
+    const unknown = oldIds(entry).filter((id) => !before.has(id));
+    const taken = newIds(entry).filter((id) => before.has(id));
+    [...unknown, ...taken].forEach((id) => found.add(id));
+    const absent = newIds(entry).filter((id) => !after.has(id));
+    absent.forEach((id) => found.add(id));
+    if (unknown.length > 0 || absent.length > 0) continue;
+    const sorts = [...oldIds(entry).map((id) => before.get(id)), ...newIds(entry).map((id) => after.get(id))];
+    if (new Set(sorts.map((item) => sortOf(item!))).size > 1) oldIds(entry).forEach((id) => found.add(id));
   }
-  return true;
+  return [...found];
 }
+
+const fits = (step: MigrationStep): boolean => misfits(step).length === 0;
 
 /** The first step that brings back an ID an earlier release of the chain had, or -1. */
 function firstReuse(steps: readonly MigrationStep[]): number {

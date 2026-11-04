@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { followId, parsePlanPack, releaseChain, type PlanPack, type ReleaseChain } from '../src/index.ts';
+import { followId, misfits, parsePlanPack, releaseChain, type PlanPack, type ReleaseChain } from '../src/index.ts';
 import { mathPack, mathPackSource } from './fixtures.ts';
 
 type Source = typeof mathPackSource;
@@ -181,5 +181,12 @@ describe('migration entries', () => {
     assert.deepEqual(followId(chain.steps, 'l6'), ['l56']);
     assert.deepEqual(followId(chain.steps, 'l7'), []);
     assert.deepEqual(followId(chain.steps, 'l3'), ['l3']);
+  });
+
+  it('names a new ID its release lacks', () => {
+    const before = read(mathPackSource);
+    const entries = [{ kind: 'rename', from: 'l1', to: 'gone' }] as const;
+    const after = { ...before, items: before.items.filter((item) => item.id !== 'l1') };
+    assert.deepEqual(misfits({ before, after, entries }), ['gone']);
   });
 });
