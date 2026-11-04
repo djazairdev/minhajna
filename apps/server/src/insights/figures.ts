@@ -3,15 +3,17 @@
 
 // The observatory's figures for a term (#626, §1.6 and §8.4, answer 678): for
 // each pack and release, the nation's figure and each wilaya's, from the
-// sendings kept. A figure gives its classes, its teachers, the distinct tokens
-// of its sendings, its schools (school-marks.ts), how far its classes got by
-// the term's end, as the median and the quartiles, and by item its classes, the
-// median of the sessions spent on it by those of its classes that logged
-// sessions on it, shown only when they too cover the floor, and the shares of
-// its classes that merged, skipped, split or re-taught it, each in a band
-// (bands.ts). A figure covers at least 10 teachers and 3 schools, else it is
-// hidden; the nation's figure is the sum of its wilayas', and an item's of its
-// wilayas' items, so the floors (totals/floors.ts) also hide any figure the
+// sendings kept but those outliers.ts sets aside (#628, answer 679), which
+// count toward no figure, floor or median, the number set aside given beside
+// the nation's figure when shown. A figure gives its classes, its teachers, the
+// distinct tokens of its sendings, its schools (school-marks.ts), how far its
+// classes got by the term's end, as the median and the quartiles, and by item
+// its classes, the median of the sessions spent on it by those of its classes
+// that logged sessions on it, shown only when they too cover the floor, and the
+// shares of its classes that merged, skipped, split or re-taught it, each in a
+// band (bands.ts). A figure covers at least 10 teachers and 3 schools, else it
+// is hidden; the nation's figure is the sum of its wilayas', and an item's of
+// its wilayas' items, so the floors (totals/floors.ts) also hide any figure the
 // others would fix by subtraction; an item is hidden whenever its figure is.
 // The floors know only those sums, not that an item's cell holds at most its
 // figure's classes, so a hidden cell may still be bounded to a range, as
@@ -30,10 +32,12 @@
 // never added up. Each sending is read once, its items with the lists each is
 // in as flags, and indexed by wilaya and item, so the work grows with the
 // sendings and their items. The median and quartiles are worked out as
-// floors.ts works out its own, whose code stays the core's byte for byte.
+// quantile.ts works them out.
 
 import { hiddenCells, passesFloor, type FloorCell, type FloorScope } from '../totals/floors.js';
 import { bandOf, type Band } from './bands.js';
+import { floodedTokens, withinFences } from './outliers.js';
+import { quantile, sortedOf } from './quantile.js';
 import { schoolsIn } from './school-marks.js';
 import { MOST_SENDING_ITEMS, type KeptSending } from './sending-read.js';
 
@@ -64,6 +68,8 @@ export interface PackFigures {
   readonly nation: Figure | null;
   /** The wilayas whose figures are shown; one hidden is left out. */
   readonly wilayas: Readonly<Record<string, Figure>>;
+  /** How many of the pack's classes outliers.ts set aside, given only beside a nation's figure shown. */
+  readonly setAside: number | null;
 }
 
 type List = 'merged' | 'skipped' | 'split' | 'retaught';
@@ -91,17 +97,6 @@ function pushTo<K, V>(map: Map<K, V[]>, key: K, value: V): void {
   if (list === undefined) map.set(key, [value]);
   else list.push(value);
 }
-
-/** The value `at` of the way through sorted values, between the two nearest, as a spreadsheet's QUARTILE.INC. */
-function quantile(sorted: readonly number[], at: number): number {
-  const place = (sorted.length - 1) * at;
-  const below = Math.floor(place);
-  const low = sorted[below]!;
-  const high = sorted[Math.min(below + 1, sorted.length - 1)]!;
-  return low + (high - low) * (place - below);
-}
-
-const sortedOf = (values: readonly number[]): number[] => [...values].sort((one, other) => one - other);
 
 interface Cover {
   readonly teachers: number;
@@ -137,8 +132,8 @@ function itemFigure(reads: readonly Read[], item: string, scope: FloorScope, hel
   };
 }
 
-/** One pack and release's figures, from its sendings for the term. */
-function packFigures(sendings: readonly KeptSending[]): PackFigures {
+/** One pack and release's figures, from its sendings for the term, all but the count set aside. */
+function packFigures(sendings: readonly KeptSending[]): Omit<PackFigures, 'setAside'> {
   const { grade, subject, pack, release } = sendings[0]!;
   const reads = sendings.map(readOf);
   const places = new Map<string, Read[]>([['', reads]]);
@@ -210,12 +205,23 @@ function packFigures(sendings: readonly KeptSending[]): PackFigures {
   };
 }
 
-/** A term's figures for each pack and release, in order, from the sendings kept. */
+/**
+ * A term's figures for each pack and release, in order, from the sendings kept, those outliers.ts sets aside left out
+ * and counted, the count given only beside a nation's figure shown.
+ */
 export function termFigures(sendings: readonly KeptSending[], year: string, term: number): PackFigures[] {
+  const ofTerm = sendings.filter((one) => one.year === year && one.term === term);
+  const flooded = floodedTokens(ofTerm);
   const groups = new Map<string, KeptSending[]>();
-  for (const one of sendings) {
-    if (one.year === year && one.term === term)
-      pushTo(groups, [one.grade, one.subject, one.pack, one.release].join('\n'), one);
-  }
-  return [...groups.keys()].sort().map((key) => packFigures(groups.get(key)!));
+  for (const one of ofTerm) pushTo(groups, [one.grade, one.subject, one.pack, one.release].join('\n'), one);
+  return [...groups.keys()].sort().map((key) => {
+    const group = groups.get(key)!;
+    const kept = withinFences(group.filter((one) => !flooded.has(one.token)));
+    if (kept.length === 0) {
+      const { grade, subject, pack, release } = group[0]!;
+      return { grade, subject, pack, release, nation: null, wilayas: {}, setAside: null };
+    }
+    const figures = packFigures(kept);
+    return { ...figures, setAside: figures.nation === null ? null : group.length - kept.length };
+  });
 }
