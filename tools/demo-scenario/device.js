@@ -8,13 +8,15 @@
 // app's start does, joining opens its keys and the world's date is read from
 // the server. The network client holds one world open, as a device does, so a
 // join shuts it first: a scenario's devices all act in one world, in turn. The
-// kit's random bytes come from a seed (kit.js), the scenario's name.
+// kit's random bytes come from a seed (kit.js), the scenario's name, so it
+// plays the same world each time: on a server where that world is already
+// taken, it says to clear the demo's database instead of playing another.
 
 import { appModule } from './app.js';
 import { seededKit } from './kit.js';
 
 const { startSeededWorld } = await appModule('demo/world-seed.ts');
-const { joinWorld, WORLD_SIGNER } = await appModule('demo/world-session.ts');
+const { joinWorld, moveWorldDate, WORLD_SIGNER } = await appModule('demo/world-session.ts');
 const { openWorld } = await appModule('demo/world-mode.ts');
 const { DEMO_SERVER, leaveWorldNetwork, worldRequest } = await appModule('network/world-network.ts');
 const { bundledReference, readReference } = await appModule('reference.ts');
@@ -44,8 +46,13 @@ const signerOf = (keys) => keys.trusted.find((one) => one.id === WORLD_SIGNER)?.
 /** How a scenario's devices meet the server through the app, for a scenario of that name: its `access`. */
 export function appAccess(server, seed, fetcher = globalThis.fetch) {
   const kit = seededKit(seed);
-  const send = (request) =>
-    worldRequest(request, (address, init) => fetcher(address.replace(DEMO_SERVER, server), init));
+  const send = async (request) => {
+    const answer = await worldRequest(request, (address, init) => fetcher(address.replace(DEMO_SERVER, server), init));
+    if (request.method === 'POST' && request.path === '/worlds' && answer.status === 409) {
+      throw new Error('This scenario already ran on this server: start the demo again with `npm run demo -- --fresh`');
+    }
+    return answer;
+  };
   const device = async ({ code, keys, date, sealing }, kind, starter) => {
     const open = await storeOf({ world: keys.world, kind, code, date, starter });
     const held = { world: keys.world, keys, sealing };
@@ -64,9 +71,14 @@ export function appAccess(server, seed, fetcher = globalThis.fetch) {
       const joined = await joinWorld(code, kit, send);
       return device({ ...joined, code }, joined.keys.kind, null);
     },
-    async moveDate(_server, { world, starter }) {
-      const answer = await send({ method: 'POST', path: `/worlds/${world}/date`, starter: starter ?? undefined });
-      return { status: answer.status, date: answer.status === 200 ? answer.body?.date : null };
+    async moveDate(_server, device) {
+      const { world, starter } = device;
+      if (starter !== null) {
+        device.date = await moveWorldDate(world, starter, device.date, send);
+        return { status: 200, date: device.date };
+      }
+      const answer = await send({ method: 'POST', path: `/worlds/${world}/date` });
+      return { status: answer.status, date: null };
     },
     async dateOf(_server, { world }) {
       const answer = await send({ method: 'GET', path: `/worlds/${world}/date` });

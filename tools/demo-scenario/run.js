@@ -4,9 +4,12 @@
 // `node tools/demo-scenario/run.js [--server URL] [--wait SECONDS]` (#629):
 // waits for the demo server's health check, by default for `npm run demo`'s
 // server on this machine, then runs the demo scenarios one after another,
-// saying each step, and exits with 1 at the first that fails. CI runs it
-// against `npm run demo` (test.yml). The server lets one address start only a
-// few worlds an hour (START_LIMIT), so the scenarios share that budget.
+// saying each step, and exits with 1 at the first that fails, or if a run stops
+// without finishing them. CI runs it against `npm run demo` (test.yml). The
+// server lets one address start only a few worlds an hour (START_LIMIT) and
+// make only so many requests in ten minutes (RELAY_LIMIT), and one run of the
+// scenario at the school takes about a third of those, so the scenarios share
+// both budgets.
 
 import process from 'node:process';
 import { fileURLToPath, URL } from 'node:url';
@@ -36,8 +39,15 @@ async function main() {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main().catch((error) => {
-    process.stderr.write(`${error.message}\n`);
-    process.exit(1);
-  });
+  process.exitCode = 1;
+  main().then(
+    () => {
+      process.exitCode = 0;
+    },
+    (error) => {
+      const cause = error.cause ?? error;
+      const fault = [TypeError, ReferenceError, SyntaxError].some((kind) => cause instanceof kind);
+      process.stderr.write(`${error.message}\n${fault ? `${cause.stack}\n` : ''}`);
+    },
+  );
 }

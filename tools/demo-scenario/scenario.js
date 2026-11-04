@@ -42,6 +42,7 @@ export const SAMPLE = {
 };
 
 const ACTIONS = ['start', 'join', 'move', 'see'];
+const DETAILS = ['of', 'for', 'version'];
 
 /** Who acts in a step: its role, or one of its people when a role has several. */
 const actor = ({ as, who }) => (who === undefined ? as : `${as}:${who}`);
@@ -72,13 +73,14 @@ export function scenarioProblem({ kind, steps, actions = {} }) {
 /** A step's words: who does what, and what it expects or sees. */
 function stepWords(step) {
   const detail = step.expect === undefined ? '' : ` (${step.expect})`;
-  return `${actor(step)} ${step.do}${detail}${step.day === undefined ? '' : ` day ${step.day}`}`;
+  const about = DETAILS.flatMap((key) => (step[key] === undefined ? [] : [` ${key} ${step[key]}`])).join('');
+  return `${actor(step)} ${step.do}${about}${detail}${step.day === undefined ? '' : ` day ${step.day}`}`;
 }
 
 /**
  * Runs a scenario against the demo server at `server`, saying each step it passes; throws at the first that fails.
  * `days` are the new world's, and `access` how a device meets the server: the scenario's own when it has one, its
- * `access(server)`, or else world.js. A scenario's own steps, its `actions`, each take the access's `stage`, the
+ * `access(server, name)`, or else world.js. A scenario's own steps, its `actions`, each take the access's `stage`, the
  * device of the step's role, on the date its last move gave, so as not to spend the server's limit on joins, and the
  * step, and throw to fail it.
  */
@@ -92,29 +94,37 @@ export async function runScenario(scenario, server, { say = () => {}, days = wor
   let date = days.date;
   try {
     for (const [index, step] of scenario.steps.entries()) {
-      const fail = (what) => new Error(`${scenario.name}, step ${index + 1} (${actor(step)} ${step.do}): ${what}`);
       const device = devices.get(actor(step));
-      if (step.do === 'start') {
-        started = await through.startWorld(server, scenario.kind, days);
-        devices.set(actor(step), started);
-      } else if (step.do === 'join') {
-        const joined = await through.joinWorld(server, started.code);
-        if (joined.kind !== scenario.kind) throw fail(`the world is of kind ${joined.kind}`);
-        if (joined.signer !== started.signer) throw fail('its signer is not the one the world was started with');
-        devices.set(actor(step), { ...joined, starter: device?.starter ?? null });
-      } else if (step.do === 'move') {
-        const moved = await through.moveDate(server, device);
-        const outcome = moved.status === 200 ? 'moved' : moved.status === 403 ? 'refused' : `answered ${moved.status}`;
-        if (outcome !== step.expect) throw fail(`expected ${step.expect}, the server ${outcome}`);
-        if (moved.status === 200) date = moved.date;
-      } else if (step.do === 'see') {
-        const seen = await through.dateOf(server, device);
-        if (seen !== dates[step.day]) throw fail(`sees ${seen}, not ${dates[step.day] ?? 'a day the world announces'}`);
-      } else {
-        device.date = date;
-        await scenario.actions[step.do](through.stage, device, step).catch((error) => {
-          throw fail(`${error.code === undefined ? '' : `${error.code}: `}${error.message}`);
-        });
+      try {
+        if (step.do === 'start') {
+          started = await through.startWorld(server, scenario.kind, days);
+          date = started.date ?? date;
+          devices.set(actor(step), started);
+        } else if (step.do === 'join') {
+          const joined = await through.joinWorld(server, started.code);
+          if (joined.kind !== scenario.kind) throw new Error(`the world is of kind ${joined.kind}`);
+          if (joined.signer === undefined || joined.signer !== started.signer) {
+            throw new Error('its signer is not the one the world was started with');
+          }
+          devices.set(actor(step), { ...joined, starter: device?.starter ?? null });
+        } else if (step.do === 'move') {
+          const moved = await through.moveDate(server, device);
+          const outcome =
+            moved.status === 200 ? 'moved' : moved.status === 403 ? 'refused' : `answered ${moved.status}`;
+          if (outcome !== step.expect) throw new Error(`expected ${step.expect}, the server ${outcome}`);
+          if (moved.status === 200) date = moved.date;
+        } else if (step.do === 'see') {
+          const seen = await through.dateOf(server, device);
+          if (seen !== dates[step.day]) {
+            throw new Error(`sees ${seen}, not ${dates[step.day] ?? 'a day the world announces'}`);
+          }
+        } else {
+          device.date = date;
+          await scenario.actions[step.do](through.stage, device, step);
+        }
+      } catch (error) {
+        const what = `${error.code === undefined ? '' : `${error.code}: `}${error.message}`;
+        throw new Error(`${scenario.name}, step ${index + 1} (${stepWords(step)}): ${what}`, { cause: error });
       }
       say(`${index + 1}. ${stepWords(step)}: ok`);
     }

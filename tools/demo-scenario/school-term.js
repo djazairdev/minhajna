@@ -6,12 +6,11 @@
 // term the one holding the world's date, the marks those the world makes up.
 // The stand-in answers a receipt naming no pupil, for as many rows as the class
 // has pupils, signed by the key the teacher joined with, and answers the same
-// export again as having come before. A mark changed afterwards no longer
+// export again as having come before. A mark taken out afterwards no longer
 // matches the export and is refused before anything is sent.
 
 import { appModule } from './app.js';
-import { schoolOf, see } from './school-join.js';
-import { refusal } from './school-weeks.js';
+import { refusal, schoolOf, see } from './school-join.js';
 
 const { appreciationList } = await appModule('marks/appreciation-rules.ts');
 const { assessmentData } = await appModule('marks/marks-rules.ts');
@@ -19,6 +18,10 @@ const { courseReceipt, sendingTerm, sendTermMarks, termCourses, termMatches, ter
   await appModule('school/term-send-session.ts');
 const { standInReceipts } = await appModule('school/state-standin.ts');
 const { readSignChannel } = await appModule('week/week-sign-session.ts');
+
+const RECEIPT = JSON.stringify(
+  ['class', 'id', 'kind', 'received', 'rows', 'signed', 'signer', 'standIn', 'subject', 'term'].toSorted(),
+);
 
 async function sendTerm(stage, device) {
   const { kit, send, reference } = stage;
@@ -36,14 +39,23 @@ async function sendTerm(stage, device) {
     see(total > 0 && matched === total, `the export gives back ${matched} of ${total} rows`);
     const { receipt, again } = await sendTermMarks(device, device.join, sheet.head, sheet.marks, kit, send);
     see(!again && receipt.standIn && receipt.rows === sheet.room.pupils.length, 'the receipt does not match the class');
+    see(JSON.stringify(Object.keys(receipt).toSorted()) === RECEIPT, `the receipt holds ${Object.keys(receipt)}`);
+    const names = sheet.room.pupils.flatMap((one) => [one.name, one.latinName]).filter(Boolean);
+    see(names.length > 0 && !names.some((name) => JSON.stringify(receipt).includes(name)), 'the receipt names a pupil');
     const repeated = await sendTermMarks(device, device.join, sheet.head, sheet.marks, kit, send);
     see(repeated.again && repeated.receipt.id === receipt.id, 'the same export does not read as sent before');
     const kept = courseReceipt(await standInReceipts(device.world, send), device.join, sheet.head);
     see(kept?.id === receipt.id, 'the world’s receipts do not hold it');
     const [first] = sheet.marks.rows;
     const short = { ...sheet.marks, rows: [{ ...first, values: {} }, ...sheet.marks.rows.slice(1)] };
-    const refused = await refusal(sendTermMarks(device, device.join, sheet.head, short, kit, send));
+    let asked = 0;
+    const counting = (request) => {
+      asked += 1;
+      return send(request);
+    };
+    const refused = await refusal(sendTermMarks(device, device.join, sheet.head, short, kit, counting));
     see(refused === 'E_TERM_MISMATCH', `a mark taken out was answered ${refused}`);
+    see(asked === 0, 'the mark taken out was sent');
   }
 }
 

@@ -139,7 +139,7 @@ describe('demo scenarios', () => {
 
   it('fails at a step that sees another date, naming it', async () => {
     const early = { ...SAMPLE, steps: [SAMPLE.steps[0], SAMPLE.steps[2], { as: 'teacher', do: 'see', day: 1 }] };
-    await assert.rejects(runScenario(early, url), /step 3 \(teacher see\): sees \d{4}-\d{2}-\d{2}, not /);
+    await assert.rejects(runScenario(early, url), /step 3 \(teacher see day 1\): sees \d{4}-\d{2}-\d{2}, not /);
   });
 
   it('fails at a move the server answers otherwise, as when no announced day is left', async () => {
@@ -147,7 +147,7 @@ describe('demo scenarios', () => {
     const days = { date: '2027-01-10', announcedDays: ['2027-03-20'] };
     await assert.rejects(
       runScenario({ name: 'Twice', kind: 'teachers', steps }, url, { days }),
-      /step 3 \(teacher move\): expected moved, the server answered 409/,
+      /step 3 \(teacher move \(moved\)\): expected moved, the server answered 409/,
     );
   });
 

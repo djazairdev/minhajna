@@ -12,29 +12,13 @@
 
 import { correctWeek, readJoinCode, weekday } from '@minhajna/core';
 import { appModule } from './app.js';
-import { schoolOf, see, teacherOf } from './school-join.js';
+import { classOf, refusal, schoolOf, see, teacherOf } from './school-join.js';
 
 const { markCover, readCover } = await appModule('director/cover-session.ts');
 const { readRecords, wholeChain } = await appModule('director/records-session.ts');
 const { giveVisa } = await appModule('director/visa-session.ts');
 const { readSignChannel, sessionKey, signTheWeek, weekRecord, weekStart, weeksToSign } =
   await appModule('week/week-sign-session.ts');
-
-/** A code a promise is refused with, or null when it is not. */
-export const refusal = (promise) =>
-  promise.then(
-    () => null,
-    (error) => error.code ?? String(error),
-  );
-
-/** The 4AM class a person of the scenario teaches. */
-export function classOf(stage, device, who) {
-  const school = schoolOf(stage, device);
-  const teacher = teacherOf(stage, device, who);
-  const found = school.classes.find((one) => teacher.classIds.includes(one.id) && one.grade === '4am');
-  if (found === undefined) throw new RangeError(`The teacher ${who} has no 4AM class`);
-  return found;
-}
 
 async function signWeek(stage, device, { who }) {
   const { kit, send, reference } = stage;
@@ -63,11 +47,13 @@ async function recordedWeek(stage, device, who, first) {
   return course?.weeks.find((one) => one.week.week === first);
 }
 
-async function seeWeek(stage, device, { of: who, version }) {
+async function seeWeek(stage, device, { of: who, version, notHeld }) {
   const { workingDays } = stage.reference.profile;
   const found = await recordedWeek(stage, device, who, weekStart(device.date, workingDays));
   see(found?.week.version === version, `the record stands at version ${found?.week.version}, not ${version}`);
   see(wholeChain(found), 'the versions below it were not all read');
+  const count = found.week.sessions.filter((one) => one.state === 'not-held').length;
+  see(count === notHeld, `the record has ${count} sessions not held, not ${notHeld}`);
 }
 
 async function correctTheWeek(stage, device) {
@@ -111,6 +97,7 @@ async function coverSession(stage, device) {
   see(marked?.cover?.by === one.suggested && marked.taken === null, 'the cover does not read as marked');
   see(after.log.find((each) => each.id === one.suggested)?.count === 1, 'the term log does not count the cover');
   const meeting = after.sessions.filter((each) => each !== marked && each.session.start === marked.session.start);
+  see(meeting.length > 0, `no other session meets at ${marked.session.start} to check the colleague against`);
   see(!meeting.some((each) => each.free.some((person) => person.id === one.suggested)), 'the colleague reads as free');
   see(weekday(device.date) === one.session.day, 'the session is not of the world’s day');
 }
@@ -126,10 +113,11 @@ export const WEEK_ACTIONS = {
 
 export const WEEK_STEPS = [
   { as: 'ministry', do: 'move', expect: 'moved' },
+  { as: 'teacher', who: 'a', do: 'see', day: 1 },
   { as: 'teacher', who: 'a', do: 'signWeek' },
-  { as: 'director', do: 'seeWeek', of: 'a', version: 0 },
+  { as: 'director', do: 'seeWeek', of: 'a', version: 0, notHeld: 1 },
   { as: 'teacher', who: 'a', do: 'correctWeek' },
-  { as: 'director', do: 'seeWeek', of: 'a', version: 1 },
+  { as: 'director', do: 'seeWeek', of: 'a', version: 1, notHeld: 0 },
   { as: 'director', do: 'giveVisa', of: 'a' },
   { as: 'teacher', who: 'a', do: 'seeVisa' },
   { as: 'director', do: 'coverSession' },

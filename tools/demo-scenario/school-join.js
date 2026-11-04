@@ -8,10 +8,10 @@
 // on paper, and each joins on their own device as School-join does. The
 // timetable is the school's seeded week, written out as the template's rows and
 // read as the template is; it is published from the next Sunday, to every
-// teacher of the staff list. Each teacher finds their own sessions and
-// confirms, and the director sees the receipts. A teacher here is one of the
-// school's Arabic teachers, a, b or c, each with a 4AM class, so that a grade's
-// merge has several classes to show.
+// teacher of the staff list. Two of them find their own sessions and confirm,
+// and the director sees those receipts up to date and the third's not. A
+// teacher here is one of the school's Arabic teachers, a, b or c, each with a
+// 4AM class, so that a grade's merge has several classes to show.
 
 import { directorSchool, keptIssues, readTimetable } from '@minhajna/core';
 import { appModule } from './app.js';
@@ -79,6 +79,22 @@ async function seeJoined(stage, device, { of: who }) {
   see(days.size === 1, `${who} is not seen as joined on the code issued`);
 }
 
+/** A code a promise is refused with, or null when it is not. */
+export const refusal = (promise) =>
+  promise.then(
+    () => null,
+    (error) => error.code ?? String(error),
+  );
+
+/** The 4AM class a person of the scenario teaches. */
+export function classOf(stage, device, who) {
+  const school = schoolOf(stage, device);
+  const teacher = teacherOf(stage, device, who);
+  const found = school.classes.find((one) => teacher.classIds.includes(one.id) && one.grade === '4am');
+  if (found === undefined) throw new RangeError(`The teacher ${who} has no 4AM class`);
+  return found;
+}
+
 /** The school's week as the template's rows: a header, then a row for each session. */
 export function timetableRows(stage, school) {
   const { profile, bells } = stage.reference;
@@ -121,16 +137,28 @@ async function receiveTimetable(stage, device, { who }) {
   const channel = await readTeacherChannel(device, device.join, kit, send);
   const part = channel.parts.at(-1)?.part;
   const teacher = teacherOf(stage, device, who);
-  const theirs = schoolOf(stage, device).week.filter((one) => one.teacherId === teacher.id);
-  see(part?.sessions.length === theirs.length, `the part holds ${part?.sessions.length} of ${theirs.length} sessions`);
+  const school = schoolOf(stage, device);
+  const theirs = school.week.filter((one) => one.teacherId === teacher.id);
+  see(part?.teacher === teacher.name, `the part is for ${part?.teacher}, not ${teacher.name}`);
+  const times = levelBells(stage.reference.bells, school.level);
+  const place = (name, day, start) => `${name}|${day}|${start}`;
+  const sessions = theirs.map((one) =>
+    place(school.classes.find((each) => each.id === one.classId).name, one.weekday, times[one.slot.index - 1][0]),
+  );
+  const held = part.sessions.map((one) => place(one.class, one.day, one.start));
+  see(
+    JSON.stringify(held.toSorted()) === JSON.stringify(sessions.toSorted()),
+    `the part holds ${held.length} sessions that are not the ${sessions.length} of ${teacher.name}`,
+  );
   await confirmReceipt(device, device.join, part.version, kit, send);
 }
 
-async function seeReceipts(stage, device, { of: who }) {
+async function seeReceipts(stage, device, { of: who, expect }) {
   const { kit, send } = stage;
   const teacher = teacherOf(stage, device, who);
   const one = (await readReceipts(device, schoolOf(stage, device), kit, send)).find((each) => each.id === teacher.id);
-  see(one !== undefined && upToDate(one), `${who}'s receipt does not show as up to date`);
+  const current = expect !== 'behind';
+  see(one !== undefined && upToDate(one) === current, `${who}'s receipt does not show as ${expect ?? 'up to date'}`);
 }
 
 export const JOIN_ACTIONS = {
@@ -161,4 +189,5 @@ export const JOIN_STEPS = [
   { as: 'teacher', who: 'a', do: 'receiveTimetable' },
   { as: 'teacher', who: 'b', do: 'receiveTimetable' },
   { as: 'director', do: 'seeReceipts', of: 'a' },
+  { as: 'director', do: 'seeReceipts', of: 'c', expect: 'behind' },
 ];

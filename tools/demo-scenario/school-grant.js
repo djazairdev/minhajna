@@ -132,6 +132,7 @@ export const GRANT_STEPS = [
   { as: 'director', do: 'seeLastUse' },
   { as: 'teacher', who: 'a', do: 'seeAccess' },
   { as: 'ministry', do: 'move', expect: 'moved' },
+  { as: 'director', do: 'see', day: 2 },
   { as: 'inspector', do: 'seeEnded' },
   { as: 'director', do: 'seeLapsed' },
 ];

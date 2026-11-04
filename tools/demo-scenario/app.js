@@ -14,14 +14,14 @@
 
 import { existsSync, statSync } from 'node:fs';
 import { registerHooks } from 'node:module';
-import { dirname, resolve } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL, URL } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const APP = resolve(ROOT, 'apps/android');
 const SOURCE = resolve(APP, 'src');
 const NATIVE = [
-  'const silent = new Proxy({}, { get: () => () => null });',
+  "const silent = new Proxy({}, { get: (_, key) => (key === 'then' ? undefined : () => null) });",
   'export const TurboModuleRegistry = { get: () => silent, getEnforcing: () => silent };',
   "export const Platform = { OS: 'android', select: (choices) => choices.android ?? choices.default };",
 ].join('\n');
@@ -34,10 +34,17 @@ export function appFile(specifier, parent) {
   return [base, `${base}.ts`].find(isFile) ?? null;
 }
 
-const inApp = (url) => url?.startsWith('file:') === true && fileURLToPath(url).startsWith(`${APP}/`);
+/** Whether a module's address is one of the app's own files, with none of its dependencies. */
+function inApp(url) {
+  if (url?.startsWith('file:') !== true) return false;
+  const path = relative(APP, fileURLToPath(url));
+  return !isAbsolute(path) && !path.startsWith('..') && !path.split(sep).includes('node_modules');
+}
 
 registerHooks({
   resolve(specifier, context, next) {
+    const parent = context.parentURL;
+    if (!inApp(parent)) return next(specifier, context);
     if (specifier === 'react-native') {
       return { url: `data:text/javascript,${encodeURIComponent(NATIVE)}`, shortCircuit: true };
     }
@@ -45,8 +52,7 @@ registerHooks({
       const path = resolve(ROOT, 'data', specifier.slice('@minhajna/data/'.length));
       return { url: pathToFileURL(path).href, importAttributes: { type: 'json' }, shortCircuit: true };
     }
-    const parent = context.parentURL;
-    const file = specifier.startsWith('.') && inApp(parent) ? appFile(specifier, parent) : null;
+    const file = specifier.startsWith('.') ? appFile(specifier, parent) : null;
     if (file === null) return next(specifier, context);
     const attributes = file.endsWith('.json') ? { importAttributes: { type: 'json' } } : {};
     return { url: pathToFileURL(file).href, ...attributes, shortCircuit: true };

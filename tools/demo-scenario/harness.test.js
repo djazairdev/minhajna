@@ -16,6 +16,7 @@ import { Buffer } from 'node:buffer';
 import { resolve } from 'node:path';
 import { after, describe, it } from 'node:test';
 import { fileURLToPath, pathToFileURL, URL } from 'node:url';
+import { makeWorldCode } from '@minhajna/core';
 import { appFile, appModule } from './app.js';
 import { appAccess } from './device.js';
 import { seededKit, worldKit } from './kit.js';
@@ -28,9 +29,7 @@ const app = resolve(here, '../../apps/android/src');
 
 /** A stand-in for how a scenario's devices meet a server, counting what it is asked. */
 function standIn() {
-  const moves = [];
   return {
-    moves,
     stage: { paper: new Map() },
     left: 0,
     leave() {
@@ -39,7 +38,6 @@ function standIn() {
     startWorld: async () => ({ code: 'CODE', kind: 'national', signer: 'S', date: days.date, starter: 'T' }),
     joinWorld: async () => ({ code: 'CODE', kind: 'national', signer: 'S', date: days.date }),
     moveDate: async (_server, device) => {
-      moves.push(device);
       return device.starter ? { status: 200, date: days.announcedDays[0] } : { status: 403, date: null };
     },
     dateOf: async () => days.date,
@@ -54,9 +52,9 @@ describe('a scenario’s own steps', () => {
   it('runs them on each person’s device, on the date its last move gave', async () => {
     const seen = [];
     const actions = {
-      note: async (stage, device, step) => {
+      note: async (_stage, device, step) => {
         device.notes = (device.notes ?? 0) + 1;
-        seen.push([step.as, step.who, device.date, device.notes, stage.paper.size]);
+        seen.push([step.as, step.who, device.date, device.notes]);
       },
     };
     const steps = [
@@ -72,9 +70,9 @@ describe('a scenario’s own steps', () => {
     const access = standIn();
     await runScenario({ ...base, steps, actions }, 'http://demo', { access, days, say: (one) => said.push(one) });
     assert.deepEqual(seen, [
-      ['teacher', 'a', days.date, 1, 0],
-      ['teacher', 'a', days.announcedDays[0], 2, 0],
-      ['teacher', 'b', days.announcedDays[0], 1, 0],
+      ['teacher', 'a', days.date, 1],
+      ['teacher', 'a', days.announcedDays[0], 2],
+      ['teacher', 'b', days.announcedDays[0], 1],
     ]);
     assert.equal(said[3], '4. teacher:a note: ok');
     assert.equal(access.left, 1);
@@ -103,6 +101,78 @@ describe('a scenario’s own steps', () => {
     );
   });
 
+  it('names a start, a join, a move or a see that fails, as it does its own steps', async () => {
+    const failing = (name) => ({
+      ...standIn(),
+      [name]: async () => {
+        throw Object.assign(new Error('It stopped'), { code: 'E_MADE_UP' });
+      },
+    });
+    const steps = [
+      { as: 'ministry', do: 'start' },
+      { as: 'teacher', do: 'join' },
+      { as: 'teacher', do: 'see', day: 0 },
+      { as: 'ministry', do: 'move', expect: 'moved' },
+    ];
+    const scenario = { ...base, steps };
+    const cases = [
+      ['startWorld', 1, 'ministry start'],
+      ['joinWorld', 2, 'teacher join'],
+      ['dateOf', 3, 'teacher see day 0'],
+      ['moveDate', 4, 'ministry move \\(moved\\)'],
+    ];
+    for (const [name, step, words] of cases) {
+      await assert.rejects(
+        runScenario(scenario, 'http://demo', { access: failing(name), days }),
+        new RegExp(`^Error: Own, step ${step} \\(${words}\\): E_MADE_UP: It stopped$`),
+      );
+    }
+    const cause = await runScenario(scenario, 'http://demo', { access: failing('joinWorld'), days }).catch((e) => e);
+    assert.equal(cause.cause.code, 'E_MADE_UP');
+  });
+
+  it('says what a step is about, and refuses to take a join with no signer as the world’s', async () => {
+    const said = [];
+    const actions = { note: async () => {} };
+    const steps = [
+      { as: 'ministry', do: 'start' },
+      { as: 'ministry', do: 'note', of: 'a', version: 1, expect: 'behind' },
+      { as: 'teacher', do: 'join' },
+    ];
+    await runScenario({ ...base, steps, actions }, 'http://demo', {
+      access: standIn(),
+      days,
+      say: (one) => said.push(one),
+    });
+    assert.equal(said[1], '2. ministry note of a version 1 (behind): ok');
+    const unsigned = { ...standIn(), startWorld: async () => ({ code: 'C', kind: 'national' }) };
+    unsigned.joinWorld = async () => ({ code: 'C', kind: 'national' });
+    await assert.rejects(
+      runScenario({ ...base, steps: [steps[0], steps[2]] }, 'http://demo', { access: unsigned, days }),
+      /its signer is not the one/,
+    );
+  });
+
+  it('starts from the date the world says it started on, and its own access with its name', async () => {
+    const asked = [];
+    const seen = [];
+    const steps = [
+      { as: 'ministry', do: 'start' },
+      { as: 'ministry', do: 'note' },
+    ];
+    const access = (server, seed) => {
+      asked.push([server, seed]);
+      return {
+        ...standIn(),
+        startWorld: async () => ({ code: 'C', kind: 'national', signer: 'S', date: '2027-01-01', starter: 'T' }),
+      };
+    };
+    const actions = { note: async (_stage, device) => seen.push(device.date) };
+    await runScenario({ ...base, steps, actions, access }, 'http://demo', { days });
+    assert.deepEqual(asked, [['http://demo', 'Own']]);
+    assert.deepEqual(seen, ['2027-01-01']);
+  });
+
   it('refuses one whose person has not joined, or that no one knows, before it runs', () => {
     const actions = { note: async () => {} };
     const steps = [
@@ -124,6 +194,8 @@ describe('the kit', () => {
     assert.deepEqual(one.random(40), same.random(40));
     assert.deepEqual(one.random(5), same.random(5));
     assert.notDeepEqual(seededKit('a world').random(16), other.random(16));
+    const twice = seededKit('a world');
+    assert.notDeepEqual(twice.random(16), twice.random(16));
     assert.equal(seededKit('a world').random(100).length, 100);
     assert.notDeepEqual(worldKit.random(16), worldKit.random(16));
   });
@@ -159,7 +231,14 @@ describe('the app’s modules in Node', () => {
     assert.equal(typeof catalogues.en.demo.closure, 'string');
     const { bundledReference, readReference } = await appModule('reference.ts');
     assert.equal(readReference(bundledReference).ok, true);
-    await assert.rejects(appModule('demo/DemoBand.tsx'));
+    await assert.rejects(appModule('demo/DemoBand.tsx'), { code: 'ERR_UNKNOWN_FILE_EXTENSION' });
+  });
+
+  it('holds no native module: a module of the platform answers nothing, and is not a promise', async () => {
+    const { default: signature } = await appModule('native/NativeMinhajnaSignature.ts');
+    assert.equal(signature.qrMatrix('made-up'), null);
+    assert.equal(signature.then, undefined);
+    assert.equal(await signature, signature);
   });
 });
 
@@ -178,12 +257,34 @@ describe('a device through the app’s client', () => {
     enterWorldNetwork(WORLD, PASS);
     assert.equal(await access.dateOf('', { world: WORLD }), '2027-02-18');
     const starter = 'starter-of-a-made-up-world';
-    assert.deepEqual(await access.moveDate('', { world: WORLD, starter }), { status: 200, date: '2027-02-18' });
+    const device = { world: WORLD, starter, date: '2026-12-17' };
+    assert.deepEqual(await access.moveDate('', device), { status: 200, date: '2027-02-18' });
+    assert.equal(device.date, '2027-02-18');
     assert.deepEqual(asked, [
       ['http://127.0.0.1:3999/worlds/K1MT1/date', 'GET', PASS, undefined],
       ['http://127.0.0.1:3999/worlds/K1MT1/date', 'POST', PASS, `Bearer ${starter}`],
     ]);
     access.leave();
+  });
+
+  it('throws a date the app would not take, for a device that moves it', async () => {
+    const access = appAccess('http://127.0.0.1:3999', 'Client', answering([], 200, { date: '2026-01-01' }));
+    leaveWorldNetwork();
+    enterWorldNetwork(WORLD, PASS);
+    const device = { world: WORLD, starter: 'starter-of-a-made-up-world', date: '2026-12-17' };
+    await assert.rejects(access.moveDate('', device));
+    access.leave();
+  });
+
+  it('says to clear the database when the seeded world is taken, and shuts the last world to join', async () => {
+    const access = appAccess('http://127.0.0.1:3999', 'Client', answering([], 409, {}));
+    leaveWorldNetwork();
+    await assert.rejects(access.startWorld('', 'national'), /--fresh/);
+    leaveWorldNetwork();
+    enterWorldNetwork(WORLD, PASS);
+    const missing = appAccess('http://127.0.0.1:3999', 'Client', answering([], 404, {}));
+    await assert.rejects(missing.joinWorld('', makeWorldCode(seededKit('Code').random)), { code: 'E_NO_SUCH_WORLD' });
+    missing.leave();
   });
 
   it('says a refused move and a date it could not read', async () => {
