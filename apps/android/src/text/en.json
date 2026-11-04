@@ -6206,7 +6206,14 @@
       "movedWeekAbove": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}.",
       "movedEnd": "The exam’s last day moved from {{wasEnd}} to {{isEnd}}; its first day and figures day stay as they were.",
       "movedCalendar": "The exam’s days changed in the calendar on this phone.",
-      "totals": "The directorate’s totals"
+      "totals": "The directorate’s totals",
+      "over": {
+        "reading": "Reading the committee’s cut…",
+        "keys": "The committee’s cut is read with the world’s keys, which this phone does not hold now.",
+        "cut": "The committee’s cut as published, adopted on {{day}}: up to {{item}}.",
+        "noCut": "The committee decided on {{day}}: no cut for this exam.",
+        "none": "The committee adopted no cut: the paper was set as usual."
+      }
     },
     "threshold": {
       "title": "The exam’s threshold",

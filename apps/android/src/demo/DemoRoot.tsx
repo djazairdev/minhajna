@@ -214,6 +214,7 @@ export function DemoRoot({
         school={school}
         reference={worldReference}
         updates={published.read?.updates}
+        above={{ held, bundled: reference }}
         onClose={() => setJoining(false)}
       />
     );

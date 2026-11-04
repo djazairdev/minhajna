@@ -16,24 +16,27 @@
 // those whose room is listed, and the exams above the school its classes sit
 // (OwnExamCards.tsx), a directorate's opening its totals from its figures day
 // (ExamTotals.tsx), when the world's reference and school are there, or that
-// they could not be worked out when the phone's weeks do not read; with none,
-// it says no school exam's figures day has come for the teacher's subjects. It
-// says that the chart is worked out in the school from signed weeks only and
-// never leaves its space, that monthly tests stay each teacher's own, and that
-// nothing here serves to evaluate or rank anyone. Going back leads to
-// School-join.
+// they could not be worked out when the phone's weeks do not read, then, once
+// an exam above the school is over, the committee's cut as published (#606,
+// OverExamCuts.tsx); with none, it says no school exam's figures day has come
+// for the teacher's subjects. It says that the chart is worked out in the
+// school from signed weeks only and never leaves its space, that monthly tests
+// stay each teacher's own, and that nothing here serves to evaluate or rank
+// anyone. Going back leads to School-join.
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolJoined } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
+import type { HeldWorld } from '../demo/world-calendar-read';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
 import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
-import { ownExams } from './own-exams';
+import { OverExamCuts } from './OverExamCuts';
+import { overExams, ownExams } from './own-exams';
 import { OwnExamCards } from './OwnExamCards';
 import { examOver, publishedText } from './published-text';
 import { examsOf, headText, itemNamer, movedExam, movesOf, roomId, roomMoves, stateText } from './threshold-text';
@@ -53,6 +56,8 @@ export type ExamThresholdsProps = {
   readonly updates?: readonly CalendarUpdate[];
   /** The world's school, rebuilt from the world's ID, whose classes sit the exams above it. */
   readonly school?: DemoSchool | null;
+  /** The world's keys while it is open and the bundled reference, which read the committees' cuts of the over exams. */
+  readonly above?: { readonly held: HeldWorld | null; readonly bundled?: TermReference };
   readonly onClose: () => void;
   readonly said: string;
   /** Opens an exam's page by its room's key. */
@@ -65,7 +70,8 @@ const NOTES = ['school', 'monthly', 'never'] as const;
 
 /** The school exams whose rooms the phone reads, with where each class stands. */
 export function ExamThresholds(props: ExamThresholdsProps) {
-  const { world, date, join, kit, send, dayText, reference, updates, school, onClose, said, onRoom, onTotals } = props;
+  const { world, date, join, kit, send, dayText, reference, updates, school, above: keys, onClose, said } = props;
+  const { onRoom, onTotals } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -74,6 +80,13 @@ export function ExamThresholds(props: ExamThresholdsProps) {
   const own = useMemo(
     () =>
       weeks === null || reference === undefined || school == null ? [] : ownExams(weeks, school, reference, world.date),
+    [weeks, school, reference, world.date],
+  );
+  const over = useMemo(
+    () =>
+      weeks === null || reference === undefined || school == null
+        ? []
+        : overExams(weeks, school, reference, world.date),
     [weeks, school, reference, world.date],
   );
   const moves = useMemo(() => movesOf(reference, updates), [reference, updates]);
@@ -148,6 +161,22 @@ export function ExamThresholds(props: ExamThresholdsProps) {
         <>
           <OwnExamCards exams={coming} dayText={dayText} reference={reference} moves={moves} />
           <OwnExamCards exams={above} dayText={dayText} reference={reference} moves={moves} above onTotals={onTotals} />
+          {keys?.bundled !== undefined && school != null && (
+            <OverExamCuts
+              world={world.world}
+              date={world.date}
+              over={over}
+              directorate={school.directorateId}
+              held={keys.held}
+              bundled={keys.bundled}
+              reference={reference}
+              moves={moves}
+              heading={above.length === 0}
+              kit={kit}
+              send={send}
+              dayText={dayText}
+            />
+          )}
         </>
       )}
       {read.rooms !== null && weeks === null && reference !== undefined && school != null && (

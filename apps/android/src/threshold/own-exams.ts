@@ -14,7 +14,9 @@
 // spellings together, and counted only when its teacher signed a week of it in
 // that subject; an exam none of whose classes is the teacher's is left out.
 // There is no cut on the phone for these exams: a school exam's comes with its
-// room.
+// room. Once an exam above the school is over, the teacher's classes in it are
+// listed apart (overExams), for the committee's cut as published
+// (over-cuts.ts).
 
 import {
   addDays,
@@ -53,20 +55,20 @@ function recordsOf(weeks: readonly WeekRecord[]): StandingRecords[] {
   }));
 }
 
-/** The school's exams before their figures day and the others up to their last day, with the teacher's classes. */
-export function ownExams(
+/** The exams `shown` lets through, with the teacher's classes in each, the day before their figures day until it. */
+function examsWith(
   weeks: readonly WeekRecord[],
   school: DemoSchool,
   reference: TermReference,
   date: Day,
+  shown: (exam: WorldExam) => boolean,
 ): OwnExam[] {
   const taught = new Set(weeks.map((one) => `${timetableNameKey(one.class)}\n${one.totals.subject}`));
   const records = recordsOf(weeks);
   const { year, entries } = reference.calendar;
   const found: OwnExam[] = [];
   for (const exam of worldExams(year, entries)) {
-    if (compareDays(date, exam.to) > 0) continue;
-    if (exam.setBy === 'school' && compareDays(date, exam.figuresDay) >= 0) continue;
+    if (!shown(exam)) continue;
     const asOf = compareDays(date, exam.figuresDay) < 0 ? addDays(date, -1) : exam.figuresDay;
     const charts = chartDrafts(exam, school, records, reference, asOf)
       .map(({ chart }) => ({
@@ -77,4 +79,27 @@ export function ownExams(
     if (charts.length > 0) found.push({ exam, asOf, charts });
   }
   return found;
+}
+
+/** The school's exams before their figures day and the others up to their last day, with the teacher's classes. */
+export function ownExams(
+  weeks: readonly WeekRecord[],
+  school: DemoSchool,
+  reference: TermReference,
+  date: Day,
+): OwnExam[] {
+  return examsWith(weeks, school, reference, date, (exam) => {
+    if (compareDays(date, exam.to) > 0) return false;
+    return exam.setBy !== 'school' || compareDays(date, exam.figuresDay) < 0;
+  });
+}
+
+/** The exams above the school that are over, with the teacher's classes. */
+export function overExams(
+  weeks: readonly WeekRecord[],
+  school: DemoSchool,
+  reference: TermReference,
+  date: Day,
+): OwnExam[] {
+  return examsWith(weeks, school, reference, date, (exam) => exam.setBy !== 'school' && compareDays(date, exam.to) > 0);
 }
