@@ -164,6 +164,17 @@ describe('seedInsights', () => {
     }
   });
 
+  it('has most classes spend longer on such an item than on its neighbour', () => {
+    const made = seedInsights(world, reference, (length) => new Uint8Array(length));
+    const pack = reference.packs.get(packKey(made[0]!.pack, made[0]!.release))!;
+    const perBudget = (place: number) => {
+      const { id, budget } = pack.items[place]!;
+      const sessions = made.filter((one) => one.pack === pack.id).map((one) => one.sessions[id] ?? 0);
+      return sessions.reduce((all, count) => all + count, 0) / Math.max(1, budget ?? 1);
+    };
+    assert.ok(perBudget(2) > perBudget(1) * 1.2, `${perBudget(2)} against ${perBudget(1)}`);
+  });
+
   it('makes none for a pack the reference does not hold', () => {
     const empty = { ...reference, packs: new Map() } as Reference;
     assert.deepEqual(seedInsights(world, empty, random), []);

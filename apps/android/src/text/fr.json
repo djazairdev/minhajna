@@ -6421,7 +6421,8 @@
         "upToDate": "Rien n’attend : chaque envoi dû est parti.",
         "partial": "Ce qui est dû est parti, sauf pour les classes dont l’envoi n’a pas pu être établi ; réessayer n’y changerait rien.",
         "failed": "Ce qui est dû n’a pas pu être envoyé. Un nouvel essai a lieu quand la date du monde avance ; vous pouvez aussi réessayer maintenant.",
-        "retry": "Réessayer"
+        "retry": "Réessayer",
+        "late": "La collecte d’un trimestre était déjà close : son envoi ne peut plus rejoindre les chiffres."
       },
       "never": {
         "head": "Jamais envoyé",
@@ -6532,7 +6533,7 @@
           "title": "Le serveur des statistiques, à la même adresse",
           "on": "La participation est activée",
           "off": "La participation est désactivée",
-          "line": "L’appareil qui a démarré le monde l’ouvre au démarrage et peut y déposer des envois inventés, venant de classes qui n’existent pas. Ensuite, seulement tant que la participation est activée, à la fin de chaque trimestre, pour chaque classe qui suit un paquet de progression : le format, un identifiant aléatoire pour la classe et le trimestre, le jeton aléatoire du trimestre, le code de l’établissement et du trimestre, que le serveur remplace à la réception par une marque pour compter les établissements, l’année scolaire et le trimestre, la wilaya, le niveau et la matière, le paquet et sa version, les séances de chaque élément, les éléments fusionnés, sautés, scindés ou repris, et où la classe est arrivée. Ni dates, ni motifs, ni élèves, ni rien qui m’identifie."
+          "line": "L’appareil qui a démarré le monde l’ouvre au démarrage et peut y déposer des envois inventés, venant de classes qui n’existent pas. Ensuite, seulement tant que la participation est activée, à la fin de chaque trimestre, pour chaque classe qui suit un paquet de progression : le format, un identifiant aléatoire pour la classe et le trimestre, le jeton aléatoire du trimestre, le code de l’établissement et du trimestre, que le serveur remplace à la réception par une marque pour compter les établissements, l’année scolaire et le trimestre, la wilaya, le niveau et la matière, le paquet et sa version, les séances de chaque élément, les éléments fusionnés, sautés, scindés ou repris, et où la classe est arrivée. Ni dates, ni motifs, ni élèves, ni rien qui m’identifie. Pour comparer une classe à ses pairs, l’application lit les chiffres publiés du trimestre sur ce même serveur, l’appareil qui a démarré le monde clôturant d’abord sa collecte, et rien sur la classe ne part."
         },
         "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. Dans ce monde, l’application ne joint que le serveur de démonstration. La liste complète est publiée avec le code source.",
         "sees": {
@@ -6543,6 +6544,64 @@
           "demo": "Dans un monde de démonstration, l’application se connecte au serveur de démonstration du projet, {{address}}, seulement tant que le monde est ouvert. Sur un PC, la page récupère aussi ses propres fichiers à sa propre adresse, comme hors d’un monde.",
           "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. Dans ce monde, la page ne joint que sa propre adresse, pour ses propres fichiers, et le serveur de démonstration. La liste complète est publiée avec le code source."
         }
+      },
+      "compare": {
+        "title": "{{class}} et les classes comparables",
+        "line": "Calculé sur cet appareil à partir des chiffres publiés ; rien sur la classe n’est envoyé",
+        "here": {
+          "head": "Calculé ici, sur ce téléphone",
+          "wilaya": "D’après les chiffres publiés de la wilaya. Classes : {{classes}}. Enseignants : {{teachers}}. Établissements : {{schools}}. Rien sur {{class}} n’est envoyé pour cette comparaison.",
+          "nation": "D’après les chiffres nationaux publiés, ceux de la wilaya n’étant pas affichés. Classes : {{classes}}. Enseignants : {{teachers}}. Établissements : {{schools}}. Rien sur {{class}} n’est envoyé pour cette comparaison.",
+          "pc": {
+            "head": "Calculé ici, sur ce PC"
+          }
+        },
+        "sessions": {
+          "head": "Séances prises par chaque élément",
+          "item": "Élément",
+          "plan": "Prévu",
+          "median": "Médiane",
+          "row": "{{item}} : prévu {{plan}}, médiane {{median}}, {{class}} {{mine}}",
+          "overNote": "En gras : une médiane au-delà du prévu. Un tiret : non affiché, ou non enseigné.",
+          "dash": "–",
+          "hiddenSaid": "non affichée",
+          "noneSaid": "non enseigné",
+          "overSaid": "{{median}}, au-delà du prévu",
+          "scaled": "Cette progression d’exemple donne bien moins de séances que n’en compte l’année : sa colonne est ici étirée sur les cours de l’année."
+        },
+        "changes": {
+          "head": {
+            "wilaya": "Les plus fusionnés, sautés, scindés ou repris dans la wilaya",
+            "nation": "Les plus fusionnés, sautés, scindés ou repris au niveau national"
+          },
+          "merged": "Fusionné : « {{item}} »",
+          "skipped": "Sauté : « {{item}} »",
+          "split": "Scindé : « {{item}} »",
+          "retaught": "Repris : « {{item}} »",
+          "basis": "Chaque tranche porte sur les classes qui ont atteint l’élément."
+        },
+        "band": {
+          "over": "{{low}} % et plus",
+          "between": "{{low}}–{{high}} %"
+        },
+        "place": {
+          "middle": "Moitié centrale",
+          "between": "De {{low}} à {{high}}",
+          "basis": "La médiane et la moitié centrale, sur {{classes}} classes",
+          "notBegun": "Pas commencé",
+          "upTo": "Jusqu’à {{high}}"
+        },
+        "note": "L’échantillon est celui de ceux qui ont choisi de participer ; il ne représente donc pas forcément toutes les classes. Ces chiffres décrivent la progression, et non les classes ni les enseignants.",
+        "reading": "Calcul de la comparaison…",
+        "waiting": "Les chiffres du trimestre arrivent une fois que l’appareil qui a démarré ce monde clôt sa collecte. Demandez à cet appareil d’ouvrir cette page.",
+        "forming": "Les chiffres du trimestre sont en cours de formation. Rouvrez cette page dans un instant.",
+        "hidden": "Trop peu d’enseignants ou d’établissements ont participé avec ce paquet : ses chiffres ne sont pas publiés, et il n’y a encore rien à comparer.",
+        "term": {
+          "1": "Premier trimestre",
+          "2": "Deuxième trimestre",
+          "3": "Troisième trimestre"
+        },
+        "ready": "La comparaison est prête."
       }
     },
     "schoolThreshold": {

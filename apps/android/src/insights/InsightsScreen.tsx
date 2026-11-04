@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The frame of each insights page in a demo world (#624, #622): the band, a
-// bar with the way back and the page's title and subtitle, and the page's
-// content in a scrolling column. Its title and subtitle are said as it opens,
-// on a PC in a hidden live region cleared a few seconds later, on the phone as
-// an announcement. Going back, by the button or Android's back, calls onClose.
+// The frame of each insights page in a demo world (#624, #622): the band, a bar
+// with the way back and the page's title and subtitle, and the page's content
+// in a scrolling column. Its title and subtitle are said as it opens, and any
+// news as it comes, on a PC in a hidden live region cleared a few seconds
+// later, on the phone as an announcement. Going back, by the button or
+// Android's back, calls onClose.
 
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useEffectEvent, useState, type ReactNode } from 'react';
@@ -27,26 +28,33 @@ export type InsightsScreenProps = {
   readonly sub: string;
   /** The world's date, written out for the band. */
   readonly date: string;
+  /** News the page has to say as it comes, as its opening is said; none when absent. */
+  readonly news?: string;
   readonly onClose: () => void;
   readonly children: ReactNode;
 };
 
 /** The band, the bar and the page's content. */
-export function InsightsScreen({ name, title, sub, date, onClose, children }: InsightsScreenProps) {
+export function InsightsScreen({ name, title, sub, date, news, onClose, children }: InsightsScreenProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [said, setSaid] = useState('');
-  const announce = useEffectEvent(() => {
-    const words = `${title}. ${sub}`;
+  const announce = useEffectEvent((words: string) => {
     if (onPc()) setSaid(words);
     else AccessibilityInfo.announceForAccessibility(words);
   });
+  const opening = useEffectEvent(() => announce(`${title}. ${sub}`));
   useEffect(() => {
-    const timer = setTimeout(announce, 0);
+    const timer = setTimeout(opening, 0);
     return () => clearTimeout(timer);
   }, []);
+  useEffect(() => {
+    if (news === undefined) return;
+    const timer = setTimeout(() => announce(news), 0);
+    return () => clearTimeout(timer);
+  }, [news]);
   useEffect(() => {
     if (said === '') return;
     const timer = setTimeout(() => setSaid(''), SAID_FOR);

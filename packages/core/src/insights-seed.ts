@@ -15,11 +15,12 @@
 // its pack's first class in the term, less the share a seeded teacher is
 // absent, so its sessions compare with the world's teacher's. A few of the
 // pack's items are changed by most or some of its classes, by their place in
-// the pack, as CHANGES says, so the report has something to show. Nothing here
-// is real or derived from anything real: IDs, tokens and school-and-term codes
-// are all drawn at random, a token kept by one made-up teacher for one term, a
-// code by one made-up school for one term. Batches keep to what one request may
-// carry.
+// the pack, as CHANGES says, and a few take most of them longer than the plan
+// gives, as LONGER says, so the report and a class's comparison have something
+// to show. Nothing here is real or derived from anything real: IDs, tokens and
+// school-and-term codes are all drawn at random, a token kept by one made-up
+// teacher for one term, a code by one made-up school for one term. Batches keep
+// to what one request may carry.
 
 import { CalendarView } from './calendar.ts';
 import { addDays, isWithin } from './day.ts';
@@ -69,6 +70,9 @@ const CHANGES: readonly {
 
 type SeedTerm = Term & { readonly number: 1 | 2 | 3 };
 
+/** Which items most classes spend longer on than their plan gives, by their place in the pack, and how much longer. */
+const LONGER = { every: 7, at: 2, share: 0.9, more: 0.4 } as const;
+
 interface SeedPack {
   readonly pinned: PinnedPack;
   readonly grade: string;
@@ -77,6 +81,10 @@ interface SeedPack {
   /** The lessons of the subject its first class has in each term, by the calendar. */
   readonly lessons: ReadonlyMap<number, number>;
 }
+
+/** The year's terms as insights count them. */
+const termsOf = (reference: Reference) =>
+  reference.year.terms.filter((one): one is SeedTerm => [1, 2, 3].includes(one.number));
 
 /** The first class's lessons of a subject in each term, as a seeded course of its school counts them. */
 function termLessons(
@@ -97,6 +105,14 @@ function termLessons(
   return new Map(terms.map((term) => [term.number, days.filter((day) => isWithin(day, term.from, term.to)).length]));
 }
 
+/** A class's lessons of a subject over the year, as a seeded course of its school counts them. */
+export function yearLessons(reference: Reference, school: DemoSchool, one: DemoClass, subject: string): number {
+  const view = new CalendarView(reference, []);
+  const terms = termsOf(reference);
+  const lessons = termLessons(view, school, one, subject, terms, reference.country.weekStartsOn);
+  return [...lessons.values()].reduce((sum, count) => sum + count, 0);
+}
+
 /** Each pack the world's classes pin, once, with the grade, the subject and the lessons of its first class. */
 function packsOf(world: DemoWorld, reference: Reference, terms: readonly SeedTerm[]): SeedPack[] {
   const view = new CalendarView(reference, []);
@@ -114,10 +130,6 @@ function packsOf(world: DemoWorld, reference: Reference, terms: readonly SeedTer
   }
   return [...packs.values()];
 }
-
-/** The year's terms as insights count them. */
-const termsOf = (reference: Reference) =>
-  reference.year.terms.filter((one): one is SeedTerm => [1, 2, 3].includes(one.number));
 
 /** A number in [0, 1), drawn at random. */
 function chance(random: RandomBytes): number {
@@ -152,7 +164,11 @@ function termItems(
     if (change === 'skipped') figures.push({ item: id, sessions: 0, outcome: 'skipped' });
     else if (change === 'retaught') figures.push({ item: id, sessions: Math.max(1, sessions), outcome: 'retaught' });
     else if (change === 'merged' || sessions === 0) figures.push({ item: id, sessions: 0, outcome: 'merged' });
-    else figures.push({ item: id, sessions, outcome: 'taught' });
+    else {
+      const longer = place % LONGER.every === LONGER.at && chance(random) < LONGER.share;
+      const spent = longer ? sessions + Math.ceil(sessions * LONGER.more) : sessions;
+      figures.push({ item: id, sessions: spent, outcome: 'taught' });
+    }
   }
   figures.sort((a, b) => (a.item < b.item ? -1 : 1));
   return { figures, split };

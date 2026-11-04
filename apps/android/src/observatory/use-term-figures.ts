@@ -46,10 +46,10 @@ export interface TermFigures {
 
 type Got<T> = { readonly key: string } & ({ readonly value: T } | { readonly problem: ProblemKey });
 
-type TermRead = readonly PackHeading[] | 'waiting' | 'forming';
+export type TermRead = readonly PackHeading[] | 'waiting' | 'forming';
 
 /** The term's packs, ending its collection first on the device holding the starter token. */
-async function readTerm(
+export async function readTerm(
   world: string,
   starter: string | null,
   asked: ReportTerm,

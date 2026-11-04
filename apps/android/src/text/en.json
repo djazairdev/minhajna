@@ -6327,7 +6327,8 @@
         "upToDate": "Nothing is waiting: every sending due has gone.",
         "partial": "What is due went, except for classes whose sending could not be worked out; trying again would not change that.",
         "failed": "What is due could not be sent. It is tried again when the world’s date moves; you can also try again now.",
-        "retry": "Try again"
+        "retry": "Try again",
+        "late": "A term’s collection had already ended, so its sending cannot join the figures."
       },
       "never": {
         "head": "Never sent",
@@ -6438,7 +6439,7 @@
           "title": "The insights server, at the same address",
           "on": "Taking part is on",
           "off": "Taking part is off",
-          "line": "The world’s starter opens it as the world starts and may put in it made-up sendings from classes that do not exist. Then only while taking part is on, at the end of each term, for each class that follows a plan pack: the format, a random ID for the class and term, the term’s random token, the school and term’s code, which the server, on receipt, replaces with a mark to count schools, the school year and term, the wilaya, grade and subject, the pack and release, the sessions on each item, the items merged, skipped, split or re-taught, and how far the class got. No dates, reasons or pupils, and nothing that identifies me."
+          "line": "The world’s starter opens it as the world starts and may put in it made-up sendings from classes that do not exist. Then only while taking part is on, at the end of each term, for each class that follows a plan pack: the format, a random ID for the class and term, the term’s random token, the school and term’s code, which the server, on receipt, replaces with a mark to count schools, the school year and term, the wilaya, grade and subject, the pack and release, the sessions on each item, the items merged, skipped, split or re-taught, and how far the class got. No dates, reasons or pupils, and nothing that identifies me. To compare a class with its peers, the app reads the term’s published figures from the same server, the starting device ending the term’s collection first, and nothing about the class goes."
         },
         "nothingElse": "Nothing else: no advertising and no analytics. In this world the app reaches only the demo server. The full list is published with the source code.",
         "sees": {
@@ -6449,6 +6450,64 @@
           "demo": "In a demo world, the app connects to the project’s demo server, {{address}}, only while the world is open. On a PC, the page also fetches its own files from its own address, as it does outside a world.",
           "nothingElse": "Nothing else: no advertising and no analytics. In this world the page reaches only its own address, for its own files, and the demo server. The full list is published with the source code."
         }
+      },
+      "compare": {
+        "title": "{{class}} and similar classes",
+        "line": "Worked out on this device from the published figures; nothing about the class is sent",
+        "here": {
+          "head": "Worked out here, on this phone",
+          "wilaya": "From the wilaya’s published figures. Classes: {{classes}}. Teachers: {{teachers}}. Schools: {{schools}}. Nothing about {{class}} is sent to make this comparison.",
+          "nation": "From the published national figures, as the wilaya’s are not shown. Classes: {{classes}}. Teachers: {{teachers}}. Schools: {{schools}}. Nothing about {{class}} is sent to make this comparison.",
+          "pc": {
+            "head": "Worked out here, on this PC"
+          }
+        },
+        "sessions": {
+          "head": "Sessions each item took",
+          "item": "Item",
+          "plan": "Plan",
+          "median": "Median",
+          "row": "{{item}}: plan {{plan}}, median {{median}}, {{class}} {{mine}}",
+          "overNote": "In bold: a median that runs over the plan. A dash: not shown, or not taught.",
+          "dash": "–",
+          "hiddenSaid": "not shown",
+          "noneSaid": "not taught",
+          "overSaid": "{{median}}, more than the plan",
+          "scaled": "This example plan gives far fewer sessions than the year holds, so its column here is stretched over the year’s lessons."
+        },
+        "changes": {
+          "head": {
+            "wilaya": "Most merged, skipped, split or re-taught in the wilaya",
+            "nation": "Most merged, skipped, split or re-taught nationally"
+          },
+          "merged": "Merged “{{item}}”",
+          "skipped": "Skipped “{{item}}”",
+          "split": "Split “{{item}}”",
+          "retaught": "Re-taught “{{item}}”",
+          "basis": "Each band is of the classes that reached the item."
+        },
+        "band": {
+          "over": "{{low}}% and over",
+          "between": "{{low}}–{{high}}%"
+        },
+        "place": {
+          "middle": "Middle half",
+          "between": "From {{low}} to {{high}}",
+          "basis": "The median and the middle half, of {{classes}} classes",
+          "notBegun": "Not begun",
+          "upTo": "Up to {{high}}"
+        },
+        "note": "The sample is of those who chose to take part, so it does not necessarily represent all classes. These figures describe the plan, not classes or teachers.",
+        "reading": "Working out the comparison…",
+        "waiting": "The term’s figures come once the device that started this world ends its collection. Ask that device to open this page.",
+        "forming": "The term’s figures are being formed. Open this page again in a moment.",
+        "hidden": "Too few teachers or schools took part in this pack for its figures to be published, so there is nothing to compare with yet.",
+        "term": {
+          "1": "First term",
+          "2": "Second term",
+          "3": "Third term"
+        },
+        "ready": "The comparison is ready."
       }
     },
     "schoolThreshold": {

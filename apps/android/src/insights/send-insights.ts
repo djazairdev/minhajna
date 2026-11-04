@@ -14,7 +14,9 @@
 // sending once the choice changes, taking part turned off or on again, or its
 // caller has gone. A refusal stops there with an error, and what is left goes
 // at the next try; a class with a pack and no sending is passed over and
-// counted, the others sent, since trying again would not change it. A term
+// counted, the others sent, since trying again would not change it, and so is a
+// sending refused for a term whose figures read, its collection having ended
+// (#623, answer 700), and not asked about again while the app runs. A term
 // whose classes have all sent is not worked out again.
 
 import {
@@ -31,6 +33,7 @@ import {
 } from '@minhajna/core';
 import { unexpected, type Send } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
+import { termPacks, type ReportTerm } from '../observatory/figures-read';
 import { termSendings } from './term-sendings';
 
 export type SendInsightsInput = {
@@ -46,11 +49,16 @@ export type SendInsightsInput = {
   readonly wanted?: () => boolean;
 };
 
-/** How many sendings the server took, and how many classes with a pack had none to send. */
+/** How many sendings the server took, how many classes with a pack had none to send, and how many came too late. */
 export interface InsightsTry {
   readonly taken: number;
   readonly unsent: number;
+  /** Sendings for a term whose collection had ended, read from its figures, as a refusal alone does not say why. */
+  readonly late: number;
 }
+
+/** Each world store's sendings found late while the app runs, none of which is asked about again. */
+const lateSendings = new WeakMap<RecordBook, Set<string>>();
 
 /** Each world store's latest try, which the next one waits for. */
 const tries = new WeakMap<RecordBook, Promise<unknown>>();
@@ -86,6 +94,13 @@ export function sendDueInsights(input: SendInsightsInput): Promise<InsightsTry> 
   return run;
 }
 
+/** Whether the term's figures read, its collection having ended; a reading that fails says it has not. */
+const termEnded = (world: string, term: ReportTerm, send: Send): Promise<boolean> =>
+  termPacks(world, term, send).then(
+    (packs) => packs !== 'unready',
+    () => false,
+  );
+
 async function sendNow(input: SendInsightsInput): Promise<InsightsTry> {
   const { world, mine, date, book, reference, send, wanted = () => true } = input;
   const year = reference.calendar.year.id;
@@ -93,20 +108,33 @@ async function sendNow(input: SendInsightsInput): Promise<InsightsTry> {
   const going = () => wanted() && JSON.stringify(insightsChoice(book.entries)) === chosen;
   let taken = 0;
   let unsent = 0;
+  let late = 0;
+  const known = lateSendings.get(book) ?? new Set<string>();
+  lateSendings.set(book, known);
   for (const { term } of waitingSendings(mine, reference, date, book.entries)) {
-    if (!going()) return { taken, unsent };
+    if (!going()) return { taken, unsent, late };
     for (const { classId, sending } of await termSendings({ ...input, term })) {
       if (sending === NO_PACK || wasSent(book.entries, classId, year, term.number)) continue;
       if (typeof sending === 'string') {
         unsent += 1;
         continue;
       }
-      if (!going()) return { taken, unsent };
+      if (!going()) return { taken, unsent, late };
+      const place = `${classId}/${year}/${term.number}`;
+      if (known.has(place)) {
+        late += 1;
+        continue;
+      }
       const answer = await send({ method: 'PUT', path: `/worlds/${world}/insights/sendings`, body: sending });
+      if (answer.status === 409 && (await termEnded(world, { year, term: term.number }, send))) {
+        known.add(place);
+        late += 1;
+        continue;
+      }
       if (answer.status !== 201 && answer.status !== 200) throw unexpected(answer);
       await book.record(date, { kind: 'insights.sent', sent: { classId, text: JSON.stringify(sending) } });
       taken += 1;
     }
   }
-  return { taken, unsent };
+  return { taken, unsent, late };
 }

@@ -65,8 +65,8 @@ test('sends each term due once, with no starter token, two tries at once taking 
   expect(waitingSendings(mine, reference, second.to, book.entries).map((one) => one.term.number)).toEqual([1, 2]);
   const taken = await Promise.all([sendDueInsights(input(answering(201))), sendDueInsights(input(answering(200)))]);
   expect(taken).toEqual([
-    { taken: 2, unsent: 0 },
-    { taken: 0, unsent: 0 },
+    { taken: 2, unsent: 0, late: 0 },
+    { taken: 0, unsent: 0, late: 0 },
   ]);
   expect(requests.map((one) => [one.method, one.path, one.starter])).toEqual([
     ['PUT', `/worlds/${id}/insights/sendings`, undefined],
@@ -79,20 +79,20 @@ test('sends each term due once, with no starter token, two tries at once taking 
 });
 
 test('stops once its caller has gone, or the choice changes on the way', async () => {
-  expect(await sendDueInsights(input(answering(201), () => false))).toEqual({ taken: 0, unsent: 0 });
+  expect(await sendDueInsights(input(answering(201), () => false))).toEqual({ taken: 0, unsent: 0, late: 0 });
   expect(requests).toEqual([]);
   const off = () => book.record(second.to, { kind: 'insights.choice', choice: { on: false } }).then(() => undefined);
-  expect(await sendDueInsights(input(answering(201, off)))).toEqual({ taken: 1, unsent: 0 });
+  expect(await sendDueInsights(input(answering(201, off)))).toEqual({ taken: 1, unsent: 0, late: 0 });
   expect(sentSendings(book.entries).map((one) => one.sending.term)).toEqual([1]);
   await book.record(second.to, { kind: 'insights.choice', choice: { on: true } });
-  expect(await sendDueInsights(input(answering(201)))).toEqual({ taken: 1, unsent: 0 });
+  expect(await sendDueInsights(input(answering(201)))).toEqual({ taken: 1, unsent: 0, late: 0 });
   expect(sentSendings(book.entries).map((one) => one.sending.term)).toEqual([1, 2]);
 });
 
 test('a refusal keeps nothing, and the next try sends what is left', async () => {
   expect(await codeOf(sendDueInsights(input(answering(409))))).toBe('E_WORLD_SERVER');
   expect(sentSendings(book.entries)).toEqual([]);
-  expect(await sendDueInsights(input(answering(201)))).toEqual({ taken: 2, unsent: 0 });
+  expect(await sendDueInsights(input(answering(201)))).toEqual({ taken: 2, unsent: 0, late: 0 });
 });
 
 test('a class with a pack and no sending is passed over and counted, the rest sent', async () => {
@@ -106,6 +106,6 @@ test('a class with a pack and no sending is passed over and counted, the rest se
           )
         : real(made),
     );
-  expect(await sendDueInsights(input(answering(201)))).toEqual({ taken: 1, unsent: 1 });
+  expect(await sendDueInsights(input(answering(201)))).toEqual({ taken: 1, unsent: 1, late: 0 });
   expect(sentSendings(book.entries).map((one) => one.sending.term)).toEqual([2]);
 });

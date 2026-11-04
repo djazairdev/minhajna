@@ -212,7 +212,7 @@ export class DemoServer {
       return this.observatory.route(
         world,
         init.method ?? 'GET',
-        path.slice(`/worlds/${world}/insights`.length),
+        `${path.slice(`/worlds/${world}/insights`.length)}${url.search}`,
         body,
         starter,
       );
