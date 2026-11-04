@@ -45,6 +45,8 @@ model World {
   shares        Share[]
   observatory   Observatory?
   problems      Problem[]
+  packAccounts  PackAccount[]
+  packSteps     PackStep[]
 
   @@index([erasesOn])
   @@map("world")
@@ -183,4 +185,32 @@ model Problem {
   @@index([worldId, seq])
   @@index([received])
   @@map("problem")
+}
+
+model PackAccount {
+  worldId   String @db.Char(5)
+  role      String @db.VarChar(16)
+  tokenHash String @db.Char(64)
+  world     World  @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  @@id([worldId, role])
+  @@map("pack_account")
+}
+
+model PackStep {
+  worldId      String   @db.Char(5)
+  packId       String   @db.VarChar(128)
+  release      String   @db.VarChar(16)
+  revision     Int
+  stage        String   @db.VarChar(16)
+  role         String   @db.VarChar(16)
+  status       String   @db.VarChar(16)
+  digest       String   @db.Char(43)
+  supersededBy String?  @db.VarChar(16)
+  day          DateTime @db.Date
+  signature    String   @db.VarChar(96)
+  world        World    @relation(fields: [worldId], references: [id], onDelete: Cascade)
+
+  @@id([worldId, packId, release, revision])
+  @@map("pack_step")
 }

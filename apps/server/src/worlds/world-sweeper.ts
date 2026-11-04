@@ -17,6 +17,7 @@ import { ADMIN_STORE, daysBefore, KEPT_DAYS, type AdminStore } from '../admin/ad
 import { SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
 import { INSIGHT_STORE, type InsightStore } from '../insights/insight-store.js';
 import { SchoolMarks } from '../insights/school-marks.js';
+import { PACK_STORE, type PackStore } from '../packs/pack-store.js';
 import { SHARE_STORE, type ShareStore } from '../totals/share-store.js';
 import { TotalsDays } from '../totals/totals-days.js';
 import { WORLD_STORE, type WorldStore } from './world-store.js';
@@ -43,6 +44,7 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
     @Inject(TotalsDays) private readonly days: TotalsDays,
     @Inject(SchoolMarks) private readonly marks: SchoolMarks,
     @Inject(ADMIN_STORE) private readonly admin: AdminStore,
+    @Inject(PACK_STORE) private readonly packs: PackStore,
   ) {}
 
   /** Erases the worlds whose 7th day has come, and answers how many. */
@@ -55,6 +57,7 @@ export class WorldSweeper implements OnApplicationBootstrap, OnApplicationShutdo
     await this.spaces.forget(gone);
     await this.shares.forget(gone);
     await this.insights.forget(gone);
+    await this.packs.forget(gone);
     this.days.forget(gone);
     await this.quietly('trim', () => this.admin.sweep(daysBefore(today, KEPT_DAYS), gone));
     const looked = this.marks.turn;

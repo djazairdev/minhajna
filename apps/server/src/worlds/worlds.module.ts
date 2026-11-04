@@ -3,11 +3,12 @@
 
 // The worlds module: worlds, their spaces, the relay, the stand-in CA, the
 // stand-in receiving system (#590), the schools' shares of the totals (#596),
-// the operators' view of the server (#618), the observatory (#621), and the
-// admin log, problem reports and security logs (#619), with their stores, rate
-// limits and sweeper. The server runs it with the memory stores, or
-// PostgreSQL's when it has a database; tests pass their own stores, probe,
-// limits, clock and schools' marks.
+// the operators' view of the server (#618), the observatory (#621), the admin
+// log, problem reports and security logs (#619), and the pack desk's accounts
+// and release steps (#612), with their stores, rate limits and sweeper. The
+// server runs it with the memory stores, or PostgreSQL's when it has a
+// database; tests pass their own stores, probe, limits, clock and schools'
+// marks.
 
 import { Module, type DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
@@ -18,6 +19,8 @@ import { LogsController } from '../admin/logs.controller.js';
 import { ProblemsController } from '../admin/problems.controller.js';
 import { SECURITY_LOG, SecurityFilter, SecurityLog } from '../admin/security-log.js';
 import { MemoryProbe, SYSTEM_PROBE, type SystemProbe } from '../admin/system-probe.js';
+import { MemoryPackStore, PACK_STORE, type PackStore } from '../packs/pack-store.js';
+import { PacksController } from '../packs/packs.controller.js';
 import { SpacesController } from '../spaces/spaces.controller.js';
 import { StoreBusyFilter } from '../spaces/store-busy.filter.js';
 import { MemorySpaceStore, SPACE_STORE, type SpaceStore } from '../spaces/space-store.js';
@@ -46,6 +49,7 @@ export interface WorldsOptions {
   readonly marks?: SchoolMarks;
   /** The admin log and the problem reports. */
   readonly admin?: AdminStore;
+  readonly packs?: PackStore;
   /** The migrations applied as the server started, for the admin log. */
   readonly migrations?: readonly string[];
   readonly starts?: Limit;
@@ -90,6 +94,7 @@ export class WorldsModule {
         LogsController,
         ProblemsController,
         FiguresController,
+        PacksController,
       ],
       providers: [
         { provide: WORLD_STORE, useValue: store },
@@ -98,6 +103,7 @@ export class WorldsModule {
         { provide: SYSTEM_PROBE, useValue: options.probe ?? new MemoryProbe() },
         { provide: INSIGHT_STORE, useValue: options.insights ?? new MemoryInsightStore(exists) },
         { provide: ADMIN_STORE, useValue: admin },
+        { provide: PACK_STORE, useValue: options.packs ?? new MemoryPackStore(exists) },
         { provide: ADMIN_START, useValue: { now, migrations: options.migrations ?? [] } },
         { provide: SECURITY_LOG, useValue: new SecurityLog(now) },
         AdminJournal,

@@ -48,6 +48,7 @@ const worlds: WorldsOptions = {
         probe: new PostgresProbe(stores.client),
         insights: stores.insights,
         admin: stores.admin,
+        packs: stores.packs,
         close: () => stores.close(),
       }
     : {}),
