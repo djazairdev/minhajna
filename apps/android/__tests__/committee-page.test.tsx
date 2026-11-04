@@ -11,9 +11,10 @@
 // exam; a majority of no cut is adopted too, with nothing to publish; after the
 // deadline with no majority no cut was adopted and nothing can be signed or is
 // published; totals not added up or hidden say so; another subject opens its
-// own room. Every world, school and share is made up.
+// own room; an exam the calendar moved says why. Every world, school and share
+// is made up.
 
-import { addDays } from '@minhajna/core';
+import { addDays, worldExams } from '@minhajna/core';
 import { Platform } from 'react-native';
 import {
   day,
@@ -32,7 +33,7 @@ import {
   words,
 } from '../jest/committee-page';
 import { controls, press, show, texts, unmount, update } from '../jest/threshold-page';
-import { reference } from '../jest/world-calendar';
+import { calendar, reference } from '../jest/world-calendar';
 import type { Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import ar from '../src/text/ar.json';
@@ -82,7 +83,8 @@ test('it shows the exam’s days, the totals with a term end, the marks, the clo
   };
   await show(pageOf(held, id, day, counting));
   const all = texts();
-  expect(all).toContain('A made-up lead');
+  expect(all).toContain(words.level.directorate.lead);
+  expect(all).toContain(words.level.directorate.floors);
   expect(all).toContain(
     fill(words.dates, { figures: `day ${day}`, signBy: `day ${mock.signBy}`, from: `day ${mock.from}` }),
   );
@@ -98,7 +100,7 @@ test('it shows the exam’s days, the totals with a term end, the marks, the clo
   expect(all).toContain(page.state.none);
   for (const n of [1, 2, 3]) expect(all).toContain(fill(page.setter.waiting, { name: seat(n) }));
   expect(all).toContain(fill(words.majority, { majority: 2, seats: 3 }));
-  expect(all).toContain(words.sees);
+  expect(all).toContain(words.level.directorate.sees);
   expect(all).toContain(fill(words.publishes, { to: `day ${mock.to}`, figures: `day ${day}` }));
   for (const note of Object.values(words.notes)) expect(all).toContain(note);
 });
@@ -142,12 +144,12 @@ test('a seat proposes, another signs, and the first majority is adopted and fina
   expect(all).toContain(fill(words.state.adopted, { day: `day ${day}`, count: 2, seats: 3, item: title(1) }));
   expect(controls('committee-propose')).toHaveLength(0);
   expect(controls('committee-none')).toHaveLength(0);
-  expect(all).toContain(words.sees);
+  expect(all).toContain(words.level.directorate.sees);
   const ended = addDays(mock.to, 1);
   onDay(id, ended);
   await update(pageOf(held, id, ended));
-  expect(texts()).toContain(fill(words.published, { to: `day ${mock.to}`, figures: `day ${day}` }));
-  expect(texts()).not.toContain(words.sees);
+  expect(texts()).toContain(fill(words.level.directorate.published, { to: `day ${mock.to}`, figures: `day ${day}` }));
+  expect(texts()).not.toContain(words.level.directorate.sees);
 });
 
 test('choosing another seat puts a pick aside, and a pick goes back', async () => {
@@ -175,7 +177,7 @@ test('a majority of no cut is adopted', async () => {
   const all = texts();
   expect(all).toContain(fill(words.state.adoptedNone, { day: `day ${day}`, count: 2, seats: 3 }));
   expect(controls('committee-none')).toHaveLength(0);
-  expect(all).not.toContain(words.sees);
+  expect(all).not.toContain(words.level.directorate.sees);
   expect(all).not.toContain(fill(words.publishes, { to: `day ${mock.to}`, figures: `day ${day}` }));
 });
 
@@ -190,12 +192,14 @@ test('after the deadline with no majority no cut was adopted, nothing is signed 
   await update(pageOf(held, id, late));
   expect(texts()).toContain(words.state.lapsed);
   expect(controls('committee-none')).toHaveLength(0);
-  expect(texts()).not.toContain(words.sees);
+  expect(texts()).not.toContain(words.level.directorate.sees);
   const ended = addDays(mock.to, 1);
   onDay(id, ended);
   await update(pageOf(held, id, ended));
   expect(texts()).toContain(words.state.lapsed);
-  expect(texts()).not.toContain(fill(words.published, { to: `day ${mock.to}`, figures: `day ${day}` }));
+  expect(texts()).not.toContain(
+    fill(words.level.directorate.published, { to: `day ${mock.to}`, figures: `day ${day}` }),
+  );
 });
 
 test('totals not added up or hidden say so, and the committee still stands', async () => {
@@ -207,7 +211,7 @@ test('totals not added up or hidden say so, and the committee still stands', asy
   await unmount();
   putShares(held.world, day, { [items[0]]: 10 }, { teachers: 1 });
   await show(pageOf(held, held.world, day));
-  expect(texts()).toContain(words.hidden);
+  expect(texts()).toContain(words.level.directorate.hidden);
 });
 
 test('another subject opens its own room and its own figures', async () => {
@@ -220,4 +224,24 @@ test('another subject opens its own room and its own figures', async () => {
   expect(all).toContain(words.notYet);
   expect(all).toContain(fill(page.setter.waiting, { name: seat(1) }));
   expect(all.filter((text) => text === fill(words.noneDone, { seat: seat(1) }))).toEqual([]);
+});
+
+test('an exam the calendar moved says why', async () => {
+  const entries = calendar.entries.map((one) =>
+    one.effect === 'exam' && one.term === 3 && one.zone === undefined
+      ? {
+          ...one,
+          from: addDays(one.from, 7),
+          to: addDays(one.to, 7),
+          moved: { from: one.from, to: one.to, reason: 'A made-up reason' },
+        }
+      : one,
+  );
+  const moved = worldExams(calendar.year, entries).find((one) => one.id === 'mock')!;
+  expect(moved.from).not.toBe(mock.from);
+  const held = await started();
+  onDay(held.world, moved.figuresDay);
+  const made = { ...reference, calendar: { ...calendar, entries } };
+  await show(pageOf(held, held.world, moved.figuresDay, server.send, { reference: made, updates: [] }));
+  expect(texts().some((text) => text.includes('A made-up reason'))).toBe(true);
 });

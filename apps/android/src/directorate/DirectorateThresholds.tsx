@@ -15,7 +15,6 @@ import { seededWorld } from '../director/director-world';
 import type { TermReference } from '../director/seeded-fill';
 import { worldRequest } from '../network/world-network';
 import type { ReferenceResult } from '../reference';
-import { useDeviceText } from '../text/device-text';
 import { CommitteePage } from '../threshold/CommitteePage';
 import { readTotals } from './totals-read';
 
@@ -37,7 +36,6 @@ export type DirectorateThresholdsProps = {
 /** The committees of the directorate's own exams. */
 export function DirectorateThresholds(props: DirectorateThresholdsProps) {
   const { world, school, held, reference, bundled, kit, send = worldRequest, dayText, updates } = props;
-  const t = useDeviceText();
   const directorate = school.directorateId;
   const schools = useMemo(
     () => seededWorld(world.world, bundled).schools.filter((one) => one.directorateId === directorate),
@@ -53,7 +51,6 @@ export function DirectorateThresholds(props: DirectorateThresholdsProps) {
       reference={reference}
       schools={schools}
       packs={bundled.packs}
-      lead={t('demo.committee.lead')}
       read={(day) => readTotals(world.world, day, directorate, send)}
       kit={kit}
       send={send}
