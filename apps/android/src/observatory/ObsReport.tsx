@@ -11,11 +11,13 @@
 // release, its ID added where two would read alike, and shows one at a time:
 // the counts of classes, teachers, schools and wilayas shown, and that the
 // sample chose itself and describes the plan; how many classes were set aside,
-// when any were; and the cards (ObsReportCards.tsx). A wilaya the server hides
+// when any were; the cards (ObsReportCards.tsx); the school days closures took
+// in each wilaya shown (ObsClosures.tsx); and the way to the IGP and the uses
+// the figures may never serve (ObsReportSteps.tsx). A wilaya the server hides
 // is not named or counted, and the page says only that such wilayas are not
 // shown. A problem is said as an alert.
 
-import type { CountryProfile, PlanPack, SchoolYear } from '@minhajna/core';
+import type { CountryProfile, Day, PlanPack, SchoolCalendar, SchoolYear } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
@@ -31,8 +33,11 @@ import { formatFigure } from '../text/figures';
 import { currentLanguage } from '../text/i18n';
 import { isolate } from '../week/grid-labels';
 import type { PackHeading } from './figures-read';
+import { ClosuresCard } from './ObsClosures';
 import { obsStyles as styles } from './obs-styles';
 import { ChangedCard, MedianCard, ReachedCard } from './ObsReportCards';
+import { ObsReportSteps } from './ObsReportSteps';
+import { closureRows } from './report-closures';
 import { reportRows } from './report-figures';
 import { useTermFigures } from './use-term-figures';
 
@@ -40,13 +45,19 @@ export type ObsReportProps = {
   readonly world: Pick<OpenWorld, 'world' | 'date' | 'starter'>;
   /** The world's school year, whose terms its date is read against. */
   readonly year: SchoolYear;
-  /** The reference data, which names grades and subjects and holds the packs the app has. */
-  readonly reference: { readonly profile: CountryProfile; readonly packs: readonly PlanPack[] };
+  /** The reference data: it names grades, subjects and wilayas, holds the packs and the world's public calendar. */
+  readonly reference: {
+    readonly profile: CountryProfile;
+    readonly packs: readonly PlanPack[];
+    readonly calendar: SchoolCalendar;
+  };
+  /** A day written out as the band writes it. */
+  readonly dayText: (day: Day) => string;
   readonly send?: Send;
 };
 
 /** The observatory's report on the latest ended term, one pack at a time. */
-export function ObsReport({ world, year, reference, send = worldRequest }: ObsReportProps) {
+export function ObsReport({ world, year, reference, dayText, send = worldRequest }: ObsReportProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -62,6 +73,7 @@ export function ObsReport({ world, year, reference, send = worldRequest }: ObsRe
   const nation = figures?.nation ?? null;
   const held = figures && reference.packs.find((one) => one.id === figures.pack && one.release === figures.release);
   const rows = nation === null ? [] : reportRows(nation, held);
+  const dates = term === null ? undefined : year.terms.find((one) => one.number === term.term);
   const reading = state === 'reading' || (state === 'ready' && figures === undefined && problem === null);
   const status = reading
     ? 'reading'
@@ -122,7 +134,16 @@ export function ObsReport({ world, year, reference, send = worldRequest }: ObsRe
           <MedianCard rows={rows} />
           <ChangedCard rows={rows} />
           <ReachedCard figure={nation} />
+          {dates !== undefined && (
+            <ClosuresCard
+              rows={closureRows(figures.wilayas, reference.calendar, reference.profile, dates, figures.grade)}
+              profile={reference.profile}
+            />
+          )}
         </View>
+      )}
+      {state === 'ready' && dates !== undefined && (
+        <ObsReportSteps termEnd={dates.to} date={world.date} dayText={dayText} />
       )}
     </View>
   );
