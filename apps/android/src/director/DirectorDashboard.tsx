@@ -4,21 +4,21 @@
 // The director's dashboard (#569, PRD §7.6, answer 591), the first page of the
 // director's workspace in a national demo world, as D-Dashboard draws it: the
 // world's date and that the view follows each sync batch; the thresholds first,
-// which say no day is announced until exam thresholds come (#529); then three
-// views, the classes' progress, the sessions awaiting confirmation, and each
-// teacher's sessions and the cover they gave. The first two list each class and
-// subject in the school's order (school-dashboard.ts), with a level to choose
-// and, for progress, the classes behind their plan alone, which counts no class
-// whose figures are not in the school's space, a table on the PC and a line for
-// each row on the phone; the third lists the staff in the school's order, never
-// against a statutory load. Its last line says the order, and that nothing is
-// ranked by delay, coloured by person or timed. The row's panel, with the last
-// signed week, the threshold day's forecast and the visa, follows #529; the
-// teacher's own view, its classes alone, comes with the teacher's world mode.
-// Who has joined and each class's standing from its signed weeks (answer 627)
-// are given (DashboardPage.tsx), with a line while they are not known and an
-// alert, with reading again, when the reading failed; a joined class with no
-// signed week yet says so.
+// as given (ThresholdCard.tsx, #603); then three views, the classes' progress,
+// the sessions awaiting confirmation, and each teacher's sessions and the cover
+// they gave. The first two list each class and subject in the school's order
+// (school-dashboard.ts), with a level to choose and, for progress, the classes
+// behind their plan alone, which counts no class whose figures are not in the
+// school's space, a table on the PC and a line for each row on the phone; the
+// third lists the staff in the school's order, never against a statutory load.
+// Its last line says the order, and that nothing is ranked by delay, coloured
+// by person or timed. The row's panel, with the last signed week, the threshold
+// day's forecast and the visa, follows #529; the teacher's own view, its
+// classes alone, comes with the teacher's world mode. Who has joined and each
+// class's standing from its signed weeks (answer 627) are given
+// (DashboardPage.tsx), with a line while they are not known and an alert, with
+// reading again, when the reading failed; a joined class with no signed week
+// yet says so.
 
 import {
   dashboardCourses,
@@ -32,7 +32,7 @@ import {
   type TrialTerm,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
+import { useState, type ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
@@ -67,12 +67,14 @@ export type DirectorDashboardProps = {
   readonly problem?: JoinedProblem | null;
   /** Reads who joined again, after a problem. */
   readonly onAgain?: () => void;
+  /** The thresholds card (ThresholdCard.tsx), first on the page. */
+  readonly threshold?: ReactElement;
 };
 
 /** The school's operational view for its director. */
 export function DirectorDashboard(props: DirectorDashboardProps) {
   const { school, profile, when, dayText, joined = () => false, standing = () => null, cover = () => 0 } = props;
-  const { note = null, problem = null, onAgain } = props;
+  const { note = null, problem = null, onAgain, threshold } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -103,12 +105,7 @@ export function DirectorDashboard(props: DirectorDashboardProps) {
           )}
         </View>
       )}
-      <View testID="dashboard-threshold" style={styles.card}>
-        <Text accessibilityRole="header" style={[styles.head, align]}>
-          {t('demo.dashboard.threshold')}
-        </Text>
-        <Text style={[styles.small, align]}>{t('demo.dashboard.noThreshold')}</Text>
-      </View>
+      {threshold}
       <SegmentedControl
         testID="dashboard-view"
         label={t('demo.dashboard.views')}

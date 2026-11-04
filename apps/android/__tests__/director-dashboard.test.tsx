@@ -3,20 +3,21 @@
 
 // The director's dashboard (#569, answer 591), against a made-up demo server: a
 // national world started on a PC opens the director's workspace on the seeded
-// school's dashboard, the thresholds first, saying no day is announced, and
-// that this device holds no key to read who joined; every class and subject in
-// the school's order, in a table on the PC, each not joined with its timetable
-// only, its days named, during the trial term end and to join once the world's
-// date moves past it; once the seeded key is taken, every seeded teacher reads
-// joined and every class its standing from the term of signed weeks the take
-// filled (#548, answers 626 and 627); a level keeps the order, and the classes
-// behind count none without figures; each teacher's sessions and cover in the
-// staff's order, the staff's order said under them and the classes' under the
-// others. Given a joined teacher's figures, the PC's table gives the place in
-// the plan, the pace, how far the class reached and the sessions not held,
-// closures' and others' apart, each in its column (answer 627), the phone's row
-// the same in one line, the sessions awaiting confirmation in their own view,
-// and a vacant post says so. Every world, school and person is made up.
+// school's dashboard, the thresholds first, saying what each teacher sees and
+// opening the thresholds page, and that this device holds no key to read who
+// joined; every class and subject in the school's order, in a table on the PC,
+// each not joined with its timetable only, its days named, during the trial
+// term end and to join once the world's date moves past it; once the seeded key
+// is taken, every seeded teacher reads joined and every class its standing from
+// the term of signed weeks the take filled (#548, answers 626 and 627); a level
+// keeps the order, and the classes behind count none without figures; each
+// teacher's sessions and cover in the staff's order, the staff's order said
+// under them and the classes' under the others. Given a joined teacher's
+// figures, the PC's table gives the place in the plan, the pace, how far the
+// class reached and the sessions not held, closures' and others' apart, each in
+// its column (answer 627), the phone's row the same in one line, the sessions
+// awaiting confirmation in their own view, and a vacant post says so. Every
+// world, school and person is made up.
 
 import {
   dashboardCourses,
@@ -111,10 +112,17 @@ async function director() {
   return directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs))!;
 }
 
+test('the thresholds card opens the thresholds page', async () => {
+  await director();
+  await press('dashboard-threshold-open');
+  expect([has('director-dashboard'), has('schoolThreshold')]).toEqual([false, true]);
+});
+
 test('the director’s workspace opens on the seeded school, every class not joined in the trial', async () => {
   const school = await director();
   expect(tree!.root.findAllByProps({ testID: 'director-dashboard' }).length).toBeGreaterThan(0);
-  expect(texts()).toEqual(expect.arrayContaining([board.threshold, board.noThreshold, board.order, board.noKey]));
+  expect(texts()).toEqual(expect.arrayContaining([board.threshold, board.thresholdTeachers, board.order, board.noKey]));
+  expect(texts().indexOf(board.thresholdTeachers)).toBeLessThan(texts().indexOf(board.progress));
   const names = school.classes.flatMap((one) => ['arabic', 'math', 'french'].map((subject) => `${one.id}-${subject}`));
   expect(shownRows()).toEqual(names.map((name) => `dashboard-row-${name}`));
   expect(tree!.root.findAll((node) => node.props.role === 'table' && typeof node.type === 'string')).toHaveLength(1);

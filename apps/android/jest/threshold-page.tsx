@@ -52,6 +52,9 @@ export const show = (shown: ReactElement) =>
 /** Renders the page again in place, right to left, as when its props change. */
 export const update = (shown: ReactElement) =>
   act(() => tree!.update(<LocaleDirContext.Provider value="rtl">{shown}</LocaleDirContext.Provider>));
+/** How a part of the page with a test ID is said as it changes. */
+export const liveRegion = (testID: string) =>
+  tree!.root.findAll((node) => node.props.testID === testID)[0].props.accessibilityLiveRegion as unknown;
 /** What the page's alerts say. */
 export const alerts = () =>
   tree!.root

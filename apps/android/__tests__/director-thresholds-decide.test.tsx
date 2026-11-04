@@ -16,16 +16,9 @@
 // no key; and the page is the director's alone. Every world, school, setter and
 // class is made up.
 
-import {
-  addDays,
-  worldExams,
-  type CalendarUpdate,
-  type CutState,
-  type Day,
-  type ExamChart,
-  type WorldExam,
-} from '@minhajna/core';
+import { addDays, worldExams, type CalendarUpdate, type Day } from '@minhajna/core';
 import { AccessibilityInfo, Platform } from 'react-native';
+import { madeUpItems, madeUpRoom } from '../jest/made-up-room';
 import { act, alerts, controls, press, show, texts, unmount, update } from '../jest/threshold-page';
 import { calendar, reference } from '../jest/world-calendar';
 import { nodeKit } from '../jest/world-server';
@@ -46,34 +39,8 @@ const words = ar.demo.schoolThreshold;
 const exams = worldExams(calendar.year, calendar.entries).filter((one) => one.setBy === 'school');
 const [earlier, latest] = exams;
 const date = addDays(latest.signBy, 1);
-const pack = reference.packs.find((one) => one.items.length >= 3)!;
-const items = pack.items.map((one) => one.id);
-
-const roomOf = (exam: WorldExam, subject: string, none = false): schoolRooms.SchoolRoom => {
-  const chart: ExamChart = {
-    world: 'made-up-world',
-    school: 'made-up-school',
-    exam: exam.id,
-    subject,
-    grade: '1am',
-    from: exam.from,
-    figuresDay: exam.figuresDay,
-    signBy: exam.signBy,
-    forecastDay: addDays(exam.from, -1),
-    pack: { id: pack.id, release: '1' },
-    items,
-    setters: [{ assignment: 'made-up-assignment', name: 'Made-up setter', key: 'made-up-key' }],
-    classes: [{ name: '1م1', position: items[1], forecast: items[2] }],
-  };
-  const state: CutState = {
-    signed: new Map([['made-up-assignment', none ? null : items[1]]]),
-    days: new Map([['made-up-assignment', exam.figuresDay]]),
-    proposed: none ? null : { item: items[1], by: 'made-up-assignment', day: exam.figuresDay },
-    settled: null,
-    director: true,
-  };
-  return { exam, chart, state, epoch: 0, ca: 'made-up-ca' };
-};
+const items = madeUpItems;
+const roomOf = madeUpRoom;
 
 const page = (on: Day = date) => (
   <DirectorThresholds
