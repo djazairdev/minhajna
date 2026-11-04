@@ -22,8 +22,10 @@
 // (share-send.ts), and the cut rooms of the school exams whose figures day it
 // reached are opened (room-open.ts, answer 632), and those of exams past handed
 // to every teacher of their subject and grade (answer 634), the one whatever
-// the other did, after the page has what it reads; a failed send, or a room
-// that failed, is not said, and is tried again with the next reading.
+// the other did, after the page has what it reads, then the rooms read for the
+// thresholds card (school-rooms.ts, answer 637), none while they are not; a
+// failed send, a room that failed or a failed reading of the rooms is not said,
+// and is tried again with the next reading.
 
 import {
   issuesIn,
@@ -45,6 +47,7 @@ import { PUBLIC_KEY_BYTES, type IssueDesk } from './school-desk';
 import type { TermReference } from './seeded-fill';
 import { sendShares } from './share-send';
 import { openRooms } from '../threshold/room-open';
+import { readSchoolRooms, type SchoolRoom } from '../threshold/school-rooms';
 
 type JoinedWorld = Pick<OpenWorld, 'world' | 'book' | 'date'>;
 
@@ -54,7 +57,7 @@ export type JoinedProblem = ReturnType<typeof problemOf>;
 /** What the page says while who joined is not known: no key held, or being read. */
 export type JoinedNote = 'demo.dashboard.noKey' | 'demo.dashboard.reading';
 
-/** The teachers read as joined, what is said while that is not known, and why the reading failed. */
+/** The teachers read as joined, what is said while that is not known, why the reading failed, and the exam rooms. */
 export interface JoinedRead {
   readonly joined: ReadonlySet<string>;
   readonly note: JoinedNote | null;
@@ -63,6 +66,8 @@ export interface JoinedRead {
   readonly standing: (classId: string, subject: string) => CourseStanding | null;
   /** Reads who joined again. */
   readonly again: () => void;
+  /** The school exams' rooms read once this reading opened them (school-rooms.ts), or null while they are not. */
+  readonly rooms: readonly SchoolRoom[] | null;
 }
 
 const NONE: ReadonlySet<string> = new Set();
@@ -96,7 +101,7 @@ async function joinedOn(
 }
 
 type Found = Pick<JoinedRead, 'joined' | 'standing' | 'problem'> & {
-  readonly sharing?: () => Promise<unknown>;
+  readonly sharing?: () => Promise<readonly SchoolRoom[]>;
 };
 type Read = { readonly world: string; readonly school: string; readonly round: number } & (
   Found | { readonly problem: JoinedProblem }
@@ -113,6 +118,8 @@ export function useJoinedTeachers(
   const holding = latestHeld(world.book.entries, PUBLIC_KEY_BYTES) !== null;
   const [read, setRead] = useState<Read | null>(null);
   const [round, setRound] = useState(0);
+  const [rooms, setRooms] = useState<{ key: string; rooms: readonly SchoolRoom[] } | null>(null);
+  const roomsKey = JSON.stringify([world.world, world.date, school.id, round]);
   const again = useCallback(() => setRound((one) => one + 1), []);
   useEffect(() => {
     if (!holding) return;
@@ -127,7 +134,7 @@ export function useJoinedTeachers(
           Promise.allSettled([
             sendShares(world, desk, school, records, reference, kit, send),
             openRooms(world, desk, school, records, reference, kit, send),
-          ]);
+          ]).then(() => readSchoolRooms(world, desk, school, reference, kit, send));
         return { joined, standing: courseStandings(records, school, reference), problem: null, sharing };
       } catch (error) {
         return { joined, standing: NO_STANDING, problem: problemOf(error) };
@@ -137,7 +144,10 @@ export function useJoinedTeachers(
       ({ sharing, ...found }) => {
         if (!open) return;
         setRead({ ...of, ...found });
-        sharing?.().catch(() => undefined);
+        sharing?.().then(
+          (held) => open && setRooms({ key: roomsKey, rooms: held }),
+          () => undefined,
+        );
       },
       (error: unknown) => {
         if (open) setRead({ ...of, problem: problemOf(error) });
@@ -146,8 +156,14 @@ export function useJoinedTeachers(
     return () => {
       open = false;
     };
-  }, [world, school, reference, kit, send, holding, round]);
-  const none = { joined: NONE, standing: NO_STANDING, problem: null, again };
+  }, [world, school, reference, kit, send, holding, round, roomsKey]);
+  const none = {
+    joined: NONE,
+    standing: NO_STANDING,
+    problem: null,
+    again,
+    rooms: rooms?.key === roomsKey ? rooms.rooms : null,
+  };
   if (!holding) return { ...none, note: 'demo.dashboard.noKey' };
   if (read?.world !== world.world || read.school !== school.id || read.round !== round) {
     return { ...none, note: 'demo.dashboard.reading' };
