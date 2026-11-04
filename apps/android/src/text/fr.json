@@ -6571,7 +6571,7 @@
       "state": {
         "adopted": "Adopté le {{day}} par {{count}} sièges sur {{seats}} : le sujet couvre jusqu’à {{item}}. C’est définitif.",
         "adoptedNone": "Adopté le {{day}} par {{count}} sièges sur {{seats}} : pas de seuil pour cet examen. C’est définitif.",
-        "proposed": "Jusqu’à {{item}} est proposé. Sièges qui le nomment : {{count}} sur {{seats}}.",
+        "proposed": "Proposé : jusqu’à {{item}}. Sièges qui le nomment : {{count}} sur {{seats}}.",
         "lapsed": "La date limite de signature est passée sans majorité : aucun seuil n’a été adopté, et le sujet est établi comme d’habitude."
       },
       "majority": "Un seuil est adopté quand {{majority}} des {{seats}} sièges nomment le même élément, ou l’absence de seuil.",
@@ -6583,11 +6583,11 @@
       "sees": "Avant l’examen, seuls la commission et le service des examens voient le seuil. Chaque appareil d’un monde de démo détient ses clés : c’est ici une règle des pages.",
       "publishes": "Un seuil adopté est publié après le {{to}}, avec les chiffres du {{figures}}.",
       "published": "L’examen s’est terminé le {{to}} : le seuil est publié avec les chiffres du {{figures}}, et chaque enseignant de la matière à ce niveau le voit.",
-      "closed": "Le seuil ne peut plus être signé : la date limite est passée ou une majorité a adopté un seuil.",
+      "closed": "Le seuil ne peut plus être signé : la date limite est passée ou une majorité a tranché.",
       "notes": {
         "never": "Le système ne fixe jamais de seuil : sans majorité, le sujet est établi comme d’habitude.",
         "termEnds": "Les fins de trimestre servent seulement de comparaison, et aucune ligne du plan n’est tracée.",
-        "floors": "Aucun chiffre ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 établissements, et ce qui est plus petit est retenu.",
+        "floors": "Aucun chiffre ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 établissements, et ce qui est plus petit est masqué.",
         "unchecked": "Ces chiffres ne sont pas vérifiés : cette démo n’a pas d’échantillon des inspecteurs pour les comparer.",
         "rank": "Rien ici ne sert à évaluer ou à classer qui que ce soit."
       },

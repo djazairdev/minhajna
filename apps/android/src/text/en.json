@@ -6488,7 +6488,7 @@
       "sees": "Before the exam, only the committee and the exams office see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
       "publishes": "A cut adopted is published after {{to}}, with the figures of {{figures}}.",
       "published": "The exam ended on {{to}}: the cut is published with the figures of {{figures}}, and every teacher of the subject at this grade sees it.",
-      "closed": "The cut can no longer be signed: the signing deadline has passed or a majority has adopted a cut.",
+      "closed": "The cut can no longer be signed: the signing deadline has passed or a majority has decided.",
       "notes": {
         "never": "The system never sets a cut: without a majority the paper is set as usual.",
         "termEnds": "The term ends are for comparison only, and no line of the plan is drawn.",

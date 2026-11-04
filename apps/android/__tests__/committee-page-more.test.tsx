@@ -6,10 +6,11 @@
 // every class reached it says so; only the level's exams are offered; the exams
 // and grades are chips, the latest exam chosen at first, and a choice opens its
 // room; what was said and a refusal hold for their date; a slower answer of
-// another room is dropped; a problem reading is said with a way to read again,
-// and a vote refused as a majority came in says why; the directorate's
-// workspace opens its committees over the world's seeded schools. Every world,
-// school and share is made up.
+// another room is dropped, and another room's votes do not show while its own
+// are read; an exam the calendar moved says why; a problem reading is said with
+// a way to read again, and a vote refused as a majority came in says why; the
+// directorate's workspace opens its committees over the world's seeded schools.
+// Every world, school and share is made up.
 
 import { addDays, compareDays, directorateSpace, NATIONAL_COMMITTEE, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -19,6 +20,7 @@ import {
   fill,
   items,
   mathRoom,
+  mock,
   onDay,
   opened,
   pack,
@@ -185,6 +187,53 @@ test('a slower answer of another room is dropped', async () => {
   await act();
   expect(texts()).toContain(fill(page.setter.waiting, { name: seat(1) }));
   expect(texts()).not.toContain(fill(page.setter.cut, { name: seat(1), item: title(1), day: `day ${day}` }));
+  expect(controls('committee-none')).toHaveLength(1);
+});
+
+test('another room’s votes do not show while its own are read', async () => {
+  const { id, held } = await opened();
+  await castVote(held, mathRoom(id), 0, null, day, nodeKit, server.send);
+  let holding = false;
+  let release = () => undefined as void;
+  const slow: Send = async (request) => {
+    if (holding && request.path.includes('/spaces/')) {
+      holding = false;
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+    }
+    return server.send(request);
+  };
+  await show(pageOf(held, id, day, slow));
+  const none = fill(page.setter.none, { name: seat(1), day: `day ${day}` });
+  expect(texts()).toContain(none);
+  holding = true;
+  await press('committee-subjects-french');
+  expect(holding).toBe(false);
+  expect(texts()).not.toContain(none);
+  release();
+  await act();
+  expect(texts()).toContain(fill(page.setter.waiting, { name: seat(1) }));
+});
+
+test('an exam the calendar moved says why', async () => {
+  const entries = calendar.entries.map((one) =>
+    one.effect === 'exam' && one.term === 3 && one.zone === undefined
+      ? {
+          ...one,
+          from: addDays(one.from, 7),
+          to: addDays(one.to, 7),
+          moved: { from: one.from, to: one.to, reason: 'A made-up reason' },
+        }
+      : one,
+  );
+  const moved = worldExams(calendar.year, entries).find((one) => one.id === 'mock')!;
+  expect(moved.from).not.toBe(mock.from);
+  const held = await started();
+  onDay(held.world, moved.figuresDay);
+  const made = { ...reference, calendar: { ...calendar, entries } };
+  await show(pageOf(held, held.world, moved.figuresDay, server.send, { reference: made, updates: [] }));
+  expect(texts().some((text) => text.includes('A made-up reason'))).toBe(true);
 });
 
 test('a problem reading is said with a way to read again', async () => {
