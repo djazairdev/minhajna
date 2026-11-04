@@ -29,7 +29,8 @@ async function main() {
   if (!Number.isInteger(seconds) || seconds < 1) throw new RangeError('--wait takes a whole number of seconds');
   if (!(await waitFor(new URL('/health', values.server).href, seconds)))
     throw new Error(`${values.server} did not answer /health`);
-  const scenarios = [SAMPLE];
+  const { SCHOOL } = await import('./school.js');
+  const scenarios = [SAMPLE, SCHOOL];
   for (const scenario of scenarios) {
     process.stdout.write(`${scenario.name}\n`);
     await runScenario(scenario, values.server, { say: (line) => process.stdout.write(`  ${line}\n`) });
