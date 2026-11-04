@@ -6808,7 +6808,7 @@
         }
       },
       "reading": "Lecture de ce qui est publié…",
-      "none": "Aucun examen n’est encore terminé : un seuil est publié le lendemain du dernier jour de son examen.",
+      "none": "Aucun de ces examens n’est encore terminé : un seuil est publié le lendemain du dernier jour de son examen.",
       "head": "{{exam}} · {{grade}}",
       "dates": "Les chiffres ont été pris le {{figures}}. L’examen s’est tenu du {{from}} au {{to}}.",
       "cut": "Le seuil adopté le {{day}} : jusqu’à {{item}}.",

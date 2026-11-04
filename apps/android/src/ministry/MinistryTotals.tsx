@@ -12,8 +12,8 @@
 // server, with where the sessions lost come from; and the curriculum report is
 // the nation's, with each subject's range across the wilayas when 8 show it
 // (report-range.ts), its items named by the packs every seeded class pins. The
-// last words say the totals never set an exam threshold, a ranking of wilayas
-// or a decision about a teacher.
+// last words say the totals never set an exam's cut, and never serve a ranking
+// of wilayas or a decision about a teacher.
 
 import type { Day, SchoolCalendar, Zone } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
