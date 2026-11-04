@@ -291,6 +291,7 @@ export function DemoRoot({
               onPage,
               held,
               onCalendar: published.again,
+              updates: published.read?.updates,
             })
       }
     />

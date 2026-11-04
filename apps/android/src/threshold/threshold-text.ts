@@ -1,22 +1,23 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What the teacher's threshold pages say of a room (#601, answer 633): an exam
-// by its term, the mock exam and the BEM a demo world adds by their names, a
-// plan item as the pack the world's reference holds names it, or by its place
-// in the plan when the reference does not hold the pack, an ID the reference
-// does not name kept apart from the words around it, where the cut stands, with
-// the day the cut proposed was first signed, whether it waits for this phone,
-// each setter's latest cut with its day, or, after the exam, that they signed
-// none, the item every class reached on the figures day, an exam an update of
-// the world's calendar moved, with the days it had and has, its cut's signing
-// deadline for a school exam alone, the day it was announced and why, and that
-// the phone's calendar moved with it, a move within the exam's week keeping its
-// figures day, one of its last day alone, and a room whose chart was taken on a
-// figures day, or signs by a deadline, its exam no longer has, which, when an
-// update moved its exam, still signs by its chart's deadline, so its move names
-// no new deadline nor figures day, and the chart of each class's item reached
-// and forecast, each as its place in the plan, none counting as 0.
+// What the threshold pages, the teacher's and the director's D-Threshold, say
+// of a room (#601, #603, answers 633 and 637): an exam by its term, the mock
+// exam and the BEM a demo world adds by their names, a plan item as the pack
+// the world's reference holds names it, or by its place in the plan when the
+// reference does not hold the pack, an ID the reference does not name kept
+// apart from the words around it, where the cut stands, with the day the cut
+// proposed was first signed, whether it waits for this phone, each setter's
+// latest cut with its day, or, after the exam, that they signed none, the item
+// every class reached on the figures day, an exam an update of the world's
+// calendar moved, with the days it had and has, its cut's signing deadline for
+// a school exam alone, the day it was announced and why, and that the phone's
+// calendar moved with it, a move within the exam's week keeping its figures
+// day, one of its last day alone, and a room whose chart was taken on a figures
+// day, or signs by a deadline, its exam no longer has, which, when an update
+// moved its exam, still signs by its chart's deadline, so its move names no new
+// deadline nor figures day, and the chart of each class's item reached and
+// forecast, each as its place in the plan, none counting as 0.
 
 import {
   examMoves,
@@ -89,7 +90,7 @@ export function awaitingMine({ state, mine }: Pick<TeacherRoom, 'state' | 'mine'
 /** Where a room's cut stands, as one line. */
 export function stateText(
   t: TFunction,
-  room: TeacherRoom,
+  room: Pick<TeacherRoom, 'state' | 'chart' | 'mine'>,
   item: (id: string | null) => string,
   dayText: (day: Day) => string,
 ): string {
@@ -111,7 +112,7 @@ export function stateText(
 /** Each setter's latest cut with its day, one line each by their assignment in the chart's order, `over` the exam. */
 export function setterLines(
   t: TFunction,
-  room: TeacherRoom,
+  room: Pick<TeacherRoom, 'state' | 'chart'>,
   item: (id: string | null) => string,
   dayText: (day: Day) => string,
   over = false,
