@@ -6,6 +6,12 @@
     "template": "apps/android/src/settings/text/ar.json"
   },
   {
+    "name": "Backup and restore files",
+    "slug": "android-backup-files",
+    "filemask": "apps/android/src/settings/text/backup/*.json",
+    "template": "apps/android/src/settings/text/backup/ar.json"
+  },
+  {
     "name": "Android calendar",
     "slug": "android-calendar",
     "filemask": "apps/android/src/calendar/text/*.json",

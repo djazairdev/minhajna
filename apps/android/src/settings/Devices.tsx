@@ -107,7 +107,7 @@ export function Devices({ onTransfer, onSheet, backupNow, onBackupStarted }: Dev
         </Text>
         <Text style={[styles.body, align]}>{t('settings.devices.backupLine')}</Text>
         <Text testID="devices-last" style={[styles.body, align]}>
-          {backupLine(t, entries(), profile)}
+          {backupLine(t, facts, profile)}
         </Text>
         {said !== null && (
           <Notice

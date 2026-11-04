@@ -8,19 +8,24 @@
 // layer is always among them: the teacher card's personal fields and the
 // drawn signature are typed and drawn again (R-3.8-47). The result is checked
 // whole before the app stores it, all at once, into an empty history.
+// With a route, its source snapshot is recorded in that same write (#485),
+// so a process ending before the next screen cannot lose the receipt.
 
 import type { OpenedArchive } from './archive-read.ts';
 import { isDay, type Day } from './day.ts';
 import { ERASURE, HistoryError, verifyHistory, type Entry, type HistoryDeps } from './history.ts';
 import { makeEntry } from './history-entry.ts';
+import { isCopyRoute, type CopyRoute } from './device-events.ts';
 
-/** The entries a restore stores, from an archive that was read and checked. */
+/** The checked restore, including its atomic device receipt when a route is supplied. */
 export async function restoredHistory(
   opened: Extract<OpenedArchive, { ok: true }>,
   day: Day,
   deps: HistoryDeps,
+  from?: CopyRoute,
 ): Promise<readonly Entry[]> {
   if (!isDay(day)) throw new RangeError('The day of a change is written YYYY-MM-DD');
+  if (from !== undefined && !isCopyRoute(from)) throw new RangeError('Invalid restore route');
   const out = new Set(opened.archive.leftOut);
   const left = opened.entries.filter((entry) => out.has(entry.id));
   const restored = [...opened.entries];
@@ -28,6 +33,19 @@ export async function restoredHistory(
     const ids = left.filter((entry) => entry.layer === layer).map((entry) => entry.id);
     restored.push(
       await makeEntry(deps, restored.at(-1) ?? null, { day, layer, kind: ERASURE, body: { entries: ids } }),
+    );
+  }
+  if (from !== undefined) {
+    restored.push(
+      await makeEntry(deps, restored.at(-1) ?? null, {
+        day,
+        layer: 'device',
+        kind: 'copy.received',
+        body: {
+          kind: 'copy.received',
+          received: { from, file: { made: opened.archive.made, last: opened.entries.at(-1)?.hash ?? '' } },
+        },
+      }),
     );
   }
   const problems = await verifyHistory(deps.digest, restored);

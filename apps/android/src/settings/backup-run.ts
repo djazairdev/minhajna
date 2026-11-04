@@ -7,7 +7,8 @@
 // phone, or with 7-Zip on a computer. The teacher card's personal fields,
 // the drawn signature and the key itself stay out, as the archive leaves the
 // device layer out. It leaves only through the file picker, never the share
-// menu; once saved, its fact and day are recorded, never where it went.
+// menu; once saved, its boundary and creation day are recorded (#485), never
+// where it went. Changes during the file picker are outside that snapshot.
 
 import build from '../native/NativeMinhajnaBuild';
 import files from '../native/NativeMinhajnaFiles';
@@ -22,17 +23,21 @@ import { archiveFile } from './export-all-files';
 export function useBackup() {
   const t = useText();
   const documents = useDocumentData();
-  const { entries, settled, record } = useAppData();
+  const { entries, latestState, settled, record } = useAppData();
   const output = useOutputRun();
   const backup = (key: string) =>
     output.run(async () => {
       await settled();
       const { version } = await build.describe();
-      const file = archiveFile(documents, { entries: entries(), app: version, privateNotes: true });
+      const snapshot = [...entries()];
+      const file = archiveFile(
+        { ...documents, state: latestState() },
+        { entries: snapshot, app: version, privateNotes: true },
+      );
       const name = safeFileName(`${t('settings.devices.backupName')} ${documents.day}`, 'zip').replace(/\.zip$/, '');
       const token = await files.makeZip([file.name], [file.text], name, key);
       if (!(await files.saveFile(token))) return null;
-      record({ kind: 'backup.saved' });
+      record({ kind: 'backup.saved', backup: { last: snapshot.at(-1)?.hash ?? '', made: documents.day } });
       return 'saved';
     });
   return { busy: output.busy, said: output.said, backup };
