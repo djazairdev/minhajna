@@ -4,11 +4,12 @@
 # Updates arrive as pull requests and are reviewed like any other change
 # (docs/contributing/engineering.md#dependencies). GitHub Actions and npm's
 # minor and patch updates each come grouped in one pull request, React
-# Native's apart, as its minor releases can break the app and need a check on
-# a device. Security updates come on their own, from the repository's
-# settings. The titles read
-# "ci(deps): …" and "build(deps): …"; the title and sign-off checks allow for
-# Dependabot (commits.md#sign-off).
+# Native's patches apart. Its minor releases are not offered: they can break
+# the app and need a check on a device, and Dependabot splits react-native from
+# the @react-native packages that must move with it, so neither pull request
+# can pass. Security updates come on their own, from the repository's settings.
+# The titles read "ci(deps): …" and "build(deps): …"; the title and sign-off
+# checks allow for Dependabot (commits.md#sign-off).
 
 version: 2
 updates:
@@ -29,11 +30,16 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: build(deps)
-    # A major upgrade, such as a new TypeScript, is a change of its own, made
-    # in an issue when the project is ready for it.
+    # A major upgrade, such as a new TypeScript, and React Native's minor
+    # releases are changes of their own, made in an issue when the project is
+    # ready for them.
     ignore:
       - dependency-name: '*'
         update-types: [version-update:semver-major]
+      - dependency-name: react-native
+        update-types: [version-update:semver-minor]
+      - dependency-name: '@react-native/*'
+        update-types: [version-update:semver-minor]
     groups:
       react-native:
         patterns: [react-native, '@react-native/*']
