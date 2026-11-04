@@ -58,7 +58,7 @@ export function PackList({
         selected={status}
         onSelect={setStatus}
       />
-      <View accessibilityLiveRegion="polite" style={styles.page}>
+      <View collapsable={false} accessibilityLiveRegion="polite" style={styles.page}>
         {shown.length === 0 && (
           <Text testID="editor-packs-empty" style={[styles.small, align]}>
             {t(rows.length === 0 ? 'editorPacks.empty' : 'editorPacks.noMatch')}

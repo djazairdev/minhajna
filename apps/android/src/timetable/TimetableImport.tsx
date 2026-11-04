@@ -149,7 +149,7 @@ export function TimetableImport({ level, bells, workingDays, read, onRead, child
   return (
     <View testID="timetable-import" style={styles.page}>
       {onPc() && (
-        <View accessibilityLiveRegion="polite" style={styles.hidden}>
+        <View collapsable={false} accessibilityLiveRegion="polite" style={styles.hidden}>
           <Text key={said.count} testID="tt-said">
             {said.words}
           </Text>

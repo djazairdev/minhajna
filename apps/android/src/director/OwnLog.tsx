@@ -119,7 +119,7 @@ export function OwnLog({ world, school, role, kit, dayText }: OwnLogProps) {
   return (
     <View testID="own-log" style={styles.page}>
       <Text style={[styles.small, align]}>{t('demo.ownLog.lead')}</Text>
-      <View accessibilityLiveRegion="polite" style={styles.page}>
+      <View collapsable={false} accessibilityLiveRegion="polite" style={styles.page}>
         {role === 'director' && log === 'failed' ? (
           <Text testID="own-log-failed" accessibilityRole="alert" style={[styles.problem, align]}>
             {t('demo.problem.device')}

@@ -91,7 +91,7 @@ export function DemoEntry({ busy, problem, onStart, onJoin, onBack }: DemoEntryP
       />
       <Button testID="demo-join" label={t('demo.entry.join')} onPress={join} disabled={busy || code.trim() === ''} />
       {busy && (
-        <View style={styles.working} accessibilityLiveRegion="polite">
+        <View style={styles.working} collapsable={false} accessibilityLiveRegion="polite">
           <ActivityIndicator color={colors.ink} />
           <Text style={styles.workingText}>{t('demo.entry.working')}</Text>
         </View>
