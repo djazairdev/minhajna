@@ -48,7 +48,7 @@ export type WorkspaceRole = Exclude<WorldRole, 'inspector' | 'teacher'>;
 /** Each workspace's pages, in the order its board lists them, then the role's log and the world's page. */
 export const ROLE_PAGES: Readonly<Record<WorkspaceRole, readonly WorldPage[]>> = {
   ministry: ['thresholds', 'totals', 'published', 'calendar', 'world'],
-  directorate: ['thresholds', 'totals', 'grants', 'world'],
+  directorate: ['thresholds', 'totals', 'published', 'grants', 'world'],
   director: [
     'dashboard',
     'thresholds',

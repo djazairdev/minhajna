@@ -6781,6 +6781,48 @@
       "rangeChart": {
         "all": "Le pays et toutes les wilayas, le {{day}} (%)",
         "middle": "Le pays et la moitié du milieu des wilayas, le {{day}} (%)"
+      },
+      "words": {
+        "title": "Comment le seuil a façonné l’examen",
+        "none": "La commission n’a pas encore écrit comment le seuil a façonné l’examen.",
+        "label": "Dans les mots de la commission",
+        "placeholder": "Par exemple : le texte vient de l’unité 5, les questions des unités 1 à 6.",
+        "bad": "Des mots de 1 à {{most}} caractères, sans caractère masqué ni saut de ligne.",
+        "sign": "Signer les mots",
+        "done": "Signé pour {{seat}} : les mots de la commission.",
+        "note": "Publiés sans changement avec le seuil, signés avec la clé du siège. Les derniers mots signés comptent."
+      }
+    },
+    "published": {
+      "level": {
+        "directorate": {
+          "lead": "Ce que la direction publie des seuils de ses examens, après chaque examen."
+        },
+        "national": {
+          "lead": "Ce que le ministère publie des seuils des examens nationaux, après chaque examen, pour tous."
+        }
+      },
+      "reading": "Lecture de ce qui est publié…",
+      "none": "Aucun examen de ce niveau n’est encore terminé : un seuil est publié le lendemain du dernier jour de son examen.",
+      "head": "{{exam}} · {{grade}}",
+      "dates": "Les chiffres ont été pris le {{figures}}. L’examen s’est tenu du {{from}} au {{to}}.",
+      "cut": "Le seuil adopté le {{day}} : jusqu’à {{item}}.",
+      "noCut": "La commission a décidé le {{day}} : pas de seuil pour cet examen.",
+      "noneAdopted": "Aucun seuil n’a été adopté : le sujet a été établi comme d’habitude.",
+      "share": "{{share}} % des classes l’avaient atteint le {{day}}.",
+      "shareHidden": "La part des classes l’ayant atteint est masquée.",
+      "signed": "Signé par {{seat}} le {{day}}",
+      "majority": "Adopté par {{adopted}} sièges sur {{seats}}.",
+      "safeguards": {
+        "announced": "Le jour des chiffres a été annoncé à l’avance, et les chiffres ont été pris le {{figures}} seulement.",
+        "after": "Publié après l’examen, avec les chiffres complets et la façon dont ils ont servi.",
+        "unchecked": "Ces chiffres ne sont pas vérifiés : cette démo n’a pas d’échantillon des inspecteurs pour les comparer."
+      },
+      "unused": {
+        "figures": "Non utilisé : aucun chiffre d’établissement, de classe ou d’enseignant.",
+        "plans": "Non utilisé : les plans propres des classes ; les chiffres viennent des seules semaines signées.",
+        "floors": "Non utilisé : aucun chiffre sous les tailles minimales de groupe.",
+        "ranking": "Non utilisé : aucun classement des wilayas, qui apparaissent en étendue et ne sont jamais nommées."
       }
     }
   },

@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The Ministry's exam thresholds (N-Threshold, #605, §7.10, R-7.10-14,
-// R-7.10-25, answers 539, 549, 638 and 639): the committee's page for the
+// R-7.10-25, answers 539, 549, 638 and 639), and what is published of them
+// (N-Published, #606, answer 640): the committee's page for the
 // national exams (CommitteePage.tsx), over the classes of every seeded school,
 // whose pinned packs give each subject's plan, and the Ministry's totals: the
 // nation's figure, with each wilaya's only to give the range, never named.
@@ -18,6 +19,7 @@ import { readMinistryTotals } from '../directorate/totals-read';
 import { worldRequest } from '../network/world-network';
 import type { ReferenceResult } from '../reference';
 import { CommitteePage } from '../threshold/CommitteePage';
+import { PublishedCuts } from '../threshold/PublishedCuts';
 
 export type MinistryThresholdsProps = {
   readonly world: Pick<OpenWorld, 'world' | 'date'>;
@@ -32,8 +34,9 @@ export type MinistryThresholdsProps = {
   readonly updates?: readonly CalendarUpdate[];
 };
 
-/** The committees of the national exams. */
-export function MinistryThresholds(props: MinistryThresholdsProps) {
+/** The committees of the national exams, or what is published of them. */
+export function MinistryThresholds(props: MinistryThresholdsProps & { readonly published?: boolean }) {
+  const Page = props.published === true ? PublishedCuts : CommitteePage;
   const { world, held, reference, bundled, kit, send = worldRequest, dayText, updates } = props;
   const schools = useMemo(() => seededWorld(world.world, bundled).schools, [world.world, bundled]);
   const read = async (day: Day) => {
@@ -41,7 +44,7 @@ export function MinistryThresholds(props: MinistryThresholdsProps) {
     return figures === null ? null : { ...figures.national, wilayas: figures.directorates.map(([, one]) => one) };
   };
   return (
-    <CommitteePage
+    <Page
       world={world.world}
       date={world.date}
       level="national"

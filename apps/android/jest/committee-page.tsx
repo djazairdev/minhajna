@@ -5,8 +5,8 @@
 // made-up demo server, its keys held, moved onto a day; the mock exam and the
 // BEM of the bundled calendar; a made-up school whose 4th grade pins plans for
 // math and French; made-up shares of its grade for a day, from enough schools
-// of the directorate and another to clear the floors; and the page for a date.
-// Every world, school and share is made up.
+// of the directorate and another to clear the floors; and the page, and what is
+// published, for a date. Every world, school and share is made up.
 
 import { worldExams, type Day } from '@minhajna/core';
 import { randomBytes } from 'node:crypto';
@@ -14,6 +14,7 @@ import type { HeldWorld } from '../src/demo/world-calendar-read';
 import { startWorld, type Send } from '../src/demo/world-session';
 import { readTotals } from '../src/directorate/totals-read';
 import { CommitteePage, type CommitteePageProps } from '../src/threshold/CommitteePage';
+import { PublishedCuts, type PublishedCutsProps } from '../src/threshold/PublishedCuts';
 import ar from '../src/text/ar.json';
 import { quoted } from './threshold-page';
 import { calendar, reference } from './world-calendar';
@@ -104,7 +105,33 @@ export const pageOf = (
   />
 );
 
+/** What is published of the level's cuts, as the page is for a date. */
+export const publishedOf = (
+  held: HeldWorld | null,
+  world: string,
+  date: Day,
+  send: Send = server.send,
+  more: Partial<PublishedCutsProps> = {},
+) => (
+  <PublishedCuts
+    world={world}
+    date={date}
+    level="directorate"
+    scope={SCOPE}
+    held={held}
+    reference={reference}
+    schools={schools}
+    packs={reference.packs}
+    read={(day) => readTotals(world, day, SCOPE, send)}
+    kit={kit}
+    send={send}
+    dayText={(day) => `day ${day}`}
+    {...more}
+  />
+);
+
 export const words = ar.demo.committee;
+export const published = ar.demo.published;
 export const page = ar.demo.threshold;
 export const day = mock.figuresDay;
 /** A catalogue's text with its values filled in. */
@@ -131,4 +158,5 @@ export const mathRoom = (world: string) => ({
   name: { world, scope: SCOPE, exam: 'mock', subject: 'math', grade: '4am' },
   items,
   days: { from: day, to: mock.signBy },
+  lastDay: mock.to,
 });

@@ -1,20 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A committee's room above the school on the workspace's PC (#604, answer 638):
-// its stream is of the directorate's space, or for a national exam of the
-// world's national space, and its key and each seat's seed come from the
-// world's sealing key (cuts.ts), so whoever holds the world reads it. A seat's
-// public key is worked out once for each seed (decider-key.ts). A committee's
-// plan is the pack most of the grade's classes pin for the subject among the
-// schools it covers, of those the reference holds, the first pinned at a tie,
-// and its subjects those a class of the grade pins a pack the reference holds
-// for, as the classes first name them. A room is read from its stream, a space
-// not open yet holding no vote. A seat's vote is dated the world's date and
-// numbered above the seat's every vote, and goes on the stream once: a seat
-// that names the cut already puts nothing; it is refused (E_CUT_CLOSED) outside
-// the room's days or once a cut is adopted, read afresh as it is put. Other
-// errors carry world-session.ts's codes.
+// A committee's room above the school on the workspace's PC (#604, #605, #606,
+// answers 638 to 640): its stream is of the directorate's space, or for a
+// national exam of the world's national space, and its key and each seat's seed
+// come from the world's sealing key (cuts.ts), so whoever holds the world reads
+// it. A seat's public key is worked out once for each seed (decider-key.ts). A
+// committee's plan is the pack most of the grade's classes pin for the subject
+// among the schools it covers, of those the reference holds, the first pinned
+// at a tie, and its subjects those a class of the grade pins a pack the
+// reference holds for, as the classes first name them. A room is read from its
+// stream with the words on how its cut shaped the exam from theirs
+// (cut-words.ts), a space not open yet holding none. A seat's vote is dated the
+// world's date and numbered above the seat's every vote, and goes on the stream
+// once: a seat that names the cut already puts nothing; it is refused
+// (E_CUT_CLOSED) outside the room's days or once a cut is adopted, read afresh
+// as it is put. Other errors carry world-session.ts's codes.
 
 import {
   committeePlace,
@@ -25,16 +26,24 @@ import {
   NATIONAL_COMMITTEE,
   packKey,
   readVotes,
+  readWords,
   sealVote,
+  sealWords,
   seatSeed,
   signVote,
+  signWords,
+  wordsPlace,
+  wordsRead,
+  wordsThatCount,
   type CommitteeName,
   type CommitteeState,
   type CommitteeVote,
+  type CommitteeWords,
   type Day,
   type DemoSchool,
   type PlanPack,
   type VoteDays,
+  type WorldExam,
 } from '@minhajna/core';
 import { NATIONAL_SPACE, type HeldWorld } from '../demo/world-calendar-read';
 import { seededPair } from '../demo/recovery-device';
@@ -44,11 +53,18 @@ import { spaceBatches } from '../school/space-read';
 import { putOnce, readingMissing } from '../school/stream-put';
 import { deciderKey } from './decider-key';
 
-/** A committee's room: its name, its plan's items in order, and the days a vote counts on. */
+/** A committee's room: its name, its plan's items in order, the days a vote counts on, and the exam's last day. */
 export interface CommitteeRoom {
   readonly name: CommitteeName;
   readonly items: readonly string[];
   readonly days: VoteDays;
+  readonly lastDay: Day;
+}
+
+/** Where a committee stands, and the words on how its cut shaped the exam that count. */
+export interface CommitteeRead {
+  readonly state: CommitteeState;
+  readonly words: CommitteeWords | null;
 }
 
 /** The subjects a class of the grade pins a pack the reference holds for, as the classes first name them. */
@@ -86,6 +102,27 @@ export function committeePlan(
   return most === null ? null : (byKey.get(most) ?? null);
 }
 
+/** A grade's committees of an exam: each subject with a plan, in the classes' order, with its room. */
+export function committeeRooms(
+  held: { readonly world: string; readonly scope: string },
+  exam: Pick<WorldExam, 'id' | 'figuresDay' | 'signBy' | 'to'>,
+  grade: string,
+  schools: readonly Pick<DemoSchool, 'classes'>[],
+  packs: readonly PlanPack[],
+): { readonly subject: string; readonly plan: PlanPack; readonly room: CommitteeRoom }[] {
+  return committeeSubjects(schools, packs, grade).flatMap((subject) => {
+    const plan = committeePlan(schools, packs, grade, subject);
+    if (plan === null) return [];
+    const room = {
+      name: { world: held.world, scope: held.scope, exam: exam.id, subject, grade },
+      items: plan.items.map((one) => one.id),
+      days: { from: exam.figuresDay, to: exam.signBy },
+      lastDay: exam.to,
+    };
+    return [{ subject, plan, room }];
+  });
+}
+
 const spaceOf = async ({ world, scope }: CommitteeName, kit: Pick<WorldKit, 'mac'>) =>
   scope === NATIONAL_COMMITTEE
     ? { space: NATIONAL_SPACE, kind: 'national' as const }
@@ -109,7 +146,7 @@ export async function readCommittees(
   rooms: readonly CommitteeRoom[],
   kit: WorldKit,
   send: Send = worldRequest,
-): Promise<CommitteeState[]> {
+): Promise<CommitteeRead[]> {
   const [first] = rooms;
   if (first === undefined) return [];
   if (rooms.some(({ name }) => name.world !== held.world || name.scope !== first.name.scope))
@@ -123,7 +160,11 @@ export async function readCommittees(
         const { place, reading } = await read(held, room, kit);
         const there = batches.get(place.stream) ?? [];
         const found = await readVotes(place, there, reading, kit.verify, kit.cipher);
-        return committeeState(found, committeeSeats(room.name), room.days);
+        const state = committeeState(found, committeeSeats(room.name), room.days);
+        const wordsAt = await wordsPlace(held.sealing, room.name, kit.mac);
+        const written = batches.get(wordsAt.stream) ?? [];
+        const said = await readWords(wordsAt, written, reading, kit.verify, kit.cipher);
+        return { state, words: wordsThatCount(said, state, room.lastDay) };
       }),
     ),
   );
@@ -178,4 +219,55 @@ export async function castVote(
     send,
   );
   if (out.shut) throw closed();
+}
+
+/**
+ * Signs a seat's words on how the cut shaped the exam, on the world's date, and puts them there once: refused
+ * (E_CUT_CLOSED) unless the exam is over and the seat adopted a cut, read afresh; the same words put nothing.
+ */
+export async function putWords(
+  held: HeldWorld,
+  room: CommitteeRoom,
+  seat: number,
+  words: string,
+  date: Day,
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<void> {
+  const { name, lastDay } = room;
+  if (name.world !== held.world) throw new RangeError('A committee is of the world held');
+  if (!wordsRead(words)) throw new RangeError('Not a committee’s words');
+  const closed = () => failed('The words can no longer be signed', 'E_CUT_CLOSED');
+  if (compareDays(date, lastDay) <= 0) throw closed();
+  const [{ state }] = await readCommittees(held, [room], kit, send);
+  const { adopted } = state;
+  if (adopted === null || adopted.item === null || !adopted.seats.includes(seat)) throw closed();
+  const { space, kind } = await kitStep(() => spaceOf(name, kit));
+  const place = await kitStep(() => wordsPlace(held.sealing, name, kit.mac));
+  const reading = { name, seats: await kitStep(() => seatKeys(held, name, kit)) };
+  const out: { made: string | null; found: Awaited<ReturnType<typeof readWords>> } = { made: null, found: [] };
+  await putOnce(
+    {
+      world: held.world,
+      space,
+      kind,
+      stream: place.stream,
+      open: async (batches) => {
+        out.found = await readWords(place, batches, reading, kit.verify, kit.cipher);
+        return out.found;
+      },
+      there: () => {
+        if (out.made !== null && out.found.some((one) => one.signature === out.made)) return true;
+        return wordsThatCount(out.found, state, lastDay)?.words === words;
+      },
+      seal: async (first) => {
+        const version = Math.max(-1, ...out.found.map((one) => one.words.version)) + 1;
+        const { pkcs8 } = seededPair(await seatSeed(held.sealing, name, seat, kit.mac));
+        const signed = await signWords({ ...name, seat, words, day: date, version }, pkcs8, kit.sign);
+        out.made = signed.signature;
+        return sealWords(place, signed, first, kit.cipher);
+      },
+    },
+    send,
+  );
 }

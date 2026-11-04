@@ -19,23 +19,22 @@
 // timetable page (#576, #577, #578), kept for the world it was read in, and
 // their own log (#573); any other page has none, and the preparer never opens
 // the records or the cover; the directorate's thresholds page plays its
-// committees' seats (#604, DirectorateThresholds.tsx); its grants page requests
-// inspectors' grants from its schools (#593, DirectorateGrant.tsx) and its
-// totals page says what the system owes teachers on announced days, with the
-// curriculum report (#598, DirectorateTotals.tsx); and the Ministry's
-// thresholds page plays its national committees' seats (#605,
-// MinistryThresholds.tsx), its totals page says it by wilaya (#599,
-// MinistryTotals.tsx), and its calendar page keys a draft of the world's
-// calendar (#607, MinistryCalendar.tsx), afresh over each release the world
-// comes to hold, and publishes it with the world's keys (#608,
-// MinistryCalendarPage.tsx); and the operators' system map draws the demo
-// server from what it says of itself, with its version and health (#618,
-// OpsConsole.tsx), and their admin and security logs and the world's problem
-// reports read from it (#619, OpsAdminLog.tsx, OpsSecurity.tsx,
+// committees' seats (#604, DirectorateThresholds.tsx), and its published page,
+// as the Ministry's, says what is published of the cuts (#606,
+// PublishedCuts.tsx); its grants page requests inspectors' grants from its
+// schools (#593, DirectorateGrant.tsx) and its totals page says what the system
+// owes teachers on announced days, with the curriculum report (#598,
+// DirectorateTotals.tsx); and the Ministry's thresholds page plays its national
+// committees' seats (#605, MinistryThresholds.tsx), its totals page says it by
+// wilaya (#599, MinistryTotals.tsx), and its calendar page keys a draft of the
+// world's calendar (#607, MinistryCalendar.tsx) and publishes it with the
+// world's keys (#608, MinistryCalendarPage.tsx); and the operators' system map,
+// admin and security logs and the world's problem reports read from the demo
+// server (#618, #619, OpsConsole.tsx, OpsAdminLog.tsx, OpsSecurity.tsx,
 // OpsProblems.tsx); and the observatory's reports page, whose world has no
 // school, reads a term's figures (#627, ObsReport.tsx). Only that page goes
-// without a school; any other stays empty in such a world.
-// The curator's pack list reads source releases only (#611, PackList.tsx).
+// without a school; any other stays empty in such a world. The curator's pack
+// list reads source releases only (#611, PackList.tsx).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -135,9 +134,10 @@ export function workspacePage(
     return (
       <DirectorateGrant world={open} school={school} reference={reference} kit={kit} send={send} dayText={dayText} />
     );
-  if (workspace === 'directorate' && page === 'thresholds')
+  if (workspace === 'directorate' && (page === 'thresholds' || page === 'published'))
     return (
       <DirectorateThresholds
+        published={page === 'published'}
         world={open}
         school={school}
         held={held}
@@ -149,9 +149,10 @@ export function workspacePage(
         updates={props.updates}
       />
     );
-  if (workspace === 'ministry' && page === 'thresholds')
+  if (workspace === 'ministry' && (page === 'thresholds' || page === 'published'))
     return (
       <MinistryThresholds
+        published={page === 'published'}
         world={open}
         held={held}
         reference={reference}

@@ -2,29 +2,30 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A committee's room on the workspace's PC (M-Threshold, N-Threshold, #604,
-// #605, §7.10, R-7.9-04, R-7.10-13, R-7.10-14, R-7.10-16 to R-7.10-18,
-// R-7.10-20, R-7.10-24, R-7.10-25, answers 51, 549, 631, 638 and 639): the
-// exam, subject and grade, its figures day, signing deadline and first day,
-// whose committee this page plays, and when and why it moved; the classes,
-// teachers and schools the totals cover and the share of the classes that
-// reached each item of the plan on the figures day, with the last two term ends
-// shown as comparison only and the table of the same figures, a figure held
-// back under the floors, and for the nation the wilayas as a range, named
-// never; or that the figures are not added up or are hidden; the last item
-// every class, nine classes in ten and half of them reached; and the sessions
-// lost to closures. Under them, where the cut stands, each seat's vote and day,
-// how many seats adopt a cut, a seat's choices while the room is open
-// (CommitteeChoices.tsx), and, unless no cut stands, who sees the cut now and
-// when it is published with its figures.
+// #605, #606, §7.10, R-7.9-04, R-7.10-13, R-7.10-14, R-7.10-16 to R-7.10-18,
+// R-7.10-20, R-7.10-21, R-7.10-24, R-7.10-25, answers 51, 549, 631, 638 to
+// 640): the exam, subject and grade, whose committee this page plays, its
+// figures day, signing deadline and first day, when and why it moved, and its
+// figures (CommitteeFigures.tsx). Under them, where the cut stands, each seat's
+// vote and day, how many seats adopt a cut, a seat's choices while the room is
+// open (CommitteeChoices.tsx), after the exam the committee's words on how an
+// adopted cut shaped it (CommitteeWordsForm.tsx), and, unless no cut stands,
+// who sees the cut now and when it is published with its figures.
 
-import { compareDays, type CommitteeState, type Day, type ExamMove, type WorldExam } from '@minhajna/core';
+import {
+  compareDays,
+  type CommitteeState,
+  type CommitteeWords,
+  type Day,
+  type ExamMove,
+  type WorldExam,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Text, View } from 'react-native';
-import { ChartFigure } from '../drawing/ChartFigure';
 import { useDeviceText } from '../text/device-text';
 import { CommitteeChoices } from './CommitteeChoices';
-import { committeeSpec, gradeMarks, rangeSpec, wilayaRange } from './committee-figures';
-import { gradeShown } from './exam-totals';
+import { CommitteeFigures } from './CommitteeFigures';
+import { CommitteeWordsForm } from './CommitteeWordsForm';
 import { movedLines } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
 import type { LevelFigures } from './use-committee-figures';
@@ -54,6 +55,10 @@ export type CommitteePanelProps = {
   readonly level: 'directorate' | 'national';
   /** Where the committee stands, null while it is first read. */
   readonly state: CommitteeState | null;
+  /** The words on how its cut shaped the exam that count, if any. */
+  readonly words: CommitteeWords | null;
+  /** Signs a seat's words, saying `done` once signed. */
+  readonly onWrite: (seat: number, words: string, done: string) => void;
   readonly busy: boolean;
   /** Signs a seat's vote, an item or null for no cut, saying `done` once signed. */
   readonly onVote: (seat: number, item: string | null, done: string) => void;
@@ -62,7 +67,7 @@ export type CommitteePanelProps = {
 /** A committee's figures, votes and choices. */
 export function CommitteePanel(props: CommitteePanelProps) {
   const { exam, head, subject, grade, items, seats, item, date, dayText, move, figures, ends, state } = props;
-  const { busy, onVote, level, subjectWords } = props;
+  const { busy, onVote, level, subjectWords, words, onWrite } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -78,8 +83,6 @@ export function CommitteePanel(props: CommitteePanelProps) {
     </Text>
   );
   const day = dayText(exam.figuresDay);
-  const shown = figures === undefined ? undefined : gradeShown(figures, subject, grade);
-  const closures = figures?.subjects.find(([code]) => code === subject)?.[1]?.closed;
   const open = compareDays(date, exam.figuresDay) >= 0 && compareDays(date, exam.signBy) <= 0;
   const over = compareDays(date, exam.to) > 0;
   const noCut =
@@ -109,62 +112,33 @@ export function CommitteePanel(props: CommitteePanelProps) {
       String(seat),
     );
   };
-  const marks = (figure: Parameters<typeof gradeMarks>[0]) => {
-    const { every, ninety, half } = gradeMarks(figure, items);
-    return (
-      <>
-        {small(
-          every === null ? t('demo.committee.marks.everyNone') : t('demo.committee.marks.every', { item: item(every) }),
-        )}
-        {ninety !== null && small(t('demo.committee.marks.ninety', { item: item(ninety) }))}
-        {half !== null && small(t('demo.committee.marks.half', { item: item(half) }))}
-      </>
-    );
-  };
-  const range = figures?.wilayas === undefined ? null : wilayaRange(figures.wilayas, subject, grade, items);
-  const compared = ends.flatMap((end) => {
-    const figure = end.figures === null ? 'notYet' : gradeShown(end.figures, subject, grade);
-    return typeof figure === 'object' ? [{ grade: figure, day: dayText(end.day) }] : [];
-  });
   return (
     <View testID="committee-room" style={styles.card}>
       {heading(head)}
       {small(t(`demo.committee.level.${level}.viewer`, { subject: subjectWords }))}
       {body(t('demo.committee.dates', { figures: day, signBy: dayText(exam.signBy), from: dayText(exam.from) }))}
       {movedLines(t, move, exam, dayText).map((line, at) => small(line, `moved-${at}`))}
-      {typeof shown === 'string' &&
-        body(t(shown === 'hidden' ? `demo.committee.level.${level}.hidden` : 'demo.committee.notYet'))}
-      {typeof shown === 'object' && (
-        <>
-          {small(
-            t('demo.committee.counts', { teachers: shown.teachers, classes: shown.classes, schools: shown.schools }),
-          )}
-          <ChartFigure
-            testID="committee-chart"
-            spec={committeeSpec(t, { grade: shown, day }, compared, items, item)}
-            categoryLabel={t('demo.examTotals.item')}
-          />
-          {range !== null &&
-            (['all', 'middle'] as const).map((which) => (
-              <ChartFigure
-                key={which}
-                testID={`committee-range-${which}`}
-                spec={rangeSpec(t, which, { grade: shown, day }, range, items, item)}
-                categoryLabel={t('demo.examTotals.item')}
-              />
-            ))}
-          {marks(shown)}
-          {figures?.wilayas !== undefined &&
-            small(t(range === null ? 'demo.committee.noRange' : 'demo.committee.range'))}
-        </>
-      )}
-      {closures !== undefined && small(t('demo.committee.closures', { count: closures }))}
+      <CommitteeFigures
+        testID="committee"
+        level={level}
+        subject={subject}
+        grade={grade}
+        items={items}
+        item={item}
+        day={day}
+        dayText={dayText}
+        figures={figures}
+        ends={ends}
+      />
       {heading(t('demo.committee.cut'))}
       {state !== null && body(standing() ?? '')}
       {Array.from({ length: seats }, (_, seat) => seatLine(seat))}
       {small(t('demo.committee.majority', { majority: Math.floor(seats / 2) + 1, seats }))}
       {open && state !== null && state.adopted === null && (
         <CommitteeChoices seats={seats} state={state} items={items} item={item} busy={busy} onVote={onVote} />
+      )}
+      {over && state?.adopted != null && state.adopted.item !== null && (
+        <CommitteeWordsForm seats={state.adopted.seats} words={words} busy={busy} onWrite={onWrite} />
       )}
       {state !== null && !noCut && !over && small(t(`demo.committee.level.${level}.sees`))}
       {state !== null &&

@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The directorate's exam thresholds (M-Threshold, #604, answer 638): the
-// committee's page for the directorate's own exams (CommitteePage.tsx), over
-// the classes of the directorate's schools as the world seeds them, whose
-// pinned packs give each subject's plan, and the directorate's totals.
+// The directorate's exam thresholds (M-Threshold, #604, answer 638), and what
+// is published of them (#606, answer 640): the committee's page for the
+// directorate's own exams (CommitteePage.tsx), over the classes of the
+// directorate's schools as the world seeds them, whose pinned packs give each
+// subject's plan, and the directorate's totals.
 
 import type { CalendarUpdate, Day, DemoSchool } from '@minhajna/core';
 import { useMemo } from 'react';
@@ -16,6 +17,7 @@ import type { TermReference } from '../director/seeded-fill';
 import { worldRequest } from '../network/world-network';
 import type { ReferenceResult } from '../reference';
 import { CommitteePage } from '../threshold/CommitteePage';
+import { PublishedCuts } from '../threshold/PublishedCuts';
 import { readTotals } from './totals-read';
 
 export type DirectorateThresholdsProps = {
@@ -33,8 +35,9 @@ export type DirectorateThresholdsProps = {
   readonly updates?: readonly CalendarUpdate[];
 };
 
-/** The committees of the directorate's own exams. */
-export function DirectorateThresholds(props: DirectorateThresholdsProps) {
+/** The committees of the directorate's own exams, or what is published of them. */
+export function DirectorateThresholds(props: DirectorateThresholdsProps & { readonly published?: boolean }) {
+  const Page = props.published === true ? PublishedCuts : CommitteePage;
   const { world, school, held, reference, bundled, kit, send = worldRequest, dayText, updates } = props;
   const directorate = school.directorateId;
   const schools = useMemo(
@@ -42,7 +45,7 @@ export function DirectorateThresholds(props: DirectorateThresholdsProps) {
     [world.world, bundled, directorate],
   );
   return (
-    <CommitteePage
+    <Page
       world={world.world}
       date={world.date}
       level="directorate"
