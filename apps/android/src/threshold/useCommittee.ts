@@ -69,7 +69,6 @@ export function useCommittee(
     voting,
     problem: failed?.key === key ? failed.problem : refused?.place === place ? refused.problem : null,
     said: said?.place === place ? said.text : '',
-    /** Forgets what was said and a refusal, as when another room is chosen. */
     forget: () => {
       setSaid(null);
       setRefused(null);

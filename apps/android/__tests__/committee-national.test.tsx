@@ -11,7 +11,7 @@
 
 import type { Day } from '@minhajna/core';
 import { Platform } from 'react-native';
-import { bem, fill, items, onDay, page, putShares, seat, server, started, words } from '../jest/committee-page';
+import { bem, fill, onDay, page, putShares, seat, server, started, words } from '../jest/committee-page';
 import { controls, press, show, texts, unmount } from '../jest/threshold-page';
 import { reference } from '../jest/world-calendar';
 import { nodeKit } from '../jest/world-server';
@@ -21,6 +21,7 @@ import type { DirectorateFigures } from '../src/directorate/totals-read';
 import { subjectName } from '../src/extra/extra-rules';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { wilayaRange } from '../src/threshold/committee-figures';
+import { committeePlan } from '../src/threshold/committee-session';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -30,10 +31,7 @@ jest.mock(
 const day = bem.figuresDay;
 const national = words.level.national;
 const wilayas = (count: number) => Array.from({ length: count }, (_, at) => `dir-${at + 1}`);
-const reached = (_school: number, directorate: string) => ({
-  [items[0]]: 10,
-  [items[1]]: Number(directorate.slice(4)),
-});
+const SUBJECT = 'arabic';
 
 beforeEach(() => {
   jest.replaceProperty(Platform, 'OS', 'web');
@@ -49,8 +47,14 @@ afterEach(async () => {
 async function opened(count: number) {
   const held = await started();
   onDay(held.world, day);
-  putShares(held.world, day, reached, { teachers: 3, directorates: wilayas(count) });
-  const school = seededWorld(held.world, reference).schools[0];
+  const { schools } = seededWorld(held.world, reference);
+  const items = committeePlan(schools, reference.packs, '4am', SUBJECT)!.items.map((one) => one.id);
+  const reached = (_school: number, directorate: string) => ({
+    [items[0]]: 10,
+    [items[1]]: Number(directorate.slice(4)),
+  });
+  putShares(held.world, day, reached, { subject: SUBJECT, teachers: 3, directorates: wilayas(count) });
+  const school = schools[0];
   const shown = workspacePage('ministry', 'thresholds', {
     open: { world: held.world, date: day },
     school,
@@ -63,7 +67,6 @@ async function opened(count: number) {
     onCalendar: () => undefined,
   } as unknown as WorkspacePagesProps);
   await show(shown!);
-  await press('committee-subjects-math');
 }
 
 test('the nation’s figures show each item’s range across 8 wilayas, naming none', async () => {
@@ -72,7 +75,7 @@ test('the nation’s figures show each item’s range across 8 wilayas, naming n
   expect(all).toContain(national.lead);
   expect(all).toContain(national.floors);
   expect(all).toContain(national.sees);
-  expect(all).toContain(fill(national.viewer, { subject: subjectName(reference.profile, 'math') }));
+  expect(all).toContain(fill(national.viewer, { subject: subjectName(reference.profile, SUBJECT) }));
   expect(all).toContain(fill(words.majority, { majority: 3, seats: 5 }));
   expect(all).toContain(words.range);
   for (const key of ['low', 'middleLow', 'middleHigh', 'high'] as const) expect(all).toContain(words.series[key]);
@@ -88,9 +91,9 @@ test('with fewer than 8 wilayas only the nation’s figures show', async () => {
   expect(all).toContain(fill(words.series.figures, { day: `day ${day}` }));
 });
 
-test('a majority of the five adopts, and the general list says each committee’s signatures and never its cut', async () => {
+test('a majority of five adopts, and the general list says each committee’s signatures, never its cut', async () => {
   await opened(8);
-  const subject = subjectName(reference.profile, 'math');
+  const subject = subjectName(reference.profile, SUBJECT);
   const line = (status: string) => fill(words.statusLine, { subject, status });
   const lines = () => texts().filter((text) => text.startsWith(line('')));
   expect(lines()).toEqual([line(words.status.none)]);
