@@ -6810,7 +6810,7 @@
       "noCut": "La commission a décidé le {{day}} : pas de seuil pour cet examen.",
       "noneAdopted": "Aucun seuil n’a été adopté : le sujet a été établi comme d’habitude.",
       "share": "{{share}} % des classes l’avaient atteint le {{day}}.",
-      "shareHidden": "La part des classes l’ayant atteint est masquée.",
+      "shareHidden": "La part des classes l’ayant atteint n’est pas publiée : ses chiffres sont sous les tailles minimales de groupe ou n’ont jamais été totalisés.",
       "signed": "Signé par {{seat}} le {{day}}",
       "majority": "Adopté par {{adopted}} sièges sur {{seats}}.",
       "safeguards": {

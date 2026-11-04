@@ -6715,7 +6715,7 @@
       "noCut": "The committee decided on {{day}}: no cut for this exam.",
       "noneAdopted": "No cut was adopted: the paper was set as usual.",
       "share": "{{share}}% of the classes had reached it on {{day}}.",
-      "shareHidden": "The share of the classes that had reached it is held back.",
+      "shareHidden": "The share of the classes that had reached it is not published: its figures fell under the minimum group sizes or were never added up.",
       "signed": "Signed by {{seat}} on {{day}}",
       "majority": "Adopted by {{adopted}} of {{seats}} seats.",
       "safeguards": {

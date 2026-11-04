@@ -119,11 +119,13 @@ export function PublishedCuts(props: PublishedCutsProps) {
     const figure = figures.figures?.[0];
     const grading = figure == null || grade === undefined ? undefined : gradeShown(figure, subject, grade);
     const counted =
-      typeof grading === 'object' && adopted?.item != null ? new Map(grading.items).get(adopted.item) : undefined;
+      typeof grading === 'object' && adopted?.item != null ? new Map(grading.items).get(adopted.item) : null;
     const share =
-      typeof grading === 'object' && counted != null && grading.classes > 0
-        ? Math.round((counted * 1000) / grading.classes) / 10
-        : null;
+      typeof grading !== 'object' || counted === null
+        ? null
+        : grading.classes === 0
+          ? 0
+          : Math.round(((counted ?? 0) * 1000) / grading.classes) / 10;
     return (
       <View key={subject} testID={`published-${subject}`} style={styles.card}>
         <Text accessibilityRole="header" style={[styles.head, align]}>
@@ -139,6 +141,7 @@ export function PublishedCuts(props: PublishedCutsProps) {
           )}
         {adopted?.item != null &&
           exam !== undefined &&
+          figures.figures !== undefined &&
           small(
             share === null
               ? t('demo.published.shareHidden')
@@ -218,7 +221,7 @@ export function PublishedCuts(props: PublishedCutsProps) {
           )}
           {movedLines(t, moves.get(exam.id), exam, dayText).map((line, at) => small(line, `moved-${at}`))}
           {held !== null && votes.reads !== null && planned.map((one, at) => row(one, votes.reads?.[at]))}
-          {planned.length > 1 && (
+          {held !== null && planned.length > 1 && (
             <ChipGroup
               testID="published-subjects"
               label={t('demo.committee.subject')}
