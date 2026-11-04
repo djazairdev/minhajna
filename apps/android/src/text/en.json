@@ -6686,6 +6686,19 @@
       "rangeChart": {
         "all": "The nation and all the wilayas, on {{day}} (%)",
         "middle": "The nation and the middle half of the wilayas, on {{day}} (%)"
+      },
+      "words": {
+        "title": "How the cut shaped the exam",
+        "none": "The committee has not written yet how the cut shaped the exam.",
+        "label": "In the committee’s own words",
+        "placeholder": "Such as: the text came from unit 5, the questions from units 1 to 6.",
+        "bad": "Words of 1 to {{most}} characters, with no hidden character.",
+        "sign": "Sign the words",
+        "done": "Signed for {{seat}}: the committee’s words.",
+        "note": "Published unchanged with the cut, signed with the seat’s key. The latest words signed count.",
+        "closed": "The words cannot be signed: this seat did not adopt the cut, or the exam is not over.",
+        "signing": "Signing the words…",
+        "length": "{{n}} of {{most}} characters"
       }
     }
   },

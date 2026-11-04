@@ -131,4 +131,5 @@ export const mathRoom = (world: string) => ({
   name: { world, scope: SCOPE, exam: 'mock', subject: 'math', grade: '4am' },
   items,
   days: { from: day, to: mock.signBy },
+  lastDay: mock.to,
 });
