@@ -30,7 +30,7 @@ Authoring requires a complete stream. Damaged ciphertext, missing or unfinished 
 
 | Check | Result |
 |---|---|
-| Focused lifecycle tests | 10 core tests and 10 app tests passed, covering transitions, immutable publications, world isolation, dates, size limits, concurrency, damaged history and calendar coexistence |
+| Focused lifecycle tests | Core and app tests passed, covering transitions, immutable publications, world isolation, dates, size limits, concurrency, damaged history and calendar coexistence |
 | Root checks on main `8a35f321` | Types passed; 1,158 core, 24 sync, 17 web-storage and 57 tools tests passed |
 | Full app suite on main `8a35f321` | 400 suites and 3,054 tests passed; the four previously reported notices failures did not reproduce |
 | PC web app on main `8a35f321` | Types, all 128 tests and production build passed |

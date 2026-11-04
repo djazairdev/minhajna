@@ -18,6 +18,7 @@ import { ITEM_KINDS, type ItemKind, type PackItem, type PlanPack, type StageTemp
 import type { Course, SchoolClass } from './records.ts';
 import type { State } from './state.ts';
 import { isOneLine } from './calendar-notice-read.ts';
+import { ITEM_NAME } from './pack-fields.ts';
 import type { CountryProfile } from './reference.ts';
 
 export interface FreeItem {
@@ -45,7 +46,6 @@ export const FREE_ITEMS_MAX = 300;
 export const FREE_STAGES_MAX = 12;
 export const FREE_TITLE_MAX = 160;
 export const FREE_STAGE_MAX = 80;
-const ITEM_ID = /^[A-Za-z0-9._-]{1,64}$/;
 
 const isKind = (kind: string): boolean => (ITEM_KINDS as readonly string[]).includes(kind);
 
@@ -54,7 +54,7 @@ export function freeItemFits(item: FreeItem): boolean {
   const sessions = item.sessions;
   const stages = item.stages ?? [];
   return (
-    ITEM_ID.test(item.id) &&
+    ITEM_NAME.test(item.id) &&
     isKind(item.kind) &&
     isOneLine(item.title, FREE_TITLE_MAX) &&
     (item.kind === 'unit'
@@ -79,7 +79,7 @@ export function freeListFits(list: FreeList): boolean {
     removed.length <= FREE_ITEMS_MAX &&
     new Set(ids).size === ids.length &&
     list.items.every(freeItemFits) &&
-    removed.every((item) => ITEM_ID.test(item.id) && isKind(item.kind) && isOneLine(item.title, FREE_TITLE_MAX))
+    removed.every((item) => ITEM_NAME.test(item.id) && isKind(item.kind) && isOneLine(item.title, FREE_TITLE_MAX))
   );
 }
 
