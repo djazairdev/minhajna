@@ -5,10 +5,9 @@
 // world's pack-editor accounts, one for each role, as their tokens' hashes, and
 // each release's steps, at most MAX_PACK_STEPS a world, erased with the world.
 // A step names no person. A step taken again at a revision replaces what was
-// there and those after it: the sealed stream of releases decides which of two
-// steps at once counts, as it takes one record a revision, so a step never left
-// unused holds a release back. In memory here, and in PostgreSQL in
-// prisma-packs.ts.
+// there and those after it; this is a log, and the sealed stream of releases
+// decides which of two steps at once counts. In memory here, and in PostgreSQL
+// in prisma-packs.ts.
 
 import type { PackRole, PackStep } from './pack-rules.js';
 
@@ -20,9 +19,6 @@ export interface PackStore {
   setAccount(world: string, role: PackRole, tokenHash: string): Promise<boolean>;
   /** The role of the world's account with this token's hash. */
   accountRole(world: string, tokenHash: string): Promise<PackRole | undefined>;
-  stepAt(world: string, id: string, release: string, revision: number): Promise<PackStep | undefined>;
-  /** The release's latest step. */
-  latestStep(world: string, id: string, release: string): Promise<PackStep | undefined>;
   /** Keeps a step, replacing it and any later ones of its release; refused past the cap or without the world. */
   putStep(world: string, step: PackStep): Promise<'kept' | 'full' | 'no-world'>;
   /** Each release's latest step, in order of pack and release. */
@@ -30,8 +26,6 @@ export interface PackStore {
   /** Forgets what erased worlds kept; PostgreSQL erases it with the world. */
   forget(worlds: readonly string[]): Promise<void>;
 }
-
-const newestFirst = (a: PackStep, b: PackStep): number => b.revision - a.revision;
 
 export class MemoryPackStore implements PackStore {
   private readonly accounts = new Map<string, Map<PackRole, string>>();
@@ -49,18 +43,6 @@ export class MemoryPackStore implements PackStore {
   accountRole(world: string, tokenHash: string): Promise<PackRole | undefined> {
     const found = [...(this.accounts.get(world) ?? [])].find(([, hash]) => hash === tokenHash);
     return Promise.resolve(found?.[0]);
-  }
-
-  private ofRelease(world: string, id: string, release: string): PackStep[] {
-    return (this.kept.get(world) ?? []).filter((one) => one.id === id && one.release === release);
-  }
-
-  stepAt(world: string, id: string, release: string, revision: number): Promise<PackStep | undefined> {
-    return Promise.resolve(this.ofRelease(world, id, release).find((one) => one.revision === revision));
-  }
-
-  latestStep(world: string, id: string, release: string): Promise<PackStep | undefined> {
-    return Promise.resolve(this.ofRelease(world, id, release).sort(newestFirst)[0]);
   }
 
   async putStep(world: string, step: PackStep): Promise<'kept' | 'full' | 'no-world'> {

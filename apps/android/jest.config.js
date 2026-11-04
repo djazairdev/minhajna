@@ -22,6 +22,7 @@ module.exports = {
     '^\\.\\./spaces/(space-rules|space-store)\\.js$': '<rootDir>/../server/src/spaces/$1.ts',
     '^\\.\\./state-standins/term-export-read\\.js$': '<rootDir>/../server/src/state-standins/term-export-read.ts',
     '^\\./stand-in-ca\\.js$': '<rootDir>/../server/src/worlds/stand-in-ca.ts',
+    '^\\./pack-rules\\.js$': '<rootDir>/../server/src/packs/pack-rules.ts',
     '^\\./(floors|share-reach|share-read)\\.js$': '<rootDir>/../server/src/totals/$1.ts',
     '^\\.\\./totals/(floors|share-read)\\.js$': '<rootDir>/../server/src/totals/$1.ts',
     '^\\./(bands|insight-store|outliers|quantile|school-marks|sending-read)\\.js$':

@@ -5,6 +5,7 @@
 // Every plan, world and signing key is made up, with no teacher store.
 
 import type { PackChange, PackRelease, PlanPack } from '@minhajna/core';
+import { makePackAccount } from '../src/editor/pack-account';
 import { changePackRelease } from '../src/editor/pack-release-session';
 import { startWorld, type Send } from '../src/demo/world-session';
 import { bundledReference, readReference } from '../src/reference';
@@ -23,11 +24,19 @@ export async function packService(kind: 'national' | 'teachers' = 'national') {
   const server = new DemoServer();
   const made = await startWorld(kind, reference.calendar, nodeKit, server.send);
   const world = { code: made.code, date: made.date, kind, world: made.keys.world };
+  const accounts =
+    kind === 'national'
+      ? {
+          curator: await makePackAccount(world.world, made.starter, 'curator', server.send),
+          ministry: await makePackAccount(world.world, made.starter, 'ministry', server.send),
+        }
+      : ({} as { curator?: string; ministry?: string });
   const editor = {
     world,
     held: { world: world.world, keys: made.keys, sealing: made.sealing },
     profile: reference.profile,
     kit: nodeKit,
+    accounts,
   };
   const target = (current: PackRelease | null, pack = source) => ({
     id: pack.id,

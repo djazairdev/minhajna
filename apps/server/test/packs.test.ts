@@ -64,6 +64,7 @@ describe('the pack desk over HTTP', () => {
   }
 
   async function world() {
+    read.clear();
     const { world: id, starter } = await start();
     return {
       id,
@@ -73,22 +74,40 @@ describe('the pack desk over HTTP', () => {
     };
   }
 
-  const step = (fields: Record<string, unknown>) => ({
-    id: PACK,
-    release: '2026.1',
-    expected: 0,
-    stage: 'draft',
-    status: 'community',
-    digest: DIGEST,
-    by: null,
-    day: DATE,
-    ...fields,
-  });
+  /** The steps the test's world has taken, by release and revision, as a device reads them from the stream. */
+  const read = new Map<string, Omit<PackStep, 'id'>>();
+  const keyOf = (release: unknown, revision: unknown) => `${String(release)}#${String(revision)}`;
+
+  const step = (fields: Record<string, unknown>) => {
+    const release = fields['release'] ?? '2026.1';
+    const expected = fields['expected'] ?? 0;
+    const by = fields['by'] ?? null;
+    const newest = [...read.entries()]
+      .filter(([key]) => key.startsWith(`${by as string}#`))
+      .map(([, one]) => one)
+      .sort((a, b) => b.revision - a.revision)[0];
+    return {
+      id: PACK,
+      release,
+      expected,
+      stage: 'draft',
+      status: 'community',
+      digest: DIGEST,
+      by,
+      day: DATE,
+      previous: read.get(keyOf(release, expected)) ?? null,
+      successor: by === null ? null : (newest ?? null),
+      ...fields,
+    };
+  };
 
   async function taken(id: string, token: string, fields: Record<string, unknown>): Promise<PackStep> {
     const res = await ask(id, 'steps', token, step(fields));
     assert.equal(res.status, 201);
-    return (await res.json()) as PackStep;
+    const done = (await res.json()) as PackStep;
+    const shown = Object.fromEntries(Object.entries(done).filter(([field]) => field !== 'id'));
+    read.set(keyOf(done.release, done.revision), shown as Omit<PackStep, 'id'>);
+    return done;
   }
 
   async function underReview(id: string, token: string, release = '2026.1') {
@@ -225,30 +244,46 @@ describe('the pack desk over HTTP', () => {
     assert.equal(answer.steps[0]!.stage, 'draft');
   });
 
-  it('another account’s later step is never replaced, and an existing release never starts again for it', async () => {
+  it('a step left unused holds nothing back, whichever account took it', async () => {
     const { id, curator, ministry } = await world();
     await underReview(id, curator);
-    await taken(id, ministry, { expected: 2, stage: 'published', status: 'official', digest: 'C'.repeat(43) });
-    const curators = step({ expected: 2, stage: 'published', status: 'community' });
-    assert.equal((await ask(id, 'steps', curator, curators)).status, 403);
-    assert.equal((await ask(id, 'steps', curator, step({}))).status, 403);
-    const again = await taken(id, ministry, { expected: 2, stage: 'published', status: 'official' });
-    assert.equal(again.revision, 3);
+    const review = read.get(keyOf('2026.1', 2))!;
+    await taken(id, curator, { expected: 2, digest: 'C'.repeat(43) });
+    const published = await taken(id, ministry, {
+      expected: 2,
+      stage: 'published',
+      status: 'official',
+      previous: review,
+    });
+    assert.equal(published.revision, 3);
+    assert.equal(published.role, 'ministry');
+  });
+
+  it('a step it was not signed for, or another world’s, shows nothing', async () => {
+    const { id, curator } = await world();
+    await taken(id, curator, {});
+    const shown = read.get(keyOf('2026.1', 1))!;
+    const askWith = async (previous: unknown) => {
+      const res = await ask(id, 'steps', curator, step({ expected: 1, stage: 'under-review', previous }));
+      return { status: res.status, problem: ((await res.json()) as { problem?: string }).problem };
+    };
+    const refused = { status: 409, problem: 'revision' };
+    assert.deepEqual(await askWith({ ...shown, stage: 'under-review' }), refused);
+    assert.deepEqual(await askWith({ ...shown, role: 'ministry' }), refused);
+    assert.deepEqual(await askWith(null), refused);
+    const other = await world();
+    await taken(other.id, other.curator, {});
+    const theirs = read.get(keyOf('2026.1', 1))!;
+    const res = await ask(id, 'steps', curator, step({ expected: 1, stage: 'under-review', previous: theirs }));
+    assert.equal(res.status, 409);
   });
 
   it('refuses a step that is not shaped as one', async () => {
     const { id, curator } = await world();
-    for (const bad of [
-      { id: 'not a pack' },
-      { release: '2026' },
-      { expected: -1 },
-      { stage: 'gone' },
-      { status: 'own' },
-      { digest: 'short' },
-      { by: '2026.2' },
-      { day: 'tomorrow' },
-      { extra: true },
-    ]) {
+    const first = [{ id: 'not a pack' }, { release: '2026' }, { expected: -1 }, { stage: 'gone' }, { status: 'own' }];
+    const more = [{ digest: 'short' }, { by: '2026.2' }, { day: 'tomorrow' }, { extra: true }];
+    const steps = [{ previous: { revision: 1 } }, { successor: 'none' }];
+    for (const bad of [...first, ...more, ...steps]) {
       assert.equal((await ask(id, 'steps', curator, step(bad))).status, 400);
     }
   });
@@ -258,17 +293,7 @@ describe('the pack desk over HTTP', () => {
     const done = await taken(id, curator, {});
     const said = JSON.stringify(done);
     assert.equal(said.includes(curator), false);
-    assert.deepEqual(Object.keys(done).sort(), [
-      'by',
-      'day',
-      'digest',
-      'id',
-      'release',
-      'revision',
-      'role',
-      'signature',
-      'stage',
-      'status',
-    ]);
+    const kept = Object.keys(done).sort().join();
+    assert.equal(kept, 'by,day,digest,id,release,revision,role,signature,stage,status');
   });
 });

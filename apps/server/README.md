@@ -28,12 +28,12 @@ A world's pack-editor accounts, and each pack release's steps (#612, R-4.3-09, R
 | --- | --- | --- |
 | `POST /worlds/:world/packs/accounts` with `{role}`, and `Authorization: Bearer <starter>` | Makes the world's `curator` or `ministry` account, replacing any before it | `201 {role, token}`, the token given once; `403` without the starter token |
 | `GET /worlds/:world/packs/account`, with `Authorization: Bearer <account>` | Signs in | `{role}`; `403` for any other token |
-| `POST /worlds/:world/packs/steps` with `{id, release, expected, stage, status, digest, by, day}`, with `Authorization: Bearer <account>` | Takes a step of a release: draft, under review, published, then superseded or withdrawn | `201`, the step with its revision, role and the signature of the world's stand-in CA over `minhajna/pack-step/1`; `403` when the account may not; `409 {problem}`, `date` when the world's date moved and `revision` when no such revision was taken |
+| `POST /worlds/:world/packs/steps` with `{id, release, expected, stage, status, digest, by, day, previous, successor}`, with `Authorization: Bearer <account>` | Takes a step of a release: draft, under review, published, then superseded or withdrawn | `201`, the step with its revision, role and the signature of the world's stand-in CA over `minhajna/pack-step/1`; `403` when the account may not; `409 {problem}`, `date` when the world's date moved and `revision` when the signed step it shows doesn't hold |
 | `GET /worlds/:world/packs/steps` | Reads each release's latest step | `{steps}` |
 
 - **Roles:** an account moves only what it holds, but the Ministry's may publish what a curator has under review, and what it publishes is Official. No curator's step ever is.
 - **What it sees:** a release's name, stage and status, and a digest keyed with the world's sealing key, never the release itself, which stays sealed on the world's national space. A step names no person.
-- **Two at once:** the sealed stream takes one record a revision and decides which counts, so a step taken again replaces what followed it, and one left unused holds nothing back.
+- **Two at once:** a device shows the step it read, signed, so the server holds no release's state to judge by. The sealed stream takes one record a revision and decides which of two steps counts, and one left unused holds nothing back. `GET .../steps` is a log of what was taken, so its latest step may be one the stream never took.
 
 ## The encrypted relay
 

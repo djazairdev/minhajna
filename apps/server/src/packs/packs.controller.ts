@@ -9,10 +9,10 @@
 // /worlds/:world/packs/steps, with an account's token, takes one step of a
 // release under pack-rules.ts and answers it signed by the world's stand-in CA,
 // on the world's date, refused with a problem of 'date' when that moved, or of
-// 'revision' when no such revision was taken. GET /worlds/:world/packs/steps
-// answers each release's latest step. Making an account and signing in count
-// under the limit on joins; steps, which come with every save, under the
-// relay's.
+// 'revision' when the signed step it follows doesn't hold. GET
+// /worlds/:world/packs/steps answers each release's latest step. Making an
+// account and signing in count under the limit on joins; steps, which come with
+// every save, under the relay's.
 
 import {
   BadRequestException,
@@ -30,14 +30,14 @@ import {
   Param,
   Req,
 } from '@nestjs/common';
-import { sign } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import { newCaKey, privateKeyOf } from '../worlds/stand-in-ca.js';
+import { newCaKey } from '../worlds/stand-in-ca.js';
 import { limitRequest, noWorld, openWorld } from '../worlds/world-access.js';
 import { hashToken, holdsStarter, newStarterToken } from '../worlds/world-rules.js';
 import { WORLD_STORE, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
-import { PACK_ROLES, packStepText, readStepRequest, refusal, type PackRole, type PackStep } from './pack-rules.js';
+import { takePackStep } from './pack-desk.js';
+import { PACK_ROLES, type PackRole, type PackStep } from './pack-rules.js';
 import { PACK_STORE, type PackStore } from './pack-store.js';
 
 const BEARER = /^Bearer +([A-Za-z0-9_-]{1,128})$/i;
@@ -96,29 +96,15 @@ export class PacksController {
     limitRequest(this.limiters.relay, request, this.limiters.trustCloudflare);
     const world = await openWorld(this.worlds, id, pass);
     const role = await this.roleOf(world.id, authorization);
-    const read = readStepRequest(body);
-    if (typeof read === 'string') throw new BadRequestException(read);
-    if (read.day !== world.date) throw new ConflictException({ problem: 'date', message: "the world's date moved" });
-    const at =
-      read.expected === 0 ? undefined : await this.packs.stepAt(world.id, read.id, read.release, read.expected);
-    if (read.expected > 0 && at === undefined) {
-      throw new ConflictException({ problem: 'revision', message: 'no such revision of this release was taken' });
-    }
-    const successor = read.by === null ? undefined : await this.packs.latestStep(world.id, read.id, read.by);
-    const latest = await this.packs.latestStep(world.id, read.id, read.release);
-    const problem = refusal(read, role, at, latest, successor);
-    if (problem !== null) throw new ForbiddenException(problem);
     const caKey = await this.worlds.caKey(world.id, newCaKey);
     if (caKey === undefined) throw noWorld();
-    const { expected, ...fields } = read;
-    const unsigned = { ...fields, revision: expected + 1, role };
-    const text = Buffer.from(packStepText(world.id, unsigned), 'utf8');
-    const step = { ...unsigned, signature: sign('sha256', text, privateKeyOf(caKey)).toString('base64') };
-    const kept = await this.packs.putStep(world.id, step);
-    if (kept === 'no-world') throw noWorld();
-    if (kept === 'full')
-      throw new HttpException('this world has taken all the steps it may', HttpStatus.INSUFFICIENT_STORAGE);
-    return step;
+    const taken = await takePackStep(this.packs, { world: world.id, date: world.date, caKey }, role, body);
+    if ('step' in taken) return taken.step;
+    if (taken.refused === 'shape') throw new BadRequestException(taken.message);
+    if (taken.refused === 'role') throw new ForbiddenException(taken.message);
+    if (taken.refused === 'gone') throw noWorld();
+    if (taken.refused === 'full') throw new HttpException(taken.message, HttpStatus.INSUFFICIENT_STORAGE);
+    throw new ConflictException({ problem: taken.refused, message: taken.message });
   }
 
   @Get('steps')

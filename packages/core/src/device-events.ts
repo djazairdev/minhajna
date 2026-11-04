@@ -216,6 +216,8 @@ export interface WorldKept {
   readonly kind: WorldKind;
   readonly code: string;
   readonly starter: string | null;
+  /** The pack-editor accounts' tokens this device holds, by role (#612). */
+  readonly packAccounts?: { readonly curator?: string; readonly ministry?: string };
 }
 
 /** A joining code scanned in a demo world, as scanned, with this device's ID there, its signing key and certificate. */

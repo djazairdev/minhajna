@@ -80,7 +80,11 @@ export async function openWorld(
     const kept = keptWorld(book.entries);
     const starter = found.starter ?? (kept?.code === found.code ? kept.starter : null);
     if (kept?.code !== found.code || kept.kind !== found.kind || kept.starter !== starter) {
-      await book.record(found.date, { kind: 'world.kept', kept: { kind: found.kind, code: found.code, starter } });
+      const accounts = kept?.code === found.code && kept.packAccounts ? { packAccounts: kept.packAccounts } : {};
+      await book.record(found.date, {
+        kind: 'world.kept',
+        kept: { kind: found.kind, code: found.code, starter, ...accounts },
+      });
     }
     return { ...found, starter, book };
   } catch (error) {

@@ -32,7 +32,8 @@
 // server (#618, #619, OpsConsole.tsx, OpsAdminLog.tsx, OpsSecurity.tsx,
 // OpsProblems.tsx); and the observatory's reports page, whose world has no
 // school, reads a term's figures (#627, ObsReport.tsx). Only that page goes
-// without a school; others stay empty. The curator edits releases (#611, #613).
+// without a school; others stay empty. The pack desk's pages come from
+// PackDesk.tsx (#611 to #616).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
@@ -49,7 +50,7 @@ import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
 import { DirectorateThresholds } from '../directorate/DirectorateThresholds';
 import { DirectorateTotals } from '../directorate/DirectorateTotals';
-import { PacksPage } from '../editor/PacksPage';
+import { packDeskPage } from '../editor/PackDesk';
 import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
@@ -294,7 +295,5 @@ export function workspacePage(
         workingDays={reference.profile.workingDays}
       />
     );
-  if (workspace === 'curator' && page === 'packs')
-    return <PacksPage {...reference} world={open} setOpen={props.setOpen} held={held} kit={kit} send={send} />;
-  return null;
+  return packDeskPage(workspace, page, { ...reference, open, setOpen: props.setOpen, held, kit, send });
 }

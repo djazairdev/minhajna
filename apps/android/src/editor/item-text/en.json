@@ -89,6 +89,7 @@
   "packHistory": "Part of the release history could not be read. The releases that could be read are available for viewing. Saving is unavailable.",
   "packDate": "The demo world’s date changed. Your edits are still here. Try again after the date refreshes.",
   "packChanged": "Someone saved a newer draft, so this change was not saved.",
+  "packRole": "This account may not take that step.",
   "loading": "Reading drafts…",
   "reload": "Reload drafts",
   "newPack": "New pack",

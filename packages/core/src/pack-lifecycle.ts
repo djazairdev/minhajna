@@ -3,8 +3,8 @@
 
 // The pack editor's release lifecycle (#612, PRD section 4.3), prepared on
 // the device for a national demo world. Source status and lifecycle stage
-// are separate. A publisher is a demo role, not an authenticated authority.
-// Only that world's Ministry role publishes an Official pack. Published
+// are separate. A publisher is an account on the demo server (pack-step.ts).
+// Only that world's Ministry account publishes an Official pack. Published
 // content is immutable; a correction has another release. Revisions stop
 // stale edits, and dates never go backwards. The codec signs every change
 // and supplies the world's signed publication file before it may travel.
@@ -38,6 +38,8 @@ export interface PackRelease {
   readonly file: string | null;
   /** Historical successor. Use publishedPackSuccessor to resolve its current status. */
   readonly supersededBy: string | null;
+  /** The world's CA's signature over this step, once the server took it (pack-step.ts); null until then. */
+  readonly attested: string | null;
 }
 
 export type PackChange =
@@ -144,5 +146,6 @@ export function preparePackRelease(
     day: scope.day,
     file: change.stage === 'superseded' || change.stage === 'withdrawn' ? current!.file : null,
     supersededBy: change.stage === 'superseded' ? change.by : null,
+    attested: null,
   };
 }

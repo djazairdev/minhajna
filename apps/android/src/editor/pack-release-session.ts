@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The headless release service for the editor/review boards (#612, #614).
-// The maintainer chose the existing encrypted demo-world flow: no new
-// server account or plaintext pack API. It uses the world's keys already
-// held in memory by DemoRoot (#608), never a teacher's store. The national
-// space carries signed changes in sealed, fixed-size batches. A stale
-// revision is refused even after a concurrent append, and a whole change
-// is checked and bounded before a write. Roles are demo choices, not
-// verified identities. The world's day must still match the server's.
+// The headless release service for the editor/review boards (#612, #614). It
+// uses the world's keys already held in memory by DemoRoot (#608), never a
+// teacher's store. The national space carries signed changes in sealed,
+// fixed-size batches. A stale revision is refused even after a concurrent
+// append, and a whole change is checked and bounded before a write. Each change
+// first takes its step on the server under the role's pack-editor account,
+// whose signature every reader checks, so a role is no longer a claim (answer
+// 767). The server sees the step, never the release. The world's day must still
+// match the server's.
 
 import {
   canonicalJson,
@@ -17,6 +18,7 @@ import {
   PackReleaseError,
   isDay,
   openPackReleaseBatches,
+  packDigest,
   packReleaseKey,
   packReleasePlace,
   packReleaseRecords,
@@ -25,14 +27,16 @@ import {
   sealPackRelease,
   signPackRelease,
   type CountryProfile,
+  type PackAuthority,
   type PackChange,
+  type PackPublisher,
   type PackRelease,
 } from '@minhajna/core';
 import { NATIONAL_SPACE, type HeldWorld } from '../demo/world-calendar-read';
 import type { OpenWorld, WorldRole } from '../demo/world-mode';
 import { failed, kitStep, unexpected, type Send, type WorldKit } from '../demo/world-session';
 import { worldNetworkOpen, worldRequest } from '../network/world-network';
-import { spaceBatches } from '../school/space-read';
+import { caKey, spaceBatches } from '../school/space-read';
 import { putOnce, readingMissing } from '../school/stream-put';
 
 export interface PackEditor {
@@ -40,6 +44,8 @@ export interface PackEditor {
   readonly held: HeldWorld | null;
   readonly profile: CountryProfile;
   readonly kit: Pick<WorldKit, 'mac' | 'cipher' | 'verify' | 'sign'>;
+  /** The pack-editor accounts' tokens this device holds, by role. */
+  readonly accounts?: Readonly<Partial<Record<PackPublisher, string>>>;
 }
 export interface PackReleaseTarget {
   readonly id: string;
@@ -65,9 +71,16 @@ async function desk({ world, held, kit }: PackEditor, send: Send, acceptLaterDay
   const date = (answer.body as { date?: unknown } | null)?.date;
   if (typeof date !== 'string' || !isDay(date) || (acceptLaterDay ? date < world.date : date !== world.date))
     throw failed('Refresh the world’s date before editing', 'E_PACK_DATE');
+  const authority: PackAuthority = {
+    caKey: await caKey(world.world, send),
+    sealing: held.sealing,
+    mac: kit.mac,
+    verify: kit.verify,
+  };
   return {
     world: { ...world, date },
     keys: held.keys,
+    authority,
     place: await kitStep(() => packReleasePlace(held.sealing, kit.mac)),
   };
 }
@@ -93,7 +106,7 @@ async function readBatches(
     held.keys,
     profile,
     held.world.date,
-    kit.verify,
+    held.authority,
     strict,
   );
 }
@@ -130,6 +143,61 @@ async function readDesk(held: Desk, editor: PackEditor, send: Send) {
   }
 }
 
+/** The step a device read, as it shows it to the server: the release's own fields with the CA's signature. */
+async function shownStep(held: Desk, release: PackRelease | null | undefined) {
+  if (release === null || release === undefined || release.attested === null) return null;
+  const { sealing, mac } = held.authority;
+  return {
+    release: release.pack.release,
+    revision: release.revision,
+    stage: release.stage,
+    role: release.actor,
+    status: release.pack.status,
+    digest: await kitStep(() => packDigest(release.pack, sealing, mac)),
+    by: release.supersededBy,
+    day: release.day,
+    signature: release.attested,
+  };
+}
+
+/** Takes the step on the server, whose signature makes the change one a reader takes. */
+async function takeStep(
+  held: Desk,
+  prepared: PackRelease,
+  all: ReadonlyMap<string, PackRelease>,
+  token: string,
+  send: Send,
+): Promise<PackRelease> {
+  const { pack, stage, revision, supersededBy, day } = prepared;
+  const { sealing, mac } = held.authority;
+  const answer = await send({
+    method: 'POST',
+    path: `/worlds/${held.world.world}/packs/steps`,
+    starter: token,
+    body: {
+      id: pack.id,
+      release: pack.release,
+      expected: revision - 1,
+      stage,
+      status: pack.status,
+      digest: await kitStep(() => packDigest(pack, sealing, mac)),
+      by: supersededBy,
+      day,
+      previous: await shownStep(held, all.get(packReleaseKey(pack.id, pack.release))),
+      successor: supersededBy === null ? null : await shownStep(held, all.get(packReleaseKey(pack.id, supersededBy))),
+    },
+  });
+  const said = answer.body as { signature?: unknown; problem?: unknown } | null;
+  if (answer.status === 404) throw failed('The world was erased', 'E_NO_SUCH_WORLD');
+  if (answer.status === 403) throw failed('The account may not take this step', 'E_PACK_ROLE');
+  if (answer.status === 409) {
+    if (said?.problem === 'date') throw failed('The world’s date moved', 'E_PACK_DATE');
+    throw new PackReleaseError('E_PACK_CHANGED');
+  }
+  if (answer.status !== 201 || typeof said?.signature !== 'string') throw unexpected(answer);
+  return { ...prepared, attested: said.signature };
+}
+
 export async function changePackRelease(
   editor: PackEditor,
   actor: WorldRole,
@@ -138,6 +206,8 @@ export async function changePackRelease(
   send: Send = worldRequest,
 ): Promise<PackRelease> {
   if (actor !== 'curator' && actor !== 'ministry') throw failed('Not a publishing demo role', 'E_PACK_ROLE');
+  const token = editor.accounts?.[actor];
+  if (token === undefined) throw failed('This device holds no account of this role', 'E_PACK_ROLE');
   if (parsePackId(target.id)?.country !== editor.profile.code) throw new PackReleaseError('E_PACK_SOURCE');
   if (change.stage === 'draft' && (change.pack.id !== target.id || change.pack.release !== target.release))
     throw new PackReleaseError('E_PACK_SOURCE');
@@ -152,10 +222,12 @@ export async function changePackRelease(
       scope,
       change.stage === 'superseded' ? (all.get(packReleaseKey(target.id, change.by)) ?? null) : null,
     );
-  const prepared = next(await releases(held, editor, send, true));
+  const read = await releases(held, editor, send, true);
+  const prepared = next(read);
   if (prepared.stage === 'draft' || prepared.stage === 'under-review')
     await checkPackPublicationSize(prepared, held.keys);
-  const signed = await kitStep(() => signPackRelease(prepared, held.keys, kit.sign));
+  const taken = await takeStep(held, prepared, read, token, send);
+  const signed = await kitStep(() => signPackRelease(taken, held.keys, kit.sign));
   checkPackReleaseSize(signed.file);
   let latest: ReadonlyMap<string, PackRelease> = new Map();
   await putOnce(
@@ -170,7 +242,7 @@ export async function changePackRelease(
           held.keys,
           profile,
           held.world.date,
-          kit.verify,
+          held.authority,
           true,
         );
         return [...latest.values()];

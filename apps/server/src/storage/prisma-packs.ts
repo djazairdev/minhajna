@@ -53,21 +53,6 @@ export class PrismaPackStore implements PackStore {
     return row?.role as PackRole | undefined;
   }
 
-  async stepAt(worldId: string, packId: string, release: string, revision: number): Promise<PackStep | undefined> {
-    const row = await this.client.packStep.findUnique({
-      where: { worldId_packId_release_revision: { worldId, packId, release, revision } },
-    });
-    return row === null ? undefined : stepOf(row);
-  }
-
-  async latestStep(worldId: string, packId: string, release: string): Promise<PackStep | undefined> {
-    const row = await this.client.packStep.findFirst({
-      where: { worldId, packId, release },
-      orderBy: { revision: 'desc' },
-    });
-    return row === null ? undefined : stepOf(row);
-  }
-
   async putStep(worldId: string, step: PackStep, again = true): Promise<'kept' | 'full' | 'no-world'> {
     const { id: packId, release, revision } = step;
     const replaced = { packId, release, revision: { gte: revision } };

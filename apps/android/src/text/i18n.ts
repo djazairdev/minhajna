@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Every text the interface shows comes from a catalogue in i18next's JSON v4
-// form, bundled with the app so that it works offline (docs/checks/message-catalogue.md).
+// form, bundled with the app so that it works offline
+// (docs/checks/message-catalogue.md).
 // Arabic is the source language and the fallback. Counts come in as numbers
 // and are written with Western digits (PRD §3.8). The interface opens in
 // Arabic, right to left, until the teacher chooses another language, whatever
@@ -17,6 +18,7 @@ import frBase from './fr.json';
 import { settingsCatalogues } from '../settings/catalogues';
 import { calendarCatalogues } from '../calendar/catalogues';
 import { editorPackCatalogues } from '../editor/catalogues';
+import { deskCatalogues } from '../editor/desk-catalogues';
 import { itemCatalogues } from '../editor/item-catalogues';
 import { installPluralRules } from './plural-rules';
 
@@ -26,6 +28,7 @@ const ar = {
   calendarView: calendarCatalogues.ar,
   editorPacks: editorPackCatalogues.ar,
   editorItem: itemCatalogues.ar,
+  editorDesk: deskCatalogues.ar,
 };
 const fr = {
   ...frBase,
@@ -33,6 +36,7 @@ const fr = {
   calendarView: calendarCatalogues.fr,
   editorPacks: editorPackCatalogues.fr,
   editorItem: itemCatalogues.fr,
+  editorDesk: deskCatalogues.fr,
 };
 const en = {
   ...enBase,
@@ -40,6 +44,7 @@ const en = {
   calendarView: calendarCatalogues.en,
   editorPacks: editorPackCatalogues.en,
   editorItem: itemCatalogues.en,
+  editorDesk: deskCatalogues.en,
 };
 
 declare module 'i18next' {

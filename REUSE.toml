@@ -24,7 +24,7 @@ SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
-path = "apps/android/src/editor/text/*.json"
+path = ["apps/android/src/editor/text/*.json", "apps/android/src/editor/desk-text/*.json"]
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 

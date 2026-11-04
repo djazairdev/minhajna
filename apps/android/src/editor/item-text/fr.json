@@ -89,6 +89,7 @@
   "packHistory": "Une partie de l’historique est illisible. Les versions lisibles restent consultables. L’enregistrement est indisponible.",
   "packDate": "La date du monde de démonstration a changé. Votre saisie est toujours là. Réessayez après la mise à jour de la date.",
   "packChanged": "Une révision plus récente a été enregistrée : cette modification ne l’a pas été.",
+  "packRole": "Ce compte ne peut pas franchir cette étape.",
   "loading": "Lecture des brouillons…",
   "reload": "Actualiser",
   "newPack": "Nouveau pack",
