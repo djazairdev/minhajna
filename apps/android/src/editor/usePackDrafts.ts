@@ -16,7 +16,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
 import { changePackRelease, readPackEditor, type PackEditor } from './pack-release-session';
 
-type DraftProblem = 'saveError' | 'packSize' | 'packHistory' | 'packDate' | 'packChanged' | 'worldErased';
+type DraftProblem = 'saveError' | 'packSize' | 'packHistory' | 'packDate' | 'packChanged' | 'packRole' | 'worldErased';
 
 /** Whether the curator can edit this release: their own, still a draft or under review. */
 export function isCuratorDraft(one: PackRelease) {
@@ -29,6 +29,7 @@ function problemOf(error: unknown): DraftProblem {
   if (code === 'E_PACK_HISTORY') return 'packHistory';
   if (code === 'E_PACK_DATE') return 'packDate';
   if (code === 'E_PACK_CHANGED') return 'packChanged';
+  if (code === 'E_PACK_ROLE') return 'packRole';
   if (code === 'E_NO_SUCH_WORLD') return 'worldErased';
   return 'saveError';
 }
@@ -116,7 +117,7 @@ export function usePackDrafts(
       if (context.current === current) {
         const next = problemOf(error);
         setProblem(next);
-        if (next !== 'saveError' && next !== 'packSize') {
+        if (next !== 'saveError' && next !== 'packSize' && next !== 'packRole') {
           setChecked(null);
           setReading((old) => old + 1);
         }
@@ -136,7 +137,9 @@ export function usePackDrafts(
     busy,
     save,
     dismiss: () =>
-      setProblem((old) => (old === 'packDate' || old === 'packChanged' || old === 'packSize' ? null : old)),
+      setProblem((old) =>
+        old === 'packDate' || old === 'packChanged' || old === 'packSize' || old === 'packRole' ? null : old,
+      ),
     reload: () => {
       setChecked(null);
       setProblem(null);

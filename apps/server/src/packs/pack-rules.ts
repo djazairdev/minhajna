@@ -9,7 +9,10 @@
 // no curator's step ever is. The server sees a release's name, stage and
 // status and a keyed digest of its content, never its content, and signs each
 // step it allows with the world's stand-in CA key over the text below, which
-// no certificate's text can be, so a device can tell what the account did.
+// no certificate's text can be, so a device can tell what the account did. A
+// device shows the step it read, signed, so the server need hold no release's
+// state: the sealed stream takes one record a revision and decides which of two
+// steps counts, and no step left unused can hold a release back.
 // packages/core/src/pack-step.ts rebuilds the same text.
 
 export const PACK_ROLES = ['curator', 'ministry'] as const;
@@ -38,16 +41,49 @@ export interface PackStepRequest {
   readonly by: string | null;
   /** The world's date the device read. */
   readonly day: string;
+  /** The step this one follows, as the server signed it; null for a new release. */
+  readonly previous: SignedStep | null;
+  /** The latest step of the release a step to superseded names, as the server signed it. */
+  readonly successor: SignedStep | null;
 }
 
+/** A step a device read from the sealed stream, with the signature that proves it was taken. */
+export type SignedStep = Omit<PackStep, 'id' | 'release'> & { readonly release: string };
+
 /** A step as the server keeps and signs it. */
-export interface PackStep extends Omit<PackStepRequest, 'expected'> {
+export interface PackStep extends Omit<PackStepRequest, 'expected' | 'previous' | 'successor'> {
   readonly revision: number;
   readonly role: PackRole;
   readonly signature: string;
 }
 
-const FIELDS = ['id', 'release', 'expected', 'stage', 'status', 'digest', 'by', 'day'];
+const FIELDS = ['id', 'release', 'expected', 'stage', 'status', 'digest', 'by', 'day', 'previous', 'successor'];
+const STEP_FIELDS = ['release', 'revision', 'stage', 'role', 'status', 'digest', 'by', 'day', 'signature'];
+const SIGNATURE = /^[A-Za-z0-9+/=]{12,96}$/;
+
+/** A signed step in a body, or null when it isn't shaped as one. */
+function readSigned(value: unknown): SignedStep | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const keys = Object.keys(value);
+  if (keys.length !== STEP_FIELDS.length || !STEP_FIELDS.every((field) => keys.includes(field))) return null;
+  const { release, revision, stage, role, status, digest, by, day, signature } = value as Record<string, unknown>;
+  const reads =
+    typeof release === 'string' &&
+    RELEASE.test(release) &&
+    Number.isSafeInteger(revision) &&
+    (revision as number) >= 1 &&
+    STAGES.includes(stage as PackStage) &&
+    PACK_ROLES.includes(role as PackRole) &&
+    STATUSES.includes(status as (typeof STATUSES)[number]) &&
+    typeof digest === 'string' &&
+    DIGEST.test(digest) &&
+    (by === null || (typeof by === 'string' && RELEASE.test(by))) &&
+    typeof day === 'string' &&
+    DAY.test(day) &&
+    typeof signature === 'string' &&
+    SIGNATURE.test(signature);
+  return reads ? (value as SignedStep) : null;
+}
 
 /** The request in a body, or why it is refused. */
 export function readStepRequest(body: unknown): PackStepRequest | string {
@@ -56,7 +92,10 @@ export function readStepRequest(body: unknown): PackStepRequest | string {
   if (keys.length !== FIELDS.length || !FIELDS.every((field) => keys.includes(field))) {
     return `a step has ${FIELDS.join(', ')}, and nothing else`;
   }
-  const { id, release, expected, stage, status, digest, by, day } = body as Record<string, unknown>;
+  const { id, release, expected, stage, status, digest, by, day, previous, successor } = body as Record<
+    string,
+    unknown
+  >;
   if (typeof id !== 'string' || !PACK_ID.test(id) || id.length > 128) return 'id must be a pack ID';
   if (typeof release !== 'string' || !RELEASE.test(release)) return 'release must be a release number';
   if (!Number.isSafeInteger(expected) || (expected as number) < 0 || (expected as number) >= Number.MAX_SAFE_INTEGER) {
@@ -69,6 +108,11 @@ export function readStepRequest(body: unknown): PackStepRequest | string {
   if (stage === 'superseded' ? typeof by !== 'string' || !RELEASE.test(by) : by !== null) {
     return 'by names the release that replaces this one, and only for a step to superseded';
   }
+  const shown = previous === null ? null : readSigned(previous);
+  const after = successor === null ? null : readSigned(successor);
+  if ((previous !== null && shown === null) || (successor !== null && after === null)) {
+    return 'previous and successor are steps as the server signed them';
+  }
   return {
     id,
     release,
@@ -78,6 +122,8 @@ export function readStepRequest(body: unknown): PackStepRequest | string {
     digest,
     by: by as string | null,
     day,
+    previous: shown,
+    successor: after,
   };
 }
 
@@ -88,31 +134,25 @@ const compareReleases = (a: string, b: string): number => {
 };
 
 /**
- * Why this account may not take this step, or null: `at` is the step at the
- * revision the device read, `latest` the release's latest step, and `successor`
- * the latest step of the release a step to superseded names. A step taken again
- * replaces only what this account took after it. Whether a step's digest and
- * status are the release's own is for the devices, which read the release: a
- * step left unused may have replaced the one a later step here follows.
+ * Why this account may not take this step, or null. `at` is the step the device
+ * read, and `successor` the latest step of the release a step to superseded
+ * names, each already checked against its signature. Whether a step's digest
+ * and status are the release's own is for the devices, which read the release.
  */
 export function refusal(
   request: PackStepRequest,
   role: PackRole,
-  at: PackStep | undefined,
-  latest: PackStep | undefined,
-  successor: PackStep | undefined,
+  at: SignedStep | null,
+  successor: SignedStep | null,
 ): string | null {
   const { stage, status } = request;
   if (role === 'curator' && status === 'official') return "only the Ministry's account has Official packs";
-  if (latest !== undefined && latest.revision > request.expected && latest.role !== role) {
-    return 'another account took this release further';
-  }
   if (stage === 'draft') {
     if (request.expected === 0) return null;
-    if (at === undefined || !['draft', 'under-review'].includes(at.stage)) return 'this release is no longer a draft';
+    if (at === null || !['draft', 'under-review'].includes(at.stage)) return 'this release is no longer a draft';
     return at.role === role ? null : 'another account holds this release';
   }
-  if (at === undefined) return 'this release has no step to follow';
+  if (at === null) return 'this release has no step to follow';
   if (stage === 'under-review') {
     if (at.stage !== 'draft') return 'only a draft goes under review';
     return at.role === role ? null : 'another account holds this release';
@@ -126,7 +166,7 @@ export function refusal(
   if (at.role !== role) return 'another account holds this release';
   if (stage === 'withdrawn') return null;
   const replaces =
-    successor !== undefined &&
+    successor !== null &&
     successor.stage === 'published' &&
     successor.role === role &&
     compareReleases(successor.release, request.release) > 0;

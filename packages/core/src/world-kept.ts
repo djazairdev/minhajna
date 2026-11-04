@@ -19,15 +19,24 @@ export type { WorldKept } from './device-events.ts';
 
 const TOKEN = /^[A-Za-z0-9_-]{16,128}$/u;
 
+/** The pack-editor accounts' tokens that read, by role, or none. */
+function readPackAccounts(value: unknown): WorldKept['packAccounts'] {
+  if (typeof value !== 'object' || value === null) return undefined;
+  const { curator, ministry } = value as Record<string, unknown>;
+  const reads = (token: unknown): token is string => typeof token === 'string' && TOKEN.test(token);
+  return { ...(reads(curator) ? { curator } : {}), ...(reads(ministry) ? { ministry } : {}) };
+}
+
 /** A kept world's facts, as the store may hold them, or null when they do not read. */
 export function readWorldKept(value: unknown): WorldKept | null {
   if (typeof value !== 'object' || value === null) return null;
-  const { kind, code, starter } = value as Record<string, unknown>;
+  const { kind, code, starter, packAccounts } = value as Record<string, unknown>;
   if (!WORLD_KINDS.includes(kind as WorldKind) || typeof code !== 'string') return null;
   const read = readWorldCode(code);
   if ('problem' in read || read.code !== code) return null;
   if (starter !== null && (typeof starter !== 'string' || !TOKEN.test(starter))) return null;
-  return { kind: kind as WorldKind, code, starter };
+  const accounts = readPackAccounts(packAccounts);
+  return { kind: kind as WorldKind, code, starter, ...(accounts === undefined ? {} : { packAccounts: accounts }) };
 }
 
 /** The world a store belongs to, from its latest `world.kept` event that reads, or null. */

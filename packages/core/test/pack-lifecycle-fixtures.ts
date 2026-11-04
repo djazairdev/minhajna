@@ -3,8 +3,12 @@
 
 // Made-up source packs and ephemeral P-256 signatures for #612. The key
 // stays in makeTestKey's closure: its synthetic handle is never key material.
+// `attest` gives a release the signature an account's step gets from the
+// server.
 
 import {
+  packDigest,
+  packStepText,
   preparePackRelease,
   signPackRelease,
   type PackChange,
@@ -14,7 +18,8 @@ import {
   type WorldSigner,
 } from '../src/index.ts';
 import { d, mathPack } from './fixtures.ts';
-import { makeTestKey } from './signed-fixtures.ts';
+import { makeTestKey, nodeVerifier } from './signed-fixtures.ts';
+import { mac } from './world-crypto.ts';
 
 export const source = {
   ...mathPack,
@@ -25,8 +30,16 @@ export const source = {
 export const day = d('2026-11-01');
 export const world = 'ABCDE';
 
+const SEALING = new Uint8Array(32).fill(7);
+
 export function fixture() {
   const key = makeTestKey('world-ministry');
+  const ca = makeTestKey('world-ca');
+  const authority = { caKey: ca.trusted.spki, sealing: SEALING, mac, verify: nodeVerifier };
+  const attest = async (release: PackRelease): Promise<PackRelease> => ({
+    ...release,
+    attested: ca.sign(packStepText(release, await packDigest(release.pack, SEALING, mac))),
+  });
   const keys: WorldKeys = {
     world,
     kind: 'national',
@@ -47,7 +60,7 @@ export function fixture() {
       { world, day, actor, expected: current?.revision ?? 0 },
       successor,
     );
-    const signed = await signPackRelease(prepared, keys, sign);
+    const signed = await signPackRelease(await attest(prepared), keys, sign);
     records.push(signed.file);
     return signed.release;
   }
@@ -56,5 +69,5 @@ export function fixture() {
     const review = await change(draft, { stage: 'under-review' });
     return change(review, { stage: 'published' }, actor);
   }
-  return { keys, key, sign, records, change, published };
+  return { keys, key, sign, records, change, published, authority, attest, ca };
 }

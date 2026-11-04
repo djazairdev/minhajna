@@ -55,8 +55,6 @@ for (const kind of KINDS) {
       await stores.packs.putStep(WORLD, made(1));
       await stores.packs.putStep(WORLD, made(2, { stage: 'under-review' }));
       await stores.packs.putStep(WORLD, made(1, { release: '2026.2' }));
-      assert.equal((await stores.packs.stepAt(WORLD, PACK, '2026.1', 2))?.stage, 'under-review');
-      assert.equal((await stores.packs.latestStep(WORLD, PACK, '2026.1'))?.revision, 2);
       const latest = await stores.packs.latestSteps(WORLD);
       assert.deepEqual(
         latest.map((one) => [one.release, one.revision]),
@@ -66,8 +64,10 @@ for (const kind of KINDS) {
         ],
       );
       assert.equal(await stores.packs.putStep(WORLD, made(1, { digest: 'B'.repeat(43) })), 'kept');
-      assert.equal(await stores.packs.stepAt(WORLD, PACK, '2026.1', 2), undefined);
-      assert.deepEqual(await stores.packs.stepAt(WORLD, PACK, '2026.1', 1), made(1, { digest: 'B'.repeat(43) }));
+      assert.deepEqual(await stores.packs.latestSteps(WORLD), [
+        made(1, { digest: 'B'.repeat(43) }),
+        made(1, { release: '2026.2' }),
+      ]);
     });
 
     it('takes no step without the world', async () => {

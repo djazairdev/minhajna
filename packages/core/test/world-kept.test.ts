@@ -33,6 +33,16 @@ const options: ArchiveOptions = {
 };
 
 describe('a kept world', () => {
+  it('keeps the pack-editor accounts that read, and drops any other', () => {
+    const base: WorldKept = { kind: 'national', code: CODE, starter: null };
+    const token = 'made-up-account-token-0123456789';
+    assert.deepEqual(readWorldKept({ ...base, packAccounts: { curator: token, ministry: 'not a token' } }), {
+      ...base,
+      packAccounts: { curator: token },
+    });
+    assert.deepEqual(readWorldKept({ ...base, packAccounts: 'none' }), base);
+  });
+
   it('is read from the latest event that reads, in the device layer only', async () => {
     const book = await openBook(cemEvents());
     assert.equal(keptWorld(book.entries), null);

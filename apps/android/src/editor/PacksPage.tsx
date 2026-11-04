@@ -3,7 +3,8 @@
 
 // The curator works on source releases only. This page is keyed by world
 // so a checked day change preserves the form. It receives no teacher data.
-// A read failure blocks draft edits. Published releases are immutable.
+// A read failure blocks draft edits, as does holding no curator's account.
+// Published releases are immutable.
 
 import { packReleaseKey, type PlanPack } from '@minhajna/core';
 import { useState, type Dispatch, type SetStateAction } from 'react';
@@ -38,7 +39,7 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
   const reserved = [...props.packs.map((pack) => packReleaseKey(pack.id, pack.release)), ...desk.records.keys()];
   const [opened, setOpened] = useState<{ pack: PlanPack; revision: number } | null>(null);
   const [sourceForm, setSourceForm] = useState<{ initial: PlanPack | null } | null>(null);
-  const canOpen = desk.ready && sourceForm === null;
+  const canOpen = desk.ready && sourceForm === null && props.accounts?.curator !== undefined;
   const close = () => {
     setOpened(null);
     setSourceForm(null);

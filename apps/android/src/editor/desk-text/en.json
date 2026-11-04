@@ -1,0 +1,17 @@
+{
+  "account": {
+    "curator": "Signed in with the curators' account.",
+    "ministry": "Signed in with the Ministry's account.",
+    "making": "Making this role's account on the server…",
+    "makeFailed": "The account could not be made. Try again.",
+    "retry": "Try again",
+    "signInTitle": "Sign in to the pack editor",
+    "signInHint": "The device that started this world holds this role's code. Until you sign in, releases are read-only.",
+    "code": "The account's code",
+    "signIn": "Sign in",
+    "wrongCode": "No account of this role has this code.",
+    "signInFailed": "The server didn't answer. Try again.",
+    "showCode": "Show the code for another PC",
+    "hideCode": "Hide the code"
+  }
+}

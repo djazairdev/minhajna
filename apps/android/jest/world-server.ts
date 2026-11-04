@@ -18,6 +18,7 @@ import {
 import { readShare, type Share } from '../../server/src/totals/share-read';
 import { dayTotals } from '../../server/src/totals/share-sums';
 import { holdsPass, holdsStarter, readLaterDays, readWorldStart } from '../../server/src/worlds/world-rules';
+import { WorldPackDesk } from './world-packs';
 import type { WorldKit } from '../src/demo/world-session';
 import { worldRequest, type WorldRequest } from '../src/network/world-network';
 import { WorldObservatory } from './world-observatory';
@@ -117,7 +118,8 @@ export function answer(status: number, body?: unknown, headers?: Record<string, 
  * seeding (#548) need, its relay and stand-in CA (world-relay.ts), and the
  * schools' shares of the totals (#596), kept by world, day and ID in `shares`
  * and added up by the server's own sums (#598), and each world's observatory
- * of insights (world-observatory.ts, #622):
+ * of insights (world-observatory.ts, #622), and the pack desk (world-packs.ts,
+ * #612):
  * `taken` answers 409 to that many starts, and `busy` 429 to every request
  * while it is set.
  */
@@ -127,6 +129,7 @@ export class DemoServer {
   readonly relay = new WorldRelay();
   readonly shares = new Map<string, unknown>();
   readonly observatory = new WorldObservatory();
+  readonly packs = new WorldPackDesk();
   taken = 0;
   busy = false;
 
@@ -144,6 +147,7 @@ export class DemoServer {
     this.relay.reset();
     this.shares.clear();
     this.observatory.reset();
+    this.packs.reset();
   }
 
   private route(address: string, init: RequestInit): Response | Promise<Response> {
@@ -216,6 +220,19 @@ export class DemoServer {
         body,
         starter,
       );
+    }
+    if (rest === 'packs') {
+      const body: unknown = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
+      return this.packs.route({
+        world,
+        date: kept.date,
+        method: init.method ?? 'GET',
+        segment: path.split('/')[4] ?? '',
+        authorization: headers.Authorization,
+        starter: holdsStarter(headers.Authorization, kept.starterHash),
+        body,
+        caKey: () => this.relay.caKey(world),
+      });
     }
     if (rest === 'seed' && !holdsStarter(headers.Authorization, kept.starterHash)) return answer(403, {});
     if (rest !== undefined && rest !== 'date') {

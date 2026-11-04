@@ -17,19 +17,23 @@ import {
   packReleasePlace,
   packReleaseRecords,
   parsePackUpdate,
+  preparePackRelease,
   sealPackRelease,
+  signPackRelease,
   worldSignedFile,
+  type PackRelease,
+  type PackReleaseError,
 } from '../src/index.ts';
 import { country } from './fixtures.ts';
 import { day, fixture, source } from './pack-lifecycle-fixtures.ts';
-import { nodeVerifier } from './signed-fixtures.ts';
+import { makeTestKey, nodeVerifier } from './signed-fixtures.ts';
 import { cipher, mac } from './world-crypto.ts';
 
 describe('signed demo pack releases', () => {
   it('replays the lifecycle and opens a publication only inside its own world', async () => {
     const f = fixture();
     const published = await f.published('2026.1', 'ministry');
-    const read = await packReleaseRecords(f.records, f.keys, country, day, nodeVerifier);
+    const read = await packReleaseRecords(f.records, f.keys, country, day, f.authority);
     const found = read.get(packReleaseKey(source.id, '2026.1'))!;
     assert.equal(found.pack.status, 'official');
     assert.deepEqual(found, published);
@@ -43,6 +47,37 @@ describe('signed demo pack releases', () => {
       assert.equal(parsed.ok, true);
       if (parsed.ok) assert.deepEqual(parsed.value.pack, found.pack);
     }
+  });
+
+  it('takes a step only as the server signed it: for its role, its status and its content', async () => {
+    const f = fixture();
+    const draft = await f.change(null, { stage: 'draft', pack: source });
+    const review = await f.change(draft, { stage: 'under-review' });
+    const published = preparePackRelease(
+      review,
+      { stage: 'published' },
+      { world: review.world, day, actor: 'ministry', expected: review.revision },
+    );
+    const asRecord = async (release: PackRelease) => (await signPackRelease(release, f.keys, f.sign)).file;
+    const read = async (release: PackRelease) => {
+      const all = await packReleaseRecords([...f.records, await asRecord(release)], f.keys, country, day, f.authority);
+      return all.get(packReleaseKey(source.id, source.release))?.stage;
+    };
+    assert.equal(await read(await f.attest(published)), 'published');
+    assert.equal(await read(published), 'under-review');
+    const asCurator = await f.attest({ ...published, actor: 'curator' });
+    assert.equal(await read({ ...published, attested: asCurator.attested }), 'under-review');
+    const notOfficial = await f.attest({ ...published, pack: { ...published.pack, status: 'community' } });
+    assert.equal(await read({ ...published, attested: notOfficial.attested }), 'under-review');
+    const other = await f.attest({ ...published, pack: { ...published.pack, language: 'fr' } });
+    assert.equal(await read({ ...published, attested: other.attested }), 'under-review');
+    const elsewhere = await f.attest({ ...published, world: 'FGHJK' });
+    assert.equal(await read({ ...published, attested: elsewhere.attested }), 'under-review');
+    const notTheCa = { ...f.authority, caKey: makeTestKey('other-ca').trusted.spki };
+    await assert.rejects(
+      packReleaseRecords(f.records, f.keys, country, day, notTheCa, true),
+      (error: PackReleaseError) => error.code === 'E_PACK_HISTORY',
+    );
   });
 
   it('keeps publication bytes after withdrawal and ignores duplicates and forged replacements', async () => {
@@ -60,7 +95,7 @@ describe('signed demo pack releases', () => {
       canonicalJson({ format: PACK_RELEASE_FORMAT, release: tampered }),
       f.sign,
     );
-    const read = await packReleaseRecords([...f.records, ...f.records, signed], f.keys, country, day, nodeVerifier);
+    const read = await packReleaseRecords([...f.records, ...f.records, signed], f.keys, country, day, f.authority);
     assert.deepEqual([...read.values()], [withdrawn]);
     assert.equal(withdrawn.file, published.file);
   });
@@ -68,7 +103,7 @@ describe('signed demo pack releases', () => {
   it('does not advance a missing or future draft and refuses a tampered signature or inner publication', async () => {
     const f = fixture();
     const published = await f.published();
-    assert.equal((await packReleaseRecords(f.records.slice(1), f.keys, country, day, nodeVerifier)).size, 0);
+    assert.equal((await packReleaseRecords(f.records.slice(1), f.keys, country, day, f.authority)).size, 0);
     const before = [...f.records];
     const raw = JSON.parse(before[2]!) as { payload: string };
     raw.payload = raw.payload.replace('published', 'withdrawn');
@@ -86,7 +121,7 @@ describe('signed demo pack releases', () => {
       f.keys,
       country,
       day,
-      nodeVerifier,
+      f.authority,
     );
     assert.equal([...read.values()][0]?.stage, 'under-review');
     const future = await worldSignedFile(
@@ -96,7 +131,7 @@ describe('signed demo pack releases', () => {
       f.sign,
     );
     assert.equal(
-      [...(await packReleaseRecords([...before.slice(0, 2), future], f.keys, country, day, nodeVerifier)).values()][0]
+      [...(await packReleaseRecords([...before.slice(0, 2), future], f.keys, country, day, f.authority)).values()][0]
         ?.stage,
       'under-review',
     );
@@ -130,9 +165,9 @@ describe('signed demo pack releases', () => {
     const f = fixture();
     await f.published();
     await assert.rejects(
-      packReleaseRecords(f.records.slice(1), f.keys, country, day, nodeVerifier, true),
+      packReleaseRecords(f.records.slice(1), f.keys, country, day, f.authority, true),
       /E_PACK_HISTORY/,
     );
-    assert.equal((await packReleaseRecords(f.records, f.keys, country, day, nodeVerifier, true)).size, 1);
+    assert.equal((await packReleaseRecords(f.records, f.keys, country, day, f.authority, true)).size, 1);
   });
 });

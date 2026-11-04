@@ -1,0 +1,17 @@
+{
+  "account": {
+    "curator": "Connecté avec le compte des curateurs.",
+    "ministry": "Connecté avec le compte du ministère.",
+    "making": "Création du compte de ce rôle sur le serveur…",
+    "makeFailed": "Le compte n'a pas pu être créé. Réessayez.",
+    "retry": "Réessayer",
+    "signInTitle": "Se connecter à l'éditeur de packs",
+    "signInHint": "L'appareil qui a lancé ce monde détient le code de ce rôle. Sans connexion, les versions restent en lecture seule.",
+    "code": "Le code du compte",
+    "signIn": "Se connecter",
+    "wrongCode": "Aucun compte de ce rôle n'a ce code.",
+    "signInFailed": "Le serveur n'a pas répondu. Réessayez.",
+    "showCode": "Afficher le code pour un autre PC",
+    "hideCode": "Masquer le code"
+  }
+}

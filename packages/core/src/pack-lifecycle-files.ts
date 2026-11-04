@@ -6,7 +6,8 @@
 // carries an ordinary pack-update payload inside a world-marked signature:
 // real mode and another world refuse it. Replaying checks every revision
 // through the same transition rules and keeps immutable publication bytes.
-// Demo roles are claims by code holders, never proof of state authority.
+// Each change also carries the world's CA's signature, which only an account
+// on the server can get, for its role (pack-step.ts).
 // One change fits the relay's atomic 128-batch upload; larger drafts fail
 // before being sent. The later review board and teacher delivery use this
 // service; no pupil record or teacher history is part of its input.
@@ -23,12 +24,13 @@ import {
   type PackChange,
   type PackRelease,
 } from './pack-lifecycle.ts';
+import { packStepHolds, type PackAuthority } from './pack-step.ts';
 import { keySigns, PACK_UPDATE_FORMAT, parsePackUpdate } from './pack-update.ts';
 import { parsePlanPack } from './pack.ts';
 import { isFields } from './read.ts';
 import type { CountryProfile } from './reference.ts';
 import { asciiJson, openRecords, placeOf, sealRecord, type Place } from './sealed-stream.ts';
-import { openSigned, PACK_BYTES, SIGNED_SIGNATURE_MAX, WORLD_KEY_PREFIX, type Verifier } from './signed-read.ts';
+import { openSigned, PACK_BYTES, SIGNED_SIGNATURE_MAX, WORLD_KEY_PREFIX } from './signed-read.ts';
 import { isWorldId } from './world-code.ts';
 import { worldSignedFile, type WorldCipher, type WorldKeys, type WorldMac, type WorldSigner } from './world-keys.ts';
 
@@ -95,7 +97,8 @@ export async function checkPackPublicationSize(release: PackRelease, keys: World
         expected: review.revision,
       },
     );
-    const { file } = await signPackRelease(published, keys, signature);
+    const attested = 'A'.repeat(SIGNED_SIGNATURE_MAX);
+    const { file } = await signPackRelease({ ...published, attested }, keys, signature);
     checkPackReleaseSize(file);
   }
 }
@@ -104,11 +107,12 @@ function releaseOf(value: unknown): PackRelease | null {
   if (
     !isFields(value) ||
     Object.keys(value).some(
-      (key) => !['world', 'pack', 'stage', 'revision', 'actor', 'day', 'file', 'supersededBy'].includes(key),
+      (key) =>
+        !['world', 'pack', 'stage', 'revision', 'actor', 'day', 'file', 'supersededBy', 'attested'].includes(key),
     )
   )
     return null;
-  const { world, stage, revision, actor, day, file, supersededBy } = value;
+  const { world, stage, revision, actor, day, file, supersededBy, attested } = value;
   if (
     typeof world !== 'string' ||
     !PACK_STAGES.includes(stage as PackRelease['stage']) ||
@@ -118,7 +122,8 @@ function releaseOf(value: unknown): PackRelease | null {
     typeof day !== 'string' ||
     !isDay(day) ||
     (file !== null && typeof file !== 'string') ||
-    (supersededBy !== null && typeof supersededBy !== 'string')
+    (supersededBy !== null && typeof supersededBy !== 'string') ||
+    (attested !== null && typeof attested !== 'string')
   )
     return null;
   const read = parsePlanPack(value.pack);
@@ -132,6 +137,7 @@ function releaseOf(value: unknown): PackRelease | null {
     day,
     file,
     supersededBy,
+    attested,
   };
 }
 
@@ -140,10 +146,11 @@ export async function packReleaseRecords(
   keys: WorldKeys,
   profile: CountryProfile,
   day: Day,
-  verify: Verifier,
+  authority: PackAuthority,
   strict = false,
 ): Promise<ReadonlyMap<string, PackRelease>> {
   if (keys.kind !== 'national' || !isWorldId(keys.world) || !isDay(day)) throw new PackReleaseError('E_PACK_WORLD');
+  const { verify } = authority;
   const found = new Map<string, PackRelease>();
   const seen = new Set<string>();
   const invalid = () => {
@@ -214,11 +221,15 @@ export async function packReleaseRecords(
           invalid();
           continue;
         }
-        if (canonicalJson({ ...expected, file: read.file }) !== canonicalJson(read)) {
+        if (canonicalJson({ ...expected, file: read.file, attested: read.attested }) !== canonicalJson(read)) {
           invalid();
           continue;
         }
-      } else if (canonicalJson(expected) !== canonicalJson(read)) {
+      } else if (canonicalJson({ ...expected, attested: read.attested }) !== canonicalJson(read)) {
+        invalid();
+        continue;
+      }
+      if (!(await packStepHolds(read, authority))) {
         invalid();
         continue;
       }
