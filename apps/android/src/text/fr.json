@@ -6299,7 +6299,11 @@
       "movedWeekAbove": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}.",
       "movedEnd": "Le dernier jour de l’examen a été déplacé du {{wasEnd}} au {{isEnd}} ; son premier jour et son jour des chiffres restent les mêmes.",
       "movedCalendar": "Les dates de l’examen ont changé dans le calendrier sur ce téléphone.",
-      "totals": "Les totaux de la direction"
+      "totals": "Les totaux de la direction",
+      "over": {
+        "reading": "Lecture du seuil de la commission…",
+        "cut": "Le seuil de la commission tel que publié, adopté le {{day}} : jusqu’à {{item}}."
+      }
     },
     "threshold": {
       "title": "Le seuil de l’examen",

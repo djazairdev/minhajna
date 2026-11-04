@@ -1,22 +1,22 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A committee's room above the school on the workspace's PC (#604, #605, #606,
-// answers 638 to 640): its stream is of the directorate's space, or for a
-// national exam of the world's national space, and its key and each seat's seed
-// come from the world's sealing key (cuts.ts), so whoever holds the world reads
-// it. A seat's public key is worked out once for each seed (decider-key.ts). A
-// committee's plan is the pack most of the grade's classes pin for the subject
-// among the schools it covers, of those the reference holds, the first pinned
-// at a tie, and its subjects those a class of the grade pins a pack the
-// reference holds for, as the classes first name them; committeeRooms gives
-// each its room. A room is read from its stream with the words on how its cut
-// shaped the exam from theirs (cut-words.ts), a space not open yet holding
-// none. A seat's vote is dated the world's date and numbered above the seat's
-// every vote, and goes on the stream once: a seat that names the cut already
-// puts nothing; it is refused (E_CUT_CLOSED) outside the room's days or once a
-// cut is adopted, read afresh as it is put. Other errors carry
-// world-session.ts's codes.
+// A committee's room above the school on the workspace's PC, read too for the
+// teacher's list (#604, #605, #606, answers 638 to 640): its stream is of the
+// directorate's space, or for a national exam of the world's national space,
+// and its key and each seat's seed come from the world's sealing key (cuts.ts),
+// so whoever holds the world reads it. A seat's public key is worked out once
+// for each seed (decider-key.ts). A committee's plan is the pack most of the
+// grade's classes pin for the subject among the schools it covers, of those the
+// reference holds, the first pinned at a tie, and its subjects those a class of
+// the grade pins a pack the reference holds for, as the classes first name
+// them; committeeRooms gives each its room. A room is read from its stream with
+// the words on how its cut shaped the exam from theirs (cut-words.ts), a space
+// not open yet holding none. A seat's vote is dated the world's date and
+// numbered above the seat's every vote, and goes on the stream once: a seat
+// that names the cut already puts nothing; it is refused (E_CUT_CLOSED) outside
+// the room's days or once a cut is adopted, read afresh as it is put. Other
+// errors carry world-session.ts's codes.
 
 import {
   committeePlace,

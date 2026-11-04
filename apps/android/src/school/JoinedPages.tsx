@@ -25,7 +25,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
 import { ExamThreshold } from '../threshold/ExamThreshold';
-import { ExamThresholds } from '../threshold/ExamThresholds';
+import { ExamThresholds, type ExamThresholdsProps } from '../threshold/ExamThresholds';
 import { ExamTotals } from '../threshold/ExamTotals';
 import { TeacherTimetable } from '../timetable/TeacherTimetable';
 import type { MineCalendar } from '../week/school-mine-session';
@@ -65,6 +65,8 @@ export type JoinedPagesProps = {
   readonly reference?: TermReference;
   /** The world's calendar updates, which say when and why an exam moved. */
   readonly updates?: readonly CalendarUpdate[];
+  /** The world's keys while it is open and the bundled reference, which read the committees' cuts of the over exams. */
+  readonly committees?: ExamThresholdsProps['committees'];
   /** Opens another joined page, such as the week to sign on a course, going back to the page that opened it. */
   readonly onPage: (view: JoinedView) => void;
 };
@@ -105,6 +107,7 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
         reference={props.reference}
         updates={props.updates}
         school={props.school}
+        committees={props.committees}
         onRoom={to('threshold')}
         onTotals={to('examTotals')}
       />

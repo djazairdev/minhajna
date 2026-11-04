@@ -90,7 +90,8 @@ export async function setting() {
   const text = await codeText(id, desk, phone);
   const joined = await joinSchool(await device(), text, kit, server.send);
   const keyCode = readJoinCode(await keyCodeText(id, desk, key))!;
-  return { id, here, device, code: readJoinCode(text)!, keyCode, joined };
+  const held = { world: id, keys: started.keys, sealing: started.sealing };
+  return { id, here, device, code: readJoinCode(text)!, keyCode, joined, held };
 }
 
 export async function channel(code: JoinCode) {

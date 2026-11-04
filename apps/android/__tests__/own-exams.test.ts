@@ -9,9 +9,10 @@
 // figures day and on the figures day from then on; an exam past its last day is
 // gone; a class pinning another pack than the rest of its grade is left out, as
 // from the school's chart; the school's exams before their figures day are
-// listed too, and gone on it; and a teacher whose classes sit neither exam
-// above the school sees none of those. Every world, school and teacher is made
-// up.
+// listed too, and gone on it; once an exam above the school is over, it is
+// listed by the grades and subjects signed, a class on another pack too; and a
+// teacher whose classes sit neither exam above the school sees none of those.
+// Every world, school and teacher is made up.
 
 import { addDays, directorSchool, seedNationalWorld, worldExams, type WeekRecord } from '@minhajna/core';
 import { FakeStorage } from '../jest/fake-storage';
@@ -25,7 +26,7 @@ import { seededKeyOf, takeSeededKey } from '../src/director/seeded-key';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { openRecordBook } from '../src/storage/history';
 import { chartDrafts } from '../src/threshold/exam-charts';
-import { ownExams } from '../src/threshold/own-exams';
+import { overExams, ownExams } from '../src/threshold/own-exams';
 
 /** The exams above the school the phone works out. */
 const aboveOf = (...args: Parameters<typeof ownExams>) =>
@@ -95,6 +96,9 @@ test('leaves out a class pinning another pack than the rest of its grade', async
     one.name === '4AM1' ? { ...one, packs: { ...one.packs, arabic: other } } : one,
   );
   expect(aboveOf(weeks, { ...school, classes }, reference, date)).toEqual([]);
+  const after = addDays(worldExams(reference.calendar.year, reference.calendar.entries)[0].to, 400);
+  const rows = overExams(weeks, { ...school, classes }, reference, after).map((one) => one.rows);
+  expect(rows[0]).toEqual([{ subject: 'arabic', grade: '4am' }]);
 }, 120_000);
 
 test('lists the school’s exams before their figures day, gone on it', async () => {
@@ -111,8 +115,20 @@ test('lists the school’s exams before their figures day, gone on it', async ()
   expect(on).not.toContain(school2.id);
 }, 120_000);
 
+test('an exam above the school is over the day after its last day, with the teacher’s rows', async () => {
+  const { school, weeks } = await filled();
+  const mock = worldExams(reference.calendar.year, reference.calendar.entries).find((one) => one.id === 'mock')!;
+  expect(overExams(weeks, school, reference, mock.to)).toEqual([]);
+  const after = addDays(mock.to, 1);
+  expect(overExams(weeks, school, reference, after)).toEqual([
+    { exam: mock, rows: [{ subject: 'arabic', grade: '4am' }] },
+  ]);
+  expect(aboveOf(weeks, school, reference, after).map((one) => one.exam.id)).not.toContain('mock');
+}, 120_000);
+
 test('a teacher whose classes sit neither exam above the school sees none of those', async () => {
   const { date, school, weeks } = await filled(['1AM1']);
   expect(weeks.length).toBeGreaterThan(0);
   expect(aboveOf(weeks, school, reference, date)).toEqual([]);
+  expect(overExams(weeks, school, reference, addDays(date, 400))).toEqual([]);
 }, 120_000);
