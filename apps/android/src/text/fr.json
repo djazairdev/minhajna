@@ -6781,6 +6781,19 @@
       "rangeChart": {
         "all": "Le pays et toutes les wilayas, le {{day}} (%)",
         "middle": "Le pays et la moitié du milieu des wilayas, le {{day}} (%)"
+      },
+      "words": {
+        "title": "Comment le seuil a façonné l’examen",
+        "none": "La commission n’a pas encore écrit comment le seuil a façonné l’examen.",
+        "label": "Dans les mots de la commission",
+        "placeholder": "Par exemple : le texte vient de l’unité 5, les questions des unités 1 à 6.",
+        "bad": "Des mots de 1 à {{most}} caractères, sans caractère masqué.",
+        "sign": "Signer les mots",
+        "done": "Signé pour {{seat}} : les mots de la commission.",
+        "note": "Publiés sans changement avec le seuil, signés avec la clé du siège. Les derniers mots signés comptent.",
+        "closed": "Les mots ne peuvent pas être signés : ce siège n’a pas adopté le seuil, ou l’examen n’est pas terminé.",
+        "signing": "Signature des mots…",
+        "length": "{{n}} sur {{most}} caractères"
       }
     }
   },
