@@ -21,7 +21,7 @@
 // are does.
 
 import { ITEM_ID } from './pack-fields.ts';
-import { ENTRY_ID } from './reference-fields.ts';
+import { ENTRY_ID, isName } from './reference-fields.ts';
 import { ID } from './school-key-shape.ts';
 import type { WeekForTotals } from './week-totals.ts';
 
@@ -42,10 +42,6 @@ export interface GradeReach {
   readonly classes: number;
   readonly items: Readonly<Record<string, number>>;
 }
-
-/** Whether a name has the shape `shape` and is none an object already holds, as the server takes names. */
-export const isName = (name: unknown, shape: RegExp): name is string =>
-  typeof name === 'string' && shape.test(name) && !name.startsWith('__') && !(name in Object.prototype);
 
 /** Whether a week's subject and items are named as the server takes them, so a share may count it. */
 export const shareable = ({ totals }: WeekForTotals): boolean =>

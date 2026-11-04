@@ -23,6 +23,7 @@ import { compareReleases } from './pack-catalogue.ts';
 import type { PackItem, PlanPack } from './pack.ts';
 import { ITEM_ID } from './pack-fields.ts';
 import { isFields, Reader, RELEASE } from './read.ts';
+import { isName } from './reference-fields.ts';
 
 export type MigrationEntry =
   | { readonly kind: 'rename'; readonly from: string; readonly to: string }
@@ -70,8 +71,8 @@ function readIds(reader: Reader, value: unknown, path: string, least: number): s
   if (!Array.isArray(list) || list.length < least || new Set(list).size !== list.length) {
     return failed(reader, path, 'invalid');
   }
-  if (!list.every((id) => typeof id === 'string' && ITEM_ID.test(id))) return failed(reader, path, 'invalid');
-  return list as string[];
+  if (!list.every((id) => isName(id, ITEM_ID))) return failed(reader, path, 'invalid');
+  return list;
 }
 
 function readEntry(reader: Reader, raw: unknown, path: string): MigrationEntry | undefined {

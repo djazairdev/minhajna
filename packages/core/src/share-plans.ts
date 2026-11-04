@@ -21,8 +21,8 @@
 import type { DemoSchool } from './demo-world.ts';
 import { ITEM_ID } from './pack-fields.ts';
 import type { PinnedPack } from './records.ts';
-import { ENTRY_ID } from './reference-fields.ts';
-import { isName, MOST_GRADE_ITEMS, type CoursePlan } from './share-grades.ts';
+import { ENTRY_ID, isName } from './reference-fields.ts';
+import { MOST_GRADE_ITEMS, type CoursePlan } from './share-grades.ts';
 import { courseId } from './week-record.ts';
 import type { WorldMac } from './world-keys.ts';
 

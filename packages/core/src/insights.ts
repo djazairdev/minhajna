@@ -32,9 +32,8 @@ import { newId, type RandomBytes } from './id.ts';
 import { PACK_ID } from './pack.ts';
 import { ITEM_ID } from './pack-fields.ts';
 import { RELEASE } from './read.ts';
-import { ENTRY_ID, YEAR_ID } from './reference-fields.ts';
+import { ENTRY_ID, isName, YEAR_ID } from './reference-fields.ts';
 import type { PinnedPack } from './records.ts';
-import { isName } from './share-grades.ts';
 import { utf8Length } from './signed-read.ts';
 import type { WeekForTotals } from './week-totals.ts';
 
