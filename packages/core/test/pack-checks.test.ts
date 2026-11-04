@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
-import { checkWeekPack, parsePlanPack, type PackItem, type PlanPack } from '../src/index.ts';
+import { checkWeekPack, parsePlanPack, type PackActivity, type PackItem, type PlanPack } from '../src/index.ts';
 import { languagePackSource, mathPack } from './fixtures.ts';
 
 const model = [
@@ -23,7 +23,7 @@ function week(number: number): PackItem[] {
   ];
 }
 
-function pack(items = [1, 2, 3].flatMap(week), activities: typeof model | undefined = model): PlanPack {
+function pack(items = [1, 2, 3].flatMap(week), activities: readonly PackActivity[] | undefined = model): PlanPack {
   const read = parsePlanPack({ ...languagePackSource, items, activities, merges: [] });
   assert.ok(read.ok);
   return read.value;
@@ -107,9 +107,80 @@ describe('week-pack release checks', () => {
   });
 
   it('counts assessment and buffer weeks toward the horizon without applying the ordinary model', () => {
-    const diagnostic: PackItem = { id: 'diagnostic', kind: 'assessment-remediation', title: 'Made up', week: 1 };
+    const remediation: PackItem = { id: 'remediation', kind: 'assessment-remediation', title: 'Made up', week: 1 };
     const buffer: PackItem = { id: 'buffer', kind: 'lesson', title: 'Made up', week: 2, buffer: true };
-    assert.deepEqual(findings(pack([diagnostic, buffer]), 2), []);
+    assert.deepEqual(findings(pack([remediation, buffer]), 2), []);
+  });
+
+  it('exempts a week of diagnostic or term assessment items alone', () => {
+    const diagnostic: PackItem = { id: 'diagnostic', kind: 'diagnostic', title: 'Made up', week: 1 };
+    const term: PackItem = { id: 'term', kind: 'term-assessment', title: 'Made up', week: 2 };
+    assert.deepEqual(findings(pack([diagnostic, term]), 2), []);
+  });
+
+  it('lists a reserved week past the horizon', () => {
+    const term: PackItem = { id: 'term', kind: 'term-assessment', title: 'Made up', week: 2 };
+    assert.deepEqual(findings(pack([...week(1), term]), 1), [{ kind: 'outside-horizon', week: 2, items: ['term'] }]);
+  });
+
+  it('lets a tagged buffer fill a slot of a regular week', () => {
+    const reading: PackItem = { id: 'r1', kind: 'lesson', title: 'Made up', week: 1, activity: 'reading' };
+    const spare: PackItem = { ...reading, id: 'b1', buffer: true };
+    const writing = week(1)[1]!;
+    assert.deepEqual(findings(pack([reading, spare, writing]), 1), []);
+  });
+
+  it('lets a tagged buffer sit spare beside a full activity', () => {
+    const spare: PackItem = { id: 'b1', kind: 'lesson', title: 'Made up', week: 1, activity: 'reading', buffer: true };
+    assert.deepEqual(findings(pack([...week(1), spare]), 1), []);
+  });
+
+  it('reports too many on the planned items alone, beside a spare buffer', () => {
+    const reading: PackItem = { id: 'r1', kind: 'lesson', title: 'Made up', week: 1, activity: 'reading', budget: 3 };
+    const spare: PackItem = { ...reading, id: 'b1', budget: 1, buffer: true };
+    assert.deepEqual(findings(pack([reading, spare, week(1)[1]!]), 1), [
+      { kind: 'activity-sessions', week: 1, activity: 'reading', expected: 2, actual: 3, items: ['r1'] },
+    ]);
+  });
+
+  it('clears a half-week keyed with its items as buffers filling its slots, and only then', () => {
+    const lesson: PackItem = { id: 'r1', kind: 'lesson', title: 'Made up', week: 1, activity: 'reading' };
+    const integration: PackItem = { ...lesson, id: 'i1', kind: 'integration', buffer: true };
+    const writing = week(1)[1]!;
+    const remedy: PackItem = { ...writing, id: 'rem', kind: 'assessment-remediation', buffer: true };
+    assert.deepEqual(findings(pack([lesson, integration, remedy]), 1), []);
+    const untagged: PackItem = { id: 'i2', kind: 'integration', title: 'Made up', week: 1 };
+    assert.deepEqual(findings(pack([untagged]), 1), [
+      { kind: 'activity-sessions', week: 1, activity: 'reading', expected: 2, actual: 0, items: [] },
+      { kind: 'activity-sessions', week: 1, activity: 'writing', expected: 1, actual: 0, items: [] },
+    ]);
+  });
+
+  it('names the buffers a short activity counted', () => {
+    const reading: PackItem = { id: 'r1', kind: 'lesson', title: 'Made up', week: 1, activity: 'reading' };
+    const spare: PackItem = { ...reading, id: 'b1', buffer: true };
+    const heavy: PackActivity = { code: 'reading', name: { en: 'Reading' }, sessions: 3 };
+    assert.deepEqual(findings(pack([reading, spare, week(1)[1]!], [heavy, model[1]!]), 1), [
+      { kind: 'activity-sessions', week: 1, activity: 'reading', expected: 3, actual: 2, items: ['r1', 'b1'] },
+    ]);
+  });
+
+  it('counts tagged assessments in a regular week as the engine schedules them', () => {
+    const term: PackItem = { id: 't1', kind: 'term-assessment', title: 'Made up', week: 1, activity: 'writing' };
+    const diagnostic: PackItem = { id: 'd1', kind: 'diagnostic', title: 'Made up', week: 1, activity: 'reading' };
+    const lesson: PackItem = { ...diagnostic, id: 'r1', kind: 'lesson' };
+    assert.deepEqual(findings(pack([diagnostic, lesson, term]), 1), []);
+    assert.deepEqual(findings(pack([...week(1), term]), 1), [
+      { kind: 'activity-sessions', week: 1, activity: 'writing', expected: 1, actual: 2, items: ['w1', 't1'] },
+    ]);
+  });
+
+  it('checks a regular week beside an untagged remediation', () => {
+    const remediation: PackItem = { id: 'rem', kind: 'assessment-remediation', title: 'Made up', week: 1 };
+    assert.deepEqual(findings(pack([...week(1), remediation]), 1), []);
+    assert.deepEqual(findings(pack([week(1)[0]!, remediation]), 1), [
+      { kind: 'activity-sessions', week: 1, activity: 'writing', expected: 1, actual: 0, items: [] },
+    ]);
   });
 
   it('checks the repository example with untyped lessons and an assessment week', () => {

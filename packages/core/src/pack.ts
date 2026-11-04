@@ -52,7 +52,7 @@ export interface PackItem {
   /** For primary activity slots, such as reading (PRD §4.6). */
   readonly activity?: string;
   readonly optional?: boolean;
-  /** A buffer the plan builds in, such as the diagnostic week (PRD §4.2). */
+  /** A buffer the plan builds in, such as the half-week of integration and remediation (PRD §4.2). */
   readonly buffer?: boolean;
   /** The ID of the item's stage template. */
   readonly stages?: string;

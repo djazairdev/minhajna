@@ -6,11 +6,22 @@
 // A finding names its week and contributing item IDs; an absent week or
 // activity has no invented item ID. Consecutive gaps are ranges, so even a
 // mistyped, very large horizon never allocates or visits every missing week.
-// Only a supplied model is checked. Unclassified items remain available
-// for untyped slots, and a week reserved for assessment or remediation can
-// have a different mix. The checks read no class progress or teacher data.
+// Only a supplied model is checked. Unclassified items remain available for
+// untyped slots. A week of buffers, diagnostics, term assessments and
+// assessments with remediation alone counts toward the horizon and has no mix
+// to check. In a regular week an activity counts its tagged items as the engine
+// schedules them, and a tagged buffer may fill a slot or sit spare beside a
+// full one, never counting as too many. The checks read no class progress or
+// teacher data.
 
-import { budgetInSessions, queueItems, type PackActivity, type PackItem, type PlanPack } from './pack.ts';
+import {
+  budgetInSessions,
+  queueItems,
+  type ItemKind,
+  type PackActivity,
+  type PackItem,
+  type PlanPack,
+} from './pack.ts';
 
 export type WeekPackFinding =
   | { readonly kind: 'invalid-week'; readonly week: null; readonly items: readonly string[] }
@@ -38,6 +49,14 @@ export type WeekPackFinding =
 export type WeekPackCheck =
   { readonly status: 'not-applicable' } | { readonly status: 'checked'; readonly findings: readonly WeekPackFinding[] };
 
+/** Kinds a week can hold in place of its ordinary mix, the PRD's assessment and remediation time. */
+const RESERVED_KINDS: ReadonlySet<ItemKind> = new Set(['diagnostic', 'term-assessment', 'assessment-remediation']);
+
+/** The sessions these items take. */
+function sessionsOf(pack: PlanPack, items: readonly PackItem[]): number {
+  return items.reduce((sum, item) => sum + budgetInSessions(pack, item, 60), 0);
+}
+
 function activityFindings(
   pack: PlanPack,
   week: number,
@@ -47,16 +66,19 @@ function activityFindings(
   const findings: WeekPackFinding[] = [];
   for (const activity of model) {
     const held = items.filter((item) => item.activity === activity.code);
-    const actual = held.reduce((sum, item) => sum + budgetInSessions(pack, item, 60), 0);
-    if (actual !== activity.sessions)
-      findings.push({
-        kind: 'activity-sessions',
-        week,
-        activity: activity.code,
-        expected: activity.sessions,
-        actual,
-        items: held.map((item) => item.id),
-      });
+    const planned = held.filter((item) => !item.buffer);
+    const counted = sessionsOf(pack, planned);
+    const withSpare = sessionsOf(pack, held);
+    if (counted <= activity.sessions && activity.sessions <= withSpare) continue;
+    const over = counted > activity.sessions;
+    findings.push({
+      kind: 'activity-sessions',
+      week,
+      activity: activity.code,
+      expected: activity.sessions,
+      actual: over ? counted : withSpare,
+      items: (over ? planned : held).map((item) => item.id),
+    });
   }
   return findings;
 }
@@ -86,7 +108,7 @@ export function checkWeekPack(pack: PlanPack, weeks: number): WeekPackCheck {
     if (week > next && next <= weeks)
       findings.push({ kind: 'missing-weeks', week: next, through: Math.min(week - 1, weeks), items: [] });
     if (week > weeks) findings.push({ kind: 'outside-horizon', week, items: items.map((item) => item.id) });
-    const regular = items.some((item) => !item.buffer && item.kind !== 'assessment-remediation');
+    const regular = items.some((item) => !item.buffer && !RESERVED_KINDS.has(item.kind));
     if (model !== undefined && regular) findings.push(...activityFindings(pack, week, items, model));
     next = week + 1;
   }
