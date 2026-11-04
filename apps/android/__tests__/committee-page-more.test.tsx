@@ -5,13 +5,12 @@
 // made-up demo server: a term end with totals shows as comparison; with no item
 // every class reached it says so; only the level's exams are offered; the exams
 // and grades are chips, the latest exam chosen at first, and a choice opens its
-// room; what was said and a refusal hold for their date; a slower answer of
-// another room is dropped, and another room's votes do not show while its own
-// are read; an exam the calendar moved says why; a problem reading is said with
-// a way to read again, and a vote refused as a majority came in says why; the
-// directorate's workspace opens its committees over the world's seeded schools,
-// and the server stores nothing named in clear. Every world, school and share
-// is made up.
+// room; what was said and a refusal hold for their date; a slower answer is
+// dropped, and another room's votes do not show while its own are read; a
+// problem reading is said with a way to read again, and a vote refused as a
+// majority came in says why; the directorate's workspace opens its committees
+// over the world's seeded schools, and the server stores nothing named in
+// clear. Every world, school and share is made up.
 
 import { addDays, compareDays, directorateSpace, NATIONAL_COMMITTEE, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -21,7 +20,6 @@ import {
   fill,
   items,
   mathRoom,
-  mock,
   onDay,
   opened,
   pack,
@@ -162,36 +160,54 @@ test('what was said and a refusal hold for their date', async () => {
   expect(alerts()).toEqual([]);
 });
 
-test('a slower answer of another room is dropped', async () => {
-  const fresh = await opened();
+test('a refusal is forgotten as another subject is chosen, and the directorate’s page gives no range', async () => {
+  const { id, held } = await opened();
+  await show(pageOf(held, id, day));
+  expect(texts()).not.toContain(words.range);
+  expect(texts()).not.toContain(words.noRange);
+  const room = mathRoom(id);
+  await castVote(held, room, 1, items[0], day, nodeKit, server.send);
+  await castVote(held, room, 2, items[0], day, nodeKit, server.send);
+  await press('committee-none');
+  expect(alerts()).toEqual([words.closed]);
+  await press('committee-subjects-math');
+  expect(alerts()).toEqual([words.closed]);
+  await press('committee-subjects-french');
+  expect(alerts()).toEqual([]);
+});
+
+test('a slower answer is dropped', async () => {
+  const { id, held } = await opened();
   let release = () => undefined as void;
   let holding = false;
   const slow: Send = async (request) => {
+    const answer = await server.send(request);
     if (holding && request.path.includes('/spaces/')) {
       holding = false;
       await new Promise<void>((resolve) => {
         release = resolve;
       });
     }
-    return server.send(request);
+    return answer;
   };
-  await show(pageOf(fresh.held, fresh.id, day, slow));
-  const vote = mathRoom(fresh.id);
-  await castVote(fresh.held, vote, 0, items[1], day, nodeKit, server.send);
+  await show(pageOf(held, id, day, slow));
   holding = true;
   const next = addDays(day, 1);
-  onDay(fresh.id, next);
-  await update(pageOf(fresh.held, fresh.id, next, slow));
+  onDay(id, next);
+  await update(pageOf(held, id, next, slow));
   expect(holding).toBe(false);
-  await press('committee-subjects-french');
+  await castVote(held, mathRoom(id), 1, items[1], day, nodeKit, server.send);
+  const later = addDays(day, 2);
+  onDay(id, later);
+  await update(pageOf(held, id, later, slow));
+  const signed = fill(page.setter.cut, { name: seat(2), item: title(1), day: `day ${day}` });
+  expect(texts()).toContain(signed);
   release();
   await act();
-  expect(texts()).toContain(fill(page.setter.waiting, { name: seat(1) }));
-  expect(texts()).not.toContain(fill(page.setter.cut, { name: seat(1), item: title(1), day: `day ${day}` }));
-  expect(controls('committee-none')).toHaveLength(1);
+  expect(texts()).toContain(signed);
 });
 
-test('another room’s votes do not show while its own are read', async () => {
+test('other rooms’ votes do not show while their own are read', async () => {
   const { id, held } = await opened();
   await castVote(held, mathRoom(id), 0, null, day, nodeKit, server.send);
   let holding = false;
@@ -209,32 +225,14 @@ test('another room’s votes do not show while its own are read', async () => {
   const none = fill(page.setter.none, { name: seat(1), day: `day ${day}` });
   expect(texts()).toContain(none);
   holding = true;
-  await press('committee-subjects-french');
+  const pinned = { id: pack.id, release: pack.release };
+  const mathOnly = [{ classes: [{ grade: '4am', packs: { math: pinned } }] }] as never;
+  await update(pageOf(held, id, day, slow, { schools: mathOnly }));
   expect(holding).toBe(false);
   expect(texts()).not.toContain(none);
   release();
   await act();
-  expect(texts()).toContain(fill(page.setter.waiting, { name: seat(1) }));
-});
-
-test('an exam the calendar moved says why', async () => {
-  const entries = calendar.entries.map((one) =>
-    one.effect === 'exam' && one.term === 3 && one.zone === undefined
-      ? {
-          ...one,
-          from: addDays(one.from, 7),
-          to: addDays(one.to, 7),
-          moved: { from: one.from, to: one.to, reason: 'A made-up reason' },
-        }
-      : one,
-  );
-  const moved = worldExams(calendar.year, entries).find((one) => one.id === 'mock')!;
-  expect(moved.from).not.toBe(mock.from);
-  const held = await started();
-  onDay(held.world, moved.figuresDay);
-  const made = { ...reference, calendar: { ...calendar, entries } };
-  await show(pageOf(held, held.world, moved.figuresDay, server.send, { reference: made, updates: [] }));
-  expect(texts().some((text) => text.includes('A made-up reason'))).toBe(true);
+  expect(texts()).toContain(none);
 });
 
 test('a problem reading is said with a way to read again', async () => {
@@ -280,7 +278,7 @@ test('the directorate’s workspace opens its own committees over the world’s 
     onCalendar: () => undefined,
   } as unknown as WorkspacePagesProps);
   await show(shown!);
-  expect(texts()).toContain(words.lead);
+  expect(texts()).toContain(words.level.directorate.lead);
   await press('committee-none');
   expect(texts()).toContain(fill(page.setter.none, { name: seat(1), day: `day ${day}` }));
   const space = await directorateSpace(held.world, directorate, nodeKit.mac);

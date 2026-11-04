@@ -22,12 +22,14 @@
 // committees' seats (#604, DirectorateThresholds.tsx); its grants page requests
 // inspectors' grants from its schools (#593, DirectorateGrant.tsx) and its
 // totals page says what the system owes teachers on announced days, with the
-// curriculum report (#598, DirectorateTotals.tsx); and the Ministry's totals
-// page says it by wilaya (#599, MinistryTotals.tsx), and its calendar page keys
-// a draft of the world's calendar (#607, MinistryCalendar.tsx), afresh over
-// each release the world comes to hold, and publishes it with the world's keys
-// (#608, MinistryCalendarPage.tsx); and the operators' system map draws the
-// demo server from what it says of itself, with its version and health (#618,
+// curriculum report (#598, DirectorateTotals.tsx); and the Ministry's
+// thresholds page plays its national committees' seats (#605,
+// MinistryThresholds.tsx), its totals page says it by wilaya (#599,
+// MinistryTotals.tsx), and its calendar page keys a draft of the world's
+// calendar (#607, MinistryCalendar.tsx), afresh over each release the world
+// comes to hold, and publishes it with the world's keys (#608,
+// MinistryCalendarPage.tsx); and the operators' system map draws the demo
+// server from what it says of itself, with its version and health (#618,
 // OpsConsole.tsx), and their admin and security logs and the world's problem
 // reports read from it (#619, OpsAdminLog.tsx, OpsSecurity.tsx,
 // OpsProblems.tsx); and the observatory's reports page, whose world has no
@@ -56,6 +58,7 @@ import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
+import { MinistryThresholds } from '../ministry/MinistryThresholds';
 import { MinistryTotals } from '../ministry/MinistryTotals';
 import { ObsReport } from '../observatory/ObsReport';
 import { OpsAdminLog } from '../operators/OpsAdminLog';
@@ -137,6 +140,19 @@ export function workspacePage(
       <DirectorateThresholds
         world={open}
         school={school}
+        held={held}
+        reference={reference}
+        bundled={bundled}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+        updates={props.updates}
+      />
+    );
+  if (workspace === 'ministry' && page === 'thresholds')
+    return (
+      <MinistryThresholds
+        world={open}
         held={held}
         reference={reference}
         bundled={bundled}
