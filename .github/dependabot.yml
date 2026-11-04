@@ -3,8 +3,10 @@
 
 # Updates arrive as pull requests and are reviewed like any other change
 # (docs/contributing/engineering.md#dependencies). GitHub Actions and npm's
-# minor and patch updates each come grouped in one pull request. Security
-# updates come on their own, from the repository's settings. The titles read
+# minor and patch updates each come grouped in one pull request, React
+# Native's apart, as its minor releases can break the app and need a check on
+# a device. Security updates come on their own, from the repository's
+# settings. The titles read
 # "ci(deps): …" and "build(deps): …"; the title and sign-off checks allow for
 # Dependabot (commits.md#sign-off).
 
@@ -33,5 +35,7 @@ updates:
       - dependency-name: '*'
         update-types: [version-update:semver-major]
     groups:
+      react-native:
+        patterns: [react-native, '@react-native/*']
       minor-and-patch:
         update-types: [minor, patch]
