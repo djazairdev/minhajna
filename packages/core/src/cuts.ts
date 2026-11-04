@@ -114,7 +114,8 @@ export function isCommitteeName(value: unknown): value is CommitteeName {
   );
 }
 
-const secret = (sealing: Uint8Array, name: CommitteeName, purpose: string, mac: WorldMac) => {
+/** A secret of a committee for a purpose, from the world's sealing key. */
+export const committeeSecret = (sealing: Uint8Array, name: CommitteeName, purpose: string, mac: WorldMac) => {
   if (!isCommitteeName(name)) throw new RangeError('A committee is named in its world');
   const { scope, exam, subject, grade } = name;
   return mac(sealing, ascii(`minhajna/committee/${purpose}\n${scope}\n${exam}\n${subject}\n${grade}`));
@@ -122,7 +123,7 @@ const secret = (sealing: Uint8Array, name: CommitteeName, purpose: string, mac: 
 
 /** Where a committee's votes go. */
 export async function committeePlace(sealing: Uint8Array, name: CommitteeName, mac: WorldMac): Promise<Place> {
-  return placeOf(await secret(sealing, name, 'room', mac), 'committee-room', mac);
+  return placeOf(await committeeSecret(sealing, name, 'room', mac), 'committee-room', mac);
 }
 
 /** The seed of a seat's signing key. */
@@ -133,7 +134,7 @@ export async function seatSeed(
   mac: WorldMac,
 ): Promise<Uint8Array> {
   if (!Number.isSafeInteger(seat) || seat < 0) throw new RangeError('A seat is counted from 0');
-  return secret(sealing, name, `seat-${seat}`, mac);
+  return committeeSecret(sealing, name, `seat-${seat}`, mac);
 }
 
 const signedText = (text: string) => `${COMMITTEE_VOTE}\n${text}`;
