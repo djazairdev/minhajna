@@ -6618,7 +6618,28 @@
       "figureClasses": "Classes : {{classes}}",
       "noNation": "Les chiffres de ce pack ne sont pas affichés : trop peu de classes.",
       "sameBand": "Autres éléments dans la même tranche : {{others}}",
-      "itemClassesSame": "Classes par élément : {{classes}}"
+      "itemClassesSame": "Classes par élément : {{classes}}",
+      "closures": "Jours de classe perdus aux fermetures, par wilaya",
+      "wilaya": "Wilaya",
+      "days": "Jours",
+      "classes": "Classes",
+      "noWilayas": "Aucune wilaya n’est affichée pour ce pack.",
+      "closuresFrom": "D’après le calendrier public et les avis de fermeture, non d’après ce que saisissent les enseignants. Ce sont des jours de classe, les séances d’une classe par jour n’étant pas du ressort de l’observatoire.",
+      "igp": "L’Inspection d’abord",
+      "sent": "Projet envoyé à l’Inspection générale de la pédagogie : {{day}}",
+      "commentOpen": "30 jours pour commenter, jusqu’au {{day}} : aucun commentaire pour l’instant",
+      "commentEnded": "Les 30 jours pour commenter ont pris fin : {{day}}",
+      "publishLater": "Publication selon la méthode : après ce délai, en chiffres grossiers",
+      "published": "Publié selon la méthode, en chiffres grossiers",
+      "publishAfter": "Publier après le {{day}}",
+      "never": "Ces chiffres ne servent jamais",
+      "uses": {
+        "scope": "À fixer le périmètre des examens, le « seuil »",
+        "rank": "À classer qui que ce soit : classe, établissement ou wilaya",
+        "staff": "À une décision concernant un membre du personnel"
+      },
+      "writing": "Il a été demandé à l’Inspection de s’y engager par écrit.",
+      "example": "Un exemple dans cette démo : les étapes se déroulent ainsi, sans envoi ni publication réels."
     }
   },
   "chart": {

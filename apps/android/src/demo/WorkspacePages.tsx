@@ -106,7 +106,7 @@ export function workspacePage(
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
   const { held, onCalendar, bundled } = props;
   if (workspace === 'observatory' && page === 'insights')
-    return <ObsReport world={open} year={year} reference={reference} send={send} />;
+    return <ObsReport world={open} year={year} reference={reference} dayText={dayText} send={send} />;
   if (school === null) return null;
   if (workspace === 'ministry' && page === 'calendar')
     return (

@@ -6523,7 +6523,28 @@
       "figureClasses": "Classes: {{classes}}",
       "noNation": "This pack’s figures are not shown: too few classes.",
       "sameBand": "Other items in the same band: {{others}}",
-      "itemClassesSame": "Classes per item: {{classes}}"
+      "itemClassesSame": "Classes per item: {{classes}}",
+      "closures": "School days lost to closures, by wilaya",
+      "wilaya": "Wilaya",
+      "days": "Days",
+      "classes": "Classes",
+      "noWilayas": "No wilaya is shown for this pack.",
+      "closuresFrom": "From the public calendar and closure notices, not from what teachers enter. These are school days, since a class’s sessions a day are not the observatory’s to know.",
+      "igp": "The Inspectorate first",
+      "sent": "Draft sent to the General Inspectorate of Pedagogy: {{day}}",
+      "commentOpen": "30 days to comment, until {{day}}: no comment yet",
+      "commentEnded": "The 30 days to comment ended: {{day}}",
+      "publishLater": "Publication by the method: after the period, in coarse figures",
+      "published": "Published by the method, in coarse figures",
+      "publishAfter": "Publish after {{day}}",
+      "never": "These figures are never used",
+      "uses": {
+        "scope": "To set the exams’ scope, the “threshold”",
+        "rank": "To rank anyone: a class, a school or a wilaya",
+        "staff": "For a decision on a member of staff"
+      },
+      "writing": "The Inspectorate was asked to commit to this in writing.",
+      "example": "An example in this demo: this is how the steps run, with nothing really sent or published."
     }
   },
   "chart": {

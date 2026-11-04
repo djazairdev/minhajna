@@ -75,7 +75,9 @@ const planned: PlanPack = {
 } as unknown as PlanPack;
 const reference = {
   packs: [planned],
+  calendar: { year: YEAR, entries: [] },
   profile: {
+    workingDays: [0, 1, 2, 3, 4],
     levels: [{ grades: [{ code: '4am', name: { ar: 'الرابعة متوسط', en: '4AM', fr: '4AM' } }] }],
     subjects: [
       { code: 'arabic', name: { ar: 'اللغة العربية', en: 'Arabic', fr: 'Arabe' } },
@@ -126,7 +128,13 @@ async function open(send: Send, date = '2026-12-20', starter: string | null = nu
   await act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value="rtl">
-        <ObsReport world={{ world: 'AB12C', date: day(date), starter }} year={YEAR} reference={reference} send={send} />
+        <ObsReport
+          world={{ world: 'AB12C', date: day(date), starter }}
+          year={YEAR}
+          reference={reference}
+          dayText={(one) => `day ${one}`}
+          send={send}
+        />
       </LocaleDirContext.Provider>,
     );
   });
@@ -231,7 +239,7 @@ test('gives the counts, the sample’s note, and classes set aside only when any
   );
   expect(page()).toContain(words.chosen);
   expect(page()).toContain(words.hidden);
-  expect(page()).not.toContain(WILAYA);
+  expect(has(`obs-closure-${WILAYA}`)).toBe(true);
   expect(has('obs-report-aside')).toBe(false);
   await act(() => tree?.unmount());
   await open(server([arabic], () => null, 3).send);
