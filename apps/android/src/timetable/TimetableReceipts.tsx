@@ -112,7 +112,7 @@ export function TimetableReceipts({ world, school, kit, send, dayText }: Timetab
   return (
     <View testID="tt-receipts" style={styles.card}>
       {onPc() && (
-        <View accessibilityLiveRegion="polite" style={styles.hidden}>
+        <View collapsable={false} accessibilityLiveRegion="polite" style={styles.hidden}>
           <Text key={said.count} testID="tt-receipts-said">
             {said.words}
           </Text>

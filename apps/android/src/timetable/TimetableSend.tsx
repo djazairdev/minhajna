@@ -150,7 +150,7 @@ export function TimetableSend(props: TimetableSendProps) {
   return (
     <View testID="tt-send" style={styles.card}>
       {onPc() && (
-        <View accessibilityLiveRegion="polite" style={styles.hidden}>
+        <View collapsable={false} accessibilityLiveRegion="polite" style={styles.hidden}>
           <Text key={said.count} testID="tt-send-said">
             {said.words}
           </Text>

@@ -119,7 +119,7 @@ export function TimetableHand({ sessions, next, workingDays, onChange }: Timetab
         </Text>
       ))}
       {onPc() && (
-        <View accessibilityLiveRegion="polite" style={styles.hidden}>
+        <View collapsable={false} accessibilityLiveRegion="polite" style={styles.hidden}>
           <Text testID="tt-hand-said">{spoken}</Text>
           <Text key={added.count} testID="tt-hand-added">
             {added.words}

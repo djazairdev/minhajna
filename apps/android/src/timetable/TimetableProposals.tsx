@@ -143,7 +143,7 @@ export function TimetableProposals({ world, school, bells, kit, send, dayText }:
   return (
     <View testID="tt-proposals" style={styles.card}>
       {onPc() && (
-        <View accessibilityLiveRegion="polite" style={styles.hidden}>
+        <View collapsable={false} accessibilityLiveRegion="polite" style={styles.hidden}>
           <Text key={said.count} testID="tt-proposals-said">
             {said.words}
           </Text>
