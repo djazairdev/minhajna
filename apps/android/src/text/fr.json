@@ -4295,7 +4295,7 @@
         "preparer": "Le préparateur ne détient que la clé de l’emploi du temps et n’ouvre aucun registre de classe.",
         "curator": "Aucune donnée d’élève dans l’éditeur.",
         "operator": "Aucune clé d’un registre nominatif dans ce centre, ni chez ceux qui le font fonctionner.",
-        "observatory": "Ni date de séance, ni motif, ni élève, ni rien qui identifie un enseignant. L’observatoire s’arrête dès que les totaux du système national existent."
+        "observatory": "Ni date de séance, ni motif, ni élève, ni rien qui identifie un enseignant, ni donnée du mode établissement. L’observatoire s’arrête dès que les totaux du système national existent."
       }
     },
     "pages": {

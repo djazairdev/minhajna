@@ -4225,7 +4225,7 @@
         "preparer": "A timetable preparer holds only the timetable key and opens no class record.",
         "curator": "No pupil data in the editor.",
         "operator": "No key to a named record in this centre, nor with those who run it.",
-        "observatory": "No session date, no reason, no pupil, nothing that identifies a teacher. The observatory stops once the national system’s totals exist."
+        "observatory": "No session date, no reason, no pupil, nothing that identifies a teacher, no data from institution mode. The observatory stops once the national system’s totals exist."
       }
     },
     "pages": {
