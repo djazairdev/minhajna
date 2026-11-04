@@ -57,7 +57,7 @@ export type ExamThresholdsProps = {
   /** The world's school, rebuilt from the world's ID, whose classes sit the exams above it. */
   readonly school?: DemoSchool | null;
   /** The world's keys while it is open and the bundled reference, which read the committees' cuts of the over exams. */
-  readonly above?: { readonly held: HeldWorld | null; readonly bundled?: TermReference };
+  readonly committees?: { readonly held: HeldWorld | null; readonly bundled?: TermReference };
   readonly onClose: () => void;
   readonly said: string;
   /** Opens an exam's page by its room's key. */
@@ -70,7 +70,7 @@ const NOTES = ['school', 'monthly', 'never'] as const;
 
 /** The school exams whose rooms the phone reads, with where each class stands. */
 export function ExamThresholds(props: ExamThresholdsProps) {
-  const { world, date, join, kit, send, dayText, reference, updates, school, above: keys, onClose, said } = props;
+  const { world, date, join, kit, send, dayText, reference, updates, school, committees, onClose, said } = props;
   const { onRoom, onTotals } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
@@ -82,7 +82,7 @@ export function ExamThresholds(props: ExamThresholdsProps) {
       weeks === null || reference === undefined || school == null ? [] : ownExams(weeks, school, reference, world.date),
     [weeks, school, reference, world.date],
   );
-  const over = useMemo(
+  const overList = useMemo(
     () =>
       weeks === null || reference === undefined || school == null
         ? []
@@ -161,14 +161,14 @@ export function ExamThresholds(props: ExamThresholdsProps) {
         <>
           <OwnExamCards exams={coming} dayText={dayText} reference={reference} moves={moves} />
           <OwnExamCards exams={above} dayText={dayText} reference={reference} moves={moves} above onTotals={onTotals} />
-          {keys?.bundled !== undefined && school != null && (
+          {committees?.bundled !== undefined && school != null && (
             <OverExamCuts
               world={world.world}
               date={world.date}
-              over={over}
+              over={overList}
               directorate={school.directorateId}
-              held={keys.held}
-              bundled={keys.bundled}
+              held={committees.held}
+              bundled={committees.bundled}
               reference={reference}
               moves={moves}
               heading={above.length === 0}

@@ -6303,9 +6303,7 @@
       "over": {
         "reading": "Lecture du seuil de la commission…",
         "keys": "Le seuil de la commission se lit avec les clés du monde, que ce téléphone ne détient pas pour l’instant.",
-        "cut": "Le seuil de la commission tel que publié, adopté le {{day}} : jusqu’à {{item}}.",
-        "noCut": "La commission a décidé le {{day}} : pas de seuil pour cet examen.",
-        "none": "La commission n’a adopté aucun seuil : le sujet a été établi comme d’habitude."
+        "cut": "Le seuil de la commission tel que publié, adopté le {{day}} : jusqu’à {{item}}."
       }
     },
     "threshold": {

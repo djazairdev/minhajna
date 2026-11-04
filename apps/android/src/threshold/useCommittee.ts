@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The committees' state on the workspace's PC (#604, #605, #606, answers 638 to
-// 640): as the rooms of a grade open, when the world's date moves and when
-// asked again, their votes and words are read together (committee-session.ts),
-// what was last read of those rooms kept on view meanwhile, and nothing is read
-// with no room or no world's keys held; a problem is said in the catalogue's
-// words, as an alert on the page. A vote or a committee's words are signed
-// once, a second press while one runs doing nothing, said when made, and the
-// rooms read again, a refusal a problem in the committee's words until the next
-// one or reading asked for. What was said, and a refusal, hold for the rooms
-// and the world's date they were said on. Any new reading, and leaving the
-// page, drops a slower answer.
+// The committees' state on the workspace's PC and the teacher's list (#604,
+// #605, #606, answers 638 to 640): as the rooms of a grade open, when the
+// world's date moves and when asked again, their votes and words are read
+// together (committee-session.ts), what was last read of those rooms kept on
+// view meanwhile, and nothing is read with no room or no world's keys held; a
+// problem is said in the catalogue's words, as an alert on the page. A vote or
+// a committee's words are signed once, a second press while one runs doing
+// nothing, said when made, and the rooms read again, a refusal a problem in the
+// committee's words until the next one or reading asked for. What was said, and
+// a refusal, hold for the rooms and the world's date they were said on. Any new
+// reading, and leaving the page, drops a slower answer.
 
 import type { Day } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';

@@ -13,10 +13,10 @@
 // and on the figures day from then on, each class matched by its name key, its
 // spellings together, and counted only when its teacher signed a week of it in
 // that subject; an exam none of whose classes is the teacher's is left out.
-// There is no cut on the phone for these exams: a school exam's comes with its
-// room. Once an exam above the school is over, the teacher's classes in it are
-// listed apart (overExams), for the committee's cut as published
-// (over-cuts.ts).
+// These exams have no cut on the phone until they are over: a school exam's
+// comes with its room, and once an exam above the school is over, the teacher's
+// classes in it are listed apart (overExams), for the committee's cut as
+// published (over-cuts.ts).
 
 import {
   addDays,
@@ -55,7 +55,10 @@ function recordsOf(weeks: readonly WeekRecord[]): StandingRecords[] {
   }));
 }
 
-/** The exams `shown` lets through, with the teacher's classes in each, the day before their figures day until it. */
+/**
+ * The exams `shown` lets through, with the teacher's classes in each, positions taken the day before the world's date
+ * until the figures day, then on it.
+ */
 function examsWith(
   weeks: readonly WeekRecord[],
   school: DemoSchool,

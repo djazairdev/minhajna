@@ -13,7 +13,7 @@
 // with a way to read again. It signs nothing, and the phone's figures do not
 // leave it.
 
-import { type Day, type ExamMove } from '@minhajna/core';
+import { NATIONAL_COMMITTEE, type Day, type ExamMove } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
@@ -26,7 +26,7 @@ import type { TermReference } from '../director/seeded-fill';
 import { colors, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 import type { CommitteeRead } from './committee-session';
-import { overCuts } from './over-cuts';
+import { overCuts, type OverCut } from './over-cuts';
 import type { OwnExam } from './own-exams';
 import { headText, itemNamer, movedLines } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
@@ -62,53 +62,73 @@ export function OverExamCuts(props: OverExamCutsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const cuts = useMemo(() => {
-    const seeded = seededWorld(world, bundled).schools;
-    return overCuts(world, over, directorate, seeded, bundled.packs);
-  }, [world, over, directorate, bundled]);
-  const votes = useCommittee(
+  const some = over.length > 0;
+  const seeded = useMemo(() => (some ? seededWorld(world, bundled).schools : []), [world, bundled, some]);
+  const cuts = useMemo(
+    () => overCuts(world, over, directorate, seeded, bundled.packs),
+    [world, over, directorate, seeded, bundled],
+  );
+  const national = cuts.filter((one) => one.room.name.scope === NATIONAL_COMMITTEE);
+  const own = cuts.filter((one) => one.room.name.scope !== NATIONAL_COMMITTEE);
+  const ownVotes = useCommittee(
     date,
     held,
-    cuts.map((one) => one.room),
+    own.map((one) => one.room),
     kit,
     send,
   );
+  const nationalVotes = useCommittee(
+    date,
+    held,
+    national.map((one) => one.room),
+    kit,
+    send,
+  );
+  const shownProblem = ownVotes.problem ?? nationalVotes.problem;
   if (cuts.length === 0) return null;
   const small = (words: string, key?: string) => (
     <Text key={key} style={[styles.small, align]}>
       {words}
     </Text>
   );
+  const readOf = (cut: OverCut): CommitteeRead | undefined =>
+    cut.room.name.scope === NATIONAL_COMMITTEE
+      ? nationalVotes.reads?.[national.indexOf(cut)]
+      : ownVotes.reads?.[own.indexOf(cut)];
   const standing = (read: CommitteeRead | undefined, item: (id: string | null) => string) => {
-    if (held === null) return t('demo.thresholds.over.keys');
     const adopted = read?.state.adopted;
-    if (adopted === undefined) return '';
-    if (adopted === null) return t('demo.thresholds.over.none');
-    if (adopted.item === null) return t('demo.thresholds.over.noCut', { day: dayText(adopted.day) });
+    if (adopted === undefined) return null;
+    if (adopted === null) return t('demo.published.noneAdopted');
+    if (adopted.item === null) return t('demo.published.noCut', { day: dayText(adopted.day) });
     return t('demo.thresholds.over.cut', { item: item(adopted.item), day: dayText(adopted.day) });
   };
   return (
     <>
       {heading && <SectionHeader testID="thresholds-above" label={t('demo.thresholds.above')} />}
       <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
-        {votes.reading ? t('demo.thresholds.over.reading') : ''}
+        {ownVotes.reading || nationalVotes.reading ? t('demo.thresholds.over.reading') : ''}
       </Text>
-      {votes.problem !== null && (
+      {held === null && small(t('demo.thresholds.over.keys'))}
+      {shownProblem !== null && (
         <View style={styles.card}>
           <Text accessibilityRole="alert" style={[problem, align]}>
-            {t(votes.problem)}
+            {t(shownProblem)}
           </Text>
           <Button
             testID="thresholds-over-again"
             variant="line"
             label={t('demo.weekSign.again')}
-            onPress={votes.again}
+            onPress={() => {
+              ownVotes.again();
+              nationalVotes.again();
+            }}
           />
         </View>
       )}
-      {cuts.map(({ exam, chart, plan }, at) => {
-        const read = votes.reads?.[at];
-        const item = itemNamer(t, plan, reference.packs);
+      {cuts.map((cut) => {
+        const { exam, chart, plan } = cut;
+        const read = readOf(cut);
+        const line = standing(read, itemNamer(t, plan, reference.packs));
         return (
           <View key={`${exam.id}\n${chart.subject}\n${chart.grade}`} testID="thresholds-over" style={styles.card}>
             <Text accessibilityRole="header" style={[styles.head, align]}>
@@ -119,7 +139,7 @@ export function OverExamCuts(props: OverExamCutsProps) {
             {movedLines(t, moves.get(exam.id), exam, dayText, { published: true }).map((line, place) =>
               small(line, `moved-${place}`),
             )}
-            <Text style={[styles.body, align]}>{standing(read, item)}</Text>
+            {line !== null && <Text style={[styles.body, align]}>{line}</Text>}
             {read?.state.adopted?.item != null && (
               <>
                 {small(t('demo.committee.words.title'))}

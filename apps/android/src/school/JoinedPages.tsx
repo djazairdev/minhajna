@@ -66,7 +66,7 @@ export type JoinedPagesProps = {
   /** The world's calendar updates, which say when and why an exam moved. */
   readonly updates?: readonly CalendarUpdate[];
   /** The world's keys while it is open and the bundled reference, which read the committees' cuts of the over exams. */
-  readonly above?: ExamThresholdsProps['above'];
+  readonly committees?: ExamThresholdsProps['committees'];
   /** Opens another joined page, such as the week to sign on a course, going back to the page that opened it. */
   readonly onPage: (view: JoinedView) => void;
 };
@@ -107,7 +107,7 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
         reference={props.reference}
         updates={props.updates}
         school={props.school}
-        above={props.above}
+        committees={props.committees}
         onRoom={to('threshold')}
         onTotals={to('examTotals')}
       />

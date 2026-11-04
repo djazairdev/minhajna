@@ -6210,9 +6210,7 @@
       "over": {
         "reading": "Reading the committee’s cut…",
         "keys": "The committee’s cut is read with the world’s keys, which this phone does not hold now.",
-        "cut": "The committee’s cut as published, adopted on {{day}}: up to {{item}}.",
-        "noCut": "The committee decided on {{day}}: no cut for this exam.",
-        "none": "The committee adopted no cut: the paper was set as usual."
+        "cut": "The committee’s cut as published, adopted on {{day}}: up to {{item}}."
       }
     },
     "threshold": {

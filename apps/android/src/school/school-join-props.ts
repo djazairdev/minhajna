@@ -3,7 +3,8 @@
 
 // What School-join takes (SchoolJoin.tsx): the world and its days, the kit and
 // the way to the server, the trial term, the year, the way back, and what the
-// joined card's pages need of the world, its school and its calendar.
+// joined card's pages need of the world: its school, its calendar, its keys and
+// the bundled reference.
 
 import type { CalendarUpdate, Day, DemoSchool, Subject, TrialTerm, Weekday } from '@minhajna/core';
 import type { OpenWorld } from '../demo/world-mode';
@@ -39,5 +40,5 @@ export type SchoolJoinProps = {
   /** The world's calendar updates, which say when and why an exam moved. */
   readonly updates?: readonly CalendarUpdate[];
   /** The world's keys while it is open and the bundled reference, which read the committees' cuts of the over exams. */
-  readonly above?: ExamThresholdsProps['above'];
+  readonly committees?: ExamThresholdsProps['committees'];
 };
