@@ -75,8 +75,9 @@ function stepWords(step) {
 /**
  * Runs a scenario against the demo server at `server`, saying each step it passes; throws at the first that fails.
  * `days` are the new world's, and `access` how a device meets the server: the scenario's own when it has one, its
- * `access(server)`, or else world.js. A scenario's own steps, its `actions`, each take the access's `stage` and the
- * device of the step's role, its date read first, and the step, and throw to fail it.
+ * `access(server)`, or else world.js. A scenario's own steps, its `actions`, each take the access's `stage`, the
+ * device of the step's role, on the date its last move gave, so as not to spend the server's limit on joins, and the
+ * step, and throw to fail it.
  */
 export async function runScenario(scenario, server, { say = () => {}, days = world.worldDays(), access } = {}) {
   const problem = scenarioProblem(scenario);
@@ -85,6 +86,7 @@ export async function runScenario(scenario, server, { say = () => {}, days = wor
   const dates = [days.date, ...days.announcedDays];
   const devices = new Map();
   let started;
+  let date = days.date;
   try {
     for (const [index, step] of scenario.steps.entries()) {
       const fail = (what) => new Error(`${scenario.name}, step ${index + 1} (${actor(step)} ${step.do}): ${what}`);
@@ -101,11 +103,12 @@ export async function runScenario(scenario, server, { say = () => {}, days = wor
         const moved = await through.moveDate(server, device);
         const outcome = moved.status === 200 ? 'moved' : moved.status === 403 ? 'refused' : `answered ${moved.status}`;
         if (outcome !== step.expect) throw fail(`expected ${step.expect}, the server ${outcome}`);
+        if (moved.status === 200) date = moved.date;
       } else if (step.do === 'see') {
-        const date = await through.dateOf(server, device);
-        if (date !== dates[step.day]) throw fail(`sees ${date}, not ${dates[step.day] ?? 'a day the world announces'}`);
+        const seen = await through.dateOf(server, device);
+        if (seen !== dates[step.day]) throw fail(`sees ${seen}, not ${dates[step.day] ?? 'a day the world announces'}`);
       } else {
-        device.date = await through.dateOf(server, device);
+        device.date = date;
         await scenario.actions[step.do](through.stage, device, step).catch((error) => {
           throw fail(`${error.code === undefined ? '' : `${error.code}: `}${error.message}`);
         });
