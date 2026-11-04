@@ -39,7 +39,8 @@ const FIELDS = [
 ] as const;
 const HEX32 = /^[0-9a-f]{32}$/;
 const HEX64 = /^[0-9a-f]{64}$/;
-const YEAR = /^(\d{4})-(\d{4})$/;
+/** A school year, such as 2027-2028. */
+export const YEAR = /^(\d{4})-(\d{4})$/;
 const PACK = /^[a-z]{2}(\.[a-z0-9-]+){4,5}$/;
 const RELEASE = /^\d{4}\.\d+$/;
 
