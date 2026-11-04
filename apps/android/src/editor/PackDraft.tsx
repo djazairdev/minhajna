@@ -11,6 +11,7 @@ import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { useDeviceText } from '../text/device-text';
 import { ItemForm } from './ItemForm';
+import { ReleaseReview } from './ReleaseReview';
 import { StructureForm } from './StructureForm';
 import { SourceForm } from './SourceForm';
 import { SourcePdf, type SourceRow } from './SourcePdf';
@@ -21,6 +22,7 @@ export function PackDraft({
   revision,
   country,
   busy,
+  reviewHistory,
   onSave,
   onClose,
 }: {
@@ -28,6 +30,7 @@ export function PackDraft({
   readonly revision: number;
   readonly country: string;
   readonly busy: boolean;
+  readonly reviewHistory?: readonly PlanPack[] | null;
   readonly onSave: (pack: PlanPack, revision: number) => Promise<PackRelease | null>;
   readonly onClose: () => void;
 }) {
@@ -35,6 +38,7 @@ export function PackDraft({
   const [pack, setPack] = useState(initial);
   const [expected, setExpected] = useState(revision);
   const [form, setForm] = useState<'item' | 'structure' | 'source' | null>(null);
+  const [reviewing, setReviewing] = useState(false);
   const [item, setItem] = useState<PackItem | null>(null);
   const [suggestion, setSuggestion] = useState<SourceRow | null>(null);
   const [pages, setPages] = useState<number | null>(null);
@@ -79,12 +83,21 @@ export function PackDraft({
         disabled={busy || form !== null}
         onPress={onClose}
       />
+      {expected > 0 && form === null && reviewHistory !== undefined && (
+        <Button
+          testID="draft-review"
+          label={t(reviewing ? 'editorItem.releaseReview.back' : 'editorItem.releaseReview.open')}
+          variant="plain"
+          disabled={busy}
+          onPress={() => setReviewing(!reviewing)}
+        />
+      )}
       <View style={[s.row, { alignItems: 'flex-start' }]}>
         <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 360, minWidth: 0 }}>
           <SourcePdf
             onPages={setPages}
             disabled={busy}
-            rowDisabled={form !== null}
+            rowDisabled={form !== null || reviewing}
             onRow={(row) => {
               setItem(null);
               setSuggestion(row);
@@ -125,7 +138,8 @@ export function PackDraft({
           </View>
         )}
       </View>
-      {form === null && (
+      {reviewing && reviewHistory !== undefined && <ReleaseReview pack={pack} history={reviewHistory} />}
+      {form === null && !reviewing && (
         <>
           <View style={s.row}>
             <Button

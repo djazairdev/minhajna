@@ -56,6 +56,14 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
           revision={opened.revision}
           country={props.profile.code}
           busy={desk.busy}
+          reviewHistory={
+            desk.ready && (props.refusedPacks ?? 0) === 0
+              ? [
+                  ...props.packs,
+                  ...[...desk.records.values()].filter((one) => one.file !== null).map((one) => one.pack),
+                ]
+              : null
+          }
           onSave={desk.save}
           onClose={close}
         />

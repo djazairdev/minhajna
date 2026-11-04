@@ -115,5 +115,50 @@
   "pdfNoText": "Aucun texte extrait. Lisez l’image et saisissez la leçon dans le formulaire.",
   "useRow": "Choisir la ligne",
   "retypeTitle": "Retapez le titre depuis la page",
-  "addAction": "Ajouter"
+  "addAction": "Ajouter",
+  "releaseReview": {
+    "open": "Vérifier la version",
+    "back": "Retour au brouillon",
+    "comparison": "Comparer les versions",
+    "previous": "Comparaison avec la version {{release}}.",
+    "firstRelease": "Première version dans l’historique disponible.",
+    "noChanges": "Aucun changement dans les titres, les pages du manuel ou la liste des éléments.",
+    "checks": "Vérifications automatiques",
+    "sourcePagesOk": "Chaque élément indique une page de la source.",
+    "horizon": "Nombre de semaines dans le document source",
+    "horizonAgain": "Ressaisir le nombre de semaines",
+    "horizonMismatch": "Saisissez le même nombre entier positif dans les deux champs.",
+    "weeksUnchecked": "Semaines non vérifiées. Saisissez deux fois le nombre indiqué dans la source.",
+    "weeksOk": "Aucune anomalie pour le nombre de semaines indiqué.",
+    "budgetUnchecked": "Volume horaire non vérifié. Il faut un emploi du temps de référence et une période datée.",
+    "migration": "Correspondances entre éléments",
+    "noMigration": "Aucune correspondance pour cette version.",
+    "invalid-pack": "Le dossier contient des champs invalides.",
+    "missing-history": "L’historique des versions précédentes est indisponible.",
+    "missing-source-page": "Pages source manquantes pour {{items}}.",
+    "invalid-source-page": "Pages source invalides pour {{items}}.",
+    "fields": {
+      "required": "{{field}} est obligatoire.",
+      "invalid": "{{field}} est invalide.",
+      "duplicate": "{{field}} apparaît plusieurs fois.",
+      "unknown-reference": "{{field}} renvoie à un élément inconnu."
+    },
+    "migrationProblems": {
+      "missing": "La version {{release}}, nécessaire à la migration, est introuvable.",
+      "broken": "La migration depuis la version {{release}} est invalide.",
+      "not-newer": "La version {{release}} est mal ordonnée."
+    },
+    "entries": {
+      "rename": "Renommer {{from}} en {{to}}",
+      "split": "Scinder {{from}} en {{to}}",
+      "merge": "Fusionner {{from}} en {{to}}",
+      "remove": "Retirer {{from}}"
+    },
+    "weeks": {
+      "invalid-week": "Numéros de semaine invalides pour {{items}}.",
+      "missing-weeks": "Semaines manquantes de {{week}} à {{through}}.",
+      "outside-horizon": "La semaine {{week}} dépasse la période du document source ({{items}}).",
+      "activity-sessions": "Semaine {{week}}, {{activity}} : {{actual}} séances saisies, {{expected}} prévues."
+    }
+  }
 }

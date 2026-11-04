@@ -115,5 +115,50 @@
   "pdfNoText": "No text was extracted. Read the image and enter the lesson in the form.",
   "useRow": "Use row",
   "retypeTitle": "Retype the title from the page",
-  "addAction": "Add item"
+  "addAction": "Add item",
+  "releaseReview": {
+    "open": "Review release",
+    "back": "Back to draft",
+    "comparison": "Compare releases",
+    "previous": "Compared with release {{release}}.",
+    "firstRelease": "This is the first release in the available history.",
+    "noChanges": "No changes to titles, textbook pages or the item list.",
+    "checks": "Automated checks",
+    "sourcePagesOk": "Every item cites a source page.",
+    "horizon": "Number of weeks in the source plan",
+    "horizonAgain": "Retype the number of weeks",
+    "horizonMismatch": "Enter the same positive whole number in both fields.",
+    "weeksUnchecked": "Weeks are unchecked. Enter the number from the source twice.",
+    "weeksOk": "No weekly findings for the stated number of weeks.",
+    "budgetUnchecked": "Budget fit is unchecked. It needs a sourced timetable and date range.",
+    "migration": "Migration entries",
+    "noMigration": "No migration entries for this release.",
+    "invalid-pack": "The pack has invalid fields.",
+    "missing-history": "The earlier release history is unavailable.",
+    "missing-source-page": "Missing source pages for {{items}}.",
+    "invalid-source-page": "Invalid source pages for {{items}}.",
+    "fields": {
+      "required": "{{field}} is required.",
+      "invalid": "{{field}} is invalid.",
+      "duplicate": "{{field}} is duplicated.",
+      "unknown-reference": "{{field}} refers to an unknown entry."
+    },
+    "migrationProblems": {
+      "missing": "The migration needs release {{release}}, which is missing.",
+      "broken": "The migration from release {{release}} is invalid.",
+      "not-newer": "Release {{release}} is out of order."
+    },
+    "entries": {
+      "rename": "Rename {{from}} to {{to}}",
+      "split": "Split {{from}} into {{to}}",
+      "merge": "Merge {{from}} into {{to}}",
+      "remove": "Retire {{from}}"
+    },
+    "weeks": {
+      "invalid-week": "Invalid week numbers for {{items}}.",
+      "missing-weeks": "Missing weeks from {{week}} to {{through}}.",
+      "outside-horizon": "Week {{week}} is outside the source plan ({{items}}).",
+      "activity-sessions": "Week {{week}}, {{activity}}: {{actual}} sessions entered, {{expected}} expected."
+    }
+  }
 }
