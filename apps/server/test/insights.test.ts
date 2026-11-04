@@ -1,19 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A world's observatory (#621, answer 676): only the starter opens it, with
-// the pass, keeping up to 256 made-up sendings at once, every one checked
-// before any is kept and a refusal stopping there, keeping those before it; a
-// refused opening opens nothing; a world whose observatory is not open refuses
+// A world's observatory (#621, answer 676): only the starter opens it, with the
+// pass, keeping up to 256 made-up sendings at once, every one checked before
+// any is kept and a refusal stopping there, keeping those before it; a refused
+// opening opens nothing; a world whose observatory is not open refuses
 // sendings; a sending is kept once with the pass, 201 when new and 200 when
 // sent again with its token, its ID alone answered, and refused with another
 // token's ID, past MAX_SENDINGS a world, or in any other shape; the server
-// keeps no school-and-term code and logs none; a phone's kept sendings count
-// against the daily limit by address and every kept sending against the
-// uploads quota, refused ones costing nothing, and every request counts under
-// the relay's limits; a body over its route's size is refused before it is
-// read; and the sweeper erases the observatory with the world. Every world and
-// sending here is made up.
+// keeps no school-and-term code and logs none; a refused opening gives back its
+// marks; a body over its route's size is refused before it is read; and the
+// sweeper erases the observatory with the world. The limits are in
+// insights-limits.test.ts. Every world and sending here is made up.
 
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
@@ -21,6 +19,7 @@ import type { NestNodeApplication } from '@nestjs/platform-node';
 import { createApp } from '../src/app.js';
 import { MAX_SENDINGS, MemoryInsightStore } from '../src/insights/insight-store.js';
 import { SEED_SENDINGS } from '../src/insights/insights.controller.js';
+import { SchoolMarks } from '../src/insights/school-marks.js';
 import { PlainLogger } from '../src/plain-logger.js';
 import { MemoryWorldStore } from '../src/worlds/world-store.js';
 import { WorldSweeper } from '../src/worlds/world-sweeper.js';
@@ -144,6 +143,21 @@ describe('a world’s observatory', () => {
     assert.deepEqual(await insights.sendings(id), []);
   });
 
+  it('gives back the marks of a refused opening, even one repeating its codes', async () => {
+    const { id, starter } = await startedWorld(base);
+    assert.equal((await open(id, starter, { sendings: [madeUpSending(1, 1, 7)] })).status, 200);
+    const marks = app.get(SchoolMarks);
+    const held = marks.size;
+    const repeated = [
+      madeUpSending(1, 2, 900),
+      madeUpSending(2, 1, 900),
+      madeUpSending(3, 1, 901),
+      madeUpSending(4, 1, 901),
+    ];
+    assert.equal((await open(id, starter, { sendings: repeated })).status, 409);
+    assert.equal(marks.size, held);
+  });
+
   it('refuses a body over its route’s size before reading it', async () => {
     const { id, starter } = await startedWorld(base);
     const big = { ...madeUpSending(1), pad: 'x'.repeat(70 * 1024) };
@@ -192,72 +206,5 @@ describe('a world’s observatory', () => {
     await app.get(WorldSweeper).sweep();
     assert.deepEqual(await insights.sendings(id), []);
     assert.equal((await send(id, madeUpSending(2))).status, 404);
-  });
-});
-
-describe('the observatory’s limits', () => {
-  let app: NestNodeApplication;
-  let base: string;
-  let clock = Date.UTC(2026, 10, 30, 10);
-
-  before(async () => {
-    const hour = 60 * 60_000;
-    const limits = {
-      starts: OPEN,
-      relay: { perAddress: 14, total: 1000, windowMs: hour },
-      uploads: { perAddress: 30, total: 1000, windowMs: hour },
-      sendings: { perAddress: 4, total: 1000, windowMs: hour },
-    };
-    app = await createApp(false, { ...limits, now: () => clock });
-    await app.listen(0, '127.0.0.1');
-    base = await app.getUrl();
-  });
-
-  after(async () => {
-    await app.close();
-  });
-
-  const call = (id: string, method: string, path: string, body: unknown, starter?: string) =>
-    fetch(`${base}/worlds/${id}/insights${path}`, {
-      method,
-      headers: {
-        ...WITH_PASS,
-        'content-type': 'application/json',
-        ...(starter ? { authorization: `Bearer ${starter}` } : {}),
-      },
-      body: JSON.stringify(body),
-    });
-
-  it('counts kept sendings by address and against the uploads quota, refused ones costing nothing', async () => {
-    const { id, starter } = await startedWorld(base);
-    const seeded = Array.from({ length: 10 }, (_, at) => madeUpSending(at + 100));
-    assert.equal((await call(id, 'POST', '', { sendings: seeded }, starter)).status, 200);
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(100, 9))).status, 409);
-    for (let at = 1; at <= 4; at += 1)
-      assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(at))).status, 201);
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(5))).status, 429);
-    const more = Array.from({ length: 20 }, (_, at) => madeUpSending(at + 200));
-    assert.equal((await call(id, 'POST', '', { sendings: more }, starter)).status, 429);
-    clock += 2 * 60 * 60_000;
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(5))).status, 201);
-  });
-
-  it('refuses a sending past the uploads quota alone, a refused one costing nothing', async () => {
-    clock += 2 * 60 * 60_000;
-    const { id, starter } = await startedWorld(base);
-    const seeded = Array.from({ length: 29 }, (_, at) => madeUpSending(at + 100));
-    assert.equal((await call(id, 'POST', '', { sendings: seeded }, starter)).status, 200);
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(100, 9))).status, 409);
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(101, 9))).status, 409);
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(1))).status, 201);
-    assert.equal((await call(id, 'PUT', '/sendings', madeUpSending(2))).status, 429);
-  });
-
-  it('counts every request under the relay’s limits', async () => {
-    clock += 2 * 60 * 60_000;
-    const { id } = await startedWorld(base);
-    const statuses: number[] = [];
-    for (let at = 0; at < 15; at += 1) statuses.push((await call(id, 'PUT', '/sendings', { made: 'up' })).status);
-    assert.deepEqual(statuses, [...Array<number>(14).fill(400), 429]);
   });
 });

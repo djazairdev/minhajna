@@ -33,6 +33,7 @@ import { clockMinutes, templateFor, type BellData } from './bells.ts';
 import { CalendarView } from './calendar.ts';
 import { addDays, compareDays, startOfWeek, type Day } from './day.ts';
 import type { DemoClass, DemoSchool, DemoWorld } from './demo-world.ts';
+import { ABSENT, isLessonDay, PACE, Plan, PLAN_SHARE } from './seeded-plan.ts';
 import type { School, SchoolClass } from './records.ts';
 import { packKey, type CalendarEntry, type LocalizedText, type Reference } from './reference.ts';
 import { correctWeek, courseId, type WeekRecord, type WeekSession } from './week-record.ts';
@@ -60,14 +61,9 @@ export interface SeededTermInput {
   readonly until: Day;
 }
 
-const ABSENT = 0.02;
 const COVERED = 0.5;
 const AWAITING = 0.1;
 const FIXED = 0.04;
-/** The share of the year's sessions a plan fills, leaving the rest as its buffer. */
-const BUFFER = 0.95;
-/** The slowest and fastest a course moves through its plan, against the year's pace. */
-const PACE = [0.9, 1.15] as const;
 
 /** A number in [0, 1) drawn from the seed and a key, the same on every device. */
 function draw(seed: string, key: string): number {
@@ -96,40 +92,6 @@ export function demoClosure(
     source: 'Made up for the demo world',
     confidence: 'announced',
   };
-}
-
-/** A pack's plan as a course moves through it, each held session moving it on by `step` of the plan's budget. */
-class Plan {
-  readonly #items: readonly { readonly id: string; readonly from: number; readonly to: number }[];
-  readonly #total: number;
-  readonly #step: number;
-  #at = 0;
-
-  constructor(items: readonly { readonly id: string; readonly budget?: number }[], sessions: number) {
-    let end = 0;
-    this.#items = items.map((one) => ({ id: one.id, from: end, to: (end += Math.max(1, one.budget ?? 1)) }));
-    this.#total = end;
-    this.#step = sessions === 0 ? 0 : end / sessions;
-  }
-
-  /** The item a held session works on and those it passes over, merged; none once the plan is done. */
-  teach(): { readonly item: string | null; readonly merged: readonly string[] } {
-    const from = this.#at;
-    const current = this.#items.find((one) => one.to > from);
-    if (current === undefined || this.#step === 0) return { item: null, merged: [] };
-    this.#at = Math.min(this.#total, from + this.#step);
-    const merged = this.#items.filter((one) => one.from >= current.to && one.to <= this.#at).map((one) => one.id);
-    return { item: current.id, merged };
-  }
-
-  get reached(): number {
-    return this.#total === 0 ? 0 : Math.floor((1000 * this.#at) / this.#total);
-  }
-
-  /** Whether the plan's budget left is more than these sessions give at the course's pace. */
-  runsLong(sessions: number): boolean {
-    return this.#total - this.#at > sessions * this.#step + 1e-9;
-  }
 }
 
 /** A demo school as the calendar reads it: its level, and its wilaya as its zone. */
@@ -169,14 +131,13 @@ export async function seededTerm(input: SeededTermInput, mac: WorldMac): Promise
       const pack = pinned === undefined ? undefined : reference.packs.get(packKey(pinned.id, pinned.release));
       const course = await courseId(space, one.name, subject, mac);
       const lessons = (start: Day) =>
-        slots.filter((slot) => {
-          const info = view.info(addDays(start, (slot.weekday - weekStartsOn + 7) % 7), place, schoolClass);
-          return info.schoolDay && info.closure === null && info.exam === null;
-        }).length;
+        slots.filter((slot) =>
+          isLessonDay(view, place, schoolClass, addDays(start, (slot.weekday - weekStartsOn + 7) % 7)),
+        ).length;
       const planned = new Map(teaching.map((week) => [week.start, lessons(week.start)]));
       const year = [...planned.values()].reduce((sum, count) => sum + count, 0);
       const pace = PACE[0] + (PACE[1] - PACE[0]) * draw(seed, `pace\n${course}`);
-      const plan = new Plan(pack?.items ?? [], (year * BUFFER) / pace);
+      const plan = new Plan(pack?.items ?? [], (year * PLAN_SHARE) / pace);
       for (const { start } of weeks) {
         const sessions: WeekSession[] = [];
         const taught = new Map<string, number>();

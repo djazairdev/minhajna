@@ -14,14 +14,16 @@
 // only within the daily limit of sendings by address. A sending whose ID is
 // another token's, one past MAX_SENDINGS, or one for a world with no
 // observatory is refused with 409, as is one for a term whose collection ended,
-// or replacing a sending of such a term (figures.controller.ts). Every sending
-// kept costs the daily quota of uploads as the sealed batches its bytes as sent
-// would fill, its mark's few bytes left out, as a school's share does, so no
-// address fills the store with sendings either; a refused one costs nothing,
-// and requests at the same moment may pass a limit by a few. Each sending's
-// school-and-term code is turned into its school's mark for the run on receipt
-// (school-marks.ts), then dropped, never stored or logged, and a sending is
-// never shown back.
+// or replacing a sending of such a term (figures.controller.ts). The sendings a
+// request has kept cost the daily quota of uploads as the sealed batches their
+// bytes as sent would fill together, their marks' few bytes left out, as a
+// school's share does (a teachers' world's made-up sendings, answer 699, are
+// each far under a batch), and an opening's new school marks one more each, so
+// no address fills the store with sendings, or the marks' cap, either; a
+// refused one costs nothing, and requests at the same moment may pass a limit
+// by a few. Each sending's school-and-term code is turned into its school's
+// mark for the run on receipt (school-marks.ts), then dropped, never stored or
+// logged, and a sending is never shown back.
 
 import {
   BadRequestException,
@@ -47,7 +49,7 @@ import { holdsStarter } from '../worlds/world-rules.js';
 import { WORLD_STORE, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
 import { INSIGHT_STORE, MAX_SENDINGS, type InsightStore, type SendingKept } from './insight-store.js';
-import { SchoolMarks, UNCOUNTED } from './school-marks.js';
+import { SchoolMarks, UNCOUNTED, type Marked } from './school-marks.js';
 import { kept, readSending, type KeptSending, type Sending } from './sending-read.js';
 
 /** The most sendings one opening of an observatory keeps. */
@@ -60,11 +62,10 @@ const REFUSED: Readonly<Partial<Record<SendingKept, string>>> = {
   closed: 'this world holds no observatory',
 };
 
-/** The sealed batches a sending's bytes would fill, as the daily quota of uploads counts it. */
+/** The sealed batches the sendings' bytes together would fill, as the daily quota of uploads counts them. */
 const cost = (sendings: readonly KeptSending[]): number =>
-  sendings.reduce(
-    (all, one) => all + Math.ceil(Buffer.byteLength(JSON.stringify(one), 'utf8') / SEALED_BATCH_BYTES),
-    0,
+  Math.ceil(
+    sendings.reduce((all, one) => all + Buffer.byteLength(JSON.stringify(one), 'utf8'), 0) / SEALED_BATCH_BYTES,
   );
 
 const isKept = (outcome: SendingKept): boolean => outcome === 'added' || outcome === 'replaced';
@@ -102,10 +103,12 @@ export class InsightsController {
     const read = readSeeding(body);
     const unmarked = read.map((one) => kept(one, UNCOUNTED));
     const address = clientAddress(request, this.limiters.trustCloudflare);
-    if (!this.limiters.uploads.fits(address, cost(unmarked))) throw tooMany();
+    const schools = new Set(read.map((one) => one.schoolTerm)).size;
+    if (!this.limiters.uploads.fits(address, cost(unmarked) + schools)) throw tooMany();
     if (!(await this.insights.open(world.id))) throw noWorld();
-    const outcomes = await this.keep(world, read);
-    this.limiters.uploads.charge(address, cost(unmarked.filter((_, at) => isKept(outcomes[at] ?? 'closed'))));
+    const { outcomes, newMarks } = await this.keep(world, read);
+    const stored = cost(unmarked.filter((_, at) => isKept(outcomes[at] ?? 'closed')));
+    this.limiters.uploads.charge(address, stored + newMarks);
     const failed = outcomes.findIndex((outcome) => !isKept(outcome));
     if (failed >= 0) throw refusal(outcomes[failed], failed) ?? new ConflictException('a sending was refused');
     return { kept: outcomes.length };
@@ -127,7 +130,9 @@ export class InsightsController {
     const sending = [kept(read, UNCOUNTED)];
     const address = clientAddress(request, this.limiters.trustCloudflare);
     if (!this.limiters.sendings.fits(address) || !this.limiters.uploads.fits(address, cost(sending))) throw tooMany();
-    const [outcome] = await this.keep(world, [read]);
+    const {
+      outcomes: [outcome],
+    } = await this.keep(world, [read]);
     const refused = refusal(outcome);
     if (refused !== null) throw refused;
     this.limiters.sendings.charge(address, 1);
@@ -137,20 +142,31 @@ export class InsightsController {
   }
 
   /**
-   * Keeps the sendings, each code turned into its school's mark and going no further; a mark drawn for a sending the
-   * store refuses is given back, unless another call took it meanwhile, and never when the store fails, as it may have
-   * kept the sending all the same.
+   * Keeps the sendings, each code turned once into its school's mark and going no further; a mark drawn for sendings
+   * the store all refuses is given back, unless another call took it meanwhile, and never when the store fails, as it
+   * may have kept them all the same. Also says how many new marks its kept sendings hold.
    */
-  private async keep(world: World, sendings: readonly Sending[]): Promise<SendingKept[]> {
-    const marked = sendings.map((one) => this.marks.mark(world.id, world.starterHash, one.schoolTerm));
+  private async keep(
+    world: World,
+    sendings: readonly Sending[],
+  ): Promise<{ readonly outcomes: SendingKept[]; readonly newMarks: number }> {
+    const drawn = new Map<string, Marked>();
+    const marked = sendings.map((one) => {
+      const known = drawn.get(one.schoolTerm) ?? this.marks.mark(world.id, world.starterHash, one.schoolTerm);
+      drawn.set(one.schoolTerm, known);
+      return known;
+    });
     const outcomes = await this.insights.put(
       world.id,
       sendings.map((one, at) => kept(one, marked[at]!.mark)),
     );
-    marked.forEach((one, at) => {
-      if (one.fresh && !isKept(outcomes[at] ?? 'closed')) this.marks.release(world.id, world.starterHash, one);
-    });
-    return outcomes;
+    let newMarks = 0;
+    for (const one of drawn.values()) {
+      if (!one.fresh) continue;
+      if (marked.some((held, at) => held === one && isKept(outcomes[at] ?? 'closed'))) newMarks += 1;
+      else this.marks.release(world.id, world.starterHash, one);
+    }
+    return { outcomes, newMarks };
   }
 
   private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {

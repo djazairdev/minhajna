@@ -84,6 +84,7 @@ export * from './school-joined.ts';
 export * from './insights-state.ts';
 export * from './insights-teacher.ts';
 export * from './insights-log.ts';
+export * from './insights-seed.ts';
 export * from './school-issue.ts';
 export * from './school-timetable.ts';
 export * from './school-cover.ts';
