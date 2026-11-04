@@ -1,15 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A committee's room on the workspace's PC (#604, answer 638), against a made-up
-// demo server: a room with no space yet holds no vote; each seat's vote goes on
-// the directorate's or the national space under the seat's key, numbered above
-// the seat's votes, and a seat naming its cut again puts nothing; the first
-// majority is adopted and shuts the room, also when it came in while a vote was
-// being put; a vote outside the days, off the plan or of no seat is refused; a
-// room reads no other committee's votes, nor a world's that holds another key;
-// the plan is the pack most of the grade's classes pin, and the subjects those
-// with a pack held. Every world, committee and school is made up.
+// A committee's room on the workspace's PC (#604, answer 638), against a
+// made-up demo server: a room with no space yet holds no vote; each seat's vote
+// goes on the directorate's or the national space under the seat's key,
+// numbered above the seat's votes, and a seat naming its cut again puts
+// nothing; the first majority is adopted and shuts the room, also when it came
+// in while a vote was being put, and nothing more goes on the stream; a vote
+// outside the days, off the plan or of no seat is refused; a vote put again
+// after its answer was lost is one vote; a room reads no other committee's
+// votes, nor a world's that holds another key; the plan is the pack most of the
+// grade's classes pin, of those held, and the subjects those with a pack held.
+// Every world, committee and school is made up.
 
 import {
   addDays,
@@ -69,7 +71,7 @@ test('a room with no space yet holds no vote', async () => {
   expect([state.votes.size, state.proposed, state.adopted, state.majority]).toEqual([0, null, null, 2]);
 });
 
-test('votes go on the directorate’s space, numbered above the seat’s, and the first majority shuts the room', async () => {
+test('votes go on the directorate’s space, numbered up, and the first majority shuts the room', async () => {
   const held = await started();
   const room = roomOf(held);
   await castVote(held, room, 0, 'u5', DAY, kit, server.send);
@@ -93,10 +95,12 @@ test('votes go on the directorate’s space, numbered above the seat’s, and th
   await castVote(held, room, 2, 'u5', addDays(DAY, 3), kit, server.send);
   state = await readCommittee(held, room, kit, server.send);
   expect(state.adopted).toEqual({ item: 'u5', seats: [0, 2], day: addDays(DAY, 3) });
+  const put = await batchesIn(held.world, space);
   await expect(castVote(held, room, 1, 'u5', DAY, kit, server.send)).rejects.toMatchObject({ code: 'E_CUT_CLOSED' });
   await expect(castVote(held, room, 2, 'u5', DAY, kit, server.send)).rejects.toMatchObject({ code: 'E_CUT_CLOSED' });
   expect((await readCommittee(held, room, kit, server.send)).adopted?.item).toBe('u5');
-}, 60_000);
+  expect(await batchesIn(held.world, space)).toBe(put);
+});
 
 test('a national committee of five takes three seats, on the national space', async () => {
   const held = await started();
@@ -109,7 +113,7 @@ test('a national committee of five takes three seats, on the national space', as
   state = await readCommittee(held, room, kit, server.send);
   expect(state.adopted?.seats).toEqual([0, 4, 2]);
   expect(await batchesIn(held.world, NATIONAL_SPACE)).toBe(before + 3);
-}, 60_000);
+});
 
 test('a vote outside the days, off the plan or of no seat is refused and puts nothing', async () => {
   const held = await started();
@@ -124,7 +128,7 @@ test('a vote outside the days, off the plan or of no seat is refused and puts no
   await castVote(held, room, 0, 'u6', days.to, kit, server.send);
   const space = await directorateSpace(held.world, 'dir-1', kit.mac);
   expect(await batchesIn(held.world, space)).toBe(1);
-}, 60_000);
+});
 
 test('a majority come in while a vote is put shuts it, and another seat’s vote is put on top', async () => {
   const held = await started();
@@ -146,9 +150,11 @@ test('a majority come in while a vote is put shuts it, and another seat’s vote
   expect([...state.votes.keys()]).toEqual([0, 1, 2]);
   const shutting = before(() => castVote(held, room, 1, 'u6', DAY, kit, server.send));
   expect(await codeOf(castVote(held, room, 2, 'u5', DAY, kit, shutting))).toBe('E_CUT_CLOSED');
+  const space = await directorateSpace(held.world, 'dir-1', kit.mac);
+  expect(await batchesIn(held.world, space)).toBe(4);
   state = await readCommittee(held, room, kit, server.send);
   expect([state.adopted?.item, state.votes.get(2)?.item]).toEqual(['u6', 'u4']);
-}, 60_000);
+});
 
 test('a vote put again after its answer was lost stays one vote', async () => {
   const held = await started();
@@ -166,16 +172,37 @@ test('a vote put again after its answer was lost stays one vote', async () => {
   const state = await readCommittee(held, room, kit, server.send);
   const space = await directorateSpace(held.world, 'dir-1', kit.mac);
   expect([state.votes.get(1)?.version, await batchesIn(held.world, space)]).toEqual([0, 1]);
-}, 60_000);
+  lost = true;
+  await castVote(held, room, 0, 'u6', DAY, kit, losing);
+  const adopted = await readCommittee(held, room, kit, server.send);
+  expect([adopted.adopted?.item, await batchesIn(held.world, space)]).toEqual(['u6', 2]);
+});
+
+test('a vote counted or not, the seat’s next is numbered above it', async () => {
+  const held = await started();
+  await castVote(held, roomOf(held), 0, 'u6', addDays(DAY, 5), kit, server.send);
+  const narrow = { ...roomOf(held), days: { from: DAY, to: addDays(DAY, 1) } };
+  await castVote(held, narrow, 0, 'u6', DAY, kit, server.send);
+  const state = await readCommittee(held, narrow, kit, server.send);
+  expect(state.votes.get(0)?.version).toBe(1);
+});
+
+test('a room is of the world held', async () => {
+  const held = await started();
+  const other = roomOf({ ...held, world: 'B7QF4' });
+  await expect(readCommittee(held, other, kit, server.send)).rejects.toThrow(RangeError);
+  await expect(castVote(held, other, 0, 'u6', DAY, kit, server.send)).rejects.toThrow(RangeError);
+});
 
 test('a room reads no other committee’s votes, nor under another world’s key', async () => {
   const held = await started();
   await castVote(held, roomOf(held), 0, 'u6', DAY, kit, server.send);
+  expect((await readCommittee(held, roomOf(held), kit, server.send)).votes.size).toBe(1);
   for (const more of [{ exam: 'other' }, { subject: 'arabic' }, { grade: '3am' }, { scope: 'dir-2' }])
     expect((await readCommittee(held, roomOf(held, more), kit, server.send)).votes.size).toBe(0);
   const other = { ...held, sealing: new Uint8Array(32).fill(9) };
   expect((await readCommittee(other, roomOf(held), kit, server.send)).votes.size).toBe(0);
-}, 60_000);
+});
 
 test('a problem reading says the server’s code', async () => {
   const held = await started();
@@ -213,5 +240,7 @@ test('the plan is the pack most of the grade’s classes pin, the subjects those
     )?.id,
   ).toBe('p-1');
   expect(committeePlan(schools, packs, '4am', 'art')).toBeNull();
+  const fewer = [{ classes: [1, 2, 3].map(() => pinned('4am', { math: 'p-absent' })) }, ...schools.slice(0, 1)];
+  expect(committeePlan(fewer as typeof schools, packs.slice(0, 1), '4am', 'math')?.id).toBe('p-1');
   expect(committeePlan(schools, packs, '2am', 'math')).toBeNull();
 });

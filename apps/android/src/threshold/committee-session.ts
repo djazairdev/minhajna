@@ -1,19 +1,20 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A committee's room above the school on the workspace's PC (#604, #605, answers
-// 638 and 639): its stream is of the directorate's space, or for a national exam
-// of the world's national space, and its key and each seat's seed come from the
-// world's sealing key (cuts.ts), so whoever holds the world reads it. A seat's
-// public key is worked out once for each seed (decider-key.ts). A committee's
-// plan is the pack most of the grade's classes pin for the subject among the
-// schools it covers, the first pinned at a tie, and its subjects those a class
-// of the grade pins a pack the reference holds for, as the classes first name
-// them. A room is read from its stream, a space not open yet holding no vote. A
-// seat's vote is dated the world's date and numbered above the seat's every
-// vote, and goes on the stream once: a seat that names the cut already puts
-// nothing; it is refused (E_CUT_CLOSED) outside the room's days or once a cut is
-// adopted, read afresh as it is put. Other errors carry world-session.ts's codes.
+// A committee's room above the school on the workspace's PC (#604, #605,
+// answers 638 and 639): its stream is of the directorate's space, or for a
+// national exam of the world's national space, and its key and each seat's seed
+// come from the world's sealing key (cuts.ts), so whoever holds the world reads
+// it. A seat's public key is worked out once for each seed (decider-key.ts). A
+// committee's plan is the pack most of the grade's classes pin for the subject
+// among the schools it covers, of those the reference holds, the first pinned
+// at a tie, and its subjects those a class of the grade pins a pack the
+// reference holds for, as the classes first name them. A room is read from its
+// stream, a space not open yet holding no vote. A seat's vote is dated the
+// world's date and numbered above the seat's every vote, and goes on the stream
+// once: a seat that names the cut already puts nothing; it is refused
+// (E_CUT_CLOSED) outside the room's days or once a cut is adopted, read afresh
+// as it is put. Other errors carry world-session.ts's codes.
 
 import {
   committeePlace,
@@ -66,7 +67,7 @@ export function committeeSubjects(
   return [...new Set(subjects)];
 }
 
-/** The pack most of the grade's classes pin for the subject, the first pinned at a tie, or null with none held. */
+/** Of the packs held, the one most of the grade's classes pin for the subject, the first at a tie, or null. */
 export function committeePlan(
   schools: readonly Pick<DemoSchool, 'classes'>[],
   packs: readonly PlanPack[],
@@ -110,6 +111,7 @@ export async function readCommittee(
   send: Send = worldRequest,
 ): Promise<CommitteeState> {
   const { name, days } = room;
+  if (name.world !== held.world) throw new RangeError('A committee is of the world held');
   const { space } = await kitStep(() => spaceOf(name, kit));
   const empty = () => ({ status: 200, body: { batches: [], more: false }, retryAfter: null });
   const batches = await spaceBatches(held.world, space, readingMissing(held.world, send, empty));
@@ -132,6 +134,7 @@ export async function castVote(
   send: Send = worldRequest,
 ): Promise<void> {
   const { name, items, days } = room;
+  if (name.world !== held.world) throw new RangeError('A committee is of the world held');
   if (item !== null && !items.includes(item)) throw new RangeError('A vote names an item of the plan');
   if (!Number.isSafeInteger(seat) || seat < 0 || seat >= committeeSeats(name)) throw new RangeError('Not a seat');
   const closed = () => failed('The cut can no longer be signed', 'E_CUT_CLOSED');
