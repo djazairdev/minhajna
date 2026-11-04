@@ -154,6 +154,7 @@ export * from './pack.ts';
 export * from './pack-catalogue.ts';
 export * from './pack-checks.ts';
 export * from './pack-migration.ts';
+export * from './budget-pack-checks.ts';
 export * from './migration-carry.ts';
 export * from './progress.ts';
 export * from './progress-statement.ts';

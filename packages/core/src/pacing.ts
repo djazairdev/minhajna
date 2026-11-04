@@ -82,13 +82,24 @@ function queueSessions(context: Context, setup: CourseSetup, from: Day, to: Day,
   );
 }
 
-/** A TD item's term: its own, or else the last term its unit's lessons fall in. */
-function tdTerm(pack: PlanPack, item: PackItem): number | undefined {
-  if (item.term !== undefined || item.unit === undefined) return item.term;
+/** The item's own term, or the last lesson term of a TD item's unit. */
+export function packItemTerm(pack: PlanPack, item: PackItem): number | undefined {
+  if (item.term !== undefined || item.kind !== 'td' || item.unit === undefined) return item.term;
   const terms = pack.items.flatMap((other) =>
     other.unit === item.unit && other.kind !== 'td' && other.term !== undefined ? [other.term] : [],
   );
   return terms.length === 0 ? undefined : Math.max(...terms);
+}
+
+/** Exam parts for this course and term, in the order they begin. */
+export function termExamParts(context: Context, setup: CourseSetup, term: number): readonly CalendarEntry[] {
+  const { state, calendar } = context;
+  const school = state.schools.get(setup.schoolClass.schoolId);
+  return (
+    school ? calendar.entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass))) : []
+  )
+    .filter((entry) => entry.effect === 'exam' && entry.term === term)
+    .sort((a, b) => compareDays(a.from, b.from));
 }
 
 /** The term whose exams come next on `today`, or the term `today` is in when no exam window is known. */
@@ -221,19 +232,14 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
   const setup = courseSetup(context, courseId);
   const pack = setup.pack;
   if (pack === null || setup.packStale) return null;
-  const { ref, state, calendar } = context;
+  const { ref, state } = context;
   const term = ref.year.terms.find((candidate) =>
     termNumber === undefined ? isWithin(from, candidate.from, candidate.to) : candidate.number === termNumber,
   );
   const items = queueItems(pack, 'main');
   if (term === undefined || !items.some((item) => item.term !== undefined)) return null;
 
-  const school = state.schools.get(setup.schoolClass.schoolId);
-  const parts = (
-    school ? calendar.entriesFor(school, forGrade(setup.schoolClass, courseGrade(setup.course, setup.schoolClass))) : []
-  )
-    .filter((entry) => entry.effect === 'exam' && entry.term === term.number)
-    .sort((a, b) => compareDays(a.from, b.from));
+  const parts = termExamParts(context, setup, term.number);
   const exam = parts[0];
   const before = exam?.from ?? addDays(term.to, 1);
 
@@ -258,7 +264,7 @@ export function termCheck(context: Context, courseId: string, from: Day, termNum
     return rotationCredits([...recorded, ...future], turns) - rotationCredits(recorded, turns);
   };
   const tdItems = queueItems(pack, 'td').filter((item) => {
-    const itemTerm = tdTerm(pack, item);
+    const itemTerm = packItemTerm(pack, item);
     if (itemTerm === undefined || itemTerm > term.number) return false;
     return itemShare(pack, progress, item, whole, budgetInSessions(pack, item, setup.sessionMinutes)) < 1;
   });
