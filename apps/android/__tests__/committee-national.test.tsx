@@ -15,7 +15,7 @@
 import { addDays, NATIONAL_COMMITTEE, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
 import { bem, fill, items, onDay, page, pageOf, putShares, seat, server, started, words } from '../jest/committee-page';
-import { act, controls, press, show, texts, unmount, update } from '../jest/threshold-page';
+import { act, controls, press, show, texts, textsIn, unmount, update } from '../jest/threshold-page';
 import { reference } from '../jest/world-calendar';
 import { nodeKit } from '../jest/world-server';
 import { workspacePage, type WorkspacePagesProps } from '../src/demo/WorkspacePages';
@@ -36,6 +36,7 @@ const day = bem.figuresDay;
 const national = words.level.national;
 const wilayas = (count: number) => Array.from({ length: count }, (_, at) => `dir-${at + 1}`);
 const SUBJECT = 'arabic';
+let secondTitle = '';
 
 beforeEach(() => {
   jest.replaceProperty(Platform, 'OS', 'web');
@@ -52,7 +53,9 @@ async function opened(count: number) {
   const held = await started();
   onDay(held.world, day);
   const { schools } = seededWorld(held.world, reference);
-  const items = committeePlan(schools, reference.packs, '4am', SUBJECT)!.items.map((one) => one.id);
+  const plan = committeePlan(schools, reference.packs, '4am', SUBJECT)!;
+  const items = plan.items.map((one) => one.id);
+  secondTitle = plan.items[1].title;
   const reached = (_school: number, directorate: string) => ({
     [items[0]]: 10,
     [items[1]]: Number(directorate.slice(4)),
@@ -86,6 +89,14 @@ test('the nation’s figures show each item’s range across 8 wilayas, naming n
     expect(all).toContain(words.series[key]);
   expect(all).toContain(fill(words.rangeChart.all, { day: `day ${day}` }));
   expect(all).toContain(fill(words.rangeChart.middle, { day: `day ${day}` }));
+  expect(all).toContain(fill(words.counts, { teachers: 96, classes: 320, schools: 32 }));
+  const row = (testID: string) => {
+    const cells = textsIn(testID);
+    const at = cells.findIndex((text) => text.includes(secondTitle));
+    return cells.slice(at + 1, at + 4);
+  };
+  expect(row('committee-range-all')).toEqual(['45', '10', '80']);
+  expect(row('committee-range-middle')).toEqual(['45', '20', '70']);
   expect(all.filter((text) => /dir-\d/u.test(text))).toEqual([]);
 });
 
@@ -109,11 +120,15 @@ test('a majority of five adopts, and the general list says each committee’s si
   await press('committee-item', 1);
   await press('committee-propose-sign');
   expect(lines()).toEqual([line(fill(words.status.proposed, { count: 1, seats: 5 }))]);
+  await press('committee-seats-1');
+  await press('committee-propose');
+  await press('committee-item', 0);
+  await press('committee-propose-sign');
   await press('committee-seats-2');
   await press('committee-sign');
   expect(lines()).toEqual([line(fill(words.status.proposed, { count: 2, seats: 5 }))]);
   expect(texts()).toContain(fill(page.setter.waiting, { name: seat(5) }));
-  await press('committee-seats-4');
+  await press('committee-seats-1');
   await press('committee-sign');
   expect(lines()).toEqual([line(words.status.adopted)]);
   expect(controls('committee-none')).toHaveLength(0);

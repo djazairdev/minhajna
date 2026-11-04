@@ -149,7 +149,10 @@ export function CommitteePage(props: CommitteePageProps) {
           label={t('demo.schoolThreshold.exam')}
           choices={exams.map((one) => ({ value: one.id, label: `${examName(t, one.id)} · ${dayText(one.from)}` }))}
           selected={exam?.id ?? null}
-          onSelect={(id) => setChosen({ exam: id })}
+          onSelect={(id) => {
+            if (id !== exam?.id) votes.forget();
+            setChosen({ exam: id });
+          }}
         />
       )}
       {grades.length > 1 && (
@@ -158,7 +161,10 @@ export function CommitteePage(props: CommitteePageProps) {
           label={t('demo.schoolThreshold.grade')}
           choices={grades.map((one) => ({ value: one, label: named(gradeName(reference.profile, one), one) }))}
           selected={grade ?? null}
-          onSelect={(one) => setChosen({ exam: exam?.id, grade: one })}
+          onSelect={(one) => {
+            if (one !== grade) votes.forget();
+            setChosen({ exam: exam?.id, grade: one });
+          }}
         />
       )}
       {subjects.length > 0 && (
@@ -168,7 +174,7 @@ export function CommitteePage(props: CommitteePageProps) {
           choices={subjects.map((one) => ({ value: one, label: named(subjectName(reference.profile, one), one) }))}
           selected={subject ?? null}
           onSelect={(one) => {
-            votes.forget();
+            if (one !== subject) votes.forget();
             setChosen({ exam: exam?.id, grade, subject: one });
           }}
         />

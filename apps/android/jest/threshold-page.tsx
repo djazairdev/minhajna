@@ -38,6 +38,12 @@ export async function act(step: () => void = () => undefined) {
 /** Every text on the page, its parts joined. */
 export const texts = () =>
   tree!.root.findAllByType(Text).map((node) => [(node.props as TextProps).children].flat().map(String).join(''));
+/** Every text under the element with a test ID, its parts joined. */
+export const textsIn = (testID: string) =>
+  tree!.root
+    .findAll((node) => node.props.testID === testID)[0]
+    .findAllByType(Text)
+    .map((node) => [(node.props as TextProps).children].flat().map(String).join(''));
 /** The labelled controls with a test ID, in order. */
 export const controls = (testID: string) =>
   tree!.root.findAll((node) => node.props.testID === testID && node.props.label !== undefined);

@@ -11,9 +11,10 @@
 // exam; a majority of no cut is adopted too, with nothing to publish; after the
 // deadline with no majority no cut was adopted and nothing can be signed or is
 // published; totals not added up or hidden say so; another subject opens its
-// own room. Every world, school and share is made up.
+// own room; an exam the calendar moved says why. Every world, school and share
+// is made up.
 
-import { addDays } from '@minhajna/core';
+import { addDays, worldExams } from '@minhajna/core';
 import { Platform } from 'react-native';
 import {
   day,
@@ -32,7 +33,7 @@ import {
   words,
 } from '../jest/committee-page';
 import { controls, press, show, texts, unmount, update } from '../jest/threshold-page';
-import { reference } from '../jest/world-calendar';
+import { calendar, reference } from '../jest/world-calendar';
 import type { Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import ar from '../src/text/ar.json';
@@ -223,4 +224,24 @@ test('another subject opens its own room and its own figures', async () => {
   expect(all).toContain(words.notYet);
   expect(all).toContain(fill(page.setter.waiting, { name: seat(1) }));
   expect(all.filter((text) => text === fill(words.noneDone, { seat: seat(1) }))).toEqual([]);
+});
+
+test('an exam the calendar moved says why', async () => {
+  const entries = calendar.entries.map((one) =>
+    one.effect === 'exam' && one.term === 3 && one.zone === undefined
+      ? {
+          ...one,
+          from: addDays(one.from, 7),
+          to: addDays(one.to, 7),
+          moved: { from: one.from, to: one.to, reason: 'A made-up reason' },
+        }
+      : one,
+  );
+  const moved = worldExams(calendar.year, entries).find((one) => one.id === 'mock')!;
+  expect(moved.from).not.toBe(mock.from);
+  const held = await started();
+  onDay(held.world, moved.figuresDay);
+  const made = { ...reference, calendar: { ...calendar, entries } };
+  await show(pageOf(held, held.world, moved.figuresDay, server.send, { reference: made, updates: [] }));
+  expect(texts().some((text) => text.includes('A made-up reason'))).toBe(true);
 });
