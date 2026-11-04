@@ -14,8 +14,7 @@
 
 import { addDays } from '@minhajna/core';
 import { appModule } from './app.js';
-import { schoolOf, see } from './school-join.js';
-import { classOf, refusal } from './school-weeks.js';
+import { classOf, refusal, schoolOf, see } from './school-join.js';
 
 const { approveGrant } = await appModule('director/grant-make.ts');
 const { readGrants } = await appModule('director/grant-session.ts');
