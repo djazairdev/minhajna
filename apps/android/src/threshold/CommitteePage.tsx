@@ -82,27 +82,21 @@ export function CommitteePage(props: CommitteePageProps) {
   const exam = exams.find((one) => one.id === chosen.exam) ?? exams.at(-1);
   const grades = exam?.grades ?? [];
   const grade = grades.find((one) => one === chosen.grade) ?? grades[0];
-  const subjects = useMemo(
-    () => (grade === undefined ? [] : committeeSubjects(schools, packs, grade)),
-    [schools, packs, grade],
-  );
+  const subjects = grade === undefined ? [] : committeeSubjects(schools, packs, grade);
   const subject = subjects.find((one) => one === chosen.subject) ?? subjects[0];
   const plan = grade === undefined || subject === undefined ? null : committeePlan(schools, packs, grade, subject);
-  const room = useMemo<CommitteeRoom | null>(
-    () =>
-      exam === undefined || grade === undefined || subject === undefined || plan === null
-        ? null
-        : {
-            name: { world, scope, exam: exam.id, subject, grade },
-            items: plan.items.map((one) => one.id),
-            days: { from: exam.figuresDay, to: exam.signBy },
-          },
-    [world, scope, exam, grade, subject, plan],
-  );
+  const items = plan?.items.map((one) => one.id) ?? [];
+  const room: CommitteeRoom | null =
+    exam === undefined || grade === undefined || subject === undefined || plan === null
+      ? null
+      : {
+          name: { world, scope, exam: exam.id, subject, grade },
+          items,
+          days: { from: exam.figuresDay, to: exam.signBy },
+        };
   const votes = useCommittee(date, held, room, kit, send);
-  const figuresDay = exam?.figuresDay;
-  const ends = useMemo(() => (figuresDay === undefined ? [] : termEndsBefore(year, figuresDay)), [year, figuresDay]);
-  const days = useMemo(() => (figuresDay === undefined ? [] : [figuresDay, ...ends]), [figuresDay, ends]);
+  const ends = exam === undefined ? [] : termEndsBefore(year, exam.figuresDay);
+  const days = exam === undefined ? [] : [exam.figuresDay, ...ends];
   const figures = useCommitteeFigures(JSON.stringify([world, date, scope]), days, read);
   const moves = useMemo(() => movesOf(reference, updates), [reference, updates]);
   const shownProblem = votes.problem ?? figures.problem;
@@ -173,9 +167,9 @@ export function CommitteePage(props: CommitteePageProps) {
           head={headText(t, { exam: exam.id, subject, grade }, reference)}
           subject={subject}
           grade={grade}
-          items={plan.items.map((one) => one.id)}
+          items={items}
           seats={committeeSeats({ scope })}
-          item={itemNamer(t, { pack: plan, items: plan.items.map((one) => one.id) }, packs)}
+          item={itemNamer(t, { pack: plan, items }, packs)}
           date={date}
           dayText={dayText}
           move={moves.get(exam.id)}

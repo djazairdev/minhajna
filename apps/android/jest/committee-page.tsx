@@ -47,7 +47,7 @@ export function announced(world: string, day: Day) {
   server.worlds.get(world)!.announced.push(day);
 }
 
-/** Puts 4 schools' shares of a subject for a day, 10 classes each, and 4 of another directorate's; `counts` by item, by school. */
+/** Puts 4 schools' shares of a subject for a day, 10 classes each, and 4 of another's; `counts` by item, by school. */
 export function putShares(
   world: string,
   day: Day,
@@ -85,7 +85,7 @@ export const pageOf = (held: HeldWorld | null, world: string, date: Day, send: S
     scope={SCOPE}
     held={held}
     reference={reference}
-    schools={schools as never}
+    schools={schools}
     packs={reference.packs}
     lead="A made-up lead"
     read={(day) => readTotals(world, day, SCOPE, send)}

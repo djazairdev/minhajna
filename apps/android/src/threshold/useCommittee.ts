@@ -56,7 +56,7 @@ export function useCommittee(
     return () => {
       live = false;
     };
-  }, [key, able]);
+  }, [key, named, able]);
   useEffect(() => {
     mounted.current = true;
     return () => {
