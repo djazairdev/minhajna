@@ -103,6 +103,32 @@ const read = async (held: HeldWorld, room: CommitteeRoom, kit: WorldKit) => {
   return { place, reading };
 };
 
+/** Where each of a level's committees stands, in their order, from one reading of their space. */
+export async function readCommittees(
+  held: HeldWorld,
+  rooms: readonly CommitteeRoom[],
+  kit: WorldKit,
+  send: Send = worldRequest,
+): Promise<CommitteeState[]> {
+  const [first] = rooms;
+  if (first === undefined) return [];
+  if (rooms.some(({ name }) => name.world !== held.world || name.scope !== first.name.scope))
+    throw new RangeError('The committees read together are of the level of the world held');
+  const { space } = await kitStep(() => spaceOf(first.name, kit));
+  const empty = () => ({ status: 200, body: { batches: [], more: false }, retryAfter: null });
+  const batches = await spaceBatches(held.world, space, readingMissing(held.world, send, empty));
+  return kitStep(() =>
+    Promise.all(
+      rooms.map(async (room) => {
+        const { place, reading } = await read(held, room, kit);
+        const there = batches.get(place.stream) ?? [];
+        const found = await readVotes(place, there, reading, kit.verify, kit.cipher);
+        return committeeState(found, committeeSeats(room.name), room.days);
+      }),
+    ),
+  );
+}
+
 /** Where a committee stands, from its stream. */
 export async function readCommittee(
   held: HeldWorld,
@@ -110,17 +136,8 @@ export async function readCommittee(
   kit: WorldKit,
   send: Send = worldRequest,
 ): Promise<CommitteeState> {
-  const { name, days } = room;
-  if (name.world !== held.world) throw new RangeError('A committee is of the world held');
-  const { space } = await kitStep(() => spaceOf(name, kit));
-  const empty = () => ({ status: 200, body: { batches: [], more: false }, retryAfter: null });
-  const batches = await spaceBatches(held.world, space, readingMissing(held.world, send, empty));
-  return kitStep(async () => {
-    const { place, reading } = await read(held, room, kit);
-    const there = batches.get(place.stream) ?? [];
-    const found = await readVotes(place, there, reading, kit.verify, kit.cipher);
-    return committeeState(found, committeeSeats(name), days);
-  });
+  const [state] = await readCommittees(held, [room], kit, send);
+  return state;
 }
 
 /** Signs a seat's vote, an item of the plan or null for no cut, on the world's date, and puts it there once. */

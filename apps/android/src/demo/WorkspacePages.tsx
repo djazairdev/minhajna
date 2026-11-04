@@ -54,6 +54,7 @@ import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
+import { MinistryThresholds } from '../ministry/MinistryThresholds';
 import { MinistryTotals } from '../ministry/MinistryTotals';
 import { OpsAdminLog } from '../operators/OpsAdminLog';
 import { OpsConsole } from '../operators/OpsConsole';
@@ -130,6 +131,19 @@ export function workspacePage(
       <DirectorateThresholds
         world={open}
         school={school}
+        held={held}
+        reference={reference}
+        bundled={bundled}
+        kit={kit}
+        send={send}
+        dayText={dayText}
+        updates={props.updates}
+      />
+    );
+  if (workspace === 'ministry' && page === 'thresholds')
+    return (
+      <MinistryThresholds
+        world={open}
         held={held}
         reference={reference}
         bundled={bundled}

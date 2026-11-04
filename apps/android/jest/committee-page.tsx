@@ -48,13 +48,19 @@ export function onDay(world: string, day: Day) {
 export function putShares(
   world: string,
   day: Day,
-  counts: Record<string, number> | ((school: number) => Record<string, number>),
-  { subject = 'math', teachers = 2, closed = 3 }: { subject?: string; teachers?: number; closed?: number } = {},
+  counts: Record<string, number> | ((school: number, directorate: string) => Record<string, number>),
+  options: {
+    readonly subject?: string;
+    readonly teachers?: number;
+    readonly closed?: number;
+    readonly directorates?: readonly string[];
+  } = {},
 ) {
-  for (const directorate of [SCOPE, 'dir-2']) {
+  const { subject = 'math', teachers = 2, closed = 3, directorates = [SCOPE, 'dir-2'] } = options;
+  for (const directorate of directorates) {
     for (let school = 0; school < 4; school += 1) {
       const id = randomBytes(32).toString('hex');
-      const items = typeof counts === 'function' ? counts(school) : counts;
+      const items = typeof counts === 'function' ? counts(school, directorate) : counts;
       const figure = {
         teachers,
         vacantPosts: 0,
@@ -90,7 +96,6 @@ export const pageOf = (
     reference={reference}
     schools={schools}
     packs={reference.packs}
-    lead="A made-up lead"
     read={(day) => readTotals(world, day, SCOPE, send)}
     kit={kit}
     send={send}

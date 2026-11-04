@@ -6544,7 +6544,6 @@
       "ended": "L’année scolaire est terminée : les salles de ses examens ne sont plus lues ici."
     },
     "committee": {
-      "lead": "Les examens de la direction avec une commission : les chiffres des classes au jour des chiffres, puis la signature de chaque siège. Le système ne fixe jamais de seuil.",
       "reading": "Lecture de la commission…",
       "signing": "Signature du vote…",
       "keys": "Les clés de ce monde ne sont pas encore sur cet appareil : ses commissions ne peuvent pas être lues.",
@@ -6558,7 +6557,11 @@
       "chart": "Part des classes ayant atteint chaque élément, le {{day}} (%)",
       "series": {
         "figures": "Au jour des chiffres, {{day}} (%)",
-        "termEnd": "En fin de trimestre, {{day}}, pour comparaison (%)"
+        "termEnd": "En fin de trimestre, {{day}}, pour comparaison (%)",
+        "low": "Wilaya la plus basse (%)",
+        "middleLow": "Moitié du milieu, de (%)",
+        "middleHigh": "Moitié du milieu, à (%)",
+        "high": "Wilaya la plus haute (%)"
       },
       "marks": {
         "every": "Toutes les classes avaient atteint {{item}}.",
@@ -6580,19 +6583,42 @@
       "done": "Signé pour {{seat}} : jusqu’à {{item}}.",
       "noneDone": "Signé pour {{seat}} : pas de seuil pour cet examen.",
       "signNote": "Signé avec la clé du siège, que cette démo dérive de la clé de scellement du monde ; un vrai système donne à chaque membre sa propre clé.",
-      "sees": "Avant l’examen, seuls la commission et le service des examens voient le seuil. Chaque appareil d’un monde de démo détient ses clés : c’est ici une règle des pages.",
       "publishes": "Un seuil adopté est publié après le {{to}}, avec les chiffres du {{figures}}.",
-      "published": "L’examen s’est terminé le {{to}} : le seuil est publié avec les chiffres du {{figures}}, et chaque enseignant de la matière à ce niveau le voit.",
       "closed": "Le seuil ne peut plus être signé : la date limite est passée ou une majorité a tranché.",
       "notes": {
         "never": "Le système ne fixe jamais de seuil : sans majorité, le sujet est établi comme d’habitude.",
         "termEnds": "Les fins de trimestre servent seulement de comparaison, et aucune ligne du plan n’est tracée.",
-        "floors": "Aucun chiffre ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 établissements, et ce qui est plus petit est masqué.",
         "unchecked": "Ces chiffres ne sont pas vérifiés : cette démo n’a pas d’échantillon des inspecteurs pour les comparer.",
         "rank": "Rien ici ne sert à évaluer ou à classer qui que ce soit."
       },
       "chartEnds": "Part des classes ayant atteint chaque élément, le {{day}} et aux fins de trimestre précédentes (%)",
-      "noCut": "Pas de seuil pour cet examen"
+      "noCut": "Pas de seuil pour cet examen",
+      "subjects": "Les commissions des matières",
+      "status": {
+        "none": "Non proposé",
+        "proposed": "Proposé · {{count}} signatures sur {{seats}}",
+        "adopted": "Adopté",
+        "lapsed": "Non adopté"
+      },
+      "range": "Les wilayas apparaissent en étendue, jamais nommées ni classées : toutes, et la moitié du milieu.",
+      "noRange": "Moins de 8 wilayas affichent ce chiffre : seul celui du pays apparaît.",
+      "level": {
+        "directorate": {
+          "lead": "Les examens de la direction avec une commission : les chiffres des classes au jour des chiffres, puis la signature de chaque siège. Le système ne fixe jamais de seuil.",
+          "viewer": "Vous agissez ici comme la commission de la direction pour {{subject}} : cette démo joue ses sièges.",
+          "sees": "Avant l’examen, seuls la commission et le service des examens voient le seuil. Chaque appareil d’un monde de démo détient ses clés : c’est ici une règle des pages.",
+          "published": "L’examen s’est terminé le {{to}} : le seuil est publié avec les chiffres du {{figures}}, et chaque enseignant de la matière à ce niveau le voit.",
+          "floors": "Aucun chiffre ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 établissements, et ce qui est plus petit est masqué."
+        },
+        "national": {
+          "lead": "Les examens nationaux avec une commission : les chiffres du pays au jour des chiffres, les wilayas en étendue, puis la signature de chaque siège. Le système ne fixe jamais de seuil.",
+          "viewer": "Vous agissez ici comme la commission nationale pour {{subject}} : cette démo joue ses sièges.",
+          "sees": "Avant l’examen, seuls la commission et l’organisme qui organise l’examen voient le seuil. Chaque appareil d’un monde de démo détient ses clés : c’est ici une règle des pages.",
+          "published": "L’examen s’est terminé le {{to}} : le seuil est publié pour le public avec les chiffres du {{figures}}.",
+          "floors": "Aucun chiffre ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 10 enseignants et 3 établissements, et ce qui est plus petit est masqué."
+        }
+      },
+      "statusLine": "{{subject}} : {{status}}"
     }
   },
   "chart": {

@@ -6449,7 +6449,6 @@
       "ended": "The school year has ended: its exams’ rooms are no longer read here."
     },
     "committee": {
-      "lead": "The directorate’s exams with a committee: the classes’ figures on the figures day, then each seat’s signature. The system never sets a cut.",
       "reading": "Reading the committee…",
       "signing": "Signing the vote…",
       "keys": "This world’s keys are not held on this device yet, so its committees cannot be read.",
@@ -6463,7 +6462,11 @@
       "chart": "Share of the classes that reached each item, on {{day}} (%)",
       "series": {
         "figures": "On the figures day, {{day}} (%)",
-        "termEnd": "At the term’s end, {{day}}, for comparison (%)"
+        "termEnd": "At the term’s end, {{day}}, for comparison (%)",
+        "low": "Lowest wilaya (%)",
+        "middleLow": "Middle half, from (%)",
+        "middleHigh": "Middle half, to (%)",
+        "high": "Highest wilaya (%)"
       },
       "marks": {
         "every": "Every class had reached {{item}}.",
@@ -6485,19 +6488,42 @@
       "done": "Signed for {{seat}}: up to {{item}}.",
       "noneDone": "Signed for {{seat}}: no cut for this exam.",
       "signNote": "Signed with the seat’s key, which this demo derives from the world’s sealing key; a real system gives each member a key of their own.",
-      "sees": "Before the exam, only the committee and the exams office see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
       "publishes": "A cut adopted is published after {{to}}, with the figures of {{figures}}.",
-      "published": "The exam ended on {{to}}: the cut is published with the figures of {{figures}}, and every teacher of the subject at this grade sees it.",
       "closed": "The cut can no longer be signed: the signing deadline has passed or a majority has decided.",
       "notes": {
         "never": "The system never sets a cut: without a majority the paper is set as usual.",
         "termEnds": "The term ends are for comparison only, and no line of the plan is drawn.",
-        "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is held back.",
         "unchecked": "These figures are unchecked: this demo has no sample of the inspectors’ to compare them with.",
         "rank": "Nothing here is used to evaluate or rank anyone."
       },
       "chartEnds": "Share of the classes that reached each item, on {{day}} and at the term ends before it (%)",
-      "noCut": "No cut for this exam"
+      "noCut": "No cut for this exam",
+      "subjects": "The subjects’ committees",
+      "status": {
+        "none": "Not proposed",
+        "proposed": "Proposed · {{count}} of {{seats}} signatures",
+        "adopted": "Adopted",
+        "lapsed": "Not adopted"
+      },
+      "range": "The wilayas show as a range, never named or ranked: all of them, and the middle half.",
+      "noRange": "Fewer than 8 wilayas show this figure, so only the nation’s shows.",
+      "level": {
+        "directorate": {
+          "lead": "The directorate’s exams with a committee: the classes’ figures on the figures day, then each seat’s signature. The system never sets a cut.",
+          "viewer": "You act here as the directorate’s committee for {{subject}}: this demo plays its seats.",
+          "sees": "Before the exam, only the committee and the exams office see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
+          "published": "The exam ended on {{to}}: the cut is published with the figures of {{figures}}, and every teacher of the subject at this grade sees it.",
+          "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is held back."
+        },
+        "national": {
+          "lead": "The national exams with a committee: the nation’s figures on the figures day, the wilayas as a range, then each seat’s signature. The system never sets a cut.",
+          "viewer": "You act here as the national committee for {{subject}}: this demo plays its seats.",
+          "sees": "Before the exam, only the committee and the body that runs the exam see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
+          "published": "The exam ended on {{to}}: the cut is published to the public with the figures of {{figures}}.",
+          "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 10 teachers and 3 schools, and anything smaller is held back."
+        }
+      },
+      "statusLine": "{{subject}}: {{status}}"
     }
   },
   "chart": {

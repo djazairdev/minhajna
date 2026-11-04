@@ -13,23 +13,26 @@ import { useEffect, useEffectEvent, useState } from 'react';
 import type { DirectorateFigures } from '../directorate/totals-read';
 import { problemOf } from '../school/school-join-session';
 
+/** A level's figures for a day, with each wilaya's for the nation. */
+export type LevelFigures = DirectorateFigures & { readonly wilayas?: readonly DirectorateFigures[] };
+
 /** Each day's figures in the order asked, null when not added up; undefined while read or after a problem. */
 export interface CommitteeFiguresRead {
-  readonly figures: readonly (DirectorateFigures | null)[] | undefined;
+  readonly figures: readonly (LevelFigures | null)[] | undefined;
   readonly problem: ReturnType<typeof problemOf> | null;
   readonly reading: boolean;
   readonly again: () => void;
 }
 
 type Got = { readonly key: string } & (
-  { readonly figures: readonly (DirectorateFigures | null)[] } | { readonly problem: ReturnType<typeof problemOf> }
+  { readonly figures: readonly (LevelFigures | null)[] } | { readonly problem: ReturnType<typeof problemOf> }
 );
 
 /** Each day's figures, as `read` reads a day, for a place on the world's date. */
 export function useCommitteeFigures(
   place: string,
   days: readonly Day[],
-  read: (day: Day) => Promise<DirectorateFigures | null>,
+  read: (day: Day) => Promise<LevelFigures | null>,
 ): CommitteeFiguresRead {
   const [round, setRound] = useState(0);
   const [got, setGot] = useState<Got | null>(null);
