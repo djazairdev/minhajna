@@ -25,7 +25,7 @@ import { seededKeyOf, takeSeededKey } from '../src/director/seeded-key';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { openRecordBook } from '../src/storage/history';
 import { chartDrafts } from '../src/threshold/exam-charts';
-import { ownExams } from '../src/threshold/own-exams';
+import { overExams, ownExams } from '../src/threshold/own-exams';
 
 /** The exams above the school the phone works out. */
 const aboveOf = (...args: Parameters<typeof ownExams>) =>
@@ -109,6 +109,20 @@ test('lists the school’s exams before their figures day, gone on it', async ()
   ]);
   const on = ownExams(weeks, school, reference, school2.figuresDay).map((one) => one.exam.id);
   expect(on).not.toContain(school2.id);
+}, 120_000);
+
+test('an exam above the school moves to the over list the day after its last day, the teacher’s classes in it', async () => {
+  const { school, weeks } = await filled();
+  const mock = worldExams(reference.calendar.year, reference.calendar.entries).find((one) => one.id === 'mock')!;
+  expect(overExams(weeks, school, reference, mock.to).map((one) => one.exam.id)).toEqual([]);
+  const after = addDays(mock.to, 1);
+  const over = overExams(weeks, school, reference, after).filter((one) => one.exam.id === 'mock');
+  expect(over.map((one) => [one.asOf, one.charts.map((chart) => [chart.subject, chart.grade])])).toEqual([
+    [mock.figuresDay, [['arabic', '4am']]],
+  ]);
+  expect(over[0].charts[0].classes.map((one) => one.name)).toEqual(['4AM1']);
+  expect(overExams(weeks, school, reference, after).every((one) => one.exam.setBy !== 'school')).toBe(true);
+  expect(aboveOf(weeks, school, reference, after).map((one) => one.exam.id)).not.toContain('mock');
 }, 120_000);
 
 test('a teacher whose classes sit neither exam above the school sees none of those', async () => {

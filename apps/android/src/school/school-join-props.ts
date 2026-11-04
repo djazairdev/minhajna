@@ -5,11 +5,11 @@
 // the way to the server, the trial term, the year, the way back, and what the
 // joined card's pages need of the world, its school and its calendar.
 
-import type { ExamThresholdsProps } from '../threshold/ExamThresholds';
 import type { CalendarUpdate, Day, DemoSchool, Subject, TrialTerm, Weekday } from '@minhajna/core';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
+import type { ExamThresholdsProps } from '../threshold/ExamThresholds';
 import type { MineCalendar } from '../week/school-mine-session';
 
 export type SchoolJoinProps = {
