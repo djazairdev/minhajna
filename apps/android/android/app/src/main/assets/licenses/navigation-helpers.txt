@@ -23,8 +23,8 @@ Navigation dependency notices: native screens and helpers (part 2)
 standard-navigation 0.0.9 includes LICENSE in its locked npm archive.
 Source: https://github.com/react-navigation/standard-navigation/tree/4ebc8b3229da88cb6ade1ff4484491915bedd7cc
 
-react-native-screens 4.30.0
-https://registry.npmjs.org/react-native-screens/4.30.0
+react-native-screens 4.30.1
+https://registry.npmjs.org/react-native-screens/4.30.1
 
 The MIT License (MIT)
 

@@ -14,8 +14,8 @@ React and React Native notices: safe areas and JavaScript helpers (part 2)
 React Native bundles these helpers into the app, and @babel/runtime holds the
 helpers its compiler adds.
 
-react-native-safe-area-context 5.10.1
-https://registry.npmjs.org/react-native-safe-area-context/5.10.1
+react-native-safe-area-context 5.11.0
+https://registry.npmjs.org/react-native-safe-area-context/5.11.0
 
 MIT License
 
