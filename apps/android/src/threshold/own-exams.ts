@@ -13,8 +13,12 @@
 // and on the figures day from then on, each class matched by its name key, its
 // spellings together, and counted only when its teacher signed a week of it in
 // that subject; an exam none of whose classes is the teacher's is left out.
-// There is no cut on the phone for these exams: a school exam's comes with its
-// room.
+// These exams have no cut on the phone until they are over: a school exam's
+// comes with its room, and once an exam above the school is over, the grades
+// and subjects the teacher signed weeks in for a class that sits it are listed
+// apart (overExams), for the committee's cut as published (#606, answer 640,
+// over-cuts.ts), worked out without the charts, so a class on a pack of its own
+// counts too.
 
 import {
   addDays,
@@ -77,4 +81,34 @@ export function ownExams(
     if (charts.length > 0) found.push({ exam, asOf, charts });
   }
   return found;
+}
+
+/** An exam above the school that is over, and the grades and subjects the teacher signed weeks in for its classes. */
+export interface OverExam {
+  readonly exam: WorldExam;
+  readonly rows: readonly { readonly subject: string; readonly grade: string }[];
+}
+
+/** The exams above the school that are over, with the teacher's grades and subjects in them. */
+export function overExams(
+  weeks: readonly Pick<WeekRecord, 'class' | 'totals'>[],
+  school: Pick<DemoSchool, 'classes'>,
+  reference: TermReference,
+  date: Day,
+): OverExam[] {
+  const { year, entries } = reference.calendar;
+  return worldExams(year, entries)
+    .filter((exam) => exam.setBy !== 'school' && compareDays(date, exam.to) > 0)
+    .flatMap((exam) => {
+      const rows = new Map<string, { subject: string; grade: string }>();
+      for (const { name, grade } of school.classes) {
+        if (!exam.grades.includes(grade)) continue;
+        const key = timetableNameKey(name);
+        for (const week of weeks) {
+          const { subject } = week.totals;
+          if (timetableNameKey(week.class) === key) rows.set(`${subject}\n${grade}`, { subject, grade });
+        }
+      }
+      return rows.size > 0 ? [{ exam, rows: [...rows.values()] }] : [];
+    });
 }
