@@ -159,7 +159,7 @@ test('the cut is named by the committee’s plan, where the seeded schools pin o
   expect(cut.room.items).toEqual(plan.items.map((one) => one.id));
   expect(cut.room.name.scope).toBe(directorate);
   expect(cut.room.lastDay).toBe(mock.to);
-  const [national] = overCuts(world, [{ ...over[0], exam: bem }] directorate, schools, reference.packs);
+  const [national] = overCuts(world, [{ ...over[0], exam: bem }], directorate, schools, reference.packs);
   expect(national.room.name.scope).toBe(NATIONAL_COMMITTEE);
   const [own] = overCuts(world, over, directorate, [], reference.packs);
   expect(own.plan).toBe(chart);

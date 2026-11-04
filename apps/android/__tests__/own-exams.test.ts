@@ -111,7 +111,7 @@ test('lists the school’s exams before their figures day, gone on it', async ()
   expect(on).not.toContain(school2.id);
 }, 120_000);
 
-test('an exam above the school moves to the over list the day after its last day, the teacher’s classes in it', async () => {
+test('an exam above the school is over the day after its last day, with the teacher’s classes', async () => {
   const { school, weeks } = await filled();
   const mock = worldExams(reference.calendar.year, reference.calendar.entries).find((one) => one.id === 'mock')!;
   expect(overExams(weeks, school, reference, mock.to).map((one) => one.exam.id)).toEqual([]);
