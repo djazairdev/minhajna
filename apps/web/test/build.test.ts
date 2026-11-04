@@ -52,12 +52,20 @@ describe('the web bundle', () => {
 
   it('ships a local PDF worker and only permitted source-viewing assets', () => {
     assert.ok('pdf-worker.js' in first.files);
+    const viewer = Object.keys(first.files).find((name) => /^pdf-[A-Z0-9]+\.js$/u.test(name));
+    assert.ok(viewer);
+    assert.ok(text('app.js').includes(`import("./${viewer}")`));
+    assert.ok(Object.keys(first.files).every((name) => !name.endsWith('.icc')));
     for (const name of Object.keys(first.files)) assert.notEqual(typeOf(name), undefined, name);
     assert.ok(Object.keys(first.files).some((name) => name.endsWith('.bcmap')));
     assert.ok(Object.keys(first.files).some((name) => name.endsWith('FoxitSymbol.pfb')));
+    assert.ok('pdf-assets/decoders/openjpeg_nowasm_fallback.js' in first.files);
+    assert.ok(Object.keys(first.files).every((name) => !name.endsWith('.wasm')));
     assert.ok(Object.keys(first.files).every((name) => !name.includes('Liberation')));
     const licences = text('licences.json');
     assert.ok(licences.includes('pdfjs-dist 6.5.438') && licences.includes('PDF.js standard_fonts'));
+    assert.match(text('pdf-assets/decoders/LICENSE.txt'), /Mozilla Foundation/u);
+    assert.match(text('pdf-assets/decoders/LICENSE.txt'), /Universite catholique de Louvain/u);
     assert.match(text('pdf-worker.js'), /indexedDB/u);
   });
 

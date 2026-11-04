@@ -4,10 +4,6 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 ## Unreleased
 
-### New
-
-- The curator’s PC workspace can key source-plan drafts beside local PDF pages, retype source numbers, and save signed draft revisions in a demo world (#613).
-
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### Fixed

@@ -72,6 +72,18 @@ test('an immutable reference identity cannot be created as a new world draft', a
   await act(async () => {
     expect(await desk.save(source, 0)).toBeNull();
   });
-  expect(desk.error).toBe(true);
+  expect(desk.problem).toBe('saveError');
   expect(f.server.seen.some((one) => one.method === 'POST')).toBe(false);
+});
+
+test('an oversized draft has a size message and can be shortened without reloading', async () => {
+  const f = await packService();
+  await show(<Probe editor={f.editor} send={f.server.send} />);
+  await drain();
+  const large = { ...source, provenance: { ...source.provenance, issuer: 'x'.repeat(300_000) } };
+  await act(async () => {
+    expect(await desk.save(large, 0)).toBeNull();
+  });
+  expect(desk.problem).toBe('packSize');
+  expect(desk.ready).toBe(true);
 });

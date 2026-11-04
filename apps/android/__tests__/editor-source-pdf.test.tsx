@@ -53,6 +53,32 @@ test('a picker that finishes after leaving destroys its token', async () => {
   expect(mockPdf.drop.mock.calls).toContainEqual(['late']);
 });
 
+test('a failed page keeps the document open until the worker closes', async () => {
+  mockPdf.pick.mockResolvedValue({ token: 'four-pages', pages: 4 });
+  const image = { uri: 'blob:made-up', width: 600, height: 800, rows: ['Made-up title'] };
+  mockPdf.page
+    .mockResolvedValueOnce(image)
+    .mockRejectedValueOnce(new Error('E_PDF_PAGE'))
+    .mockResolvedValueOnce(image)
+    .mockRejectedValueOnce(new Error('E_PDF_CLOSED'));
+  const pages = jest.fn();
+  await show(<SourcePdf onRow={jest.fn()} onPages={pages} />);
+  await press('pdf-pick');
+  await press('pdf-next');
+  expect(shown('pdf-problem')).toBe(true);
+  expect(shown('pdf-image')).toBe(false);
+  expect(pages.mock.calls).toEqual([[4]]);
+  expect(mockPdf.drop.mock.calls).toEqual([]);
+  await press('pdf-next');
+  expect(mockPdf.page.mock.calls.at(-1)).toEqual(['four-pages', 3, 1]);
+  expect(shown('pdf-image')).toBe(true);
+  expect(shown('pdf-problem')).toBe(false);
+  await press('pdf-next');
+  expect(pages.mock.calls).toEqual([[4], [null]]);
+  expect(shown('pdf-next')).toBe(false);
+  expect(shown('pdf-problem')).toBe(true);
+});
+
 test('an extracted title and every number need independent re-entry against the page', async () => {
   const save = jest.fn();
   await show(

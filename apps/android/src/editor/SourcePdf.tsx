@@ -40,7 +40,7 @@ export function SourcePdf({
     null,
   );
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<'pdfError' | 'pdfPageError' | null>(null);
   const alive = useRef(true);
   const token = useRef<string | null>(null);
   const choosing = useRef(false);
@@ -59,10 +59,16 @@ export function SourcePdf({
       .then((answer) => {
         if (current) setImage(answer);
       })
-      .catch(() => {
-        if (current) {
-          setError(true);
+      .catch((cause: unknown) => {
+        if (!current) return;
+        setImage(null);
+        if (cause instanceof Error && cause.message === 'E_PDF_CLOSED') {
+          setError('pdfError');
+          token.current = null;
+          setSource(null);
           onPages(null);
+        } else {
+          setError('pdfPageError');
         }
       })
       .finally(() => {
@@ -76,7 +82,7 @@ export function SourcePdf({
     if (disabled || choosing.current || PdfSource == null) return;
     choosing.current = true;
     setBusy(true);
-    setError(false);
+    setError(null);
     let started = false;
     try {
       const next = await PdfSource.pick();
@@ -94,7 +100,7 @@ export function SourcePdf({
       setSource(next);
       onPages(next.pages);
     } catch {
-      if (alive.current) setError(true);
+      if (alive.current) setError('pdfError');
     } finally {
       choosing.current = false;
       if (alive.current && !started) setBusy(false);
@@ -106,7 +112,7 @@ export function SourcePdf({
     setSource(null);
     setImage(null);
     onPages(null);
-    setError(false);
+    setError(null);
     setBusy(false);
   };
   return (
@@ -135,7 +141,7 @@ export function SourcePdf({
               onPress={() => {
                 setBusy(true);
                 setImage(null);
-                setError(false);
+                setError(null);
                 setPage((old) => old - 1);
               }}
             />
@@ -147,7 +153,7 @@ export function SourcePdf({
               onPress={() => {
                 setBusy(true);
                 setImage(null);
-                setError(false);
+                setError(null);
                 setPage((old) => old + 1);
               }}
             />
@@ -160,7 +166,7 @@ export function SourcePdf({
               if (!busy && value !== scale) {
                 setBusy(true);
                 setImage(null);
-                setError(false);
+                setError(null);
                 setScale(value);
               }
             }}
@@ -177,9 +183,9 @@ export function SourcePdf({
           {t('editorItem.pdfLoading')}
         </Text>
       )}
-      {error && (
-        <Text accessibilityRole="alert" style={s.error}>
-          {t('editorItem.pdfError')}
+      {error !== null && (
+        <Text testID="pdf-problem" accessibilityRole="alert" style={s.error}>
+          {t(`editorItem.${error}`)}
         </Text>
       )}
       {image !== null && (

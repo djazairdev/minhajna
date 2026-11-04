@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The provisional structure form cannot save unchecked activity counts,
-// remove a used template, or silently drop the weekly model on an anchor change.
+// remove a used template, or drop the weekly model on an anchor change.
 
 import { StructureForm } from '../src/editor/StructureForm';
 import { missingKeys } from '../src/text/i18n';
@@ -37,7 +37,7 @@ test('changing the weekly count clears its second entry', async () => {
   expect(save.mock.calls[0][0].activities?.[0]?.sessions).toBe(3);
 });
 
-test('changing an anchor keeps the model until it is explicitly removed', async () => {
+test('changing an anchor keeps the weekly model while an item uses it', async () => {
   const save = jest.fn((pack: import('@minhajna/core').PlanPack) => pack);
   await show(<StructureForm pack={weekly} onSave={save} onCancel={() => undefined} />);
   await press('structure-anchor-budgets');
@@ -47,8 +47,8 @@ test('changing an anchor keeps the model until it is explicitly removed', async 
   expect(save).not.toHaveBeenCalled();
   await press('structure-activity-remove-0');
   await press('structure-save');
-  expect(save.mock.calls[0][0].activities).toBeUndefined();
-  expect(save.mock.calls[0][0].anchor).toEqual({ kind: 'budgets', unit: 'sessions' });
+  expect(save).not.toHaveBeenCalled();
+  expect(shown('structure-problems')).toBe(true);
 });
 
 test('a used template cannot be silently removed', async () => {
