@@ -4,15 +4,15 @@
 // The observatory's figures (#626, answer 678): for each pack and release of a
 // term, in order, the nation's figure and each shown wilaya's, with classes,
 // teachers, schools, the median and quartiles of how far classes got, and by
-// item its classes, the median of the sessions logged on it, only when the
-// classes that logged any cover the floor, and its shares in bands; a figure
-// under 10 teachers or 3 schools hidden, and another with it when the nation's
-// would reveal it by subtraction, a hidden wilaya left out; an item hidden
-// under the floors and by subtraction within figures shown, two wilayas under
-// the floor kept in an item's sum; every figure listing the same items, at most
-// 512, those of the most classes, null where hidden or not held; other terms
-// and years left out, and grades, subjects, packs and releases never added
-// together. Every sending here is made up.
+// item its classes, the median of the sessions logged on it, a zero being none
+// logged, only when the classes that logged any cover the floor, and its shares
+// in bands; a figure under 10 teachers or 3 schools hidden, and another with it
+// when the nation's would reveal it by subtraction, a hidden wilaya left out;
+// an item hidden under the floors and by subtraction within figures shown, two
+// wilayas under the floor kept in an item's sum; every figure listing the same
+// items, at most 512, those of the most classes, null where hidden or not held;
+// other terms and years left out, and grades, subjects, packs and releases
+// never added together. Every sending here is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -178,6 +178,23 @@ describe('the observatory’s figures', () => {
     assert.deepEqual(Object.keys(three.wilayas), ['30', '40']);
     assert.equal(shown(three.wilayas['30']).items['s1-w8']?.classes, 12);
     assert.equal(shown(three.wilayas['40']).items['s1-w8']?.classes, 12);
+  });
+
+  it('leaves a class that logged no session on an item out of its median, not out of its classes', () => {
+    const none = { merged: [], skipped: [], split: [], retaught: [] };
+    const merged = { sessions: { 's1-w1': 0, 's1-w2': 10 }, changed: { ...none, merged: ['s1-w1'] } };
+    const taught = { sessions: { 's1-w1': 7, 's1-w2': 10 }, changed: none };
+    const most = termFigures([...classes('16', 18, 4, merged), ...classes('16', 12, 3, taught)], '2027-2028', 1)[0]!;
+    const item = shown(most.nation).items['s1-w1'];
+    assert.equal(item?.classes, 30);
+    assert.equal(item?.sessions, 7);
+    assert.deepEqual(item?.merged, [50, 70]);
+    const few = termFigures([...classes('16', 25, 4, merged), ...classes('16', 5, 1, taught)], '2027-2028', 1)[0]!;
+    assert.equal(shown(few.nation).items['s1-w1']?.classes, 30);
+    assert.equal(shown(few.nation).items['s1-w1']?.sessions, null);
+    const nobody = termFigures(classes('16', 30, 4, merged), '2027-2028', 1)[0]!;
+    assert.equal(shown(nobody.nation).items['s1-w1']?.classes, 30);
+    assert.equal(shown(nobody.nation).items['s1-w1']?.sessions, null);
   });
 
   it('gives a median of sessions only when the classes that logged them cover the floor', () => {
