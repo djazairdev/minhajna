@@ -6447,6 +6447,55 @@
       "shown": "Shown below.",
       "lapsed": "The decision closed when the exam began without it being taken: no cut applies, and the paper is set as usual.",
       "ended": "The school year has ended: its exams’ rooms are no longer read here."
+    },
+    "committee": {
+      "lead": "The directorate’s exams with a committee: the classes’ figures on the figures day, then each seat’s signature. The system never sets a cut.",
+      "reading": "Reading the committee…",
+      "signing": "Signing the vote…",
+      "keys": "This world’s keys are not held on this device yet, so its committees cannot be read.",
+      "none": "No figures day of these exams has come yet: the committee opens on an exam’s figures day.",
+      "noPlan": "No class of this grade pins a plan this workspace holds, so there is no committee to open.",
+      "subject": "Subject",
+      "dates": "The figures were taken on {{figures}}, a vote counts until {{signBy}}, and the exam starts on {{from}}.",
+      "notYet": "The totals for this subject and grade are not added up yet: no school’s share for that day holds them.",
+      "hidden": "The totals for this subject and grade are hidden: they cover fewer than 5 teachers or 3 schools, or would let a hidden figure be worked out.",
+      "counts": "Teachers: {{teachers}} · classes: {{classes}} · schools: {{schools}}",
+      "chart": "Share of the classes that reached each item, on {{day}} and at the term ends before it (%)",
+      "series": {
+        "figures": "On the figures day, {{day}} (%)",
+        "termEnd": "At the term’s end, {{day}}, for comparison (%)"
+      },
+      "marks": {
+        "every": "Every class had reached {{item}}.",
+        "everyNone": "No item shown here was reached by every class.",
+        "ninety": "Nine classes in ten had reached {{item}}.",
+        "half": "Half the classes had reached {{item}}."
+      },
+      "closures": "Sessions lost to closures in this subject: {{count}}, counted from the calendar and closure notices.",
+      "cut": "The committee’s cut",
+      "state": {
+        "adopted": "Adopted on {{day}} by {{count}} of {{seats}} seats: the paper covers up to {{item}}. This is final.",
+        "adoptedNone": "Adopted on {{day}} by {{count}} of {{seats}} seats: no cut for this exam. This is final.",
+        "proposed": "Up to {{item}} is proposed. Seats that name it: {{count}} of {{seats}}.",
+        "lapsed": "The signing deadline passed with no majority: no cut was adopted, and the paper is set as usual."
+      },
+      "majority": "A cut is adopted when {{majority}} of the {{seats}} seats name the same item, or no cut.",
+      "seats": "Seat",
+      "seat": "Inspector’s post {{n}}",
+      "done": "Signed for {{seat}}: up to {{item}}.",
+      "noneDone": "Signed for {{seat}}: no cut for this exam.",
+      "signNote": "Signed with the seat’s key, which this demo derives from the world’s sealing key; a real system gives each member a key of their own.",
+      "sees": "Before the exam, only the committee and the exams office see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
+      "publishes": "It will be published after {{to}}, with the figures of {{figures}}.",
+      "published": "The exam ended on {{to}}: the cut is published with the figures of {{figures}}.",
+      "closed": "The cut can no longer be signed: the signing deadline has passed or a majority has adopted a cut.",
+      "notes": {
+        "never": "The system never sets a cut: without a majority the paper is set as usual.",
+        "termEnds": "The term ends are for comparison only, and no line of the plan is drawn.",
+        "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is held back.",
+        "unchecked": "These figures are unchecked: this demo has no sample of the inspectors’ to compare them with.",
+        "rank": "Nothing here is used to evaluate or rank anyone."
+      }
     }
   },
   "chart": {

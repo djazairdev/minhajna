@@ -6542,6 +6542,55 @@
       "shown": "Affichée ci-dessous.",
       "lapsed": "La décision s’est close au début de l’examen sans avoir été prise : aucun seuil ne s’applique, et le sujet est préparé comme d’habitude.",
       "ended": "L’année scolaire est terminée : les salles de ses examens ne sont plus lues ici."
+    },
+    "committee": {
+      "lead": "Les examens de la direction avec une commission : les chiffres des classes au jour des chiffres, puis la signature de chaque siège. Le système ne fixe jamais de seuil.",
+      "reading": "Lecture de la commission…",
+      "signing": "Signature du vote…",
+      "keys": "Les clés de ce monde ne sont pas encore sur cet appareil : ses commissions ne peuvent pas être lues.",
+      "none": "Aucun jour des chiffres de ces examens n’est encore arrivé : la commission s’ouvre au jour des chiffres d’un examen.",
+      "noPlan": "Aucune classe de ce niveau n’épingle un plan que cet espace détient : il n’y a pas de commission à ouvrir.",
+      "subject": "Matière",
+      "dates": "Les chiffres ont été pris le {{figures}}, un vote compte jusqu’au {{signBy}}, et l’examen commence le {{from}}.",
+      "notYet": "Les totaux de cette matière et de ce niveau ne sont pas encore additionnés : aucune part d’école de ce jour ne les contient.",
+      "hidden": "Les totaux de cette matière et de ce niveau sont masqués : ils couvrent moins de 5 enseignants ou 3 écoles, ou permettraient de déduire un chiffre masqué.",
+      "counts": "Enseignants : {{teachers}} · classes : {{classes}} · écoles : {{schools}}",
+      "chart": "Part des classes ayant atteint chaque élément, le {{day}} et aux fins de trimestre précédentes (%)",
+      "series": {
+        "figures": "Au jour des chiffres, {{day}} (%)",
+        "termEnd": "En fin de trimestre, {{day}}, pour comparaison (%)"
+      },
+      "marks": {
+        "every": "Toutes les classes avaient atteint {{item}}.",
+        "everyNone": "Aucun élément affiché ici n’a été atteint par toutes les classes.",
+        "ninety": "Neuf classes sur dix avaient atteint {{item}}.",
+        "half": "La moitié des classes avaient atteint {{item}}."
+      },
+      "closures": "Séances perdues pour fermeture dans cette matière : {{count}}, comptées d’après le calendrier et les avis de fermeture.",
+      "cut": "Le seuil de la commission",
+      "state": {
+        "adopted": "Adopté le {{day}} par {{count}} sièges sur {{seats}} : l’épreuve couvre jusqu’à {{item}}. C’est définitif.",
+        "adoptedNone": "Adopté le {{day}} par {{count}} sièges sur {{seats}} : pas de seuil pour cet examen. C’est définitif.",
+        "proposed": "Jusqu’à {{item}} est proposé. Sièges qui le nomment : {{count}} sur {{seats}}.",
+        "lapsed": "La date limite de signature est passée sans majorité : aucun seuil n’a été adopté, et l’épreuve est établie comme d’habitude."
+      },
+      "majority": "Un seuil est adopté quand {{majority}} des {{seats}} sièges nomment le même élément, ou l’absence de seuil.",
+      "seats": "Siège",
+      "seat": "Poste d’inspecteur {{n}}",
+      "done": "Signé pour {{seat}} : jusqu’à {{item}}.",
+      "noneDone": "Signé pour {{seat}} : pas de seuil pour cet examen.",
+      "signNote": "Signé avec la clé du siège, que cette démo dérive de la clé de scellement du monde ; un vrai système donne à chaque membre sa propre clé.",
+      "sees": "Avant l’examen, seuls la commission et le bureau des examens voient le seuil. Chaque appareil d’un monde de démo détient ses clés : c’est ici une règle des pages.",
+      "publishes": "Il sera publié après le {{to}}, avec les chiffres du {{figures}}.",
+      "published": "L’examen s’est terminé le {{to}} : le seuil est publié avec les chiffres du {{figures}}.",
+      "closed": "Le seuil ne peut plus être signé : la date limite est passée ou une majorité a adopté un seuil.",
+      "notes": {
+        "never": "Le système ne fixe jamais de seuil : sans majorité, l’épreuve est établie comme d’habitude.",
+        "termEnds": "Les fins de trimestre servent seulement de comparaison, et aucune ligne du plan n’est tracée.",
+        "floors": "Aucun chiffre ici n’est celui d’une école, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 écoles, et ce qui est plus petit est retenu.",
+        "unchecked": "Ces chiffres ne sont pas vérifiés : cette démo n’a pas d’échantillon des inspecteurs pour les comparer.",
+        "rank": "Rien ici ne sert à évaluer ou à classer qui que ce soit."
+      }
     }
   },
   "chart": {
