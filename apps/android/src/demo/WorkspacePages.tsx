@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The pages of the PC's workspaces in a demo world that have a body yet
-// (world-pages.ts), each for the roles its board lists: the director's
-// dashboard on the seeded school (#569), with who joined (#548) and each
-// class's standing (answer 627) and a way to the school's exam thresholds,
-// those thresholds, where the director decides a cut that falls to them (#603,
+// (world-pages.ts), for the roles its board lists: the director's dashboard on
+// the seeded school (#569), with who joined (#548) and each class's standing
+// (answer 627) and a way to the school's exam thresholds, those thresholds,
+// where the director decides a cut that falls to them (#603,
 // DirectorThresholds.tsx), the codes page that issues joining codes and
 // security keys (#570), the keys page that maps who holds the school key (#571)
 // and fills a taken seeded school's term from the bundled reference data, never
@@ -16,11 +16,11 @@
 // school's term report against its calendar (#589, SchoolDelivery.tsx), the
 // director's assignments and access page for substitutes (#587,
 // SchoolSubstitute.tsx), the director's and the preparer's timetable page
-// (#576, #577, #578), and their own log (#573); any other page has none, and
-// the preparer never opens the records or the cover; the directorate's
-// thresholds page plays its committees' seats (#604,
-// DirectorateThresholds.tsx), and its published page, as the Ministry's, says
-// what is published of the cuts (#606, PublishedCuts.tsx); its grants page
+// (#576, #577, #578), kept for the world it was read in, and their own log
+// (#573); any other page has none, and the preparer never opens the records or
+// the cover; the directorate's thresholds page plays its committees' seats
+// (#604, DirectorateThresholds.tsx), and its published page, as the Ministry's,
+// says what is published of the cuts (#606, PublishedCuts.tsx); its grants page
 // requests inspectors' grants from its schools (#593, DirectorateGrant.tsx) and
 // its totals page says what the system owes teachers on announced days (#598,
 // DirectorateTotals.tsx); and the Ministry's thresholds page plays its national

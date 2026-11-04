@@ -4,11 +4,11 @@
 // What is published of a level's cuts (#606, N-Published, answer 640), against
 // a made-up demo server: nothing before the day after the exam's last day; a
 // cut with its day, the share of the classes that had reached it, the
-// committee's words unchanged and each seat's signature; no cut decided, and
-// none adopted; the figures with the subject chosen, the share held back under
-// the floors; the safeguards, what was not used; a moved exam's two dates and
-// why; a problem said with a way to read again; and each workspace's page.
-// Every world, school and share is made up.
+// committee's words unchanged and the signatures of the seats that adopted it;
+// no cut decided, and none adopted; the figures with the subject chosen, the
+// share held back under the floors; the safeguards, what was not used; a moved
+// exam's two dates and why; a problem said with a way to read again; and each
+// workspace's page. Every world, school and share is made up.
 
 import { addDays, NATIONAL_COMMITTEE, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -36,8 +36,11 @@ import { nodeKit } from '../jest/world-server';
 import { workspacePage, type WorkspacePagesProps } from '../src/demo/WorkspacePages';
 import type { Send } from '../src/demo/world-session';
 import { seededWorld } from '../src/director/director-world';
+import { subjectName } from '../src/extra/extra-rules';
 import { leaveWorldNetwork } from '../src/network/world-network';
+import ar from '../src/text/ar.json';
 import { castVote, committeePlan, putWords } from '../src/threshold/committee-session';
+import type { PublishedCutsProps } from '../src/threshold/PublishedCuts';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -116,6 +119,7 @@ test('the figures come with the subject chosen, and the safeguards and what was 
   const { held, id } = await opened(after);
   await show(publishedOf(held, id, after));
   expect(textsIn('published-figures')).toContain(fill(words.counts, { teachers: 8, classes: 40, schools: 4 }));
+  expect(textsIn('published-figures')).toContain(subjectName(reference.profile, 'math'));
   expect(textsIn('published-figures')).toContain(fill(words.chart, { day: written(day) }));
   const all = texts();
   expect(all).toContain(fill(published.safeguards.announced, { figures: written(day) }));
@@ -143,6 +147,22 @@ test('the share is held back under the floors', async () => {
   expect(math).toContain(published.shareHidden);
 });
 
+test('a single item held back holds back its share', async () => {
+  const { held, id } = await opened(after);
+  await castVote(held, mathRoom(id), 0, items[1], day, nodeKit, server.send);
+  await castVote(held, mathRoom(id), 1, items[1], day, nodeKit, server.send);
+  const grade = { teachers: 8, classes: 40, schools: 4, items: [[items[1], null]] };
+  const read = () => Promise.resolve({ subjects: [['math', { closed: 0, grades: [['4am', grade]] }]] });
+  await show(publishedOf(held, id, after, server.send, { read: read as unknown as PublishedCutsProps['read'] }));
+  expect(textsIn('published-math')).toContain(published.shareHidden);
+});
+
+test('a grade with no plan says so', async () => {
+  const { held, id } = await opened(after);
+  await show(publishedOf(held, id, after, server.send, { schools: [] }));
+  expect(texts()).toContain(words.noPlan);
+});
+
 test('a moved exam says both dates and why', async () => {
   const entries = calendar.entries.map((one) =>
     one.effect === 'exam' && one.term === 3 && one.zone === undefined
@@ -157,10 +177,19 @@ test('a moved exam says both dates and why', async () => {
   const moved = worldExams(calendar.year, entries).find((one) => one.id === 'mock')!;
   const held = await started();
   const date = addDays(moved.to, 1);
-  onDay(held.world, date);
   const made = { ...reference, calendar: { ...calendar, entries } };
+  const old = addDays(mock.to, 1);
+  onDay(held.world, old);
+  await show(publishedOf(held, held.world, old, server.send, { reference: made, updates: [] }));
+  expect(texts()).toContain(published.none);
+  await unmount();
+  onDay(held.world, date);
   await show(publishedOf(held, held.world, date, server.send, { reference: made, updates: [] }));
-  expect(texts().some((text) => text.includes('A made-up reason'))).toBe(true);
+  const all = texts();
+  expect(all.some((text) => text.includes('A made-up reason'))).toBe(true);
+  expect(all.some((text) => text.includes(written(mock.from)) && text.includes(written(moved.from)))).toBe(true);
+  expect(all).not.toContain(ar.demo.thresholds.movedCalendar);
+  expect(all).not.toContain(ar.demo.thresholds.movedFigures);
 });
 
 test('without the keys it says so, and a problem is said with a way to read again', async () => {
@@ -192,7 +221,12 @@ test('each workspace opens its page, the Ministry’s on the national committees
     days: { from: bem.figuresDay, to: bem.signBy },
     lastDay: bem.to,
   };
-  for (const seat of [0, 1, 2]) await castVote(held, room, seat, room.items[1], bem.figuresDay, nodeKit, server.send);
+  for (const place of [0, 1, 2]) await castVote(held, room, place, room.items[1], bem.figuresDay, nodeKit, server.send);
+  onDay(held.world, bem.figuresDay);
+  onDay(held.world, date);
+  const wilayas = Array.from({ length: 8 }, (_, at) => `dir-${at + 1}`);
+  const reached = (_school: number, directorate: string) => ({ [room.items[1]]: Number(directorate.slice(4)) });
+  putShares(held.world, bem.figuresDay, reached, { subject: 'arabic', teachers: 3, directorates: wilayas });
   const props = {
     open: { world: held.world, date },
     school: schools[0],
@@ -209,7 +243,11 @@ test('each workspace opens its page, the Ministry’s on the national committees
   const national = textsIn('published-arabic');
   expect(national.some((text) => text.includes(plan.items[1].title))).toBe(true);
   expect(national).toContain(fill(published.majority, { adopted: 3, seats: 5 }));
+  expect(textsIn('published-figures')).toContain(words.range);
+  expect(texts().some((text) => text.includes('dir-'))).toBe(false);
+  expect(texts()).toContain(published.level.national.ranking);
   await unmount();
   await show(workspacePage('directorate', 'published', props)!);
   expect(texts()).toContain(published.level.directorate.lead);
+  expect(texts()).toContain(published.level.directorate.ranking);
 });

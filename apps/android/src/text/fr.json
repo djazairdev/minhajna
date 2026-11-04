@@ -6787,19 +6787,24 @@
         "none": "La commission n’a pas encore écrit comment le seuil a façonné l’examen.",
         "label": "Dans les mots de la commission",
         "placeholder": "Par exemple : le texte vient de l’unité 5, les questions des unités 1 à 6.",
-        "bad": "Des mots de 1 à {{most}} caractères, sans caractère masqué ni saut de ligne.",
+        "bad": "Des mots de 1 à {{most}} caractères, sans caractère masqué.",
         "sign": "Signer les mots",
         "done": "Signé pour {{seat}} : les mots de la commission.",
-        "note": "Publiés sans changement avec le seuil, signés avec la clé du siège. Les derniers mots signés comptent."
+        "note": "Publiés sans changement avec le seuil, signés avec la clé du siège. Les derniers mots signés comptent.",
+        "closed": "Les mots ne peuvent pas être signés : ce siège n’a pas adopté le seuil, ou l’examen n’est pas terminé.",
+        "signing": "Signature des mots…",
+        "length": "{{n}} caractères sur {{most}}"
       }
     },
     "published": {
       "level": {
         "directorate": {
-          "lead": "Ce que la direction publie des seuils de ses examens, après chaque examen."
+          "lead": "Ce que la direction publie des seuils de ses examens, après chaque examen.",
+          "ranking": "Non utilisé : aucun classement de wilayas ni d’établissements."
         },
         "national": {
-          "lead": "Ce que le ministère publie des seuils des examens nationaux, après chaque examen, pour tous."
+          "lead": "Ce que le ministère publie des seuils des examens nationaux, après chaque examen, pour tous.",
+          "ranking": "Non utilisé : aucun classement des wilayas, qui apparaissent en étendue et ne sont jamais nommées."
         }
       },
       "reading": "Lecture de ce qui est publié…",
@@ -6821,8 +6826,7 @@
       "unused": {
         "figures": "Non utilisé : aucun chiffre d’établissement, de classe ou d’enseignant.",
         "plans": "Non utilisé : les plans propres des classes ; les chiffres viennent des seules semaines signées.",
-        "floors": "Non utilisé : aucun chiffre sous les tailles minimales de groupe.",
-        "ranking": "Non utilisé : aucun classement des wilayas, qui apparaissent en étendue et ne sont jamais nommées."
+        "floors": "Non utilisé : aucun chiffre sous les tailles minimales de groupe."
       }
     }
   },

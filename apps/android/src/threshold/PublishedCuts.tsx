@@ -144,17 +144,18 @@ export function PublishedCuts(props: PublishedCutsProps) {
               : t('demo.published.share', { share, day: dayText(exam.figuresDay) }),
           )}
         {adopted?.item != null && body(shown?.words?.words ?? t('demo.committee.words.none'))}
-        {[...(adopted?.seats ?? [])]
-          .sort((one, other) => one - other)
-          .map((seat) =>
-            small(
-              t('demo.published.signed', {
-                seat: t('demo.committee.seat', { n: seat + 1 }),
-                day: dayText(shown?.state.votes.get(seat)?.day ?? adopted.day),
-              }),
-              String(seat),
-            ),
-          )}
+        {adopted !== null &&
+          [...adopted.seats]
+            .sort((one, other) => one - other)
+            .map((seat) =>
+              small(
+                t('demo.published.signed', {
+                  seat: t('demo.committee.seat', { n: seat + 1 }),
+                  day: dayText(shown?.state.votes.get(seat)?.day ?? adopted.day),
+                }),
+                String(seat),
+              ),
+            )}
         {adopted !== null &&
           small(t('demo.published.majority', { adopted: adopted.seats.length, seats: committeeSeats({ scope }) }))}
       </View>

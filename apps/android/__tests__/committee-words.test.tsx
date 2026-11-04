@@ -11,8 +11,9 @@
 import { addDays, WORDS_LENGTH } from '@minhajna/core';
 import { Platform } from 'react-native';
 import { day, fill, items, mathRoom, mock, opened, pageOf, seat, server, words } from '../jest/committee-page';
-import { act, controls, press, show, texts, textsIn, unmount } from '../jest/threshold-page';
+import { act, alerts, controls, press, show, texts, textsIn, unmount } from '../jest/threshold-page';
 import { codeOf, nodeKit } from '../jest/world-server';
+import type { Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { castVote, putWords, readCommittees } from '../src/threshold/committee-session';
 
@@ -86,7 +87,7 @@ test('the room asks for the words after the exam, from the seats that adopted, u
   expect(sign().disabled).toBe(true);
   expect(texts()).toContain(fill(words.words.bad, { most: WORDS_LENGTH }));
   await type('one\ntwo');
-  expect(sign().disabled).toBe(true);
+  expect((controls('committee-words-field')[0].props as { value: string }).value).toBe('one two');
   await type(`  ${LINE}  `);
   expect(sign().disabled).toBe(false);
   await press('committee-words-seats-2');
@@ -95,6 +96,26 @@ test('the room asks for the words after the exam, from the seats that adopted, u
   expect(textsIn('committee-words')).toContain(LINE);
   const [read] = await readCommittees(held, [mathRoom(id)], nodeKit, server.send);
   expect(read.words).toMatchObject({ words: LINE, seat: 2 });
+  expect(sign().disabled).toBe(true);
+  expect((controls('committee-words-field')[0].props as { value: string }).value).toBe(LINE);
+});
+
+test('a sign that fails keeps the words and says the problem, and a refusal says why', async () => {
+  const { held, id } = await adopted();
+  let answer: 'broken' | 'fine' = 'fine';
+  const send: Send = (request) =>
+    answer === 'broken' ? Promise.resolve({ status: 500, body: null, retryAfter: null }) : server.send(request);
+  await show(pageOf(held, id, after, send));
+  await type(LINE);
+  answer = 'broken';
+  await press('committee-words-sign');
+  expect(alerts().length).toBe(1);
+  expect((controls('committee-words-field')[0].props as { value: string }).value).toBe(LINE);
+  expect(textsIn('committee-words')).toContain(words.words.none);
+  answer = 'fine';
+  await unmount();
+  await show(pageOf(held, id, mock.to, send));
+  expect(controls('committee-words-sign').length).toBe(0);
 });
 
 test('the room asks for no words before the exam is over, or with no cut', async () => {
