@@ -4272,6 +4272,11 @@
       "operator": "Opérateur du système",
       "observatory": "Observatoire"
     },
+    "dateMoved": {
+      "line": "La date du monde est passée au {{date}}.",
+      "take": "Passer à cette date",
+      "hint": "Y aller ferme cette page, et ce qui n’y est pas enregistré est perdu."
+    },
     "home": {
       "role": "Vous agissez en tant que : {{role}}",
       "roleNext": "L’espace de ce rôle s’ouvrira ici dans une version ultérieure de la démonstration.",

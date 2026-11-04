@@ -5,45 +5,34 @@
 // the welcome or the lock page while the teacher's history is shut: the entry
 // starts a world, on a PC only, a national one seeded with its staff's keys
 // before its code is shown (world-seed.ts, #548), or enters one by its code,
-// then the world's own store opens and its roles show, then its home. One step
-// runs at a time (use-run-step.ts), and each failure says what went wrong in
-// the catalogue's words, by its code, and leaves the entry as it was; a code
-// the server no longer knows erases what this device kept for it
-// (world-mode.ts). Leaving shuts the network and the world's store, and hands
-// back to the lock, which opens the teacher's history again only through its
-// passphrase or PIN. Android's back button goes back from the entry unless a
-// world is being entered, and from a role to the roles; on the roles it does
-// nothing, so a world is left only by its own button. The teacher and the
-// inspector open reader mode inside the world from its home (#563), where
-// Android's back is reader mode's alone; the teacher of a national world opens
-// School-join the same way (#564), in its trial term end while the world's date
-// falls in it (#565), with the country's calendar and bells read for the
-// world's school (school-mine-session.ts), whose term and closures the
-// teacher's classes count (#584). The workspaces' pages come from
-// WorkspacePages.tsx: the director's workspace opens on the seeded school's
-// dashboard (#569), its codes page issues joining codes and security keys
-// (#570), its keys page maps who holds the school key (#571), and the
-// director's and the preparer's timetable page brings in its timetable (#576),
-// kept for the world it was read in, from which the director sends each teacher
-// their part (#577), publishes versions and decides the teachers' proposals
-// (#578, TimetableDesk.tsx), the director's My log lists their own actions
-// (#573), and the records page reads the classes' signed weeks (#585). The
-// teacher of a national world signs in on a staffroom PC (#572): on the phone
-// it approves a PC's code, and on the PC it is the staffroom PC itself. The
-// inspector of a national world posts their key from its home (#593) and reads
-// the grants relayed to their phone there (#594). Every page in a world reads
-// the world's calendar (#608, world-calendar-read.ts): the bundled one with the
-// releases the Ministry published laid over it, read with the world's keys and
-// sealing key, which starting or joining gives and this page holds in memory
-// until the world is left; a reading that fails is said on the world's home,
-// and a world starts from the bundled calendar. When the device that started a
-// world moves its date onto an announced day, and when it enters it again, it
-// sends the seeded schools' shares of the totals for the days reached
+// then the world's own store opens and its roles show, then its home. The
+// platform's cryptography comes from its start. One step runs at a time
+// (use-run-step.ts), and each failure says what went wrong in the catalogue's
+// words, by its code, and leaves the entry as it was; a code the server no
+// longer knows erases what this device kept for it (world-mode.ts). Leaving
+// shuts the network and the world's store, and hands back to the lock, which
+// opens the teacher's history again only through its passphrase or PIN.
+// Android's back button goes back from the entry unless a world is being
+// entered, and from a role to the roles; on the roles it does nothing, so a
+// world is left only by its own button. The pages a home opens over itself come
+// from WorldSidePages.tsx, and the workspaces' pages from WorkspacePages.tsx.
+// The inspector of a national world posts their key from its home (#593) and
+// reads the grants relayed to their phone there (#594). Every page in a world
+// reads the world's calendar (#608, world-calendar-read.ts): the bundled one
+// with the releases the Ministry published laid over it, read with the world's
+// keys and sealing key, which starting or joining gives and this page holds in
+// memory until the world is left; a reading that fails is said on the world's
+// home, and a world starts from the bundled calendar. When the device that
+// started a world moves its date onto an announced day, and when it enters it
+// again, it sends the seeded schools' shares of the totals for the days reached
 // (seeded-shares.ts, #596) while it still shows busy, and a failed send is said
-// as any failure is, the date already moved, to be finished by the next. The
-// teacher's home carries the insights' row, which opens their page (#624),
-// where Android's back is the page's own, with each class's exact sending in a
-// teachers' world (#622).
+// as any failure is, the date already moved, to be finished by the next. A
+// device is offered the date once the server serves a later one
+// (world-date-read.ts, WorldDateFrame.tsx, answer 724), and going there closes
+// the page in hand and opens the role's first page on the new date, with the
+// same shares from a starting device whose own move went through unanswered; no
+// offer shows while a step runs. The teacher's home carries the insights' row,
+// which opens their page (#624), where Android's back is the page's own.
 
 import {
   readWorldCode,
@@ -65,16 +54,15 @@ import { sendSeededShares } from './seeded-shares';
 import { useRunStep } from './use-run-step';
 import { useWorldCalendar, type HeldWorld } from './world-calendar-read';
 import { worldDate } from './world-date';
+import { useMovedDate } from './world-date-read';
+import { WorldDateFrame } from './WorldDateFrame';
 import { forgetWorld, leaveWorld, openWorld, type OpenWorld, type WorldRole } from './world-mode';
 import { startSeededWorld } from './world-seed';
 import { joinWorld, moveWorldDate, type Send, type WorldKit } from './world-session';
 import { WorldHome } from './WorldHome';
-import { WorldReader } from './WorldReader';
+import { worldSidePage } from './WorldSidePages';
 import { workspacePage } from './WorkspacePages';
 import { InspectorHome } from '../inspector/InspectorHome';
-import { SchoolJoin } from '../school/SchoolJoin';
-import { PcApprove } from '../staff/PcApprove';
-import { StaffPc } from '../staff/StaffPc';
 import { useDirectorSchool } from '../director/director-world';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import { mineOf } from '../week/school-mine-session';
@@ -121,6 +109,8 @@ export function DemoRoot({
   const { calendar: here, reference: worldReference } = published;
   const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
   const date = open === null ? '' : dayText(open.date);
+  const movedTo = useMovedDate(open, send);
+  const [taken, setTaken] = useState(0);
   const insights = useWorldInsights({
     open,
     calendars: [calendar, here],
@@ -160,12 +150,32 @@ export function DemoRoot({
       }
     });
 
+  const reach = async (world: OpenWorld, date: Day) => {
+    setOpen({ ...world, date });
+    if (world.starter !== null && held !== null && reference !== undefined) {
+      await sendSeededShares(held, date, reference, kit, send);
+    }
+  };
+
   const move = () =>
     run(async () => {
       if (open?.starter == null) return;
-      const date = await moveWorldDate(open.world, open.starter, open.date, send);
-      setOpen({ ...open, date });
-      if (held !== null && reference !== undefined) await sendSeededShares(held, date, reference, kit, send);
+      await reach(open, await moveWorldDate(open.world, open.starter, open.date, send));
+    });
+
+  const closePages = () => {
+    setReading(false);
+    setJoining(false);
+    setStaff(false);
+    insights.close();
+  };
+
+  const take = () =>
+    run(async () => {
+      if (open === null || movedTo === null) return;
+      closePages();
+      setTaken((before) => before + 1);
+      await reach(open, movedTo);
     });
 
   const leave = () =>
@@ -174,11 +184,8 @@ export function DemoRoot({
       setOpen(null);
       setHeld(null);
       setRole(null);
-      setReading(false);
-      setJoining(false);
-      setStaff(false);
+      closePages();
       setTimetable(null);
-      insights.close();
       onLeft();
     });
 
@@ -197,104 +204,82 @@ export function DemoRoot({
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
   const trial = trialTermEnd(here.year, profile.weekStartsOn);
-  if (joining && open.kind === 'national')
-    return (
-      <SchoolJoin
-        world={open}
-        date={date}
-        dayText={dayText}
-        kit={kit}
-        send={send}
-        trial={trial}
-        year={here.year.id}
-        workingDays={reference?.profile.workingDays}
-        subjects={reference?.profile.subjects}
-        mine={worldReference && mineOf(worldReference, here, school)}
-        school={school}
-        reference={worldReference}
-        updates={published.read?.updates}
-        committees={{ held, bundled: reference }}
-        onClose={() => setJoining(false)}
-      />
-    );
-  if (staff && open.kind === 'national' && school !== null && worldReference !== undefined)
-    return onPc() ? (
-      <StaffPc
-        world={open}
-        school={school}
-        profile={worldReference.profile}
-        date={date}
-        dayText={dayText}
-        kit={kit}
-        send={send}
-        onClose={() => setStaff(false)}
-      />
-    ) : (
-      <PcApprove world={open} school={school} date={date} kit={kit} send={send} onClose={() => setStaff(false)} />
-    );
-  if (insights.page !== null && role === 'teacher') return insights.page;
-  if (reading && worldReference !== undefined)
-    return (
-      <WorldReader
-        world={open}
-        date={date}
-        reference={worldReference}
-        random={kit.random}
-        onClose={() => setReading(false)}
-      />
-    );
+  const side = worldSidePage({
+    open,
+    role,
+    joining,
+    staff,
+    reading,
+    insights: insights.page,
+    school,
+    reference: worldReference,
+    calendar: here,
+    updates: published.read?.updates,
+    committees: { held, bundled: reference },
+    trial,
+    date,
+    dayText,
+    kit,
+    send,
+    onClose: closePages,
+  });
   return (
-    <WorldHome
-      world={open}
-      date={date}
-      role={role}
-      moving={busy}
-      problem={shown}
-      onRole={setRole}
-      onReader={worldReference === undefined ? undefined : () => setReading(true)}
-      onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
-      onStaff={
-        open.kind === 'national' && school !== null && worldReference !== undefined ? () => setStaff(true) : undefined
-      }
-      insightsRow={insights.row}
-      inspectorCard={
-        open.kind === 'national' && school !== null && worldReference !== undefined ? (
-          <InspectorHome
-            world={open}
-            school={school}
-            reference={worldReference}
-            mine={mineOf(worldReference, here, school)}
-            kit={kit}
-            send={send}
-            dayText={dayText}
-          />
-        ) : undefined
-      }
-      onMove={move}
-      onLeave={leave}
-      pageBody={(workspace, page, onPage) =>
-        reference === undefined || worldReference === undefined
-          ? null
-          : workspacePage(workspace, page, {
-              open,
-              setOpen,
-              school,
-              reference: worldReference,
-              bundled: reference,
-              kit,
-              send,
-              dayText,
-              trial,
-              year: here.year,
-              mine: mineOf(worldReference, here, school),
-              timetable,
-              onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
-              onPage,
-              held,
-              onCalendar: published.again,
-              updates: published.read?.updates,
-            })
-      }
-    />
+    <WorldDateFrame key={taken} movedTo={busy || movedTo === null ? null : dayText(movedTo)} onTake={take}>
+      {side ?? (
+        <WorldHome
+          world={open}
+          date={date}
+          role={role}
+          moving={busy}
+          problem={shown}
+          onRole={setRole}
+          onReader={worldReference === undefined ? undefined : () => setReading(true)}
+          onSchool={open.kind === 'national' ? () => setJoining(true) : undefined}
+          onStaff={
+            open.kind === 'national' && school !== null && worldReference !== undefined
+              ? () => setStaff(true)
+              : undefined
+          }
+          insightsRow={insights.row}
+          inspectorCard={
+            open.kind === 'national' && school !== null && worldReference !== undefined ? (
+              <InspectorHome
+                world={open}
+                school={school}
+                reference={worldReference}
+                mine={mineOf(worldReference, here, school)}
+                kit={kit}
+                send={send}
+                dayText={dayText}
+              />
+            ) : undefined
+          }
+          onMove={move}
+          onLeave={leave}
+          pageBody={(workspace, page, onPage) =>
+            reference === undefined || worldReference === undefined
+              ? null
+              : workspacePage(workspace, page, {
+                  open,
+                  school,
+                  reference: worldReference,
+                  bundled: reference,
+                  kit,
+                  send,
+                  dayText,
+                  trial,
+                  year: here.year,
+                  mine: mineOf(worldReference, here, school),
+                  timetable,
+                  onTimetable: (read) => setTimetable(read === null ? null : { world: open.world, read }),
+                  onPage,
+                  held,
+                  onCalendar: published.again,
+                  updates: published.read?.updates,
+                })
+          }
+        />
+      )}
+    </WorldDateFrame>
   );
 }

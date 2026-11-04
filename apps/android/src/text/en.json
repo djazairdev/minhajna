@@ -4202,6 +4202,11 @@
       "operator": "System operator",
       "observatory": "Observatory"
     },
+    "dateMoved": {
+      "line": "The world’s date has moved to {{date}}.",
+      "take": "Move to that date",
+      "hint": "Going there closes this page, and whatever is not saved on it is lost."
+    },
     "home": {
       "role": "You act as: {{role}}",
       "roleNext": "This role’s workspace opens here in a later version of the demo.",
