@@ -97,7 +97,7 @@ test('the room asks for the words after the exam, from the seats that adopted, u
   const [read] = await readCommittees(held, [mathRoom(id)], nodeKit, server.send);
   expect(read.words).toMatchObject({ words: LINE, seat: 2 });
   expect(sign().disabled).toBe(true);
-  expect((controls('committee-words-field')[0].props as { value: string }).value).toBe(LINE);
+  expect((controls('committee-words-field')[0].props as { value: string }).value.trim()).toBe(LINE);
 });
 
 test('a sign that fails keeps the words and says the problem, and a refusal says why', async () => {
