@@ -45,6 +45,17 @@ test('takes the admin log’s lines in each shape, an odd one as an unknown acti
     action: 'problem.fixed',
     problem: ID,
   });
+  const restore = (detail: object) => adminLine({ day: '2026-12-03', action: 'restore.tested', detail });
+  expect(restore({ result: 'passed' })).toEqual({ day: '2026-12-03', action: 'restore.tested', outcome: 'passed' });
+  for (const step of ['room', 'fetch', 'recover', 'check'])
+    expect(restore({ result: 'failed', step })).toEqual({ day: '2026-12-03', action: 'restore.tested', outcome: step });
+  for (const odd of [
+    { result: 'passed', step: 'fetch' },
+    { result: 'failed' },
+    { result: 'failed', step: 'disk' },
+    { result: 'failed', step: 'passed' },
+  ])
+    expect(restore(odd)).toEqual({ day: '2026-12-03', action: 'other' });
   expect(adminLine({ day: '2026-12-03', action: 'restore.tested', detail: {} })).toEqual({
     day: '2026-12-03',
     action: 'other',

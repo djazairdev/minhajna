@@ -1,19 +1,20 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Ops-Console's map of the demo server (#618, answer 655), drawn only from
-// what the server says of itself (ops-system.ts), so a part it does not report
-// is not drawn and no line is added by hand. Outside, at the top, the
-// teachers' devices and browsers, and outside services beside them, closed;
-// inside, under the devices, the gateway, then the batch store, then the
-// storage; the totals on one side of the store, with the directorates' and the
-// Ministry's screens under them, and the state's stand-ins on the other, with
-// the backups under them only while the database is set to archive; the store,
-// the totals and the stand-ins each keep what they hold in the storage. A line
-// that does not pass, to outside services, is faint and struck through. Left
-// to right, the boxes are mirrored. The same boxes and lines are written out
-// in two groups, which a screen reader reads and the phone shows alone, each
-// with its facts for the panel of the one chosen in labelled rows and a note.
+// Ops-Console's map of the demo server (#618, answer 655), drawn only from what
+// the server says of itself (ops-system.ts), so a part it does not report is
+// not drawn and no line is added by hand. Outside, at the top, the teachers'
+// devices and browsers, and outside services beside them, closed; inside, under
+// the devices, the gateway, then the batch store, then the storage; the totals
+// on one side of the store, with the directorates' and the Ministry's screens
+// under them, and the state's stand-ins on the other, with the backups under
+// them only while the database is set to archive, and the observatory above
+// them, whose figures go back to the devices; the store, the totals, the
+// stand-ins and the observatory each keep what they hold in the storage. A line
+// that does not pass, to outside services, is faint and struck through. Left to
+// right, the boxes are mirrored. The same boxes and lines are written out in
+// two groups, which a screen reader reads and the phone shows alone, each with
+// its facts for the panel of the one chosen in labelled rows and a note.
 
 import type { TFunction } from 'i18next';
 import type { MapLink, MapNode, MapSpec } from '../drawing/drawing-kit';
@@ -21,7 +22,20 @@ import type { ServerPart, SystemView } from './ops-system';
 
 export type OpsBox = 'devices' | 'outside' | ServerPart | 'storage' | 'screens' | 'backups';
 export type OpsLine =
-  'batches' | 'back' | 'kept' | 'shares' | 'totals' | 'exports' | 'rows' | 'held' | 'receipts' | 'copies' | 'closed';
+  | 'batches'
+  | 'back'
+  | 'kept'
+  | 'shares'
+  | 'totals'
+  | 'exports'
+  | 'sendings'
+  | 'figures'
+  | 'rows'
+  | 'held'
+  | 'receipts'
+  | 'sendingsKept'
+  | 'copies'
+  | 'closed';
 export type OpsId = OpsBox | `line.${OpsLine}`;
 
 /** A box or a line as the page writes it out, with what the panel says of it. */
@@ -51,6 +65,7 @@ const PLACES: Readonly<Record<OpsBox, readonly [number, number]>> = {
   relay: [269, 290],
   totals: [13, 360],
   standins: [525, 360],
+  observatory: [525, 200],
   storage: [269, 430],
   screens: [13, 590],
   backups: [525, 590],
@@ -63,9 +78,12 @@ const LINES: readonly (readonly [OpsLine, OpsBox, OpsBox])[] = [
   ['shares', 'gateway', 'totals'],
   ['totals', 'totals', 'screens'],
   ['exports', 'gateway', 'standins'],
+  ['sendings', 'gateway', 'observatory'],
+  ['figures', 'observatory', 'devices'],
   ['rows', 'relay', 'storage'],
   ['held', 'totals', 'storage'],
   ['receipts', 'standins', 'storage'],
+  ['sendingsKept', 'observatory', 'storage'],
   ['copies', 'storage', 'backups'],
   ['closed', 'gateway', 'outside'],
 ];
@@ -84,7 +102,7 @@ export function opsBoxes(view: SystemView): OpsBox[] {
   return [
     'devices',
     ...(runs('gateway') ? (['gateway'] as const) : []),
-    ...(['relay', 'totals', 'standins'] as const).filter(runs),
+    ...(['relay', 'totals', 'standins', 'observatory'] as const).filter(runs),
     'storage',
     ...(runs('totals') ? (['screens'] as const) : []),
     ...(archived ? (['backups'] as const) : []),

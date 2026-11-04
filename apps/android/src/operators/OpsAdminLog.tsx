@@ -10,7 +10,8 @@
 // lines under their heading, newest first, each its day and what was done: the
 // server started with its version and the changes it applied to the database,
 // worlds erased on their 7th day, counted, a problem report marked fixed, by
-// the start of its ID, or an action this app does not read.
+// the start of its ID, a restore test of the backups passed or the step that
+// failed, or an action this app does not read.
 
 import type { Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -48,6 +49,7 @@ export function OpsAdminLog({ world, send = worldRequest, dayText }: OpsAdminLog
           });
     if (line.action === 'worlds.erased') return t('demo.ops.admin.erased', { count: line.count });
     if (line.action === 'problem.fixed') return t('demo.ops.admin.fixed', { id: isolate(line.problem.slice(0, 8)) });
+    if (line.action === 'restore.tested') return t(`demo.ops.admin.restore.${line.outcome}`);
     return t('demo.ops.admin.other');
   };
   return (
