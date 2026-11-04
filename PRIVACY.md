@@ -15,7 +15,7 @@ This policy covers personal information held by the project through its reposito
 
 The [Android preview](https://djazair.dev/en/minhajna/) (0.1.0 on 18 October 2026 to 0.6.1 on 29 October 2026) is for invited teachers using made-up data only.
 
-- Entries stay in an encrypted database on your phone. There is no account, internet permission, automatic reporting or usage tracking.
+- Entries stay in an encrypted database on your phone. There is no account, automatic reporting or usage tracking. Until 0.7.0 there was no internet permission either; from 0.7.0, only a demo world connects, and only to the demo server (below).
 - The app is locked with a 4-digit PIN. Unlocking with a fingerprint or the face uses the phone's own prompt, and the app stores no fingerprint or face data.
 - Records leave the app only when the teacher does it, and the copy is then the teacher's to keep safe:
   - documents print through the phone's print service, or are saved as a PDF where the teacher chooses;
@@ -45,6 +45,15 @@ From 0.6.0, the preview also runs on a PC, in the browser, at https://minhajna.d
 - Problem and crash reports work as on the phone, without the browser's name or version. Each leaves only when the teacher chooses to share it: through the browser's share menu, or copied for the teacher to paste where it has none.
 - «مسح هذا الحاسوب», in Settings or from the lock page when the passphrase is forgotten, erases everything the app keeps in that browser.
 
+### Demo worlds
+
+From 0.7.0, a demo world lets every role, from the Ministry to the teacher, run the national flow with made-up data ([#520](https://github.com/djazairdev/minhajna/issues/520)), on the phone and on a PC.
+
+- A world is entered only by choice. While it is open, the teacher's own records stay shut, and nothing of them reaches the world or the server.
+- A world connects only to the project's demo server, https://minhajna-demo.djazair.dev. Outside a world, the phone connects to nothing, and the PC only to its own address. What goes to the server is listed in [NETWORK.md](NETWORK.md#demo-worlds): the world's ID and its pass, its sealed keys and its date, sealed batches, requests to certify a key the device made for the world and, only by the user's choice, a problem report or a teachers' world's anonymous insights. All of it is made up.
+- The server erases each world on its 7th day, and its backups within about two days more. It logs no requests, and reads a device's IP address only to limit its requests, in memory. Cloudflare, in front of it, sees the IP address and browser under its own policy.
+- Anyone with a world's code can act in any of its roles, so never put real names or real records in a world, or in a problem report sent from one.
+
 Sync, automatic reporting and national-system services are future features. Each must meet its published launch requirements before opening.
 
 ## What the project holds now
@@ -73,7 +82,7 @@ Sync, automatic reporting and national-system services are future features. Each
 ## How it is kept
 
 - **The minimum,** stored apart from everything else ([PRD §1.4](docs/prd/PRD.md#14-what-is-open-and-what-stays-private)).
-- **In Algeria.** Every server the project runs that touches personal data is hosted in Algeria, and so is everything on that path: e-mail, monitoring and backups ([PRD §6.1](docs/prd/PRD.md#61-the-legal-position-in-teacher-mode)).
+- **In Algeria.** Every server the project runs that touches personal data is hosted in Algeria, and so is everything on that path: e-mail, monitoring and backups ([PRD §6.1](docs/prd/PRD.md#61-the-legal-position-in-teacher-mode)). The demo server, which holds only made-up worlds and reads IP addresses in memory to limit requests, runs behind Cloudflare with its backups in Cloudflare R2.
 - **Declared first.** Before the project collects personal data through a service of its own, it declares that processing to the ANPDP, as Loi 18-07 requires, with a register of processing and a named data-protection contact. Teachers see an Arabic privacy notice before they first use the app ([PRD §6.2](docs/prd/PRD.md#62-compliance-before-each-launch)).
 - **Who answers for it.** Until the association exists, the founder answers for what the project holds. How the declaration is made before then is a question for counsel ([PRD §6.10](docs/prd/PRD.md#610-decisions-and-open-points)).
 - **In the transparency report.** Every September, from the launch, the report says what the project holds about teachers, and every request for data from an authority, where the law allows ([PRD §1.11](docs/prd/PRD.md#111-community-transparency-and-building-in-public)).

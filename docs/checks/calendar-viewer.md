@@ -60,7 +60,7 @@ Use the demo classes and made-up notices only:
 3. At 200% text on a 360×800 phone, scroll the month horizontally and the page vertically. No label or source is cut off.
 4. With Arabic TalkBack, check school and layer selection, the month buttons, each full date and its event names, week letters, entry details and Back focus.
 5. Repeat left to right. Check an empty month, no school and an entry removed before opening it.
-6. Confirm the history is unchanged after browsing, and the release build still asks for no network permission.
+6. Confirm the history is unchanged after browsing, and the release build asks for no permission beyond those NETWORK.md lists.
 7. Add a whole-day closure, a date range, a school marker and a private training/duty entry. Check the preview against the made-up timetable, then save. A marker must not remove lessons. The wilaya choice must identify the intended wilaya through the selected school; an unset wilaya is refused.
 8. Edit the source or date and confirm the same ID remains. A changed scope must require cancellation and a new entry. Confirm cancellation only after its preview; Keep must leave the entry untouched. Earlier versions must remain in the book.
 9. Open an existing make-up, support or revision day from its details. Its own sessions must not clash; changing it must retain its ID. Recheck the original additional-session entry point and Undo.

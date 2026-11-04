@@ -3,7 +3,8 @@
 
 // The welcome and the privacy notice before first use (#24), and the notice
 // and the connections page again from Help; the notice names Help as its
-// screen is titled, where crash reports are turned on (#479).
+// screen is titled, where crash reports are turned on (#479), and both name
+// the demo server a demo world connects to (#559).
 
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { BackHandler, Image, Text, TextInput } from 'react-native';
@@ -138,6 +139,7 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
   expect(shown()).toEqual(
     expect.arrayContaining([
       text.connections.none,
+      text.connections.demo,
       text.connections.source,
       text.connections.packSource,
       text.connections.errorReport,
@@ -161,7 +163,7 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
 test('shows every part of the notice, with the contact still a placeholder', async () => {
   await mount();
   await press(byTestID('welcome-start'));
-  const keys = ['phone', 'leave', 'never', 'tracking', 'publisher', 'rights'] as const;
+  const keys = ['phone', 'leave', 'demo', 'never', 'tracking', 'publisher', 'rights'] as const;
   expect(shown()).toEqual(
     expect.arrayContaining([
       text.privacy.heading,
@@ -175,6 +177,17 @@ test('shows every part of the notice, with the contact still a placeholder', asy
     ]),
   );
   for (const key of keys) expect(tree.root.findAllByProps({ testID: `privacy-${key}` })).not.toEqual([]);
+});
+
+test('names the demo server in the notice and the connections, and no longer denies the network', () => {
+  const denials = [/does not ask for permission/u, /n’en demande pas/u, /ne demande aucune/u, /لا تطلب إذن/u];
+  for (const catalogue of Object.values(catalogues)) {
+    for (const words of [catalogue.privacy.demoText, catalogue.connections.demo]) {
+      expect(words).toContain('https://minhajna-demo.djazair.dev');
+    }
+    const all = JSON.stringify(catalogue);
+    expect(denials.filter((denial) => denial.test(all))).toEqual([]);
+  }
 });
 
 test('names Help in the notice as its screen is titled, in every language', () => {

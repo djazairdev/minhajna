@@ -3,9 +3,10 @@
 
 // The privacy notice (Privacy, #24), shown before first use and later from
 // Help, as Law 18-07 Art. 32 requires (PRD §6.2). Its words describe this
-// build, which has no network permission: nothing leaves unless the teacher
-// sends or saves it, and crash reports stay off until turned on (#479). On a PC
-// both screens read their PC wording, with a lock for the phone's icon: the
+// build, which connects only inside a demo world, to the demo server, with
+// made-up data (#559): nothing of the teacher's leaves unless the teacher sends
+// or saves it, and crash reports stay off until turned on (#479). On a PC both
+// screens read their PC wording, with a lock for the phone's icon: the
 // browser's storage, the host and what Cloudflare sees, no camera, and reports
 // leaving through the browser (#483). The design's lines on sync and servers
 // wait for those features. The contact keeps the design's placeholders until
@@ -27,6 +28,7 @@ import { isolate } from '../week/grid-labels';
 const SECTIONS = [
   ['phone', 'phone'],
   ['lock', 'leave'],
+  ['globe', 'demo'],
   ['never', 'never'],
   ['no_tracking', 'tracking'],
   ['publisher', 'publisher'],
@@ -100,7 +102,7 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
   );
 }
 
-/** What this build connects to, from NETWORK.md: on the phone nothing, on a PC its own address. */
+/** What this build connects to, from NETWORK.md: the demo server inside a demo world, and on a PC its own address. */
 export function Connections() {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -120,13 +122,13 @@ export function Connections() {
         },
       ]}
     >
-      {(['none', 'source', 'packSource', 'errorReport', 'problemReport', 'crashReport', 'register'] as const).map(
-        (key) => (
-          <Text key={key} style={[styles.paragraph, align]}>
-            {t(`connections.${key}`)}
-          </Text>
-        ),
-      )}
+      {(
+        ['none', 'demo', 'source', 'packSource', 'errorReport', 'problemReport', 'crashReport', 'register'] as const
+      ).map((key) => (
+        <Text key={key} style={[styles.paragraph, align]}>
+          {t(`connections.${key}`)}
+        </Text>
+      ))}
     </ScrollView>
   );
 }
