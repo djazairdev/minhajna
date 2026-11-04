@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // A committee's room above the school on the workspace's PC, read too for the
-// teacher's list, (#604, #605, #606, answers 638 to 640): its stream is of the
+// teacher's list (#604, #605, #606, answers 638 to 640): its stream is of the
 // directorate's space, or for a national exam of the world's national space,
 // and its key and each seat's seed come from the world's sealing key (cuts.ts),
 // so whoever holds the world reads it. A seat's public key is worked out once

@@ -28,7 +28,7 @@ import { colors, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 import type { CommitteeRead } from './committee-session';
 import { overCuts, type OverCut } from './over-cuts';
-import type { OwnExam } from './own-exams';
+import type { OverExam } from './own-exams';
 import { headText, itemNamer, movedLines } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
 import { useCommittee } from './useCommittee';
@@ -37,7 +37,7 @@ export type OverExamCutsProps = {
   readonly world: string;
   readonly date: Day;
   /** The teacher's classes in the exams above the school that are over. */
-  readonly over: readonly OwnExam[];
+  readonly over: readonly OverExam[];
   /** The directorate of the school, whose committee sets its exams. */
   readonly directorate: string;
   /** The world's keys and sealing key, held while it is open. */
@@ -109,7 +109,7 @@ export function OverExamCuts(props: OverExamCutsProps) {
       <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
         {ownVotes.reading || nationalVotes.reading ? t('demo.thresholds.over.reading') : ''}
       </Text>
-      {held === null && small(t('demo.thresholds.over.keys'))}
+      {held === null && small(t('demo.committee.keys'))}
       {shownProblem !== null && (
         <View style={styles.card}>
           <Text accessibilityRole="alert" style={[problem, align]}>
@@ -119,26 +119,23 @@ export function OverExamCuts(props: OverExamCutsProps) {
             testID="thresholds-over-again"
             variant="line"
             label={t('demo.weekSign.again')}
-            onPress={() => {
-              ownVotes.again();
-              nationalVotes.again();
-            }}
+            onPress={ownVotes.problem !== null ? ownVotes.again : nationalVotes.again}
           />
         </View>
       )}
       {cuts.map((cut) => {
-        const { exam, chart, plan } = cut;
+        const { exam, row, plan } = cut;
         const read = readOf(cut);
         const line = standing(read, itemNamer(t, plan, reference.packs));
         return (
-          <View key={`${exam.id}\n${chart.subject}\n${chart.grade}`} testID="thresholds-over" style={styles.card}>
+          <View key={`${exam.id}\n${row.subject}\n${row.grade}`} testID="thresholds-over" style={styles.card}>
             <Text accessibilityRole="header" style={[styles.head, align]}>
-              {headText(t, chart, reference)}
+              {headText(t, { exam: exam.id, ...row }, reference)}
             </Text>
             {small(t(`demo.thresholds.level.${exam.setBy}`))}
             {small(t('demo.thresholds.ownDays', { from: dayText(exam.from), figures: dayText(exam.figuresDay) }))}
-            {movedLines(t, moves.get(exam.id), exam, dayText, { published: true }).map((line, place) =>
-              small(line, `moved-${place}`),
+            {movedLines(t, moves.get(exam.id), exam, dayText, { published: true }).map((moved, place) =>
+              small(moved, `moved-${place}`),
             )}
             {line !== null && <Text style={[styles.body, align]}>{line}</Text>}
             {read?.state.adopted?.item != null && (

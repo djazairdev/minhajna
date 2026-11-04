@@ -111,17 +111,14 @@ test('lists the school’s exams before their figures day, gone on it', async ()
   expect(on).not.toContain(school2.id);
 }, 120_000);
 
-test('an exam above the school is over the day after its last day, with the teacher’s classes', async () => {
+test('an exam above the school is over the day after its last day, with the teacher’s rows', async () => {
   const { school, weeks } = await filled();
   const mock = worldExams(reference.calendar.year, reference.calendar.entries).find((one) => one.id === 'mock')!;
-  expect(overExams(weeks, school, reference, mock.to).map((one) => one.exam.id)).toEqual([]);
+  expect(overExams(weeks, school, reference, mock.to)).toEqual([]);
   const after = addDays(mock.to, 1);
-  const over = overExams(weeks, school, reference, after).filter((one) => one.exam.id === 'mock');
-  expect(over.map((one) => [one.asOf, one.charts.map((chart) => [chart.subject, chart.grade])])).toEqual([
-    [mock.figuresDay, [['arabic', '4am']]],
+  expect(overExams(weeks, school, reference, after)).toEqual([
+    { exam: mock, rows: [{ subject: 'arabic', grade: '4am' }] },
   ]);
-  expect(over[0].charts[0].classes.map((one) => one.name)).toEqual(['4AM1']);
-  expect(overExams(weeks, school, reference, after).every((one) => one.exam.setBy !== 'school')).toBe(true);
   expect(aboveOf(weeks, school, reference, after).map((one) => one.exam.id)).not.toContain('mock');
 }, 120_000);
 
@@ -129,4 +126,5 @@ test('a teacher whose classes sit neither exam above the school sees none of tho
   const { date, school, weeks } = await filled(['1AM1']);
   expect(weeks.length).toBeGreaterThan(0);
   expect(aboveOf(weeks, school, reference, date)).toEqual([]);
+  expect(overExams(weeks, school, reference, addDays(date, 400))).toEqual([]);
 }, 120_000);

@@ -6302,7 +6302,6 @@
       "totals": "Les totaux de la direction",
       "over": {
         "reading": "Lecture du seuil de la commission…",
-        "keys": "Le seuil de la commission se lit avec les clés du monde, que ce téléphone ne détient pas pour l’instant.",
         "cut": "Le seuil de la commission tel que publié, adopté le {{day}} : jusqu’à {{item}}."
       }
     },

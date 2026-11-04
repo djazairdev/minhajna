@@ -6209,7 +6209,6 @@
       "totals": "The directorate’s totals",
       "over": {
         "reading": "Reading the committee’s cut…",
-        "keys": "The committee’s cut is read with the world’s keys, which this phone does not hold now.",
         "cut": "The committee’s cut as published, adopted on {{day}}: up to {{item}}."
       }
     },

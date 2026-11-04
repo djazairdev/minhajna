@@ -6,43 +6,45 @@
 // teacher's classes, the room of the national committee or of the school's
 // directorate, with the plan that committee works from, as the seeded schools
 // it covers pin it (committee-session.ts), so the cut's item is named as
-// adopted; with no such plan no one could have voted, so the room is read on
-// the teacher's own and holds none.
+// adopted; with no such plan no one could have voted, so its room, empty of
+// items, holds none.
 
 import { NATIONAL_COMMITTEE, type DemoSchool, type ExamChart, type PlanPack, type WorldExam } from '@minhajna/core';
 import { committeeRooms, type CommitteeRoom } from './committee-session';
-import type { OwnExam } from './own-exams';
+import type { OverExam } from './own-exams';
 
-/** An exam's chart on the teacher's list, the room that says its cut, and the plan that names it. */
+/** A row of the teacher's list, the room that says its cut, and the plan that names it. */
 export interface OverCut {
   readonly exam: WorldExam;
-  readonly chart: OwnExam['charts'][number];
+  readonly row: OverExam['rows'][number];
   readonly room: CommitteeRoom;
   readonly plan: Pick<ExamChart, 'pack' | 'items'>;
 }
 
-/** Each chart of the over exams with its committee's room. */
+const NO_PLAN = { pack: { id: '', release: '' }, items: [] };
+
+/** Each row of the over exams with its committee's room. */
 export function overCuts(
   world: string,
-  over: readonly OwnExam[],
+  over: readonly OverExam[],
   directorate: string,
   seeded: readonly Pick<DemoSchool, 'classes' | 'directorateId'>[],
   packs: readonly PlanPack[],
 ): OverCut[] {
-  return over.flatMap(({ exam, charts }) => {
+  return over.flatMap(({ exam, rows }) => {
     const national = exam.setBy === 'national';
     const scope = national ? NATIONAL_COMMITTEE : directorate;
     const schools = national ? seeded : seeded.filter((one) => one.directorateId === directorate);
-    return charts.map((chart) => {
-      const found = committeeRooms({ world, scope }, exam, chart.grade, schools, packs).find(
-        (one) => one.subject === chart.subject,
+    return rows.map((row) => {
+      const found = committeeRooms({ world, scope }, exam, row.grade, schools, packs).find(
+        (one) => one.subject === row.subject,
       );
       if (found !== undefined) {
-        return { exam, chart, room: found.room, plan: { pack: found.plan, items: found.room.items } };
+        return { exam, row, room: found.room, plan: { pack: found.plan, items: found.room.items } };
       }
-      const name = { world, scope, exam: exam.id, subject: chart.subject, grade: chart.grade };
+      const name = { world, scope, exam: exam.id, subject: row.subject, grade: row.grade };
       const days = { from: exam.figuresDay, to: exam.signBy };
-      return { exam, chart, room: { name, items: chart.items, days, lastDay: exam.to }, plan: chart };
+      return { exam, row, room: { name, items: [], days, lastDay: exam.to }, plan: NO_PLAN };
     });
   });
 }

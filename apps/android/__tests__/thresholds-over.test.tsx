@@ -16,9 +16,9 @@ import {
   worldExams,
   type Day,
   type ExamChart,
+  type WeekRecord,
   type WorldExam,
 } from '@minhajna/core';
-import { Platform } from 'react-native';
 import { alerts, press, props, quoted, show, texts, textsIn, unmount } from '../jest/threshold-page';
 import { server, setting } from '../jest/timetable-send';
 import { calendar, reference } from '../jest/world-calendar';
@@ -26,6 +26,7 @@ import { nodeKit } from '../jest/world-server';
 import type { Send } from '../src/demo/world-session';
 import { seededWorld } from '../src/director/director-world';
 import { leaveWorldNetwork } from '../src/network/world-network';
+import { joinedPage } from '../src/school/JoinedPages';
 import ar from '../src/text/ar.json';
 import {
   castVote,
@@ -69,27 +70,33 @@ const roomOf = (world: string, exam: WorldExam, scope: string, subject = 'math')
 async function listed(
   shown: readonly WorldExam[],
   coming: readonly WorldExam[] = [],
-  chart: { readonly subject: string; readonly directorate: string } = { subject: 'math', directorate: SCOPE },
+  row: { readonly subject: string; readonly directorate: string } = { subject: 'math', directorate: SCOPE },
 ) {
   const { id, joined, held } = await setting();
   const date = addDays(bem.to, 1);
-  const chartOf = (exam: WorldExam) => ({
-    exam: exam.id,
-    from: exam.from,
-    figuresDay: exam.figuresDay,
-    subject: chart.subject,
-    grade: '4am',
-    forecastDay: exam.from,
-    pack,
-    items,
-    classes: [{ name: '4M1', position: items[1], forecast: items[2] } as ExamChart['classes'][number]],
+  const coming0 = (exam: WorldExam) => ({
+    exam,
+    asOf: exam.figuresDay,
+    charts: [
+      {
+        exam: exam.id,
+        from: exam.from,
+        figuresDay: exam.figuresDay,
+        subject: row.subject,
+        grade: '4am',
+        forecastDay: exam.from,
+        pack,
+        items,
+        classes: [{ name: '4M1', position: items[1], forecast: items[2] } as ExamChart['classes'][number]],
+      },
+    ],
   });
-  const of = (exam: WorldExam) => ({ exam, asOf: exam.figuresDay, charts: [chartOf(exam)] });
-  jest.spyOn(ownExamsModule, 'overExams').mockImplementation(() => shown.map(of) as never);
-  jest.spyOn(ownExamsModule, 'ownExams').mockImplementation(() => coming.map(of) as never);
+  const of = (exam: WorldExam) => ({ exam, rows: [{ subject: row.subject, grade: '4am' }] });
+  jest.spyOn(ownExamsModule, 'overExams').mockImplementation(() => shown.map(of));
+  jest.spyOn(ownExamsModule, 'ownExams').mockImplementation(() => coming.map(coming0) as never);
   const page = {
     ...props({ world: id, date }, joined),
-    school: { directorateId: chart.directorate } as never,
+    school: { directorateId: row.directorate } as never,
     committees: { held, bundled: reference },
     said: '',
     onRoom: jest.fn(),
@@ -97,10 +104,6 @@ async function listed(
   };
   return { id, held, date, page };
 }
-
-beforeEach(() => {
-  jest.replaceProperty(Platform, 'OS', 'web');
-});
 
 afterEach(async () => {
   await unmount();
@@ -163,18 +166,41 @@ test('the cut is named by the committee’s plan, where the seeded schools pin o
   const { schools } = seededWorld(world, reference);
   const plan = committeePlan(schools, reference.packs, '4am', 'arabic')!;
   const directorate = schools[0].directorateId;
-  const chart = { subject: 'arabic', grade: '4am', pack: { id: 'other', release: '1' }, items: ['other-1'] };
-  const over = [{ exam: mock, asOf: mock.figuresDay, charts: [chart] }] as unknown as Parameters<typeof overCuts>[1];
-  const [cut] = overCuts(world, over, directorate, schools, reference.packs);
+  const rows = [{ subject: 'arabic', grade: '4am' }];
+  const [cut] = overCuts(world, [{ exam: mock, rows }], directorate, schools, reference.packs);
   expect(cut.plan.pack).toBe(plan);
   expect(cut.room.items).toEqual(plan.items.map((one) => one.id));
-  expect(cut.room.name.scope).toBe(directorate);
-  expect(cut.room.lastDay).toBe(mock.to);
-  const [national] = overCuts(world, [{ ...over[0], exam: bem }], directorate, schools, reference.packs);
+  const [national] = overCuts(world, [{ exam: bem, rows }], directorate, schools, reference.packs);
   expect(national.room.name.scope).toBe(NATIONAL_COMMITTEE);
-  const [own] = overCuts(world, over, directorate, [], reference.packs);
-  expect(own.plan).toBe(chart);
-  expect(own.room.items).toEqual(['other-1']);
+  const [own] = overCuts(world, [{ exam: mock, rows }], directorate, [], reference.packs);
+  expect(own.room.items).toEqual([]);
+});
+
+test('the joined pages list what the real over list gives, on the classes and subjects signed', async () => {
+  const { id, held, date, page } = await listed([mock], [], { subject: 'arabic', directorate: SCOPE });
+  const weeks = [
+    { class: '4AM1', totals: { subject: 'arabic' } },
+    { class: '1AM1', totals: { subject: 'french' } },
+  ] as unknown as WeekRecord[];
+  const pupils = (name: string, grade: string) => ({ name, grade });
+  const classes = [pupils('4AM1', '4am'), pupils('1AM1', '1am')];
+  const real = jest.requireActual<typeof ownExamsModule>('../src/threshold/own-exams').overExams;
+  jest
+    .spyOn(ownExamsModule, 'overExams')
+    .mockImplementation((_weeks, _school, one, on) => real(weeks, { classes } as never, one, on));
+  const shown = real(weeks, { classes } as never, reference, date);
+  expect(shown.map((one) => [one.exam.id, one.rows])).toEqual([
+    ['mock', [{ subject: 'arabic', grade: '4am' }]],
+    ['bem', [{ subject: 'arabic', grade: '4am' }]],
+  ]);
+  const room = roomOf(id, bem, NATIONAL_COMMITTEE, 'arabic');
+  for (const place of [0, 1, 2]) await castVote(held, room, place, null, bem.figuresDay, nodeKit, server.send);
+  const base = { ...page, year: '2026-2027', dates: null, onJoin: () => undefined, onPage: jest.fn() };
+  await show(joinedPage({ page: 'thresholds', join: page.join }, base)!);
+  const all = texts();
+  expect(all).toContain(list.level.directorate);
+  expect(all).toContain(list.level.national);
+  expect(all).toContain(fill(published.noCut, { day: written(bem.figuresDay) }));
 });
 
 test('a directorate’s exam and a national one are read together, each from its own committee', async () => {
@@ -232,9 +258,9 @@ test('a moved exam says its dates and why, without what only matters before it',
 });
 
 test('without the keys it says so once, and without the reference it lists none', async () => {
-  const { page } = await listed([mock]);
+  const { page } = await listed([mock, bem]);
   await show(<ExamThresholds {...page} committees={{ held: null, bundled: reference }} />);
-  expect(texts().filter((text) => text === words.keys).length).toBe(1);
+  expect(texts().filter((text) => text === committee.keys).length).toBe(1);
   expect(textsIn('thresholds-over')).toContain(list.level.directorate);
   await unmount();
   await show(<ExamThresholds {...page} committees={{ held: page.committees.held }} />);
