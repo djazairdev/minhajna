@@ -100,22 +100,32 @@ test('the room asks for the words after the exam, from the seats that adopted, u
   expect((controls('committee-words-field')[0].props as { value: string }).value.trim()).toBe(LINE);
 });
 
-test('a sign that fails keeps the words and says the problem, and a refusal says why', async () => {
+test('a sign that fails keeps the words and says the problem', async () => {
   const { held, id } = await adopted();
-  let answer: 'broken' | 'fine' = 'fine';
+  let broken = false;
   const send: Send = (request) =>
-    answer === 'broken' ? Promise.resolve({ status: 500, body: null, retryAfter: null }) : server.send(request);
+    broken ? Promise.resolve({ status: 500, body: null, retryAfter: null }) : server.send(request);
   await show(pageOf(held, id, after, send));
   await type(LINE);
-  answer = 'broken';
+  broken = true;
   await press('committee-words-sign');
   expect(alerts().length).toBe(1);
   expect((controls('committee-words-field')[0].props as { value: string }).value).toBe(LINE);
   expect(textsIn('committee-words')).toContain(words.words.none);
-  answer = 'fine';
-  await unmount();
-  await show(pageOf(held, id, mock.to, send));
-  expect(controls('committee-words-sign').length).toBe(0);
+});
+
+test('a refusal says why, in the words’ own terms', async () => {
+  const { held, id } = await adopted();
+  let bare = false;
+  const send: Send = (request) =>
+    bare && request.path.includes('/batches')
+      ? Promise.resolve({ status: 200, body: { batches: [] }, retryAfter: null })
+      : server.send(request);
+  await show(pageOf(held, id, after, send));
+  await type(LINE);
+  bare = true;
+  await press('committee-words-sign');
+  expect(alerts()).toEqual([words.words.closed]);
 });
 
 test('the room asks for no words before the exam is over, or with no cut', async () => {

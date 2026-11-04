@@ -48,7 +48,9 @@ export function CommitteeWordsForm({ seats, words, busy, onWrite }: CommitteeWor
       <Text accessibilityRole="header" style={[styles.head, align]}>
         {t('demo.committee.words.title')}
       </Text>
-      <Text style={[styles.body, align]}>{words === null ? t('demo.committee.words.none') : words.words}</Text>
+      <Text style={[styles.body, { writingDirection: 'auto', textAlign: 'start' }]}>
+        {words === null ? t('demo.committee.words.none') : words.words}
+      </Text>
       <ChipGroup
         testID="committee-words-seats"
         label={t('demo.committee.seats')}
@@ -65,6 +67,9 @@ export function CommitteeWordsForm({ seats, words, busy, onWrite }: CommitteeWor
         onChangeText={(one) => setTyped(one.replace(/[\r\n]+/g, ' '))}
         {...(text !== '' && !reads ? { error: t('demo.committee.words.bad', { most: WORDS_LENGTH }) } : {})}
       />
+      <Text style={[styles.small, align]}>
+        {t('demo.committee.words.length', { n: [...text].length, most: WORDS_LENGTH })}
+      </Text>
       <Button
         testID="committee-words-sign"
         label={t('demo.committee.words.sign')}
@@ -72,9 +77,6 @@ export function CommitteeWordsForm({ seats, words, busy, onWrite }: CommitteeWor
         disabled={busy || !reads || text === words?.words}
         onPress={() => onWrite(seat, text, t('demo.committee.words.done', { seat: post }))}
       />
-      <Text style={[styles.small, align]}>
-        {t('demo.committee.words.length', { n: [...text].length, most: WORDS_LENGTH })}
-      </Text>
       <Text style={[styles.small, align]}>{t('demo.committee.words.note')}</Text>
     </View>
   );

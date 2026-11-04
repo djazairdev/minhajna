@@ -6129,7 +6129,7 @@
       "owed": "What the system owes teachers",
       "owedLead": "What teachers gave and what they lacked: the cover they gave, vacant posts and hours without a teacher, and sessions lost to an exceptional closure.",
       "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. The server hides enough cells that no hidden one can be worked out by subtraction.",
-      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking, or for a decision about a teacher.",
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals never set an exam threshold, and are never used for any ranking or for a decision about a teacher.",
       "hidden": "Hidden: under the minimum group sizes",
       "atLeast": "at least {{figure}}",
       "all": "Every subject",
@@ -6163,7 +6163,7 @@
       "wilaya": "Wilaya",
       "nation": "The nation",
       "closures": "Sessions lost are counted from the calendar and closure notices, never from anyone’s absence. A wilaya with fewer than 10 teachers or 3 schools is hidden; with every cell under a directorate’s floor, 5 teachers and 3 schools, the server hides every cell that would reveal it by subtraction.",
-      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals are never used for an exam threshold, for any ranking of wilayas, or for a decision about a teacher.",
+      "never": "Each school’s space prepares its share of these totals, naming no class, school or teacher, and the server shows only what is added up above the minimum group sizes. In this demo the server sees each share as it adds them up; encrypted adding up comes later. These totals never set an exam threshold, and are never used for any ranking of wilayas or for a decision about a teacher.",
       "reportLead": "The curriculum report for the nation. The wilayas show in it as a range, never named or ranked.",
       "range": "How far classes got across the wilayas: from {{low}}% to {{high}}%, the middle half from {{middleLow}}% to {{middleHigh}}%.",
       "noRange": "The range across the wilayas shows once at least 8 wilayas show their figure for this subject, with classes."
@@ -6713,7 +6713,7 @@
         }
       },
       "reading": "Reading what is published…",
-      "none": "No exam of this level is over yet: a cut is published the day after its exam’s last day.",
+      "none": "No exam is over yet: a cut is published the day after its exam’s last day.",
       "head": "{{exam}} · {{grade}}",
       "dates": "The figures were taken on {{figures}}. The exam ran from {{from}} to {{to}}.",
       "cut": "The cut adopted on {{day}}: up to {{item}}.",
@@ -6725,14 +6725,15 @@
       "majority": "Adopted by {{adopted}} of {{seats}} seats.",
       "safeguards": {
         "announced": "The figures day was announced ahead, and the figures were taken on {{figures}} alone.",
-        "after": "Published after the exam, with the figures in full and how they were used.",
+        "after": "Published after the exam, with the figures used.",
         "unchecked": "These figures are unchecked: this demo has no sample of the inspectors’ to compare them with."
       },
       "unused": {
         "figures": "Not used: any school’s, class’s or teacher’s figure.",
         "plans": "Not used: the classes’ own plans; the figures come from signed weeks alone.",
         "floors": "Not used: any figure under the minimum group sizes."
-      }
+      },
+      "figures": "The figures used: {{subject}}"
     }
   },
   "chart": {

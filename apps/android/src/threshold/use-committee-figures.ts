@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The totals a committee's page shows (#604, answer 638): those of the figures
-// day and of the term ends before it, read together as the page opens, when the
-// world's date moves, when another exam is chosen and when asked again, never
-// on a timer, and not at all with no day to read; a day the server does not
-// answer yet is null, and a problem is said in the catalogue's words. Any new
-// reading, and leaving the page, drops a slower answer.
+// The totals a committee's page and what is published of it show (#604, #606,
+// answers 638, 640): those of the figures day and of the term ends before it,
+// read together as the page opens, when the world's date moves, when another
+// exam is chosen and when asked again, never on a timer, and not at all with no
+// day to read; a day the server does not answer yet is null, and a problem is
+// said in the catalogue's words. Any new reading, and leaving the page, drops a
+// slower answer.
 
 import type { Day } from '@minhajna/core';
 import { useEffect, useEffectEvent, useState } from 'react';

@@ -158,8 +158,7 @@ export function movedLines(
   move: ExamMove | undefined,
   now: Pick<WorldExam, 'from' | 'to' | 'figuresDay' | 'signBy' | 'setBy'>,
   dayText: (day: Day) => string,
-  stale = false,
-  published = false,
+  { stale = false, published = false }: { readonly stale?: boolean; readonly published?: boolean } = {},
 ): string[] {
   if (move === undefined) return [];
   const { before } = move;
@@ -232,7 +231,7 @@ export function roomMoves(
   const now = movedExam(chart, moves, exams);
   if (now === undefined) return [];
   const stale = staleLines(t, chart, now, dayText);
-  return [...movedLines(t, moves.get(chart.exam), now, dayText, stale.length > 0), ...stale];
+  return [...movedLines(t, moves.get(chart.exam), now, dayText, { stale: stale.length > 0 }), ...stale];
 }
 
 /** The exams the world's calendar updates moved, by exam ID. */

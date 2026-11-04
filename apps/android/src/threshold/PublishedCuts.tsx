@@ -4,35 +4,24 @@
 // What is published of a level's cuts (N-Published, #606, §7.10, R-5.10-12,
 // R-7.10-14, R-7.10-15, R-7.10-21, R-7.10-22, R-7.10-25, R-7.10-27, answers 51,
 // 539, 549 and 640), from the day after an exam's last day, nothing of it
-// before: with the world's keys held it offers the level's exams that are over,
-// the latest chosen at first, and their grades; it says the exam's days and any
-// move with both dates and why; for each subject with a plan, the cut adopted
-// and its day, or no cut, or that none was adopted and the paper was set as
-// usual, the share of the classes that had reached the cut on the figures day,
-// how it shaped the exam in the committee's own words, and the signatures of
-// the seats that adopted it; and, for the subject chosen, the figures used
-// (CommitteeFigures.tsx), no wilaya named. It says the safeguards, and what was
-// not used. It reads as the room does (useCommittee.ts,
-// use-committee-figures.ts), a problem said as an alert with a way to read
-// again.
+// before: it offers the level's exams that are over, the latest chosen at
+// first, and their grades; it says the exam's days and any move with both dates
+// and why, the safeguards, and what was not used; with the world's keys held,
+// or else that they are not, for each subject with a plan, or else that the
+// grade has none, the cut adopted and its day, or no cut, or that none was
+// adopted and the paper was set as usual, the share of the classes that had
+// reached the cut on the figures day, how it shaped the exam in the committee's
+// own words, and the signatures of the seats that adopted it; and, for the
+// subject chosen, the figures used (CommitteeFigures.tsx), no wilaya named. It
+// reads as the room does (useCommittee.ts, use-committee-figures.ts), a problem
+// said as an alert with a way to read again.
 
-import {
-  committeeSeats,
-  compareDays,
-  worldExams,
-  type CalendarUpdate,
-  type Day,
-  type DemoSchool,
-  type PlanPack,
-} from '@minhajna/core';
+import { committeeSeats, compareDays, worldExams } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
-import type { HeldWorld } from '../demo/world-calendar-read';
-import type { Send, WorldKit } from '../demo/world-session';
-import type { TermReference } from '../director/seeded-fill';
 import { colors, spacing, typography } from '../design/tokens';
 import { subjectName } from '../extra/extra-rules';
 import { gradeName } from '../setup/names';
@@ -41,33 +30,14 @@ import { isolate } from '../week/grid-labels';
 import { termEndsBefore } from './committee-figures';
 import { committeeRooms, type CommitteeRead } from './committee-session';
 import { CommitteeFigures } from './CommitteeFigures';
+import type { CommitteePageProps } from './CommitteePage';
 import { gradeShown, shareOf } from './exam-totals';
 import { examName, itemNamer, movedLines, movesOf } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
-import { useCommitteeFigures, type LevelFigures } from './use-committee-figures';
+import { useCommitteeFigures } from './use-committee-figures';
 import { useCommittee } from './useCommittee';
 
-export type PublishedCutsProps = {
-  readonly world: string;
-  readonly date: Day;
-  readonly level: 'directorate' | 'national';
-  /** The directorate, or the nation, the committees are of (cuts.ts). */
-  readonly scope: string;
-  /** The world's keys and sealing key, held while it is open. */
-  readonly held: HeldWorld | null;
-  readonly reference: TermReference;
-  /** The schools the committee covers, whose classes pin the plans. */
-  readonly schools: readonly Pick<DemoSchool, 'classes'>[];
-  /** The packs the classes pin. */
-  readonly packs: readonly PlanPack[];
-  /** A day's figures for the level, null when not added up. */
-  readonly read: (day: Day) => Promise<LevelFigures | null>;
-  readonly kit: WorldKit;
-  readonly send?: Send;
-  readonly dayText: (day: Day) => string;
-  /** The world's calendar updates, which say when and why an exam moved. */
-  readonly updates?: readonly CalendarUpdate[];
-};
+export type PublishedCutsProps = CommitteePageProps;
 
 const SAFEGUARDS = ['announced', 'after', 'unchecked'] as const;
 const UNUSED = ['figures', 'plans', 'floors'] as const;
@@ -143,7 +113,12 @@ export function PublishedCuts(props: PublishedCutsProps) {
               ? t('demo.published.shareHidden')
               : t('demo.published.share', { share, day: dayText(exam.figuresDay) }),
           )}
-        {adopted?.item != null && body(shown?.words?.words ?? t('demo.committee.words.none'))}
+        {adopted?.item != null && small(t('demo.committee.words.title'))}
+        {adopted?.item != null && (
+          <Text style={[styles.body, { writingDirection: 'auto', textAlign: 'start' }]}>
+            {shown?.words?.words ?? t('demo.committee.words.none')}
+          </Text>
+        )}
         {adopted !== null &&
           [...adopted.seats]
             .sort((one, other) => one - other)
@@ -218,7 +193,9 @@ export function PublishedCuts(props: PublishedCutsProps) {
               to: dayText(exam.to),
             }),
           )}
-          {movedLines(t, moves.get(exam.id), exam, dayText, false, true).map((line, at) => small(line, `moved-${at}`))}
+          {movedLines(t, moves.get(exam.id), exam, dayText, { published: true }).map((line, at) =>
+            small(line, `moved-${at}`),
+          )}
           {held !== null && votes.reads !== null && planned.map((one, at) => row(one, votes.reads?.[at]))}
           {held !== null && planned.length === 0 && body(t('demo.committee.noPlan'))}
           {held !== null && planned.length > 1 && (
@@ -233,7 +210,7 @@ export function PublishedCuts(props: PublishedCutsProps) {
           {held !== null && open !== undefined && grade !== undefined && (
             <View testID="published-figures" style={styles.card}>
               <Text accessibilityRole="header" style={[styles.head, align]}>
-                {nameOf(open.subject)}
+                {t('demo.published.figures', { subject: nameOf(open.subject) })}
               </Text>
               <CommitteeFigures
                 testID="published"

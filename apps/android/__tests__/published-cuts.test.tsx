@@ -69,7 +69,6 @@ test('nothing is published until the day after the exam’s last day', async () 
   const all = texts();
   expect(all).toContain(published.none);
   expect(all).toContain(published.level.directorate.lead);
-  expect(controls('published-exams').length).toBe(0);
   expect(all.some((text) => text.includes(title(1)))).toBe(false);
   await unmount();
   onDay(id, after);
@@ -97,6 +96,7 @@ test('a cut says its day, the classes that had reached it, the words unchanged a
   await show(publishedOf(held, id, after));
   math = textsIn('published-math');
   expect(math).toContain('The text from unit 5, the questions up to unit 6.');
+  expect(math).toContain(words.words.title);
   expect(math).not.toContain(words.words.none);
 });
 
@@ -119,7 +119,9 @@ test('the figures come with the subject chosen, and the safeguards and what was 
   const { held, id } = await opened(after);
   await show(publishedOf(held, id, after));
   expect(textsIn('published-figures')).toContain(fill(words.counts, { teachers: 8, classes: 40, schools: 4 }));
-  expect(textsIn('published-figures')).toContain(subjectName(reference.profile, 'math'));
+  expect(textsIn('published-figures')).toContain(
+    fill(published.figures, { subject: subjectName(reference.profile, 'math') }),
+  );
   expect(textsIn('published-figures')).toContain(fill(words.chart, { day: written(day) }));
   const all = texts();
   expect(all).toContain(fill(published.safeguards.announced, { figures: written(day) }));
