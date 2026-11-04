@@ -5082,6 +5082,239 @@
         "failed": "Le fichier n’a pas pu être préparé ou enregistré."
       }
     },
+    "ops": {
+      "map": "La carte du serveur de démonstration : ce que porte chaque partie, et ce qui en franchit les limites",
+      "lead": "Le serveur de démonstration · {{date}} · ce que porte chaque partie, et ce qui en franchit les limites",
+      "only": "La carte se lit seulement : elle est tracée d’après ce que le serveur dit de lui-même ; rien de ce qu’il ne fait pas tourner n’y figure, et aucun lien n’y est ajouté à la main.",
+      "passes": "Passe",
+      "closed": "Fermé",
+      "noKey": "Aucune clé d’établissement ni d’enseignant dans les cases",
+      "reading": "Lecture de l’état du serveur…",
+      "again": "Relire",
+      "boxes": "Les parties",
+      "lines": "Ce qui passe",
+      "chosen": "Sélection sur la carte",
+      "row": {
+        "holds": "Porte",
+        "sees": "L’opérateur voit",
+        "never": "Ne voit jamais",
+        "carries": "Porte"
+      },
+      "box": {
+        "devices": "Appareils et navigateurs des enseignants",
+        "outside": "Services extérieurs",
+        "gateway": "La passerelle du serveur",
+        "relay": "Le dépôt des lots",
+        "totals": "Le service des totaux",
+        "standins": "Substituts des systèmes de l’État",
+        "storage": "Le stockage",
+        "screens": "Écrans des directions et du ministère",
+        "backups": "Les sauvegardes"
+      },
+      "sub": {
+        "devices": "L’application Minhajna, et les PC des salles des professeurs",
+        "outside": "Statistiques, publicités, polices",
+        "gateway": "Reçoit sans ouvrir",
+        "relay": "Chiffrés, d’une seule taille",
+        "totals": "N’additionne que des parts",
+        "standins": "L’autorité de certification et le système de réception, pour la démonstration seulement",
+        "storage": {
+          "postgresql": "PostgreSQL, dans le conteneur",
+          "memory": "En mémoire, perdu à l’arrêt du serveur"
+        },
+        "screens": "Des totaux seulement",
+        "backups": "Hors du conteneur, scellées si le déploiement fixe une clé"
+      },
+      "facts": {
+        "devices": {
+          "holds": "Les registres, et leurs clés, qui n’en sortent jamais",
+          "sees": "Ce qui parvient au serveur : des lots chiffrés, les parts de comptes des établissements, des exports scellés pour le substitut, et des demandes de certificat",
+          "never": "Une clé d’établissement ou d’enseignant, ou un registre lisible"
+        },
+        "outside": {
+          "holds": "Rien de ce serveur",
+          "sees": "Que le serveur n’en appelle aucun",
+          "never": "Une requête : ni statistiques, ni publicités, ni polices, ni suivi d’erreurs ; la seule adresse extérieure est le dépôt des sauvegardes, quand elles sont gardées"
+        },
+        "gateway": {
+          "holds": "Rien : elle remet les requêtes à leurs parties",
+          "sees": "La taille d’une requête, l’identifiant du monde et son mot de passe, gardé seulement haché",
+          "never": "Les adresses : en mémoire pour les limites de requêtes, un jour au plus, jamais stockées ni journalisées ; et aucune heure de requête"
+        },
+        "relay": {
+          "holds": "Des lots d’une seule taille, chiffrés pour des clés qu’il n’a pas",
+          "sees": "Leur taille, leur ordre, et l’identifiant et le type de chaque espace",
+          "never": "Un nom, une note, une séance ou une remarque"
+        },
+        "totals": {
+          "holds": "Les parts des établissements : des comptes seulement, par matière",
+          "sees": "Les comptes avant leur addition, dans cette démonstration",
+          "never": "Un établissement, une classe ou un enseignant : aucune part ne nomme personne"
+        },
+        "standins": {
+          "holds": "La clé de l’autorité de certification et la clé de réception de chaque monde, et les accusés du système de réception",
+          "sees": "L’en-tête de chaque export et son nombre de lignes",
+          "never": "Les élèves et leurs notes : un export est ouvert, jamais gardé"
+        },
+        "storage": {
+          "postgresql": {
+            "holds": "Les mondes, leurs espaces et lots, les parts, les clés et les accusés, effacés le 7e jour",
+            "sees": "Des identifiants, des nombres et des octets chiffrés",
+            "never": "Un registre nominatif, ou une clé de l’espace d’un établissement ou d’un enseignant"
+          },
+          "memory": {
+            "holds": "Les mondes, leurs espaces et lots, les parts, les clés et les accusés, tant que le serveur tourne, effacés le 7e jour",
+            "sees": "Des identifiants, des nombres et des octets chiffrés",
+            "never": "Un registre nominatif, ou une clé de l’espace d’un établissement ou d’un enseignant"
+          }
+        },
+        "screens": {
+          "holds": "Les totaux au-dessus du seuil",
+          "sees": "Rien : ils sont calculés à la demande",
+          "never": "Un chiffre sous son seuil : 5 enseignants ou 3 établissements pour une direction, 10 ou 3 au-dessus"
+        },
+        "backups": {
+          "holds": "Des copies de la base et de son journal d’écriture, scellées si le déploiement fixe une clé",
+          "sees": "La taille et l’heure des copies",
+          "never": "Un registre nominatif, qu’elles soient scellées ou non"
+        },
+        "line": {
+          "batches": {
+            "carries": "Des lots chiffrés d’une seule taille, les parts de comptes des établissements, des exports scellés pour le substitut, et des demandes de certificat",
+            "sees": "Leur taille, leur espace et les comptes"
+          },
+          "back": {
+            "carries": "Les mêmes lots, à qui détient le mot de passe du monde",
+            "sees": "Leur taille et leur espace"
+          },
+          "kept": {
+            "carries": "Les lots tels qu’ils sont arrivés",
+            "sees": "Leur taille et leur ordre"
+          },
+          "shares": {
+            "carries": "La part de chaque établissement, des comptes seulement",
+            "sees": "Les comptes"
+          },
+          "totals": {
+            "carries": "Les totaux au-dessus du seuil",
+            "sees": "Ce que voient les écrans"
+          },
+          "exports": {
+            "carries": "Des exports scellés pour le substitut du système de réception, et des demandes de certificat",
+            "sees": "L’accusé seul"
+          },
+          "rows": {
+            "carries": "Des identifiants, des nombres et des octets chiffrés",
+            "sees": "Les lignes telles quelles"
+          },
+          "copies": {
+            "carries": "Des copies de la base, en continu",
+            "sees": "Leur taille et leur heure"
+          },
+          "held": {
+            "carries": "Les parts telles qu’elles sont arrivées",
+            "sees": "Les comptes"
+          },
+          "receipts": {
+            "carries": "Les clés et les accusés",
+            "sees": "L’en-tête de chaque accusé"
+          },
+          "closed": {
+            "carries": "Rien : fermé",
+            "sees": "Rien"
+          }
+        }
+      },
+      "note": {
+        "devices": "Les clés restent sur les appareils : le serveur n’ouvre rien de ce qu’ils portent.",
+        "outside": "Le serveur n’appelle aucun service extérieur, sauf le dépôt des sauvegardes quand elles sont gardées.",
+        "gateway": "La passerelle ne stocke pas les adresses et ne journalise pas les heures de connexion.",
+        "relay": "Même en lisant tout le disque, l’opérateur n’y trouverait aucun registre lisible.",
+        "totals": "Dans cette démonstration, le serveur voit chaque part avant de les additionner ; l’agrégation sécurisée par chiffrement viendra plus tard.",
+        "standins": "Dans le système national, les systèmes de l’État restent hors de ce centre, et le connecteur transmet sans ouvrir. Dans la démonstration, le serveur les remplace.",
+        "storage": {
+          "postgresql": "Les clés des substituts y sont gardées aussi, avec leur monde. Même en lisant tout le disque, l’opérateur n’y trouverait aucun registre lisible.",
+          "memory": "Rien ne survit à l’arrêt du serveur, et rien n’est sauvegardé."
+        },
+        "screens": "Aucun chiffre pour un établissement ou un enseignant.",
+        "backups": "Si le déploiement fixe une clé, l’hébergeur la garde avec les accès au dépôt, pas le serveur : qui lit le dépôt ne lit rien de leur contenu. Un monde effacé y reste environ deux jours. Toute la démonstration en est restaurée quand un conteneur démarre sur un disque vide."
+      },
+      "line": {
+        "batches": "Lots, parts et exports",
+        "back": "Les lots à qui détient le mot de passe",
+        "kept": "Gardés tels quels",
+        "shares": "Parts des établissements",
+        "totals": "Totaux au-dessus du seuil",
+        "exports": "Exports scellés",
+        "rows": "Lignes chiffrées",
+        "copies": "Copies de la base",
+        "held": "Parts gardées",
+        "receipts": "Clés et accusés",
+        "closed": "Fermé"
+      },
+      "state": {
+        "title": "L’état du système",
+        "version": "Serveur du projet, version {{version}}",
+        "matches": "Conforme à la version du serveur publiée avec cette application.",
+        "differs": "Différente de la version {{release}} du serveur, publiée avec cette application.",
+        "fingerprint": "L’empreinte de son code construit, que chacun peut comparer en reconstruisant la source publiée :",
+        "noFingerprint": "Le serveur n’a pas pu lire son code construit : il n’a pas d’empreinte.",
+        "answering": "La base de données répond.",
+        "failing": "La base de données ne répond pas en ce moment.",
+        "memory": "Les mondes sont en mémoire, et perdus à l’arrêt du serveur.",
+        "archiveOn": "La base archive son journal d’écriture, qui garde les sauvegardes.",
+        "archiveOff": "Aucune sauvegarde : la base n’archive pas son journal d’écriture.",
+        "archiveUnknown": "On ne sait pas si les sauvegardes sont gardées tant que la base ne répond pas.",
+        "offline": "L’installation et la mise à jour hors ligne depuis la version publiée attendent un vrai déploiement.",
+        "fixes": "Les correctifs de sécurité critiques paraissent sous 7 jours, et sont installés dans le même délai."
+      },
+      "admin": {
+        "lead": "Le journal d’administration du serveur de démonstration : chaque action d’administration par son jour, sans heure ni nom.",
+        "named": "Cette démonstration n’a pas d’opérateur nommé : l’opérateur est un rôle comme les autres. Un vrai déploiement journalise chaque action au nom de qui l’a faite, après une connexion à deux facteurs, et personne ne l’administre depuis l’étranger.",
+        "kept": "Avec une base de données, le journal est gardé 12 mois au plus ; avec les mondes en mémoire, il est perdu à l’arrêt du serveur. Ses 200 lignes les plus récentes sont affichées.",
+        "lines": "Lignes, les plus récentes d’abord",
+        "none": "Rien dans le journal pour l’instant.",
+        "started": "Le serveur a démarré, version {{version}}",
+        "startedMigrations": "Le serveur a démarré, version {{version}}, et a appliqué {{migrations}} à la base",
+        "joiner": ", ",
+        "erased_one": "{{count}} monde effacé à son 7e jour",
+        "erased_many": "{{count}} de mondes effacés à leur 7e jour",
+        "erased_other": "{{count}} mondes effacés à leur 7e jour",
+        "fixed": "Un signalement de problème a été marqué corrigé et effacé ({{id}})",
+        "other": "Une action d’administration que cette version de l’application ne lit pas"
+      },
+      "problems": {
+        "lead": "Les signalements de problème envoyés depuis ce monde : la partie de l’application, ce qui s’est passé (les noms des élèves déjà remplacés sur l’appareil), la version de l’application et le jour d’arrivée. Rien sur qui l’a envoyé.",
+        "kept": "Chaque signalement est gardé jusqu’à ce qu’il soit marqué corrigé ou que son auteur le supprime, 200 au plus par monde et 12 mois au plus, et il est effacé avec le monde. Le marquer corrigé l’efface et ajoute une ligne au journal d’administration.",
+        "reports": "Signalements, les plus récents d’abord",
+        "none": "Aucun signalement de problème dans ce monde.",
+        "facts": "Arrivé le {{day}} · version {{version}} · {{id}}",
+        "fix": "Marquer corrigé",
+        "ask": "Ce signalement sera effacé et sa correction inscrite au journal d’administration. Continuer ?",
+        "yes": "Marquer corrigé et effacer",
+        "keep": "Le garder",
+        "fixed": "Le signalement {{id}} a été marqué corrigé, effacé et inscrit au journal d’administration.",
+        "gone": "Le signalement {{id}} n’est plus dans ce monde."
+      },
+      "security": {
+        "lead": "Les journaux de sécurité du serveur de démonstration : les requêtes refusées, comptées chaque jour.",
+        "apart": "Gardés à part de tout le reste : dans la mémoire du serveur seulement, jamais dans la base ni dans les sauvegardes.",
+        "kept_one": "Gardés {{count}} jour, et perdus à l’arrêt du serveur. Un vrai déploiement les garde le moins longtemps que la loi le permet.",
+        "kept_many": "Gardés {{count}} de jours, et perdus à l’arrêt du serveur. Un vrai déploiement les garde le moins longtemps que la loi le permet.",
+        "kept_other": "Gardés {{count}} jours, et perdus à l’arrêt du serveur. Un vrai déploiement les garde le moins longtemps que la loi le permet.",
+        "never": "Des comptes seulement : ni adresse, ni monde, ni heure ; ils ne servent jamais à mesurer ni à juger les enseignants.",
+        "none": "Rien n’a été refusé dans les jours gardés.",
+        "kind": {
+          "rate-limited": "Requêtes au-delà des limites",
+          "pass-refused": "Codes de monde qui n’ont rien ouvert",
+          "starter-refused": "Jetons de démarrage refusés",
+          "certificate-refused": "Demandes de certificat refusées",
+          "delivery-refused": "Envois refusés au substitut du système de réception"
+        },
+        "others": "Refus d’autres types que cette version de l’application ne connaît pas",
+        "row": "{{kind}} : {{count}}"
+      }
+    },
     "staff": {
       "title": "PC de la salle des professeurs",
       "lead": "Le registre sur un grand écran, et rien n’y reste après.",
@@ -5969,7 +6202,8 @@
       "shows": {
         "school": "Pas encore de seuil. Le seuil est facultatif : les rédacteurs peuvent en proposer un après le jour des chiffres.",
         "directorate": "Le seuil de la direction n’apparaît pas avant l’examen. Après le jour des chiffres, vos classes apparaîtront face à ses totaux.",
-        "national": "Le seuil national est publié pour tous après l’examen, avec ses chiffres et la façon dont il a orienté les questions."
+        "national": "Le seuil national est publié pour tous après l’examen, avec ses chiffres et la façon dont il a orienté les questions.",
+        "totals": "Le seuil de la direction n’apparaît pas avant l’examen. Ses totaux du jour des chiffres sont ouverts, avec vos classes indiquées en dessous depuis ce téléphone."
       },
       "moved": "L’examen a été déplacé du {{was}} au {{is}} : son jour des chiffres du {{wasFigures}} au {{isFigures}}, et le délai de signature de son seuil du {{wasSign}} au {{isSign}}.",
       "movedAnnounced": "Annoncé le {{day}}.",
@@ -5979,7 +6213,8 @@
       "movedWeek": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}, et le délai de signature de son seuil passe du {{wasSign}} au {{isSign}}.",
       "movedWeekAbove": "L’examen a été déplacé du {{was}} au {{is}} dans la même semaine : son jour des chiffres reste le {{isFigures}}.",
       "movedEnd": "Le dernier jour de l’examen a été déplacé du {{wasEnd}} au {{isEnd}} ; son premier jour et son jour des chiffres restent les mêmes.",
-      "movedCalendar": "Les dates de l’examen ont changé dans le calendrier sur ce téléphone."
+      "movedCalendar": "Les dates de l’examen ont changé dans le calendrier sur ce téléphone.",
+      "totals": "Les totaux de la direction"
     },
     "threshold": {
       "title": "Le seuil de l’examen",
@@ -6030,7 +6265,8 @@
         "seen": "Avant l’examen, seuls les rédacteurs et le directeur voient le seuil.",
         "published": "Après l’examen, le seuil est publié dans l’espace de l’établissement avec ses chiffres.",
         "monthly": "Les devoirs mensuels restent à chaque enseignant, sans seuil ni signature.",
-        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit.",
+        "kept": "Le seuil est conservé avec les chiffres sur lesquels il repose et les signatures des rédacteurs."
       },
       "problem": {
         "closed": "Le seuil ne peut plus être signé : le délai de signature est passé ou le directeur a décidé.",
@@ -6041,7 +6277,146 @@
         "bem": "Le BEM"
       },
       "stale": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son nouveau jour des chiffres est le {{now}}, et le graphique n’est pas repris, donc son seuil se signe toujours au plus tard le {{signBy}}.",
-      "staleSign": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son jour des chiffres reste le même, et son seuil se signe toujours au plus tard le {{signBy}}."
+      "staleSign": "Ce graphique a été pris le {{day}}, avant le déplacement de l’examen ; son jour des chiffres reste le même, et son seuil se signe toujours au plus tard le {{signBy}}.",
+      "after": {
+        "lead": "Publié dans l’espace de l’établissement après l’examen, avec les chiffres pris le {{figures}} sur lesquels il repose. Chaque enseignant de cette matière à ce niveau le voit.",
+        "cut": "Le seuil publié",
+        "setters": "Signé par tous les rédacteurs : le sujet couvrait jusqu’à {{item}}.",
+        "director": "Décidé par le directeur : le sujet couvrait jusqu’à {{item}}.",
+        "directorNone": "Décidé par le directeur : pas de seuil pour cet examen, le sujet a donc été rédigé comme d’habitude.",
+        "none": "Aucun seuil appliqué : aucun n’a été arrêté, le sujet a donc été rédigé comme d’habitude.",
+        "dates": "Les chiffres de l’établissement ont été pris le {{figures}}, et l’examen a commencé le {{from}}.",
+        "unsigned": "{{name}} : n’a rien signé"
+      }
+    },
+    "examTotals": {
+      "title": "Les totaux de la direction",
+      "days": "Les totaux de la direction au jour des chiffres, {{figures}}. Examen : {{from}}.",
+      "notYet": "Les totaux de la direction pour cette matière et ce niveau ne sont pas encore additionnés : aucune part d’établissement de ce jour ne les contient.",
+      "hidden": "Les totaux de la direction pour cette matière et ce niveau sont masqués : ils couvrent moins de 5 enseignants ou 3 établissements, ou permettraient de retrouver un chiffre masqué.",
+      "counts": "Enseignants de la direction : {{teachers}} · classes : {{classes}} · établissements : {{schools}}",
+      "chart": "Part des classes de la direction ayant atteint chaque élément, le {{day}} (%)",
+      "share": "Classes l’ayant atteint (%)",
+      "item": "Élément du plan",
+      "mine": "Mes classes le {{day}}, depuis ce téléphone",
+      "mineLine": "{{class}} : fait : {{reached}}",
+      "mineNote": "Calculées sur ce seul téléphone, à partir de vos semaines signées, et jamais placées sur les chiffres de la direction. Le serveur ne reçoit que la part de l’établissement, qui ne nomme aucune classe, et la direction que les totaux.",
+      "gone": "Les totaux de cet examen ne sont pas ouverts sur ce téléphone : son jour des chiffres n’est pas venu, ou il n’est plus parmi vos examens.",
+      "ownFailed": "Vos classes n’ont pas pu être calculées sur ce téléphone : vos semaines signées n’ont pas été lues.",
+      "notes": {
+        "noCut": "Le seuil n’apparaît pas avant l’examen : la commission et le service des examens le voient, et il est publié après l’examen avec ces chiffres.",
+        "floors": "Aucun chiffre de la direction ici n’est celui d’un établissement, d’une classe ou d’un enseignant : chacun couvre au moins 5 enseignants et 3 établissements, et tout ce qui est plus petit est masqué, y compris par soustraction.",
+        "server": "À partir des seules semaines signées : une classe a atteint un élément dès qu’une semaine signée a porté sur lui ou sur un élément suivant, et aucune prévision n’y entre. Dans cette démo, le serveur voit la part de chaque établissement en les additionnant.",
+        "never": "Rien ici ne sert à évaluer ni à classer qui que ce soit."
+      }
+    },
+    "insights": {
+      "title": "Statistiques anonymes",
+      "row": {
+        "teacher": "Désactivées · ce qui est envoyé, exactement, s’affiche avant de les activer",
+        "school": "Désactivées pour les classes de l’espace de l’établissement",
+        "retired": "Arrêtées : les totaux du système national les ont remplacées",
+        "on": "Activées · un envoi par classe suivant un paquet de progression, à la fin de chaque trimestre"
+      },
+      "sub": {
+        "teacher": "Facultatives · en mode enseignant, avant le système national",
+        "school": "Le système national",
+        "retired": "Arrêtées · le système national"
+      },
+      "purpose": "Elles montrent aux concepteurs des programmes quels éléments demandent plus de temps que la progression n’en donne. Elles décrivent la progression, pas les classes ni les enseignants.",
+      "participation": "Participation",
+      "off": "La participation est désactivée. Avant de l’activer, ce qui est envoyé, exactement, pour chaque classe s’affiche ici.",
+      "on": "La participation est activée. À la fin de chaque trimestre, tant que ce monde est ouvert, un envoi pour chaque classe qui suit un paquet de progression part vers le serveur des statistiques du monde de démonstration, exactement tel qu’affiché ci-dessous. Vous pouvez la désactiver à tout moment.",
+      "unkept": "Votre choix n’a pas pu être gardé : la participation reste comme avant. Réessayez.",
+      "sending": {
+        "working": "Envoi de ce qui est dû…",
+        "done_one": "{{count}} envoi est parti vers le serveur des statistiques.",
+        "done_many": "{{count}} d’envois sont partis vers le serveur des statistiques.",
+        "done_other": "{{count}} envois sont partis vers le serveur des statistiques.",
+        "upToDate": "Rien n’attend : chaque envoi dû est parti.",
+        "partial": "Ce qui est dû est parti, sauf pour les classes dont l’envoi n’a pas pu être établi ; réessayer n’y changerait rien.",
+        "failed": "Ce qui est dû n’a pas pu être envoyé. Un nouvel essai a lieu quand la date du monde avance ; vous pouvez aussi réessayer maintenant.",
+        "retry": "Réessayer"
+      },
+      "never": {
+        "head": "Jamais envoyé",
+        "dates": "Les dates des séances",
+        "reasons": "Pourquoi une séance n’a pas eu lieu",
+        "pupils": "Aucune donnée sur les élèves",
+        "me": "Rien qui m’identifie",
+        "school": "Les données du mode établissement"
+      },
+      "floors": "Chaque chiffre n’est publié que s’il couvre au moins 10 enseignants et 3 établissements ; ce qui est en dessous, ou le révélerait par soustraction, est masqué. Les chiffres ne servent jamais à fixer le périmètre des examens, à classer qui que ce soit, ni à des décisions sur les enseignants.",
+      "school": {
+        "off": "Désactivées pour les classes de l’espace de l’établissement : les données du système national n’entrent jamais dans les statistiques.",
+        "none": "Ce téléphone n’a encore rejoint aucun espace d’établissement. Dans ce monde, les statistiques ne fonctionnent pas : les chiffres de mes classes sont formés dans le système national.",
+        "perClass": "Par classe",
+        "mine": "Mes classes",
+        "inSpace": "Dans l’espace de {{school}} depuis le {{date}}",
+        "stopped": "Désactivées",
+        "nationalHead": "Les chiffres de ces classes sont formés dans le système national",
+        "nationalLine": "En totaux au-dessus de l’établissement, à partir des semaines signées, dans le rapport sur les programmes. Rien n’en est envoyé au serveur des statistiques.",
+        "working": "Recherche de mes classes dans chaque espace…"
+      },
+      "retired": {
+        "head": "Les statistiques anonymes sont arrêtées : les totaux du système national les ont remplacées",
+        "line": "Il n’y a plus d’interrupteur pour participer, et rien ne part de ce téléphone vers le serveur des statistiques.",
+        "since": "Depuis le {{date}}, premier jour où des totaux au-dessus de l’établissement ont été formés.",
+        "report": "Dans le système national, le rapport sur les programmes remplace ces statistiques : des totaux au-dessus de l’établissement, à partir des semaines signées",
+        "holdsHead": "Ce qu’il contient",
+        "holds": {
+          "median": "Les séances prises par chaque élément du paquet, en médiane",
+          "changed": "Les éléments le plus souvent fusionnés, sautés, scindés ou repris, par tranches",
+          "reached": "Où en étaient les classes à la fin de chaque trimestre : la médiane et les quartiles",
+          "floors": "Pour la direction et le pays ; chaque chiffre d’une direction couvre au moins 5 enseignants et 3 établissements"
+        },
+        "neverHead": "Ce qu’il ne contient jamais",
+        "never": {
+          "figures": "Un chiffre pour une classe, un établissement ou un enseignant : l’espace de chaque établissement prépare sa part, et les parts sont additionnées",
+          "dates": "Les dates des séances, les raisons de celles qui n’ont pas eu lieu, et les données des élèves"
+        },
+        "uses": "Il ne sert pas non plus à un seuil d’examen, à classer qui que ce soit, ni à une décision sur un enseignant."
+      },
+      "preview": {
+        "head": "Ce qui est envoyé, exactement, pour chaque classe, au {{term}}",
+        "working": "Calcul de ce qui est envoyé pour chaque classe…",
+        "none": "Aucun trimestre n’est encore terminé à la date de ce monde : rien n’est envoyé.",
+        "failed": "Ce qui est envoyé pour cette classe n’a pas pu être calculé.",
+        "noPack": "Cette classe n’épingle aucun paquet de progression : rien n’est envoyé pour elle, ses séances sont saisies librement et ne décrivent aucune progression.",
+        "failedAll": "Ce qui est envoyé pour chaque classe n’a pas pu être calculé."
+      },
+      "payload": {
+        "level": "Niveau et matière",
+        "wilaya": "Wilaya",
+        "pack": "Paquet et version",
+        "sessions": "Séances par élément",
+        "sessionsLine": "{{items}} : {{named}}{{more}}",
+        "itemSessions": "{{item}} : {{count}}",
+        "separator": " · ",
+        "more": " …",
+        "changed": "Ce qui a changé",
+        "unchanged": "Rien",
+        "changes": {
+          "merged": "Fusionné : {{item}}",
+          "skipped": "Sauté : {{item}}",
+          "split": "Scindé : {{item}}",
+          "retaught": "Repris : {{item}}"
+        },
+        "reached": {
+          "1": "Fin du premier trimestre",
+          "2": "Fin du deuxième trimestre",
+          "3": "Fin du troisième trimestre"
+        },
+        "reachedLine": "La classe a atteint {{percent}} % de la progression",
+        "token": "Le jeton aléatoire du trimestre",
+        "schoolTerm": "Le code de l’établissement et du trimestre, compté puis effacé",
+        "text": "Le texte tel qu’il est envoyé",
+        "terms": {
+          "1": "premier trimestre",
+          "2": "deuxième trimestre",
+          "3": "troisième trimestre"
+        }
+      }
     }
   },
   "chart": {

@@ -6,14 +6,15 @@
 // demo server adds them up from the schools' shares (answer 628), every figure
 // under its floor already hidden there: by subject and over every subject, each
 // figure's teachers, schools and counts, and by plan item what the classes did,
-// a hidden figure or item null. A day the server does not answer yet, not
-// announced or not reached on its side, or for which no share of the
-// directorate's schools, or of any school for the Ministry, came in, gives
-// null; an answer not of that shape, for another directorate, or naming a
-// directorate with no ID or twice, throws E_WORLD_SERVER, and any other answer
-// throws with world-session.ts's codes. Subjects and items are kept as lists of
-// pairs, in the server's order, so no name it sends can reach an object's own
-// properties.
+// and a subject's grades, each with its teachers, classes and schools and by
+// plan item how many classes reached it (#602, answer 634), a hidden figure,
+// grade or item null. A day the server does not answer yet, not announced or
+// not reached on its side, or for which no share of the directorate's schools,
+// or of any school for the Ministry, came in, gives null; an answer not of that
+// shape, for another directorate, or naming a directorate with no ID or twice,
+// throws E_WORLD_SERVER, and any other answer throws with world-session.ts's
+// codes. Subjects, grades and items are kept as lists of pairs, in the server's
+// order, so no name it sends can reach an object's own properties.
 
 import type { Day } from '@minhajna/core';
 import { failed, unexpected, type Send } from '../demo/world-session';
@@ -21,13 +22,20 @@ import { failed, unexpected, type Send } from '../demo/world-session';
 const COUNTS = ['teachers', 'schools', 'vacantPosts', 'hoursWithoutTeacher', 'classes', 'cover', 'closed'] as const;
 const MORE = ['reached', 'runLong'] as const;
 const ITEM = ['sessions', 'merged', 'skipped', 'retaught'] as const;
+const GRADE = ['teachers', 'classes', 'schools'] as const;
 
 /** A plan item: its sessions, and the classes that merged, skipped or re-taught it. */
 export type ItemFigure = Readonly<Record<(typeof ITEM)[number], number>>;
 
-/** A figure the server shows, with its plan items for a subject. */
+/** A grade in a subject: its teachers, classes and schools, and by plan item how many classes reached it. */
+export type GradeFigure = Readonly<Record<(typeof GRADE)[number], number>> & {
+  readonly items: readonly (readonly [string, number | null])[];
+};
+
+/** A figure the server shows, with its plan items and grades for a subject. */
 export type Figure = Readonly<Record<(typeof COUNTS)[number] | (typeof MORE)[number], number>> & {
   readonly items: readonly (readonly [string, ItemFigure | null])[];
+  readonly grades: readonly (readonly [string, GradeFigure | null])[];
 };
 
 /** A directorate's figures for a day: by subject, and over every subject; null when hidden. */
@@ -41,21 +49,39 @@ const isCount = (value: unknown) => Number.isSafeInteger(value) && (value as num
 const isMap = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+/** A map's counts, already checked, by their fields. */
+const counted = <K extends string>(value: Record<string, unknown>, fields: readonly K[]) =>
+  Object.fromEntries(fields.map((field) => [field, value[field]])) as Record<K, number>;
+
 function readItem(value: unknown): ItemFigure | null | undefined {
   if (value === null) return null;
   if (!isMap(value) || !ITEM.every((field) => isCount(value[field]))) return undefined;
-  return Object.fromEntries(ITEM.map((field) => [field, value[field]])) as ItemFigure;
+  return counted(value, ITEM);
+}
+
+/** A map's entries each read by `read`, an absent map none, or undefined when one does not read. */
+function readEach<T>(value: unknown, read: (one: unknown) => T | null | undefined) {
+  if (value === undefined) return [];
+  if (!isMap(value)) return undefined;
+  const entries = Object.entries(value).map(([key, one]) => [key, read(one)] as const);
+  return entries.some(([, one]) => one === undefined) ? undefined : (entries as (readonly [string, T | null])[]);
+}
+
+function readGrade(value: unknown): GradeFigure | null | undefined {
+  if (value === null) return null;
+  if (!isMap(value) || !GRADE.every((field) => isCount(value[field]))) return undefined;
+  const items = readEach(value.items, (one) => (one === null ? null : isCount(one) ? (one as number) : undefined));
+  if (items === undefined) return undefined;
+  return { ...counted(value, GRADE), items };
 }
 
 function readFigure(value: unknown): Figure | null | undefined {
   if (value === null) return null;
   if (!isMap(value) || ![...COUNTS, ...MORE].every((field) => isCount(value[field]))) return undefined;
-  const items = value.items === undefined ? {} : value.items;
-  if (!isMap(items)) return undefined;
-  const read = Object.entries(items).map(([item, one]) => [item, readItem(one)] as const);
-  if (read.some(([, one]) => one === undefined)) return undefined;
-  const counts = Object.fromEntries([...COUNTS, ...MORE].map((field) => [field, value[field]]));
-  return { ...counts, items: read as Figure['items'] } as Figure;
+  const items = readEach(value.items, readItem);
+  const grades = readEach(value.grades, readGrade);
+  if (items === undefined || grades === undefined) return undefined;
+  return { ...counted(value, [...COUNTS, ...MORE]), items, grades };
 }
 
 /** One directorate's figures as the server gives them, or undefined when they do not read. */

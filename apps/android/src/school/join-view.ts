@@ -10,10 +10,11 @@
 // back to them (#584), or the classes handed over as a substitute (#587), or
 // those come back at its end (#588), or the term's marks to send (#591), or the
 // exams with a common paper and an exam's threshold, opened from them on its
-// room and going back to them (#601). Going back, by a page's button or
-// Android's back, returns to School-join, and from it to the world's home;
-// Leave's way to the next school returns to School-join with the code's card
-// scrolled into view, once it is laid out.
+// room and going back to them (#601), or a directorate exam's totals, opened
+// from them on its exam, subject and grade and going back to them (#602). Going
+// back, by a page's button or Android's back, returns to School-join, and from
+// it to the world's home; Leave's way to the next school returns to School-join
+// with the code's card scrolled into view, once it is laid out.
 
 import type { SchoolJoined } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -33,7 +34,8 @@ export type JoinPage =
   | 'return'
   | 'termSend'
   | 'thresholds'
-  | 'threshold';
+  | 'threshold'
+  | 'examTotals';
 
 /** A joined card's page on view: on a course or exam room when chosen, and the page its way back returns to. */
 export type JoinedView = {
