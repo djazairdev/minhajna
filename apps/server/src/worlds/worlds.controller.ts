@@ -5,14 +5,15 @@
 // world from the first half of its code, the sealed world and the world's pass,
 // and answers the starter token once. With the pass in X-World-Pass, GET
 // /worlds/:world joins it and GET /worlds/:world/date reads its date, each with
-// its announced days; a wrong pass answers as if no world had the id. POST
-// /worlds/:world/date, with the pass too, moves the date to the next announced
-// day, only for the starter token's holder, refused when the days changed
-// meanwhile. PUT /worlds/:world/announced-days, with the pass, replaces the
-// announced days after the date with those a published calendar gives (#608,
-// answer 624), keeping the date and the days before it, and refused when the
-// date moved meanwhile. Only a start can tell that an id is taken, and starts
-// are the most limited requests. No answer may be cached: they carry the
+// its announced days, the date under the relay's limit, since every device
+// reads it as it goes (answer 723); a wrong pass answers as if no world had the
+// id. POST /worlds/:world/date, with the pass too, moves the date to the next
+// announced day, only for the starter token's holder, refused when the days
+// changed meanwhile. PUT /worlds/:world/announced-days, with the pass, replaces
+// the announced days after the date with those a published calendar gives
+// (#608, answer 624), keeping the date and the days before it, and refused when
+// the date moved meanwhile. Only a start can tell that an id is taken, and
+// starts are the most limited requests. No answer may be cached: they carry the
 // starter token and sealed worlds.
 
 import {
@@ -100,7 +101,7 @@ export class WorldsController {
     @Headers('x-world-pass') pass: string | undefined,
     @Req() request: IncomingMessage,
   ): Promise<{ date: string; announcedDays: readonly string[] }> {
-    this.limit(this.limiters.joins, request);
+    this.limit(this.limiters.relay, request);
     const world = await openWorld(this.store, id, pass);
     return { date: world.date, announcedDays: world.announcedDays };
   }

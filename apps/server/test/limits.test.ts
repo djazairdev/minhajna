@@ -101,7 +101,7 @@ describe('the rate limits', () => {
       assert.equal(refused.headers.get('access-control-expose-headers'), 'Retry-After');
       const headers = { 'x-world-pass': PASS };
       assert.equal((await fetch(`${base}/worlds/K1MT1`, { headers })).status, 200);
-      assert.equal((await fetch(`${base}/worlds/K1MT2/date`, { headers })).status, 200);
+      assert.equal((await fetch(`${base}/worlds/K1MT2`, { headers })).status, 200);
       assert.equal((await fetch(`${base}/worlds/K1MT1`, { headers })).status, 429);
       const space = `${base}/worlds/K1MT2/spaces/bGltaXRlZC1zcGFjZS1vZi1kZW1v`;
       const put = {
@@ -112,6 +112,37 @@ describe('the rate limits', () => {
       assert.equal((await fetch(space, put)).status, 200);
       assert.equal((await fetch(`${space}/batches`, { headers })).status, 200);
       assert.equal((await fetch(`${space}/batches`, { headers })).status, 429);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('leaves joins free of what every device reads as it goes, under the relay’s limit', async () => {
+    const tight = { perAddress: 5, total: 100, windowMs: 60_000 };
+    const app = await createApp(false, { joins: { ...tight, perAddress: 1 }, relay: tight });
+    await app.listen(0, '127.0.0.1');
+    const base = await app.getUrl();
+    try {
+      const body = JSON.stringify({
+        world: 'K1MT1',
+        sealed: 'c2VhbGVk',
+        date: '2026-12-01',
+        announcedDays: [],
+        pass: PASS,
+      });
+      const start = { method: 'POST', headers: { 'content-type': 'application/json' }, body };
+      assert.equal((await fetch(`${base}/worlds`, start)).status, 201);
+      const world = `${base}/worlds/K1MT1`;
+      const headers = { 'x-world-pass': PASS };
+      for (const path of ['date', 'ca', 'state/receiver', 'state/deliveries'])
+        assert.equal((await fetch(`${world}/${path}`, { headers })).status, 200, path);
+      assert.equal((await fetch(world, { headers })).status, 200);
+      assert.equal((await fetch(world, { headers })).status, 429);
+      assert.equal((await fetch(`${world}/date`, { method: 'POST', headers })).status, 429);
+      const days = { method: 'PUT', headers: { ...headers, 'content-type': 'application/json' }, body: '{}' };
+      assert.equal((await fetch(`${world}/announced-days`, days)).status, 429);
+      assert.equal((await fetch(`${world}/date`, { headers })).status, 200);
+      assert.equal((await fetch(`${world}/date`, { headers })).status, 429);
     } finally {
       await app.close();
     }

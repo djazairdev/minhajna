@@ -1,15 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The stand-in CA's API (#554, answer 564), with the world's pass, under the
-// limits of the other world requests. GET /worlds/:world/ca answers the
-// public key devices check the world's certificates against, and POST
-// /worlds/:world/certificates certifies the signing key a request names,
-// on the world's date. The first of them makes the world's CA key.
+// The stand-in CA's API (#554, answer 564), with the world's pass. GET
+// /worlds/:world/ca answers the public key devices check the world's
+// certificates against, under the relay's limit, since a device reads it each
+// time it opens a channel (answer 723), and POST /worlds/:world/certificates
+// certifies the signing key a request names, on the world's date, under the
+// limit on joins. The first of them makes the world's CA key.
 
 import { BadRequestException, Body, Controller, Get, Header, Headers, Inject, Param, Post, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { caPublicKey, issueCertificate, newCaKey, readCertificateRequest, type Certificate } from './stand-in-ca.js';
+import type { Limiter } from './limits.js';
 import { limitRequest, noWorld, openWorld } from './world-access.js';
 import { WORLD_STORE, type World, type WorldStore } from './world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from './worlds.controller.js';
@@ -28,7 +30,7 @@ export class CertificatesController {
     @Headers('x-world-pass') pass: string | undefined,
     @Req() request: IncomingMessage,
   ): Promise<{ publicKey: string }> {
-    const world = await this.enter(id, pass, request);
+    const world = await this.enter(this.limiters.relay, id, pass, request);
     return { publicKey: caPublicKey(await this.keyOf(world)) };
   }
 
@@ -40,14 +42,14 @@ export class CertificatesController {
     @Body() body: unknown,
     @Req() request: IncomingMessage,
   ): Promise<Certificate> {
-    const world = await this.enter(id, pass, request);
+    const world = await this.enter(this.limiters.joins, id, pass, request);
     const read = readCertificateRequest(body, world.id);
     if (typeof read === 'string') throw new BadRequestException(read);
     return issueCertificate(read, world.date, await this.keyOf(world));
   }
 
-  private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
-    limitRequest(this.limiters.joins, request, this.limiters.trustCloudflare);
+  private enter(limiter: Limiter, id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
+    limitRequest(limiter, request, this.limiters.trustCloudflare);
     return openWorld(this.store, id, pass);
   }
 

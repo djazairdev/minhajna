@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The stand-in receiving system's API (#590, answer 618), with the world's
-// pass, under the limits of the other world requests. GET
-// /worlds/:world/state/receiver answers the public half devices seal for,
-// marked a stand-in's; POST /worlds/:world/state/deliveries takes a delivery's
-// kind and what is sealed, in base64, opens it, reads the signed export and
-// keeps its receipt, which it answers, the same receipt for the same export
-// sent again, answered 200 then, not 201, or refuses with the reason, keeping
-// nothing and making no key; absences are refused in 0.7.0, since a world
-// records no roll call; and GET /worlds/:world/state/deliveries answers the
-// world's receipts, newest first. Class lists come in from the sealed world
+// pass. GET /worlds/:world/state/receiver answers the public half devices seal
+// for, marked a stand-in's; POST /worlds/:world/state/deliveries takes a
+// delivery's kind and what is sealed, in base64, opens it, reads the signed
+// export and keeps its receipt, which it answers, the same receipt for the same
+// export sent again, answered 200 then, not 201, or refuses with the reason,
+// keeping nothing and making no key; absences are refused in 0.7.0, since a
+// world records no roll call; and GET /worlds/:world/state/deliveries answers
+// the world's receipts, newest first. The two GETs count under the relay's
+// limit, as a page's reads do each time it opens, and a delivery under the
+// limit on joins (answer 723). Class lists come in from the sealed world
 // itself, so the server never sees a pupil.
 
 import {
@@ -29,6 +30,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Limiter } from '../worlds/limits.js';
 import { limitRequest, noWorld, openWorld } from '../worlds/world-access.js';
 import { MAX_RECEIPTS, WORLD_STORE, type Receipt, type World, type WorldStore } from '../worlds/world-store.js';
 import { WORLD_LIMITERS, type WorldLimiters } from '../worlds/worlds.controller.js';
@@ -58,7 +60,7 @@ export class StateController {
     @Headers('x-world-pass') pass: string | undefined,
     @Req() request: IncomingMessage,
   ): Promise<{ standIn: true; publicKey: string }> {
-    const world = await this.enter(id, pass, request);
+    const world = await this.enter(this.limiters.relay, id, pass, request);
     const key = await this.store.receiverKey(world.id, newReceiverKey);
     if (key === undefined) throw noWorld();
     return { standIn: true, publicKey: receiverPoint(key) };
@@ -73,7 +75,7 @@ export class StateController {
     @Req() request: IncomingMessage,
     @Res({ passthrough: true }) response: ServerResponse,
   ): Promise<Receipt> {
-    const world = await this.enter(id, pass, request);
+    const world = await this.enter(this.limiters.joins, id, pass, request);
     if (!hasOnly(body, ['kind', 'sealed'])) throw new BadRequestException('a delivery has a kind and what is sealed');
     const { kind, sealed } = body;
     if (!KINDS.includes(kind as DeliveryKind)) throw new BadRequestException('a delivery’s kind is marks or absences');
@@ -106,12 +108,12 @@ export class StateController {
     @Headers('x-world-pass') pass: string | undefined,
     @Req() request: IncomingMessage,
   ): Promise<{ receipts: Receipt[] }> {
-    const world = await this.enter(id, pass, request);
+    const world = await this.enter(this.limiters.relay, id, pass, request);
     return { receipts: await this.store.receipts(world.id) };
   }
 
-  private enter(id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
-    limitRequest(this.limiters.joins, request, this.limiters.trustCloudflare);
+  private enter(limiter: Limiter, id: string, pass: string | undefined, request: IncomingMessage): Promise<World> {
+    limitRequest(limiter, request, this.limiters.trustCloudflare);
     return openWorld(this.store, id, pass);
   }
 }

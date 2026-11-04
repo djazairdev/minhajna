@@ -163,7 +163,7 @@ describe("the operators' view among the world requests", () => {
   it('shares one budget with them', async () => {
     const { app, base } = await serve({ joins: { perAddress: 3, total: 1000, windowMs: 60_000 } });
     try {
-      const statuses = [(await fetch(`${base}/worlds/AAAAA/date`, { headers: WITH_PASS })).status];
+      const statuses = [(await fetch(`${base}/worlds/AAAAA`, { headers: WITH_PASS })).status];
       for (let i = 0; i < 3; i += 1) statuses.push((await system(base, 'AAAAA')).status);
       assert.deepEqual(statuses, [404, 404, 404, 429]);
     } finally {

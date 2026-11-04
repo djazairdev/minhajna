@@ -3,17 +3,20 @@
 
 // Rate limits on starting and joining worlds, and on the relay, a daily quota
 // of batches stored, so no address fills the store, and a daily limit of
-// insights sendings kept (#621). A world id is 25 bits, so joins are limited
-// too, to keep guessing out of reach. Requests are counted in 60 slices of each
-// window, so a request costs the same however many came before it; the quota
-// counts only what is kept: batches stored, the batches a share or an insights
-// sending kept would fill, and an opening's sendings kept as the batches their
-// bytes together would fill, plus one for each school's mark new to the world.
-// An IPv6 address counts by its /64, since one client usually holds a whole
-// /64. Addresses are held in memory only until the first new slice after their
-// window, so up to a day for the quota and the sendings, and never logged or
-// stored. Behind Cloudflare the address comes from CF-Connecting-IP, which is
-// only read when the server is told it runs there.
+// insights sendings kept (#621). Joins are limited harder than what a device
+// reads as it goes, the CA's key, the date and the stand-in's receipts, which
+// count with the relay (answer 723); a wrong pass answers on every route as if
+// no world had the id, so neither limit lets anyone tell a guess. Requests are
+// counted in 60 slices of each window, so a request costs the same however many
+// came before it; the quota counts only what is kept: batches stored, the
+// batches a share or an insights sending kept would fill, and an opening's
+// sendings kept as the batches their bytes together would fill, plus one for
+// each school's mark new to the world. An IPv6 address counts by its /64, since
+// one client usually holds a whole /64. Addresses are held in memory only until
+// the first new slice after their window, so up to a day for the quota and the
+// sendings, and never logged or stored. Behind Cloudflare the address comes
+// from CF-Connecting-IP, which is only read when the server is told it runs
+// there.
 
 import type { IncomingMessage } from 'node:http';
 import { isIPv4, isIPv6 } from 'node:net';
