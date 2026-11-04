@@ -9,9 +9,10 @@
 // useCommittee.ts), the cut adopted and its day, or that it decided no cut, or
 // that none was adopted and the paper was set as usual, with the committee's
 // words on how the cut shaped the exam, unchanged, or that none are written. It
-// says the keys are not held on a phone without them, and a problem as an alert
-// with a way to read again. It signs nothing, and the phone's figures do not
-// leave it.
+// says once that the keys are not held on a phone without them, and a problem
+// as an alert with a way to read again. A directorate's rooms and the national
+// ones are read apart, being of different spaces. It signs nothing, and the
+// phone's figures do not leave it.
 
 import { NATIONAL_COMMITTEE, type Day, type ExamMove } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
