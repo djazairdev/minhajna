@@ -6,7 +6,8 @@
 // replaced, the part of the app, the version, Android's version and the
 // last screens opened, by name only. Its lines are shown as they are shared
 // through Android's share sheet; the app adds no class, school, pupil or
-// record, and bidi controls are taken out of what the teacher types.
+// record; bidi controls are taken out of what the teacher types, line ends
+// made new lines, other control characters spaces and lone surrogates replaced.
 
 import { replaceNames, type NamedPupil } from '@minhajna/core';
 import { plain } from '../plan/error-report';
@@ -31,9 +32,13 @@ export type ProblemReport = {
   readonly steps: readonly string[];
 };
 
-/** The note as it is sent: bidi controls out, and every pupil's name replaced. */
+/** The note as it is sent: bidi and other controls out, and every pupil's name replaced. */
 export function safeNote(t: Translate, note: string, pupils: readonly NamedPupil[]): string {
-  return replaceNames(plain(note).trim(), pupils, (n) => t('report.pupil', { n }));
+  const clean = plain(note)
+    .replace(/\r\n?/gu, '\n')
+    .replace(/(?!\n)\p{Cc}/gu, ' ')
+    .replace(/\p{Cs}/gu, '\uFFFD');
+  return replaceNames(clean.trim(), pupils, (n) => t('report.pupil', { n }));
 }
 
 /** The report's lines, in the teacher's language, exactly as they are shared. */

@@ -11,8 +11,8 @@
 // shaped otherwise; a world that is gone is said as erased.
 
 import { isDay, type Day } from '@minhajna/core';
+import { goneWorld } from '../demo/world-gone';
 import { unexpected, type Send } from '../demo/world-session';
-import { goneWorld } from './ops-system';
 
 /** An admin log line as the console shows it. */
 export type AdminLine =

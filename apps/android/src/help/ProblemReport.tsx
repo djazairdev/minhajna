@@ -1,18 +1,21 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «الإبلاغ عن مشكلة» from Help (#249, Report, R-1.5-10, R-1.5-11, answer 483):
-// «ما الذي حدث؟» and «أين؟», then exactly what will be sent, every pupil's name
+// Report a problem, from Help (#249, Report, R-1.5-10, R-1.5-11, answer 483):
+// what happened and where, then exactly what will be sent, every pupil's name
 // in the note already replaced, with the version, Android's version and the
 // last screens opened. Sharing hands the text to Android's share sheet, where
-// the teacher picks the app; the screen gives contact@djazair.dev to copy. The
-// app itself sends nothing, keeps no copy and logs nothing. Real screenshots
-// are never asked for: a problem is shown again in the demo class. While the
-// note is empty, a line says so. On a PC the text goes through the browser's
-// share menu, or is copied when it has none, and the screen says whether it was
-// copied; the preview can be selected to copy it by hand (#250, answers 509 and
-// 523). While the browser's menu is open, the button waits. A browser has no
-// Android version, so the report names the PC web app instead.
+// the teacher picks the app; the screen gives contact@djazair.dev to copy.
+// Outside a demo world the app itself sends nothing, keeps no copy and logs
+// nothing. Real screenshots are never asked for: a problem is shown again in
+// the demo class. While the note is empty, a line says so. On a PC the text
+// goes through the browser's share menu, or is copied when it has none, and the
+// screen says whether it was copied; the preview can be selected to copy it by
+// hand (#250, answers 509 and 523). While the browser's menu is open, the
+// button waits. A browser has no Android version, so the report names the PC
+// web app instead. While the device has a demo world open, the report can also
+// go to that world's operators, only when the teacher presses for it
+// (ReportToWorld.tsx, #619, answer 657); nothing else is sent.
 
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
@@ -21,19 +24,29 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { ChipGroup } from '../components/Chip';
 import { TextField } from '../components/TextField';
+import type { Send } from '../demo/world-session';
 import { spacing } from '../design/tokens';
+import { worldNetworkOpen } from '../network/world-network';
 import { settingsStyles as styles } from '../settings/styles';
 import { useAppData } from '../storage/AppData';
 import { onPc, useDeviceText } from '../text/device-text';
 import { useBuildFacts } from './BuildFacts';
 import { NOTE_LIMIT, PARTS, problemLines, safeNote, type Part } from './problem-report';
+import { ReportToWorld, type WorldWhy } from './ReportToWorld';
 import { sendReport, type Sent } from './send-report';
 import { recentSteps } from './steps';
 
 export type ProblemReportProps = {
   /** The screens opened before Help, by name; the report's own are left out. */
   readonly steps?: readonly string[];
+  /** The demo world whose operators the report can also go to; by default the one open as the screen opens. */
+  readonly world?: string | null;
+  /** The demo server's client, the world's own unless a test gives one. */
+  readonly send?: Send;
 };
+
+/** A character that shows: neither a space nor an invisible format character, as the server asks. */
+const SHOWN = /[^\s\p{Cf}]/u;
 
 const OWN = new Set(['Help', 'ProblemReport']);
 
@@ -45,7 +58,7 @@ function androidVersion(): string {
   return typeof release === 'string' ? release : typeof version === 'number' ? String(version) : '';
 }
 
-export function ProblemReport({ steps = recentSteps() }: ProblemReportProps) {
+export function ProblemReport({ steps = recentSteps(), world: given, send }: ProblemReportProps) {
   const t = useDeviceText();
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -58,7 +71,15 @@ export function ProblemReport({ steps = recentSteps() }: ProblemReportProps) {
   const pending = useRef(false);
   const [busy, setBusy] = useState(false);
   const [taken] = useState(() => steps.filter((step) => !OWN.has(step)));
+  const [world] = useState(() => (given === undefined ? worldNetworkOpen() : given));
   const sent = safeNote(t, note, [...state.pupils.values()]);
+  const why: WorldWhy | null = !SHOWN.test(sent)
+    ? 'report.needsNote'
+    : [...sent].length > NOTE_LIMIT
+      ? 'report.world.tooLong'
+      : build.status === 'refused'
+        ? 'report.world.noVersion'
+        : null;
   const lines = problemLines(t, {
     note: sent,
     part,
@@ -136,7 +157,15 @@ export function ProblemReport({ steps = recentSteps() }: ProblemReportProps) {
           {t(handed === 'copied' ? 'report.copied' : 'report.copyFailed')}
         </Text>
       )}
-      <Text style={[styles.sub, align]}>{t('report.offline')}</Text>
+      <Text style={[styles.sub, align]}>{t(world === null ? 'report.offline' : 'report.world.offline')}</Text>
+      {world !== null && (
+        <ReportToWorld
+          world={world}
+          report={why === null && build.status === 'ready' ? { part, note: sent, version: build.value.version } : null}
+          why={why}
+          send={send}
+        />
+      )}
     </ScrollView>
   );
 }

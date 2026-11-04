@@ -160,13 +160,13 @@
     "source": "Le lien vers le code source, dans la page des licences, ne s’ouvre qu’après votre confirmation. Votre navigateur l’ouvre hors de l’application, sans aucun dossier ni identifiant.",
     "packSource": "L’adresse source d’un pack, dans ses détails, ne s’ouvre qu’après votre accord, et la question nomme le site. Votre navigateur l’ouvre hors de l’application, sans dossier ni identifiant.",
     "errorReport": "Un signalement d’erreur dans le plan est affiché en entier, et ne quitte le téléphone que si vous le partagez et choisissez l’application qui l’envoie. L’application n’y ajoute rien sur vos classes ou vos élèves, ni votre nom sauf si vous le saisissez.",
-    "problemReport": "Le rapport de problème est affiché en entier, les noms des élèves, tels que vos listes de classe les écrivent, remplacés, et ne quitte le téléphone que si vous choisissez de le partager et l’application qui l’envoie. Il contient la version, celle d’Android et le nom des derniers écrans ouverts, sans leur contenu.",
+    "problemReport": "Le rapport de problème est affiché en entier, les noms des élèves, tels que vos listes de classe les écrivent, remplacés, et ne quitte le téléphone que si vous choisissez de le partager et l’application qui l’envoie. Il contient la version, celle d’Android et le nom des derniers écrans ouverts, sans leur contenu. Dans un monde de démonstration, vous pouvez aussi l’envoyer aux opérateurs du monde : seuls ce qui s’est passé, l’endroit et la version partent, et seulement quand vous appuyez sur « Envoyer aux opérateurs de ce monde ».",
     "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application.",
     "crashReport": "Le rapport de plantage, si vous avez activé les rapports de plantage, est affiché en entier au démarrage suivant et ne quitte le téléphone que si vous choisissez « Envoyer » et l’application qui l’envoie. Il contient le type d’erreur, sa place dans le code, la version, celle d’Android et le nom des derniers écrans ouverts, sans le message de l’erreur ni aucun contenu.",
     "pc": {
       "none": "Cette application ne se connecte qu’à sa propre adresse, https://minhajna.djazair.dev : pour ses fichiers, tant qu’ils ne sont pas installés, et à chaque ouverture, en ligne, pour chercher une version plus récente, qui ne s’installe que si vous l’acceptez. Cloudflare la sert et voit l’adresse IP et le navigateur de ce PC ; le projet ne garde aucun journal des visites. Rien de ce que vous enregistrez n’est envoyé. Dans un monde de démonstration seulement, elle se connecte aussi au serveur de démonstration, comme ci-dessous.",
       "errorReport": "Un signalement d’erreur dans le plan est affiché en entier, et ne quitte ce PC que si vous choisissez de le partager : par le menu de partage du navigateur, ou copié pour que vous le colliez s’il n’en a pas. L’application n’y ajoute rien sur vos classes ou vos élèves, ni votre nom sauf si vous le saisissez.",
-      "problemReport": "Le rapport de problème est affiché en entier, avec les noms des élèves remplacés tels que vos listes de classe les écrivent, et ne quitte ce PC que si vous choisissez de le partager : par le menu de partage du navigateur, ou copié pour que vous le colliez s’il n’en a pas. Il contient la version et le nom des derniers écrans ouverts, sans leur contenu.",
+      "problemReport": "Le rapport de problème est affiché en entier, avec les noms des élèves remplacés tels que vos listes de classe les écrivent, et ne quitte ce PC que si vous choisissez de le partager : par le menu de partage du navigateur, ou copié pour que vous le colliez s’il n’en a pas. Il contient la version et le nom des derniers écrans ouverts, sans leur contenu. Dans un monde de démonstration, vous pouvez aussi l’envoyer aux opérateurs du monde : seuls ce qui s’est passé, l’endroit et la version partent, et seulement quand vous appuyez sur « Envoyer aux opérateurs de ce monde ».",
       "crashReport": "Le rapport de plantage, si vous avez activé les rapports de plantage, est affiché en entier au démarrage suivant et ne quitte ce PC que si vous choisissez « Envoyer ». Il contient le type d’erreur, sa place dans le code, la version et le nom des derniers écrans ouverts, sans le message de l’erreur ni aucun contenu."
     }
   },
@@ -3835,7 +3835,29 @@
       "sendTo": "Envoyez-le à contact@djazair.dev, par courriel ou avec l’application de votre choix."
     },
     "copied": "Le rapport est copié : collez-le dans un courriel ou un message à contact@djazair.dev.",
-    "copyFailed": "Le navigateur n’a pas copié le rapport. Sélectionnez son texte ci-dessus et copiez-le."
+    "copyFailed": "Le navigateur n’a pas copié le rapport. Sélectionnez son texte ci-dessus et copiez-le.",
+    "world": {
+      "title": "Envoyer aux opérateurs de ce monde",
+      "what": "En plus du partage, dans ce monde de démonstration l’application peut envoyer le rapport aux opérateurs du monde, mais seulement quand vous appuyez sur le bouton ci-dessous. Ils reçoivent « Ce qui s’est passé », « Où » et la version ; jamais la version d’Android ni les dernières étapes dans l’application, et l’application n’ajoute rien qui vous nomme.",
+      "send": "Envoyer aux opérateurs de ce monde",
+      "sending": "Envoi du rapport…",
+      "sent": "Votre rapport est parvenu aux opérateurs du monde sous le numéro {{id}}. Il est gardé jusqu’à ce qu’ils le marquent corrigé, 12 mois au plus, et effacé avec le monde à son 7e jour.",
+      "whileOpen": "Vous ne pouvez le supprimer que tant que cet écran reste ouvert : l’application ne garde rien qui permette de le supprimer plus tard.",
+      "delete": "Supprimer mon rapport",
+      "deleted": "Votre rapport {{id}} est supprimé.",
+      "gone": "Le rapport {{id}} n’est plus dans ce monde.",
+      "full": "Ce monde garde déjà ses 200 rapports. Partagez plutôt le rapport.",
+      "tooLong": "Une fois les noms des élèves remplacés, la note dépasse 1 000 caractères. Raccourcissez-la pour l’envoyer aux opérateurs.",
+      "noVersion": "La version de l’application n’a pas pu être lue : le rapport ne peut pas aller aux opérateurs. Partagez-le plutôt.",
+      "erased": "Ce monde de démonstration a été effacé : le rapport n’a pas été envoyé. Partagez-le plutôt.",
+      "closed": "Le monde de démonstration n’est plus ouvert sur cet appareil : le rapport n’a pas été envoyé. Partagez-le plutôt.",
+      "offline": "Le partage n’envoie rien de lui-même et ne garde aucune copie : le menu de partage de votre téléphone s’ouvre, et vous choisissez. L’envoi aux opérateurs de ce monde, ci-dessous, n’a lieu que si vous appuyez dessus.",
+      "pc": {
+        "offline": "Le partage n’envoie rien de lui-même et ne garde aucune copie : le menu de partage du navigateur s’ouvre s’il en a un ; sinon le rapport est copié pour que vous le colliez. L’envoi aux opérateurs de ce monde, ci-dessous, n’a lieu que si vous appuyez dessus."
+      },
+      "deleting": "Suppression du rapport…",
+      "closedDelete": "Le monde de démonstration n’est plus ouvert sur cet appareil : le rapport n’a pas pu être supprimé. Il est effacé avec le monde à son 7e jour."
+    }
   },
   "crash": {
     "title": "Rapport de plantage, avant l’envoi",
