@@ -1,11 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The container image (#633): built from the Dockerfile, run against the
-// S3 stand-in of compose.yaml's archive profile, stopped, and run again on
-// an empty disk, where the world must be as it was. It needs Docker, so it
-// runs only with TEST_IMAGE=1, as the image workflow sets; every world here
-// is made up.
+// The container image (#633): built from the Dockerfile, run against the S3
+// stand-in of compose.yaml's archive profile, stopped, and run again on an
+// empty disk, where the world must be as it was; a restore of each base backup
+// tested and logged by the container, passed with the bucket, and failed with
+// it out of reach, with a WAL file refused, and with a migration the copy
+// lacks, the second container's WAL switched too rarely to archive it, which
+// the operators' view of the server says with its archiving, and nothing of the
+// copy left after any of them (#620). It needs Docker, so it runs only with
+// TEST_IMAGE=1, as the image workflow sets; every world here is made up.
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -51,6 +55,42 @@ function runToEnd(...args: string[]): { status: number | null; output: string } 
     timeout: 120_000,
   });
   return { status: result.status, output: `${result.stdout}${result.stderr}` };
+}
+
+/** The operators' view of the server and its admin log, through the made-up world. */
+async function operators(base: string): Promise<{
+  system: Record<string, unknown>;
+  log: { action: string; detail: Record<string, unknown> }[];
+}> {
+  const system = (await (await fetch(`${base}/worlds/K7QF4/admin/system`, { headers: json })).json()) as never;
+  const read = (await (await fetch(`${base}/worlds/K7QF4/admin/log`, { headers: json })).json()) as never;
+  return { system, log: (read as { lines: { action: string; detail: Record<string, unknown> }[] }).lines };
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** The result of a restore test, its day checked to be this test's own, across midnight too. */
+function resultOf(restore: unknown, opened: string): unknown {
+  const { day, result } = restore as { day: string; result: string };
+  assert.ok([opened, today()].includes(day));
+  return result;
+}
+
+/** What is left of a restore test: its folder or its second PostgreSQL, none of them once it ended. */
+function leftOf(name: string): string {
+  const folders = 'ls -d "$PGDATA.restore-test" /var/run/postgresql/restore-test 2>/dev/null';
+  const second = 'pgrep -af "^postgres -D .*[.]restore-test"';
+  return docker('exec', name, 'sh', '-c', `${folders}; ${second} || true`);
+}
+
+/** Runs a restore test in a running container, and answers what it wrote. */
+function restoreTest(
+  name: string,
+  env: string[],
+  script = 'exec minhajna-restore-test',
+): { status: number | null; output: string } {
+  const run = spawnSync('docker', ['exec', ...env, name, 'sh', '-c', script], { encoding: 'utf8', timeout: 120_000 });
+  return { status: run.status, output: `${run.stdout}${run.stderr}` };
 }
 
 async function healthy(base: string): Promise<boolean> {
@@ -114,6 +154,7 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
 
   it('keeps every world through a new container on an empty disk, and logs no clock time', async () => {
     const batches = [0, 1].map(() => randomBytes(SEALED_BATCH_BYTES).toString('base64url'));
+    const opened = today();
     const first = await serve('minhajna-image-first', '-e', 'BACKUP_EVERY=4');
     const start = { world: 'K7QF4', sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: ['2026-12-06'], pass };
     assert.equal(
@@ -131,11 +172,21 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
       assert.ok(tries < 60, 'the container takes a base backup every BACKUP_EVERY seconds');
       await setTimeout(500);
     }
+    for (let tries = 0; !/log \[Restore test\] (passed|failed)/.test(logs('minhajna-image-first')); tries++) {
+      assert.ok(tries < 360, 'the container tests a restore after each base backup');
+      await setTimeout(500);
+    }
+    assert.match(logs('minhajna-image-first'), /log \[Restore test\] passed/);
+    const tested = await operators(first);
+    assert.deepEqual([tested.system['archive'], tested.system['archiving']], ['on', 'ok']);
+    assert.equal(resultOf(tested.system['restore'], opened), 'passed');
+    assert.deepEqual(tested.log.find((line) => line.action === 'restore.tested')?.detail, { result: 'passed' });
+    assert.equal(leftOf('minhajna-image-first'), '');
     assert.equal((await upload(1)).status, 201);
     docker('stop', '-t', '120', 'minhajna-image-first');
     assert.equal(docker('inspect', '-f', '{{.State.ExitCode}}', 'minhajna-image-first'), '0');
 
-    const second = await serve('minhajna-image-second');
+    const second = await serve('minhajna-image-second', '-e', 'ARCHIVE_TIMEOUT=3600');
     const joined = await fetch(`${second}/worlds/K7QF4`, { headers: json });
     assert.deepEqual(await joined.json(), { sealed: 'c2VhbGVk', date: '2026-12-01', announcedDays: ['2026-12-06'] });
     const read = await fetch(`${second}/worlds/K7QF4/spaces/national/batches?after=0`, { headers: json });
@@ -152,7 +203,57 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
     const asServer = ['exec', '-u', 'minhajna', 'minhajna-image-second', 'sh', '-c'];
     const server = docker(...asServer, 'cat /proc/$(pgrep -o -u minhajna -f "^node dist/src/main.js")/environ');
     assert.doesNotMatch(server, /AWS_|WALG_/);
-    const written = `${logs('minhajna-image-first')}\n${logs('minhajna-image-second')}`;
+    const asPostgres = ['exec', '-u', 'postgres', 'minhajna-image-second', 'psql', '-h', '/var/run/postgresql'];
+    const noWal = 'mkdir -p /tmp/no-wal && printf "#!/bin/sh\\nexit 1\\n" > /tmp/no-wal/minhajna-wal-fetch';
+    const noFetch = `${noWal} && chmod -R 755 /tmp/no-wal && PATH=/tmp/no-wal:$PATH exec minhajna-restore-test`;
+    const out = [
+      '-e',
+      'AWS_ENDPOINT=http://nowhere.invalid:8333',
+      '-e',
+      'WALG_S3_MAX_RETRIES=0',
+      '-e',
+      'RESTORE_WAIT=30',
+    ];
+    const failures: [string, string[], string | undefined, (() => void)?, (() => void)?][] = [
+      ['fetch', out, undefined],
+      ['recover', ['-e', 'RESTORE_WAIT=90'], noFetch],
+      [
+        'check',
+        ['-e', 'RESTORE_WAIT=90'],
+        undefined,
+        () =>
+          docker(
+            ...asPostgres,
+            '-d',
+            'minhajna',
+            '-c',
+            "INSERT INTO minhajna_meta.migration (name) VALUES ('0000_made_up')",
+          ),
+        () =>
+          docker(
+            ...asPostgres,
+            '-d',
+            'minhajna',
+            '-c',
+            "DELETE FROM minhajna_meta.migration WHERE name = '0000_made_up'",
+          ),
+      ],
+    ];
+    let said = '';
+    for (const [step, env, script, setUp, undo] of failures) {
+      setUp?.();
+      const failing = restoreTest('minhajna-image-second', env, script);
+      undo?.();
+      said += failing.output;
+      assert.equal(failing.status, 1, step);
+      assert.match(failing.output, new RegExp(`log \\[Restore test\\] failed: ${step}`));
+      const failed = await operators(second);
+      assert.equal(resultOf(failed.system['restore'], opened), 'failed');
+      const line = failed.log.find((one) => one.action === 'restore.tested');
+      assert.deepEqual(line?.detail, { result: 'failed', step });
+      assert.equal(leftOf('minhajna-image-second'), '');
+    }
+    const written = `${logs('minhajna-image-first')}\n${logs('minhajna-image-second')}\n${said}`;
     assert.match(written, /restoring the latest backup/);
     assert.doesNotMatch(written, /\d{4}[-/]\d{2}[-/]\d{2}[ T]\d{2}:\d{2}/);
   });

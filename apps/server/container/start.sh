@@ -9,15 +9,18 @@
 # leaves no half-made database behind. PostgreSQL then archives each WAL file as
 # it fills, and at least every ARCHIVE_TIMEOUT seconds (60). A base backup is
 # taken whenever the latest is BACKUP_EVERY seconds old (a day), on starting
-# too, keeping the last two; one that fails is tried again 5 minutes later. On
-# SIGTERM the server stops, the last WAL is archived and PostgreSQL stops, which
-# needs a stop grace of about 120 seconds. If the bucket cannot be read within
-# BUCKET_WAIT seconds (120), or a restore within RESTORE_WAIT (1800), the
-# container stops rather than start an empty or partial database. PostgreSQL
-# runs as postgres and listens on its socket only; the server runs as minhajna,
-# a role that is no superuser, without the bucket's settings. ARCHIVE=off runs
-# with no bucket, for trying the image; nothing outlives the container then.
-# Logs carry no clock times: they are cut from PostgreSQL's and WAL-G's lines.
+# too, keeping the last two; one that fails is tried again 5 minutes later.
+# After each of these, but not the new database's first, a restore of the latest
+# is tested (restore-test.sh, #620). A test the container stopped in the middle
+# of leaves its folder, erased on starting. On SIGTERM the server stops, the
+# last WAL is archived and PostgreSQL stops, which needs a stop grace of about
+# 120 seconds. If the bucket cannot be read within BUCKET_WAIT seconds (120), or
+# a restore within RESTORE_WAIT (1800), the container stops rather than start an
+# empty or partial database. PostgreSQL runs as postgres and listens on its
+# socket only; the server runs as minhajna, a role that is no superuser, without
+# the bucket's settings. ARCHIVE=off runs with no bucket, for trying the image;
+# nothing outlives the container then. Logs carry no clock times: they are cut
+# from PostgreSQL's and WAL-G's lines.
 
 set -euo pipefail
 
@@ -63,6 +66,7 @@ backup_due_in() {
 back_up() {
   if as_postgres minhajna-wal-g backup-push "$PGDATA" && as_postgres minhajna-wal-g delete retain FULL 2 --confirm; then
     log 'backed up'
+    minhajna-restore-test || true
   else
     log 'backup failed; trying again in 5 minutes'
     sleep 240
@@ -70,7 +74,7 @@ back_up() {
 }
 
 new=no
-rm -rf "$RESTORING"
+rm -rf "$RESTORING" "$PGDATA.restore-test"
 mkdir -p "$PGDATA"
 chown postgres:postgres "$PGDATA"
 chmod 700 "$PGDATA"
