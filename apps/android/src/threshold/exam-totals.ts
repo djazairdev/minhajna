@@ -50,6 +50,13 @@ export function gradeShown(figures: DirectorateFigures | null, subject: string, 
   return one[1] ?? 'hidden';
 }
 
+/** The share of the grade's classes that reached an item, to one decimal, null when its count is held back. */
+export function shareOf(grade: GradeFigure, item: string): number | null {
+  const count = new Map(grade.items).get(item);
+  if (count === null) return null;
+  return grade.classes === 0 ? 0 : Math.round(((count ?? 0) * 1000) / grade.classes) / 10;
+}
+
 /** The share of the grade's classes that reached each item of the plan, in its order. */
 export function totalsSpec(
   t: TFunction,
@@ -58,12 +65,7 @@ export function totalsSpec(
   item: (id: string) => string,
   day: string,
 ): Omit<ChartSpec, 'rightToLeft'> {
-  const counts = new Map(grade.items);
-  const share = (id: string) => {
-    const count = counts.get(id);
-    if (count === null) return null;
-    return grade.classes === 0 ? 0 : Math.round(((count ?? 0) * 1000) / grade.classes) / 10;
-  };
+  const share = (id: string) => shareOf(grade, id);
   return {
     kind: 'bar',
     label: t('demo.examTotals.chart', { day }),

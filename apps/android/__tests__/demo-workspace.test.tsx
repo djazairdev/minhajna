@@ -171,7 +171,7 @@ test('the world’s page shows the code and moves the date, and changing the rol
   await press('world-change-role');
   await press('world-role-directorate');
   expect(selected('world-page-thresholds')).toBe(true);
-  expect(shown('world-page-published')).toBe(false);
+  expect(shown('world-page-published')).toBe(true);
   await press('world-leave');
   expect(left).toHaveBeenCalledTimes(1);
   expect(worldNetworkOpen()).toBeNull();

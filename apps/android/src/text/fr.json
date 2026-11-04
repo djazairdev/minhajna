@@ -6222,7 +6222,7 @@
       "owed": "Ce que le système doit au personnel enseignant",
       "owedLead": "Ce que le personnel enseignant a donné et ce qui lui a manqué : les remplacements assurés, les postes vacants et les heures sans enseignement assuré, et les séances perdues à une fermeture exceptionnelle.",
       "closures": "Les séances perdues sont comptées d’après le calendrier et les avis de fermeture, jamais d’après une absence. Le serveur masque assez de cases pour qu’aucune case masquée ne se déduise par soustraction.",
-      "never": "L’espace de chaque établissement prépare sa part de ces totaux, sans nommer de classe, d’établissement ni de personne, et le serveur ne montre que ce qui est cumulé au-dessus des tailles minimales de groupe. Dans cette démo, le serveur voit chaque part en les cumulant ; le cumul chiffré viendra plus tard. Ces totaux ne servent jamais à un seuil d’examen, à un classement ni à une décision sur une personne.",
+      "never": "L’espace de chaque établissement prépare sa part de ces totaux, sans nommer de classe, d’établissement ni de personne, et le serveur ne montre que ce qui est cumulé au-dessus des tailles minimales de groupe. Dans cette démo, le serveur voit chaque part en les cumulant ; le cumul chiffré viendra plus tard. Ces totaux ne fixent jamais de seuil d’examen, et ne servent jamais à un classement ni à une décision sur une personne.",
       "hidden": "Masqué : sous les tailles minimales de groupe",
       "atLeast": "au moins {{figure}}",
       "all": "Toutes les matières",
@@ -6256,7 +6256,7 @@
       "wilaya": "Wilaya",
       "nation": "Le pays",
       "closures": "Les séances perdues sont comptées d’après le calendrier et les avis de fermeture, jamais d’après une absence. Une wilaya de moins de 10 membres du personnel enseignant ou de 3 établissements est masquée ; avec chaque case sous le seuil d’une direction de l’éducation, 5 membres du personnel enseignant et 3 établissements, le serveur masque chaque case qui la révélerait par soustraction.",
-      "never": "L’espace de chaque établissement prépare sa part de ces totaux, sans nommer de classe, d’établissement ni de personne, et le serveur ne montre que ce qui est cumulé au-dessus des tailles minimales de groupe. Dans cette démo, le serveur voit chaque part en les cumulant ; le cumul chiffré viendra plus tard. Ces totaux ne servent jamais à un seuil d’examen, à un classement des wilayas ni à une décision sur une personne.",
+      "never": "L’espace de chaque établissement prépare sa part de ces totaux, sans nommer de classe, d’établissement ni de personne, et le serveur ne montre que ce qui est cumulé au-dessus des tailles minimales de groupe. Dans cette démo, le serveur voit chaque part en les cumulant ; le cumul chiffré viendra plus tard. Ces totaux ne fixent jamais de seuil d’examen, et ne servent jamais à un classement des wilayas ni à une décision sur une personne.",
       "reportLead": "Le bilan du programme pour le pays. Les wilayas y figurent en fourchette, jamais nommées ni classées.",
       "range": "Avancement des classes selon les wilayas : de {{low}} % à {{high}} %, la moitié centrale de {{middleLow}} % à {{middleHigh}} %.",
       "noRange": "La fourchette entre wilayas s’affiche dès qu’au moins 8 wilayas montrent leur chiffre pour cette matière, avec des classes."
@@ -6795,6 +6795,40 @@
         "signing": "Signature des mots…",
         "length": "{{n}} sur {{most}} caractères"
       }
+    },
+    "published": {
+      "level": {
+        "directorate": {
+          "lead": "Ce que la direction publie des seuils de ses examens, après chaque examen.",
+          "ranking": "Non utilisé : aucun classement de wilayas ni d’établissements."
+        },
+        "national": {
+          "lead": "Ce que le ministère publie des seuils des examens nationaux, après chaque examen, pour tous.",
+          "ranking": "Non utilisé : aucun classement des wilayas, qui apparaissent en étendue et ne sont jamais nommées."
+        }
+      },
+      "reading": "Lecture de ce qui est publié…",
+      "none": "Aucun de ces examens n’est encore terminé : un seuil est publié le lendemain du dernier jour de son examen.",
+      "head": "{{exam}} · {{grade}}",
+      "dates": "Les chiffres ont été pris le {{figures}}. L’examen s’est tenu du {{from}} au {{to}}.",
+      "cut": "Le seuil adopté le {{day}} : jusqu’à {{item}}.",
+      "noCut": "La commission a décidé le {{day}} : pas de seuil pour cet examen.",
+      "noneAdopted": "Aucun seuil n’a été adopté : le sujet a été établi comme d’habitude.",
+      "share": "{{share}} % des classes l’avaient atteint le {{day}}.",
+      "shareHidden": "La part des classes l’ayant atteint n’est pas publiée : ses chiffres sont sous les tailles minimales de groupe ou n’ont jamais été totalisés.",
+      "signed": "Signé par {{seat}} le {{day}}",
+      "majority": "Adopté par {{adopted}} sièges sur {{seats}}.",
+      "safeguards": {
+        "announced": "Le jour des chiffres a été annoncé à l’avance, et les chiffres ont été pris le {{figures}} seulement.",
+        "after": "Publié après l’examen, avec les chiffres utilisés.",
+        "unchecked": "Ces chiffres ne sont pas vérifiés : cette démo n’a pas d’échantillon des inspecteurs pour les comparer."
+      },
+      "unused": {
+        "figures": "Non utilisé : aucun chiffre d’établissement, de classe ou d’enseignant.",
+        "plans": "Non utilisé : les plans propres des classes ; les chiffres viennent des seules semaines signées.",
+        "floors": "Non utilisé : aucun chiffre sous les tailles minimales de groupe."
+      },
+      "figures": "Les chiffres utilisés : {{subject}}"
     }
   },
   "chart": {

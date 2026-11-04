@@ -10,7 +10,7 @@
 // as the day changes; before such a day, that totals are added up only on
 // announced days. A day not added up yet says so, and a problem is said as an
 // alert, announced on the phone since a PC reads the alert, with a button that
-// reads the day again. The page's last words say what the totals never serve.
+// reads the day again. The page's last words say what the totals never do.
 
 import type { Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -30,7 +30,7 @@ export type TotalsFrameProps<T> = {
   readonly lead: string;
   /** The header for the day chosen. */
   readonly header: (day: TotalsDay) => string;
-  /** What the totals never serve. */
+  /** What the totals never do. */
   readonly never: string;
   readonly dayText: (day: Day) => string;
   /** What the system owes teachers. */
