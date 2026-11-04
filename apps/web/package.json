@@ -22,6 +22,7 @@
     "@zxing/library": "0.23.0",
     "echarts": "6.1.0",
     "i18next": "26.6.0",
+    "pdfjs-dist": "6.5.438",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-i18next": "17.1.10",

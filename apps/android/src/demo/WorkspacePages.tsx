@@ -32,11 +32,10 @@
 // server (#618, #619, OpsConsole.tsx, OpsAdminLog.tsx, OpsSecurity.tsx,
 // OpsProblems.tsx); and the observatory's reports page, whose world has no
 // school, reads a term's figures (#627, ObsReport.tsx). Only that page goes
-// without a school; any other stays empty in such a world. The curator's pack
-// list reads source releases only (#611, PackList.tsx).
+// without a school; others stay empty. The curator edits releases (#611, #613).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
-import type { ReactElement } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import { DashboardPage } from '../director/DashboardPage';
 import { DirectorThresholds } from '../director/DirectorThresholds';
 import { IssueCodes } from '../director/IssueCodes';
@@ -50,7 +49,7 @@ import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
 import { DirectorateThresholds } from '../directorate/DirectorateThresholds';
 import { DirectorateTotals } from '../directorate/DirectorateTotals';
-import { PackList } from '../editor/PackList';
+import { PacksPage } from '../editor/PacksPage';
 import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
@@ -73,6 +72,7 @@ import type { Send, WorldKit } from './world-session';
 
 export type WorkspacePagesProps = {
   readonly open: OpenWorld;
+  readonly setOpen?: Dispatch<SetStateAction<OpenWorld | null>>;
   /** The world's seeded school, which a teachers' world does not have. */
   readonly school: DemoSchool | null;
   readonly reference: Extract<ReferenceResult, { ok: true }>;
@@ -295,6 +295,6 @@ export function workspacePage(
       />
     );
   if (workspace === 'curator' && page === 'packs')
-    return <PackList packs={reference.packs} profile={reference.profile} refusedPacks={reference.refusedPacks} />;
+    return <PacksPage {...reference} world={open} setOpen={props.setOpen} held={held} kit={kit} send={send} />;
   return null;
 }

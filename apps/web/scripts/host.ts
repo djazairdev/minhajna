@@ -39,8 +39,11 @@ export const TYPES: Readonly<Record<string, string>> = {
   txt: 'text/plain; charset=utf-8',
 };
 
+const PDF_ASSET = /^pdf-assets\/(?:cmaps\/[A-Za-z0-9_-]+\.bcmap|standard_fonts\/Foxit[A-Za-z]+\.pfb)$/u;
+
 /** The media type of a file in dist/, by its name, or undefined for a kind it never holds. */
 export function typeOf(name: string): string | undefined {
+  if (PDF_ASSET.test(name)) return 'application/octet-stream';
   return TYPES[name.split('.').at(-1) ?? ''];
 }
 

@@ -14,7 +14,7 @@ Checks of 26 October 2026 for the first part of [#250](https://github.com/djazai
 - **The page loads nothing from elsewhere:** its security policy allows its own files only, no inline script and no `eval`. The one exception is React Native Web's empty style sheet, allowed by its hash (R-6.6-01). Beyond its own origin, it may connect only to the demo server, `https://minhajna-demo.djazair.dev`, for demo worlds (answer 554).
 - **Offline:**
   - **Install:** the worker reads `build.json` once, checks that its checksum is the one its files' hashes give, fetches every file past the HTTP cache, and checks each against its SHA-256. A changed file or a redirected page fails the install, so one cache never mixes two builds. It keeps the files in one cache named after the checksum, `build.json` last, and answers only from it (R-6.6-05).
-  - **Updates:** the worker never changes between builds, so the browser never replaces the app on its own. Accepting an update comes in part 4 (R-6.6-06).
+  - **Updates:** the worker never changes between builds (it changed once since, for #613: answer 750), so the browser never replaces the app on its own. Accepting an update comes in part 4 (R-6.6-06).
   - **Before the install finishes,** requests go to the server as usual.
 - **The direction:**
   - right to left unless the kept language is French or English, as the phone starts in Arabic;

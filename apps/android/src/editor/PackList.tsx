@@ -13,6 +13,7 @@ import { PACK_STATUSES, type CountryProfile, type PlanPack } from '@minhajna/cor
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { ChipGroup } from '../components/Chip';
 import { colors, radius, spacing, typography } from '../design/tokens';
@@ -26,10 +27,12 @@ export function PackList({
   packs,
   profile,
   refusedPacks = 0,
+  onCopy,
 }: {
   readonly packs: readonly PlanPack[];
   readonly profile: CountryProfile;
   readonly refusedPacks?: number;
+  readonly onCopy?: (pack: PlanPack) => void;
 }) {
   const t = useDeviceText();
   const { direction } = useLocale();
@@ -83,6 +86,14 @@ export function PackList({
             <Text selectable style={[styles.code, align]}>
               {t('editorPacks.identity', { id: isolate(pack.id) })}
             </Text>
+            {onCopy !== undefined && (
+              <Button
+                label={t('editorItem.copy')}
+                name={t('editorItem.copyNamed', { name: `${isolate(pack.id)} · ${isolate(pack.release)}` })}
+                variant="plain"
+                onPress={() => onCopy(pack)}
+              />
+            )}
           </View>
         ))}
       </View>

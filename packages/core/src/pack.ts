@@ -6,10 +6,11 @@
 // is read as untrusted: it is checked against the format, and fields outside
 // the format are dropped (PRD §5.9). Its fields are read in pack-fields.ts.
 
-import { ITEM_KINDS, ITEM_NAME, readActivities, readAnchor, readItem, type PackActivity } from './pack-fields.ts';
-import { hasBidiControl, isFields, LANGUAGE, Reader, RELEASE, type ParseResult } from './read.ts';
+import { ITEM_KINDS, ITEM_NAME, readActivities, readItem, type PackActivity } from './pack-fields.ts';
+import { hasBidiControl, isFields, Reader, type ParseResult } from './read.ts';
 import type { LocalizedText, Queue } from './reference.ts';
 import { readMigration, type PackMigration } from './pack-migration.ts';
+import { readPackSource } from './pack-source.ts';
 import { readName } from './reference-fields.ts';
 
 export { ITEM_KINDS, type PackActivity } from './pack-fields.ts';
@@ -113,25 +114,8 @@ export function parsePlanPack(input: unknown): ParseResult<PlanPack> {
   if (!isFields(input)) return { ok: false, problems: [{ path: '', problem: 'invalid' }] };
   if (input['format'] !== 1) reader.fail('format', input['format'] === undefined ? 'required' : 'invalid');
 
-  const id = reader.requiredText(input, 'id', '', PACK_ID);
-  const release = reader.requiredText(input, 'release', '', RELEASE);
-  const status = reader.oneOf(input, 'status', '', PACK_STATUSES);
-  const licence = reader.oneOf(input, 'licence', '', LICENCE_MODES);
-  const language = reader.requiredText(input, 'language', '', LANGUAGE);
-  const anchor = readAnchor(reader, input['anchor']);
-
-  let provenance: Provenance = { issuer: '', edition: '' };
-  const rawProvenance = input['provenance'];
-  if (isFields(rawProvenance)) {
-    const foundAt = reader.text(rawProvenance, 'foundAt', 'provenance');
-    provenance = {
-      issuer: reader.requiredText(rawProvenance, 'issuer', 'provenance'),
-      edition: reader.requiredText(rawProvenance, 'edition', 'provenance'),
-      ...(foundAt !== undefined && { foundAt }),
-    };
-  } else {
-    reader.fail('provenance', rawProvenance === undefined ? 'required' : 'invalid');
-  }
+  const source = readPackSource(reader, input);
+  const { id, release, status, licence, language, anchor, provenance } = source;
 
   const stageTemplates: StageTemplate[] = [];
   const rawTemplates = input['stageTemplates'] ?? [];

@@ -12,23 +12,34 @@
 // after the build's checksum, build.json last, and the cache counts as
 // installed only once build.json is in it. From then on the worker answers only
 // from that cache: the app opens with no network and stays the build the
-// teacher installed. The worker itself never changes between builds, so the
-// browser never swaps it; a new build comes in only when the app asks for it,
-// once the teacher accepts (answers 516 and 517). A build's version and
-// version code are taken from its notes.json, which its checksum covers and
-// which must name the ones build.json gives, from the first install on. The
-// app asks the worker two things, by message:
-// `check`, the build on the server with its notes, checked as an install
-// checks them, and whether it is newer than the installed one; and `update`,
-// which installs the server's build only if its checksum is the one the
-// teacher saw and it is newer, into a cache of its own beside the current
-// one, which goes only once the new one is whole, and then tells every page
-// of the app to reload. A second `update` waits for the first only when it
-// asks for the same build. Until an install has finished, the page's requests
-// go to the server as usual. Nothing but the app's own files is fetched or
-// kept.
+// teacher installed. The one exception is the PDF engine (#613, answer 743),
+// the build's files named pdf-, which only a curator's source PDF needs. An
+// install lists and hashes them like the rest but never keeps them. Each comes
+// from the server when asked for, past the browser's HTTP cache, and answers
+// only if it matches the installed build's line, so the app stays that build,
+// and with the host's security policy, which a worker takes from its own
+// response. An install keeps no engine it never uses; one the earlier worker
+// made keeps an unused copy until its next update. The worker itself does not
+// change between builds, so the browser does not swap it; it changed once, for
+// #613, once every tab has closed, and that swap touches no kept file. Until
+// then the earlier worker answers as it did. A new build comes in only when the
+// app asks for it, once the teacher accepts (answers 516 and 517). A build's
+// version and version code are taken from its notes.json, which its checksum
+// covers and which must name the ones build.json gives, from the first install
+// on. The app asks the worker two things, by message: `check`, the build on the
+// server with its notes, checked as an install checks them, and whether it is
+// newer than the installed one; and `update`, which installs the server's build
+// only if its checksum is the one the teacher saw and it is newer, into a cache
+// of its own beside the current one, which goes only once the new one is whole,
+// and then tells every page of the app to reload. A second `update` waits for
+// the first only when it asks for the same build. Until an install has
+// finished, the page's requests go to the server as usual. Nothing but the
+// app's own files is fetched or kept.
 
 const PREFIX = 'minhajna-web-';
+
+/** Whether a path in the build is the PDF engine's: listed and checked, never kept. */
+const onDemand = (path) => path.startsWith('pdf-');
 
 /** A URL in the worker's own folder. */
 const here = (path) => new URL(path, self.registration.scope).href;
@@ -51,13 +62,16 @@ async function checksum(files) {
   return sha256(new TextEncoder().encode(lines));
 }
 
-/** The file at `path` from the server, checked against its hash, as a response to keep. */
+/** The file at `path` from the server, checked against its hash, with its media type and security policy. */
 async function checked(path, hash) {
-  const response = await fetch(new Request(here(path), { cache: 'reload', redirect: 'error' }));
+  const response = await fetch(new Request(here(path), { cache: 'reload', credentials: 'omit', redirect: 'error' }));
   if (!response.ok) throw new Error(`No ${path}`);
   const bytes = await response.arrayBuffer();
   if ((await sha256(bytes)) !== hash) throw new Error(`${path} is not the build's`);
-  return new Response(bytes, { headers: { 'Content-Type': response.headers.get('Content-Type') ?? '' } });
+  const headers = { 'Content-Type': response.headers.get('Content-Type') ?? '' };
+  const policy = response.headers.get('Content-Security-Policy');
+  if (policy !== null) headers['Content-Security-Policy'] = policy;
+  return new Response(bytes, { headers });
 }
 
 /** The server's build.json, as text and read, once its checksum is the one its files' hashes give. */
@@ -91,7 +105,7 @@ async function installed() {
 
 /** Fetches and checks every file of `build`, then keeps them in its own cache, build.json last. */
 async function fill({ text, build }) {
-  const paths = Object.keys(build.files).filter((path) => path !== 'sw.js');
+  const paths = Object.keys(build.files).filter((path) => path !== 'sw.js' && !onDemand(path));
   const kept = await Promise.all(paths.map((path) => checked(`./${path}`, build.files[path])));
   const page = await checked('./', build.files['index.html']);
   const cache = await caches.open(PREFIX + build.sha256);
@@ -187,6 +201,17 @@ async function update(wanted) {
   await tell();
 }
 
+/** A file the installed build lists but keeps nowhere, from the server if it is that build's, or else 404. */
+async function fromServer(cache, path) {
+  try {
+    const hash = JSON.parse(await (await cache.match(here('./build.json'))).text()).files[path];
+    if (hash === undefined) throw new Error(`No ${path} in this build`);
+    return await checked(`./${path}`, hash);
+  } catch {
+    return new Response(null, { status: 404 });
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(install());
 });
@@ -219,10 +244,13 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
-  const target = event.request.mode === 'navigate' ? here('./') : url.href;
+  const navigating = event.request.mode === 'navigate';
+  const target = navigating ? here('./') : url.href;
+  const path = url.href.slice(self.registration.scope.length);
   event.respondWith(
     installed().then(async (cache) => {
       if (cache === null) return fetch(event.request);
+      if (!navigating && onDemand(path)) return fromServer(cache, path);
       return (await cache.match(target)) ?? new Response(null, { status: 404 });
     }),
   );

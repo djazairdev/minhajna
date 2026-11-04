@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// Web checkbox roles need their explicit checked state and Space handling;
+// React Native Web's default Pressable keyboard handler covers Enter only.
+
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, type PressableProps } from 'react-native';
 import { colorRoles, colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { controlStyles, type ControlProps } from './control';
 
@@ -25,14 +28,28 @@ export function CheckRow({
 }: CheckRowProps) {
   const { direction } = useLocale();
   const [focused, setFocused] = useState(false);
+  const keyboard: Pick<PressableProps, 'onKeyDown'> =
+    Platform.OS === 'web'
+      ? {
+          onKeyDown: (event) => {
+            const webKey = event as unknown as { key: string; repeat: boolean };
+            if (disabled || (webKey.key !== ' ' && webKey.key !== 'Spacebar')) return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (!webKey.repeat) onCheckedChange(!checked);
+          },
+        }
+      : {};
   return (
     <Pressable
+      {...keyboard}
       testID={testID}
       accessible
       accessibilityRole="checkbox"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ checked, disabled }}
+      aria-checked={checked}
       disabled={disabled}
       onPress={disabled ? undefined : () => onCheckedChange(!checked)}
       onFocus={() => setFocused(true)}

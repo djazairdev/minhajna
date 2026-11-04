@@ -73,6 +73,7 @@ function Segment({
       accessibilityRole="tab"
       accessibilityLabel={label}
       accessibilityState={{ selected, disabled }}
+      aria-selected={selected}
       disabled={disabled}
       onPress={disabled ? undefined : () => !selected && onPress()}
       onFocus={() => setFocused(true)}

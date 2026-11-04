@@ -54,8 +54,30 @@ test.each([false, true])(
     const components = calls.filter(
       (call) => ['POST', 'PATCH'].includes(call.method) && typeof call.body?.filemask === 'string',
     );
-    expect(components).toHaveLength(5);
-    const [base, settings, backup, calendar, editor] = components.map((call) => call.body!);
+    expect(components).toHaveLength(6);
+    const bodies = components.map((call) => call.body!);
+    const byMask = new Map(bodies.map((body) => [String(body.filemask), body]));
+    expect(byMask.size).toBe(components.length);
+    expect([...byMask.keys()]).toEqual(
+      expect.arrayContaining([
+        'apps/android/src/text/*.json',
+        'apps/android/src/settings/text/*.json',
+        'apps/android/src/settings/text/backup/*.json',
+        'apps/android/src/calendar/text/*.json',
+        'apps/android/src/editor/item-text/*.json',
+        'apps/android/src/editor/text/*.json',
+      ]),
+    );
+    const base = byMask.get('apps/android/src/text/*.json')!;
+    const settings = byMask.get('apps/android/src/settings/text/*.json')!;
+    const backup = byMask.get('apps/android/src/settings/text/backup/*.json')!;
+    const calendar = byMask.get('apps/android/src/calendar/text/*.json')!;
+    const items = byMask.get('apps/android/src/editor/item-text/*.json')!;
+    const packs = byMask.get('apps/android/src/editor/text/*.json')!;
+    expect(packs.repo).toBe('weblate://minhajna/android-interface');
+    expect(packs.template).toBe('apps/android/src/editor/text/ar.json');
+    expect(items.repo).toBe('weblate://minhajna/android-interface');
+    expect(items.template).toBe('apps/android/src/editor/item-text/ar.json');
     expect(base.repo).toBe('https://example.invalid/source.git');
     expect(base.push).toBe('https://example.invalid/push.git');
     expect(settings.repo).toBe('weblate://minhajna/android-interface');
@@ -71,13 +93,10 @@ test.each([false, true])(
     expect(backup.push).toBeUndefined();
     expect(backup.filemask).toBe('apps/android/src/settings/text/backup/*.json');
     expect(backup.template).toBe('apps/android/src/settings/text/backup/ar.json');
-    expect(editor.repo).toBe('weblate://minhajna/android-interface');
-    expect(editor.filemask).toBe('apps/android/src/editor/text/*.json');
-    expect(editor.template).toBe('apps/android/src/editor/text/ar.json');
     for (const option of ['vcs', 'branch', 'push', 'push_branch', 'merge_style']) {
-      expect(editor[option]).toBeUndefined();
+      expect(packs[option]).toBeUndefined();
     }
-    for (const component of [base, settings, backup, calendar, editor]) {
+    for (const component of bodies) {
       expect(component.license).toBe('AGPL-3.0-or-later');
       expect(component.source_language).toBe('ar');
       expect(component.commit_message).toContain('Signed-off-by: {{ author }}');

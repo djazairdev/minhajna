@@ -54,3 +54,18 @@ export async function packService(kind: 'national' | 'teachers' = 'national') {
   }
   return { server, world, editor, made, target, change, published };
 }
+
+/** Appends an undecodable batch to the last release stream on the synthetic relay. */
+export async function damageLastStream(f: Awaited<ReturnType<typeof packService>>) {
+  const upload = f.server.seen.filter((one) => one.method === 'POST' && one.path.endsWith('/batches')).at(-1)!;
+  const body = JSON.parse(upload.body!) as { stream: string; first: number; batches: string[] };
+  await f.server.send({
+    method: 'POST',
+    path: upload.path,
+    body: {
+      stream: body.stream,
+      first: body.first + body.batches.length,
+      batches: [Buffer.alloc(4124).toString('base64url')],
+    },
+  });
+}

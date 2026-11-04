@@ -22,6 +22,7 @@ import { build } from 'esbuild';
 import { vectorToSvg } from './drawables.ts';
 import { checksum, fileHashes } from './hashes.ts';
 import { notices } from './licences.ts';
+import { pdfAssets } from './pdf-assets.ts';
 import { resolvePlugin } from './resolve.ts';
 
 const root = new URL('../', import.meta.url);
@@ -99,8 +100,11 @@ async function main() {
   const result = await build({
     absWorkingDir: fileURLToPath(root),
     entryPoints: [fileURLToPath(new URL('src/index.tsx', root))],
-    outfile: fileURLToPath(new URL('app.js', output)),
+    outdir: fileURLToPath(output),
+    entryNames: 'app',
+    chunkNames: '[name]-[hash]',
     bundle: true,
+    splitting: true,
     format: 'esm',
     platform: 'browser',
     target: ['chrome120', 'edge120', 'firefox120'],
@@ -127,6 +131,20 @@ async function main() {
     );
     process.exit(1);
   }
+  const pdf = await build({
+    absWorkingDir: fileURLToPath(root),
+    entryPoints: ['src/pdf/worker.ts'],
+    outfile: fileURLToPath(new URL('pdf-worker.js', output)),
+    bundle: true,
+    format: 'esm',
+    platform: 'browser',
+    target: ['chrome120', 'edge120', 'firefox120'],
+    minify: true,
+    legalComments: 'external',
+    logLevel: 'warning',
+  });
+  if (stopsBuild(pdf)) throw new Error('The PDF worker build failed');
+  const pdfNotices = pdfAssets(root, output);
   const face = (family: string, file: string, weight: number) =>
     `@font-face { font-family: '${family}'; src: url('./fonts/${file}.ttf') format('truetype'); font-weight: ${weight}; font-display: block; }`;
   const faces = FONTS.flatMap(([family, file, weight, latin]) => {
@@ -140,7 +158,10 @@ async function main() {
     if (svg !== null) writeFileSync(new URL(`drawables/${name.replace(/\.xml$/u, '.svg')}`, output), svg);
   }
   writeFileSync(new URL('fonts.css', output), `${HEAD}${faces.join('\n')}\n`);
-  const kept = notices(result.metafile, fileURLToPath(root), fileURLToPath(licences), ['data', 'fonts']);
+  const kept = [
+    ...notices(result.metafile, fileURLToPath(root), fileURLToPath(licences), ['data', 'fonts']),
+    ...pdfNotices,
+  ];
   writeFileSync(new URL('licences.json', output), `${JSON.stringify({ version, notices: kept })}\n`);
   for (const name of readdirSync(new URL('public/', root)))
     copyFileSync(new URL(`public/${name}`, root), new URL(name, output));
