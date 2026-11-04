@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### Fixed
+
+- After restoring a backup or an archive, Devices and backups, the reminder and the erase screen name that file and its date. The erase warning counts only later changes. Backups also keep the exact changes they contain, even if another change is saved while choosing the file's location.
+  - بعد الاسترجاع من نسخة احتياطية أو أرشيف، تعرض صفحة «الأجهزة والنسخ» والتذكير وشاشة المسح الملف الذي استرجعت منه وتاريخه. ويعدّ تنبيه المسح التغييرات اللاحقة فقط. كما تُحسب محتويات النسخة بدقة، حتى لو سُجّل تغيير أثناء اختيار مكان حفظها.
+
 ### Privacy
 
 - The app now asks Android for the network permission, for one use alone: a demo world, which you enter only by choice, connects to the project’s demo server, with made-up data. Outside a world, the app still connects to nothing, and your own records never reach a world. The privacy notice says so in a new section.

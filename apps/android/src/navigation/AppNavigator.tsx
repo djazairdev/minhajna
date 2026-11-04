@@ -35,7 +35,6 @@ import { classRoutes } from './ClassScreens';
 import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens';
 import { BookFixesScreen, DistScreen, DocOutputScreen, PilotTimingsScreen, PrintWeekScreen } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
-import { useRecordReceived } from '../restore/received';
 import { SettingsScreen, TimesScreen, settingsRoutes } from './SettingsScreens';
 import {
   CardScreen,
@@ -104,7 +103,6 @@ export function AppNavigator({
 }) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
-  useRecordReceived();
   useEffect(
     () => (onAction === undefined ? undefined : navigation.addListener('__unsafe_action__', onAction)),
     [navigation, onAction],

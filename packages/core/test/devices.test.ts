@@ -41,10 +41,12 @@ describe('the devices and backups', () => {
       recovery: null,
       earlierKeys: [],
       lastBackup: null,
+      backupMade: null,
       sinceBackup: book.entries.length,
       firstChange: book.entries[0]!.day,
       handedOver: null,
       received: null,
+      restoredFile: null,
     });
     assert.equal(deviceFacts([]).firstChange, null);
   });

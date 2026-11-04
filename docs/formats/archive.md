@@ -90,3 +90,15 @@ A reader checks, in order:
 The chain shows an entry changed, removed or reordered after the archive was made. It does not prove who made it: entries are not yet signed with the teacher's key (PRD §5.5).
 
 A restore records every left-out entry as erased, in the layer it belongs to, on the day of the restore.
+
+## Local backup and restore facts
+
+These facts belong to the `device` layer. Their bodies never enter this archive; only their headers remain, like other device entries. No filename, path, password or key is recorded.
+
+- A new `backup.saved` has `backup: {made, last}`: the file's creation day and the hash of the last entry captured before making its ZIP. A change recorded during the file picker is not covered by that backup. The saved fact itself is bookkeeping, not a missing change.
+- A restore may append `copy.received` with `received: {from, file: {made, last}}`, after the erasures above, in the same atomic write as the restored history. `from` is `backup`, `archive` or `phone`. `made` and `last` identify the source archive's snapshot, not the restore's day. The receipt's own day is the restore's day.
+- `last` is an earlier entry's hash, or the empty string only for an empty source history. A receipt may follow that boundary only through the restore's erasures, not through intervening user changes. Unknown boundaries or malformed dates grant no coverage.
+- The erase screen counts changes after the restored copy was stored, not its generated erasures or receipt. A later successful backup replaces that baseline.
+- A file received by direct transfer identifies its source only: it is not treated as a retained backup and does not restart the backup reminder. Outgoing-transfer warnings are the separate issue #494.
+
+Older `backup.saved` facts without a snapshot retain their original day and counting behaviour. Older `copy.received` facts retain their route but do not invent a covered file. No earlier history entry is rewritten and the archive stays at version 1.0.
