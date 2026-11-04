@@ -8,13 +8,14 @@
 // page that opened it, or the weekly digest, or the teacher's classes as the
 // director sees them, or their term report, opened from the classes and going
 // back to them (#584), or the classes handed over as a substitute (#587), or
-// those come back at its end (#588), or the term's marks to send (#591), or the
-// exams with a common paper and an exam's threshold, opened from them on its
-// room and going back to them (#601), or a directorate exam's totals, opened
-// from them on its exam, subject and grade and going back to them (#602). Going
-// back, by a page's button or Android's back, returns to School-join, and from
-// it to the world's home; Leave's way to the next school returns to School-join
-// with the code's card scrolled into view, once it is laid out.
+// those come back at its end (#588), or the term's marks to send (#591), or a
+// statement for the coordinator (#630), or the exams with a common paper and an
+// exam's threshold, opened from them on its room and going back to them (#601),
+// or a directorate exam's totals, opened from them on its exam, subject and
+// grade and going back to them (#602). Going back, by a page's button or
+// Android's back, returns to School-join, and from it to the world's home;
+// Leave's way to the next school returns to School-join with the code's card
+// scrolled into view, once it is laid out.
 
 import type { SchoolJoined } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -33,6 +34,7 @@ export type JoinPage =
   | 'handover'
   | 'return'
   | 'termSend'
+  | 'statement'
   | 'thresholds'
   | 'threshold'
   | 'examTotals';

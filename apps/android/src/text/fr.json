@@ -5907,6 +5907,35 @@
         "before": "Le travail de {{name}} avant la signature de chaque semaine"
       }
     },
+    "statement": {
+      "open": "Un relevé pour le coordinateur",
+      "title": "Un relevé pour le coordinateur",
+      "line": "Dites où la classe en est arrivée. Le reste vient des semaines signées ici. Le coordinateur lit le relevé en mode lecteur.",
+      "steps": {
+        "reading": "Lecture de l’emploi du temps et de vos semaines…",
+        "signing": "Signature…",
+        "filing": "Préparation du fichier…"
+      },
+      "again": "Relire",
+      "noData": "Le calendrier de l’établissement ou les plans du pays ne se lisent pas sur cet appareil : il n’y a pas de relevé à faire.",
+      "noTimetable": "Les classes viennent de l’emploi du temps envoyé par l’établissement, qui n’est pas encore arrivé.",
+      "noPack": "Cette classe n’a pas de plan dans le monde : il n’y a pas de relevé à faire pour elle.",
+      "courses": "Classe et matière",
+      "reached": "Où la classe en est arrivée",
+      "nothing": "Rien encore",
+      "status": "Où cela en est",
+      "sign": "Signer le relevé",
+      "signed": "Le relevé est signé.",
+      "worldOnly": "Il ne vaut que dans ce monde : le vrai mode lecteur le refuse.",
+      "qr": "Le code QR du relevé",
+      "tooBig": "Le relevé ne tient pas dans un seul code QR : partagez-le en fichier.",
+      "pc": {
+        "fileFailed": "Le fichier n’a pas été enregistré. Réessayez.",
+        "tooBig": "Le relevé ne tient pas dans un seul code QR : enregistrez-le en fichier."
+      },
+      "fileFailed": "Le fichier n’a pas été préparé ni envoyé. Réessayez.",
+      "file": "Le relevé en fichier"
+    },
     "termSend": {
       "open": "Notes du trimestre",
       "title": "Notes du trimestre",

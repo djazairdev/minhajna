@@ -5824,6 +5824,35 @@
         "before": "{{name}}’s work before each week is signed"
       }
     },
+    "statement": {
+      "open": "A statement for the coordinator",
+      "title": "A statement for the coordinator",
+      "line": "Say where the class has reached. The rest comes from the weeks you signed here. The coordinator reads the statement in reader mode.",
+      "steps": {
+        "reading": "Reading the timetable and your weeks…",
+        "signing": "Signing…",
+        "filing": "Making the file…"
+      },
+      "again": "Read again",
+      "noData": "The school’s calendar or the country’s plans do not read on this device, so there is no statement to make.",
+      "noTimetable": "The classes come from the timetable the school sends, which has not arrived yet.",
+      "noPack": "This class has no plan in the world, so there is no statement to make for it.",
+      "courses": "Class and subject",
+      "reached": "Where the class has reached",
+      "nothing": "Nothing yet",
+      "status": "How far",
+      "sign": "Sign the statement",
+      "signed": "The statement is signed.",
+      "worldOnly": "It holds in this world alone: real reader mode refuses it.",
+      "qr": "The statement’s QR code",
+      "tooBig": "The statement does not fit one QR code, so share it as a file.",
+      "pc": {
+        "fileFailed": "The file was not saved. Try again.",
+        "tooBig": "The statement does not fit one QR code, so save it as a file."
+      },
+      "fileFailed": "The file was not made or sent. Try again.",
+      "file": "The statement as a file"
+    },
     "termSend": {
       "open": "Term marks",
       "title": "Term marks",
