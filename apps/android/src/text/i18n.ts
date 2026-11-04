@@ -17,6 +17,7 @@ import frBase from './fr.json';
 import { settingsCatalogues } from '../settings/catalogues';
 import { calendarCatalogues } from '../calendar/catalogues';
 import { editorPackCatalogues } from '../editor/catalogues';
+import { itemCatalogues } from '../editor/item-catalogues';
 import { installPluralRules } from './plural-rules';
 
 const ar = {
@@ -24,18 +25,21 @@ const ar = {
   settings: settingsCatalogues.ar,
   calendarView: calendarCatalogues.ar,
   editorPacks: editorPackCatalogues.ar,
+  editorItem: itemCatalogues.ar,
 };
 const fr = {
   ...frBase,
   settings: settingsCatalogues.fr,
   calendarView: calendarCatalogues.fr,
   editorPacks: editorPackCatalogues.fr,
+  editorItem: itemCatalogues.fr,
 };
 const en = {
   ...enBase,
   settings: settingsCatalogues.en,
   calendarView: calendarCatalogues.en,
   editorPacks: editorPackCatalogues.en,
+  editorItem: itemCatalogues.en,
 };
 
 declare module 'i18next' {

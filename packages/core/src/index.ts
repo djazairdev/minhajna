@@ -12,6 +12,10 @@ export * from './assessment-read.ts';
 export * from './captures.ts';
 export * from './cuts.ts';
 export * from './cut-words.ts';
+export * from './pack-item-form.ts';
+export * from './pack-edit.ts';
+export * from './pack-structure-form.ts';
+export * from './pack-form-rebase.ts';
 export * from './pack-lifecycle.ts';
 export * from './pack-lifecycle-files.ts';
 export * from './marks.ts';
@@ -238,3 +242,5 @@ export * from './timetable-package-file.ts';
 export * from './timetable-differences.ts';
 export * from './timetable-accept.ts';
 export { clean as cleanRecordText } from './timetable-record.ts';
+
+export { parsePackSource, type PackSource } from './pack-source.ts';

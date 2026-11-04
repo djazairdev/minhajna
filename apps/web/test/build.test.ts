@@ -15,13 +15,13 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { androidVersion, releaseNotes, stopsBuild } from '../scripts/build.ts';
 import { checksum, fileHashes } from '../scripts/hashes.ts';
-import { addressProblems } from '../scripts/host.ts';
+import { addressProblems, typeOf } from '../scripts/host.ts';
 
 const root = new URL('../', import.meta.url);
 const dist = new URL('dist/', root);
@@ -48,6 +48,46 @@ describe('the web bundle', () => {
     const others = files.filter((name) => name !== 'build.json');
     assert.deepEqual(first.files, fileHashes(dist, others));
     assert.equal(checksum(first.files), first.sha256);
+  });
+
+  it('ships a local PDF worker and only permitted source-viewing assets', () => {
+    assert.ok('pdf-worker.js' in first.files);
+    const viewer = Object.keys(first.files).find((name) => /^pdf-[A-Z0-9]+\.js$/u.test(name));
+    assert.ok(viewer);
+    assert.ok(text('app.js').includes(`import("./${viewer}")`));
+    assert.ok(Object.keys(first.files).every((name) => !name.endsWith('.icc')));
+    for (const name of Object.keys(first.files)) assert.notEqual(typeOf(name), undefined, name);
+    assert.ok(Object.keys(first.files).some((name) => name.endsWith('.bcmap')));
+    assert.ok(Object.keys(first.files).some((name) => name.endsWith('FoxitSymbol.pfb')));
+    assert.ok('pdf-assets/decoders/openjpeg_nowasm_fallback.js' in first.files);
+    assert.ok('pdf-assets/decoders/jbig2_nowasm_fallback.js' in first.files);
+    assert.ok(Object.keys(first.files).every((name) => !name.endsWith('.wasm')));
+    assert.ok(Object.keys(first.files).every((name) => !name.includes('Liberation')));
+    const licences = text('licences.json');
+    assert.ok(licences.includes('pdfjs-dist 6.5.438') && licences.includes('PDF.js standard_fonts'));
+    assert.match(text('pdf-assets/decoders/LICENSE.txt'), /Mozilla Foundation/u);
+    assert.match(text('pdf-assets/decoders/LICENSE.txt'), /Universite catholique de Louvain/u);
+    assert.match(text('pdf-assets/decoders/LICENSE.txt'), /The PDFium Authors/u);
+    assert.match(licences, /core-js 3\.\d+\.\d+, inside PDF\.js/u);
+    assert.match(licences, /Denis Pushkarev/u);
+    assert.match(text('pdf-worker.js'), /indexedDB/u);
+    assert.match(text('pdf-worker.js'), /WebTransport/u);
+  });
+
+  it('names the PDF engine so that the offline worker leaves it out, and loads it only on demand', () => {
+    const names = Object.keys(first.files);
+    const engine = names.filter((name) => name.startsWith('pdf-'));
+    const viewer = engine.find((name) => /^pdf-[A-Z0-9]+\.js$/u.test(name));
+    assert.ok(viewer);
+    assert.deepEqual(
+      names.filter((name) => /pdf|cmap|bcmap|jbig2|openjpeg/iu.test(name) && !name.startsWith('pdf-')),
+      [],
+    );
+    assert.ok(!new RegExp(`from"\\./${viewer}"`, 'u').test(text('app.js')));
+    assert.ok(!text('app.js').includes('GlobalWorkerOptions'));
+    assert.ok(!text(viewer).includes('from"./'));
+    assert.ok(engine.reduce((all, name) => all + statSync(new URL(name, dist)).size, 0) > 3_000_000);
+    assert.match(text('sw.js'), /path\.startsWith\('pdf-'\)/u);
   });
 
   it('gives a checksum that sha256sum’s lines reproduce', () => {

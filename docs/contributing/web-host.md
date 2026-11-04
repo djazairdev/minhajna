@@ -31,7 +31,7 @@ Teachers open the PC web app at **<https://minhajna.djazair.dev>** (answers 528 
 
 1. **It downloads** `minhajna-web-<version>.zip` and `SHA256SUMS.txt` from the published release, checks the ZIP against it and unzips it into `apps/web/release/dist/`.
 2. **It refuses to replace a newer build:** if the host's `build.json` names a newer version, it stops.
-3. **It deploys** with Wrangler, from `apps/web/host`, whose own lockfile is installed only for this. Cloudflare serves the new version everywhere within seconds. A teacher whose install meets files of both builds is refused by the worker's hash check, which tries again at the next opening.
+3. **It deploys** with Wrangler, from `apps/web/host`, whose own lockfile is installed only for this. Cloudflare serves the new version everywhere within seconds. A teacher whose install meets files of both builds is refused by the worker's hash check, which tries again at the next opening. If a release changes the PDF engine's files, a curator on the previous build can't open a source PDF until they install the update, since the worker fetches the engine from this host and checks it against their build.
 4. **It checks the deployed build** with the PC web app's build checksum, the `sha256` in its `build.json`, waiting up to ten minutes while a first address gets its certificate. It must end with `served as built`.
 
 **If the check fails,** the workflow fails and lists each problem. A changed file fails teachers' installs and updates, and a missing header leaves them unprotected, so go back to the previous version at once from `apps/web/host`, with the organisation's token in `CLOUDFLARE_API_TOKEN`, then fix the problem and deploy again by re-running the job:

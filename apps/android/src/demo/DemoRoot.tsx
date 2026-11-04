@@ -277,6 +277,7 @@ export function DemoRoot({
           ? null
           : workspacePage(workspace, page, {
               open,
+              setOpen,
               school,
               reference: worldReference,
               bundled: reference,

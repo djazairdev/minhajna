@@ -72,6 +72,7 @@ describe.each(cases)('SegmentedControl (%s, %s)', (language, direction) => {
             accessibilityRole: 'tab',
             accessibilityLabel: choice.label,
             accessibilityState: { selected: chosen, disabled: false },
+            'aria-selected': chosen,
             testID: `period-${choice.value}`,
           });
           expect(box(tab)).toMatchObject({ minHeight: 48, minWidth: 48, flex: 1 });
