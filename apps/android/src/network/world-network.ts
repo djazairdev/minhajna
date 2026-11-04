@@ -75,7 +75,7 @@ export interface WorldRequest {
   /** `/worlds` to start the open world, or `/worlds/<its ID>` and what follows. */
   readonly path: string;
   readonly body?: unknown;
-  /** The starter token, for moving the world's date and seeding the world. */
+  /** The starter token, for moving the world's date and seeding the world, or a problem report's own token. */
   readonly starter?: string;
   /** How long to wait for the answer, when not TIMEOUT_MS, as for a seeding's larger uploads: 1 to 2³¹ − 1 ms. */
   readonly timeoutMs?: number;

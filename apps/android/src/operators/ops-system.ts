@@ -11,17 +11,8 @@
 // console compares the server's with, is kept equal to the server package's own
 // by a test.
 
-import { failed, unexpected, type Send } from '../demo/world-session';
-import type { WorldAnswer } from '../network/world-network';
-
-/** The server's word for a world ID and pass that open nothing, unlike a path it does not know. */
-const NO_WORLD = 'no world has this id and pass';
-
-/** Throws the server's answer that the world is gone as the world erased. */
-export function goneWorld(answer: WorldAnswer): void {
-  if (answer.status === 404 && (answer.body as { message?: unknown } | null)?.message === NO_WORLD)
-    throw failed('The world was erased', 'E_NO_SUCH_WORLD');
-}
+import { goneWorld } from '../demo/world-gone';
+import { unexpected, type Send } from '../demo/world-session';
 
 /** The demo server's version published in the same release as this app. */
 export const SERVER_RELEASE = '0.1.0';

@@ -11,9 +11,9 @@
 // read of it, is said as erased.
 
 import { isDay, type Day } from '@minhajna/core';
+import { goneWorld } from '../demo/world-gone';
 import { unexpected, type Send } from '../demo/world-session';
 import { NOTE_LIMIT, PARTS, type Part } from '../help/problem-report';
-import { goneWorld } from './ops-system';
 
 export type OpsProblem = {
   readonly id: string;
