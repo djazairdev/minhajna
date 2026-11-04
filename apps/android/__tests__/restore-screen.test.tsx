@@ -136,7 +136,7 @@ test('restores a backup with the typed key, drops the copy, puts the reminder of
   await unmount();
   const restored = await openTestData(storage);
   expect(deviceFacts(restored.book.entries).received).toEqual({ day: '2026-10-15', from: 'backup' });
-  expect(deviceFacts(restored.book.entries).restoredFile).toEqual({ day: '2026-10-15', from: 'backup', since: 0 });
+  expect(deviceFacts(restored.book.entries).restoredFile).toEqual({ day: '2026-10-15', from: 'backup' });
 });
 
 test('says a key that does not open the file, and clears it as the key is typed again', async () => {

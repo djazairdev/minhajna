@@ -7,14 +7,16 @@
 // and its day, and the files saved elsewhere, though no backup holds the
 // personal fields or the drawn signature, with the changes since that backup
 // counted as lost; a restored backup or archive is named with its own day and
-// only subsequent changes (#485); or, before any backup, every change on this
-// phone goes with it. It offers the export first, and erases only once the
-// teacher ticks that it cannot be undone, once however often it is tapped,
-// after the last changes are saved; the app then starts again on the welcome
-// screen. A failure is said, and the screen stays; a PC whose other tabs keep
-// the erase waiting says so and stays busy until it finishes. On a PC it says
-// what goes from this browser and this PC's key (#250, Web-erase, answer 509),
-// and the app stays installed (answer 520).
+// only subsequent changes (#485); a confirmed transfer, while its handover is
+// active, is named with what it does not hold (#494); a phone that received a
+// copy counts only the changes after it, proving no copy; or, before any
+// backup, every change on this phone goes with it. It offers the export first,
+// and erases only once the teacher ticks that it cannot be undone, once however
+// often it is tapped, after the last changes are saved; the app then starts
+// again on the welcome screen. A failure is said, and the screen stays; a PC
+// whose other tabs keep the erase waiting says so and stays busy until it
+// finishes. On a PC it says what goes from this browser and this PC's key
+// (#250, Web-erase, answer 509), and the app stays installed (answer 520).
 
 import { deviceFacts } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';

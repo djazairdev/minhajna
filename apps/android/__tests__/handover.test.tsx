@@ -94,6 +94,16 @@ test('the transfer keeps the sent file’s last entry once the teacher confirms 
   expect(has('transfer-away')).toBe(false);
 });
 
+test('a transfer as the screen makes it leaves nothing to lose on the erase screen', async () => {
+  const data = await withPupils();
+  await mount(data, <Transfer storage={FakeStorage.unlocked().asSpec()} />);
+  await press('transfer-save');
+  await press('transfer-handed');
+  expect(data.book.entries.some((entry) => entry.kind === 'output.recorded')).toBe(true);
+  expect(deviceFacts(data.book.entries).lastCopy?.from).toBe('transfer');
+  expect(deviceFacts(data.book.entries).sinceCopy).toBe(0);
+});
+
 test('no file leaves while the copy is away, and a change made after the file asks for it again', async () => {
   const away = await handed();
   await mount(away, <Transfer storage={FakeStorage.unlocked().asSpec()} />);
