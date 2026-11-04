@@ -9,8 +9,9 @@
 // another room is dropped, and another room's votes do not show while its own
 // are read; an exam the calendar moved says why; a problem reading is said with
 // a way to read again, and a vote refused as a majority came in says why; the
-// directorate's workspace opens its committees over the world's seeded schools.
-// Every world, school and share is made up.
+// directorate's workspace opens its committees over the world's seeded schools,
+// and the server stores nothing named in clear. Every world, school and share
+// is made up.
 
 import { addDays, compareDays, directorateSpace, NATIONAL_COMMITTEE, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
@@ -284,6 +285,9 @@ test('the directorate’s workspace opens its own committees over the world’s 
   expect(texts()).toContain(fill(page.setter.none, { name: seat(1), day: `day ${day}` }));
   const space = await directorateSpace(held.world, directorate, nodeKit.mac);
   const answer = await server.send({ method: 'GET', path: `/worlds/${held.world}/spaces/${space}/batches?after=0` });
-  expect((answer.body as { batches: unknown[] }).batches).toHaveLength(1);
+  const { batches } = answer.body as { batches: { stream: string; bytes: string }[] };
+  expect(batches).toHaveLength(1);
+  const stored = Buffer.from(batches[0].bytes, 'base64url').toString('latin1') + batches[0].stream;
+  expect(/committee|mock|math|seat/u.test(stored)).toBe(false);
   expect(texts()).not.toContain(words.keys);
 });
