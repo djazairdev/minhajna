@@ -71,6 +71,9 @@
     "structure-only": "Structure only",
     "full-text": "Full text (permission required)"
   },
+  "status": "The plan's status",
+  "statusHint": "Official comes only from the Ministry's account. A published release keeps its status; the next release changes it.",
+  "staleReason": "Why this plan is stale",
   "sourceProblem": "Check the source fields, country and release.",
   "continue": "Continue",
   "unsaved": "Not saved yet. Add the first item to save this draft.",

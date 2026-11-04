@@ -5,41 +5,40 @@
 // the welcome or the lock page while the teacher's history is shut: the entry
 // starts a world, on a PC only, a national one seeded with its staff's keys
 // before its code is shown (world-seed.ts, #548), or enters one by its code,
-// then the world's own store opens and its roles show, then its home. The
-// platform's cryptography comes from its start. One step runs at a time
-// (use-run-step.ts), and each failure says what went wrong in the catalogue's
-// words, by its code, and leaves the entry as it was; a code the server no
-// longer knows erases what this device kept for it (world-mode.ts). Leaving
-// shuts the network and the world's store, and hands back to the lock, which
-// opens the teacher's history again only through its passphrase or PIN.
-// Android's back button goes back from the entry unless a world is being
-// entered, and from a role to the roles; on the roles it does nothing, so a
-// world is left only by its own button. The teacher and the inspector open
-// reader mode inside the world from its home (#563), where reader mode's own
-// back button leads back, and Android's back is reader mode's alone; the
-// teacher of a national world opens School-join the same way (#564), in its
-// trial term end while the world's date falls in it (#565), with the country's
-// calendar and bells read for the world's school (school-mine-session.ts),
-// whose term and closures the teacher's classes count (#584). The workspaces'
-// pages come from WorkspacePages.tsx: the director's workspace opens on the
-// seeded school's dashboard (#569), its codes page issues joining codes and
-// security keys (#570), its keys page maps who holds the school key (#571), and
-// the director's and the preparer's timetable page brings in its timetable
-// (#576), kept for the world it was read in, from which the director sends each
-// teacher their part (#577), publishes versions and decides the teachers'
-// proposals (#578, TimetableDesk.tsx), the director's My log lists their own
-// actions (#573), and the records page reads the classes' signed weeks (#585).
-// The teacher of a national world signs in on a staffroom PC (#572): on the
-// phone it approves a PC's code, and on the PC it is the staffroom PC itself.
-// The inspector of a national world posts their key from its home (#593) and
-// reads the grants relayed to their phone there (#594). Every page in a world
-// reads the world's calendar (#608, world-calendar-read.ts): the bundled one
-// with the releases the Ministry published laid over it, read with the world's
-// keys and sealing key, which starting or joining gives and this page holds in
-// memory until the world is left; a reading that fails is said on the world's
-// home, and a world starts from the bundled calendar. When the device that
-// started a world moves its date onto an announced day, and when it enters it
-// again, it sends the seeded schools' shares of the totals for the days reached
+// then the world's own store opens and its roles show, then its home. One step
+// runs at a time (use-run-step.ts), and each failure says what went wrong in
+// the catalogue's words, by its code, and leaves the entry as it was; a code
+// the server no longer knows erases what this device kept for it
+// (world-mode.ts). Leaving shuts the network and the world's store, and hands
+// back to the lock, which opens the teacher's history again only through its
+// passphrase or PIN. Android's back button goes back from the entry unless a
+// world is being entered, and from a role to the roles; on the roles it does
+// nothing, so a world is left only by its own button. The teacher and the
+// inspector open reader mode inside the world from its home (#563), where
+// Android's back is reader mode's alone; the teacher of a national world opens
+// School-join the same way (#564), in its trial term end while the world's date
+// falls in it (#565), with the country's calendar and bells read for the
+// world's school (school-mine-session.ts), whose term and closures the
+// teacher's classes count (#584). The workspaces' pages come from
+// WorkspacePages.tsx: the director's workspace opens on the seeded school's
+// dashboard (#569), its codes page issues joining codes and security keys
+// (#570), its keys page maps who holds the school key (#571), and the
+// director's and the preparer's timetable page brings in its timetable (#576),
+// kept for the world it was read in, from which the director sends each teacher
+// their part (#577), publishes versions and decides the teachers' proposals
+// (#578, TimetableDesk.tsx), the director's My log lists their own actions
+// (#573), and the records page reads the classes' signed weeks (#585). The
+// teacher of a national world signs in on a staffroom PC (#572): on the phone
+// it approves a PC's code, and on the PC it is the staffroom PC itself. The
+// inspector of a national world posts their key from its home (#593) and reads
+// the grants relayed to their phone there (#594). Every page in a world reads
+// the world's calendar (#608, world-calendar-read.ts): the bundled one with the
+// releases the Ministry published laid over it, read with the world's keys and
+// sealing key, which starting or joining gives and this page holds in memory
+// until the world is left; a reading that fails is said on the world's home,
+// and a world starts from the bundled calendar. When the device that started a
+// world moves its date onto an announced day, and when it enters it again, it
+// sends the seeded schools' shares of the totals for the days reached
 // (seeded-shares.ts, #596) while it still shows busy, and a failed send is said
 // as any failure is, the date already moved, to be finished by the next. The
 // teacher's home carries the insights' row, which opens their page (#624),

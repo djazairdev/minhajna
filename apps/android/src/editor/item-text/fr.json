@@ -71,6 +71,9 @@
     "structure-only": "Structure seulement",
     "full-text": "Texte intégral (autorisation requise)"
   },
+  "status": "Statut du plan",
+  "statusHint": "Seul le compte du ministère donne le statut officiel. Une version publiée garde son statut ; la version suivante le change.",
+  "staleReason": "Pourquoi ce plan est dépassé",
   "sourceProblem": "Vérifiez la source, le pays et la version.",
   "continue": "Continuer",
   "unsaved": "Pas encore enregistré. Ajoutez le premier élément pour enregistrer ce brouillon.",
