@@ -15,13 +15,13 @@ The function returns a checked result with findings, or a not-applicable result 
 | `invalid-week` | Main item IDs with missing or invalid weeks in an in-memory pack |
 | `activity-sessions` | Week, activity code, expected and actual sessions, and contributing item IDs; an absent activity has no item IDs |
 
-A supplied weekly model applies to ordinary teaching weeks. An unclassified item can fill an untyped slot, so it does not count towards a named activity. A week containing only buffer or assessment and remediation items counts toward the horizon without being checked against the ordinary model. A pack without a weekly model still receives the horizon checks. Unit headings and the separate TD queue are excluded.
+A supplied weekly model applies to regular teaching weeks. An unclassified item can fill an untyped slot, so it does not count towards a named activity. A week holding only buffer, diagnostic, term assessment, or assessment and remediation items counts toward the horizon without being checked against the model. In a regular week an activity counts its tagged items as the engine schedules them, whatever their kind, and a tagged buffer may fill a slot or sit spare beside a full one, never counting as too many. A primary half-week of integration, assessment and remediation is keyed by marking those items as buffers and giving each the activity of the slot it fills. A pack without a weekly model still receives the horizon checks. Unit headings and the separate TD queue are excluded.
 
 Each finding carries a kind and the affected item IDs, like the budget checker. The week checker also includes the affected week or range. Budget and hybrid anchors use separate capacity checks. An invalid horizon throws `RangeError`. The check reads no teacher records and makes no network call.
 
 ## Verification
 
-Tests cover the bundled primary Arabic example, packs with and without a model, invalid in-memory weeks, leading and trailing gaps, activity counts and untyped slots, buffer and assessment weeks, and the separate TD queue.
+Tests cover the bundled primary Arabic example, packs with and without a model, invalid in-memory weeks, leading and trailing gaps, activity counts and untyped slots, buffer, diagnostic and assessment weeks, buffers filling a slot or sitting spare in a regular week, assessments counted in one, and the separate TD queue.
 
 ## Scope
 
