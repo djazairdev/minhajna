@@ -21,9 +21,10 @@ import en from '../src/text/en.json';
 import fr from '../src/text/fr.json';
 
 const FINGERPRINT = 'ab'.repeat(32);
-const PARTS = ['gateway', 'relay', 'totals', 'standins'] as const;
+const PARTS = ['gateway', 'relay', 'totals', 'standins', 'observatory'] as const;
 const base = { version: '0.1.0', fingerprint: FINGERPRINT, parts: PARTS };
 const archived: SystemView = { ...base, storage: 'postgresql', database: 'ok', archive: 'on' };
+const tested = { ...archived, archiving: 'ok', restore: { day: '2026-12-01', result: 'passed' } };
 const words = ar.demo.ops;
 
 /** The catalogue's words by dotted key, as i18next reads them. */
@@ -46,6 +47,9 @@ test('takes the server’s description in each shape it gives, and refuses any o
   const shapes = [
     { ...base, storage: 'memory' },
     archived,
+    tested,
+    { ...tested, archiving: 'failing', restore: { day: '2026-12-01', result: 'failed' } },
+    { ...tested, archiving: 'waiting', restore: null },
     { ...base, storage: 'postgresql', database: 'ok', archive: 'off' },
     { ...base, fingerprint: null, storage: 'postgresql', database: 'failing' },
   ];
@@ -62,6 +66,19 @@ test('takes the server’s description in each shape it gives, and refuses any o
     { ...archived, parts: ['gateway', 'mirror'] },
     { ...archived, parts: ['relay', 'relay'] },
     { ...archived, world: 'AAAAA' },
+    { ...archived, archiving: 'ok' },
+    { ...archived, restore: null },
+    { ...tested, archiving: 'late' },
+    { ...tested, restore: undefined },
+    { ...tested, restore: [] },
+    { ...tested, restore: 'passed' },
+    { ...tested, restore: { day: '2026-12-01' } },
+    { ...tested, restore: { day: '2026-13-01', result: 'passed' } },
+    { ...tested, restore: { day: '2026-12-01', result: 'unknown' } },
+    { ...tested, restore: { day: '2026-12-01', result: 'passed', step: 'fetch' } },
+    { ...tested, archive: 'off' },
+    { ...tested, world: 'AAAAA' },
+    { ...base, storage: 'postgresql', database: 'failing', archiving: 'ok', restore: null },
   ])
     expect(systemView(odd)).toBeNull();
   await expect(readSystem('AAAAA', answer(200, archived))).resolves.toEqual(archived);
@@ -86,7 +103,7 @@ test('asks through the world for its own path', async () => {
 });
 
 test('draws only what the server says, the backups while the database archives', () => {
-  const inner = ['devices', 'gateway', 'relay', 'totals', 'standins', 'storage', 'screens'];
+  const inner = ['devices', 'gateway', 'relay', 'totals', 'standins', 'observatory', 'storage', 'screens'];
   expect(opsBoxes(archived)).toEqual([...inner, 'backups', 'outside']);
   expect(opsBoxes({ ...archived, archive: 'off' })).toEqual([...inner, 'outside']);
   expect(opsBoxes({ ...base, storage: 'postgresql', database: 'failing' })).toEqual([...inner, 'outside']);
@@ -110,13 +127,22 @@ test('writes every box and line out with its rows, the line to outside closed, m
     ['gateway', 'totals'],
     ['totals', 'screens'],
     ['gateway', 'standins'],
+    ['gateway', 'observatory'],
+    ['observatory', 'devices'],
     ['relay', 'storage'],
     ['totals', 'storage'],
     ['standins', 'storage'],
+    ['observatory', 'storage'],
     ['storage', 'backups'],
     ['gateway', 'outside'],
   ]);
   expect(map.spec.links.filter((one) => one.idle === true).map((one) => one.label)).toEqual([words.line.closed]);
+  for (const item of [...map.boxes, ...map.lines]) {
+    expect(typeof item.label).toBe('string');
+    for (const row of item.rows) expect(typeof row.value).toBe('string');
+  }
+  for (const box of map.boxes) expect([typeof box.sub, typeof box.note]).toEqual(['string', 'string']);
+  expect(map.boxes.find((one) => one.id === 'observatory')!.note).toBe(words.note.observatory);
   const relay = map.boxes.find((one) => one.id === 'relay')!;
   expect(relay).toEqual({
     id: 'relay',
@@ -137,6 +163,9 @@ test('writes every box and line out with its rows, the line to outside closed, m
   const memory = opsMap(t, { ...base, storage: 'memory' }, true);
   expect(memory.boxes.find((one) => one.id === 'storage')!.note).toBe(words.note.storage.memory);
   expect(memory.lines.map((one) => one.id)).not.toContain('line.copies');
+  const older = opsMap(t, { ...archived, parts: PARTS.filter((part) => part !== 'observatory') }, true);
+  expect(older.boxes.map((one) => one.id)).not.toContain('observatory');
+  expect(older.lines.map((one) => one.id)).not.toContain('line.sendings');
   const ltr = opsMap(t, archived, false);
   const at = (spec: typeof map.spec, id: string) => spec.nodes.find((one) => one.id === id)!.x;
   expect([at(map.spec, 'totals'), at(ltr.spec, 'totals')]).toEqual([13, 525]);

@@ -5134,11 +5134,12 @@
         "standins": "Substituts des systèmes de l’État",
         "storage": "Le stockage",
         "screens": "Écrans des directions et du ministère",
-        "backups": "Les sauvegardes"
+        "backups": "Les sauvegardes",
+        "observatory": "Observatoire"
       },
       "sub": {
         "devices": "L’application Minhajna, et les PC des salles des professeurs",
-        "outside": "Statistiques, publicités, polices",
+        "outside": "Mesure d’audience, publicités, polices",
         "gateway": "Reçoit sans ouvrir",
         "relay": "Chiffrés, d’une seule taille",
         "totals": "N’additionne que des parts",
@@ -5148,18 +5149,19 @@
           "memory": "En mémoire, perdu à l’arrêt du serveur"
         },
         "screens": "Des totaux seulement",
-        "backups": "Hors du conteneur, scellées si le déploiement fixe une clé"
+        "backups": "Hors du conteneur, scellées si le déploiement fixe une clé",
+        "observatory": "Des envois anonymes, seulement là où un monde l’ouvre"
       },
       "facts": {
         "devices": {
           "holds": "Les registres, et leurs clés, qui n’en sortent jamais",
-          "sees": "Ce qui parvient au serveur : des lots chiffrés, les parts de comptes des établissements, des exports scellés pour le substitut, et des demandes de certificat",
+          "sees": "Ce qui parvient au serveur : des lots chiffrés, les parts de comptes des établissements, des exports scellés pour le substitut, des demandes de certificat, et les statistiques anonymes d’un monde d’enseignants",
           "never": "Une clé d’établissement ou d’enseignant, ou un registre lisible"
         },
         "outside": {
           "holds": "Rien de ce serveur",
           "sees": "Que le serveur n’en appelle aucun",
-          "never": "Une requête : ni statistiques, ni publicités, ni polices, ni suivi d’erreurs ; la seule adresse extérieure est le dépôt des sauvegardes, quand elles sont gardées"
+          "never": "Une requête : ni mesure d’audience, ni publicités, ni polices, ni suivi d’erreurs ; la seule adresse extérieure est le dépôt des sauvegardes, quand elles sont gardées"
         },
         "gateway": {
           "holds": "Rien : elle remet les requêtes à leurs parties",
@@ -5183,13 +5185,13 @@
         },
         "storage": {
           "postgresql": {
-            "holds": "Les mondes, leurs espaces et lots, les parts, les clés et les accusés, effacés le 7e jour",
-            "sees": "Des identifiants, des nombres et des octets chiffrés",
+            "holds": "Les mondes, leurs espaces et lots, les parts, les envois de statistiques et leurs chiffres, les clés et les accusés, effacés le 7e jour",
+            "sees": "Des identifiants, des nombres, des octets chiffrés et les envois anonymes",
             "never": "Un registre nominatif, ou une clé de l’espace d’un établissement ou d’un enseignant"
           },
           "memory": {
-            "holds": "Les mondes, leurs espaces et lots, les parts, les clés et les accusés, tant que le serveur tourne, effacés le 7e jour",
-            "sees": "Des identifiants, des nombres et des octets chiffrés",
+            "holds": "Les mondes, leurs espaces et lots, les parts, les envois de statistiques et leurs chiffres, les clés et les accusés, tant que le serveur tourne, effacés le 7e jour",
+            "sees": "Des identifiants, des nombres, des octets chiffrés et les envois anonymes",
             "never": "Un registre nominatif, ou une clé de l’espace d’un établissement ou d’un enseignant"
           }
         },
@@ -5205,8 +5207,8 @@
         },
         "line": {
           "batches": {
-            "carries": "Des lots chiffrés d’une seule taille, les parts de comptes des établissements, des exports scellés pour le substitut, et des demandes de certificat",
-            "sees": "Leur taille, leur espace et les comptes"
+            "carries": "Des lots chiffrés d’une seule taille, les parts de comptes des établissements, des exports scellés pour le substitut, des demandes de certificat, et les statistiques anonymes d’un monde d’enseignants",
+            "sees": "Leur taille, leur espace et les comptes, et les statistiques telles quelles"
           },
           "back": {
             "carries": "Les mêmes lots, à qui détient le mot de passe du monde",
@@ -5247,7 +5249,24 @@
           "closed": {
             "carries": "Rien : fermé",
             "sees": "Rien"
+          },
+          "sendings": {
+            "carries": "Un envoi anonyme chaque trimestre pour chaque classe qui suit un paquet de progression, une fois les statistiques activées par son enseignant",
+            "sees": "Chaque envoi ; le code de son établissement est écarté à la réception"
+          },
+          "figures": {
+            "carries": "Les chiffres d’un trimestre clos au-dessus des seuils, à qui détient le mot de passe",
+            "sees": "Les mêmes chiffres"
+          },
+          "sendingsKept": {
+            "carries": "Les envois, avec une marque pour chaque établissement, et les chiffres formés à partir d’eux",
+            "sees": "Les envois tels quels"
           }
+        },
+        "observatory": {
+          "holds": "Les envois d’un monde d’enseignants, chacun avec une marque de son établissement à la place du code de l’établissement, et les chiffres d’un trimestre clos",
+          "sees": "Chaque envoi : comment une classe a avancé dans un paquet de progression, par wilaya, niveau et matière, sous des identifiants aléatoires",
+          "never": "Un enseignant, un élève ou une séance : aucun envoi ne les nomme, et le code d’un établissement est écarté à la réception"
         }
       },
       "note": {
@@ -5262,7 +5281,8 @@
           "memory": "Rien ne survit à l’arrêt du serveur, et rien n’est sauvegardé."
         },
         "screens": "Aucun chiffre pour un établissement ou un enseignant.",
-        "backups": "Si le déploiement fixe une clé, l’hébergeur la garde avec les accès au dépôt, pas le serveur : qui lit le dépôt ne lit rien de leur contenu. Un monde effacé y reste environ deux jours. Toute la démonstration en est restaurée quand un conteneur démarre sur un disque vide."
+        "backups": "Si le déploiement fixe une clé, l’hébergeur la garde avec les accès au dépôt, pas le serveur : qui lit le dépôt ne lit rien de leur contenu. Un monde effacé y reste environ deux jours. Toute la démonstration en est restaurée quand un conteneur démarre sur un disque vide. Après chaque copie quotidienne, le conteneur teste une restauration dans un dossier temporaire, puis l’efface.",
+        "observatory": "Un monde national n’envoie rien ici, car toutes ses classes sont dans des espaces d’établissement. Les chiffres ne sont formés qu’une fois la collecte d’un trimestre close, et ceux sous les seuils restent masqués."
       },
       "line": {
         "batches": "Lots, parts et exports",
@@ -5275,7 +5295,10 @@
         "copies": "Copies de la base",
         "held": "Parts gardées",
         "receipts": "Clés et accusés",
-        "closed": "Fermé"
+        "closed": "Fermé",
+        "sendings": "Envois de statistiques",
+        "figures": "Chiffres au-dessus des seuils",
+        "sendingsKept": "Envois gardés"
       },
       "state": {
         "title": "L’état du système",
@@ -5290,6 +5313,12 @@
         "archiveOn": "La base archive son journal d’écriture, qui garde les sauvegardes.",
         "archiveOff": "Aucune sauvegarde : la base n’archive pas son journal d’écriture.",
         "archiveUnknown": "On ne sait pas si les sauvegardes sont gardées tant que la base ne répond pas.",
+        "archivingOk": "L’archivage fonctionne : un fichier a été archivé, sans échec depuis.",
+        "archivingFailing": "L’archivage échoue : sa dernière tentative a échoué, et aucun fichier n’a été archivé depuis.",
+        "archivingWaiting": "Rien n’a encore été archivé.",
+        "restorePassed": "Le dernier test de restauration a réussi, le {{day}}.",
+        "restoreFailed": "Le dernier test de restauration a échoué, le {{day}}.",
+        "restoreNone": "Aucun test de restauration n’a encore eu lieu.",
         "offline": "L’installation et la mise à jour hors ligne depuis la version publiée attendent un vrai déploiement.",
         "fixes": "Les correctifs de sécurité critiques paraissent sous 7 jours, et sont installés dans le même délai."
       },
@@ -5306,7 +5335,14 @@
         "erased_many": "{{count}} de mondes effacés à leur 7e jour",
         "erased_other": "{{count}} mondes effacés à leur 7e jour",
         "fixed": "Un signalement de problème a été marqué corrigé et effacé ({{id}})",
-        "other": "Une action d’administration que cette version de l’application ne lit pas"
+        "other": "Une action d’administration que cette version de l’application ne lit pas",
+        "restore": {
+          "passed": "Un test de restauration des sauvegardes a réussi",
+          "room": "Un test de restauration a échoué : trop peu de place sur le disque pour une copie",
+          "fetch": "Un test de restauration a échoué : la sauvegarde n’a pas pu être récupérée",
+          "recover": "Un test de restauration a échoué : la copie ne s’est pas rétablie",
+          "check": "Un test de restauration a échoué : la copie n’a pas passé ses contrôles"
+        }
       },
       "problems": {
         "lead": "Les signalements de problème envoyés depuis ce monde : la partie de l’application, ce qui s’est passé (les noms des élèves déjà remplacés sur l’appareil), la version de l’application et le jour d’arrivée. Rien sur qui l’a envoyé.",

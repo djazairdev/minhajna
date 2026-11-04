@@ -5,13 +5,14 @@
 // log's lines under their heading, newest first as the server gives them, each
 // said with its day, the server's start with the changes it applied, worlds
 // erased counted in the language's plural, a report marked fixed by the start
-// of its ID, and an action this app does not read; nothing in the log said so;
-// the security log's days, each kind with its count, read as one, the kinds
-// this app does not know together only when there are any, how many days it
-// keeps from the server's answer, and no day said so; reading said, a problem
-// shown with a way to read again; each count read as one on a phone, while a
-// PC's browser reads the label and the figure; and only the operator's
-// workspace opening each page. Every world here is made up.
+// of its ID, a restore test by its result or the step that failed (#620), and
+// an action this app does not read; nothing in the log said so; the security
+// log's days, each kind with its count, read as one, the kinds this app does
+// not know together only when there are any, how many days it keeps from the
+// server's answer, and no day said so; reading said, a problem shown with a way
+// to read again; each count read as one on a phone, while a PC's browser reads
+// the label and the figure; and only the operator's workspace opening each
+// page. Every world here is made up.
 
 import type { Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -82,6 +83,11 @@ async function render(page: 'admin' | 'security', send: Send) {
 test('says each admin log line with its day, newest first as the server gives them', async () => {
   const lines = [
     { day: '2026-12-04', action: 'restore.tested', detail: { ok: true } },
+    { day: '2026-12-04', action: 'restore.tested', detail: { result: 'passed' } },
+    { day: '2026-12-04', action: 'restore.tested', detail: { result: 'failed', step: 'room' } },
+    { day: '2026-12-04', action: 'restore.tested', detail: { result: 'failed', step: 'fetch' } },
+    { day: '2026-12-04', action: 'restore.tested', detail: { result: 'failed', step: 'recover' } },
+    { day: '2026-12-04', action: 'restore.tested', detail: { result: 'failed', step: 'check' } },
     { day: '2026-12-03', action: 'problem.fixed', detail: { problem: ID } },
     { day: '2026-12-02', action: 'worlds.erased', detail: { count: 2 } },
     { day: '2026-12-02', action: 'worlds.erased', detail: { count: 3 } },
@@ -93,6 +99,16 @@ test('says each admin log line with its day, newest first as the server gives th
   expect(texts('ops-admin-lines')).toEqual([
     words.admin.lines,
     words.admin.other,
+    'day 2026-12-04',
+    words.admin.restore.passed,
+    'day 2026-12-04',
+    words.admin.restore.room,
+    'day 2026-12-04',
+    words.admin.restore.fetch,
+    'day 2026-12-04',
+    words.admin.restore.recover,
+    'day 2026-12-04',
+    words.admin.restore.check,
     'day 2026-12-04',
     words.admin.fixed.replace('{{id}}', isolate('01234567')),
     'day 2026-12-03',

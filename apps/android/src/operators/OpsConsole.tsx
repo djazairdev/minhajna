@@ -10,7 +10,8 @@
 // written out, each a button that opens its panel beside them, the batch store
 // at first; and the system's state: the server's version against the one
 // published with this app, the fingerprint of its built code, whether the
-// database answers or the worlds are in memory, whether backups are kept, that
+// database answers or the worlds are in memory, whether backups are kept, and
+// while they are, whether archiving works and the last restore test, that
 // installing with no internet waits for a real deployment, and the 7 days for
 // security fixes. Reading is said, and a problem in the world's words with a
 // way to read again.
@@ -32,7 +33,20 @@ import { fingerprintText, SERVER_RELEASE, type SystemView } from './ops-system';
 import { useOpsSystem } from './use-ops-system';
 
 type StateLine =
-  'memory' | 'failing' | 'archiveUnknown' | 'answering' | 'archiveOn' | 'archiveOff' | 'offline' | 'fixes';
+  | 'memory'
+  | 'failing'
+  | 'archiveUnknown'
+  | 'answering'
+  | 'archiveOn'
+  | 'archiveOff'
+  | 'archivingOk'
+  | 'archivingFailing'
+  | 'archivingWaiting'
+  | 'restorePassed'
+  | 'restoreFailed'
+  | 'restoreNone'
+  | 'offline'
+  | 'fixes';
 
 export type OpsConsoleProps = {
   readonly world: Pick<OpenWorld, 'world' | 'date'>;
@@ -41,16 +55,37 @@ export type OpsConsoleProps = {
   readonly dayText: (day: Day) => string;
 };
 
+const ARCHIVING = { ok: 'archivingOk', failing: 'archivingFailing', waiting: 'archivingWaiting' } as const;
+const RESTORE = { passed: 'restorePassed', failed: 'restoreFailed' } as const;
+
+/** What the server says of its backups' archiving and restore tests; an older server says neither. */
+function backupLines(view: Extract<SystemView, { archive: 'on' }>): readonly StateLine[] {
+  const { archiving, restore } = view;
+  return [
+    ...(archiving === undefined ? [] : [ARCHIVING[archiving]]),
+    ...(restore === undefined ? [] : [restore === null ? ('restoreNone' as const) : RESTORE[restore.result]]),
+  ];
+}
+
 /** The state's lines about storage and backups, in the catalogue's keys, then the two that always show. */
 function stateLines(view: SystemView): readonly StateLine[] {
-  const storage: StateLine[] =
+  const storage: readonly StateLine[] =
     view.storage === 'memory'
       ? ['memory']
       : view.database === 'failing'
         ? ['failing', 'archiveUnknown']
-        : ['answering', view.archive === 'on' ? 'archiveOn' : 'archiveOff'];
+        : view.archive === 'on'
+          ? ['answering', 'archiveOn', ...backupLines(view)]
+          : ['answering', 'archiveOff'];
   return [...storage, 'offline', 'fixes'];
 }
+
+/** The last restore test's day, written out, for the lines that say it. */
+const restoreDay = (view: SystemView, dayText: (day: Day) => string) => {
+  const restore =
+    view.storage === 'postgresql' && view.database === 'ok' && view.archive === 'on' ? view.restore : null;
+  return restore === null || restore === undefined ? '' : isolate(dayText(restore.day));
+};
 
 /** The operators' map of the demo server and its state. */
 export function OpsConsole({ world, send, dayText }: OpsConsoleProps) {
@@ -147,7 +182,7 @@ export function OpsConsole({ world, send, dayText }: OpsConsoleProps) {
               )}
               {stateLines(view).map((line) => (
                 <Text key={line} testID={`ops-state-${line}`} style={[styles.value, align]}>
-                  {t(`demo.ops.state.${line}`)}
+                  {t(`demo.ops.state.${line}`, { day: restoreDay(view, dayText) })}
                 </Text>
               ))}
             </View>

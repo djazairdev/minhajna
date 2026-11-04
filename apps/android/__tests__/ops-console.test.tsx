@@ -7,9 +7,10 @@
 // chosen showing its own rows; the system's state with the server's version
 // against the one published with this app, the fingerprint in groups of four,
 // the database answering and archiving or not, or failing, or the worlds in
-// memory, and the two lines that always show; a version that differs said so;
-// reading said, a problem shown with a way to read again; and on a phone no map
-// and no legend, the item chosen said selected. Every world here is made up.
+// memory, whether archiving works and the last restore test (#620, answer 658),
+// and the two lines that always show; a version that differs said so; reading
+// said, a problem shown with a way to read again; and on a phone no map and no
+// legend, the item chosen said selected. Every world here is made up.
 
 import type { Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -29,7 +30,7 @@ jest.mock(
 
 const words = ar.demo.ops;
 const FINGERPRINT = '0123456789abcdef'.repeat(4);
-const PARTS = ['gateway', 'relay', 'totals', 'standins'];
+const PARTS = ['gateway', 'relay', 'totals', 'standins', 'observatory'];
 const archived = {
   version: SERVER_RELEASE,
   fingerprint: FINGERPRINT,
@@ -99,7 +100,7 @@ async function render(send: Send, drawing: DrawingKit | null = kit) {
 test('maps the server from its description, writes it out and opens each item’s panel', async () => {
   await render(answering(archived));
   const spec = drawn.at(-1)!;
-  expect([spec.label, spec.nodes.length, spec.links.length]).toEqual([words.map, 9, 11]);
+  expect([spec.label, spec.nodes.length, spec.links.length]).toEqual([words.map, 10, 14]);
   expect(shown('ops-legend')).toBe(true);
   expect(texts('ops-group-boxes')).toContain(words.box.backups);
   expect(texts('ops-panel')).toEqual([
@@ -133,6 +134,31 @@ test('says the system’s state: version, fingerprint, database, backups and the
     words.state.archiveOn,
     words.state.offline,
     words.state.fixes,
+  ]);
+});
+
+test('says whether archiving works and the last restore test, while the database archives', async () => {
+  const lines = async (archiving: string, restore: unknown) => {
+    await render(answering({ ...archived, archiving, restore }));
+    const said = texts('ops-state').slice(7, 10);
+    await ReactTestRenderer.act(() => tree!.unmount());
+    return said;
+  };
+  const day = isolate('day 2026-11-30');
+  await expect(lines('ok', { day: '2026-11-30', result: 'passed' })).resolves.toEqual([
+    words.state.archivingOk,
+    words.state.restorePassed.replace('{{day}}', day),
+    words.state.offline,
+  ]);
+  await expect(lines('failing', { day: '2026-11-30', result: 'failed' })).resolves.toEqual([
+    words.state.archivingFailing,
+    words.state.restoreFailed.replace('{{day}}', day),
+    words.state.offline,
+  ]);
+  await expect(lines('waiting', null)).resolves.toEqual([
+    words.state.archivingWaiting,
+    words.state.restoreNone,
+    words.state.offline,
   ]);
 });
 

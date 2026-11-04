@@ -3,16 +3,20 @@
 
 // The operators' logs as the console reads them from the demo server (#619,
 // answer 656), with the world's pass: the admin log's lines, newest first, by
-// day, action and detail, an action the console does not know, or a known one
+// day, action and detail, a restore test's result or the step that failed among
+// them (#620, answer 658), an action the console does not know, or a known one
 // whose detail it does not read, kept as one it does not know, so a newer
 // server's lines still read; and the security log's counts by day and kind,
-// newest first, the kinds it does not know counted together, with how many
-// days it keeps. Each answer is checked field by field, and refused when
-// shaped otherwise; a world that is gone is said as erased.
+// newest first, the kinds it does not know counted together, with how many days
+// it keeps. Each answer is checked field by field, and refused when shaped
+// otherwise; a world that is gone is said as erased.
 
 import { isDay, type Day } from '@minhajna/core';
 import { goneWorld } from '../demo/world-gone';
 import { unexpected, type Send } from '../demo/world-session';
+
+/** How a restore test ended: passed, or the step that failed. */
+export type RestoreOutcome = 'passed' | 'room' | 'fetch' | 'recover' | 'check';
 
 /** An admin log line as the console shows it. */
 export type AdminLine =
@@ -24,6 +28,7 @@ export type AdminLine =
     }
   | { readonly day: Day; readonly action: 'worlds.erased'; readonly count: number }
   | { readonly day: Day; readonly action: 'problem.fixed'; readonly problem: string }
+  | { readonly day: Day; readonly action: 'restore.tested'; readonly outcome: RestoreOutcome }
   | { readonly day: Day; readonly action: 'other' };
 
 export const SECURITY_KINDS = [
@@ -42,6 +47,7 @@ export interface SecurityDay {
   readonly others: number;
 }
 
+const RESTORE_STEPS: readonly RestoreOutcome[] = ['room', 'fetch', 'recover', 'check'];
 const PROBLEM_ID = /^[0-9a-f]{32}$/u;
 const record = (value: unknown): Record<string, unknown> | null =>
   typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -58,7 +64,7 @@ export function adminLine(value: unknown): AdminLine | null {
   const day = dayOf(one?.['day']);
   const action = one?.['action'];
   if (detail === null || day === null || typeof action !== 'string') return null;
-  const { version, migrations = [], count, problem } = detail;
+  const { version, migrations = [], count, problem, result, step } = detail;
   if (
     action === 'server.started' &&
     isText(version, 64) &&
@@ -69,6 +75,10 @@ export function adminLine(value: unknown): AdminLine | null {
   if (action === 'worlds.erased' && isCount(count)) return { day, action, count };
   if (action === 'problem.fixed' && typeof problem === 'string' && PROBLEM_ID.test(problem))
     return { day, action, problem };
+  if (action === 'restore.tested' && result === 'passed' && step === undefined)
+    return { day, action, outcome: 'passed' };
+  if (action === 'restore.tested' && result === 'failed' && RESTORE_STEPS.includes(step as RestoreOutcome))
+    return { day, action, outcome: step as RestoreOutcome };
   return { day, action: 'other' };
 }
 

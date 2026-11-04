@@ -5062,7 +5062,8 @@
         "standins": "Stand-ins for the state's systems",
         "storage": "Storage",
         "screens": "Directorates' and Ministry's screens",
-        "backups": "Backups"
+        "backups": "Backups",
+        "observatory": "Observatory"
       },
       "sub": {
         "devices": "The Minhajna app, and staffroom PCs",
@@ -5076,12 +5077,13 @@
           "memory": "In memory, lost when the server stops"
         },
         "screens": "Totals only",
-        "backups": "Outside the container, sealed when the deployment sets a key"
+        "backups": "Outside the container, sealed when the deployment sets a key",
+        "observatory": "Anonymous sendings, only where a world opens it"
       },
       "facts": {
         "devices": {
           "holds": "The records, and their keys, which never leave",
-          "sees": "What reaches the server: encrypted batches, schools' count shares, exports sealed for the stand-in, and certificate requests",
+          "sees": "What reaches the server: encrypted batches, schools' count shares, exports sealed for the stand-in, certificate requests, and a teachers' world's anonymous insights",
           "never": "A school's or a teacher's key, or a readable record"
         },
         "outside": {
@@ -5111,13 +5113,13 @@
         },
         "storage": {
           "postgresql": {
-            "holds": "Worlds, their spaces and batches, shares, keys and receipts, erased on their 7th day",
-            "sees": "IDs, numbers and encrypted bytes",
+            "holds": "Worlds, their spaces and batches, shares, insights sendings and their figures, keys and receipts, erased on their 7th day",
+            "sees": "IDs, numbers, encrypted bytes and the anonymous sendings",
             "never": "A named record, or a key to a school's or a teacher's space"
           },
           "memory": {
-            "holds": "Worlds, their spaces and batches, shares, keys and receipts, while the server runs, erased on their 7th day",
-            "sees": "IDs, numbers and encrypted bytes",
+            "holds": "Worlds, their spaces and batches, shares, insights sendings and their figures, keys and receipts, while the server runs, erased on their 7th day",
+            "sees": "IDs, numbers, encrypted bytes and the anonymous sendings",
             "never": "A named record, or a key to a school's or a teacher's space"
           }
         },
@@ -5133,8 +5135,8 @@
         },
         "line": {
           "batches": {
-            "carries": "Encrypted batches of one size, schools' count shares, exports sealed for the stand-in, and certificate requests",
-            "sees": "Their size, space and counts"
+            "carries": "Encrypted batches of one size, schools' count shares, exports sealed for the stand-in, certificate requests, and a teachers' world's anonymous insights",
+            "sees": "Their size, space and counts, and the insights as they are"
           },
           "back": {
             "carries": "The same batches, to whoever holds the world's pass",
@@ -5175,7 +5177,24 @@
           "closed": {
             "carries": "Nothing: closed",
             "sees": "Nothing"
+          },
+          "sendings": {
+            "carries": "One anonymous sending each term for each class that follows a plan pack, once its teacher turns insights on",
+            "sees": "Each sending; its school's code is dropped on receipt"
+          },
+          "figures": {
+            "carries": "A closed term's figures above the floors, to whoever holds the pass",
+            "sees": "The same figures"
+          },
+          "sendingsKept": {
+            "carries": "The sendings, with a mark for each school, and the figures formed from them",
+            "sees": "The sendings as they are"
           }
+        },
+        "observatory": {
+          "holds": "A teachers' world's sendings, each with a mark for its school in place of the school's code, and a closed term's figures",
+          "sees": "Each sending: how a class got through a plan pack, by wilaya, grade and subject, under random IDs",
+          "never": "A teacher, a pupil or a session: no sending names them, and a school's code is dropped on receipt"
         }
       },
       "note": {
@@ -5190,7 +5209,8 @@
           "memory": "Nothing outlives the server, and nothing is backed up."
         },
         "screens": "No figure for a school or a teacher.",
-        "backups": "When the deployment sets a key, the host keeps it with the bucket's credentials, not the server, so whoever reads the bucket reads none of what they hold. An erased world stays there for about two days. The whole demo is restored from them when a container starts on an empty disk."
+        "backups": "When the deployment sets a key, the host keeps it with the bucket's credentials, not the server, so whoever reads the bucket reads none of what they hold. An erased world stays there for about two days. The whole demo is restored from them when a container starts on an empty disk. After each daily copy, the container tests a restore into a scratch folder, then erases it.",
+        "observatory": "A national world sends nothing here, as all its classes are in school spaces. Figures are formed only once a term's collection closes, and any under the floors stays hidden."
       },
       "line": {
         "batches": "Batches, shares and exports",
@@ -5203,7 +5223,10 @@
         "copies": "Database copies",
         "held": "Shares kept",
         "receipts": "Keys and receipts",
-        "closed": "Closed"
+        "closed": "Closed",
+        "sendings": "Insights sendings",
+        "figures": "Figures above the floors",
+        "sendingsKept": "Sendings kept"
       },
       "state": {
         "title": "The system's state",
@@ -5218,6 +5241,12 @@
         "archiveOn": "The database archives its write-ahead log, which keeps the backups.",
         "archiveOff": "No backups: the database does not archive its write-ahead log.",
         "archiveUnknown": "Whether backups are kept is unknown while the database is not answering.",
+        "archivingOk": "Archiving works: a file has been archived, and no failure came after it.",
+        "archivingFailing": "Archiving is failing: its last try failed, and no file has been archived since.",
+        "archivingWaiting": "Nothing has been archived yet.",
+        "restorePassed": "The last restore test passed, on {{day}}.",
+        "restoreFailed": "The last restore test failed, on {{day}}.",
+        "restoreNone": "No restore test has run yet.",
         "offline": "Installing and updating from the published release with no internet wait for a real deployment.",
         "fixes": "Critical security fixes ship within 7 days, and are installed in the same window."
       },
@@ -5233,7 +5262,14 @@
         "erased_one": "{{count}} world erased on its 7th day",
         "erased_other": "{{count}} worlds erased on their 7th day",
         "fixed": "A problem report was marked fixed and erased ({{id}})",
-        "other": "An administrative action this version of the app does not read"
+        "other": "An administrative action this version of the app does not read",
+        "restore": {
+          "passed": "A restore test of the backups passed",
+          "room": "A restore test failed: too little room on the disk for a copy",
+          "fetch": "A restore test failed: the backup could not be fetched",
+          "recover": "A restore test failed: the copy did not recover",
+          "check": "A restore test failed: the copy failed its checks"
+        }
       },
       "problems": {
         "lead": "Problem reports sent from inside this world: the part of the app, what happened, with pupils’ names already replaced on the device, the app’s version and the day it came. Nothing about who sent it.",
