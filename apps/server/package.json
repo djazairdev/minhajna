@@ -1,6 +1,6 @@
 {
   "name": "@minhajna/server",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Minhajna's server package: in 0.7.0, the demo server that holds made-up worlds",
   "license": "AGPL-3.0-or-later",

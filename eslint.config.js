@@ -12,7 +12,7 @@ import noCommentsInFunctions from './tools/eslint/no-comments-in-functions.js';
 
 export default defineConfig(
   // The server's Prisma client is generated at build time, and not ours to lint.
-  globalIgnores(['**/dist/', '**/coverage/', 'apps/server/src/generated/']),
+  globalIgnores(['**/dist/', '**/coverage/', '**/.wrangler/', 'apps/server/src/generated/']),
 
   // ESLint's and typescript-eslint's recommended rules, with type
   // information. Among them: no unused variable or import, and no promise

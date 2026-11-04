@@ -9,7 +9,10 @@
 // lines for GITHUB_OUTPUT. A pull request only rehearses, whatever its
 // version. A release is the latest when no newer release, beta aside, is
 // tagged, and only the latest is deployed to the PC web app's host, which
-// never goes back to an older build. Only Node's built-ins are used.
+// never goes back to an older build. A release's demo server carries its
+// version (answer 754), so a release whose apps/server/package.json says
+// otherwise stops here, before anything is built. Only Node's built-ins are
+// used.
 
 import { readFileSync } from 'node:fs';
 import process from 'node:process';
@@ -45,7 +48,7 @@ export function compareVersions(a, b) {
 }
 
 /** What the workflow does with this commit. */
-export function releasePlan({ gradle, changelog, listing, event }) {
+export function releasePlan({ gradle, changelog, listing, event, server }) {
   const { name: version } = appVersion(gradle);
   const tagged = taggedVersions(listing);
   const pending = event === 'pull_request' || !tagged.includes(version);
@@ -53,6 +56,9 @@ export function releasePlan({ gradle, changelog, listing, event }) {
   const prerelease = version.includes('-');
   const newer = tagged.some((other) => !other.includes('-') && compareVersions(other, version) > 0);
   const release = event === 'push' && !tagged.includes(version) && section !== undefined;
+  if (release && server !== version) {
+    throw new Error(`apps/server/package.json says ${server}, and the release is ${version}: they must be equal`);
+  }
   return {
     version,
     build: event === 'pull_request' || release,
@@ -76,6 +82,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     gradle: readFileSync(new URL('apps/android/android/app/build.gradle', root), 'utf8'),
     changelog: readFileSync(new URL('CHANGELOG.md', root), 'utf8'),
     listing: readFileSync(process.argv[3] ?? '', 'utf8'),
+    server: JSON.parse(readFileSync(new URL('apps/server/package.json', root), 'utf8')).version,
     event: process.argv[2],
   });
   process.stderr.write(`::notice title=Release::${plan.note}\n`);

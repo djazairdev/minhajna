@@ -4,8 +4,12 @@
 # The demo server's image (#633): builds it from apps/server/Dockerfile and
 # checks that a world written in one container is found again in a new one
 # on an empty disk, through WAL-G and an S3 stand-in on this runner only
-# (apps/server/compose.yaml's archive profile). It runs when the server or
-# this workflow changes. Nothing is pushed or deployed from here.
+# (apps/server/compose.yaml's archive profile). It then does what a deploy does
+# (#545), up to the upload: Wrangler builds the image and the Worker and stops,
+# and the Worker serves the image in Cloudflare's runtime on this runner, where
+# the host check must pass. It runs when the server, its deploy tool or this
+# workflow changes. It uses no token and no secret: nothing is pushed or
+# deployed from here.
 
 name: Server image
 
@@ -13,12 +17,14 @@ on:
   pull_request:
     paths:
       - apps/server/**
+      - apps/web/host/**
       - tsconfig.base.json
       - .github/workflows/image.yml
   push:
     branches: [main]
     paths:
       - apps/server/**
+      - apps/web/host/**
       - tsconfig.base.json
       - .github/workflows/image.yml
 
@@ -31,6 +37,10 @@ concurrency:
 defaults:
   run:
     shell: bash
+
+env:
+  # Wrangler would otherwise send usage data to Cloudflare.
+  WRANGLER_SEND_METRICS: 'false'
 
 jobs:
   image:
@@ -62,3 +72,38 @@ jobs:
         env:
           TEST_IMAGE: '1'
         run: npm run build && node --test dist/test/image.test.js
+
+      - name: Install the host's deploy tool
+        working-directory: apps/web/host
+        run: npm ci --no-audit
+
+      - name: Build what a deploy builds, and stop before deploying
+        working-directory: apps/server/host
+        run: ../../web/host/node_modules/.bin/wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+
+      # The Worker and the image together, on an S3 stand-in the container
+      # reaches through the runner's Docker bridge, with made-up settings.
+      - name: Serve it as Cloudflare does, and check it
+        run: |
+          objects=$(sed -n 's/^ *image: \(chrislusf.*\)$/\1/p' apps/server/compose.yaml)
+          docker run -d -p 58334:8333 "$objects" server -dir=/data -s3 -ip.bind=0.0.0.0
+          for attempt in $(seq 1 60); do
+            curl -fs -o /dev/null http://127.0.0.1:58334/status && break
+            sleep 1
+          done
+          curl -fsS -o /dev/null -X PUT http://127.0.0.1:58334/minhajna-demo
+          bridge=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}')
+          {
+            echo "AWS_ENDPOINT=http://$bridge:58334"
+            echo 'AWS_ACCESS_KEY_ID=made-up'
+            echo 'AWS_SECRET_ACCESS_KEY=made-up'
+            echo "WALG_LIBSODIUM_KEY=$(openssl rand -hex 32)"
+          } > "$RUNNER_TEMP/made-up.env"
+          (cd apps/server/host && ../../web/host/node_modules/.bin/wrangler dev --ip 127.0.0.1 --port 8787 \
+            --local-upstream 127.0.0.1:8787 --upstream-protocol https --env-file "$RUNNER_TEMP/made-up.env" > "$RUNNER_TEMP/wrangler.log" 2>&1 &)
+          version=$(jq -r .version apps/server/package.json)
+          node apps/server/host/check.ts http://127.0.0.1:8787 "$version" 300 || {
+            cat "$RUNNER_TEMP/wrangler.log"
+            docker ps -a
+            exit 1
+          }

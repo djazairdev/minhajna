@@ -18,7 +18,7 @@ import { goneWorld } from '../demo/world-gone';
 import { unexpected, type Send } from '../demo/world-session';
 
 /** The demo server's version published in the same release as this app. */
-export const SERVER_RELEASE = '0.1.0';
+export const SERVER_RELEASE = '0.7.0';
 
 /** The parts the server's code may run, in the order the console draws them. */
 export const SERVER_PARTS = ['gateway', 'relay', 'totals', 'standins', 'observatory'] as const;

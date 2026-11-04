@@ -21,7 +21,8 @@
 // term is a fault of the build, a RangeError. The server's and the client's
 // errors carry a code: E_WORLD_CODE for a code that does not read,
 // E_NO_SUCH_WORLD when no world answers to the code or the world was erased,
-// E_WORLD_BUSY with the seconds in retryAfter when the server asks to wait,
+// E_WORLD_BUSY with the seconds in retryAfter when the server asks to wait, as
+// with a 429, or a 503 that says how long, as a waking server does,
 // E_WORLD_LEFT_DAYS when no announced day is left, E_WORLD_SERVER for any other
 // answer, E_WORLD_KIT when the platform's cryptography fails, or the client's
 // own.
@@ -108,7 +109,9 @@ export function failed(message: string, code: string, retryAfter: number | null 
 
 /** The error for an answer the caller did not expect. */
 export function unexpected(answer: WorldAnswer): Error {
-  if (answer.status === 429) return failed('The demo server asks to wait', 'E_WORLD_BUSY', answer.retryAfter);
+  if (answer.status === 429 || (answer.status === 503 && answer.retryAfter !== null)) {
+    return failed('The demo server asks to wait', 'E_WORLD_BUSY', answer.retryAfter);
+  }
   return failed(`The demo server answered ${answer.status}`, 'E_WORLD_SERVER');
 }
 
