@@ -9,30 +9,30 @@
 // distinct tokens of its sendings, its schools (school-marks.ts), how far its
 // classes got by the term's end, as the median and the quartiles, and by item
 // its classes, the median of the sessions spent on it by those of its classes
-// that logged sessions on it, shown only when they too cover the floor, and the
-// shares of its classes that merged, skipped, split or re-taught it, each in a
-// band (bands.ts). A figure covers at least 10 teachers and 3 schools, else it
-// is hidden; the nation's figure is the sum of its wilayas', and an item's of
-// its wilayas' items, so the floors (totals/floors.ts) also hide any figure the
-// others would fix by subtraction; an item is hidden whenever its figure is.
-// The floors know only those sums, not that an item's cell holds at most its
-// figure's classes, so a hidden cell may still be bounded to a range, as
-// floors.ts accepts. As no two items' sums share a cell, each item's are hidden
-// alone, among the wilayas holding it, and an item whose nation's cell is under
-// its floor goes no further, every wilaya's being smaller still. Of the wilayas
-// whose own figure is under its floor, and so its items too, two stand in an
-// item's sum for them all: with two hidden parts a sum fixes none, so the rest
-// change nothing, and their figures are hidden anyway. At most
-// MOST_SENDING_ITEMS items are listed, those of the most classes, one the
-// nation's figure hides by subtraction taking no other's place, and every
-// figure lists the same ones, an item a wilaya hides or does not hold being
-// null alike, so no figure tells which items a hidden few hold; a hidden wilaya
-// is left out, as one with no sending is. No figure adds packs or releases
-// together, and teachers and schools are counted over a figure's own sendings,
-// never added up. Each sending is read once, its items with the lists each is
-// in as flags, and indexed by wilaya and item, so the work grows with the
-// sendings and their items. The median and quartiles are worked out as
-// quantile.ts works them out.
+// that logged sessions on it, a zero being none logged, shown only when they
+// too cover the floor, and the shares of its classes that merged, skipped,
+// split or re-taught it, each in a band (bands.ts). A figure covers at least 10
+// teachers and 3 schools, else it is hidden; the nation's figure is the sum of
+// its wilayas', and an item's of its wilayas' items, so the floors
+// (totals/floors.ts) also hide any figure the others would fix by subtraction;
+// an item is hidden whenever its figure is. The floors know only those sums,
+// not that an item's cell holds at most its figure's classes, so a hidden cell
+// may still be bounded to a range, as floors.ts accepts. As no two items' sums
+// share a cell, each item's are hidden alone, among the wilayas holding it, and
+// an item whose nation's cell is under its floor goes no further, every
+// wilaya's being smaller still. Of the wilayas whose own figure is under its
+// floor, and so its items too, two stand in an item's sum for them all: with
+// two hidden parts a sum fixes none, so the rest change nothing, and their
+// figures are hidden anyway. At most MOST_SENDING_ITEMS items are listed, those
+// of the most classes, one the nation's figure hides by subtraction taking no
+// other's place, and every figure lists the same ones, an item a wilaya hides
+// or does not hold being null alike, so no figure tells which items a hidden
+// few hold; a hidden wilaya is left out, as one with no sending is. No figure
+// adds packs or releases together, and teachers and schools are counted over a
+// figure's own sendings, never added up. Each sending is read once, its items
+// with the lists each is in as flags, and indexed by wilaya and item, so the
+// work grows with the sendings and their items. The median and quartiles are
+// worked out as quantile.ts works them out.
 
 import { hiddenCells, passesFloor, type FloorCell, type FloorScope } from '../totals/floors.js';
 import { bandOf, type Band } from './bands.js';
@@ -43,7 +43,7 @@ import { MOST_SENDING_ITEMS, type KeptSending } from './sending-read.js';
 
 export interface ItemFigure {
   readonly classes: number;
-  /** The median of the sessions logged on it, null when its classes that logged any fall under the floor. */
+  /** The median of the sessions above 0 on it, null when its classes that logged any fall under the floor. */
   readonly sessions: number | null;
   readonly merged: Band;
   readonly skipped: Band;
@@ -75,18 +75,20 @@ export interface PackFigures {
 type List = 'merged' | 'skipped' | 'split' | 'retaught';
 const LISTS: readonly List[] = ['merged', 'skipped', 'split', 'retaught'];
 
-/** The bit of an item's flags that says sessions were logged on it; each list's is the next ones, in LISTS' order. */
+/** The bit of an item's flags that says sessions above 0 were logged on it; each list's is next, in LISTS' order. */
 const LOGGED = 1;
 const bitOf = (list: List) => 2 << LISTS.indexOf(list);
 
-/** A sending as the figures read it: each item it holds, with sessions or split, and that item's flags. */
+/** A sending as the figures read it: each item it holds, with sessions, maybe 0, or split, and that item's flags. */
 interface Read {
   readonly sending: KeptSending;
   readonly items: ReadonlyMap<string, number>;
 }
 
 function readOf(sending: KeptSending): Read {
-  const items = new Map<string, number>(Object.keys(sending.sessions).map((item) => [item, LOGGED]));
+  const items = new Map<string, number>(
+    Object.entries(sending.sessions).map(([item, sessions]) => [item, sessions > 0 ? LOGGED : 0]),
+  );
   for (const list of LISTS)
     for (const item of sending.changed[list]) items.set(item, (items.get(item) ?? 0) | bitOf(list));
   return { sending, items };
