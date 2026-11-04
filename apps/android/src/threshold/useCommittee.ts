@@ -41,6 +41,7 @@ export function useCommittee(
   const [voting, setVoting] = useState(false);
   const [said, setSaid] = useState<{ place: string; text: string } | null>(null);
   const working = useRef(false);
+  const told = useRef(0);
   const mounted = useRef(true);
   const able = held !== null && rooms.length > 0;
   const reading = useEffectEvent(() =>
@@ -70,6 +71,7 @@ export function useCommittee(
     problem: failed?.key === key ? failed.problem : refused?.place === place ? refused.problem : null,
     said: said?.place === place ? said.text : '',
     forget: () => {
+      told.current += 1;
       setSaid(null);
       setRefused(null);
     },
@@ -82,14 +84,15 @@ export function useCommittee(
       if (working.current || held === null) return;
       working.current = true;
       const at = place;
+      const asked = told.current;
       setVoting(true);
       setSaid(null);
       setRefused(null);
       void castVote(held, room, seat, item, date, kit, send)
         .then(
-          () => mounted.current && setSaid({ place: at, text: done }),
+          () => mounted.current && told.current === asked && setSaid({ place: at, text: done }),
           (error: unknown) => {
-            if (!mounted.current) return;
+            if (!mounted.current || told.current !== asked) return;
             const shown = problemOf(error);
             setRefused({ place: at, problem: shown === CLOSED ? 'demo.committee.closed' : shown });
           },

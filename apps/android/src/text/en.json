@@ -6457,7 +6457,6 @@
       "subject": "Subject",
       "dates": "The figures were taken on {{figures}}, a vote counts until {{signBy}}, and the exam starts on {{from}}.",
       "notYet": "The totals for this subject and grade are not added up yet: no school’s share for that day holds them.",
-      "hidden": "The totals for this subject and grade are hidden: they cover fewer than 5 teachers or 3 schools, or would let a hidden figure be worked out.",
       "counts": "Teachers: {{teachers}} · classes: {{classes}} · schools: {{schools}}",
       "chart": "Share of the classes that reached each item, on {{day}} (%)",
       "series": {
@@ -6466,7 +6465,8 @@
         "low": "Lowest wilaya (%)",
         "middleLow": "Middle half, from (%)",
         "middleHigh": "Middle half, to (%)",
-        "high": "Highest wilaya (%)"
+        "high": "Highest wilaya (%)",
+        "nation": "The nation (%)"
       },
       "marks": {
         "every": "Every class had reached {{item}}.",
@@ -6513,17 +6513,23 @@
           "viewer": "You act here as the directorate’s committee for {{subject}}: this demo plays its seats.",
           "sees": "Before the exam, only the committee and the exams office see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
           "published": "The exam ended on {{to}}: the cut is published with the figures of {{figures}}, and every teacher of the subject at this grade sees it.",
-          "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is held back."
+          "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is held back.",
+          "hidden": "The totals for this subject and grade are hidden: they cover fewer than 5 teachers or 3 schools, or would let a hidden figure be worked out."
         },
         "national": {
           "lead": "The national exams with a committee: the nation’s figures on the figures day, the wilayas as a range, then each seat’s signature. The system never sets a cut.",
           "viewer": "You act here as the national committee for {{subject}}: this demo plays its seats.",
           "sees": "Before the exam, only the committee and the body that runs the exam see the cut. Every device of a demo world holds its keys, so this is the pages’ rule here.",
           "published": "The exam ended on {{to}}: the cut is published to the public with the figures of {{figures}}.",
-          "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 10 teachers and 3 schools, and anything smaller is held back."
+          "floors": "No figure here is a school’s, a class’s or a teacher’s: each covers at least 10 teachers and 3 schools, and anything smaller is held back.",
+          "hidden": "The totals for this subject and grade are hidden: they cover fewer than 10 teachers or 3 schools, or would let a hidden figure be worked out."
         }
       },
-      "statusLine": "{{subject}}: {{status}}"
+      "statusLine": "{{subject}}: {{status}}",
+      "rangeChart": {
+        "all": "The nation and all the wilayas, on {{day}} (%)",
+        "middle": "The nation and the middle half of the wilayas, on {{day}} (%)"
+      }
     }
   },
   "chart": {

@@ -210,7 +210,7 @@ test('totals not added up or hidden say so, and the committee still stands', asy
   await unmount();
   putShares(held.world, day, { [items[0]]: 10 }, { teachers: 1 });
   await show(pageOf(held, held.world, day));
-  expect(texts()).toContain(words.hidden);
+  expect(texts()).toContain(words.level.directorate.hidden);
 });
 
 test('another subject opens its own room and its own figures', async () => {

@@ -129,17 +129,6 @@ export async function readCommittees(
   );
 }
 
-/** Where a committee stands, from its stream. */
-export async function readCommittee(
-  held: HeldWorld,
-  room: CommitteeRoom,
-  kit: WorldKit,
-  send: Send = worldRequest,
-): Promise<CommitteeState> {
-  const [state] = await readCommittees(held, [room], kit, send);
-  return state;
-}
-
 /** Signs a seat's vote, an item of the plan or null for no cut, on the world's date, and puts it there once. */
 export async function castVote(
   held: HeldWorld,

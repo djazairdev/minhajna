@@ -1,17 +1,20 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// A committee's page on the workspace's PC (M-Threshold, #604, §7.10, answers
-// 25, 31, 33, 36, 50, 51, 628, 631 and 638), for a level's exams above the
-// school: with the world's keys held, it offers the exams of that level whose
-// figures day the world's date has reached, the latest chosen at first, then
-// their grades and each grade's subjects with a plan, never in any order of
-// progress, and opens the room chosen (CommitteePanel.tsx), reading its votes
+// A committee's page on the workspace's PC (M-Threshold, N-Threshold, #604,
+// #605, §7.10, answers 25, 31, 33, 36, 50, 51, 549, 628, 631, 638 and 639), for
+// a level's exams above the school: with the world's keys held, it offers the
+// exams of that level whose figures day the world's date has reached, the
+// latest chosen at first, then their grades and each grade's subjects with a
+// plan, never in any order of progress; it lists each subject's committee with
+// its signatures and never its cut; and it opens the room chosen
+// (CommitteePanel.tsx), reading every committee of the grade together
 // (useCommittee.ts) and its totals (use-committee-figures.ts) as it opens, when
-// the world's date moves and when asked again. Its live line says while it
-// reads or signs and what was signed; a problem is said as an alert, with a way
-// to read again. It says when no figures day has come, when the keys are not
-// held, and when a grade has no plan; and that the system never sets a cut,
+// the world's date moves and when asked again, another subject chosen reading
+// nothing again. Its live line says while it reads or signs and what was
+// signed, until another subject is chosen; a problem is said as an alert, with
+// a way to read again. It says when no figures day has come, when the keys are
+// not held, and when a grade has no plan; and that the system never sets a cut,
 // that the figures are unchecked, the floors, and that nothing here ranks
 // anyone.
 

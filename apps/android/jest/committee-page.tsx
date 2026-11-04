@@ -44,7 +44,7 @@ export function onDay(world: string, day: Day) {
   kept.announced = [...new Set([...kept.announced, mock.figuresDay, day])];
 }
 
-/** Puts 4 schools' shares of a subject for a day, 10 classes each, and 4 of another's; `counts` by item, by school. */
+/** Puts 4 schools' shares of a subject for a day, 10 classes each a directorate; `counts` by item, by school. */
 export function putShares(
   world: string,
   day: Day,

@@ -8,11 +8,13 @@
 // item of the plan on the figures day and on each term end shown, an end not
 // added up or hidden left out; the last item of the plan every class reached,
 // nine classes in ten and half of them, of the items shown, a hidden item never
-// counting; and, for the nation, each item's range across the wilayas: from the
-// lowest wilaya's share to the highest and the middle half, at the nearest
-// ranks as N-Totals takes them so that every figure is a real wilaya's, of the
-// wilayas whose grade and item are shown and hold a class, an item with fewer
-// than 8 held back, never naming or ranking a wilaya.
+// counting; a subject's committee on the general list, its cut never named;
+// and, for the nation, each item's range across the wilayas: from the lowest
+// wilaya's share to the highest and the middle half, at the nearest ranks as
+// N-Totals takes them so that every figure is a real wilaya's, of the wilayas
+// whose grade and item are shown and hold a class, an item with fewer than 8
+// held back, never naming or ranking a wilaya, in a chart of its own for each
+// pair of edges, as a chart's lines have three styles.
 
 import {
   compareDays,
@@ -29,7 +31,6 @@ import { gradeShown, totalsSpec } from './exam-totals';
 
 /** How many term ends a committee's chart compares with. */
 const COMPARED = 2;
-const RANGES = ['low', 'middleLow', 'middleHigh', 'high'] as const;
 
 /** The last two term ends with totals before a day, in order. */
 export function termEndsBefore(year: Pick<SchoolYear, 'terms'>, day: Day): Day[] {
@@ -73,7 +74,7 @@ export function statusText(
   return t('demo.committee.status.proposed', { count: state.proposed.seats.length, seats });
 }
 
-/** Each item's range across the wilayas, in whole figures of the wilayas shown; null held back. */
+/** Each item's range across the wilayas, as shares in percent of the wilayas shown; null held back. */
 export interface WilayaRange {
   readonly low: readonly (number | null)[];
   readonly high: readonly (number | null)[];
@@ -111,6 +112,30 @@ export function wilayaRange(
   };
 }
 
+/** A chart of the nation's share of each item between two edges of the wilayas' range, each its own line. */
+export function rangeSpec(
+  t: TFunction,
+  which: 'all' | 'middle',
+  shown: { readonly grade: GradeFigure; readonly day: string },
+  range: WilayaRange,
+  items: readonly string[],
+  item: (id: string) => string,
+): Omit<ChartSpec, 'rightToLeft'> {
+  const edges = which === 'all' ? (['low', 'high'] as const) : (['middleLow', 'middleHigh'] as const);
+  return {
+    kind: 'line',
+    label: t(`demo.committee.rangeChart.${which}`, { day: shown.day }),
+    categories: items.map(item),
+    series: [
+      {
+        name: t('demo.committee.series.nation'),
+        values: totalsSpec(t, shown.grade, items, item, shown.day).series[0].values,
+      },
+      ...edges.map((key) => ({ name: t(`demo.committee.series.${key}`), values: range[key] })),
+    ],
+  };
+}
+
 /** The chart of the share of the classes that reached each item, on the figures day and on the term ends shown. */
 export function committeeSpec(
   t: TFunction,
@@ -118,7 +143,6 @@ export function committeeSpec(
   ends: readonly { readonly grade: GradeFigure; readonly day: string }[],
   items: readonly string[],
   item: (id: string) => string,
-  range: WilayaRange | null = null,
 ): Omit<ChartSpec, 'rightToLeft'> {
   const spec = (grade: GradeFigure, day: string) => totalsSpec(t, grade, items, item, day);
   const series = (grade: GradeFigure, key: 'figures' | 'termEnd', day: string) => ({
@@ -129,10 +153,6 @@ export function committeeSpec(
     kind: 'line',
     label: t(ends.length === 0 ? 'demo.committee.chart' : 'demo.committee.chartEnds', { day: shown.day }),
     categories: items.map(item),
-    series: [
-      series(shown.grade, 'figures', shown.day),
-      ...ends.map((end) => series(end.grade, 'termEnd', end.day)),
-      ...(range === null ? [] : RANGES.map((key) => ({ name: t(`demo.committee.series.${key}`), values: range[key] }))),
-    ],
+    series: [series(shown.grade, 'figures', shown.day), ...ends.map((end) => series(end.grade, 'termEnd', end.day))],
   };
 }

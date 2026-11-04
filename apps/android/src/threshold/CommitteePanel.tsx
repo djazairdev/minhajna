@@ -23,7 +23,7 @@ import { Text, View } from 'react-native';
 import { ChartFigure } from '../drawing/ChartFigure';
 import { useDeviceText } from '../text/device-text';
 import { CommitteeChoices } from './CommitteeChoices';
-import { committeeSpec, gradeMarks, wilayaRange } from './committee-figures';
+import { committeeSpec, gradeMarks, rangeSpec, wilayaRange } from './committee-figures';
 import { gradeShown } from './exam-totals';
 import { movedLines } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
@@ -132,7 +132,8 @@ export function CommitteePanel(props: CommitteePanelProps) {
       {small(t(`demo.committee.level.${level}.viewer`, { subject: subjectWords }))}
       {body(t('demo.committee.dates', { figures: day, signBy: dayText(exam.signBy), from: dayText(exam.from) }))}
       {movedLines(t, move, exam, dayText).map((line, at) => small(line, `moved-${at}`))}
-      {typeof shown === 'string' && body(t(`demo.committee.${shown}`))}
+      {typeof shown === 'string' &&
+        body(t(shown === 'hidden' ? `demo.committee.level.${level}.hidden` : 'demo.committee.notYet'))}
       {typeof shown === 'object' && (
         <>
           {small(
@@ -140,9 +141,18 @@ export function CommitteePanel(props: CommitteePanelProps) {
           )}
           <ChartFigure
             testID="committee-chart"
-            spec={committeeSpec(t, { grade: shown, day }, compared, items, item, range)}
+            spec={committeeSpec(t, { grade: shown, day }, compared, items, item)}
             categoryLabel={t('demo.examTotals.item')}
           />
+          {range !== null &&
+            (['all', 'middle'] as const).map((which) => (
+              <ChartFigure
+                key={which}
+                testID={`committee-range-${which}`}
+                spec={rangeSpec(t, which, { grade: shown, day }, range, items, item)}
+                categoryLabel={t('demo.examTotals.item')}
+              />
+            ))}
           {marks(shown)}
           {figures?.wilayas !== undefined &&
             small(t(range === null ? 'demo.committee.noRange' : 'demo.committee.range'))}
