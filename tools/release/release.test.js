@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The release tools on made-up versions and files: which commit is a release
-// and which is the latest, the notes from a changelog section and the
+// and which is the latest, that a release's server carries its version, the
+// notes from a changelog section and the
 // refusal of an incomplete one, the checksums and the web build's checksum,
 // and a signed APK that is its build plus a signature, or more. The real
 // changelog's newest release must read as a section too.
@@ -49,7 +50,7 @@ describe('the release plan', () => {
 
   it('releases an untagged, dated version pushed to a branch, and rehearses a pull request', () => {
     const plan = (name, event, tags = listing) =>
-      releasePlan({ gradle: gradle(name), changelog, listing: tags, event });
+      releasePlan({ gradle: gradle(name), changelog, listing: tags, event, server: name });
     assert.deepEqual(
       [plan('9.1.0', 'push')].map(({ build, release, latest }) => ({ build, release, latest })),
       [{ build: true, release: true, latest: true }],
@@ -61,6 +62,22 @@ describe('the release plan', () => {
     assert.equal(plan('9.1.0', 'push', `${listing}\n${'9'.repeat(40)}\trefs/tags/v9.2.0`).latest, false);
     assert.equal(plan('9.1.0', 'push', `${listing}\n${'9'.repeat(40)}\trefs/tags/v9.2.0-beta.1`).latest, true);
     assert.equal(plan('9.1.0', 'pull_request', `${listing}\n${'9'.repeat(40)}\trefs/tags/v9.1.0`).prerelease, false);
+  });
+});
+
+describe('the release plan and the demo server', () => {
+  const plan = (event, server, name = '9.1.0') =>
+    releasePlan({ gradle: gradle(name), changelog, listing, event, server });
+
+  it('stops a release whose server says another version', () => {
+    assert.throws(() => plan('push', '9.0.0'), /apps\/server\/package.json says 9.0.0, and the release is 9.1.0/u);
+    assert.equal(plan('push', '9.1.0').release, true);
+  });
+
+  it('asks nothing of the server when no release is made', () => {
+    assert.equal(plan('pull_request', '9.0.0').release, false);
+    assert.equal(plan('push', '9.0.0', '9.0.0').release, false);
+    assert.equal(plan('push', '0.1.0', '9.2.0').release, false);
   });
 });
 

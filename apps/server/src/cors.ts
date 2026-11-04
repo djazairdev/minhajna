@@ -21,7 +21,7 @@ export const CORS_METHODS: ReadonlySet<string> = new Set(['GET', 'POST', 'PUT'])
 export const CORS_HEADERS: ReadonlySet<string> = new Set(['accept', 'authorization', 'content-type', 'x-world-pass']);
 
 /** How long a browser may keep a preflight's answer, in seconds. */
-const PREFLIGHT_KEPT = 600;
+export const PREFLIGHT_KEPT = 600;
 
 /** Whether every header a preflight asks for is one the demo client sends. */
 function allowedHeaders(asked: string | undefined): boolean {

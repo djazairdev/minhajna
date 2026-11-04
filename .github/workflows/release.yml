@@ -8,7 +8,8 @@
 # again at another path and compared, and the release-signing environment
 # waits for the release manager's approval. Only that job reaches the signing
 # keys: it signs the APKs and the tag, then publishes the release. The newest
-# release's ZIP is then deployed to the PC web app's host and checked there.
+# release's ZIP is then deployed to the PC web app's host and checked there, and
+# the demo server built from its tag and deployed and checked (docs/demo-host.md).
 # A pull request that changes these tools rehearses everything up to the
 # notes and a local host, with no key, no tag, nothing published and no
 # deploy.
@@ -21,6 +22,7 @@ on:
     paths:
       - CHANGELOG.md
       - apps/android/android/app/build.gradle
+      - apps/server/package.json
   pull_request:
     paths:
       - .github/workflows/release.yml
@@ -46,6 +48,7 @@ env:
   # The release manager's tag key (answer 536).
   TAG_KEY_FINGERPRINT: SHA256:x6jHuuaYifgkKf44eLD4aPSDfDI0LtAoVRAv/CpKWMA
   HOST: https://minhajna.djazair.dev
+  DEMO_SERVER: https://minhajna-demo.djazair.dev
   # Wrangler would otherwise send usage data to Cloudflare.
   WRANGLER_SEND_METRICS: 'false'
 
@@ -417,3 +420,66 @@ jobs:
             sleep 30
           done
           exit 1
+
+  deploy-server:
+    name: Deploy the demo server
+    needs: [plan, release]
+    if: github.event_name == 'push' && needs.release.result == 'success' && needs.plan.outputs.latest == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - name: Check out the release's commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # A signed tag names its commit through itself, and a name can't move
+      # the commit this job builds.
+      - name: Check that the tag names this commit
+        run: |
+          tagged=$(git ls-remote origin "refs/tags/v$VERSION^{}" | cut -f1)
+          if [[ "$tagged" != "$GITHUB_SHA" ]]; then
+            echo "::error title=Deploy::v$VERSION names ${tagged:-nothing}, not this commit"
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      - name: Install the host's deploy tool
+        working-directory: apps/web/host
+        run: npm ci --no-audit
+
+      # The hosted test sets them, and a deploy keeps them (docs/demo-host.md).
+      - name: Check that the Worker has its secrets
+        working-directory: apps/server/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          held=$(../../web/host/node_modules/.bin/wrangler secret list --format json | jq -r '.[].name')
+          for name in AWS_ENDPOINT AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY WALG_LIBSODIUM_KEY; do
+            if ! grep -qx "$name" <<< "$held"; then
+              echo "::error title=Deploy::the demo server has no $name: run the hosted test first (docs/demo-host.md)"
+              exit 1
+            fi
+          done
+
+      # Builds the image and pushes it to Cloudflare's registry.
+      - name: Deploy the server
+        working-directory: apps/server/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: ../../web/host/node_modules/.bin/wrangler deploy
+
+      # Waits while the rollout ends and the container wakes on the new image.
+      - name: Check the host
+        run: node apps/server/host/check.ts "$DEMO_SERVER" "$VERSION" 1200
