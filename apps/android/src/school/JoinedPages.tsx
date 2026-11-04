@@ -10,7 +10,8 @@
 // week to sign and the term report (SchoolMineReport.tsx), the classes handed
 // over to the teacher as a substitute (HandoverSchool.tsx), those come back at
 // the end of one (ReturnSchool.tsx), the term's marks to send to the state's
-// stand-in (TermSend.tsx), the exams with a common paper (ExamThresholds.tsx),
+// stand-in (TermSend.tsx), a statement for the coordinator
+// (WorldStatement.tsx), the exams with a common paper (ExamThresholds.tsx),
 // which opens an exam's threshold on its room (ExamThreshold.tsx) and a
 // directorate exam's totals (ExamTotals.tsx), named by the world's reference,
 // and what stays and goes on leaving (Leave.tsx), when the year's dates read;
@@ -39,6 +40,7 @@ import { Leave } from './Leave';
 import { NationalHelp } from './NationalHelp';
 import { ReturnSchool } from './ReturnSchool';
 import { TermSend } from './TermSend';
+import { WorldStatement } from './WorldStatement';
 import type { JoinedView, JoinPage } from './join-view';
 
 export type JoinedPagesProps = {
@@ -94,6 +96,17 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
     const back = (page: JoinPage) => () => props.onPage({ page, join, back: 'mine' });
     return (
       <SchoolMine {...channel} subjects={subjects} mine={props.mine} onSign={back('week')} onReport={back('report')} />
+    );
+  }
+  if (view.page === 'statement') {
+    return (
+      <WorldStatement
+        {...channel}
+        subjects={subjects}
+        mine={props.mine}
+        school={props.school}
+        reference={props.reference}
+      />
     );
   }
   if (view.page === 'handover') return <HandoverSchool {...channel} />;

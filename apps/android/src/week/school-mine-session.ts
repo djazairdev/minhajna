@@ -31,6 +31,7 @@ import {
   type Day,
   type DeliveryReading,
   type SchoolCalendar,
+  type SchoolClass,
   type SchoolYear,
   type SignedPart,
   type Term,
@@ -68,11 +69,15 @@ export function afternoonFrom(mine: MineCalendar, bells: TimetablePart['bells'])
   return usual === undefined ? NOON : clockMinutes(usual.from);
 }
 
-/** How a course's delivery reads the joined school's calendar, and its classes in the timetable's order. */
+/**
+ * How a course's delivery reads the joined school's calendar, and its classes in the timetable's order. With no class
+ * given, an entry that names grades, as an exam does, takes no session.
+ */
 export function deliveryReading(
   mine: MineCalendar,
   classes: readonly string[],
   bells: TimetablePart['bells'],
+  room?: Pick<SchoolClass, 'id' | 'level' | 'grade'>,
 ): DeliveryReading {
   const reference = { country: mine.profile, year: mine.calendar.year, calendar: mine.calendar.entries };
   const view = new CalendarView({ ...reference, packs: new Map() }, []);
@@ -84,9 +89,10 @@ export function deliveryReading(
     ...(mine.zone === undefined ? {} : { zone: mine.zone }),
   };
   const afternoon = afternoonFrom(mine, bells);
+  const schoolClass = room && { ...room, schoolId: school.id, name: room.id, groups: [] };
   return {
     takenBy: (day, session) => {
-      const info = view.info(day, school, undefined, session.start < afternoon ? 'morning' : 'afternoon');
+      const info = view.info(day, school, schoolClass, session.start < afternoon ? 'morning' : 'afternoon');
       if (!info.schoolDay)
         return info.entries.find((one) => one.effect === 'no-school' && one.layer !== 'teacher') ?? null;
       return info.closure ?? info.exam ?? null;

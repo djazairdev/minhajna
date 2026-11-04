@@ -15,6 +15,9 @@ import { DemoBand } from '../demo/DemoBand';
 import { colors, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 
+/** The widest a week page's column runs. */
+export const PAGE_COLUMN = 640;
+
 export type WeekPageProps = {
   /** The page's own, and with `-back` its way back's. */
   readonly testID: string;
@@ -65,6 +68,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['space-16'],
     alignItems: 'center',
   },
-  column: { width: '100%', maxWidth: 640, gap: spacing['space-12'] },
+  column: { width: '100%', maxWidth: PAGE_COLUMN, gap: spacing['space-12'] },
   small: { ...typography.small, color: colors.ink2 },
 });

@@ -10,7 +10,8 @@
 // #584), to the classes handed over to the teacher as a substitute
 // (HandoverSchool.tsx, #587) and to those come back at the end of a
 // substitution (ReturnSchool.tsx, #588), to the term's marks to send to the
-// state's stand-in (TermSend.tsx, #591), to the exams with a common paper
+// state's stand-in (TermSend.tsx, #591), to a statement for the coordinator
+// (WorldStatement.tsx, #630), to the exams with a common paper
 // (ExamThresholds.tsx, #601), a way to the timetable the school sent
 // (TeacherTimetable.tsx, #579), to the teacher's devices and copies once joined
 // (DevicesMoved.tsx, #566) and to what stays and goes on leaving (Leave.tsx,
@@ -44,6 +45,7 @@ const WAYS = [
   ['handover', 'demo.handover.open', 'school-handover'],
   ['return', 'demo.return.open', 'school-return'],
   ['termSend', 'demo.termSend.open', 'school-term'],
+  ['statement', 'demo.statement.open', 'school-statement'],
   ['thresholds', 'demo.thresholds.open', 'school-thresholds'],
   ['timetable', 'demo.timetable.open', 'school-timetable'],
   ['devices', 'demo.devices.open', 'school-devices'],
