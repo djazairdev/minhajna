@@ -40,9 +40,11 @@ jobs:
           # - argparse 2 is a port of Python's argparse, under the Python
           #   Software Foundation licence. Build tools load it through
           #   js-yaml.
-          # - minimatch 10 matches file paths for ESLint. It is under the
+          # - minimatch matches file paths for ESLint and Jest. It is under the
           #   Blue Oak Model License 1.0.0, a permissive licence approved by
-          #   the OSI.
+          #   the OSI. So are @isaacs/nonrecursive-glob-match, which minimatch
+          #   11 loads, and glob 14 with lru-cache, minipass and path-scurry,
+          #   which Jest's coverage loads through test-exclude.
           # - The server's build tool, Prisma's command line (#542, answer
           #   553), installed apart in apps/server/tools/prisma, brings four
           #   more that only its Studio and its own database tools load:
@@ -50,7 +52,9 @@ jobs:
           #   lay out Studio's graphs, robust-predicates (Unlicense) is under
           #   them, and postgres (Unlicense) is the tool's own driver.
           allow-dependencies-licenses: >-
-            pkg:npm/argparse, pkg:npm/minimatch, pkg:npm/elkjs,
+            pkg:npm/argparse, pkg:npm/minimatch, pkg:npm/@isaacs/nonrecursive-glob-match,
+            pkg:npm/%40isaacs/nonrecursive-glob-match, pkg:npm/glob, pkg:npm/lru-cache,
+            pkg:npm/minipass, pkg:npm/path-scurry, pkg:npm/elkjs,
             pkg:npm/@visx/vendor, pkg:npm/%40visx/vendor, pkg:npm/robust-predicates,
             pkg:npm/postgres
           # Advisories with no fixed version yet, in tools that run on the

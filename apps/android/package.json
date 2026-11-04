@@ -42,7 +42,12 @@
     "node": ">=26.13.0"
   },
   "overrides": {
-    "standard-navigation": "0.0.9"
+    "standard-navigation": "0.0.9",
+    "minimatch": "^11.0.4",
+    "test-exclude": {
+      ".": "^8.0.0",
+      "glob": "^14.0.3"
+    }
   },
   "codegenConfig": {
     "name": "MinhajnaSpecs",
