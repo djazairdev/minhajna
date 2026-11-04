@@ -47,7 +47,7 @@ afterEach(() => {
 });
 
 const readOne = async (held: HeldWorld, room: CommitteeRoom, send: Send) => {
-  const [state] = await readCommittees(held, [room], kit, send);
+  const [{ state }] = await readCommittees(held, [room], kit, send);
   return state;
 };
 
@@ -69,6 +69,7 @@ const roomOf = (held: HeldWorld, more: Partial<CommitteeName> = {}) => ({
   name: named(held, more),
   items: ITEMS,
   days,
+  lastDay: days.to,
 });
 
 async function batchesIn(world: string, space: string) {
@@ -208,7 +209,7 @@ test('a grade’s committees are read together, from one reading of their space'
     return server.send(request);
   };
   const states = await readCommittees(held, [math, arabic], kit, counting);
-  expect(states.map((state) => state.votes.size)).toEqual([0, 1]);
+  expect(states.map(({ state }) => state.votes.size)).toEqual([0, 1]);
   expect(reads).toBe(1);
   expect(await readCommittees(held, [], kit, counting)).toEqual([]);
   expect(reads).toBe(1);

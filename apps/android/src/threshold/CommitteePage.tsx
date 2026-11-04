@@ -40,7 +40,7 @@ import { subjectName } from '../extra/extra-rules';
 import { gradeName } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
-import { committeePlan, committeeSubjects, type CommitteeRoom } from './committee-session';
+import { committeeRooms } from './committee-session';
 import { statusText, termEndsBefore } from './committee-figures';
 import { CommitteePanel } from './CommitteePanel';
 import { examName, headText, itemNamer, movesOf } from './threshold-text';
@@ -89,24 +89,13 @@ export function CommitteePage(props: CommitteePageProps) {
   const exam = exams.find((one) => one.id === chosen.exam) ?? exams.at(-1);
   const grades = exam?.grades ?? [];
   const grade = grades.find((one) => one === chosen.grade) ?? grades[0];
-  const subjects = grade === undefined ? [] : committeeSubjects(schools, packs, grade);
-  const subject = subjects.find((one) => one === chosen.subject) ?? subjects[0];
-  const planned = subjects.flatMap((one) => {
-    const plan = grade === undefined ? null : committeePlan(schools, packs, grade, one);
-    return plan === null ? [] : [{ subject: one, plan }];
-  });
-  const rooms: readonly CommitteeRoom[] =
-    exam === undefined || grade === undefined
-      ? []
-      : planned.map(({ subject: one, plan }) => ({
-          name: { world, scope, exam: exam.id, subject: one, grade },
-          items: plan.items.map((each) => each.id),
-          days: { from: exam.figuresDay, to: exam.signBy },
-        }));
+  const planned =
+    exam === undefined || grade === undefined ? [] : committeeRooms({ world, scope }, exam, grade, schools, packs);
+  const rooms = planned.map((one) => one.room);
   const votes = useCommittee(date, held, rooms, kit, send);
-  const at = planned.findIndex((one) => one.subject === subject);
-  const plan = planned[at]?.plan;
-  const room = rooms[at];
+  const open = planned.find((one) => one.subject === chosen.subject) ?? planned[0];
+  const at = open === undefined ? -1 : planned.indexOf(open);
+  const shown = votes.reads?.[at];
   const ends = exam === undefined ? [] : termEndsBefore(year, exam.figuresDay);
   const days = exam === undefined ? [] : [exam.figuresDay, ...ends];
   const figures = useCommitteeFigures(JSON.stringify([world, date, scope]), held === null ? [] : days, read);
@@ -119,8 +108,8 @@ export function CommitteePage(props: CommitteePageProps) {
     <View testID="committee" style={page}>
       <Text style={[styles.body, align]}>{t(`demo.committee.level.${level}.lead`)}</Text>
       <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
-        {votes.voting
-          ? t('demo.committee.signing')
+        {votes.signing !== null
+          ? t(votes.signing)
           : votes.said !== '' || !reading
             ? votes.said
             : t('demo.committee.reading')}
@@ -167,22 +156,25 @@ export function CommitteePage(props: CommitteePageProps) {
           }}
         />
       )}
-      {subjects.length > 0 && (
+      {planned.length > 0 && (
         <ChipGroup
           testID="committee-subjects"
           label={t('demo.committee.subject')}
-          choices={subjects.map((one) => ({ value: one, label: named(subjectName(reference.profile, one), one) }))}
-          selected={subject ?? null}
+          choices={planned.map(({ subject: one }) => ({
+            value: one,
+            label: named(subjectName(reference.profile, one), one),
+          }))}
+          selected={open?.subject ?? null}
           onSelect={(one) => {
-            if (one !== subject) votes.forget();
+            if (one !== open?.subject) votes.forget();
             setChosen({ exam: exam?.id, grade, subject: one });
           }}
         />
       )}
-      {exam !== undefined && subjects.length === 0 && (
+      {exam !== undefined && planned.length === 0 && (
         <Text style={[styles.body, align]}>{t('demo.committee.noPlan')}</Text>
       )}
-      {votes.states !== null && exam !== undefined && (
+      {votes.reads !== null && exam !== undefined && (
         <View testID="committee-status" style={styles.card}>
           <Text accessibilityRole="header" style={[styles.head, align]}>
             {t('demo.committee.subjects')}
@@ -191,39 +183,36 @@ export function CommitteePage(props: CommitteePageProps) {
             <Text key={one} style={[styles.small, align]}>
               {t('demo.committee.statusLine', {
                 subject: named(subjectName(reference.profile, one), one),
-                status: statusText(t, votes.states?.[place], exam, date, seats),
+                status: statusText(t, votes.reads?.[place]?.state, exam, date, seats),
               })}
             </Text>
           ))}
         </View>
       )}
-      {exam !== undefined &&
-        grade !== undefined &&
-        subject !== undefined &&
-        plan !== undefined &&
-        room !== undefined &&
-        held !== null && (
-          <CommitteePanel
-            key={JSON.stringify(room)}
-            level={level}
-            subjectWords={named(subjectName(reference.profile, subject), subject)}
-            exam={exam}
-            head={headText(t, { exam: exam.id, subject, grade }, reference)}
-            subject={subject}
-            grade={grade}
-            items={room.items}
-            seats={seats}
-            item={itemNamer(t, { pack: plan, items: room.items }, packs)}
-            date={date}
-            dayText={dayText}
-            move={moves.get(exam.id)}
-            figures={figures.figures === undefined ? undefined : (figures.figures[0] ?? null)}
-            ends={ends.map((day, at) => ({ day, figures: figures.figures?.[at + 1] ?? null }))}
-            state={votes.states?.[at] ?? null}
-            busy={reading || votes.voting}
-            onVote={(seat, item, done) => votes.vote(room, seat, item, done)}
-          />
-        )}
+      {exam !== undefined && grade !== undefined && open !== undefined && held !== null && (
+        <CommitteePanel
+          key={JSON.stringify(open.room)}
+          level={level}
+          subjectWords={named(subjectName(reference.profile, open.subject), open.subject)}
+          exam={exam}
+          head={headText(t, { exam: exam.id, subject: open.subject, grade }, reference)}
+          subject={open.subject}
+          grade={grade}
+          items={open.room.items}
+          seats={seats}
+          item={itemNamer(t, { pack: open.plan, items: open.room.items }, packs)}
+          date={date}
+          dayText={dayText}
+          move={moves.get(exam.id)}
+          figures={figures.figures === undefined ? undefined : (figures.figures[0] ?? null)}
+          ends={ends.map((day, at) => ({ day, figures: figures.figures?.[at + 1] ?? null }))}
+          state={shown?.state ?? null}
+          words={shown?.words ?? null}
+          onWrite={(seat, words, done) => votes.write(open.room, seat, words, done)}
+          busy={reading || votes.signing !== null}
+          onVote={(seat, item, done) => votes.vote(open.room, seat, item, done)}
+        />
+      )}
       <Text style={[styles.small, align]}>{t(`demo.committee.level.${level}.floors`)}</Text>
       {NOTES.map((key) => (
         <Text key={key} style={[styles.small, align]}>
