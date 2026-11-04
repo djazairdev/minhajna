@@ -28,7 +28,13 @@ import { DemoServer, codeOf, nodeKit as kit } from '../jest/world-server';
 import { NATIONAL_SPACE, type HeldWorld } from '../src/demo/world-calendar-read';
 import { startWorld, type Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
-import { castVote, committeePlan, committeeSubjects, readCommittee } from '../src/threshold/committee-session';
+import {
+  castVote,
+  committeePlan,
+  committeeSubjects,
+  readCommittee,
+  readCommittees,
+} from '../src/threshold/committee-session';
 
 const server = new DemoServer();
 const DAY = parseDay('2030-04-28');
@@ -185,6 +191,24 @@ test('a vote counted or not, the seat’s next is numbered above it', async () =
   await castVote(held, narrow, 0, 'u6', DAY, kit, server.send);
   const state = await readCommittee(held, narrow, kit, server.send);
   expect(state.votes.get(0)?.version).toBe(1);
+});
+
+test('a grade’s committees are read together, from one reading of their space', async () => {
+  const held = await started();
+  const [math, arabic] = [roomOf(held), roomOf(held, { subject: 'arabic' })];
+  await castVote(held, arabic, 1, 'u6', DAY, kit, server.send);
+  let reads = 0;
+  const counting: Send = (request) => {
+    reads += 1;
+    return server.send(request);
+  };
+  const states = await readCommittees(held, [math, arabic], kit, counting);
+  expect(states.map((state) => state.votes.size)).toEqual([0, 1]);
+  expect(reads).toBe(1);
+  expect(await readCommittees(held, [], kit, counting)).toEqual([]);
+  expect(reads).toBe(1);
+  const mixed = [math, roomOf(held, { scope: 'dir-2' })];
+  await expect(readCommittees(held, mixed, kit, server.send)).rejects.toThrow(RangeError);
 });
 
 test('a room is of the world held', async () => {
