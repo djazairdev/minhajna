@@ -60,7 +60,7 @@ export async function placeOfCode(code: JoinCode, mac: WorldMac): Promise<Place>
 }
 
 /** A text's JSON value, or undefined when it holds none. */
-function parsedText(text: string): unknown {
+export function parsedText(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
   } catch {
