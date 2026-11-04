@@ -109,11 +109,40 @@ model Share {
 }
 
 model Observatory {
-  worldId  String    @id @db.Char(5)
-  world    World     @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  worldId  String      @id @db.Char(5)
+  world    World       @relation(fields: [worldId], references: [id], onDelete: Cascade)
   sendings Sending[]
+  ends     EndedTerm[]
 
   @@map("observatory")
+}
+
+model EndedTerm {
+  worldId     String      @db.Char(5)
+  year        String      @db.Char(9)
+  term        Int
+  formed      Boolean     @default(false)
+  observatory Observatory @relation(fields: [worldId], references: [worldId], onDelete: Cascade)
+  packs       TermPack[]
+
+  @@id([worldId, year, term])
+  @@map("ended_term")
+}
+
+model TermPack {
+  worldId String    @db.Char(5)
+  year    String    @db.Char(9)
+  term    Int
+  at      Int
+  grade   String
+  subject String
+  pack    String
+  release String
+  figures Json      @db.Json
+  ended   EndedTerm @relation(fields: [worldId, year, term], references: [worldId, year, term], onDelete: Cascade)
+
+  @@id([worldId, year, term, at])
+  @@map("term_pack")
 }
 
 model Sending {
