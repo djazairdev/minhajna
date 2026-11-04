@@ -5,8 +5,8 @@
 // made-up demo server, its keys held, moved onto a day; the mock exam and the
 // BEM of the bundled calendar; a made-up school whose 4th grade pins plans for
 // math and French; made-up shares of its grade for a day, from enough schools
-// of the directorate and another to clear the floors; and the
-// page for a date. Every world, school and share is made up.
+// of the directorate and another to clear the floors; and the page for a date.
+// Every world, school and share is made up.
 
 import { worldExams, type Day } from '@minhajna/core';
 import { randomBytes } from 'node:crypto';
@@ -14,6 +14,8 @@ import type { HeldWorld } from '../src/demo/world-calendar-read';
 import { startWorld, type Send } from '../src/demo/world-session';
 import { readTotals } from '../src/directorate/totals-read';
 import { CommitteePage, type CommitteePageProps } from '../src/threshold/CommitteePage';
+import ar from '../src/text/ar.json';
+import { quoted } from './threshold-page';
 import { calendar, reference } from './world-calendar';
 import { DemoServer, nodeKit as kit } from './world-server';
 
@@ -96,3 +98,32 @@ export const pageOf = (
     {...more}
   />
 );
+
+export const words = ar.demo.committee;
+export const page = ar.demo.threshold;
+export const day = mock.figuresDay;
+/** A catalogue's text with its values filled in. */
+export const fill = (text: string, values: Record<string, unknown>) =>
+  Object.entries(values).reduce((all, [key, value]) => all.replaceAll(`{{${key}}}`, String(value)), text);
+/** A plan item's title, quoted, by its place. */
+export const title = (at: number) => quoted(pack.items[at].title);
+/** A seat's post, counted from 1. */
+export const seat = (n: number) => fill(words.seat, { n });
+
+/** A world on a date with the figures day's shares: all classes at item 1, 9 in 10 at item 2, half at item 3. */
+export async function opened(
+  date: Day = day,
+  counts: Parameters<typeof putShares>[2] = { [items[0]]: 10, [items[1]]: 9, [items[2]]: 5 },
+) {
+  const held = await started();
+  onDay(held.world, date);
+  putShares(held.world, day, counts);
+  return { held, id: held.world };
+}
+
+/** A room of the mock exam's math, for a seat's vote put from outside the page. */
+export const mathRoom = (world: string) => ({
+  name: { world, scope: SCOPE, exam: 'mock', subject: 'math', grade: '4am' },
+  items,
+  days: { from: day, to: mock.signBy },
+});

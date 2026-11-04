@@ -4,9 +4,9 @@
 // A committee's page on the workspace's PC (M-Threshold, #604, §7.10, answers
 // 25, 31, 33, 36, 50, 51, 628, 631 and 638), for a level's exams above the
 // school: with the world's keys held, it offers the exams of that level whose
-// figures day the world's date has reached, the latest chosen at first, then their grades
-// and each grade's subjects with a plan, never in any order of progress, and
-// opens the room chosen (CommitteePanel.tsx), reading its votes
+// figures day the world's date has reached, the latest chosen at first, then
+// their grades and each grade's subjects with a plan, never in any order of
+// progress, and opens the room chosen (CommitteePanel.tsx), reading its votes
 // (useCommittee.ts) and its totals (use-committee-figures.ts) as it opens, when
 // the world's date moves and when asked again. Its live line says while it
 // reads or signs and what was signed; a problem is said as an alert, with a way
