@@ -11,7 +11,7 @@
     "./test-support/demo-year": "./test/demo-year.ts"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=26.13.0"
   },
   "scripts": {
     "test": "node --test \"test/*.test.ts\"",

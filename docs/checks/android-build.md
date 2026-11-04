@@ -61,7 +61,7 @@ React Native's app template is the starting point. These changes make it follow 
 
 ## Repeating the build
 
-You need JDK 17, Node.js 22.18 or later, and the Android SDK with platform 37, build tools 37.0.0, NDK 27.1.12297006 and CMake 3.22.1.
+You need JDK 17, Node.js 26.13 or later, and the Android SDK with platform 37, build tools 37.0.0, NDK 27.1.12297006 and CMake 3.22.1.
 
 ```sh
 git clone https://github.com/djazairdev/minhajna.git

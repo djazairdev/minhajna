@@ -35,7 +35,7 @@ REPOSITORY=<the repository's address> PUSH=<where Weblate pushes> \
 node infra/weblate/configure.js
 ```
 
-Run it from the repository's root, with Node.js 22 or later. It creates the project and the component, or updates their settings when they exist. It also marks the brand and the language names read-only, and turns off Weblate's placeholder check on counted texts, which the catalogue test checks instead. Change a setting in the JSON files and run it again, rather than changing it in Weblate's pages, so that the files stay the truth.
+Run it from the repository's root, with Node.js 26.13 or later. It creates the project and the component, or updates their settings when they exist. It also marks the brand and the language names read-only, and turns off Weblate's placeholder check on counted texts, which the catalogue test checks instead. Change a setting in the JSON files and run it again, rather than changing it in Weblate's pages, so that the files stay the truth.
 
 The component reads `apps/android/src/text/*.json` in i18next's JSON v4 format, with Arabic as the source, and offers French and English. To add a language, add its code to `language_regex` in `component.json`.
 

@@ -17,7 +17,7 @@ Everything is made up and stays in memory. No server is reached: a stand-in serv
 
 ## Running it
 
-It needs Node.js 22.18 or later, and no dependency beyond the core.
+It needs Node.js 26.13 or later, and no dependency beyond the core.
 
 ```bash
 npm test -w packages/sync-check

@@ -136,7 +136,7 @@ These are suggestions for when sync is designed (§6.2), not decisions:
 
 ## Repeating the checks
 
-You need Node.js 22.18 or later. From the repository's root:
+You need Node.js 26.13 or later. From the repository's root:
 
 ```sh
 npm test -w packages/sync-check

@@ -46,7 +46,7 @@ Adding a release puts it beside the bundled packs. A new class can be pinned to 
 
 The key's holder makes it, offline, on their own computer (answer 304). The private half never touches the repository, a server or an assistant.
 
-1. Use a copy of the repository at a known commit, with Node.js 22.18 or later, on a computer that is offline.
+1. Use a copy of the repository at a known commit, with Node.js 26.13 or later, on a computer that is offline.
 2. Run the key tool. `--out` must be a folder outside any Git working copy, this repository or another clone, so a home folder kept in Git means choosing one elsewhere, such as a USB drive; the repository also ignores `*.private.pem`:
 
    ```sh

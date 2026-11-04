@@ -40,7 +40,7 @@ Teachers open the PC web app at **<https://minhajna.djazair.dev>** (answers 528 
 node_modules/.bin/wrangler rollback
 ```
 
-**By hand,** from a checkout of the release's tag with Node.js 22.18 or later, with the ZIP unzipped into `apps/web/release/dist/` and the token in `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, run `npm ci` then `node_modules/.bin/wrangler deploy` in `apps/web/host`. Then check it from `apps/web`, with the build checksum from the release notes:
+**By hand,** from a checkout of the release's tag with Node.js 26.13 or later, with the ZIP unzipped into `apps/web/release/dist/` and the token in `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, run `npm ci` then `node_modules/.bin/wrangler deploy` in `apps/web/host`. Then check it from `apps/web`, with the build checksum from the release notes:
 
 ```bash
 npm run check-host -- https://minhajna.djazair.dev <checksum>

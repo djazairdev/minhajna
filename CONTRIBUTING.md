@@ -64,7 +64,7 @@ Read the [contributor handbook](#the-contributor-handbook) before your first pul
 
 ### Set up and run the checks
 
-You need Node.js 22.18 or later. The same commands CI runs on every pull request:
+You need Node.js 26.13 or later. The same commands CI runs on every pull request:
 
 ```bash
 git clone https://github.com/djazairdev/minhajna
@@ -84,7 +84,7 @@ The Android build has its own checks: [docs/checks/android-build.md](docs/checks
 
 To install nothing on your computer but Docker, open the repository in a dev container: in VS Code with the Dev Containers extension, choose **Reopen in Container**, or open it in GitHub Codespaces. It needs no account, key or secret of the project's.
 
-- **What it holds:** Node.js 22 (`.devcontainer/`), with every lockfile installed by `npm ci`, as CI does, and the ESLint and Prettier extensions. The commands above then run as they are, without the `npm ci` lines, and the server's database tests run too.
+- **What it holds:** Node.js 26 (`.devcontainer/`), with every lockfile installed by `npm ci`, as CI does, and the ESLint and Prettier extensions. The commands above then run as they are, without the `npm ci` lines, and the server's database tests run too.
 - **The demo:** it starts the server's PostgreSQL and S3 stand-in from `apps/server/compose.yaml`, and `npm run demo` uses that PostgreSQL. The server's port (3000) and the web app's (4180) are forwarded to your computer.
 - **Its own packages:** each `node_modules` folder is a volume of the container's own, so the installs on your computer are left alone; on Linux, Docker leaves empty folders, owned by root, where they are mounted, which an `npm ci` on your computer replaces. After changing `.devcontainer/` or `apps/server/compose.yaml`, rebuild the container, as its network goes with the database's.
 - **Not the Android app:** it holds no Android SDK, so the APK is still built on your own computer ([docs/checks/android-build.md](docs/checks/android-build.md)).
@@ -124,7 +124,7 @@ If a check fails:
 | Sign-off | A commit has no `Signed-off-by` line | `git rebase --signoff upstream/main`, then `git push --force-with-lease` |
 | Commit format | The title does not follow the commit format, or its scope is not in the list | Edit the title on GitHub. The scopes are in [commits.md](docs/contributing/commits.md#scopes) |
 | Licence of every file | A new file has no licence | Add the SPDX header, or an entry in `REUSE.toml` |
-| Node.js 22 | The type check, the linter or a test fails | Run the commands above, and fix what they report |
+| Node.js | The type check, the linter or a test fails | Run the commands above, and fix what they report |
 
 ## AI-assisted contributions
 
