@@ -11,19 +11,21 @@
 // (threshold-text.ts), and each class's item reached and forecast, on the day
 // they are taken; then what the level shows: no school cut yet, one optional
 // after the figures day, no directorate's cut before the exam, the classes
-// later shown against its totals, and the national cut published to all after
-// the exam with its figures. Nothing worked out here leaves the phone, as the
-// note under those above the school says, and there is nothing to sign.
+// later shown against its totals, and, from its figures day, a way to them
+// (ExamTotals.tsx), and the national cut published to all after the exam with
+// its figures. Nothing worked out here leaves the phone, as the note under
+// those above the school says, and there is nothing to sign.
 
 import type { Day, ExamMove } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { Text, View } from 'react-native';
+import { Button } from '../components/Button';
 import { SectionHeader } from '../components/SectionHeader';
 import type { TermReference } from '../director/seeded-fill';
 import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import type { OwnExam } from './own-exams';
-import { headText, itemNamer, movedLines } from './threshold-text';
+import { headText, itemNamer, movedLines, roomId } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
 
 export type OwnExamCardsProps = {
@@ -34,10 +36,12 @@ export type OwnExamCardsProps = {
   readonly moves: ReadonlyMap<string, ExamMove>;
   /** The section's heading and the note under it, for the exams above the school. */
   readonly above?: boolean;
+  /** Opens a directorate exam's totals by its exam, subject and grade's key, from its figures day, above the school. */
+  readonly onTotals?: (room: string) => void;
 };
 
 /** A card for each grade and subject of the teacher's classes in each exam the phone works out itself. */
-export function OwnExamCards({ exams, dayText, reference, moves, above = false }: OwnExamCardsProps) {
+export function OwnExamCards({ exams, dayText, reference, moves, above = false, onTotals }: OwnExamCardsProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -53,13 +57,14 @@ export function OwnExamCards({ exams, dayText, reference, moves, above = false }
       {exams.flatMap(({ exam, asOf, charts }) =>
         charts.map((chart) => {
           const item = itemNamer(t, chart, reference.packs);
-          const level = exam.setBy;
+          const totals = exam.setBy === 'directorate' && asOf === exam.figuresDay ? onTotals : undefined;
+          const shows = totals === undefined ? exam.setBy : 'totals';
           return (
             <View key={`${exam.id}\n${chart.subject}\n${chart.grade}`} testID="thresholds-own" style={styles.card}>
               <Text accessibilityRole="header" style={[styles.head, align]}>
                 {headText(t, chart, reference)}
               </Text>
-              {small(t(`demo.thresholds.level.${level}`))}
+              {small(t(`demo.thresholds.level.${exam.setBy}`))}
               {small(t('demo.thresholds.ownDays', { from: dayText(exam.from), figures: dayText(exam.figuresDay) }))}
               {movedLines(t, moves.get(exam.id), exam, dayText).map((line, at) => small(line, `moved-${at}`))}
               {small(t('demo.thresholds.asOf', { day: dayText(asOf) }))}
@@ -74,7 +79,16 @@ export function OwnExamCards({ exams, dayText, reference, moves, above = false }
                   String(at),
                 ),
               )}
-              <Text style={[styles.body, align]}>{t(`demo.thresholds.shows.${level}`)}</Text>
+              <Text style={[styles.body, align]}>{t(`demo.thresholds.shows.${shows}`)}</Text>
+              {totals !== undefined && (
+                <Button
+                  testID="thresholds-totals"
+                  variant="line"
+                  label={t('demo.thresholds.totals')}
+                  name={`${t('demo.thresholds.totals')}${t('chart.colon')}${headText(t, chart, reference)}`}
+                  onPress={() => totals(roomId(chart))}
+                />
+              )}
             </View>
           );
         }),

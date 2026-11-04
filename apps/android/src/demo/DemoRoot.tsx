@@ -41,7 +41,10 @@
 // started a world moves its date onto an announced day, and when it enters it
 // again, it sends the seeded schools' shares of the totals for the days reached
 // (seeded-shares.ts, #596) while it still shows busy, and a failed send is said
-// as any failure is, the date already moved, to be finished by the next.
+// as any failure is, the date already moved, to be finished by the next. The
+// teacher's home carries the insights' row, which opens their page (#624),
+// where Android's back is the page's own, with each class's exact sending in a
+// teachers' world (#622).
 
 import {
   readWorldCode,
@@ -76,6 +79,7 @@ import { StaffPc } from '../staff/StaffPc';
 import { useDirectorSchool } from '../director/director-world';
 import type { TimetableRead } from '../timetable/TimetableImport';
 import { mineOf } from '../week/school-mine-session';
+import { useWorldInsights } from '../insights/use-world-insights';
 
 export type DemoRootProps = {
   readonly kit: WorldKit;
@@ -116,6 +120,19 @@ export function DemoRoot({
   const school = useDirectorSchool(open, reference);
   const published = useWorldCalendar(open === null ? null : held, open?.date, calendar, reference, kit, send);
   const { calendar: here, reference: worldReference } = published;
+  const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
+  const date = open === null ? '' : dayText(open.date);
+  const insights = useWorldInsights({
+    open,
+    calendars: [calendar, here],
+    school,
+    kit,
+    reference,
+    storage,
+    send,
+    date,
+    dayText,
+  });
 
   const start = (kind: WorldKind) =>
     run(async () => {
@@ -162,24 +179,24 @@ export function DemoRoot({
       setJoining(false);
       setStaff(false);
       setTimetable(null);
+      insights.close();
       onLeft();
     });
 
+  const viewing = insights.page !== null;
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (reading || joining || staff) return false;
+      if (reading || joining || staff || viewing) return false;
       if (open === null && !working.current) onBack();
       if (open !== null) setRole(null);
       return true;
     });
     return () => handler.remove();
-  }, [open, onBack, reading, joining, staff, working]);
+  }, [open, onBack, reading, joining, staff, viewing, working]);
 
   const shown = problem !== null ? t(problem) : published.problem !== null ? t('demo.problem.calendar') : null;
   if (open === null)
     return <DemoEntry busy={busy} problem={shown} onStart={onPc() ? start : undefined} onJoin={join} onBack={onBack} />;
-  const date = worldDate(t, open.date, currentLanguage(), profile);
-  const dayText = (day: Day) => worldDate(t, day, currentLanguage(), profile);
   const trial = trialTermEnd(here.year, profile.weekStartsOn);
   if (joining && open.kind === 'national')
     return (
@@ -215,6 +232,7 @@ export function DemoRoot({
     ) : (
       <PcApprove world={open} school={school} date={date} kit={kit} send={send} onClose={() => setStaff(false)} />
     );
+  if (insights.page !== null && role === 'teacher') return insights.page;
   if (reading && worldReference !== undefined)
     return (
       <WorldReader
@@ -238,6 +256,7 @@ export function DemoRoot({
       onStaff={
         open.kind === 'national' && school !== null && worldReference !== undefined ? () => setStaff(true) : undefined
       }
+      insightsRow={insights.row}
       inspectorCard={
         open.kind === 'national' && school !== null && worldReference !== undefined ? (
           <InspectorHome

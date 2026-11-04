@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The teacher's threshold pages rendered for their tests (#601, answer 633):
-// a page or any element in its place, read right to left, a way to settle its
-// readings, its words, controls, alerts and hidden live region, a plan item
-// quoted as the pages quote it, the props a page takes, and unmounting it
-// again.
+// The teacher's threshold pages rendered for their tests (#601, answer 633): a
+// page or any element in its place, read right to left, and again in place, a
+// way to settle its readings, its words, controls, alerts and hidden live
+// region, a plan item quoted as the pages quote it, the props a page takes, and
+// unmounting it again.
 
 import type { Day, SchoolJoined } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -49,6 +49,9 @@ export const show = (shown: ReactElement) =>
   act(() => {
     tree = ReactTestRenderer.create(<LocaleDirContext.Provider value="rtl">{shown}</LocaleDirContext.Provider>);
   });
+/** Renders the page again in place, right to left, as when its props change. */
+export const update = (shown: ReactElement) =>
+  act(() => tree!.update(<LocaleDirContext.Provider value="rtl">{shown}</LocaleDirContext.Provider>));
 /** What the page's alerts say. */
 export const alerts = () =>
   tree!.root

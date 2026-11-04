@@ -13,53 +13,34 @@
 // again. Erasing a world erases its spaces and batches with it, in the
 // database itself, and the stand-in receiving system's receipts (#590): a
 // world may pass MAX_RECEIPTS by a few receipts sent at the same moment. The
-// schools' shares of the totals have their own store (prisma-shares.ts).
+// schools' shares of the totals have their own store (prisma-shares.ts), and
+// so do the observatories (prisma-insights.ts) and the admin log and problem
+// reports (prisma-admin.ts).
 
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '../generated/prisma/client.js';
 import {
   MAX_BATCHES,
   MAX_SPACES,
-  StoreBusy,
   type BatchesAdded,
   type SpaceAdded,
   type SpaceKind,
   type SpaceStore,
   type StoredBatch,
 } from '../spaces/space-store.js';
+import type { AdminStore } from '../admin/admin-store.js';
+import type { InsightStore } from '../insights/insight-store.js';
 import type { ShareStore } from '../totals/share-store.js';
 import { MAX_RECEIPTS, type Receipt, type World, type WorldStore } from '../worlds/world-store.js';
+import { toDate, toDay } from './days.js';
+import { inTurn, type StoreOptions, type Transaction } from './in-turn.js';
+import { PrismaAdminStore } from './prisma-admin.js';
+import { PrismaInsightStore } from './prisma-insights.js';
 import { PrismaShareStore } from './prisma-shares.js';
 
 /** Sealed batches across every world: about 4 GB. */
 export const MAX_DATABASE_BATCHES = 1_000_000;
 const TOTAL_FRESH_MS = 5_000;
-
-type Transaction = Prisma.TransactionClient;
-
-export interface StoreOptions {
-  /** The most batches across every world. */
-  readonly most?: number;
-  /** How long a transaction may wait for a connection, for its world's turn, and in all, in milliseconds. */
-  readonly maxWait?: number;
-  readonly lockWait?: number;
-  readonly timeout?: number;
-}
-
-function isBusy(error: unknown): boolean {
-  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
-  if (error.code === 'P2028') return true;
-  const driver = error.meta?.['driverAdapterError'] as { cause?: { code?: unknown } } | undefined;
-  return error.code === 'P2010' && driver?.cause?.code === '55P03';
-}
-
-function toDate(day: string): Date {
-  return new Date(`${day}T00:00:00Z`);
-}
-
-function toDay(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
 
 /** Locks the world's row until the transaction ends, or answers false when there is no such world. */
 async function lockWorld(tx: Transaction, world: string): Promise<boolean> {
@@ -82,12 +63,16 @@ export class PrismaStores {
   readonly worlds: WorldStore;
   readonly spaces: SpaceStore;
   readonly shares: ShareStore;
+  readonly insights: InsightStore;
+  readonly admin: AdminStore;
 
   constructor(url: string, options: StoreOptions = {}) {
     this.client = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }), errorFormat: 'minimal' });
     this.worlds = new PrismaWorldStore(this.client);
     this.spaces = new PrismaSpaceStore(this.client, options);
     this.shares = new PrismaShareStore(this.client);
+    this.insights = new PrismaInsightStore(this.client, options);
+    this.admin = new PrismaAdminStore(this.client, options);
   }
 
   close(): Promise<void> {
@@ -199,20 +184,8 @@ export class PrismaSpaceStore implements SpaceStore {
     private readonly options: StoreOptions = {},
   ) {}
 
-  private async inTurn<T>(work: (tx: Transaction) => Promise<T>): Promise<T> {
-    const { maxWait = 5_000, lockWait = 8_000, timeout = 10_000 } = this.options;
-    try {
-      return await this.client.$transaction(
-        async (tx) => {
-          await tx.$queryRaw`SELECT set_config('lock_timeout', ${`${lockWait}ms`}, true)`;
-          return work(tx);
-        },
-        { maxWait, timeout },
-      );
-    } catch (error) {
-      if (isBusy(error)) throw new StoreBusy();
-      throw error;
-    }
+  private inTurn<T>(work: (tx: Transaction) => Promise<T>): Promise<T> {
+    return inTurn(this.client, this.options, work);
   }
 
   private async serverTotal(tx: Transaction): Promise<number> {

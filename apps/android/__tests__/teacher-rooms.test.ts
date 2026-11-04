@@ -39,7 +39,7 @@ test('reads the room, signs a cut that settles it, then a no cut that leaves it 
   const { id, date, joined, items } = await opened();
   const world = { world: id, date };
   const [room] = await readTeacherRooms(world, joined, kit, server.send);
-  expect([room.chart.exam, room.version, room.state.proposed, room.state.settled]).toEqual(['term-1', -1, null, null]);
+  expect([room.chart.exam, room.version, room.state.proposed, room.state.settled]).toEqual(['term-2', -1, null, null]);
   expect(room.mine?.key).toBe(joined.certificate.publicKey);
   const cut = await signCut(world, joined, room, items[1], kit, server.send);
   expect([cut.item, cut.version, cut.day]).toEqual([items[1], 0, date]);

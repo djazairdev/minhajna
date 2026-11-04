@@ -3,12 +3,12 @@
 
 // Refuses a request body before it is read when it is larger than its route
 // takes: 1 MB for a relay upload of up to 128 sealed batches, a seeding's too
-// (#548), 512 KB for a delivery to the state's stand-in (#590), whose largest
-// export, escaped and sealed, fits it, 256 KB for a school's share of the
-// totals (#596), and 64 KB for everything else. A body must say its length, so
-// none is read unbounded. A refused body is drained so the client reads the
-// answer, unless it claims more than DRAIN_AT, when the connection is closed
-// instead.
+// (#548), and an observatory's opening with its made-up sendings (#621), 512 KB
+// for a delivery to the state's stand-in (#590), whose largest export, escaped
+// and sealed, fits it, 256 KB for a school's share of the totals (#596), and 64
+// KB for everything else. A body must say its length, so none is read
+// unbounded. A refused body is drained so the client reads the answer, unless
+// it claims more than DRAIN_AT, when the connection is closed instead.
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
@@ -18,7 +18,7 @@ export const DELIVERY_BODY = 512 * 1024;
 export const SHARE_BODY = 256 * 1024;
 export const DRAIN_AT = 4 * BATCH_BODY;
 
-const UPLOAD = /^\/worlds\/[^/?]+\/(?:spaces\/[^/?]+|seed)\/batches(?:\?|$)/;
+const UPLOAD = /^\/worlds\/[^/?]+\/(?:(?:spaces\/[^/?]+|seed)\/batches|insights)(?:\?|$)/;
 const DELIVERY = /^\/worlds\/[^/?]+\/state\/deliveries(?:\?|$)/;
 const SHARE = /^\/worlds\/[^/?]+\/totals\/[^/?]+\/shares(?:\?|$)/;
 

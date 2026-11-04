@@ -11,8 +11,7 @@
 import { Prisma, type PrismaClient } from '../generated/prisma/client.js';
 import type { Share } from '../totals/share-read.js';
 import { MAX_SHARES, type ShareKept, type ShareStore } from '../totals/share-store.js';
-
-const toDate = (day: string): Date => new Date(`${day}T00:00:00Z`);
+import { toDate } from './days.js';
 
 export class PrismaShareStore implements ShareStore {
   constructor(private readonly client: PrismaClient) {}

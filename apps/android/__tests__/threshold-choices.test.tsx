@@ -25,7 +25,7 @@ import { roomId } from '../src/threshold/threshold-text';
 import { isolate } from '../src/week/grid-labels';
 
 const page = ar.demo.threshold;
-const ROOM = roomId({ exam: 'term-1', subject: 'math', grade: '1am' });
+const ROOM = roomId({ exam: 'term-2', subject: 'math', grade: '1am' });
 const OTHER = { assignment: 'made-up-assignment', name: 'أستاذ مختلق', key: 'made-up-key' };
 
 jest.mock(

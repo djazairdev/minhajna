@@ -7,16 +7,16 @@
 // in the plan when the reference does not hold the pack, an ID the reference
 // does not name kept apart from the words around it, where the cut stands, with
 // the day the cut proposed was first signed, whether it waits for this phone,
-// each setter's latest cut with its day, the item every class reached on the
-// figures day, an exam an update of the world's calendar moved, with the days
-// it had and has, its cut's signing deadline for a school exam alone, the day
-// it was announced and why, and that the phone's calendar moved with it, a move
-// within the exam's week keeping its figures day, one of its last day alone,
-// and a room whose chart was taken on a figures day, or signs by a deadline,
-// its exam no longer has, which, when an update moved its exam, still signs by
-// its chart's deadline, so its move names no new deadline nor figures day, and
-// the chart of each class's item reached and forecast, each as its place in the
-// plan, none counting as 0.
+// each setter's latest cut with its day, or, after the exam, that they signed
+// none, the item every class reached on the figures day, an exam an update of
+// the world's calendar moved, with the days it had and has, its cut's signing
+// deadline for a school exam alone, the day it was announced and why, and that
+// the phone's calendar moved with it, a move within the exam's week keeping its
+// figures day, one of its last day alone, and a room whose chart was taken on a
+// figures day, or signs by a deadline, its exam no longer has, which, when an
+// update moved its exam, still signs by its chart's deadline, so its move names
+// no new deadline nor figures day, and the chart of each class's item reached
+// and forecast, each as its place in the plan, none counting as 0.
 
 import {
   examMoves,
@@ -108,17 +108,19 @@ export function stateText(
   return t(`demo.threshold.state.${key}`, { item: item(proposed.item), name: isolate(by), day: dayText(proposed.day) });
 }
 
-/** Each setter's latest cut with its day, as one line each by their assignment, in the chart's order. */
+/** Each setter's latest cut with its day, one line each by their assignment in the chart's order, `over` the exam. */
 export function setterLines(
   t: TFunction,
   room: TeacherRoom,
   item: (id: string | null) => string,
   dayText: (day: Day) => string,
+  over = false,
 ): { readonly key: string; readonly line: string }[] {
   return room.chart.setters.map(({ assignment: key, name: who }) => {
     const [cut, day] = [room.state.signed.get(key), room.state.days.get(key)];
     const name = isolate(who);
-    if (cut === undefined || day === undefined) return { key, line: t('demo.threshold.setter.waiting', { name }) };
+    if (cut === undefined || day === undefined)
+      return { key, line: t(over ? 'demo.threshold.after.unsigned' : 'demo.threshold.setter.waiting', { name }) };
     if (cut === null) return { key, line: t('demo.threshold.setter.none', { name, day: dayText(day) }) };
     return { key, line: t('demo.threshold.setter.cut', { name, item: item(cut), day: dayText(day) }) };
   });

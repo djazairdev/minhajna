@@ -15,15 +15,19 @@
 // and of the key pair an inspector's device keeps in a world and the grant
 // requests a directorate makes there (#593, answer 621), and of the spot-check
 // sheet an inspector's device keeps for a grant (#594, answer 622), and of the
-// Ministry's draft of a calendar update (#607, answer 623), apart from
+// Ministry's draft of a calendar update (#607, answer 623), and of a term's
+// insights token and sending IDs (#622, answer 696), and of the teacher's
+// choice to send insights and what was sent (answer 697), apart from
 // devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
 // school-holder.ts, school-timetable.ts, school-cover.ts,
 // school-substitution.ts, school-exchange.ts, directorate-space.ts,
-// grant-request.ts, spot-sheet.ts and calendar-draft.ts, which read them, so
-// the events module imports no module that imports it back.
+// grant-request.ts, spot-sheet.ts, calendar-draft.ts, insights-teacher.ts and
+// insights-log.ts, which read them, so the events module imports no module that
+// imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
+import type { InsightsSending } from './insights.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
 import type { ImportedSession } from './timetable-import.ts';
@@ -67,7 +71,27 @@ export type DeviceEvent =
   /** In a demo world's own store: the spot-check sheet an inspector's phone keeps for a grant (answer 622). */
   | { readonly kind: 'inspector.sheet'; readonly sheet: SpotSheet }
   /** In a demo world's own store: the Ministry's draft of a calendar update, never sent (answer 623). */
-  | { readonly kind: 'ministry.calendar'; readonly draft: CalendarDraft };
+  | { readonly kind: 'ministry.calendar'; readonly draft: CalendarDraft }
+  /** In a demo world's own store: a term's insights token and sending IDs, drawn when first shown (answer 696). */
+  | { readonly kind: 'insights.drawn'; readonly drawn: InsightsDraw }
+  /** In a demo world's own store: insights turned on or off by the teacher (answer 697). */
+  | { readonly kind: 'insights.choice'; readonly choice: { readonly on: boolean } }
+  /** In a demo world's own store: a sending the server took, exactly as sent, with its class (answer 697). */
+  | { readonly kind: 'insights.sent'; readonly sent: InsightsSent };
+
+/** A sending the server took, exactly as sent, and the class it was for (answer 697). */
+export interface InsightsSent {
+  readonly classId: string;
+  readonly sending: InsightsSending;
+}
+
+/** A term's insights token and each class's sending ID, by class ID, as drawn on this device (answer 696). */
+export interface InsightsDraw {
+  readonly year: string;
+  readonly term: 1 | 2 | 3;
+  readonly token: string;
+  readonly ids: Readonly<Record<string, string>>;
+}
 
 /** A school's key as a device holding it keeps it: its ID, its agreement pair, and the keyring (answer 596). */
 export interface SchoolHeld {
@@ -224,6 +248,9 @@ export const DEVICE_KINDS = {
   'grant.requested': true,
   'inspector.sheet': true,
   'ministry.calendar': true,
+  'insights.drawn': true,
+  'insights.choice': true,
+  'insights.sent': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

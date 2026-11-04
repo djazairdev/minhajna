@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The two kinds of store the store tests run against (#541, #542, #590, #596):
-// the memory stores, and PostgreSQL's on the database TEST_DATABASE_URL names,
-// emptied and migrated before each test and skipped without it; and a made-up
-// world to keep in them.
+// The two kinds of store the store tests run against (#541, #542, #590, #596,
+// #619, #621): the memory stores, and PostgreSQL's on the database
+// TEST_DATABASE_URL names, emptied and migrated before each test and skipped
+// without it; and a made-up world to keep in them.
 
 import assert from 'node:assert/strict';
 import process from 'node:process';
 import pg from 'pg';
+import { MemoryAdminStore, type AdminStore } from '../src/admin/admin-store.js';
+import { MemoryInsightStore, type InsightStore } from '../src/insights/insight-store.js';
 import { MemorySpaceStore, type SpaceStore } from '../src/spaces/space-store.js';
 import { applyMigrations } from '../src/storage/migrations.js';
 import { PrismaStores } from '../src/storage/prisma-stores.js';
@@ -21,6 +23,8 @@ export interface Stores {
   readonly worlds: WorldStore;
   readonly spaces: SpaceStore;
   readonly shares: ShareStore;
+  readonly insights: InsightStore;
+  readonly admin: AdminStore;
   close(): Promise<void>;
 }
 
@@ -55,12 +59,17 @@ export const KINDS = [
     name: 'in memory',
     skip: false as const,
     reset: (): Promise<void> => Promise.resolve(),
-    open: (most?: number): Stores => ({
-      worlds: new MemoryWorldStore(),
-      spaces: new MemorySpaceStore(most),
-      shares: new MemoryShareStore(),
-      close: () => Promise.resolve(),
-    }),
+    open: (most?: number): Stores => {
+      const worlds = new MemoryWorldStore();
+      return {
+        worlds,
+        spaces: new MemorySpaceStore(most),
+        shares: new MemoryShareStore(),
+        insights: new MemoryInsightStore(async (id) => (await worlds.get(id)) !== undefined),
+        admin: new MemoryAdminStore(async (id) => (await worlds.get(id)) !== undefined),
+        close: () => Promise.resolve(),
+      };
+    },
   },
   {
     name: 'in PostgreSQL',
@@ -68,7 +77,14 @@ export const KINDS = [
     reset: emptyDatabase,
     open: (most?: number): Stores => {
       const stores = new PrismaStores(url!, most === undefined ? {} : { most });
-      return { worlds: stores.worlds, spaces: stores.spaces, shares: stores.shares, close: () => stores.close() };
+      return {
+        worlds: stores.worlds,
+        spaces: stores.spaces,
+        shares: stores.shares,
+        insights: stores.insights,
+        admin: stores.admin,
+        close: () => stores.close(),
+      };
     },
   },
 ];
