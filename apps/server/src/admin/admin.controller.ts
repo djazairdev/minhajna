@@ -4,14 +4,15 @@
 // The operators' console's view of the server (#618, §6.7, answer 655): GET
 // /worlds/:world/admin/system, with the world's pass, under the limits of the
 // other world requests, since in the demo the operator is a role like the
-// others (choice D11). It answers the server as a whole, never the world it
-// is asked through: the package's version and its fingerprint (fingerprint.ts),
+// others (choice D11). It answers the server as a whole, never the world it is
+// asked through: the package's version and its fingerprint (fingerprint.ts),
 // the parts its code runs, where it keeps worlds, and whether the database
-// answers and is set to archive its write-ahead log (system-probe.ts). When
-// the database fails to check the pass within 2 seconds, it answers 503 with
-// the database failing, the same to everyone, so the console still says so.
-// Nothing in it names a world, a space or anyone, and the same answer comes
-// through every world.
+// answers and is set to archive its write-ahead log, and then whether archiving
+// works and the newest restore test (system-probe.ts, #620). When the database
+// fails to check the pass within 2 seconds, it answers 503 with the database
+// failing, the same to everyone, so the console still says so. Nothing in it
+// names a world, a space or anyone, and the same answer comes through every
+// world.
 
 import { Controller, Get, Header, Headers, HttpException, Inject, Param, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -23,7 +24,7 @@ import { FINGERPRINT } from './fingerprint.js';
 import { FAILING, PROBE_WAIT, SYSTEM_PROBE, within, type StorageState, type SystemProbe } from './system-probe.js';
 
 /** The parts this package's code runs, in the order the console draws them. */
-export const PARTS = ['gateway', 'relay', 'totals', 'standins'] as const;
+export const PARTS = ['gateway', 'relay', 'totals', 'standins', 'observatory'] as const;
 
 /** The server as the console shows it. */
 export type SystemView = {

@@ -53,6 +53,7 @@ COPY apps/server/prisma/migrations prisma/migrations
 COPY apps/server/container/start.sh /usr/local/bin/minhajna-start
 COPY apps/server/container/wal-g.sh /usr/local/bin/minhajna-wal-g
 COPY apps/server/container/wal-fetch.sh /usr/local/bin/minhajna-wal-fetch
+COPY apps/server/container/restore-test.sh /usr/local/bin/minhajna-restore-test
 RUN useradd --system --no-create-home --shell /usr/sbin/nologin minhajna
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080
 EXPOSE 8080

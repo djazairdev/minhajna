@@ -21,7 +21,7 @@ import { MemoryWorldStore, type World } from '../src/worlds/world-store.js';
 import { freshId, OPEN, PASS, WITH_PASS } from './state-kit.js';
 
 const WRONG = { 'x-world-pass': 'd3JvbmctcGFzcy1mb3ItYS1tYWRlLXVwLXdvcmxkLTAx' };
-const PARTS = ['gateway', 'relay', 'totals', 'standins'];
+const PARTS = ['gateway', 'relay', 'totals', 'standins', 'observatory'];
 
 /** A made-up PostgreSQL probe answering as it is told. */
 function probe(state: StorageState): SystemProbe {
@@ -98,7 +98,14 @@ describe("the operators' view of the server", () => {
 describe("the operators' view of PostgreSQL", () => {
   it("answers the database's state as its probe gives it", async () => {
     for (const state of [
-      { storage: 'postgresql', database: 'ok', archive: 'on' },
+      { storage: 'postgresql', database: 'ok', archive: 'on', archiving: 'ok', restore: null },
+      {
+        storage: 'postgresql',
+        database: 'ok',
+        archive: 'on',
+        archiving: 'failing',
+        restore: { day: '2026-12-01', result: 'passed' },
+      },
       { storage: 'postgresql', database: 'ok', archive: 'off' },
       { storage: 'postgresql', database: 'failing' },
     ] as const) {
@@ -119,7 +126,7 @@ describe("the operators' view of PostgreSQL", () => {
   });
 
   it('answers 503 with the database failing, the same to everyone, when the pass cannot be checked', async () => {
-    const ok = probe({ storage: 'postgresql', database: 'ok', archive: 'on' });
+    const ok = probe({ storage: 'postgresql', database: 'ok', archive: 'on', archiving: 'ok', restore: null });
     for (const hangs of [false, true]) {
       const { app, base } = await serve({ store: new BrokenStore(hangs), probe: ok });
       try {

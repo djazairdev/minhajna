@@ -13,10 +13,12 @@
 // day it came and the hash of the token its sender may delete it with, until it
 // is marked fixed or deleted, 12 months at most, and erased with its world; a
 // world keeps at most 200, and reports sent at the same moment may pass that by
-// a few. Security logs are kept apart, in security-log.ts.
+// a few. The container logs its restore tests here itself, through the database
+// (container/restore-test.sh, #620). Security logs are kept apart, in
+// security-log.ts.
 
 /** The administrative actions the log names. */
-export const ADMIN_ACTIONS = ['server.started', 'worlds.erased', 'problem.fixed'] as const;
+export const ADMIN_ACTIONS = ['server.started', 'worlds.erased', 'problem.fixed', 'restore.tested'] as const;
 export type AdminAction = (typeof ADMIN_ACTIONS)[number];
 
 /** What a line says of its action, in fixed fields, naming nobody. */
