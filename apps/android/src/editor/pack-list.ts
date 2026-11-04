@@ -4,9 +4,13 @@
 // The curator's catalogue (#611, R-4.2-23) keeps every source release,
 // including earlier releases and stale packs. It never reads a teacher's
 // state or offers their own lists. Status is the source status stored on
-// that release, not a lifecycle state inferred from its release number.
+// that release, not a lifecycle state inferred from its release number. A
+// curator sets all but Official, which only the Ministry's account publishes.
 
 import { compareReleases, parsePackId, type PlanPack } from '@minhajna/core';
+
+/** The statuses a curator sets on a release (R-4.2-23). */
+export const CURATOR_STATUSES = ['in-force', 'latest-found', 'stale', 'community'] as const;
 
 export function editorPacks(packs: readonly PlanPack[]) {
   return packs

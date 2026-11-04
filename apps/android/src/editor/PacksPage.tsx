@@ -8,6 +8,7 @@
 import { packReleaseKey, type PlanPack } from '@minhajna/core';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Text, View } from 'react-native';
+import { Badge } from '../components/Badge';
 import { Button } from '../components/Button';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
@@ -108,6 +109,10 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
                 {isolate(one.pack.id)} · {isolate(one.pack.release)}
               </Text>
               <Text style={s.body}>{t(`editorItem.stage.${one.stage}`)}</Text>
+              <Badge
+                label={t(`plan.status.${one.pack.status}`)}
+                variant={one.pack.status === 'stale' || one.pack.status === 'example' ? 'warning' : 'default'}
+              />
               {isCuratorDraft(one) ? (
                 <Button
                   testID={`draft-open-${one.pack.release}`}
