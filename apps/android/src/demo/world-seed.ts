@@ -18,12 +18,16 @@
 // it, the world's made-up closure (#549, answer 626), from which every seeded
 // school's term counts its closed sessions. A teachers' world's starter opens
 // its observatory instead (#622, answer 697), so that its teachers' insights
-// can be sent there; a refusal fails that start too.
+// can be sent there, with made-up sendings for every term (#625, answer 699)
+// when the start has the reference data, or none without it; a refusal fails
+// that start too.
 
 import {
   checkSeedCertificates,
   planSeed,
+  seedBatches,
   seedBodies,
+  seedInsights,
   seedRequests,
   seedStreams,
   toBase64Url,
@@ -33,7 +37,7 @@ import {
   type WorldKind,
 } from '@minhajna/core';
 import { seededWorld } from '../director/director-world';
-import { worldClosure } from '../director/seeded-fill';
+import { termReference, worldClosure } from '../director/seeded-fill';
 import { publishCalendar } from '../ministry/calendar-publish';
 import { leaveWorldNetwork, worldNetworkOpen, worldRequest } from '../network/world-network';
 import type { ReferenceResult } from '../reference';
@@ -96,11 +100,28 @@ export async function seedWorld(
   }
 }
 
-/** Opens a teachers' world's observatory, holding no sending yet, under the starter token. */
-export async function openObservatory(started: Pick<StartedWorld, 'keys' | 'starter'>, send: Send): Promise<void> {
-  const path = `/worlds/${started.keys.world}/insights`;
-  const answer = await send({ method: 'POST', path, body: { sendings: [] }, starter: started.starter });
-  if (answer.status !== 200) throw unexpected(answer);
+/** Opens a teachers' world's observatory, holding its made-up sendings, under the starter token. */
+export async function openObservatory(
+  started: Pick<StartedWorld, 'keys' | 'starter'>,
+  reference: Extract<ReferenceResult, { ok: true }> | undefined,
+  kit: Pick<WorldKit, 'random'>,
+  send: Send,
+): Promise<void> {
+  const { world } = started.keys;
+  const path = `/worlds/${world}/insights`;
+  const sendings =
+    reference === undefined
+      ? []
+      : await kitStep(() =>
+          Promise.resolve().then(() =>
+            seedInsights(seededWorld(world, reference), termReference(reference), kit.random),
+          ),
+        );
+  for (const batch of seedBatches(sendings)) {
+    const body = { sendings: batch };
+    const answer = await send({ method: 'POST', path, body, starter: started.starter, timeoutMs: SEED_TIMEOUT_MS });
+    if (answer.status !== 200) throw unexpected(answer);
+  }
 }
 
 /** Seeds a national world and publishes its calendar with the world's made-up closure. */
@@ -132,7 +153,7 @@ export async function startSeededWorld(
 ): Promise<StartedWorld> {
   const started = await startWorld(kind, calendar, kit, send);
   try {
-    if (kind === 'teachers') await openObservatory(started, send);
+    if (kind === 'teachers') await openObservatory(started, reference, kit, send);
     else if (reference !== undefined) await seedNational(started, calendar, reference, kit, send);
   } catch (error) {
     if (worldNetworkOpen() === started.keys.world) leaveWorldNetwork();

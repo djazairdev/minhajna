@@ -23,7 +23,9 @@ module.exports = {
     '^\\.\\./state-standins/term-export-read\\.js$': '<rootDir>/../server/src/state-standins/term-export-read.ts',
     '^\\./stand-in-ca\\.js$': '<rootDir>/../server/src/worlds/stand-in-ca.ts',
     '^\\./(floors|share-reach|share-read)\\.js$': '<rootDir>/../server/src/totals/$1.ts',
-    '^\\.\\./totals/share-read\\.js$': '<rootDir>/../server/src/totals/share-read.ts',
+    '^\\.\\./totals/(floors|share-read)\\.js$': '<rootDir>/../server/src/totals/$1.ts',
+    '^\\./(bands|insight-store|outliers|quantile|school-marks|sending-read)\\.js$':
+      '<rootDir>/../server/src/insights/$1.ts',
   },
   // Core files are outside the app, but use the app's Babel runtime helpers.
   modulePaths: ['<rootDir>/node_modules'],

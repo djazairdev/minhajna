@@ -118,11 +118,9 @@ async function moveTo(id: string, term: 2 | 3) {
 test('turned on, each term’s sending goes once, exactly as shown, until turned off', async () => {
   const id = await teachersWorld();
   const opening = server.seen.find((one) => one.path === `/worlds/${id}/insights`)!;
-  expect([opening.method, opening.body, typeof opening.headers.Authorization]).toEqual([
-    'POST',
-    '{"sendings":[]}',
-    'string',
-  ]);
+  expect([opening.method, typeof opening.headers.Authorization]).toEqual(['POST', 'string']);
+  const seeded = (await server.observatory.store.sendings(id)).length;
+  expect(seeded).toBeGreaterThan(0);
   await press('world-insights-open');
   expect(host('insights-off')).toHaveLength(1);
   expect(host('insights-take-part')[0].props.accessibilityState).toMatchObject({ checked: false });
@@ -136,7 +134,9 @@ test('turned on, each term’s sending goes once, exactly as shown, until turned
   expect(puts().map((one) => [one.body, one.headers.Authorization])).toEqual([[shown, undefined]]);
   expect(texts()).toContain(words.sending.done_one);
   const sending = readSending(JSON.parse(shown)) as InsightsSending;
-  expect(await server.observatory.store.sendings(id)).toEqual([
+  const held = await server.observatory.store.sendings(id);
+  expect(held).toHaveLength(seeded + 1);
+  expect(held.filter((one) => one.id === sending.id)).toEqual([
     { ...Object.fromEntries(Object.entries(sending).filter(([name]) => name !== 'schoolTerm')), mark: MARK },
   ]);
   await press('insights-back');

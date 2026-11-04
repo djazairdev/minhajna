@@ -9,12 +9,13 @@
 // its space; the world's calendar holds, as its first release, the world's
 // made-up closure (answer 626); a teachers' world, or a start without the
 // reference data, seeds and publishes nothing, a teachers' world opening its
-// observatory instead (answer 697); and a busy server, a refused or
-// unanswered request, a closure the relay refused, or certificates that are not
-// the ones asked for, fail the start as a whole with the network shut. Every
-// world and key is made up.
+// observatory instead (answer 697), with its made-up sendings in several
+// requests (answer 699), or none without the reference data; and a busy server,
+// a refused or unanswered request, a closure the relay refused, or certificates
+// that are not the ones asked for, fail the start as a whole with the network
+// shut. Every world and key is made up.
 
-import { keyringStream, openSeededKeys, readKeyrings, seededKeysPlace } from '@minhajna/core';
+import { keyringStream, openSeededKeys, readKeyrings, seededKeysPlace, type InsightsSending } from '@minhajna/core';
 import { calendar, reference } from '../jest/world-calendar';
 import { codeOf, DemoServer, nodeKit } from '../jest/world-server';
 import { SEED_TIMEOUT_MS, startSeededWorld } from '../src/demo/world-seed';
@@ -76,6 +77,33 @@ test('a teachers’ world, or a national one without the reference data, seeds n
   expect(server.seen.filter((one) => one.path.endsWith('/spaces/national/batches') && one.body)).toEqual([]);
 });
 
+test('a teachers’ world opens with its made-up sendings cut to fit, or none without the reference data', async () => {
+  const asked: WorldRequest[] = [];
+  const noting: Send = (request) => {
+    asked.push(request);
+    return server.send(request);
+  };
+  const started = await startSeededWorld('teachers', calendar, reference, nodeKit, noting);
+  const opening = asked.filter((one) => one.path === `/worlds/${started.keys.world}/insights`);
+  expect(opening.length).toBeGreaterThan(1);
+  expect(opening.every((one) => one.timeoutMs === SEED_TIMEOUT_MS)).toBe(true);
+  leaveWorldNetwork();
+  const bare = await startSeededWorld('teachers', calendar, undefined, nodeKit, server.send);
+  const opened = server.seen.filter((one) => one.path === `/worlds/${bare.keys.world}/insights`);
+  expect(opened.map((one) => one.body)).toEqual(['{"sendings":[]}']);
+});
+
+test('a refusal of a later batch fails the start with the network shut', async () => {
+  let openings = 0;
+  const refusing: Send = (request) =>
+    request.path.endsWith('/insights') && (openings += 1) === 2
+      ? Promise.resolve({ status: 409, body: null, retryAfter: null })
+      : server.send(request);
+  expect(await codeOf(startSeededWorld('teachers', calendar, reference, nodeKit, refusing))).toBe('E_WORLD_SERVER');
+  expect(openings).toBe(2);
+  expect(worldNetworkOpen()).toBeNull();
+});
+
 test.each([
   [403, 'E_WORLD_SERVER'],
   [429, 'E_WORLD_BUSY'],
@@ -84,9 +112,12 @@ test.each([
   async (status, code) => {
     const started = await startSeededWorld('teachers', calendar, reference, nodeKit, server.send);
     const opened = server.seen.filter((one) => one.path === `/worlds/${started.keys.world}/insights`);
-    expect(opened.map((one) => [one.method, one.body, one.headers.Authorization])).toEqual([
-      ['POST', '{"sendings":[]}', `Bearer ${started.starter}`],
-    ]);
+    expect(opened.map((one) => [one.method, one.headers.Authorization])).toEqual(
+      opened.map(() => ['POST', `Bearer ${started.starter}`]),
+    );
+    const sent = opened.flatMap((one) => (JSON.parse(one.body!) as { sendings: InsightsSending[] }).sendings);
+    expect(sent.length).toBeGreaterThan(256);
+    expect(await server.observatory.store.sendings(started.keys.world)).toHaveLength(sent.length);
     leaveWorldNetwork();
     const refusing: Send = (request) =>
       request.path.endsWith('/insights')

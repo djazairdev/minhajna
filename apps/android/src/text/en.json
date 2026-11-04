@@ -6384,7 +6384,7 @@
           "title": "The insights server, at the same address",
           "on": "Taking part is on",
           "off": "Taking part is off",
-          "line": "The world’s starter opens it, empty, as the world starts. Then only while taking part is on, at the end of each term, for each class that follows a plan pack: the format, a random ID for the class and term, the term’s random token, the school and term’s code, which the server, on receipt, replaces with a mark to count schools, the school year and term, the wilaya, grade and subject, the pack and release, the sessions on each item, the items merged, skipped, split or re-taught, and how far the class got. No dates, reasons or pupils, and nothing that identifies me."
+          "line": "The world’s starter opens it as the world starts and may put in it made-up sendings from classes that do not exist. Then only while taking part is on, at the end of each term, for each class that follows a plan pack: the format, a random ID for the class and term, the term’s random token, the school and term’s code, which the server, on receipt, replaces with a mark to count schools, the school year and term, the wilaya, grade and subject, the pack and release, the sessions on each item, the items merged, skipped, split or re-taught, and how far the class got. No dates, reasons or pupils, and nothing that identifies me."
         },
         "nothingElse": "Nothing else: no advertising and no analytics. In this world the app reaches only the demo server. The full list is published with the source code.",
         "sees": {
