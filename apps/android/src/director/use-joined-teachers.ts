@@ -20,9 +20,10 @@
 // still given, with no standing and the problem said. Once the weeks are read,
 // the school's share of the totals is sent for the announced days reached
 // (share-send.ts), and the cut rooms of the school exams whose figures day it
-// reached are opened (room-open.ts, answer 632), the one whatever the other
-// did, after the page has what it reads; a failed send, or a room that failed,
-// is not said, and is tried again with the next reading.
+// reached are opened (room-open.ts, answer 632), and those of exams past handed
+// to every teacher of their subject and grade (answer 634), the one whatever
+// the other did, after the page has what it reads; a failed send, or a room
+// that failed, is not said, and is tried again with the next reading.
 
 import {
   issuesIn,

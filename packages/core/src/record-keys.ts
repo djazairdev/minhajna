@@ -165,6 +165,12 @@ export function recordKey(event: RecordEvent): string {
       return `inspector-sheet:${event.sheet?.grant ?? ''}`;
     case 'ministry.calendar':
       return 'ministry-calendar';
+    case 'insights.drawn':
+      return `insights-drawn:${event.drawn?.year ?? ''}/${event.drawn?.term ?? ''}`;
+    case 'insights.choice':
+      return 'insights-choice';
+    case 'insights.sent':
+      return `insights-sent:${event.sent?.sending?.id ?? ''}/${event.sent?.sending?.term ?? ''}`;
     case 'grant.requested': {
       const request = event.requested?.request as { id?: unknown } | undefined;
       return `grant-requested:${typeof request?.id === 'string' ? request.id : ''}`;

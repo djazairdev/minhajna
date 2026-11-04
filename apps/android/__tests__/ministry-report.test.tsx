@@ -105,6 +105,7 @@ const wilayas = (averages: readonly (number | null)[]): MinistryFigures => {
           reached: average < 0 ? 0 : average * 20,
           runLong: 0,
           items: [],
+          grades: [],
         };
   const own = (average: number | null): DirectorateFigures => ({ subjects: [['math', figure(average)]], all: null });
   return { directorates: averages.map((one, at) => [`d${at}`, own(one)]), national: own(50) };

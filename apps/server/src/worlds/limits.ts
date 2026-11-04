@@ -1,16 +1,18 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Rate limits on starting and joining worlds, and on the relay, and a daily
-// quota of batches stored, so no address fills the store. A world id is 25
-// bits, so joins are limited too, to keep guessing out of reach. Requests
-// are counted in 60 slices of each window, so a request costs the same
-// however many came before it; the quota counts only batches stored. An
-// IPv6 address counts by its /64, since one client usually holds a whole
-// /64. Addresses are held in memory only until the first new slice after
-// their window, so up to a day for the quota, and never logged or stored.
-// Behind Cloudflare the address comes from CF-Connecting-IP, which is only
-// read when the server is told it runs there.
+// Rate limits on starting and joining worlds, and on the relay, a daily quota
+// of batches stored, so no address fills the store, and a daily limit of
+// insights sendings kept (#621). A world id is 25 bits, so joins are limited
+// too, to keep guessing out of reach. Requests are counted in 60 slices of each
+// window, so a request costs the same however many came before it; the quota
+// counts only what is kept: batches stored, and the batches a share or an
+// insights sending kept would fill. An IPv6 address counts by its /64, since
+// one client usually holds a whole /64. Addresses are held in memory only until
+// the first new slice after their window, so up to a day for the quota and the
+// sendings, and never logged or stored. Behind Cloudflare the address comes
+// from CF-Connecting-IP, which is only read when the server is told it runs
+// there.
 
 import type { IncomingMessage } from 'node:http';
 import { isIPv4, isIPv6 } from 'node:net';
@@ -26,6 +28,9 @@ export const JOIN_LIMIT: Limit = { perAddress: 60, total: 6000, windowMs: 10 * 6
 export const RELAY_LIMIT: Limit = { perAddress: 1200, total: 120_000, windowMs: 10 * 60 * 1000 };
 /** Sealed batches stored per day: about 82 MB for one address; for everyone, a week of them fits the server's cap. */
 export const UPLOAD_LIMIT: Limit = { perAddress: 20_000, total: 140_000, windowMs: 24 * 60 * 60 * 1000 };
+
+/** Insights sendings a day: a teacher's classes sent a few times over; for everyone, five times a world's most. */
+export const SENDING_LIMIT: Limit = { perAddress: 60, total: 20_000, windowMs: 24 * 60 * 60 * 1000 };
 
 const EVERYONE = '';
 

@@ -11,56 +11,20 @@
 // seeded school's is, then read as one whose key the device took. Every world,
 // school and teacher is made up.
 
-import {
-  addDays,
-  channelRooms,
-  channelStream,
-  directorSchool,
-  isHeldRoom,
-  issuesIn,
-  latestEpoch,
-  roomKey,
-  roomPlace,
-  roomRecords,
-  seedNationalWorld,
-  worldExams,
-} from '@minhajna/core';
-import { FakeStorage } from '../jest/fake-storage';
+import { addDays, isHeldRoom, latestEpoch, roomKey, roomPlace, roomRecords, worldExams } from '@minhajna/core';
+import { filled, handedRooms, server } from '../jest/room-school';
 import { calendar, reference } from '../jest/world-calendar';
-import { DemoServer, nodeKit } from '../jest/world-server';
-import { startSeededWorld } from '../src/demo/world-seed';
-import { holdSchool, joinCode } from '../src/director/issue-session';
-import { recordsOf } from '../src/director/records-session';
-import { fillSeededTerm } from '../src/director/seeded-fill';
-import { seededKeyOf, takeSeededKey } from '../src/director/seeded-key';
+import { nodeKit } from '../jest/world-server';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import { caKey, spaceBatches } from '../src/school/space-read';
-import { openRecordBook } from '../src/storage/history';
 import { chartDrafts } from '../src/threshold/exam-charts';
 import { deciderKey } from '../src/threshold/decider-key';
 import { openRooms } from '../src/threshold/room-open';
-
-const server = new DemoServer();
 
 afterEach(() => {
   leaveWorldNetwork();
   server.reset();
 });
-
-async function filled() {
-  const started = await startSeededWorld('national', calendar, reference, nodeKit, server.send);
-  const id = started.keys.world;
-  const { zones = [], workingDays } = reference.profile;
-  const school = directorSchool(seedNationalWorld(id, zones, workingDays, reference.packs))!;
-  const held = { world: id, keys: started.keys, sealing: started.sealing };
-  const director = { world: id, date: started.date, book: await openRecordBook(new FakeStorage().asSpec()) };
-  await takeSeededKey(director, held, school, nodeKit, server.send);
-  const desk = await holdSchool(director, nodeKit, server.send, false);
-  const seeded = (await seededKeyOf(held, school.id, nodeKit, server.send))!;
-  await fillSeededTerm(director, desk, seeded, reference, nodeKit, server.send);
-  const records = await recordsOf(director, desk, school, nodeKit, server.send);
-  return { id, school, director, desk, records };
-}
 
 test('opens each grade and subject’s room on the figures day, once, handed to its joined setters', async () => {
   const { id, school, director, desk, records } = await filled();
@@ -79,14 +43,7 @@ test('opens each grade and subject’s room on the figures day, once, handed to 
   const place = await roomPlace(await roomKey(desk.opened, epoch, name, desk.crypto), nodeKit.mac);
   const batches = await spaceBatches(id, desk.held.school, server.send);
   const checker = { key: await caKey(id, server.send), checker: nodeKit };
-  const issues = issuesIn(director.book.entries, desk.held.school);
-  const rooms = [];
-  for (const issue of issues) {
-    const code = await joinCode(id, desk, issue);
-    const theirs = batches.get(await channelStream(code, nodeKit.mac)) ?? [];
-    for (const room of await channelRooms(code, theirs, checker, null, nodeKit.cipher, nodeKit.mac))
-      if (room.exam === exam.id && room.subject === name.subject && room.grade === name.grade) rooms.push(room);
-  }
+  const rooms = await handedRooms({ id, school, director, desk, records }, name);
   expect(rooms.length).toBeGreaterThan(0);
   for (const room of rooms) expect(await isHeldRoom(room, desk.opened, desk.crypto, deciderKey)).toBe(true);
   const full = { ...name, world: id, school: desk.held.school };
