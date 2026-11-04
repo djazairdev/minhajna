@@ -100,8 +100,11 @@ async function main() {
   const result = await build({
     absWorkingDir: fileURLToPath(root),
     entryPoints: [fileURLToPath(new URL('src/index.tsx', root))],
-    outfile: fileURLToPath(new URL('app.js', output)),
+    outdir: fileURLToPath(output),
+    entryNames: 'app',
+    chunkNames: '[name]-[hash]',
     bundle: true,
+    splitting: true,
     format: 'esm',
     platform: 'browser',
     target: ['chrome120', 'edge120', 'firefox120'],

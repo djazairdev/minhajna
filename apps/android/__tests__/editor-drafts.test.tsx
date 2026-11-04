@@ -4,9 +4,11 @@
 // Real signed, sealed draft revisions on the made-up relay, through the
 // curator page. Failed writes retain inputs; stale revisions never win.
 
+import { addDays } from '@minhajna/core';
+import { LocaleDirContext } from '@react-navigation/native';
 import { act } from 'react-test-renderer';
-import { field, press, show, shown, source, type, unmount } from '../jest/editor-form';
-import { packService } from '../jest/pack-release';
+import { field, press, rendered, show, shown, source, type, unmount } from '../jest/editor-form';
+import { damageLastStream, packService } from '../jest/pack-release';
 import { PacksPage } from '../src/editor/PacksPage';
 import { readPackReleases } from '../src/editor/pack-release-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
@@ -108,4 +110,47 @@ test('a new manual pack has no saved placeholder, and saves only after its first
   const saved = [...(await readPackReleases(f.editor, f.server.send)).values()][0];
   expect(saved.pack.items).toHaveLength(1);
   expect(saved.pack.items[0].id).toBe('first');
+});
+
+test('a moved world day refreshes a joined curator and preserves the open item form', async () => {
+  const f = await packService();
+  await f.change(null, { stage: 'draft', pack });
+  const setOpen = jest.fn();
+  const page = (world = f.world) => (
+    <PacksPage {...f.editor} world={world} packs={[]} send={f.server.send} setOpen={setOpen} />
+  );
+  await show(page());
+  await drain();
+  await press('draft-open-2026.9');
+  await press('draft-edit-lesson');
+  await type('item-title', 'Made-up edit kept across a date change');
+  await type('item-retyped-budget', '2');
+  await type('item-retyped-sourcePage', '3');
+  const date = addDays(f.world.date, 1);
+  f.server.worlds.get(f.world.world)!.date = date;
+  await press('item-save');
+  await drain();
+  expect(setOpen).toHaveBeenCalledTimes(1);
+  await act(() =>
+    rendered().update(<LocaleDirContext.Provider value="rtl">{page({ ...f.world, date })}</LocaleDirContext.Provider>),
+  );
+  await drain();
+  expect(field('item-title').props.value).toBe('Made-up edit kept across a date change');
+  await press('item-save');
+  await drain();
+  const saved = [...(await readPackReleases({ ...f.editor, world: { ...f.world, date } }, f.server.send)).values()][0];
+  expect(saved).toMatchObject({ day: date, revision: 2 });
+});
+
+test('a damaged stream shows intact drafts without opening a writable form', async () => {
+  const f = await packService();
+  await f.change(null, { stage: 'draft', pack });
+  await damageLastStream(f);
+  await show(<PacksPage {...f.editor} packs={[]} send={f.server.send} />);
+  await drain();
+  expect(shown('draft-open-2026.9')).toBe(true);
+  await press('draft-open-2026.9');
+  await press('draft-new');
+  expect(shown('editor-item-form')).toBe(false);
+  expect(shown('editor-source-form')).toBe(false);
 });

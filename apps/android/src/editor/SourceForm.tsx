@@ -63,7 +63,10 @@ export function SourceForm({
     setInvalid(!read.ok || !words.id.startsWith(`${country}.`) || duplicate);
     if (read.ok && words.id.startsWith(`${country}.`) && !duplicate) {
       const next = { format: 1 as const, items: [], stageTemplates: [], merges: [], ...base, ...read.value };
-      if (pack === null && next.status !== 'stale') delete next.staleReason;
+      if (pack === null) {
+        delete next.migration;
+        if (next.status !== 'stale') delete next.staleReason;
+      }
       onKeep(next);
     }
   };

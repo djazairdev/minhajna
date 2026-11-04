@@ -60,7 +60,17 @@ describe('the pack structure form', () => {
       readPackStructureForm(pack, { ...checked, activities: [{ ...checked.activities[0], code: 'other' }] }).ok,
       false,
     );
-    const removed = readPackStructureForm(pack, { ...checked, kind: 'budgets', activities: [] });
+    const withoutActivities = { ...checked, kind: 'budgets' as const, activities: [] };
+    assert.equal(readPackStructureForm(pack, withoutActivities).ok, false);
+    const untagged = {
+      ...pack,
+      items: pack.items.map((item) => {
+        const copy = { ...item };
+        delete copy.activity;
+        return copy;
+      }),
+    };
+    const removed = readPackStructureForm(untagged, withoutActivities);
     assert.ok(removed.ok);
     assert.equal(removed.value.activities, undefined);
     assert.deepEqual(pack.activities![0]!.name, { ar: 'قراءة تجريبية', kab: 'Synthetic name' });

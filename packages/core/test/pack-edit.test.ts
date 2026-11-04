@@ -95,4 +95,18 @@ describe('editing source packs', () => {
     assert.ok(templates.ok);
     assert.equal(templates.value.stageTemplates[0]!.id, 'new');
   });
+
+  it('keeps the last weekly activity while an item still uses it', () => {
+    const anchor = { kind: 'weeks' as const };
+    const weekly = {
+      ...pack,
+      anchor,
+      activities: [{ code: 'reading', name: { en: 'Reading' }, sessions: 1 }],
+      items: pack.items.map((item) => ({ ...item, week: 1, activity: 'reading' })),
+    };
+    assert.deepEqual(editPackStructure(weekly, { anchor, stageTemplates: pack.stageTemplates, activities: null }), {
+      ok: false,
+      problems: [{ path: 'activities', problem: 'unknown-reference' }],
+    });
+  });
 });

@@ -55,6 +55,12 @@ export function editPackStructure(
     readonly activities: readonly PackActivity[] | null;
   },
 ): ParseResult<PlanPack> {
+  if (
+    change.activities === null &&
+    pack.activities !== undefined &&
+    pack.items.some((item) => item.activity !== undefined)
+  )
+    return { ok: false, problems: [{ path: 'activities', problem: 'unknown-reference' }] };
   return parsePlanPack({
     ...pack,
     anchor: change.anchor,

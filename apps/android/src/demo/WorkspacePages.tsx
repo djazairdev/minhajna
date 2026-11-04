@@ -36,7 +36,7 @@
 // The curator's source-only draft desk reads and edits releases (#611, #613).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
-import type { ReactElement } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import { DashboardPage } from '../director/DashboardPage';
 import { DirectorThresholds } from '../director/DirectorThresholds';
 import { IssueCodes } from '../director/IssueCodes';
@@ -72,6 +72,7 @@ import type { Send, WorldKit } from './world-session';
 
 export type WorkspacePagesProps = {
   readonly open: OpenWorld;
+  readonly setOpen?: Dispatch<SetStateAction<OpenWorld | null>>;
   /** The world's seeded school, which a teachers' world does not have. */
   readonly school: DemoSchool | null;
   readonly reference: Extract<ReferenceResult, { ok: true }>;
@@ -282,6 +283,7 @@ export function workspacePage(
     return (
       <PacksPage
         world={open}
+        setOpen={props.setOpen}
         held={held}
         kit={kit}
         send={send}

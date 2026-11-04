@@ -110,7 +110,7 @@ async function pick() {
       canvasMaxAreaInBytes: PIXELS * 4,
       cMapUrl: asset('cmaps'),
       standardFontDataUrl: asset('standard_fonts'),
-      iccUrl: asset('iccs'),
+      wasmUrl: asset('decoders'),
     });
   } catch {
     worker.terminate();
@@ -139,8 +139,8 @@ async function pick() {
 
 async function page(token: string, number: number, scale: number) {
   const kept = held.get(token);
-  if (kept === undefined || !Number.isSafeInteger(number) || number < 1 || ![1, 1.5, 2].includes(scale))
-    throw new Error('E_PDF_PAGE');
+  if (kept === undefined) throw new Error('E_PDF_CLOSED');
+  if (!Number.isSafeInteger(number) || number < 1 || ![1, 1.5, 2].includes(scale)) throw new Error('E_PDF_PAGE');
   try {
     return await bounded(
       token,
@@ -155,29 +155,31 @@ async function page(token: string, number: number, scale: number) {
         const canvas = window.document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        await page.render({ canvas, viewport }).promise;
-        const content = await page.getTextContent();
-        const rows = draftRows(content.items.filter((one) => 'str' in one));
-        const blob = await new Promise<Blob>((resolve, reject) =>
-          canvas.toBlob((one) => {
-            if (one === null) reject(new Error('E_PDF_RENDER'));
-            else resolve(one);
-          }, 'image/png'),
-        );
-        canvas.width = 0;
-        canvas.height = 0;
-        if (!held.has(token)) throw new Error('E_PDF_CLOSED');
-        for (const uri of kept.uris) URL.revokeObjectURL(uri);
-        kept.uris.clear();
-        const uri = URL.createObjectURL(blob);
-        kept.uris.add(uri);
-        page.cleanup();
-        return { uri, width, height, rows };
+        try {
+          await page.render({ canvas, viewport }).promise;
+          const content = await page.getTextContent();
+          const rows = draftRows(content.items.filter((one) => 'str' in one));
+          const blob = await new Promise<Blob>((resolve, reject) =>
+            canvas.toBlob((one) => {
+              if (one === null) reject(new Error('E_PDF_RENDER'));
+              else resolve(one);
+            }, 'image/png'),
+          );
+          if (!held.has(token)) throw new Error('E_PDF_CLOSED');
+          for (const uri of kept.uris) URL.revokeObjectURL(uri);
+          kept.uris.clear();
+          const uri = URL.createObjectURL(blob);
+          kept.uris.add(uri);
+          return { uri, width, height, rows };
+        } finally {
+          canvas.width = 0;
+          canvas.height = 0;
+          page.cleanup();
+        }
       })(),
     );
   } catch {
-    drop(token);
-    throw new Error('E_PDF_PAGE');
+    throw new Error(held.has(token) ? 'E_PDF_PAGE' : 'E_PDF_CLOSED');
   }
 }
 

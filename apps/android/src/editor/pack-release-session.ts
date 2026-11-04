@@ -47,7 +47,7 @@ export interface PackReleaseTarget {
   readonly revision: number;
 }
 
-async function desk({ world, held, kit }: PackEditor, send: Send) {
+async function desk({ world, held, kit }: PackEditor, send: Send, acceptLaterDay = false) {
   if (
     world === null ||
     held === null ||
@@ -63,19 +63,31 @@ async function desk({ world, held, kit }: PackEditor, send: Send) {
   if (answer.status === 404) throw failed('The world was erased', 'E_NO_SUCH_WORLD');
   if (answer.status !== 200) throw unexpected(answer);
   const date = (answer.body as { date?: unknown } | null)?.date;
-  if (typeof date !== 'string' || !isDay(date) || date !== world.date)
+  if (typeof date !== 'string' || !isDay(date) || (acceptLaterDay ? date < world.date : date !== world.date))
     throw failed('Refresh the world’s date before editing', 'E_PACK_DATE');
-  return { world, keys: held.keys, place: await kitStep(() => packReleasePlace(held.sealing, kit.mac)) };
+  return {
+    world: { ...world, date },
+    keys: held.keys,
+    place: await kitStep(() => packReleasePlace(held.sealing, kit.mac)),
+  };
 }
 
 type Desk = Awaited<ReturnType<typeof desk>>;
-async function releases(held: Desk, { profile, kit }: PackEditor, send: Send, strict: boolean) {
+async function releaseBatches(held: Desk, send: Send) {
   const missing = readingMissing(held.world.world, send, () => ({
     status: 200,
     body: { batches: [], more: false },
     retryAfter: null,
   }));
-  const batches = (await spaceBatches(held.world.world, NATIONAL_SPACE, missing)).get(held.place.stream) ?? [];
+  return (await spaceBatches(held.world.world, NATIONAL_SPACE, missing)).get(held.place.stream) ?? [];
+}
+
+async function readBatches(
+  held: Desk,
+  { profile, kit }: PackEditor,
+  batches: Awaited<ReturnType<typeof releaseBatches>>,
+  strict: boolean,
+) {
   return packReleaseRecords(
     await openPackReleaseBatches(held.place, batches, kit.cipher, strict),
     held.keys,
@@ -86,8 +98,25 @@ async function releases(held: Desk, { profile, kit }: PackEditor, send: Send, st
   );
 }
 
+async function releases(held: Desk, editor: PackEditor, send: Send, strict: boolean) {
+  return readBatches(held, editor, await releaseBatches(held, send), strict);
+}
+
 export async function readPackReleases(editor: PackEditor, send: Send = worldRequest) {
   return releases(await desk(editor, send), editor, send, false);
+}
+
+/** Reads the current world day and distinguishes writable history from salvaged releases. */
+export async function readPackEditor(editor: PackEditor, send: Send = worldRequest) {
+  const held = await desk(editor, send, true);
+  const batches = await releaseBatches(held, send);
+  const { date } = held.world;
+  try {
+    return { date, records: await readBatches(held, editor, batches, true), damaged: false };
+  } catch (error) {
+    if (!(error instanceof PackReleaseError) || error.code !== 'E_PACK_HISTORY') throw error;
+    return { date, records: await readBatches(held, editor, batches, false), damaged: true };
+  }
 }
 
 export async function changePackRelease(

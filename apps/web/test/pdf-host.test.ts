@@ -18,7 +18,6 @@ const files = new Map([
   ['index.html', `<!doctype html><meta http-equiv="Content-Security-Policy" content="${policy}">`],
   ['pdf-assets/cmaps/Adobe-GB1-UCS2.bcmap', 'synthetic CMap'],
   ['pdf-assets/standard_fonts/FoxitSymbol.pfb', 'synthetic font'],
-  ['pdf-assets/iccs/CGATS001Compat-v2-micro.icc', 'synthetic profile'],
 ]);
 
 test('the Cloudflare host serves the checked PDF support files as binary, and refuses them outside their folders', async () => {
@@ -42,7 +41,7 @@ test('the Cloudflare host serves the checked PDF support files as binary, and re
 
 test('the local production server serves every PDF support file for offline caching', async () => {
   const root = pathToFileURL(`${mkdtempSync(`${tmpdir()}/minhajna-pdf-host-`)}/`);
-  for (const folder of ['cmaps', 'standard_fonts', 'iccs'])
+  for (const folder of ['cmaps', 'standard_fonts'])
     mkdirSync(new URL(`pdf-assets/${folder}/`, root), { recursive: true });
   for (const [name, content] of files) writeFileSync(new URL(name, root), content);
   const server = serveFolder(root);

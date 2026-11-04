@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The curator works on source releases only. This page is keyed by world
-// and day, and receives no store, journal or teacher pin. A read failure
-// blocks creating drafts. Published and other actors' releases are immutable.
+// so a checked day change preserves the form. It receives no teacher data.
+// A read failure blocks draft edits. Published releases are immutable.
 
 import { packReleaseKey, type PlanPack } from '@minhajna/core';
-import { useState } from 'react';
+import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
+import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
 import { useDeviceText } from '../text/device-text';
+import { isolate } from '../week/grid-labels';
 import { PackDraft } from './PackDraft';
 import { PackList } from './PackList';
 import { SourceForm } from './SourceForm';
@@ -19,30 +21,32 @@ import type { PackEditor } from './pack-release-session';
 import { usePackDrafts } from './usePackDrafts';
 
 export function PacksPage(
-  props: PackEditor & { readonly packs: readonly PlanPack[]; readonly send?: Send; readonly refusedPacks?: number },
+  props: PackEditor & {
+    readonly packs: readonly PlanPack[];
+    readonly send?: Send;
+    readonly refusedPacks?: number;
+    readonly setOpen?: Dispatch<SetStateAction<OpenWorld | null>>;
+  },
 ) {
-  return <Desk key={`${props.world?.world ?? ''}/${props.world?.date ?? ''}`} {...props} />;
+  return <Desk key={props.world?.world ?? ''} {...props} />;
 }
 
 function Desk(props: Parameters<typeof PacksPage>[0]) {
   const t = useDeviceText();
-  const desk = usePackDrafts(props, props.packs, props.send);
+  const desk = usePackDrafts(props, props.packs, props.send, props.setOpen);
   const reserved = [...props.packs.map((pack) => packReleaseKey(pack.id, pack.release)), ...desk.records.keys()];
   const [opened, setOpened] = useState<{ pack: PlanPack; revision: number } | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [copy, setCopy] = useState<PlanPack | null>(null);
-  const [copying, setCopying] = useState(false);
+  const [sourceForm, setSourceForm] = useState<{ initial: PlanPack | null } | null>(null);
+  const canOpen = desk.ready && sourceForm === null;
   const close = () => {
     setOpened(null);
-    setCreating(false);
-    setCopy(null);
-    setCopying(false);
+    setSourceForm(null);
   };
   return (
     <View testID="editor-packs-page" style={s.page}>
-      {desk.error && (
+      {desk.problem !== null && (
         <Text accessibilityRole="alert" style={s.error}>
-          {t('editorItem.saveError')}
+          {t(`editorItem.${desk.problem}`)}
         </Text>
       )}
       {opened !== null ? (
@@ -57,7 +61,7 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
         />
       ) : (
         <>
-          {!desk.ready && !desk.error && (
+          {!desk.ready && desk.problem === null && (
             <Text accessibilityLiveRegion="polite" style={s.body}>
               {t('editorItem.loading')}
             </Text>
@@ -67,31 +71,25 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
             label={t('editorItem.reload')}
             variant="plain"
             disabled={desk.busy}
-            onPress={() => {
-              close();
-              desk.reload();
-            }}
+            onPress={desk.reload}
           />
           <Button
             testID="draft-new"
             label={t('editorItem.newPack')}
-            disabled={!desk.ready}
+            disabled={!canOpen}
             onPress={() => {
-              if (!desk.ready) return;
-              setCopy(null);
-              setCreating(true);
-              setCopying(false);
+              if (canOpen) setSourceForm({ initial: null });
             }}
           />
-          {creating && (
+          {sourceForm !== null && (
             <SourceForm
               reserved={reserved}
               country={props.profile.code}
               pack={null}
-              initial={copy}
+              initial={sourceForm.initial}
               onKeep={(pack) => {
                 setOpened({ pack, revision: 0 });
-                setCreating(false);
+                setSourceForm(null);
               }}
               onCancel={close}
             />
@@ -102,15 +100,17 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
           {[...desk.records.values()].map((one) => (
             <View key={packReleaseKey(one.pack.id, one.pack.release)} style={s.card}>
               <Text style={s.body}>
-                {one.pack.id} · {one.pack.release}
+                {isolate(one.pack.id)} · {isolate(one.pack.release)}
               </Text>
               <Text style={s.body}>{t(`editorItem.stage.${one.stage}`)}</Text>
               {one.actor === 'curator' && ['draft', 'under-review'].includes(one.stage) ? (
                 <Button
                   testID={`draft-open-${one.pack.release}`}
                   label={t('editorItem.open')}
-                  disabled={!desk.ready}
-                  onPress={() => setOpened({ pack: one.pack, revision: one.revision })}
+                  disabled={!canOpen}
+                  onPress={() => {
+                    if (canOpen) setOpened({ pack: one.pack, revision: one.revision });
+                  }}
                 />
               ) : (
                 <Text style={s.body}>{t('editorItem.readOnly')}</Text>
@@ -118,10 +118,9 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
               <Button
                 label={t('editorItem.copy')}
                 variant="plain"
-                disabled={!desk.ready}
+                disabled={!canOpen}
                 onPress={() => {
-                  setCopy(one.pack);
-                  setCopying(true);
+                  if (canOpen) setSourceForm({ initial: one.pack });
                 }}
               />
             </View>
@@ -130,29 +129,8 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
             packs={props.packs}
             profile={props.profile}
             refusedPacks={props.refusedPacks}
-            onCopy={
-              desk.ready
-                ? (pack) => {
-                    setCopy(pack);
-                    setCopying(true);
-                  }
-                : undefined
-            }
+            onCopy={canOpen ? (initial) => setSourceForm({ initial }) : undefined}
           />
-          {copying && copy !== null && (
-            <SourceForm
-              reserved={reserved}
-              key={packReleaseKey(copy.id, copy.release)}
-              country={props.profile.code}
-              pack={null}
-              initial={copy}
-              onKeep={(pack) => {
-                setOpened({ pack, revision: 0 });
-                setCopying(false);
-              }}
-              onCancel={close}
-            />
-          )}
         </>
       )}
     </View>

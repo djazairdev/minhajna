@@ -6,7 +6,7 @@
 // upload whose answer is lost is recognised without a duplicate version.
 
 import { packReleaseKey } from '@minhajna/core';
-import { packService, source } from '../jest/pack-release';
+import { damageLastStream, packService, source } from '../jest/pack-release';
 import type { Send } from '../src/demo/world-session';
 import { readPackReleases } from '../src/editor/pack-release-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
@@ -66,20 +66,6 @@ test('an accepted write reported as a conflict is found once on retry', async ()
   const uploads = f.server.seen.filter((one) => one.method === 'POST' && one.path.endsWith('/batches'));
   expect(uploads).toHaveLength(2);
 });
-
-async function damageLastStream(f: Awaited<ReturnType<typeof packService>>) {
-  const upload = f.server.seen.filter((one) => one.method === 'POST' && one.path.endsWith('/batches')).at(-1)!;
-  const body = JSON.parse(upload.body!) as { stream: string; first: number; batches: string[] };
-  await f.server.send({
-    method: 'POST',
-    path: upload.path,
-    body: {
-      stream: body.stream,
-      first: body.first + body.batches.length,
-      batches: [Buffer.alloc(4124).toString('base64url')],
-    },
-  });
-}
 
 test('a damaged stream cannot be treated as an editable earlier version', async () => {
   const f = await packService();
