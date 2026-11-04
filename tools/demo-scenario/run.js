@@ -15,8 +15,6 @@ import { waitFor } from '../demo/demo.js';
 import { SERVER_PORT } from '../demo/plan.js';
 import { runScenario, SAMPLE } from './scenario.js';
 
-export const SCENARIOS = [SAMPLE];
-
 async function main() {
   const { values } = parseArgs({
     options: {
@@ -28,11 +26,13 @@ async function main() {
   if (!Number.isInteger(seconds) || seconds < 1) throw new RangeError('--wait takes a whole number of seconds');
   if (!(await waitFor(new URL('/health', values.server).href, seconds)))
     throw new Error(`${values.server} did not answer /health`);
-  for (const scenario of SCENARIOS) {
+  const { SCHOOL } = await import('./school.js');
+  const scenarios = [SAMPLE, SCHOOL];
+  for (const scenario of scenarios) {
     process.stdout.write(`${scenario.name}\n`);
     await runScenario(scenario, values.server, { say: (line) => process.stdout.write(`  ${line}\n`) });
   }
-  process.stdout.write(`${SCENARIOS.length} demo scenario(s) passed\n`);
+  process.stdout.write(`${scenarios.length} demo scenario(s) passed\n`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

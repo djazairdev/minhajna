@@ -6,8 +6,8 @@
 // a new code, works out the world's pass and sealing key from it, makes the
 // world's stand-in signing key for calendars and plan packs, seals it with the
 // world's kind, and sends it with the world's date, the first term's end in
-// the bundled calendar, and its announced days, each later term's end and each
-// exam window's first day; an ID already taken draws a new code. Joining works
+// the bundled calendar, and its announced days, as the core gives them; an ID
+// already taken draws a new code. Joining works
 // out the same secrets from the code and opens the sealed keys. Only the
 // starter token moves the date. An answer the app would not take throws, with
 // the request and the status. The new world's days and its signer's holder
@@ -18,6 +18,7 @@
 import { readFileSync } from 'node:fs';
 import { URL } from 'node:url';
 import {
+  announcedDaysOf,
   makeWorldCode,
   openWorldKeys,
   parseCountryProfile,
@@ -43,10 +44,8 @@ export function worldDays() {
   const profile = parseCountryProfile(data('profile.json'));
   const calendar = profile.ok ? parseSchoolCalendar(data('calendar-2026-2027.json'), profile.value) : profile;
   if (!calendar.ok) throw new RangeError('The bundled calendar does not read');
-  const [first, ...later] = calendar.value.year.terms;
-  const exams = calendar.value.entries.filter((entry) => entry.effect === 'exam').map((entry) => entry.from);
-  const days = [...later.map((term) => term.to), ...exams].filter((day) => day > first.to);
-  return { date: first.to, announcedDays: [...new Set(days)].sort() };
+  const [first] = calendar.value.year.terms;
+  return { date: first.to, announcedDays: announcedDaysOf(calendar.value.year, calendar.value.entries, first.to) };
 }
 
 /** One request to the demo server: its status, and its body when it is JSON. */
