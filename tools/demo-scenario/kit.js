@@ -94,7 +94,10 @@ export const worldKit = {
 /** The kit with its random bytes drawn from a seed: each draw the SHA-256 of the seed and a count, in turn. */
 export function seededKit(seed) {
   let count = 0;
-  const block = () => createHash('sha256').update(`${seed}\n${(count += 1)}`).digest();
+  const block = () =>
+    createHash('sha256')
+      .update(`${seed}\n${(count += 1)}`)
+      .digest();
   const random = (length) => {
     const drawn = [];
     while (drawn.length < length) drawn.push(...block());

@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// The scenario at the school (#630, answer 722), through the app's own sessions
+// (device.js): a school joins and its timetable reaches its teachers
+// (school-join.js), and more as its parts land.
+
 import { appAccess } from './device.js';
-import { GRANT_ACTIONS, GRANT_STEPS } from './school-grant.js';
 import { JOIN_ACTIONS, JOIN_STEPS } from './school-join.js';
+import { GRANT_ACTIONS, GRANT_STEPS } from './school-grant.js';
 import { TERM_ACTIONS, TERM_STEPS } from './school-term.js';
 import { WEEK_ACTIONS, WEEK_STEPS } from './school-weeks.js';
 

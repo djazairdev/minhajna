@@ -44,7 +44,8 @@ const signerOf = (keys) => keys.trusted.find((one) => one.id === WORLD_SIGNER)?.
 /** How a scenario's devices meet the server through the app, for a scenario of that name: its `access`. */
 export function appAccess(server, seed, fetcher = globalThis.fetch) {
   const kit = seededKit(seed);
-  const send = (request) => worldRequest(request, (address, init) => fetcher(address.replace(DEMO_SERVER, server), init));
+  const send = (request) =>
+    worldRequest(request, (address, init) => fetcher(address.replace(DEMO_SERVER, server), init));
   const device = async ({ code, keys, date, sealing }, kind, starter) => {
     const open = await storeOf({ world: keys.world, kind, code, date, starter });
     const held = { world: keys.world, keys, sealing };

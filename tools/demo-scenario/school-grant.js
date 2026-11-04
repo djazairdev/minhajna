@@ -85,7 +85,10 @@ async function readGrant(stage, device) {
   see(course === paper.get('signed').course, 'the grant does not name the week signed');
   const read = await openGrantClass(device, found.grant, course, readingOf(stage), kit, send);
   see(read !== null && read.corrections > 0 && read.visas === 1, 'the class does not show its correction and visa');
-  see(read.weeks.some((one) => one.week === paper.get('signed').week && one.version === 1), 'the correction is absent');
+  see(
+    read.weeks.some((one) => one.week === paper.get('signed').week && one.version === 1),
+    'the correction is absent',
+  );
 }
 
 async function seeLastUse(stage, device) {

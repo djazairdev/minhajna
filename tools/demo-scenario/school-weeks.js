@@ -17,9 +17,8 @@ import { schoolOf, see, teacherOf } from './school-join.js';
 const { markCover, readCover } = await appModule('director/cover-session.ts');
 const { readRecords, wholeChain } = await appModule('director/records-session.ts');
 const { giveVisa } = await appModule('director/visa-session.ts');
-const { readSignChannel, sessionKey, signTheWeek, weekRecord, weekStart, weeksToSign } = await appModule(
-  'week/week-sign-session.ts',
-);
+const { readSignChannel, sessionKey, signTheWeek, weekRecord, weekStart, weeksToSign } =
+  await appModule('week/week-sign-session.ts');
 
 /** A code a promise is refused with, or null when it is not. */
 export const refusal = (promise) =>

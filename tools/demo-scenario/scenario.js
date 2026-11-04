@@ -11,7 +11,10 @@
 // world's kind's, as the app offers them (world-mode.ts, answer 576); a role
 // the kind lacks, a second start, or a step before the world is started or
 // before its role has started or joined it, is refused before anything is sent.
-// A step that sees something else throws, naming the step. SAMPLE is the first
+// A step that sees something else throws, naming the step. A scenario may bring
+// its own steps, its `actions`, and how its devices meet the server, its
+// `access`, as those that drive the app's own sessions do (device.js, #630),
+// and a role with several people names each in `who`. SAMPLE is the first
 // scenario: the Ministry starts a national world, a director and a teacher join
 // it, the teacher cannot move its date, the Ministry moves it, and both see the
 // next announced day.

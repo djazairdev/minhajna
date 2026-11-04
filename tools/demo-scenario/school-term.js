@@ -15,9 +15,8 @@ import { refusal } from './school-weeks.js';
 
 const { appreciationList } = await appModule('marks/appreciation-rules.ts');
 const { assessmentData } = await appModule('marks/marks-rules.ts');
-const { courseReceipt, sendingTerm, sendTermMarks, termCourses, termMatches, termSheet } = await appModule(
-  'school/term-send-session.ts',
-);
+const { courseReceipt, sendingTerm, sendTermMarks, termCourses, termMatches, termSheet } =
+  await appModule('school/term-send-session.ts');
 const { standInReceipts } = await appModule('school/state-standin.ts');
 const { readSignChannel } = await appModule('week/week-sign-session.ts');
 
