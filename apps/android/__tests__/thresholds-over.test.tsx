@@ -50,7 +50,6 @@ const committee = ar.demo.committee;
 const published = ar.demo.published;
 const fill = (text: string, values: Record<string, unknown>) =>
   Object.entries(values).reduce((all, [key, value]) => all.replaceAll(`{{${key}}}`, String(value)), text);
-const SCOPE = 'dir-1';
 const exams = worldExams(calendar.year, calendar.entries);
 const mock = exams.find((one) => one.id === 'mock')!;
 const bem = exams.find((one) => one.id === 'bem')!;
@@ -59,20 +58,21 @@ const items = pack.items.map((one) => one.id);
 const LINE = 'The text from unit 5, the questions up to unit 6.';
 const written = (one: Day) => `day ${one}`;
 
-const roomOf = (world: string, exam: WorldExam, scope: string, subject = 'math'): CommitteeRoom => ({
-  name: { world, scope, exam: exam.id, subject, grade: '4am' },
-  items,
-  days: { from: exam.figuresDay, to: exam.signBy },
-  lastDay: exam.to,
-});
+const realOver = ownExamsModule.overExams;
+
+/** The committee's real room of a seeded world's 4th grade Arabic, with its plan. */
+const roomOf = (world: string, exam: WorldExam, scope: string) => {
+  const { schools } = seededWorld(world, reference);
+  const covering = scope === NATIONAL_COMMITTEE ? schools : schools.filter((one) => one.directorateId === scope);
+  return committeeRooms({ world, scope }, exam, '4am', covering, reference.packs).find(
+    (one) => one.subject === 'arabic',
+  )!;
+};
 
 /** A joined phone after the exams, listing `shown` as over and `coming` above the school. */
-async function listed(
-  shown: readonly WorldExam[],
-  coming: readonly WorldExam[] = [],
-  row: { readonly subject: string; readonly directorate: string } = { subject: 'math', directorate: SCOPE },
-) {
+async function listed(shown: readonly WorldExam[], coming: readonly WorldExam[] = []) {
   const { id, joined, held } = await setting();
+  const directorate = seededWorld(id, reference).schools[0].directorateId;
   const date = addDays(bem.to, 1);
   const coming0 = (exam: WorldExam) => ({
     exam,
@@ -82,7 +82,7 @@ async function listed(
         exam: exam.id,
         from: exam.from,
         figuresDay: exam.figuresDay,
-        subject: row.subject,
+        subject: 'arabic',
         grade: '4am',
         forecastDay: exam.from,
         pack,
@@ -91,18 +91,18 @@ async function listed(
       },
     ],
   });
-  const of = (exam: WorldExam) => ({ exam, rows: [{ subject: row.subject, grade: '4am' }] });
+  const of = (exam: WorldExam) => ({ exam, rows: [{ subject: 'arabic', grade: '4am' }] });
   jest.spyOn(ownExamsModule, 'overExams').mockImplementation(() => shown.map(of));
   jest.spyOn(ownExamsModule, 'ownExams').mockImplementation(() => coming.map(coming0) as never);
   const page = {
     ...props({ world: id, date }, joined),
-    school: { directorateId: row.directorate } as never,
+    school: { directorateId: directorate } as never,
     committees: { held, bundled: reference },
     said: '',
     onRoom: jest.fn(),
     onTotals: jest.fn(),
   };
-  return { id, held, date, page };
+  return { id, held, date, page, directorate };
 }
 
 afterEach(async () => {
@@ -112,15 +112,15 @@ afterEach(async () => {
   server.reset();
 });
 
-test('a directorate exam’s cut says its day and the committee’s words unchanged', async () => {
-  const { id, held, date, page } = await listed([mock]);
-  const room = roomOf(id, mock, SCOPE);
-  await castVote(held, room, 0, items[1], mock.figuresDay, nodeKit, server.send);
-  await castVote(held, room, 2, items[1], mock.figuresDay, nodeKit, server.send);
+test('a directorate exam’s cut says its day, named by the committee’s plan, and its words unchanged', async () => {
+  const { id, held, date, page, directorate } = await listed([mock]);
+  const { room, plan } = roomOf(id, mock, directorate);
+  await castVote(held, room, 0, room.items[1], mock.figuresDay, nodeKit, server.send);
+  await castVote(held, room, 2, room.items[1], mock.figuresDay, nodeKit, server.send);
   await show(<ExamThresholds {...page} />);
   let card = textsIn('thresholds-over');
   expect(card).toContain(list.level.directorate);
-  const cut = fill(words.cut, { item: quoted(pack.items[1].title), day: written(mock.figuresDay) });
+  const cut = fill(words.cut, { item: quoted(plan.items[1].title), day: written(mock.figuresDay) });
   expect(card).toContain(cut);
   expect(card).toContain(committee.words.none);
   await unmount();
@@ -133,12 +133,12 @@ test('a directorate exam’s cut says its day and the committee’s words unchan
 });
 
 test('a committee that decided no cut says so, and one that adopted none that the paper was as usual', async () => {
-  const { id, held, page } = await listed([mock]);
+  const { id, held, page, directorate } = await listed([mock]);
   await show(<ExamThresholds {...page} />);
   expect(textsIn('thresholds-over')).toContain(published.noneAdopted);
   expect(textsIn('thresholds-over')).not.toContain(committee.words.title);
   await unmount();
-  const room = roomOf(id, mock, SCOPE);
+  const { room } = roomOf(id, mock, directorate);
   await castVote(held, room, 0, null, mock.figuresDay, nodeKit, server.send);
   await castVote(held, room, 1, null, mock.figuresDay, nodeKit, server.send);
   await show(<ExamThresholds {...page} />);
@@ -148,17 +148,17 @@ test('a committee that decided no cut says so, and one that adopted none that th
 
 test('a national exam reads the national committee of five', async () => {
   const { id, held, page } = await listed([bem]);
-  const room = roomOf(id, bem, NATIONAL_COMMITTEE);
-  await castVote(held, room, 0, items[2], bem.figuresDay, nodeKit, server.send);
-  await castVote(held, room, 1, items[2], bem.figuresDay, nodeKit, server.send);
+  const { room, plan } = roomOf(id, bem, NATIONAL_COMMITTEE);
+  await castVote(held, room, 0, room.items[2], bem.figuresDay, nodeKit, server.send);
+  await castVote(held, room, 1, room.items[2], bem.figuresDay, nodeKit, server.send);
   await show(<ExamThresholds {...page} />);
   expect(textsIn('thresholds-over')).toContain(published.noneAdopted);
   await unmount();
-  await castVote(held, room, 2, items[2], bem.figuresDay, nodeKit, server.send);
+  await castVote(held, room, 2, room.items[2], bem.figuresDay, nodeKit, server.send);
   await show(<ExamThresholds {...page} />);
   const card = textsIn('thresholds-over');
   expect(card).toContain(list.level.national);
-  expect(card).toContain(fill(words.cut, { item: quoted(pack.items[2].title), day: written(bem.figuresDay) }));
+  expect(card).toContain(fill(words.cut, { item: quoted(plan.items[2].title), day: written(bem.figuresDay) }));
 });
 
 test('the cut is named by the committee’s plan, where the seeded schools pin one', () => {
@@ -177,23 +177,19 @@ test('the cut is named by the committee’s plan, where the seeded schools pin o
 });
 
 test('the joined pages list what the real over list gives, on the classes and subjects signed', async () => {
-  const { id, held, date, page } = await listed([mock], [], { subject: 'arabic', directorate: SCOPE });
+  const { id, held, date, page } = await listed([mock]);
   const weeks = [
     { class: '4AM1', totals: { subject: 'arabic' } },
     { class: '1AM1', totals: { subject: 'french' } },
   ] as unknown as WeekRecord[];
-  const pupils = (name: string, grade: string) => ({ name, grade });
-  const classes = [pupils('4AM1', '4am'), pupils('1AM1', '1am')];
-  const real = jest.requireActual<typeof ownExamsModule>('../src/threshold/own-exams').overExams;
-  jest
-    .spyOn(ownExamsModule, 'overExams')
-    .mockImplementation((_weeks, _school, one, on) => real(weeks, { classes } as never, one, on));
-  const shown = real(weeks, { classes } as never, reference, date);
-  expect(shown.map((one) => [one.exam.id, one.rows])).toEqual([
+  const form = (name: string, grade: string) => ({ name, grade });
+  const school = { classes: [form('4AM1', '4am'), form('1AM1', '1am')] } as never;
+  jest.spyOn(ownExamsModule, 'overExams').mockImplementation((_w, _s, one, on) => realOver(weeks, school, one, on));
+  expect(realOver(weeks, school, reference, date).map((one) => [one.exam.id, one.rows])).toEqual([
     ['mock', [{ subject: 'arabic', grade: '4am' }]],
     ['bem', [{ subject: 'arabic', grade: '4am' }]],
   ]);
-  const room = roomOf(id, bem, NATIONAL_COMMITTEE, 'arabic');
+  const { room } = roomOf(id, bem, NATIONAL_COMMITTEE);
   for (const place of [0, 1, 2]) await castVote(held, room, place, null, bem.figuresDay, nodeKit, server.send);
   const base = { ...page, year: '2026-2027', dates: null, onJoin: () => undefined, onPage: jest.fn() };
   await show(joinedPage({ page: 'thresholds', join: page.join }, base)!);
@@ -204,35 +200,18 @@ test('the joined pages list what the real over list gives, on the classes and su
 });
 
 test('a directorate’s exam and a national one are read together, each from its own committee', async () => {
-  const { id, held, page } = await listed([mock, bem]);
-  const own = roomOf(id, mock, SCOPE);
+  const { id, held, page, directorate } = await listed([mock, bem]);
+  const own = roomOf(id, mock, directorate);
   const nation = roomOf(id, bem, NATIONAL_COMMITTEE);
-  await castVote(held, own, 0, items[1], mock.figuresDay, nodeKit, server.send);
-  await castVote(held, own, 1, items[1], mock.figuresDay, nodeKit, server.send);
-  for (const place of [0, 1, 2]) await castVote(held, nation, place, items[2], bem.figuresDay, nodeKit, server.send);
+  await castVote(held, own.room, 0, own.room.items[1], mock.figuresDay, nodeKit, server.send);
+  await castVote(held, own.room, 1, own.room.items[1], mock.figuresDay, nodeKit, server.send);
+  for (const place of [0, 1, 2])
+    await castVote(held, nation.room, place, nation.room.items[2], bem.figuresDay, nodeKit, server.send);
   await show(<ExamThresholds {...page} />);
   const all = texts();
   expect(alerts().length).toBe(0);
-  expect(all).toContain(fill(words.cut, { item: quoted(pack.items[1].title), day: written(mock.figuresDay) }));
-  expect(all).toContain(fill(words.cut, { item: quoted(pack.items[2].title), day: written(bem.figuresDay) }));
-});
-
-test('a vote in the committee’s real room shows, named by its plan, on a list whose own plan differs', async () => {
-  const held0 = await listed([mock], [], { subject: 'arabic', directorate: 'x' });
-  const { schools } = seededWorld(held0.id, reference);
-  const directorate = schools[0].directorateId;
-  const covering = schools.filter((one) => one.directorateId === directorate);
-  const real = committeeRooms({ world: held0.id, scope: directorate }, mock, '4am', covering, reference.packs).find(
-    (one) => one.subject === 'arabic',
-  )!;
-  const { plan, room } = real;
-  expect(plan.id).not.toBe(pack.id);
-  await castVote(held0.held, room, 0, room.items[1], mock.figuresDay, nodeKit, server.send);
-  await castVote(held0.held, room, 1, room.items[1], mock.figuresDay, nodeKit, server.send);
-  await show(<ExamThresholds {...held0.page} school={{ directorateId: directorate } as never} />);
-  expect(textsIn('thresholds-over')).toContain(
-    fill(words.cut, { item: quoted(plan.items[1].title), day: written(mock.figuresDay) }),
-  );
+  expect(all).toContain(fill(words.cut, { item: quoted(own.plan.items[1].title), day: written(mock.figuresDay) }));
+  expect(all).toContain(fill(words.cut, { item: quoted(nation.plan.items[2].title), day: written(bem.figuresDay) }));
 });
 
 test('a moved exam says its dates and why, without what only matters before it', async () => {
@@ -269,8 +248,8 @@ test('without the keys it says so once, and without the reference it lists none'
 });
 
 test('a problem reading is said, with a way to read again', async () => {
-  const { id, page } = await listed([mock]);
-  const space = await directorateSpace(id, SCOPE, nodeKit.mac);
+  const { id, page, directorate } = await listed([mock]);
+  const space = await directorateSpace(id, directorate, nodeKit.mac);
   let broken = true;
   const send: Send = (request) =>
     broken && request.path.includes(space)
