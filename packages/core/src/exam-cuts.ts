@@ -8,13 +8,18 @@
 // every setter the chart names has signed an item, the earliest of them in the
 // pack's order applying, so no class is examined on what it did not reach; a
 // setter's no cut, or the deadline passing unsettled, leaves the decision to
-// the director, whose first decision once it falls to them is final. The cut
-// proposed is the earliest item the setters' cuts name, with the setter whose
-// cut has named it the longest and the day they first did; each setter's cut
-// that counts is given with its day. A cut's day is its setter's own word, so a
-// cut signed past the deadline but dated on it counts until the director
-// decides, a known limit that the director's final decision bounds. A cut is
-// optional: with no record the paper is set as today.
+// the director, whose first decision once it falls to them, dated before the
+// exam's first day as the chart has it, is final, so no decision dated once the
+// paper is sat changes the cut published after the exam (#602, answer 636). The
+// cut proposed is the earliest item the setters' cuts name, with the setter
+// whose cut has named it the longest and the day they first did; each setter's
+// cut that counts is given with its day. A cut's day is its setter's own word,
+// so a cut signed past the deadline but dated on it counts until the director
+// decides, a known limit that the director's final decision bounds; a
+// decision's day is likewise the director's own word, and the chart's first day
+// is the one it was taken with, so an exam moved after its chart was taken
+// bounds decisions by its old first day, known limits. A cut is optional: with
+// no record the paper is set as today.
 
 import { compareDays, type Day } from './day.ts';
 import type { ExamChart } from './exam-chart.ts';
@@ -56,7 +61,7 @@ export function cutState(records: RoomRecords, today: Day): CutState | null {
   for (const [at, { kind, record }] of records.cuts.entries()) {
     const cut: ExamCut = record.value;
     if (kind === 'decision') {
-      if (due(cut.day) && settledBy(chartOf, signed()) === undefined) {
+      if (compareDays(cut.day, chartOf.from) < 0 && due(cut.day) && settledBy(chartOf, signed()) === undefined) {
         const settled = { item: cut.item, by: 'director' } as const;
         return { ...standing(chartOf, held), settled, director: true };
       }

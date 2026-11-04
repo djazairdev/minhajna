@@ -16,9 +16,16 @@
 // it is put, goes in unless one is there, then the room is handed on the
 // channel of each setter the chart there names, unless a room the school key
 // derives for it is there, so setters who join later are left to the director.
-// What is already in place is told from the space as read once, and only what
-// is missing is put. A room or a setter that fails is passed over, counted, and
-// tried again with the next reading.
+// From the day after a school exam's last day to the year's last day (#602,
+// answer 634), each room whose chart is in place is handed the same way to
+// every teacher the timetable gives its subject in a class of its grade whose
+// latest code or key a phone joined on, setters or not, once, so they read the
+// cut as published; a room with no chart then is left without one. What is
+// already in place is told from the space as read once, and only what is
+// missing is put. A room or a setter that fails is passed over, counted, and
+// tried again with the next reading; a channel's rooms are read once for all
+// the rooms of one reading of the space. A room is found with its decider's key
+// worked out only when it holds records or is about to be opened.
 
 import {
   channelRooms,
@@ -39,6 +46,7 @@ import {
   type ChartSetter,
   type DemoSchool,
   type ExamChart,
+  type ExamRoom,
   type JoinCode,
   type KeptIssue,
   type RoomName,
@@ -54,7 +62,7 @@ import { caKey, spaceBatches } from '../school/space-read';
 import { putOnce } from '../school/stream-put';
 import { putOnChannel } from '../timetable/send-session';
 import { deciderKey, deciderSigning } from './decider-key';
-import { chartDrafts, examsOpen, type ChartDraft } from './exam-charts';
+import { chartDrafts, examsAfter, examsOpen, type ChartDraft } from './exam-charts';
 
 type RoomWorld = Pick<OpenWorld, 'world' | 'date' | 'book'>;
 type Space = ReadonlyMap<string, readonly SealedBatch[]>;
@@ -75,16 +83,21 @@ async function latestIssues(world: RoomWorld, desk: IssueDesk, school: DemoSchoo
   return latest;
 }
 
-/** The room's epoch, key and place, its decider's public key, and the decider's chart it holds, or null. */
-async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+/**
+ * The room's epoch, key and place, its decider's seed and public key, its records as read, and the decider's chart or
+ * null; the decider's seed and key are worked out only for a room that holds records, null otherwise.
+ */
+export async function roomFound(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
   const checker = { key: ca, checker: kit };
   const at = async (epoch: number) => {
     const key = await kitStep(() => roomKey(desk.opened, epoch, name, desk.crypto));
     const place = await kitStep(() => roomPlace(key, kit.mac));
-    const decider = deciderKey(await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto)));
     const held = space.get(place.stream) ?? [];
-    const read = held.length === 0 ? null : await roomRecords(place, held, checker, { name, decider }, kit.cipher);
-    return { epoch, key, place, decider, chart: read?.chart?.value ?? null };
+    if (held.length === 0) return { epoch, key, place, seed: null, decider: null, records: null, chart: null };
+    const seed = await kitStep(() => deciderSeed(desk.opened, epoch, name, desk.crypto));
+    const decider = deciderKey(seed);
+    const read = await roomRecords(place, held, checker, { name, decider }, kit.cipher);
+    return { epoch, key, place, seed, decider, records: read, chart: read.chart?.value ?? null };
   };
   const latest = await at(latestEpoch(desk.opened));
   for (let epoch = latest.epoch - 1; latest.chart === null && epoch >= 0; epoch -= 1) {
@@ -94,13 +107,30 @@ async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string,
   return latest;
 }
 
+/** A room as roomFound found it, with its decider's seed and public key worked out when it holds nothing yet. */
+async function withDecider(desk: IssueDesk, name: RoomName, room: Awaited<ReturnType<typeof roomFound>>) {
+  const seed = room.seed ?? (await kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto)));
+  return { ...room, seed, decider: room.decider ?? deciderKey(seed) };
+}
+
+/** The room as roomFound finds it, with its decider's seed and public key worked out when it holds nothing yet. */
+export async function roomOf(desk: IssueDesk, name: RoomName, space: Space, ca: string, kit: WorldKit) {
+  return withDecider(desk, name, await roomFound(desk, name, space, ca, kit));
+}
+
+/** The rooms a channel's batches as read hold, read once for every room a reading of the space opens. */
+const handedRead = new WeakMap<readonly SealedBatch[], Promise<ExamRoom[]>>();
+
 /** What opening rooms did: how many setters a room was handed to, and how many rooms or setters failed. */
 export interface Opened {
   readonly handed: number;
   readonly failed: number;
 }
 
-/** Opens one chart's room from the space as read, with the world CA's key. */
+/**
+ * Opens one chart's room from the space as read, with the world CA's key, handed to the setters its chart names; or,
+ * `after` its exam, hands the room whose chart is in place to every one of `setters`, the subject's teachers.
+ */
 export async function openRoom(
   world: Pick<OpenWorld, 'world'>,
   desk: IssueDesk,
@@ -110,13 +140,15 @@ export async function openRoom(
   ca: string,
   kit: WorldKit,
   send: Send,
+  after = false,
 ): Promise<Opened> {
   const checker = { key: ca, checker: kit };
   const school = desk.held.school;
   const name = { exam: draft.exam, subject: draft.subject, grade: draft.grade, world: world.world, school };
-  const room = await roomOf(desk, name, space, ca, kit);
-  const seed = await kitStep(() => deciderSeed(desk.opened, room.epoch, name, desk.crypto));
-  const signing = () => deciderSigning(world.world, desk, seed, ca, kit, send);
+  const found = await roomFound(desk, name, space, ca, kit);
+  if (found.chart === null && after) return { handed: 0, failed: 0 };
+  const room = await withDecider(desk, name, found);
+  const signing = () => deciderSigning(world.world, desk, room.seed, ca, kit, send);
   let chart = room.chart;
   if (chart === null) {
     const made: ExamChart = {
@@ -143,13 +175,16 @@ export async function openRoom(
   }
   const named = new Set(chart.setters.map((one) => one.key));
   const held = async (code: JoinCode, batches: readonly SealedBatch[]) => {
-    for (const one of await kitStep(() => channelRooms(code, batches, checker, null, kit.cipher, kit.mac)))
+    const read =
+      handedRead.get(batches) ?? kitStep(() => channelRooms(code, batches, checker, null, kit.cipher, kit.mac));
+    handedRead.set(batches, read);
+    for (const one of await read)
       if (one.exam === name.exam && one.subject === name.subject && one.grade === name.grade)
         if (await kitStep(() => isHeldRoom(one, desk.opened, desk.crypto, deciderKey))) return true;
     return false;
   };
   let [handed, failed] = [0, 0];
-  for (const one of setters.filter((each) => named.has(each.key))) {
+  for (const one of setters.filter((each) => after || named.has(each.key))) {
     const { code } = one;
     try {
       if (await held(code, space.get(await kitStep(() => channelStream(code, kit.mac))) ?? [])) continue;
@@ -176,7 +211,7 @@ export async function openRoom(
   return { handed, failed };
 }
 
-/** Opens the rooms of the school exams whose figures day the date has reached. */
+/** Opens the rooms of the school exams whose figures day the date has reached, and hands those of exams past. */
 export async function openRooms(
   world: RoomWorld,
   desk: IssueDesk,
@@ -186,7 +221,10 @@ export async function openRooms(
   kit: WorldKit,
   send: Send,
 ): Promise<Opened> {
-  const exams = examsOpen(reference, world.date);
+  const exams = [
+    ...examsOpen(reference, world.date).map((exam) => ({ exam, after: false })),
+    ...examsAfter(reference, world.date).map((exam) => ({ exam, after: true })),
+  ];
   if (exams.length === 0) return { handed: 0, failed: 0 };
   const ca = await caKey(world.world, send);
   const checker = { key: ca, checker: kit };
@@ -207,12 +245,12 @@ export async function openRooms(
     return one;
   };
   let [handed, failed] = [0, 0];
-  for (const exam of exams)
+  for (const { exam, after } of exams)
     for (const { chart, teachers } of chartDrafts(exam, school, records, reference)) {
       try {
         const setters = (await Promise.all(teachers.map(setter))).filter((one) => one !== null);
         if (setters.length === 0) continue;
-        const opened = await openRoom(world, desk, chart, setters, space, ca, kit, send);
+        const opened = await openRoom(world, desk, chart, setters, space, ca, kit, send, after);
         [handed, failed] = [handed + opened.handed, failed + opened.failed];
       } catch {
         failed += 1;

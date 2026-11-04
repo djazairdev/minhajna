@@ -6,7 +6,7 @@
 // channel, with a way to read them again and to sign a cut, which reads them
 // again once signed or refused, the problem kept; a second press while one runs
 // does nothing. A problem is said in the catalogue's words, as is a cut signed
-// (useSaid.tsx).
+// (useSaid.tsx), and the page may say more in the same region.
 
 import type { SchoolJoined, WeekRecord } from '@minhajna/core';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -80,6 +80,7 @@ export function useTeacherRooms(
     reading,
     problem,
     region,
+    say,
     again: () => run(() => Promise.resolve()),
     sign: (step: () => Promise<unknown>, done: string) =>
       run(() =>

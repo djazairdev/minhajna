@@ -5010,6 +5010,237 @@
         "failed": "The file could not be made or saved."
       }
     },
+    "ops": {
+      "map": "The demo server's map: what each part holds, and what crosses its edges",
+      "lead": "The demo server · {{date}} · what each part holds, and what crosses its edges",
+      "only": "The map is read-only: it is drawn from what the server says of itself, so nothing it does not run shows, and no line is added by hand.",
+      "passes": "Passes",
+      "closed": "Closed",
+      "noKey": "No school's or teacher's key in any box",
+      "reading": "Reading the server's state…",
+      "again": "Read again",
+      "boxes": "Parts",
+      "lines": "What crosses",
+      "chosen": "Chosen on the map",
+      "row": {
+        "holds": "Holds",
+        "sees": "The operator sees",
+        "never": "Never sees",
+        "carries": "Carries"
+      },
+      "box": {
+        "devices": "Teachers' devices and browsers",
+        "outside": "Outside services",
+        "gateway": "The server's gateway",
+        "relay": "Batch store",
+        "totals": "Totals service",
+        "standins": "Stand-ins for the state's systems",
+        "storage": "Storage",
+        "screens": "Directorates' and Ministry's screens",
+        "backups": "Backups"
+      },
+      "sub": {
+        "devices": "The Minhajna app, and staffroom PCs",
+        "outside": "Analytics, ads, fonts",
+        "gateway": "Receives, never opens",
+        "relay": "Encrypted, one size",
+        "totals": "Adds up shares only",
+        "standins": "The certificate authority and the receiving system, for the demo only",
+        "storage": {
+          "postgresql": "PostgreSQL, in the container",
+          "memory": "In memory, lost when the server stops"
+        },
+        "screens": "Totals only",
+        "backups": "Outside the container, sealed when the deployment sets a key"
+      },
+      "facts": {
+        "devices": {
+          "holds": "The records, and their keys, which never leave",
+          "sees": "What reaches the server: encrypted batches, schools' count shares, exports sealed for the stand-in, and certificate requests",
+          "never": "A school's or a teacher's key, or a readable record"
+        },
+        "outside": {
+          "holds": "Nothing from this server",
+          "sees": "That the server calls none of them",
+          "never": "A request: no analytics, ads, fonts or error tracker; the only outside address is the backup bucket, when backups are kept"
+        },
+        "gateway": {
+          "holds": "Nothing: it hands requests to their parts",
+          "sees": "A request's size, the world's ID and its pass, kept only as a hash",
+          "never": "Addresses: held in memory for the rate limits, a day at most, never stored or logged; and no request times"
+        },
+        "relay": {
+          "holds": "Batches of one size, encrypted for keys it does not hold",
+          "sees": "Their size, their order, and each space's ID and kind",
+          "never": "A name, a mark, a lesson or a note"
+        },
+        "totals": {
+          "holds": "Schools' shares: counts only, by subject",
+          "sees": "The counts before they are added up, in this demo",
+          "never": "A school, class or teacher: no share names anyone"
+        },
+        "standins": {
+          "holds": "Each world's CA key and receiving key, and the receiving system's receipts",
+          "sees": "Each export's head and its number of rows",
+          "never": "Pupils and their marks: an export is opened, never kept"
+        },
+        "storage": {
+          "postgresql": {
+            "holds": "Worlds, their spaces and batches, shares, keys and receipts, erased on their 7th day",
+            "sees": "IDs, numbers and encrypted bytes",
+            "never": "A named record, or a key to a school's or a teacher's space"
+          },
+          "memory": {
+            "holds": "Worlds, their spaces and batches, shares, keys and receipts, while the server runs, erased on their 7th day",
+            "sees": "IDs, numbers and encrypted bytes",
+            "never": "A named record, or a key to a school's or a teacher's space"
+          }
+        },
+        "screens": {
+          "holds": "Totals above the floor",
+          "sees": "Nothing of them: they are worked out when asked",
+          "never": "A figure under its floor: 5 teachers or 3 schools for a directorate, 10 or 3 above it"
+        },
+        "backups": {
+          "holds": "Copies of the database and its write-ahead log, sealed when the deployment sets a key",
+          "sees": "The copies' size and times",
+          "never": "A named record, sealed or not"
+        },
+        "line": {
+          "batches": {
+            "carries": "Encrypted batches of one size, schools' count shares, exports sealed for the stand-in, and certificate requests",
+            "sees": "Their size, space and counts"
+          },
+          "back": {
+            "carries": "The same batches, to whoever holds the world's pass",
+            "sees": "Their size and space"
+          },
+          "kept": {
+            "carries": "The batches as they came",
+            "sees": "Their size and order"
+          },
+          "shares": {
+            "carries": "Each school's share, counts only",
+            "sees": "The counts"
+          },
+          "totals": {
+            "carries": "Totals above the floor",
+            "sees": "What the screens see"
+          },
+          "exports": {
+            "carries": "Exports sealed for the receiving system's stand-in, and certificate requests",
+            "sees": "The receipt alone"
+          },
+          "rows": {
+            "carries": "IDs, numbers and encrypted bytes",
+            "sees": "The rows as they are"
+          },
+          "copies": {
+            "carries": "Copies of the database, all the time",
+            "sees": "Their size and time"
+          },
+          "held": {
+            "carries": "The shares as they came",
+            "sees": "The counts"
+          },
+          "receipts": {
+            "carries": "Keys and receipts",
+            "sees": "Each receipt's head"
+          },
+          "closed": {
+            "carries": "Nothing: closed",
+            "sees": "Nothing"
+          }
+        }
+      },
+      "note": {
+        "devices": "The keys stay on the devices, so the server opens nothing they hold.",
+        "outside": "The server calls no outside service, except the backup bucket when backups are kept.",
+        "gateway": "The gateway stores no addresses and logs no sign-in times.",
+        "relay": "Even if the operator read the whole disk, they would find no readable record.",
+        "totals": "In this demo the server sees each share before adding them up; cryptographic secure aggregation comes later.",
+        "standins": "In the national system the state's systems stay outside this centre, and the connector passes without opening. In the demo the server stands in for them.",
+        "storage": {
+          "postgresql": "The stand-ins' keys are kept here too, with their world. Even if the operator read the whole disk, they would find no readable record.",
+          "memory": "Nothing outlives the server, and nothing is backed up."
+        },
+        "screens": "No figure for a school or a teacher.",
+        "backups": "When the deployment sets a key, the host keeps it with the bucket's credentials, not the server, so whoever reads the bucket reads none of what they hold. An erased world stays there for about two days. The whole demo is restored from them when a container starts on an empty disk."
+      },
+      "line": {
+        "batches": "Batches, shares and exports",
+        "back": "Batches to whoever holds the pass",
+        "kept": "Kept as they came",
+        "shares": "Schools' shares",
+        "totals": "Totals above the floor",
+        "exports": "Sealed exports",
+        "rows": "Encrypted rows",
+        "copies": "Database copies",
+        "held": "Shares kept",
+        "receipts": "Keys and receipts",
+        "closed": "Closed"
+      },
+      "state": {
+        "title": "The system's state",
+        "version": "Server version {{version}} from the project",
+        "matches": "Matches the server version published with this app.",
+        "differs": "Differs from server version {{release}}, published with this app.",
+        "fingerprint": "The fingerprint of its built code, which anyone can compare by rebuilding the published source:",
+        "noFingerprint": "The server could not read its built code, so it has no fingerprint.",
+        "answering": "The database answers.",
+        "failing": "The database is not answering now.",
+        "memory": "Worlds are in memory, and lost when the server stops.",
+        "archiveOn": "The database archives its write-ahead log, which keeps the backups.",
+        "archiveOff": "No backups: the database does not archive its write-ahead log.",
+        "archiveUnknown": "Whether backups are kept is unknown while the database is not answering.",
+        "offline": "Installing and updating from the published release with no internet wait for a real deployment.",
+        "fixes": "Critical security fixes ship within 7 days, and are installed in the same window."
+      },
+      "admin": {
+        "lead": "The demo server's admin log: each administrative action by its day, with no clock time and no name.",
+        "named": "This demo has no named operator: the operator is a role like the others. A real deployment logs each action under the name of whoever took it, after a two-factor sign-in, and nobody administers it from abroad.",
+        "kept": "With a database, the log is kept for 12 months at most; with the worlds in memory, it is lost when the server stops. Its newest 200 lines are shown.",
+        "lines": "Lines, newest first",
+        "none": "Nothing in the log yet.",
+        "started": "The server started, version {{version}}",
+        "startedMigrations": "The server started, version {{version}}, and applied {{migrations}} to the database",
+        "joiner": ", ",
+        "erased_one": "{{count}} world erased on its 7th day",
+        "erased_other": "{{count}} worlds erased on their 7th day",
+        "fixed": "A problem report was marked fixed and erased ({{id}})",
+        "other": "An administrative action this version of the app does not read"
+      },
+      "problems": {
+        "lead": "Problem reports sent from inside this world: the part of the app, what happened, with pupils’ names already replaced on the device, the app’s version and the day it came. Nothing about who sent it.",
+        "kept": "Each report is kept until it is marked fixed or its sender deletes it, at most 200 in a world and 12 months at most, and is erased with the world. Marking it fixed erases it and adds a line to the admin log.",
+        "reports": "Reports, newest first",
+        "none": "No problem report in this world.",
+        "facts": "Came on {{day}} · version {{version}} · {{id}}",
+        "fix": "Mark fixed",
+        "ask": "This report will be erased and its fix logged in the admin log. Go on?",
+        "yes": "Mark fixed and erase",
+        "keep": "Keep it",
+        "fixed": "Report {{id}} was marked fixed, erased and logged in the admin log.",
+        "gone": "Report {{id}} is no longer in this world."
+      },
+      "security": {
+        "lead": "The demo server's security logs: the requests refused, counted each day.",
+        "apart": "Kept apart from everything else: in the server's memory alone, never in the database or the backups.",
+        "kept_one": "Kept for {{count}} day, and lost when the server stops. A real deployment keeps them for the shortest time the law allows.",
+        "kept_other": "Kept for {{count}} days, and lost when the server stops. A real deployment keeps them for the shortest time the law allows.",
+        "never": "Counts only: no address, world or time, so they are never used to measure or judge teachers.",
+        "none": "Nothing was refused in the days kept.",
+        "kind": {
+          "rate-limited": "Requests over the rate limits",
+          "pass-refused": "World codes that opened nothing",
+          "starter-refused": "Starter tokens refused",
+          "certificate-refused": "Certificate requests refused",
+          "delivery-refused": "Deliveries to the receiving system's stand-in refused"
+        },
+        "others": "Refusals of kinds this version of the app does not know",
+        "row": "{{kind}}: {{count}}"
+      }
+    },
     "staff": {
       "title": "Staffroom PC",
       "lead": "The records on a wide screen, and nothing left on it afterwards.",
@@ -5884,7 +6115,8 @@
       "shows": {
         "school": "No cut yet. A cut is optional: the setters may propose one after the figures day.",
         "directorate": "The directorate’s cut does not show before the exam. After the figures day, your classes will show against its totals.",
-        "national": "The national cut is published to all after the exam, with its figures and how it shaped the questions."
+        "national": "The national cut is published to all after the exam, with its figures and how it shaped the questions.",
+        "totals": "The directorate’s cut does not show before the exam. Its totals for the figures day are open, with your classes listed under them from this phone."
       },
       "moved": "The exam moved from {{was}} to {{is}}: its figures day from {{wasFigures}} to {{isFigures}}, and its cut’s signing deadline from {{wasSign}} to {{isSign}}.",
       "movedAnnounced": "Announced on {{day}}.",
@@ -5894,7 +6126,8 @@
       "movedWeek": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}, and its cut’s signing deadline moved from {{wasSign}} to {{isSign}}.",
       "movedWeekAbove": "The exam moved from {{was}} to {{is}} in the same week: its figures day stays {{isFigures}}.",
       "movedEnd": "The exam’s last day moved from {{wasEnd}} to {{isEnd}}; its first day and figures day stay as they were.",
-      "movedCalendar": "The exam’s days changed in the calendar on this phone."
+      "movedCalendar": "The exam’s days changed in the calendar on this phone.",
+      "totals": "The directorate’s totals"
     },
     "threshold": {
       "title": "The exam’s threshold",
@@ -5945,7 +6178,8 @@
         "seen": "Before the exam, only the setters and the director see the cut.",
         "published": "After the exam, the cut is published in the school’s space with its figures.",
         "monthly": "Monthly tests stay each teacher’s own, with no cut and nothing to sign.",
-        "never": "Nothing here is used to evaluate or rank anyone."
+        "never": "Nothing here is used to evaluate or rank anyone.",
+        "kept": "The cut is kept with the figures it was built on and the setters’ signatures."
       },
       "problem": {
         "closed": "The cut can no longer be signed: the signing deadline has passed or the director has decided.",
@@ -5956,7 +6190,145 @@
         "bem": "The BEM"
       },
       "stale": "This chart was taken on {{day}}, before the exam moved; its new figures day is {{now}}, and the chart is not taken again, so its cut is still signed by {{signBy}}.",
-      "staleSign": "This chart was taken on {{day}}, before the exam moved; its figures day stays the same, and its cut is still signed by {{signBy}}."
+      "staleSign": "This chart was taken on {{day}}, before the exam moved; its figures day stays the same, and its cut is still signed by {{signBy}}.",
+      "after": {
+        "lead": "Published in the school’s space after the exam, with the figures taken on {{figures}} that it was built on. Every teacher of this subject at this grade sees it.",
+        "cut": "The published cut",
+        "setters": "Signed by every setter: the paper covered up to {{item}}.",
+        "director": "Decided by the director: the paper covered up to {{item}}.",
+        "directorNone": "Decided by the director: no cut for this exam, so the paper was set as usual.",
+        "none": "No cut applied: none was settled, so the paper was set as usual.",
+        "dates": "The school’s figures were taken on {{figures}}, and the exam began on {{from}}.",
+        "unsigned": "{{name}}: did not sign"
+      }
+    },
+    "examTotals": {
+      "title": "The directorate’s totals",
+      "days": "The directorate’s totals for the figures day, {{figures}}. Exam: {{from}}.",
+      "notYet": "The directorate’s totals for this subject and grade are not added up yet: no school’s share for that day holds them.",
+      "hidden": "The directorate’s totals for this subject and grade are hidden: they cover fewer than 5 teachers or 3 schools, or would let a hidden figure be worked out.",
+      "counts": "The directorate’s teachers: {{teachers}} · classes: {{classes}} · schools: {{schools}}",
+      "chart": "Share of the directorate’s classes that reached each item, on {{day}} (%)",
+      "share": "Classes that reached it (%)",
+      "item": "Plan item",
+      "mine": "My classes on {{day}}, from this phone",
+      "mineLine": "{{class}}: done: {{reached}}",
+      "mineNote": "Worked out on this phone alone, from your signed weeks, and never put on the directorate’s figures. The server receives only the school’s share, which names no class, and the directorate only the totals.",
+      "gone": "This exam’s totals are not open on this phone: its figures day has not come, or it is no longer among your exams.",
+      "ownFailed": "Your classes could not be worked out on this phone: your signed weeks did not read.",
+      "notes": {
+        "noCut": "The cut does not show before the exam: the committee and the exams office see it, and it is published after the exam with these figures.",
+        "floors": "No figure of the directorate here is a school’s, a class’s or a teacher’s: each covers at least 5 teachers and 3 schools, and anything smaller is hidden, also from subtraction.",
+        "server": "From signed weeks only: a class has reached an item once a signed week worked on it or on a later one, and no forecast enters. In this demo the server sees each school’s share as it adds them up.",
+        "never": "Nothing here is used to evaluate or rank anyone."
+      }
+    },
+    "insights": {
+      "title": "Anonymous insights",
+      "row": {
+        "teacher": "Off · exactly what is sent is shown before you turn them on",
+        "school": "Off for the school space’s classes",
+        "retired": "Stopped: the national system’s totals replaced them",
+        "on": "On · one sending for each class with a plan pack, at the end of each term"
+      },
+      "sub": {
+        "teacher": "Optional · in teacher mode, before the national system",
+        "school": "The national system",
+        "retired": "Stopped · the national system"
+      },
+      "purpose": "They show curriculum designers which items need more time than the plan gives. They describe the plan, not classes or teachers.",
+      "participation": "Taking part",
+      "off": "Taking part is off. Before you turn it on, exactly what is sent about each class is shown here.",
+      "on": "Taking part is on. At the end of each term, while this world is open, one sending for each class that follows a plan pack goes to the demo world’s insights server, exactly as shown below. You can turn it off at any time.",
+      "unkept": "Your choice could not be kept, so taking part is as it was. Try again.",
+      "sending": {
+        "working": "Sending what is due…",
+        "done_one": "{{count}} sending went to the insights server.",
+        "done_other": "{{count}} sendings went to the insights server.",
+        "upToDate": "Nothing is waiting: every sending due has gone.",
+        "partial": "What is due went, except for classes whose sending could not be worked out; trying again would not change that.",
+        "failed": "What is due could not be sent. It is tried again when the world’s date moves; you can also try again now.",
+        "retry": "Try again"
+      },
+      "never": {
+        "head": "Never sent",
+        "dates": "The dates of sessions",
+        "reasons": "Why a session was not held",
+        "pupils": "Any data about pupils",
+        "me": "Anything that identifies me",
+        "school": "Data from institution mode"
+      },
+      "floors": "Each figure is published only when it covers at least 10 teachers and 3 schools; anything below that, or that would reveal it by subtraction, is hidden. The figures are never used to set the scope of exams, to rank anyone, or for decisions about teachers.",
+      "school": {
+        "off": "Off for the school space’s classes: the national system’s data never enters the insights.",
+        "none": "This phone has not joined a school’s space yet. In this world the insights do not run: the figures of my classes are formed in the national system.",
+        "perClass": "For each class",
+        "mine": "My classes",
+        "inSpace": "In the space of {{school}} since {{date}}",
+        "stopped": "Off",
+        "nationalHead": "These classes’ figures are formed in the national system",
+        "nationalLine": "As totals above the school, from the signed weeks, in the curriculum report. Nothing of them is sent to the insights server.",
+        "working": "Working out my classes in each space…"
+      },
+      "retired": {
+        "head": "The anonymous insights have stopped: the national system’s totals replaced them",
+        "line": "There is no switch to take part any more, and nothing goes from this phone to the insights server.",
+        "since": "Since {{date}}, the first day totals above the school were formed.",
+        "report": "In the national system, the curriculum report takes the place of these insights: totals above the school, from the signed weeks",
+        "holdsHead": "What it holds",
+        "holds": {
+          "median": "The sessions each item of the pack took, as a median",
+          "changed": "The items most often merged, skipped, split or re-taught, in bands",
+          "reached": "How far classes got by the end of each term: the median and the quartiles",
+          "floors": "For the directorate and the nation; each directorate figure covers at least 5 teachers and 3 schools"
+        },
+        "neverHead": "What it never holds",
+        "never": {
+          "figures": "A figure for a class, a school or a teacher: each school’s space prepares its share, and the shares are added up",
+          "dates": "The dates of sessions, why any was not held, and pupils’ data"
+        },
+        "uses": "Nor is it used for an exam threshold, to rank anyone, or for a decision about a teacher."
+      },
+      "preview": {
+        "head": "Exactly what is sent about each class, for {{term}}",
+        "working": "Working out what is sent about each class…",
+        "none": "No term has ended yet on this world’s date, so nothing is sent.",
+        "failed": "What is sent about this class could not be worked out.",
+        "noPack": "This class pins no plan pack, so nothing is sent about it: its sessions are entered freely and describe no plan.",
+        "failedAll": "What is sent about each class could not be worked out."
+      },
+      "payload": {
+        "level": "Grade and subject",
+        "wilaya": "Wilaya",
+        "pack": "Pack and release",
+        "sessions": "Sessions on each item",
+        "sessionsLine": "{{items}}: {{named}}{{more}}",
+        "itemSessions": "{{item}}: {{count}}",
+        "separator": " · ",
+        "more": " …",
+        "changed": "What changed",
+        "unchanged": "Nothing",
+        "changes": {
+          "merged": "Merged {{item}}",
+          "skipped": "Skipped {{item}}",
+          "split": "Split {{item}}",
+          "retaught": "Re-taught {{item}}"
+        },
+        "reached": {
+          "1": "End of the first term",
+          "2": "End of the second term",
+          "3": "End of the third term"
+        },
+        "reachedLine": "The class reached {{percent}}% of the plan",
+        "token": "The term’s random token",
+        "schoolTerm": "The school and term’s code, counted then dropped",
+        "text": "The text as sent",
+        "terms": {
+          "1": "the first term",
+          "2": "the second term",
+          "3": "the third term"
+        }
+      }
     }
   },
   "chart": {
