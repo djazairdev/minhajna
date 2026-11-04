@@ -10,6 +10,8 @@ export * from './bells-read.ts';
 export * from './assessment.ts';
 export * from './assessment-read.ts';
 export * from './captures.ts';
+export * from './pack-lifecycle.ts';
+export * from './pack-lifecycle-files.ts';
 export * from './marks.ts';
 export * from './mark-fix.ts';
 export * from './observations.ts';

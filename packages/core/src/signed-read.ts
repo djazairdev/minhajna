@@ -30,6 +30,8 @@ export const SIGNED_BYTES = 16_384;
 
 /** The most a signed plan pack may weigh, in UTF-8 bytes; it travels as a file only (answer 328). */
 export const PACK_BYTES = 1_048_576;
+/** Maximum encoded signature length accepted by a signed-file reader. */
+export const SIGNED_SIGNATURE_MAX = 200;
 
 /** The kinds of data a key may sign (answer 327). */
 export const SIGNED_KINDS = ['calendar', 'packs'] as const;
@@ -125,7 +127,7 @@ export async function openSigned(
     payload === '' ||
     utf8Length(payload) === null ||
     typeof signature !== 'string' ||
-    signature.length > 200 ||
+    signature.length > SIGNED_SIGNATURE_MAX ||
     !BASE64.test(signature) ||
     (world !== null && raw['world'] !== world)
   )

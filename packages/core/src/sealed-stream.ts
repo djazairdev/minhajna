@@ -11,6 +11,9 @@
 // another from its first to its last, within the most batches a record of its
 // kind may take; what does not open or parse is left out, and a number given
 // twice counts only the first time.
+// Authoring flows can require a complete stream: missing, damaged, conflicting
+// or unfinished batches then refuse the reading instead of exposing an earlier
+// state that a writer could mistake for the latest version.
 
 import { joinPieces, keyedCipher, openPiece, sealBatches, SYNC_BATCH_BYTES, type SealedBatch } from './batches.ts';
 import { canonicalJson } from './canonical.ts';
@@ -71,31 +74,52 @@ export async function sealRecord(
  * and a number given twice only the first time: a batch that does not open, a
  * gap, or a record longer than `most` batches drops what was gathered, and a
  * record that starts again before it ends keeps only the new start.
+ * Strict mode requires a complete, contiguous stream from zero and
+ * throws on damage or conflicting duplicate numbers.
  */
 export async function openRecords(
   place: Place,
   batches: readonly SealedBatch[],
   most: number,
   cipher: WorldCipher,
+  strict = false,
 ): Promise<unknown[]> {
   const opener = keyedCipher(place.sealing, cipher);
   const found: unknown[] = [];
   let pending: Uint8Array[] = [];
   let previous = -1;
+  let previousBytes: Uint8Array | null = null;
   for (const batch of [...batches].sort((a, b) => a.number - b.number)) {
-    if (batch.number === previous) continue;
+    if (batch.number === previous) {
+      if (
+        strict &&
+        (previousBytes === null ||
+          previousBytes.length !== batch.bytes.length ||
+          previousBytes.some((byte, at) => byte !== batch.bytes[at]))
+      )
+        throw new RangeError('E_STREAM_HISTORY');
+      continue;
+    }
+    if (strict && batch.number !== previous + 1) throw new RangeError('E_STREAM_HISTORY');
     const piece = await openPiece(opener, place.stream, batch).catch(() => null);
     const follows = batch.number === previous + 1;
     previous = batch.number;
+    previousBytes = batch.bytes;
     if (piece === null || (!piece.first && (!follows || pending.length === 0))) {
+      if (strict) throw new RangeError('E_STREAM_HISTORY');
       pending = [];
       continue;
     }
+    if (strict && piece.first && pending.length > 0) throw new RangeError('E_STREAM_HISTORY');
     pending = piece.first ? [piece.bytes] : [...pending, piece.bytes];
     if (piece.last) {
       found.push(parsedAscii(joinPieces(pending)));
       pending = [];
-    } else if (pending.length >= most) pending = [];
+    } else if (pending.length >= most) {
+      if (strict) throw new RangeError('E_STREAM_HISTORY');
+      pending = [];
+    }
   }
+  if (strict && pending.length > 0) throw new RangeError('E_STREAM_HISTORY');
   return found;
 }

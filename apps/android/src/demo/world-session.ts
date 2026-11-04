@@ -31,6 +31,7 @@ import {
   isDay,
   makeWorldCode,
   openWorldKeys,
+  PackReleaseError,
   readWorldCode,
   sealWorldKeys,
   worldSecrets,
@@ -111,11 +112,12 @@ export function unexpected(answer: WorldAnswer): Error {
   return failed(`The demo server answered ${answer.status}`, 'E_WORLD_SERVER');
 }
 
-/** The platform's cryptography, its failures given a code. */
+/** Codes cryptography failures while preserving known release refusals. */
 export async function kitStep<T>(step: () => Promise<T>): Promise<T> {
   try {
     return await step();
   } catch (error) {
+    if (error instanceof PackReleaseError) throw error;
     throw failed(`The platform's cryptography failed: ${String(error)}`, 'E_WORLD_KIT');
   }
 }
