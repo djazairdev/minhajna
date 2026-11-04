@@ -27,7 +27,6 @@
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
-import type { InsightsSending } from './insights.ts';
 import type { CalendarEntry } from './reference.ts';
 import type { SchoolKeyring } from './school-key-shape.ts';
 import type { ImportedSession } from './timetable-import.ts';
@@ -79,10 +78,11 @@ export type DeviceEvent =
   /** In a demo world's own store: a sending the server took, exactly as sent, with its class (answer 697). */
   | { readonly kind: 'insights.sent'; readonly sent: InsightsSent };
 
-/** A sending the server took, exactly as sent, and the class it was for (answer 697). */
+/** A sending the server took, as the exact text sent, and the class it was for (answers 697 and 698). */
 export interface InsightsSent {
   readonly classId: string;
-  readonly sending: InsightsSending;
+  /** The sending's JSON text, byte for byte as sent, which a store's own encoding cannot reorder. */
+  readonly text: string;
 }
 
 /** A term's insights token and each class's sending ID, by class ID, as drawn on this device (answer 696). */

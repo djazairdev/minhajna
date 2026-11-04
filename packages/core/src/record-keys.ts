@@ -6,11 +6,24 @@
 
 import type { RecordEvent } from './events.ts';
 import { captureKey } from './captures.ts';
+import { MOST_SENDING_BYTES } from './insights.ts';
 import { markKey } from './marks.ts';
 import { observationKey } from './observations.ts';
 import { appreciationKey } from './appreciations.ts';
 import { kindOf, listKey } from './support-queue.ts';
 import { layerKey, switchKey } from './variant-layers.ts';
+
+/** A kept insights sending's ID and term, read from its exact text of at most 48 KB, or `/` when it does not read. */
+function sentKey(text: unknown): string {
+  let read: unknown;
+  try {
+    read = typeof text === 'string' && text.length <= MOST_SENDING_BYTES ? JSON.parse(text) : null;
+  } catch {
+    read = null;
+  }
+  const { id, term } = typeof read === 'object' && read !== null ? (read as { id?: unknown; term?: unknown }) : {};
+  return `${typeof id === 'string' ? id : ''}/${typeof term === 'number' ? term : ''}`;
+}
 
 /**
  * Which record an event sets. Events with the same key are versions of one
@@ -170,7 +183,7 @@ export function recordKey(event: RecordEvent): string {
     case 'insights.choice':
       return 'insights-choice';
     case 'insights.sent':
-      return `insights-sent:${event.sent?.sending?.id ?? ''}/${event.sent?.sending?.term ?? ''}`;
+      return `insights-sent:${sentKey(event.sent?.text)}`;
     case 'grant.requested': {
       const request = event.requested?.request as { id?: unknown } | undefined;
       return `grant-requested:${typeof request?.id === 'string' ? request.id : ''}`;

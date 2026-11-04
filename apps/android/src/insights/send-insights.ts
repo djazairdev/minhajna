@@ -6,16 +6,16 @@
 // latest term ended on the day it was last turned on to the world's date, goes
 // to the world's observatory on the demo server, one sending for each class of
 // the world's teacher that pins a plan pack and has not sent for that term,
-// exactly the text the opt-in shows for that term (term-sendings.ts), with
-// PUT /worlds/<ID>/insights/sendings. Each one the server takes, as new or as
-// its own again, is kept in the log under the world's date, as it was sent.
-// The tries on one world's store take turns, so none sends what another has
-// sent; a try stops before its next sending once the choice changes, taking
-// part turned off or on again, or its caller has gone. A refusal stops there
-// with an error, and what is left goes at the next try; a class with a pack
-// and no sending is passed over and counted, the others sent, since trying
-// again would not change it. A term whose classes have all sent is not worked
-// out again.
+// exactly the text the opt-in shows for that term (term-sendings.ts), with PUT
+// /worlds/<ID>/insights/sendings. Each one the server takes, as new or as its
+// own again, is kept in the log under the world's date as its exact text, the
+// one the world's client sends for its body. The tries on one world's store
+// take turns, so none sends what another has sent; a try stops before its next
+// sending once the choice changes, taking part turned off or on again, or its
+// caller has gone. A refusal stops there with an error, and what is left goes
+// at the next try; a class with a pack and no sending is passed over and
+// counted, the others sent, since trying again would not change it. A term
+// whose classes have all sent is not worked out again.
 
 import {
   dueTerms,
@@ -104,7 +104,7 @@ async function sendNow(input: SendInsightsInput): Promise<InsightsTry> {
       if (!going()) return { taken, unsent };
       const answer = await send({ method: 'PUT', path: `/worlds/${world}/insights/sendings`, body: sending });
       if (answer.status !== 201 && answer.status !== 200) throw unexpected(answer);
-      await book.record(date, { kind: 'insights.sent', sent: { classId, sending } });
+      await book.record(date, { kind: 'insights.sent', sent: { classId, text: JSON.stringify(sending) } });
       taken += 1;
     }
   }

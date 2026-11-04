@@ -9,11 +9,14 @@
 // own, which real mode does not show in 0.7.0; and the insights page it opens,
 // until it is closed or the world is left; in a teachers' world, the page opens
 // with the switch to take part and each class's exact sending, and while it is
-// on the sendings due go out (use-insights-sending.ts, #622). The classes a
-// national world stops are worked out once for each set of joins, and a working
-// out that fails leaves a row for each join.
+// on the sendings due go out (use-insights-sending.ts, #622), with the log of
+// what was sent and what the app connects to, each over the page, which stays
+// mounted under it, keeping its place, its chosen class and its sendings. The
+// classes a national world stops are worked out once for each set of joins, and
+// a working out that fails leaves a row for each join.
 
 import {
+  insightsLog,
   insightsState,
   keptJoins,
   type Day,
@@ -22,14 +25,18 @@ import {
   type SpaceJoin,
 } from '@minhajna/core';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { View } from 'react-native';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import type { TermReference } from '../director/seeded-fill';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import { worldRequest } from '../network/world-network';
 import { WorldOptin } from './InsightsOptin';
+import { InsightsHelp } from './InsightsHelp';
+import { InsightsLog } from './InsightsLog';
 import { InsightsPage } from './InsightsPage';
 import { InsightsRow } from './InsightsRow';
+import { insightsStyles } from './insights-styles';
 import { joinRows, stoppedClasses, type StoppedClass } from './stopped-classes';
 import { useInsightsSending } from './use-insights-sending';
 
@@ -56,7 +63,7 @@ export function useWorldInsights(input: WorldInsightsInput): {
   readonly close: () => void;
 } {
   const { open, calendars, school, kit, reference, storage, send = worldRequest, date, dayText } = input;
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState<'page' | 'log' | 'help' | null>(null);
   const digest = useMemo(
     () => (text: string) => storage.digest([text]).then(([hash]) => hash ?? Promise.reject(new Error('No digest'))),
     [storage],
@@ -78,36 +85,60 @@ export function useWorldInsights(input: WorldInsightsInput): {
       live = false;
     };
   }, [joins, school, kit]);
-  const close = () => setShown(false);
+  const close = () => setShown(null);
+  const back = () => setShown('page');
   if (state === null) return { row: null, page: null, close };
-  return {
-    row: <InsightsRow state={state} on={taking.choice.on} onPress={() => setShown(true)} />,
-    page: shown ? (
-      <InsightsPage
-        state={state}
-        stopped={stopped !== null && stopped.joins === joins ? stopped.rows : null}
+  const over =
+    shown === 'log' && teaching !== null && reference !== undefined ? (
+      <InsightsLog
+        lines={insightsLog(teaching.book.entries)}
+        className={(id) => taking.mine?.school.classes.find((one) => one.id === id)?.name ?? id}
+        reference={reference}
         date={date}
         dayText={dayText}
-        optin={
-          open !== null && reference !== undefined ? (
-            <WorldOptin
-              world={open.world}
-              date={open.date}
-              book={open.book}
-              reference={reference}
-              kit={kit}
-              digest={digest}
-              choice={taking.choice}
-              status={taking.status}
-              onChoose={taking.choose}
-              onRetry={taking.retry}
-              unkept={taking.unkept}
-            />
-          ) : undefined
-        }
-        onClose={close}
+        failed={taking.status.kind === 'failed'}
+        onClose={back}
       />
-    ) : null,
+    ) : shown === 'help' && teaching !== null ? (
+      <InsightsHelp on={taking.choice.on} date={date} onClose={back} />
+    ) : null;
+  return {
+    row: <InsightsRow state={state} on={taking.choice.on} onPress={() => setShown('page')} />,
+    page:
+      shown === null ? null : (
+        <>
+          <View style={over === null ? insightsStyles.full : insightsStyles.gone}>
+            <InsightsPage
+              state={state}
+              stopped={stopped !== null && stopped.joins === joins ? stopped.rows : null}
+              date={date}
+              dayText={dayText}
+              optin={
+                teaching !== null && reference !== undefined ? (
+                  <WorldOptin
+                    world={teaching.world}
+                    date={teaching.date}
+                    book={teaching.book}
+                    reference={reference}
+                    kit={kit}
+                    digest={digest}
+                    choice={taking.choice}
+                    status={taking.status}
+                    onChoose={taking.choose}
+                    onRetry={taking.retry}
+                    unkept={taking.unkept}
+                  />
+                ) : undefined
+              }
+              {...(teaching !== null && reference !== undefined && { onLog: () => setShown('log') })}
+              {...(teaching !== null && { onHelp: () => setShown('help') })}
+              opened={shown === 'page' ? null : shown}
+              onClose={close}
+            />
+          </View>
+          {over}
+        </>
+      ),
     close,
   };
 }

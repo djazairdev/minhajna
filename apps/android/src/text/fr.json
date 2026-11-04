@@ -6419,6 +6419,48 @@
           "2": "deuxième trimestre",
           "3": "troisième trimestre"
         }
+      },
+      "links": {
+        "log": {
+          "title": "Le journal de ce qui a été envoyé",
+          "line": "Chaque envoi à sa date, qui s’ouvre sur son texte tel qu’envoyé"
+        },
+        "help": "Le serveur de démonstration, et ce qui part vers ses statistiques"
+      },
+      "log": {
+        "sub": "Chaque envoi, tel qu’il a été envoyé",
+        "note": "Chaque activation ou désactivation de la participation, et chaque envoi, s’inscrit ici à sa date ; un envoi s’ouvre sur son texte tel qu’envoyé. Aucune heure n’est gardée, ni dans le journal ni dans l’envoi.",
+        "empty": "Rien n’a encore été envoyé, et la participation n’a été ni activée ni désactivée.",
+        "on": "Participation activée",
+        "off": "Participation désactivée",
+        "sent": "Envoi des statistiques anonymes",
+        "asSent": "{{term}} · {{day}} · exactement tel qu’envoyé",
+        "where": "Vers le serveur des statistiques, sur le serveur de démonstration. L’envoi ne contient ni date de séance, ni motif, ni élève, ni rien qui m’identifie. Le serveur ne garde aucune date avec lui ; le jour de l’envoi est inscrit dans ce journal.",
+        "close": "Fermer",
+        "failed": "Ce qui est dû n’a pas pu être envoyé. La page des statistiques permet de réessayer."
+      },
+      "help": {
+        "sub": "Dans ce monde d’enseignants",
+        "demo": "Dans un monde de démonstration, l’application ne se connecte qu’au serveur de démonstration du projet, {{address}}, et seulement tant que le monde est ouvert.",
+        "world": {
+          "title": "Le monde de démonstration",
+          "line": "Chaque requête porte l’identifiant du monde et son mot de passe, établis sur cet appareil à partir de son code. L’application envoie aussi les clés du monde, scellées sous son code, sa date, et ce qu’envoient ses propres pages. Tout cela est inventé, et le serveur efface le monde à son 7e jour."
+        },
+        "insights": {
+          "title": "Le serveur des statistiques, à la même adresse",
+          "on": "La participation est activée",
+          "off": "La participation est désactivée",
+          "line": "L’appareil qui a démarré le monde l’ouvre, vide, au démarrage. Ensuite, seulement tant que la participation est activée, à la fin de chaque trimestre, pour chaque classe qui suit un paquet de progression : le format, un identifiant aléatoire pour la classe et le trimestre, le jeton aléatoire du trimestre, le code de l’établissement et du trimestre, que le serveur remplace à la réception par une marque pour compter les établissements, l’année scolaire et le trimestre, la wilaya, le niveau et la matière, le paquet et sa version, les séances de chaque élément, les éléments fusionnés, sautés, scindés ou repris, et où la classe est arrivée. Ni dates, ni motifs, ni élèves, ni rien qui m’identifie."
+        },
+        "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. Dans ce monde, l’application ne joint que le serveur de démonstration. La liste complète est publiée avec le code source.",
+        "sees": {
+          "title": "Ce que voient le serveur et Cloudflare",
+          "line": "Le serveur lit l’adresse IP de cet appareil seulement pour appliquer ses limites de requêtes, en mémoire, et ne l’inscrit ni ne la garde jamais. En amont, Cloudflare voit l’adresse IP et le navigateur de chaque requête, selon sa propre politique. Ce sont les seules choses ici qui ne sont pas inventées."
+        },
+        "pc": {
+          "demo": "Dans un monde de démonstration, l’application se connecte au serveur de démonstration du projet, {{address}}, seulement tant que le monde est ouvert. Sur un PC, la page récupère aussi ses propres fichiers à sa propre adresse, comme hors d’un monde.",
+          "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. Dans ce monde, la page ne joint que sa propre adresse, pour ses propres fichiers, et le serveur de démonstration. La liste complète est publiée avec le code source."
+        }
       }
     },
     "schoolThreshold": {

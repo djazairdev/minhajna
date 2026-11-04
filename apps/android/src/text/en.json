@@ -6331,6 +6331,48 @@
           "2": "the second term",
           "3": "the third term"
         }
+      },
+      "links": {
+        "log": {
+          "title": "The log of what was sent",
+          "line": "Each sending by its day, opening to its text as sent"
+        },
+        "help": "The demo server, and what goes to its insights"
+      },
+      "log": {
+        "sub": "Each sending, as it was sent",
+        "note": "Each turning on or off of taking part, and each sending, is written here by its day; a sending opens to its text as it was sent. No clock time is kept, in the log or in the sending.",
+        "empty": "Nothing has been sent yet, and taking part has not been turned on or off.",
+        "on": "Taking part turned on",
+        "off": "Taking part turned off",
+        "sent": "Anonymous insights sending",
+        "asSent": "{{term}} · {{day}} · exactly as sent",
+        "where": "To the insights server, on the demo server. The sending holds no session date, reason or pupil, and nothing that identifies me. The server keeps no date with it; the day it went is written in this log.",
+        "close": "Close",
+        "failed": "What is due could not be sent. The insights page has a way to try again."
+      },
+      "help": {
+        "sub": "In this teachers’ world",
+        "demo": "In a demo world, the app connects only to the project’s demo server, {{address}}, and only while the world is open.",
+        "world": {
+          "title": "The demo world",
+          "line": "Each request carries the world’s ID and its pass, worked out on this device from its code. The app also sends the world’s keys, sealed under its code, its date, and what the world’s own pages send. All of that is made up, and the server erases the world on its 7th day."
+        },
+        "insights": {
+          "title": "The insights server, at the same address",
+          "on": "Taking part is on",
+          "off": "Taking part is off",
+          "line": "The world’s starter opens it, empty, as the world starts. Then only while taking part is on, at the end of each term, for each class that follows a plan pack: the format, a random ID for the class and term, the term’s random token, the school and term’s code, which the server, on receipt, replaces with a mark to count schools, the school year and term, the wilaya, grade and subject, the pack and release, the sessions on each item, the items merged, skipped, split or re-taught, and how far the class got. No dates, reasons or pupils, and nothing that identifies me."
+        },
+        "nothingElse": "Nothing else: no advertising and no analytics. In this world the app reaches only the demo server. The full list is published with the source code.",
+        "sees": {
+          "title": "What the server and Cloudflare see",
+          "line": "The server reads this device’s IP address only to apply its rate limits, in memory, and never logs or stores it. In front of it, Cloudflare sees each request’s IP address and browser, under its own policy. These are the only things here that are not made up."
+        },
+        "pc": {
+          "demo": "In a demo world, the app connects to the project’s demo server, {{address}}, only while the world is open. On a PC, the page also fetches its own files from its own address, as it does outside a world.",
+          "nothingElse": "Nothing else: no advertising and no analytics. In this world the page reaches only its own address, for its own files, and the demo server. The full list is published with the source code."
+        }
       }
     },
     "schoolThreshold": {

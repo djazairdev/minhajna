@@ -2,25 +2,31 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Taking part in the insights in a teachers' demo world, and the log of what
-// was sent (#622, R-1.6-01, R-1.6-03, choice D6, answer 697). Both are
+// was sent (#622, R-1.6-01, R-1.6-03, choice D6, answers 697 and 698). Both are
 // device-layer events in the world's store alone, dated by the world's date:
 // the teacher's choice, off until turned on, the latest that reads counting;
-// and each sending the server took, exactly as it was sent, with the class it
-// was for. While insights are on, a term is due once the world's date has
-// ended it, from the latest term ended on the day they were last turned on,
-// so turning them on sends the term just ended and every later one, never one
-// ended before; a class's sending for a term is sent once, the log keeping it.
-// The log lists, by the day, newest first, each turning on or off and each
-// sending, a sending opening as it was sent; no clock time is ever kept.
+// and each sending the server took, kept as its exact text, which the store's
+// own encoding cannot reorder, with the class it was for. While insights are
+// on, a term is due once the world's date has ended it, from the latest term
+// ended on the day they were last turned on, so turning them on sends the term
+// just ended and every later one, never one ended before; a class's sending for
+// a term is sent once, the log keeping it. The log lists, by the day, newest
+// first, each turning on or off and each sending, a sending opening as it was
+// sent; no clock time is ever kept.
 
 import { compareDays, type Day } from './day.ts';
 import type { InsightsSent } from './device-events.ts';
 import { eventOf } from './events.ts';
 import type { Entry } from './history.ts';
-import { readSending } from './insights.ts';
+import { MOST_SENDING_BYTES, readSending, type InsightsSending } from './insights.ts';
 import type { SchoolYear, Term } from './reference.ts';
 
 export type { InsightsSent } from './device-events.ts';
+
+/** A kept sending: its class, its exact text, and the sending that text reads as. */
+export interface SentSending extends InsightsSent {
+  readonly sending: InsightsSending;
+}
 
 /** Whether insights are on, and the day they were last turned on. */
 export interface InsightsChoice {
@@ -30,27 +36,44 @@ export interface InsightsChoice {
 
 /** A line of the insights log. */
 export type InsightsLogLine =
-  { readonly kind: 'on' | 'off'; readonly day: Day } | ({ readonly kind: 'sent'; readonly day: Day } & InsightsSent);
+  { readonly kind: 'on' | 'off'; readonly day: Day } | ({ readonly kind: 'sent'; readonly day: Day } & SentSending);
 
-/** A kept sending as the store may hold it, or null when it does not read. */
-export function readInsightsSent(value: unknown): InsightsSent | null {
+/** A kept sending as the store may hold it, with the sending its text reads as, or null when it does not read. */
+export function readInsightsSent(value: unknown): SentSending | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
-  const { classId, sending, ...rest } = value as Record<string, unknown>;
+  const { classId, text, ...rest } = value as Record<string, unknown>;
   if (Object.keys(rest).length > 0 || typeof classId !== 'string' || classId === '') return null;
-  const read = readSending(sending);
-  return typeof read === 'string' ? null : { classId, sending: read };
+  if (typeof text !== 'string' || text.length > MOST_SENDING_BYTES) return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const read = readSending(parsed);
+  return typeof read === 'string' ? null : { classId, text, sending: read };
+}
+
+/** Each entry's line, or null when it is none, read once, as kept sendings are parsed from their text. */
+const linesRead = new WeakMap<Entry, InsightsLogLine | null>();
+
+/** An entry's line of the insights log, or null when it is none. */
+function lineOf(entry: Entry): InsightsLogLine | null {
+  const event = eventOf(entry);
+  if (event?.kind === 'insights.choice' && typeof event.choice?.on === 'boolean') {
+    return { kind: event.choice.on ? 'on' : 'off', day: entry.day };
+  }
+  const sent = event?.kind === 'insights.sent' ? readInsightsSent(event.sent) : null;
+  return sent === null ? null : { kind: 'sent', day: entry.day, ...sent };
 }
 
 /** The insights log, every line that reads, in the store's order. */
 function lines(entries: readonly Entry[]): InsightsLogLine[] {
   const out: InsightsLogLine[] = [];
   for (const entry of entries) {
-    const event = eventOf(entry);
-    if (event?.kind === 'insights.choice' && typeof event.choice?.on === 'boolean') {
-      out.push({ kind: event.choice.on ? 'on' : 'off', day: entry.day });
-    }
-    const sent = event?.kind === 'insights.sent' ? readInsightsSent(event.sent) : null;
-    if (sent !== null) out.push({ kind: 'sent', day: entry.day, ...sent });
+    if (!linesRead.has(entry)) linesRead.set(entry, lineOf(entry));
+    const line = linesRead.get(entry);
+    if (line !== null && line !== undefined) out.push(line);
   }
   return out;
 }

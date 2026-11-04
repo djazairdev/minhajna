@@ -171,9 +171,15 @@ test('a refusal says so, and trying again sends what is left', async () => {
   expect(host('insights-sending-failed')).toHaveLength(1);
   expect(texts()).toContain(words.sending.failed);
   expect(await server.observatory.store.sendings(id)).toEqual([]);
+  await press('insights-log-open');
+  expect(host('insights-log-failed')[0].props.children).toBe(words.log.failed);
+  await press('insights-log-back');
   await server.observatory.store.open(id);
   await press('insights-retry');
   expect(host('insights-sending-done')).toHaveLength(1);
+  await press('insights-log-open');
+  expect(host('insights-log-failed')[0].props.children).toBe('');
+  await press('insights-log-back');
   expect(await server.observatory.store.sendings(id)).toHaveLength(1);
   expect(puts()).toHaveLength(2);
   await press('insights-back');
