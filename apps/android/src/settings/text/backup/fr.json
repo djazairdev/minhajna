@@ -10,5 +10,16 @@
   "lost_one": "Une modification depuis la restauration manque dans le fichier. L’effacement la supprime.",
   "lost_many": "{{count}} modifications depuis la restauration manquent dans le fichier. L’effacement les supprime.",
   "lost_other": "{{count}} modifications depuis la restauration manquent dans le fichier. L’effacement les supprime.",
-  "phoneErase": "L’effacement supprime les données de cet appareil. Faites d’abord une sauvegarde si vous en avez encore besoin."
+  "transfer": {
+    "kept": "La copie ouverte sur l’autre appareil le {{day}} : cet effacement n’y touche pas.",
+    "leftOut": "Les champs personnels de la fiche de l’enseignant et la signature dessinée ne sont ni transférés ni sauvegardés : ils partent avec l’effacement.",
+    "lostNone": "Aucune modification après le transfert du {{day}} : les modifications sont sur l’autre appareil.",
+    "lost_one": "Une modification absente du fichier transféré le {{day}} et de toute sauvegarde ultérieure : elle est perdue avec l’effacement.",
+    "lost_many": "{{count}} de modifications absentes du fichier transféré le {{day}} et de toute sauvegarde ultérieure : elles sont perdues avec l’effacement.",
+    "lost_other": "{{count}} modifications absentes du fichier transféré le {{day}} et de toute sauvegarde ultérieure : elles sont perdues avec l’effacement."
+  },
+  "phoneErase": "L’effacement supprime les données de cet appareil. Faites d’abord une sauvegarde si vous en avez encore besoin.",
+  "phoneEraseChanges_one": "Une modification faite ici après l’arrivée de la copie ne figure dans aucune copie connue de l’application, et l’effacement la supprime. Faites d’abord une sauvegarde si vous en avez encore besoin.",
+  "phoneEraseChanges_many": "{{count}} de modifications faites ici après l’arrivée de la copie ne figurent dans aucune copie connue de l’application, et l’effacement les supprime. Faites d’abord une sauvegarde si vous en avez encore besoin.",
+  "phoneEraseChanges_other": "{{count}} modifications faites ici après l’arrivée de la copie ne figurent dans aucune copie connue de l’application, et l’effacement les supprime. Faites d’abord une sauvegarde si vous en avez encore besoin."
 }

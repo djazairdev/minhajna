@@ -154,7 +154,7 @@ test('records the actual file boundary when another change is saved while the pi
     kind: 'backup.saved',
     backup: { last: opened.entries.at(-1)!.hash, made: DAY },
   });
-  expect(deviceFacts(data.book.entries).sinceBackup).toBe(1);
+  expect(deviceFacts(data.book.entries).sinceCopy).toBe(1);
 });
 
 test('starts the first backup once, after its sheet was confirmed', async () => {

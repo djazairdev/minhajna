@@ -16,9 +16,9 @@
 // typed again; a changed file has its own page. Once all of it is stored, the
 // backup reminder is put off 30 days from the restore (answer 482), the route
 // and its source file's boundary are kept atomically (#485), and the history
-// opens again,
-// on Today. The copy of the picked file is dropped as soon as it is not needed:
-// on another file or route, once restored, and when the screen closes.
+// opens again, on Today. The copy of the picked file is dropped as soon as it
+// is not needed: on another file or route, once restored, and when the screen
+// closes.
 // «استلام النسخة» (#250, answers 514 and 515) is the same screen for a device
 // whose working copy is on the other device: a transfer or a backup from that
 // device only, added to this history once checked.

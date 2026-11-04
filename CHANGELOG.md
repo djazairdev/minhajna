@@ -8,6 +8,9 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### Fixed
 
+- The erase warning counts a confirmed transfer while the handover is active. After work resumes on this device, the warning uses the backup or archive you have here to work out what erasing would lose, names a restored file beside a transfer, and on a phone that received a copy counts the changes made after it arrived. The log of a printed or saved document, an update or a new recovery key no longer counts as a change.
+  - يحتسب تنبيه المسح النقل المؤكّد ما دام العمل على الجهاز الآخر. عند استئناف العمل على هذا الجهاز، يعتمد التنبيه على النسخة الاحتياطية أو الأرشيف لتحديد ما ستفقده عند المسح، ويسمّي الملف المسترجع إلى جانب النقل، وعلى هاتف استلم نسخة يعدّ التغييرات المسجّلة بعد وصولها. ولم يعد سجلّ وثيقة مطبوعة أو محفوظة أو التحديث أو مفتاح الاسترجاع الجديد يُحسب تغييرًا.
+
 - After restoring a backup or an archive, Devices and backups, the reminder and the erase screen name that file and its date. The erase warning counts only later changes. Backups also keep the exact changes they contain, even if another change is saved while choosing the file's location.
   - بعد الاسترجاع من نسخة احتياطية أو أرشيف، تعرض صفحة «الأجهزة والنسخ» والتذكير وشاشة المسح الملف الذي استرجعت منه وتاريخه. ويعدّ تنبيه المسح التغييرات اللاحقة فقط. كما تُحسب محتويات النسخة بدقة، حتى لو سُجّل تغيير أثناء اختيار مكان حفظها.
 

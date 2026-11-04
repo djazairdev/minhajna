@@ -42,7 +42,8 @@ describe('the devices and backups', () => {
       earlierKeys: [],
       lastBackup: null,
       backupMade: null,
-      sinceBackup: book.entries.length,
+      lastCopy: null,
+      sinceCopy: book.entries.length,
       firstChange: book.entries[0]!.day,
       handedOver: null,
       received: null,
@@ -61,10 +62,10 @@ describe('the devices and backups', () => {
     const facts = deviceFacts(book.entries);
     assert.deepEqual(facts.recovery, { key: KEY, day: d('2026-10-20') });
     assert.equal(facts.lastBackup, d('2026-10-22'));
-    assert.equal(facts.sinceBackup, 0);
+    assert.equal(facts.sinceCopy, 0);
     await book.record(d('2026-10-23'), { kind: 'recovery.set', recovery: { key: NEXT } });
     await book.record(d('2026-10-23'), { kind: 'recovery.set', recovery: { key: KEY } });
-    assert.equal(deviceFacts(book.entries).sinceBackup, 2);
+    assert.equal(deviceFacts(book.entries).sinceCopy, 0);
     const archive = archiveOf(book.entries, book.state, options);
     assert.equal(archiveText(archive).includes(KEY), false);
     const device = book.entries.filter((entry) => entry.layer === 'device').map((entry) => entry.id);
