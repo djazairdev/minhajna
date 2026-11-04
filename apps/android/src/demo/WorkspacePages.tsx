@@ -30,6 +30,7 @@
 // OpsConsole.tsx), and their admin and security logs and the world's problem
 // reports read from it (#619, OpsAdminLog.tsx, OpsSecurity.tsx,
 // OpsProblems.tsx).
+// The curator's pack list reads source releases only (#611, PackList.tsx).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
 import type { ReactElement } from 'react';
@@ -45,6 +46,7 @@ import { SchoolRecords } from '../director/SchoolRecords';
 import { SchoolSubstitute } from '../director/SchoolSubstitute';
 import { DirectorateGrant } from '../directorate/DirectorateGrant';
 import { DirectorateTotals } from '../directorate/DirectorateTotals';
+import { PackList } from '../editor/PackList';
 import { subjectName } from '../extra/extra-rules';
 import type { ReferenceResult } from '../reference';
 import { localized } from '../setup/names';
@@ -252,5 +254,7 @@ export function workspacePage(
         workingDays={reference.profile.workingDays}
       />
     );
+  if (workspace === 'curator' && page === 'packs')
+    return <PackList packs={reference.packs} profile={reference.profile} refusedPacks={reference.refusedPacks} />;
   return null;
 }

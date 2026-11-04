@@ -16,11 +16,27 @@ import enBase from './en.json';
 import frBase from './fr.json';
 import { settingsCatalogues } from '../settings/catalogues';
 import { calendarCatalogues } from '../calendar/catalogues';
+import { editorPackCatalogues } from '../editor/catalogues';
 import { installPluralRules } from './plural-rules';
 
-const ar = { ...arBase, settings: settingsCatalogues.ar, calendarView: calendarCatalogues.ar };
-const fr = { ...frBase, settings: settingsCatalogues.fr, calendarView: calendarCatalogues.fr };
-const en = { ...enBase, settings: settingsCatalogues.en, calendarView: calendarCatalogues.en };
+const ar = {
+  ...arBase,
+  settings: settingsCatalogues.ar,
+  calendarView: calendarCatalogues.ar,
+  editorPacks: editorPackCatalogues.ar,
+};
+const fr = {
+  ...frBase,
+  settings: settingsCatalogues.fr,
+  calendarView: calendarCatalogues.fr,
+  editorPacks: editorPackCatalogues.fr,
+};
+const en = {
+  ...enBase,
+  settings: settingsCatalogues.en,
+  calendarView: calendarCatalogues.en,
+  editorPacks: editorPackCatalogues.en,
+};
 
 declare module 'i18next' {
   interface CustomTypeOptions {

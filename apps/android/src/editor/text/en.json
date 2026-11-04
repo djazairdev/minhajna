@@ -1,0 +1,10 @@
+{
+  "intro": "Plan packs and their releases, with each release’s status and source.",
+  "filter": "Pack status",
+  "all": "All",
+  "empty": "No plan packs in this demo.",
+  "noMatch": "No plan pack has this status.",
+  "identity": "Pack ID: {{id}}",
+  "refused_one": "{{count}} pack file could not be read and is absent from this list.",
+  "refused_other": "{{count}} pack files could not be read and are absent from this list."
+}
