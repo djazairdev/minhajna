@@ -12,6 +12,7 @@ import {
   awaitingBetween,
   confirmCourse,
   courseSetup,
+  freeItemFits,
   freeListFits,
   offerFreeList,
   ownPack,
@@ -127,6 +128,13 @@ describe('a class’s own list', () => {
       .map((session) => walk.proposals.get(session.key)?.item.id);
     assert.equal(proposed[0], 'l1');
     assert.ok(proposed.includes('l2'));
+  });
+
+  it('refuses an item ID the totals server would refuse', () => {
+    const item = { id: 'lesson-1', kind: 'lesson', title: 'Made up', sessions: 1 } as const;
+    assert.equal(freeItemFits(item), true);
+    assert.equal(freeItemFits({ ...item, id: 'constructor' }), false);
+    assert.equal(freeItemFits({ ...item, id: '__proto__' }), false);
   });
 
   it('keeps the order the teacher gives', () => {
