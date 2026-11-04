@@ -64,6 +64,8 @@ describe('the committed migrations', { skip }, () => {
       'public.batch',
       'public.ended_term',
       'public.observatory',
+      'public.pack_account',
+      'public.pack_step',
       'public.problem',
       'public.receipt',
       'public.sending',

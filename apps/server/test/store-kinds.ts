@@ -11,6 +11,7 @@ import process from 'node:process';
 import pg from 'pg';
 import { MemoryAdminStore, type AdminStore } from '../src/admin/admin-store.js';
 import { MemoryInsightStore, type InsightStore } from '../src/insights/insight-store.js';
+import { MemoryPackStore, type PackStore } from '../src/packs/pack-store.js';
 import { MemorySpaceStore, type SpaceStore } from '../src/spaces/space-store.js';
 import { applyMigrations } from '../src/storage/migrations.js';
 import { PrismaStores } from '../src/storage/prisma-stores.js';
@@ -25,6 +26,7 @@ export interface Stores {
   readonly shares: ShareStore;
   readonly insights: InsightStore;
   readonly admin: AdminStore;
+  readonly packs: PackStore;
   close(): Promise<void>;
 }
 
@@ -67,6 +69,7 @@ export const KINDS = [
         shares: new MemoryShareStore(),
         insights: new MemoryInsightStore(async (id) => (await worlds.get(id)) !== undefined),
         admin: new MemoryAdminStore(async (id) => (await worlds.get(id)) !== undefined),
+        packs: new MemoryPackStore(async (id) => (await worlds.get(id)) !== undefined),
         close: () => Promise.resolve(),
       };
     },
@@ -83,6 +86,7 @@ export const KINDS = [
         shares: stores.shares,
         insights: stores.insights,
         admin: stores.admin,
+        packs: stores.packs,
         close: () => stores.close(),
       };
     },

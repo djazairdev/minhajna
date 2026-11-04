@@ -20,6 +20,21 @@ A world is named by the first five characters of its code; the rest of the code 
 - **The starter token** is kept only as its SHA-256 hash, so the store alone cannot move a date. No answer may be cached (`Cache-Control: no-store`).
 - **Rate limits:** each address may start 5 worlds an hour, make 60 other world requests and 1,200 relay requests (the relay's count also takes what a device reads as it goes: `GET /worlds/:world/ca`, `GET /worlds/:world/date`, and the stand-in's `GET /worlds/:world/state/receiver` and `GET /worlds/:world/state/deliveries`) in 10 minutes, and store 20,000 batches a day (about 82 MB), a share or a sending counting as the batches its bytes would fill, and an opening's sendings as the batches their bytes together would fill, plus one for each school's mark new to the world, and keep 60 insights sendings a day, with totals for everyone (140,000 batches a day, so a week of them fits the server's cap: about 11 seeded worlds a day whose every school's term is filled, answer 626; 20,000 sendings a day). Only batches stored and sendings kept count: a refused upload costs nothing. An IPv6 address counts by its /64. Addresses stay in memory until the first request after their window, up to a day for uploads and sendings, and are never logged or stored. `TRUST_PROXY=cloudflare` reads the address from Cloudflare's header.
 
+## The pack desk
+
+A world's pack-editor accounts, and each pack release's steps (#612, R-4.3-09, R-6.7-02). Every request carries the world's pass. An account's token, like the starter token, is kept only as its SHA-256 hash, and no answer may be cached.
+
+| Request | Does | Answers |
+| --- | --- | --- |
+| `POST /worlds/:world/packs/accounts` with `{role}`, and `Authorization: Bearer <starter>` | Makes the world's `curator` or `ministry` account, replacing any before it | `201 {role, token}`, the token given once; `403` without the starter token |
+| `GET /worlds/:world/packs/account`, with `Authorization: Bearer <account>` | Signs in | `{role}`; `403` for any other token |
+| `POST /worlds/:world/packs/steps` with `{id, release, expected, stage, status, digest, by, day}`, with `Authorization: Bearer <account>` | Takes a step of a release: draft, under review, published, then superseded or withdrawn | `201`, the step with its revision, role and the signature of the world's stand-in CA over `minhajna/pack-step/1`; `403` when the account may not; `409 {problem}`, `date` when the world's date moved and `revision` when no such revision was taken |
+| `GET /worlds/:world/packs/steps` | Reads each release's latest step | `{steps}` |
+
+- **Roles:** an account moves only what it holds, but the Ministry's may publish what a curator has under review, and what it publishes is Official. No curator's step ever is.
+- **What it sees:** a release's name, stage and status, and a digest keyed with the world's sealing key, never the release itself, which stays sealed on the world's national space. A step names no person.
+- **Two at once:** the sealed stream takes one record a revision and decides which counts, so a step taken again replaces what followed it, and one left unused holds nothing back.
+
 ## The encrypted relay
 
 Inside a world, with its pass, clients exchange sealed records through spaces: one per school and per directorate, whose ids the clients draw, and the one national space, named `national` (PRD §5.8).
