@@ -6,9 +6,8 @@
 // the classes of the directorate's schools as the world seeds them, whose
 // pinned packs give each subject's plan, and the directorate's totals.
 
-import type { Day, DemoSchool } from '@minhajna/core';
+import type { CalendarUpdate, Day, DemoSchool } from '@minhajna/core';
 import { useMemo } from 'react';
-import type { CalendarUpdate } from '@minhajna/core';
 import type { HeldWorld } from '../demo/world-calendar-read';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';

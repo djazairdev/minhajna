@@ -13,7 +13,7 @@ import { randomBytes } from 'node:crypto';
 import type { HeldWorld } from '../src/demo/world-calendar-read';
 import { startWorld, type Send } from '../src/demo/world-session';
 import { readTotals } from '../src/directorate/totals-read';
-import { CommitteePage } from '../src/threshold/CommitteePage';
+import { CommitteePage, type CommitteePageProps } from '../src/threshold/CommitteePage';
 import { calendar, reference } from './world-calendar';
 import { DemoServer, nodeKit as kit } from './world-server';
 
@@ -40,11 +40,6 @@ export function onDay(world: string, day: Day) {
   const kept = server.worlds.get(world)!;
   kept.date = day;
   kept.announced = [...new Set([...kept.announced, mock.figuresDay, day])];
-}
-
-/** Announces a day on the server without moving the world, as the term ends are. */
-export function announced(world: string, day: Day) {
-  server.worlds.get(world)!.announced.push(day);
 }
 
 /** Puts 4 schools' shares of a subject for a day, 10 classes each, and 4 of another's; `counts` by item, by school. */
@@ -77,7 +72,13 @@ export function putShares(
 }
 
 /** The page's props for a date, its days written `day …`. */
-export const pageOf = (held: HeldWorld | null, world: string, date: Day, send: Send = server.send) => (
+export const pageOf = (
+  held: HeldWorld | null,
+  world: string,
+  date: Day,
+  send: Send = server.send,
+  more: Partial<CommitteePageProps> = {},
+) => (
   <CommitteePage
     world={world}
     date={date}
@@ -92,5 +93,6 @@ export const pageOf = (held: HeldWorld | null, world: string, date: Day, send: S
     kit={kit}
     send={send}
     dayText={(day) => `day ${day}`}
+    {...more}
   />
 );

@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What a committee's page says of the figures (#604, answer 638): the term ends
-// before the figures day, the last two, which it reads for comparison; the
-// chart of the share of the grade's classes that reached each item of the plan
-// on the figures day and on each term end shown, an end not added up or hidden
-// left out; and the last item of the plan every class reached, nine classes in
-// ten and half of them, of the items shown, a hidden item never counting.
+// before the figures day, the last two after the first term's, whose end is no
+// announced day and has no totals, which it reads for comparison; the chart of
+// the share of the grade's classes that reached each item of the plan on the
+// figures day and on each term end shown, an end not added up or hidden left
+// out; and the last item of the plan every class reached, nine classes in ten
+// and half of them, of the items shown, a hidden item never counting.
 
 import type { Day, SchoolYear } from '@minhajna/core';
 import type { TFunction } from 'i18next';
@@ -17,9 +18,10 @@ import { totalsSpec } from './exam-totals';
 /** How many term ends a committee's chart compares with. */
 const COMPARED = 2;
 
-/** The last two term ends before a day, in order. */
+/** The last two term ends with totals before a day, in order. */
 export function termEndsBefore(year: Pick<SchoolYear, 'terms'>, day: Day): Day[] {
   return year.terms
+    .slice(1)
     .map((term) => term.to)
     .filter((end) => end < day)
     .slice(-COMPARED);
@@ -58,7 +60,7 @@ export function committeeSpec(
   });
   return {
     kind: 'line',
-    label: t('demo.committee.chart', { day: shown.day }),
+    label: t(ends.length === 0 ? 'demo.committee.chart' : 'demo.committee.chartEnds', { day: shown.day }),
     categories: items.map(item),
     series: [series(shown.grade, 'figures', shown.day), ...ends.map((end) => series(end.grade, 'termEnd', end.day))],
   };

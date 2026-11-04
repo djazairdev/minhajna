@@ -14,16 +14,20 @@
 // read again, and a vote refused as a majority came in says why. Every world,
 // school and share is made up.
 
-import { addDays, compareDays, directorateSpace, type Day } from '@minhajna/core';
+import { addDays, compareDays, directorateSpace, NATIONAL_COMMITTEE, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';
-import { announced, bem, items, mock, onDay, pack, pageOf, putShares, server, started } from '../jest/committee-page';
-import { alerts, controls, press, quoted, show, texts, unmount, update } from '../jest/threshold-page';
-import { reference } from '../jest/world-calendar';
+import { calendar, exam, reference } from '../jest/world-calendar';
+import { bem, items, mock, onDay, pack, pageOf, putShares, SCOPE, server, started } from '../jest/committee-page';
+import { act, alerts, controls, press, quoted, show, texts, unmount, update } from '../jest/threshold-page';
 import { nodeKit } from '../jest/world-server';
 import type { Send } from '../src/demo/world-session';
 import { leaveWorldNetwork } from '../src/network/world-network';
 import ar from '../src/text/ar.json';
+import { subjectName } from '../src/extra/extra-rules';
+import { gradeName } from '../src/setup/names';
+import { i18n } from '../src/text/i18n';
 import { castVote } from '../src/threshold/committee-session';
+import { examName } from '../src/threshold/threshold-text';
 import { seededWorld } from '../src/director/director-world';
 import { workspacePage, type WorkspacePagesProps } from '../src/demo/WorkspacePages';
 
@@ -35,6 +39,7 @@ jest.mock(
 const words = ar.demo.committee;
 const page = ar.demo.threshold;
 const day = mock.figuresDay;
+const { terms } = reference.calendar.year;
 const fill = (text: string, values: Record<string, unknown>) =>
   Object.entries(values).reduce((all, [key, value]) => all.replaceAll(`{{${key}}}`, String(value)), text);
 const title = (at: number) => quoted(pack.items[at].title);
@@ -67,8 +72,7 @@ test('before the figures day it says none has come, and without the keys it says
   const before = addDays(day, -1);
   await show(pageOf(held, held.world, before));
   expect(texts()).toContain(words.none);
-  expect(controls('committee-sign')).toHaveLength(0);
-  expect(texts()).not.toContain(bem.id);
+  expect(controls('committee-none')).toHaveLength(0);
   await unmount();
   const asked: string[] = [];
   const counting: Send = (request) => {
@@ -77,19 +81,18 @@ test('before the figures day it says none has come, and without the keys it says
   };
   await show(pageOf(null, held.world, day, counting));
   expect(texts()).toContain(words.keys);
-  expect(asked.filter((path) => path.includes('/spaces/'))).toEqual([]);
+  expect(asked).toEqual([]);
   expect(controls('committee-none')).toHaveLength(0);
 });
 
 test('it shows the exam’s days, the totals with a term end, the marks, the closures and the seats', async () => {
   const { id, held } = await opened();
-  const end = reference.calendar.year.terms
-    .map((one) => one.to)
-    .filter((one) => compareDays(one, day) < 0)
-    .at(-1)!;
-  announced(id, end);
-  putShares(id, end, { [items[0]]: 5 });
-  await show(pageOf(held, id, day));
+  const asked: string[] = [];
+  const counting: Send = (request) => {
+    asked.push(request.path);
+    return server.send(request);
+  };
+  await show(pageOf(held, id, day, counting));
   const all = texts();
   expect(all).toContain('A made-up lead');
   expect(all).toContain(
@@ -98,7 +101,8 @@ test('it shows the exam’s days, the totals with a term end, the marks, the clo
   expect(all).toContain(fill(words.counts, { teachers: 8, classes: 40, schools: 4 }));
   expect(all).toContain(fill(words.chart, { day: `day ${day}` }));
   expect(all).toContain(fill(words.series.figures, { day: `day ${day}` }));
-  expect(all).toContain(fill(words.series.termEnd, { day: `day ${end}` }));
+  expect(all.some((text) => text === fill(words.series.termEnd, { day: `day ${terms[0].to}` }))).toBe(false);
+  expect(asked.some((path) => path.includes(terms[0].to))).toBe(false);
   expect(all).toContain(fill(words.marks.every, { item: title(0) }));
   expect(all).toContain(fill(words.marks.ninety, { item: title(1) }));
   expect(all).toContain(fill(words.marks.half, { item: title(2) }));
@@ -117,6 +121,7 @@ test('a term end not added up is left out, and an item under the floors is held 
   await show(pageOf(held, id, day));
   const all = texts();
   expect(all.filter((text) => text.startsWith(fill(words.series.termEnd, { day: '' }).slice(0, 8)))).toEqual([]);
+  expect(all).toContain(fill(words.chart, { day: `day ${day}` }));
   expect(all).toContain(fill(words.series.figures, { day: `day ${day}` }));
   expect(all).toContain(ar.chart.heldBack);
   expect(all).toContain(fill(words.marks.every, { item: title(0) }));
@@ -140,13 +145,21 @@ test('a seat proposes, another signs, and the first majority is adopted and fina
   expect(controls('committee-sign')).toHaveLength(0);
   expect((controls('committee-propose')[0].props as { label: string }).label).toBe(page.proposeOther);
   await press('committee-seats-1');
-  expect((controls('committee-sign')[0].props as { label: string }).label).toBe(fill(page.sign, { item: title(1) }));
+  const sign = controls('committee-sign')[0].props as { label: string; name: string };
+  expect(sign.label).toBe(fill(page.sign, { item: title(1) }));
+  expect(sign.name).toBe(`${sign.label}${ar.chart.colon}${seat(2)}`);
   await press('committee-sign');
   all = texts();
   expect(all).toContain(fill(words.done, { seat: seat(2), item: title(1) }));
   expect(all).toContain(fill(words.state.adopted, { day: `day ${day}`, count: 2, seats: 3, item: title(1) }));
   expect(controls('committee-propose')).toHaveLength(0);
   expect(controls('committee-none')).toHaveLength(0);
+  expect(all).toContain(words.sees);
+  const ended = addDays(mock.to, 1);
+  onDay(id, ended);
+  await update(pageOf(held, id, ended));
+  expect(texts()).toContain(fill(words.published, { to: `day ${mock.to}`, figures: `day ${day}` }));
+  expect(texts()).not.toContain(words.sees);
 });
 
 test('choosing another seat puts a pick aside, and a pick goes back', async () => {
@@ -171,11 +184,14 @@ test('a majority of no cut is adopted', async () => {
   expect(texts()).toContain(line(page.setter.none, { name: seat(1), day: `day ${day}` }));
   await press('committee-seats-2');
   await press('committee-none');
-  expect(texts()).toContain(fill(words.state.adoptedNone, { day: `day ${day}`, count: 2, seats: 3 }));
+  const all = texts();
+  expect(all).toContain(fill(words.state.adoptedNone, { day: `day ${day}`, count: 2, seats: 3 }));
   expect(controls('committee-none')).toHaveLength(0);
+  expect(all).not.toContain(words.sees);
+  expect(all).not.toContain(fill(words.publishes, { to: `day ${mock.to}`, figures: `day ${day}` }));
 });
 
-test('after the deadline with no majority no cut was adopted, and after the exam it is published', async () => {
+test('after the deadline with no majority no cut was adopted, nothing is signed and nothing is published', async () => {
   const { id, held } = await opened();
   await show(pageOf(held, id, day));
   await press('committee-propose');
@@ -186,12 +202,12 @@ test('after the deadline with no majority no cut was adopted, and after the exam
   await update(pageOf(held, id, late));
   expect(texts()).toContain(words.state.lapsed);
   expect(controls('committee-none')).toHaveLength(0);
-  expect(texts()).toContain(words.sees);
+  expect(texts()).not.toContain(words.sees);
   const ended = addDays(mock.to, 1);
   onDay(id, ended);
   await update(pageOf(held, id, ended));
-  expect(texts()).toContain(fill(words.published, { to: `day ${mock.to}`, figures: `day ${day}` }));
-  expect(texts()).not.toContain(words.sees);
+  expect(texts()).toContain(words.state.lapsed);
+  expect(texts()).not.toContain(fill(words.published, { to: `day ${mock.to}`, figures: `day ${day}` }));
 });
 
 test('totals not added up or hidden say so, and the committee still stands', async () => {
@@ -216,6 +232,139 @@ test('another subject opens its own room and its own figures', async () => {
   expect(all).toContain(words.notYet);
   expect(all).toContain(line(page.setter.waiting, { name: seat(1) }));
   expect(all.filter((text) => text === fill(words.noneDone, { seat: seat(1) }))).toEqual([]);
+});
+
+test('a term end with totals before the figures day shows as comparison', async () => {
+  const late = bem.figuresDay;
+  const { id, held } = await opened(late);
+  const end = terms[1].to;
+  expect(compareDays(end, late)).toBeLessThan(0);
+  putShares(id, late, { [items[0]]: 10, [items[1]]: 10 });
+  putShares(id, end, { [items[0]]: 5 });
+  await show(pageOf(held, id, late, server.send, { level: 'national', scope: NATIONAL_COMMITTEE }));
+  const all = texts();
+  expect(all).toContain(fill(words.chartEnds, { day: `day ${late}` }));
+  expect(all).toContain(fill(words.series.figures, { day: `day ${late}` }));
+  expect(all).toContain(fill(words.series.termEnd, { day: `day ${end}` }));
+});
+
+test('no item every class reached is said, and only the level’s exams are offered', async () => {
+  const { id, held } = await opened(day, { [items[0]]: 9 });
+  await show(pageOf(held, id, day));
+  expect(texts()).toContain(words.marks.everyNone);
+  expect(texts()).toContain(fill(words.marks.ninety, { item: title(0) }));
+  await unmount();
+  const late = bem.figuresDay;
+  onDay(id, late);
+  await show(pageOf(held, id, late));
+  expect(controls('committee-exams-bem')).toHaveLength(0);
+  expect(texts()).toContain(
+    fill(page.head, {
+      exam: page.exams.mock,
+      subject: subjectName(reference.profile, 'math'),
+      grade: gradeName(reference.profile, '4am'),
+    }),
+  );
+  await unmount();
+  await show(pageOf(held, id, late, server.send, { level: 'national', scope: NATIONAL_COMMITTEE }));
+  expect(texts()).toContain(
+    fill(page.head, {
+      exam: page.exams.bem,
+      subject: subjectName(reference.profile, 'math'),
+      grade: gradeName(reference.profile, '4am'),
+    }),
+  );
+  expect(controls('committee-exams-mock')).toHaveLength(0);
+  expect(texts()).toContain(fill(words.majority, { majority: 3, seats: 5 }));
+});
+
+test('the exams and grades are chips, the latest exam first chosen, and a choice opens its room', async () => {
+  const entries = calendar.entries.map((one) => (one.id === exam.id ? { ...exam, grades: ['3am', '4am'] } : one));
+  const made = { ...reference, calendar: { ...calendar, entries } };
+  const school = worldExams(calendar.year, entries).filter((one) => one.setBy === 'school');
+  const [first] = school;
+  const last = school.filter((one) => compareDays(one.figuresDay, day) <= 0).at(-1)!;
+  expect(first.grades).toEqual(expect.arrayContaining(['3am', '4am']));
+  const held = await started();
+  onDay(held.world, day);
+  const pinned = { id: pack.id, release: pack.release };
+  const classes = ['3am', '4am'].map((grade) => ({ grade, packs: { math: pinned } }));
+  const more = { level: 'school', reference: made, schools: [{ classes }] } as never;
+  await show(pageOf(held, held.world, day, server.send, more));
+  const chips = (testID: string) => (controls(testID)[0].props as { selected?: boolean }).selected;
+  expect(chips(`committee-exams-${last.id}`)).toBe(true);
+  await press(`committee-exams-${first.id}`);
+  expect(chips(`committee-exams-${first.id}`)).toBe(true);
+  expect(chips('committee-grades-3am')).toBe(true);
+  const head = (grade: string) =>
+    fill(page.head, {
+      exam: examName(i18n.t, first.id),
+      subject: subjectName(reference.profile, 'math'),
+      grade: gradeName(reference.profile, grade),
+    });
+  expect(texts()).toContain(head('3am'));
+  await press('committee-grades-4am');
+  expect(texts()).toContain(head('4am'));
+  expect(texts()).not.toContain(head('3am'));
+});
+
+test('what was said and a refusal hold for their date', async () => {
+  const { id, held } = await opened();
+  await show(pageOf(held, id, day));
+  await press('committee-none');
+  const done = fill(words.noneDone, { seat: seat(1) });
+  expect(texts()).toContain(done);
+  const next = addDays(day, 1);
+  onDay(id, next);
+  await update(pageOf(held, id, next));
+  expect(texts()).not.toContain(done);
+  await press('committee-seats-1');
+  const room = {
+    name: { world: id, scope: SCOPE, exam: 'mock', subject: 'math', grade: '4am' },
+    items,
+    days: { from: day, to: mock.signBy },
+  };
+  await castVote(held, room, 2, null, next, nodeKit, server.send);
+  await press('committee-propose');
+  await press('committee-item', 0);
+  await press('committee-propose-sign');
+  expect(alerts()).toEqual([words.closed]);
+  const later = addDays(day, 2);
+  onDay(id, later);
+  await update(pageOf(held, id, later));
+  expect(alerts()).toEqual([]);
+});
+
+test('a slower answer of another room is dropped', async () => {
+  const fresh = await opened();
+  let release = () => undefined as void;
+  let holding = false;
+  const slow: Send = async (request) => {
+    if (holding && request.path.includes('/spaces/')) {
+      holding = false;
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+    }
+    return server.send(request);
+  };
+  await show(pageOf(fresh.held, fresh.id, day, slow));
+  const vote = {
+    name: { world: fresh.id, scope: SCOPE, exam: 'mock', subject: 'math', grade: '4am' },
+    items,
+    days: { from: day, to: mock.signBy },
+  };
+  await castVote(fresh.held, vote, 0, items[1], day, nodeKit, server.send);
+  holding = true;
+  const next = addDays(day, 1);
+  onDay(fresh.id, next);
+  await update(pageOf(fresh.held, fresh.id, next, slow));
+  expect(holding).toBe(false);
+  await press('committee-subjects-french');
+  release();
+  await act();
+  expect(texts()).toContain(line(page.setter.waiting, { name: seat(1) }));
+  expect(texts()).not.toContain(line(page.setter.cut, { name: seat(1), item: title(1), day: `day ${day}` }));
 });
 
 test('a problem reading is said with a way to read again', async () => {

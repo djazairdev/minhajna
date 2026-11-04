@@ -4,7 +4,7 @@
 // A committee's page on the workspace's PC (M-Threshold, #604, §7.10, answers
 // 25, 31, 33, 36, 50, 51, 628, 631 and 638), for a level's exams above the
 // school: with the world's keys held, it offers the exams of that level whose
-// figures day the world's date has reached, the latest first, then their grades
+// figures day the world's date has reached, the latest chosen at first, then their grades
 // and each grade's subjects with a plan, never in any order of progress, and
 // opens the room chosen (CommitteePanel.tsx), reading its votes
 // (useCommittee.ts) and its totals (use-committee-figures.ts) as it opens, when
@@ -15,8 +15,16 @@
 // that the figures are unchecked, the floors, and that nothing here ranks
 // anyone.
 
-import { committeeSeats, compareDays, worldExams, type CalendarUpdate, type Day, type WorldExam } from '@minhajna/core';
-import type { DemoSchool, PlanPack } from '@minhajna/core';
+import {
+  committeeSeats,
+  compareDays,
+  worldExams,
+  type CalendarUpdate,
+  type Day,
+  type DemoSchool,
+  type PlanPack,
+  type WorldExam,
+} from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -97,7 +105,7 @@ export function CommitteePage(props: CommitteePageProps) {
   const votes = useCommittee(date, held, room, kit, send);
   const ends = exam === undefined ? [] : termEndsBefore(year, exam.figuresDay);
   const days = exam === undefined ? [] : [exam.figuresDay, ...ends];
-  const figures = useCommitteeFigures(JSON.stringify([world, date, scope]), days, read);
+  const figures = useCommitteeFigures(JSON.stringify([world, date, scope]), held === null ? [] : days, read);
   const moves = useMemo(() => movesOf(reference, updates), [reference, updates]);
   const shownProblem = votes.problem ?? figures.problem;
   const named = (name: string, code: string) => (name === code ? isolate(name) : name);

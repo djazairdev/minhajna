@@ -40,6 +40,7 @@ export function CommitteeChoices(props: CommitteeChoicesProps) {
   const [picking, setPicking] = useState(false);
   const [chosen, setChosen] = useState<string | null>(null);
   const post = t('demo.committee.seat', { n: seat + 1 });
+  const named = (label: string) => ({ label, name: `${label}${t('chart.colon')}${post}` });
   const putAside = () => {
     setPicking(false);
     setChosen(null);
@@ -88,7 +89,7 @@ export function CommitteeChoices(props: CommitteeChoicesProps) {
           {note}
           <Button
             testID="committee-propose-sign"
-            label={t('demo.threshold.proposeSign')}
+            {...named(t('demo.threshold.proposeSign'))}
             disabled={busy || chosen === null}
             onPress={() => vote(chosen)}
           />
@@ -100,7 +101,7 @@ export function CommitteeChoices(props: CommitteeChoicesProps) {
             <Button
               testID="committee-sign"
               disabled={busy}
-              label={t('demo.threshold.sign', { item: item(proposed.item) })}
+              {...named(t('demo.threshold.sign', { item: item(proposed.item) }))}
               onPress={() => vote(proposed.item)}
             />
           )}
@@ -108,14 +109,14 @@ export function CommitteeChoices(props: CommitteeChoicesProps) {
             testID="committee-propose"
             {...(awaiting ? { variant: 'line' as const } : {})}
             disabled={busy}
-            label={t(proposed === null ? 'demo.threshold.propose' : 'demo.threshold.proposeOther')}
+            {...named(t(proposed === null ? 'demo.threshold.propose' : 'demo.threshold.proposeOther'))}
             onPress={() => setPicking(true)}
           />
           <Button
             testID="committee-none"
             variant="plain"
             disabled={busy}
-            label={t('demo.threshold.noCut')}
+            {...named(t('demo.committee.noCut'))}
             onPress={() => vote(null)}
           />
           {note}

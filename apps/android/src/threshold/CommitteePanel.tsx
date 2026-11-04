@@ -12,7 +12,8 @@
 // classes in ten and half of them reached; and the sessions lost to closures.
 // Under them, where the cut stands, each seat's vote and day, how many seats
 // adopt a cut, a seat's choices while the room is open (CommitteeChoices.tsx),
-// who sees the cut now and when it is published with its figures.
+// and, unless no cut stands, who sees the cut now and when it is published with
+// its figures.
 
 import { compareDays, type CommitteeState, type Day, type ExamMove, type WorldExam } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -75,6 +76,8 @@ export function CommitteePanel(props: CommitteePanelProps) {
   const closures = figures?.subjects.find(([code]) => code === subject)?.[1]?.closed;
   const open = compareDays(date, exam.figuresDay) >= 0 && compareDays(date, exam.signBy) <= 0;
   const over = compareDays(date, exam.to) > 0;
+  const noCut =
+    state?.adopted?.item === null || (state !== null && state.adopted === null && compareDays(date, exam.signBy) > 0);
   const standing = () => {
     if (state === null) return null;
     const { adopted, proposed } = state;
@@ -84,7 +87,7 @@ export function CommitteePanel(props: CommitteePanelProps) {
         ? t('demo.committee.state.adoptedNone', by)
         : t('demo.committee.state.adopted', { ...by, item: item(adopted.item) });
     }
-    if (!open && compareDays(date, exam.signBy) > 0) return t('demo.committee.state.lapsed');
+    if (compareDays(date, exam.signBy) > 0) return t('demo.committee.state.lapsed');
     if (proposed === null) return t('demo.threshold.state.none');
     return t('demo.committee.state.proposed', { item: item(proposed.item), count: proposed.seats.length, seats });
   };
@@ -143,8 +146,12 @@ export function CommitteePanel(props: CommitteePanelProps) {
       {open && state !== null && state.adopted === null && (
         <CommitteeChoices seats={seats} state={state} items={items} item={item} busy={busy} onVote={onVote} />
       )}
-      {!over && small(t('demo.committee.sees'))}
-      {small(t(over ? 'demo.committee.published' : 'demo.committee.publishes', { to: dayText(exam.to), figures: day }))}
+      {state !== null && !noCut && !over && small(t('demo.committee.sees'))}
+      {state !== null &&
+        !noCut &&
+        small(
+          t(over ? 'demo.committee.published' : 'demo.committee.publishes', { to: dayText(exam.to), figures: day }),
+        )}
     </View>
   );
 }
