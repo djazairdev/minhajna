@@ -19,6 +19,7 @@ import {
   type RandomBytes,
   type RecordBook,
   type WorldMac,
+  type WorldTeacher,
 } from '@minhajna/core';
 import { useEffect, useMemo, useState } from 'react';
 import type { Send } from '../demo/world-session';
@@ -54,6 +55,8 @@ export function useInsightsSending({ open, reference, kit, digest, send }: Insig
   readonly retry: () => void;
   /** Whether the last choice in this world could not be kept. */
   readonly unkept: boolean;
+  /** The world's teacher, as every device rebuilds them, or null without one. */
+  readonly mine: WorldTeacher | null;
 } {
   const [chosen, setChosen] = useState<{ count: number; unkept: string | null }>({ count: 0, unkept: null });
   const [attempt, setAttempt] = useState(0);
@@ -96,5 +99,5 @@ export function useInsightsSending({ open, reference, kit, digest, send }: Insig
       : waiting
         ? { kind: 'working' }
         : { kind: 'done', taken: 0 };
-  return { choice, status, choose, retry, unkept: world !== null && chosen.unkept === world };
+  return { choice, status, choose, retry, unkept: world !== null && chosen.unkept === world, mine };
 }

@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Taking part in the insights and the log of what was sent (#622, answer 697):
-// off until turned on, the latest choice counting, kept in the device layer;
-// a kept sending reads back exactly as sent, and one that does not read is
-// left out; the log lists the newest day first, each day in order; the terms
-// due run from the latest term ended when insights were last turned on to the
-// world's date, none while off, and a class's sending for a term is known to be
-// sent. Every sending is made up.
+// Taking part in the insights and the log of what was sent (#622, answers 697
+// and 698): off until turned on, the latest choice counting, kept in the device
+// layer; a kept sending reads back as its exact text and the sending it reads
+// as, and one that does not read is left out; the log lists the newest day
+// first, each day in order; the terms due run from the latest term ended when
+// insights were last turned on to the world's date, none while off, and a
+// class's sending for a term is known to be sent. Every sending is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -17,6 +17,7 @@ import {
   insightsLog,
   layerOf,
   readInsightsSent,
+  readSending,
   recordKey,
   sentSendings,
   wasSent,
@@ -71,16 +72,19 @@ describe('taking part in the insights', () => {
 
   it('keeps each sending as sent, leaving out one that does not read, newest day first', async () => {
     const book = await openBook([]);
-    const sent = { kind: 'insights.sent' as const, sent: { classId: 'class-1', sending: sending(1) } };
+    const text = (term: 1 | 2 | 3) => JSON.stringify(sending(term));
+    const sent = { kind: 'insights.sent' as const, sent: { classId: 'class-1', text: text(1) } };
     assert.equal(layerOf(sent), 'device');
     assert.equal(recordKey(sent), `insights-sent:${'a'.repeat(32)}/1`);
     await book.record(d('2026-12-17'), { kind: 'insights.choice', choice: { on: true } });
     await book.record(d('2026-12-17'), sent);
-    const bad = { classId: 'class-1', sending: { ...sending(2), token: 'not a token' } };
+    const bad = { classId: 'class-1', text: JSON.stringify({ ...sending(2), token: 'not a token' }) };
     await book.record(d('2027-03-18'), { kind: 'insights.sent', sent: bad });
-    await book.record(d('2027-03-18'), { kind: 'insights.sent', sent: { classId: '', sending: sending(2) } });
-    await book.record(d('2027-03-18'), { kind: 'insights.sent', sent: { classId: 'class-2', sending: sending(2) } });
-    assert.deepEqual(readInsightsSent(sent.sent), sent.sent);
+    await book.record(d('2027-03-18'), { kind: 'insights.sent', sent: { classId: '', text: text(2) } });
+    await book.record(d('2027-03-18'), { kind: 'insights.sent', sent: { classId: 'class-2', text: '{' } });
+    await book.record(d('2027-03-18'), { kind: 'insights.sent', sent: { classId: 'class-2', text: text(2) } });
+    assert.deepEqual(readInsightsSent(sent.sent), { ...sent.sent, sending: sending(1) });
+    assert.equal(sentSendings(book.entries)[0]?.text, text(1));
     assert.deepEqual(
       sentSendings(book.entries).map((one) => [one.day, one.classId, one.sending.term]),
       [
@@ -100,6 +104,10 @@ describe('taking part in the insights', () => {
     assert.equal(wasSent(book.entries, 'class-1', '2026-2027', 2), false);
     assert.equal(wasSent(book.entries, 'class-2', '2025-2026', 2), false);
     assert.equal(readInsightsSent({ ...sent.sent, extra: 1 }), null);
+    const long = text(1) + ' '.repeat(48 * 1024);
+    assert.equal(typeof readSending(JSON.parse(long)), 'object');
+    assert.equal(readInsightsSent({ classId: 'class-1', text: long }), null);
+    assert.equal(recordKey({ kind: 'insights.sent', sent: { classId: 'class-1', text: long } }), 'insights-sent:/');
     assert.equal(readInsightsSent(null), null);
   });
 });

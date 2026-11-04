@@ -25,11 +25,13 @@ const NAMED = 4;
 
 export type PayloadCardProps = {
   readonly sending: InsightsSending;
+  /** The sending's exact text as it went, when kept; its JSON otherwise, as it would go. */
+  readonly text?: string;
   readonly reference: TermReference;
 };
 
 /** The sending's fields in words, then its exact text. */
-export function PayloadCard({ sending, reference }: PayloadCardProps) {
+export function PayloadCard({ sending, text, reference }: PayloadCardProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -96,7 +98,7 @@ export function PayloadCard({ sending, reference }: PayloadCardProps) {
         {t('demo.insights.payload.text')}
       </Text>
       <Text testID="insights-payload-text" selectable style={styles.text}>
-        {JSON.stringify(sending)}
+        {text ?? JSON.stringify(sending)}
       </Text>
     </View>
   );

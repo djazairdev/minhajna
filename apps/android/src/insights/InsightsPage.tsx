@@ -3,30 +3,27 @@
 
 // The insights page in a demo world (#624, answer 695), under the band, opened
 // from the row on the teacher's world home: Insights-optin in the state the
-// world gives. In a teachers' world, what the insights are for, that taking
-// part is off until the teacher turns it on, with exactly what each class
-// would send (InsightsOptin.tsx, #622), what is never sent, and the floors
-// and the uses the figures are kept to; in a national world, the classes
-// stopped in their school's space (InsightsStopped.tsx), or the insights
-// retired. Its title and state are said as it opens, on a PC in a hidden live
-// region cleared a few seconds later, on the phone as an announcement. Going
-// back, by the button or Android's back, returns to the world's home.
+// world gives. In a teachers' world, what the insights are for, the switch to
+// take part, off until the teacher turns it on, with exactly what each class
+// sends (InsightsOptin.tsx, #622), what is never sent, and the floors and the
+// uses the figures are kept to, then the log of what was sent and what the app
+// connects to (InsightsLog.tsx, InsightsHelp.tsx); in a national world, the
+// classes stopped in their school's space (InsightsStopped.tsx), or the
+// insights retired. Its title and state are said as it opens
+// (InsightsScreen.tsx), and going back returns to the world's home.
 
 import type { Day, InsightsState } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useEffect, useEffectEvent, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, BackHandler, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button } from '../components/Button';
-import { DemoBand } from '../demo/DemoBand';
-import { spacing } from '../design/tokens';
-import { onPc, useDeviceText } from '../text/device-text';
+import type { ReactNode } from 'react';
+import { Text, View } from 'react-native';
+import { RowLink } from '../components/RowLink';
+import { controlIcon } from '../design/Icon';
+import { useDeviceText } from '../text/device-text';
+import { InsightsScreen } from './InsightsScreen';
 import { InsightsRetired, InsightsSchool } from './InsightsStopped';
 import { insightsStyles as styles } from './insights-styles';
 import type { StoppedClass } from './stopped-classes';
-
-/** How long the hidden words stay, in milliseconds, so browsing the page does not read them twice. */
-const SAID_FOR = 5000;
+import { useReturnFocus } from './use-return-focus';
 
 /** What is never sent, as Insights-optin lists it. */
 const NEVER = ['dates', 'reasons', 'pupils', 'me', 'school'] as const;
@@ -40,95 +37,79 @@ export type InsightsPageProps = {
   readonly dayText: (day: Day) => string;
   /** The opt-in with each class's exact sending, in a teachers' world (#622); the plain off card when absent. */
   readonly optin?: ReactNode;
+  /** Opens the log of what was sent (InsightsLog.tsx), in a teachers' world. */
+  readonly onLog?: () => void;
+  /** Opens what the app connects to (InsightsHelp.tsx), in a teachers' world. */
+  readonly onHelp?: () => void;
+  /** Which link's page is open over this one, hidden under it, to give that link focus back. */
+  readonly opened?: 'log' | 'help' | null;
   /** Back to the world's home. */
   readonly onClose: () => void;
 };
 
 /** The insights in the state the world gives. */
-export function InsightsPage({ state, stopped, date, dayText, optin, onClose }: InsightsPageProps) {
+export function InsightsPage(props: InsightsPageProps) {
+  const { state, stopped, date, dayText, optin, onLog, onHelp, opened = null, onClose } = props;
+  const rowRef = useReturnFocus(opened);
   const t = useDeviceText();
   const { direction } = useLocale();
-  const insets = useSafeAreaInsets();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const title = t('demo.insights.title');
-  const sub = t(`demo.insights.sub.${state.kind}`);
-  const [said, setSaid] = useState('');
-  const announce = useEffectEvent(() => {
-    const words = `${title}. ${sub}`;
-    if (onPc()) setSaid(words);
-    else AccessibilityInfo.announceForAccessibility(words);
-  });
-  useEffect(() => {
-    const timer = setTimeout(announce, 0);
-    return () => clearTimeout(timer);
-  }, []);
-  useEffect(() => {
-    if (said === '') return;
-    const timer = setTimeout(() => setSaid(''), SAID_FOR);
-    return () => clearTimeout(timer);
-  }, [said]);
-  const back = useEffectEvent(() => {
-    onClose();
-    return true;
-  });
-  useEffect(() => {
-    const handler = BackHandler.addEventListener('hardwareBackPress', back);
-    return () => handler.remove();
-  }, []);
   return (
-    <View testID="insights-page" style={[styles.screen, { direction }]}>
-      <DemoBand date={date} />
-      {onPc() && (
-        <Text testID="insights-said" accessibilityLiveRegion="polite" style={styles.hidden}>
-          {said}
-        </Text>
+    <InsightsScreen
+      name="insights"
+      title={t('demo.insights.title')}
+      sub={t(`demo.insights.sub.${state.kind}`)}
+      date={date}
+      onClose={onClose}
+    >
+      {state.kind !== 'retired' && <Text style={[styles.note, align]}>{t('demo.insights.purpose')}</Text>}
+      {state.kind === 'teacher' && (
+        <>
+          {optin ?? (
+            <View testID="insights-off" style={styles.card}>
+              <Text accessibilityRole="header" style={[styles.head, align]}>
+                {t('demo.insights.participation')}
+              </Text>
+              <Text style={[styles.small, align]}>{t('demo.insights.off')}</Text>
+            </View>
+          )}
+          <View testID="insights-never" style={styles.card}>
+            <Text accessibilityRole="header" style={[styles.head, align]}>
+              {t('demo.insights.never.head')}
+            </Text>
+            {NEVER.map((key) => (
+              <Text key={key} style={[styles.label, align]}>
+                {t(`demo.insights.never.${key}`)}
+              </Text>
+            ))}
+          </View>
+          <Text style={[styles.small, align]}>{t('demo.insights.floors')}</Text>
+          {onLog !== undefined && (
+            <RowLink
+              ref={rowRef('log')}
+              testID="insights-log-open"
+              icon={controlIcon('check')}
+              title={t('demo.insights.links.log.title')}
+              description={t('demo.insights.links.log.line')}
+              onPress={onLog}
+            />
+          )}
+          {onHelp !== undefined && (
+            <RowLink
+              ref={rowRef('help')}
+              testID="insights-help-open"
+              icon={controlIcon('globe')}
+              title={t('demo.help.connectionsHead')}
+              description={t('demo.insights.links.help')}
+              onPress={onHelp}
+            />
+          )}
+        </>
       )}
-      <View
-        style={[
-          styles.bar,
-          { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] },
-        ]}
-      >
-        <Button testID="insights-back" variant="plain" label={t('demo.entry.back')} onPress={onClose} />
-        <View style={styles.titles}>
-          <Text accessibilityRole="header" style={[styles.title, align]}>
-            {title}
-          </Text>
-          <Text style={[styles.small, align]}>{sub}</Text>
-        </View>
-      </View>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <View style={styles.column}>
-          {state.kind !== 'retired' && <Text style={[styles.note, align]}>{t('demo.insights.purpose')}</Text>}
-          {state.kind === 'teacher' && (
-            <>
-              {optin ?? (
-                <View testID="insights-off" style={styles.card}>
-                  <Text accessibilityRole="header" style={[styles.head, align]}>
-                    {t('demo.insights.participation')}
-                  </Text>
-                  <Text style={[styles.small, align]}>{t('demo.insights.off')}</Text>
-                </View>
-              )}
-              <View testID="insights-never" style={styles.card}>
-                <Text accessibilityRole="header" style={[styles.head, align]}>
-                  {t('demo.insights.never.head')}
-                </Text>
-                {NEVER.map((key) => (
-                  <Text key={key} style={[styles.label, align]}>
-                    {t(`demo.insights.never.${key}`)}
-                  </Text>
-                ))}
-              </View>
-              <Text style={[styles.small, align]}>{t('demo.insights.floors')}</Text>
-            </>
-          )}
-          {state.kind === 'school' && (
-            <InsightsSchool joined={state.joins.length > 0} stopped={stopped} dayText={dayText} />
-          )}
-          {state.kind === 'retired' && <InsightsRetired since={state.since} dayText={dayText} />}
-        </View>
-      </ScrollView>
-    </View>
+      {state.kind === 'school' && (
+        <InsightsSchool joined={state.joins.length > 0} stopped={stopped} dayText={dayText} />
+      )}
+      {state.kind === 'retired' && <InsightsRetired since={state.since} dayText={dayText} />}
+    </InsightsScreen>
   );
 }

@@ -1,14 +1,17 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The insights pages' styles (#624), shared by the page and its states, after
-// the national system's Help (NationalHelp.tsx).
+// The insights pages' styles (#624, #622), shared by the frame, the page and
+// its states, the log and the help, after the national system's Help
+// (NationalHelp.tsx). A page kept mounted under the one it opened is `gone`.
 
 import { StyleSheet } from 'react-native';
 import { colors, radius, spacing, typography } from '../design/tokens';
 
 export const insightsStyles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
+  full: { flex: 1 },
+  gone: { display: 'none' },
   bar: { flexDirection: 'row', alignItems: 'center', gap: spacing['space-8'], paddingVertical: spacing['space-8'] },
   titles: { flexShrink: 1 },
   title: { ...typography['bar-title'], color: colors.ink },
