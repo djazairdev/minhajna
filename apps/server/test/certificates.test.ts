@@ -163,17 +163,18 @@ describe('the stand-in CA', () => {
     assert.notEqual(serials[0], serials[1]);
   });
 
-  it('counts its requests with the other world requests', async () => {
-    const limited = await createApp(false, { joins: { perAddress: 2, total: 1000, windowMs: 60_000 } });
+  it('counts its key under the relay’s limit and its certificates under the limit on joins', async () => {
+    const tight = { perAddress: 2, total: 1000, windowMs: 60_000 };
+    const limited = await createApp(false, { joins: tight, relay: tight });
     await limited.listen(0, '127.0.0.1');
     try {
       const url = await limited.getUrl();
       const answers = [];
-      for (const path of ['ca', 'ca', 'ca', 'certificates']) {
+      for (const path of ['ca', 'ca', 'ca', 'certificates', 'certificates', 'certificates']) {
         const method = path === 'ca' ? 'GET' : 'POST';
         answers.push((await fetch(`${url}/worlds/C9999/${path}`, { method, headers: WITH_PASS })).status);
       }
-      assert.deepEqual(answers, [404, 404, 429, 429]);
+      assert.deepEqual(answers, [404, 404, 429, 404, 404, 429]);
     } finally {
       await limited.close();
     }

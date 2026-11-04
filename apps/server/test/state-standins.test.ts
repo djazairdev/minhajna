@@ -270,8 +270,9 @@ describe('the stand-in receiving system', () => {
     assert.match(((await longer.json()) as { message: string }).message, /bytes/);
   });
 
-  it('counts its requests with the other world requests', async () => {
-    const limited = await createApp(false, { joins: { perAddress: 2, total: 1000, windowMs: 60_000 } });
+  it('counts what reads under the relay’s limit and a delivery under the limit on joins', async () => {
+    const tight = { perAddress: 2, total: 1000, windowMs: 60_000 };
+    const limited = await createApp(false, { joins: { ...tight, perAddress: 1 }, relay: tight });
     await limited.listen(0, '127.0.0.1');
     try {
       const url = await limited.getUrl();
@@ -279,12 +280,14 @@ describe('the stand-in receiving system', () => {
       const asked = [
         ['GET', 'receiver'],
         ['GET', 'deliveries'],
+        ['GET', 'receiver'],
+        ['POST', 'deliveries'],
         ['POST', 'deliveries'],
       ] as const;
       for (const [method, path] of asked) {
         answers.push((await fetch(`${url}/worlds/S9999/state/${path}`, { method, headers: WITH_PASS })).status);
       }
-      assert.deepEqual(answers, [404, 404, 429]);
+      assert.deepEqual(answers, [404, 404, 429, 404, 429]);
     } finally {
       await limited.close();
     }
