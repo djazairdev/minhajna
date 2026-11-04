@@ -248,7 +248,7 @@ test('a working out that fails leaves a row for each join', async () => {
   };
   const open = { world: 'K7QF4', kind: 'national', date: '2026-12-17', book } as unknown as Pick<
     OpenWorld,
-    'world' | 'kind' | 'date' | 'book'
+    'world' | 'kind' | 'date' | 'book' | 'starter'
   >;
   const failing = { mac: () => Promise.reject(new Error('Made-up failure')), random: nodeKit.random };
   const storage = teacher.asSpec();

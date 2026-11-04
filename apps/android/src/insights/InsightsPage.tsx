@@ -41,15 +41,31 @@ export type InsightsPageProps = {
   readonly onLog?: () => void;
   /** Opens what the app connects to (InsightsHelp.tsx), in a teachers' world. */
   readonly onHelp?: () => void;
+  /** The classes that can be compared with their peers, for the latest term ended (#623). */
+  readonly comparing?: readonly { readonly id: string; readonly name: string }[];
+  /** Opens a class's comparison (InsightsCompare.tsx). */
+  readonly onCompare?: (classId: string) => void;
   /** Which link's page is open over this one, hidden under it, to give that link focus back. */
-  readonly opened?: 'log' | 'help' | null;
+  readonly opened?: string | null;
   /** Back to the world's home. */
   readonly onClose: () => void;
 };
 
 /** The insights in the state the world gives. */
 export function InsightsPage(props: InsightsPageProps) {
-  const { state, stopped, date, dayText, optin, onLog, onHelp, opened = null, onClose } = props;
+  const {
+    state,
+    stopped,
+    date,
+    dayText,
+    optin,
+    onLog,
+    onHelp,
+    comparing = [],
+    onCompare,
+    opened = null,
+    onClose,
+  } = props;
   const rowRef = useReturnFocus(opened);
   const t = useDeviceText();
   const { direction } = useLocale();
@@ -84,6 +100,17 @@ export function InsightsPage(props: InsightsPageProps) {
             ))}
           </View>
           <Text style={[styles.small, align]}>{t('demo.insights.floors')}</Text>
+          {comparing.map((one) => (
+            <RowLink
+              key={one.id}
+              ref={rowRef(`compare-${one.id}`)}
+              testID={`insights-compare-open-${one.id}`}
+              icon={controlIcon('check')}
+              title={t('demo.insights.compare.title', { class: one.name })}
+              description={t('demo.insights.compare.line')}
+              onPress={() => onCompare?.(one.id)}
+            />
+          ))}
           {onLog !== undefined && (
             <RowLink
               ref={rowRef('log')}

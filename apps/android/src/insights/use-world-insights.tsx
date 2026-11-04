@@ -10,12 +10,14 @@
 // until it is closed or the world is left; in a teachers' world, the page opens
 // with the switch to take part and each class's exact sending, and while it is
 // on the sendings due go out (use-insights-sending.ts, #622), with the log of
-// what was sent and what the app connects to, each over the page, which stays
-// mounted under it, keeping its place, its chosen class and its sendings. The
-// classes a national world stops are worked out once for each set of joins, and
-// a working out that fails leaves a row for each join.
+// what was sent, what the app connects to and how a class compares with its
+// peers (#623), each over the page, which stays mounted under it, keeping its
+// place, its chosen class and its sendings. The classes a national world stops
+// are worked out once for each set of joins, and a working out that fails
+// leaves a row for each join.
 
 import {
+  endedTerm,
   insightsLog,
   insightsState,
   keptJoins,
@@ -32,16 +34,18 @@ import type { TermReference } from '../director/seeded-fill';
 import type { Spec as StorageSpec } from '../native/NativeMinhajnaStorage';
 import { worldRequest } from '../network/world-network';
 import { WorldOptin } from './InsightsOptin';
+import { InsightsCompare } from './InsightsCompare';
 import { InsightsHelp } from './InsightsHelp';
 import { InsightsLog } from './InsightsLog';
 import { InsightsPage } from './InsightsPage';
 import { InsightsRow } from './InsightsRow';
 import { insightsStyles } from './insights-styles';
 import { joinRows, stoppedClasses, type StoppedClass } from './stopped-classes';
+import { useClassCompare } from './use-class-compare';
 import { useInsightsSending } from './use-insights-sending';
 
 export type WorldInsightsInput = {
-  readonly open: Pick<OpenWorld, 'world' | 'kind' | 'date' | 'book'> | null;
+  readonly open: Pick<OpenWorld, 'world' | 'kind' | 'date' | 'book' | 'starter'> | null;
   /** The world's calendars: the bundled one, and the one it published laid over it. */
   readonly calendars: readonly SchoolCalendar[];
   readonly school: DemoSchool | null;
@@ -63,7 +67,7 @@ export function useWorldInsights(input: WorldInsightsInput): {
   readonly close: () => void;
 } {
   const { open, calendars, school, kit, reference, storage, send = worldRequest, date, dayText } = input;
-  const [shown, setShown] = useState<'page' | 'log' | 'help' | null>(null);
+  const [shown, setShown] = useState<'page' | 'log' | 'help' | `compare-${string}` | null>(null);
   const digest = useMemo(
     () => (text: string) => storage.digest([text]).then(([hash]) => hash ?? Promise.reject(new Error('No digest'))),
     [storage],
@@ -85,6 +89,22 @@ export function useWorldInsights(input: WorldInsightsInput): {
       live = false;
     };
   }, [joins, school, kit]);
+  const comparing = shown?.startsWith('compare-') === true ? shown.slice('compare-'.length) : null;
+  const year = reference?.calendar.year;
+  const ended = teaching === null || year === undefined ? null : endedTerm(year, teaching.date);
+  const compared = useClassCompare({
+    open: teaching,
+    mine: taking.mine,
+    classId: comparing,
+    reference,
+    kit,
+    digest,
+    send,
+    settle: taking.settle,
+  });
+  const comparable = (ended === null || taking.mine === null ? [] : taking.mine.school.classes).filter(
+    (one) => taking.mine?.teacher.classIds.includes(one.id) && one.packs[taking.mine.teacher.subject] !== undefined,
+  );
   const close = () => setShown(null);
   const back = () => setShown('page');
   if (state === null) return { row: null, page: null, close };
@@ -101,6 +121,16 @@ export function useWorldInsights(input: WorldInsightsInput): {
       />
     ) : shown === 'help' && teaching !== null ? (
       <InsightsHelp on={taking.choice.on} date={date} onClose={back} />
+    ) : comparing !== null && ended !== null && reference !== undefined ? (
+      <InsightsCompare
+        className={comparable.find((one) => one.id === comparing)?.name ?? comparing}
+        compare={compared.compare}
+        reference={reference}
+        date={date}
+        term={ended.number}
+        onAgain={compared.again}
+        onClose={back}
+      />
     ) : null;
   return {
     row: <InsightsRow state={state} on={taking.choice.on} onPress={() => setShown('page')} />,
@@ -132,6 +162,8 @@ export function useWorldInsights(input: WorldInsightsInput): {
               }
               {...(teaching !== null && reference !== undefined && { onLog: () => setShown('log') })}
               {...(teaching !== null && { onHelp: () => setShown('help') })}
+              comparing={comparable.map(({ id, name }) => ({ id, name }))}
+              onCompare={(id) => setShown(`compare-${id}`)}
               opened={shown === 'page' ? null : shown}
               onClose={close}
             />

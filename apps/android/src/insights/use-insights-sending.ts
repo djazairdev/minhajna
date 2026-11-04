@@ -21,7 +21,7 @@ import {
   type WorldMac,
   type WorldTeacher,
 } from '@minhajna/core';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Send } from '../demo/world-session';
 import { seededWorld } from '../director/director-world';
 import type { TermReference } from '../director/seeded-fill';
@@ -29,13 +29,14 @@ import { sendDueInsights, waitingSendings } from './send-insights';
 
 /**
  * How the sending stands: off, going, done with how many the server took, done but for a class with no sending to
- * make, or failed.
+ * make or a term whose collection had ended, or failed.
  */
 export type SendingStatus =
   | { readonly kind: 'off' }
   | { readonly kind: 'working' }
   | { readonly kind: 'done'; readonly taken: number }
   | { readonly kind: 'partial' }
+  | { readonly kind: 'late' }
   | { readonly kind: 'failed' };
 
 export type InsightsSendingInput = {
@@ -57,9 +58,12 @@ export function useInsightsSending({ open, reference, kit, digest, send }: Insig
   readonly unkept: boolean;
   /** The world's teacher, as every device rebuilds them, or null without one. */
   readonly mine: WorldTeacher | null;
+  /** Once any choice made is kept, sends what is due if taking part is on; rejects when that fails (#623). */
+  readonly settle: () => Promise<unknown>;
 } {
   const [chosen, setChosen] = useState<{ count: number; unkept: string | null }>({ count: 0, unkept: null });
   const [attempt, setAttempt] = useState(0);
+  const pending = useRef<Promise<unknown>>(Promise.resolve());
   const [result, setResult] = useState<{ key: string; status: SendingStatus } | null>(null);
   const world = open?.world ?? null;
   const mine = useMemo(
@@ -77,8 +81,12 @@ export function useInsightsSending({ open, reference, kit, digest, send }: Insig
     let live = true;
     const wanted = () => live;
     sendDueInsights({ world, mine, date, book, reference, kit, digest, send, wanted }).then(
-      ({ taken, unsent }) =>
-        live && setResult({ key, status: unsent > 0 ? { kind: 'partial' } : { kind: 'done', taken } }),
+      ({ taken, unsent, late }) =>
+        live &&
+        setResult({
+          key,
+          status: late > 0 ? { kind: 'late' } : unsent > 0 ? { kind: 'partial' } : { kind: 'done', taken },
+        }),
       () => live && setResult({ key, status: { kind: 'failed' } }),
     );
     return () => {
@@ -88,9 +96,17 @@ export function useInsightsSending({ open, reference, kit, digest, send }: Insig
   const choose = (on: boolean) => {
     if (open === null) return;
     const kept = (unkept: string | null) => () => setChosen((last) => ({ count: last.count + 1, unkept }));
-    open.book.record(open.date, { kind: 'insights.choice', choice: { on } }).then(kept(null), kept(open.world));
+    pending.current = open.book
+      .record(open.date, { kind: 'insights.choice', choice: { on } })
+      .then(kept(null), kept(open.world));
   };
   const retry = () => setAttempt((count) => count + 1);
+  const settle = async (): Promise<unknown> => {
+    await pending.current;
+    if (world === null || mine === null || reference === undefined || book === null || date === null) return undefined;
+    if (!insightsChoice(book.entries).on) return undefined;
+    return sendDueInsights({ world, mine, date, book, reference, kit, digest, send });
+  };
   const waiting = going && waitingSendings(mine, reference, date, book.entries).length > 0;
   const status: SendingStatus = !going
     ? { kind: 'off' }
@@ -99,5 +115,5 @@ export function useInsightsSending({ open, reference, kit, digest, send }: Insig
       : waiting
         ? { kind: 'working' }
         : { kind: 'done', taken: 0 };
-  return { choice, status, choose, retry, unkept: world !== null && chosen.unkept === world, mine };
+  return { choice, status, choose, retry, unkept: world !== null && chosen.unkept === world, mine, settle };
 }
