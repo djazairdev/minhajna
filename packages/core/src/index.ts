@@ -11,6 +11,7 @@ export * from './assessment.ts';
 export * from './assessment-read.ts';
 export * from './captures.ts';
 export * from './cuts.ts';
+export * from './cut-words.ts';
 export * from './pack-lifecycle.ts';
 export * from './pack-lifecycle-files.ts';
 export * from './marks.ts';
