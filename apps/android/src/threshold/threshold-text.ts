@@ -150,7 +150,8 @@ export function chartSpec(t: TFunction, chart: ExamChart, day: string): Omit<Cha
 
 /**
  * What a moved exam's card and page say: its days before and now, the day it was announced, and why; for a room whose
- * chart is `stale`, neither its signing deadline nor its figures day as moving it.
+ * chart is `stale`, neither its signing deadline nor its figures day as moving it; on what is `published` after the
+ * exam, neither how the figures are taken nor where the change was seen.
  */
 export function movedLines(
   t: TFunction,
@@ -158,6 +159,7 @@ export function movedLines(
   now: Pick<WorldExam, 'from' | 'to' | 'figuresDay' | 'signBy' | 'setBy'>,
   dayText: (day: Day) => string,
   stale = false,
+  published = false,
 ): string[] {
   if (move === undefined) return [];
   const { before } = move;
@@ -178,8 +180,8 @@ export function movedLines(
     }),
     ...(move.announced === null ? [] : [t('demo.thresholds.movedAnnounced', { day: dayText(move.announced) })]),
     ...(move.reason === null ? [] : [t('demo.thresholds.movedReason', { reason: isolate(move.reason) })]),
-    ...(stale || week ? [] : [t('demo.thresholds.movedFigures')]),
-    t('demo.thresholds.movedCalendar'),
+    ...(stale || week || published ? [] : [t('demo.thresholds.movedFigures')]),
+    ...(published ? [] : [t('demo.thresholds.movedCalendar')]),
   ];
 }
 

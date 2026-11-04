@@ -9,13 +9,14 @@
 // committee's plan is the pack most of the grade's classes pin for the subject
 // among the schools it covers, of those the reference holds, the first pinned
 // at a tie, and its subjects those a class of the grade pins a pack the
-// reference holds for, as the classes first name them. A room is read from its
-// stream with the words on how its cut shaped the exam from theirs
-// (cut-words.ts), a space not open yet holding none. A seat's vote is dated the
-// world's date and numbered above the seat's every vote, and goes on the stream
-// once: a seat that names the cut already puts nothing; it is refused
-// (E_CUT_CLOSED) outside the room's days or once a cut is adopted, read afresh
-// as it is put. Other errors carry world-session.ts's codes.
+// reference holds for, as the classes first name them; committeeRooms gives
+// each its room. A room is read from its stream with the words on how its cut
+// shaped the exam from theirs (cut-words.ts), a space not open yet holding
+// none. A seat's vote is dated the world's date and numbered above the seat's
+// every vote, and goes on the stream once: a seat that names the cut already
+// puts nothing; it is refused (E_CUT_CLOSED) outside the room's days or once a
+// cut is adopted, read afresh as it is put. Other errors carry
+// world-session.ts's codes.
 
 import {
   committeePlace,
@@ -104,7 +105,7 @@ export function committeePlan(
 
 /** A grade's committees of an exam: each subject with a plan, in the classes' order, with its room. */
 export function committeeRooms(
-  held: { readonly world: string; readonly scope: string },
+  committee: { readonly world: string; readonly scope: string },
   exam: Pick<WorldExam, 'id' | 'figuresDay' | 'signBy' | 'to'>,
   grade: string,
   schools: readonly Pick<DemoSchool, 'classes'>[],
@@ -114,7 +115,7 @@ export function committeeRooms(
     const plan = committeePlan(schools, packs, grade, subject);
     if (plan === null) return [];
     const room = {
-      name: { world: held.world, scope: held.scope, exam: exam.id, subject, grade },
+      name: { ...committee, exam: exam.id, subject, grade },
       items: plan.items.map((one) => one.id),
       days: { from: exam.figuresDay, to: exam.signBy },
       lastDay: exam.to,

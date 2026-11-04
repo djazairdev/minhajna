@@ -108,8 +108,8 @@ export function CommitteePage(props: CommitteePageProps) {
     <View testID="committee" style={page}>
       <Text style={[styles.body, align]}>{t(`demo.committee.level.${level}.lead`)}</Text>
       <Text accessibilityLiveRegion="polite" style={[styles.small, align]}>
-        {votes.voting
-          ? t('demo.committee.signing')
+        {votes.signing !== null
+          ? t(votes.signing)
           : votes.said !== '' || !reading
             ? votes.said
             : t('demo.committee.reading')}
@@ -209,7 +209,7 @@ export function CommitteePage(props: CommitteePageProps) {
           state={shown?.state ?? null}
           words={shown?.words ?? null}
           onWrite={(seat, words, done) => votes.write(open.room, seat, words, done)}
-          busy={reading || votes.voting}
+          busy={reading || votes.signing !== null}
           onVote={(seat, item, done) => votes.vote(open.room, seat, item, done)}
         />
       )}

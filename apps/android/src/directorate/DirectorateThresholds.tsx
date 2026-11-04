@@ -33,10 +33,12 @@ export type DirectorateThresholdsProps = {
   readonly dayText: (day: Day) => string;
   /** The world's calendar updates, which say when and why an exam moved. */
   readonly updates?: readonly CalendarUpdate[];
+  /** Shows what is published of the cuts, not the committees' rooms. */
+  readonly published?: boolean;
 };
 
 /** The committees of the directorate's own exams, or what is published of them. */
-export function DirectorateThresholds(props: DirectorateThresholdsProps & { readonly published?: boolean }) {
+export function DirectorateThresholds(props: DirectorateThresholdsProps) {
   const Page = props.published === true ? PublishedCuts : CommitteePage;
   const { world, school, held, reference, bundled, kit, send = worldRequest, dayText, updates } = props;
   const directorate = school.directorateId;

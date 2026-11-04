@@ -9,8 +9,8 @@
 // move with both dates and why; for each subject with a plan, the cut adopted
 // and its day, or no cut, or that none was adopted and the paper was set as
 // usual, the share of the classes that had reached the cut on the figures day,
-// how it shaped the exam in the committee's own words, and the seats'
-// signatures; and, for the subject chosen, the figures used
+// how it shaped the exam in the committee's own words, and the signatures of
+// the seats that adopted it; and, for the subject chosen, the figures used
 // (CommitteeFigures.tsx), no wilaya named. It says the safeguards, and what was
 // not used. It reads as the room does (useCommittee.ts,
 // use-committee-figures.ts), a problem said as an alert with a way to read
@@ -41,7 +41,7 @@ import { isolate } from '../week/grid-labels';
 import { termEndsBefore } from './committee-figures';
 import { committeeRooms, type CommitteeRead } from './committee-session';
 import { CommitteeFigures } from './CommitteeFigures';
-import { gradeShown } from './exam-totals';
+import { gradeShown, shareOf } from './exam-totals';
 import { examName, itemNamer, movedLines, movesOf } from './threshold-text';
 import { thresholdStyles as styles } from './ThresholdFrame';
 import { useCommitteeFigures, type LevelFigures } from './use-committee-figures';
@@ -70,7 +70,7 @@ export type PublishedCutsProps = {
 };
 
 const SAFEGUARDS = ['announced', 'after', 'unchecked'] as const;
-const UNUSED = ['figures', 'plans', 'floors', 'ranking'] as const;
+const UNUSED = ['figures', 'plans', 'floors'] as const;
 const page = { gap: spacing['space-12'] } as const;
 const problem = { ...typography.body, color: colors['error-ink'] } as const;
 
@@ -118,14 +118,10 @@ export function PublishedCuts(props: PublishedCutsProps) {
     const adopted = shown?.state.adopted ?? null;
     const figure = figures.figures?.[0];
     const grading = figure == null || grade === undefined ? undefined : gradeShown(figure, subject, grade);
-    const counted =
-      typeof grading === 'object' && adopted?.item != null ? new Map(grading.items).get(adopted.item) : null;
     const share =
-      typeof grading !== 'object' || counted === null
+      typeof grading !== 'object' || adopted?.item == null || grading.classes === 0
         ? null
-        : grading.classes === 0
-          ? 0
-          : Math.round(((counted ?? 0) * 1000) / grading.classes) / 10;
+        : shareOf(grading, adopted.item);
     return (
       <View key={subject} testID={`published-${subject}`} style={styles.card}>
         <Text accessibilityRole="header" style={[styles.head, align]}>
@@ -148,15 +144,17 @@ export function PublishedCuts(props: PublishedCutsProps) {
               : t('demo.published.share', { share, day: dayText(exam.figuresDay) }),
           )}
         {adopted?.item != null && body(shown?.words?.words ?? t('demo.committee.words.none'))}
-        {adopted?.seats.map((seat) =>
-          small(
-            t('demo.published.signed', {
-              seat: t('demo.committee.seat', { n: seat + 1 }),
-              day: dayText(shown?.state.votes.get(seat)?.day ?? adopted.day),
-            }),
-            String(seat),
-          ),
-        )}
+        {[...(adopted?.seats ?? [])]
+          .sort((one, other) => one - other)
+          .map((seat) =>
+            small(
+              t('demo.published.signed', {
+                seat: t('demo.committee.seat', { n: seat + 1 }),
+                day: dayText(shown?.state.votes.get(seat)?.day ?? adopted.day),
+              }),
+              String(seat),
+            ),
+          )}
         {adopted !== null &&
           small(t('demo.published.majority', { adopted: adopted.seats.length, seats: committeeSeats({ scope }) }))}
       </View>
@@ -219,8 +217,9 @@ export function PublishedCuts(props: PublishedCutsProps) {
               to: dayText(exam.to),
             }),
           )}
-          {movedLines(t, moves.get(exam.id), exam, dayText).map((line, at) => small(line, `moved-${at}`))}
+          {movedLines(t, moves.get(exam.id), exam, dayText, false, true).map((line, at) => small(line, `moved-${at}`))}
           {held !== null && votes.reads !== null && planned.map((one, at) => row(one, votes.reads?.[at]))}
+          {held !== null && planned.length === 0 && body(t('demo.committee.noPlan'))}
           {held !== null && planned.length > 1 && (
             <ChipGroup
               testID="published-subjects"
@@ -232,6 +231,9 @@ export function PublishedCuts(props: PublishedCutsProps) {
           )}
           {held !== null && open !== undefined && grade !== undefined && (
             <View testID="published-figures" style={styles.card}>
+              <Text accessibilityRole="header" style={[styles.head, align]}>
+                {nameOf(open.subject)}
+              </Text>
               <CommitteeFigures
                 testID="published"
                 level={level}
@@ -250,6 +252,7 @@ export function PublishedCuts(props: PublishedCutsProps) {
             small(t(`demo.published.safeguards.${key}`, { figures: dayText(exam.figuresDay) }), key),
           )}
           {UNUSED.map((key) => small(t(`demo.published.unused.${key}`), key))}
+          {small(t(`demo.published.level.${level}.ranking`))}
           {small(t(`demo.committee.level.${level}.floors`))}
         </>
       )}

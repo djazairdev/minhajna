@@ -64,10 +64,10 @@ export type CommitteePanelProps = {
   readonly onVote: (seat: number, item: string | null, done: string) => void;
 };
 
-/** A committee's figures, votes and choices. */
+/** A committee's figures, votes and choices, and after the exam its words on how an adopted cut shaped it. */
 export function CommitteePanel(props: CommitteePanelProps) {
   const { exam, head, subject, grade, items, seats, item, date, dayText, move, figures, ends, state } = props;
-  const { busy, onVote, level, subjectWords, words, onWrite } = props;
+  const { busy, onVote, level, subjectWords, words: written, onWrite } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -138,7 +138,7 @@ export function CommitteePanel(props: CommitteePanelProps) {
         <CommitteeChoices seats={seats} state={state} items={items} item={item} busy={busy} onVote={onVote} />
       )}
       {over && state?.adopted != null && state.adopted.item !== null && (
-        <CommitteeWordsForm seats={state.adopted.seats} words={words} busy={busy} onWrite={onWrite} />
+        <CommitteeWordsForm seats={state.adopted.seats} words={written} busy={busy} onWrite={onWrite} />
       )}
       {state !== null && !noCut && !over && small(t(`demo.committee.level.${level}.sees`))}
       {state !== null &&

@@ -4,8 +4,11 @@
 // How a committee's cut shaped the exam, in its own words (#606, R-7.10-21,
 // answer 640), on its room after the exam: the words that count, or that none
 // are written yet, and for a seat that adopted the cut, chosen among them, a
-// field for the words as they will be published, unchanged, trimmed and in NFC,
-// with a way to sign them, held back while they do not read as words.
+// field that starts from the words that count and keeps what was typed through
+// a refusal, a line break typed becoming a space, for the words as they will be
+// published, unchanged, trimmed and in NFC, with how long they are and a way to
+// sign them, held back while they do not read as words or say what counts
+// already.
 
 import { WORDS_LENGTH, wordsRead, type CommitteeWords } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -33,10 +36,12 @@ export function CommitteeWordsForm({ seats, words, busy, onWrite }: CommitteeWor
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [chosen, setChosen] = useState<number | null>(null);
-  const [typed, setTyped] = useState('');
-  const seat = seats.find((one) => one === chosen) ?? seats[0];
+  const [typed, setTyped] = useState<string | null>(null);
+  const sorted = [...seats].sort((one, other) => one - other);
+  const seat = sorted.find((one) => one === chosen) ?? sorted[0];
   const post = t('demo.committee.seat', { n: seat + 1 });
-  const text = typed.trim().normalize('NFC');
+  const value = typed ?? words?.words ?? '';
+  const text = value.trim().normalize('NFC');
   const reads = wordsRead(text);
   return (
     <View testID="committee-words" style={styles.card}>
@@ -47,7 +52,7 @@ export function CommitteeWordsForm({ seats, words, busy, onWrite }: CommitteeWor
       <ChipGroup
         testID="committee-words-seats"
         label={t('demo.committee.seats')}
-        choices={seats.map((one) => ({ value: String(one), label: t('demo.committee.seat', { n: one + 1 }) }))}
+        choices={sorted.map((one) => ({ value: String(one), label: t('demo.committee.seat', { n: one + 1 }) }))}
         selected={String(seat)}
         onSelect={(one) => setChosen(Number(one))}
       />
@@ -56,20 +61,20 @@ export function CommitteeWordsForm({ seats, words, busy, onWrite }: CommitteeWor
         multiline
         label={t('demo.committee.words.label')}
         placeholder={t('demo.committee.words.placeholder')}
-        value={typed}
-        onChangeText={setTyped}
+        value={value}
+        onChangeText={(one) => setTyped(one.replace(/[\r\n]+/g, ' '))}
         {...(text !== '' && !reads ? { error: t('demo.committee.words.bad', { most: WORDS_LENGTH }) } : {})}
       />
       <Button
         testID="committee-words-sign"
         label={t('demo.committee.words.sign')}
         name={`${t('demo.committee.words.sign')}${t('chart.colon')}${post}`}
-        disabled={busy || !reads}
-        onPress={() => {
-          setTyped('');
-          onWrite(seat, text, t('demo.committee.words.done', { seat: post }));
-        }}
+        disabled={busy || !reads || text === words?.words}
+        onPress={() => onWrite(seat, text, t('demo.committee.words.done', { seat: post }))}
       />
+      <Text style={[styles.small, align]}>
+        {t('demo.committee.words.length', { n: [...text].length, most: WORDS_LENGTH })}
+      </Text>
       <Text style={[styles.small, align]}>{t('demo.committee.words.note')}</Text>
     </View>
   );

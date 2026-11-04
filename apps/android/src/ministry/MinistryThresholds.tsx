@@ -32,10 +32,12 @@ export type MinistryThresholdsProps = {
   readonly dayText: (day: Day) => string;
   /** The world's calendar updates, which say when and why an exam moved. */
   readonly updates?: readonly CalendarUpdate[];
+  /** Shows what is published of the cuts, not the committees' rooms. */
+  readonly published?: boolean;
 };
 
 /** The committees of the national exams, or what is published of them. */
-export function MinistryThresholds(props: MinistryThresholdsProps & { readonly published?: boolean }) {
+export function MinistryThresholds(props: MinistryThresholdsProps) {
   const Page = props.published === true ? PublishedCuts : CommitteePage;
   const { world, held, reference, bundled, kit, send = worldRequest, dayText, updates } = props;
   const schools = useMemo(() => seededWorld(world.world, bundled).schools, [world.world, bundled]);
