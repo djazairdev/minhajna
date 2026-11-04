@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // What is published of a level's cuts (#606, N-Published, answer 640), against
-// a made-up demo server: nothing before the day after the exam's last day; a cut
-// with its day, the share of the classes that had reached it, the committee's
-// words unchanged and each seat's signature; no cut decided, and none adopted;
-// the figures with the subject chosen, the share held back under the floors; the
-// safeguards, what was not used; a moved exam's two dates and why; a problem said
-// with a way to read again; and each workspace's page. Every world, school and
-// share is made up.
+// a made-up demo server: nothing before the day after the exam's last day; a
+// cut with its day, the share of the classes that had reached it, the
+// committee's words unchanged and each seat's signature; no cut decided, and
+// none adopted; the figures with the subject chosen, the share held back under
+// the floors; the safeguards, what was not used; a moved exam's two dates and
+// why; a problem said with a way to read again; and each workspace's page.
+// Every world, school and share is made up.
 
 import { addDays, NATIONAL_COMMITTEE, worldExams, type Day } from '@minhajna/core';
 import { Platform } from 'react-native';

@@ -3,10 +3,10 @@
 
 // A committee's words on how its cut shaped the exam (#606, R-7.10-21, answer
 // 640), against a made-up demo server: put once by a seat that adopted a cut
-// after the exam, refused otherwise; the latest signed counting; and in the room,
-// only after the exam, only for an adopted cut and the seats that adopted it,
-// held back while they do not read as words. Every world, school and share is
-// made up.
+// after the exam, refused otherwise; the latest signed counting; and in the
+// room, only after the exam, only for an adopted cut and the seats that adopted
+// it, held back while they do not read as words. Every world, school and share
+// is made up.
 
 import { addDays, WORDS_LENGTH } from '@minhajna/core';
 import { Platform } from 'react-native';
