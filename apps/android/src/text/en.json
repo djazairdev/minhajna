@@ -6429,6 +6429,47 @@
       "shown": "Shown below.",
       "lapsed": "The decision closed when the exam began without it being taken: no cut applies, and the paper is set as usual.",
       "ended": "The school year has ended: its exams’ rooms are no longer read here."
+    },
+    "obsReport": {
+      "heading": "Report on the {{term}}",
+      "reading": "Reading the term’s figures…",
+      "again": "Read again",
+      "none": "No term has ended yet by this world’s date. The report opens on a term’s last day.",
+      "waiting": "This term’s collection is still open. The device that started this world closes it when its Reports page opens.",
+      "forming": "This term’s figures are being formed.",
+      "empty": "No pack reached the minimum group size this term, so there are no figures to show.",
+      "pack": "Pack",
+      "counts": "Classes: {{classes}} · Teachers: {{teachers}} · Schools: {{schools}} · Wilayas shown: {{wilayas}}",
+      "chosen": "A self-selected sample: teachers chose to take part, so these figures do not stand for all classes. They describe the plan, not classes or teachers.",
+      "hidden": "A wilaya under the minimum group size, or one that would reveal another by subtraction, is not shown.",
+      "setAside": "Classes set aside because no real class would send the like: {{classes}}",
+      "medians": "Median sessions per item",
+      "item": "Item in the pack",
+      "plan": "Planned",
+      "median": "Median",
+      "noPlan": "—",
+      "above": "{{median}}, above the plan",
+      "itemClasses": "Classes per item: {{low}} to {{high}}",
+      "changed": "Items changed most",
+      "most": {
+        "split": "Split most",
+        "merged": "Merged most",
+        "skipped": "Skipped most",
+        "retaught": "Re-taught most"
+      },
+      "band": {
+        "under": "Under {{high}}%",
+        "over": "{{low}}% and over",
+        "between": "{{low}} to {{high}}%"
+      },
+      "bands": "Shares are in bands, never exact figures.",
+      "reached": "How far classes got by the term’s end",
+      "reachedMedian": "Median: {{median}}% of the plan",
+      "reachedMiddle": "Half of the classes between {{low}}% and {{high}}% of the plan",
+      "figureClasses": "Classes: {{classes}}",
+      "noNation": "This pack’s figures are not shown: too few classes.",
+      "sameBand": "Other items in the same band: {{others}}",
+      "itemClassesSame": "Classes per item: {{classes}}"
     }
   },
   "chart": {

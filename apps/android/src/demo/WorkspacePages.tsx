@@ -29,7 +29,9 @@
 // server from what it says of itself, with its version and health (#618,
 // OpsConsole.tsx), and their admin and security logs and the world's problem
 // reports read from it (#619, OpsAdminLog.tsx, OpsSecurity.tsx,
-// OpsProblems.tsx).
+// OpsProblems.tsx); and the observatory's reports page, whose world has no
+// school, reads a term's figures (#627, ObsReport.tsx). Only that page goes
+// without a school; any other stays empty in such a world.
 // The curator's pack list reads source releases only (#611, PackList.tsx).
 
 import type { CalendarUpdate, Day, DemoSchool, SchoolYear, TrialTerm } from '@minhajna/core';
@@ -53,6 +55,7 @@ import { localized } from '../setup/names';
 import { TimetableDesk } from '../timetable/TimetableDesk';
 import { MinistryCalendarPage } from '../ministry/MinistryCalendarPage';
 import { MinistryTotals } from '../ministry/MinistryTotals';
+import { ObsReport } from '../observatory/ObsReport';
 import { OpsAdminLog } from '../operators/OpsAdminLog';
 import { OpsConsole } from '../operators/OpsConsole';
 import { OpsProblems } from '../operators/OpsProblems';
@@ -67,7 +70,8 @@ import type { Send, WorldKit } from './world-session';
 
 export type WorkspacePagesProps = {
   readonly open: OpenWorld;
-  readonly school: DemoSchool;
+  /** The world's seeded school, which a teachers' world does not have. */
+  readonly school: DemoSchool | null;
   readonly reference: Extract<ReferenceResult, { ok: true }>;
   /** The bundled reference data, without the world's releases, which a seeded school's term is worked out from. */
   readonly bundled: Extract<ReferenceResult, { ok: true }>;
@@ -101,6 +105,9 @@ export function workspacePage(
 ): ReactElement | null {
   const { open, school, reference, kit, send, dayText, trial, year, mine, timetable, onTimetable, onPage } = props;
   const { held, onCalendar, bundled } = props;
+  if (workspace === 'observatory' && page === 'insights')
+    return <ObsReport world={open} year={year} reference={reference} send={send} />;
+  if (school === null) return null;
   if (workspace === 'ministry' && page === 'calendar')
     return (
       <MinistryCalendarPage
