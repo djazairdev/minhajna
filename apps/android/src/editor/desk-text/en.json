@@ -1,17 +1,255 @@
 {
   "account": {
-    "curator": "Signed in with the curators' account.",
-    "ministry": "Signed in with the Ministry's account.",
-    "making": "Making this role's account on the server…",
+    "curator": "Signed in with the curators’ account.",
+    "ministry": "Signed in with the Ministry’s account.",
+    "making": "Making this role’s account on the server…",
     "makeFailed": "The account could not be made. Try again.",
     "retry": "Try again",
     "signInTitle": "Sign in to the pack editor",
-    "signInHint": "The device that started this world holds this role's code. Until you sign in, releases are read-only.",
-    "code": "The account's code",
+    "signInHint": "The device that started this world holds this role’s code. Until you sign in, releases are read-only.",
+    "code": "The account’s code",
     "signIn": "Sign in",
     "wrongCode": "No account of this role has this code.",
-    "signInFailed": "The server didn't answer. Try again.",
+    "signInFailed": "The server didn’t answer. Try again.",
     "showCode": "Show the code for another PC",
     "hideCode": "Hide the code"
-  }
+  },
+  "release": {
+    "listTitle": "Releases",
+    "reviewsTitle": "Releases under review",
+    "none": "No release yet. Packs are started on the packs page.",
+    "noReviews": "No release is under review.",
+    "open": "Open",
+    "back": "Back to the list",
+    "title": "Release {{release}}",
+    "thenAfter": "then superseded, or withdrawn",
+    "viewLabel": "Show",
+    "table": "Table",
+    "map": "Map",
+    "stage": {
+      "draft": "Draft",
+      "under-review": "Under review",
+      "published": "Published",
+      "superseded": "Superseded",
+      "withdrawn": "Withdrawn"
+    },
+    "effectTitle": "Effect on classes",
+    "effect": "Each class stays on its release until its teacher moves it, and recorded sessions never change.",
+    "send": "Send to review",
+    "publish": "Publish",
+    "publishOfficial": "Publish as Official",
+    "waitsForTwo": "A release is published after both agree.",
+    "waitsForChecks": "A check above still holds this release back.",
+    "supersede": "Mark as replaced by {{release}}",
+    "withdraw": "Withdraw this release",
+    "withdrawConfirm": "Withdraw this release? Classes on it stay on it, and no new class can take it.",
+    "withdrawYes": "Withdraw",
+    "keep": "Keep it",
+    "firstRelease": "This is the pack’s first release, so there is nothing to compare it with.",
+    "changesOn": "Changes on {{release}}, and their migration entries",
+    "noChanges": "Nothing a teacher would read has changed.",
+    "withEntry": "With a migration entry",
+    "noEntry": "No migration entry needed",
+    "splitProgress": "Progress: if the old item was finished, every part is; if skipped, every part is; if started, it restarts at the first part.",
+    "layers": "Layers above the national pack follow the same entries.",
+    "packDetails": "Also changed in the pack: {{fields}}",
+    "itemDetails": "Also changed in {{item}}: {{fields}}",
+    "notes": "Release notes for teachers, as they reach the phone",
+    "checksTitle": "Automated checks",
+    "weeks": "The plan’s horizon, in teaching weeks",
+    "budget": {
+      "main": "Lessons a week in the grid",
+      "td": "Practical sessions a week in the grid",
+      "minutes": "Minutes in a session",
+      "source": "Where the grid comes from"
+    },
+    "line": {
+      "source": {
+        "pass": "Every item cites a source page, and the pack has its issuer, edition, status and licence mode.",
+        "fail": "These items have no usable source page:",
+        "not-checked": "This release couldn’t be read, so its source wasn’t checked."
+      },
+      "extraction": {
+        "pass": "No extraction residue, and the forms took each number twice.",
+        "fail": "These items’ titles hold extraction residue:"
+      },
+      "comparison": {
+        "pass": "Every ID change has a migration entry.",
+        "fail": "The release history or migration entries don’t fit.",
+        "advisory": "A release number is skipped. Check that none is missing.",
+        "not-checked": "The history couldn’t be read, so no comparison was made."
+      },
+      "weeks": {
+        "pass": "Every week is within the horizon and matches its activity model.",
+        "fail": "These weeks are empty, or these items don’t fit:",
+        "not-checked": "Type the plan’s horizon to check its weeks."
+      },
+      "budget": {
+        "pass": "The pack fits the grid’s sessions to the end of the year.",
+        "advisory": "It doesn’t fit the grid: report this to the IGP. It holds nothing back. Items:",
+        "not-checked": "Type the grid’s figures to check the pack against them. This holds nothing back."
+      }
+    },
+    "field": {
+      "kind": "kind",
+      "term": "term",
+      "week": "week",
+      "budget": "budget",
+      "activity": "activity",
+      "optional": "optional",
+      "buffer": "spare session",
+      "stages": "stages",
+      "sourcePage": "source page",
+      "status": "status",
+      "licence": "licence",
+      "language": "language",
+      "anchor": "how it’s paced",
+      "provenance": "provenance",
+      "stageTemplates": "stage templates",
+      "merges": "joined sessions",
+      "activities": "weekly activities",
+      "staleReason": "reason it’s stale",
+      "order": "order of items",
+      "unit": "unit"
+    },
+    "noComparison": "This release doesn’t fit its history, so nothing could be compared. See the checks below.",
+    "openNamed": "Open release {{name}}",
+    "entry": {
+      "rename": "Renamed: {{from}} became {{to}}",
+      "split": "Split: {{from}} became {{to}}",
+      "merge": "Merged: {{from}} became {{to}}",
+      "remove": "Removed: {{from}}, and its ID is never used again"
+    }
+  },
+  "review": {
+    "title": "Review: two people",
+    "hint": "They compare each change with the page images and the release before it, then agree.",
+    "role": {
+      "curator": "Editing",
+      "maintainer": "Subject review",
+      "inspector": "Inspector"
+    },
+    "approved": "Approved",
+    "changes": "Changes requested",
+    "waiting": "Waiting",
+    "notOfficial": "An inspector’s review isn’t an official approval.",
+    "as": "Reviewing as",
+    "credit": "Name me as reviewer",
+    "creditHint": "Off, your review is kept without your name. Your name stays in this release’s record, which everyone in this world can read, and can’t be taken back.",
+    "name": "Your name",
+    "note": "What you compared",
+    "approve": "Approve",
+    "requestChanges": "Request changes"
+  },
+  "map": {
+    "label": "Who holds what in this release",
+    "written": "{{from}} to {{to}}: {{what}}",
+    "later": "at a later stage",
+    "curators": {
+      "label": "Curators’ account",
+      "holds": "the draft and its source pages"
+    },
+    "reviewers": {
+      "label": "Two reviewers",
+      "holds": "their own copy of the pages, and their word"
+    },
+    "ministry": {
+      "label": "Ministry’s account",
+      "holds": "the step that makes a pack Official"
+    },
+    "server": {
+      "label": "Project server",
+      "holds": "each step’s signature, and no content"
+    },
+    "space": {
+      "label": "Sealed national space",
+      "holds": "the sealed releases"
+    },
+    "teachers": {
+      "label": "Teachers’ phones",
+      "holds": "their pins, layers and progress, on the phone only"
+    },
+    "line": {
+      "steps": "each step, for a signature",
+      "draft": "the release to compare",
+      "verdict": "approval or changes",
+      "official": "Official, when the Ministry publishes",
+      "sealed": "the sealed record",
+      "signed": "the signed release"
+    }
+  },
+  "migrate": {
+    "title": "Item IDs: {{from}} to {{to}}",
+    "hint": "Every change of IDs needs an entry. A page or title change that keeps its ID needs none.",
+    "open": "These items of the release before have no entry: {{ids}}",
+    "misfits": "These IDs don’t fit the release before: {{ids}}",
+    "added": "New items, with no entry: {{ids}}. That’s fine if they’re really new.",
+    "none": "No entries yet.",
+    "source": "Source: page {{pages}}",
+    "remove": "Remove",
+    "removeNamed": "Remove the entry for {{ids}}",
+    "kind": "Kind of change",
+    "kinds": {
+      "rename": "Renamed",
+      "split": "Split",
+      "merge": "Merged",
+      "remove": "Removed"
+    },
+    "from": "Item of the release before",
+    "to": "Item of this release",
+    "noneOpen": "Every earlier item is kept or has an entry.",
+    "noneAdded": "No new item is waiting. Add it to the draft first.",
+    "problem": "This entry doesn’t fit: items of different kinds, or an ID in use. Nothing was saved.",
+    "add": "Add this entry",
+    "shown": "Show",
+    "changes": "Changes only",
+    "all": "All items",
+    "mapLabel": "Items of the release before, and where each went",
+    "onDevice": "The rule applies on the teacher’s device when a class moves, and the server never knows a class’s progress. A session count in a teacher’s layer isn’t a split: the teacher is asked before the move.",
+    "close": "Close",
+    "opener": "Migration entries",
+    "otherFrom": "These entries start from {{release}}, which this device doesn’t hold. Adding one replaces them."
+  },
+  "reports": {
+    "title": "Plan-error reports",
+    "hint": "From teachers in this world, the latest first. A name shows only when the teacher chose credit.",
+    "problem": "The reports could not be read. Try again.",
+    "none": "No report yet.",
+    "filter": "Release",
+    "all": "All releases",
+    "noCredit": "No credit asked",
+    "credit": "Credit: {{name}}"
+  },
+  "teacher": {
+    "open": "The world’s plans",
+    "title": "The plans published in this world",
+    "readProblem": "The plans could not be read. Go back and try again.",
+    "sendProblem": "The report was not sent. Try again.",
+    "none": "No plan has been published in this world yet.",
+    "sent": "Sent to the curators.",
+    "item": "Item with the error",
+    "goesTo": "It’s sealed, so the server can’t read it; anyone holding this world’s code could. It goes only when you press Send, and the curators read it there.",
+    "send": "Send the report",
+    "yourClasses": "Your classes",
+    "noClasses": "No class yet: the plans follow the timetable your school sends.",
+    "noPin": "{{class}}: no plan yet",
+    "onRelease": "{{class}}: release {{release}}",
+    "movedOn": "Moved on this world’s day {{day}}",
+    "withdrawn": "This release was withdrawn. The class stays on it until you move it to a newer one.",
+    "newRelease": "A new release: {{release}}",
+    "signedMinistry": "Signed under the Ministry’s account in this world: Official",
+    "signedCurators": "Signed under the curators’ account in this world",
+    "worldOnly": "It counts only inside this world. Outside it, the app refuses what a world signed.",
+    "neverMoves": "Publishing moves no class: each stays on its release until you move it, and recorded sessions never change.",
+    "each": "Each class, on its own",
+    "noChain": "A release between {{release}} and this one is missing or doesn’t fit, so no move is offered.",
+    "changes": "What changed since {{release}}",
+    "move": "Move {{class}} to {{release}}",
+    "moved": "{{class}} moved to {{release}}.",
+    "moveProblem": "The move wasn’t kept. Try again.",
+    "damaged": "Part of this world’s history could not be read, so no move is offered. Go back and try again.",
+    "noChannel": "Your classes could not be read from the school’s timetable. Go back and try again."
+  },
+  "reload": "Read again",
+  "loading": "Reading…"
 }

@@ -10,17 +10,25 @@
 // result still counts unless the world, keys or service itself were replaced,
 // and the stream is read again after it, as that read may have missed it.
 
-import { packReleaseKey, type Day, type PackRelease, type PlanPack } from '@minhajna/core';
+import {
+  packReleaseKey,
+  type Day,
+  type PackChange,
+  type PackPublisher,
+  type PackRelease,
+  type PlanPack,
+} from '@minhajna/core';
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
-import { changePackRelease, readPackEditor, type PackEditor } from './pack-release-session';
+import { changePackRelease, readPackEditor, type PackEditor, type PackReleaseTarget } from './pack-release-session';
 
-type DraftProblem = 'saveError' | 'packSize' | 'packHistory' | 'packDate' | 'packChanged' | 'packRole' | 'worldErased';
+type DraftProblem =
+  'saveError' | 'packSize' | 'packHistory' | 'packDate' | 'packChanged' | 'packRole' | 'packReview' | 'worldErased';
 
-/** Whether the curator can edit this release: their own, still a draft or under review. */
-export function isCuratorDraft(one: PackRelease) {
-  return one.actor === 'curator' && (one.stage === 'draft' || one.stage === 'under-review');
+/** Whether this account can edit this release: its own, still a draft or under review. */
+export function isOwnDraft(one: PackRelease, role: PackPublisher) {
+  return one.actor === role && (one.stage === 'draft' || one.stage === 'under-review');
 }
 
 function problemOf(error: unknown): DraftProblem {
@@ -28,8 +36,9 @@ function problemOf(error: unknown): DraftProblem {
   if (code === 'E_PACK_SIZE') return 'packSize';
   if (code === 'E_PACK_HISTORY') return 'packHistory';
   if (code === 'E_PACK_DATE') return 'packDate';
-  if (code === 'E_PACK_CHANGED') return 'packChanged';
+  if (code === 'E_PACK_CHANGED' || code === 'E_PACK_SUCCESSOR') return 'packChanged';
   if (code === 'E_PACK_ROLE') return 'packRole';
+  if (code === 'E_PACK_REVIEW') return 'packReview';
   if (code === 'E_NO_SUCH_WORLD') return 'worldErased';
   return 'saveError';
 }
@@ -39,6 +48,7 @@ export function usePackDrafts(
   reference: readonly PlanPack[],
   send?: Send,
   setOpen?: Dispatch<SetStateAction<OpenWorld | null>>,
+  role: PackPublisher = 'curator',
 ) {
   const [records, setRecords] = useState<ReadonlyMap<string, PackRelease>>(new Map());
   const [checked, setChecked] = useState<{ world: string; date: Day; generation: number } | null>(null);
@@ -85,7 +95,7 @@ export function usePackDrafts(
       generation.current += 1;
     };
   }, [world, held, profile, kit, send, reading, setOpen]);
-  const save = async (pack: PlanPack, revision: number) => {
+  const change = async (target: PackReleaseTarget, step: PackChange, refused?: () => boolean) => {
     if (writing.current !== null) return null;
     if (!ready || checked.generation !== generation.current) {
       setReading((old) => old + 1);
@@ -97,17 +107,16 @@ export function usePackDrafts(
     setBusy(true);
     setProblem(null);
     try {
-      if (revision === 0 && reference.some((one) => one.id === pack.id && one.release === pack.release))
-        throw new Error('E_PACK_SOURCE');
+      if (refused?.() === true) throw new Error('E_PACK_SOURCE');
       const saved = await changePackRelease(
         { ...editor, world: { ...world, date: checked.date } },
-        'curator',
-        { id: pack.id, release: pack.release, revision },
-        { stage: 'draft', pack },
+        role,
+        target,
+        step,
         send,
       );
       if (context.current !== current) return null;
-      setRecords((old) => new Map(old).set(packReleaseKey(pack.id, pack.release), saved));
+      setRecords((old) => new Map(old).set(packReleaseKey(target.id, target.release), saved));
       if (generation.current !== reads) {
         setProblem((old) => (old === 'saveError' ? null : old));
         setReading((old) => old + 1);
@@ -117,7 +126,7 @@ export function usePackDrafts(
       if (context.current === current) {
         const next = problemOf(error);
         setProblem(next);
-        if (next !== 'saveError' && next !== 'packSize' && next !== 'packRole') {
+        if (!['saveError', 'packSize', 'packRole', 'packReview'].includes(next)) {
           setChecked(null);
           setReading((old) => old + 1);
         }
@@ -130,12 +139,19 @@ export function usePackDrafts(
       }
     }
   };
+  const save = (pack: PlanPack, revision: number) =>
+    change(
+      { id: pack.id, release: pack.release, revision },
+      { stage: 'draft', pack },
+      () => revision === 0 && reference.some((one) => one.id === pack.id && one.release === pack.release),
+    );
   return {
     records,
     ready,
     problem,
     busy,
     save,
+    change,
     dismiss: () =>
       setProblem((old) =>
         old === 'packDate' || old === 'packChanged' || old === 'packSize' || old === 'packRole' ? null : old,

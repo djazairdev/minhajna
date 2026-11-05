@@ -54,7 +54,7 @@
   "weeklySessions": "Sessions each week",
   "addActivity": "Add activity",
   "removeActivity": "Remove this activity",
-  "structureProblem": "Check the numbers, names and references. Items must fit the chosen timing, and a template or activity still used by an item must remain.",
+  "structureProblem": "Check the numbers, names and references. Items must fit the chosen timing, and a template or activity still used by an item must remain. If a migration entry names an item, take the entry away first.",
   "numberMismatch": "The numbers do not match. Check them against the source.",
   "sourceTitle": "Plan source",
   "sourceFields": {
@@ -138,5 +138,6 @@
   "latestApplyHint": "Your entry is still here. Apply it to the latest draft, check it and confirm it again.",
   "latestShowHint": "Show the latest draft, then make your change again.",
   "itemGone": "This item was removed from the latest draft, so it can’t be saved here. Cancel, or add it as a new item.",
-  "yourForm": "Your form"
+  "yourForm": "Your form",
+  "packReview": "This step was refused. A release needs two people’s approval to be published, and a release can hold 20 reviews; saving its draft again starts over."
 }

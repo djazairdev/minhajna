@@ -6,7 +6,7 @@
 // A read failure blocks draft edits, as does holding no curator's account.
 // Published releases are immutable.
 
-import { packReleaseKey, type PlanPack } from '@minhajna/core';
+import { packReleaseKey, type PackPublisher, type PlanPack } from '@minhajna/core';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { Text, View } from 'react-native';
 import { Badge } from '../components/Badge';
@@ -20,7 +20,7 @@ import { PackList } from './PackList';
 import { SourceForm } from './SourceForm';
 import { editorStyles as s } from './editor-styles';
 import type { PackEditor } from './pack-release-session';
-import { isCuratorDraft, usePackDrafts } from './usePackDrafts';
+import { isOwnDraft, usePackDrafts } from './usePackDrafts';
 
 export function PacksPage(
   props: PackEditor & {
@@ -28,6 +28,8 @@ export function PacksPage(
     readonly send?: Send;
     readonly refusedPacks?: number;
     readonly setOpen?: Dispatch<SetStateAction<OpenWorld | null>>;
+    /** The account this page works under. */
+    readonly role?: PackPublisher;
   },
 ) {
   return <Desk key={props.world?.world ?? ''} {...props} />;
@@ -35,11 +37,12 @@ export function PacksPage(
 
 function Desk(props: Parameters<typeof PacksPage>[0]) {
   const t = useDeviceText();
-  const desk = usePackDrafts(props, props.packs, props.send, props.setOpen);
+  const role = props.role ?? 'curator';
+  const desk = usePackDrafts(props, props.packs, props.send, props.setOpen, role);
   const reserved = [...props.packs.map((pack) => packReleaseKey(pack.id, pack.release)), ...desk.records.keys()];
   const [opened, setOpened] = useState<{ pack: PlanPack; revision: number } | null>(null);
   const [sourceForm, setSourceForm] = useState<{ initial: PlanPack | null } | null>(null);
-  const canOpen = desk.ready && sourceForm === null && props.accounts?.curator !== undefined;
+  const canOpen = desk.ready && sourceForm === null && props.accounts?.[role] !== undefined;
   const close = () => {
     setOpened(null);
     setSourceForm(null);
@@ -62,6 +65,7 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
           loading={!desk.ready && desk.problem === null}
           changed={desk.problem === 'packChanged'}
           latest={desk.records.get(packReleaseKey(opened.pack.id, opened.pack.release))}
+          role={role}
           onLatest={desk.dismiss}
           onSave={desk.save}
           onClose={close}
@@ -114,7 +118,7 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
                 label={t(`plan.status.${one.pack.status}`)}
                 variant={one.pack.status === 'stale' || one.pack.status === 'example' ? 'warning' : 'default'}
               />
-              {isCuratorDraft(one) ? (
+              {isOwnDraft(one, role) ? (
                 <Button
                   testID={`draft-open-${one.pack.release}`}
                   label={t('editorItem.open')}
