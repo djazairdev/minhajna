@@ -110,6 +110,8 @@ The Worker keeps no logs and the check sees only `503`. In order, look at:
 2. **Whether the Worker has its secrets:** four in the Worker's settings, `AWS_ENDPOINT`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `WALG_LIBSODIUM_KEY`.
 3. **The container's own lines:** turn on the Worker's logs in the dashboard for one try, and off again after. A container that says `cannot read the bucket` has the wrong bucket token. Its lines carry no clock times, but Cloudflare stamps them, which is why they stay off.
 
+**If only the scenarios fail,** with `E_WORLD_BUSY`: one run starts four worlds and makes about 1,000 requests, near the limits for one address per hour, so a re-run from the same address within the hour is refused. Wait the hour, or restart the server, which clears the limits. A new run normally gets a new address.
+
 ## What only the real service can show
 
 The image, the Worker, the host check and the archive are all exercised on a runner and on this project's machine, against an S3 stand-in. These wait for the first real deploy:
