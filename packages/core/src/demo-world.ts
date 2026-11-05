@@ -5,21 +5,22 @@
 // world first describes it, whose staff #548's seeding joins to their schools
 // with their keys, before #549 adds a term of signed weeks: a directorate for
 // each of the twelve wilayas, and in each wilaya one primary school, four CEMs
-// and one lycée, but in the last, kept small under the floors so every level's
-// screens show hidden cells, a primary school and a CEM (answer 626), each with
-// a director, a deputy and a timetable preparer, its classes with the demo
-// class's made-up pupils under registration numbers no school gives out, unique
-// in the world, and its teachers: a CEM's three of each of Arabic, mathematics
-// and French each take a 1AM and a 4AM class, a lycée's one of each takes both
-// its classes, and a primary class has its own, so each other wilaya's figures
-// by subject pass the floors. Each class's week sits on the morning slots of
-// the working days, two or three sessions a day for a CEM or lycée class and
-// one for a primary class, and is checked so no class and no teacher is in two
-// places at once; a class pins the pack the app would offer first for its grade
-// and subject. Staff alternate between women and men role by role, and from one
-// wilaya to the next. Every name comes from the seed and every ID from the
-// order things are made in, so the same seed gives the same world. The Ministry
-// needs no record here: the world is the Ministry's.
+// and one lycée, but in the last two, kept small under the floors so every
+// level's screens show hidden cells, a primary school and a CEM (answers 626
+// and 728), each with a director, a deputy and a timetable preparer, its
+// classes with the demo class's made-up pupils under registration numbers no
+// school gives out, unique in the world, and its teachers: a CEM's three of
+// each of Arabic, mathematics and French each take a 1AM and a 4AM class, a
+// lycée's one of each takes both its classes, and a primary class has its own,
+// so each other wilaya's figures by subject pass the floors. Each class's week
+// sits on the morning slots of the working days, two or three sessions a day
+// for a CEM or lycée class and one for a primary class, and is checked so no
+// class and no teacher is in two places at once; a class pins the pack the app
+// would offer first for its grade and subject. Staff alternate between women
+// and men role by role, and from one wilaya to the next. Every name comes from
+// the seed and every ID from the order things are made in, so the same seed
+// gives the same world. The Ministry needs no record here: the world is the
+// Ministry's.
 
 import type { Weekday } from './day.ts';
 import type { DemoLevel, DemoName, DemoPerson } from './demo-names.ts';
@@ -73,8 +74,12 @@ const SHARES: Readonly<Record<Exclude<DemoLevel, 'primary'>, number>> = { cem: 3
 /** A wilaya's schools, by level. */
 const SCHOOLS: readonly DemoLevel[] = ['primary', 'cem', 'cem', 'cem', 'cem', 'lycee'];
 
-/** The last wilaya's schools, kept under the floors so every level's screens show hidden cells (answer 626). */
+/**
+ * The last two wilayas' schools, kept under the floors so every level's screens show hidden cells (answers 626, 728).
+ * Two, since one alone could be worked out from the nation's figure, and the floors would hide the first directorate.
+ */
 const SMALL: readonly DemoLevel[] = ['primary', 'cem'];
+const SMALL_WILAYAS = 2;
 
 export interface DemoClass {
   readonly id: string;
@@ -195,7 +200,7 @@ export function seedNationalWorld(
   for (const [place, wilaya] of wilayas.entries()) {
     const directorate = { id: id('directorate'), wilaya };
     directorates.push(directorate);
-    for (const level of place === wilayas.length - 1 ? SMALL : SCHOOLS) {
+    for (const level of place >= wilayas.length - SMALL_WILAYAS ? SMALL : SCHOOLS) {
       const schoolId = id('school');
       const classes: DemoClass[] = CLASSES[level].map(([grade, section]) => {
         const classId = id('class');

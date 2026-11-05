@@ -27,7 +27,7 @@
 // session wrongly not held, then corrected at version 1 for an entry error, the
 // correction keeping the week's totals as the teacher's own correction does.
 // The made-up closure is one day of the ninth week, in the third wilaya, so
-// neither the director's nor the small one.
+// neither the director's nor a small one.
 
 import { clockMinutes, templateFor, type BellData } from './bells.ts';
 import { CalendarView } from './calendar.ts';
