@@ -56,12 +56,18 @@ export async function packService(kind: 'national' | 'teachers' = 'national') {
       action,
       send,
     );
+  const word = (role: 'curator' | 'maintainer', name: string): PackChange => ({
+    stage: 'under-review',
+    review: { role, verdict: 'approved', name, note: '' },
+  });
+  const approved = async (review: PackRelease) =>
+    change(await change(review, word('curator', 'Made-up Curator')), word('maintainer', 'Made-up Maintainer'));
   async function published(release = '2026.1', actor: 'curator' | 'ministry' = 'curator') {
     const draft = await change(null, { stage: 'draft', pack: { ...source, release } });
     const review = await change(draft, { stage: 'under-review' });
-    return change(review, { stage: 'published' }, actor);
+    return change(await approved(review), { stage: 'published' }, actor);
   }
-  return { server, world, editor, made, target, change, published };
+  return { server, world, editor, made, target, change, published, approved };
 }
 
 /** Appends an undecodable batch to the last release stream on the synthetic relay. */

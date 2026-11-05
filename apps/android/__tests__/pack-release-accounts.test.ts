@@ -35,13 +35,13 @@ test('the Ministry’s account publishes a curator’s review as Official, and t
   const read = await readPackReleases(f.editor, f.server.send);
   expect(read.get(packReleaseKey(source.id, '2026.1'))).toEqual(published);
   const [step] = await stepsOf(f);
-  expect(step).toMatchObject({ role: 'ministry', status: 'official', stage: 'published', revision: 3 });
+  expect(step).toMatchObject({ role: 'ministry', status: 'official', stage: 'published', revision: 5 });
 });
 
 test('a device claiming the Ministry with a curator’s token writes nothing', async () => {
   const f = await packService();
   const draft = await f.change(null, { stage: 'draft', pack: source });
-  const review = await f.change(draft, { stage: 'under-review' });
+  const review = await f.approved(await f.change(draft, { stage: 'under-review' }));
   const before = uploads(f);
   const editor = { ...f.editor, accounts: { ministry: f.editor.accounts.curator } };
   await expect(
@@ -97,7 +97,7 @@ test('the server sees the step’s names and a digest, never the release', async
 test('a step left unused holds no other account back', async () => {
   const f = await packService();
   const draft = await f.change(null, { stage: 'draft', pack: source });
-  const review = await f.change(draft, { stage: 'under-review' });
+  const review = await f.approved(await f.change(draft, { stage: 'under-review' }));
   const failing: Send = (request) =>
     request.path.endsWith('/batches')
       ? Promise.resolve({ status: 500, body: null, retryAfter: null })

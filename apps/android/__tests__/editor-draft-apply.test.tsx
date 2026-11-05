@@ -75,7 +75,7 @@ test('a latest revision that is no longer a draft says so, and offers nothing to
   const f = await packService();
   const first = await editedThenBeaten(f);
   const review = await f.change(first, { stage: 'under-review' });
-  await f.change(review, { stage: 'published' });
+  await f.change(await f.approved(review), { stage: 'published' });
   await press('item-save');
   await drain();
   expect(shown('draft-latest')).toBe(false);

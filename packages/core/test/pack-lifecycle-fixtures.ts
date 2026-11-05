@@ -14,6 +14,9 @@ import {
   type PackChange,
   type PackPublisher,
   type PackRelease,
+  type PackReview,
+  type ReviewRole,
+  type ReviewVerdict,
   type WorldKeys,
   type WorldSigner,
 } from '../src/index.ts';
@@ -32,13 +35,21 @@ export const world = 'ABCDE';
 
 const SEALING = new Uint8Array(32).fill(7);
 
+export const approval = (role: ReviewRole, name: string | null, verdict: ReviewVerdict = 'approved'): PackReview => ({
+  role,
+  verdict,
+  name,
+  note: '',
+  day,
+});
+
 export function fixture() {
   const key = makeTestKey('world-ministry');
   const ca = makeTestKey('world-ca');
   const authority = { caKey: ca.trusted.spki, sealing: SEALING, mac, verify: nodeVerifier };
   const attest = async (release: PackRelease): Promise<PackRelease> => ({
     ...release,
-    attested: ca.sign(packStepText(release, await packDigest(release.pack, SEALING, mac))),
+    attested: ca.sign(packStepText(release, await packDigest(release, SEALING, mac))),
   });
   const keys: WorldKeys = {
     world,
@@ -64,10 +75,25 @@ export function fixture() {
     records.push(signed.file);
     return signed.release;
   }
+  async function approved(review: PackRelease) {
+    const first = await change(review, { stage: 'under-review', review: approval('curator', 'Made-up Curator') });
+    return change(first, { stage: 'under-review', review: approval('maintainer', 'Made-up Maintainer') });
+  }
   async function published(release = '2026.1', actor: PackPublisher = 'curator') {
     const draft = await change(null, { stage: 'draft', pack: { ...source, release } });
     const review = await change(draft, { stage: 'under-review' });
-    return change(review, { stage: 'published' }, actor);
+    return change(await approved(review), { stage: 'published' }, actor);
   }
-  return { keys, key, sign, records, change, published, authority, attest, ca };
+  return {
+    approved,
+    keys,
+    key,
+    sign,
+    records,
+    change,
+    published,
+    authority,
+    attest,
+    ca,
+  };
 }

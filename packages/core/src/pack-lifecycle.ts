@@ -11,6 +11,7 @@
 
 import { compareDays, isDay, type Day } from './day.ts';
 import { compareReleases } from './pack-catalogue.ts';
+import { readPackReview, REVIEWS_MOST, reviewsDone, type PackReview } from './pack-review.ts';
 import { parsePlanPack, type PlanPack } from './pack.ts';
 import { isWorldId } from './world-code.ts';
 
@@ -40,11 +41,14 @@ export interface PackRelease {
   readonly supersededBy: string | null;
   /** The world's CA's signature over this step, once the server took it (pack-step.ts); null until then. */
   readonly attested: string | null;
+  /** The reviews since it last went under review (pack-review.ts). */
+  readonly reviews: readonly PackReview[];
 }
 
 export type PackChange =
   | { readonly stage: 'draft'; readonly pack: PlanPack }
-  | { readonly stage: 'under-review' | 'published' | 'withdrawn' }
+  | { readonly stage: 'under-review'; readonly review?: Omit<PackReview, 'day'> }
+  | { readonly stage: 'published' | 'withdrawn' }
   | { readonly stage: 'superseded'; readonly by: string };
 
 export interface PackReleaseScope {
@@ -75,6 +79,12 @@ export function publishedPackSuccessor(
     current = next;
   }
   return null;
+}
+
+function reviewsAfter(current: PackRelease | null, change: PackChange, day: Day): readonly PackReview[] {
+  if (change.stage === 'draft' || current === null) return [];
+  if (change.stage !== 'under-review') return current.reviews;
+  return change.review === undefined ? [] : [...current.reviews, { ...change.review, day }];
 }
 
 export function preparePackRelease(
@@ -109,10 +119,18 @@ export function preparePackRelease(
     if (current === null) throw new PackReleaseError('E_PACK_STAGE');
     pack = current.pack;
     if (change.stage === 'under-review') {
-      if (current.stage !== 'draft' || current.actor !== scope.actor) throw new PackReleaseError('E_PACK_STAGE');
+      const review = change.review;
+      if (current.actor !== scope.actor || current.stage !== (review === undefined ? 'draft' : 'under-review'))
+        throw new PackReleaseError('E_PACK_STAGE');
+      if (
+        review !== undefined &&
+        (current.reviews.length >= REVIEWS_MOST || readPackReview({ ...review, day: scope.day }) === null)
+      )
+        throw new PackReleaseError('E_PACK_REVIEW');
     } else if (change.stage === 'published') {
       if (current.stage !== 'under-review' || (current.actor !== scope.actor && scope.actor !== 'ministry'))
         throw new PackReleaseError('E_PACK_STAGE');
+      if (!reviewsDone(current.reviews)) throw new PackReleaseError('E_PACK_REVIEW');
       if (scope.actor === 'curator' && pack.status === 'official') throw new PackReleaseError('E_PACK_SOURCE');
       if (scope.actor === 'ministry') {
         const official = { ...pack, status: 'official' as const };
@@ -147,5 +165,6 @@ export function preparePackRelease(
     file: change.stage === 'superseded' || change.stage === 'withdrawn' ? current!.file : null,
     supersededBy: change.stage === 'superseded' ? change.by : null,
     attested: null,
+    reviews: reviewsAfter(current, change, scope.day),
   };
 }
