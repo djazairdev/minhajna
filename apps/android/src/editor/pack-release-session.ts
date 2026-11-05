@@ -53,7 +53,7 @@ export interface PackReleaseTarget {
   readonly revision: number;
 }
 
-async function desk({ world, held, kit }: PackEditor, send: Send, acceptLaterDay = false) {
+export async function packDesk({ world, held, kit }: PackEditor, send: Send, acceptLaterDay = false) {
   if (
     world === null ||
     held === null ||
@@ -85,7 +85,7 @@ async function desk({ world, held, kit }: PackEditor, send: Send, acceptLaterDay
   };
 }
 
-type Desk = Awaited<ReturnType<typeof desk>>;
+type Desk = Awaited<ReturnType<typeof packDesk>>;
 async function releaseBatches(held: Desk, send: Send) {
   const missing = readingMissing(held.world.world, send, () => ({
     status: 200,
@@ -116,7 +116,7 @@ async function releases(held: Desk, editor: PackEditor, send: Send, strict: bool
 }
 
 export async function readPackReleases(editor: PackEditor, send: Send = worldRequest) {
-  return releases(await desk(editor, send), editor, send, false);
+  return releases(await packDesk(editor, send), editor, send, false);
 }
 
 /**
@@ -125,10 +125,10 @@ export async function readPackReleases(editor: PackEditor, send: Send = worldReq
  * so damage is believed only once the day is read again and has not moved.
  */
 export async function readPackEditor(editor: PackEditor, send: Send = worldRequest) {
-  const held = await desk(editor, send, true);
+  const held = await packDesk(editor, send, true);
   const read = await readDesk(held, editor, send);
   if (!read.damaged) return read;
-  const again = await desk(editor, send, true);
+  const again = await packDesk(editor, send, true);
   return again.world.date === held.world.date ? read : readDesk(again, editor, send);
 }
 
@@ -211,7 +211,7 @@ export async function changePackRelease(
   if (parsePackId(target.id)?.country !== editor.profile.code) throw new PackReleaseError('E_PACK_SOURCE');
   if (change.stage === 'draft' && (change.pack.id !== target.id || change.pack.release !== target.release))
     throw new PackReleaseError('E_PACK_SOURCE');
-  const held = await desk(editor, send);
+  const held = await packDesk(editor, send);
   const { kit, profile } = editor;
   const id = packReleaseKey(target.id, target.release);
   const scope = { world: held.world.world, day: held.world.date, actor, expected: target.revision };

@@ -8,7 +8,7 @@
 // does. The account decides what the server signs, so this is more than a
 // screen's rule.
 
-import type { PackPublisher, PlanPack } from '@minhajna/core';
+import type { Day, PackPublisher, PlanPack } from '@minhajna/core';
 import { useEffect, useRef, useState, type Dispatch, type ReactElement, type SetStateAction } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '../components/Button';
@@ -29,6 +29,7 @@ import {
 import type { PackEditor } from './pack-release-session';
 import { PacksPage } from './PacksPage';
 import { ReleasesPage } from './ReleasesPage';
+import { ReportsPage } from './ReportsPage';
 
 const making = new Map<string, Promise<PackAccounts>>();
 
@@ -152,11 +153,23 @@ export function usePackAccount(open: OpenWorld, role: PackPublisher, send: Send 
 export function packDeskPage(
   workspace: string,
   page: string,
-  props: Omit<Parameters<typeof PackDesk>[0], 'role' | 'page'>,
+  props: Omit<Parameters<typeof PackDesk>[0], 'role' | 'page'> & { readonly dayText: (day: Day) => string },
 ): ReactElement | null {
-  if (workspace === 'ministry' && page === 'releases') return <PackDesk role="ministry" page={page} {...props} />;
+  const { dayText, ...desk } = props;
+  if (workspace === 'ministry' && page === 'releases') return <PackDesk role="ministry" page={page} {...desk} />;
+  if (workspace === 'curator' && page === 'reports')
+    return (
+      <ReportsPage
+        world={props.open}
+        held={props.held}
+        profile={props.profile}
+        kit={props.kit}
+        send={props.send}
+        dayText={dayText}
+      />
+    );
   if (workspace !== 'curator' || (page !== 'packs' && page !== 'releases' && page !== 'reviews')) return null;
-  return <PackDesk role="curator" page={page} {...props} />;
+  return <PackDesk role="curator" page={page} {...desk} />;
 }
 
 /** A page of the pack desk, under the role's account. */
