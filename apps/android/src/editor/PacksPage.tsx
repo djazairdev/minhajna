@@ -20,6 +20,7 @@ import { PackList } from './PackList';
 import { SourceForm } from './SourceForm';
 import { editorStyles as s } from './editor-styles';
 import type { PackEditor } from './pack-release-session';
+import { releaseHistory } from './release-checks';
 import { isOwnDraft, usePackDrafts } from './usePackDrafts';
 
 export function PacksPage(
@@ -66,6 +67,7 @@ function Desk(props: Parameters<typeof PacksPage>[0]) {
           changed={desk.problem === 'packChanged'}
           latest={desk.records.get(packReleaseKey(opened.pack.id, opened.pack.release))}
           role={role}
+          history={releaseHistory(opened.pack, props.packs, desk.records)}
           onLatest={desk.dismiss}
           onSave={desk.save}
           onClose={close}

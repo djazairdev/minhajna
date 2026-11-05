@@ -8,7 +8,8 @@
 // what this curator changed stays and the rest takes the newer values. Focus
 // returns to the button that opened a form, or to the add button if that's
 // gone or was a PDF row; applying the latest revision moves it to the form.
-// These moves are for the PC, the only place this page opens.
+// These moves are for the PC, the only place this page opens. A release with
+// one before it has migration entries too (MigrationForm.tsx).
 
 import {
   movePackItem,
@@ -24,6 +25,8 @@ import { Button } from '../components/Button';
 import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
 import { ItemForm } from './ItemForm';
+import { MigrationForm } from './MigrationForm';
+import { previousRelease } from './migration-rules';
 import { PackDraftItem } from './PackDraftItem';
 import { StructureForm } from './StructureForm';
 import { SourceForm } from './SourceForm';
@@ -42,6 +45,7 @@ export function PackDraft({
   changed = false,
   latest,
   role = 'curator',
+  history = [],
   onLatest,
   onSave,
   onClose,
@@ -54,6 +58,7 @@ export function PackDraft({
   readonly changed?: boolean;
   readonly latest?: PackRelease;
   readonly role?: PackPublisher;
+  readonly history?: readonly PlanPack[];
   readonly onLatest?: () => void;
   readonly onSave: (pack: PlanPack, revision: number) => Promise<PackRelease | null>;
   readonly onClose: () => void;
@@ -61,13 +66,14 @@ export function PackDraft({
   const t = useDeviceText();
   const [pack, setPack] = useState(initial);
   const [expected, setExpected] = useState(revision);
-  const [form, setForm] = useState<'item' | 'structure' | 'source' | null>(null);
+  const [form, setForm] = useState<'item' | 'structure' | 'source' | 'migration' | null>(null);
   const [item, setItem] = useState<PackItem | null>(null);
   const [suggestion, setSuggestion] = useState<SourceRow | null>(null);
   const [pages, setPages] = useState<number | null>(null);
   const [invalid, setInvalid] = useState(false);
   const [saved, setSaved] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const previous = previousRelease(pack, history);
   const [focusOn, setFocusOn] = useState<{ readonly key: string } | null>(null);
   const openers = useRef(new Map<string, ViewInstance>());
   const opener = useRef('add');
@@ -82,7 +88,7 @@ export function PackDraft({
     if (node === null) openers.current.delete(key);
     else openers.current.set(key, node);
   };
-  const open = (next: 'item' | 'structure' | 'source', from: string) => {
+  const open = (next: 'item' | 'structure' | 'source' | 'migration', from: string) => {
     opener.current = from;
     setForm(next);
     setSaved(false);
@@ -96,12 +102,14 @@ export function PackDraft({
   const save = async (next: PlanPack) => {
     setSaved(false);
     const result = await onSave(next, expected);
-    if (result === null) return;
+    if (result === null) return false;
     setPack(result.pack);
     setExpected(result.revision);
-    if (form !== null) closeForm();
+    if (form !== null && form !== 'migration') closeForm();
+    if (form === 'migration') setFocusOn({ key: 'form' });
     setSaved(true);
     setInvalid(false);
+    return true;
   };
   const itemForm = (next: PackItem | null) => {
     setItem(next);
@@ -203,6 +211,7 @@ export function PackDraft({
             {form === 'structure' && (
               <StructureForm pack={pack} busy={busy} onSave={(next) => void save(next)} onCancel={closeForm} />
             )}
+            {form === 'migration' && <MigrationForm {...{ pack, previous, busy }} onSave={save} onCancel={closeForm} />}
             {form === 'source' && (
               <SourceForm
                 busy={busy}
@@ -241,6 +250,16 @@ export function PackDraft({
               disabled={busy || pack.items.length === 0}
               onPress={() => open('source', 'source')}
             />
+            {previous !== null && (
+              <Button
+                ref={(node) => mark('migration', node)}
+                testID="draft-migration"
+                label={t('editorDesk.migrate.opener')}
+                variant="plain"
+                disabled={busy}
+                onPress={() => open('migration', 'migration')}
+              />
+            )}
           </View>
           {pack.items.map((one, at) => (
             <PackDraftItem
