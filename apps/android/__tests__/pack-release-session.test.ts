@@ -44,7 +44,7 @@ test('the lifecycle survives a reload from the national space, with fixed-size c
   expect(official.pack.status).toBe('official');
   expect(source.status).toBe('community');
   const uploads = f.server.seen.filter((one) => one.method === 'POST' && one.path.endsWith('/batches'));
-  expect(uploads).toHaveLength(8);
+  expect(uploads).toHaveLength(12);
   for (const upload of uploads) {
     const body = JSON.parse(upload.body!) as { batches: string[] };
     expect(body.batches.every((batch) => Buffer.from(batch, 'base64url').length === 4124)).toBe(true);

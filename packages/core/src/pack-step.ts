@@ -6,12 +6,12 @@
 // the server's pack-editor accounts stand behind each step: the server signs
 // one with the world's stand-in CA key, over the text below, as its
 // apps/server/src/packs/pack-rules.ts writes it, for the account's role. It
-// sees no release, so the step names the content by a digest keyed with the
-// world's sealing key. A device rebuilds the text from the release it read, so
-// a role, a status, or content other than what the account took fails.
+// sees no release, so the step names the content, and its reviews, by a digest
+// keyed with the world's sealing key. A device rebuilds the text from the
+// release it read, so a role, a status, or content other than what the account
+// took fails.
 
 import type { PackRelease } from './pack-lifecycle.ts';
-import type { PlanPack } from './pack.ts';
 import { ascii } from './school-key-shape.ts';
 import { asciiJson } from './sealed-stream.ts';
 import type { Verifier } from './signed-read.ts';
@@ -25,9 +25,13 @@ export interface PackAuthority {
   readonly verify: Verifier;
 }
 
-/** The pack's digest, which only the world's devices can make or check. */
-export async function packDigest(pack: PlanPack, sealing: Uint8Array, mac: WorldMac): Promise<string> {
-  return toBase64Url(await mac(sealing, ascii(`minhajna/pack-digest/1\n${asciiJson(pack)}`)));
+/** The digest of a release's content and reviews, which only the world's devices can make or check. */
+export async function packDigest(
+  { pack, reviews }: Pick<PackRelease, 'pack' | 'reviews'>,
+  sealing: Uint8Array,
+  mac: WorldMac,
+): Promise<string> {
+  return toBase64Url(await mac(sealing, ascii(`minhajna/pack-digest/1\n${asciiJson({ pack, reviews })}`)));
 }
 
 /** The text the world's CA signs for a release's step. */
@@ -40,6 +44,6 @@ export function packStepText(release: PackRelease, digest: string): string {
 /** Whether the world's CA signed this release's step, for its role and its content. */
 export async function packStepHolds(release: PackRelease, authority: PackAuthority): Promise<boolean> {
   if (release.attested === null) return false;
-  const digest = await packDigest(release.pack, authority.sealing, authority.mac);
+  const digest = await packDigest(release, authority.sealing, authority.mac);
   return authority.verify(authority.caKey, packStepText(release, digest), release.attested);
 }

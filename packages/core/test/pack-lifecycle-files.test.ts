@@ -52,7 +52,7 @@ describe('signed demo pack releases', () => {
   it('takes a step only as the server signed it: for its role, its status and its content', async () => {
     const f = fixture();
     const draft = await f.change(null, { stage: 'draft', pack: source });
-    const review = await f.change(draft, { stage: 'under-review' });
+    const review = await f.approved(await f.change(draft, { stage: 'under-review' }));
     const published = preparePackRelease(
       review,
       { stage: 'published' },
@@ -140,8 +140,9 @@ describe('signed demo pack releases', () => {
   it('seals records at one size without source text, with fresh nonces and a bounded atomic upload', async () => {
     const f = fixture();
     await f.published();
+    const record = f.records.at(-1)!;
     const place = await packReleasePlace(new Uint8Array(32).fill(7), mac);
-    const sealed = await sealPackRelease(place, f.records[2]!, 0, cipher);
+    const sealed = await sealPackRelease(place, record, 0, cipher);
     assert.equal(
       sealed.every((batch) => batch.bytes.length === 4124),
       true,
@@ -150,14 +151,14 @@ describe('signed demo pack releases', () => {
       Buffer.concat(sealed.map((batch) => Buffer.from(batch.bytes))).includes(Buffer.from(source.id)),
       false,
     );
-    assert.deepEqual(await openPackReleaseBatches(place, sealed, cipher), [f.records[2]]);
-    assert.notDeepEqual(await sealPackRelease(place, f.records[2]!, 0, cipher), sealed);
+    assert.deepEqual(await openPackReleaseBatches(place, sealed, cipher), [record]);
+    assert.notDeepEqual(await sealPackRelease(place, record, 0, cipher), sealed);
     const other = await packReleasePlace(new Uint8Array(32).fill(8), mac);
     await assert.rejects(openPackReleaseBatches(other, sealed, cipher), /E_PACK_HISTORY/);
     assert.ok(sealed.length > 1);
     await assert.rejects(openPackReleaseBatches(place, sealed.slice(1), cipher), /E_PACK_HISTORY/);
     await assert.rejects(openPackReleaseBatches(place, sealed.slice(0, -1), cipher), /E_PACK_HISTORY/);
-    assert.deepEqual(await openPackReleaseBatches(place, [sealed[0]!, ...sealed], cipher), [f.records[2]]);
+    assert.deepEqual(await openPackReleaseBatches(place, [sealed[0]!, ...sealed], cipher), [record]);
     await assert.rejects(sealPackRelease(place, 'x'.repeat(600000), 0, cipher), RangeError);
   });
 

@@ -154,7 +154,7 @@ export function refusal(
   }
   if (at === null) return 'this release has no step to follow';
   if (stage === 'under-review') {
-    if (at.stage !== 'draft') return 'only a draft goes under review';
+    if (at.stage !== 'draft' && at.stage !== 'under-review') return 'only a draft goes under review';
     return at.role === role ? null : 'another account holds this release';
   }
   if (stage === 'published') {

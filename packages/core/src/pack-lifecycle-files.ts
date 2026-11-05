@@ -24,6 +24,7 @@ import {
   type PackChange,
   type PackRelease,
 } from './pack-lifecycle.ts';
+import { readPackReview, type PackReview } from './pack-review.ts';
 import { packStepHolds, type PackAuthority } from './pack-step.ts';
 import { keySigns, PACK_UPDATE_FORMAT, parsePackUpdate } from './pack-update.ts';
 import { parsePlanPack } from './pack.ts';
@@ -85,7 +86,19 @@ export async function signPackRelease(release: PackRelease, keys: WorldKeys, sig
 /** Bounds the eventual double-signed publication before accepting a draft or review. */
 export async function checkPackPublicationSize(release: PackRelease, keys: WorldKeys): Promise<void> {
   const signature: WorldSigner = () => Promise.resolve('A'.repeat(SIGNED_SIGNATURE_MAX));
-  const review = { ...release, stage: 'under-review' as const, revision: Number.MAX_SAFE_INTEGER - 1 };
+  const person = (role: 'curator' | 'maintainer', name: string): PackReview => ({
+    role,
+    verdict: 'approved',
+    name,
+    note: '',
+    day: release.day,
+  });
+  const review = {
+    ...release,
+    stage: 'under-review' as const,
+    revision: Number.MAX_SAFE_INTEGER - 1,
+    reviews: [...release.reviews, person('curator', 'a'), person('maintainer', 'b')],
+  };
   for (const actor of new Set([release.actor, 'ministry'] as const)) {
     const published = preparePackRelease(
       review,
@@ -108,7 +121,9 @@ function releaseOf(value: unknown): PackRelease | null {
     !isFields(value) ||
     Object.keys(value).some(
       (key) =>
-        !['world', 'pack', 'stage', 'revision', 'actor', 'day', 'file', 'supersededBy', 'attested'].includes(key),
+        !['world', 'pack', 'stage', 'revision', 'actor', 'day', 'file', 'supersededBy', 'attested', 'reviews'].includes(
+          key,
+        ),
     )
   )
     return null;
@@ -127,7 +142,8 @@ function releaseOf(value: unknown): PackRelease | null {
   )
     return null;
   const read = parsePlanPack(value.pack);
-  if (!read.ok) return null;
+  const reviews = Array.isArray(value.reviews) ? value.reviews.map(readPackReview) : [null];
+  if (!read.ok || reviews.includes(null)) return null;
   return {
     world,
     pack: read.value,
@@ -138,6 +154,7 @@ function releaseOf(value: unknown): PackRelease | null {
     file,
     supersededBy,
     attested,
+    reviews: reviews as PackReview[],
   };
 }
 
@@ -192,7 +209,9 @@ export async function packReleaseRecords(
         ? { stage: 'draft', pack: read.pack }
         : read.stage === 'superseded'
           ? { stage: 'superseded', by: read.supersededBy ?? '' }
-          : { stage: read.stage };
+          : read.stage === 'under-review' && current?.stage === 'under-review'
+            ? { stage: read.stage, ...(read.reviews.length > 0 && { review: read.reviews.at(-1)! }) }
+            : { stage: read.stage };
     try {
       const successor =
         read.supersededBy === null ? null : (found.get(packReleaseKey(read.pack.id, read.supersededBy)) ?? null);
