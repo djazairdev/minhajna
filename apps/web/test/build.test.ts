@@ -111,6 +111,12 @@ describe('the web bundle', () => {
     assert.ok('index.html' in first.files && 'app.js' in first.files);
   });
 
+  it('keeps the written release notes within what the build allows', () => {
+    const written = readFileSync(new URL('../release-notes.json', import.meta.url), 'utf8');
+    const { version } = JSON.parse(written) as { version: string };
+    assert.ok(releaseNotes(written, version, 1).en.length > 0);
+  });
+
   it('ships the release notes among the files, for its version only', () => {
     assert.ok('notes.json' in first.files);
     const notes = JSON.parse(text('notes.json')) as { version: string; versionCode: number };

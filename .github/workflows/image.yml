@@ -18,6 +18,8 @@ on:
     paths:
       - apps/server/**
       - apps/web/host/**
+      - LICENSES/AGPL-3.0-or-later.txt
+      - LICENSES/Apache-2.0.txt
       - tsconfig.base.json
       - .github/workflows/image.yml
   push:
@@ -25,6 +27,8 @@ on:
     paths:
       - apps/server/**
       - apps/web/host/**
+      - LICENSES/AGPL-3.0-or-later.txt
+      - LICENSES/Apache-2.0.txt
       - tsconfig.base.json
       - .github/workflows/image.yml
 
