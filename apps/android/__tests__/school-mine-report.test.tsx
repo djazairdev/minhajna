@@ -131,11 +131,14 @@ test('courses come in the school’s order, a lost session names its group, and 
     from: parseDay('2027-01-03'),
     to: parseDay('2027-01-03'),
     effect: 'exam',
+    grades: ['1am'],
+    term: 2,
     name: { ar: 'امتحان مختلق', en: 'Made-up exam', fr: 'Examen inventé' },
     source: 'Made-up calendar',
     confidence: 'announced',
   };
-  await render({ world: id, date: FIRST }, joined, { ...MINE, calendar: { ...MINE.calendar, entries: [exam] } });
+  const rooms = [{ name: '1م3', grade: '1am' }];
+  await render({ world: id, date: FIRST }, joined, { ...MINE, rooms, calendar: { ...MINE.calendar, entries: [exam] } });
   const heads = tree!.root
     .findAll((node) => node.props.accessibilityRole === 'header' && typeof node.type === 'string')
     .map((node) => [(node.props as TextProps).children].flat().map(String).join(''));

@@ -7,12 +7,12 @@
 // lower text winning a tie, the sessions of its signed weeks with a session in
 // the span, a week the span starts or ends in included, only the span's days,
 // held, awaiting, not held for the calendar, by the entry that takes the
-// session, the whole day or its half, and for another cause, each session not
-// held in the order of its day and start, its weeks and the latest's first day,
-// named as the latest week names its class and subject, a course with only
-// sessions awaiting too, in the school's order of classes, then by name,
-// numbers read as numbers; a span with no signed week gives nothing. Every
-// school, class and teacher is made up.
+// session of its week's class, the whole day or its half, and for another
+// cause, each session not held in the order of its day and start, its weeks and
+// the latest's first day, named as the latest week names its class and subject,
+// a course with only sessions awaiting too, in the school's order of classes,
+// then by name, numbers read as numbers; a span with no signed week gives
+// nothing. Every school, class and teacher is made up.
 
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -114,6 +114,19 @@ describe('a course’s delivery from its signed weeks', () => {
     assert.deepEqual(counts(span('2026-12-09', '2026-12-31', weeks, open)[0]), [1, 2, 1, 0, 0, 1]);
     assert.deepEqual(counts(span('2026-11-01', '2026-12-09', weeks, open)[0]), [1, 2, 2, 0, 0, 0]);
     assert.deepEqual(span('2026-12-11', '2026-12-31', weeks, open), []);
+  });
+
+  it('asks what takes a session with the class of its own week, even a class renamed since', () => {
+    const reading: DeliveryReading = { takenBy: (_day, _session, name) => (name === '4م1' ? NATIONAL : null) };
+    const weeks = [
+      week(A, '2026-12-06', [at(1, 480, 'not-held')], '4م1'),
+      week(A, '2026-12-13', [at(1, 480, 'not-held')], '4م1 ج'),
+      week(B, '2026-12-06', [at(1, 480, 'not-held')], '1م1'),
+    ];
+    const read = span('2026-12-06', '2026-12-19', weeks, reading);
+    const figures = new Map(read.map((one) => [one.course, [one.calendar, one.other]]));
+    assert.deepEqual(figures.get(A), [1, 1]);
+    assert.deepEqual(figures.get(B), [0, 1]);
   });
 
   it('counts each course’s week once, at its highest version, the lower text winning a tie', () => {

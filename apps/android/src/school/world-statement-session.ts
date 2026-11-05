@@ -103,7 +103,7 @@ export function courseStatement(input: CourseStatementInput): ProgressStatement 
   const name = timetableNameKey(course.class);
   const own = weeks.filter((one) => timetableNameKey(one.class) === name && one.totals.subject === course.code);
   const { level } = school;
-  const reading = deliveryReading(mine, [], bells, { id: course.room.id, level, grade: course.room.grade });
+  const reading = deliveryReading({ ...mine, level, rooms: [course.room] }, [], bells);
   const term = nextExamsTerm(mine, day, course.room.grade);
   return worldStatement({
     level,
