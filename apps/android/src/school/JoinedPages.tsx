@@ -14,7 +14,8 @@
 // (WorldStatement.tsx), the exams with a common paper (ExamThresholds.tsx),
 // which opens an exam's threshold on its room (ExamThreshold.tsx) and a
 // directorate exam's totals (ExamTotals.tsx), named by the world's reference,
-// and what stays and goes on leaving (Leave.tsx), when the year's dates read;
+// the world's plans and their error reports (WorldPacks.tsx), and what stays
+// and goes on leaving (Leave.tsx), when the year's dates read;
 // each gets what School-join said as it opened, and goes back to School-join,
 // but Week-sign opened from the digest or the classes, the term report, an
 // exam's threshold and its totals, which go back to the page that opened them;
@@ -40,11 +41,12 @@ import { Leave } from './Leave';
 import { NationalHelp } from './NationalHelp';
 import { ReturnSchool } from './ReturnSchool';
 import { TermSend } from './TermSend';
+import { WorldPacks } from './WorldPacks';
 import { WorldStatement } from './WorldStatement';
 import type { JoinedView, JoinPage } from './join-view';
 
 export type JoinedPagesProps = {
-  readonly world: Pick<OpenWorld, 'world' | 'date'>;
+  readonly world: Pick<OpenWorld, 'world' | 'date'> & Partial<Pick<OpenWorld, 'book'>>;
   readonly date: string;
   readonly dayText: (day: Day) => string;
   readonly kit: WorldKit;
@@ -96,6 +98,25 @@ export function joinedPage(view: JoinedView, props: JoinedPagesProps): ReactElem
     const back = (page: JoinPage) => () => props.onPage({ page, join, back: 'mine' });
     return (
       <SchoolMine {...channel} subjects={subjects} mine={props.mine} onSign={back('week')} onReport={back('report')} />
+    );
+  }
+  if (view.page === 'packs') {
+    const { book } = world;
+    if (props.reference === undefined || props.committees === undefined || book === undefined) return null;
+    return (
+      <WorldPacks
+        world={{ ...world, book }}
+        join={join}
+        school={props.school}
+        held={props.committees.held}
+        reference={props.reference}
+        date={date}
+        dayText={dayText}
+        said={said}
+        kit={kit}
+        send={send}
+        onClose={onClose}
+      />
     );
   }
   if (view.page === 'statement') {

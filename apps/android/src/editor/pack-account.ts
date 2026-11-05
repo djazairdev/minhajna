@@ -6,7 +6,7 @@
 // device signs in with the token that device shows. A device keeps its tokens
 // in the world's own store, sealed and erased with it, never in the teacher's.
 
-import { keptWorld, type PackPublisher, type WorldKept } from '@minhajna/core';
+import { keptWorld, type KeptPackPin, type PackPublisher, type WorldKept } from '@minhajna/core';
 import type { OpenWorld } from '../demo/world-mode';
 import { unexpected, type Send } from '../demo/world-session';
 
@@ -49,20 +49,33 @@ export function keptPackAccounts(open: Pick<OpenWorld, 'book'>): PackAccounts {
 
 const keeping = new WeakMap<object, Promise<unknown>>();
 
-/** Keeps the role's token in the world's own store, one at a time, so one role's keeping never drops another's. */
-export function keepPackAccount(
+/** Changes what the world's store keeps, one change at a time, so that one's keeping never drops another's. */
+function keepInWorld<T>(
   open: Pick<OpenWorld, 'book' | 'date'>,
-  role: PackPublisher,
-  token: string,
-): Promise<PackAccounts> {
+  change: (kept: WorldKept) => [WorldKept, T],
+): Promise<T> {
   const keep = async () => {
     const kept = keptWorld(open.book.entries);
-    if (kept === null) throw new RangeError('The world keeps nothing to add an account to');
-    const packAccounts = { ...kept.packAccounts, [role]: token };
-    await open.book.record(open.date, { kind: 'world.kept', kept: { ...kept, packAccounts } });
-    return packAccounts;
+    if (kept === null) throw new RangeError('The world keeps nothing to add to');
+    const [next, result] = change(kept);
+    await open.book.record(open.date, { kind: 'world.kept', kept: next });
+    return result;
   };
   const next = (keeping.get(open.book) ?? Promise.resolve()).then(keep, keep);
   keeping.set(open.book, next);
   return next;
 }
+
+/** Keeps the role's token in the world's own store. */
+export const keepPackAccount = (open: Pick<OpenWorld, 'book' | 'date'>, role: PackPublisher, token: string) =>
+  keepInWorld<PackAccounts>(open, (kept) => {
+    const packAccounts = { ...kept.packAccounts, [role]: token };
+    return [{ ...kept, packAccounts }, packAccounts];
+  });
+
+/** Keeps the release a course moved to in the world's own store, dated by the world. */
+export const keepPackPin = (open: Pick<OpenWorld, 'book' | 'date'>, course: string, pin: Omit<KeptPackPin, 'day'>) =>
+  keepInWorld<Readonly<Record<string, KeptPackPin>>>(open, (kept) => {
+    const packPins = { ...kept.packPins, [course]: { ...pin, day: open.date } };
+    return [{ ...kept, packPins }, packPins];
+  });

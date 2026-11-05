@@ -93,10 +93,10 @@ export async function readTeacherChannel(
 }
 
 /** The part that applies on a day, a one-day part for it or the standing part in force, or null. */
-export const inForce = (channel: TeacherChannel, day: Day) => partOn(channel.parts, day)?.part ?? null;
+export const inForce = (channel: Pick<TeacherChannel, 'parts'>, day: Day) => partOn(channel.parts, day)?.part ?? null;
 
 /** The part that applies on the first day of any standing part, when none applies yet, or null. */
-export function firstToCome(channel: TeacherChannel): TimetablePart | null {
+export function firstToCome(channel: Pick<TeacherChannel, 'parts'>): TimetablePart | null {
   const [first] = channel.parts
     .filter((one) => !one.part.once)
     .map((one) => one.part.from)

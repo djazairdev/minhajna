@@ -211,6 +211,13 @@ export interface GrantRequested {
   readonly request: unknown;
 }
 
+/** A release a course moved to inside a world, on the world's date. */
+export interface KeptPackPin {
+  readonly id: string;
+  readonly release: string;
+  readonly day: Day;
+}
+
 /** A demo world's own facts, kept only in its store (answer 572). */
 export interface WorldKept {
   readonly kind: WorldKind;
@@ -218,6 +225,8 @@ export interface WorldKept {
   readonly starter: string | null;
   /** The pack-editor accounts' tokens this device holds, by role (#612). */
   readonly packAccounts?: { readonly curator?: string; readonly ministry?: string };
+  /** The release each course of this world's teacher moved to, by the course's key. */
+  readonly packPins?: Readonly<Record<string, KeptPackPin>>;
 }
 
 /** A joining code scanned in a demo world, as scanned, with this device's ID there, its signing key and certificate. */
