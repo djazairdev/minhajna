@@ -57,7 +57,7 @@ export function worldCourseRecord(
     for (const session of week.sessions) {
       const day = sessionDay(week.week, session);
       if (compareDays(day, from) < 0 || compareDays(day, to) > 0) continue;
-      const entry = reading.takenBy(day, session);
+      const entry = reading.takenBy(day, session, week.class);
       if (session.state === 'not-held' && entry?.effect !== 'exam') notHeld[entry === null ? 'other' : 'calendar'] += 1;
       if (entry === null && session.group === '' && session.state !== 'awaiting') {
         taught.set(week.week, (taught.get(week.week) ?? 0) + 1);

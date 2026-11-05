@@ -4,9 +4,10 @@
 // The inspector's cards on their home in a national world (#593, #594): their
 // key, posted in their directorate's space (InspectorKey.tsx), then I-Grant,
 // the grants relayed to this phone (InspectorGrants.tsx), whose schools the
-// world's seed names and whose classes count sessions by the country's
-// calendar for the world's school (school-mine-session.ts), with no timetable
-// on the inspector's phone to order classes or split the day by its bells.
+// world's seed names and whose classes count sessions by the country's calendar
+// for the world's school (school-mine-session.ts), read for the classes of the
+// directorate's schools, with no timetable on the inspector's phone to order
+// classes or split the day by its bells.
 
 import type { Day, DemoSchool } from '@minhajna/core';
 import { useMemo } from 'react';
@@ -16,7 +17,7 @@ import type { OpenWorld } from '../demo/world-mode';
 import type { Send, WorldKit } from '../demo/world-session';
 import { spacing } from '../design/tokens';
 import type { ReferenceResult } from '../reference';
-import { deliveryReading, type MineCalendar } from '../week/school-mine-session';
+import { deliveryReading, directorateRooms, type MineCalendar } from '../week/school-mine-session';
 import { InspectorGrants } from './InspectorGrants';
 import { InspectorKey } from './InspectorKey';
 
@@ -33,7 +34,10 @@ export type InspectorHomeProps = {
 /** The inspector's key and the grants relayed to their phone. */
 export function InspectorHome({ world, school, reference, mine, kit, send, dayText }: InspectorHomeProps) {
   const schools = useMemo(() => seededWorld(world.world, reference).schools, [world.world, reference]);
-  const reading = useMemo(() => deliveryReading(mine, [], []), [mine]);
+  const reading = useMemo(
+    () => deliveryReading({ ...mine, rooms: directorateRooms(schools, school.directorateId) }, [], []),
+    [mine, schools, school.directorateId],
+  );
   return (
     <View style={{ gap: spacing['space-12'] }}>
       <InspectorKey world={world} directorate={school.directorateId} kit={kit} send={send} />

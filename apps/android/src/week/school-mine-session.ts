@@ -10,13 +10,16 @@
 // for the joined school, whose zone and level are those of the world's school
 // (answer 591), with no teacher's layer: a session not held on a day the
 // calendar closes the school is taken by that no-school entry, and on a school
-// day by a closure or an exam window of its half of the day, every week of the
-// term split by the bells of the timetable in force on the world's date, even a
-// week signed under an earlier version; the afternoon starts at the first
-// afternoon bell of the timetable, its morning counted by the level's bell
-// template when no break splits the day, or else at the template's afternoon,
-// or at noon without either; and the school's order of classes, as the
-// timetable's grids read them, matched by name key.
+// day by a closure or an exam window of its half of the day, an entry naming
+// grades, as every exam does, only for a class of those grades, read by the
+// week's class among the school's, or the directorate's for an inspector, each
+// by its own school's level when given, a class none lists counting as no
+// class, every week of the term split by the bells of the timetable in force on
+// the world's date, even a week signed under an earlier version; the afternoon
+// starts at the first afternoon bell of the timetable, its morning counted by
+// the level's bell template when no break splits the day, or else at the
+// template's afternoon, or at noon without either; and the school's order of
+// classes, as the timetable's grids read them, matched by name key.
 
 import {
   appliesOn,
@@ -30,6 +33,7 @@ import {
   type CountryProfile,
   type Day,
   type DeliveryReading,
+  type DemoSchool,
   type SchoolCalendar,
   type SchoolClass,
   type SchoolYear,
@@ -48,7 +52,12 @@ export interface MineCalendar {
   readonly bells?: BellData;
   readonly zone?: string;
   readonly level?: string;
+  /** The classes read, each with its grade, for an entry naming grades, as every exam does. */
+  readonly rooms?: readonly MineRoom[];
 }
+
+/** A class, as the calendar reads it; its level is the calendar's own unless it says. */
+export type MineRoom = Pick<SchoolClass, 'name' | 'grade'> & { readonly level?: string };
 
 /** The term holding a day, or null between terms. */
 export const termOn = (year: SchoolYear, day: Day): Term | null =>
@@ -69,15 +78,11 @@ export function afternoonFrom(mine: MineCalendar, bells: TimetablePart['bells'])
   return usual === undefined ? NOON : clockMinutes(usual.from);
 }
 
-/**
- * How a course's delivery reads the joined school's calendar, and its classes in the timetable's order. With no class
- * given, an entry that names grades, as an exam does, takes no session.
- */
+/** How a course's delivery reads the joined school's calendar, and its classes in the timetable's order. */
 export function deliveryReading(
   mine: MineCalendar,
   classes: readonly string[],
   bells: TimetablePart['bells'],
-  room?: Pick<SchoolClass, 'id' | 'level' | 'grade'>,
 ): DeliveryReading {
   const reference = { country: mine.profile, year: mine.calendar.year, calendar: mine.calendar.entries };
   const view = new CalendarView({ ...reference, packs: new Map() }, []);
@@ -89,10 +94,16 @@ export function deliveryReading(
     ...(mine.zone === undefined ? {} : { zone: mine.zone }),
   };
   const afternoon = afternoonFrom(mine, bells);
-  const schoolClass = room && { ...room, schoolId: school.id, name: room.id, groups: [] };
+  const rooms = new Map(
+    (mine.rooms ?? []).map(({ name, grade, level }) => [
+      timetableNameKey(name),
+      { id: name, name, grade, level: level ?? mine.level ?? '', schoolId: school.id, groups: [] },
+    ]),
+  );
   return {
-    takenBy: (day, session) => {
-      const info = view.info(day, school, schoolClass, session.start < afternoon ? 'morning' : 'afternoon');
+    takenBy: (day, session, className) => {
+      const room = rooms.get(timetableNameKey(className));
+      const info = view.info(day, school, room, session.start < afternoon ? 'morning' : 'afternoon');
       if (!info.schoolDay)
         return info.entries.find((one) => one.effect === 'no-school' && one.layer !== 'teacher') ?? null;
       return info.closure ?? info.exam ?? null;
@@ -110,15 +121,25 @@ export function classPlace(classes: readonly string[]): (name: string) => number
   };
 }
 
+/** The classes of a directorate's schools, each with its school's level, as an inspector reads them. */
+export const directorateRooms = (
+  schools: readonly (Pick<DemoSchool, 'directorateId' | 'level'> & { readonly classes: readonly MineRoom[] })[],
+  directorate: string,
+): MineRoom[] =>
+  schools
+    .filter((one) => one.directorateId === directorate)
+    .flatMap((one) => one.classes.map(({ name, grade }) => ({ name, grade, level: one.level })));
+
 /** The joined school's calendar in a world: the reference's profile and bells, the world's calendar and school. */
 export const mineOf = (
   reference: { readonly profile: CountryProfile; readonly bells: BellData },
   calendar: SchoolCalendar,
-  school: { readonly wilaya?: string; readonly level?: string } | null,
+  school: { readonly wilaya?: string; readonly level?: string; readonly classes?: readonly MineRoom[] } | null,
 ): MineCalendar => ({
   profile: reference.profile,
   bells: reference.bells,
   calendar,
   zone: school?.wilaya,
   level: school?.level,
+  rooms: school?.classes,
 });

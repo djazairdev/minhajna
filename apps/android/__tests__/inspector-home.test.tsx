@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The inspector's home cards (#594, answer 622), on the made-up term of
-// grant-term.ts: in French the grant's school shows by its Latin name and the
-// words are French; a class opened, then the world's date moving, shows the
-// class by its number again, and opening it on the new day posts one use a week
-// more; and the home shows the key card and I-Grant together, the school by the
-// name the world seeds. Every school, class, teacher and device is made up.
+// The inspector's home cards (#594, answer 622), on the made-up term of grant-
+// term.ts: in French the grant's school shows by its Latin name and the words
+// are French; a class opened, then the world's date moving, shows the class by
+// its number again, and opening it on the new day posts one use a week more;
+// and the home shows the key card and I-Grant together, the school by the name
+// the world seeds, and I-Grant reads an exam for a class of any school of the
+// directorate. Every school, class, teacher and device is made up.
 
-import { addDays, type Day } from '@minhajna/core';
+import { addDays, parseDay, type CalendarEntry, type Day } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import type { ReactElement } from 'react';
 import { Platform, Text, type PressableProps, type TextProps } from 'react-native';
@@ -138,4 +139,44 @@ test('the home shows the key card and I-Grant, the school by the name the world 
   const ids = tree!.root.findAll((node) => typeof node.type === 'string').map((node) => node.props.testID as unknown);
   expect(ids).toEqual(expect.arrayContaining(['inspector-key', 'inspector-grants']));
   expect(texts()).toEqual(expect.arrayContaining([ar.demo.inspectorKey.title, isolate(seeded.name)]));
+});
+
+test('the grants read an exam, and a closure by level, for a class of another school of the directorate', async () => {
+  const { inspector } = await grantTerm();
+  const closing = parseDay('2027-01-05');
+  const closure: CalendarEntry = {
+    id: 'made-up-lycee-closure',
+    layer: 'national',
+    from: closing,
+    to: closing,
+    effect: 'closure',
+    levels: ['lycee'],
+    name: { en: 'Made-up closure' },
+    source: 'Made-up calendar',
+    confidence: 'announced',
+  };
+  const { entries } = MINE.calendar;
+  const mine = { ...MINE, level: 'cem', calendar: { ...MINE.calendar, entries: [...entries, closure] } };
+  await show(
+    <InspectorHome
+      world={inspector}
+      school={SCHOOL}
+      reference={reference}
+      mine={mine}
+      kit={kit}
+      send={server.send}
+      dayText={day}
+    />,
+  );
+  const { reading } = tree!.root.findByType(InspectorGrants).props as InspectorGrantsProps;
+  const { schools } = seededWorld(inspector.world, reference);
+  const here = schools.filter((one) => one.directorateId === SCHOOL.directorateId);
+  const lycee = here.find((one) => one.level === 'lycee')!.classes[0];
+  const middle = here.find((one) => one.level === 'cem')!.classes[0];
+  const exam = entries.find((one) => one.effect === 'exam' && one.grades?.includes(lycee.grade))!;
+  const session = { day: 0, start: 480, end: 540, group: '', week: 'both', state: 'not-held' } as const;
+  expect(reading.takenBy(exam.from, session, lycee.name)?.effect).toBe('exam');
+  expect(reading.takenBy(exam.from, session, 'not-a-class-here')).toBeNull();
+  expect(reading.takenBy(closing, session, lycee.name)?.id).toBe(closure.id);
+  expect(reading.takenBy(closing, session, middle.name)).toBeNull();
 });

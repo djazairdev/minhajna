@@ -104,7 +104,10 @@ async function readGrant(stage, device) {
   );
   see(lost.session.day === standing.day, 'another session reads as still not held');
   const closed = stage.reference.calendar.entries.find((one) => one.effect === 'no-school' && one.layer === 'national');
-  see(reading.takenBy(closed.from, standing) !== null, 'the reading does not see the calendar close the school');
+  const name = paper.get('signed').class;
+  see(reading.takenBy(closed.from, standing, name) !== null, 'the reading does not see the calendar close the school');
+  const exam = stage.reference.calendar.entries.find((one) => one.effect === 'exam' && one.grades?.includes('4am'));
+  see(reading.takenBy(exam.from, standing, name)?.id === exam.id, 'the reading does not see its class’s exam');
   see(
     read.weeks.some((one) => one.week === paper.get('signed').week && one.version === 1),
     'the correction is absent',

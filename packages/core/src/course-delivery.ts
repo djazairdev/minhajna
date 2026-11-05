@@ -9,15 +9,15 @@
 // span's days alone, each on its day, the week's first day moved on to the
 // session's weekday; how many were planned, held as planned, awaiting
 // confirmation, and not held, for the calendar when a calendar entry takes the
-// session, closing the school that day or that half-day, with that entry, and
-// for another cause otherwise, never with a reason; each session not held, in
-// the order of its day and start; the number of those signed weeks and the last
-// one's first day; and the class and subject as the latest week names them.
-// Awaiting is never an absence, and is counted here only for the screen that
-// shows it. Courses come in the school's order of their class, which the app
-// knows from the timetable, then by class, subject and course in one Arabic
-// collation on every device, numbers in names read as numbers; nothing is
-// totalled across courses and nothing ranks them.
+// session of its own week's class, closing the school that day or that
+// half-day, with that entry, and for another cause otherwise, never with a
+// reason; each session not held, in the order of its day and start; the number
+// of those signed weeks and the last one's first day; and the class and subject
+// as the latest week names them. Awaiting is never an absence, and is counted
+// here only for the screen that shows it. Courses come in the school's order of
+// their class, which the app knows from the timetable, then by class, subject
+// and course in one Arabic collation on every device, numbers in names read as
+// numbers; nothing is totalled across courses and nothing ranks them.
 
 import { addDays, compareDays, weekday, type Day } from './day.ts';
 import type { CalendarEntry } from './reference.ts';
@@ -52,8 +52,8 @@ export interface CourseDelivery {
 
 /** How the calendar and the school's order are read. */
 export interface DeliveryReading {
-  /** The calendar entry that takes a session on its day, closing the school or that half-day, or null. */
-  readonly takenBy: (day: Day, session: WeekSession) => CalendarEntry | null;
+  /** The calendar entry that takes a class's session on its day, closing the school or that half-day, or null. */
+  readonly takenBy: (day: Day, session: WeekSession, className: string) => CalendarEntry | null;
   /** A class's place in the school's order, lower first; classes it does not place follow, by name. */
   readonly classOrder?: (name: string) => number | undefined;
 }
@@ -103,12 +103,12 @@ export function courseDeliveries(
       const sorted = [...list].sort((a, b) => compareDays(a.week, b.week));
       const latest = sorted.at(-1)!;
       const sessions = sorted.flatMap((week) =>
-        week.sessions.map((session) => ({ day: sessionDay(week.week, session), session })),
+        week.sessions.map((session) => ({ day: sessionDay(week.week, session), session, class: week.class })),
       );
       const counted = sessions.filter((one) => within(one.day, from, to));
       const lost = counted
         .filter((one) => one.session.state === 'not-held')
-        .map((one) => ({ ...one, entry: reading.takenBy(one.day, one.session) }))
+        .map(({ class: name, ...one }) => ({ ...one, entry: reading.takenBy(one.day, one.session, name) }))
         .sort((a, b) => compareDays(a.day, b.day) || a.session.start - b.session.start);
       const count = (state: WeekSession['state']) => counted.filter((one) => one.session.state === state).length;
       return {
