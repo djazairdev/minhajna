@@ -129,7 +129,9 @@ export function SchoolJoin(props: SchoolJoinProps) {
   });
   useEffect(() => resume(), []);
   const announce = useEffectEvent(() => {
-    if (page !== 'join' && page !== 'rejoin') say(t(page === 'week' ? 'demo.weekSign.title' : `demo.${page}.title`));
+    if (page === 'packs') say(t('editorDesk.teacher.title'));
+    else if (page !== 'join' && page !== 'rejoin')
+      say(t(page === 'week' ? 'demo.weekSign.title' : `demo.${page}.title`));
     else say(phase.kind === 'checking' ? `${title}. ${t('demo.school.checking')}` : title);
   });
   useEffect(() => {

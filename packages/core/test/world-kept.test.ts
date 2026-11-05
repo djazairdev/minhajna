@@ -77,4 +77,21 @@ describe('a kept world', () => {
       assert.equal(readWorldKept(changed), null, JSON.stringify(changed));
     }
   });
+
+  it('keeps the pins that read, and leaves out the others', () => {
+    const pin = { id: 'dz.cem.3am.math.example', release: '2026.2', day: '2026-11-01' };
+    const kept = { kind: 'national', code: CODE, starter: null };
+    const read = readWorldKept({
+      ...kept,
+      packPins: {
+        good: pin,
+        ['x'.repeat(301)]: pin,
+        badRelease: { ...pin, release: 'junk' },
+        badDay: { ...pin, day: 'soon' },
+        none: null,
+      },
+    });
+    assert.deepEqual(read?.packPins, { good: pin });
+    assert.equal(readWorldKept({ ...kept, packPins: 'junk' })?.packPins, undefined);
+  });
 });

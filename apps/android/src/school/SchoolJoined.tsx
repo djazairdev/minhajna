@@ -47,6 +47,7 @@ const WAYS = [
   ['termSend', 'demo.termSend.open', 'school-term'],
   ['statement', 'demo.statement.open', 'school-statement'],
   ['thresholds', 'demo.thresholds.open', 'school-thresholds'],
+  ['packs', 'editorDesk.teacher.open', 'school-packs'],
   ['timetable', 'demo.timetable.open', 'school-timetable'],
   ['devices', 'demo.devices.open', 'school-devices'],
   ['help', 'demo.help.open', 'school-help'],

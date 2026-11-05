@@ -9,15 +9,18 @@
 // server no longer knows the code entered, and erasing the device erases with
 // the rest. The latest event that reads counts; one that does not is ignored.
 
-import type { WorldKept } from './device-events.ts';
+import { isDay } from './day.ts';
+import { RELEASE } from './read.ts';
+import type { KeptPackPin, WorldKept } from './device-events.ts';
 import { eventOf } from './events.ts';
 import type { Entry } from './history.ts';
 import { readWorldCode } from './world-code.ts';
 import { WORLD_KINDS, type WorldKind } from './world-keys.ts';
 
-export type { WorldKept } from './device-events.ts';
+export type { KeptPackPin, WorldKept } from './device-events.ts';
 
 const TOKEN = /^[A-Za-z0-9_-]{16,128}$/u;
+const COURSE_MOST = 300;
 
 /** The pack-editor accounts' tokens that read, by role, or none. */
 function readPackAccounts(value: unknown): WorldKept['packAccounts'] {
@@ -27,16 +30,40 @@ function readPackAccounts(value: unknown): WorldKept['packAccounts'] {
   return { ...(reads(curator) ? { curator } : {}), ...(reads(ministry) ? { ministry } : {}) };
 }
 
+/** The pins that read, by course; those that don't are left out. */
+function readPackPins(value: unknown): WorldKept['packPins'] {
+  if (typeof value !== 'object' || value === null) return undefined;
+  const reads = ([course, pin]: [string, unknown]) => {
+    const { id, release, day } = (pin ?? {}) as Partial<KeptPackPin>;
+    return (
+      course.length <= COURSE_MOST &&
+      typeof id === 'string' &&
+      typeof release === 'string' &&
+      RELEASE.test(release) &&
+      typeof day === 'string' &&
+      isDay(day)
+    );
+  };
+  return Object.fromEntries(Object.entries(value).filter(reads));
+}
+
 /** A kept world's facts, as the store may hold them, or null when they do not read. */
 export function readWorldKept(value: unknown): WorldKept | null {
   if (typeof value !== 'object' || value === null) return null;
-  const { kind, code, starter, packAccounts } = value as Record<string, unknown>;
+  const { kind, code, starter, packAccounts, packPins } = value as Record<string, unknown>;
   if (!WORLD_KINDS.includes(kind as WorldKind) || typeof code !== 'string') return null;
   const read = readWorldCode(code);
   if ('problem' in read || read.code !== code) return null;
   if (starter !== null && (typeof starter !== 'string' || !TOKEN.test(starter))) return null;
   const accounts = readPackAccounts(packAccounts);
-  return { kind: kind as WorldKind, code, starter, ...(accounts === undefined ? {} : { packAccounts: accounts }) };
+  const pins = readPackPins(packPins);
+  return {
+    kind: kind as WorldKind,
+    code,
+    starter,
+    ...(accounts === undefined ? {} : { packAccounts: accounts }),
+    ...(pins === undefined ? {} : { packPins: pins }),
+  };
 }
 
 /** The world a store belongs to, from its latest `world.kept` event that reads, or null. */

@@ -37,7 +37,8 @@ export type JoinPage =
   | 'statement'
   | 'thresholds'
   | 'threshold'
-  | 'examTotals';
+  | 'examTotals'
+  | 'packs';
 
 /** A joined card's page on view: on a course or exam room when chosen, and the page its way back returns to. */
 export type JoinedView = {

@@ -48,3 +48,9 @@ No native build, browser interaction or physical-device acceptance is claimed fo
 ## Accounts (answer 767)
 
 `apps/server/test/packs.test.ts` and `pack-store.test.ts` cover the accounts, the rules for each step and what the store keeps. `packages/core/test/pack-lifecycle-files.test.ts` covers a step refused for its role, status, content, world or CA. `apps/android/__tests__/pack-release-accounts.test.ts` and `pack-desk.test.tsx` cover the session and the page. PostgreSQL's store is tested only by CI. Nothing here has been checked in a browser against the deployed server, on a device or with a screen reader.
+
+## A release reaching a teacher
+
+A joined teacher's page of the world's plans (#617, answer 771) reads the stream with the world's keys. Each class and subject of the timetable in force keeps its pin: the one the world's class starts on, or the one it moved to. Publishing moves nothing. A course on an older release of the pack, or on none when its grade and subject fit, is offered the latest published release, with what changed and which account's step signed it. When the steps between don't fit, no move is offered, and it says why. A move is kept in the world's store, dated by the world, and leaves the teacher's own store untouched. Real mode refuses a world's signed file.
+
+Plan-error reports (#616, answer 770) go sealed on their own stream of the national space, with no server endpoint and no account, and reach the curators' reports page with the item, release, kind, note and the credit the teacher chose.
