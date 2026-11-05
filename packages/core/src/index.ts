@@ -21,6 +21,7 @@ export * from './pack-lifecycle-files.ts';
 export * from './pack-step.ts';
 export * from './pack-review.ts';
 export * from './pack-extraction.ts';
+export * from './pack-report.ts';
 export * from './marks.ts';
 export * from './mark-fix.ts';
 export * from './observations.ts';
