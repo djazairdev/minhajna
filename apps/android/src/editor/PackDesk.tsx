@@ -15,6 +15,7 @@ import { Button } from '../components/Button';
 import { TextField } from '../components/TextField';
 import type { OpenWorld } from '../demo/world-mode';
 import type { Send } from '../demo/world-session';
+import type { TermReference } from '../director/seeded-fill';
 import { worldRequest } from '../network/world-network';
 import { useDeviceText } from '../text/device-text';
 import { editorStyles as s } from './editor-styles';
@@ -27,6 +28,7 @@ import {
 } from './pack-account';
 import type { PackEditor } from './pack-release-session';
 import { PacksPage } from './PacksPage';
+import { ReleasesPage } from './ReleasesPage';
 
 const making = new Map<string, Promise<PackAccounts>>();
 
@@ -150,19 +152,24 @@ export function usePackAccount(open: OpenWorld, role: PackPublisher, send: Send 
 export function packDeskPage(
   workspace: string,
   page: string,
-  props: Omit<Parameters<typeof PackDesk>[0], 'role'>,
+  props: Omit<Parameters<typeof PackDesk>[0], 'role' | 'page'>,
 ): ReactElement | null {
-  return workspace === 'curator' && page === 'packs' ? <PackDesk role="curator" {...props} /> : null;
+  if (workspace === 'ministry' && page === 'releases') return <PackDesk role="ministry" page={page} {...props} />;
+  if (workspace !== 'curator' || (page !== 'packs' && page !== 'releases' && page !== 'reviews')) return null;
+  return <PackDesk role="curator" page={page} {...props} />;
 }
 
-/** The curators' page of packs and drafts, under its account. */
+/** A page of the pack desk, under the role's account. */
 export function PackDesk({
   role,
+  page,
   open,
   send,
   ...props
 }: Omit<PackEditor, 'world' | 'accounts'> & {
   readonly role: PackPublisher;
+  readonly page: 'packs' | 'releases' | 'reviews';
+  readonly reference: TermReference;
   readonly open: OpenWorld;
   readonly packs: readonly PlanPack[];
   readonly send?: Send;
@@ -173,7 +180,19 @@ export function PackDesk({
   return (
     <View style={s.page}>
       {panel}
-      <PacksPage {...props} world={open} accounts={accounts} send={send} />
+      {page === 'packs' ? (
+        <PacksPage {...props} world={open} accounts={accounts} send={send} role={role} />
+      ) : (
+        <ReleasesPage
+          key={`${open.world}/${page}`}
+          {...props}
+          world={open}
+          accounts={accounts}
+          send={send}
+          role={role}
+          underReview={page === 'reviews'}
+        />
+      )}
     </View>
   );
 }

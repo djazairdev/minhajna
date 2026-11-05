@@ -45,6 +45,8 @@ async function desk(starter: boolean) {
   const page = (open: OpenWorld) => (
     <PackDesk
       role="curator"
+      page="packs"
+      reference={reference}
       open={open}
       held={f.editor.held}
       profile={reference.profile}
@@ -142,6 +144,8 @@ test('a failed making says so, and trying again makes it', async () => {
   await show(
     <PackDesk
       role="curator"
+      page="packs"
+      reference={reference}
       open={opened}
       held={f.editor.held}
       profile={reference.profile}
