@@ -97,6 +97,12 @@ android {
             // React Native's own default, and the APK neither depends on the
             // machine that built it nor gives away its address.
             resValue "string", "react_native_dev_server_ip", "localhost"
+            // A hosted test's APK (docs/demo-host.md) is an app of its own,
+            // beside a teacher's and never over it, with its own data.
+            if (providers.gradleProperty("minhajnaHostedTest").getOrElse("false") == "true") {
+                applicationIdSuffix ".hostedtest"
+                resValue "string", "app_name", "Minhajna test"
+            }
         }
     }
 

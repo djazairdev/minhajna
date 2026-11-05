@@ -36,7 +36,10 @@ describe('the web app’s origin', () => {
     });
 
   it('names only the web app and its local tries', () => {
-    assert.deepEqual([...WEB_ORIGINS], [WEB, 'http://127.0.0.1:4180', 'http://127.0.0.1:8787']);
+    assert.deepEqual(
+      [...WEB_ORIGINS],
+      [WEB, 'https://minhajna-test.djazair.dev', 'http://127.0.0.1:4180', 'http://127.0.0.1:8787'],
+    );
   });
 
   it('answers a preflight from the web app for what the demo client sends, without credentials', async () => {

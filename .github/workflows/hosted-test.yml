@@ -1,0 +1,296 @@
+# SPDX-FileCopyrightText: 2026 The Minhajna contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# The hosted test (answers 755 to 757, docs/demo-host.md): all of a coming
+# release, tested on the real hosts before anything is released. Started by
+# hand from main or a release branch, it builds the web app and test APKs, waits
+# for the release manager's approval, deploys the demo server and the web app at
+# an address of its own, and runs the scenarios against the deployed server. It
+# tags and publishes nothing, uses none of the project's signing keys, and
+# leaves the teachers' web app as it is. Once a release with a demo server is
+# tagged, teachers' apps use that server, and this workflow refuses to replace it.
+
+name: Hosted test
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: hosted-test
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # As in android.yml; a test keeps them equal.
+  BUILD_TOOLS: '37.0.0'
+  NDK: '27.1.12297006'
+  CMAKE: '3.22.1'
+  GRADLE_WRAPPER_SHA256: 55243ef57851f12b070ad14f7f5bb8302daceeebc5bce5ece5fa6edb23e1145c
+  # The certificate of every official APK, as in release.yml: a test APK must
+  # never carry it.
+  CERTIFICATE: de2a5a7839bb88733456078bb937179f43ff99004d2408cb965093aa0aed6a5b
+  TEST_APP: dz.minhajna.preview.hostedtest
+  DEMO_SERVER: https://minhajna-demo.djazair.dev
+  TEST_HOST: https://minhajna-test.djazair.dev
+  # Wrangler would otherwise send usage data to Cloudflare.
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  plan:
+    name: May it run
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      - name: Read the branch, the tags and the server's version
+        id: plan
+        run: |
+          git ls-remote --tags --refs origin > "$RUNNER_TEMP/tags"
+          node tools/release/hosted-test.js "$GITHUB_REF" "$RUNNER_TEMP/tags" >> "$GITHUB_OUTPUT"
+
+  web:
+    name: Pack the web app
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      # .npmrc files stop install scripts.
+      - name: Install the locked dependencies
+        run: |
+          npm ci --no-audit
+          (cd apps/android && npm ci --no-audit)
+          (cd apps/web && npm ci --no-audit)
+
+      - name: Pack the web app
+        working-directory: apps/web
+        run: npm run build && npm run zip
+
+      - name: Keep the web app's ZIP
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hosted-test-web
+          path: apps/web/release/*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  apks:
+    name: Build the test APKs
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      - name: Install the NDK, CMake and the build tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install \
+            "ndk;$NDK" "cmake;$CMAKE" "build-tools;$BUILD_TOOLS" > /dev/null
+
+      - name: Check the Gradle wrapper
+        working-directory: apps/android/android
+        run: echo "$GRADLE_WRAPPER_SHA256  gradle/wrapper/gradle-wrapper.jar" | sha256sum --check --strict
+
+      - name: Install the locked dependencies
+        working-directory: apps/android
+        run: npm ci --no-audit
+
+      - name: Build the APKs as an app of their own
+        working-directory: apps/android/android
+        run: ./gradlew --no-daemon assembleRelease -PminhajnaHostedTest=true
+
+      - name: Sign them with a key made for this run, and check each
+        run: tools/release/sign-test-apks.sh
+
+      - name: Keep the test APKs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hosted-test-apks
+          path: test-apks/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    name: Deploy the demo server and the test web app
+    needs: [plan, web, apks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    # Only main and release/* may use it, and the release manager approves
+    # each run (docs/demo-host.md). It holds the bucket's keys and nothing else.
+    environment: demo-host
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check that the environment holds the bucket's keys
+        env:
+          DEMO_R2_ACCESS_KEY_ID: ${{ secrets.DEMO_R2_ACCESS_KEY_ID }}
+          DEMO_R2_SECRET_ACCESS_KEY: ${{ secrets.DEMO_R2_SECRET_ACCESS_KEY }}
+          DEMO_ARCHIVE_KEY: ${{ secrets.DEMO_ARCHIVE_KEY }}
+        run: tools/release/check-demo-keys.sh
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      # Asked again here: a release may have been tagged while this run waited
+      # for its approval, and a re-run of this job reuses the first job's answer.
+      - name: Check again that it may run
+        run: |
+          git ls-remote --tags --refs origin > "$RUNNER_TEMP/tags"
+          node tools/release/hosted-test.js "$GITHUB_REF" "$RUNNER_TEMP/tags"
+
+      - name: Install the hosts' deploy tool
+        working-directory: apps/web/host
+        run: npm ci --no-audit
+
+      - name: Download the web app's ZIP
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: hosted-test-web
+          path: web-zip
+
+      - name: Unzip it where the host takes it
+        id: zip
+        run: |
+          mkdir -p apps/web/release/dist
+          unzip -q web-zip/*.zip -d apps/web/release/dist
+          echo "checksum=$(jq -r .sha256 apps/web/release/dist/build.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy the server
+        working-directory: apps/server/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: ../../web/host/node_modules/.bin/wrangler deploy
+
+      # After the deploy, as a Worker must exist to hold secrets; with none, it
+      # starts no container. A deploy keeps them from then on.
+      - name: Give the Worker the bucket's settings
+        working-directory: apps/server/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DEMO_R2_ACCESS_KEY_ID: ${{ secrets.DEMO_R2_ACCESS_KEY_ID }}
+          DEMO_R2_SECRET_ACCESS_KEY: ${{ secrets.DEMO_R2_SECRET_ACCESS_KEY }}
+          DEMO_ARCHIVE_KEY: ${{ secrets.DEMO_ARCHIVE_KEY }}
+        run: |
+          jq -n '{
+            AWS_ENDPOINT: ("https://" + env.CLOUDFLARE_ACCOUNT_ID + ".r2.cloudflarestorage.com"),
+            AWS_ACCESS_KEY_ID: env.DEMO_R2_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY: env.DEMO_R2_SECRET_ACCESS_KEY,
+            WALG_LIBSODIUM_KEY: env.DEMO_ARCHIVE_KEY
+          }' | ../../web/host/node_modules/.bin/wrangler secret bulk
+
+      - name: Deploy the test web app
+        working-directory: apps/web/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node_modules/.bin/wrangler deploy --env test
+
+      - name: Check the server
+        run: tools/release/check-demo-server.sh "$DEMO_SERVER" "$VERSION"
+
+      - name: Check the test web app
+        working-directory: apps/web
+        env:
+          CHECKSUM: ${{ steps.zip.outputs.checksum }}
+        run: |
+          for attempt in $(seq 1 20); do
+            sudo resolvectl flush-caches || true
+            if node scripts/check-host.ts "$TEST_HOST" "$CHECKSUM"; then exit 0; fi
+            sleep 30
+          done
+          exit 1
+
+      - name: Say what to try by hand
+        run: |
+          {
+            echo "The demo server is at $DEMO_SERVER, and the PC web app to test at $TEST_HOST."
+            echo "A PC that had an earlier run's copy needs its data for that address cleared first."
+            echo "The phone's APKs are in this run's hosted-test-apks artifact, kept for 14 days."
+            echo "An earlier run's test APK must be uninstalled first. Use made-up data only."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  scenarios:
+    name: Run the scenarios against the deployed server
+    needs: deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      # The scenarios run the app's own modules, so they need its dependencies.
+      - name: Install the locked dependencies
+        run: |
+          npm ci --no-audit
+          (cd apps/android && npm ci --no-audit)
+
+      # A scenario through the app's devices draws its world from a seed, and
+      # worlds stay here for 7 days, so each run gets a number to mix in.
+      - name: Run the scenarios
+        env:
+          MINHAJNA_SCENARIO_RUN: ${{ github.run_id }}-${{ github.run_attempt }}
+        run: node tools/demo-scenario/run.js --server "$DEMO_SERVER" --wait 300
