@@ -4,19 +4,21 @@
 // The scenario at the school (#630, answer 722), through the app's own sessions
 // (device.js): a school joins and its timetable reaches its teachers
 // (school-join.js), a week is signed and corrected and a session covered
-// (school-weeks.js), a grant is read and ends (school-grant.js), and the term's
-// export is sent (school-term.js).
+// (school-weeks.js), a grant is read and ends (school-grant.js), the term's
+// export is sent (school-term.js), and teachers share statements the
+// coordinator merges in reader mode inside the world (school-statements.js).
 
 import { appAccess } from './device.js';
 import { JOIN_ACTIONS, JOIN_STEPS } from './school-join.js';
 import { GRANT_ACTIONS, GRANT_STEPS } from './school-grant.js';
+import { STATEMENT_ACTIONS, STATEMENT_STEPS } from './school-statements.js';
 import { TERM_ACTIONS, TERM_STEPS } from './school-term.js';
 import { WEEK_ACTIONS, WEEK_STEPS } from './school-weeks.js';
 
 export const SCHOOL = {
-  name: 'A school joins, signs its weeks and sends its term',
+  name: 'A school from its join to its statements',
   kind: 'national',
   access: appAccess,
-  actions: { ...JOIN_ACTIONS, ...WEEK_ACTIONS, ...GRANT_ACTIONS, ...TERM_ACTIONS },
-  steps: [...JOIN_STEPS, ...WEEK_STEPS, ...GRANT_STEPS, ...TERM_STEPS],
+  actions: { ...JOIN_ACTIONS, ...WEEK_ACTIONS, ...GRANT_ACTIONS, ...TERM_ACTIONS, ...STATEMENT_ACTIONS },
+  steps: [...JOIN_STEPS, ...WEEK_STEPS, ...GRANT_STEPS, ...TERM_STEPS, ...STATEMENT_STEPS],
 };
