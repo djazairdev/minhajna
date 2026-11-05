@@ -16,4 +16,7 @@
 !apps/server/tools/prisma/package-lock.json
 !apps/server/tools/prisma/.npmrc
 !apps/server/tools/prisma/prisma.config.ts
+!apps/server/tools/notices.ts
+!LICENSES/AGPL-3.0-or-later.txt
+!LICENSES/Apache-2.0.txt
 apps/server/src/generated

@@ -14,11 +14,14 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import process from 'node:process';
 import { setTimeout } from 'node:timers/promises';
 import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { SEALED_BATCH_BYTES } from '../src/spaces/space-rules.js';
+
+type ServerPackage = { dependencies: Record<string, string> };
 
 const root = fileURLToPath(new URL('../../../../', import.meta.url));
 const compose = ['compose', '-f', 'apps/server/compose.yaml', '--profile', 'archive'];
@@ -125,6 +128,22 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
   after(() => {
     for (const name of started) spawnSync('docker', ['rm', '-f', name]);
     spawnSync('docker', [...compose, 'rm', '-sfv', 'objects'], { cwd: root });
+  });
+
+  it('holds the notices of what it runs, its packages among them', () => {
+    const version = (JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as ServerPackage)
+      .dependencies['@nestjs/core'];
+    const held = spawnSync(
+      'docker',
+      ['run', '--rm', '--entrypoint', 'sh', image, '-c', 'cat NOTICES.txt; ls licenses'],
+      { encoding: 'utf8' },
+    );
+    assert.equal(held.status, 0);
+    assert.match(held.stdout, /^The notices of what this image holds/);
+    assert.ok(held.stdout.includes(`@nestjs/core ${version}: MIT`));
+    for (const text of ['AGPL-3.0-or-later.txt', 'Apache-2.0.txt', 'libatomic1.txt', 'node.txt']) {
+      assert.ok(held.stdout.includes(text));
+    }
   });
 
   it('refuses to start with no bucket, unless told to keep nothing', () => {

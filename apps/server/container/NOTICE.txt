@@ -1,0 +1,24 @@
+The notices of what this image holds
+
+Minhajna's server is under the GNU Affero General Public License, version 3 or
+later: licenses/AGPL-3.0-or-later.txt beside this file. Its source is at
+https://github.com/djazairdev/minhajna, in apps/server.
+
+The image also holds, beside the npm packages listed below:
+
+- Node.js, under the MIT licence and those of what it bundles:
+  licenses/node.txt beside this file.
+- PostgreSQL 18, under the PostgreSQL Licence, from the postgres image, and the
+  Debian packages of that image, each with its licence in
+  /usr/share/doc/<package>/copyright.
+- WAL-G 3.0.9, Copyright 2017 Citus Data Inc., under the Apache License 2.0:
+  licenses/Apache-2.0.txt beside this file. Its source is at
+  https://github.com/wal-g/wal-g. The image takes its released binary, which
+  has Go and C libraries built in, such as libsodium. Their notices are not
+  carried in this image. Find the Go libraries in go.mod at that tag.
+- libatomic, from GCC, beside Node.js, under the GNU General Public License,
+  version 3 or later, with the GCC Runtime Library Exception:
+  licenses/libatomic1.txt beside this file. Its source is Debian trixie's gcc-14
+  source package, at https://sources.debian.org/src/gcc-14/.
+- gosu, from the postgres image, under the Apache License 2.0, from
+  https://github.com/tianon/gosu.

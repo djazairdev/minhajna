@@ -13,7 +13,9 @@
 # as minhajna. TypeScript and its types, which npm keeps as an optional
 # peer of Prisma's client, are dropped from the image. Node.js comes from
 # its own image with the one library it needs that PostgreSQL's lacks,
-# libatomic, both images being Debian trixie.
+# libatomic, both images being Debian trixie. NOTICES.txt beside the server
+# holds the notices of everything the image runs, written at this build
+# (tools/notices.ts, #536).
 
 FROM node:26.13.0-trixie-slim@sha256:e4db4c914bf8ad241bd24804fc25d272d89bad97e68cdc8a1414862790a02c39 AS build
 WORKDIR /minhajna
@@ -28,6 +30,8 @@ COPY apps/server/prisma prisma
 COPY apps/server/src src
 RUN npm run build && npm prune --omit=dev --no-audit --no-fund && rm -rf node_modules/typescript node_modules/@types
 RUN mkdir /node-libs && cp -L /usr/lib/*-linux-gnu/libatomic.so.1 /node-libs/
+COPY apps/server/tools/notices.ts apps/server/container/NOTICE.txt /notices/
+RUN node /notices/notices.ts node_modules /notices/NOTICE.txt > /notices/NOTICES.txt
 
 FROM scratch AS wal-g-amd64
 ADD --checksum=sha256:4f03ee4679db7f660bfd1b2b8291ac5df247cd2ec48074b60c112f4897299f24 \
@@ -50,6 +54,10 @@ COPY --from=build /minhajna/apps/server/package.json ./
 COPY --from=build /minhajna/apps/server/node_modules node_modules
 COPY --from=build /minhajna/apps/server/dist/src dist/src
 COPY apps/server/prisma/migrations prisma/migrations
+COPY --from=build /notices/NOTICES.txt NOTICES.txt
+COPY --from=build /usr/local/LICENSE licenses/node.txt
+COPY --from=build /usr/share/doc/libatomic1/copyright licenses/libatomic1.txt
+COPY LICENSES/AGPL-3.0-or-later.txt LICENSES/Apache-2.0.txt licenses/
 COPY apps/server/container/start.sh /usr/local/bin/minhajna-start
 COPY apps/server/container/wal-g.sh /usr/local/bin/minhajna-wal-g
 COPY apps/server/container/wal-fetch.sh /usr/local/bin/minhajna-wal-fetch

@@ -6,6 +6,11 @@ What changes for teachers in each release of Minhajna, newest first. How these n
 
 Not released yet. · لم تُنشر هذه التغييرات بعد.
 
+### New
+
+- Demo worlds: try the whole national flow, from the Ministry to the teacher, with made-up data. Anyone can start a world on a PC and share its code; everyone who enters the code acts in the same world, each in a role they pick. The other roles have their pages on a PC, among them pack curators, operators and the observatory; a teacher or inspector works from the world’s home, on a PC or by phone. Every screen in a world is marked as a demo, and a world is erased on its 7th day. Your own records stay locked while a world is open, and never reach it.
+  - العوالم التجريبية: جرّب المسار الوطني كله، من الوزارة إلى الأستاذ، ببيانات مختلقة. يمكن لأي شخص بدء عالم على حاسوب ومشاركة رمزه؛ وكل من يُدخل الرمز يعمل في العالم نفسه، بالدور الذي يختاره. وللأدوار الأخرى صفحاتها على الحاسوب، ومنها القيّمون على الحزم والمشغّلون والمرصد؛ ويعمل الأستاذ أو المفتش من الصفحة الرئيسية للعالم، على الحاسوب أو بالهاتف. وتظهر على كل شاشة في العالم علامة النسخة التجريبية، ويُمحى العالم في يومه السابع. وتبقى سجلاتك مقفلة ما دام العالم مفتوحاً، ولا تصل إليه أبداً.
+
 ### Fixed
 
 - The erase warning counts a confirmed transfer while the handover is active. After work resumes on this device, the warning uses the backup or archive you have here to work out what erasing would lose, names a restored file beside a transfer, and on a phone that received a copy counts the changes made after it arrived. The log of a printed or saved document, an update or a new recovery key no longer counts as a change.
