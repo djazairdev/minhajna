@@ -6,10 +6,12 @@
 // server on this machine, then runs the demo scenarios one after another,
 // saying each step, and exits with 1 at the first that fails, or if a run stops
 // without finishing them. CI runs it against `npm run demo` (test.yml). The
-// server lets one address start only a few worlds an hour (START_LIMIT) and
-// make only so many requests in ten minutes (RELAY_LIMIT), and one run of the
-// scenario at the school takes about a third of those, so the scenarios share
-// both budgets.
+// server limits an address: one run of the four scenarios takes four of its
+// five worlds an hour (START_LIMIT), about 1000 of its 1200 requests in ten
+// minutes (RELAY_LIMIT) and 57 of its 60 joins (JOIN_LIMIT, which also limits
+// date moves, certificates, announced days, deliveries, pack accounts and the
+// console), so a second run from one address within the hour is refused with
+// E_WORLD_BUSY, and a new step has three joins to spend.
 
 import process from 'node:process';
 import { fileURLToPath, URL } from 'node:url';
@@ -31,7 +33,8 @@ async function main() {
     throw new Error(`${values.server} did not answer /health`);
   const { SCHOOL } = await import('./school.js');
   const { NATIONAL } = await import('./national.js');
-  const scenarios = [SAMPLE, SCHOOL, NATIONAL];
+  const { INSIGHTS } = await import('./insights.js');
+  const scenarios = [SAMPLE, SCHOOL, NATIONAL, INSIGHTS];
   for (const scenario of scenarios) {
     process.stdout.write(`${scenario.name}\n`);
     await runScenario(scenario, values.server, { say: (line) => process.stdout.write(`  ${line}\n`) });

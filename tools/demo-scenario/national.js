@@ -4,12 +4,15 @@
 // The scenario above the school (#631, answer 722), through the app's own
 // sessions (device.js): the Ministry publishes the calendar and a pack
 // (national-publish.js), which reaches a teacher who joined a school and took
-// its timetable (national-plans.js); the operators' console shows the world:
-// what the server reports of itself, that its admin log holds its start and its
-// security log counts a refusal, and its problem reports.
+// its timetable (national-plans.js); the date moves to announced days, totals
+// and a threshold appear, and the cut is signed and published
+// (national-cut.js); the operators' console shows the world: what the server
+// reports of itself, that its admin log holds its start and its security log
+// counts a refusal, and its problem reports.
 
 import { appModule } from './app.js';
 import { appAccess } from './device.js';
+import { CUT_ACTIONS, CUT_STEPS } from './national-cut.js';
 import { PLAN_ACTIONS, PLAN_STEPS } from './national-plans.js';
 import { PUBLISH_ACTIONS, PUBLISH_STEPS } from './national-publish.js';
 import { JOIN_ACTIONS, see } from './school-join.js';
@@ -46,10 +49,10 @@ const { takeKey, issueCode, joinSchool, publishTimetable, receiveTimetable } = J
 const JOINING = { takeKey, issueCode, joinSchool, publishTimetable, receiveTimetable };
 
 export const NATIONAL = {
-  name: 'The Ministry publishes, and a release reaches a teacher',
+  name: 'The Ministry publishes, and a cut is signed and published',
   kind: 'national',
   access: appAccess,
-  actions: { ...JOINING, ...PUBLISH_ACTIONS, ...PLAN_ACTIONS, seeConsole },
+  actions: { ...JOINING, ...PUBLISH_ACTIONS, ...PLAN_ACTIONS, ...CUT_ACTIONS, seeConsole },
   steps: [
     { as: 'ministry', do: 'start' },
     { as: 'directorate', do: 'join' },
@@ -64,6 +67,7 @@ export const NATIONAL = {
     { as: 'teacher', who: 'a', do: 'receiveTimetable' },
     ...PUBLISH_STEPS,
     ...PLAN_STEPS,
+    ...CUT_STEPS,
     { as: 'operator', do: 'seeConsole' },
   ],
 };

@@ -30,7 +30,7 @@ describe('the scenario at the school', () => {
   });
 
   it('runs in CI with the sample, its name the seed of its world', () => {
-    assert.match(readFileSync(new URL('run.js', import.meta.url), 'utf8'), /\[SAMPLE, SCHOOL, NATIONAL\]/);
+    assert.match(readFileSync(new URL('run.js', import.meta.url), 'utf8'), /\[SAMPLE, SCHOOL, NATIONAL, INSIGHTS\]/);
     assert.equal(SCHOOL.access, appAccess);
   });
 
