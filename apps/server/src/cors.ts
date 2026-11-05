@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Lets the PC web app call the demo server from its own origin (answer 583):
-// https://minhajna.djazair.dev, and where it is tried locally: its ZIP at
+// https://minhajna.djazair.dev, the hosted test's own address (answer 756),
+// https://minhajna-test.djazair.dev, and where it is tried locally: its ZIP at
 // http://127.0.0.1:4180, and its Worker at http://127.0.0.1:8787. Only those
 // origins are named back, only for the methods and headers the demo client
 // sends, and never with credentials: a world's pass travels in X-World-Pass,
@@ -14,6 +15,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export const WEB_ORIGINS: ReadonlySet<string> = new Set([
   'https://minhajna.djazair.dev',
+  'https://minhajna-test.djazair.dev',
   'http://127.0.0.1:4180',
   'http://127.0.0.1:8787',
 ]);

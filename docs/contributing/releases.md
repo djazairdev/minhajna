@@ -60,6 +60,7 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
    - the database upgrades from every earlier release, and every older file version opens.
 9. Any print layout that changed is printed at 100% on A4, in black and white, and checked against the printed samples ([PRD §6.8](../prd/PRD.md#68-non-functional-requirements)).
 10. Changed screens are checked right to left, with text at 200% and with the screen reader. The speed targets hold on a budget phone.
+    - Until a release with a demo server is out, [the hosted test](../demo-host.md#the-hosted-test) has passed on the release commit's code. It also gives the demo server its secrets, without which the release's deploy stops.
 
 **Beta**
 

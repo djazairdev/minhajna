@@ -10,7 +10,6 @@
 // the same commands work on Windows.
 
 import { spawn, spawnSync } from 'node:child_process';
-import { get } from 'node:http';
 import { join } from 'node:path';
 import process from 'node:process';
 import { setTimeout } from 'node:timers/promises';
@@ -19,20 +18,25 @@ import { demoOptions, preparation, SERVER_PORT, services, STOP, WEB_PORT } from 
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
-function answers(url) {
-  return new Promise((done) => {
-    const request = get(url, { timeout: 1000 }, (res) => {
-      res.resume();
-      done(res.statusCode === 200);
+/** Whether a URL answers 200: within a second on this computer, or 20 seconds away, as a deployed server wakes. */
+async function answers(url) {
+  const patience = url.startsWith('https:') ? 20_000 : 1000;
+  try {
+    const answer = await globalThis.fetch(url, {
+      redirect: 'manual',
+      signal: globalThis.AbortSignal.timeout(patience),
     });
-    request.on('timeout', () => request.destroy());
-    request.on('error', () => done(false));
-  });
+    await answer.body?.cancel();
+    return answer.status === 200;
+  } catch {
+    return false;
+  }
 }
 
-/** Waits for a URL to answer 200, checking every half second, for at most `seconds`. */
+/** Waits for a URL to answer 200, checking every half second, for `seconds` and at most one last check. */
 export async function waitFor(url, seconds) {
-  for (let tries = 0; tries < seconds * 2; tries++) {
+  const deadline = Date.now() + seconds * 1000;
+  while (Date.now() < deadline) {
     if (await answers(url)) return true;
     await setTimeout(500);
   }

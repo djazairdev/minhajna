@@ -50,10 +50,14 @@ Without the checksum, any build the host serves whole would pass, so the check r
 
 **Never deploy an older build.** The worker never offers a lower version code, so teachers who installed the newer build keep it, and only new installs would get the older one. A broken release is fixed with a new version. Going back is only for a deploy whose check has just failed.
 
+## The hosted test's copy
+
+[The hosted test](../demo-host.md#the-hosted-test) deploys the same files to `https://minhajna-test.djazair.dev`, a second Worker, `minhajna-web-test`, by `wrangler deploy --env test`. Teachers' address and its release stay as they are. It is a different origin, so it sees nothing a browser keeps for `https://minhajna.djazair.dev`.
+
 ## When the host is down
 
 The installed app opens and works as usual. Only first installs and update checks wait for the host.
 
 ## Trying it on this computer
 
-`npm run serve` sends the same headers, over plain HTTP and without `Strict-Transport-Security`. While it runs, check it with `npm run check-host -- http://127.0.0.1:4180`. To try the Worker itself, unzip a build into `release/dist/` and run `node_modules/.bin/wrangler dev --ip 127.0.0.1 --port 8787 --local-upstream 127.0.0.1:8787` in `host/` once its `npm ci` is done; the pull requests that change it do the same in CI. A demo world answers only from those two local addresses, `http://127.0.0.1:4180` and `http://127.0.0.1:8787`: the demo server names no other origin back (answer 583), so with another `PORT` its requests fail as if offline. `npm run zip` packs `dist/` into `release/minhajna-web-<version>.zip`. Before packing, it checks every file against `build.json`. The ZIP keeps the files uncompressed, in name order, all dated 1 January 1980, so the same build always gives the same bytes, on any system. CI keeps one per run as the `web-zip` artifact, for the release manager to compare with their own.
+`npm run serve` sends the same headers, over plain HTTP and without `Strict-Transport-Security`. While it runs, check it with `npm run check-host -- http://127.0.0.1:4180`. To try the Worker itself, unzip a build into `release/dist/` and run `node_modules/.bin/wrangler dev --ip 127.0.0.1 --port 8787 --local-upstream 127.0.0.1:8787` in `host/` once its `npm ci` is done; the pull requests that change it do the same in CI. A demo world answers only from those two local addresses, `http://127.0.0.1:4180` and `http://127.0.0.1:8787`: the demo server names no other origin back but the two hosted ones (answers 583 and 756), so with another `PORT` its requests fail as if offline. `npm run zip` packs `dist/` into `release/minhajna-web-<version>.zip`. Before packing, it checks every file against `build.json`. The ZIP keeps the files uncompressed, in name order, all dated 1 January 1980, so the same build always gives the same bytes, on any system. CI keeps one per run as the `web-zip` artifact, for the release manager to compare with their own.

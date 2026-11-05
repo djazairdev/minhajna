@@ -19,7 +19,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 /** The web app's public addresses, as src/cors.ts names them; a test keeps them equal. */
-export const WEB_APPS = ['https://minhajna.djazair.dev'];
+export const WEB_APPS = ['https://minhajna.djazair.dev', 'https://minhajna-test.djazair.dev'];
 
 const ELSEWHERE = 'https://not-the-web-app.example';
 const LOCAL = ['127.0.0.1', 'localhost', '[::1]'];

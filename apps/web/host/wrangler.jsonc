@@ -6,7 +6,9 @@
 // release workflow unzips into apps/web/release/dist/. The Worker answers
 // every request itself (scripts/worker.ts), so no file is served without the
 // host's headers and no path is redirected or rewritten. It has no
-// workers.dev or preview address, and its logs stay off.
+// workers.dev or preview address, and its logs stay off. `--env test` deploys
+// the same files to the hosted test's own address, a Worker of its own that
+// leaves teachers' address as it is (docs/demo-host.md).
 {
   "name": "minhajna-web",
   "main": "../scripts/worker.ts",
@@ -22,4 +24,10 @@
     "run_worker_first": true,
   },
   "observability": { "enabled": false },
+  "env": {
+    "test": {
+      "name": "minhajna-web-test",
+      "routes": [{ "pattern": "minhajna-test.djazair.dev", "custom_domain": true }],
+    },
+  },
 }

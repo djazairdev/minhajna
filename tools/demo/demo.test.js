@@ -83,6 +83,18 @@ describe('npm run demo', () => {
     assert.equal(await waitFor(`http://127.0.0.1:${port}/health`, 1), false);
   });
 
+  it('asks an https address as well, and takes a redirect for no answer', async () => {
+    assert.equal(await waitFor('https://127.0.0.1:1/health', 1), false);
+    const server = createServer((_, res) => res.writeHead(301, { Location: 'https://127.0.0.1:1/' }).end());
+    await new Promise((done) => server.listen(0, '127.0.0.1', done));
+    const { port } = server.address();
+    try {
+      assert.equal(await waitFor(`http://127.0.0.1:${port}/health`, 1), false);
+    } finally {
+      server.close();
+    }
+  });
+
   it('installs a folder whose dependencies are missing or older than its lockfile', () => {
     const folder = mkdtempSync(join(tmpdir(), 'demo-'));
     writeFileSync(join(folder, 'package-lock.json'), '{}');

@@ -226,7 +226,9 @@ jobs:
 
       - name: Bundle the Worker as a deploy would
         working-directory: apps/web/host
-        run: node_modules/.bin/wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+        run: |
+          node_modules/.bin/wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
+          node_modules/.bin/wrangler deploy --dry-run --env test --outdir "$RUNNER_TEMP/worker-test"
 
   release:
     name: Sign and publish
@@ -467,7 +469,7 @@ jobs:
           held=$(../../web/host/node_modules/.bin/wrangler secret list --format json | jq -r '.[].name')
           for name in AWS_ENDPOINT AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY WALG_LIBSODIUM_KEY; do
             if ! grep -qx "$name" <<< "$held"; then
-              echo "::error title=Deploy::the demo server has no $name: run the hosted test first (docs/demo-host.md)"
+              echo "::error title=Deploy::the demo server has no $name (docs/demo-host.md#deploying-a-release)"
               exit 1
             fi
           done
@@ -480,6 +482,17 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: ../../web/host/node_modules/.bin/wrangler deploy
 
-      # Waits while the rollout ends and the container wakes on the new image.
       - name: Check the host
-        run: node apps/server/host/check.ts "$DEMO_SERVER" "$VERSION" 1200
+        run: tools/release/check-demo-server.sh "$DEMO_SERVER" "$VERSION"
+
+      # A release ends the hosted test (docs/demo-host.md), so its copy of the
+      # web app comes down, and with no copy up there is nothing to do.
+      - name: Take the hosted test's web app down
+        working-directory: apps/web/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if ! node_modules/.bin/wrangler delete minhajna-web-test --env test --force; then
+            echo "::warning title=Deploy::minhajna-web-test was not taken down: it may never have existed"
+          fi
