@@ -77,3 +77,9 @@ SPDX-License-Identifier = "OFL-1.1"
 path = "apps/android/fonts/manifest.json"
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = "apps/server/container/wal-g-notices.txt"
+precedence = "override"
+SPDX-FileCopyrightText = "The authors each notice in the file names"
+SPDX-License-Identifier = "Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND GPL-2.0-or-later AND ISC AND MIT AND MPL-2.0 AND SunPro"
