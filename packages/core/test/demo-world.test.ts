@@ -4,20 +4,22 @@
 // A seeded national demo world (#547, answer 579), from the bundled reference
 // data: the same seed gives the same world, pinned by its first names and IDs,
 // and another seed other names; a directorate for each of the twelve wilayas,
-// and six schools in each but the last, which keeps a primary school and a CEM
-// (answer 626), with their staff, classes, pupils and teachers; every wilaya's
-// figures by subject pass both the directorate's floor and the wilaya's, at the
-// CEMs alone and at every level, and the small wilaya's pass neither; no class
-// and no teacher is in two places at once, with five or six working days, and
-// each class has its sessions of each subject, a CEM or lycée class two or
-// three a day; classes pin the pack the app offers first; IDs and registration
-// numbers never repeat in a world, nor do names; staff are half women and half
-// men, a school's director alternating from one wilaya to the next; and a short
-// week is refused.
+// and six schools in each but the last two, which keep a primary school and a
+// CEM (answers 626 and 728), with their staff, classes, pupils and teachers;
+// every wilaya's figures by subject pass both the directorate's floor and the
+// wilaya's, at the CEMs alone and at every level, and the two small wilayas'
+// pass neither, so the floors need not hide the first directorate to protect
+// one small one; no class and no teacher is in two places at once, with five or
+// six working days, and each class has its sessions of each subject, a CEM or
+// lycée class two or three a day; classes pin the pack the app offers first;
+// IDs and registration numbers never repeat in a world, nor do names; staff are
+// half women and half men, a school's director alternating from one wilaya to
+// the next; and a short week is refused.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { hiddenCells } from '../src/floors.ts';
 import { parseCountryProfile, parsePlanPack, seedNationalWorld, type DemoWorld, type PlanPack } from '../src/index.ts';
 
 const data = (path: string): unknown =>
@@ -53,10 +55,10 @@ test('the same seed gives the same world, pinned by its first names and IDs, and
   );
 });
 
-test('twelve directorates, six schools in each but the last, with staff, classes and teachers', () => {
+test('twelve directorates, six schools in each but the last two, with staff, classes and teachers', () => {
   assert.equal(world.directorates.length, 12);
   for (const [place, { id, wilaya }] of world.directorates.entries()) {
-    const small = place === last;
+    const small = place >= last - 1;
     const here = world.schools.filter((one) => one.wilaya === wilaya.code);
     assert.ok(here.every((one) => one.directorateId === id));
     assert.deepEqual(
@@ -91,7 +93,7 @@ test('twelve directorates, six schools in each but the last, with staff, classes
   }
 });
 
-test('every wilaya’s figures by subject pass the directorate’s floor and the wilaya’s, but the small one’s', () => {
+test('every wilaya’s figures by subject pass the directorate’s floor and the wilaya’s, but the small ones’', () => {
   for (const [place, { wilaya }] of world.directorates.entries())
     for (const subject of ['arabic', 'math', 'french'])
       for (const levels of [['cem'], ['primary', 'cem', 'lycee']]) {
@@ -102,9 +104,30 @@ test('every wilaya’s figures by subject pass the directorate’s floor and the
           directorate: teachers.length >= 5 && teaching.length >= 3,
           wilaya: teachers.length >= 10 && teaching.length >= 3,
         };
-        const small = place === last;
+        const small = place >= last - 1;
         assert.deepEqual(passes, { directorate: !small, wilaya: !small }, `${wilaya.code} ${subject} ${levels.join()}`);
       }
+});
+
+test('the floors hide the two small directorates alone, so the first one shows', () => {
+  for (const subject of ['arabic', 'math', 'french']) {
+    const cells = world.directorates.map(({ id, wilaya }) => {
+      const here = world.schools.filter((one) => one.wilaya === wilaya.code);
+      const teaching = here.filter((one) => one.teachers.some((teacher) => teacher.subject === subject));
+      const teachers = here.flatMap((one) => one.teachers).filter((teacher) => teacher.subject === subject);
+      return { id, scope: 'directorate' as const, teachers: teachers.length, schools: teaching.length };
+    });
+    const sum = (key: 'teachers' | 'schools') => cells.reduce((all, one) => all + one[key], 0);
+    const nation = { id: 'nation', scope: 'national' as const, teachers: sum('teachers'), schools: sum('schools') };
+    const hidden = hiddenCells([nation, ...cells], [{ total: nation.id, parts: cells.map((one) => one.id) }]);
+    assert.deepEqual(
+      [...hidden].sort(),
+      world.directorates
+        .slice(-2)
+        .map((one) => one.id)
+        .sort(),
+    );
+  }
 });
 
 test('no class and no teacher is in two places at once, and each class has its sessions', () => {

@@ -7,20 +7,20 @@
 // year, six wilayas hold made-up teachers: the first three, the teacher's own
 // first, over both floors (at least 10 teachers and 3 schools); the fourth over
 // the teachers' floor only, the fifth over the schools' only, and the world's
-// last, already its small one (answer 626), under both, so at least two parts
-// stay hidden and subtraction uncovers none. The other wilayas hold nothing.
-// Each sending goes through the same builder as a class's, from one made-up
-// week holding its term. A class moves through its pack as a seeded course does
-// (seeded-plan.ts), at a pace drawn for it, over the lessons the calendar gives
-// its pack's first class in the term, less the share a seeded teacher is
-// absent, so its sessions compare with the world's teacher's. A few of the
-// pack's items are changed by most or some of its classes, by their place in
-// the pack, as CHANGES says, and a few take most of them longer than the plan
-// gives, as LONGER says, so the report and a class's comparison have something
-// to show. Nothing here is real or derived from anything real: IDs, tokens and
-// school-and-term codes are all drawn at random, a token kept by one made-up
-// teacher for one term, a code by one made-up school for one term. Batches keep
-// to what one request may carry.
+// last, already one of its small ones (answers 626, 728), under both, so at
+// least two parts stay hidden and subtraction uncovers none. The other wilayas
+// hold nothing. Each sending goes through the same builder as a class's, from
+// one made-up week holding its term. A class moves through its pack as a seeded
+// course does (seeded-plan.ts), at a pace drawn for it, over the lessons the
+// calendar gives its pack's first class in the term, less the share a seeded
+// teacher is absent, so its sessions compare with the world's teacher's. A few
+// of the pack's items are changed by most or some of its classes, by their
+// place in the pack, as CHANGES says, and a few take most of them longer than
+// the plan gives, as LONGER says, so the report and a class's comparison have
+// something to show. Nothing here is real or derived from anything real: IDs,
+// tokens and school-and-term codes are all drawn at random, a token kept by one
+// made-up teacher for one term, a code by one made-up school for one term.
+// Batches keep to what one request may carry.
 
 import { CalendarView } from './calendar.ts';
 import { addDays, isWithin } from './day.ts';
