@@ -4209,7 +4209,7 @@
     },
     "home": {
       "role": "You act as: {{role}}",
-      "roleNext": "This role’s workspace opens here in a later version of the demo.",
+      "roleHere": "This role’s work in this world opens from here.",
       "reader": "Statements received in this world",
       "code": "The world’s code",
       "codeLine": "Give it to whoever joins the world. It opens every role.",
