@@ -10,8 +10,11 @@
 // join shuts it first: a scenario's devices all act in one world, in turn. The
 // kit's random bytes come from a seed (kit.js), the scenario's name, so it
 // plays the same world each time: on a server where that world is already
-// taken, it says to clear the demo's database instead of playing another.
+// taken, it says to clear the demo's database instead of playing another. A
+// deployed server keeps its worlds, so a run there sets MINHAJNA_SCENARIO_RUN,
+// and the name and that value seed the kit, a world of its own for each run.
 
+import process from 'node:process';
 import { appModule } from './app.js';
 import { seededKit } from './kit.js';
 
@@ -43,9 +46,12 @@ async function storeOf(found) {
 
 const signerOf = (keys) => keys.trusted.find((one) => one.id === WORLD_SIGNER)?.fingerprint;
 
+/** The seed of a scenario's kit: its name alone, or with the run's value on a server that keeps its worlds. */
+export const runSeed = (name, run = process.env.MINHAJNA_SCENARIO_RUN) => (run ? `${name}\n${run}` : name);
+
 /** How a scenario's devices meet the server through the app, for a scenario of that name: its `access`. */
 export function appAccess(server, seed, fetcher = globalThis.fetch) {
-  const kit = seededKit(seed);
+  const kit = seededKit(runSeed(seed));
   const send = async (request) => {
     const answer = await worldRequest(request, (address, init) => fetcher(address.replace(DEMO_SERVER, server), init));
     if (request.method === 'POST' && request.path === '/worlds' && answer.status === 409) {

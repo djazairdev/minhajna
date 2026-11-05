@@ -46,7 +46,7 @@ All of a coming release can be tried on the real hosts before anything is releas
 3. **It deploys** the demo server, gives it the bucket's settings, and deploys the web app to **<https://minhajna-test.djazair.dev>**, then checks both hosts as a release's deploy does.
 4. **It runs the scenarios** against the deployed server, with no secret.
 
-Then anyone can try it by hand: open the test web app on a PC, and on a phone install an APK from the run's `hosted-test-apks` artifact, a ZIP of the three kept for 14 days. To test a newer `main`, run it again: the worlds stay, and the server moves to the new code. Until the scenarios draw a world of their own for each run, as they are asked to, a later run within 7 days fails at its scenarios job with "This scenario already ran on this server", though its deploys and host checks stand and it can still be tried by hand. Two things don't follow by themselves, since a test build keeps the app's version: a PC that installed an earlier run's copy needs its site data for the test address cleared, and a phone needs the earlier APK uninstalled.
+Then anyone can try it by hand: open the test web app on a PC, and on a phone install an APK from the run's `hosted-test-apks` artifact, a ZIP of the three kept for 14 days. To test a newer `main`, run it again: the worlds stay, and the server moves to the new code. Two things don't follow by themselves, since a test build keeps the app's version: a PC that installed an earlier run's copy needs its site data for the test address cleared, and a phone needs the earlier APK uninstalled.
 
 **What keeps a teacher's real data away from it:**
 
