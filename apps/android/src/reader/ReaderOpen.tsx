@@ -1,16 +1,19 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// «فتح بيان» in reader mode (#246, R-Open, answer 489, R-5.5-07, R-5.9-18): a
-// teacher's statement opened from its QR code or its file, signed or PDF, with
-// no account. One whose signature checks is shown as checked at once and kept,
-// the same signed text once, even when opened again before it is saved; one
-// changed after it was issued, of another kind, a PDF without its link or from
-// a newer version of the app says so and is never kept, as does one signed in
-// a demo world, or inside a world one signed elsewhere (#563). Opened for a
-// statement already kept, it shows that one, or says it is no longer here.
+// Opening a statement in reader mode (#246, R-Open, answer 489, R-5.5-07,
+// R-5.9-18): a teacher's statement opened from its QR code or its file, signed
+// or PDF, with no account. One whose signature checks is shown as checked at
+// once and kept, the same signed text once, even when opened again before it is
+// saved; one changed after it was issued, of another kind, a PDF without its
+// link or from a newer version of the app says so and is never kept, as does
+// one signed in a demo world, or inside a world one signed elsewhere (#563), or
+// inside a world one dated after the date this device holds, as keeping it
+// would leave it out of the picture for good: it says to go to the new date
+// first. Opened for a statement already kept, it shows that one, or says it is
+// no longer here.
 
-import { receivedStatements, receiveStatement, storeWorld, type Received } from '@minhajna/core';
+import { compareDays, receivedStatements, receiveStatement, storeWorld, type Received } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -26,7 +29,7 @@ import { useDeviceText } from '../text/device-text';
 import { ReaderStatement } from './ReaderStatement';
 import { useStatementInput, type OpenedStatement } from './useStatementInput';
 
-type Problem = Extract<OpenedStatement, { ok: false }>['problem'];
+type Problem = Extract<OpenedStatement, { ok: false }>['problem'] | 'later';
 
 export type ReaderOpenProps = {
   /** A statement already kept, by its ID; none to open a new one. */
@@ -49,6 +52,8 @@ export function ReaderOpen({ id, onList, onSpot }: ReaderOpenProps) {
     const { text, how, spki, statement } = result;
     const known = receivedStatements(entries()).find((one) => one.text === text) ?? kept.current.get(text);
     if (known !== undefined) return setShown({ received: known });
+    if (storeWorld(entries()) !== null && compareDays(statement.day, today()) > 0)
+      return setShown({ problem: 'later' });
     const received = { id: newId(), day: today(), how, text, spki, statement };
     const event = receiveStatement(entries(), text, result, how, received.id);
     kept.current.set(text, received);

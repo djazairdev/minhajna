@@ -3985,6 +3985,7 @@
       "version": "The statement comes from a newer version of the app: update the app to read it.",
       "world": "This statement was signed in a demo world with made-up data, so it is not accepted here or placed in the school picture.",
       "otherWorld": "This statement was not signed in this demo world, so it is not accepted here or placed in its school picture.",
+      "later": "This statement is dated after the date this device holds for this world, so it was not kept. Within a minute this device offers the world’s new date: move to that date, then open the statement again.",
       "payload": "The signature is valid, but the statement’s content does not follow its format, so it is not kept.",
       "unreadable": "The file or the code could not be read.",
       "noLink": "No statement was found in this PDF. Open the file as the teacher sent it, or scan its QR code.",

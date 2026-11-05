@@ -3,11 +3,11 @@
 
 // Reader mode's picture of a school (#246, R-Picture, answer 490): the latest
 // school year only, one part per grade with the statements and keys in its
-// cells counted, each cell the latest statement for its class and subject,
-// rows by section name, and rows grouped by school only when two schools are
-// named, else a sign that rows may merge; a statement dated after it came, or
-// outside its school year, left out and counted. Made-up keys and statements
-// only.
+// cells counted, each cell the latest statement for its class and subject, by
+// its own day and not by when it came, rows by section name, and rows grouped
+// by school only when two schools are named, else a sign that rows may merge; a
+// statement dated after it came, or outside its school year, left out and
+// counted. Made-up keys and statements only.
 
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -118,4 +118,12 @@ test('rows are grouped by school only when the teachers were named with two scho
   );
   assert.equal(two.mayMerge, false);
   assert.equal(statementPicture(list.slice(0, 1), new Map()).mayMerge, false);
+});
+
+test('an older statement that comes after a newer one does not take its cell', () => {
+  const newer = received('k-1', '2026-10-08', '4M1');
+  const older = received('k-1', '2026-10-01', '4M1', 'arabic', '4am', '2026-2027', '2026-10-09');
+  const picture = statementPicture([newer, older], new Map());
+  assert.equal(cell(picture.grades[0]!.groups[0]!.rows[0], 'arabic'), newer.id);
+  assert.equal(picture.grades[0]!.statements, 1);
 });

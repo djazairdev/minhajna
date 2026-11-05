@@ -6,12 +6,13 @@
 // the world's home, the band first, each page said as it opens; a statement
 // signed in the world is checked, kept in the world's store on the world's date
 // and placed in its picture, never in the teacher's own; a real statement, or
-// one of another world, is refused in the world's words; the picture's list and
-// a statement follow one another, and going back, by the button or Android's
-// back, leads to the page before, then to the world's home; leaving the world
-// from there forgets it; a world without reference data offers no reader; and a
-// store whose kept world is not this one opens nothing. Every world, key and
-// statement is made up.
+// one of another world, is refused in the world's words, and one dated after
+// the world's date on this device is refused until the device moves there, and
+// one on that date is kept; the picture's list and a statement follow one
+// another, and going back, by the button or Android's back, leads to the page
+// before, then to the world's home; leaving the world from there forgets it; a
+// world without reference data offers no reader; and a store whose kept world
+// is not this one opens nothing. Every world, key and statement is made up.
 
 import {
   makeWorldCode,
@@ -28,6 +29,7 @@ import { FakeStorage } from '../jest/fake-storage';
 import { FakeWorld } from '../jest/fake-world';
 import { madeUpStatement } from '../jest/reader-statements';
 import { DemoServer, nodeKit } from '../jest/world-server';
+import { DATE_READ_MS } from '../src/demo/world-date-read';
 import { DemoRoot } from '../src/demo/DemoRoot';
 import { WorldReader } from '../src/demo/WorldReader';
 import signature from '../src/native/NativeMinhajnaSignature';
@@ -62,6 +64,7 @@ afterEach(async () => {
   leaveWorldNetwork();
   server.reset();
   world = new FakeWorld(teacher);
+  jest.useRealTimers();
   jest.restoreAllMocks();
 });
 
@@ -108,8 +111,8 @@ async function reading(kind: WorldKind = 'national', role = 'teacher', given = t
 }
 
 /** A statement signed with the teacher's made-up key, in a world or none, read from a file. */
-async function openFile(named: string | null, section = '4M2') {
-  const statement = madeUpStatement('2026-10-01', section);
+async function openFile(named: string | null, section = '4M2', day = '2026-10-01') {
+  const statement = madeUpStatement(day, section);
   const file = await signStatement(statement, await signature.teacherKey(), (one) => signature.sign(one), named);
   NativeInput.readStatement.mockResolvedValueOnce(file);
   await press('reader-file');
@@ -147,6 +150,48 @@ test('a real statement, or one of another world, is refused in the world’s wor
   expect(texts()).toContain(text.reader.problems.otherWorld);
   const book = await openRecordBook(worldSpec(teacher.asSpec(), world.asSpec(), id));
   expect(receivedStatements(book.entries)).toEqual([]);
+});
+
+test('a statement dated after the world’s date is refused until this device moves there, then kept', async () => {
+  jest.useFakeTimers({
+    doNotFake: [
+      'Date',
+      'hrtime',
+      'nextTick',
+      'performance',
+      'queueMicrotask',
+      'setImmediate',
+      'setTimeout',
+      'clearTimeout',
+      'clearImmediate',
+    ],
+  });
+  const id = await reading('national', 'inspector');
+  const later = '2027-02-18';
+  await press('reader-picture-open');
+  await openFile(id, '4M2', later);
+  expect(texts()).toContain(text.reader.problems.later);
+  expect(shown('reader-checked')).toBe(false);
+  const book = await openRecordBook(worldSpec(teacher.asSpec(), world.asSpec(), id));
+  expect(receivedStatements(book.entries)).toEqual([]);
+  server.worlds.get(id)!.date = parseDay(later);
+  await ReactTestRenderer.act(async () => {
+    jest.advanceTimersByTime(DATE_READ_MS);
+    await settle();
+  });
+  await press('world-date-take');
+  await press('world-reader-open');
+  await press('reader-picture-open');
+  await openFile(id, '4M2', later);
+  expect(shown('reader-checked')).toBe(true);
+  jest.useRealTimers();
+});
+
+test('a statement dated on the world’s date is kept', async () => {
+  const id = await reading('national', 'inspector');
+  await press('reader-picture-open');
+  await openFile(id, '4M2', server.worlds.get(id)!.date);
+  expect(shown('reader-checked')).toBe(true);
 });
 
 test('the list and a statement follow one another, and back leads to the page before, then home', async () => {
