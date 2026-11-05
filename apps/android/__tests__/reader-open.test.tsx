@@ -7,9 +7,10 @@
 // under its key, its pack's newer edition, and the lines on pupil data and
 // their own devices; a later one from the same key names the earlier one; a
 // changed or foreign file, one signed in a demo world (#563), or a PDF with no
-// link, says so and is never kept; the teacher is named per key; and the list
-// shows each statement, newest first, each opening as kept, and one no longer
-// kept says so. Made-up keys and statements only.
+// link, says so and is never kept; one dated after today is still kept; the
+// teacher is named per key; and the list shows each statement, newest first,
+// each opening as kept, and one no longer kept says so. Made-up keys and
+// statements only.
 
 import {
   parseDay,
@@ -145,6 +146,13 @@ test('a changed, foreign or demo world’s file says so and is never kept', asyn
   }
   expect(kept(data)).toEqual([]);
   expect(has('reader-checked')).toBe(false);
+});
+
+test('outside a world, a statement dated after today is still kept, and left out of the picture', async () => {
+  const data = await openTestData();
+  await open(data, await signed(statement('2099-10-01')));
+  expect(has('reader-checked')).toBe(true);
+  expect(kept(data)).toEqual([['file', '2099-10-01']]);
 });
 
 test('the teacher is named per key, and the list shows each statement newest first', async () => {
