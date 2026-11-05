@@ -295,5 +295,5 @@ export function workspacePage(
         workingDays={reference.profile.workingDays}
       />
     );
-  return packDeskPage(workspace, page, { ...reference, open, setOpen: props.setOpen, held, kit, send });
+  return packDeskPage(workspace, page, { ...reference, reference, open, setOpen: props.setOpen, held, kit, send });
 }
