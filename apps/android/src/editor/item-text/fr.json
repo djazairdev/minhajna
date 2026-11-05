@@ -54,7 +54,7 @@
   "weeklySessions": "Séances par semaine",
   "addActivity": "Ajouter une activité",
   "removeActivity": "Retirer cette activité",
-  "structureProblem": "Vérifiez les nombres, les noms et les références. Les éléments doivent correspondre à la répartition choisie. Gardez tout modèle ou activité encore utilisé.",
+  "structureProblem": "Vérifiez les nombres, les noms et les références. Les éléments doivent correspondre à la répartition choisie. Gardez tout modèle ou activité encore utilisé. Si une entrée de migration nomme un élément, retirez d’abord l’entrée.",
   "numberMismatch": "Les deux nombres ne correspondent pas. Vérifiez la source.",
   "sourceTitle": "Source du plan",
   "sourceFields": {
@@ -138,5 +138,6 @@
   "latestApplyHint": "Votre saisie est toujours là. Appliquez-la au dernier brouillon, vérifiez-la et confirmez-la de nouveau.",
   "latestShowHint": "Affichez le dernier brouillon, puis refaites votre modification.",
   "itemGone": "Cet élément a été retiré du dernier brouillon et ne peut plus être enregistré ici. Annulez, ou ajoutez-le comme nouvel élément.",
-  "yourForm": "Votre formulaire"
+  "yourForm": "Votre formulaire",
+  "packReview": "Cette étape a été refusée. Une version a besoin de l’accord de deux personnes pour être publiée, et peut garder 20 relectures ; enregistrer à nouveau son brouillon recommence tout."
 }

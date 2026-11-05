@@ -23,3 +23,9 @@ History holds every published release of the pack, superseded or withdrawn too, 
 Every problem but a skipped number stops the comparison: `previous` is null and the lists are empty.
 
 A clean comparison gives the release before, its migration entries, the teachers' summary (`changes`), and `details`: every other field a kept item or the pack changed, as well as the items' order, which the summary leaves out.
+
+## The review screen
+
+E-Release reads these checks, plus `extractionArtefacts` and `checkBudgetPack`, in `apps/android/src/editor/release-checks.ts` (answer 768). A check that fails or can't run holds the release back, with two exceptions: a budget check, whose overrun R-4.3-13 reports to the IGP, and a number skipped within a year. The page asks for what the bundled data doesn't hold: a week pack's horizon, and a budget pack's grid figures and their source.
+
+Publishing also needs the two-person review in `packages/core/src/pack-review.ts`: a curator and a subject maintainer, different people, each with their latest word an approval. The core refuses to publish without it, and a reader refuses a replayed publication that lacks it. An inspector's review never counts, and their name is kept only by choice (R-4.3-08). Saving the draft again clears the reviews.

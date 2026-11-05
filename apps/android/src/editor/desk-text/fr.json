@@ -13,5 +13,243 @@
     "signInFailed": "Le serveur n'a pas répondu. Réessayez.",
     "showCode": "Afficher le code pour un autre PC",
     "hideCode": "Masquer le code"
-  }
+  },
+  "release": {
+    "listTitle": "Versions",
+    "reviewsTitle": "Versions en relecture",
+    "none": "Aucune version pour l’instant. Un pack se commence sur la page des packs.",
+    "noReviews": "Aucune version en relecture.",
+    "open": "Ouvrir",
+    "back": "Retour à la liste",
+    "title": "Version {{release}}",
+    "thenAfter": "puis remplacée, ou retirée",
+    "viewLabel": "Afficher",
+    "table": "Tableau",
+    "map": "Carte",
+    "stage": {
+      "draft": "Brouillon",
+      "under-review": "En relecture",
+      "published": "Publiée",
+      "superseded": "Remplacée",
+      "withdrawn": "Retirée"
+    },
+    "effectTitle": "Effet sur les classes",
+    "effect": "Chaque classe reste sur sa version jusqu’à ce que son enseignant la déplace, et les séances enregistrées ne changent jamais.",
+    "send": "Envoyer en relecture",
+    "publish": "Publier",
+    "publishOfficial": "Publier comme officielle",
+    "waitsForTwo": "Une version est publiée après l’accord des deux.",
+    "waitsForChecks": "Une vérification ci-dessus retient encore cette version.",
+    "supersede": "Marquer comme remplacée par {{release}}",
+    "withdraw": "Retirer cette version",
+    "withdrawConfirm": "Retirer cette version ? Les classes qui l’ont la gardent, et aucune nouvelle classe ne peut la prendre.",
+    "withdrawYes": "Retirer",
+    "keep": "La garder",
+    "firstRelease": "C’est la première version du pack : rien à comparer.",
+    "changesOn": "Changements sur {{release}}, et leurs entrées de migration",
+    "noChanges": "Rien de ce qu’un enseignant lirait n’a changé.",
+    "withEntry": "Avec une entrée de migration",
+    "noEntry": "Pas besoin d’entrée de migration",
+    "splitProgress": "Progression : si l’ancien élément était terminé, chaque partie l’est ; s’il était sauté, chaque partie l’est ; s’il était commencé, il reprend à la première partie.",
+    "layers": "Les couches au-dessus du pack national suivent les mêmes entrées.",
+    "packDetails": "Également changé dans le pack : {{fields}}",
+    "itemDetails": "Également changé dans {{item}} : {{fields}}",
+    "notes": "Notes de version pour les enseignants, telles qu’elles arrivent sur le téléphone",
+    "checksTitle": "Vérifications automatiques",
+    "weeks": "L’horizon du plan, en semaines d’enseignement",
+    "budget": {
+      "main": "Cours par semaine dans la grille",
+      "td": "Séances pratiques par semaine dans la grille",
+      "minutes": "Minutes par séance",
+      "source": "D’où vient la grille"
+    },
+    "line": {
+      "source": {
+        "pass": "Chaque élément cite une page source, et le pack a son émetteur, son édition, son statut et son mode de licence.",
+        "fail": "Ces éléments n’ont pas de page source utilisable :",
+        "not-checked": "Cette version n’a pas pu être lue : sa source n’a pas été vérifiée."
+      },
+      "extraction": {
+        "pass": "Aucun résidu d’extraction, et les formulaires ont pris chaque nombre deux fois.",
+        "fail": "Les titres de ces éléments contiennent des résidus d’extraction :"
+      },
+      "comparison": {
+        "pass": "Chaque changement d’identifiant a une entrée de migration.",
+        "fail": "L’historique ou les entrées de migration ne concordent pas.",
+        "advisory": "Un numéro de version est sauté. Vérifiez qu’il n’en manque aucune.",
+        "not-checked": "L’historique n’a pas pu être lu : aucune comparaison n’a été faite."
+      },
+      "weeks": {
+        "pass": "Chaque semaine est dans l’horizon et suit son modèle d’activités.",
+        "fail": "Ces semaines sont vides, ou ces éléments ne concordent pas :",
+        "not-checked": "Saisissez l’horizon du plan pour vérifier ses semaines."
+      },
+      "budget": {
+        "pass": "Le pack tient dans les séances de la grille jusqu’à la fin de l’année.",
+        "advisory": "Il ne tient pas dans la grille : à signaler à l’IGP. Cela ne retient rien. Éléments :",
+        "not-checked": "Saisissez les chiffres de la grille pour y comparer le pack. Cela ne retient rien."
+      }
+    },
+    "field": {
+      "kind": "type",
+      "term": "trimestre",
+      "week": "semaine",
+      "budget": "volume",
+      "activity": "activité",
+      "optional": "facultatif",
+      "buffer": "séance de réserve",
+      "stages": "étapes",
+      "sourcePage": "page source",
+      "status": "statut",
+      "licence": "licence",
+      "language": "langue",
+      "anchor": "rythme",
+      "provenance": "provenance",
+      "stageTemplates": "modèles d’étapes",
+      "merges": "séances jointes",
+      "activities": "activités hebdomadaires",
+      "staleReason": "raison de la péremption",
+      "order": "ordre des éléments",
+      "unit": "unité"
+    },
+    "noComparison": "Cette version ne concorde pas avec son historique : rien n’a pu être comparé. Voyez les vérifications plus bas.",
+    "openNamed": "Ouvrir la version {{name}}",
+    "entry": {
+      "rename": "Renommé : {{from}} devient {{to}}",
+      "split": "Divisé : {{from}} devient {{to}}",
+      "merge": "Fusionné : {{from}} devient {{to}}",
+      "remove": "Retiré : {{from}}, et son identifiant n’est plus jamais utilisé"
+    }
+  },
+  "review": {
+    "title": "Relecture : deux personnes",
+    "hint": "Elles comparent chaque changement aux images des pages et à la version précédente, puis donnent leur accord.",
+    "role": {
+      "curator": "Édition",
+      "maintainer": "Relecture de la matière",
+      "inspector": "Inspecteur"
+    },
+    "approved": "Accord",
+    "changes": "Changements demandés",
+    "waiting": "En attente",
+    "notOfficial": "La relecture d’un inspecteur n’est pas une approbation officielle.",
+    "as": "Relire en tant que",
+    "credit": "Me nommer comme relecteur",
+    "creditHint": "Désactivé, votre relecture est gardée sans votre nom. Votre nom reste dans l’enregistrement de cette version, que tout ce monde peut lire, et ne peut pas être retiré.",
+    "name": "Votre nom",
+    "note": "Ce que vous avez comparé",
+    "approve": "Donner mon accord",
+    "requestChanges": "Demander des changements"
+  },
+  "map": {
+    "label": "Qui détient quoi dans cette version",
+    "written": "De {{from}} à {{to}} : {{what}}",
+    "later": "à une étape ultérieure",
+    "curators": {
+      "label": "Compte des curateurs",
+      "holds": "le brouillon et ses pages sources"
+    },
+    "reviewers": {
+      "label": "Deux relecteurs",
+      "holds": "leur copie des pages, et leur avis"
+    },
+    "ministry": {
+      "label": "Compte du ministère",
+      "holds": "l’étape qui rend un pack officiel"
+    },
+    "server": {
+      "label": "Serveur du projet",
+      "holds": "la signature de chaque étape, sans contenu"
+    },
+    "space": {
+      "label": "Espace national scellé",
+      "holds": "les versions scellées"
+    },
+    "teachers": {
+      "label": "Téléphones des enseignants",
+      "holds": "leurs versions, couches et progressions, sur le téléphone seul"
+    },
+    "line": {
+      "steps": "chaque étape, à signer",
+      "draft": "la version à comparer",
+      "verdict": "accord ou changements",
+      "official": "officielle, quand le ministère publie",
+      "sealed": "l’enregistrement scellé",
+      "signed": "la version signée"
+    }
+  },
+  "migrate": {
+    "title": "Identifiants : de {{from}} à {{to}}",
+    "hint": "Tout changement d’identifiant demande une entrée. Un changement de page ou de titre qui garde l’identifiant s’en passe.",
+    "open": "Ces éléments de la version précédente n’ont pas d’entrée : {{ids}}",
+    "misfits": "Ces identifiants ne concordent pas avec la version précédente : {{ids}}",
+    "added": "Nouveaux éléments, sans entrée : {{ids}}. C’est normal s’ils sont vraiment nouveaux.",
+    "none": "Aucune entrée pour l’instant.",
+    "source": "Source : page {{pages}}",
+    "remove": "Retirer",
+    "removeNamed": "Retirer l’entrée de {{ids}}",
+    "kind": "Type de changement",
+    "kinds": {
+      "rename": "Renommé",
+      "split": "Divisé",
+      "merge": "Fusionné",
+      "remove": "Retiré"
+    },
+    "from": "Élément de la version précédente",
+    "to": "Élément de cette version",
+    "noneOpen": "Chaque élément précédent est gardé ou a une entrée.",
+    "noneAdded": "Aucun nouvel élément en attente. Ajoutez-le d’abord au brouillon.",
+    "problem": "Cette entrée ne concorde pas : éléments de types différents, ou identifiant déjà pris. Rien n’a été enregistré.",
+    "add": "Ajouter cette entrée",
+    "shown": "Afficher",
+    "changes": "Changements seuls",
+    "all": "Tous les éléments",
+    "mapLabel": "Les éléments de la version précédente, et où chacun est allé",
+    "onDevice": "La règle s’applique sur l’appareil de l’enseignant quand une classe change de version, et le serveur ne connaît jamais la progression d’une classe. Un nombre de séances dans la couche d’un enseignant n’est pas une division : l’enseignant est interrogé avant le changement.",
+    "close": "Fermer",
+    "opener": "Entrées de migration",
+    "otherFrom": "Ces entrées partent de {{release}}, que cet appareil n’a pas. En ajouter une les remplace."
+  },
+  "reports": {
+    "title": "Signalements d’erreurs de plan",
+    "hint": "Des enseignants de ce monde, les plus récents d’abord. Un nom n’apparaît que si l’enseignant a choisi d’être cité.",
+    "problem": "Les signalements n’ont pas pu être lus. Réessayez.",
+    "none": "Aucun signalement pour l’instant.",
+    "filter": "Version",
+    "all": "Toutes les versions",
+    "noCredit": "Sans citation",
+    "credit": "À citer : {{name}}"
+  },
+  "teacher": {
+    "open": "Les plans du monde",
+    "title": "Les plans publiés dans ce monde",
+    "readProblem": "Les plans n’ont pas pu être lus. Revenez en arrière et réessayez.",
+    "sendProblem": "Le signalement n’a pas été envoyé. Réessayez.",
+    "none": "Aucun plan n’est encore publié dans ce monde.",
+    "sent": "Envoyé aux curateurs.",
+    "item": "Élément concerné",
+    "goesTo": "Il est scellé : le serveur ne peut pas le lire, mais quiconque détient le code de ce monde le pourrait. Il ne part que quand vous appuyez sur Envoyer, et les curateurs le lisent là.",
+    "send": "Envoyer le signalement",
+    "yourClasses": "Vos classes",
+    "noClasses": "Aucune classe pour l’instant : les plans suivent l’emploi du temps envoyé par votre école.",
+    "noPin": "{{class}} : pas encore de plan",
+    "onRelease": "{{class}} : version {{release}}",
+    "movedOn": "Déplacée le jour {{day}} de ce monde",
+    "withdrawn": "Cette version a été retirée. La classe y reste jusqu’à ce que vous la déplaciez vers une plus récente.",
+    "newRelease": "Une nouvelle version : {{release}}",
+    "signedMinistry": "Signée sous le compte du ministère dans ce monde : officielle",
+    "signedCurators": "Signée sous le compte des curateurs dans ce monde",
+    "worldOnly": "Elle ne compte que dans ce monde. Hors de lui, l’application refuse ce qu’un monde a signé.",
+    "neverMoves": "Publier ne déplace aucune classe : chacune reste sur sa version jusqu’à ce que vous la déplaciez, et les séances enregistrées ne changent jamais.",
+    "each": "Chaque classe, séparément",
+    "noChain": "Une version entre {{release}} et celle-ci manque ou ne concorde pas : aucun déplacement n’est proposé.",
+    "changes": "Ce qui a changé depuis {{release}}",
+    "move": "Déplacer {{class}} vers {{release}}",
+    "moved": "{{class}} déplacée vers {{release}}.",
+    "moveProblem": "Le déplacement n’a pas été gardé. Réessayez.",
+    "damaged": "Une partie de l’historique de ce monde n’a pas pu être lue : aucun déplacement n’est proposé. Revenez en arrière et réessayez.",
+    "noChannel": "Vos classes n’ont pas pu être lues dans l’emploi du temps de l’école. Revenez en arrière et réessayez."
+  },
+  "reload": "Relire",
+  "loading": "Lecture…"
 }

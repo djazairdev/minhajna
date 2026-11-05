@@ -10,7 +10,14 @@
 // gone or was a PDF row; applying the latest revision moves it to the form.
 // These moves are for the PC, the only place this page opens.
 
-import { movePackItem, removePackItem, type PackItem, type PackRelease, type PlanPack } from '@minhajna/core';
+import {
+  movePackItem,
+  removePackItem,
+  type PackItem,
+  type PackPublisher,
+  type PackRelease,
+  type PlanPack,
+} from '@minhajna/core';
 import { useEffect, useRef, useState } from 'react';
 import { Text, View, type ViewInstance } from 'react-native';
 import { Button } from '../components/Button';
@@ -22,7 +29,7 @@ import { StructureForm } from './StructureForm';
 import { SourceForm } from './SourceForm';
 import { SourcePdf, type SourceRow } from './SourcePdf';
 import { editorStyles as s } from './editor-styles';
-import { isCuratorDraft } from './usePackDrafts';
+import { isOwnDraft } from './usePackDrafts';
 
 const pane = { flexGrow: 1, flexShrink: 1, flexBasis: 360, minWidth: 0 } as const;
 
@@ -34,6 +41,7 @@ export function PackDraft({
   loading = false,
   changed = false,
   latest,
+  role = 'curator',
   onLatest,
   onSave,
   onClose,
@@ -45,6 +53,7 @@ export function PackDraft({
   readonly loading?: boolean;
   readonly changed?: boolean;
   readonly latest?: PackRelease;
+  readonly role?: PackPublisher;
   readonly onLatest?: () => void;
   readonly onSave: (pack: PlanPack, revision: number) => Promise<PackRelease | null>;
   readonly onClose: () => void;
@@ -143,7 +152,7 @@ export function PackDraft({
       {changed &&
         latest !== undefined &&
         latest.revision !== expected &&
-        (isCuratorDraft(latest) ? (
+        (isOwnDraft(latest, role) ? (
           <>
             <Text style={s.body}>{t(form === null ? 'editorItem.latestShowHint' : 'editorItem.latestApplyHint')}</Text>
             <Button
