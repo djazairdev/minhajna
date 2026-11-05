@@ -30,7 +30,8 @@ async function main() {
   if (!(await waitFor(new URL('/health', values.server).href, seconds)))
     throw new Error(`${values.server} did not answer /health`);
   const { SCHOOL } = await import('./school.js');
-  const scenarios = [SAMPLE, SCHOOL];
+  const { NATIONAL } = await import('./national.js');
+  const scenarios = [SAMPLE, SCHOOL, NATIONAL];
   for (const scenario of scenarios) {
     process.stdout.write(`${scenario.name}\n`);
     await runScenario(scenario, values.server, { say: (line) => process.stdout.write(`  ${line}\n`) });
