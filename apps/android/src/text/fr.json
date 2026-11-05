@@ -4279,7 +4279,7 @@
     },
     "home": {
       "role": "Vous agissez en tant que : {{role}}",
-      "roleNext": "L’espace de ce rôle s’ouvrira ici dans une version ultérieure de la démonstration.",
+      "roleHere": "Le travail de ce rôle dans ce monde s’ouvre d’ici.",
       "reader": "Relevés reçus dans ce monde",
       "code": "Code du monde",
       "codeLine": "Donnez-le à qui rejoint le monde. Il ouvre tous les rôles.",

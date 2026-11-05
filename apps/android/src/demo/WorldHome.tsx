@@ -196,7 +196,7 @@ export function WorldHome(props: WorldHomeProps) {
               <Text accessibilityRole="header" style={[styles.title, align]}>
                 {heading}
               </Text>
-              <Text style={[styles.line, align]}>{t('demo.home.roleNext')}</Text>
+              <Text style={[styles.line, align]}>{t('demo.home.roleHere')}</Text>
               {role === 'teacher' && onSchool !== undefined && (
                 <Button testID="world-school-open" variant="line" label={t('demo.home.school')} onPress={onSchool} />
               )}

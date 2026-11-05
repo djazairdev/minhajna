@@ -142,6 +142,8 @@ test('a teachers’ world holds a teacher alone', async () => {
   expect(shown('world-role-teacher')).toBe(true);
   expect(shown('world-role-ministry')).toBe(false);
   expect(shown('world-said')).toBe(true);
+  await press('world-role-teacher');
+  expect(texts()).toContain(text.demo.home.roleHere);
 });
 
 test('on the phone the entry only enters, offers the inspector and the teacher, and is heard once', async () => {
