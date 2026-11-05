@@ -19,8 +19,11 @@
 import {
   compareDays,
   RANGE_WILAYAS,
+  worldExams,
+  type CalendarEntry,
   type CommitteeState,
   type Day,
+  type ExamLevel,
   type SchoolYear,
   type WorldExam,
 } from '@minhajna/core';
@@ -31,6 +34,14 @@ import { gradeShown, totalsSpec } from './exam-totals';
 
 /** How many term ends a committee's chart compares with. */
 const COMPARED = 2;
+
+/** A level's exams as what is published of them offers them: only from the day after an exam's last day. */
+export const publishedExams = (
+  year: SchoolYear,
+  entries: readonly CalendarEntry[],
+  level: ExamLevel,
+  date: Day,
+): WorldExam[] => worldExams(year, entries).filter((one) => one.setBy === level && compareDays(date, one.to) > 0);
 
 /** The last two term ends with totals before a day, in order. */
 export function termEndsBefore(year: Pick<SchoolYear, 'terms'>, day: Day): Day[] {

@@ -16,7 +16,7 @@
 // reads as the room does (useCommittee.ts, use-committee-figures.ts), a problem
 // said as an alert with a way to read again.
 
-import { committeeSeats, compareDays, worldExams } from '@minhajna/core';
+import { committeeSeats } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -27,7 +27,7 @@ import { subjectName } from '../extra/extra-rules';
 import { gradeName } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
 import { isolate } from '../week/grid-labels';
-import { termEndsBefore } from './committee-figures';
+import { publishedExams, termEndsBefore } from './committee-figures';
 import { committeeRooms, type CommitteeRead } from './committee-session';
 import { CommitteeFigures } from './CommitteeFigures';
 import type { CommitteePageProps } from './CommitteePage';
@@ -52,10 +52,7 @@ export function PublishedCuts(props: PublishedCutsProps) {
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const [chosen, setChosen] = useState<{ exam?: string; grade?: string; subject?: string }>({});
   const { year, entries } = reference.calendar;
-  const exams = useMemo(
-    () => worldExams(year, entries).filter((one) => one.setBy === level && compareDays(date, one.to) > 0),
-    [year, entries, level, date],
-  );
+  const exams = useMemo(() => publishedExams(year, entries, level, date), [year, entries, level, date]);
   const exam = exams.find((one) => one.id === chosen.exam) ?? exams.at(-1);
   const grades = exam?.grades ?? [];
   const grade = grades.find((one) => one === chosen.grade) ?? grades[0];
