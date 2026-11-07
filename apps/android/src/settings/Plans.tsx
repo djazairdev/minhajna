@@ -6,7 +6,6 @@ import { useLocale } from '@react-navigation/native';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Badge } from '../components/Badge';
-import { Button } from '../components/Button';
 import { SectionHeader } from '../components/SectionHeader';
 import { spacing } from '../design/tokens';
 import { listLine } from '../plan/free-rules';
@@ -17,14 +16,15 @@ import { useAppData } from '../storage/AppData';
 import { useDeviceText } from '../text/device-text';
 import { settingsStyles as styles } from './styles';
 
-/** Each school's actual class pins, not a newer available pack presented as the one in use. */
+/**
+ * Each school's actual class pins, not a newer available pack presented as the one in use, to read: the pins arrive
+ * with the school's classes, and the teacher no longer chooses them (answer 808).
+ */
 export function Plans({
   schoolId,
-  onChoose,
   onRelease,
 }: {
   schoolId?: string;
-  onChoose: (grade: string, subject: string, schoolId: string, classId: string) => void;
   onRelease: (courseId: string, release: string) => void;
 }) {
   const t = useDeviceText();
@@ -95,12 +95,6 @@ export function Plans({
                       {pin === null ? t('plan.noPack') : t('settings.missingPack', { release: pin.release })}
                     </Text>
                   )}
-                  <Button
-                    testID={`settings-choose-${schoolClass.id}-${group.subject}-${group.grade}`}
-                    variant="line"
-                    label={t('plan.change')}
-                    onPress={() => onChoose(group.grade, group.subject, school.id, schoolClass.id)}
-                  />
                 </View>
               );
             })}

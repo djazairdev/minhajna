@@ -3,8 +3,9 @@
 
 // Setup-7-Ready (#31): what setup kept, the September check of each class
 // with a pinned pack, TD counted apart, the printed check it opens (#225),
-// the next session with what the plan proposes, a class with no pack, and
-// every control named and 48dp. Made-up schools, classes and timetables only.
+// the next session with what the plan proposes, a class with no pack, what
+// the school has not sent yet (answer 808), and every control named and 48dp.
+// Made-up schools, classes and timetables only.
 
 import { parseDay, type RecordEvent, type TimetableEntry } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -160,6 +161,46 @@ test('has nothing to check while no class has a pack, and the next session is ty
     ]),
   );
   expect(shown()).not.toContain(text.ready.proposed);
+});
+
+test('says what the school has not sent yet, with no figure of zero, before anything arrives', async () => {
+  const data = await openTestData();
+  await data.book.record(parseDay('2026-10-15'), {
+    kind: 'school.set',
+    school: { id: 's-1', name: 'متوسطة النجاح', levels: ['cem'], subjects: ['arabic'], zone: '16' },
+  });
+  await show(data);
+  expect(shown()).toEqual(
+    expect.arrayContaining([
+      'المؤسسة: \u2068متوسطة النجاح\u2069',
+      'الرزنامة الوطنية \u20682026-2027\u2069',
+      text.ready.classesNotArrived,
+      text.week.notArrived,
+      text.ready.checkLater,
+    ]),
+  );
+  expect(root().findAll((node) => node.props.testID === 'ready-waiting', { deep: false })).toHaveLength(2);
+  expect(shown().join(' ')).not.toMatch(/لا قسم|لا ساعة|لا تلميذ/u);
+  expect(shown()).not.toContain(text.ready.noCheck);
+  expect(root().findAllByProps({ testID: 'ready-next' })).toEqual([]);
+  expect(accessibilityProblems(root())).toEqual([]);
+});
+
+test('checks nothing while the classes have come without their timetable', async () => {
+  const data = await openTestData();
+  await data.book.recordAll(parseDay('2026-10-15'), [
+    {
+      kind: 'school.set',
+      school: { id: 's-1', name: 'متوسطة النجاح', levels: ['cem'], subjects: ['arabic'], zone: '16' },
+    },
+    schoolClass('k-1', '4م1'),
+    { kind: 'course.set', course: { id: 'c-1', classId: 'k-1', subject: 'arabic', year: '2026-2027', pack: example } },
+  ]);
+  await show(data);
+  expect(shown()).toEqual(expect.arrayContaining(['قسم واحد · لا تلميذ', text.week.notArrived, text.ready.checkWeek]));
+  expect(shown()).not.toContain(text.ready.classesNotArrived);
+  expect(shown().join(' ')).not.toMatch(/ينقص|للاحتياط|لا ساعة/u);
+  expect(root().findAll((node) => /^ready-check-/.test(String(node.props.testID)))).toEqual([]);
 });
 
 test.each(

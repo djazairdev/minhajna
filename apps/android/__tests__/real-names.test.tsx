@@ -4,12 +4,12 @@
 // Real class lists (#211, answer 274): the switch is off in the project's
 // builds, and a build without a declaration, or before its PIN is chosen, never
 // asks for real names. Here the switch is on, as in the build the Ministry
-// runs: the class list says how names are protected, on a PC in this browser
-// (#250), the welcome waits for the PIN, Help and the privacy notice state the
+// runs: on a PC the welcome says the names stay in this browser (#250); the
+// class list no longer takes names, which arrive from the school (answer 808);
+// the welcome waits for the PIN, Help and the privacy notice state the
 // declaration, Help asks to compare with the build's own checksums, and every
 // control is named in each language. The reference is made up.
 
-import { parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
 import { Platform, Text } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
@@ -20,7 +20,6 @@ import { PrivacyNotice } from '../src/help/PrivacyNotice';
 import { WelcomeScreen } from '../src/navigation/SetupScreens';
 import { Welcome } from '../src/navigation/Welcome';
 import { buildDeclaration, realNamesDeclaration } from '../src/privacy/real-names';
-import { TypeList } from '../src/setup/TypeList';
 import text from '../src/text/ar.json';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 
@@ -53,27 +52,6 @@ async function render(element: React.ReactElement, direction: 'rtl' | 'ltr' = 'r
 const shown = () => tree!.root.findAllByType(Text).map((node) => [node.props.children as unknown].flat().join(''));
 const exists = (id: string) => tree!.root.findAll((node) => node.props.testID === id).length > 0;
 
-async function typeList() {
-  const data = await openTestData();
-  const day = parseDay('2026-10-15');
-  await data.book.record(day, {
-    kind: 'school.set',
-    school: { id: 's-1', name: 'متوسطة النجاح', levels: ['cem'], subjects: ['arabic'], zone: '16' },
-  });
-  await data.book.record(day, {
-    kind: 'class.set',
-    schoolClass: {
-      id: 'c-1',
-      schoolId: 's-1',
-      level: 'cem',
-      grade: '4am',
-      name: '4م3',
-      groups: [{ id: 'g-1', kind: 'whole', name: '4م3' }],
-    },
-  });
-  return withData(data, <TypeList classId="c-1" onDone={jest.fn()} />);
-}
-
 test('gives a declaration only to a build that carries one, and only once the lock is set', () => {
   expect(buildDeclaration(null)).toBeNull();
   expect(buildDeclaration({ declaration: '  ' })).toBeNull();
@@ -83,19 +61,8 @@ test('gives a declaration only to a build that carries one, and only once the lo
   expect(realNamesDeclaration({ declaration: 'D-1' }, true)).toBe('D-1');
 });
 
-test('the class list takes real names and says how they are protected', async () => {
-  await render(await typeList());
-  expect(exists('real-names')).toBe(true);
-  expect(exists('made-up-only')).toBe(false);
-  expect(shown()).toEqual(expect.arrayContaining([text.realNames.badge, text.realNames.setup]));
-  expect(shown()).not.toContain(text.setup.madeUpOnly);
-});
-
-test('on a PC, the class list and the welcome say the names stay in this browser', async () => {
+test('on a PC, the welcome says the names stay in this browser', async () => {
   jest.replaceProperty(Platform, 'OS', 'web');
-  await render(await typeList());
-  expect(shown()).toContain(text.realNames.pc.setup);
-  expect(shown()).not.toContain(text.realNames.setup);
   await render(<Welcome />);
   expect(shown()).toContain(text.realNames.pc.beforeLock);
   await render(<Welcome lockSet />);
@@ -139,9 +106,6 @@ test.each(
   ),
 )('names every control (%s, %s)', async (language, direction) => {
   await i18n.changeLanguage(language);
-  await render(await typeList(), direction);
-  expect(accessibilityProblems(tree!.root)).toEqual([]);
-  expect(shown()).toContain(catalogues[language].realNames.setup);
   await render(<PrivacyNotice onConnections={jest.fn()} />, direction);
   expect(accessibilityProblems(tree!.root)).toEqual([]);
 });

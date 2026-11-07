@@ -153,7 +153,7 @@
     "first": "Groupe 1",
     "second": "Groupe 2",
     "class": "Classe",
-    "noClass": "Ajoutez d’abord la classe dans les réglages.",
+    "noClass": "Aucune classe pour l’instant. Les classes arrivent de l’établissement.",
     "notice": "Une demi-classe vient chaque jour, dans les créneaux habituels. Ce réglage local cite votre source, sans authentifier un avis de l’établissement.",
     "split": "Répartir la classe en deux groupes",
     "splitNotice": "Vérifiez la liste proposée, déplacez les élèves si nécessaire, puis confirmez. Les changements s’appliquent à partir d’aujourd’hui, sans modifier les listes d’appel déjà enregistrées.",

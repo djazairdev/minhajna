@@ -3,18 +3,16 @@
 
 // #232's screens at large text: Today with two schools' bands and the lines
 // saying which sessions meet, the Classes tab by school with its merged-week
-// card and register note, and Week-slot's clash panel with a day chosen to
-// move one session, in Arabic and English, with text at 100% and 200%. Every
-// control is named and every text grows and wraps. Made-up data only.
+// card and register note, in Arabic and English, with text at 100% and 200%.
+// Every control is named and every text grows and wraps. Made-up data only.
 
 import { Text, useWindowDimensions, View, type TextProps } from 'react-native';
 import { accessibilityProblems } from '../jest/accessibility';
 import { withClash } from '../jest/clash-schools';
-import { closeSettingsScreen, pressSettings, settingsRoot, showSettingsScreen } from '../jest/settings-screen';
+import { closeSettingsScreen, settingsRoot, showSettingsScreen } from '../jest/settings-screen';
 import { ClassesTab } from '../src/classes/ClassesTab';
 import { i18n, missingKeys } from '../src/text/i18n';
 import { Today } from '../src/today/Today';
-import { WeekDraw } from '../src/week/WeekDraw';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -67,17 +65,5 @@ test.each(cases)('Today’s bands and the Classes tab by school scale ($language
     language,
   );
   expect(['classes-school-s-1', 'classes-school-s-2', 'classes-week', 'classes-register'].every(has)).toBe(true);
-  expectScales();
-});
-
-test.each(cases)('the clash panel scales ($language, $fontScale×)', async ({ language, fontScale }) => {
-  missingKeys.length = 0;
-  jest.mocked(useWindowDimensions).mockReturnValue({ width: 360, height: 800, scale: 2, fontScale });
-  const week = <WeekDraw onDone={jest.fn()} openAt={{ weekday: 4, slot: { half: 'morning', index: 1 } }} />;
-  await showSettingsScreen(week, await withClash(), language);
-  expect(has('clash-keep')).toBe(true);
-  await pressSettings('clash-move');
-  await pressSettings('clash-day-2026-10-22');
-  expect(has('clash-to-e-4/a2')).toBe(true);
   expectScales();
 });

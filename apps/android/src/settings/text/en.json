@@ -12,7 +12,6 @@
   "rows": {
     "card": "Teacher card",
     "schools": "Schools and subjects",
-    "classes": "Classes and pupils",
     "week": "Weekly timetable",
     "times": "School bell times",
     "lengths": "Session lengths",
@@ -43,7 +42,7 @@
   "plansLine": "Each class’s pack, release and status, grouped by school.",
   "classLabel": "{{name}} · {{subject}}",
   "missingPack": "Release {{release}} is not installed on this phone. The class stays pinned to it.",
-  "noClasses": "No classes have been added to this school yet.",
+  "noClasses": "No class has arrived for this school yet.",
   "noSchools": "Add your school first.",
   "minutesTitle": "Count in minutes",
   "minutesLine": "Usual planning minutes appear beside sessions, without changing buffers or the class’s position. The texts book keeps the actual duration.",

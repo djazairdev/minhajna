@@ -148,15 +148,9 @@ function CalendarReceiveScreen({ route, navigation }: NativeStackScreenProps<Roo
   );
 }
 
-/** After a pack is added, the pack list it was opened from, or a new one for the pack's grade and subject. */
+/** After a pack is added, back to where the file was opened from; classes no longer pin packs here (answer 808). */
 function ImportUpdateScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'ImportUpdate'>) {
-  const onAdded = (grade: string, subject: string) => {
-    const routes = navigation.getState().routes;
-    const below = routes.at(-2);
-    const params = below?.name === 'Packs' ? (below.params as RootStackParamList['Packs']) : undefined;
-    if (params?.grade === grade && params.subject === subject) navigation.goBack();
-    else navigation.replace('Packs', { grade, subject });
-  };
+  const onAdded = () => navigation.goBack();
   return (
     <ImportUpdate
       onApplied={(release) => navigation.replace('CalendarUpdate', { release })}

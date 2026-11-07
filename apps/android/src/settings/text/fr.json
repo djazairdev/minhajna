@@ -12,7 +12,6 @@
   "rows": {
     "card": "Ma fiche",
     "schools": "Établissements et matières",
-    "classes": "Classes et élèves",
     "week": "Emploi du temps",
     "times": "Horaires de l’établissement",
     "lengths": "Durée des séances",
@@ -43,7 +42,7 @@
   "plansLine": "Le pack, sa version et son statut pour chaque classe, par établissement.",
   "classLabel": "{{name}} · {{subject}}",
   "missingPack": "La version {{release}} n’est pas installée sur ce téléphone. La classe y reste liée.",
-  "noClasses": "Aucune classe ajoutée à cet établissement.",
+  "noClasses": "Aucune classe n’est encore arrivée pour cet établissement.",
   "noSchools": "Ajoutez d’abord votre établissement.",
   "minutesTitle": "Compter en minutes",
   "minutesLine": "Les minutes habituelles de planification accompagnent les séances, sans changer les réserves ni la position de la classe. Le cahier de textes garde la durée réelle.",

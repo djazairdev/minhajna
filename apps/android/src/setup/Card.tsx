@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Getting started, step 2 of 5: the teacher card (#26, Setup-3-Card), the
-// details the documents print at the top. The name is a personal field that
-// never leaves the phone (PRD §3.2, §5.6): setup goes on only once it is
-// typed (answer 806), and Settings can still empty it, so a teacher can erase
-// it. The rank is printed and travels with the lesson record. The school year
-// comes from the calendar, so it is shown here, not typed. The drawn
-// signature's row opens it, off until the teacher turns it on (#236,
-// R-3.8-41); changing the name keeps it.
+// Getting started, the last of two steps: the teacher card (#26, Setup-3-Card),
+// the details the documents print at the top. The name is a personal field that
+// never leaves the phone (PRD §3.2, §5.6): setup goes on only once it is typed
+// (answer 806), and Settings can still empty it, so a teacher can erase it. The
+// rank is printed and travels with the lesson record. The school year comes
+// from the calendar, so it is shown here, not typed. The drawn signature's row
+// opens it, off until the teacher turns it on (#236, R-3.8-41); changing the
+// name keeps it.
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -23,7 +23,7 @@ import { TextField } from '../components/TextField';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useDeviceText } from '../text/device-text';
-import { NEXT_ARROW, SETUP_STEPS } from './Teaching';
+import { SETUP_STEPS } from './Teaching';
 import { useDraft } from './useDraft';
 
 /** The card's two typed fields, each saved once typing pauses. */
@@ -119,8 +119,8 @@ export function Card({
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-8'] }]}>
         <Button
           testID="card-next"
-          {...(editing ? {} : NEXT_ARROW)}
-          label={t(editing ? 'settings.done' : 'setup.next')}
+          {...(editing ? {} : { icon: controlIcon('check') })}
+          label={t(editing ? 'settings.done' : 'setup.finish')}
           disabled={!named}
           {...(named ? {} : { accessibilityHint: t('setup.nameHint') })}
           onPress={leave}

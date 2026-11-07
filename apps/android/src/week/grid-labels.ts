@@ -139,25 +139,12 @@ export function gridCell(
 const cellKey = (cell: Cell) => `${cell.weekday}:${cell.slot.half}:${cell.slot.index}`;
 
 /**
- * The version the drawing's marks are kept against: itself once recorded, or the recorded version whose week it has
- * not changed, under that version's ID; null while the drawing has changes not yet recorded.
- */
-export function markedVersion(state: Pick<State, 'timetables'>, version: TimetableVersion): TimetableVersion | null {
-  if (state.timetables.some((one) => one.version.id === version.id)) return version;
-  const week = (one: TimetableVersion) => JSON.stringify([one.entries, one.blocks]);
-  const same = [...state.timetables].reverse().find((one) => week(one.version) === week(version));
-  return same === undefined ? null : { ...version, id: same.version.id };
-}
-
-/**
- * The marks of a week: school names when it holds classes of two schools or more, its clashing slots, and those the
- * teacher kept (#232), against the recorded week the drawing belongs to, which `clashes`, the open ones, leaves out.
+ * The marks of a recorded week: school names when it holds classes of two schools or more, its clashing slots, and
+ * those the teacher kept (#232), which `clashes`, the open ones, leaves out.
  */
 export function weekMarks(version: TimetableVersion, state: State, classes: readonly SchoolClass[]) {
   const schoolIds = new Set(classes.map((schoolClass) => schoolClass.schoolId));
-  const clashes = new Map(
-    weekClashes(markedVersion(state, version) ?? version, state).map((one) => [cellKey(one), one]),
-  );
+  const clashes = new Map(weekClashes(version, state).map((one) => [cellKey(one), one]));
   return {
     schools: schoolIds.size > 1 ? (schoolId: string) => state.schools.get(schoolId)?.name : undefined,
     clashAt: (cell: Cell) => clashes.has(cellKey(cell)),

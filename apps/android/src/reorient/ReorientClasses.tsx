@@ -5,7 +5,8 @@
 // its name, the old class whose history it takes, and what it would be: its
 // pupils and where they come from, then, for each subject, the plan item and
 // the TD item it goes on with, and its texts book. A second class taking the
-// same history starts with no sessions in the timetable, to draw.
+// same history starts with no sessions in the timetable, until the school's
+// timetable arrives (answer 808).
 
 import type { Context, Reorientation } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';

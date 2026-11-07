@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ChipGroup } from '../components/Chip';
 import { SetupSteps } from '../components/SetupSteps';
 import { colors, spacing, typography } from '../design/tokens';
+import { SETUP_STEPS } from '../setup/Teaching';
 import { chipTexts } from './chip-texts';
 import { fill, type SampleProps } from './samples';
 
@@ -60,10 +61,10 @@ export function SetupStepsSamples({ language }: SampleProps) {
   const text = chipTexts[language];
   return (
     <View style={styles.steps}>
-      {[1, 3, 5].map((reached) => (
+      {[1, 2].map((reached) => (
         <View key={reached} style={styles.step}>
-          <Text style={styles.note}>{fill(text.step, { step: reached, count: 5 })}</Text>
-          <SetupSteps testID={`steps-${reached}`} count={5} reached={reached} />
+          <Text style={styles.note}>{fill(text.step, { step: reached, count: SETUP_STEPS })}</Text>
+          <SetupSteps testID={`steps-${reached}`} count={SETUP_STEPS} reached={reached} />
         </View>
       ))}
     </View>

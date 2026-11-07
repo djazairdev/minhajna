@@ -49,25 +49,19 @@ async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   });
 }
 
-/** Completes setup's first three steps with one made-up school, an empty card and no class, which lead to the tabs for now. */
+/** Completes setup's two steps with one made-up school and a made-up name, then leaves Ready for the tabs. */
 async function finishSetup() {
   const ids = (prefix: string) =>
     tree.root.findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(prefix));
   await pickSchool(() => tree.root);
   await press(byTestID('setup-next'));
   expect(routes()).toContain('Card');
-  expect(heading()).toEqual([text.setup.title, 'الخطوة 2 من 5']);
+  expect(heading()).toEqual([text.setup.title, 'الخطوة 2 من 2']);
   await ReactTestRenderer.act(() => {
     (ids('card-name')[0].findByType(TextInput).props as TextInputProps).onChangeText?.('أستاذة مختلقة');
   });
-  await press(byTestID('card-next'));
-  expect(heading()).toEqual([text.setup.title, 'الخطوة 3 من 5']);
-  await press(byTestID('classes-next'));
-  expect(heading()).toEqual([text.setup.title, 'الخطوة 4 من 5']);
-  await press(byTestID('week-next'));
-  expect(heading()).toEqual([text.setup.title, 'الخطوة 5 من 5']);
   expect(data.book.state.setupFinished).toBe(false);
-  await press(byTestID('plan-finish'));
+  await press(byTestID('card-next'));
   await ReactTestRenderer.act(() => new Promise((resolve) => setTimeout(resolve, 0)));
   expect(data.book.state.setupFinished).toBe(true);
   expect(tree.root.findAllByProps({ testID: 'ready-kept' })).not.toEqual([]);
@@ -197,7 +191,7 @@ test('leads through the notice to the tabs, and Back from the tabs leaves the ap
   await press(byLabel(text.navigation.back));
   await press(byTestID('privacy-accept'));
   expect(routes()).toEqual(['Welcome', 'Privacy', 'Teaching']);
-  expect(heading()).toEqual([text.setup.title, 'الخطوة 1 من 5']);
+  expect(heading()).toEqual([text.setup.title, 'الخطوة 1 من 2']);
   await finishSetup();
   expect(tree.root.findAllByType(TopBar)).toHaveLength(0);
   expect(tree.root.findAllByProps({ testID: 'tab-Today' })).not.toEqual([]);

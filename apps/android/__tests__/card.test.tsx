@@ -106,7 +106,7 @@ test('shows the name, the rank and the school year, with no helper text, placeho
   expect(label('card-year')).toBe('السنة الدراسية: 2026-2027');
 });
 
-test('goes on only once a name is typed, with an arrow, and offers no way round it', async () => {
+test('finishes setup only once a name is typed, with a check, and offers no way round it', async () => {
   await render(await withSchools());
   expect(root().findAll((node) => node.props.testID === 'card-later')).toHaveLength(0);
   expect(control('card-next').props).toMatchObject({ disabled: true, accessibilityHint: text.setup.nameHint });
@@ -115,7 +115,8 @@ test('goes on only once a name is typed, with an arrow, and offers no way round 
   await type('card-name', 'بن يحيى سعاد');
   expect(control('card-next').props).toMatchObject({ disabled: false });
   expect(control('card-next').props.accessibilityHint).toBeUndefined();
-  expect(control('card-next').findAll((node) => node.props.testID === 'icon-chevron').length).toBeGreaterThan(0);
+  expect(control('card-next').findAll((node) => node.props.testID === 'icon-check').length).toBeGreaterThan(0);
+  expect(shown()).toContain(text.setup.finish);
 });
 
 test('keeps the name in the device layer and the rank with the lesson record, once typing pauses', async () => {

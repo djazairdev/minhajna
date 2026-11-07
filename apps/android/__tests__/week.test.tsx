@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Setup's fourth step (#28, Setup-5-Week): the week drawn so far, or a line
-// saying it is not drawn yet, the way to draw it, the wait for the school's
-// timetable, and a week of two schools with its sessions by school and its
-// clashes. Made-up schools and classes only.
+// The week to read (#28, Setup-5-Week, answer 808): the school's timetable,
+// or a line saying none has arrived, and a week of two schools with its
+// sessions by school and its clashes, with nothing to draw or resolve.
+// Made-up schools and classes only.
 
 import { formatDay, parseDay } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -24,9 +24,7 @@ jest.mock(
 
 let tree: ReactTestRenderer.ReactTestRenderer | undefined;
 const root = () => tree!.root;
-const onDraw = jest.fn();
-const onNext = jest.fn();
-const onResolve = jest.fn();
+const onDone = jest.fn();
 const onTimes = jest.fn();
 const day = parseDay('2026-10-15');
 
@@ -34,9 +32,7 @@ afterEach(async () => {
   await ReactTestRenderer.act(() => tree?.unmount());
   tree = undefined;
   await i18n.changeLanguage('ar');
-  onDraw.mockReset();
-  onNext.mockReset();
-  onResolve.mockReset();
+  onDone.mockReset();
   onTimes.mockReset();
 });
 
@@ -74,7 +70,7 @@ async function withWeek(): Promise<TestData> {
           weeks: 'every' as const,
           sessionType: 'lesson',
         })),
-        blocks: [{ weekday: 3, half: 'afternoon', index: 1, label: text.week.ownTime }],
+        blocks: [{ weekday: 3, half: 'afternoon', index: 1, label: 'وقت خاص' }],
       },
     },
   ]);
@@ -85,7 +81,7 @@ async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Week onDraw={onDraw} onResolve={onResolve} onTimes={onTimes} onNext={onNext} />)}
+        {withData(data, <Week onTimes={onTimes} onDone={onDone} />)}
       </LocaleDirContext.Provider>,
     );
   });
@@ -105,24 +101,15 @@ async function press(id: string) {
   });
 }
 
-test('says the week is not drawn yet, offers to draw it, and leads on either way', async () => {
+test('says no timetable has arrived yet, and still opens the times and leaves', async () => {
   await render(await openTestData());
-  expect(shown()).toEqual(
-    expect.arrayContaining([
-      text.week.heading,
-      text.week.intro,
-      text.week.noWeek,
-      text.week.draw,
-      text.week.package.waitTitle,
-    ]),
-  );
+  expect(shown()).toEqual(expect.arrayContaining([text.week.heading, text.week.notArrived]));
   expect(exists('week-card')).toBe(false);
-  await press('week-draw');
-  expect(onDraw).toHaveBeenCalledTimes(1);
+  expect(exists('week-draw')).toBe(false);
   await press('week-times');
   expect(onTimes).toHaveBeenCalledTimes(1);
   await press('week-next');
-  expect(onNext).toHaveBeenCalledTimes(1);
+  expect(onDone).toHaveBeenCalledTimes(1);
 });
 
 test('shows the week drawn, the day it starts and its sessions a week, read cell by cell', async () => {
@@ -132,18 +119,26 @@ test('shows the week drawn, the day it starts and its sessions a week, read cell
     expect.arrayContaining([
       text.week.drawn,
       `${text.week.from.replace('{{date}}', formatDay(data.year.from))} · ${text.week.perWeek.replace('{{sessions}}', '3 حصص')}`,
-      text.week.edit,
     ]),
   );
   const cells = root().findAll((node) => node.props.accessible === true && typeof node.props.onPress !== 'function', {
     deep: false,
   });
   expect(cells.map((node) => String(node.props.accessibilityLabel))).toEqual(
-    expect.arrayContaining(['الأحد، الحصة 1 صباحاً: 4م1', `الأربعاء، الحصة 1 مساءً: ${text.week.ownTime}`]),
+    expect.arrayContaining(['الأحد، الحصة 1 صباحاً: 4م1', `الأربعاء، الحصة 1 مساءً: وقت خاص`]),
   );
 });
 
-test('counts the sessions by school in a week of two schools, and opens a clash on Week-slot', async () => {
+test('names a timetable from the school as such, not as drawn by hand', async () => {
+  const data = await withWeek();
+  const { version } = data.book.state.timetables[0];
+  await data.book.record(day, { kind: 'timetable.set', version: { ...version, id: 'v-2', source: 'package' } });
+  await render(data);
+  expect(shown()).toContain(text.week.fromSchool);
+  expect(shown()).not.toContain(text.week.drawn);
+});
+
+test('counts the sessions by school in a week of two schools, and names its clash without resolving it', async () => {
   const data = await withWeek();
   await data.book.recordAll(day, [
     {
@@ -190,8 +185,7 @@ test('counts the sessions by school in a week of two schools, and opens a clash 
   expect(root().find((node) => node.props.testID === 'week-clash').props.message).toBe(
     'تعارض في خانة الإثنين، الحصة 1 صباحاً: \u20684م1\u2069، \u2068متوسطة النجاح\u2069، \u20684م2\u2069، \u2068متوسطة الأمل\u2069',
   );
-  await press('week-resolve');
-  expect(onResolve).toHaveBeenCalledWith({ weekday: 1, slot: { half: 'morning', index: 1 } });
+  expect(exists('week-resolve')).toBe(false);
   expect(accessibilityProblems(root())).toEqual([]);
 });
 

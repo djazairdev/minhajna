@@ -39,7 +39,6 @@ test.each(['ar', 'en'] as const)(
     const editors = [
       ['card', 'SettingsCard', 'card-next'],
       ['schools', 'SettingsSchools', 'setup-next'],
-      ['classes', 'SettingsClasses', 'classes-next'],
       ['week', 'SettingsWeek', 'week-next'],
       ['language', 'Language', 'settings-language-save'],
     ];
@@ -67,16 +66,13 @@ test.each(['ar', 'en'] as const)(
   },
 );
 
-test('carries only IDs through navigation and restricts the pack chooser to that school', async () => {
+test('carries only IDs through navigation, and opens one school’s plans to read', async () => {
   await showSettingsScreen(<AppNavigator initialRouteName="Home" direction="rtl" />, await settingsData());
   await pressSettings('today-settings');
   await pressSettings('settings-school-times-s-2');
   expect(header().route.params).toEqual({ schoolId: 's-2' });
   await back();
   await pressSettings('settings-school-plans-s-2');
-  await pressSettings('settings-choose-k-other-arabic-4am');
-  expect(header().route.name).toBe('Packs');
-  expect(header().route.params).toEqual({ grade: '4am', subject: 'arabic', schoolId: 's-2', classId: 'k-other' });
-  await pressSettings('pack-cancel');
   expect(header().route.name).toBe('SettingsPlans');
+  expect(header().route.params).toEqual({ schoolId: 's-2' });
 });

@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // #230's primary screens at large text: Today in bands, a week pack's plan
-// by plan week, a stale pack's plan with «استعماله بحذر» open, «سؤال
-// المفتش», a primary slot on Week-slot, and «الدوامان» on Week-draw, in
-// Arabic and English, with text at 100% and 200%. Every control is named,
-// every text grows and wraps, and at 200% each of «الدوامان»'s weeks stacks
-// its parts. Made-up data only.
+// by plan week, a stale pack's plan with «استعماله بحذر» open, and «سؤال
+// المفتش», in Arabic and English, with text at 100% and 200%. Every control
+// is named and every text grows and wraps. Made-up data only.
 
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, useWindowDimensions, type TextProps, type ViewStyle } from 'react-native';
+import { Text, useWindowDimensions, type TextProps } from 'react-native';
 import { accessibilityProblems } from '../jest/accessibility';
 import type { TestData } from '../jest/app-data';
 import { withPrimary } from '../jest/primary-class';
@@ -19,7 +17,6 @@ import { ClassPlan } from '../src/classes/ClassPlan';
 import { StaleQuestion } from '../src/plan/StaleQuestion';
 import { i18n, missingKeys, type Language } from '../src/text/i18n';
 import { Today } from '../src/today/Today';
-import { WeekDraw } from '../src/week/WeekDraw';
 
 jest.mock(
   'react-native-safe-area-context',
@@ -39,18 +36,6 @@ function expectScales(): void {
     expect(props.maxFontSizeMultiplier).toBeUndefined();
   }
   expect(missingKeys).toEqual([]);
-}
-
-/** Whether each of «الدوامان»'s weeks lays its parts out in a column. */
-function weeksStacked(): boolean {
-  const rows = settingsRoot().findAll(
-    (node) =>
-      typeof node.props.testID === 'string' &&
-      node.props.testID.startsWith('shift-week-') &&
-      node.props.style !== undefined,
-  );
-  expect(rows.length).toBeGreaterThan(0);
-  return rows.every((row) => StyleSheet.flatten(row.props.style as ViewStyle)?.flexDirection === 'column');
 }
 
 async function show(element: ReactElement, data: TestData, language: Language): Promise<void> {
@@ -80,19 +65,5 @@ test.each(cases)('Today, the plan by plan week and a stale plan scale ($language
   expectScales();
   await show(<StaleQuestion courseId="a-1" />, await withStale(), language);
   expect(has('stale-question-sheet')).toBe(true);
-  expectScales();
-});
-
-test.each(cases)('a primary slot and «الدوامان» scale ($language, $fontScale×)', async ({ language, fontScale }) => {
-  missingKeys.length = 0;
-  jest.mocked(useWindowDimensions).mockReturnValue({ width: 360, height: 800, scale: 2, fontScale });
-  await show(<WeekDraw onDone={jest.fn()} onLetter={jest.fn()} onRules={jest.fn()} />, await withPrimary(), language);
-  await pressSettings('option-doubleShift');
-  expect(has('shift-card')).toBe(true);
-  expect(weeksStacked()).toBe(fontScale === 2);
-  expectScales();
-  await pressSettings('pen-details');
-  await pressSettings('draw-4-m1');
-  expect(has('slot-0-activity')).toBe(true);
   expectScales();
 });
