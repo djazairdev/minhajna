@@ -25,7 +25,8 @@
 // it; teachers see one short message. Given the cryptography for demo worlds,
 // as each platform's start gives it, Help leads to the demo worlds, and on a
 // PC the welcome and the lock page too; they take the lock's place until a
-// world is left and the lock checks again (#560, #561).
+// world is left and the lock checks again (#560, #561). A PC's welcome and lock
+// page also lead to the dashboard, which takes their place (answer 809).
 
 import type { CountryProfile } from '@minhajna/core';
 import { LocaleDirContext, type InitialState, type NavigationState } from '@react-navigation/native';
@@ -48,7 +49,7 @@ import { useLockPhase, type LockPhase } from './src/lock/useLockPhase';
 import NativeInterface from './src/native/NativeMinhajnaInterface';
 import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajnaStorage';
 import { AppNavigator } from './src/navigation/AppNavigator';
-import { startRoute } from './src/navigation/start-route';
+import { AFTER_FIRST_PIN, startRoute, type Begin } from './src/navigation/start-route';
 import { Welcome } from './src/navigation/Welcome';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
 import { AppDataProvider } from './src/storage/AppData';
@@ -56,6 +57,8 @@ import { nativeDeps } from './src/storage/history';
 import type { BrokenHistory } from './src/storage/broken-history';
 import { useHistory } from './src/storage/use-history';
 import { LogBroken } from './src/log/LogBroken';
+import { DashboardRoot } from './src/dashboard/DashboardRoot';
+import { DashboardDoor, useDashboardDoors } from './src/dashboard/door';
 import { DemoDoor, HelpDoor } from './src/demo/demo-door';
 import { DemoRoot } from './src/demo/DemoRoot';
 import { useDemoDoors } from './src/demo/use-demo-doors';
@@ -96,7 +99,9 @@ export default function App({
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
   const [route, setRoute] = useState<string | undefined>(undefined);
   const [next, setNext] = useState<Begin>('setup');
+  const dashboard = useDashboardDoors(reference.ok, phase, book);
   const firstState =
+    dashboard.readerState ??
     restore ??
     (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined);
   const { lockNow, opened, start } = lock;
@@ -183,7 +188,14 @@ export default function App({
           </AppDataProvider>
         ) : (
           <LocaleDirContext.Provider value={I18nManager.isRTL ? 'rtl' : 'ltr'}>
-            {doors.shown && worldKit !== null && reference.ok ? (
+            {dashboard.shown && reference.ok ? (
+              <DashboardRoot
+                profile={reference.profile}
+                bells={reference.bells}
+                onBack={dashboard.back}
+                onReader={() => dashboard.toReader(phase.kind === 'welcome' ? () => begin('reader') : null)}
+              />
+            ) : doors.shown && worldKit !== null && reference.ok ? (
               <DemoRoot
                 kit={worldKit}
                 calendar={reference.calendar}
@@ -195,16 +207,18 @@ export default function App({
               />
             ) : (
               <DemoDoor.Provider value={doors.gate}>
-                <Gate
-                  phase={phase}
-                  storage={storage}
-                  lock={lock}
-                  begin={begin}
-                  lockMinutes={lockMinutes}
-                  referenceRefused={!reference.ok}
-                  historyRefused={phase.kind === 'refused' || history === 'refused' || history === 'broken'}
-                  broken={reference.ok && broken !== null ? { history: broken, profile: reference.profile } : null}
-                />
+                <DashboardDoor.Provider value={dashboard.open}>
+                  <Gate
+                    phase={phase}
+                    storage={storage}
+                    lock={lock}
+                    begin={begin}
+                    lockMinutes={lockMinutes}
+                    referenceRefused={!reference.ok}
+                    historyRefused={phase.kind === 'refused' || history === 'refused' || history === 'broken'}
+                    broken={reference.ok && broken !== null ? { history: broken, profile: reference.profile } : null}
+                  />
+                </DashboardDoor.Provider>
               </DemoDoor.Provider>
             )}
           </LocaleDirContext.Provider>
@@ -275,18 +289,6 @@ function Gate({
       return <Welcome referenceRefused={referenceRefused} historyRefused={historyRefused} />;
   }
 }
-
-/** What the welcome began, before the first PIN. */
-type Begin = 'setup' | 'restore';
-
-/**
- * After the first PIN, with the welcome under it for Back: setup goes on at the privacy notice, the restore at the
- * restore (#247).
- */
-const AFTER_FIRST_PIN: Record<Begin, InitialState> = {
-  setup: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy' }] },
-  restore: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Restore' }] },
-};
 
 const styles = StyleSheet.create({
   root: { flex: 1 },

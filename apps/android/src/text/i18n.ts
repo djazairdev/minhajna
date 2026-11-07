@@ -18,6 +18,7 @@ import frBase from './fr.json';
 import { settingsCatalogues } from '../settings/catalogues';
 import { calendarCatalogues } from '../calendar/catalogues';
 import { editorPackCatalogues } from '../editor/catalogues';
+import { dashboardCatalogues } from '../dashboard/catalogues';
 import { deskCatalogues } from '../editor/desk-catalogues';
 import { itemCatalogues } from '../editor/item-catalogues';
 import { installPluralRules } from './plural-rules';
@@ -29,6 +30,7 @@ const ar = {
   editorPacks: editorPackCatalogues.ar,
   editorItem: itemCatalogues.ar,
   editorDesk: deskCatalogues.ar,
+  dashboard: dashboardCatalogues.ar,
 };
 const fr = {
   ...frBase,
@@ -37,6 +39,7 @@ const fr = {
   editorPacks: editorPackCatalogues.fr,
   editorItem: itemCatalogues.fr,
   editorDesk: deskCatalogues.fr,
+  dashboard: dashboardCatalogues.fr,
 };
 const en = {
   ...enBase,
@@ -45,6 +48,7 @@ const en = {
   editorPacks: editorPackCatalogues.en,
   editorItem: itemCatalogues.en,
   editorDesk: deskCatalogues.en,
+  dashboard: dashboardCatalogues.en,
 };
 
 declare module 'i18next' {

@@ -1,0 +1,10 @@
+{
+  "door": "Tableau de bord",
+  "back": "Retour",
+  "lock": "Verrouiller",
+  "madeUp": "Données d’exemple uniquement",
+  "home": {
+    "reader": "Lire le relevé d’un enseignant"
+  },
+  "panel": "Détails"
+}
