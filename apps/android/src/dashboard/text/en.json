@@ -1,0 +1,10 @@
+{
+  "door": "Dashboard",
+  "back": "Back",
+  "lock": "Lock now",
+  "madeUp": "Example data only",
+  "home": {
+    "reader": "Read a teacher’s statement"
+  },
+  "panel": "Details"
+}
