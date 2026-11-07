@@ -17,13 +17,14 @@
 // sheet an inspector's device keeps for a grant (#594, answer 622), and of the
 // Ministry's draft of a calendar update (#607, answer 623), and of a term's
 // insights token and sending IDs (#622, answer 696), and of the teacher's
-// choice to send insights and what was sent (answer 697), apart from
-// devices.ts, world-kept.ts, school-joined.ts, school-issue.ts,
-// school-holder.ts, school-timetable.ts, school-cover.ts,
-// school-substitution.ts, school-exchange.ts, directorate-space.ts,
-// grant-request.ts, spot-sheet.ts, calendar-draft.ts, insights-teacher.ts and
-// insights-log.ts, which read them, so the events module imports no module that
-// imports it back.
+// choice to send insights and what was sent (answer 697), and of the joining
+// code a school gave the teacher (answer 808), apart from devices.ts,
+// world-kept.ts, school-joined.ts, school-issue.ts, school-holder.ts,
+// school-timetable.ts, school-cover.ts, school-substitution.ts,
+// school-exchange.ts, directorate-space.ts, grant-request.ts, spot-sheet.ts,
+// calendar-draft.ts, insights-teacher.ts, insights-log.ts and
+// directory-joined.ts, which read them, so the events module imports no module
+// that imports it back.
 
 import type { Certificate } from './certify.ts';
 import type { Day } from './day.ts';
@@ -82,7 +83,15 @@ export type DeviceEvent =
   /** In a demo world's own store: insights turned on or off by the teacher (answer 697). */
   | { readonly kind: 'insights.choice'; readonly choice: { readonly on: boolean } }
   /** In a demo world's own store: a sending the server took, exactly as sent, with its class (answer 697). */
-  | { readonly kind: 'insights.sent'; readonly sent: InsightsSent };
+  | { readonly kind: 'insights.sent'; readonly sent: InsightsSent }
+  /** The joining code a school gave the teacher, kept to fetch its updates; never sent with the records. */
+  | { readonly kind: 'directory.joined'; readonly joined: DirectoryJoined };
+
+/** The joining code, as read, and the phone's school it fills, or null once the teacher drops it (answer 808). */
+export interface DirectoryJoined {
+  readonly school: string;
+  readonly code: string | null;
+}
 
 /** A sending the server took, as the exact text sent, and the class it was for (answers 697 and 698). */
 export interface InsightsSent {
@@ -268,6 +277,7 @@ export const DEVICE_KINDS = {
   'insights.drawn': true,
   'insights.choice': true,
   'insights.sent': true,
+  'directory.joined': true,
 } as const;
 
 export const isDeviceEvent = (event: { readonly kind: string }): event is DeviceEvent =>

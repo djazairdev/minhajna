@@ -84,7 +84,8 @@ function readNames(value: unknown): LocalizedText | null {
   return Object.fromEntries(entries) as LocalizedText;
 }
 
-function readSchool(value: unknown): DirectorySchool | string {
+/** One school of the list, or a sentence saying what is wrong with it. */
+export function readDirectorySchool(value: unknown): DirectorySchool | string {
   if (!isObject(value) || !isCode(value.id)) return 'a school needs an id';
   if (!isText(value.name)) return `school ${value.id} needs a name`;
   if (!isCode(value.level) || !isCode(value.wilaya)) return `school ${value.id} needs a level and a wilaya`;
@@ -116,7 +117,7 @@ export function readReferenceDraft(value: unknown): ReferenceDraft | string {
   const schools: DirectorySchool[] = [];
   const seen = new Set<string>();
   for (const one of value.schools) {
-    const school = readSchool(one);
+    const school = readDirectorySchool(one);
     if (typeof school === 'string') return school;
     if (seen.has(school.id)) return `school ${school.id} appears twice`;
     if (!levels.some((level) => level.code === school.level)) return `school ${school.id} has an unknown level`;
