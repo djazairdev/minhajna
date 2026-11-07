@@ -18,6 +18,7 @@ import { ChipSamples, SetupStepsSamples } from './chip-samples';
 import { SwitchSamples } from './switch-samples';
 import { StepperSamples } from './stepper-samples';
 import { SegmentedControlSamples } from './segmented-control-samples';
+import { SelectSamples } from './select-samples';
 import { RadioCardSamples } from './radio-card-samples';
 import { BadgeSamples } from './badge-samples';
 import { RowLinkSamples } from './row-link-samples';
@@ -113,6 +114,11 @@ export const entries: readonly GalleryEntry[] = [
     name: 'SegmentedControl',
     design: 'docs/design/system/components/SegmentedControl/README.md',
     render: (sample, language) => <SegmentedControlSamples key={language} sample={sample} language={language} />,
+  },
+  {
+    name: 'Select',
+    design: 'docs/design/system/components/Select/README.md',
+    render: (sample, language) => <SelectSamples key={language} sample={sample} language={language} />,
   },
   {
     name: 'RadioCard',

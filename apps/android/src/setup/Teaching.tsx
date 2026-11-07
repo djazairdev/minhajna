@@ -1,26 +1,30 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Getting started, step 1 of 5: levels, subjects and schools (#25, §3.2),
-// as Setup-2-Teaching and, with several schools, Setup-2b-Schools draw them.
-// One school is open at a time; the others fold to a line with an edit button.
-// Every change is saved as it is made, the wilaya included.
+// Getting started, step 1 (#25, answers 802 to 809): the level, the option for
+// that level, then the wilaya, commune and school, all chosen from the
+// directory's published list, with nothing typed and no subtitles or helper
+// texts. The list is fetched as the step opens and held in memory; the step
+// says so while it loads, and when there is no network or nothing published,
+// with a retry. Next records the chosen school, keeping the ID of the school
+// the history already holds, and the levels and subjects its classes use, if
+// any (school-guards.ts); a school the teacher holds as another is not offered.
+// Settings changes and adds schools on its own page (SettingsSchools.tsx).
 
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
-import { Notice } from '../components/Notice';
 import { SetupSteps } from '../components/SetupSteps';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useDeviceText } from '../text/device-text';
 import { protectedChoices } from '../settings/school-guards';
-import { SchoolFields, SchoolSummary } from './SchoolFields';
-import { isComplete } from './school-rules';
-import { useSchools } from './useSchools';
+import { chosenSchool, choiceOf, schoolFrom, unchanged, type Choice } from './school-choice';
+import { ReferenceState, SchoolChoice } from './SchoolChoice';
+import { useReference } from './useReference';
 
 /** The steps of Getting started, as the bar under the title counts them. */
 export const SETUP_STEPS = 5;
@@ -28,72 +32,32 @@ export const SETUP_STEPS = 5;
 /** The arrow onward on each step's Next; Settings' Done, which goes nowhere further, has none. */
 export const NEXT_ARROW = { icon: controlIcon('chevron'), iconEnd: true } as const;
 
-/** The first step of setup; `onNext` leads on once every school is complete. */
-export function Teaching({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
+/** The first step of setup; `onNext` leads on once a school is chosen. */
+export function Teaching({ onNext }: { onNext: () => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useDeviceText();
-  const { profile, state, unsaved } = useAppData();
-  const { schools, chooseLevels, chooseSubjects, chooseZone, rename, flush, add, remove } = useSchools();
-  const [open, setOpen] = useState(() => (schools.find((school) => !isComplete(profile, school)) ?? schools[0]).id);
+  const { profile, state, record, newId, unsaved } = useAppData();
+  const { load, retry } = useReference();
+  const [before, ...others] = [...state.schools.values()];
+  const held = others.flatMap((school) => (school.code === undefined ? [] : [school.code]));
+  const [picked, setPicked] = useState<Choice | null>(null);
+  const list = load.kind === 'ready' ? load.list : null;
+  const choice = picked ?? (list === null ? null : choiceOf(list, before));
+  const chosen = list === null || choice === null ? null : chosenSchool(list, choice);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
-  const single = schools.length === 1;
-  const complete = schools.every((school) => isComplete(profile, school));
-  const openSchool = (id: string) => {
-    flush();
-    setOpen(id);
-  };
-  const fieldsOf = (index: number) => {
-    const school = schools[index];
-    return (
-      <SchoolFields
-        key={school.id}
-        profile={profile}
-        school={school}
-        layout={single ? 'single' : { number: index + 1 }}
-        onLevels={(levels) =>
-          chooseLevels(school.id, editing ? protectedChoices(state, school.id, 'levels', levels) : levels)
-        }
-        onSubjects={(subjects) =>
-          chooseSubjects(school.id, editing ? protectedChoices(state, school.id, 'subjects', subjects) : subjects)
-        }
-        onName={(name) => rename(school.id, name)}
-        onNameDone={flush}
-        onZone={(zone) => chooseZone(school.id, zone)}
-        onDelete={
-          single || (editing && [...state.classes.values()].some((schoolClass) => schoolClass.schoolId === school.id))
-            ? undefined
-            : () => {
-                remove(school.id);
-                setOpen((schools.find((other) => other.id !== school.id) ?? school).id);
-              }
-        }
-      />
-    );
-  };
   return (
     <View style={[styles.screen, { direction }]}>
-      {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={1} />}
+      <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={1} />
       <ScrollView contentContainerStyle={[styles.content, sides]} keyboardShouldPersistTaps="handled">
-        <View style={styles.intro}>
-          <Text accessibilityRole="header" style={[styles.heading, align]}>
-            {t('setup.teachingHeading')}
-          </Text>
-          <Text style={[styles.sub, align]}>{t(single ? 'setup.teachingIntro' : 'setup.schoolsIntro')}</Text>
-        </View>
-        {editing && (
-          <Notice testID="settings-school-guard" icon={controlIcon('lock')} message={t('settings.schoolGuard')} />
+        <Text accessibilityRole="header" style={[styles.heading, align]}>
+          {t('setup.teachingHeading')}
+        </Text>
+        <ReferenceState load={load} onRetry={retry} />
+        {list !== null && choice !== null && (
+          <SchoolChoice profile={profile} list={list} choice={choice} onChoice={setPicked} held={held} />
         )}
-        {schools.map((school, index) =>
-          single || school.id === open ? (
-            fieldsOf(index)
-          ) : (
-            <SchoolSummary key={school.id} profile={profile} school={school} onEdit={() => openSchool(school.id)} />
-          ),
-        )}
-        {!single && <Notice testID="schools-merged" icon={controlIcon('info')} message={t('setup.merged')} />}
-        <Button testID="add-school" variant="line" label={t('setup.addSchool')} onPress={() => openSchool(add())} />
         {unsaved && (
           <Text testID="not-saved" accessibilityLiveRegion="polite" style={[styles.unsaved, align]}>
             {t('setup.notSaved')}
@@ -103,12 +67,18 @@ export function Teaching({ onNext, editing = false }: { onNext: () => void; edit
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button
           testID="setup-next"
-          {...(editing ? {} : NEXT_ARROW)}
-          label={t(editing ? 'settings.done' : 'setup.next')}
-          disabled={!complete}
-          accessibilityHint={complete ? undefined : t('setup.nextHint')}
+          {...NEXT_ARROW}
+          label={t('setup.next')}
+          disabled={chosen === null}
           onPress={() => {
-            flush();
+            if (chosen === null) return;
+            const school = schoolFrom(chosen, before?.id ?? newId(), before);
+            const kept = {
+              ...school,
+              levels: protectedChoices(state, school.id, 'levels', school.levels),
+              subjects: protectedChoices(state, school.id, 'subjects', school.subjects),
+            };
+            if (!unchanged(kept, before)) record({ kind: 'school.set', school: kept });
             onNext();
           }}
         />
@@ -125,9 +95,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing['space-4'],
     paddingBottom: spacing['space-16'],
   },
-  intro: { gap: spacing['space-6'] },
   heading: { ...typography.h2, color: colors.ink },
-  sub: { ...typography.caption, color: colors.ink2 },
   unsaved: { ...typography.label, color: colors.ink },
   foot: { paddingTop: spacing['space-12'], backgroundColor: colors.paper },
 });

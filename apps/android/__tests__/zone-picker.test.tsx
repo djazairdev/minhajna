@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The wilaya on setup's first step (#25): the search, the list it opens, and
-// the wilaya saved with the school. Made-up zones only.
+// The wilaya picker (#25), now the Ministry calendar's (setup chooses the
+// wilaya from the directory's list, answer 804): the search, the list it
+// opens, and the wilaya chosen. Made-up zones only.
 
 import type { Zone } from '@minhajna/core';
 import { LocaleDirContext } from '@react-navigation/native';
@@ -10,8 +11,8 @@ import { Modal, Text, TextInput } from 'react-native';
 import type { ModalProps, PressableProps, TextInputProps } from 'react-native';
 import ReactTestRenderer, { type ReactTestInstance } from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
-import { openTestData, withData, type TestData } from '../jest/app-data';
-import { Teaching } from '../src/setup/Teaching';
+import { useState } from 'react';
+import { ZonePicker } from '../src/setup/ZonePicker';
 import { fold, zoneMatches } from '../src/setup/zone-search';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import text from '../src/text/ar.json';
@@ -36,17 +37,32 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
-async function render(direction: 'rtl' | 'ltr' = 'rtl'): Promise<TestData> {
-  const opened = await openTestData();
-  const data = { ...opened, profile: { ...opened.profile, zones } };
+const chosen: string[] = [];
+
+function Holder() {
+  const [value, setValue] = useState<string | undefined>(undefined);
+  return (
+    <ZonePicker
+      testID="zone-s"
+      zones={zones}
+      value={value}
+      onChange={(code) => {
+        chosen.push(code);
+        setValue(code);
+      }}
+    />
+  );
+}
+
+async function render(direction: 'rtl' | 'ltr' = 'rtl') {
+  chosen.length = 0;
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       <LocaleDirContext.Provider value={direction}>
-        {withData(data, <Teaching onNext={jest.fn()} />)}
+        <Holder />
       </LocaleDirContext.Provider>,
     );
   });
-  return data;
 }
 
 const settle = () => ReactTestRenderer.act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
@@ -77,8 +93,6 @@ async function press(id: string) {
   });
 }
 
-const school = () =>
-  String(root().findAll((node) => String(node.props.testID).startsWith('levels-'))[0].props.testID).slice(7);
 const isOpen = () => (root().findByType(Modal).props as ModalProps).visible === true;
 const rows = (id: string) =>
   root()
@@ -107,9 +121,9 @@ test('folds short vowels, letter variants, accents and apostrophes before matchi
   expect(zoneMatches(zones[0], '  ')).toBe(true);
 });
 
-test('opens the list, finds a wilaya by name or number, and saves the one chosen', async () => {
-  const data = await render();
-  const id = school();
+test('opens the list, finds a wilaya by name or number, and gives the one chosen', async () => {
+  await render();
+  const id = 's';
   expect(field(id).props.accessibilityLabel).toBe(`${text.setup.zone}: ${text.setup.zoneChoose}`);
   expect(isOpen()).toBe(false);
   await press(`zone-${id}`);
@@ -130,41 +144,21 @@ test('opens the list, finds a wilaya by name or number, and saves the one chosen
   await press(`zone-${id}-16`);
   await settle();
   expect(isOpen()).toBe(false);
-  expect(data.book.state.schools.get(id)?.zone).toBe('16');
+  expect(chosen).toEqual(['16']);
   expect(field(id).props.accessibilityLabel).toBe(`${text.setup.zone}: 16 · منطقة الأمل`);
 });
 
 test('closes unchanged, and a new search starts empty', async () => {
-  const data = await render();
-  const id = school();
+  await render();
+  const id = 's';
   await press(`zone-${id}`);
   await search(id, '19');
   await press(`zone-${id}-close`);
   await settle();
   expect(isOpen()).toBe(false);
-  expect(data.book.state.schools.size).toBe(0);
+  expect(chosen).toEqual([]);
   await press(`zone-${id}`);
   expect(rows(id)).toEqual(['07', '16', '19']);
-});
-
-test('needs a wilaya before going on, and a new school starts in the last one’s wilaya', async () => {
-  const data = await render();
-  const id = school();
-  await press(`levels-${id}-cem`);
-  await press(`subjects-${id}-arabic`);
-  await ReactTestRenderer.act(() => {
-    input(`school-name-${id}`).onChangeText?.('متوسطة النجاح');
-  });
-  expect(control('setup-next').props).toMatchObject({ disabled: true });
-  await press(`zone-${id}`);
-  await press(`zone-${id}-07`);
-  expect(control('setup-next').props).toMatchObject({ disabled: false });
-  await press('add-school');
-  const second = school();
-  expect(second).not.toBe(id);
-  expect(field(second).props.accessibilityLabel).toBe(`${text.setup.zone}: 07 · منطقة الواحة`);
-  await settle();
-  expect(data.book.state.schools.get(id)?.zone).toBe('07');
 });
 
 test.each(
@@ -174,6 +168,6 @@ test.each(
 )('names the field, the search and every wilaya, 48 dp each (%s, %s)', async (language, direction) => {
   await i18n.changeLanguage(language);
   await render(direction);
-  await press(`zone-${school()}`);
+  await press('zone-s');
   expect(accessibilityProblems(root())).toEqual([]);
 });

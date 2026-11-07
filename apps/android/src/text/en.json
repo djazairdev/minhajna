@@ -162,29 +162,13 @@
     "title": "Setup",
     "step": "Step {{step}} of {{count}}",
     "teachingHeading": "Level and subject",
-    "teachingIntro": "Plans and documents are suggested from this choice.",
-    "schoolsIntro": "Each school has its own levels and subjects, and plans and documents are suggested from them.",
     "level": "Level",
-    "levelIn": "Level at {{school}}",
-    "levelHint": "You can choose more than one level.",
     "subject": "Subject",
-    "subjectIn": "Subject at {{school}}",
-    "subjectHint": "You can choose two subjects, such as Arabic with Islamic education.",
-    "twoSubjects": "Two subjects at this school, each with its own plan and book.",
-    "severalSubjects": "Each subject at this school has its own plan and book.",
-    "moreSubjects": "Other subjects",
     "school": "School",
-    "schoolNumber": "School {{number}}",
-    "schoolPlaceholder": "For example: En-Nadjah middle school",
     "addSchool": "Add another school",
-    "edit": "Edit",
-    "editSchool": "Edit {{school}}",
-    "deleteSchool": "Delete this school",
     "unnamed": "Unnamed school",
     "nothingChosen": "No level or subject chosen yet",
-    "merged": "Each school sends its timetable; they are merged into one week, with a warning at every clash. Each school keeps its own classes and books.",
     "next": "Next",
-    "nextHint": "Write each school’s name and choose its level and subject.",
     "notSaved": "The last change could not be saved on this phone.",
     "zone": "Wilaya",
     "zoneChoose": "Choose the wilaya",
@@ -245,7 +229,24 @@
     },
     "pc": {
       "notSaved": "The last change could not be saved on this PC."
-    }
+    },
+    "wilaya": "Wilaya",
+    "commune": "Commune",
+    "classTeacher": "Class teacher",
+    "pair": "{{first}} and {{second}}",
+    "directory": {
+      "loading": "Fetching the list of schools…",
+      "waking": "The server is waking up; this can take a minute…",
+      "none": "The list of schools is not published yet.",
+      "offline": "The list of schools could not be fetched. Check the internet connection.",
+      "refused": "The list of schools that arrived is not valid.",
+      "retry": "Try again",
+      "busy": "The server is busy. Try again in a moment."
+    },
+    "change": "Change",
+    "changeSchool": "Change {{school}}",
+    "deleteNamed": "Delete {{school}}",
+    "useSchool": "Choose this school"
   },
   "week": {
     "title": "Draw the week",
@@ -7027,5 +7028,9 @@
     "dayDone": "For {{date}} only: version {{version}} confirmed on {{day}}",
     "dayWaiting": "For {{date}} only: version {{version}} not confirmed yet",
     "newCode": "A teacher given a new code is listed once a part is sent with it."
+  },
+  "select": {
+    "search": "Search",
+    "none": "No choice matches"
   }
 }
