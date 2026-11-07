@@ -6,7 +6,7 @@
 // and pupils, and reading a teacher's statement, which is reader mode through
 // its notice. It shows in the lock's place, as the demo worlds' entry does.
 
-import type { CountryProfile } from '@minhajna/core';
+import type { BellData, CountryProfile } from '@minhajna/core';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { RowLink } from '../components/RowLink';
@@ -20,18 +20,19 @@ import { SchoolPage } from './SchoolPage';
 
 export type DashboardRootProps = {
   readonly profile: CountryProfile;
+  readonly bells: BellData;
   readonly onBack: () => void;
   /** Leaves for reader mode, through its notice. */
   readonly onReader: () => void;
 };
 
 /** The dashboard's three rows and the pages they open. */
-export function DashboardRoot({ profile, onBack, onReader }: DashboardRootProps) {
+export function DashboardRoot({ profile, bells, onBack, onReader }: DashboardRootProps) {
   const t = useDeviceText();
   const [page, setPage] = useState<'home' | 'reference' | 'school'>('home');
   const home = () => setPage('home');
   if (page === 'reference') return <ReferencePage profile={profile} onBack={home} />;
-  if (page === 'school') return <SchoolPage profile={profile} onBack={home} />;
+  if (page === 'school') return <SchoolPage profile={profile} bells={bells} onBack={home} />;
   return (
     <DashboardFrame who={t('dashboard.door')} onBack={onBack}>
       <PageTitle>{t('dashboard.door')}</PageTitle>

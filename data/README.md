@@ -15,6 +15,7 @@ The data lives here until curators join, then moves to its own data repository (
 | `dz/appreciations.json` | The appreciation phrases a teacher chooses from, by band of the term average and conduct, with the banned phrases: Minhajna's interim list while the official one is not found |
 | `dz/keys.json` | The public keys signed updates are checked with ([#223](https://github.com/djazairdev/minhajna/issues/223)): for each, its ID, who holds it, its public half (SubjectPublicKeyInfo, DER, base64), the SHA-256 fingerprint of that public half, and `signs`, what it may sign: `calendar`, `packs` or both. Empty until the first key is made, with the [signing tools](../docs/checks/signed-updates.md) |
 | `dz/packs/` | Plan packs, one file for each pack release, named `<id>@<release>.json`. For now only made-up examples |
+| `dz/communes.json` | Algeria's 1,541 communes by wilaya, their codes and their names in Arabic and French, for the dashboard's pages alone: from the [wilayas dataset](https://wilayas.djazair.dev), fetched whole on 7 November 2026, under [CC0 1.0](../LICENSES/CC0-1.0.txt) |
 | `hijri-umalqura.json` | The Hijri months from Rajab 1447 to Dhu al-Hijjah 1453 (December 2025 to March 2032): each month's first day, and the twelve names in Arabic, French and English |
 
 ## Month names

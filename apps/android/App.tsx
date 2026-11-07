@@ -190,6 +190,7 @@ export default function App({
             {dashboard.shown && reference.ok ? (
               <DashboardRoot
                 profile={reference.profile}
+                bells={reference.bells}
                 onBack={dashboard.back}
                 onReader={() => {
                   dashboard.back();

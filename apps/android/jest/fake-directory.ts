@@ -37,7 +37,7 @@ export class FakeDirectory {
 
   /** Answers the global fetch from now on. */
   install() {
-    jest.spyOn(globalThis, 'fetch').mockImplementation((input, init) => this.answer(String(input), init));
+    jest.spyOn(globalThis, 'fetch').mockImplementation((input, init) => this.answer(input as string, init));
   }
 
   private latest() {

@@ -26,12 +26,12 @@ jest.mock(
 
 const read = readReference(bundledReference);
 if (!read.ok) throw new Error('The bundled reference does not read');
-const { profile } = read;
+const { profile, bells } = read;
 
 let directory: FakeDirectory;
 const onBack = jest.fn();
 const onReader = jest.fn();
-const root = () => show(<DashboardRoot profile={profile} onBack={onBack} onReader={onReader} />);
+const root = () => show(<DashboardRoot profile={profile} bells={bells} onBack={onBack} onReader={onReader} />);
 const typed = (testID: string) =>
   (
     rendered().root.findAll((one) => one.props.testID === testID && one.props.value !== undefined)[0]?.props as {

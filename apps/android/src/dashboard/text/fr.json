@@ -23,7 +23,8 @@
     "reader": "Lire le relevé d'un enseignant"
   },
   "who": {
-    "ministry": "Ministère de l'Éducation nationale"
+    "ministry": "Ministère de l'Éducation nationale",
+    "school": "Administration"
   },
   "gate": {
     "code": "Code de modification",
@@ -38,5 +39,221 @@
     "commune": "Commune",
     "school": "Établissement",
     "nothing": "La liste des établissements n'est pas encore publiée."
+  },
+  "edit": "Modifier",
+  "hide": "Masquer",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "reload": "Charger la dernière copie",
+  "importFile": "Importer un fichier",
+  "listJoin": ", ",
+  "reference": {
+    "pending": "Modifications non publiées : {{count}}",
+    "publish": "Publier",
+    "tab": {
+      "levels": "Cycles et matières",
+      "schools": "Établissements",
+      "publish": "Publication"
+    }
+  },
+  "levels": {
+    "level": "Cycle",
+    "add": "Ajouter une matière",
+    "addPair": "Ajouter deux matières ensemble",
+    "edit": "Modifier le choix",
+    "subject": "Matière",
+    "first": "Première matière",
+    "second": "Seconde matière",
+    "exists": "Ce choix existe déjà.",
+    "classTeacher": "Enseignant de la classe",
+    "pairName": "{{first}} et {{second}}",
+    "column": {
+      "option": "Ce que choisit l'enseignant",
+      "kind": "Type"
+    },
+    "kind": {
+      "subject": "Matière",
+      "pair": "Deux matières",
+      "classTeacher": "Enseignant de la classe",
+      "specialist": "Spécialiste"
+    }
+  },
+  "schools": {
+    "wilayas": "wilayas",
+    "communes": "communes",
+    "schools": "établissements",
+    "empty": "communes sans établissement",
+    "level": "Cycle",
+    "allWilayas": "Toutes les wilayas",
+    "allCommunes": "Toutes les communes",
+    "allLevels": "Tous les cycles",
+    "add": "Ajouter un établissement",
+    "edit": "Modifier l'établissement",
+    "name": "Nom de l'établissement",
+    "nameNeeded": "Saisissez le nom de l'établissement.",
+    "column": {
+      "code": "Code",
+      "name": "Établissement"
+    },
+    "shown": "Affichés : {{shown}} sur {{total}}"
+  },
+  "publish": {
+    "version": "Version {{version}}",
+    "draft": "Brouillon",
+    "none": "Aucune version publiée",
+    "now": "Publier la version {{version}}",
+    "added": "établissements ajoutés",
+    "edited": "établissements modifiés",
+    "hidden": "établissements masqués",
+    "options": "choix de matière modifiés",
+    "versions": "Versions",
+    "current": "Publiée en ce moment",
+    "again": "Republier",
+    "column": {
+      "version": "Version",
+      "day": "Publiée le"
+    }
+  },
+  "import": {
+    "pick": "Choisir le fichier",
+    "csv": "Fichier CSV en UTF-8, la première ligne donnant le nom des colonnes.",
+    "applied": "Modifications appliquées : {{count}}",
+    "apply": "Appliquer les modifications : {{count}}",
+    "line": "Ligne",
+    "lineNumber": "Ligne {{line}}",
+    "why": "Problème",
+    "refusedLines": "Lignes refusées",
+    "refused": "lignes refusées",
+    "same": "sans changement",
+    "missing": "Il manque au fichier la colonne : {{columns}}.",
+    "schoolsTitle": "Importer des établissements",
+    "schoolsNew": "nouveaux établissements",
+    "schoolsChanged": "établissements modifiés",
+    "file": {
+      "binary": "Ce fichier n'est pas un CSV texte. Enregistrez le tableau depuis Excel au format CSV UTF-8, puis choisissez-le.",
+      "size": "Le fichier dépasse 2 Mo.",
+      "failed": "Le fichier n'a pas pu être lu."
+    },
+    "column": {
+      "commune": "Code de la commune",
+      "level": "Cycle",
+      "name": "Nom de l'établissement",
+      "code": "Code de l'établissement"
+    },
+    "schoolColumns": {
+      "commune": "Code de la commune|Commune",
+      "level": "Cycle",
+      "name": "Nom de l'établissement|Établissement",
+      "code": "Code de l'établissement|Code"
+    },
+    "school": {
+      "commune": "Commune inconnue : {{cell}}",
+      "level": "Cycle inconnu : {{cell}}",
+      "name": "Nom manquant ou trop long",
+      "code": "Code non valide : {{cell}}",
+      "twice": "En double dans le fichier : {{cell}}"
+    },
+    "pupilsTitle": "Importer la liste des élèves",
+    "pupilsNew": "nouveaux élèves",
+    "pupilsMoved": "changent de classe",
+    "pupilsChanged": "données modifiées",
+    "pupilColumn": {
+      "registration": "Numéro d'inscription",
+      "name": "Nom et prénom",
+      "sex": "Sexe",
+      "class": "Classe"
+    },
+    "pupilColumns": {
+      "registration": "Numéro d'inscription|Matricule|Numéro",
+      "name": "Nom et prénom|Nom",
+      "sex": "Sexe",
+      "class": "Classe"
+    },
+    "sex": {
+      "f": "F|Fille|Féminin",
+      "m": "M|Garçon|Masculin"
+    },
+    "pupil": {
+      "registration": "Numéro manquant ou non valide : {{cell}}",
+      "twice": "Numéro en double : {{cell}}",
+      "name": "Nom manquant ou trop long",
+      "sex": "Sexe inconnu : {{cell}}",
+      "class": "Classe introuvable : {{cell}}",
+      "full": "Classe pleine : {{cell}}"
+    }
+  },
+  "classes": {
+    "add": "Ajouter une classe",
+    "addOne": "Ajouter",
+    "new": "Nouvelle classe",
+    "year": "Année",
+    "name": "Nom de la classe",
+    "classes": "classes",
+    "pupils": "élèves",
+    "noList": "Sans liste",
+    "noTeacher": "Matière sans enseignant",
+    "filter": "Filtrer les classes",
+    "all": "Toutes",
+    "ready": "Prête",
+    "taught": "{{done}} sur {{all}}",
+    "listed": "Élèves : {{count}}",
+    "column": {
+      "class": "Classe",
+      "pupils": "Élèves",
+      "teachers": "Enseignants",
+      "state": "État"
+    },
+    "tab": {
+      "pupils": "Élèves",
+      "teachers": "Enseignants",
+      "week": "Emploi du temps"
+    }
+  },
+  "pupils": {
+    "name": "Nom et prénom",
+    "sex": "Sexe",
+    "female": "F",
+    "male": "M",
+    "registration": "Numéro d'inscription",
+    "add": "Ajouter un élève",
+    "taken": "Ce numéro est déjà celui d'un autre élève.",
+    "badNumber": "Chiffres et lettres latines seulement.",
+    "none": "Cette classe n'a pas de liste",
+    "move": "Changer de classe",
+    "leave": "Enregistrer un départ"
+  },
+  "assign": {
+    "none": "Sans enseignant",
+    "noTeachers": "Ajoutez d'abord les enseignants sur leur page.",
+    "noOptions": "La liste publiée ne donne aucune matière à ce cycle."
+  },
+  "week": {
+    "none": "—",
+    "morning": "M{{index}}",
+    "afternoon": "A{{index}}",
+    "busy": "L'enseignant de cette matière est en classe avec {{name}} à cette heure."
+  },
+  "teachers": {
+    "title": "Enseignants et codes d'accès",
+    "add": "Ajouter un enseignant",
+    "name": "Nom et prénom",
+    "printAll": "Imprimer les codes",
+    "print": "Imprimer le code",
+    "renew": "Nouveau code",
+    "remove": "Retirer l'enseignant",
+    "none": "Aucun enseignant pour l'instant",
+    "codeComing": "Le code arrive après l'enregistrement",
+    "printFailed": "L'impression a échoué.",
+    "qr": "Code d'accès de {{name}}",
+    "column": {
+      "name": "Enseignant",
+      "option": "Matière",
+      "classes": "Classes",
+      "code": "Code d'accès"
+    },
+    "sheet": {
+      "title": "Codes d'accès",
+      "handover": "À remettre en main propre, jamais par message."
+    }
   }
 }

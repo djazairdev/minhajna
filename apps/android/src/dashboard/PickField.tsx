@@ -23,6 +23,10 @@ export type PickFieldProps = {
   readonly value: string | null;
   readonly onChange: (value: string) => void;
   readonly disabled?: boolean;
+  /** Marks a select left empty that should not be, by its edge as well as its colour. */
+  readonly warn?: boolean;
+  /** A cell of a grid: the label is spoken and titles the sheet, but is not shown. */
+  readonly compact?: boolean;
   readonly testID: string;
 };
 
@@ -35,7 +39,8 @@ export function pickMatches(choice: PickChoice, typed: string): boolean {
 }
 
 /** A labelled select. */
-export function PickField({ label, choices, value, onChange, disabled = false, testID }: PickFieldProps) {
+export function PickField(props: PickFieldProps) {
+  const { label, choices, value, onChange, disabled = false, warn = false, compact = false, testID } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const opener = useRef<ViewInstance>(null);
@@ -49,8 +54,8 @@ export function PickField({ label, choices, value, onChange, disabled = false, t
     setTyped('');
   };
   return (
-    <View style={styles.field}>
-      <Text style={[styles.label, align]}>{label}</Text>
+    <View style={compact ? styles.cell : styles.field}>
+      {!compact && <Text style={[styles.label, align]}>{label}</Text>}
       <Pressable
         ref={opener}
         testID={testID}
@@ -59,14 +64,16 @@ export function PickField({ label, choices, value, onChange, disabled = false, t
         accessibilityState={{ disabled }}
         disabled={disabled}
         onPress={() => setOpen(true)}
-        style={[styles.box, disabled && styles.off]}
+        style={[styles.box, compact && styles.small, warn && styles.warn, disabled && styles.off]}
       >
-        <Text numberOfLines={1} style={[styles.value, align]}>
+        <Text numberOfLines={compact ? 2 : 1} style={[styles.value, compact && styles.smallWords, align]}>
           {chosen?.label ?? ''}
         </Text>
-        <View style={styles.chevron}>
-          <Icon name="chevron" size={sizes['icon-small']} color={colors.ink2} />
-        </View>
+        {!compact && (
+          <View style={styles.chevron}>
+            <Icon name="chevron" size={sizes['icon-small']} color={colors.ink2} />
+          </View>
+        )}
       </Pressable>
       <BottomSheet visible={open} title={label} context="" reassurance="" onClose={close} returnFocusRef={opener}>
         {choices.length >= MANY && (
@@ -104,6 +111,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sheet,
   },
   off: { opacity: 0.45 },
+  cell: { flex: 1, minWidth: 0 },
+  small: { minHeight: 40, paddingHorizontal: spacing['space-4'], borderWidth: 1, borderRadius: radius['radius-tag'] },
+  smallWords: { ...typography.small },
+  warn: { borderColor: colors['notice-edge'], backgroundColor: colors.notice, borderStartWidth: 4 },
   value: { ...typography.body, color: colors.ink, flex: 1, minWidth: 0 },
   chevron: { transform: [{ rotate: '90deg' }] },
 });

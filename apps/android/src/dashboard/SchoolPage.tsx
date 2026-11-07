@@ -4,9 +4,10 @@
 // The school's page (D-Classes, answers 807 and 809): choosing the school from
 // the published list, wilaya, commune then school; its edit-code gate; then its
 // book. While nothing is published the page says so, with a retry. Locking
-// forgets the code and shows the gate again.
+// forgets the code and shows the gate again. The book opens on its desk
+// (SchoolDesk.tsx).
 
-import type { CountryProfile, DirectorySchool, ReferenceList } from '@minhajna/core';
+import type { BellData, CountryProfile, DirectorySchool, ReferenceList } from '@minhajna/core';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button } from '../components/Button';
@@ -19,6 +20,7 @@ import { DirectoryStatus } from './DirectoryStatus';
 import { PickField } from './PickField';
 import { schoolChoices, schoolCommuneChoices, wilayaChoices } from './place-rules';
 import { PageTitle, Quiet } from './page-parts';
+import { SchoolDesk } from './SchoolDesk';
 import { useDirectoryCall } from './use-directory-call';
 
 /** Wilaya, commune and school selects, from the published list. */
@@ -79,7 +81,15 @@ function ChooseSchool({
 }
 
 /** A school's page, from choosing it to its book. */
-export function SchoolPage({ profile, onBack }: { profile: CountryProfile; onBack: () => void }) {
+export function SchoolPage({
+  profile,
+  bells,
+  onBack,
+}: {
+  profile: CountryProfile;
+  bells: BellData;
+  onBack: () => void;
+}) {
   const t = useDeviceText();
   const call = useDirectoryCall();
   const { run } = call;
@@ -93,11 +103,18 @@ export function SchoolPage({ profile, onBack }: { profile: CountryProfile; onBac
   const id = school?.id ?? '';
   const claimed = useCallback((options: Parameters<typeof schoolClaimed>[1]) => schoolClaimed(id, options), [id]);
   const lock = () => setOpened(null);
-  if (school !== null && opened !== null)
+  if (school !== null && opened !== null && list != null)
     return (
-      <DashboardFrame who={school.name} onLock={lock} onBack={onBack}>
-        <PageTitle>{t('dashboard.home.school')}</PageTitle>
-      </DashboardFrame>
+      <SchoolDesk
+        profile={profile}
+        bells={bells}
+        list={list}
+        school={school}
+        code={opened.code}
+        start={opened.saved}
+        onLock={lock}
+        onBack={onBack}
+      />
     );
   return (
     <DashboardFrame
