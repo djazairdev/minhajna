@@ -169,29 +169,13 @@
     "title": "Configuration",
     "step": "Étape {{step}} sur {{count}}",
     "teachingHeading": "Niveau et matière",
-    "teachingIntro": "Les progressions et les documents proposés suivent ce choix.",
-    "schoolsIntro": "Chaque établissement a ses niveaux et ses matières ; les progressions et les documents proposés les suivent.",
     "level": "Niveau",
-    "levelIn": "Niveau à {{school}}",
-    "levelHint": "Vous pouvez choisir plusieurs niveaux.",
     "subject": "Matière",
-    "subjectIn": "Matière à {{school}}",
-    "subjectHint": "Vous pouvez choisir deux matières, comme la langue arabe avec l’éducation islamique.",
-    "twoSubjects": "Deux matières dans cet établissement, chacune avec sa progression et son cahier.",
-    "severalSubjects": "Chaque matière de cet établissement a sa progression et son cahier.",
-    "moreSubjects": "Autres matières",
     "school": "Établissement",
-    "schoolNumber": "Établissement {{number}}",
-    "schoolPlaceholder": "Par exemple : CEM En-Nadjah",
     "addSchool": "Ajouter un autre établissement",
-    "edit": "Modifier",
-    "editSchool": "Modifier {{school}}",
-    "deleteSchool": "Supprimer cet établissement",
     "unnamed": "Établissement sans nom",
     "nothingChosen": "Aucun niveau ni matière choisis",
-    "merged": "Chaque établissement envoie son emploi du temps ; ils sont fusionnés en une seule semaine, avec une alerte à chaque conflit. Chaque établissement garde ses classes et ses cahiers.",
     "next": "Suivant",
-    "nextHint": "Écrivez le nom de chaque établissement et choisissez son niveau et sa matière.",
     "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce téléphone.",
     "zone": "Wilaya",
     "zoneChoose": "Choisir la wilaya",
@@ -254,7 +238,24 @@
     },
     "pc": {
       "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce PC."
-    }
+    },
+    "wilaya": "Wilaya",
+    "commune": "Commune",
+    "classTeacher": "Enseignant de la classe",
+    "pair": "{{first}} et {{second}}",
+    "directory": {
+      "loading": "Chargement de la liste des établissements…",
+      "waking": "Le serveur se réveille, cela peut prendre une minute…",
+      "none": "La liste des établissements n’est pas encore publiée.",
+      "offline": "Impossible de récupérer la liste des établissements. Vérifiez la connexion Internet.",
+      "refused": "La liste des établissements reçue n’est pas valide.",
+      "retry": "Réessayer",
+      "busy": "Le serveur est occupé. Réessayez dans un instant."
+    },
+    "change": "Changer",
+    "changeSchool": "Changer {{school}}",
+    "deleteNamed": "Supprimer {{school}}",
+    "useSchool": "Choisir cet établissement"
   },
   "week": {
     "title": "Dessiner la semaine",
@@ -7122,5 +7123,9 @@
     "dayDone": "Le {{date}} seulement : version {{version}} confirmée le {{day}}",
     "dayWaiting": "Le {{date}} seulement : version {{version}} pas encore confirmée",
     "newCode": "Un enseignant qui reçoit un nouveau code apparaît dès qu’une part lui est envoyée avec ce code."
+  },
+  "select": {
+    "search": "Rechercher",
+    "none": "Aucun choix ne correspond"
   }
 }

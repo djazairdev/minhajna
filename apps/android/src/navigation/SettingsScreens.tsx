@@ -7,13 +7,13 @@ import { useState } from 'react';
 import { DrawnSignature } from '../drawn/DrawnSignature';
 import { Card } from '../setup/Card';
 import { Classes } from '../setup/Classes';
-import { Teaching } from '../setup/Teaching';
 import { Week } from '../setup/Week';
 import { Log } from '../log/Log';
 import { Language } from '../settings/Language';
 import { Lengths } from '../settings/Lengths';
 import { Notify } from '../settings/Notify';
 import { Plans } from '../settings/Plans';
+import { SettingsSchools } from '../settings/SettingsSchools';
 import { Devices } from '../settings/Devices';
 import { EraseDevice } from '../settings/EraseDevice';
 import { ExportAll } from '../settings/ExportAll';
@@ -164,7 +164,7 @@ export function SettingsCardScreen({ navigation }: NativeStackScreenProps<RootSt
 
 /** Schools can be added or corrected; a school that owns records is not erased here. */
 export function SettingsSchoolsScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'SettingsSchools'>) {
-  return <Teaching editing onNext={() => navigation.goBack()} />;
+  return <SettingsSchools onDone={() => navigation.goBack()} />;
 }
 
 /** Class lists and additions remain the existing editors, not a new copy of their storage logic. */

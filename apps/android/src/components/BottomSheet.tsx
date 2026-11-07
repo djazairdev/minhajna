@@ -17,8 +17,9 @@ import { useSheetKeyboard } from './sheet-keyboard';
 export type BottomSheetProps = {
   readonly visible: boolean;
   readonly title: string;
-  readonly context: string;
-  readonly reassurance: string;
+  /** Lines under the title and after the choices; a screen without helper texts gives none. */
+  readonly context?: string;
+  readonly reassurance?: string;
   readonly children: ReactNode;
   readonly onClose: () => void;
   /** Stable native destination, normally the opener; keep this component mounted while changing visible. */
@@ -150,9 +151,13 @@ function SheetContent({
                   {title}
                 </Text>
               </View>
-              <Text style={[styles.context, textDirection]}>{context}</Text>
+              {context !== undefined && context !== '' && (
+                <Text style={[styles.context, textDirection]}>{context}</Text>
+              )}
               {children}
-              <Text style={[styles.reassurance, textDirection]}>{reassurance}</Text>
+              {reassurance !== undefined && reassurance !== '' && (
+                <Text style={[styles.reassurance, textDirection]}>{reassurance}</Text>
+              )}
             </ScrollView>
           </View>
         </View>

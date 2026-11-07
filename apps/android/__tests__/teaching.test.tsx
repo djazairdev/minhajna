@@ -1,8 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Setup's first step (#25): levels, subjects and schools, each change saved
-// as it is made. Made-up schools only.
+// Setup's first step (#25, answers 802 to 809): the level, the option for that
+// level, the wilaya, commune and school, chosen from the directory's list with
+// nothing typed; each select offered once the one before is chosen and
+// emptied when an earlier one changes; Next records the chosen school; the
+// step says when the list loads, when nothing is published and when there is
+// no network, with a retry. The list and every name are made up.
 
 import { LocaleDirContext } from '@react-navigation/native';
 import { StyleSheet, Text, TextInput } from 'react-native';
@@ -10,8 +14,9 @@ import type { PressableProps, TextInputProps, TextProps } from 'react-native';
 import ReactTestRenderer, { type ReactTestInstance } from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData, type TestData } from '../jest/app-data';
+import { MADE_UP_LIST, pickSchool, serveReference } from '../jest/directory-list';
+import type { DirectoryOptions } from '../src/network/directory-network';
 import { Teaching } from '../src/setup/Teaching';
-import { NAME_PAUSE } from '../src/setup/useSchools';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
 import text from '../src/text/ar.json';
 
@@ -22,6 +27,7 @@ jest.mock(
 
 let tree: ReactTestRenderer.ReactTestRenderer;
 const onNext = jest.fn();
+const root = () => tree.root;
 
 afterEach(async () => {
   await ReactTestRenderer.act(() => tree.unmount());
@@ -29,6 +35,8 @@ afterEach(async () => {
   onNext.mockReset();
   jest.restoreAllMocks();
 });
+
+const settle = () => ReactTestRenderer.act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
 
 async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
   await ReactTestRenderer.act(() => {
@@ -38,218 +46,167 @@ async function render(data: TestData, direction: 'rtl' | 'ltr' = 'rtl') {
       </LocaleDirContext.Provider>,
     );
   });
+  await settle();
 }
 
-/** Lets every queued change reach the fake store. */
-const settle = () => ReactTestRenderer.act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
-
-function byID(id: string): ReactTestInstance {
-  const [node] = tree.root.findAll((candidate) => candidate.props.testID === id, { deep: false });
-  if (node === undefined) throw new Error(`Nothing has the test ID ${id}`);
+function control(id: string): ReactTestInstance {
+  const [node] = root().findAll(
+    (one) => one.props.testID === id && typeof (one.props as PressableProps).onPress === 'function',
+    { deep: false },
+  );
+  if (node === undefined) throw new Error(`Nothing to press has the test ID ${id}`);
   return node;
 }
 
-const exists = (id: string) => tree.root.findAll((node) => node.props.testID === id).length > 0;
-
 async function press(id: string) {
   await ReactTestRenderer.act(() => {
-    (byID(id).props as PressableProps).onPress?.({} as never);
+    (control(id).props as PressableProps).onPress?.({} as never);
   });
-}
-
-const input = (id: string) => byID(`school-name-${id}`).findByType(TextInput).props as TextInputProps;
-
-async function type(id: string, value: string) {
-  await ReactTestRenderer.act(() => {
-    input(id).onChangeText?.(value);
-  });
-}
-
-async function leave(id: string) {
-  await ReactTestRenderer.act(() => {
-    input(id).onBlur?.({} as never);
-  });
-}
-
-/** The IDs of the schools shown open, in order. */
-function openSchools(): string[] {
-  return tree.root
-    .findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith('levels-'), {
-      deep: false,
-    })
-    .map((node) => String(node.props.testID).slice('levels-'.length));
-}
-
-/** The labels of a group's chips, the «more» chip included. */
-function chips(group: string): string[] {
-  return tree.root
-    .findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(`${group}-`), {
-      deep: false,
-    })
-    .map((node) => String(node.props.label));
-}
-
-function shown(): string[] {
-  return tree.root.findAllByType(Text).map((node) => [node.props.children as unknown].flat().join(''));
-}
-
-const saved = (data: TestData, id: string) => data.book.state.schools.get(id);
-
-/** Picks a wilaya as its list would; `zone-picker.test.tsx` checks the list itself. */
-async function chooseZone(id: string, code: string) {
-  await ReactTestRenderer.act(() => {
-    (byID(`zone-${id}`).props as { onChange: (code: string) => void }).onChange(code);
-  });
-}
-
-async function fillFirst(data: TestData): Promise<string> {
-  await render(data);
-  const [id] = openSchools();
-  await press(`levels-${id}-cem`);
-  await press(`subjects-${id}-arabic`);
-  await type(id, 'متوسطة النجاح');
-  await leave(id);
-  await chooseZone(id, '16');
   await settle();
-  return id;
 }
 
-test('starts with one empty school, the first five subjects and «مواد أخرى», and waits to go on', async () => {
+const exists = (id: string) => root().findAll((node) => node.props.testID === id, { deep: false }).length > 0;
+const shown = () =>
+  root()
+    .findAllByType(Text)
+    .map((node) => [node.props.children as unknown].flat().join(''));
+const rows = (field: string) => [
+  ...new Set(
+    root()
+      .findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(`choice-${field}-`))
+      .map((node) => String(node.props.testID).slice(`choice-${field}-`.length))
+      .filter((value) => value !== 'sheet' && value !== 'search'),
+  ),
+];
+
+test('offers each select once the one before is chosen, with only what the list holds there', async () => {
+  serveReference();
   const data = await openTestData();
+  const name = (code: string) => data.profile.subjects.find((subject) => subject.code === code)?.name.ar;
   await render(data);
-  const [id] = openSchools();
-  expect(shown()).toEqual(expect.arrayContaining([text.setup.teachingHeading, text.setup.teachingIntro]));
-  expect(chips(`levels-${id}`)).toEqual(['ابتدائي', 'متوسط', 'ثانوي']);
-  expect(chips(`subjects-${id}`)).toEqual([
-    'اللغة العربية',
-    'التربية الإسلامية',
-    'اللغة الفرنسية',
-    'اللغة الإنجليزية',
-    'الرياضيات',
-    text.setup.moreSubjects,
+  expect(shown()).toContain(text.setup.teachingHeading);
+  expect(['level', 'option', 'wilaya', 'commune', 'school'].map((field) => exists(`choice-${field}`))).toEqual([
+    true,
+    false,
+    false,
+    false,
+    false,
   ]);
-  expect(byID('setup-next').props).toMatchObject({ disabled: true, accessibilityHint: text.setup.nextHint });
-  expect(exists(`delete-${id}`)).toBe(false);
-  expect(data.book.entries).toHaveLength(0);
+  expect(control('setup-next').props).toMatchObject({ disabled: true });
+  await press('choice-level');
+  expect(rows('level')).toEqual(['primary', 'cem']);
+  await press('choice-level-primary');
+  await press('choice-option');
+  expect(control('choice-option-class').props.label).toBe(text.setup.classTeacher);
+  await press('choice-option-class');
+  await press('choice-level');
+  await press('choice-level-cem');
+  expect(exists('choice-wilaya')).toBe(false);
+  await press('choice-option');
+  expect(rows('option')).toEqual(['arabic', 'arabic-islamic', 'math']);
+  expect(control('choice-option-arabic-islamic').props.label).toBe(`${name('arabic')} و${name('islamic')}`);
+  await press('choice-option-arabic');
+  await press('choice-wilaya');
+  expect(rows('wilaya')).toEqual(['07', '16']);
+  await press('choice-wilaya-16');
+  await press('choice-commune');
+  expect(rows('commune')).toEqual(['1601']);
+  await press('choice-commune-1601');
+  await press('choice-school');
+  expect(rows('school')).toEqual(['cem-16-2', 'cem-16-1']);
+  await press('choice-school-cem-16-1');
+  expect(control('setup-next').props).toMatchObject({ disabled: false });
 });
 
-test('saves each choice at once, and drops a subject no chosen level offers', async () => {
+test('records the chosen school on Next, keeping the ID the history holds, and shows it when the step opens again', async () => {
+  serveReference();
   const data = await openTestData();
   await render(data);
-  const [id] = openSchools();
-  await press(`levels-${id}-lycee`);
-  await settle();
-  expect(saved(data, id)).toEqual({ id, name: '', levels: ['lycee'], subjects: [] });
-  expect(chips(`subjects-${id}`)).not.toContain('التربية الإسلامية');
-  await press(`subjects-${id}-more`);
-  expect(chips(`subjects-${id}`)).toEqual(expect.arrayContaining(['الفلسفة', 'العلوم الإسلامية']));
-  expect(chips(`subjects-${id}`)).not.toContain(text.setup.moreSubjects);
-  await press(`levels-${id}-cem`);
-  await press(`subjects-${id}-philosophy`);
-  await settle();
-  expect(saved(data, id)?.subjects).toEqual(['philosophy']);
-  await press(`levels-${id}-lycee`);
-  await settle();
-  expect(saved(data, id)).toMatchObject({ levels: ['cem'], subjects: [] });
-});
-
-test('saves the name once typing pauses or the field is left, without spaces around it', async () => {
-  const data = await openTestData();
-  await render(data);
-  const [id] = openSchools();
-  await type(id, '  متوسطة النجاح ');
-  await settle();
-  expect(saved(data, id)).toBeUndefined();
-  await ReactTestRenderer.act(() => new Promise<void>((resolve) => setTimeout(resolve, NAME_PAUSE + 50)));
-  await settle();
-  expect(saved(data, id)?.name).toBe('متوسطة النجاح');
-  await type(id, 'متوسطة الأمل');
-  await leave(id);
-  await settle();
-  expect(saved(data, id)?.name).toBe('متوسطة الأمل');
-});
-
-test('a second school folds the first to its line, with its own levels and subjects', async () => {
-  const data = await openTestData();
-  const first = await fillFirst(data);
-  expect(byID('setup-next').props).toMatchObject({ disabled: false });
-  await press('add-school');
-  const [second] = openSchools();
-  expect(second).not.toBe(first);
-  expect(byID(`summary-${first}`).props.accessibilityLabel).toBe('تعديل متوسطة النجاح. متوسط · اللغة العربية');
-  expect(shown()).toEqual(
-    expect.arrayContaining([text.setup.schoolsIntro, 'المؤسسة 2', text.setup.merged, 'متوسط · اللغة العربية']),
-  );
-  expect(byID('setup-next').props).toMatchObject({ disabled: true });
-  await type(second, 'متوسطة الأمل');
-  await press(`levels-${second}-cem`);
-  await press(`subjects-${second}-arabic`);
-  await press(`subjects-${second}-islamic`);
-  await settle();
-  expect(shown()).toEqual(
-    expect.arrayContaining(['المستوى في متوسطة الأمل', 'المادة في متوسطة الأمل', text.setup.twoSubjects]),
-  );
-  expect(saved(data, second)).toEqual({
-    id: second,
-    name: 'متوسطة الأمل',
+  await pickSchool(root, { level: 'cem', option: 'arabic-islamic', wilaya: '16', commune: '1601', school: 'cem-16-1' });
+  await press('setup-next');
+  expect(onNext).toHaveBeenCalledTimes(1);
+  const [school] = [...data.book.state.schools.values()];
+  expect(school).toMatchObject({
+    code: 'cem-16-1',
+    name: 'متوسطة النجاح',
     levels: ['cem'],
     subjects: ['arabic', 'islamic'],
     zone: '16',
   });
-  expect(byID('setup-next').props).toMatchObject({ disabled: false });
-  await press(`summary-${first}`);
-  expect(openSchools()).toEqual([first]);
-  expect(exists(`summary-${second}`)).toBe(true);
-  await press('setup-next');
-  expect(onNext).toHaveBeenCalledTimes(1);
-});
-
-test('deleting a school erases every version of it', async () => {
-  const data = await openTestData();
-  const first = await fillFirst(data);
-  await press('add-school');
-  const [second] = openSchools();
-  await press(`levels-${second}-primary`);
-  await type(second, 'ابتدائية الأمل');
-  await leave(second);
-  await settle();
-  expect(data.book.state.schools.size).toBe(2);
-  await press(`delete-${second}`);
-  await settle();
-  expect([...data.book.state.schools.keys()]).toEqual([first]);
-  expect(JSON.stringify(data.storage.rows)).not.toContain('ابتدائية الأمل');
-  expect(openSchools()).toEqual([first]);
-  expect(exists(`delete-${first}`)).toBe(false);
-});
-
-test('shows what was chosen before when setup opens again', async () => {
-  const data = await openTestData();
-  const id = await fillFirst(data);
   await ReactTestRenderer.act(() => tree.unmount());
-  await render(await openTestData(data.storage));
-  expect(openSchools()).toEqual([id]);
-  expect(byID(`school-name-${id}`).props.value).toBe('متوسطة النجاح');
-  expect(byID(`levels-${id}-cem`).findByProps({ accessibilityRole: 'checkbox' }).props.accessibilityState).toEqual({
-    checked: true,
-  });
+  await render(data);
+  expect(control('choice-school').props.accessibilityLabel).toBe(`${text.setup.school}: متوسطة النجاح`);
+  await press('choice-school');
+  await press('choice-school-cem-16-2');
+  await press('setup-next');
+  expect([...data.book.state.schools.values()]).toEqual([
+    expect.objectContaining({ id: school.id, code: 'cem-16-2', name: 'متوسطة الفجر' }),
+  ]);
 });
 
-test('says so when a change could not be saved', async () => {
-  const data = await openTestData();
-  jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-  jest.spyOn(data.storage, 'appendEntry').mockRejectedValue(new Error('E_DISK_FULL'));
-  await render(data);
-  const [id] = openSchools();
-  await press(`levels-${id}-cem`);
-  await settle();
-  expect(shown()).toContain(text.setup.notSaved);
+test.each([
+  ['E_DIRECTORY_MISSING', 'none'],
+  ['E_DIRECTORY_NETWORK', 'offline'],
+  ['E_DIRECTORY_WAKING', 'offline'],
+] as const)('says so with a retry when the list is %s', async (code, line) => {
+  const served = serveReference(code);
+  await render(await openTestData());
+  expect(shown()).toContain(text.setup.directory[line]);
+  expect(exists('choice-level')).toBe(false);
+  expect(control('setup-next').props).toMatchObject({ disabled: true });
+  served.mockResolvedValue(MADE_UP_LIST);
+  await press('directory-retry');
+  expect(exists('directory-state')).toBe(false);
+  expect(exists('choice-level')).toBe(true);
+});
+
+test('says the list is loading, then that the server wakes, and refuses a list the reader refuses', async () => {
+  let wake: (() => void) | undefined;
+  serveReference().mockImplementation((_path: string, _code?: string, options?: DirectoryOptions) => {
+    wake = options?.onWaking;
+    return new Promise(() => undefined);
+  });
+  await render(await openTestData());
+  expect(shown()).toContain(text.setup.directory.loading);
+  expect(exists('directory-retry')).toBe(false);
+  await ReactTestRenderer.act(() => wake?.());
+  expect(shown()).toContain(text.setup.directory.waking);
+  await ReactTestRenderer.act(() => tree.unmount());
+  serveReference({ ...MADE_UP_LIST, format: 2 } as never);
+  await render(await openTestData());
+  expect(shown()).toContain(text.setup.directory.refused);
+});
+
+test('a long list offers a search in its sheet', async () => {
+  const schools = Array.from({ length: 12 }, (_, at) => ({
+    ...MADE_UP_LIST.schools[0],
+    id: `cem-16-${at + 10}`,
+    name: `متوسطة رقم ${at + 10}`,
+  }));
+  serveReference({ ...MADE_UP_LIST, schools });
+  await render(await openTestData());
+  await press('choice-level');
+  await press('choice-level-cem');
+  await press('choice-option');
+  await press('choice-option-math');
+  await press('choice-wilaya');
+  await press('choice-wilaya-16');
+  await press('choice-commune');
+  await press('choice-commune-1601');
+  await press('choice-school');
+  expect(rows('school')).toHaveLength(12);
+  const search = root().find((node) => node.props.testID === 'choice-school/search');
+  await ReactTestRenderer.act(() => {
+    (search.findByType(TextInput).props as TextInputProps).onChangeText?.('21');
+  });
+  expect(rows('school')).toEqual(['cem-16-21']);
 });
 
 test('keeps no fixed text height or line limit, so text at 200% wraps', async () => {
-  const data = await openTestData();
-  await fillFirst(data);
-  await press('add-school');
-  for (const node of tree.root.findAllByType(Text)) {
+  serveReference();
+  await render(await openTestData());
+  await pickSchool(root);
+  for (const node of root().findAllByType(Text)) {
     const props = node.props as TextProps;
     expect(props.numberOfLines).toBeUndefined();
     expect(StyleSheet.flatten(props.style) ?? {}).not.toHaveProperty('height');
@@ -260,12 +217,12 @@ test.each(
   (Object.keys(catalogues) as Language[]).flatMap((language) =>
     (['rtl', 'ltr'] as const).map((direction) => [language, direction] as const),
   ),
-)('names every control and keeps 48 dp targets with two schools (%s, %s)', async (language, direction) => {
+)('names every control and keeps 48 dp targets (%s, %s)', async (language, direction) => {
   await i18n.changeLanguage(language);
-  const data = await openTestData();
-  await render(data, direction);
-  expect(accessibilityProblems(tree.root)).toEqual([]);
-  await press('add-school');
-  expect(accessibilityProblems(tree.root)).toEqual([]);
-  expect(shown()).toContain(catalogues[language].setup.merged);
+  serveReference();
+  await render(await openTestData(), direction);
+  await pickSchool(root);
+  expect(accessibilityProblems(root())).toEqual([]);
+  await press('choice-school');
+  expect(accessibilityProblems(root())).toEqual([]);
 });

@@ -30,7 +30,11 @@ A demo world (0.7.0, choice D8) connects, on the phone and on a PC, only to the 
 
 The directory is the part of the demo server that lives outside any world and is never swept (answers 802 to 809): the Ministry's reference list, each school's book, and joining a school. Every name in it is made up until the national system exists. Only the directory's client (`apps/android/src/network/directory-network.ts`) calls its paths, and the guard keeps them open outside a world only as plain segments under `/directory/`, so no dots or escapes can lead anywhere else on the server. No cookie, cache or referrer goes with a request, no world's pass, and it stops after 20 seconds. In a browser a redirect fails it; on Android, React Native follows a redirect itself, with whatever the request carries; the demo server sends none. An answer longer than 1 MiB and a little, which holds the largest document the server takes, is dropped. The container sleeps, and the host answers 503 while it wakes, for about 45 seconds, so the client asks again, for about a minute and a half at most, and lets the page say so; once the server has said it wakes, a read or a join that had no answer in time goes again too.
 
-Like any request to this server, these pass through Cloudflare and a Worker of the project's ([What the server sees](#demo-worlds)). What each page sends is added here in the pull request that adds it.
+What each page sends:
+
+- **The reference list.** During setup's first step, and when Settings changes or adds a school, the phone reads the published list whole (`GET /directory/reference`), holds it in memory while that screen is open, and keeps only the school chosen. The request carries nothing: no code, and nothing of the teacher's. The level, option, wilaya, commune and school are chosen on the device, so the server never learns which. Setup therefore needs the network. With none, or with nothing published, the step says so and offers a retry.
+
+Like any request to this server, these pass through Cloudflare and a Worker of the project's ([What the server sees](#demo-worlds)). A later page adds what it sends here in the pull request that adds it.
 
 ## Local source-PDF input
 

@@ -12,6 +12,7 @@ import type { GestureResponderEvent, ImageProps, PressableProps, TextInputProps 
 import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData, type TestData } from '../jest/app-data';
+import { pickSchool, serveReference } from '../jest/directory-list';
 import { RowLink } from '../src/components/RowLink';
 import { LockStorage } from '../src/lock/lock-storage';
 import { ReopenHistory } from '../src/restore/reopen';
@@ -35,6 +36,7 @@ afterEach(async () => {
 });
 
 async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
+  serveReference();
   data = await openTestData();
   await ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
@@ -51,14 +53,7 @@ async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
 async function finishSetup() {
   const ids = (prefix: string) =>
     tree.root.findAll((node) => typeof node.props.testID === 'string' && node.props.testID.startsWith(prefix));
-  const school = String(ids('levels-')[0].props.testID).slice('levels-'.length);
-  await press(byTestID(`levels-${school}-cem`));
-  await press(byTestID(`subjects-${school}-arabic`));
-  await press(byTestID(`zone-${school}`));
-  await press(byTestID(`zone-${school}-16`));
-  await ReactTestRenderer.act(() => {
-    (ids('school-name-')[0].findByType(TextInput).props as TextInputProps).onChangeText?.('متوسطة النجاح');
-  });
+  await pickSchool(() => tree.root);
   await press(byTestID('setup-next'));
   expect(routes()).toContain('Card');
   expect(heading()).toEqual([text.setup.title, 'الخطوة 2 من 5']);

@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The school's wilaya on Setup-2-Teaching (#25). The field opens the
-// country profile's list over the screen, with a search by name or number;
-// choosing one closes it, and Back closes it unchanged. The wilaya picks the
-// calendar's zone layer and never leaves the phone (PRD §4.5).
+// A wilaya picker (#25), now the Ministry calendar's: setup chooses the wilaya
+// from the directory's list (answer 804). The field opens the country profile's
+// list over the screen, with a search by name or number; choosing one closes
+// it, and Back closes it unchanged. The wilaya picks the calendar's zone layer
+// and never leaves the phone (PRD §4.5).
 
 import type { Zone } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
