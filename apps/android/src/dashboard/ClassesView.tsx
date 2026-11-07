@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Classes' main column (answer 807): the title and adding a class; how
-// many classes and pupils, classes with no list and subjects with no teacher,
-// amber when there are some; the filters by year and by what is missing; and
-// the classes, each opening its side panel.
+// D-Classes' main column (answer 807): the title, adding a class and
+// importing a list; how many classes and pupils, classes with no list
+// and subjects with no teacher, amber when there are some; the filters by year
+// and by what is missing; and the classes, each opening its side panel.
 
 import { MAX_BOOK_CLASSES } from '@minhajna/core';
 import { useState } from 'react';
@@ -17,6 +17,7 @@ import { useDeviceText } from '../text/device-text';
 import { ClassPanel } from './ClassPanel';
 import { NewClassForm } from './NewClassForm';
 import { Chips, Figure, Figures, PageTitle, Quiet, RowLink } from './page-parts';
+import { PupilImport } from './PupilImport';
 import { gaps, unitsOf } from './school-rules';
 import type { SchoolDeskView } from './SchoolDesk';
 import { Table } from './Table';
@@ -50,6 +51,7 @@ export function ClassesView(view: SchoolDeskView) {
     setChosen(classId);
     onAside(<ClassPanel key={classId} {...view} classId={classId} />);
   };
+  const importing = () => onAside(<PupilImport key="import" {...view} onClose={() => onAside(null)} />);
   return (
     <View style={styles.view}>
       <View style={styles.head}>
@@ -75,6 +77,13 @@ export function ClassesView(view: SchoolDeskView) {
               />,
             )
           }
+        />
+        <Button
+          testID="classes-import"
+          variant="line"
+          icon={controlIcon('tune')}
+          label={t('dashboard.importFile')}
+          onPress={importing}
         />
       </View>
       <Figures>
