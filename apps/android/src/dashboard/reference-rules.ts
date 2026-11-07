@@ -63,11 +63,17 @@ const onLevel = (draft: ReferenceDraft, code: string, change: (level: DirectoryL
 });
 
 /**
- * A code no other option of the level has, nor one the published list gave other subjects: the one asked, else it
- * with `-2`, `-3`, as edited options keep theirs and phones still hold a hidden option's code.
+ * A code no other option of the level has, nor one the published list gave other subjects: the published code of
+ * these subjects, else the one asked, else it with `-2`, `-3`, as edited options keep theirs and phones still hold a
+ * hidden option's code.
  */
 function freeCode(level: DirectoryLevel, option: DirectoryOption, published?: DirectoryLevel): string {
   const subjects = [...option.subjects].sort().join('+');
+  const held = new Set(level.options.map((one) => one.code));
+  const before = published?.options.find(
+    (one) => [...one.subjects].sort().join('+') === subjects && !held.has(one.code),
+  );
+  if (before !== undefined) return before.code;
   const taken = new Set([
     ...level.options.map((one) => one.code),
     ...(published?.options ?? [])
