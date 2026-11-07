@@ -16,11 +16,16 @@
 # last WAL is archived and PostgreSQL stops, which needs a stop grace of about
 # 120 seconds. If the bucket cannot be read within BUCKET_WAIT seconds (120), or
 # a restore within RESTORE_WAIT (1800), the container stops rather than start an
-# empty or partial database. PostgreSQL runs as postgres and listens on its
-# socket only; the server runs as minhajna, a role that is no superuser, without
-# the bucket's settings. ARCHIVE=off runs with no bucket, for trying the image;
-# nothing outlives the container then. Logs carry no clock times: they are cut
-# from PostgreSQL's and WAL-G's lines.
+# empty or partial database, and likewise if the new database's first backup
+# takes over BACKUP_WAIT seconds (600): PostgreSQL's end of a backup waits for
+# its WAL to be archived, so one whose WAL cannot be archived would otherwise
+# wait for ever. Each step of a start says so in a line of its own, and a failed
+# read of the bucket gives what WAL-G said, since a start that stalls or fails
+# shows little else. PostgreSQL runs as postgres and listens on its socket only;
+# the server runs as minhajna, a role that is no superuser, without the bucket's
+# settings. ARCHIVE=off runs with no bucket, for trying the image; nothing
+# outlives the container then. Logs carry no clock times: they are cut from
+# PostgreSQL's and WAL-G's lines.
 
 set -euo pipefail
 
@@ -74,14 +79,21 @@ back_up() {
 }
 
 new=no
+log 'starting'
 rm -rf "$RESTORING" "$PGDATA.restore-test"
 mkdir -p "$PGDATA"
 chown postgres:postgres "$PGDATA"
 chmod 700 "$PGDATA"
 if [ ! -s "$PGDATA/PG_VERSION" ]; then
   if archiving; then
-    backups=$(timeout "${BUCKET_WAIT:-120}" gosu postgres minhajna-wal-g backup-list 2>&1) ||
+    log 'reading the bucket'
+    read_status=0
+    backups=$(timeout "${BUCKET_WAIT:-120}" gosu postgres minhajna-wal-g backup-list 2>&1) || read_status=$?
+    if [ "$read_status" -ne 0 ]; then
+      printf '%s\n' "$backups" >&2
+      [ "$read_status" -ne 124 ] || fatal 'cannot read the bucket within its time; check AWS_ENDPOINT first'
       fatal 'cannot read the bucket; check WALG_S3_PREFIX, AWS_ENDPOINT and the credentials'
+    fi
   fi
   if archiving && grep -q 'base_' <<<"$backups"; then
     log 'restoring the latest backup'
@@ -92,12 +104,14 @@ if [ ! -s "$PGDATA/PG_VERSION" ]; then
     rmdir "$PGDATA"
     mv "$RESTORING" "$PGDATA"
   else
+    log 'making a new database'
     as_postgres initdb -D "$PGDATA" --username=postgres --auth-local=peer --auth-host=reject \
       --encoding=UTF8 --locale=C.UTF-8 >/dev/null
     new=yes
   fi
 fi
 
+log 'starting PostgreSQL'
 TIME='[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9.]+( ?(UTC|[+-][0-9]{2}))?'
 as_postgres postgres -D "$PGDATA" "${settings[@]}" 2> >(sed -uE "s/$TIME/(time not logged)/g" >&2) &
 database=$!
@@ -113,7 +127,8 @@ if [ -z "$(as_postgres psql -qAtX -c "SELECT 1 FROM pg_database WHERE datname = 
 fi
 if archiving && [ "$new" = yes ]; then
   log 'backing up the new database'
-  as_postgres minhajna-wal-g backup-push "$PGDATA"
+  timeout "${BACKUP_WAIT:-600}" gosu postgres minhajna-wal-g backup-push "$PGDATA" ||
+    fatal 'cannot back up the new database within its time, or WAL-G failed; see its lines above'
 fi
 
 backups_loop=''
@@ -128,6 +143,7 @@ if archiving; then
   backups_loop=$!
 fi
 
+log 'starting the server'
 gosu "$DATABASE" env -i PATH="$PATH" NODE_ENV="$NODE_ENV" HOST="$HOST" PORT="$PORT" \
   TRUST_PROXY="${TRUST_PROXY:-}" DATABASE_URL="postgresql://$DATABASE@/$DATABASE?host=$SOCKET" \
   node dist/src/main.js &

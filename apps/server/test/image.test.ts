@@ -8,8 +8,9 @@
 // it out of reach, with a WAL file refused, and with a migration the copy
 // lacks, the second container's WAL switched too rarely to archive it, which
 // the operators' view of the server says with its archiving, and nothing of the
-// copy left after any of them (#620). It needs Docker, so it runs only with
-// TEST_IMAGE=1, as the image workflow sets; every world here is made up.
+// copy left after any of them (#620). A start says each step, and stops if its
+// first backup can't archive its WAL in time. It needs Docker, so it runs only
+// with TEST_IMAGE=1, as the image workflow sets; every world here is made up.
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -156,6 +157,23 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
     const run = runToEnd(...bucket('http://nowhere.invalid:8333'), '-e', 'BUCKET_WAIT=5');
     assert.equal(run.status, 1);
     assert.match(run.output, /fatal \[Container\] cannot read the bucket/);
+  });
+
+  it('says each step of a start, and stops when the first backup outruns its time', () => {
+    const lines = ['#!/bin/sh', '[ \\"\\$1\\" = wal-push ] && exit 1', 'exec /usr/local/bin/minhajna-wal-g \\"\\$@\\"'];
+    const refuse = `printf "${lines.join('\\n')}\\n" > /tmp/stuck/minhajna-wal-g`;
+    const stuck = `mkdir -p /tmp/stuck && ${refuse} && chmod -R 755 /tmp/stuck`;
+    const limit = ['-e', `WALG_S3_PREFIX=${prefix}-first-backup`, '-e', 'BACKUP_WAIT=15', '--entrypoint', 'sh'];
+    const start = `${stuck} && PATH=/tmp/stuck:$PATH exec minhajna-start`;
+    const args = ['run', '--rm', '--network', 'minhajna-demo_default', ...bucket(), ...limit, image, '-c', start];
+    const run = spawnSync('docker', args, { cwd: root, encoding: 'utf8', timeout: 120_000 });
+    const said = `${run.stdout}${run.stderr}`;
+    assert.equal(run.status, 1);
+    for (const step of ['starting', 'reading the bucket', 'making a new database', 'starting PostgreSQL']) {
+      assert.match(said, new RegExp(`log \\[Container\\] ${step}\\n`));
+    }
+    assert.match(said, /log \[Container\] backing up the new database\n[^]*Calling pg_stop_backup/);
+    assert.match(said, /fatal \[Container\] cannot back up the new database/);
   });
 
   it('fetches a WAL file again when the bucket fails, and stops recovery rather than skip it', () => {

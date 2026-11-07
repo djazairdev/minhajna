@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The release tools on made-up versions and files: which commit is a release
-// and which is the latest, that a release's server carries its version, the
-// notes from a changelog section and the
+// and which is the latest, that a release's server carries its version and has
+// its logs off, the notes from a changelog section and the
 // refusal of an incomplete one, the checksums and the web build's checksum,
 // and a signed APK that is its build plus a signature, or more. The real
 // changelog's newest release must read as a section too.
@@ -72,6 +72,28 @@ describe('the release plan and the demo server', () => {
   it('stops a release whose server says another version', () => {
     assert.throws(() => plan('push', '9.0.0'), /apps\/server\/package.json says 9.0.0, and the release is 9.1.0/u);
     assert.equal(plan('push', '9.1.0').release, true);
+  });
+
+  it('stops a release whose server has logs on, however they are turned on, and only a release', () => {
+    const planned = (event, host) =>
+      releasePlan({ gradle: gradle('9.1.0'), changelog, listing, event, server: '9.1.0', host });
+    const on = [
+      '"logs": { "enabled": true }',
+      '"traces": { "enabled": true }',
+      '"observability": { "enabled": true }',
+      '"observability": { "head_sampling_rate": 1, "enabled": true }',
+    ];
+    for (const host of on) {
+      assert.throws(() => planned('push', host), /wrangler.jsonc has logs on/u);
+      assert.equal(planned('pull_request', host).release, false);
+    }
+    assert.equal(planned('push', '"observability": { "enabled": false }').release, true);
+  });
+
+  it('reads the demo server’s real Wrangler file, and a change to it starts the release workflow', () => {
+    const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
+    assert.match(read('./plan.js'), /host: readFileSync\(new URL\('apps\/server\/host\/wrangler\.jsonc', root\)/u);
+    assert.match(read('../../.github/workflows/release.yml'), /\n {6}- apps\/server\/host\/wrangler\.jsonc\n/u);
   });
 
   it('asks nothing of the server when no release is made', () => {
