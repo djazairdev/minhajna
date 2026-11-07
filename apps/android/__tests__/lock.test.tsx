@@ -128,6 +128,8 @@ test('offers the fingerprint after the first PIN where the phone has one', async
   await type('1470');
   await type('1470');
   expect(texts()).toContain(text.lock.biometricAsk.title);
+  expect(tree!.root.findAllByProps({ testID: 'icon-fingerprint' }).length).toBeGreaterThan(0);
+  expect(tree!.root.findAllByProps({ testID: 'icon-lock' }).length).toBeGreaterThan(0);
   storage.prompt = 'cancel';
   await press('biometric-yes');
   expect(texts()).toContain(text.lock.biometricAsk.failed);

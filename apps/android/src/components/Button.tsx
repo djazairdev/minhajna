@@ -11,7 +11,10 @@ import { controlStyles, type ControlIcon, type ControlProps } from './control';
 /** The four action weights and the destructive action from the design system. */
 export type ButtonVariant = 'primary' | 'line' | 'soft' | 'plain' | 'danger';
 
-/** A visible label is also the spoken name; only the primary action accepts a leading icon. */
+/**
+ * A visible label is also the spoken name. The primary action accepts a leading icon, and so does a line button, which
+ * `wide` also takes across the page, for an answer stacked under the primary as its equal.
+ */
 export type ButtonProps = ControlProps & {
   readonly ref?: Ref<ViewInstance>;
   /** A concise action, sized for one line at enlarged text; put lesson details outside the button. */
@@ -19,8 +22,9 @@ export type ButtonProps = ControlProps & {
   /** A spoken name for a button repeated in a list, starting with its label, as «Remove entry 3». */
   readonly name?: string;
 } & (
-    | { readonly variant?: 'primary'; readonly icon?: ControlIcon }
-    | { readonly variant: Exclude<ButtonVariant, 'primary'>; readonly icon?: never }
+    | { readonly variant?: 'primary'; readonly icon?: ControlIcon; readonly wide?: never }
+    | { readonly variant: 'line'; readonly icon?: ControlIcon; readonly wide?: boolean }
+    | { readonly variant: Exclude<ButtonVariant, 'primary' | 'line'>; readonly icon?: never; readonly wide?: never }
   );
 
 /** A growing 48dp action (56dp, full width for primary), with one accessible name. */
@@ -30,6 +34,7 @@ export function Button({
   name,
   variant = 'primary',
   icon,
+  wide = false,
   disabled = false,
   onPress,
   accessibilityHint,
@@ -54,12 +59,13 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         styles[variant],
+        wide && styles.wide,
         { direction },
         pressed && { borderColor: color },
         disabled && controlStyles.disabled,
       ]}
     >
-      {variant === 'primary' && icon && (
+      {icon && (
         <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           {icon({ size: sizes.icon, color })}
         </View>
@@ -94,6 +100,7 @@ const styles = StyleSheet.create({
   },
   primary: { minHeight: sizes['button-primary'], width: '100%', backgroundColor: colors.board },
   line: { backgroundColor: colors.sheet, borderColor: colorRoles.controlBorder },
+  wide: { width: '100%' },
   soft: { backgroundColor: colors.soft },
   plain: { backgroundColor: 'transparent' },
   danger: { backgroundColor: colors.danger },
