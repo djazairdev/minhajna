@@ -113,9 +113,6 @@ describe('a refused file', () => {
       text.language.ar,
       text.language.fr,
       text.language.en,
-      text.welcome.noAccount,
-      text.welcome.offline,
-      text.welcome.onPhone,
     ]);
     const notice = tree.root.findAllByType(Text)[3].props as TextProps;
     expect(notice.accessibilityRole).toBe('alert');

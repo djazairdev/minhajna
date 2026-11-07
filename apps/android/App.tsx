@@ -233,7 +233,7 @@ function Gate({
   phase: LockPhase;
   storage: Storage;
   lock: ReturnType<typeof useLockPhase>;
-  /** From the welcome to the first PIN, then to setup, the restore or reader mode. */
+  /** From the welcome to the first PIN, then to setup or the restore. */
   begin: (next: Begin) => void;
   lockMinutes: number;
   referenceRefused: boolean;
@@ -244,9 +244,7 @@ function Gate({
   if (referenceRefused) return <Welcome referenceRefused historyRefused={historyRefused} />;
   switch (phase.kind) {
     case 'welcome':
-      return (
-        <Welcome onStart={() => begin('setup')} onReader={() => begin('reader')} onRestore={() => begin('restore')} />
-      );
+      return <Welcome onStart={() => begin('setup')} onRestore={() => begin('restore')} />;
     case 'create':
       return (
         <CreatePin
@@ -279,16 +277,15 @@ function Gate({
 }
 
 /** What the welcome began, before the first PIN. */
-type Begin = 'setup' | 'restore' | 'reader';
+type Begin = 'setup' | 'restore';
 
 /**
  * After the first PIN, with the welcome under it for Back: setup goes on at the privacy notice, the restore at the
- * restore (#247), and reader mode at the notice that leads to its home (#246).
+ * restore (#247).
  */
 const AFTER_FIRST_PIN: Record<Begin, InitialState> = {
   setup: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy' }] },
   restore: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Restore' }] },
-  reader: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy', params: { reader: true } }] },
 };
 
 const styles = StyleSheet.create({

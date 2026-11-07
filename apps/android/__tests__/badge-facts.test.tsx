@@ -127,7 +127,7 @@ test.each(cases)(
   },
 );
 
-test('keeps the original welcome promises and their three-item limit', async () => {
+test('keeps up to three facts with their icons, and their three-item limit', async () => {
   const facts = [
     { icon: 'no_account', text: 'Synthetic promise one' },
     { icon: 'offline', text: 'Synthetic promise two' },

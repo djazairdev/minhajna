@@ -76,6 +76,9 @@ test('leads from the welcome through the first PIN to the restore, then opens on
   const text = await backupText();
   const storage = new FakeStorage();
   await start(storage);
+  expect(has('welcome-restore')).toBe(false);
+  await press('welcome-settings');
+  expect(has('welcome-settings-page')).toBe(true);
   await press('welcome-restore');
   await type('2580');
   await type('2580');
@@ -118,5 +121,6 @@ test('the start of setup leads to the notice, and a history begun on this phone 
   await start(storage);
   await type('2580');
   expect(has('welcome-start')).toBe(true);
+  expect(has('welcome-settings')).toBe(false);
   expect(has('welcome-restore')).toBe(false);
 });

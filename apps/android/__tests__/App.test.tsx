@@ -31,9 +31,6 @@ test('shows all three bundled families without limiting enlarged text', async ()
     text.language.ar,
     text.language.fr,
     text.language.en,
-    text.welcome.noAccount,
-    text.welcome.offline,
-    text.welcome.onPhone,
   ]);
 
   const scroll = tree!.root.findByType(ScrollView).props as ScrollViewProps;
