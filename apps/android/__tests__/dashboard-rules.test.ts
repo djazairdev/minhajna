@@ -48,6 +48,11 @@ it('gives an added option a code no edited option kept', () => {
   const edited = withOption(draft, 'cem', { ...makeOption(['phys']), code: 'math' }, makeOption(['math']));
   const added = withOption(withOption(edited, 'cem', makeOption(['math'])), 'cem', makeOption(['math']));
   expect(added.levels[0]?.options.map((option) => option.code)).toEqual(['math', 'math-2', 'math-3']);
+  const published = { code: 'cem', options: [makeOption(['math']), makeOption(['phys'])] };
+  const hidden = { levels: [{ code: 'cem', options: [] }], schools: [] };
+  const back = withOption(hidden, 'cem', makeOption(['math']), undefined, published);
+  const other = withOption(hidden, 'cem', { code: 'phys', subjects: ['chem'] }, undefined, published);
+  expect([back, other].map((one) => one.levels[0]?.options[0]?.code)).toEqual(['math', 'phys-2']);
 });
 
 it('assigns the primary by option and the middle school by subject', () => {

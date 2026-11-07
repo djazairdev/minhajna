@@ -5,7 +5,8 @@
 // level's options are called, adding and hiding them, adding and hiding
 // schools, and what changed since the last version. Hiding takes a thing out of
 // the draft: the list holds only what teachers see, and an earlier version
-// brings it back. Every name the page holds is made up.
+// brings it back. A new option never takes a code the level holds, nor one the
+// published list gave other subjects. Every name the page holds is made up.
 
 import type { CountryProfile, DirectoryLevel, DirectoryOption, DirectorySchool, ReferenceDraft } from '@minhajna/core';
 import { startingLevels } from '@minhajna/core';
@@ -61,11 +62,20 @@ const onLevel = (draft: ReferenceDraft, code: string, change: (level: DirectoryL
   levels: draft.levels.map((level) => (level.code === code ? change(level) : level)),
 });
 
-/** A code no other option of the level has: the one asked, else it with `-2`, `-3`, as edited options keep theirs. */
-function freeCode(level: DirectoryLevel, code: string): string {
-  const taken = new Set(level.options.map((option) => option.code));
-  let free = code;
-  for (let n = 2; taken.has(free); n++) free = `${code}-${n}`;
+/**
+ * A code no other option of the level has, nor one the published list gave other subjects: the one asked, else it
+ * with `-2`, `-3`, as edited options keep theirs and phones still hold a hidden option's code.
+ */
+function freeCode(level: DirectoryLevel, option: DirectoryOption, published?: DirectoryLevel): string {
+  const subjects = [...option.subjects].sort().join('+');
+  const taken = new Set([
+    ...level.options.map((one) => one.code),
+    ...(published?.options ?? [])
+      .filter((one) => [...one.subjects].sort().join('+') !== subjects)
+      .map((one) => one.code),
+  ]);
+  let free = option.code;
+  for (let n = 2; taken.has(free); n++) free = `${option.code}-${n}`;
   return free;
 }
 
@@ -75,12 +85,13 @@ export function withOption(
   levelCode: string,
   option: DirectoryOption,
   replacing?: DirectoryOption,
+  published?: DirectoryLevel,
 ): ReferenceDraft {
   return onLevel(draft, levelCode, (level) => ({
     ...level,
     options:
       replacing === undefined
-        ? [...level.options, { ...option, code: freeCode(level, option.code) }]
+        ? [...level.options, { ...option, code: freeCode(level, option, published) }]
         : level.options.map((one) => (one.code === replacing.code ? option : one)),
   }));
 }

@@ -6,7 +6,7 @@
 // the primary, two subjects as one option, and editing or hiding one in the
 // side panel. The primary's class teacher stays, as setup offers it first.
 
-import type { CountryProfile, DirectoryOption, ReferenceDraft } from '@minhajna/core';
+import type { CountryProfile, DirectoryLevel, DirectoryOption, ReferenceDraft } from '@minhajna/core';
 import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Badge } from '../components/Badge';
@@ -23,13 +23,15 @@ import { Table } from './Table';
 export type LevelsTabProps = {
   readonly profile: CountryProfile;
   readonly draft: ReferenceDraft;
+  /** The published list's levels, or none while nothing is published. */
+  readonly published: readonly DirectoryLevel[];
   readonly onChange: (draft: ReferenceDraft) => void;
   readonly onUpdate: (step: (draft: ReferenceDraft) => ReferenceDraft) => void;
   readonly onAside: (aside: ReactNode) => void;
 };
 
 /** One level's options at a time. */
-export function LevelsTab({ profile, draft, onChange, onUpdate, onAside }: LevelsTabProps) {
+export function LevelsTab({ profile, draft, published, onChange, onUpdate, onAside }: LevelsTabProps) {
   const t = useDeviceText();
   const [chosen, setChosen] = useState(draft.levels[0]?.code ?? '');
   const level = draft.levels.find((one) => one.code === chosen) ?? draft.levels[0];
@@ -43,6 +45,7 @@ export function LevelsTab({ profile, draft, onChange, onUpdate, onAside }: Level
         level={level}
         pair={pair}
         editing={editing}
+        published={published.find((one) => one.code === level.code)}
         onDone={(step) => {
           if (step !== null) onUpdate(step);
           onAside(null);

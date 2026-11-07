@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The dashboard's door in the whole app on a PC (answer 809): from the lock
-// page after the history was locked away, «قراءة بيان أستاذ» opens reader
-// mode's notice once the passphrase is typed, not the screen left before the
-// lock. The passphrase is made up.
+// page after the history was locked away, reading a teacher's statement
+// (dashboard-reader) opens reader mode's notice once the passphrase is typed,
+// not the screen left before the lock. The passphrase is made up.
 
 import ReactTestRenderer from 'react-test-renderer';
 import { Platform } from 'react-native';
@@ -67,8 +67,8 @@ test('reader mode asked from the lock page wins over the screen left before the 
     await settle();
   });
   await unlock();
-  await press('welcome-restore');
-  expect(has('privacy-accept')).toBe(false);
+  await press('welcome-start');
+  expect(has('privacy-accept')).toBe(true);
   await ReactTestRenderer.act(async () => {
     mockLocks.at(-1)?.();
     await settle();
@@ -76,5 +76,6 @@ test('reader mode asked from the lock page wins over the screen left before the 
   await press('passphrase-dashboard');
   await press('dashboard-reader');
   await unlock();
-  expect(has('privacy-accept')).toBe(true);
+  await press('privacy-accept');
+  expect(has('reader-home')).toBe(true);
 });

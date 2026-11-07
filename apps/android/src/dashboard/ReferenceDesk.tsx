@@ -124,6 +124,7 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
         <LevelsTab
           profile={profile}
           draft={saved.doc}
+          published={list?.levels ?? []}
           onChange={saved.change}
           onUpdate={saved.update}
           onAside={setAside}

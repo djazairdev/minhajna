@@ -17,12 +17,12 @@ export function startRoute(book: {
   return receivedStatements(book.entries).length > 0 ? 'ReaderHome' : 'Welcome';
 }
 
-/** What the welcome began, before the first PIN. */
+/** What the welcome, or the PC's dashboard for reader mode, began before the first PIN. */
 export type Begin = 'setup' | 'restore' | 'reader';
 
 /**
  * After the first PIN, with the welcome under it for Back: setup goes on at the privacy notice, the restore at the
- * restore (#247), and reader mode at the notice that leads to its home (#246).
+ * restore (#247), and reader mode, from the PC's dashboard (answer 799), at the notice that leads to its home (#246).
  */
 export const AFTER_FIRST_PIN: Record<Begin, InitialState> = {
   setup: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy' }] },
@@ -31,6 +31,6 @@ export const AFTER_FIRST_PIN: Record<Begin, InitialState> = {
 };
 
 /** Reader mode from the dashboard on a PC with a passphrase: its notice over the screen the app opens on. */
-export function readerAfterLock(book: Parameters<typeof startRoute>[0]): InitialState {
-  return { index: 1, routes: [{ name: startRoute(book) }, { name: 'Privacy', params: { reader: true } }] };
+export function readerAfterLock(under: ReturnType<typeof startRoute>): InitialState {
+  return { index: 1, routes: [{ name: under }, { name: 'Privacy', params: { reader: true } }] };
 }

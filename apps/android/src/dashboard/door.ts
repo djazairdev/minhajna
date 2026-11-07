@@ -54,7 +54,8 @@ export function useDashboardDoors(
     else setReader({ opening: null });
   }, []);
   const wanted = reader !== null && book !== null && opening !== null && (reader.opening ?? opening) === opening;
-  const readerState = useMemo(() => (wanted && book !== null ? readerAfterLock(book) : undefined), [wanted, book]);
+  const under = wanted && book !== null ? startRoute(book) : null;
+  const readerState = useMemo(() => (under === null ? undefined : readerAfterLock(under)), [under]);
   return useMemo(
     () => ({
       shown: shown && offered,

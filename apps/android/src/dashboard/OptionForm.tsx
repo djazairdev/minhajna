@@ -24,12 +24,14 @@ export type OptionFormProps = {
   readonly level: DirectoryLevel;
   readonly pair: boolean;
   readonly editing?: DirectoryOption;
+  /** The level in the published list, whose option codes a new option must not take for other subjects. */
+  readonly published?: DirectoryLevel;
   /** The change to the draft, or null for none. */
   readonly onDone: (step: ((draft: ReferenceDraft) => ReferenceDraft) | null) => void;
 };
 
 /** One option's subjects. */
-export function OptionForm({ profile, level, pair, editing, onDone }: OptionFormProps) {
+export function OptionForm({ profile, level, pair, editing, published, onDone }: OptionFormProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const [first, setFirst] = useState<string | null>(editing?.subjects[0] ?? null);
@@ -81,6 +83,7 @@ export function OptionForm({ profile, level, pair, editing, onDone }: OptionForm
                 level.code,
                 { ...makeOption(codes), code: editing?.code ?? makeOption(codes).code },
                 editing,
+                published,
               ),
             )
           }
