@@ -32,6 +32,8 @@ const sealing = randomBytes(32).toString('hex');
 const pass = 'cGFzcy1mb3ItYS1tYWRlLXVwLWRlbW8td29ybGQtMDQ';
 const json = { 'content-type': 'application/json', 'x-world-pass': pass };
 const started: string[] = [];
+/** Beside the stand-in bucket, and with /run empty, as a container starts on Cloudflare. */
+const place = ['--network', 'minhajna-demo_default', '--tmpfs', '/run'];
 
 function docker(...args: string[]): string {
   return execFileSync('docker', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -53,7 +55,7 @@ function bucket(endpoint = 'http://objects:8333'): string[] {
 
 /** Runs the image to its end, and answers its exit code and what it wrote. */
 function runToEnd(...args: string[]): { status: number | null; output: string } {
-  const result = spawnSync('docker', ['run', '--rm', '--network', 'minhajna-demo_default', ...args, image], {
+  const result = spawnSync('docker', ['run', '--rm', ...place, ...args, image], {
     cwd: root,
     encoding: 'utf8',
     timeout: 120_000,
@@ -108,7 +110,7 @@ async function healthy(base: string): Promise<boolean> {
 /** Starts the image against the stand-in bucket, and answers its address once it is healthy. */
 async function serve(name: string, ...env: string[]): Promise<string> {
   started.push(name);
-  const options = ['-d', '--name', name, '--network', 'minhajna-demo_default', '-p', '127.0.0.1::8080'];
+  const options = ['-d', '--name', name, ...place, '-p', '127.0.0.1::8080'];
   docker('run', ...options, ...bucket(), ...env, image);
   const base = `http://${docker('port', name, '8080').split('\n')[0]!}`;
   for (let tries = 0; tries < 180; tries++) {
@@ -166,7 +168,7 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
     const stuck = `mkdir -p /tmp/stuck && ${refuse} && chmod -R 755 /tmp/stuck`;
     const limit = ['-e', `WALG_S3_PREFIX=${prefix}-first-backup`, '-e', 'BACKUP_WAIT=15', '--entrypoint', 'sh'];
     const start = `${stuck} && PATH=/tmp/stuck:$PATH exec minhajna-start`;
-    const args = ['run', '--rm', '--network', 'minhajna-demo_default', ...bucket(), ...limit, image, '-c', start];
+    const args = ['run', '--rm', ...place, ...bucket(), ...limit, image, '-c', start];
     const run = spawnSync('docker', args, { cwd: root, encoding: 'utf8', timeout: 120_000 });
     const said = `${run.stdout}${run.stderr}`;
     assert.equal(run.status, 1);
@@ -181,7 +183,7 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
     const fetchWal = (endpoint: string): number | null =>
       spawnSync(
         'docker',
-        ['run', '--rm', '--network', 'minhajna-demo_default', ...bucket(endpoint)]
+        ['run', '--rm', ...place, ...bucket(endpoint)]
           .concat(['-e', 'WALG_S3_MAX_RETRIES=0', '--entrypoint', 'minhajna-wal-fetch', image])
           .concat(['000000010000000000000009', '/tmp/wal']),
         { timeout: 120_000 },
