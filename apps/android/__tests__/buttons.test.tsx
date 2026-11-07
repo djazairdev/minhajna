@@ -108,6 +108,17 @@ describe.each(directions)('Button (%s)', (direction) => {
     expect(accessibilityProblems(tree.root)).toEqual([]);
   });
 
+  test('an icon follows the label only when asked', async () => {
+    const order = async (iconEnd: boolean) => {
+      const label = samples.ar.buttons.primary;
+      await render(<Button icon={icon} iconEnd={iconEnd} label={label} onPress={() => undefined} />, direction);
+      const pressed = tree.toJSON() as ReactTestRenderer.ReactTestRendererJSON;
+      return pressed.children?.map((child) => (typeof child === 'string' ? child : child.type));
+    };
+    expect(await order(false)).toEqual(['View', 'Text']);
+    expect(await order(true)).toEqual(['Text', 'View']);
+  });
+
   test('a line button takes a decorative icon, and goes wide only when asked', async () => {
     const label = samples.ar.buttons.line;
     await render(<Button variant="line" wide icon={icon} label={label} onPress={() => undefined} />, direction);

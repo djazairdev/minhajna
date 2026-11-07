@@ -45,7 +45,12 @@ test('the card editor saves without continuing setup, and keeps history append-o
   expect(data.book.state.personal?.name).toBe('أستاذة مختلقة');
   expect(data.book.state.setupFinished).toBe(true);
   expect(data.book.entries.slice(0, before.length)).toEqual(before);
-  expect(settingsTexts()).toContain(catalogues.ar.settings.cardFromSchools);
+  await typeSettings('card-name', ' ');
+  await pressSettings('card-next');
+  expect(onDone).toHaveBeenCalledTimes(2);
+  expect(data.book.state.personal?.name).toBeUndefined();
+  const done = settingsRoot().find((node) => node.props.testID === 'card-next' && !!node.props.onPress);
+  expect(done.findAllByProps({ testID: 'icon-chevron' })).toHaveLength(0);
 });
 
 test('editing schools cannot remove levels or subjects that existing classes use', async () => {

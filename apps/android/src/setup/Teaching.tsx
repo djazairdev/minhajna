@@ -25,6 +25,9 @@ import { useSchools } from './useSchools';
 /** The steps of Getting started, as the bar under the title counts them. */
 export const SETUP_STEPS = 5;
 
+/** The arrow onward on each step's Next; Settings' Done, which goes nowhere further, has none. */
+export const NEXT_ARROW = { icon: controlIcon('chevron'), iconEnd: true } as const;
+
 /** The first step of setup; `onNext` leads on once every school is complete. */
 export function Teaching({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
   const insets = useSafeAreaInsets();
@@ -100,6 +103,7 @@ export function Teaching({ onNext, editing = false }: { onNext: () => void; edit
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button
           testID="setup-next"
+          {...(editing ? {} : NEXT_ARROW)}
           label={t(editing ? 'settings.done' : 'setup.next')}
           disabled={!complete}
           accessibilityHint={complete ? undefined : t('setup.nextHint')}

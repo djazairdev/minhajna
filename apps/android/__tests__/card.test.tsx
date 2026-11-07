@@ -95,20 +95,27 @@ const label = (id: string) =>
   String(root().find((node) => node.props.testID === id && node.props.accessible === true).props.accessibilityLabel);
 const rows = (data: TestData, kind: string) => data.storage.rows.filter((row) => row.kind === kind);
 
-test('shows the card, with the name marked personal and the rest from step 1', async () => {
+test('shows the name, the rank and the school year, with no helper text, placeholder, subject or school', async () => {
   const data = await withSchools();
   await render(data);
-  expect(shown()).toEqual(
-    expect.arrayContaining([
-      text.setup.cardHeading,
-      text.setup.cardIntro,
-      `${text.setup.name} (${text.setup.personal})`,
-      text.setup.fromStepOne,
-    ]),
-  );
-  expect(label('card-subjects')).toBe('المادة: اللغة العربية، التربية الإسلامية');
+  expect(shown()).toEqual(expect.arrayContaining([text.setup.cardHeading, text.setup.name, text.setup.rank]));
+  expect(input('card-name').placeholder).toBe('');
+  expect(input('card-rank').placeholder).toBe('');
+  expect(root().findAll((node) => node.props.testID === 'card-subjects')).toHaveLength(0);
+  expect(root().findAll((node) => node.props.testID === 'card-schools')).toHaveLength(0);
   expect(label('card-year')).toBe('السنة الدراسية: 2026-2027');
-  expect(label('card-schools')).toBe('المؤسسة: متوسطة النجاح، متوسطة الأمل');
+});
+
+test('goes on only once a name is typed, with an arrow, and offers no way round it', async () => {
+  await render(await withSchools());
+  expect(root().findAll((node) => node.props.testID === 'card-later')).toHaveLength(0);
+  expect(control('card-next').props).toMatchObject({ disabled: true, accessibilityHint: text.setup.nameHint });
+  await type('card-name', '   ');
+  expect(control('card-next').props).toMatchObject({ disabled: true });
+  await type('card-name', 'بن يحيى سعاد');
+  expect(control('card-next').props).toMatchObject({ disabled: false });
+  expect(control('card-next').props.accessibilityHint).toBeUndefined();
+  expect(control('card-next').findAll((node) => node.props.testID === 'icon-chevron').length).toBeGreaterThan(0);
 });
 
 test('keeps the name in the device layer and the rank with the lesson record, once typing pauses', async () => {
@@ -151,13 +158,15 @@ test('shows what was typed before when setup opens again', async () => {
   expect(input('card-rank').value).toBe('أستاذ التعليم المتوسط');
 });
 
-test.each(['card-next', 'card-later'])('%s leads on and saves what is still being typed', async (id) => {
+test('leads on and saves what is still being typed', async () => {
   const data = await withSchools();
   await render(data);
+  await type('card-name', 'بن يحيى سعاد');
   await type('card-rank', 'أستاذ التعليم المتوسط');
-  await press(id);
+  await press('card-next');
   await settle();
   expect(onNext).toHaveBeenCalledTimes(1);
+  expect(data.book.state.personal).toEqual({ name: 'بن يحيى سعاد' });
   expect(data.book.state.teacher).toEqual({ rank: 'أستاذ التعليم المتوسط' });
 });
 
