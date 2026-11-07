@@ -4,7 +4,8 @@
 // The dashboard's door and gates (answer 809), against a made-up directory: the
 // door shows on a PC's welcome and never on the phone; its rows lead to the
 // Ministry's page, the school's page and reader mode; a first visitor sets the
-// code, typed twice, and the next enters it; a refused code says so; the page
+// code, typed twice, and the next enters it, as does the one who set it when
+// the page then failed to read; a refused code says so; the page
 // says the server is waking and goes on; a page locks and forgets its code; the
 // school is chosen from the published list, wilaya, commune then school. Every
 // school is made up.
@@ -140,6 +141,21 @@ describe('the code gate', () => {
     await type('gate-again', 'made-up-code');
     await press('gate-open');
     expect(directory.referenceCode).toBe('made-up-code');
+    expect(has('gate-code')).toBe(false);
+  });
+
+  it('asks for the code it set when the page then fails to read', async () => {
+    directory.failingOn = 'GET /directory/reference/state';
+    await openReference();
+    await type('gate-code', 'made-up-code');
+    await type('gate-again', 'made-up-code');
+    await press('gate-open');
+    expect(directory.referenceCode).toBe('made-up-code');
+    expect(shown()).toContain(words.problem.network);
+    expect(shown()).not.toContain(words.gate.taken);
+    expect(has('gate-again')).toBe(false);
+    directory.failingOn = null;
+    await press('gate-open');
     expect(has('gate-code')).toBe(false);
   });
 

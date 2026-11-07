@@ -101,8 +101,8 @@ export default function App({
   const [next, setNext] = useState<Begin>('setup');
   const dashboard = useDashboardDoors(reference.ok, phase, book);
   const firstState =
-    restore ??
     dashboard.readerState ??
+    restore ??
     (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined);
   const { lockNow, opened, start } = lock;
   const reopen = useCallback(() => {

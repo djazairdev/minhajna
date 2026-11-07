@@ -61,7 +61,15 @@ const onLevel = (draft: ReferenceDraft, code: string, change: (level: DirectoryL
   levels: draft.levels.map((level) => (level.code === code ? change(level) : level)),
 });
 
-/** The draft with an option added, or put in the place of the one edited. */
+/** A code no other option of the level has: the one asked, else it with `-2`, `-3`, as edited options keep theirs. */
+function freeCode(level: DirectoryLevel, code: string): string {
+  const taken = new Set(level.options.map((option) => option.code));
+  let free = code;
+  for (let n = 2; taken.has(free); n++) free = `${code}-${n}`;
+  return free;
+}
+
+/** The draft with an option added under a free code, or put in the place of the one edited. */
 export function withOption(
   draft: ReferenceDraft,
   levelCode: string,
@@ -72,7 +80,7 @@ export function withOption(
     ...level,
     options:
       replacing === undefined
-        ? [...level.options, option]
+        ? [...level.options, { ...option, code: freeCode(level, option.code) }]
         : level.options.map((one) => (one.code === replacing.code ? option : one)),
   }));
 }

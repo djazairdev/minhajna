@@ -6,11 +6,12 @@
 // going back; the page itself under the line saying its data is made up, as
 // the server holds it in the clear (answer 809); and a side panel when the page
 // gives one. While the page is held, as when someone else saved first, its
-// content takes no touch and its panel closes; the line over it stays.
+// content takes no touch, key or reader focus, and its panel closes; the line
+// over it stays.
 
 import { useLocale } from '@react-navigation/native';
-import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, type ViewInstance } from 'react-native';
 import { Icon, type IconName } from '../design/Icon';
 import { colors, radius, sizes, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
@@ -20,6 +21,8 @@ export type FrameItem = {
   readonly label: string;
   readonly icon: IconName;
   readonly on?: boolean;
+  /** Turns the icon round, as the chevron for going back. */
+  readonly backward?: boolean;
   readonly onPress: () => void;
 };
 
@@ -48,7 +51,9 @@ function SideButton({ item }: { item: FrameItem }) {
       onPress={item.onPress}
       style={[styles.item, item.on === true && styles.itemOn]}
     >
-      <Icon name={item.icon} size={sizes['icon-small']} color={colors.chalk} />
+      <View style={item.backward === true && styles.backward}>
+        <Icon name={item.icon} size={sizes['icon-small']} color={colors.chalk} />
+      </View>
       <Text
         style={[
           styles.itemWords,
@@ -68,6 +73,11 @@ export function DashboardFrame(props: DashboardFrameProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
+  const content = useRef<ViewInstance>(null);
+  useEffect(() => {
+    const node = content.current as unknown as { inert?: boolean } | null;
+    if (node !== null && 'inert' in node) node.inert = held;
+  }, [held]);
   return (
     <View testID="dashboard-frame" style={[styles.frame, { direction }]}>
       <View role="navigation" style={styles.side}>
@@ -85,7 +95,9 @@ export function DashboardFrame(props: DashboardFrameProps) {
           {onLock !== undefined && (
             <SideButton item={{ id: 'lock', label: t('dashboard.lock'), icon: 'lock', onPress: onLock }} />
           )}
-          <SideButton item={{ id: 'back', label: t('dashboard.back'), icon: 'chevron', onPress: onBack }} />
+          <SideButton
+            item={{ id: 'back', label: t('dashboard.back'), icon: 'chevron', backward: true, onPress: onBack }}
+          />
         </View>
       </View>
       <ScrollView style={styles.page} contentContainerStyle={styles.pageInner}>
@@ -93,7 +105,13 @@ export function DashboardFrame(props: DashboardFrameProps) {
           {t('dashboard.madeUp')}
         </Text>
         {top}
-        <View pointerEvents={held ? 'none' : 'auto'} style={[styles.pageInner, held && styles.held]}>
+        <View
+          ref={content}
+          pointerEvents={held ? 'none' : 'auto'}
+          aria-disabled={held}
+          importantForAccessibility={held ? 'no-hide-descendants' : 'auto'}
+          style={[styles.content, held && styles.held]}
+        >
           {children}
         </View>
       </ScrollView>
@@ -141,6 +159,8 @@ const styles = StyleSheet.create({
   page: { flex: 1, minWidth: 0 },
   pageInner: { gap: spacing['space-12'], padding: spacing['space-20'] },
   madeUp: { ...typography.small, color: colors['notice-ink'] },
+  backward: { transform: [{ scaleX: -1 }] },
+  content: { gap: spacing['space-12'] },
   held: { opacity: 0.5 },
   aside: {
     width: 420,

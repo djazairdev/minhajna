@@ -53,10 +53,8 @@ export function useDashboardDoors(
     if (fromWelcome !== null) fromWelcome();
     else setReader({ opening: null });
   }, []);
-  const readerState =
-    reader !== null && book !== null && opening !== null && (reader.opening ?? opening) === opening
-      ? readerAfterLock(book)
-      : undefined;
+  const wanted = reader !== null && book !== null && opening !== null && (reader.opening ?? opening) === opening;
+  const readerState = useMemo(() => (wanted && book !== null ? readerAfterLock(book) : undefined), [wanted, book]);
   return useMemo(
     () => ({
       shown: shown && offered,

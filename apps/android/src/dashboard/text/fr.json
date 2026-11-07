@@ -33,7 +33,7 @@
     "set": "Définir le code",
     "badCode": "De 8 à 64 lettres latines, chiffres ou signes, sans espace.",
     "different": "Les deux codes diffèrent.",
-    "taken": "Quelqu’un d’autre vient de définir le code. Saisissez-le."
+    "taken": "Quelqu’un d’autre vient de définir le code. Saisissez-le pour ouvrir la page."
   },
   "place": {
     "wilaya": "Wilaya",

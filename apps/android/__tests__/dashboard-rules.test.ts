@@ -2,14 +2,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The dashboard's rules (answers 804 to 809): what changed since the last
-// version; a new school's code; the units a class is assigned by, whole
+// version; a new school's code; an added option's code, never one an edited
+// option kept; the units a class is assigned by, whole
 // options where the level has a class teacher and single subjects elsewhere;
 // who may teach a unit; a joining code in its groups; the week's slots when a
 // level has no bell template. Every name is made up.
 
 import { startingLevels, type SchoolBook } from '@minhajna/core';
 import { COMMUNE, schoolIn } from '../jest/dashboard-world';
-import { draftChanges, newSchoolId, startingDraft, withSchool } from '../src/dashboard/reference-rules';
+import {
+  draftChanges,
+  makeOption,
+  newSchoolId,
+  startingDraft,
+  withOption,
+  withSchool,
+} from '../src/dashboard/reference-rules';
 import { candidates, codeShown, unitsOf, withUnitTeacher } from '../src/dashboard/school-rules';
 import { slotCounts } from '../src/dashboard/week-rules';
 import { bundledReference, readReference } from '../src/reference';
@@ -33,6 +41,13 @@ it('counts what changed since the last version', () => {
 
 it('gives a new school its commune’s first free code', () => {
   expect(newSchoolId([schoolIn('160101', COMMUNE, 'x'), schoolIn('160103', COMMUNE, 'y')], '1601')).toBe('160102');
+});
+
+it('gives an added option a code no edited option kept', () => {
+  const draft = { levels: [{ code: 'cem', options: [makeOption(['math'])] }], schools: [] };
+  const edited = withOption(draft, 'cem', { ...makeOption(['phys']), code: 'math' }, makeOption(['math']));
+  const added = withOption(withOption(edited, 'cem', makeOption(['math'])), 'cem', makeOption(['math']));
+  expect(added.levels[0]?.options.map((option) => option.code)).toEqual(['math', 'math-2', 'math-3']);
 });
 
 it('assigns the primary by option and the middle school by subject', () => {

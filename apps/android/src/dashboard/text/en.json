@@ -33,7 +33,7 @@
     "set": "Set the code",
     "badCode": "8 to 64 Latin letters, digits or signs, no spaces.",
     "different": "The two codes differ.",
-    "taken": "Someone else has just set the code. Type theirs."
+    "taken": "Someone else has just set the code. Enter it to open the page."
   },
   "place": {
     "wilaya": "Wilaya",

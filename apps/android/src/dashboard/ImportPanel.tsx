@@ -92,7 +92,7 @@ export function ImportPanel({ title, check, onApply, onClose, whereLabel }: Impo
           <Button
             testID="import-close"
             variant="line"
-            icon={controlIcon('chevron')}
+            icon={controlIcon('cross')}
             label={t('dashboard.back')}
             onPress={onClose}
           />

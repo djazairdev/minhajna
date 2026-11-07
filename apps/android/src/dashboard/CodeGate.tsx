@@ -4,9 +4,10 @@
 // The edit-code gate of a dashboard page (answer 809), as N-Reference draws it:
 // the first visitor sets the code, typed twice; after that it is entered. The
 // page opens only once the server has read what the code opens. The page holds
-// the code in memory and nothing keeps it. A refused code says so; a code taken
-// set by someone else meanwhile turns the gate into the one that asks for it,
-// and says so.
+// the code in memory and nothing keeps it. A refused code says so; a code set
+// by someone else meanwhile turns the gate into the one that asks for it, and
+// says so; a code set whose page did not then read asks for it too, saying what
+// went wrong.
 
 import { useLocale } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
@@ -50,12 +51,18 @@ export function CodeGate<T>({ title, claimed, claim, read, onOpen }: CodeGatePro
     if (value !== undefined) onOpen(code, value);
   };
   const set = async () => {
+    const step = { claimed: false };
     const done = await run(async (options) => {
       await claim(code, options);
+      step.claimed = true;
       return read(code, options);
     });
     if (done !== undefined) {
       onOpen(code, done);
+      return;
+    }
+    if (step.claimed) {
+      setTaken(true);
       return;
     }
     const now = await claimed({}).catch(() => null);

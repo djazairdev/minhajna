@@ -31,6 +31,8 @@ export class FakeDirectory {
   asleep = 0;
   /** A status every request answers until cleared. */
   failing: number | null = null;
+  /** A method and path that answers 500 until cleared, as `GET /directory/reference/state`. */
+  failingOn: string | null = null;
   /** Each request's method and path, in order. */
   readonly seen: string[] = [];
   private issued = 0;
@@ -50,6 +52,7 @@ export class FakeDirectory {
     this.seen.push(`${method} ${path}`);
     await Promise.resolve();
     if (this.failing !== null) return this.reply([this.failing, {}]);
+    if (this.failingOn === `${method} ${path}`) return this.reply([500, {}]);
     if (this.asleep > 0) {
       this.asleep -= 1;
       return new Response('{}', { status: 503, headers: { 'Retry-After': '0' } });

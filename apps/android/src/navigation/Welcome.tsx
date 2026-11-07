@@ -10,8 +10,8 @@
 // what it is before anything else (#48), and whether the PIN is set yet, for a
 // build that takes real names (#211). A PC whose tab has just erased it says
 // so first, for as long as the page lasts (Web-erase, answer 519). Where the
-// app offers demo worlds, on a PC, the welcome leads to them (#560), and a PC's
-// also to the dashboard (answer 809).
+// app offers demo worlds, on a PC, the welcome leads to them (#560), and to
+// the dashboard (answer 809).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
