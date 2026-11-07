@@ -2,9 +2,44 @@
   "door": "Dashboard",
   "back": "Back",
   "lock": "Lock now",
+  "next": "Next",
+  "search": "Search",
+  "tryAgain": "Try again",
   "madeUp": "Example data only",
+  "waking": "The server is waking up; this can take a minute.",
+  "problem": {
+    "refused": "That code is not the right one.",
+    "stale": "Someone else saved first. Load the latest copy, then make your change again.",
+    "missing": "This is not in the directory.",
+    "asleep": "The server has not woken yet. Try again in a moment.",
+    "busy": "Too many requests in a short time. Try again in a moment.",
+    "full": "The directory has no room for this.",
+    "bad": "The server did not accept this data.",
+    "network": "Could not reach the server."
+  },
   "home": {
+    "reference": "Reference data",
+    "school": "Classes and pupils",
     "reader": "Read a teacher’s statement"
+  },
+  "who": {
+    "ministry": "Ministry of National Education",
+    "school": "Administration"
+  },
+  "gate": {
+    "code": "Edit code",
+    "again": "Type the code again",
+    "open": "Open",
+    "set": "Set the code",
+    "badCode": "8 to 64 Latin letters, digits or signs, no spaces.",
+    "different": "The two codes differ.",
+    "taken": "Someone else has just set the code. Enter it to open the page."
+  },
+  "place": {
+    "wilaya": "Wilaya",
+    "commune": "Commune",
+    "school": "School",
+    "nothing": "The list of schools is not published yet."
   },
   "panel": "Details"
 }
