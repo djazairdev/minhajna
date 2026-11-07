@@ -9,15 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DirectoryOptions } from '../network/directory-network';
 
-export type DirectoryProblem =
-  | 'refused'
-  | 'stale'
-  | 'missing'
-  | 'asleep'
-  | 'busy'
-  | 'full'
-  | 'bad'
-  | 'network';
+export type DirectoryProblem = 'refused' | 'stale' | 'missing' | 'asleep' | 'busy' | 'full' | 'bad' | 'network';
 
 const PROBLEMS: Readonly<Record<string, DirectoryProblem>> = {
   E_DIRECTORY_REFUSED: 'refused',

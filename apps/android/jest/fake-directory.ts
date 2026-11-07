@@ -57,7 +57,9 @@ export class FakeDirectory {
     const body = typeof init?.body === 'string' ? (JSON.parse(init.body) as Record<string, unknown>) : {};
     const bearer = new Headers(init?.headers).get('Authorization')?.replace('Bearer ', '') ?? null;
     return this.reply(
-      path.startsWith('/directory/reference') ? this.reference(path, method, body, bearer) : this.school(path, method, body, bearer),
+      path.startsWith('/directory/reference')
+        ? this.reference(path, method, body, bearer)
+        : this.school(path, method, body, bearer),
     );
   }
 

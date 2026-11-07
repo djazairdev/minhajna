@@ -17,12 +17,7 @@ import {
   type ReferenceList,
   type SchoolBook,
 } from '@minhajna/core';
-import {
-  directoryGet,
-  directoryPost,
-  directoryPut,
-  type DirectoryOptions,
-} from '../network/directory-network';
+import { directoryGet, directoryPost, directoryPut, type DirectoryOptions } from '../network/directory-network';
 
 /** The Ministry's list as its page edits it. */
 export interface ReferenceState {

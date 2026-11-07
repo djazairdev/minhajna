@@ -33,9 +33,11 @@ const onBack = jest.fn();
 const onReader = jest.fn();
 const root = () => show(<DashboardRoot profile={profile} onBack={onBack} onReader={onReader} />);
 const typed = (testID: string) =>
-  (rendered().root.findAll((one) => one.props.testID === testID && one.props.value !== undefined)[0]?.props as {
-    value: string;
-  }).value;
+  (
+    rendered().root.findAll((one) => one.props.testID === testID && one.props.value !== undefined)[0]?.props as {
+      value: string;
+    }
+  ).value;
 
 function Door({ onOpen }: { onOpen: () => void }) {
   const doors = useDashboardDoors(true);

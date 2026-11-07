@@ -25,7 +25,8 @@ export function wilayaChoices(profile: CountryProfile, schools: readonly Directo
 export function schoolCommuneChoices(schools: readonly DirectorySchool[], wilaya: string | null): PickChoice[] {
   const communes = new Map<string, PickChoice>();
   for (const { commune, wilaya: of } of schools)
-    if (of === wilaya) communes.set(commune.code, { value: commune.code, label: placeLabel(commune.code, commune.name) });
+    if (of === wilaya)
+      communes.set(commune.code, { value: commune.code, label: placeLabel(commune.code, commune.name) });
   return [...communes.values()].sort((one, other) => one.value.localeCompare(other.value));
 }
 
