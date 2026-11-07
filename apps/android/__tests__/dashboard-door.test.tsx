@@ -10,6 +10,7 @@
 // school is made up.
 
 import { Platform } from 'react-native';
+import ReactTestRenderer from 'react-test-renderer';
 import { act, has, press, rendered, show, texts as shown, type, unmount } from '../jest/ministry-page';
 import { FakeDirectory } from '../jest/fake-directory';
 import { DashboardRoot } from '../src/dashboard/DashboardRoot';
@@ -144,7 +145,7 @@ describe('the code gate', () => {
     directory.asleep = 1;
     await openReference();
     expect(has('dashboard-waking')).toBe(true);
-    await new Promise((done) => setTimeout(done, 1100));
+    await ReactTestRenderer.act(() => new Promise((done) => setTimeout(done, 1100)));
     await act();
     expect(has('dashboard-waking')).toBe(false);
     expect(has('gate-code')).toBe(true);

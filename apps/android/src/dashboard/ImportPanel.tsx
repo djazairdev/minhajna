@@ -107,7 +107,7 @@ export function ImportPanel({ title, check, onApply, onClose, whereLabel }: Impo
         <>
           <Figures>
             {shown.figures.map((one) => (
-              <Figure key={one.id} testID={`import-${one.id}`} value={one.value} label={one.label} warn={one.warn} />
+              <Figure key={one.id} testID={`import-figure-${one.id}`} value={one.value} label={one.label} warn={one.warn} />
             ))}
           </Figures>
           {shown.refused.length > 0 && (

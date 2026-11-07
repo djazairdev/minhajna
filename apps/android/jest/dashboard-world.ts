@@ -9,3 +9,12 @@ import type { DirectoryCommune, DirectorySchool } from '@minhajna/core';
 export function schoolIn(id: string, commune: DirectoryCommune, name: string): DirectorySchool {
   return { id, name, level: 'cem', wilaya: '16', commune };
 }
+
+/** A made-up commune of wilaya 16. */
+export const COMMUNE: DirectoryCommune = { code: '1601', name: { ar: 'بلدية مثال', fr: 'Commune exemple' } };
+
+/** Chooses a value in a dashboard select. */
+export async function choose(press: (testID: string) => Promise<void>, field: string, value: string) {
+  await press(field);
+  await press(`${field}-${value}`);
+}
