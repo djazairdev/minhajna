@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Right after the first PIN, on a phone that can match a strong fingerprint
-// or face (#210): one question, whether to open with it too. «نعم» shows the
-// phone's own prompt once, which the Keystore needs to make the key; «الرمز
-// وحده» goes on. Either way setup goes on; «القفل والأمان» changes it later.
+// or face (#210): one question, whether to open with it too. Yes shows the
+// phone's own prompt once, which the Keystore needs to make the key; the PIN
+// alone goes on. Either way setup goes on, and the lock and security settings
+// change it later. The two answers stand one above the other, each across the
+// page with its icon (answer 801).
 
 import { useLocale } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
@@ -12,6 +14,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { WelcomeHero } from '../components/WelcomeHero';
+import { controlIcon } from '../design/Icon';
 import { colors, spacing, typography } from '../design/tokens';
 import type { Spec as Storage } from '../native/NativeMinhajnaStorage';
 import { useText } from '../text/i18n';
@@ -82,10 +85,18 @@ export function BiometricAsk({ storage, pin, onDone }: BiometricAskProps) {
         )}
       </View>
       <View style={[styles.foot, side]}>
-        <Button testID="biometric-yes" label={t('lock.biometricAsk.yes')} disabled={busy} onPress={turnOn} />
+        <Button
+          testID="biometric-yes"
+          icon={controlIcon('fingerprint')}
+          label={t('lock.biometricAsk.yes')}
+          disabled={busy}
+          onPress={turnOn}
+        />
         <Button
           testID="biometric-no"
           variant="line"
+          wide
+          icon={controlIcon('lock')}
           label={t('lock.biometricAsk.no')}
           disabled={busy}
           onPress={onDone}
