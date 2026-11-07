@@ -27,7 +27,7 @@ import type { DemoLevel, DemoName, DemoPerson } from './demo-names.ts';
 import { demoNames, demoWilayas } from './demo-names.ts';
 import { demoPupils } from './demo-pupils.ts';
 import type { PlanPack } from './pack.ts';
-import { packsFor, pinOf } from './pack-catalogue.ts';
+import { bundledPin } from './pack-catalogue.ts';
 import type { Pupil } from './attendance-records.ts';
 import type { PinnedPack, Slot } from './records.ts';
 import type { Zone } from './reference.ts';
@@ -130,12 +130,6 @@ export interface DemoWorld {
   readonly schools: readonly DemoSchool[];
 }
 
-/** The pack the app would offer first for a grade and subject, at its latest release, leaving out stale ones. */
-function pinned(packs: readonly PlanPack[], grade: string, subject: string): PinnedPack | null {
-  const found = packsFor(packs, grade, subject).find((pack) => pack.status !== 'stale');
-  return found === undefined ? null : pinOf(found);
-}
-
 /**
  * A class's week: its subjects' sessions take periods 0, 1, 2… in order, and the class at `index` takes period
  * `period + step × index` of the slots, counted day by day, so a CEM or lycée class has two or three sessions a day and
@@ -210,7 +204,7 @@ export function seedNationalWorld(
         }));
         const classPacks: Record<string, PinnedPack> = {};
         for (const [subject] of WEEK[level]) {
-          const pack = pinned(packs, grade, subject);
+          const pack = bundledPin(packs, grade, subject);
           if (pack !== null) classPacks[subject] = pack;
         }
         return { id: classId, grade, name: `${grade.toUpperCase()}${section}`, pupils, packs: classPacks };

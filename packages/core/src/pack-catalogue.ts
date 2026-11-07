@@ -65,6 +65,12 @@ export function pinOf(pack: PlanPack): PinnedPack {
   return { id: pack.id, release: pack.release };
 }
 
+/** The pin a class takes by default: the first-ranked pack whose latest release is not stale, or none. */
+export function bundledPin(packs: Iterable<PlanPack>, grade: string, subject: string): PinnedPack | null {
+  const found = packsFor(packs, grade, subject).find((pack) => pack.status !== 'stale');
+  return found === undefined ? null : pinOf(found);
+}
+
 /** A later release of the pinned edition, if one has come; the class stays where it is until the teacher moves it. */
 export function newerRelease(packs: Iterable<PlanPack>, pinned: PinnedPack): PlanPack | null {
   let newest: PlanPack | null = null;

@@ -71,6 +71,8 @@ export * from './demo-pupils.ts';
 export * from './demo-world.ts';
 export * from './directory.ts';
 export * from './directory-book.ts';
+export * from './directory-join.ts';
+export * from './directory-joined.ts';
 export * from './directorate-space.ts';
 export * from './name-replace.ts';
 export * from './engine.ts';

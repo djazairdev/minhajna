@@ -3,12 +3,14 @@
 
 // A school's book in the directory (answers 807 and 808): its classes, pupils,
 // its teachers and its week, which the director fills in. A teacher's phone
-// receives only its own delivery, through the joining code the school gave it.
-// Every name in it is made up until the national system exists. The reader
-// answers the book, or a sentence saying what is wrong with it.
+// receives only its own delivery, through the joining code the school gave it:
+// 16 letters of an unambiguous alphabet, in groups of 4, read whatever the
+// case and with or without its hyphens and spaces. Every name in it is made up
+// until the national system exists. The readers answer the book or the
+// delivery, or a sentence saying what is wrong with it.
 
 import type { Weekday } from './day.ts';
-import { DIRECTORY_FORMAT, type DirectorySchool } from './directory.ts';
+import { DIRECTORY_FORMAT, readDirectorySchool, type DirectorySchool } from './directory.ts';
 import { isCode, isObject, isText } from './directory-read.ts';
 import type { Half, Slot } from './records.ts';
 
@@ -16,6 +18,8 @@ export const MAX_BOOK_CLASSES = 300;
 export const MAX_BOOK_TEACHERS = 300;
 export const MAX_CLASS_PUPILS = 200;
 export const MAX_BOOK_SESSIONS = 6_000;
+/** The last slot of a half-day a session may take: a fifth morning, as `data/dz/bells.json` has. */
+export const MAX_SLOT_INDEX = 5;
 
 export interface BookPupil {
   readonly id: string;
@@ -183,5 +187,46 @@ export function deliveryFor(
     teacher: { id: teacher.id, name: teacher.name, option: teacher.option },
     classes: taught.map(({ id, grade, name, pupils }) => ({ id, grade, name, pupils })),
     sessions: book.week.filter(ownSubject),
+  };
+}
+
+const JOINING_CODE = /^[0-9A-HJKMNP-TV-Z]{16}$/u;
+
+/** A joining code as typed or scanned, in capitals without hyphens or spaces, or null when it cannot be one. */
+export function readJoiningCode(typed: string): string | null {
+  const letters = typed.replace(/[-\s]/gu, '').toUpperCase();
+  return JOINING_CODE.test(letters) ? letters : null;
+}
+
+/** What `POST /directory/join` answered, or a sentence saying what is wrong with it. */
+export function readTeacherDelivery(value: unknown): TeacherDelivery | string {
+  if (!isObject(value) || value.format !== DIRECTORY_FORMAT) return 'not a delivery of this format';
+  const school = value.school === null ? null : readDirectorySchool(value.school);
+  if (typeof school === 'string') return school;
+  const { teacher, classes, sessions } = value;
+  if (!isObject(teacher) || !isCode(teacher.id) || !isText(teacher.name) || !isCode(teacher.option)) {
+    return 'a delivery needs its teacher';
+  }
+  if (!Array.isArray(classes) || !Array.isArray(sessions)) return 'a delivery needs classes and sessions';
+  if (classes.length > MAX_BOOK_CLASSES || sessions.length > MAX_BOOK_SESSIONS) return 'this delivery is too large';
+  const read = readAll(classes, (one) => readClass(isObject(one) ? { ...one, teachers: {} } : one));
+  if (typeof read === 'string') return read;
+  const week = readAll(sessions, readSession);
+  if (typeof week === 'string') return week;
+  const ids = new Set(read.map((one) => one.id));
+  if (ids.size < read.length) return 'a class appears twice';
+  const stray = week.find((session) => !ids.has(session.classId));
+  if (stray !== undefined) return `session ${stray.id} names no class of this delivery`;
+  if (new Set(week.map((one) => one.id)).size < week.length) return 'a session appears twice';
+  const late = week.find((one) => one.slot.index > MAX_SLOT_INDEX);
+  if (late !== undefined) return `session ${late.id} is past the day's last slot`;
+  const twice = read.find((one) => new Set(one.pupils.map((pupil) => pupil.id)).size < one.pupils.length);
+  if (twice !== undefined) return `a pupil appears twice in class ${twice.id}`;
+  return {
+    format: DIRECTORY_FORMAT,
+    school,
+    teacher: { id: teacher.id, name: teacher.name.trim(), option: teacher.option },
+    classes: read.map(({ id, grade, name, pupils }) => ({ id, grade, name, pupils })),
+    sessions: week,
   };
 }

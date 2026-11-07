@@ -80,6 +80,7 @@ export function recordKey(entry: Entry): string | null {
     case 'insights.drawn':
     case 'insights.choice':
     case 'insights.sent':
+    case 'directory.joined':
       return null;
     case 'course.set':
       return `course/${event.course.id}`;

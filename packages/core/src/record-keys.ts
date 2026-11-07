@@ -184,6 +184,8 @@ export function recordKey(event: RecordEvent): string {
       return 'insights-choice';
     case 'insights.sent':
       return `insights-sent:${sentKey(event.sent?.text)}`;
+    case 'directory.joined':
+      return `directory-joined:${event.joined?.school ?? ''}`;
     case 'grant.requested': {
       const request = event.requested?.request as { id?: unknown } | undefined;
       return `grant-requested:${typeof request?.id === 'string' ? request.id : ''}`;
