@@ -23,9 +23,11 @@
 # read of the bucket gives what WAL-G said, since a start that stalls or fails
 # shows little else. PostgreSQL runs as postgres and listens on its socket only;
 # the server runs as minhajna, a role that is no superuser, without the bucket's
-# settings. ARCHIVE=off runs with no bucket, for trying the image; nothing
-# outlives the container then. Logs carry no clock times: they are cut from
-# PostgreSQL's and WAL-G's lines.
+# settings. Its socket's folder is made here, with the modes the postgres image
+# gives it, since Cloudflare's containers start without the image's own (answer
+# 797). ARCHIVE=off runs with no bucket, for trying the image; nothing outlives
+# the container then. Logs carry no clock times: they are cut from PostgreSQL's
+# and WAL-G's lines.
 
 set -euo pipefail
 
@@ -80,6 +82,7 @@ back_up() {
 
 new=no
 log 'starting'
+install -d -o postgres -g postgres -m 3777 "$SOCKET"
 rm -rf "$RESTORING" "$PGDATA.restore-test"
 mkdir -p "$PGDATA"
 chown postgres:postgres "$PGDATA"
