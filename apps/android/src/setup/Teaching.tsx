@@ -3,7 +3,7 @@
 
 // Getting started, step 1 of 5: levels, subjects and schools (#25, §3.2),
 // as Setup-2-Teaching and, with several schools, Setup-2b-Schools draw them.
-// One school is open at a time; the others fold to a line with «تعديل».
+// One school is open at a time; the others fold to a line with an edit button.
 // Every change is saved as it is made, the wilaya included.
 
 import { useLocale } from '@react-navigation/native';

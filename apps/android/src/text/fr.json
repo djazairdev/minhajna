@@ -258,8 +258,7 @@
       "lycee": "Secondaire"
     },
     "pc": {
-      "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce PC.",
-      "cardIntro": "Ce qui s’imprime en tête des documents. Les champs personnels sont facultatifs et ne quittent pas ce PC."
+      "notSaved": "Le dernier changement n’a pas pu être enregistré sur ce PC."
     }
   },
   "week": {

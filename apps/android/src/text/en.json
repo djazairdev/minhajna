@@ -249,8 +249,7 @@
       "lycee": "Secondary"
     },
     "pc": {
-      "notSaved": "The last change could not be saved on this PC.",
-      "cardIntro": "What the documents print at the top. Personal fields are optional and never leave this PC."
+      "notSaved": "The last change could not be saved on this PC."
     }
   },
   "week": {
