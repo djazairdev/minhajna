@@ -5,10 +5,12 @@
 // the joining code's QR and the code in its groups, to scan or type in the
 // app; printing it; renewing it, after which the old one opens nothing; and
 // taking the teacher off the book, which ends their code and leaves their
-// classes without them. The code works for updates until renewed.
+// classes without them, each once confirmed. The code works for updates until
+// renewed.
 
 import type { BookTeacher } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
 import { controlIcon } from '../design/Icon';
@@ -38,6 +40,7 @@ export function TeacherPanel(props: TeacherPanelProps) {
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const call = useDirectoryCall();
+  const [sure, setSure] = useState<'renew' | 'remove' | null>(null);
   const teacher = book.teachers.find((one) => one.id === teacherId);
   const shown = teacher?.code === undefined ? null : codeShown(teacher.code);
   const rows = shown === null ? null : qr.qrRows(shown);
@@ -82,23 +85,50 @@ export function TeacherPanel(props: TeacherPanelProps) {
           onPress={() => onPrint([teacher])}
         />
       )}
-      <Button
-        testID="teacher-renew"
-        variant="line"
-        icon={controlIcon('qr')}
-        label={t('dashboard.teachers.renew')}
-        disabled={call.busy || shown === null}
-        onPress={() => void renew()}
-      />
-      <Button
-        testID="teacher-remove"
-        variant="line"
-        label={t('dashboard.teachers.remove')}
-        onPress={() => {
-          update((current) => withoutTeacher(current, teacherId));
-          onAside(null);
-        }}
-      />
+      {sure === null ? (
+        <>
+          <Button
+            testID="teacher-renew"
+            variant="line"
+            icon={controlIcon('qr')}
+            label={t('dashboard.teachers.renew')}
+            disabled={call.busy || shown === null}
+            onPress={() => setSure('renew')}
+          />
+          <Button
+            testID="teacher-remove"
+            variant="line"
+            icon={controlIcon('cross')}
+            label={t('dashboard.teachers.remove')}
+            onPress={() => setSure('remove')}
+          />
+        </>
+      ) : (
+        <>
+          <Button
+            testID="teacher-sure"
+            variant="danger"
+            label={t(`dashboard.teachers.sure.${sure}`, { name: teacher.name })}
+            disabled={call.busy}
+            onPress={() => {
+              setSure(null);
+              if (sure === 'renew') {
+                void renew();
+                return;
+              }
+              update((current) => withoutTeacher(current, teacherId));
+              onAside(null);
+            }}
+          />
+          <Button
+            testID="teacher-not-sure"
+            variant="line"
+            icon={controlIcon('cross')}
+            label={t('dashboard.cancel')}
+            onPress={() => setSure(null)}
+          />
+        </>
+      )}
     </View>
   );
 }

@@ -61,7 +61,7 @@ export function WeekTab({
       )}
       <View role="table" accessibilityLabel={t('dashboard.classes.tab.week')} style={styles.grid}>
         <View role="row" style={styles.row}>
-          <View style={styles.slot} />
+          <View role="columnheader" accessibilityLabel={t('dashboard.week.slot')} style={styles.slot} />
           {days.map((day) => (
             <View key={day} role="columnheader" style={styles.cell}>
               <Text style={[styles.head, align]}>{t(`week.days.${day}`)}</Text>

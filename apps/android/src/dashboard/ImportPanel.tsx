@@ -15,7 +15,7 @@ import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import files from '../native/NativeMinhajnaFiles';
 import { useDeviceText } from '../text/device-text';
-import { Figure, Figures, Quiet } from './page-parts';
+import { Figure, Figures } from './page-parts';
 import { Table } from './Table';
 
 export type ImportFigure = {
@@ -89,11 +89,16 @@ export function ImportPanel({ title, check, onApply, onClose, whereLabel }: Impo
           <Text testID="import-applied" accessibilityRole="alert" style={[styles.ok, align]}>
             {t('dashboard.import.applied', { count: applied })}
           </Text>
-          <Button testID="import-close" variant="line" label={t('dashboard.back')} onPress={onClose} />
+          <Button
+            testID="import-close"
+            variant="line"
+            icon={controlIcon('chevron')}
+            label={t('dashboard.back')}
+            onPress={onClose}
+          />
         </>
       ) : shown === null ? (
         <>
-          <Quiet>{t('dashboard.import.csv')}</Quiet>
           <Button
             testID="import-pick"
             variant="line"
@@ -101,7 +106,13 @@ export function ImportPanel({ title, check, onApply, onClose, whereLabel }: Impo
             label={t('dashboard.import.pick')}
             onPress={pick}
           />
-          <Button testID="import-cancel" variant="line" label={t('dashboard.cancel')} onPress={onClose} />
+          <Button
+            testID="import-cancel"
+            variant="line"
+            icon={controlIcon('cross')}
+            label={t('dashboard.cancel')}
+            onPress={onClose}
+          />
         </>
       ) : (
         <>
@@ -145,7 +156,13 @@ export function ImportPanel({ title, check, onApply, onClose, whereLabel }: Impo
               setApplied(shown.changes);
             }}
           />
-          <Button testID="import-cancel" variant="line" label={t('dashboard.cancel')} onPress={onClose} />
+          <Button
+            testID="import-cancel"
+            variant="line"
+            icon={controlIcon('cross')}
+            label={t('dashboard.cancel')}
+            onPress={onClose}
+          />
         </>
       )}
     </View>

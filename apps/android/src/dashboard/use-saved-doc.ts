@@ -5,13 +5,14 @@
 // change shows at once and is saved over the revision read last. Changes made
 // while a save is on its way wait, and only the newest goes next. A save that
 // fails keeps the change on the page and waits for a retry; when someone else
-// saved first it goes no further, and the page says so through its call, with
-// the way to read the latest copy. What the server answers replaces the page's
-// copy only when nothing newer waits.
+// saved first, nothing more is sent and the page stops taking changes until it
+// reads the latest copy, as its call says. What the server answers replaces
+// the page's copy only when nothing newer waits, with what the page adopted
+// meanwhile, as a renewed code, laid over it again.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DirectoryOptions } from '../network/directory-network';
-import type { DirectoryCall } from './use-directory-call';
+import { problemOf, type DirectoryCall } from './use-directory-call';
 
 export type SaveDoc<T> = (
   revision: number,
@@ -24,6 +25,10 @@ export interface SavedDoc<T> {
   readonly revision: number;
   /** True while a change is not yet saved. */
   readonly unsaved: boolean;
+  /** True once someone else saved first, until the latest copy replaces the page's. */
+  readonly stale: boolean;
+  /** The newest copy, for a panel that reads it later than it opened. */
+  readonly read: () => T;
   /** Reads the change into the page and saves it. */
   readonly change: (next: T) => void;
   /** Changes the newest copy, as a panel opened earlier does. */
@@ -51,28 +56,46 @@ export function useSavedDoc<T>(
   }, []);
   const [revision, setRevision] = useState(start.revision);
   const [unsaved, setUnsaved] = useState(false);
-  const held = useRef({ revision: start.revision, waiting: null as T | null, sending: false });
+  const [stale, setStale] = useState(false);
+  const held = useRef({
+    revision: start.revision,
+    waiting: null as T | null,
+    sending: false,
+    stale: false,
+    adopted: [] as ((doc: T) => T)[],
+  });
   const saver = useRef(save);
   useEffect(() => {
     saver.current = save;
   }, [save]);
   const flush = useCallback(async () => {
     const state = held.current;
-    if (state.sending) return;
+    if (state.sending || state.stale) return;
     state.sending = true;
-    for (let sent = state.waiting; sent !== null; sent = state.waiting) {
+    for (let sent = state.waiting; sent !== null && !state.stale; sent = state.waiting) {
       const from = state.revision;
+      const mark = state.adopted.length;
       state.waiting = null;
-      const answer = await run((options) => saver.current(from, sent, options));
+      const answer = await run(async (options) => {
+        try {
+          return await saver.current(from, sent, options);
+        } catch (error) {
+          if (problemOf(error) === 'stale') state.stale = true;
+          throw error;
+        }
+      });
       if (held.current !== state) return;
       if (answer === undefined) {
         state.waiting ??= sent;
+        setStale(state.stale);
         break;
       }
       state.revision = answer.revision;
       setRevision(answer.revision);
       if (state.waiting === null) {
-        if (answer.doc !== undefined) setDoc(answer.doc);
+        const { doc: saved } = answer;
+        if (saved !== undefined) setDoc(state.adopted.slice(mark).reduce<T>((one, step) => step(one), saved));
+        state.adopted = [];
         setUnsaved(false);
       }
     }
@@ -80,6 +103,7 @@ export function useSavedDoc<T>(
   }, [run, setDoc]);
   const change = useCallback(
     (next: T) => {
+      if (held.current.stale) return;
       setDoc(next);
       setUnsaved(true);
       held.current.waiting = next;
@@ -91,20 +115,23 @@ export function useSavedDoc<T>(
   const retry = useCallback(() => void flush(), [flush]);
   const replace = useCallback(
     (next: T, at: number) => {
-      held.current = { revision: at, waiting: null, sending: false };
+      held.current = { revision: at, waiting: null, sending: false, stale: false, adopted: [] };
       setDoc(next);
       setRevision(at);
       setUnsaved(false);
+      setStale(false);
     },
     [setDoc],
   );
   const adopt = useCallback(
     (step: (current: T) => T) => {
       const state = held.current;
+      state.adopted.push(step);
       if (state.waiting !== null) state.waiting = step(state.waiting);
       setDoc(step(latest.current));
     },
     [setDoc],
   );
-  return { doc, revision, unsaved, change, update, adopt, retry, replace };
+  const read = useCallback(() => latest.current, []);
+  return { doc, revision, unsaved, stale, read, change, update, adopt, retry, replace };
 }

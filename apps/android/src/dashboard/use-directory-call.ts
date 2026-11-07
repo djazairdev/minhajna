@@ -31,8 +31,6 @@ export interface DirectoryCall {
   readonly busy: boolean;
   readonly waking: boolean;
   readonly problem: DirectoryProblem | null;
-  /** The server's own sentence for what it would not read. */
-  readonly detail: string | null;
   /** Runs a call and answers its value, or undefined once its problem is set. */
   readonly run: <T>(call: (options: DirectoryOptions) => Promise<T>) => Promise<T | undefined>;
   readonly clear: () => void;
@@ -42,7 +40,7 @@ export interface DirectoryCall {
 export function useDirectoryCall(): DirectoryCall {
   const [running, setRunning] = useState(0);
   const [waking, setWaking] = useState(false);
-  const [failure, setFailure] = useState<{ problem: DirectoryProblem; detail: string | null } | null>(null);
+  const [failure, setFailure] = useState<DirectoryProblem | null>(null);
   const open = useRef(true);
   useEffect(() => {
     open.current = true;
@@ -57,7 +55,7 @@ export function useDirectoryCall(): DirectoryCall {
       return await call({ onWaking: () => open.current && setWaking(true) });
     } catch (error) {
       const problem = problemOf(error);
-      if (open.current) setFailure({ problem, detail: problem === 'bad' ? (error as Error).message : null });
+      if (open.current) setFailure(problem);
       return undefined;
     } finally {
       if (open.current) {
@@ -71,8 +69,7 @@ export function useDirectoryCall(): DirectoryCall {
     () => ({
       busy: running > 0,
       waking,
-      problem: failure?.problem ?? null,
-      detail: failure?.detail ?? null,
+      problem: failure,
       run,
       clear,
     }),

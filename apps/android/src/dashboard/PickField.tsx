@@ -60,7 +60,7 @@ export function PickField(props: PickFieldProps) {
         ref={opener}
         testID={testID}
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${chosen?.label ?? ''}`}
+        accessibilityLabel={chosen === undefined ? label : `${label}: ${chosen.label}`}
         accessibilityState={{ disabled }}
         disabled={disabled}
         onPress={() => setOpen(true)}

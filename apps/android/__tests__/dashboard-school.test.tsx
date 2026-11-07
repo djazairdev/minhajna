@@ -40,14 +40,6 @@ const pick = (field: string, value: string) => choose(press, field, value);
 let directory: FakeDirectory;
 
 const book = () => directory.books.get('160101')!.book;
-const ids = (testID: string) =>
-  rendered()
-    .root.findAll(
-      (one) =>
-        typeof one.props.testID === 'string' && one.props.testID.startsWith(testID) && one.props.onPress !== undefined,
-    )
-    .map((one) => (one.props.testID as string).slice(testID.length));
-
 async function open(start: SchoolBook = { format: 1, teachers: [], classes: [], week: [] }) {
   directory.versions.push(list);
   directory.schoolCodes.set('160101', 'school-made-up');
@@ -101,9 +93,12 @@ it('gives a new teacher the server’s code, prints it and renews it', async () 
   const first = book().teachers[0]?.code;
   expect(texts()).toContain('ABCD-2345-EFGH-7771');
   await press(`teacher-${id}`);
+  const printHtml = jest.spyOn(pdf, 'printHtml');
   await press('teacher-print');
-  expect(jest.mocked(pdf.printHtml).mock.calls.at(-1)?.[0]).toContain('ABCD-2345-EFGH-7771');
+  expect(printHtml.mock.calls.at(-1)?.[0]).toContain('ABCD-2345-EFGH-7771');
   await press('teacher-renew');
+  expect(book().teachers[0]?.code).toBe(first);
+  await press('teacher-sure');
   expect(book().teachers[0]?.code).not.toBe(first);
   expect(texts()).toContain('ABCD-2345-EFGH-7772');
 });
@@ -118,16 +113,17 @@ it('adds a class and a pupil, moves the pupil, and records a leaving', async () 
   await pick('pupil-sex', 'f');
   await type('pupil-registration', '1120450087');
   await press('pupil-add');
-  const [pupil] = book().classes[0]!.pupils;
+  const [pupil] = book().classes[0].pupils;
   expect(pupil).toMatchObject({ name: 'تلميذة مثال', sex: 'f', registration: '1120450087' });
   await type('pupil-registration', '1120450087');
   expect(texts()).toContain(words.pupils.taken);
-  await press(`pupil-${pupil!.id}`);
+  await press(`pupil-${pupil.id}`);
   await pick('pupil-move', second);
-  expect(book().classes[1]!.pupils.map((one) => one.id)).toEqual([pupil!.id]);
+  expect(book().classes[1].pupils.map((one) => one.id)).toEqual([pupil.id]);
   await press(`class-${second}`);
-  await press(`pupil-${pupil!.id}`);
+  await press(`pupil-${pupil.id}`);
   await press('pupil-leave');
+  await press('pupil-leave-sure');
   expect(book().classes.flatMap((one) => one.pupils)).toEqual([]);
 });
 
@@ -140,7 +136,7 @@ it('gives subjects their teachers, and refuses a teacher in two classes at once'
   for (const one of [first, second]) {
     await press(`class-${one}`);
     await press('class-tab-teachers');
-    await pick('assign-arabic', teacherId!);
+    await pick('assign-arabic', teacherId);
     await press('class-tab-week');
     await pick('week-0-morning-1', 'arabic');
   }
@@ -193,7 +189,7 @@ it('checks a file of pupils, matched on the registration number, before applying
   const figure = (id: string) =>
     rendered().root.findAll(
       (one) => one.props.testID === `import-figure-${id}` && one.props.accessibilityLabel !== undefined,
-    )[0]!.props.accessibilityLabel as string;
+    )[0].props.accessibilityLabel as string;
   expect([figure('new'), figure('same'), figure('moved'), figure('refused')].map((one) => one.split(' ')[0])).toEqual([
     '1',
     '1',
@@ -201,7 +197,7 @@ it('checks a file of pupils, matched on the registration number, before applying
     '2',
   ]);
   expect(texts()).toContain('القسم غير موجود: 4م9');
-  expect(book().classes[0]!.pupils).toHaveLength(1);
+  expect(book().classes[0].pupils).toHaveLength(1);
   await press('import-apply');
   expect(book().classes.map((one) => one.pupils.map((pupil) => pupil.registration).sort())).toEqual([
     ['11', '12'],

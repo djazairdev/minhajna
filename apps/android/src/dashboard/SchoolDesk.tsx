@@ -108,17 +108,20 @@ export function SchoolDesk({ profile, bells, list, school, code, start, onLock, 
         onLock={onLock}
         onBack={onBack}
         aside={aside}
+        held={saved.stale}
+        top={
+          <DirectoryStatus
+            call={call}
+            retry={
+              saved.stale || call.problem === 'bad'
+                ? { label: t('dashboard.reload'), onPress: () => void reload() }
+                : saved.unsaved
+                  ? { label: t('dashboard.tryAgain'), onPress: saved.retry }
+                  : undefined
+            }
+          />
+        }
       >
-        <DirectoryStatus
-          call={call}
-          retry={
-            call.problem === 'stale'
-              ? { label: t('dashboard.reload'), onPress: () => void reload() }
-              : saved.unsaved
-                ? { label: t('dashboard.tryAgain'), onPress: saved.retry }
-                : undefined
-          }
-        />
         {view === 'classes' ? <ClassesView {...shared} /> : <TeachersView {...shared} />}
       </DashboardFrame>
     </DeskBookContext.Provider>

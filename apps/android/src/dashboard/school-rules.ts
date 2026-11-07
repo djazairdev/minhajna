@@ -79,6 +79,13 @@ export function idsOf(book: SchoolBook): Set<string> {
   ]);
 }
 
+/** A class's name as the school's names are compared: case and spaces aside. */
+export const className = (name: string) => name.trim().toLocaleLowerCase().replace(/\s+/gu, '');
+
+/** Whether the book already has a class of this name. */
+export const classNameTaken = (book: SchoolBook, name: string) =>
+  book.classes.some((one) => className(one.name) === className(name));
+
 /** The book with a new class of a year. */
 export function withClass(book: SchoolBook, grade: string, name: string): SchoolBook {
   const id = newId('c', idsOf(book));

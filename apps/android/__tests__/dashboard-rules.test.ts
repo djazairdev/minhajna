@@ -48,10 +48,10 @@ it('assigns the primary by option and the middle school by subject', () => {
     week: [],
   };
   const [whole] = unitsOf(primary);
-  expect(candidates(book, primary, whole!).map((one) => one.id)).toEqual(['t1']);
-  const given = withUnitTeacher(book, 'c1', whole!, 't1');
-  expect(Object.keys(given.classes[0]!.teachers)).toEqual(whole!.subjects);
-  expect(Object.keys(withUnitTeacher(given, 'c1', whole!, null).classes[0]!.teachers)).toEqual([]);
+  expect(candidates(book, primary, whole).map((one) => one.id)).toEqual(['t1']);
+  const given = withUnitTeacher(book, 'c1', whole, 't1');
+  expect(Object.keys(given.classes[0].teachers)).toEqual(whole.subjects);
+  expect(Object.keys(withUnitTeacher(given, 'c1', whole, null).classes[0].teachers)).toEqual([]);
 });
 
 it('writes a joining code in groups of four', () => {

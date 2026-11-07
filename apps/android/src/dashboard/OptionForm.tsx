@@ -4,7 +4,8 @@
 // The side panel that adds or edits a level's option (answer 804): one
 // subject, or two as one option outside the primary, each a select of the
 // level's subjects. A subject that already has its own option is not offered
-// again, and an option that exists says so.
+// again, and an option that exists says so. An edited option keeps its code,
+// which the schools' teachers hold.
 
 import type { CountryProfile, DirectoryLevel, DirectoryOption, ReferenceDraft } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -73,9 +74,24 @@ export function OptionForm({ profile, level, pair, editing, onDone }: OptionForm
           icon={controlIcon('check')}
           label={t('dashboard.save')}
           disabled={!whole || exists}
-          onPress={() => onDone((draft) => withOption(draft, level.code, makeOption(codes), editing))}
+          onPress={() =>
+            onDone((draft) =>
+              withOption(
+                draft,
+                level.code,
+                { ...makeOption(codes), code: editing?.code ?? makeOption(codes).code },
+                editing,
+              ),
+            )
+          }
         />
-        <Button testID="option-cancel" variant="line" label={t('dashboard.cancel')} onPress={() => onDone(null)} />
+        <Button
+          testID="option-cancel"
+          variant="line"
+          icon={controlIcon('cross')}
+          label={t('dashboard.cancel')}
+          onPress={() => onDone(null)}
+        />
       </View>
     </View>
   );

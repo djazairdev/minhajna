@@ -41,7 +41,7 @@ const typed = (testID: string) =>
   ).value;
 
 function Door({ onOpen }: { onOpen: () => void }) {
-  const doors = useDashboardDoors(true);
+  const doors = useDashboardDoors(true, { kind: 'welcome' }, null);
   return (
     <DashboardDoor.Provider value={doors.open === null ? null : onOpen}>
       <Welcome onStart={() => undefined} />
@@ -74,6 +74,38 @@ describe('the door', () => {
     jest.replaceProperty(Platform, 'OS', 'android');
     await show(<Door onOpen={() => undefined} />);
     expect(has('welcome-dashboard')).toBe(false);
+  });
+});
+
+describe('reader mode from the dashboard', () => {
+  type Phase = Parameters<typeof useDashboardDoors>[1];
+  const seen: (unknown[] | undefined)[] = [];
+  const leaving: ((fromWelcome: (() => void) | null) => void)[] = [];
+  const leave = (fromWelcome: (() => void) | null) => leaving.at(-1)?.(fromWelcome);
+  const book = { state: { setupFinished: true }, entries: [] };
+  function Probe({ phase }: { phase: Phase }) {
+    const doors = useDashboardDoors(true, phase, phase.kind === 'open' ? book : null);
+    leaving.push(doors.toReader);
+    seen.push(doors.readerState?.routes.map((route) => route.name));
+    return null;
+  }
+
+  it('opens the notice over the app’s first screen once, after the lock', async () => {
+    await show(<Probe phase={{ kind: 'locked', biometric: false, waitSeconds: 0 }} />);
+    await act(() => leave(null));
+    await show(<Probe phase={{ kind: 'open', fresh: false, opening: 1 }} />);
+    expect(seen.at(-1)).toEqual(['Home', 'Privacy']);
+    await show(<Probe phase={{ kind: 'locked', biometric: false, waitSeconds: 0 }} />);
+    await show(<Probe phase={{ kind: 'open', fresh: false, opening: 2 }} />);
+    expect(seen.at(-1)).toBeUndefined();
+  });
+
+  it('goes the welcome’s way on a fresh PC', async () => {
+    const begin = jest.fn();
+    await show(<Probe phase={{ kind: 'welcome' }} />);
+    await act(() => leave(begin));
+    expect(begin).toHaveBeenCalledTimes(1);
+    expect(seen.at(-1)).toBeUndefined();
   });
 });
 

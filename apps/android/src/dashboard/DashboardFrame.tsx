@@ -5,7 +5,8 @@
 // sidebar with who is working, the pages and, at its foot, locking the page and
 // going back; the page itself under the line saying its data is made up, as
 // the server holds it in the clear (answer 809); and a side panel when the page
-// gives one.
+// gives one. While the page is held, as when someone else saved first, its
+// content takes no touch and its panel closes; the line over it stays.
 
 import { useLocale } from '@react-navigation/native';
 import type { ReactNode } from 'react';
@@ -29,6 +30,10 @@ export type DashboardFrameProps = {
   readonly onLock?: () => void;
   readonly onBack: () => void;
   readonly aside?: ReactNode;
+  /** The words over the page, as its calls' status, which stay usable while the page is held. */
+  readonly top?: ReactNode;
+  /** True while the page takes no change, as when someone else saved first. */
+  readonly held?: boolean;
   readonly children: ReactNode;
 };
 
@@ -58,7 +63,8 @@ function SideButton({ item }: { item: FrameItem }) {
 }
 
 /** The sidebar, the page and its panel. */
-export function DashboardFrame({ who, whoLine, items = [], onLock, onBack, aside, children }: DashboardFrameProps) {
+export function DashboardFrame(props: DashboardFrameProps) {
+  const { who, whoLine, items = [], onLock, onBack, aside, top, held = false, children } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
@@ -86,10 +92,19 @@ export function DashboardFrame({ who, whoLine, items = [], onLock, onBack, aside
         <Text testID="dashboard-made-up" style={[styles.madeUp, align]}>
           {t('dashboard.madeUp')}
         </Text>
-        {children}
+        {top}
+        <View pointerEvents={held ? 'none' : 'auto'} style={[styles.pageInner, held && styles.held]}>
+          {children}
+        </View>
       </ScrollView>
-      {aside !== undefined && aside !== null && (
-        <ScrollView testID="dashboard-aside" style={styles.aside} contentContainerStyle={styles.asideInner}>
+      {aside !== undefined && aside !== null && !held && (
+        <ScrollView
+          testID="dashboard-aside"
+          role="complementary"
+          accessibilityLabel={t('dashboard.panel')}
+          style={styles.aside}
+          contentContainerStyle={styles.asideInner}
+        >
           {aside}
         </ScrollView>
       )}
@@ -126,6 +141,7 @@ const styles = StyleSheet.create({
   page: { flex: 1, minWidth: 0 },
   pageInner: { gap: spacing['space-12'], padding: spacing['space-20'] },
   madeUp: { ...typography.small, color: colors['notice-ink'] },
+  held: { opacity: 0.5 },
   aside: {
     width: 420,
     flexGrow: 0,

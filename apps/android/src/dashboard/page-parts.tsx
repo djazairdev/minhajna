@@ -67,11 +67,13 @@ export function RowLink({
   label,
   name,
   onPress,
+  disabled = false,
   testID,
 }: {
   label: string;
   name?: string;
   onPress: () => void;
+  disabled?: boolean;
   testID?: string;
 }) {
   return (
@@ -79,8 +81,10 @@ export function RowLink({
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={name ?? label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={styles.link}
+      style={[styles.link, disabled && styles.off]}
     >
       <Text style={styles.linkWords}>{label}</Text>
     </Pressable>
@@ -110,7 +114,7 @@ export function Chips({
           key={choice.value}
           testID={`${testID}-${choice.value}`}
           accessibilityRole="button"
-          accessibilityState={{ selected: choice.value === value }}
+          {...({ 'aria-pressed': choice.value === value } as object)}
           onPress={() => onChange(choice.value)}
           style={[styles.chip, choice.value === value && styles.chipOn]}
         >
@@ -123,6 +127,7 @@ export function Chips({
 
 const styles = StyleSheet.create({
   link: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
+  off: { opacity: 0.45 },
   linkWords: { ...typography.label, color: colors.ink, textDecorationLine: 'underline' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing['space-6'] },
   chip: {

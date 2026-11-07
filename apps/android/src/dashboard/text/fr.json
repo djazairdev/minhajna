@@ -5,25 +5,25 @@
   "next": "Suivant",
   "search": "Rechercher",
   "tryAgain": "Réessayer",
-  "madeUp": "Données d'exemple uniquement",
+  "madeUp": "Données d’exemple uniquement",
   "waking": "Le serveur se réveille, cela peut prendre une minute.",
   "problem": {
-    "refused": "Ce code n'est pas le bon.",
-    "stale": "Quelqu'un d'autre a enregistré avant vous. Chargez la dernière copie, puis refaites votre modification.",
-    "missing": "Ceci n'existe pas dans l'annuaire.",
-    "asleep": "Le serveur ne s'est pas encore réveillé. Réessayez dans un instant.",
+    "refused": "Ce code n’est pas le bon.",
+    "stale": "Quelqu’un d’autre a enregistré avant vous. Chargez la dernière copie, puis refaites votre modification.",
+    "missing": "Ceci n’existe pas dans l’annuaire.",
+    "asleep": "Le serveur ne s’est pas encore réveillé. Réessayez dans un instant.",
     "busy": "Trop de demandes en peu de temps. Réessayez dans un instant.",
-    "full": "L'annuaire n'a plus de place pour ceci.",
-    "bad": "Le serveur n'a pas accepté ces données.",
+    "full": "L’annuaire n’a plus de place pour ceci.",
+    "bad": "Le serveur n’a pas accepté ces données.",
     "network": "Impossible de joindre le serveur."
   },
   "home": {
     "reference": "Données de référence",
     "school": "Classes et élèves",
-    "reader": "Lire le relevé d'un enseignant"
+    "reader": "Lire le relevé d’un enseignant"
   },
   "who": {
-    "ministry": "Ministère de l'Éducation nationale",
+    "ministry": "Ministère de l’Éducation nationale",
     "school": "Administration"
   },
   "gate": {
@@ -31,14 +31,15 @@
     "again": "Retapez le code",
     "open": "Ouvrir",
     "set": "Définir le code",
-    "badCode": "De 8 à 64 caractères, sans espace.",
-    "different": "Les deux codes diffèrent."
+    "badCode": "De 8 à 64 lettres latines, chiffres ou signes, sans espace.",
+    "different": "Les deux codes diffèrent.",
+    "taken": "Quelqu’un d’autre vient de définir le code. Saisissez-le."
   },
   "place": {
     "wilaya": "Wilaya",
     "commune": "Commune",
     "school": "Établissement",
-    "nothing": "La liste des établissements n'est pas encore publiée."
+    "nothing": "La liste des établissements n’est pas encore publiée."
   },
   "edit": "Modifier",
   "hide": "Masquer",
@@ -68,7 +69,7 @@
     "classTeacher": "Enseignant de la classe",
     "pairName": "{{first}} et {{second}}",
     "column": {
-      "option": "Ce que choisit l'enseignant",
+      "option": "Ce que choisit l’enseignant",
       "kind": "Type"
     },
     "kind": {
@@ -88,9 +89,9 @@
     "allCommunes": "Toutes les communes",
     "allLevels": "Tous les cycles",
     "add": "Ajouter un établissement",
-    "edit": "Modifier l'établissement",
-    "name": "Nom de l'établissement",
-    "nameNeeded": "Saisissez le nom de l'établissement.",
+    "edit": "Modifier l’établissement",
+    "name": "Nom de l’établissement",
+    "nameNeeded": "Saisissez le nom de l’établissement.",
     "column": {
       "code": "Code",
       "name": "Établissement"
@@ -99,8 +100,6 @@
   },
   "publish": {
     "version": "Version {{version}}",
-    "draft": "Brouillon",
-    "none": "Aucune version publiée",
     "now": "Publier la version {{version}}",
     "added": "établissements ajoutés",
     "edited": "établissements modifiés",
@@ -116,7 +115,6 @@
   },
   "import": {
     "pick": "Choisir le fichier",
-    "csv": "Fichier CSV en UTF-8, la première ligne donnant le nom des colonnes.",
     "applied": "Modifications appliquées : {{count}}",
     "apply": "Appliquer les modifications : {{count}}",
     "line": "Ligne",
@@ -130,21 +128,21 @@
     "schoolsNew": "nouveaux établissements",
     "schoolsChanged": "établissements modifiés",
     "file": {
-      "binary": "Ce fichier n'est pas un CSV texte. Enregistrez le tableau depuis Excel au format CSV UTF-8, puis choisissez-le.",
+      "binary": "Ce fichier n’est pas un CSV texte. Enregistrez le tableau depuis Excel au format CSV UTF-8, puis choisissez-le.",
       "size": "Le fichier dépasse 2 Mo.",
-      "failed": "Le fichier n'a pas pu être lu."
+      "failed": "Le fichier n’a pas pu être lu."
     },
     "column": {
       "commune": "Code de la commune",
       "level": "Cycle",
-      "name": "Nom de l'établissement",
-      "code": "Code de l'établissement"
+      "name": "Nom de l’établissement",
+      "code": "Code de l’établissement"
     },
     "schoolColumns": {
       "commune": "Code de la commune|Commune",
       "level": "Cycle",
-      "name": "Nom de l'établissement|Établissement",
-      "code": "Code de l'établissement|Code"
+      "name": "Nom de l’établissement|Établissement",
+      "code": "Code de l’établissement|Code"
     },
     "school": {
       "commune": "Commune inconnue : {{cell}}",
@@ -158,13 +156,13 @@
     "pupilsMoved": "changent de classe",
     "pupilsChanged": "données modifiées",
     "pupilColumn": {
-      "registration": "Numéro d'inscription",
+      "registration": "Numéro d’inscription",
       "name": "Nom et prénom",
       "sex": "Sexe",
       "class": "Classe"
     },
     "pupilColumns": {
-      "registration": "Numéro d'inscription|Matricule|Numéro",
+      "registration": "Numéro d’inscription|Matricule|Numéro",
       "name": "Nom et prénom|Nom",
       "sex": "Sexe",
       "class": "Classe"
@@ -207,53 +205,64 @@
       "pupils": "Élèves",
       "teachers": "Enseignants",
       "week": "Emploi du temps"
-    }
+    },
+    "noListCount": "classes sans liste",
+    "noTeacherCount": "matières sans enseignant",
+    "taken": "Une autre classe porte ce nom.",
+    "full": "L’établissement a atteint le nombre maximal de classes."
   },
   "pupils": {
     "name": "Nom et prénom",
     "sex": "Sexe",
     "female": "F",
     "male": "M",
-    "registration": "Numéro d'inscription",
+    "registration": "Numéro d’inscription",
     "add": "Ajouter un élève",
-    "taken": "Ce numéro est déjà celui d'un autre élève.",
+    "taken": "Ce numéro est déjà celui d’un autre élève.",
     "badNumber": "Chiffres et lettres latines seulement.",
-    "none": "Cette classe n'a pas de liste",
+    "none": "Cette classe n’a pas de liste",
     "move": "Changer de classe",
-    "leave": "Enregistrer un départ"
+    "leave": "Enregistrer un départ",
+    "full": "La classe a atteint le nombre maximal d’élèves.",
+    "leaveSure": "Confirmer le départ de {{name}}"
   },
   "assign": {
     "none": "Sans enseignant",
-    "noTeachers": "Ajoutez d'abord les enseignants sur leur page.",
     "noOptions": "La liste publiée ne donne aucune matière à ce cycle."
   },
   "week": {
     "none": "—",
     "morning": "M{{index}}",
     "afternoon": "A{{index}}",
-    "busy": "L'enseignant de cette matière est en classe avec {{name}} à cette heure."
+    "busy": "L’enseignant de cette matière est en classe avec {{name}} à cette heure.",
+    "slot": "Séance"
   },
   "teachers": {
-    "title": "Enseignants et codes d'accès",
+    "title": "Enseignants et codes d’adhésion",
     "add": "Ajouter un enseignant",
     "name": "Nom et prénom",
     "printAll": "Imprimer les codes",
     "print": "Imprimer le code",
     "renew": "Nouveau code",
-    "remove": "Retirer l'enseignant",
-    "none": "Aucun enseignant pour l'instant",
-    "codeComing": "Le code arrive après l'enregistrement",
-    "printFailed": "L'impression a échoué.",
-    "qr": "Code d'accès de {{name}}",
+    "remove": "Retirer l’enseignant",
+    "none": "Aucun enseignant pour l’instant",
+    "codeComing": "Le code arrive après l’enregistrement",
+    "printFailed": "L’impression a échoué.",
+    "qr": "Code d’adhésion de {{name}}",
     "column": {
       "name": "Enseignant",
       "option": "Matière",
       "classes": "Classes",
-      "code": "Code d'accès"
+      "code": "Code d’adhésion"
     },
     "sheet": {
-      "title": "Codes d'accès",
+      "title": "Codes d’adhésion",
       "handover": "À remettre en main propre, jamais par message."
+    },
+    "sure": {
+      "renew": "Confirmer un nouveau code pour {{name}}",
+      "remove": "Confirmer le retrait de {{name}}"
     }
-  }
+  },
+  "panel": "Détails"
 }

@@ -30,8 +30,7 @@ export const AFTER_FIRST_PIN: Record<Begin, InitialState> = {
   reader: { index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy', params: { reader: true } }] },
 };
 
-/** Reader mode from the dashboard on a PC that already has its passphrase: the notice, once the lock opens. */
-export const READER_AFTER_LOCK: InitialState = {
-  index: 1,
-  routes: [{ name: 'Home' }, { name: 'Privacy', params: { reader: true } }],
-};
+/** Reader mode from the dashboard on a PC that already has its passphrase: its notice over the screen the app opens on. */
+export function readerAfterLock(book: Parameters<typeof startRoute>[0]): InitialState {
+  return { index: 1, routes: [{ name: startRoute(book) }, { name: 'Privacy', params: { reader: true } }] };
+}

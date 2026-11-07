@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Algeria's communes for the dashboard's pages (answer 809), from the wilayas
-// dataset (CC0, data/dz/communes.json): only the dashboard imports them, as a
-// teacher's setup reads each school's commune from the published list.
+// dataset (CC0, data/dz/communes.json): only the dashboard reads them, as a
+// teacher's setup reads each school's commune from the published list. The
+// phone's bundle carries them too, since the app is one bundle.
 
 import type { DirectoryCommune } from '@minhajna/core';
 import data from '@minhajna/data/dz/communes.json';

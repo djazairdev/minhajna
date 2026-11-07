@@ -114,6 +114,10 @@ it('says when someone else saved first, and reads the latest copy', async () => 
   await pick('option-first', 'arabic');
   await press('option-save');
   expect(texts()).toContain(words.problem.stale);
+  expect(has('option-form')).toBe(false);
+  const puts = directory.seen.filter((one) => one.startsWith('PUT')).length;
+  await press('option-hide-french');
+  expect(directory.seen.filter((one) => one.startsWith('PUT'))).toHaveLength(puts);
   await press('dashboard-retry');
   await press('reference-tab-schools');
   expect(texts()).toContain('مدرسة من غيري');
@@ -143,7 +147,7 @@ describe('importing schools', () => {
     const figure = (id: string) =>
       rendered().root.findAll(
         (one) => one.props.testID === `import-figure-${id}` && one.props.accessibilityLabel !== undefined,
-      )[0]!.props.accessibilityLabel as string;
+      )[0].props.accessibilityLabel as string;
     expect(figure('new')).toMatch(/^2 /);
     expect(figure('refused')).toMatch(/^2 /);
     expect(texts()).toContain('بلدية غير معروفة: 9999');

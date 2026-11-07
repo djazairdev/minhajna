@@ -74,7 +74,25 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
     setAside(null);
   };
   return (
-    <DashboardFrame who={t('dashboard.who.ministry')} onLock={onLock} onBack={onBack} aside={aside}>
+    <DashboardFrame
+      who={t('dashboard.who.ministry')}
+      onLock={onLock}
+      onBack={onBack}
+      aside={aside}
+      held={saved.stale}
+      top={
+        <DirectoryStatus
+          call={call}
+          retry={
+            saved.stale || call.problem === 'bad'
+              ? { label: t('dashboard.reload'), onPress: () => void reload() }
+              : saved.unsaved
+                ? { label: t('dashboard.tryAgain'), onPress: saved.retry }
+                : undefined
+          }
+        />
+      }
+    >
       <View style={styles.head}>
         <View style={styles.grow}>
           <PageTitle>{t('dashboard.home.reference')}</PageTitle>
@@ -89,16 +107,6 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
           />
         </View>
       </View>
-      <DirectoryStatus
-        call={call}
-        retry={
-          call.problem === 'stale'
-            ? { label: t('dashboard.reload'), onPress: () => void reload() }
-            : saved.unsaved
-              ? { label: t('dashboard.tryAgain'), onPress: saved.retry }
-              : undefined
-        }
-      />
       <View style={styles.tabs}>
         <SegmentedControl
           testID="reference-tab"
@@ -123,6 +131,8 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
       )}
       {tab === 'schools' && (
         <SchoolsTab
+          published={list?.schools ?? []}
+          read={saved.read}
           profile={profile}
           draft={saved.doc}
           onChange={saved.change}
@@ -139,6 +149,7 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
           changes={changes}
           ready={!saved.unsaved && !call.busy}
           firstSave={state.draft === null && saved.revision === start.revision}
+          onReload={() => void reload()}
           onPublished={() => void reload()}
         />
       )}

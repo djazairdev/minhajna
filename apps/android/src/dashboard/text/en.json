@@ -20,7 +20,7 @@
   "home": {
     "reference": "Reference data",
     "school": "Classes and pupils",
-    "reader": "Read a teacher's statement"
+    "reader": "Read a teacher’s statement"
   },
   "who": {
     "ministry": "Ministry of National Education",
@@ -31,8 +31,9 @@
     "again": "Type the code again",
     "open": "Open",
     "set": "Set the code",
-    "badCode": "8 to 64 characters, no spaces.",
-    "different": "The two codes differ."
+    "badCode": "8 to 64 Latin letters, digits or signs, no spaces.",
+    "different": "The two codes differ.",
+    "taken": "Someone else has just set the code. Type theirs."
   },
   "place": {
     "wilaya": "Wilaya",
@@ -51,7 +52,7 @@
     "pending": "Unpublished changes: {{count}}",
     "publish": "Publish",
     "tab": {
-      "levels": "Levels and subjects",
+      "levels": "Cycles and subjects",
       "schools": "Schools",
       "publish": "Publishing"
     }
@@ -90,7 +91,7 @@
     "add": "Add a school",
     "edit": "Edit the school",
     "name": "School name",
-    "nameNeeded": "Type the school's name.",
+    "nameNeeded": "Type the school’s name.",
     "column": {
       "code": "Code",
       "name": "School"
@@ -99,8 +100,6 @@
   },
   "publish": {
     "version": "Version {{version}}",
-    "draft": "Draft",
-    "none": "No version published yet",
     "now": "Publish version {{version}}",
     "added": "schools added",
     "edited": "schools changed",
@@ -116,7 +115,6 @@
   },
   "import": {
     "pick": "Choose the file",
-    "csv": "A CSV file in UTF-8, its first line naming the columns.",
     "applied": "Changes applied: {{count}}",
     "apply": "Apply the changes: {{count}}",
     "line": "Line",
@@ -153,7 +151,7 @@
       "code": "Not a valid code: {{cell}}",
       "twice": "Twice in the file: {{cell}}"
     },
-    "pupilsTitle": "Import the pupils' list",
+    "pupilsTitle": "Import the pupils’ list",
     "pupilsNew": "new pupils",
     "pupilsMoved": "change class",
     "pupilsChanged": "details changed",
@@ -207,7 +205,11 @@
       "pupils": "Pupils",
       "teachers": "Teachers",
       "week": "Timetable"
-    }
+    },
+    "noListCount": "classes with no list",
+    "noTeacherCount": "subjects without a teacher",
+    "taken": "Another class has this name.",
+    "full": "The school has as many classes as it can."
   },
   "pupils": {
     "name": "Full name",
@@ -220,18 +222,20 @@
     "badNumber": "Digits and Latin letters only.",
     "none": "This class has no list",
     "move": "Move to another class",
-    "leave": "Record a leaving"
+    "leave": "Record a leaving",
+    "full": "The class has as many pupils as it can.",
+    "leaveSure": "Confirm {{name}} leaving"
   },
   "assign": {
     "none": "No teacher",
-    "noTeachers": "Add the teachers on their page first.",
     "noOptions": "The published list gives this cycle no subjects."
   },
   "week": {
     "none": "—",
     "morning": "M{{index}}",
     "afternoon": "A{{index}}",
-    "busy": "This subject's teacher is with {{name}} at that time."
+    "busy": "This subject’s teacher is with {{name}} at that time.",
+    "slot": "Session"
   },
   "teachers": {
     "title": "Teachers and joining codes",
@@ -244,7 +248,7 @@
     "none": "No teacher yet",
     "codeComing": "The code comes once saved",
     "printFailed": "Printing failed.",
-    "qr": "{{name}}'s joining code",
+    "qr": "{{name}}’s joining code",
     "column": {
       "name": "Teacher",
       "option": "Subject",
@@ -254,6 +258,11 @@
     "sheet": {
       "title": "Joining codes",
       "handover": "Hand it over in person, never by message."
+    },
+    "sure": {
+      "renew": "Confirm a new code for {{name}}",
+      "remove": "Confirm removing {{name}}"
     }
-  }
+  },
+  "panel": "Details"
 }

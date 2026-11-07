@@ -85,9 +85,16 @@ export function withoutOption(draft: ReferenceDraft, levelCode: string, code: st
   }));
 }
 
-/** A new school's code: its commune's, then the first free number, as `160103`. */
-export function newSchoolId(schools: readonly DirectorySchool[], commune: string): string {
-  const taken = new Set(schools.map((school) => school.id));
+/**
+ * A new school's code: its commune's, then the first number free in the draft and in the published list, so a school
+ * hidden since is never given another's code, as `160103`.
+ */
+export function newSchoolId(
+  schools: readonly DirectorySchool[],
+  commune: string,
+  published: readonly DirectorySchool[] = [],
+): string {
+  const taken = new Set([...schools, ...published].map((school) => school.id));
   for (let number = 1; ; number += 1) {
     const id = `${commune}${String(number).padStart(2, '0')}`;
     if (!taken.has(id)) return id;

@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Classes' main column (answer 807): the title and the school year, adding a
-// class and importing a list; how many classes and pupils, classes with no list
+// D-Classes' main column (answer 807): the title, adding a class and
+// importing a list; how many classes and pupils, classes with no list
 // and subjects with no teacher, amber when there are some; the filters by year
 // and by what is missing; and the classes, each opening its side panel.
 
+import { MAX_BOOK_CLASSES } from '@minhajna/core';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button } from '../components/Button';
@@ -45,7 +46,7 @@ export function ClassesView(view: SchoolDeskView) {
             ? gaps(one, units) > 0
             : one.grade === filter),
     )
-    .sort((one, other) => one.name.localeCompare(other.name));
+    .sort((one, other) => one.name.localeCompare(other.name, undefined, { numeric: true }));
   const open = (classId: string) => {
     setChosen(classId);
     onAside(<ClassPanel key={classId} {...view} classId={classId} />);
@@ -62,11 +63,12 @@ export function ClassesView(view: SchoolDeskView) {
           variant="line"
           icon={controlIcon('plus')}
           label={t('dashboard.classes.add')}
+          disabled={book.classes.length >= MAX_BOOK_CLASSES}
           onPress={() =>
             onAside(
               <NewClassForm
                 key="new"
-                profile={profile}
+                book={book}
                 grades={grades}
                 onDone={(step) => {
                   if (step !== null) update(step);
@@ -87,11 +89,11 @@ export function ClassesView(view: SchoolDeskView) {
       <Figures>
         <Figure testID="classes-count" value={book.classes.length} label={t('dashboard.classes.classes')} />
         <Figure testID="classes-pupils" value={pupils} label={t('dashboard.classes.pupils')} />
-        <Figure testID="classes-no-list" value={noList} label={t('dashboard.classes.noList')} warn={noList > 0} />
+        <Figure testID="classes-no-list" value={noList} label={t('dashboard.classes.noListCount')} warn={noList > 0} />
         <Figure
           testID="classes-no-teacher"
           value={noTeacher}
-          label={t('dashboard.classes.noTeacher')}
+          label={t('dashboard.classes.noTeacherCount')}
           warn={noTeacher > 0}
         />
       </Figures>

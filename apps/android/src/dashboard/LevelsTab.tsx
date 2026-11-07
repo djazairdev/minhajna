@@ -90,8 +90,8 @@ export function LevelsTab({ profile, draft, onChange, onUpdate, onAside }: Level
         columns={[
           { id: 'option', label: t('dashboard.levels.column.option'), grow: 2 },
           { id: 'kind', label: t('dashboard.levels.column.kind'), width: 150 },
-          { id: 'edit', label: '', width: 110 },
-          { id: 'hide', label: '', width: 110 },
+          { id: 'edit', label: t('dashboard.edit'), width: 110, quiet: true },
+          { id: 'hide', label: t('dashboard.hide'), width: 110, quiet: true },
         ]}
         rows={level.options.map((option) => {
           const name = optionName(t, profile, option);

@@ -11,6 +11,7 @@ import type { BellData, CountryProfile, DirectorySchool, ReferenceList } from '@
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button } from '../components/Button';
+import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 import { CodeGate } from './CodeGate';
@@ -72,6 +73,8 @@ function ChooseSchool({
       />
       <Button
         testID="school-next"
+        icon={controlIcon('chevron')}
+        iconEnd
         label={t('dashboard.next')}
         disabled={chosen === undefined}
         onPress={() => chosen !== undefined && onChoose(chosen)}
@@ -131,7 +134,13 @@ export function SchoolPage({
           {list === null && (
             <View style={styles.none}>
               <Quiet testID="school-nothing">{t('dashboard.place.nothing')}</Quiet>
-              <Button testID="school-reload" variant="line" label={t('dashboard.tryAgain')} onPress={load} />
+              <Button
+                testID="school-reload"
+                variant="line"
+                icon={controlIcon('chevron')}
+                label={t('dashboard.tryAgain')}
+                onPress={load}
+              />
             </View>
           )}
           {list != null && <ChooseSchool profile={profile} list={list} onChoose={setSchool} />}

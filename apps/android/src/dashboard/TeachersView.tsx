@@ -8,7 +8,7 @@
 // printing every code at once. The server issues a code when the book is
 // saved, so a teacher just added waits for it a moment.
 
-import type { BookTeacher } from '@minhajna/core';
+import { MAX_BOOK_TEACHERS, type BookTeacher } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -17,7 +17,7 @@ import { controlIcon } from '../design/Icon';
 import { spacing } from '../design/tokens';
 import qr from '../native/NativeMinhajnaCalendarInput';
 import pdf from '../native/NativeMinhajnaPdf';
-import { useDeviceText } from '../text/device-text';
+import { onPc, useDeviceText } from '../text/device-text';
 import { currentLanguage } from '../text/i18n';
 import { codeSheetHtml } from './code-sheet';
 import { PageTitle, Quiet, RowLink } from './page-parts';
@@ -41,7 +41,9 @@ export function TeachersView(view: SchoolDeskView) {
     return option === undefined ? code : optionName(t, profile, option);
   };
   const teaches = (id: string) => book.classes.filter((one) => Object.values(one.teachers).includes(id)).length;
-  const sorted = [...book.teachers].sort((one, other) => one.name.localeCompare(other.name));
+  const sorted = [...book.teachers].sort((one, other) =>
+    one.name.localeCompare(other.name, undefined, { numeric: true }),
+  );
   const print = (chosenOnes: readonly BookTeacher[]) => {
     const teachers = chosenOnes
       .filter((one) => one.code !== undefined)
@@ -66,18 +68,22 @@ export function TeachersView(view: SchoolDeskView) {
         <View style={styles.grow}>
           <PageTitle>{t('dashboard.teachers.title')}</PageTitle>
         </View>
-        <Button
-          testID="teachers-print"
-          variant="line"
-          icon={controlIcon('print')}
-          label={t('dashboard.teachers.printAll')}
-          onPress={() => print(sorted)}
-        />
+        {onPc() && (
+          <Button
+            testID="teachers-print"
+            variant="line"
+            icon={controlIcon('print')}
+            label={t('dashboard.teachers.printAll')}
+            disabled={!book.teachers.some((one) => one.code !== undefined)}
+            onPress={() => print(sorted)}
+          />
+        )}
         <Button
           testID="teachers-add"
           variant="line"
           icon={controlIcon('plus')}
           label={t('dashboard.teachers.add')}
+          disabled={book.teachers.length >= MAX_BOOK_TEACHERS}
           onPress={() =>
             onAside(
               <TeacherForm

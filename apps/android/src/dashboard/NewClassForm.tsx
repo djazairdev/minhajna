@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // D-Classes' new class (answer 807): its year, a select of the school's
-// level's years, and its name, as the school writes it.
+// level's years, and its name, as the school writes it, which no other class
+// of the school has, since a file's pupils find their class by it.
 
-import type { CountryProfile, Grade, SchoolBook } from '@minhajna/core';
+import { MAX_BOOK_CLASSES, type Grade, type SchoolBook } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -15,23 +16,25 @@ import { colors, spacing, typography } from '../design/tokens';
 import { localized } from '../setup/names';
 import { useDeviceText } from '../text/device-text';
 import { PickField } from './PickField';
-import { withClass } from './school-rules';
+import { classNameTaken, withClass } from './school-rules';
 
 export type NewClassFormProps = {
-  readonly profile: CountryProfile;
+  readonly book: SchoolBook;
   readonly grades: readonly Grade[];
   readonly onDone: (step: ((book: SchoolBook) => SchoolBook) | null) => void;
 };
 
 /** A new class's year and name. */
-export function NewClassForm({ grades, onDone }: NewClassFormProps) {
+export function NewClassForm({ book, grades, onDone }: NewClassFormProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const [grade, setGrade] = useState<string | null>(null);
   const [name, setName] = useState('');
-  const ready = grade !== null && name.trim() !== '' && name.trim().length <= 120;
+  const taken = classNameTaken(book, name);
+  const full = book.classes.length >= MAX_BOOK_CLASSES;
+  const ready = grade !== null && name.trim() !== '' && name.trim().length <= 120 && !taken && !full;
   const save = () => {
-    if (ready) onDone((book) => withClass(book, grade, name));
+    if (ready) onDone((current) => withClass(current, grade, name));
   };
   return (
     <View testID="class-form" style={styles.form}>
@@ -51,6 +54,7 @@ export function NewClassForm({ grades, onDone }: NewClassFormProps) {
         value={name}
         onChangeText={setName}
         maxLength={120}
+        error={taken ? t('dashboard.classes.taken') : full ? t('dashboard.classes.full') : undefined}
         onSubmitEditing={save}
       />
       <View style={styles.buttons}>
@@ -61,7 +65,13 @@ export function NewClassForm({ grades, onDone }: NewClassFormProps) {
           disabled={!ready}
           onPress={save}
         />
-        <Button testID="class-form-cancel" variant="line" label={t('dashboard.cancel')} onPress={() => onDone(null)} />
+        <Button
+          testID="class-form-cancel"
+          variant="line"
+          icon={controlIcon('cross')}
+          label={t('dashboard.cancel')}
+          onPress={() => onDone(null)}
+        />
       </View>
     </View>
   );

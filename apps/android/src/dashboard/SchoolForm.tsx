@@ -27,11 +27,13 @@ export type SchoolFormProps = {
   readonly editing?: DirectorySchool;
   /** The filters' wilaya and commune, which a new school starts from. */
   readonly start: { readonly wilaya: string | null; readonly commune: string | null };
+  /** The schools of the published list, whose codes a new school never takes. */
+  readonly published: readonly DirectorySchool[];
   readonly onDone: (step: ((draft: ReferenceDraft) => ReferenceDraft) | null) => void;
 };
 
 /** One school's place, cycle and name. */
-export function SchoolForm({ profile, editing, start, onDone }: SchoolFormProps) {
+export function SchoolForm({ profile, editing, start, published, onDone }: SchoolFormProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const [wilaya, setWilaya] = useState(editing?.wilaya ?? start.wilaya);
@@ -46,7 +48,7 @@ export function SchoolForm({ profile, editing, start, onDone }: SchoolFormProps)
     setTried(true);
     if (!ready) return;
     onDone((draft) => {
-      const id = editing?.id ?? newSchoolId(draft.schools, place.code);
+      const id = editing?.id ?? newSchoolId(draft.schools, place.code, published);
       return withSchool(draft, { id, name: named, level, wilaya, commune: place });
     });
   };
@@ -91,7 +93,13 @@ export function SchoolForm({ profile, editing, start, onDone }: SchoolFormProps)
       />
       <View style={styles.buttons}>
         <Button testID="school-form-save" icon={controlIcon('check')} label={t('dashboard.save')} onPress={save} />
-        <Button testID="school-form-cancel" variant="line" label={t('dashboard.cancel')} onPress={() => onDone(null)} />
+        <Button
+          testID="school-form-cancel"
+          variant="line"
+          icon={controlIcon('cross')}
+          label={t('dashboard.cancel')}
+          onPress={() => onDone(null)}
+        />
       </View>
     </View>
   );

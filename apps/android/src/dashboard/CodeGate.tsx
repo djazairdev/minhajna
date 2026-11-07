@@ -5,7 +5,8 @@
 // the first visitor sets the code, typed twice; after that it is entered. The
 // page opens only once the server has read what the code opens. The page holds
 // the code in memory and nothing keeps it. A refused code says so; a code taken
-// by someone else meanwhile turns the gate into the one that asks for it.
+// set by someone else meanwhile turns the gate into the one that asks for it,
+// and says so.
 
 import { useLocale } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
@@ -53,8 +54,16 @@ export function CodeGate<T>({ title, claimed, claim, read, onOpen }: CodeGatePro
       await claim(code, options);
       return read(code, options);
     });
-    if (done !== undefined) onOpen(code, done);
-    else void claimed({}).then(setTaken, () => undefined);
+    if (done !== undefined) {
+      onOpen(code, done);
+      return;
+    }
+    const now = await claimed({}).catch(() => null);
+    if (now === true) {
+      call.clear();
+      setTaken(true);
+      setWrong(t('dashboard.gate.taken'));
+    }
   };
   const submit = () => {
     if (call.busy) return;

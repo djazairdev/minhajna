@@ -3,7 +3,8 @@
 
 // Choosing a school on the school's page: the wilayas that have a school in the
 // published list, in the profile's order, then that wilaya's communes, then
-// that commune's schools, each as the boards write it, its code then its name.
+// that commune's schools by name; a place as the boards write it, its code
+// then its name.
 
 import type { CountryProfile, DirectorySchool, LocalizedText, ReferenceList } from '@minhajna/core';
 import { localized } from '../setup/names';

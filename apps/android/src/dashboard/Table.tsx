@@ -16,6 +16,8 @@ export type TableColumn = {
   readonly label: string;
   readonly width?: number;
   readonly grow?: number;
+  /** A column of actions, whose name is spoken but not shown. */
+  readonly quiet?: boolean;
 };
 
 export type TableRow = {
@@ -42,8 +44,13 @@ export function Table({ label, columns, rows, testID }: TableProps) {
     <View testID={testID} role="table" accessibilityLabel={label} style={[styles.table, { direction }]}>
       <View role="row" style={[styles.row, styles.head]}>
         {columns.map((column) => (
-          <View key={column.id} role="columnheader" style={[styles.cell, widthOf(column)]}>
-            <Text style={[styles.headWords, align]}>{column.label}</Text>
+          <View
+            key={column.id}
+            role="columnheader"
+            accessibilityLabel={column.quiet === true ? column.label : undefined}
+            style={[styles.cell, widthOf(column)]}
+          >
+            {column.quiet !== true && <Text style={[styles.headWords, align]}>{column.label}</Text>}
           </View>
         ))}
       </View>

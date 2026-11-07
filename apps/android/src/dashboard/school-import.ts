@@ -5,8 +5,9 @@
 // line for each school, with its commune's code, its cycle, its name and,
 // when it has one, its code. Before anything changes the page shows what is
 // new, what is unchanged, what changes and what is refused, matched on the
-// school's code, else on its commune, cycle and name. A refused line says its
-// number and why; the rest can still be applied.
+// school's code, else on its commune, cycle and name. A commune or school code
+// Excel wrote as a number gets back the leading zero it dropped. A refused line
+// says its number and why; the rest can still be applied.
 
 import type { CountryProfile, DirectorySchool, ReferenceDraft } from '@minhajna/core';
 import { communeByCode } from './communes';
@@ -27,6 +28,9 @@ export interface SchoolCheck {
   readonly refused: readonly { readonly line: number; readonly why: SchoolRefusal; readonly cell: string }[];
 }
 
+/** A number Excel wrote without its leading zero, as 101 for commune 0101, given back its length. */
+const padded = (cell: string, length: number) => (/^\d+$/u.test(cell) ? cell.padStart(length, '0') : cell);
+
 const COLUMNS = headings((words) => words.import.schoolColumns);
 const NEEDED = ['commune', 'level', 'name'] as const;
 /** A code as the directory takes it. */
@@ -44,7 +48,9 @@ export function checkSchools(
   const refused: SchoolCheck['refused'][number][] = [];
   const seen = new Set<string>();
   for (const { line, cells } of table.rows) {
-    const { commune = '', level = '', name = '', code = '' } = cells;
+    const { level = '', name = '' } = cells;
+    const commune = padded(cells.commune ?? '', 4);
+    const code = padded(cells.code ?? '', 6);
     const place = communeByCode(commune);
     const cycle = profile.levels.find((one) => names(level, one.code, one.name));
     const refuse = (why: SchoolRefusal, cell: string) => refused.push({ line, why, cell });
@@ -75,12 +81,16 @@ export function checkSchools(
 }
 
 /** The draft with the check's new and changed schools; a new one with no code takes its commune's next. */
-export function applySchools(draft: ReferenceDraft, check: SchoolCheck): ReferenceDraft {
+export function applySchools(
+  draft: ReferenceDraft,
+  check: SchoolCheck,
+  published: readonly DirectorySchool[] = [],
+): ReferenceDraft {
   return check.lines
     .filter((one) => one.kind !== 'same')
     .reduce(
       (next, { school }) =>
-        withSchool(next, { ...school, id: school.id ?? newSchoolId(next.schools, school.commune.code) }),
+        withSchool(next, { ...school, id: school.id ?? newSchoolId(next.schools, school.commune.code, published) }),
       draft,
     );
 }

@@ -49,7 +49,7 @@ import { useLockPhase, type LockPhase } from './src/lock/useLockPhase';
 import NativeInterface from './src/native/NativeMinhajnaInterface';
 import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajnaStorage';
 import { AppNavigator } from './src/navigation/AppNavigator';
-import { AFTER_FIRST_PIN, READER_AFTER_LOCK, startRoute, type Begin } from './src/navigation/start-route';
+import { AFTER_FIRST_PIN, startRoute, type Begin } from './src/navigation/start-route';
 import { Welcome } from './src/navigation/Welcome';
 import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
 import { AppDataProvider } from './src/storage/AppData';
@@ -99,8 +99,10 @@ export default function App({
   const [restore, setRestore] = useState<InitialState | undefined>(undefined);
   const [route, setRoute] = useState<string | undefined>(undefined);
   const [next, setNext] = useState<Begin>('setup');
+  const dashboard = useDashboardDoors(reference.ok, phase, book);
   const firstState =
     restore ??
+    dashboard.readerState ??
     (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined);
   const { lockNow, opened, start } = lock;
   const reopen = useCallback(() => {
@@ -120,7 +122,6 @@ export default function App({
     lockNow();
   }, [lockNow, firstState]);
   const doors = useDemoDoors(worldKit !== null && reference.ok, lockAway, lockNow);
-  const dashboard = useDashboardDoors(reference.ok);
   useAutoLock(book !== null || broken !== null, lockMinutes, lockAway);
   const open = phase.kind === 'open' && reference.ok && book !== null;
   const front = route ?? focusedRoute(firstState) ?? (book === null ? 'Welcome' : startRoute(book));
@@ -192,11 +193,7 @@ export default function App({
                 profile={reference.profile}
                 bells={reference.bells}
                 onBack={dashboard.back}
-                onReader={() => {
-                  dashboard.back();
-                  if (phase.kind === 'welcome') begin('reader');
-                  else setRestore(READER_AFTER_LOCK);
-                }}
+                onReader={() => dashboard.toReader(phase.kind === 'welcome' ? () => begin('reader') : null)}
               />
             ) : doors.shown && worldKit !== null && reference.ok ? (
               <DemoRoot

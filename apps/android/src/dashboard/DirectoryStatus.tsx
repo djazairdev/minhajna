@@ -9,12 +9,13 @@
 import { useLocale } from '@react-navigation/native';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/Button';
+import { controlIcon } from '../design/Icon';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useDeviceText } from '../text/device-text';
 import type { DirectoryCall } from './use-directory-call';
 
 export type DirectoryStatusProps = {
-  readonly call: Pick<DirectoryCall, 'waking' | 'problem' | 'detail'>;
+  readonly call: Pick<DirectoryCall, 'waking' | 'problem'>;
   /** The way forward from a problem, as trying again or reading the latest copy. */
   readonly retry?: { readonly label: string; readonly onPress: () => void };
 };
@@ -24,10 +25,10 @@ export function DirectoryStatus({ call, retry }: DirectoryStatusProps) {
   const t = useDeviceText();
   const { direction } = useLocale();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
-  const { waking, problem, detail } = call;
-  const words = problem === null ? null : [t(`dashboard.problem.${problem}`), detail].filter(Boolean).join(' ');
+  const { waking, problem } = call;
+  const words = problem === null ? null : t(`dashboard.problem.${problem}`);
   return (
-    <View accessibilityLiveRegion="polite" style={[styles.place, { direction }]}>
+    <View testID="dashboard-status" accessibilityLiveRegion="polite" style={[styles.place, { direction }]}>
       {waking && (
         <View testID="dashboard-waking" style={[styles.line, styles.row]}>
           <ActivityIndicator color={colors.ink} />
@@ -36,11 +37,15 @@ export function DirectoryStatus({ call, retry }: DirectoryStatusProps) {
       )}
       {words !== null && (
         <View testID="dashboard-problem" style={[styles.line, styles.warn]}>
-          <Text accessibilityRole="alert" style={[styles.words, styles.warnWords, align]}>
-            {words}
-          </Text>
+          <Text style={[styles.words, styles.warnWords, align]}>{words}</Text>
           {retry !== undefined && (
-            <Button testID="dashboard-retry" variant="line" label={retry.label} onPress={retry.onPress} />
+            <Button
+              testID="dashboard-retry"
+              variant="line"
+              icon={controlIcon('chevron')}
+              label={retry.label}
+              onPress={retry.onPress}
+            />
           )}
         </View>
       )}

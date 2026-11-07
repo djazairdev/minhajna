@@ -4,7 +4,6 @@
 // D-Classes' teachers tab (answers 807 and 809): for each of the class's
 // subjects, or each option where the level has a class teacher, a select of
 // the school's teachers whose option holds it; one with no teacher is marked.
-// A teacher is added on the teachers' page first.
 
 import type { BookClass } from '@minhajna/core';
 import { StyleSheet, View } from 'react-native';
@@ -36,7 +35,6 @@ export function AssignTab({
   if (units.length === 0) return <Quiet>{t('dashboard.assign.noOptions')}</Quiet>;
   return (
     <View style={styles.tab}>
-      {book.teachers.length === 0 && <Quiet testID="assign-no-teachers">{t('dashboard.assign.noTeachers')}</Quiet>}
       {units.map((unit) => {
         const teacher = unitTeacher(schoolClass, unit);
         return (

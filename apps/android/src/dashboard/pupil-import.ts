@@ -87,6 +87,7 @@ export function checkPupils(
       seen.add(registration);
       const moving = known !== undefined && known.schoolClass.id !== schoolClass.id;
       if (known === undefined || moving) counts.set(schoolClass.id, (counts.get(schoolClass.id) ?? 0) + 1);
+      if (moving) counts.set(known.schoolClass.id, (counts.get(known.schoolClass.id) ?? 1) - 1);
       const same = known !== undefined && known.pupil.name === name && known.pupil.sex === read;
       lines.push({
         line,

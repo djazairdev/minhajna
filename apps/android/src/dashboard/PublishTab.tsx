@@ -32,6 +32,8 @@ export type PublishTabProps = {
   /** True while the draft was never saved, so publishing saves it first. */
   readonly firstSave: boolean;
   readonly onPublished: () => void;
+  /** Reads the latest copy, after someone else saved first. */
+  readonly onReload: () => void;
 };
 
 /** A day as the boards write it, 12/11/2029. */
@@ -39,7 +41,7 @@ export const dayShown = (day: string) => day.split('-').reverse().join('/');
 
 /** Publishing the draft, and the versions. */
 export function PublishTab(props: PublishTabProps) {
-  const { code, state, draft, revision, changes, ready, firstSave, onPublished } = props;
+  const { code, state, draft, revision, changes, ready, firstSave, onPublished, onReload } = props;
   const t = useDeviceText();
   const { direction } = useLocale();
   const call = useDirectoryCall();
@@ -53,6 +55,7 @@ export function PublishTab(props: PublishTabProps) {
     if (done !== undefined) onPublished();
   };
   const again = async (version: string) => {
+    if (!ready || call.busy) return;
     const done = await run((options) => republish(code, version, options));
     if (done !== undefined) onPublished();
   };
@@ -63,7 +66,6 @@ export function PublishTab(props: PublishTabProps) {
           <Text style={[styles.version, { writingDirection: direction, textAlign: 'start' }]}>
             {t('dashboard.publish.version', { version: next })}
           </Text>
-          <Quiet>{state.published === null ? t('dashboard.publish.none') : t('dashboard.publish.draft')}</Quiet>
         </View>
         <View>
           <Button
@@ -75,7 +77,10 @@ export function PublishTab(props: PublishTabProps) {
           />
         </View>
       </View>
-      <DirectoryStatus call={call} />
+      <DirectoryStatus
+        call={call}
+        retry={call.problem === 'stale' ? { label: t('dashboard.reload'), onPress: onReload } : undefined}
+      />
       <Figures>
         <Figure testID="publish-added" value={changes.added} label={t('dashboard.publish.added')} />
         <Figure testID="publish-edited" value={changes.edited} label={t('dashboard.publish.edited')} />
@@ -89,7 +94,7 @@ export function PublishTab(props: PublishTabProps) {
           columns={[
             { id: 'version', label: t('dashboard.publish.column.version'), width: 150 },
             { id: 'day', label: t('dashboard.publish.column.day'), grow: 1 },
-            { id: 'again', label: '', width: 150 },
+            { id: 'again', label: t('dashboard.publish.again'), width: 150, quiet: true },
           ]}
           rows={state.versions.map(({ version, published }) => ({
             key: version,
@@ -101,6 +106,7 @@ export function PublishTab(props: PublishTabProps) {
               ) : (
                 <RowLink
                   key="again"
+                  disabled={!ready || call.busy}
                   testID={`publish-again-${version}`}
                   label={t('dashboard.publish.again')}
                   name={`${t('dashboard.publish.again')}: ${version}`}

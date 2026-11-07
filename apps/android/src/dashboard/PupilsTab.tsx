@@ -4,10 +4,11 @@
 // D-Classes' pupils tab (answer 807): the class's list, each pupil's name, sex
 // and registration number; a pupil chosen can move to another class or leave,
 // which takes them out of the list and the teachers' phones record it as a
-// leaving; a pupil added by hand with the three things the core's pupil holds.
-// A class with no list offers the import.
+// leaving, once confirmed; a pupil added by hand with their name, sex and
+// registration number, which a later import matches on. A class holds at most
+// as many pupils as the core allows.
 
-import type { BookClass, BookPupil } from '@minhajna/core';
+import { MAX_CLASS_PUPILS, type BookClass, type BookPupil } from '@minhajna/core';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button } from '../components/Button';
@@ -32,7 +33,9 @@ function AddPupil({ view, schoolClass }: { view: SchoolDeskView; schoolClass: Bo
   const number = registration.trim();
   const badNumber = number !== '' && !REGISTRATION.test(number);
   const taken = number !== '' && registrationTaken(view.book, number);
-  const ready = name.trim() !== '' && name.trim().length <= 120 && sex !== null && !badNumber && !taken;
+  const full = schoolClass.pupils.length >= MAX_CLASS_PUPILS;
+  const ready =
+    name.trim() !== '' && name.trim().length <= 120 && sex !== null && number !== '' && !badNumber && !taken && !full;
   const add = () => {
     if (!ready) return;
     view.update((book) => {
@@ -40,7 +43,7 @@ function AddPupil({ view, schoolClass }: { view: SchoolDeskView; schoolClass: Bo
         id: newId('p', idsOf(book)),
         name: name.trim(),
         sex: sex === 'f' ? 'f' : 'm',
-        ...(number !== '' && { registration: number }),
+        registration: number,
       };
       return withPupil(book, schoolClass.id, pupil);
     });
@@ -66,7 +69,15 @@ function AddPupil({ view, schoolClass }: { view: SchoolDeskView; schoolClass: Bo
         value={registration}
         onChangeText={setRegistration}
         textDirection="ltr"
-        error={taken ? t('dashboard.pupils.taken') : badNumber ? t('dashboard.pupils.badNumber') : undefined}
+        error={
+          taken
+            ? t('dashboard.pupils.taken')
+            : badNumber
+              ? t('dashboard.pupils.badNumber')
+              : full
+                ? t('dashboard.pupils.full')
+                : undefined
+        }
         onSubmitEditing={add}
       />
       <Button
@@ -86,8 +97,11 @@ export function PupilsTab(view: SchoolDeskView & { readonly schoolClass: BookCla
   const t = useDeviceText();
   const [acting, setActing] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const pupil = schoolClass.pupils.find((one) => one.id === acting);
-  const others = book.classes.filter((one) => one.id !== schoolClass.id && one.grade === schoolClass.grade);
+  const others = book.classes.filter(
+    (one) => one.id !== schoolClass.id && one.grade === schoolClass.grade && one.pupils.length < MAX_CLASS_PUPILS,
+  );
   const sorted = [...schoolClass.pupils].sort((one, other) => one.name.localeCompare(other.name));
   return (
     <View style={styles.tab}>
@@ -110,7 +124,10 @@ export function PupilsTab(view: SchoolDeskView & { readonly schoolClass: BookCla
                 key="name"
                 testID={`pupil-${one.id}`}
                 label={one.name}
-                onPress={() => setActing(one.id === acting ? null : one.id)}
+                onPress={() => {
+                  setActing(one.id === acting ? null : one.id);
+                  setLeaving(false);
+                }}
               />,
               t(one.sex === 'f' ? 'dashboard.pupils.female' : 'dashboard.pupils.male'),
               one.registration ?? '—',
@@ -132,15 +149,26 @@ export function PupilsTab(view: SchoolDeskView & { readonly schoolClass: BookCla
               }}
             />
           )}
-          <Button
-            testID="pupil-leave"
-            variant="line"
-            label={t('dashboard.pupils.leave')}
-            onPress={() => {
-              update((current) => withoutPupil(current, pupil.id));
-              setActing(null);
-            }}
-          />
+          {leaving ? (
+            <Button
+              testID="pupil-leave-sure"
+              variant="danger"
+              label={t('dashboard.pupils.leaveSure', { name: pupil.name })}
+              onPress={() => {
+                update((current) => withoutPupil(current, pupil.id));
+                setActing(null);
+                setLeaving(false);
+              }}
+            />
+          ) : (
+            <Button
+              testID="pupil-leave"
+              variant="line"
+              icon={controlIcon('cross')}
+              label={t('dashboard.pupils.leave')}
+              onPress={() => setLeaving(true)}
+            />
+          )}
         </View>
       )}
       {adding ? (

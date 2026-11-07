@@ -65,6 +65,7 @@ export function TeacherForm({ profile, level, onDone }: TeacherFormProps) {
         <Button
           testID="teacher-form-cancel"
           variant="line"
+          icon={controlIcon('cross')}
           label={t('dashboard.cancel')}
           onPress={() => onDone(null)}
         />

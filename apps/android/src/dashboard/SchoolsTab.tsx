@@ -34,10 +34,14 @@ export type SchoolsTabProps = {
   readonly onChange: (draft: ReferenceDraft) => void;
   readonly onUpdate: (step: (draft: ReferenceDraft) => ReferenceDraft) => void;
   readonly onAside: (aside: ReactNode) => void;
+  /** The schools of the published list. */
+  readonly published: readonly DirectorySchool[];
+  /** The newest draft, read when a panel needs it. */
+  readonly read: () => ReferenceDraft;
 };
 
 /** The draft's schools. */
-export function SchoolsTab({ profile, draft, onChange, onUpdate, onAside }: SchoolsTabProps) {
+export function SchoolsTab({ profile, draft, onChange, onUpdate, onAside, published, read }: SchoolsTabProps) {
   const t = useDeviceText();
   const [wilaya, setWilaya] = useState(ALL);
   const [commune, setCommune] = useState(ALL);
@@ -65,6 +69,7 @@ export function SchoolsTab({ profile, draft, onChange, onUpdate, onAside }: Scho
         key={editing?.id ?? 'new'}
         profile={profile}
         editing={editing}
+        published={published}
         start={{ wilaya: wilaya === ALL ? null : wilaya, commune: commune === ALL ? null : commune }}
         onDone={done}
       />,
@@ -127,7 +132,8 @@ export function SchoolsTab({ profile, draft, onChange, onUpdate, onAside }: Scho
               <SchoolImport
                 key="import"
                 profile={profile}
-                draft={draft}
+                read={read}
+                published={published}
                 onApply={onUpdate}
                 onClose={() => onAside(null)}
               />,
@@ -149,8 +155,8 @@ export function SchoolsTab({ profile, draft, onChange, onUpdate, onAside }: Scho
           { id: 'code', label: t('dashboard.schools.column.code'), width: 90 },
           { id: 'name', label: t('dashboard.schools.column.name'), grow: 2 },
           { id: 'level', label: t('dashboard.schools.level'), width: 170 },
-          { id: 'edit', label: '', width: 100 },
-          { id: 'hide', label: '', width: 100 },
+          { id: 'edit', label: t('dashboard.edit'), width: 100, quiet: true },
+          { id: 'hide', label: t('dashboard.hide'), width: 100, quiet: true },
         ]}
         rows={shown.slice(0, MOST_ROWS).map((school) => ({
           key: school.id,
