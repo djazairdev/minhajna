@@ -152,5 +152,55 @@
       "twice": "En double dans le fichier : {{cell}}"
     }
   },
+  "classes": {
+    "add": "Ajouter une classe",
+    "addOne": "Ajouter",
+    "new": "Nouvelle classe",
+    "year": "Année",
+    "name": "Nom de la classe",
+    "classes": "classes",
+    "pupils": "élèves",
+    "noList": "Sans liste",
+    "noTeacher": "Matière sans enseignant",
+    "filter": "Filtrer les classes",
+    "all": "Toutes",
+    "ready": "Prête",
+    "taught": "{{done}} sur {{all}}",
+    "listed": "Élèves : {{count}}",
+    "column": {
+      "class": "Classe",
+      "pupils": "Élèves",
+      "teachers": "Enseignants",
+      "state": "État"
+    },
+    "tab": {
+      "pupils": "Élèves",
+      "teachers": "Enseignants",
+      "week": "Emploi du temps"
+    },
+    "noListCount": "classes sans liste",
+    "noTeacherCount": "matières sans enseignant",
+    "taken": "Une autre classe porte ce nom.",
+    "full": "L’établissement a atteint le nombre maximal de classes."
+  },
+  "pupils": {
+    "name": "Nom et prénom",
+    "sex": "Sexe",
+    "female": "F",
+    "male": "M",
+    "registration": "Numéro d’inscription",
+    "add": "Ajouter un élève",
+    "taken": "Ce numéro est déjà celui d’un autre élève.",
+    "badNumber": "Chiffres et lettres latines seulement.",
+    "none": "Cette classe n’a pas de liste",
+    "move": "Changer de classe",
+    "leave": "Enregistrer un départ",
+    "full": "La classe a atteint le nombre maximal d’élèves.",
+    "leaveSure": "Confirmer le départ de {{name}}"
+  },
+  "assign": {
+    "none": "Sans enseignant",
+    "noOptions": "La liste publiée ne donne aucune matière à ce cycle."
+  },
   "panel": "Détails"
 }
