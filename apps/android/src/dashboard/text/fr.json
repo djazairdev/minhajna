@@ -46,11 +46,14 @@
   "save": "Enregistrer",
   "cancel": "Annuler",
   "reload": "Charger la dernière copie",
+  "importFile": "Importer un fichier",
+  "listJoin": ", ",
   "reference": {
     "pending": "Modifications non publiées : {{count}}",
     "publish": "Publier",
     "tab": {
       "levels": "Cycles et matières",
+      "schools": "Établissements",
       "publish": "Publication"
     }
   },
@@ -76,6 +79,25 @@
       "specialist": "Spécialiste"
     }
   },
+  "schools": {
+    "wilayas": "wilayas",
+    "communes": "communes",
+    "schools": "établissements",
+    "empty": "communes sans établissement",
+    "level": "Cycle",
+    "allWilayas": "Toutes les wilayas",
+    "allCommunes": "Toutes les communes",
+    "allLevels": "Tous les cycles",
+    "add": "Ajouter un établissement",
+    "edit": "Modifier l’établissement",
+    "name": "Nom de l’établissement",
+    "nameNeeded": "Saisissez le nom de l’établissement.",
+    "column": {
+      "code": "Code",
+      "name": "Établissement"
+    },
+    "shown": "Affichés : {{shown}} sur {{total}}"
+  },
   "publish": {
     "version": "Version {{version}}",
     "now": "Publier la version {{version}}",
@@ -89,6 +111,45 @@
     "column": {
       "version": "Version",
       "day": "Publiée le"
+    }
+  },
+  "import": {
+    "pick": "Choisir le fichier",
+    "applied": "Modifications appliquées : {{count}}",
+    "apply": "Appliquer les modifications : {{count}}",
+    "line": "Ligne",
+    "lineNumber": "Ligne {{line}}",
+    "why": "Problème",
+    "refusedLines": "Lignes refusées",
+    "refused": "lignes refusées",
+    "same": "sans changement",
+    "missing": "Il manque au fichier la colonne : {{columns}}.",
+    "schoolsTitle": "Importer des établissements",
+    "schoolsNew": "nouveaux établissements",
+    "schoolsChanged": "établissements modifiés",
+    "file": {
+      "binary": "Ce fichier n’est pas un CSV texte. Enregistrez le tableau depuis Excel au format CSV UTF-8, puis choisissez-le.",
+      "size": "Le fichier dépasse 2 Mo.",
+      "failed": "Le fichier n’a pas pu être lu."
+    },
+    "column": {
+      "commune": "Code de la commune",
+      "level": "Cycle",
+      "name": "Nom de l’établissement",
+      "code": "Code de l’établissement"
+    },
+    "schoolColumns": {
+      "commune": "Code de la commune|Commune",
+      "level": "Cycle",
+      "name": "Nom de l’établissement|Établissement",
+      "code": "Code de l’établissement|Code"
+    },
+    "school": {
+      "commune": "Commune inconnue : {{cell}}",
+      "level": "Cycle inconnu : {{cell}}",
+      "name": "Nom manquant ou trop long",
+      "code": "Code non valide : {{cell}}",
+      "twice": "En double dans le fichier : {{cell}}"
     }
   },
   "panel": "Détails"

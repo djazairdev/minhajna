@@ -3,11 +3,10 @@
 
 // N-Reference's desk once the code opened it (answers 804, 805 and 809): the
 // title, how many changes wait to be published and the way to publish them;
-// the tabs for the levels' options and publishing, the schools' to follow;
-// the side panel a tab opens. Each change is saved to the draft as it is
-// made, over the revision read last; publishing waits until the draft is
-// saved. Before the first save, the draft is the profile's options with no
-// school.
+// the tabs for the levels' options, the schools and publishing; the side panel
+// a tab opens. Each change is saved to the draft as it is made, over the
+// revision read last; publishing waits until the draft is saved. Before the
+// first save, the draft is the profile's options with no school.
 
 import type { CountryProfile, ReferenceDraft, ReferenceList } from '@minhajna/core';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
@@ -25,10 +24,11 @@ import { LevelsTab } from './LevelsTab';
 import { PageTitle } from './page-parts';
 import { PublishTab } from './PublishTab';
 import { changeCount, draftChanges, startingDraft } from './reference-rules';
+import { SchoolsTab } from './SchoolsTab';
 import { useDirectoryCall } from './use-directory-call';
 import { useSavedDoc } from './use-saved-doc';
 
-type Tab = 'levels' | 'publish';
+type Tab = 'levels' | 'schools' | 'publish';
 
 export type ReferenceDeskProps = {
   readonly profile: CountryProfile;
@@ -113,6 +113,7 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
           label={t('dashboard.home.reference')}
           choices={[
             { value: 'levels', label: t('dashboard.reference.tab.levels') },
+            { value: 'schools', label: t('dashboard.reference.tab.schools') },
             { value: 'publish', label: t('dashboard.reference.tab.publish') },
           ]}
           selected={tab}
@@ -124,6 +125,17 @@ export function ReferenceDesk({ profile, code, start, onLock, onBack }: Referenc
           profile={profile}
           draft={saved.doc}
           published={list?.levels ?? []}
+          onChange={saved.change}
+          onUpdate={saved.update}
+          onAside={setAside}
+        />
+      )}
+      {tab === 'schools' && (
+        <SchoolsTab
+          published={list?.schools ?? []}
+          read={saved.read}
+          profile={profile}
+          draft={saved.doc}
           onChange={saved.change}
           onUpdate={saved.update}
           onAside={setAside}

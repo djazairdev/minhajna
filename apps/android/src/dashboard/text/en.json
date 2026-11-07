@@ -46,11 +46,14 @@
   "save": "Save",
   "cancel": "Cancel",
   "reload": "Load the latest copy",
+  "importFile": "Import a file",
+  "listJoin": ", ",
   "reference": {
     "pending": "Unpublished changes: {{count}}",
     "publish": "Publish",
     "tab": {
       "levels": "Cycles and subjects",
+      "schools": "Schools",
       "publish": "Publishing"
     }
   },
@@ -76,6 +79,25 @@
       "specialist": "Specialist"
     }
   },
+  "schools": {
+    "wilayas": "wilayas",
+    "communes": "communes",
+    "schools": "schools",
+    "empty": "communes with no school",
+    "level": "Cycle",
+    "allWilayas": "All wilayas",
+    "allCommunes": "All communes",
+    "allLevels": "All cycles",
+    "add": "Add a school",
+    "edit": "Edit the school",
+    "name": "School name",
+    "nameNeeded": "Type the school’s name.",
+    "column": {
+      "code": "Code",
+      "name": "School"
+    },
+    "shown": "Shown: {{shown}} of {{total}}"
+  },
   "publish": {
     "version": "Version {{version}}",
     "now": "Publish version {{version}}",
@@ -89,6 +111,45 @@
     "column": {
       "version": "Version",
       "day": "Published on"
+    }
+  },
+  "import": {
+    "pick": "Choose the file",
+    "applied": "Changes applied: {{count}}",
+    "apply": "Apply the changes: {{count}}",
+    "line": "Line",
+    "lineNumber": "Line {{line}}",
+    "why": "Problem",
+    "refusedLines": "Refused lines",
+    "refused": "lines refused",
+    "same": "unchanged",
+    "missing": "The file lacks the column: {{columns}}.",
+    "schoolsTitle": "Import schools",
+    "schoolsNew": "new schools",
+    "schoolsChanged": "schools changed",
+    "file": {
+      "binary": "This file is not a text CSV. Save the table from Excel as CSV UTF-8, then choose it.",
+      "size": "The file is over 2 MB.",
+      "failed": "The file could not be read."
+    },
+    "column": {
+      "commune": "Commune code",
+      "level": "Cycle",
+      "name": "School name",
+      "code": "School code"
+    },
+    "schoolColumns": {
+      "commune": "Commune code|Commune",
+      "level": "Cycle|Level",
+      "name": "School name|School",
+      "code": "School code|Code"
+    },
+    "school": {
+      "commune": "Unknown commune: {{cell}}",
+      "level": "Unknown cycle: {{cell}}",
+      "name": "The name is missing or too long",
+      "code": "Not a valid code: {{cell}}",
+      "twice": "Twice in the file: {{cell}}"
     }
   },
   "panel": "Details"
