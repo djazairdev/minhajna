@@ -23,6 +23,7 @@ on:
       - CHANGELOG.md
       - apps/android/android/app/build.gradle
       - apps/server/package.json
+      - apps/server/host/wrangler.jsonc
   pull_request:
     paths:
       - .github/workflows/release.yml

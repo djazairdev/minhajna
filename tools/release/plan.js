@@ -11,13 +11,17 @@
 // tagged, and only the latest is deployed to the PC web app's host, which
 // never goes back to an older build. A release's demo server carries its
 // version (answer 754), so a release whose apps/server/package.json says
-// otherwise stops here, before anything is built. Only Node's built-ins are
-// used.
+// otherwise stops here, before anything is built, and so does one whose demo
+// server has logs on (answer 795): Cloudflare stamps each line, which would
+// show when the demo was used. Only Node's built-ins are used.
 
 import { readFileSync } from 'node:fs';
 import process from 'node:process';
 import { fileURLToPath, URL } from 'node:url';
 import { releaseSection } from './changelog.js';
+
+/** What turns on the logs of a Worker or a container in a Wrangler file. */
+const LOGS_ON = /"logs"|"traces"|"observability":\s*\{[^{}]*"enabled":\s*true/u;
 
 /** The app's version name and code, from its build.gradle. */
 export function appVersion(gradle) {
@@ -48,7 +52,7 @@ export function compareVersions(a, b) {
 }
 
 /** What the workflow does with this commit. */
-export function releasePlan({ gradle, changelog, listing, event, server }) {
+export function releasePlan({ gradle, changelog, listing, event, server, host = '' }) {
   const { name: version } = appVersion(gradle);
   const tagged = taggedVersions(listing);
   const pending = event === 'pull_request' || !tagged.includes(version);
@@ -58,6 +62,9 @@ export function releasePlan({ gradle, changelog, listing, event, server }) {
   const release = event === 'push' && !tagged.includes(version) && section !== undefined;
   if (release && server !== version) {
     throw new Error(`apps/server/package.json says ${server}, and the release is ${version}: they must be equal`);
+  }
+  if (release && LOGS_ON.test(host)) {
+    throw new Error('apps/server/host/wrangler.jsonc has logs on, and a release must not (docs/demo-host.md)');
   }
   return {
     version,
@@ -83,6 +90,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     changelog: readFileSync(new URL('CHANGELOG.md', root), 'utf8'),
     listing: readFileSync(process.argv[3] ?? '', 'utf8'),
     server: JSON.parse(readFileSync(new URL('apps/server/package.json', root), 'utf8')).version,
+    host: readFileSync(new URL('apps/server/host/wrangler.jsonc', root), 'utf8'),
     event: process.argv[2],
   });
   process.stderr.write(`::notice title=Release::${plan.note}\n`);

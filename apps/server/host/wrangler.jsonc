@@ -4,9 +4,12 @@
 // The demo server's host on Cloudflare (answers 544, 550, 554 and 753): one
 // Worker at https://minhajna-demo.djazair.dev, in front of one container built
 // from apps/server/Dockerfile, its archive in the R2 bucket minhajna-demo. It
-// has no workers.dev or preview address, and its logs stay off. One instance,
-// since two on one bucket path would split the archive; the cron wakes it each
-// day for the 7-day sweep (worker.ts). docs/demo-host.md says how it is set up.
+// has no workers.dev or preview address, and the Worker's logs stay off. The
+// container's own lines are on only until its first start on Cloudflare is
+// understood (answer 795), and a release stops early with them on. One
+// instance, since two on one bucket path would split the archive; the cron
+// wakes it each day for the 7-day sweep (worker.ts). docs/demo-host.md says how
+// it is set up.
 {
   "name": "minhajna-demo",
   "main": "worker.ts",
@@ -23,6 +26,7 @@
       "image_build_context": "../../..",
       "instance_type": "standard-1",
       "max_instances": 1,
+      "observability": { "logs": { "enabled": true } },
     },
   ],
   "durable_objects": { "bindings": [{ "name": "SERVER", "class_name": "DemoServer" }] },
