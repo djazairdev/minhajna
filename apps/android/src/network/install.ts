@@ -3,7 +3,8 @@
 
 // Sets the network guard (guard.ts) as the app starts, on the phone and on a
 // PC, with the demo server open only while the world's client
-// (world-network.ts) is open to a world (#559, answer 570).
+// (world-network.ts) is open to a world (#559, answer 570), and its directory
+// (directory-network.ts, answer 809) whatever is open.
 
 import { guardNetwork } from './guard';
 import { DEMO_SERVER, worldNetworkOpen } from './world-network';

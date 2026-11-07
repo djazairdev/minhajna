@@ -6,20 +6,22 @@
 // PC. It wraps the global `fetch`, `XMLHttpRequest` and `WebSocket`, and on a
 // PC `EventSource` and `navigator.sendBeacon`: each refuses any address but the
 // demo server, and the demo server too unless a demo world is open, with
-// E_REFUSED. On a PC, the page's own origin stays open for its own files, and
-// its security policy allows no other address; Android's debug builds keep
-// Metro. React Native's `fetch` goes through `XMLHttpRequest`, so both are
-// guarded. What the globals do not cover, React Native's native image loading,
-// its networking and socket modules imported directly, and native modules' own
-// requests, the app's code never uses, which a test checks
-// (network-scan.test.ts). Addresses are compared as text, without a URL parser,
-// which React Native lacks, once cleaned as a parser cleans them, and the
-// platform is given the very string checked; `blob:` and `data:` addresses,
-// which name what the page holds, stay open. An address is the server's only
-// when it starts with the server's origin and a slash, so no user name or port
-// can pass for it, and a relative one never starts with two slashes or
-// backslashes, which would name a host. The guard holds no record and sends
-// nothing itself.
+// E_REFUSED, but for the server's directory, which stays open outside a world
+// (answer 809; directory-network.ts), its paths only as plain segments, so no
+// dots or escapes can lead out of them, with React Native's no-cache stamp. On
+// a PC, the page's own origin stays open for its own files, and its security
+// policy allows no other address; Android's debug builds keep Metro. React
+// Native's `fetch` goes through `XMLHttpRequest`, so both are guarded. What the
+// globals do not cover, React Native's native image loading, its networking and
+// socket modules imported directly, and native modules' own requests, the app's
+// code never uses, which a test checks (network-scan.test.ts). Addresses are
+// compared as text, without a URL parser, which React Native lacks, once
+// cleaned as a parser cleans them, and the platform is given the very string
+// checked; `blob:` and `data:` addresses, which name what the page holds, stay
+// open. An address is the server's only when it starts with the server's origin
+// and a slash, so no user name or port can pass for it, and a relative one
+// never starts with two slashes or backslashes, which would name a host. The
+// guard holds no record and sends nothing itself.
 
 export interface NetworkRules {
   /** The demo server's origin. */
@@ -33,12 +35,16 @@ export interface NetworkRules {
 }
 
 /** What a refused request says. */
-export const REFUSED = 'Minhajna connects only to the demo server, and only inside a demo world';
+export const REFUSED = 'Minhajna connects only to the demo server: its directory, or a demo world while one is open';
 
 const SCHEME = /^[A-Za-z][A-Za-z0-9+.-]*:/u;
 /** Addresses that name what the page already holds, never a connection. */
 const LOCAL = /^(?:blob|data):/iu;
 const GUARDED = Symbol.for('minhajna.network-guard');
+/** A path of the server's directory: plain segments, none of dots alone, no query or fragment. */
+export const DIRECTORY_PATH = /^\/directory(?:\/(?!\.+(?:\/|$))[A-Za-z0-9._~+-]+)+$/u;
+/** The stamp React Native's fetch adds to a read that is never cached, the only query the directory's paths meet. */
+const NO_CACHE_STAMP = /\?_=\d+$/u;
 
 /** The address as a URL parser reads it: tabs and line breaks dropped, controls and spaces trimmed at its ends. */
 function cleaned(address: string): string {
@@ -57,7 +63,8 @@ export function mayConnect(given: string, rules: NetworkRules): boolean {
   if (rules.others || LOCAL.test(address)) return true;
   if (!SCHEME.test(address)) return rules.own !== null && !/^[/\\]{2}/u.test(address);
   if (rules.own !== null && address.startsWith(`${rules.own}/`)) return true;
-  return address.startsWith(`${rules.server}/`) && rules.inWorld();
+  if (!address.startsWith(`${rules.server}/`)) return false;
+  return rules.inWorld() || DIRECTORY_PATH.test(address.slice(rules.server.length).replace(NO_CACHE_STAMP, ''));
 }
 
 /** A refused request's error, with its code. */

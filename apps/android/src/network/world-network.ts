@@ -2,21 +2,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The demo world's network client (#559, choice D8 of the 0.7.0 demo, answer
-// 570), the only code of the app's that connects, on the phone and on a PC. It
-// connects only while a world is open, and only to that world's paths on the
-// demo server, or to start a world: the world's ID and its pass, worked out on
-// the device from the code (#556), go with each request, and the code's secret
-// never does. A request carries no cookie and is never cached or sent with a
-// referrer; a redirect fails it where the platform's fetch can refuse one, and
-// the demo server sends none; on the phone, React Native follows one itself,
-// pass and all. It stops after TIMEOUT_MS, or the time a request names, and an
-// answer over MOST_ANSWER characters is refused. An answer that comes back
-// after the world was left is dropped. The guard (guard.ts) refuses other
-// connections. Errors carry a code: E_NO_WORLD outside a world or for another
-// world's path, E_REFUSED from the guard (guard.ts), E_OFFLINE, E_TIMEOUT, or
-// E_ANSWER for an answer that is not JSON or too long. A status the server
-// answers, as 409 or 429, is the caller's to read. A time to wait out of range
-// is a RangeError, the caller's mistake.
+// 570), the only code of the app's that connects to a world, on the phone and
+// on a PC; the directory has its own (directory-network.ts). It connects only
+// while a world is open, and only to that world's paths on the demo server, or
+// to start a world: the world's ID and its pass, worked out on the device from
+// the code (#556), go with each request, and the code's secret never does. A
+// request carries no cookie and is never cached or sent with a referrer; a
+// redirect fails it where the platform's fetch can refuse one, and the demo
+// server sends none; on the phone, React Native follows one itself, pass and
+// all. It stops after TIMEOUT_MS, or the time a request names, and an answer
+// over MOST_ANSWER characters is refused. An answer that comes back after the
+// world was left is dropped. The guard (guard.ts) refuses other connections.
+// Errors carry a code: E_NO_WORLD outside a world or for another world's path,
+// E_REFUSED from the guard (guard.ts), E_OFFLINE, E_TIMEOUT, or E_ANSWER for an
+// answer that is not JSON or too long. A status the server answers, as 409 or
+// 429, is the caller's to read. A time to wait out of range is a RangeError,
+// the caller's mistake.
 
 export const DEMO_SERVER = 'https://minhajna-demo.djazair.dev';
 export const TIMEOUT_MS = 20_000;
