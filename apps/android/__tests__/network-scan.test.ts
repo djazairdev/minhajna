@@ -6,8 +6,10 @@
 // Native loads natively, as no code builds an image's address; no React Native
 // networking or socket module reached around the globals; no HTTP or socket of
 // Android's own in the app's Kotlin; and no WebView that may load from the
-// network: each one the code makes blocks network loads. The phone's code, the
-// PC's and the app's Kotlin are read as text; nothing runs or connects.
+// network: each one the code makes blocks network loads. In the phone's code,
+// only the world's client and the directory's call the network. The phone's
+// code, the PC's and the app's Kotlin are read as text; nothing runs or
+// connects.
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -56,6 +58,25 @@ test('the scan reads the phone’s code, the PC’s and the app’s Kotlin', () 
 
 test('no script reaches the network around the guarded globals', () => {
   expect(hits(scripts, AROUND_THE_GUARD)).toEqual([]);
+});
+
+test('the phone’s code connects only through its two clients', () => {
+  const own = ['guard.ts', 'install.ts', 'world-network.ts', 'directory-network.ts'].map((name) =>
+    join(APP, 'src', 'network', name),
+  );
+  const others = scripts.filter((path) => path.startsWith(join(APP, 'src')) && !own.includes(path));
+  expect(others.length).toBeGreaterThan(300);
+  const connects = /\bfetch\s*\(|\.fetch\b|\bXMLHttpRequest\b|\bWebSocket\b|\bEventSource\b|\bsendBeacon\b/u;
+  expect(hits(others, [connects])).toEqual([]);
+  for (const sample of [
+    'window.fetch(a)',
+    'self.fetch',
+    'new EventSource(a)',
+    'navigator.sendBeacon(a)',
+    'fetch (a)',
+  ]) {
+    expect(connects.test(sample)).toBe(true);
+  }
 });
 
 test('no Kotlin of the app opens a connection, and every WebView it makes blocks network loads', () => {

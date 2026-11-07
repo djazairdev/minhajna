@@ -7,9 +7,10 @@
   Biometrics for the app lock (#210), the camera only when the teacher
   starts a foreground QR scan (#222), the notifications set ahead, with
   their alarms set again after a restart (#234), and the network for a
-  demo world's client alone (#559): the app's guard refuses every other
-  connection, and every connection outside a world (NETWORK.md). Debug
-  builds use it for Metro too. No storage permission.
+  demo world's client (#559) and the directory's (answer 809) alone: the
+  app's guard refuses every other connection, and outside a world all
+  but the directory's (NETWORK.md). Debug builds use it for Metro too. No
+  storage permission.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
