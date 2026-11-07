@@ -34,6 +34,12 @@ path = "apps/android/src/settings/text/backup/*.json"
 SPDX-FileCopyrightText = "2026 The Minhajna contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
+# Algeria's communes, as the wilayas dataset publishes them, under CC0.
+[[annotations]]
+path = "data/dz/communes.json"
+SPDX-FileCopyrightText = "2026 The djazairdev wilayas contributors"
+SPDX-License-Identifier = "CC0-1.0"
+
 # TypeScript settings based on React Native's app template.
 [[annotations]]
 path = "apps/android/tsconfig.json"

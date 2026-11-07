@@ -46,11 +46,14 @@
   "save": "حفظ",
   "cancel": "إلغاء",
   "reload": "تحميل آخر نسخة",
+  "importFile": "استيراد ملف",
+  "listJoin": "، ",
   "reference": {
     "pending": "تغييرات لم تُنشر: {{count}}",
     "publish": "نشر",
     "tab": {
       "levels": "المستويات والمواد",
+      "schools": "المؤسسات",
       "publish": "النشر"
     }
   },
@@ -76,6 +79,25 @@
       "specialist": "مختص"
     }
   },
+  "schools": {
+    "wilayas": "الولايات",
+    "communes": "البلديات",
+    "schools": "المؤسسات",
+    "empty": "بلديات بلا مؤسسة",
+    "level": "الطور",
+    "allWilayas": "كل الولايات",
+    "allCommunes": "كل البلديات",
+    "allLevels": "كل الأطوار",
+    "add": "إضافة مؤسسة",
+    "edit": "تعديل مؤسسة",
+    "name": "اسم المؤسسة",
+    "nameNeeded": "اكتب اسم المؤسسة.",
+    "column": {
+      "code": "الرمز",
+      "name": "المؤسسة"
+    },
+    "shown": "معروضة: {{shown}} من {{total}}"
+  },
   "publish": {
     "version": "الإصدار {{version}}",
     "now": "نشر الإصدار {{version}}",
@@ -89,6 +111,45 @@
     "column": {
       "version": "الإصدار",
       "day": "نُشر يوم"
+    }
+  },
+  "import": {
+    "pick": "اختيار الملف",
+    "applied": "اعتُمدت التغييرات: {{count}}",
+    "apply": "اعتماد التغييرات: {{count}}",
+    "line": "السطر",
+    "lineNumber": "السطر {{line}}",
+    "why": "الخلل",
+    "refusedLines": "الأسطر المرفوضة",
+    "refused": "أسطر مرفوضة",
+    "same": "دون تغيير",
+    "missing": "ينقص الملف عمود: {{columns}}.",
+    "schoolsTitle": "استيراد المؤسسات",
+    "schoolsNew": "مؤسسات جديدة",
+    "schoolsChanged": "مؤسسات تتغيّر",
+    "file": {
+      "binary": "هذا الملف ليس CSV نصياً. احفظ الجدول من Excel بصيغة CSV UTF-8، ثم اختره.",
+      "size": "الملف أكبر من 2 ميغابايت.",
+      "failed": "تعذّرت قراءة الملف."
+    },
+    "column": {
+      "commune": "رمز البلدية",
+      "level": "الطور",
+      "name": "اسم المؤسسة",
+      "code": "رمز المؤسسة"
+    },
+    "schoolColumns": {
+      "commune": "رمز البلدية|البلدية",
+      "level": "الطور",
+      "name": "اسم المؤسسة|المؤسسة",
+      "code": "رمز المؤسسة|الرمز"
+    },
+    "school": {
+      "commune": "بلدية غير معروفة: {{cell}}",
+      "level": "طور غير معروف: {{cell}}",
+      "name": "اسم المؤسسة ناقص أو طويل جداً",
+      "code": "رمز غير صالح: {{cell}}",
+      "twice": "مكرر في الملف: {{cell}}"
     }
   },
   "panel": "التفاصيل"

@@ -5,3 +5,6 @@ The data is bundled as published in the repository's data folder, and is
 licensed under the Creative Commons Attribution-ShareAlike 4.0 International
 licence: https://creativecommons.org/licenses/by-sa/4.0/legalcode
 Every date in it names the official text it comes from.
+
+The communes' codes and names come from the wilayas dataset (https://wilayas.djazair.dev),
+dedicated to the public domain under CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/legalcode
