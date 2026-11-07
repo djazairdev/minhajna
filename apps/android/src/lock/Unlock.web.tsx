@@ -20,6 +20,7 @@ import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
 import { TextField } from '../components/TextField';
 import { colors, spacing, typography } from '../design/tokens';
+import { useDashboardDoor } from '../dashboard/door';
 import { useDemoDoor } from '../demo/demo-door';
 import { useText } from '../text/i18n';
 import { askToKeep, useDataKept } from './browser-offers';
@@ -48,6 +49,7 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
   const [erasing, setErasing] = useState(false);
   const kept = useDataKept();
   const demo = useDemoDoor();
+  const dashboard = useDashboardDoor();
   const mounted = useRef(true);
   const asked = useRef(false);
 
@@ -167,6 +169,17 @@ export function Unlock({ storage, waitSeconds, lockMinutes, onOpened, onRefused 
           style={styles.link}
         >
           <Text style={styles.linkText}>{t('demo.open')}</Text>
+        </Pressable>
+      )}
+      {dashboard !== null && (
+        <Pressable
+          testID="passphrase-dashboard"
+          accessibilityRole="button"
+          disabled={busy}
+          onPress={dashboard}
+          style={styles.link}
+        >
+          <Text style={styles.linkText}>{t('dashboard.door')}</Text>
         </Pressable>
       )}
     </WebLockPage>

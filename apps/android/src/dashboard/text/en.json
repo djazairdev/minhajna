@@ -1,0 +1,268 @@
+{
+  "door": "Dashboard",
+  "back": "Back",
+  "lock": "Lock now",
+  "next": "Next",
+  "search": "Search",
+  "tryAgain": "Try again",
+  "madeUp": "Example data only",
+  "waking": "The server is waking up; this can take a minute.",
+  "problem": {
+    "refused": "That code is not the right one.",
+    "stale": "Someone else saved first. Load the latest copy, then make your change again.",
+    "missing": "This is not in the directory.",
+    "asleep": "The server has not woken yet. Try again in a moment.",
+    "busy": "Too many requests in a short time. Try again in a moment.",
+    "full": "The directory has no room for this.",
+    "bad": "The server did not accept this data.",
+    "network": "Could not reach the server."
+  },
+  "home": {
+    "reference": "Reference data",
+    "school": "Classes and pupils",
+    "reader": "Read a teacher’s statement"
+  },
+  "who": {
+    "ministry": "Ministry of National Education",
+    "school": "Administration"
+  },
+  "gate": {
+    "code": "Edit code",
+    "again": "Type the code again",
+    "open": "Open",
+    "set": "Set the code",
+    "badCode": "8 to 64 Latin letters, digits or signs, no spaces.",
+    "different": "The two codes differ.",
+    "taken": "Someone else has just set the code. Enter it to open the page."
+  },
+  "place": {
+    "wilaya": "Wilaya",
+    "commune": "Commune",
+    "school": "School",
+    "nothing": "The list of schools is not published yet."
+  },
+  "edit": "Edit",
+  "hide": "Hide",
+  "save": "Save",
+  "cancel": "Cancel",
+  "reload": "Load the latest copy",
+  "importFile": "Import a file",
+  "listJoin": ", ",
+  "reference": {
+    "pending": "Unpublished changes: {{count}}",
+    "publish": "Publish",
+    "tab": {
+      "levels": "Cycles and subjects",
+      "schools": "Schools",
+      "publish": "Publishing"
+    }
+  },
+  "levels": {
+    "level": "Cycle",
+    "add": "Add a subject",
+    "addPair": "Add two subjects together",
+    "edit": "Edit the option",
+    "subject": "Subject",
+    "first": "First subject",
+    "second": "Second subject",
+    "exists": "This option already exists.",
+    "classTeacher": "Class teacher",
+    "pairName": "{{first}} and {{second}}",
+    "column": {
+      "option": "What the teacher picks",
+      "kind": "Kind"
+    },
+    "kind": {
+      "subject": "Subject",
+      "pair": "Two subjects",
+      "classTeacher": "Class teacher",
+      "specialist": "Specialist"
+    }
+  },
+  "schools": {
+    "wilayas": "wilayas",
+    "communes": "communes",
+    "schools": "schools",
+    "empty": "communes with no school",
+    "level": "Cycle",
+    "allWilayas": "All wilayas",
+    "allCommunes": "All communes",
+    "allLevels": "All cycles",
+    "add": "Add a school",
+    "edit": "Edit the school",
+    "name": "School name",
+    "nameNeeded": "Type the school’s name.",
+    "column": {
+      "code": "Code",
+      "name": "School"
+    },
+    "shown": "Shown: {{shown}} of {{total}}"
+  },
+  "publish": {
+    "version": "Version {{version}}",
+    "now": "Publish version {{version}}",
+    "added": "schools added",
+    "edited": "schools changed",
+    "hidden": "schools hidden",
+    "options": "subject options changed",
+    "versions": "Versions",
+    "current": "Published now",
+    "again": "Publish again",
+    "column": {
+      "version": "Version",
+      "day": "Published on"
+    }
+  },
+  "import": {
+    "pick": "Choose the file",
+    "applied": "Changes applied: {{count}}",
+    "apply": "Apply the changes: {{count}}",
+    "line": "Line",
+    "lineNumber": "Line {{line}}",
+    "why": "Problem",
+    "refusedLines": "Refused lines",
+    "refused": "lines refused",
+    "same": "unchanged",
+    "missing": "The file lacks the column: {{columns}}.",
+    "schoolsTitle": "Import schools",
+    "schoolsNew": "new schools",
+    "schoolsChanged": "schools changed",
+    "file": {
+      "binary": "This file is not a text CSV. Save the table from Excel as CSV UTF-8, then choose it.",
+      "size": "The file is over 2 MB.",
+      "failed": "The file could not be read."
+    },
+    "column": {
+      "commune": "Commune code",
+      "level": "Cycle",
+      "name": "School name",
+      "code": "School code"
+    },
+    "schoolColumns": {
+      "commune": "Commune code|Commune",
+      "level": "Cycle|Level",
+      "name": "School name|School",
+      "code": "School code|Code"
+    },
+    "school": {
+      "commune": "Unknown commune: {{cell}}",
+      "level": "Unknown cycle: {{cell}}",
+      "name": "The name is missing or too long",
+      "code": "Not a valid code: {{cell}}",
+      "twice": "Twice in the file: {{cell}}"
+    },
+    "pupilsTitle": "Import the pupils’ list",
+    "pupilsNew": "new pupils",
+    "pupilsMoved": "change class",
+    "pupilsChanged": "details changed",
+    "pupilColumn": {
+      "registration": "Registration number",
+      "name": "Full name",
+      "sex": "Sex",
+      "class": "Class"
+    },
+    "pupilColumns": {
+      "registration": "Registration number|Registration|Number",
+      "name": "Full name|Name",
+      "sex": "Sex",
+      "class": "Class"
+    },
+    "sex": {
+      "f": "F|Female|Girl",
+      "m": "M|Male|Boy"
+    },
+    "pupil": {
+      "registration": "Number missing or not valid: {{cell}}",
+      "twice": "Number twice in the file: {{cell}}",
+      "name": "Name missing or too long",
+      "sex": "Unknown sex: {{cell}}",
+      "class": "No such class: {{cell}}",
+      "full": "Class full: {{cell}}"
+    }
+  },
+  "classes": {
+    "add": "Add a class",
+    "addOne": "Add",
+    "new": "New class",
+    "year": "Year",
+    "name": "Class name",
+    "classes": "classes",
+    "pupils": "pupils",
+    "noList": "No list",
+    "noTeacher": "Subject without a teacher",
+    "filter": "Filter the classes",
+    "all": "All",
+    "ready": "Ready",
+    "taught": "{{done}} of {{all}}",
+    "listed": "Pupils: {{count}}",
+    "column": {
+      "class": "Class",
+      "pupils": "Pupils",
+      "teachers": "Teachers",
+      "state": "State"
+    },
+    "tab": {
+      "pupils": "Pupils",
+      "teachers": "Teachers",
+      "week": "Timetable"
+    },
+    "noListCount": "classes with no list",
+    "noTeacherCount": "subjects without a teacher",
+    "taken": "Another class has this name.",
+    "full": "The school has as many classes as it can."
+  },
+  "pupils": {
+    "name": "Full name",
+    "sex": "Sex",
+    "female": "F",
+    "male": "M",
+    "registration": "Registration number",
+    "add": "Add a pupil",
+    "taken": "Another pupil has this number.",
+    "badNumber": "Digits and Latin letters only.",
+    "none": "This class has no list",
+    "move": "Move to another class",
+    "leave": "Record a leaving",
+    "full": "The class has as many pupils as it can.",
+    "leaveSure": "Confirm {{name}} leaving"
+  },
+  "assign": {
+    "none": "No teacher",
+    "noOptions": "The published list gives this cycle no subjects."
+  },
+  "week": {
+    "none": "—",
+    "morning": "M{{index}}",
+    "afternoon": "A{{index}}",
+    "busy": "This subject’s teacher is with {{name}} at that time.",
+    "slot": "Session"
+  },
+  "teachers": {
+    "title": "Teachers and joining codes",
+    "add": "Add a teacher",
+    "name": "Full name",
+    "printAll": "Print the codes",
+    "print": "Print the code",
+    "renew": "New code",
+    "remove": "Remove the teacher",
+    "none": "No teacher yet",
+    "codeComing": "The code comes once saved",
+    "printFailed": "Printing failed.",
+    "qr": "{{name}}’s joining code",
+    "column": {
+      "name": "Teacher",
+      "option": "Subject",
+      "classes": "Classes",
+      "code": "Joining code"
+    },
+    "sheet": {
+      "title": "Joining codes",
+      "handover": "Hand it over in person, never by message."
+    },
+    "sure": {
+      "renew": "Confirm a new code for {{name}}",
+      "remove": "Confirm removing {{name}}"
+    }
+  },
+  "panel": "Details"
+}
