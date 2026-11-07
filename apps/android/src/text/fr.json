@@ -103,15 +103,10 @@
   },
   "welcome": {
     "line": "Une séance notée une fois, et tous les documents sont prêts.",
-    "noAccount": "Sans compte ni mot de passe",
-    "offline": "Fonctionne sans internet",
-    "onPhone": "Les données restent sur ce téléphone",
     "start": "Commencer",
-    "reader": "Ouvrir le relevé d’un enseignant",
     "restore": "J’ai une copie d’un autre téléphone",
+    "settings": "Paramètres",
     "pc": {
-      "noAccount": "Sans compte ; rien n’est envoyé à un serveur",
-      "onPhone": "Les données restent dans ce navigateur",
       "restore": "J’ai une copie de mon téléphone"
     },
     "erased": {
@@ -119,7 +114,7 @@
       "title": "Minhajna a été effacé de ce navigateur",
       "line": "Il n’y reste rien de vos données, ni la clé de ce PC. L’application reste installée, vide comme au premier jour.",
       "kept": "Sur le téléphone et dans les fichiers enregistrés ailleurs : tout ce qu’ils contiennent, tel quel.",
-      "again": "Pour ajouter ce PC à nouveau, ouvrez le transfert de votre téléphone ou une sauvegarde avec « J’ai une copie de mon téléphone »."
+      "again": "Pour ajouter ce PC à nouveau, ouvrez le transfert de votre téléphone ou une sauvegarde depuis les paramètres de l’accueil : « J’ai une copie de mon téléphone »."
     }
   },
   "privacy": {

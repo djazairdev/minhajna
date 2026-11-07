@@ -6,14 +6,19 @@ import { Facts } from '../components/Facts';
 import { spacing } from '../design/tokens';
 import { factsTexts } from './facts-texts';
 import type { SampleProps } from './samples';
-import { FactsSamples as PromiseSamples } from './welcome-samples';
 
-/** The existing welcome promises and every made-up kept result, not limited to three. */
+/** Up to three made-up facts with their icons, and every made-up kept result, not limited to three. */
 export function FactsSamples({ language }: SampleProps) {
   const text = factsTexts[language];
   return (
     <View style={styles.group}>
-      <PromiseSamples />
+      <Facts
+        facts={[
+          { icon: 'no_account', text: text.classes },
+          { icon: 'offline', text: text.week },
+          { icon: 'phone', text: text.excluded },
+        ]}
+      />
       <Facts
         keptLabel={text.kept}
         notKeptLabel={text.notKept}

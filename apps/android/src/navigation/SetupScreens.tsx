@@ -118,10 +118,10 @@ export function TypeListScreen({ navigation, route }: NativeStackScreenProps<Roo
 }
 
 /**
- * The welcome leads to the notice, for setup or reader mode (#246); Back from
- * the notice returns here. While the history is still empty, it also leads to
- * the restore (#247). It offers a crash report kept before setup was finished
- * or a first statement was kept (#460).
+ * The welcome leads to the notice, for setup; Back from the notice returns
+ * here. While the history is still empty, its settings page also leads to the
+ * restore (#247, answer 800). It offers a crash report kept before setup was
+ * finished or a first statement was kept (#460).
  */
 export function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Welcome'>) {
   const { entries } = useAppData();
@@ -131,7 +131,6 @@ export function WelcomeScreen({ navigation }: NativeStackScreenProps<RootStackPa
       <Welcome
         lockSet
         onStart={() => navigation.navigate('Privacy')}
-        onReader={() => navigation.navigate('Privacy', { reader: true })}
         onRestore={entries().length === 0 ? () => navigation.navigate('Restore') : undefined}
       />
     </>

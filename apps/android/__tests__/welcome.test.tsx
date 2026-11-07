@@ -13,6 +13,8 @@ import ReactTestRenderer from 'react-test-renderer';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData, type TestData } from '../jest/app-data';
 import { RowLink } from '../src/components/RowLink';
+import { LockStorage } from '../src/lock/lock-storage';
+import { ReopenHistory } from '../src/restore/reopen';
 import { AppNavigator } from '../src/navigation/AppNavigator';
 import { TopBar } from '../src/navigation/NavigationChrome';
 import { catalogues, i18n, type Language } from '../src/text/i18n';
@@ -35,7 +37,13 @@ afterEach(async () => {
 async function mount(direction: 'rtl' | 'ltr' = 'rtl') {
   data = await openTestData();
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(withData(data, <AppNavigator direction={direction} />));
+    tree = ReactTestRenderer.create(
+      <LockStorage.Provider value={data.storage.asSpec()}>
+        <ReopenHistory.Provider value={jest.fn()}>
+          {withData(data, <AppNavigator direction={direction} />)}
+        </ReopenHistory.Provider>
+      </LockStorage.Provider>,
+    );
   });
 }
 
@@ -100,7 +108,7 @@ function routes(): string[] {
   return header?.navigation.getState().routes.map((route) => route.name) ?? [];
 }
 
-test('opens on the welcome, with the reader start, the restore link and no way to skip the notice', async () => {
+test('opens on the welcome, with neither promises nor reader start, and no way to skip the notice', async () => {
   await mount();
   expect(shown()).toEqual([
     text.name,
@@ -112,19 +120,61 @@ test('opens on the welcome, with the reader start, the restore link and no way t
     text.language.ar,
     text.language.fr,
     text.language.en,
-    text.welcome.noAccount,
-    text.welcome.offline,
-    text.welcome.onPhone,
     text.welcome.start,
-    text.welcome.reader,
-    text.welcome.restore,
   ]);
   expect(tree.root.findAllByType(TopBar)).toHaveLength(0);
   const images = tree.root.findAllByType(Image).map((node) => node.props as ImageProps);
   expect(images.map((image) => image.source)).toEqual(
-    expect.arrayContaining([{ uri: 'minhajna_mim' }, { uri: 'chalk_line' }, { uri: 'icon_offline' }]),
+    expect.arrayContaining([{ uri: 'minhajna_mim' }, { uri: 'chalk_line' }]),
   );
   expect(images.filter((image) => image.accessible !== false)).toEqual([]);
+});
+
+test('its settings icon leads to a page holding only the restore, which Back leaves', async () => {
+  const handlers: Parameters<typeof BackHandler.addEventListener>[1][] = [];
+  jest.spyOn(BackHandler, 'addEventListener').mockImplementation((_event, handler) => {
+    handlers.push(handler);
+    return { remove: () => handlers.splice(handlers.indexOf(handler), 1) };
+  });
+  await mount();
+  const pages = () => tree.root.findAll((node) => node.props.testID === 'welcome-settings-page', { deep: false });
+  expect(pages()).toHaveLength(0);
+  await press(byTestID('welcome-settings'));
+  expect(pages()).toHaveLength(1);
+  const page = pages()[0];
+  expect(page.findAllByType(Text).map((node) => [node.props.children as unknown].flat().join(''))).toEqual([
+    text.welcome.settings,
+    text.welcome.restore,
+    text.navigation.back,
+  ]);
+  await press(byTestID('welcome-settings-back'));
+  expect(pages()).toHaveLength(0);
+  await press(byTestID('welcome-settings'));
+  const back = handlers.at(-1);
+  await ReactTestRenderer.act(() => {
+    expect(back?.({} as never)).toBe(true);
+  });
+  expect(pages()).toHaveLength(0);
+  expect(handlers).not.toContain(back);
+});
+
+test('the restore opened from the settings page leaves with one Back, as the phone dispatches it', async () => {
+  const handlers: Parameters<typeof BackHandler.addEventListener>[1][] = [];
+  jest.spyOn(BackHandler, 'addEventListener').mockImplementation((_event, handler) => {
+    handlers.push(handler);
+    return { remove: () => handlers.splice(handlers.indexOf(handler), 1) };
+  });
+  await mount();
+  await press(byTestID('welcome-settings'));
+  expect(accessibilityProblems(tree.root)).toEqual([]);
+  await press(byTestID('welcome-restore'));
+  expect(routes()).toEqual(['Welcome', 'Restore']);
+  await ReactTestRenderer.act(() => {
+    [...handlers].reverse().some((handler) => handler({} as never) === true);
+  });
+  expect(routes()).toEqual([]);
+  expect(tree.root.findAll((node) => node.props.testID === 'welcome-start', { deep: false })).toHaveLength(1);
+  expect(tree.root.findAll((node) => node.props.testID === 'welcome-settings-page', { deep: false })).toHaveLength(0);
 });
 
 test('leads through the notice to the tabs, and Back from the tabs leaves the app', async () => {

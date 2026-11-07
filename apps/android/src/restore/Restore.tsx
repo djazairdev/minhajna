@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // «استرجاع البيانات» (#247, Restore, R-5.8-10, R-5.8-11, R-5.8-12, R-5.9-02,
-// R-6.5-01, answers 478 to 480), reached only from the welcome's
-// «لديّ نسخة من هاتف آخر», once the PIN is set, into the empty history. Three
+// R-6.5-01, answers 478 to 480), reached only from the welcome's settings
+// page (answer 800), once the PIN is set, into the empty history. Three
 // routes open in the pilot: the old phone in hand, its transfer file, then its
 // one-time key, scanned from its QR code, the camera asked then, or typed; a
 // backup file, then the recovery key; both keys typed with no keyboard

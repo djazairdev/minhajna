@@ -7,13 +7,15 @@
 // its own. Every PC text sits beside the phone's text it replaces, in all
 // three languages, each with its own plural forms, and none speaks of this
 // phone; a PC text missing in the interface's language gives that
-// language's phone text, never another language's. Made-up records only.
+// language's phone text, never another language's. The welcome's settings
+// page offers the copy from the phone. Made-up records only.
 
 import { Platform, Text } from 'react-native';
 import { openTestData } from '../jest/app-data';
 import { mount, root, settle, texts, unmount } from '../jest/components-screen';
 import { FakeStorage } from '../jest/fake-storage';
 import { withPupils } from '../jest/roll-class';
+import { WelcomeSettings } from '../src/navigation/WelcomeSettings';
 import { Restore } from '../src/restore/Restore';
 import { Transfer } from '../src/settings/Transfer';
 import { pcKey, useDeviceText } from '../src/text/device-text';
@@ -110,6 +112,13 @@ describe('on a PC', () => {
       i18n.removeResourceBundle('ar', 'pcTest');
       i18n.removeResourceBundle('en', 'pcTest');
     }
+  });
+
+  test('the welcome’s settings page offers the copy from the phone', async () => {
+    await i18n.changeLanguage('en');
+    await mount(await openTestData(), <WelcomeSettings onRestore={jest.fn()} onBack={jest.fn()} />);
+    expect(texts()).toEqual(expect.arrayContaining(['Settings', 'I have a copy from my phone']));
+    expect(missingKeys).toEqual([]);
   });
 
   test('the restore takes a typed code, with no scan button or camera line', async () => {

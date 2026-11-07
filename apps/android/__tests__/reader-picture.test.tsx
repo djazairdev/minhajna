@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Reader mode's own start and R-Picture (#246, answers 489 and 490): the
-// welcome's reader start leads, through the first PIN on a fresh install, and
-// the notice, to the picture as the home, with no way back, the list's way
-// back to it, and Help without the teacher's rows; the app opens there again
+// Reader mode's own start and R-Picture (#246, answers 489, 490 and 799): the
+// phone's welcome no longer offers it; the notice in reader mode, which the
+// dashboard opens, leads to the picture as the home, with no way back, the
+// list's way back to it, and Help without the teacher's rows; the app opens there again
 // once a statement is kept; the picture shows one grade at a time, in the
 // profile's order, its statements and teachers counted, each cell the latest
 // statement's delay and day, opening it, a misdated statement left out and
@@ -16,10 +16,8 @@ import { nameTeacher, parseDay } from '@minhajna/core';
 import type { NavigationState } from '@react-navigation/native';
 import { useWindowDimensions, type PressableProps } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
-import App from '../App';
 import { accessibilityProblems } from '../jest/accessibility';
 import { openTestData, withData } from '../jest/app-data';
-import { FakeStorage } from '../jest/fake-storage';
 import { KEY_A, KEY_B, keepStatement as keep, madeUpStatement as statement } from '../jest/reader-statements';
 import {
   closeSettingsScreen,
@@ -56,24 +54,28 @@ afterEach(async () => {
   await i18n.changeLanguage('ar');
 });
 
-test('the welcome starts reader mode through the notice, with the picture as a home that has no way back', async () => {
+test('the notice in reader mode leads to the picture as a home that has no way back, and the welcome offers none', async () => {
   const data = await openTestData();
   expect(startRoute(data.book)).toBe('Welcome');
   let state: NavigationState | undefined;
   let tree: ReactTestRenderer.ReactTestRenderer | undefined;
   await ReactTestRenderer.act(() => {
-    tree = ReactTestRenderer.create(withData(data, <AppNavigator onStateChange={(next) => (state = next)} />));
+    tree = ReactTestRenderer.create(
+      withData(
+        data,
+        <AppNavigator
+          initialState={{ index: 1, routes: [{ name: 'Welcome' }, { name: 'Privacy', params: { reader: true } }] }}
+          onStateChange={(next) => (state = next)}
+        />,
+      ),
+    );
   });
   const press = async (id: string) =>
     ReactTestRenderer.act(async () => {
       (tree!.root.findByProps({ testID: id }).props as PressableProps).onPress?.({} as never);
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
     });
-  await press('welcome-reader');
-  expect(state?.routes.map((route) => [route.name, route.params])).toEqual([
-    ['Welcome', undefined],
-    ['Privacy', { reader: true }],
-  ]);
+  expect(tree!.root.findAllByProps({ testID: 'welcome-reader' })).toHaveLength(0);
   await press('privacy-accept');
   expect(state?.routes.map((route) => route.name)).toEqual(['ReaderHome']);
   expect(tree!.root.findAllByProps({ testID: 'reader-picture-empty' }).length).toBeGreaterThan(0);
@@ -89,32 +91,6 @@ test('the welcome starts reader mode through the notice, with the picture as a h
   await ReactTestRenderer.act(() => tree!.unmount());
   await keep(data, KEY_A, statement('2026-10-01', '4M1'));
   expect(startRoute(data.book)).toBe('ReaderHome');
-});
-
-test('on a fresh install, the reader start goes through the first PIN to the notice, then home', async () => {
-  let tree: ReactTestRenderer.ReactTestRenderer | undefined;
-  const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
-  const press = async (id: string) =>
-    ReactTestRenderer.act(async () => {
-      const node = tree!.root.findAll(
-        (one) => one.props.testID === id && typeof (one.props as PressableProps).onPress === 'function',
-      )[0];
-      (node?.props as PressableProps).onPress?.({} as never);
-      await settle();
-    });
-  await ReactTestRenderer.act(async () => {
-    tree = ReactTestRenderer.create(<App storage={new FakeStorage().asSpec()} />);
-    await settle();
-  });
-  await press('welcome-reader');
-  for (const digit of '25802580') await press(`pin-${digit}`);
-  expect(tree!.root.findAllByType(AppNavigator)[0]?.props.initialState).toEqual({
-    index: 1,
-    routes: [{ name: 'Welcome' }, { name: 'Privacy', params: { reader: true } }],
-  });
-  await press('privacy-accept');
-  expect(tree!.root.findAllByProps({ testID: 'reader-home' }).length).toBeGreaterThan(0);
-  await ReactTestRenderer.act(() => tree!.unmount());
 });
 
 test.each(['ar', 'fr', 'en'] as const)(

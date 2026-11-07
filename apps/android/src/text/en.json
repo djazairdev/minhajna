@@ -96,15 +96,10 @@
   },
   "welcome": {
     "line": "Record a session once, and every document is ready.",
-    "noAccount": "No account, no password",
-    "offline": "Works without the internet",
-    "onPhone": "Your data stays on this phone",
     "start": "Let’s start",
-    "reader": "Open a teacher’s statement",
     "restore": "I have a copy from another phone",
+    "settings": "Settings",
     "pc": {
-      "noAccount": "No account; nothing sent to a server",
-      "onPhone": "Your data stays in this browser",
       "restore": "I have a copy from my phone"
     },
     "erased": {
@@ -112,7 +107,7 @@
       "title": "Minhajna was erased from this browser",
       "line": "Nothing of your data is left in it, nor this PC’s key. The app stays installed, empty as at first.",
       "kept": "On the phone, and in the files saved elsewhere: everything they hold, as it was.",
-      "again": "To add this PC again, open your phone’s transfer or a backup with “I have a copy from my phone”."
+      "again": "To add this PC again, open your phone’s transfer or a backup from the welcome’s settings: “I have a copy from my phone”."
     }
   },
   "privacy": {

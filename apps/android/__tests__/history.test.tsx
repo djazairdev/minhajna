@@ -166,12 +166,7 @@ describe('at start', () => {
       text.language.ar,
       text.language.fr,
       text.language.en,
-      text.welcome.noAccount,
-      text.welcome.offline,
-      text.welcome.onPhone,
       text.welcome.start,
-      text.welcome.reader,
-      text.welcome.restore,
     ]);
     expect(storage.opened).toBe(false);
     expect(storage.created).toBe(false);
