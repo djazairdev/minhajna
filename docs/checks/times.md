@@ -1,5 +1,7 @@
 # Bell times (#29)
 
+> Answer 808 (7 November 2026) removed the teacher's own editing of classes, pupil lists, the week and plan packs, which now arrive from the school. What this page checks of those screens no longer applies.
+
 Checks of 17 October 2026 for the second pull request of [#29](https://github.com/djazairdev/minhajna/issues/29), on `feat/29-times`, after the core and data (#150). Made-up schools only.
 
 ## What changed

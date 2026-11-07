@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The Back arrow is a shape, not a bidi-sensitive glyph: Android mirrors neutral
-// text. Its end border resolves to physical left in RTL before rotation.
+// The Back arrow is a shape, not a bidi-sensitive glyph: Android mirrors
+// neutral text. Its end border resolves to physical left in RTL before
+// rotation.
 
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, useLocale } from '@react-navigation/native';
@@ -32,7 +33,7 @@ export const theme = {
 };
 
 /** Each setup screen's step, which its bar's subtitle names. */
-const SETUP_ROUTES = { Teaching: 1, Card: 2, Classes: 3, Week: 4, Plan: 5 } as const;
+const SETUP_ROUTES = { Teaching: 1, Card: 2 } as const;
 
 /** The tabs, under the banner of a working copy on the other device (answer 513); the rail on a PC (answer 524). */
 export function HomeTabBar(props: BottomTabBarProps) {
@@ -127,7 +128,6 @@ export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
             {options.title}
           </Text>
           {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
-          {route.name === 'TypeList' && <Text style={styles.subtitle}>{t('setup.sorted')}</Text>}
           {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
           {route.name === 'Security' && (
             <Text style={styles.subtitle}>

@@ -118,7 +118,7 @@ test('offers each select once the one before is chosen, with only what the list 
   expect(control('setup-next').props).toMatchObject({ disabled: false });
 });
 
-test('records the chosen school on Next, keeping the ID the history holds, and shows it when the step opens again', async () => {
+test('records the chosen school on Next, keeping the history’s ID, and shows it on opening again', async () => {
   serveReference();
   const data = await openTestData();
   await render(data);

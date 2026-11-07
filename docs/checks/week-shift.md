@@ -1,5 +1,7 @@
 # Double shift and two schools (#28)
 
+> Answer 808 (7 November 2026) removed the teacher's own editing of classes, pupil lists, the week and plan packs, which now arrive from the school. What this page checks of those screens no longer applies.
+
 Checks of 17 October 2026 for the fourth pull request of [#28](https://github.com/djazairdev/minhajna/issues/28), on `feat/28-shift`, after Week-slot (#148). Made-up schools and classes only.
 
 ## What changed

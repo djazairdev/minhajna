@@ -7,7 +7,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { LockPinMode } from '../lock/lock-props';
 import type { SecurityDone } from '../lock/Security';
-import type { Cell } from '../week/week-rules';
 
 /** Routes contain no record contents; persistence, URL linking and tracking remain unconfigured. */
 /** `PcWeek` is the PC's week (#251), a tab on a PC only. */
@@ -23,13 +22,7 @@ export type RootStackParamList = {
   Privacy: { reader?: boolean } | undefined;
   Teaching: undefined;
   Card: undefined;
-  Classes: undefined;
-  TypeList: { classId: string; name: string };
-  Week: undefined;
-  WeekDraw: { slot?: Cell } | undefined;
   Times: { schoolId?: string } | undefined;
-  Plan: undefined;
-  Packs: { grade: string; subject: string; schoolId?: string; classId?: string };
   Ready: undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   Gallery: undefined;
@@ -48,7 +41,6 @@ export type RootStackParamList = {
   CalendarUpdate: { release: string };
   SettingsCard: undefined;
   SettingsSchools: undefined;
-  SettingsClasses: undefined;
   SettingsWeek: undefined;
   SettingsPlans: { schoolId?: string } | undefined;
   SettingsLengths: undefined;

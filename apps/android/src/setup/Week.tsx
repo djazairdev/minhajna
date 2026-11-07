@@ -1,61 +1,33 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Getting started, step 4 of 5: the week (#28, Setup-5-Week). The week drawn so
-// far, with the day it starts and its sessions a week, or a line saying it is
-// not drawn yet, and the way to draw it. The school's timetable waits beside
-// it, opened from a file (PackageWait.tsx, #580); a file read shows in place of
-// the step, refused or with what it changes, until the teacher goes back or
-// accepts it (WeekPackage.tsx), which is then said here until another file is
-// opened. The bell-times button opens each slot's time at the school (#29). A
-// week of two schools counts each school's sessions, and a warning lists its
-// clashes, with a button that opens the first on Week-slot.
+// The teacher's week, to read (Setup-5-Week as Settings shows it, answer
+// 808): the timetable as the school sent it, with the day it starts and its
+// sessions a week, or a line saying none has arrived. The school's timetable
+// arrives through its joining code; the teacher no longer draws it or opens a
+// timetable file. A week of two schools counts each school's sessions, and a
+// warning lists its clashes, for the schools to settle. The bell-times button
+// opens each slot's time at the school (#29), which stays the teacher's.
 
-import { formatDay, weekGrid, type PackageTrust, type SchoolClass } from '@minhajna/core';
+import { formatDay, weekGrid, type SchoolClass } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { Notice } from '../components/Notice';
-import { SetupSteps } from '../components/SetupSteps';
 import { WeekGrid } from '../components/WeekGrid';
 import { colors, radius, spacing, typography } from '../design/tokens';
 import { useAppData } from '../storage/AppData';
 import { useText } from '../text/i18n';
 import { gridCell, gridLabels, schoolTally, slotName, weekMarks } from '../week/grid-labels';
 import { classLoads, type Cell } from '../week/week-rules';
-import { PackageWait } from './PackageWait';
-import { NEXT_ARROW, SETUP_STEPS } from './Teaching';
-import { usePackageInput } from './usePackageInput';
-import { WeekPackage } from './WeekPackage';
 
-/**
- * The fourth step of setup; `onDraw` opens the drawing, `onResolve` opens a clashing slot, `onTimes` the bell times,
- * and `onNext` leads on.
- */
-export function Week({
-  onDraw,
-  onResolve,
-  onTimes,
-  onNext,
-  editing = false,
-  trust,
-}: {
-  onDraw: () => void;
-  onResolve: (cell: Cell) => void;
-  onTimes: () => void;
-  onNext: () => void;
-  editing?: boolean;
-  /** Whom a package file is checked against: real mode's by default, which trusts no world. */
-  trust?: PackageTrust;
-}) {
+/** The week to read; `onTimes` opens the bell times and `onDone` leaves. */
+export function Week({ onTimes, onDone }: { onTimes: () => void; onDone: () => void }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useText();
   const { state, profile } = useAppData();
-  const input = usePackageInput(trust);
-  const [accepted, setAccepted] = useState<string | null>(null);
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const timetable = state.timetables.at(-1);
@@ -65,7 +37,7 @@ export function Week({
     const course = state.courses.get(courseId);
     return course && state.classes.get(course.classId);
   };
-  const drawn = version !== undefined && (version.entries.length > 0 || version.blocks.length > 0);
+  const held = version !== undefined && (version.entries.length > 0 || version.blocks.length > 0);
   const labels = gridLabels(t, weekGrid(profile, version?.options));
   const classes = [...state.classes.values()];
   const marks = version && weekMarks(version, state, classes);
@@ -75,20 +47,17 @@ export function Week({
       slot: slotName(t, cell),
       items: (version && gridCell(t, version, lookup, cell, { schools: marks?.schools, shown: true })?.spoken) ?? '',
     });
-  if (input.read !== null) return <WeekPackage key={input.count} input={input} onAccepted={setAccepted} />;
   return (
     <View style={[styles.screen, { direction }]}>
-      {!editing && <SetupSteps testID="setup-steps" count={SETUP_STEPS} reached={4} />}
       <ScrollView contentContainerStyle={[styles.content, sides]}>
-        <View style={styles.intro}>
-          <Text accessibilityRole="header" style={[styles.heading, align]}>
-            {t('week.heading')}
-          </Text>
-          <Text style={[styles.sub, align]}>{t('week.intro')}</Text>
-        </View>
-        {drawn && timetable !== undefined ? (
+        <Text accessibilityRole="header" style={[styles.heading, align]}>
+          {t('week.heading')}
+        </Text>
+        {held && timetable !== undefined ? (
           <View testID="week-card" style={styles.card}>
-            <Text style={[styles.title, align]}>{t('week.drawn')}</Text>
+            <Text style={[styles.title, align]}>
+              {t(timetable.version.source === 'hand' ? 'week.drawn' : 'week.fromSchool')}
+            </Text>
             <Text style={[styles.sub, align]}>
               {[
                 t('week.from', { date: formatDay(timetable.from) }),
@@ -115,44 +84,21 @@ export function Week({
           </View>
         ) : (
           <Text testID="no-week" style={[styles.body, align]}>
-            {t('week.noWeek')}
+            {t('week.notArrived')}
           </Text>
         )}
         {clashes.length > 0 && (
-          <View style={styles.clash}>
-            <Notice
-              testID="week-clash"
-              variant="notice"
-              badge={t('week.clash')}
-              message={clashes.map(clashLine).join('\n')}
-            />
-            <Button
-              testID="week-resolve"
-              variant="line"
-              label={t('week.resolve')}
-              onPress={() => onResolve(clashes[0])}
-            />
-          </View>
+          <Notice
+            testID="week-clash"
+            variant="notice"
+            badge={t('week.clash')}
+            message={clashes.map(clashLine).join('\n')}
+          />
         )}
-        <Button testID="week-draw" variant="line" label={drawn ? t('week.edit') : t('week.draw')} onPress={onDraw} />
         <Button testID="week-times" variant="line" label={t('week.times')} onPress={onTimes} />
-        <PackageWait
-          busy={input.busy}
-          unreadable={input.unreadable}
-          accepted={accepted}
-          onOpen={() => {
-            setAccepted(null);
-            void input.open();
-          }}
-        />
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <Button
-          testID="week-next"
-          {...(editing ? {} : NEXT_ARROW)}
-          label={t(editing ? 'settings.done' : 'setup.next')}
-          onPress={onNext}
-        />
+        <Button testID="week-next" label={t('settings.done')} onPress={onDone} />
       </View>
     </View>
   );
@@ -166,8 +112,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing['space-4'],
     paddingBottom: spacing['space-16'],
   },
-  intro: { gap: spacing['space-6'] },
-  clash: { gap: spacing['space-8'] },
   heading: { ...typography.h2, color: colors.ink },
   sub: { ...typography.caption, color: colors.ink2 },
   body: { ...typography.body, color: colors.ink },

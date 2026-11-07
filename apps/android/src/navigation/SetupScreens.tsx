@@ -2,22 +2,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The setup steps as stack screens: each one says where its buttons lead.
+// Setup is two steps, the school and the card, then Setup-7-Ready (answer
+// 808): classes, the week and the plan arrive from the school.
 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Packs } from '../plan/Packs';
 import { Ready } from '../ready/Ready';
 import { Card } from '../setup/Card';
-import { Classes } from '../setup/Classes';
-import { Plan } from '../setup/Plan';
 import { Teaching } from '../setup/Teaching';
-import { TypeList } from '../setup/TypeList';
-import { Week } from '../setup/Week';
 import { CrashSheet } from '../help/CrashSheet';
 import { useLockStorage } from '../lock/lock-storage';
 import { Restore } from '../restore/Restore';
 import { useReopen } from '../restore/reopen';
 import { useAppData } from '../storage/AppData';
-import { WeekDraw } from '../week/WeekDraw';
 import { Welcome } from './Welcome';
 import { PrivacyNotice } from '../help/PrivacyNotice';
 import type { RootStackParamList } from './AppNavigator';
@@ -27,45 +23,16 @@ export function TeachingScreen({ navigation }: NativeStackScreenProps<RootStackP
   return <Teaching onNext={() => navigation.navigate('Card')} />;
 }
 
-/** Setup's second step, which leads to the classes. */
-export function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
-  return (
-    <Card onSignature={() => navigation.navigate('SettingsSignature')} onNext={() => navigation.navigate('Classes')} />
-  );
-}
-
-/** Setup's third step, which leads to the week. */
-export function ClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Classes'>) {
-  return (
-    <Classes
-      onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
-      onNext={() => navigation.navigate('Week')}
-    />
-  );
-}
-
-/** Setup's fourth step; it leads to the plan. */
-export function WeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Week'>) {
-  return (
-    <Week
-      onDraw={() => navigation.navigate('WeekDraw')}
-      onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
-      onTimes={() => navigation.navigate('Times')}
-      onNext={() => navigation.navigate('Plan')}
-    />
-  );
-}
-
 /**
- * Setup's last step; it leads to Setup-7-Ready. Finishing is recorded once,
- * so the app opens on Today from then on (#183).
+ * Setup's second and last step; it records that setup is finished, once, so the app opens on Today from then on
+ * (#183), and leads to Setup-7-Ready.
  */
-export function PlanScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Plan'>) {
+export function CardScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'Card'>) {
   const data = useAppData();
   return (
-    <Plan
-      onChange={(group) => navigation.navigate('Packs', { grade: group.grade, subject: group.subject })}
-      onFinish={() => {
+    <Card
+      onSignature={() => navigation.navigate('SettingsSignature')}
+      onNext={() => {
         if (!data.state.setupFinished) data.record({ kind: 'setup.finished' });
         navigation.navigate('Ready');
       }}
@@ -81,40 +48,6 @@ export function ReadyScreen({ navigation }: NativeStackScreenProps<RootStackPara
       onCheck={(courseId) => navigation.navigate('SeptCheck', { courseId })}
     />
   );
-}
-
-/** A grade and subject's packs; pinning or cancelling returns to the plan. */
-export function PacksScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'Packs'>) {
-  return (
-    <Packs
-      grade={route.params.grade}
-      subject={route.params.subject}
-      schoolId={route.params.schoolId}
-      classId={route.params.classId}
-      onImport={() => navigation.navigate('ImportUpdate')}
-      onDone={() => navigation.goBack()}
-    />
-  );
-}
-
-/** Drawing the week by hand, with a slot already open when one is given; «حفظ الأسبوع» returns. */
-export function WeekDrawScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'WeekDraw'>) {
-  return (
-    <WeekDraw
-      openAt={route.params?.slot}
-      onDone={() => navigation.goBack()}
-      onList={(courseId, kind) =>
-        navigation.navigate('SupportQueue', { courseId, ...(kind === 'remediation' && { kind }) })
-      }
-      onLetter={(schoolId) => navigation.navigate('CalendarAb', { schoolId })}
-      onRules={() => navigation.navigate('RollRules')}
-    />
-  );
-}
-
-/** A class's list, typed by hand; «حفظ القائمة» returns to the classes. */
-export function TypeListScreen({ navigation, route }: NativeStackScreenProps<RootStackParamList, 'TypeList'>) {
-  return <TypeList classId={route.params.classId} onDone={() => navigation.goBack()} />;
 }
 
 /**

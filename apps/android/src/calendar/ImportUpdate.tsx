@@ -2,18 +2,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Importing a signed calendar update or plan pack without a network (#223,
-// R-4.8-03 to R-4.8-05, R-4.5-15), from Calendar, Settings or the pack list
-// (answers 309 and 326). A checked file shows what it holds and what it
-// changes before it is applied; a refused one shows why, and nothing in the
-// record, the calendar or the plans changes. A pack, once added, opens the
-// pack list for its grade and subject (answer 331).
+// R-4.8-03 to R-4.8-05, R-4.5-15), from Calendar or Settings (answers 309 and
+// 326). A checked file shows what it holds and what it changes before it is
+// applied; a refused one shows why, and nothing in the record, the calendar or
+// the plans changes. A pack, once added, goes back to where the file was
+// opened, since the teacher no longer chooses packs (answer 808).
 
 import {
   addPack,
   applyCalendarUpdate,
   formatDay,
   packAddStatus,
-  parsePackId,
   teacherChanges,
   updateImpact,
   updateStatus,
@@ -58,7 +57,7 @@ export function ImportUpdate({
   onPlan,
 }: {
   onApplied: (release: string) => void;
-  onAdded: (grade: string, subject: string) => void;
+  onAdded: () => void;
   onReport: () => void;
   onPlan?: (courseId: string) => void;
 }) {
@@ -95,7 +94,6 @@ export function ImportUpdate({
     if (opened?.read.ok !== true || opened.read.kind !== 'packs' || packStatus?.status !== 'new') return;
     if (input.isBusy() || writer.isBusy()) return;
     const { pack: update, key, file } = opened.read;
-    const parts = parsePackId(update.pack.id);
     setStale(false);
     let event;
     try {
@@ -104,7 +102,7 @@ export function ImportUpdate({
       setStale(true);
       return;
     }
-    if ((await writer.save(event, packStatus.state)) && parts !== null) onAdded(parts.grade, parts.subject);
+    if (await writer.save(event, packStatus.state)) onAdded();
   };
   const apply = async () => {
     if (opened?.read.ok !== true || opened.read.kind !== 'calendar' || prepared?.status !== 'new') return;

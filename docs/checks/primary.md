@@ -1,5 +1,7 @@
 # The primary day, plan and week
 
+> Answer 808 (7 November 2026) removed the teacher's own editing of classes, pupil lists, the week and plan packs, which now arrive from the school. What this page checks of those screens no longer applies.
+
 Checks of 22 October 2026 for [#230](https://github.com/djazairdev/minhajna/issues/230), from [#354](https://github.com/djazairdev/minhajna/pull/354) to [#363](https://github.com/djazairdev/minhajna/pull/363), built in the order of answer 373. Made-up packs, classes and pupils only.
 
 ## What changed

@@ -27,10 +27,10 @@ import { ReferenceState, SchoolChoice } from './SchoolChoice';
 import { useReference } from './useReference';
 
 /** The steps of Getting started, as the bar under the title counts them. */
-export const SETUP_STEPS = 5;
+export const SETUP_STEPS = 2;
 
-/** The arrow onward on each step's Next; Settings' Done, which goes nowhere further, has none. */
-export const NEXT_ARROW = { icon: controlIcon('chevron'), iconEnd: true } as const;
+/** The arrow onward on the first step's Next; the last step finishes with a check. */
+const NEXT_ARROW = { icon: controlIcon('chevron'), iconEnd: true } as const;
 
 /** The first step of setup; `onNext` leads on once a school is chosen. */
 export function Teaching({ onNext }: { onNext: () => void }) {

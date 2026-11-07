@@ -1,5 +1,7 @@
 # Joint primary classes (#43)
 
+> Answer 808 (7 November 2026) removed the teacher's own editing of classes, pupil lists, the week and plan packs, which now arrive from the school. What this page checks of those screens no longer applies.
+
 Checks of 17 October 2026 for [#43](https://github.com/djazairdev/minhajna/issues/43). Made-up data only. The first pull request, on `feat/43-joint-core`, adds the core; the second, on `feat/43-joint-setup`, adds the class at setup; the third, on `feat/43-joint-today`, gives Today one card for each slot (P-Multi).
 
 ## The model

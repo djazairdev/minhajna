@@ -38,14 +38,8 @@ import { documentKind } from '../documents/catalogue';
 import { SettingsScreen, TimesScreen, settingsRoutes } from './SettingsScreens';
 import {
   CardScreen,
-  ClassesScreen,
-  PacksScreen,
-  PlanScreen,
   ReadyScreen,
   TeachingScreen,
-  TypeListScreen,
-  WeekDrawScreen,
-  WeekScreen,
   WelcomeScreen,
   RestoreScreen,
   FirstNotice,
@@ -144,39 +138,6 @@ export function AppNavigator({
           name="Card"
           component={CardScreen}
           options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="Classes"
-          component={ClassesScreen}
-          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="TypeList"
-          component={TypeListScreen}
-          options={({ route }) => ({
-            title: t('setup.typeTitle', { name: route.params.name }),
-            statusBarStyle: 'dark',
-          })}
-        />
-        <Stack.Screen
-          name="Week"
-          component={WeekScreen}
-          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="WeekDraw"
-          component={WeekDrawScreen}
-          options={{ title: t('week.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="Plan"
-          component={PlanScreen}
-          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="Packs"
-          component={PacksScreen}
-          options={{ title: t('plan.packsTitle'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
         <Stack.Screen

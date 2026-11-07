@@ -1,5 +1,7 @@
 # Plan packs at setup (#30)
 
+> Answer 808 (7 November 2026) removed the teacher's own editing of classes, pupil lists, the week and plan packs, which now arrive from the school. What this page checks of those screens no longer applies.
+
 Checks of 17 October 2026 for the second pull request of [#30](https://github.com/djazairdev/minhajna/issues/30), on `feat/30-plan`, after the pack catalogue (#153). Made-up schools, classes and packs only.
 
 ## What changed

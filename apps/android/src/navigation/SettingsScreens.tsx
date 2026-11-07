@@ -6,7 +6,6 @@ import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-
 import { useState } from 'react';
 import { DrawnSignature } from '../drawn/DrawnSignature';
 import { Card } from '../setup/Card';
-import { Classes } from '../setup/Classes';
 import { Week } from '../setup/Week';
 import { Log } from '../log/Log';
 import { Language } from '../settings/Language';
@@ -42,9 +41,6 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
         break;
       case 'schools':
         navigation.navigate('SettingsSchools');
-        break;
-      case 'classes':
-        navigation.navigate('SettingsClasses');
         break;
       case 'week':
         navigation.navigate('SettingsWeek');
@@ -167,31 +163,12 @@ export function SettingsSchoolsScreen({ navigation }: NativeStackScreenProps<Roo
   return <SettingsSchools onDone={() => navigation.goBack()} />;
 }
 
-/** Class lists and additions remain the existing editors, not a new copy of their storage logic. */
-export function SettingsClassesScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'SettingsClasses'>) {
-  return (
-    <Classes
-      editing
-      onType={(schoolClass) => navigation.navigate('TypeList', { classId: schoolClass.id, name: schoolClass.name })}
-      onNext={() => navigation.goBack()}
-    />
-  );
-}
-
-/** A new timetable version starts from its own effective day; recorded sessions are not rebuilt. */
+/** The week as the school sent it, to read; the bell times stay the teacher's to match (answer 808). */
 export function SettingsWeekScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'SettingsWeek'>) {
-  return (
-    <Week
-      editing
-      onDraw={() => navigation.navigate('WeekDraw')}
-      onResolve={(slot) => navigation.navigate('WeekDraw', { slot })}
-      onTimes={() => navigation.navigate('Times')}
-      onNext={() => navigation.goBack()}
-    />
-  );
+  return <Week onTimes={() => navigation.navigate('Times')} onDone={() => navigation.goBack()} />;
 }
 
-/** School-specific pack choices keep the other school's pins out of the chooser. */
+/** One school's plans, to read, or every school's. */
 export function SettingsPlansScreen({
   navigation,
   route,
@@ -199,9 +176,6 @@ export function SettingsPlansScreen({
   return (
     <Plans
       schoolId={route.params?.schoolId}
-      onChoose={(grade, subject, schoolId, classId) =>
-        navigation.navigate('Packs', { grade, subject, schoolId, classId })
-      }
       onRelease={(courseId, release) => navigation.navigate('PackRelease', { courseId, release })}
     />
   );
@@ -235,11 +209,6 @@ export function settingsRoutes(
         name="SettingsSchools"
         component={SettingsSchoolsScreen}
         options={dark(t('settings.rows.schools'))}
-      />
-      <Stack.Screen
-        name="SettingsClasses"
-        component={SettingsClassesScreen}
-        options={dark(t('settings.rows.classes'))}
       />
       <Stack.Screen name="SettingsWeek" component={SettingsWeekScreen} options={dark(t('settings.rows.week'))} />
       <Stack.Screen name="SettingsPlans" component={SettingsPlansScreen} options={dark(t('settings.rows.plans'))} />

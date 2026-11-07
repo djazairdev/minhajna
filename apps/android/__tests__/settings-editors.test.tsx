@@ -15,7 +15,6 @@ import {
 } from '../jest/settings-screen';
 import { Card } from '../src/setup/Card';
 import { SettingsSchools } from '../src/settings/SettingsSchools';
-import { Classes } from '../src/setup/Classes';
 import { protectedChoices } from '../src/settings/school-guards';
 import { Times } from '../src/times/Times';
 import { catalogues, i18n } from '../src/text/i18n';
@@ -93,19 +92,12 @@ test('the schools page keeps the levels and subjects existing classes use, and o
   expect(data.book.entries.length).toBe(count);
 });
 
-test('the class editor returns to Settings, with no setup progress bar', async () => {
-  await showSettingsScreen(<Classes editing onNext={onDone} onType={() => undefined} />, await settingsData());
-  expect(settingsRoot().findAllByProps({ testID: 'setup-steps' })).toHaveLength(0);
-  await pressSettings('classes-next');
-  expect(onDone).toHaveBeenCalledTimes(1);
-});
-
 test('the bell-time editor opens on the requested school', async () => {
   await showSettingsScreen(<Times schoolId="s-2" />, await settingsData());
   expect(settingsControl('times-school-s-2').accessibilityState?.checked).toBe(true);
 });
 
-test('a school is added from the selects, a cancelled one leaves nothing, and an unused one can be removed', async () => {
+test('adds a school from the selects, leaves nothing when cancelled, and removes an unused one', async () => {
   serveReference();
   const data = await settingsData();
   await showSettingsScreen(<SettingsSchools onDone={onDone} />, data);

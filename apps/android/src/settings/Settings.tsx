@@ -26,7 +26,6 @@ import { settingsStyles as styles } from './styles';
 const AVAILABLE = [
   'card',
   'schools',
-  'classes',
   'week',
   'times',
   'lengths',
@@ -56,7 +55,7 @@ export type SettingTarget = (typeof AVAILABLE)[number];
 const SECTIONS = [
   {
     id: 'teaching',
-    rows: ['card', 'schools', 'classes', 'week', 'times', 'lengths', 'plans', 'calendar', 'updates', 'rules'],
+    rows: ['card', 'schools', 'week', 'times', 'lengths', 'plans', 'calendar', 'updates', 'rules'],
   },
   { id: 'documents', rows: ['print', 'signature'] },
   { id: 'sharing', rows: ['statement', 'received'] },

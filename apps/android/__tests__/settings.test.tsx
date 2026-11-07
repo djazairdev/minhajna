@@ -64,7 +64,6 @@ test('opens existing screens and each school’s own bell times and packs', asyn
   for (const target of [
     'card',
     'schools',
-    'classes',
     'week',
     'times',
     'lengths',
@@ -90,7 +89,7 @@ test('opens existing screens and each school’s own bell times and packs', asyn
   await pressSettings('settings-school-plans-s-1');
   expect(onOpen).toHaveBeenLastCalledWith('plans', 's-1');
   expect(data.book.entries).toEqual(before);
-  expect(screenKind('SettingsClasses')).toBe('records');
+  expect(settingsRoot().findAllByProps({ testID: 'settings-classes' })).toEqual([]);
 });
 
 test('does not offer insights, money or a pretend action for unfinished features', async () => {

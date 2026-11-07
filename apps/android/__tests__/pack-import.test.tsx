@@ -2,11 +2,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Importing a signed plan pack (#223 part 2, answers 326 to 331): the shared
-// import screen checks it and adds a new release, a key that may not sign
-// packs is refused, and the new release joins the pack list while the class
-// pinned to the old one stays on it, with a badge on its plan and in
-// Settings, which opens «إصدار جديد للمخطط» (#322). Made-up keys and packs
-// only.
+// import screen checks it and adds a new release, a key that may not sign packs
+// is refused, and the new release is added while the class pinned to the old
+// one stays on it, with a badge on its plan and in Settings, which opens «إصدار
+// جديد للمخطط» (#322). Made-up keys and packs only.
 
 import { PACK_UPDATE_FORMAT, parseDay } from '@minhajna/core';
 import cem4Arabic from '@minhajna/data/dz/packs/dz.cem.4am.arabic.example@2026.1.json';
@@ -25,7 +24,6 @@ import {
 import { withDay } from '../jest/today-day';
 import { ImportUpdate } from '../src/calendar/ImportUpdate';
 import { ClassPlan } from '../src/classes/ClassPlan';
-import { Packs } from '../src/plan/Packs';
 import { Plans } from '../src/settings/Plans';
 import { catalogues, i18n, missingKeys } from '../src/text/i18n';
 
@@ -79,7 +77,7 @@ test.each(['ar', 'fr', 'en'] as const)(
     expect(accessibilityProblems(settingsRoot())).toEqual([]);
     expect(missingKeys).toEqual([]);
     await pressSettings('update-apply');
-    expect(onAdded).toHaveBeenCalledWith('4am', 'arabic');
+    expect(onAdded).toHaveBeenCalledTimes(1);
     expect(data.book.state.addedPacks.map((one) => one.update.pack.release)).toEqual(['2026.3']);
     expect(data.book.state.addedPacks[0]?.key).toBe(key.trusted.id);
     expect(data.book.state.courses.get('c-1')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.1' });
@@ -112,25 +110,6 @@ test('a pack signed with a key that may sign only the calendar is refused after 
   expect(data.book.state.addedPacks).toEqual([]);
 });
 
-test('the added release joins the pack list, and pinning it keeps the class on its own', async () => {
-  const data = await open(signedFile(key, payload('2026.3')));
-  await pressSettings('update-apply');
-  await closeSettingsScreen();
-  const onImport = jest.fn();
-  const onDone = jest.fn();
-  await showSettingsScreen(<Packs grade="4am" subject="arabic" onImport={onImport} onDone={onDone} />, data);
-  const card = settingsRoot().find((node) => node.props.testID === `pack-${cem4Arabic.id}`);
-  expect(String(card.props.description)).toContain('2026.3');
-  expect(String(card.props.description)).toContain('4م1');
-  await pressSettings(`pack-${cem4Arabic.id}`);
-  await pressSettings('pack-pin');
-  expect(onDone).toHaveBeenCalledTimes(1);
-  expect(data.book.state.courses.get('c-1')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.1' });
-  expect(data.book.state.courses.get('c-2')?.pack).toEqual({ id: cem4Arabic.id, release: '2026.3' });
-  await pressSettings('pack-import');
-  expect(onImport).toHaveBeenCalledTimes(1);
-});
-
 test("the class's plan and Settings open the newest release in the app", async () => {
   const data = await open(signedFile(key, payload('2026.3')));
   await pressSettings('update-apply');
@@ -144,7 +123,7 @@ test("the class's plan and Settings open the newest release in the app", async (
   await showSettingsScreen(<ClassPlan courseId="c-1" />, data);
   expect(has('plan-newer')).toBe(false);
   await closeSettingsScreen();
-  await showSettingsScreen(<Plans onChoose={jest.fn()} onRelease={onRelease} />, data);
+  await showSettingsScreen(<Plans onRelease={onRelease} />, data);
   await pressSettings('settings-newer-k-1-arabic-4am');
   expect(onRelease).toHaveBeenLastCalledWith('c-1', '2026.3');
   expect(has('settings-newer-k-2-arabic-4am')).toBe(false);

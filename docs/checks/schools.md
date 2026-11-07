@@ -1,5 +1,7 @@
 # Two schools in one week
 
+> Answer 808 (7 November 2026) removed the teacher's own editing of classes, pupil lists, the week and plan packs, which now arrive from the school. What this page checks of those screens no longer applies.
+
 Checks of 22 October 2026 for [#232](https://github.com/djazairdev/minhajna/issues/232), from [#373](https://github.com/djazairdev/minhajna/pull/373) to [#377](https://github.com/djazairdev/minhajna/pull/377), answers 394 to 401. Made-up schools, classes and pupils only.
 
 ## What changed

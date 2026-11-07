@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// Setup-7-Ready (#31): what setup kept, the September check of each grade
-// and subject before its term's exams, and the next session with what the
-// plan proposes for it. Each check opens the printed one for an inspector,
-// counted from the print day (#225, answers 298 and 299).
+// Setup-7-Ready (#31): what setup kept, what the school has not sent yet
+// (answer 808: the classes, their pupils and the timetable arrive through the
+// joining code), the September check of each grade and subject before its
+// term's exams, and the next session with what the plan proposes for it.
+// Each check opens the printed one for an inspector, counted from the print
+// day (#225, answers 298 and 299).
 
 import { addDays, findSessionType, formatDayWithMonth, weekday, type Day } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -40,6 +42,8 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
   const comma = language === 'ar' ? '، ' : ', ';
   const day = today();
 
+  const version = state.timetables.at(-1)?.version;
+  const taught = (version?.entries.length ?? 0) > 0;
   const { context, groups, checks, next } = useMemo(() => {
     const made = coreContext({ profile, year, calendar, calendarRelease, packs, state });
     const start = startDay(year, day);
@@ -48,25 +52,29 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
     return {
       context: made,
       groups: all,
-      checks: term === undefined ? [] : checkGroups(made, all, year.id, term),
+      checks: term === undefined || !taught ? [] : checkGroups(made, all, year.id, term),
       next: nextSession(made, start),
     };
-  }, [profile, year, calendar, calendarRelease, packs, state, day]);
+  }, [profile, year, calendar, calendarRelease, packs, state, day, taught]);
 
   const named = (on: Day) => `${t(`week.days.${weekday(on)}`)} ${formatDayWithMonth(on, language, profile)}`;
   const pupils = [...state.pupils.values()].filter((pupil) => state.classes.has(pupil.classId)).length;
   const hours = Math.round(weekMinutes(context) / 30) / 2;
+  const arrived = state.classes.size > 0;
+  const taughtIn = timesSchools(state);
+  const schools = taughtIn.map((school) => isolate(school.name)).join(comma);
   const kept = [
-    t('ready.summary', {
-      classes: t('ready.classes', { count: state.classes.size }),
-      pupils: t('setup.pupils', { count: pupils }),
-    }),
-    t('ready.week', {
-      hours: t('ready.hours', { count: hours }),
-      schools: timesSchools(state)
-        .map((school) => isolate(school.name))
-        .join(comma),
-    }),
+    ...(arrived
+      ? [
+          t('ready.summary', {
+            classes: t('ready.classes', { count: state.classes.size }),
+            pupils: t('setup.pupils', { count: pupils }),
+          }),
+        ]
+      : []),
+    taught
+      ? t('ready.week', { hours: t('ready.hours', { count: hours }), schools })
+      : t(taughtIn.length > 1 ? 'ready.schools' : 'ready.school', { schools }),
     ...groups.map((group) => {
       const pinned = group.classes.filter(
         (one) => pinOfClass(state, one.id, group.subject, year.id, group.grade) !== null,
@@ -77,6 +85,7 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
     }),
     t('plan.calendar', { year: isolate(year.id) }),
   ];
+  const waiting = [...(arrived ? [] : [t('ready.classesNotArrived')]), ...(taught ? [] : [t('week.notArrived')])];
 
   const checkCard = ({ group, rows }: CheckGroup) => {
     const first = rows[0].check;
@@ -166,10 +175,18 @@ export function Ready({ onDone, onCheck }: { onDone: () => void; onCheck?: (cour
                 <Text style={[styles.body, styles.keptText, align]}>{line}</Text>
               </View>
             ))}
+            {waiting.map((line) => (
+              <View key={line} testID="ready-waiting" style={styles.keptRow}>
+                <Icon name="school" size={sizes['icon-small']} color={colors.ink2} />
+                <Text style={[styles.body, styles.keptText, align]}>{line}</Text>
+              </View>
+            ))}
           </View>
           {checks.length === 0 ? (
             <View testID="ready-no-check" style={styles.card}>
-              <Text style={[styles.body, align]}>{t('ready.noCheck')}</Text>
+              <Text style={[styles.body, align]}>
+                {t(!arrived ? 'ready.checkLater' : taught ? 'ready.noCheck' : 'ready.checkWeek')}
+              </Text>
             </View>
           ) : (
             checks.map(checkCard)

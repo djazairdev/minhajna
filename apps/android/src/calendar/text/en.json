@@ -152,7 +152,7 @@
     "first": "Group 1",
     "second": "Group 2",
     "class": "Class",
-    "noClass": "Add the class in Settings first.",
+    "noClass": "No class yet. Classes arrive from the school.",
     "notice": "Half the class attends each day, in the usual slots. This local setting records your source; it does not authenticate a school notice.",
     "split": "Split the class into two groups",
     "splitNotice": "Review the proposed list, move pupils as needed, then confirm. Changes apply from today and do not change saved roll-call lists.",
