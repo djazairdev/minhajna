@@ -152,5 +152,55 @@
       "twice": "Twice in the file: {{cell}}"
     }
   },
+  "classes": {
+    "add": "Add a class",
+    "addOne": "Add",
+    "new": "New class",
+    "year": "Year",
+    "name": "Class name",
+    "classes": "classes",
+    "pupils": "pupils",
+    "noList": "No list",
+    "noTeacher": "Subject without a teacher",
+    "filter": "Filter the classes",
+    "all": "All",
+    "ready": "Ready",
+    "taught": "{{done}} of {{all}}",
+    "listed": "Pupils: {{count}}",
+    "column": {
+      "class": "Class",
+      "pupils": "Pupils",
+      "teachers": "Teachers",
+      "state": "State"
+    },
+    "tab": {
+      "pupils": "Pupils",
+      "teachers": "Teachers",
+      "week": "Timetable"
+    },
+    "noListCount": "classes with no list",
+    "noTeacherCount": "subjects without a teacher",
+    "taken": "Another class has this name.",
+    "full": "The school has as many classes as it can."
+  },
+  "pupils": {
+    "name": "Full name",
+    "sex": "Sex",
+    "female": "F",
+    "male": "M",
+    "registration": "Registration number",
+    "add": "Add a pupil",
+    "taken": "Another pupil has this number.",
+    "badNumber": "Digits and Latin letters only.",
+    "none": "This class has no list",
+    "move": "Move to another class",
+    "leave": "Record a leaving",
+    "full": "The class has as many pupils as it can.",
+    "leaveSure": "Confirm {{name}} leaving"
+  },
+  "assign": {
+    "none": "No teacher",
+    "noOptions": "The published list gives this cycle no subjects."
+  },
   "panel": "Details"
 }
