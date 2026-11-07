@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // D-Classes' new class (answer 807): its year, a select of the school's
-// level's years, and its name, as the school writes it, such as 4م5.
+// level's years, and its name, as the school writes it.
 
 import type { CountryProfile, Grade, SchoolBook } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';

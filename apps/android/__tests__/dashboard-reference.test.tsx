@@ -129,7 +129,13 @@ describe('importing schools', () => {
     await open();
     await press('reference-tab-schools');
     file(
-      'رمز البلدية;الطور;اسم المؤسسة\n1601;التعليم المتوسط;متوسطة أولى\n1602;cem;متوسطة ثانية\n9999;cem;مجهولة\n1601;lycee;\n',
+      [
+        'رمز البلدية;الطور;اسم المؤسسة',
+        '1601;التعليم المتوسط;متوسطة أولى',
+        '1602;cem;متوسطة ثانية',
+        '9999;cem;مجهولة',
+        '1601;lycee;',
+      ].join('\n'),
     );
     await press('schools-import');
     await press('import-pick');

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// D-Classes' third panel tab, «استعمال الزمن» (answer 809): the school's
+// D-Classes' third panel tab, the class's timetable (answer 809): the school's
 // working days by the morning's and afternoon's slots, each cell a select of
 // the class's subjects or none. A subject whose teacher is already in another
 // class at that time is refused, and the tab says which class.

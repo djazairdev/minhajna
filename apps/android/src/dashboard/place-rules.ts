@@ -9,7 +9,7 @@ import type { CountryProfile, DirectorySchool, LocalizedText, ReferenceList } fr
 import { localized } from '../setup/names';
 import type { PickChoice } from './PickField';
 
-/** A place as a select writes it: «16 · الجزائر». */
+/** A place as a select writes it: its code, a dot, then its name. */
 export const placeLabel = (code: string, name: LocalizedText | string) =>
   `${code} · ${typeof name === 'string' ? name : localized(name)}`;
 

@@ -179,7 +179,14 @@ it('checks a file of pupils, matched on the registration number, before applying
   jest
     .spyOn(files, 'openText')
     .mockResolvedValue(
-      'رقم التسجيل;الاسم واللقب;الجنس;القسم\n11;أمين مثال;ذكر;4م1\n12;هاجر مثال;F;4م1\n13;يوسف مثال;m;4م2\n14;نور مثال;أنثى;4م9\n13;مكرر;m;4م2\n',
+      [
+        'رقم التسجيل;الاسم واللقب;الجنس;القسم',
+        '11;أمين مثال;ذكر;4م1',
+        '12;هاجر مثال;F;4م1',
+        '13;يوسف مثال;m;4م2',
+        '14;نور مثال;أنثى;4م9',
+        '13;مكرر;m;4م2',
+      ].join('\n'),
     );
   await press('classes-import');
   await press('import-pick');

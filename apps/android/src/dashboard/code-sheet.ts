@@ -50,7 +50,8 @@ export function codeSheetHtml(
     .map(
       (one) =>
         `<div class="code">${drawn(one.rows)}<div><p><b>${e(one.name)}</b></p><p>${e(one.option)}</p>` +
-        `<p class="text">${e(one.code)}</p><p class="note">${e(t('dashboard.teachers.sheet.handover'))}</p></div></div>`,
+        `<p class="text">${e(one.code)}</p>` +
+        `<p class="note">${e(t('dashboard.teachers.sheet.handover'))}</p></div></div>`,
     )
     .join('');
   return printDocument({
