@@ -1,0 +1,42 @@
+{
+  "door": "Tableau de bord",
+  "back": "Retour",
+  "lock": "Verrouiller",
+  "next": "Suivant",
+  "search": "Rechercher",
+  "tryAgain": "Réessayer",
+  "madeUp": "Données d'exemple uniquement",
+  "waking": "Le serveur se réveille, cela peut prendre une minute.",
+  "problem": {
+    "refused": "Ce code n'est pas le bon.",
+    "stale": "Quelqu'un d'autre a enregistré avant vous. Chargez la dernière copie, puis refaites votre modification.",
+    "missing": "Ceci n'existe pas dans l'annuaire.",
+    "asleep": "Le serveur ne s'est pas encore réveillé. Réessayez dans un instant.",
+    "busy": "Trop de demandes en peu de temps. Réessayez dans un instant.",
+    "full": "L'annuaire n'a plus de place pour ceci.",
+    "bad": "Le serveur n'a pas accepté ces données.",
+    "network": "Impossible de joindre le serveur."
+  },
+  "home": {
+    "reference": "Données de référence",
+    "school": "Classes et élèves",
+    "reader": "Lire le relevé d'un enseignant"
+  },
+  "who": {
+    "ministry": "Ministère de l'Éducation nationale"
+  },
+  "gate": {
+    "code": "Code de modification",
+    "again": "Retapez le code",
+    "open": "Ouvrir",
+    "set": "Définir le code",
+    "badCode": "De 8 à 64 caractères, sans espace.",
+    "different": "Les deux codes diffèrent."
+  },
+  "place": {
+    "wilaya": "Wilaya",
+    "commune": "Commune",
+    "school": "Établissement",
+    "nothing": "La liste des établissements n'est pas encore publiée."
+  }
+}

@@ -10,7 +10,8 @@
 // what it is before anything else (#48), and whether the PIN is set yet, for a
 // build that takes real names (#211). A PC whose tab has just erased it says
 // so first, for as long as the page lasts (Web-erase, answer 519). Where the
-// app offers demo worlds, on a PC, the welcome leads to them (#560).
+// app offers demo worlds, on a PC, the welcome leads to them (#560), and a PC's
+// also to the dashboard (answer 809).
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -19,6 +20,7 @@ import { Button } from '../components/Button';
 import { Facts } from '../components/Facts';
 import { Notice } from '../components/Notice';
 import { WelcomeHero } from '../components/WelcomeHero';
+import { useDashboardDoor } from '../dashboard/door';
 import { useDemoDoor } from '../demo/demo-door';
 import { colors, spacing, typography } from '../design/tokens';
 import { PreviewNotice } from '../help/BuildFacts';
@@ -50,6 +52,7 @@ export function Welcome({
   const { direction } = useLocale();
   const t = useDeviceText();
   const demo = useDemoDoor();
+  const dashboard = useDashboardDoor();
   const refusals = [referenceRefused && t('referenceRefused'), historyRefused && t('historyRefused')];
   return (
     <ScrollView
@@ -110,6 +113,11 @@ export function Welcome({
           {demo !== null && (
             <View style={styles.restore}>
               <Button testID="welcome-demo" variant="plain" label={t('demo.open')} onPress={demo} />
+            </View>
+          )}
+          {dashboard !== null && (
+            <View style={styles.restore}>
+              <Button testID="welcome-dashboard" variant="plain" label={t('dashboard.door')} onPress={dashboard} />
             </View>
           )}
         </View>
