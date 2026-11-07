@@ -202,5 +202,32 @@
     "none": "No teacher",
     "noOptions": "The published list gives this cycle no subjects."
   },
+  "teachers": {
+    "title": "Teachers and joining codes",
+    "add": "Add a teacher",
+    "name": "Full name",
+    "printAll": "Print the codes",
+    "print": "Print the code",
+    "renew": "New code",
+    "remove": "Remove the teacher",
+    "none": "No teacher yet",
+    "codeComing": "The code comes once saved",
+    "printFailed": "Printing failed.",
+    "qr": "{{name}}’s joining code",
+    "column": {
+      "name": "Teacher",
+      "option": "Subject",
+      "classes": "Classes",
+      "code": "Joining code"
+    },
+    "sheet": {
+      "title": "Joining codes",
+      "handover": "Hand it over in person, never by message."
+    },
+    "sure": {
+      "renew": "Confirm a new code for {{name}}",
+      "remove": "Confirm removing {{name}}"
+    }
+  },
   "panel": "Details"
 }

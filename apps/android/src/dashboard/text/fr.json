@@ -202,5 +202,32 @@
     "none": "Sans enseignant",
     "noOptions": "La liste publiée ne donne aucune matière à ce cycle."
   },
+  "teachers": {
+    "title": "Enseignants et codes d’adhésion",
+    "add": "Ajouter un enseignant",
+    "name": "Nom et prénom",
+    "printAll": "Imprimer les codes",
+    "print": "Imprimer le code",
+    "renew": "Nouveau code",
+    "remove": "Retirer l’enseignant",
+    "none": "Aucun enseignant pour l’instant",
+    "codeComing": "Le code arrive après l’enregistrement",
+    "printFailed": "L’impression a échoué.",
+    "qr": "Code d’adhésion de {{name}}",
+    "column": {
+      "name": "Enseignant",
+      "option": "Matière",
+      "classes": "Classes",
+      "code": "Code d’adhésion"
+    },
+    "sheet": {
+      "title": "Codes d’adhésion",
+      "handover": "À remettre en main propre, jamais par message."
+    },
+    "sure": {
+      "renew": "Confirmer un nouveau code pour {{name}}",
+      "remove": "Confirmer le retrait de {{name}}"
+    }
+  },
   "panel": "Détails"
 }

@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The school's desk once its code opened it (D-Classes, answers 807 to 809):
-// the sidebar names the school and leads to its classes and pupils, its
-// teachers' page to follow; each change is saved to the book as it is made,
-// over the revision read last. When someone else saved first, the page says
-// so and offers the latest copy.
+// the sidebar names the school and leads to its classes and pupils or to its
+// teachers and their joining codes; each change is saved to the book as it is
+// made, over the revision read last, and the server's answer brings each new
+// teacher's joining code. When someone else saved first, the page says so and
+// offers the latest copy.
 
 import type { BellData, CountryProfile, DirectorySchool, ReferenceList, SchoolBook } from '@minhajna/core';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
@@ -15,6 +16,7 @@ import { DeskBookContext } from './desk-book';
 import { DashboardFrame } from './DashboardFrame';
 import { saveBook, schoolBook, type SavedBook } from './directory-api';
 import { DirectoryStatus } from './DirectoryStatus';
+import { TeachersView } from './TeachersView';
 import { useDirectoryCall } from './use-directory-call';
 import { useSavedDoc } from './use-saved-doc';
 
@@ -42,11 +44,12 @@ export interface SchoolDeskView {
   readonly onAside: (aside: ReactNode) => void;
 }
 
-/** A school's classes and pupils. */
+/** A school's classes, pupils, teachers and week. */
 export function SchoolDesk({ profile, bells, list, school, code, start, onLock, onBack }: SchoolDeskProps) {
   const t = useDeviceText();
   const call = useDirectoryCall();
   const { run } = call;
+  const [view, setView] = useState<'classes' | 'teachers'>('classes');
   const [aside, setAside] = useState<ReactNode>(null);
   const save = useCallback(
     async (revision: number, book: SchoolBook, options: Parameters<typeof saveBook>[4]) => {
@@ -60,6 +63,10 @@ export function SchoolDesk({ profile, bells, list, school, code, start, onLock, 
     const read = await run((options) => schoolBook(school.id, code, options));
     if (read === undefined) return;
     saved.replace(read.book, read.revision);
+    setAside(null);
+  };
+  const show = (next: 'classes' | 'teachers') => {
+    setView(next);
     setAside(null);
   };
   const shared: SchoolDeskView = {
@@ -87,8 +94,15 @@ export function SchoolDesk({ profile, bells, list, school, code, start, onLock, 
             id: 'classes',
             label: t('dashboard.home.school'),
             icon: 'pupils',
-            on: true,
-            onPress: () => setAside(null),
+            on: view === 'classes',
+            onPress: () => show('classes'),
+          },
+          {
+            id: 'teachers',
+            label: t('dashboard.teachers.title'),
+            icon: 'qr',
+            on: view === 'teachers',
+            onPress: () => show('teachers'),
           },
         ]}
         onLock={onLock}
@@ -108,7 +122,7 @@ export function SchoolDesk({ profile, bells, list, school, code, start, onLock, 
           />
         }
       >
-        <ClassesView {...shared} />
+        {view === 'classes' ? <ClassesView {...shared} /> : <TeachersView {...shared} />}
       </DashboardFrame>
     </DeskBookContext.Provider>
   );
