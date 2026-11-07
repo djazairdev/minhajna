@@ -41,5 +41,55 @@
     "school": "Établissement",
     "nothing": "La liste des établissements n’est pas encore publiée."
   },
+  "edit": "Modifier",
+  "hide": "Masquer",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "reload": "Charger la dernière copie",
+  "reference": {
+    "pending": "Modifications non publiées : {{count}}",
+    "publish": "Publier",
+    "tab": {
+      "levels": "Cycles et matières",
+      "publish": "Publication"
+    }
+  },
+  "levels": {
+    "level": "Cycle",
+    "add": "Ajouter une matière",
+    "addPair": "Ajouter deux matières ensemble",
+    "edit": "Modifier le choix",
+    "subject": "Matière",
+    "first": "Première matière",
+    "second": "Seconde matière",
+    "exists": "Ce choix existe déjà.",
+    "classTeacher": "Enseignant de la classe",
+    "pairName": "{{first}} et {{second}}",
+    "column": {
+      "option": "Ce que choisit l’enseignant",
+      "kind": "Type"
+    },
+    "kind": {
+      "subject": "Matière",
+      "pair": "Deux matières",
+      "classTeacher": "Enseignant de la classe",
+      "specialist": "Spécialiste"
+    }
+  },
+  "publish": {
+    "version": "Version {{version}}",
+    "now": "Publier la version {{version}}",
+    "added": "établissements ajoutés",
+    "edited": "établissements modifiés",
+    "hidden": "établissements masqués",
+    "options": "choix de matière modifiés",
+    "versions": "Versions",
+    "current": "Publiée en ce moment",
+    "again": "Republier",
+    "column": {
+      "version": "Version",
+      "day": "Publiée le"
+    }
+  },
   "panel": "Détails"
 }

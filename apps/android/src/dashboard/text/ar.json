@@ -41,5 +41,55 @@
     "school": "المؤسسة",
     "nothing": "لم تُنشر قائمة المؤسسات بعد."
   },
+  "edit": "تعديل",
+  "hide": "إخفاء",
+  "save": "حفظ",
+  "cancel": "إلغاء",
+  "reload": "تحميل آخر نسخة",
+  "reference": {
+    "pending": "تغييرات لم تُنشر: {{count}}",
+    "publish": "نشر",
+    "tab": {
+      "levels": "المستويات والمواد",
+      "publish": "النشر"
+    }
+  },
+  "levels": {
+    "level": "الطور",
+    "add": "إضافة مادة",
+    "addPair": "إضافة مادتين معاً",
+    "edit": "تعديل الخيار",
+    "subject": "المادة",
+    "first": "المادة الأولى",
+    "second": "المادة الثانية",
+    "exists": "هذا الخيار موجود.",
+    "classTeacher": "أستاذ القسم",
+    "pairName": "{{first}} و{{second}}",
+    "column": {
+      "option": "ما يختاره الأستاذ",
+      "kind": "النوع"
+    },
+    "kind": {
+      "subject": "مادة",
+      "pair": "مادتان معاً",
+      "classTeacher": "أستاذ القسم",
+      "specialist": "مختص"
+    }
+  },
+  "publish": {
+    "version": "الإصدار {{version}}",
+    "now": "نشر الإصدار {{version}}",
+    "added": "مؤسسات أُضيفت",
+    "edited": "مؤسسات عُدّلت",
+    "hidden": "مؤسسات أُخفيت",
+    "options": "خيارات مواد تغيّرت",
+    "versions": "الإصدارات",
+    "current": "المنشور الآن",
+    "again": "إعادة نشره",
+    "column": {
+      "version": "الإصدار",
+      "day": "نُشر يوم"
+    }
+  },
   "panel": "التفاصيل"
 }
