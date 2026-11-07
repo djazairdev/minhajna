@@ -9,8 +9,8 @@ The image also holds, beside the npm packages listed below:
 - Node.js, under the MIT licence and those of what it bundles:
   licenses/node.txt beside this file.
 - PostgreSQL 18, under the PostgreSQL Licence, from the postgres image, and the
-  Debian packages of that image, each with its licence in
-  /usr/share/doc/<package>/copyright.
+  Debian packages of that image and ca-certificates, added to it, each with its
+  licence in /usr/share/doc/<package>/copyright.
 - WAL-G 3.0.9, Copyright 2017 Citus Data Inc., under the Apache License 2.0:
   licenses/Apache-2.0.txt beside this file. Its source is at
   https://github.com/wal-g/wal-g. The image takes its released binary, which

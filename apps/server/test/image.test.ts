@@ -131,12 +131,13 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
     spawnSync('docker', [...compose, 'rm', '-sfv', 'objects'], { cwd: root });
   });
 
-  it('holds the notices of what it runs, its packages among them', () => {
+  it('holds the notices of what it runs, its packages among them, and the certificates WAL-G checks', () => {
+    const certificates = '/etc/ssl/certs/ca-certificates.crt';
     const version = (JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as ServerPackage)
       .dependencies['@nestjs/core'];
     const held = spawnSync(
       'docker',
-      ['run', '--rm', '--entrypoint', 'sh', image, '-c', 'cat NOTICES.txt; ls licenses'],
+      ['run', '--rm', '--entrypoint', 'sh', image, '-c', `cat NOTICES.txt; ls licenses; test -s ${certificates}`],
       { encoding: 'utf8' },
     );
     assert.equal(held.status, 0);
