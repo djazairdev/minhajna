@@ -6,7 +6,7 @@
 // who set it when the page then failed to read; a refused code says so; the
 // page says the server is waking and goes on; a page locks and forgets its
 // code; the school is chosen from the published list, wilaya, commune then
-// school. Every school is made up.
+// school, and no list or one with no school says so. Every school is made up.
 
 import { Platform } from 'react-native';
 import ReactTestRenderer from 'react-test-renderer';
@@ -152,6 +152,14 @@ describe('choosing the school', () => {
     await root();
     await press('dashboard-school');
     expect(has('school-nothing')).toBe(true);
+  });
+
+  it('says so while the list published has no school', async () => {
+    list([]);
+    await root();
+    await press('dashboard-school');
+    expect(has('school-nothing')).toBe(true);
+    expect(has('school-wilaya')).toBe(false);
   });
 
   it('goes by wilaya, commune and school, to the school’s gate', async () => {

@@ -3,9 +3,9 @@
 
 // The school's page (D-Classes, answers 807 and 809): choosing the school from
 // the published list, wilaya, commune then school; its edit-code gate; then its
-// book. While nothing is published the page says so, with a retry. Locking
-// forgets the code and shows the gate again. The book opens on its desk
-// (SchoolDesk.tsx).
+// book. While no list, or one with no school, is published the page says so,
+// with a retry. Locking forgets the code and shows the gate again. The book
+// opens on its desk (SchoolDesk.tsx).
 
 import type { BellData, CountryProfile, DirectorySchool, ReferenceList } from '@minhajna/core';
 import { useCallback, useEffect, useState } from 'react';
@@ -106,6 +106,7 @@ export function SchoolPage({
   const id = school?.id ?? '';
   const claimed = useCallback((options: Parameters<typeof schoolClaimed>[1]) => schoolClaimed(id, options), [id]);
   const lock = () => setOpened(null);
+  const none = list === null || list?.schools.length === 0;
   if (school !== null && opened !== null && list != null)
     return (
       <SchoolDesk
@@ -131,7 +132,7 @@ export function SchoolPage({
             call={call}
             retry={list === undefined ? { label: t('dashboard.tryAgain'), onPress: load } : undefined}
           />
-          {list === null && (
+          {none && (
             <View style={styles.none}>
               <Quiet testID="school-nothing">{t('dashboard.place.nothing')}</Quiet>
               <Button
@@ -143,7 +144,7 @@ export function SchoolPage({
               />
             </View>
           )}
-          {list != null && <ChooseSchool profile={profile} list={list} onChoose={setSchool} />}
+          {list != null && !none && <ChooseSchool profile={profile} list={list} onChoose={setSchool} />}
         </>
       ) : (
         <CodeGate
