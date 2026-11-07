@@ -41,5 +41,55 @@
     "school": "School",
     "nothing": "The list of schools is not published yet."
   },
+  "edit": "Edit",
+  "hide": "Hide",
+  "save": "Save",
+  "cancel": "Cancel",
+  "reload": "Load the latest copy",
+  "reference": {
+    "pending": "Unpublished changes: {{count}}",
+    "publish": "Publish",
+    "tab": {
+      "levels": "Cycles and subjects",
+      "publish": "Publishing"
+    }
+  },
+  "levels": {
+    "level": "Cycle",
+    "add": "Add a subject",
+    "addPair": "Add two subjects together",
+    "edit": "Edit the option",
+    "subject": "Subject",
+    "first": "First subject",
+    "second": "Second subject",
+    "exists": "This option already exists.",
+    "classTeacher": "Class teacher",
+    "pairName": "{{first}} and {{second}}",
+    "column": {
+      "option": "What the teacher picks",
+      "kind": "Kind"
+    },
+    "kind": {
+      "subject": "Subject",
+      "pair": "Two subjects",
+      "classTeacher": "Class teacher",
+      "specialist": "Specialist"
+    }
+  },
+  "publish": {
+    "version": "Version {{version}}",
+    "now": "Publish version {{version}}",
+    "added": "schools added",
+    "edited": "schools changed",
+    "hidden": "schools hidden",
+    "options": "subject options changed",
+    "versions": "Versions",
+    "current": "Published now",
+    "again": "Publish again",
+    "column": {
+      "version": "Version",
+      "day": "Published on"
+    }
+  },
   "panel": "Details"
 }
