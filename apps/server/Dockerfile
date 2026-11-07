@@ -15,7 +15,9 @@
 # its own image with the one library it needs that PostgreSQL's lacks,
 # libatomic, both images being Debian trixie. NOTICES.txt beside the server
 # holds the notices of everything the image runs, written at this build
-# (tools/notices.ts, #536).
+# (tools/notices.ts, #536). WAL-G reaches a real bucket over HTTPS, and the
+# postgres image has no list of certificates to trust, so ca-certificates comes
+# from Debian at each build, which keeps that list current (answer 796).
 
 FROM node:26.13.0-trixie-slim@sha256:e4db4c914bf8ad241bd24804fc25d272d89bad97e68cdc8a1414862790a02c39 AS build
 WORKDIR /minhajna
@@ -47,6 +49,7 @@ FROM postgres:18.6-trixie@sha256:979bccfde35445db618c65107d27d08c6c21339d8dc3ad4
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
 COPY --from=build /node-libs/libatomic.so.1 /usr/local/lib/libatomic.so.1
 RUN ldconfig && node --version
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=bind,from=wal-g,target=/wal-g \
     tar -xzf /wal-g/wal-g.tar.gz -C /tmp && install -m 755 /tmp/wal-g-pg-* /usr/local/bin/wal-g && rm /tmp/wal-g-pg-*
 WORKDIR /srv/minhajna
