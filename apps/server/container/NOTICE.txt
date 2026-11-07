@@ -14,8 +14,9 @@ The image also holds, beside the npm packages listed below:
 - WAL-G 3.0.9, Copyright 2017 Citus Data Inc., under the Apache License 2.0:
   licenses/Apache-2.0.txt beside this file. Its source is at
   https://github.com/wal-g/wal-g. The image takes its released binary, which
-  has Go and C libraries built in, such as libsodium. Their notices are not
-  carried in this image. Find the Go libraries in go.mod at that tag.
+  has Go and C libraries built in: licenses/wal-g.txt beside this file holds
+  their notices. One of them, LZO, is under the GNU General Public License,
+  version 2 or later, and that file says where its source is.
 - libatomic, from GCC, beside Node.js, under the GNU General Public License,
   version 3 or later, with the GCC Runtime Library Exception:
   licenses/libatomic1.txt beside this file. Its source is Debian trixie's gcc-14

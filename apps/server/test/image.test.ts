@@ -136,14 +136,15 @@ describe('the server image', { skip: process.env['TEST_IMAGE'] === '1' ? false :
       .dependencies['@nestjs/core'];
     const held = spawnSync(
       'docker',
-      ['run', '--rm', '--entrypoint', 'sh', image, '-c', 'cat NOTICES.txt; ls licenses'],
+      ['run', '--rm', '--entrypoint', 'sh', image, '-c', 'cat NOTICES.txt; echo LISTED; ls licenses'],
       { encoding: 'utf8' },
     );
     assert.equal(held.status, 0);
     assert.match(held.stdout, /^The notices of what this image holds/);
     assert.ok(held.stdout.includes(`@nestjs/core ${version}: MIT`));
-    for (const text of ['AGPL-3.0-or-later.txt', 'Apache-2.0.txt', 'libatomic1.txt', 'node.txt']) {
-      assert.ok(held.stdout.includes(text));
+    const listed = held.stdout.slice(held.stdout.lastIndexOf('LISTED'));
+    for (const text of ['AGPL-3.0-or-later.txt', 'Apache-2.0.txt', 'libatomic1.txt', 'node.txt', 'wal-g.txt']) {
+      assert.ok(listed.includes(text), text);
     }
   });
 

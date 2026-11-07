@@ -57,6 +57,7 @@ COPY apps/server/prisma/migrations prisma/migrations
 COPY --from=build /notices/NOTICES.txt NOTICES.txt
 COPY --from=build /usr/local/LICENSE licenses/node.txt
 COPY --from=build /usr/share/doc/libatomic1/copyright licenses/libatomic1.txt
+COPY apps/server/container/wal-g-notices.txt licenses/wal-g.txt
 COPY LICENSES/AGPL-3.0-or-later.txt LICENSES/Apache-2.0.txt licenses/
 COPY apps/server/container/start.sh /usr/local/bin/minhajna-start
 COPY apps/server/container/wal-g.sh /usr/local/bin/minhajna-wal-g
