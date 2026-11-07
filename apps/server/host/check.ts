@@ -47,6 +47,7 @@ const HEADERS = new Set([
   'retry-after',
   'server',
   'server-timing',
+  'speculation-rules',
   'strict-transport-security',
   'transfer-encoding',
   'vary',
@@ -54,6 +55,9 @@ const HEADERS = new Set([
 
 /** Cloudflare's own Server-Timing entries, which say nothing of the server behind it. */
 const CLOUDFLARE_TIMING = /^cf[A-Za-z0-9]*(?:;[^,]*)?(?:,\s*cf[A-Za-z0-9]*(?:;[^,]*)?)*$/u;
+
+/** Where Cloudflare's Speed Brain points a browser: its own file, which says nothing of the server behind it. */
+const CLOUDFLARE_SPECULATION = '"/cdn-cgi/speculation"';
 
 /** What an answer's headers say that they should not. */
 function leaks(label: string, headers: Headers): string[] {
@@ -63,6 +67,9 @@ function leaks(label: string, headers: Headers): string[] {
     if (name === 'server' && value !== 'cloudflare') problems.push(`${label}: its server is ${value}`);
     if (name === 'cf-cache-status' && value !== 'DYNAMIC') problems.push(`${label}: its cache status is ${value}`);
     if (name === 'server-timing' && !CLOUDFLARE_TIMING.test(value)) problems.push(`${label}: its timing is ${value}`);
+    if (name === 'speculation-rules' && value !== CLOUDFLARE_SPECULATION) {
+      problems.push(`${label}: its speculation rules are at ${value}`);
+    }
   }
   return problems;
 }
