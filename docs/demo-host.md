@@ -121,7 +121,7 @@ The image, the Worker, the host check and the archive are all exercised on a run
 - that a sleeping container is stopped when the documentation says, and its last WAL archived;
 - that a request over real HTTPS reaches the container, which only Cloudflare's own edge can show in full, though the pull request's run sends the Worker an HTTPS address;
 - that the token's rights above are enough;
-- that Cloudflare adds no header outside the check's list. If it does and the header is harmless, the check's list is where to add it.
+- that Cloudflare adds no header outside the check's list. If it does and the header is harmless, the check's list is where to add it, as with Speed Brain's `Speculation-Rules`, allowed only with Cloudflare's own address (answer 798).
 
 ## The last step
 

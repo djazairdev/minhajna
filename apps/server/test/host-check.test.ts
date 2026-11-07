@@ -120,6 +120,15 @@ describe('the demo server’s host check', () => {
     assert.deepEqual(await checkServer(front, '9.1.0'), []);
   });
 
+  it('names speculation rules kept anywhere else, and passes Cloudflare’s own', async () => {
+    const elsewhere = '"https://rules.example/speculation"';
+    const told = await serve(changed((response) => response.setHeader('Speculation-Rules', elsewhere)));
+    assert.ok((await checkServer(told, '9.1.0')).includes(`/health: its speculation rules are at ${elsewhere}`));
+    const own = '"/cdn-cgi/speculation"';
+    const front = await serve(changed((response) => response.setHeader('Speculation-Rules', own)));
+    assert.deepEqual(await checkServer(front, '9.1.0'), []);
+  });
+
   it('names a cookie on the refusal of a page elsewhere', async () => {
     const address = await serve((request, response) => {
       if (request.headers.origin === 'https://not-the-web-app.example') response.setHeader('Set-Cookie', 'a=1');
