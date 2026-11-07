@@ -36,7 +36,6 @@
     "received": "Statements received"
   },
   "cardLine": "Printed on documents; personal fields stay on this phone.",
-  "cardFromSchools": "Subjects and schools come from the schools’ settings.",
   "schoolsLine": "Each school keeps its subjects, classes and bell times.",
   "schoolGuard": "Levels and subjects linked to saved classes cannot be removed here.",
   "weekLine": "One merged week for the schools, with clashes flagged.",

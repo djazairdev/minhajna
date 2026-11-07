@@ -28,7 +28,7 @@ import { AddClass } from './AddClass';
 import { AddJoint } from './AddJoint';
 import { jointSchools, yearTally } from './joint-rules';
 import { gradeName } from './names';
-import { SETUP_STEPS } from './Teaching';
+import { NEXT_ARROW, SETUP_STEPS } from './Teaching';
 
 /** One class: its name, its size, a joint class's years, and whether its list is ready. */
 function ClassCard({
@@ -174,7 +174,12 @@ export function Classes({
         )}
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <Button testID="classes-next" label={t(editing ? 'settings.done' : 'setup.next')} onPress={onNext} />
+        <Button
+          testID="classes-next"
+          {...(editing ? {} : NEXT_ARROW)}
+          label={t(editing ? 'settings.done' : 'setup.next')}
+          onPress={onNext}
+        />
       </View>
     </View>
   );

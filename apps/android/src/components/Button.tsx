@@ -12,8 +12,9 @@ import { controlStyles, type ControlIcon, type ControlProps } from './control';
 export type ButtonVariant = 'primary' | 'line' | 'soft' | 'plain' | 'danger';
 
 /**
- * A visible label is also the spoken name. The primary action accepts a leading icon, and so does a line button, which
- * `wide` also takes across the page, for an answer stacked under the primary as its equal.
+ * A visible label is also the spoken name. The primary action accepts an icon, leading or with `iconEnd` after the label
+ * as an arrow onward, and so does a line button, which `wide` also takes across the page, for an answer stacked under
+ * the primary as its equal.
  */
 export type ButtonProps = ControlProps & {
   readonly ref?: Ref<ViewInstance>;
@@ -22,9 +23,14 @@ export type ButtonProps = ControlProps & {
   /** A spoken name for a button repeated in a list, starting with its label, as «Remove entry 3». */
   readonly name?: string;
 } & (
-    | { readonly variant?: 'primary'; readonly icon?: ControlIcon; readonly wide?: never }
-    | { readonly variant: 'line'; readonly icon?: ControlIcon; readonly wide?: boolean }
-    | { readonly variant: Exclude<ButtonVariant, 'primary' | 'line'>; readonly icon?: never; readonly wide?: never }
+    | { readonly variant?: 'primary'; readonly icon?: ControlIcon; readonly iconEnd?: boolean; readonly wide?: never }
+    | { readonly variant: 'line'; readonly icon?: ControlIcon; readonly iconEnd?: boolean; readonly wide?: boolean }
+    | {
+        readonly variant: Exclude<ButtonVariant, 'primary' | 'line'>;
+        readonly icon?: never;
+        readonly iconEnd?: never;
+        readonly wide?: never;
+      }
   );
 
 /** A growing 48dp action (56dp, full width for primary), with one accessible name. */
@@ -34,6 +40,7 @@ export function Button({
   name,
   variant = 'primary',
   icon,
+  iconEnd = false,
   wide = false,
   disabled = false,
   onPress,
@@ -44,6 +51,11 @@ export function Button({
   const [focused, setFocused] = useState(false);
   const dark = variant === 'primary' || variant === 'danger';
   const color = dark ? colors.chalk : colors.ink;
+  const drawn = icon && (
+    <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {icon({ size: sizes.icon, color })}
+    </View>
+  );
   return (
     <Pressable
       ref={ref}
@@ -65,12 +77,9 @@ export function Button({
         disabled && controlStyles.disabled,
       ]}
     >
-      {icon && (
-        <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          {icon({ size: sizes.icon, color })}
-        </View>
-      )}
+      {!iconEnd && drawn}
       <Text style={[styles.label, variant === 'primary' && typography['button-primary'], { color }]}>{label}</Text>
+      {iconEnd && drawn}
       {focused && !disabled && (
         <View
           pointerEvents="none"

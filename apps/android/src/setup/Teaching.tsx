@@ -3,7 +3,7 @@
 
 // Getting started, step 1 of 5: levels, subjects and schools (#25, §3.2),
 // as Setup-2-Teaching and, with several schools, Setup-2b-Schools draw them.
-// One school is open at a time; the others fold to a line with «تعديل».
+// One school is open at a time; the others fold to a line with an edit button.
 // Every change is saved as it is made, the wilaya included.
 
 import { useLocale } from '@react-navigation/native';
@@ -24,6 +24,9 @@ import { useSchools } from './useSchools';
 
 /** The steps of Getting started, as the bar under the title counts them. */
 export const SETUP_STEPS = 5;
+
+/** The arrow onward on each step's Next; Settings' Done, which goes nowhere further, has none. */
+export const NEXT_ARROW = { icon: controlIcon('chevron'), iconEnd: true } as const;
 
 /** The first step of setup; `onNext` leads on once every school is complete. */
 export function Teaching({ onNext, editing = false }: { onNext: () => void; editing?: boolean }) {
@@ -100,6 +103,7 @@ export function Teaching({ onNext, editing = false }: { onNext: () => void; edit
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
         <Button
           testID="setup-next"
+          {...(editing ? {} : NEXT_ARROW)}
           label={t(editing ? 'settings.done' : 'setup.next')}
           disabled={!complete}
           accessibilityHint={complete ? undefined : t('setup.nextHint')}

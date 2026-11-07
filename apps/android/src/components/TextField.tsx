@@ -30,7 +30,7 @@ export type TextFieldProps = Pick<
   readonly label: string;
   /** Decorative only; the translated label must carry its meaning. */
   readonly labelIcon?: ControlIcon;
-  readonly placeholder: string;
+  readonly placeholder?: string;
   readonly value: string;
   readonly onChangeText: (value: string) => void;
   /** Its presence marks the field optional; supply the translated word, not an English default. */
@@ -58,7 +58,7 @@ export type TextFieldProps = Pick<
 export function TextField({
   label,
   labelIcon,
-  placeholder,
+  placeholder = '',
   value,
   onChangeText,
   optionalLabel,

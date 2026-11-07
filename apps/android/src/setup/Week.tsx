@@ -26,7 +26,7 @@ import { useText } from '../text/i18n';
 import { gridCell, gridLabels, schoolTally, slotName, weekMarks } from '../week/grid-labels';
 import { classLoads, type Cell } from '../week/week-rules';
 import { PackageWait } from './PackageWait';
-import { SETUP_STEPS } from './Teaching';
+import { NEXT_ARROW, SETUP_STEPS } from './Teaching';
 import { usePackageInput } from './usePackageInput';
 import { WeekPackage } from './WeekPackage';
 
@@ -147,7 +147,12 @@ export function Week({
         />
       </ScrollView>
       <View style={[styles.foot, sides, { paddingBottom: insets.bottom + spacing['space-16'] }]}>
-        <Button testID="week-next" label={t(editing ? 'settings.done' : 'setup.next')} onPress={onNext} />
+        <Button
+          testID="week-next"
+          {...(editing ? {} : NEXT_ARROW)}
+          label={t(editing ? 'settings.done' : 'setup.next')}
+          onPress={onNext}
+        />
       </View>
     </View>
   );

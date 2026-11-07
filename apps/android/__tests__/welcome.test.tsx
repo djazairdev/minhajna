@@ -54,6 +54,9 @@ async function finishSetup() {
   await press(byTestID('setup-next'));
   expect(routes()).toContain('Card');
   expect(heading()).toEqual([text.setup.title, 'الخطوة 2 من 5']);
+  await ReactTestRenderer.act(() => {
+    (ids('card-name')[0].findByType(TextInput).props as TextInputProps).onChangeText?.('أستاذة مختلقة');
+  });
   await press(byTestID('card-next'));
   expect(heading()).toEqual([text.setup.title, 'الخطوة 3 من 5']);
   await press(byTestID('classes-next'));
