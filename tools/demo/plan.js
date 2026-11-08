@@ -3,11 +3,11 @@
 
 // What `npm run demo` does, as data the tests can read (#543): PostgreSQL from
 // apps/server/compose.yaml, then each part's locked dependencies when they are
-// missing or older than its lockfile, the server and the PC web app built, and
-// the two started on this machine. `--fresh` clears the database's volume
-// first. In the dev container (#634), which starts its own PostgreSQL and names
-// it in MINHAJNA_DEMO_DATABASE, Docker is not run: `--fresh` empties that
-// database instead, once the server's packages are in.
+// missing or older than its lockfile, the server, the PC web app and the
+// dashboard app built, and the three started on this machine. `--fresh` clears
+// the database's volume first. In the dev container (#634), which starts its
+// own PostgreSQL and names it in MINHAJNA_DEMO_DATABASE, Docker is not run:
+// `--fresh` empties that database instead, once the server's packages are in.
 
 import { existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,6 +15,7 @@ import process from 'node:process';
 
 export const SERVER_PORT = 3000;
 export const WEB_PORT = 4180;
+export const DASHBOARD_PORT = 4181;
 export const DATABASE_URL = 'postgresql://minhajna@127.0.0.1:54320/minhajna_demo';
 const COMPOSE = ['compose', '-f', 'apps/server/compose.yaml'];
 
@@ -43,6 +44,7 @@ export function preparation(root, { fresh, database }, stale = (folder) => needs
     ['the shared packages', '.'],
     ['the Android app, whose screens the web app builds', 'apps/android'],
     ['the web app', 'apps/web'],
+    ['the dashboard app', 'apps/dashboard'],
     ['the server', 'apps/server'],
     ["the server's build tools", 'apps/server/tools/prisma'],
   ]) {
@@ -56,10 +58,11 @@ export function preparation(root, { fresh, database }, stale = (folder) => needs
   }
   steps.push({ what: 'Building the server', command: 'npm', args: ['run', 'build'], cwd: 'apps/server' });
   steps.push({ what: 'Building the web app', command: 'npm', args: ['run', 'build'], cwd: 'apps/web' });
+  steps.push({ what: 'Building the dashboard app', command: 'npm', args: ['run', 'build'], cwd: 'apps/dashboard' });
   return steps;
 }
 
-/** The two programs the demo runs until it is stopped, and what each is told. */
+/** The three programs the demo runs until it is stopped, and what each is told. */
 export function services(database = DATABASE_URL) {
   return [
     {
@@ -75,6 +78,13 @@ export function services(database = DATABASE_URL) {
       args: ['scripts/serve.ts'],
       cwd: 'apps/web',
       env: { PORT: String(WEB_PORT) },
+    },
+    {
+      what: 'the dashboard app',
+      command: process.execPath,
+      args: ['scripts/serve.ts'],
+      cwd: 'apps/dashboard',
+      env: { PORT: String(DASHBOARD_PORT) },
     },
   ];
 }

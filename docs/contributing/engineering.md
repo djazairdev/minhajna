@@ -87,7 +87,7 @@ A reader should meet the code's steps without comments between them, and find wh
 - **No comment on the same line as code.** It goes on the line above, at the head.
 - **No commented-out code, and no TODO, FIXME, XXX or HACK.** Git keeps old code. Open an issue for work still to do, and link it from the pull request.
 
-ESLint checks the TypeScript and JavaScript: the repository's own rule `minhajna/no-comments-in-functions` with `no-inline-comments`, `line-comment-position` and `no-warning-comments`. No linter tells commented-out code from prose, so reviews catch it. Reviews hold Kotlin, Gradle and workflow files to the same rules: a comment above a function, a block or a setting, never at the end of a line. The one exception is the version after a pinned action's commit hash (`uses: actions/checkout@<hash> # v7.0.1`), which Dependabot reads and updates where it stands.
+ESLint checks the TypeScript and JavaScript: the repository's own rule `minhajna/no-comments-in-functions` with `no-inline-comments`, `line-comment-position` and `no-warning-comments`. No linter tells commented-out code from prose, so reviews catch it. Reviews hold Kotlin, Gradle and workflow files to the same rules: a comment above a function, a block or a setting, never at the end of a line. The one exception is the version after a pinned action's commit hash (`uses: actions/checkout@<hash> # v7.0.1`), which Dependabot reads and updates where it stands. ESLint checks each file with its own app's types, one TypeScript program for each `tsconfig.json`, which together outgrow Node's default heap of about 4 GB, so `npm run lint` gives it 8 GB.
 
 ## Dependencies
 

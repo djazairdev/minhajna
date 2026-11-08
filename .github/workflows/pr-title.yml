@@ -43,7 +43,7 @@ jobs:
             reader timetable school-mode
             core engine calendar history layers formats
             sync backup crypto network insights
-            android web server
+            android web dashboard server
             i18n a11y deps release
             prd decisions design contributing readme
           # Count characters, not bytes, in titles such as "… in §4.2".

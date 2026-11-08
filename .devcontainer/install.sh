@@ -10,6 +10,7 @@ set -euo pipefail
 npm ci --no-audit
 npm ci --no-audit --prefix apps/android
 npm ci --no-audit --prefix apps/web
+npm ci --no-audit --prefix apps/dashboard
 npm ci --no-audit --prefix apps/server
 npm run tools --prefix apps/server
 npm run generate --prefix apps/server

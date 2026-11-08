@@ -79,6 +79,12 @@ jobs:
         working-directory: apps/web
         run: npm ci --no-audit
 
+      # The dashboard app has its own lockfile too (answer 855), and is built
+      # by the web app's scripts. Its .npmrc stops install scripts.
+      - name: Install the dashboard app's locked dependencies
+        working-directory: apps/dashboard
+        run: npm ci --no-audit
+
       # The server has its own lockfile too (#538), and Prisma's command line
       # its own in tools/prisma (#542), so it never installs with the server.
       # The linter checks the server with NestJS's types and its generated
@@ -125,6 +131,12 @@ jobs:
       # The web app's tests build its bundle twice and check it.
       - name: Type check and test the web app
         working-directory: apps/web
+        run: npm run typecheck && npm test
+
+      # The dashboard's tests build its bundle twice, check it as its host
+      # serves it, and run its screens with the Android app's Jest.
+      - name: Type check and test the dashboard app
+        working-directory: apps/dashboard
         run: npm run typecheck && npm test
 
       # The demo scenarios (#629, answer 586) run against `npm run demo`, as

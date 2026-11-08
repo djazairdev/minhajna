@@ -1,11 +1,12 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The web app's origin (answer 583): a preflight from it, for what the demo
-// client sends, is answered without credentials; one from another origin,
-// or for another method or header, is refused; an answer names only the
-// web app's origins back, lets them read Retry-After, and varies by origin;
-// an OPTIONS request that is no preflight goes to the routes, which take none.
+// The web app's origin (answer 583), and the dashboard's (answer 855): a
+// preflight from either, for what the demo client sends, is answered without
+// credentials; one from another origin, or for another method or header, is
+// refused; an answer names only the web app's and the dashboard's origins back,
+// lets them read Retry-After, and varies by origin; an OPTIONS request that is
+// no preflight goes to the routes, which take none.
 
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
@@ -35,10 +36,18 @@ describe('the web app’s origin', () => {
       headers: { Origin: origin, 'Access-Control-Request-Method': method, 'Access-Control-Request-Headers': headers },
     });
 
-  it('names only the web app and its local tries', () => {
+  it('names only the web app, the dashboard and their local tries', () => {
     assert.deepEqual(
       [...WEB_ORIGINS],
-      [WEB, 'https://minhajna-test.djazair.dev', 'http://127.0.0.1:4180', 'http://127.0.0.1:8787'],
+      [
+        WEB,
+        'https://minhajna-test.djazair.dev',
+        'https://minhajna-admin.djazair.dev',
+        'https://minhajna-admin-test.djazair.dev',
+        'http://127.0.0.1:4180',
+        'http://127.0.0.1:8787',
+        'http://127.0.0.1:4181',
+      ],
     );
   });
 
@@ -55,7 +64,12 @@ describe('the web app’s origin', () => {
     }
     assert.equal((await preflight('http://127.0.0.1:4180', 'POST')).status, 204);
     assert.equal((await preflight('http://127.0.0.1:8787', 'PUT')).status, 204);
-    assert.equal((await preflight('http://127.0.0.1:4181', 'GET')).status, 403);
+    assert.equal(
+      (await preflight('https://minhajna-admin.djazair.dev', 'PUT', 'authorization, content-type')).status,
+      204,
+    );
+    assert.equal((await preflight('http://127.0.0.1:4181', 'GET')).status, 204);
+    assert.equal((await preflight('http://127.0.0.1:4182', 'GET')).status, 403);
     assert.equal((await preflight(WEB, 'GET', '')).status, 204);
   });
 

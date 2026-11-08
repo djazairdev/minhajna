@@ -33,16 +33,18 @@ describe('npm run demo', () => {
     assert.match(demoOptions(['--fresh', '--seed']).message, /not --seed/);
   });
 
-  it('installs what a clean checkout lacks, then builds the server and the web app', () => {
+  it('installs what a clean checkout lacks, then builds the server, the web app and the dashboard', () => {
     assert.deepEqual(words(preparation('/repo', { fresh: false }, () => true)), [
       '. docker compose -f apps/server/compose.yaml up --detach --wait',
       '. npm ci --no-audit --no-fund',
       'apps/android npm ci --no-audit --no-fund',
       'apps/web npm ci --no-audit --no-fund',
+      'apps/dashboard npm ci --no-audit --no-fund',
       'apps/server npm ci --no-audit --no-fund',
       'apps/server/tools/prisma npm ci --no-audit --no-fund',
       'apps/server npm run build',
       'apps/web npm run build',
+      'apps/dashboard npm run build',
     ]);
   });
 
@@ -52,17 +54,22 @@ describe('npm run demo', () => {
       '. docker compose -f apps/server/compose.yaml up --detach --wait',
       'apps/server npm run build',
       'apps/web npm run build',
+      'apps/dashboard npm run build',
     ]);
     assert.deepEqual(words([STOP]), ['. docker compose -f apps/server/compose.yaml stop']);
   });
 
-  it('runs the server against the demo database, and the web app beside it', () => {
-    const [server, web] = services();
+  it('runs the server against the demo database, and the web app and the dashboard beside it', () => {
+    const [server, web, dashboard] = services();
     assert.deepEqual(
       [server.cwd, server.args, server.env],
       ['apps/server', ['dist/src/main.js'], { PORT: '3000', DATABASE_URL }],
     );
     assert.deepEqual([web.cwd, web.args, web.env], ['apps/web', ['scripts/serve.ts'], { PORT: '4180' }]);
+    assert.deepEqual(
+      [dashboard.cwd, dashboard.args, dashboard.env],
+      ['apps/dashboard', ['scripts/serve.ts'], { PORT: '4181' }],
+    );
     assert.equal(DATABASE_URL, 'postgresql://minhajna@127.0.0.1:54320/minhajna_demo');
   });
 

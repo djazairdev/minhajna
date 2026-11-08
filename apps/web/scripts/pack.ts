@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The PC web app as one file for its host and the release (answer 528):
-// dist/ packed into release/minhajna-web-<version>.zip. Every file is
-// checked against build.json first, so a stale or changed dist/ is never
-// packed. The ZIP stores the files uncompressed, in name order, all dated
-// 1 January 1980, with nothing else in it, so the same build always packs
-// to the same bytes, on any system, and the release can publish one SHA-256
-// for it. Any unzip tool opens it.
+// The PC web app as one file for its host and the release (answer 528): dist/
+// packed into release/minhajna-web-<version>.zip. Every file is checked against
+// build.json first, so a stale or changed dist/ is never packed. The ZIP stores
+// the files uncompressed, in name order, all dated 1 January 1980, with nothing
+// else in it, so the same build always packs to the same bytes, on any system,
+// and the release can publish one SHA-256 for it. Any unzip tool opens it. The
+// dashboard app packs its own dist/ with it, as
+// release/minhajna-dashboard-<version>.zip (answer 855).
 
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -70,12 +71,16 @@ export function packBuild(folder: URL): { version: string; zip: Buffer } {
   return { version: built.version, zip: Buffer.concat([...locals, directory, end]) };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const { version, zip } = packBuild(new URL('../dist/', import.meta.url));
-  const folder = new URL('../release/', import.meta.url);
+/** Packs the dist/ of the app in `root` into its release/<prefix>-<version>.zip, and prints its SHA-256. */
+export function packApp(root: URL, prefix: string): void {
+  const { version, zip } = packBuild(new URL('dist/', root));
+  const folder = new URL('release/', root);
   mkdirSync(folder, { recursive: true });
-  const file = new URL(`minhajna-web-${version}.zip`, folder);
+  const name = `${prefix}-${version}.zip`;
+  const file = new URL(name, folder);
   writeFileSync(file, zip);
   const sha256 = createHash('sha256').update(zip).digest('hex');
-  process.stdout.write(`${sha256}  minhajna-web-${version}.zip\n${fileURLToPath(file)}\n`);
+  process.stdout.write(`${sha256}  ${name}\n${fileURLToPath(file)}\n`);
 }
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) packApp(new URL('../', import.meta.url), 'minhajna-web');

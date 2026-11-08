@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // `npm run demo [-- --fresh]` (#543): prepares the local demo as plan.js says,
-// starts the server and the web app, waits for the server's health check, and
-// prints where they are. Ctrl-C, a failed step or a program that stops stops
-// everything, PostgreSQL included, from the moment PostgreSQL starts; the
-// database's data stays for the next run unless --fresh clears it. In the dev
-// container, its PostgreSQL is left running. npm runs through Node itself, so
-// the same commands work on Windows.
+// starts the server, the web app and the dashboard app, waits for the server's
+// health check, and prints where they are. Ctrl-C, a failed step or a program
+// that stops stops everything, PostgreSQL included, from the moment PostgreSQL
+// starts; the database's data stays for the next run unless --fresh clears it.
+// In the dev container, its PostgreSQL is left running. npm runs through Node
+// itself, so the same commands work on Windows.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import process from 'node:process';
 import { setTimeout } from 'node:timers/promises';
 import { fileURLToPath, URL } from 'node:url';
-import { demoOptions, preparation, SERVER_PORT, services, STOP, WEB_PORT } from './plan.js';
+import { DASHBOARD_PORT, demoOptions, preparation, SERVER_PORT, services, STOP, WEB_PORT } from './plan.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
@@ -110,8 +110,9 @@ async function main() {
   const lines = [
     '',
     'The demo is running:',
-    `  server   http://127.0.0.1:${SERVER_PORT}/health`,
-    `  web app  http://127.0.0.1:${WEB_PORT}/`,
+    `  server     http://127.0.0.1:${SERVER_PORT}/health`,
+    `  web app    http://127.0.0.1:${WEB_PORT}/`,
+    `  dashboard  http://127.0.0.1:${DASHBOARD_PORT}/`,
     'Ctrl-C stops it.',
   ];
   process.stdout.write(`${lines.join('\n')}\n`);

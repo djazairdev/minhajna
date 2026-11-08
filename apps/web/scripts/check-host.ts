@@ -6,13 +6,14 @@
 // [checksum]`, by default the address teachers open. Every file build.json
 // lists must come back whole, by its SHA-256, with its media type and the
 // host's headers (scripts/host.ts), straight, with no redirect, no cookie and
-// no header that has the browser report to anyone; the address itself must
-// give the page; a file the build does not hold must not be found, so the
-// host answers nothing but the build; the page's policy may name no address
-// but its own and the demo server's. And build.json must name the release's
-// build checksum, which only a check on this computer may leave out, as any
-// build passes the rest. Plain HTTP is refused but on this computer. Prints
-// each problem; exits 1 if there are.
+// no header that has the browser report to anyone; the address itself must give
+// the page; a file the build does not hold must not be found, so the host
+// answers nothing but the build; the page's policy may name no address but its
+// own and the demo server's. And build.json must name the release's build
+// checksum, which only a check on this computer may leave out, as any build
+// passes the rest. Plain HTTP is refused but on this computer. Prints each
+// problem; exits 1 if there are. The dashboard app checks its own address with
+// it (answer 855).
 
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -67,10 +68,13 @@ export async function checkHost(address: string, expected?: string): Promise<str
   return problems;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [address = ADDRESS, expected] = process.argv.slice(2);
+/** Checks the address and checksum given on the command line, the app's own address by default. */
+export async function checkHostCli(own: string): Promise<void> {
+  const [address = own, expected] = process.argv.slice(2);
   const problems = await checkHost(address, expected);
   for (const problem of problems) process.stdout.write(`${problem}\n`);
   process.stdout.write(problems.length === 0 ? `${address}: served as built\n` : `${problems.length} problems\n`);
   process.exitCode = problems.length === 0 ? 0 : 1;
 }
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) await checkHostCli(ADDRESS);

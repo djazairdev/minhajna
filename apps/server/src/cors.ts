@@ -4,20 +4,25 @@
 // Lets the PC web app call the demo server from its own origin (answer 583):
 // https://minhajna.djazair.dev, the hosted test's own address (answer 756),
 // https://minhajna-test.djazair.dev, and where it is tried locally: its ZIP at
-// http://127.0.0.1:4180, and its Worker at http://127.0.0.1:8787. Only those
-// origins are named back, only for the methods and headers the demo client
-// sends, and never with credentials: a world's pass travels in X-World-Pass,
-// not a cookie. The client may read Retry-After. A preflight from any other
-// origin, or for another method or header, is refused before it reaches a
-// route.
+// http://127.0.0.1:4180, and its Worker at http://127.0.0.1:8787. The dashboard
+// app likewise (answer 855): https://minhajna-admin.djazair.dev, the hosted
+// test's https://minhajna-admin-test.djazair.dev, and locally its ZIP at
+// http://127.0.0.1:4181. Only those origins are named back, only for the
+// methods and headers the demo client sends, and never with credentials: a
+// world's pass travels in X-World-Pass, not a cookie. The client may read
+// Retry-After. A preflight from any other origin, or for another method or
+// header, is refused before it reaches a route.
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export const WEB_ORIGINS: ReadonlySet<string> = new Set([
   'https://minhajna.djazair.dev',
   'https://minhajna-test.djazair.dev',
+  'https://minhajna-admin.djazair.dev',
+  'https://minhajna-admin-test.djazair.dev',
   'http://127.0.0.1:4180',
   'http://127.0.0.1:8787',
+  'http://127.0.0.1:4181',
 ]);
 export const CORS_METHODS: ReadonlySet<string> = new Set(['GET', 'POST', 'PUT']);
 export const CORS_HEADERS: ReadonlySet<string> = new Set(['accept', 'authorization', 'content-type', 'x-world-pass']);

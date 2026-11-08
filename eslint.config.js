@@ -59,14 +59,14 @@ export default defineConfig(
 
   // The settings files are plain JavaScript, outside any tsconfig.json.
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.cjs'],
     extends: [tseslint.configs.disableTypeChecked],
   },
 
   // The apps' tool settings, such as Metro's and Jest's, are CommonJS
   // modules that Node.js loads.
   {
-    files: ['apps/*/*.config.js'],
+    files: ['apps/*/*.config.{js,cjs}'],
     languageOptions: { sourceType: 'commonjs', globals: { __dirname: 'readonly' } },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },

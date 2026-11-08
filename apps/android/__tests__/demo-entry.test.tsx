@@ -11,7 +11,8 @@
 // brings back the lock, or the welcome on a fresh PC, the teacher's history
 // shut meanwhile and untouched; Help on a PC locks behind the passphrase, and
 // its entry starts worlds too. No door shows when the reference data is
-// refused. Every world and passphrase is made up.
+// refused, and none leads to the dashboard, an app of its own (answer 855).
+// Every world and passphrase is made up.
 
 import { parseDay, worldCodeGroups } from '@minhajna/core';
 import {
@@ -134,6 +135,7 @@ test('only a PC with the cryptography for worlds leads to them from the welcome'
   expect(shown('welcome-demo')).toBe(false);
   await ReactTestRenderer.act(() => tree!.unmount());
   await render(<App storage={new FakeStorage().asSpec()} worldKit={nodeKit} />);
+  expect(shown('welcome-dashboard')).toBe(false);
   await press('welcome-demo');
   expect(texts()).toContain(text.demo.entry.title);
   await press('demo-back');
@@ -166,6 +168,7 @@ test('a world started from the lock page opens with no passphrase, and leaving b
   announced.mockClear();
   jest.replaceProperty(Platform, 'OS', 'web');
   await render(<App storage={storage.asSpec()} worldKit={nodeKit} />);
+  expect(shown('passphrase-dashboard')).toBe(false);
   await press('passphrase-demo');
   await press('demo-start-national');
   await until('world-role-ministry');
