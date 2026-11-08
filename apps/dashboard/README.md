@@ -37,6 +37,10 @@ The dashboard is built the way the PC web app is, with no other tool (answer 855
 - `test/` holds the build's tests, which run with Node's test runner, as the web app's do.
 - `__tests__/` holds the screens' tests, which run with the Android app's Jest, its settings and its fakes (`jest.config.cjs`), against a made-up directory (`jest/fake-directory.ts`). The packages they use come from the Android app's install, so one React runs.
 
+## Its host
+
+The dashboard is served at <https://minhajna-admin.djazair.dev> by a Cloudflare Worker of its own, the web app's Worker under the settings in `host/wrangler.jsonc`, whose first deploy creates the address. The release workflow deploys each release's `minhajna-dashboard-<version>.zip` there and checks it, and the hosted test deploys a copy at <https://minhajna-admin-test.djazair.dev> ([the host guide](../../docs/contributing/web-host.md#the-dashboards-host)).
+
 ## Reader mode
 
 Reading a teacher's statement («قراءة بيان أستاذ») is to move here too (answers 799 and 856), with its statements kept in this origin's browser storage under its own passphrase. Until then, the teacher app keeps its reader screens.

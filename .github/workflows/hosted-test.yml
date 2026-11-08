@@ -3,12 +3,14 @@
 
 # The hosted test (answers 755 to 757, docs/demo-host.md): all of a coming
 # release, tested on the real hosts before anything is released. Started by
-# hand from main or a release branch, it builds the web app and test APKs, waits
-# for the release manager's approval, deploys the demo server and the web app at
-# an address of its own, and runs the scenarios against the deployed server. It
-# tags and publishes nothing, uses none of the project's signing keys, and
-# leaves the teachers' web app as it is. Once a release with a demo server is
-# tagged, teachers' apps use that server, and this workflow refuses to replace it.
+# hand from main or a release branch, it builds the web app, the dashboard and
+# test APKs, waits for the release manager's approval, deploys the demo server,
+# and the web app and the dashboard each at an address of its own (answer 855),
+# and runs the scenarios against the deployed server. It tags and publishes
+# nothing, uses none of the project's signing keys, and leaves the teachers'
+# web app and the live dashboard as they are. Once a release with a demo
+# server is tagged, teachers' apps use that server, and this workflow refuses
+# to replace it.
 
 name: Hosted test
 
@@ -37,6 +39,7 @@ env:
   TEST_APP: dz.minhajna.preview.hostedtest
   DEMO_SERVER: https://minhajna-demo.djazair.dev
   TEST_HOST: https://minhajna-test.djazair.dev
+  DASHBOARD_TEST_HOST: https://minhajna-admin-test.djazair.dev
   # Wrangler would otherwise send usage data to Cloudflare.
   WRANGLER_SEND_METRICS: 'false'
 
@@ -68,7 +71,7 @@ jobs:
           node tools/release/hosted-test.js "$GITHUB_REF" "$RUNNER_TEMP/tags" >> "$GITHUB_OUTPUT"
 
   web:
-    name: Pack the web app
+    name: Pack the web app and the dashboard
     needs: plan
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -92,9 +95,14 @@ jobs:
           npm ci --no-audit
           (cd apps/android && npm ci --no-audit)
           (cd apps/web && npm ci --no-audit)
+          (cd apps/dashboard && npm ci --no-audit)
 
       - name: Pack the web app
         working-directory: apps/web
+        run: npm run build && npm run zip
+
+      - name: Pack the dashboard app
+        working-directory: apps/dashboard
         run: npm run build && npm run zip
 
       - name: Keep the web app's ZIP
@@ -102,6 +110,14 @@ jobs:
         with:
           name: hosted-test-web
           path: apps/web/release/*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Keep the dashboard app's ZIP
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hosted-test-dashboard
+          path: apps/dashboard/release/*.zip
           if-no-files-found: error
           retention-days: 14
 
@@ -153,7 +169,7 @@ jobs:
           retention-days: 14
 
   deploy:
-    name: Deploy the demo server and the test web app
+    name: Deploy the demo server and the test web apps
     needs: [plan, web, apks]
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -207,6 +223,19 @@ jobs:
           unzip -q web-zip/*.zip -d apps/web/release/dist
           echo "checksum=$(jq -r .sha256 apps/web/release/dist/build.json)" >> "$GITHUB_OUTPUT"
 
+      - name: Download the dashboard app's ZIP
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: hosted-test-dashboard
+          path: dashboard-zip
+
+      - name: Unzip it where its host takes it
+        id: dashboard-zip
+        run: |
+          mkdir -p apps/dashboard/release/dist
+          unzip -q dashboard-zip/*.zip -d apps/dashboard/release/dist
+          echo "checksum=$(jq -r .sha256 apps/dashboard/release/dist/build.json)" >> "$GITHUB_OUTPUT"
+
       - name: Deploy the server
         working-directory: apps/server/host
         env:
@@ -239,6 +268,15 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: node_modules/.bin/wrangler deploy --env test
 
+      # A custom domain, so the first deploy creates the address's DNS record
+      # and certificate (answer 538), as for the web app's.
+      - name: Deploy the test dashboard
+        working-directory: apps/dashboard/host
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: ../../web/host/node_modules/.bin/wrangler deploy --env test
+
       - name: Check the server
         run: tools/release/check-demo-server.sh "$DEMO_SERVER" "$VERSION"
 
@@ -254,11 +292,24 @@ jobs:
           done
           exit 1
 
+      - name: Check the test dashboard
+        working-directory: apps/dashboard
+        env:
+          CHECKSUM: ${{ steps.dashboard-zip.outputs.checksum }}
+        run: |
+          for attempt in $(seq 1 20); do
+            sudo resolvectl flush-caches || true
+            if node scripts/check-host.ts "$DASHBOARD_TEST_HOST" "$CHECKSUM"; then exit 0; fi
+            sleep 30
+          done
+          exit 1
+
       - name: Say what to try by hand
         run: |
           {
             echo "The demo server is at $DEMO_SERVER, and the PC web app to test at $TEST_HOST."
             echo "A PC that had an earlier run's copy needs its data for that address cleared first."
+            echo "The dashboard to test is at $DASHBOARD_TEST_HOST."
             echo "The phone's APKs are in this run's hosted-test-apks artifact, kept for 14 days."
             echo "An earlier run's test APK must be uninstalled first. Use made-up data only."
           } >> "$GITHUB_STEP_SUMMARY"

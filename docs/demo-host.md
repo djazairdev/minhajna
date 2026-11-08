@@ -42,12 +42,12 @@ Cloudflare's documentation lists no rights for deploying a container, so the two
 
 All of a coming release can be tried on the real hosts before anything is released (answers 755 to 757). The [Hosted test workflow](../.github/workflows/hosted-test.yml) starts only by hand, from `main` or a release branch, and needs no version change, tag or changelog heading:
 
-1. **It builds** the PC web app's ZIP and the test APKs, before asking anyone anything.
+1. **It builds** the PC web app's ZIP, the dashboard's and the test APKs, before asking anyone anything.
 2. **It waits for the release manager's approval** in the `demo-host` environment.
-3. **It deploys** the demo server, gives it the bucket's settings, and deploys the web app to **<https://minhajna-test.djazair.dev>**, then checks both hosts as a release's deploy does.
+3. **It deploys** the demo server, gives it the bucket's settings, deploys the web app to **<https://minhajna-test.djazair.dev>** and the dashboard to **<https://minhajna-admin-test.djazair.dev>** (answer 855), each a Worker of its own whose first deploy creates its address, then checks the three hosts as a release's deploy does.
 4. **It runs the scenarios** against the deployed server, with no secret.
 
-Then anyone can try it by hand: open the test web app on a PC, and on a phone install an APK from the run's `hosted-test-apks` artifact, a ZIP of the three kept for 14 days. To test a newer `main`, run it again: the worlds stay, and the server moves to the new code. Two things don't follow by themselves, since a test build keeps the app's version: a PC that installed an earlier run's copy needs its site data for the test address cleared, and a phone needs the earlier APK uninstalled.
+Then anyone can try it by hand: open the test web app and the test dashboard on a PC, and on a phone install an APK from the run's `hosted-test-apks` artifact, a ZIP of the three kept for 14 days. To test a newer `main`, run it again: the worlds stay, and the server moves to the new code. Two things don't follow by themselves, since a test build keeps the app's version: a PC that installed an earlier run's copy needs its site data for the test address cleared, and a phone needs the earlier APK uninstalled.
 
 **What keeps a teacher's real data away from it:**
 
@@ -55,7 +55,7 @@ Then anyone can try it by hand: open the test web app on a PC, and on a phone in
 - **On a phone,** the test APK is an app of its own, `dz.minhajna.preview.hostedtest`, named "Minhajna test", which installs beside a teacher's app with its own data. It is signed with a key made for that run and thrown away, so it can't update a teacher's app, and the workflow fails if an APK carries the project's certificate. A new run's APK needs the last one uninstalled first.
 - **Nothing is published.** No release, no tag, no Latest: the APKs stay in the run, where any signed-in GitHub user can reach them, as the repository is public, though nothing links to them.
 - **What no build can stop:** the test copies are working copies of the app, so someone could type real records in, or restore a real backup. That stays on their own device and never reaches the server, but tell testers to use made-up data only. Its Help still names the teachers' address as the app's own.
-- **The server holds made-up data only,** and no released app reaches it before 0.7.0 is out. Once a release with a demo server is tagged, beta or not, the workflow refuses to run, as teachers' apps would then be using the server it replaces. The release's deploy also takes the test web app down. Testing a later release on real hosts is a new decision, with a server of its own.
+- **The server holds made-up data only,** and no released app reaches it before 0.7.0 is out. Once a release with a demo server is tagged, beta or not, the workflow refuses to run, as teachers' apps would then be using the server it replaces. The release's deploy also takes the test web app and the test dashboard down. Testing a later release on real hosts is a new decision, with a server of its own.
 
 The demo server's address stays `https://minhajna-demo.djazair.dev`, fixed by answer 554: it is in every build's policy and client, so the build tested is the build released.
 
@@ -101,7 +101,7 @@ Go back only for a deploy that has just failed its check. A broken release is ot
    Then check it with the previous version, as above. Within the month, re-running that release's "Deploy the demo server" job does the same. Before any release, start the hosted test from a branch `release/<anything>` made at the commit to go back to.
 2. **If the older server can't read the database,** because the newer one's migrations changed it, start again empty: in R2, delete everything under `archive/` in the bucket, then deploy again. Every world is made up, and whoever holds a world's code starts a new one. The directory goes with it: the list and the schools' books are entered again, and each edit code set again.
 
-To take the demo down altogether, delete the `minhajna-demo` and `minhajna-web-test` Workers in Cloudflare's dashboard, then the bucket's contents. No teacher's own work depends on it: the app and the PC web app work without it, and only a demo world needs it.
+To take the demo down altogether, delete the `minhajna-demo`, `minhajna-web-test` and `minhajna-dashboard-test` Workers in Cloudflare's dashboard, then the bucket's contents. No teacher's own work depends on it: the app and the PC web app work without it, and only a demo world needs it. The dashboard app needs it, as the directory it shows is the demo server's.
 
 ## If it doesn't come up
 

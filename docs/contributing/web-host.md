@@ -54,6 +54,16 @@ Without the checksum, any build the host serves whole would pass, so the check r
 
 [The hosted test](../demo-host.md#the-hosted-test) deploys the same files to `https://minhajna-test.djazair.dev`, a second Worker, `minhajna-web-test`, by `wrangler deploy --env test`. Teachers' address and its release stay as they are. It is a different origin, so it sees nothing a browser keeps for `https://minhajna.djazair.dev`.
 
+## The dashboard's host
+
+The dashboard app (answer 855, [its README](../../apps/dashboard/README.md)) is served the same way, at **<https://minhajna-admin.djazair.dev>**, by a Worker of its own, `minhajna-dashboard` (`apps/dashboard/host/wrangler.jsonc`):
+
+- **The same rules.** Its Worker is the web app's own `apps/web/scripts/worker.ts`, so it serves one release's `minhajna-dashboard-<version>.zip` and nothing else, with the headers above, read from the dashboard page's own policy, and the same host check, `npm run check-host` in `apps/dashboard`, holds it to them. Its page names one other address, the demo server, for the directory alone.
+- **Set up by its first deploy.** The route is a custom domain, so the first deploy creates the Worker, the address's DNS record and its certificate with the organisation's token, as for `minhajna.djazair.dev` (answer 538). Cloudflare's own features stay off for it as for the web app's address; the host check finds them if they are not.
+- **Deployed with each release,** by the release workflow's "Deploy the dashboard app" job, from the published ZIP checked against `SHA256SUMS.txt`, refusing to replace a newer build, then checked with the dashboard's build checksum, which the release's notes give, as the steps above say for the web app. It deploys with the web app's Wrangler, from `apps/dashboard/host`. To go back after a failed check, run `../../web/host/node_modules/.bin/wrangler rollback` there.
+- **The hosted test's copy** is `minhajna-dashboard-test`, at `https://minhajna-admin-test.djazair.dev`, by `wrangler deploy --env test`; a release takes it down with the web app's.
+- **On this computer,** `npm run serve` in `apps/dashboard` serves it at `http://127.0.0.1:4181`, and its Worker runs with `../../web/host/node_modules/.bin/wrangler dev --ip 127.0.0.1 --port 8788 --local-upstream 127.0.0.1:8788` in `apps/dashboard/host`, once a build is unzipped into `apps/dashboard/release/dist/`; the demo server names both back.
+
 ## When the host is down
 
 The installed app opens and works as usual. Only first installs and update checks wait for the host.

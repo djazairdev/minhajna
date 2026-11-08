@@ -70,13 +70,15 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 
 12. The release manager approves the release in the `release-signing` environment. [The release workflow](#the-release-workflow) then signs the APKs with the project's key and checks that each one carries the project's certificate and differs from its build only by its signature. It signs the tag with the release manager's key, and publishes the SHA-256 checksum of each file with the release.
     - The PC web app's ZIP, `minhajna-web-<version>.zip`, is built from the release commit too, attached beside the APKs and listed in `SHA256SUMS.txt`. To build it by hand, install the three lockfiles first, as CI does: `npm ci` at the root, in `apps/android` and in `apps/web`. Then run `npm run build && npm run zip` in `apps/web`. The build stops at any warning, since a missing package would change the bundle.
+    - The dashboard's ZIP, `minhajna-dashboard-<version>.zip` (answer 855), is built, attached and listed the same way, after `npm ci` in `apps/dashboard` too, by `npm run build && npm run zip` there. Its `build.json` must name the release's version as well.
     - The release notes give the PC web app's build checksum, the `sha256` in its `build.json`. The app shows it, and [the host check](web-host.md#deploying-a-release) compares the deployed build with it.
 13. The release is published:
     - on GitHub, by the release workflow, titled with its tag (`v1.5.0`), with the notes written from `CHANGELOG.md`, the files, the checksums and the signatures. A beta is marked as a pre-release; the newest release is marked as Latest;
     - on the project's website, with the signing key's fingerprint and the checksums, which the README repeats ([PRD §1.9](../prd/PRD.md#19-official-builds-releases-the-name-and-security));
     - on Google Play, as a staged rollout;
     - on F-Droid, which builds it from the tag.
-    - on the PC web app's host, `https://minhajna.djazair.dev`, by the release workflow once the GitHub release is out, when it is the newest release: the release's ZIP is deployed and checked as [the host guide](web-host.md#deploying-a-release) says (answers 528, 531 and 534).
+    - on the PC web app's host, `https://minhajna.djazair.dev`, by the release workflow once the GitHub release is out, when it is the newest release: the release's ZIP is deployed and checked as [the host guide](web-host.md#deploying-a-release) says (answers 528, 531 and 534);
+    - on the dashboard's host, `https://minhajna-admin.djazair.dev`, the same way, from the dashboard's ZIP ([the host guide](web-host.md#the-dashboards-host), answer 855).
 14. It is announced in Arabic in the teacher group ([PRD §1.11](../prd/PRD.md#111-community-transparency-and-building-in-public)).
 
 **After the release**
@@ -95,15 +97,15 @@ Releases follow the school year ([PRD §1.9](../prd/PRD.md#19-official-builds-re
 `.github/workflows/release.yml` makes each release from its release commit (answers 533 to 538).
 
 - **What starts it.** A push to `main` or to a `release/*` branch that changes `CHANGELOG.md` or the app's `build.gradle`, when the app's `versionName` has no `v<version>` tag yet and `CHANGELOG.md` has that version's dated section (answer 535). Merging the release pull request is enough.
-- **Building and checking.** It runs the Android workflow, which builds the three APKs and the two maps twice at different paths and compares them, and the Test workflow, which packs the PC web app's ZIP. The ZIP is then packed again at another path and compared.
+- **Building and checking.** It runs the Android workflow, which builds the three APKs and the two maps twice at different paths and compares them, and the Test workflow, which packs the PC web app's ZIP and the dashboard's. Each is then packed again at another path and compared.
 - **The approval.** The "Sign and publish" job then waits in the `release-signing` environment. Approving it is the release manager's act: everything after it is automatic. Rejecting it releases nothing. Approve within 7 days, while the build's APKs are kept; after that, re-run all the jobs.
 - **The APKs.** `apksigner` signs each one with the project's keystore, aligned as built and with neither the v1 nor the v4 scheme. Each must carry the project's certificate and differ from its build only by its signature (`tools/release/signed-apk.js`).
 - **The tag.** `v<version>` is signed with the release manager's SSH key, whose fingerprint the workflow checks first, then verified and pushed.
-- **The release.** It is titled with its tag. Its notes come from the version's section of `CHANGELOG.md`, with each file's checksum, the certificate's, the PC web app's build checksum and the checklist issue titled `Release <version>` (`tools/release/assemble.js`). A beta is marked as a pre-release, and a release is Latest when no newer release, beta aside, is tagged.
-- **The host.** The newest release's ZIP is deployed to the PC web app's host and checked there ([the host guide](web-host.md#deploying-a-release), answer 534).
+- **The release.** It is titled with its tag. Its notes come from the version's section of `CHANGELOG.md`, with each file's checksum, the certificate's, the PC web app's build checksum and the dashboard's, and the checklist issue titled `Release <version>` (`tools/release/assemble.js`). A beta is marked as a pre-release, and a release is Latest when no newer release, beta aside, is tagged.
+- **The hosts.** The newest release's ZIPs are deployed to the PC web app's host and to the dashboard's, and checked there ([the host guide](web-host.md#deploying-a-release), answers 534 and 855).
 - **The demo server.** The newest release's image is built from its tag, deployed to the demo server's host and checked there ([the demo host guide](../demo-host.md#deploying-a-release)). `apps/server/package.json` must say the release's version, or the release stops before anything is built (answer 754); `SERVER_RELEASE` in `apps/android/src/operators/ops-system.ts` is held equal to it by a test.
 - **A failed step.** Re-run the failed jobs. A tag pushed by an earlier attempt on the same commit is kept, and a tag of that name on another commit stops the run. The release is made as a draft, given its files, then published, so a re-run finishes a release left half made and never changes one already published.
-- **A rehearsal.** A pull request that changes the workflow or its tools runs everything up to the notes, which it keeps as the `release-rehearsal` artifact. It also serves the build through Cloudflare's runtime on the runner, and the host check must pass against it. Nothing is signed, tagged, published or deployed.
+- **A rehearsal.** A pull request that changes the workflow or its tools runs everything up to the notes, which it keeps as the `release-rehearsal` artifact. It also serves the web app's build and the dashboard's through Cloudflare's runtime on the runner, and the host check must pass against each. Nothing is signed, tagged, published or deployed.
 
 ### Setting it up
 
@@ -118,7 +120,7 @@ Once, before any release pull request is merged, the founder creates `release-si
    - `RELEASE_TAG_KEY_PASSPHRASE`: that key's passphrase, if it has one.
 4. **Environment variables:** `RELEASE_TAGGER_NAME` and `RELEASE_TAGGER_EMAIL`, the name and e-mail address the tags carry. The address must be one of the release manager's verified addresses on GitHub, so the tags show as verified.
 
-The organisation's `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` deploy the host (answer 538). Keep the offline copies of both keys: GitHub never shows a secret again, and without the keystore no teacher can update.
+The organisation's `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` deploy the hosts (answer 538). Keep the offline copies of both keys: GitHub never shows a secret again, and without the keystore no teacher can update.
 
 ## Fixes and security releases
 

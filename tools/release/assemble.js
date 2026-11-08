@@ -4,11 +4,11 @@
 // Writes a release's SHA256SUMS.txt and release-notes.md beside its files
 // (releases.md, items 12 and 13): `node tools/release/assemble.js <folder>
 // [--rehearsal]`, with VERSION, COMMIT, RUN_URL, CERTIFICATE and, when the
-// release has a checklist issue, ISSUE in the environment. The folder must
-// hold the three APKs, the two maps and the web app's ZIP under their
-// published names, and nothing else is listed. The ZIP's build.json must
-// be this version's, and gives the build checksum the notes print. Only
-// Node's built-ins and the build machines' unzip are used.
+// release has a checklist issue, ISSUE in the environment. The folder must hold
+// the three APKs, the two maps, the web app's ZIP and the dashboard's under
+// their published names, and nothing else is listed. Each ZIP's build.json must
+// be this version's, and gives the build checksum the notes print.
+// Only Node's built-ins and the build machines' unzip are used.
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -38,10 +38,10 @@ export function sumsFile(sums) {
     .join('');
 }
 
-/** The web app's build checksum, from the build.json in its ZIP, which must be this version's. */
+/** A web build's checksum, from the build.json in its ZIP, which must be this version's. */
 export function webChecksum(zip, version, read = (file) => execFileSync('unzip', ['-p', file, 'build.json'])) {
   const built = JSON.parse(read(zip).toString('utf8'));
-  assert.equal(built.version, version, `The web ZIP holds ${built.version}, not ${version}`);
+  assert.equal(built.version, version, `${zip} holds ${built.version}, not ${version}`);
   assert.match(built.sha256, /^[0-9a-f]{64}$/u);
   return built.sha256;
 }
@@ -60,6 +60,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     sums,
     certificate: CERTIFICATE,
     webChecksum: webChecksum(join(folder, releaseFiles(VERSION).web), VERSION),
+    dashboardChecksum: webChecksum(join(folder, releaseFiles(VERSION).dashboard), VERSION),
     commit: COMMIT,
     run: RUN_URL,
     issue: ISSUE,

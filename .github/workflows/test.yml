@@ -166,3 +166,17 @@ jobs:
           path: apps/web/release/*.zip
           if-no-files-found: error
           retention-days: 7
+
+      # The dashboard's ZIP likewise, which a release attaches and its host
+      # serves (answer 855).
+      - name: Pack the dashboard app for its host
+        working-directory: apps/dashboard
+        run: npm run build && npm run zip
+
+      - name: Keep the dashboard app's ZIP for the comparison
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dashboard-zip
+          path: apps/dashboard/release/*.zip
+          if-no-files-found: error
+          retention-days: 7
