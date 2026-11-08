@@ -150,6 +150,34 @@
       "name": "Nom manquant ou trop long",
       "code": "Code non valide : {{cell}}",
       "twice": "En double dans le fichier : {{cell}}"
+    },
+    "pupilsTitle": "Importer la liste des élèves",
+    "pupilsNew": "nouveaux élèves",
+    "pupilsMoved": "changent de classe",
+    "pupilsChanged": "données modifiées",
+    "pupilColumn": {
+      "registration": "Numéro d’inscription",
+      "name": "Nom et prénom",
+      "sex": "Sexe",
+      "class": "Classe"
+    },
+    "pupilColumns": {
+      "registration": "Numéro d’inscription|Matricule|Numéro",
+      "name": "Nom et prénom|Nom",
+      "sex": "Sexe",
+      "class": "Classe"
+    },
+    "sex": {
+      "f": "F|Fille|Féminin",
+      "m": "M|Garçon|Masculin"
+    },
+    "pupil": {
+      "registration": "Numéro manquant ou non valide : {{cell}}",
+      "twice": "Numéro en double : {{cell}}",
+      "name": "Nom manquant ou trop long",
+      "sex": "Sexe inconnu : {{cell}}",
+      "class": "Classe introuvable : {{cell}}",
+      "full": "Classe pleine : {{cell}}"
     }
   },
   "classes": {
@@ -201,6 +229,13 @@
   "assign": {
     "none": "Sans enseignant",
     "noOptions": "La liste publiée ne donne aucune matière à ce cycle."
+  },
+  "week": {
+    "none": "—",
+    "morning": "M{{index}}",
+    "afternoon": "A{{index}}",
+    "busy": "L’enseignant de cette matière est en classe avec {{name}} à cette heure.",
+    "slot": "Séance"
   },
   "teachers": {
     "title": "Enseignants et codes d’adhésion",

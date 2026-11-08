@@ -150,6 +150,34 @@
       "name": "The name is missing or too long",
       "code": "Not a valid code: {{cell}}",
       "twice": "Twice in the file: {{cell}}"
+    },
+    "pupilsTitle": "Import the pupils’ list",
+    "pupilsNew": "new pupils",
+    "pupilsMoved": "change class",
+    "pupilsChanged": "details changed",
+    "pupilColumn": {
+      "registration": "Registration number",
+      "name": "Full name",
+      "sex": "Sex",
+      "class": "Class"
+    },
+    "pupilColumns": {
+      "registration": "Registration number|Registration|Number",
+      "name": "Full name|Name",
+      "sex": "Sex",
+      "class": "Class"
+    },
+    "sex": {
+      "f": "F|Female|Girl",
+      "m": "M|Male|Boy"
+    },
+    "pupil": {
+      "registration": "Number missing or not valid: {{cell}}",
+      "twice": "Number twice in the file: {{cell}}",
+      "name": "Name missing or too long",
+      "sex": "Unknown sex: {{cell}}",
+      "class": "No such class: {{cell}}",
+      "full": "Class full: {{cell}}"
     }
   },
   "classes": {
@@ -201,6 +229,13 @@
   "assign": {
     "none": "No teacher",
     "noOptions": "The published list gives this cycle no subjects."
+  },
+  "week": {
+    "none": "—",
+    "morning": "M{{index}}",
+    "afternoon": "A{{index}}",
+    "busy": "This subject’s teacher is with {{name}} at that time.",
+    "slot": "Session"
   },
   "teachers": {
     "title": "Teachers and joining codes",
