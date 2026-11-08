@@ -1,12 +1,11 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// The Back arrow is a shape, not a bidi-sensitive glyph: Android mirrors
-// neutral text. Its end border resolves to physical left in RTL before
-// rotation.
+// The teacher app's tabs and its stack screens' bar, which is the shared
+// StackBar with each teacher screen's line under its title.
 
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { DefaultTheme, useLocale } from '@react-navigation/native';
+import { useLocale } from '@react-navigation/native';
 import type { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,19 +17,9 @@ import { SETUP_STEPS } from '../setup/Teaching';
 import { onPc } from '../text/device-text';
 import { useText } from '../text/i18n';
 import { SideRail } from './SideRail';
+import { StackBar, barSubtitle } from './StackBar';
 
-/** The navigator's colours, from the design's tokens. */
-export const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: colors.paper,
-    card: colors.sheet,
-    text: colors.ink,
-    border: colors.line,
-    primary: colors.ink,
-  },
-};
+export { theme } from './StackBar';
 
 /** Each setup screen's step, which its bar's subtitle names. */
 const SETUP_ROUTES = { Teaching: 1, Card: 2 } as const;
@@ -97,60 +86,37 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
   );
 }
 
-/** Provides a labelled, RTL-aware Back control and a scalable two-line heading. */
-export function TopBar({ navigation, options, route }: NativeStackHeaderProps) {
-  const insets = useSafeAreaInsets();
-  const { direction } = useLocale();
+/** The shared bar, with the line each teacher screen has under its title. */
+export function TopBar(props: NativeStackHeaderProps) {
+  const { route } = props;
   const t = useText();
   const document = route.name === 'DocOutput' ? documentKind((route.params as { id: string }).id) : undefined;
   return (
-    <View
-      style={[
-        styles.header,
-        { paddingTop: insets.top, paddingLeft: insets.left, paddingRight: insets.right, direction },
-      ]}
-    >
-      <View style={styles.headerRow}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('navigation.back')}
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
-          <View
-            testID="back-icon"
-            importantForAccessibility="no"
-            style={[styles.arrow, { transform: [{ rotate: direction === 'rtl' ? '135deg' : '225deg' }] }]}
-          />
-        </Pressable>
-        <View style={styles.heading}>
-          <Text accessibilityRole="header" style={styles.title}>
-            {options.title}
-          </Text>
-          {route.name === 'Privacy' && <Text style={styles.subtitle}>{t('privacy.subtitle')}</Text>}
-          {route.name === 'Times' && <Text style={styles.subtitle}>{t('times.subtitle')}</Text>}
+    <StackBar
+      {...props}
+      subtitle={
+        <>
+          {route.name === 'Privacy' && <Text style={barSubtitle}>{t('privacy.subtitle')}</Text>}
+          {route.name === 'Times' && <Text style={barSubtitle}>{t('times.subtitle')}</Text>}
           {route.name === 'Security' && (
-            <Text style={styles.subtitle}>
-              {t(Platform.OS === 'web' ? 'security.web.subtitle' : 'security.subtitle')}
-            </Text>
+            <Text style={barSubtitle}>{t(Platform.OS === 'web' ? 'security.web.subtitle' : 'security.subtitle')}</Text>
           )}
-          {route.name === 'Extra' && <Text style={styles.subtitle}>{t('extra.subtitle')}</Text>}
-          {route.name === 'AddSessions' && <Text style={styles.subtitle}>{t('addSessions.subtitle')}</Text>}
-          {route.name === 'PrintWeek' && <Text style={styles.subtitle}>{t('documents.printWeek.line')}</Text>}
+          {route.name === 'Extra' && <Text style={barSubtitle}>{t('extra.subtitle')}</Text>}
+          {route.name === 'AddSessions' && <Text style={barSubtitle}>{t('addSessions.subtitle')}</Text>}
+          {route.name === 'PrintWeek' && <Text style={barSubtitle}>{t('documents.printWeek.line')}</Text>}
           {route.name === 'DocOutput' && document !== undefined && (
-            <Text style={styles.subtitle}>
+            <Text style={barSubtitle}>
               {t(document.landscape ? 'documents.output.landscape' : 'documents.output.portrait')}
             </Text>
           )}
           {Object.hasOwn(SETUP_ROUTES, route.name) && (
-            <Text style={styles.subtitle}>
+            <Text style={barSubtitle}>
               {t('setup.step', { step: SETUP_ROUTES[route.name as keyof typeof SETUP_ROUTES], count: SETUP_STEPS })}
             </Text>
           )}
-        </View>
-        <View style={styles.back}>{options.headerRight?.({ canGoBack: true })}</View>
-      </View>
-    </View>
+        </>
+      }
+    />
   );
 }
 
@@ -190,20 +156,4 @@ const styles = StyleSheet.create({
   documentRule: { height: 2, backgroundColor: colors.ink2, marginTop: 3 },
   label: { ...typography.nav, color: colors.ink2, textAlign: 'center', marginTop: spacing['space-4'] },
   selectedLabel: { color: colors.ink, fontWeight: '700', fontFamily: fontFamilyForWeight(fontFamilies.arabic, '700') },
-  header: {
-    backgroundColor: colors.sheet,
-    borderBottomColor: colors.line,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: sizes.bar,
-    paddingHorizontal: spacing['space-8'],
-  },
-  back: { width: sizes.target, minHeight: sizes.target, alignItems: 'center', justifyContent: 'center' },
-  arrow: { width: 12, height: 12, borderTopWidth: 2, borderEndWidth: 2, borderColor: colors.ink },
-  heading: { flex: 1, paddingVertical: spacing['space-8'] },
-  title: { ...typography['bar-title'], color: colors.ink, textAlign: 'center' },
-  subtitle: { ...typography['bar-subtitle'], color: colors.ink2, textAlign: 'center' },
 });

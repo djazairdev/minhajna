@@ -40,7 +40,8 @@ import { settingsStyles as styles } from './styles';
 export type EraseDeviceProps = {
   /** The storage module the app opened its history with. */
   readonly storage: Storage;
-  readonly onExport: () => void;
+  /** Offers the export first; the dashboard's reader mode, which has none, leaves it out (answer 856). */
+  readonly onExport?: () => void;
   /** Told when an erase starts or stops running, so the route can hold the screen while it runs. */
   readonly onBusy?: (busy: boolean) => void;
 };
@@ -124,14 +125,16 @@ export function EraseDevice({ storage, onExport, onBusy }: EraseDeviceProps) {
         ))}
       </View>
       <Notice testID="erase-lost" icon={controlIcon('info')} message={lost} />
-      <RowLink
-        testID="erase-export"
-        icon={controlIcon('lock')}
-        title={t('settings.eraseDevice.export')}
-        description={t('settings.eraseDevice.exportLine')}
-        disabled={busy}
-        onPress={onExport}
-      />
+      {onExport !== undefined && (
+        <RowLink
+          testID="erase-export"
+          icon={controlIcon('lock')}
+          title={t('settings.eraseDevice.export')}
+          description={t('settings.eraseDevice.exportLine')}
+          disabled={busy}
+          onPress={onExport}
+        />
+      )}
       <CheckRow
         testID="erase-understood"
         label={t('settings.eraseDevice.understood')}

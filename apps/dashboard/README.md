@@ -25,9 +25,9 @@ Then open <http://127.0.0.1:4181/> in Chrome, Edge or Firefox. The server answer
 The dashboard is built the way the PC web app is, with no other tool (answer 855), and shares its code rather than copying it:
 
 - **The build** is the web app's `scripts/bundle.ts`, run with this folder's own esbuild: one bundle from `src/index.tsx`, every package from this folder's own lockfile, so one React runs, and the phone app's fonts and drawn images. `build.json` lists each file's SHA-256 and the build's checksum, and the same sources always give the same checksum. The version is the Android app's.
-- **The phone app's code:** the shared components, the design tokens, the network guard and the directory's client (`apps/android/src/network/directory-network.ts`) come from `apps/android/src`, and React Native is React Native Web, as the web app's `scripts/resolve.ts` redirects them. The web versions of the native modules it needs, the file dialog and printing, are the web app's own, in `apps/web/src/native`.
-- **Its own code** is in `src/`: the home and its pages, their rules, the directory's calls, and the communes (`data/dz/communes.json`, CC0), which only this app bundles.
-- **Its words** are in `src/text/{ar,fr,en}.json`, read under the `dashboard` key beside the teacher app's words, which the shared components use (answer 821). Arabic comes first, and every text is in all three. The teacher app's catalogues come into the bundle with them, about 1.3 MB of its 3 MB, as the shared components read their words from them.
+- **The phone app's code:** the shared components, the design tokens, the network guard and the directory's client (`apps/android/src/network/directory-network.ts`) come from `apps/android/src`, and React Native is React Native Web, as the web app's `scripts/resolve.ts` redirects them. The web versions of the native modules it needs, the file dialog, printing, the storage and its lock, crash reports and the interface's settings, are the web app's own, in `apps/web/src/native`.
+- **Its own code** is in `src/`: the home and its pages, their rules, the directory's calls, reader mode's navigator and settings, and the communes (`data/dz/communes.json`, CC0), which only this app bundles.
+- **Its words** are in `src/text/{ar,fr,en}.json`, read under the `dashboard` key beside the teacher app's words, which the shared components use (answer 821). Arabic comes first, and every text is in all three. The teacher app's catalogues come into the bundle with them, about 1.3 MB of its 3.6 MB, as the shared components read their words from them.
 - **No offline worker, install or update offer:** the dashboard works with the server alone, so the page has no service worker or manifest, and the build writes no `notes.json` and no PDF engine.
 - **Nothing loaded from elsewhere:** the page's security policy allows only its own files and no inline script. It may connect to one other address, the demo server, for the directory only; the host check fails if it names any other.
 - **The serve, pack and host-check scripts** are the web app's, given this folder and its address.
@@ -43,4 +43,12 @@ The dashboard is served at <https://minhajna-admin.djazair.dev> by a Cloudflare 
 
 ## Reader mode
 
-Reading a teacher's statement («قراءة بيان أستاذ») is to move here too (answers 799 and 856), with its statements kept in this origin's browser storage under its own passphrase. Until then, the teacher app keeps its reader screens.
+Reading a teacher's statement («قراءة بيان أستاذ», answers 489 to 492, 799 and 856) opens from the dashboard's home. It runs the teacher app's shell (`apps/android/src/shell/`): the lock, the encrypted history in this origin's browser storage under a passphrase of its own, the verified reference data and plan packs the reader's screens read, the automatic lock, the screen guard and the providers, with a navigator built from reader mode's routes alone (`src/ReaderNavigator.tsx`). It never loads the teacher app's navigator, setup or teaching screens.
+
+- **First use on this browser** asks for a passphrase, twice, then shows the privacy notice in reader mode, which leads to the reader's home. The notice shows at each opening until a first statement is kept. It and its page on what the dashboard connects to are in the dashboard's own words (`src/reader-notice.ts`, answer 857), not the PC teacher app's.
+- **Later**, the lock asks for the passphrase and opens on the reader's home, or on the screen it was on when it locked by itself.
+- **The reader's home** is the school's picture of the statements received, with their list, opening a statement, its spot-check sheet and a grade's merge, and a crash report kept before the last stop when crash reports are on.
+- **Settings** holds this PC's lock and its delay, with the passphrase change; the interface's language; erasing this PC, with no export; the crash reports switch; and the privacy notice. There is no Help and no setup.
+- **Leaving**, from the passphrase pages, the first notice or the reader's home, locks the history and goes back to the dashboard's home.
+
+The teacher app still carries its reader screens until they leave it in their own change (answer 856). Reader mode adds about 0.6 MB to the dashboard's bundle, for the navigator, the history and the reader's screens.

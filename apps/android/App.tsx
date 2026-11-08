@@ -22,39 +22,25 @@
 // Once the lock, the welcome or the history shows, the app tells Android its
 // first screen with content is drawn, so a start can be timed on any phone. In
 // development every problem in the reference data is logged, for whoever keys
-// it; teachers see one short message. Given the cryptography for demo worlds,
+// it; teachers see one short message. The lock, the history, the guard and
+// the providers are the shell the dashboard's reader mode shares (answer 856);
+// this is the teacher's use of it. Given the cryptography for demo worlds,
 // as each platform's start gives it, Help leads to the demo worlds, and on a
 // PC the welcome and the lock page too; they take the lock's place until a
 // world is left and the lock checks again (#560, #561).
 
-import type { CountryProfile } from '@minhajna/core';
-import { LocaleDirContext, type InitialState, type NavigationState } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { I18nManager, StatusBar, StyleSheet, View } from 'react-native';
-import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
-import { noteUse } from './src/lock/activity';
-import { CreatePin } from './src/lock/CreatePin';
-import { guardScreen, useLockSettings } from './src/lock/lock-settings';
-import { LockStorage } from './src/lock/lock-storage';
+import { useCallback, useMemo, useState } from 'react';
 import { PILOT_BUILD } from './src/pilot/pilot-build';
 import { PilotTimings, timingStore } from './src/pilot/timing-store';
 import { ReopenHistory } from './src/restore/reopen';
-import { focusedRoute, gateKind, screenKind } from './src/lock/screen-guard';
-import { Unlock } from './src/lock/Unlock';
-import { LockAway } from './src/lock/lock-away';
-import { useAutoLock } from './src/lock/useAutoLock';
-import { useLockPhase, type LockPhase } from './src/lock/useLockPhase';
 import NativeInterface from './src/native/NativeMinhajnaInterface';
 import NativeStorage, { type Spec as Storage } from './src/native/NativeMinhajnaStorage';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { AFTER_FIRST_PIN, startRoute, type Begin } from './src/navigation/start-route';
 import { Welcome } from './src/navigation/Welcome';
-import { bundledReference, readReference, type ReferenceFiles } from './src/reference';
-import { AppDataProvider } from './src/storage/AppData';
-import { nativeDeps } from './src/storage/history';
-import type { BrokenHistory } from './src/storage/broken-history';
-import { useHistory } from './src/storage/use-history';
-import { LogBroken } from './src/log/LogBroken';
+import { bundledReference, type ReferenceFiles } from './src/reference';
+import { GateDirection, ShellFrame, ShellGate, ShellProviders } from './src/shell/ShellParts';
+import { useShell } from './src/shell/use-shell';
 import { DemoDoor, HelpDoor } from './src/demo/demo-door';
 import { DemoRoot } from './src/demo/DemoRoot';
 import { useDemoDoors } from './src/demo/use-demo-doors';
@@ -74,35 +60,21 @@ export default function App({
   /** The platform's cryptography for demo worlds, which each platform's start gives (#560, #561); none offers none. */
   worldKit?: WorldKit | null;
 }) {
-  const { delayMinutes: lockMinutes } = useLockSettings();
-  const reference = useMemo(() => {
-    const result = readReference(files);
-    if (!result.ok && __DEV__) console.warn('Reference data refused', result.problems);
-    if (result.ok && result.refusedPacks > 0 && __DEV__) console.warn('Plan packs refused', result.refusedPacks);
-    if (result.ok && result.refusedKeys && __DEV__) console.warn('The trusted key list was refused');
-    return result;
-  }, [files]);
-  const lock = useLockPhase(storage);
-  const { phase } = lock;
-  const { status: history, book, broken } = useHistory(storage, phase.kind === 'open' ? phase.opening : null);
-  const random = useMemo(() => nativeDeps(storage).random, [storage]);
+  const [next, setNext] = useState<Begin>('setup');
+  const shell = useShell({
+    files,
+    storage,
+    reportDrawn,
+    startRoute,
+    opening: (book, fresh) => (fresh && book.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined),
+  });
+  const { reference, lock, lockAway, opened } = shell;
   const weekStartsOn = reference.ok ? reference.profile.weekStartsOn : null;
   const pilot = useMemo(
     () => (PILOT_BUILD && weekStartsOn !== null ? timingStore(storage, weekStartsOn) : null),
     [storage, weekStartsOn],
   );
-  const navigation = useRef<NavigationState | undefined>(undefined);
-  const [restore, setRestore] = useState<InitialState | undefined>(undefined);
-  const [route, setRoute] = useState<string | undefined>(undefined);
-  const [next, setNext] = useState<Begin>('setup');
-  const firstState =
-    restore ??
-    (phase.kind === 'open' && phase.fresh && book?.state.setupFinished === false ? AFTER_FIRST_PIN[next] : undefined);
-  const { lockNow, opened, start } = lock;
-  const reopen = useCallback(() => {
-    setRoute(undefined);
-    opened();
-  }, [opened]);
+  const { lockNow, start } = lock;
   const begin = useCallback(
     (choice: Begin) => {
       setNext(choice);
@@ -110,169 +82,51 @@ export default function App({
     },
     [start],
   );
-  const lockAway = useCallback(() => {
-    setRestore(navigation.current ?? firstState);
-    setRoute(undefined);
-    lockNow();
-  }, [lockNow, firstState]);
   const doors = useDemoDoors(worldKit !== null && reference.ok, lockAway, lockNow);
-  useAutoLock(book !== null || broken !== null, lockMinutes, lockAway);
-  const open = phase.kind === 'open' && reference.ok && book !== null;
-  const front = route ?? focusedRoute(firstState) ?? (book === null ? 'Welcome' : startRoute(book));
-  const refused = !reference.ok || phase.kind === 'refused' || history === 'refused';
-  const kind = open ? screenKind(front) : broken !== null ? 'records' : gateKind(phase, refused);
-  const [actions, setActions] = useState(0);
-  const shown = useRef(kind);
-  const raiseGuard = useCallback(() => {
-    guardScreen(shown.current === 'pin' ? 'pin' : 'records');
-    setActions((count) => count + 1);
-  }, []);
-  useEffect(() => {
-    shown.current = kind;
-    guardScreen(kind);
-  }, [kind, actions]);
-  const reported = useRef(false);
-  const drawn = phase.kind !== 'checking' && !(phase.kind === 'open' && history === 'opening');
-  useEffect(() => {
-    if (!drawn || reported.current) return;
-    reported.current = true;
-    reportDrawn();
-  }, [drawn, reportDrawn]);
   return (
-    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <StatusBar barStyle="light-content" />
-      <View
-        style={styles.root}
-        onStartShouldSetResponderCapture={() => {
-          noteUse();
-          return false;
-        }}
-      >
-        {open && reference.ok && book !== null ? (
-          <AppDataProvider
-            book={book}
-            profile={reference.profile}
-            year={reference.calendar.year}
-            calendar={reference.calendar.entries}
-            calendarRelease={reference.calendar.release}
-            bells={reference.bells}
-            packs={reference.packs}
-            keys={reference.keys}
-            random={random}
-          >
-            <LockStorage.Provider value={storage}>
-              <PilotTimings.Provider value={pilot}>
-                <ReopenHistory.Provider value={reopen}>
-                  <LockAway.Provider value={lockAway}>
-                    <HelpDoor.Provider value={doors.help}>
-                      <AppNavigator
-                        initialRouteName={startRoute(book)}
-                        initialState={firstState}
-                        onAction={raiseGuard}
-                        onStateChange={(state) => {
-                          navigation.current = state;
-                          setRoute(focusedRoute(state));
-                        }}
-                      />
-                    </HelpDoor.Provider>
-                  </LockAway.Provider>
-                </ReopenHistory.Provider>
-              </PilotTimings.Provider>
-            </LockStorage.Provider>
-          </AppDataProvider>
-        ) : (
-          <LocaleDirContext.Provider value={I18nManager.isRTL ? 'rtl' : 'ltr'}>
-            {doors.shown && worldKit !== null && reference.ok ? (
-              <DemoRoot
-                kit={worldKit}
-                calendar={reference.calendar}
-                profile={reference.profile}
-                storage={storage}
-                onBack={doors.back}
-                onLeft={doors.left}
-                reference={reference}
-              />
-            ) : (
-              <DemoDoor.Provider value={doors.gate}>
-                <Gate
-                  phase={phase}
-                  storage={storage}
-                  lock={lock}
-                  begin={begin}
-                  lockMinutes={lockMinutes}
-                  referenceRefused={!reference.ok}
-                  historyRefused={phase.kind === 'refused' || history === 'refused' || history === 'broken'}
-                  broken={reference.ok && broken !== null ? { history: broken, profile: reference.profile } : null}
+    <ShellFrame>
+      {opened !== null ? (
+        <ShellProviders opened={opened} shell={shell} storage={storage}>
+          <PilotTimings.Provider value={pilot}>
+            <ReopenHistory.Provider value={shell.reopen}>
+              <HelpDoor.Provider value={doors.help}>
+                <AppNavigator
+                  initialRouteName={startRoute(opened.book)}
+                  initialState={shell.firstState}
+                  onAction={shell.raiseGuard}
+                  onStateChange={shell.onStateChange}
                 />
-              </DemoDoor.Provider>
-            )}
-          </LocaleDirContext.Provider>
-        )}
-      </View>
-    </SafeAreaProvider>
+              </HelpDoor.Provider>
+            </ReopenHistory.Provider>
+          </PilotTimings.Provider>
+        </ShellProviders>
+      ) : (
+        <GateDirection>
+          {doors.shown && worldKit !== null && reference.ok ? (
+            <DemoRoot
+              kit={worldKit}
+              calendar={reference.calendar}
+              profile={reference.profile}
+              storage={storage}
+              onBack={doors.back}
+              onLeft={doors.left}
+              reference={reference}
+            />
+          ) : (
+            <DemoDoor.Provider value={doors.gate}>
+              <ShellGate
+                shell={shell}
+                storage={storage}
+                welcome={<Welcome onStart={() => begin('setup')} onRestore={() => begin('restore')} />}
+                idle={({ referenceRefused, historyRefused }) => (
+                  <Welcome referenceRefused={referenceRefused} historyRefused={historyRefused} />
+                )}
+                onCreateBack={lock.back}
+              />
+            </DemoDoor.Provider>
+          )}
+        </GateDirection>
+      )}
+    </ShellFrame>
   );
 }
-
-/**
- * Everything before the record book opens: the welcome, the first PIN and
- * the lock, in the interface's direction, as the
- * navigator gives it to the screens inside. Reference data that does not
- * verify leaves the app unusable, so that shows first, with no way forward.
- */
-function Gate({
-  phase,
-  storage,
-  lock,
-  begin,
-  lockMinutes,
-  referenceRefused,
-  historyRefused,
-  broken,
-}: {
-  phase: LockPhase;
-  storage: Storage;
-  lock: ReturnType<typeof useLockPhase>;
-  /** From the welcome to the first PIN, then to setup or the restore. */
-  begin: (next: Begin) => void;
-  lockMinutes: number;
-  referenceRefused: boolean;
-  historyRefused: boolean;
-  /** A history whose chain breaks, with the profile its log is named in. */
-  broken: { history: BrokenHistory; profile: CountryProfile } | null;
-}) {
-  if (referenceRefused) return <Welcome referenceRefused historyRefused={historyRefused} />;
-  switch (phase.kind) {
-    case 'welcome':
-      return <Welcome onStart={() => begin('setup')} onRestore={() => begin('restore')} />;
-    case 'create':
-      return (
-        <CreatePin
-          storage={storage}
-          upgrade={phase.upgrade}
-          lockMinutes={lockMinutes}
-          onCreated={() => lock.created(phase.upgrade)}
-          onRefused={lock.refused}
-          onFailed={lock.recheck}
-          onBack={phase.upgrade ? undefined : lock.back}
-        />
-      );
-    case 'locked':
-      return (
-        <Unlock
-          storage={storage}
-          biometric={phase.biometric}
-          waitSeconds={phase.waitSeconds}
-          lockMinutes={lockMinutes}
-          onOpened={lock.opened}
-          onRefused={lock.refused}
-        />
-      );
-    default:
-      if (broken !== null) return <LogBroken broken={broken.history} profile={broken.profile} />;
-      return <Welcome referenceRefused={referenceRefused} historyRefused={historyRefused} />;
-  }
-}
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-});

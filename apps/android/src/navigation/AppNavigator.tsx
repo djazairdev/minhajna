@@ -1,12 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import {
-  NavigationContainer,
-  useNavigationContainerRef,
-  type InitialState,
-  type NavigationState,
-} from '@react-navigation/native';
+import { useNavigationContainerRef, type InitialState, type NavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
 import { DevSettings, I18nManager } from 'react-native';
@@ -14,7 +9,7 @@ import StorageCheck from '../debug/StorageCheck';
 import { Gallery } from '../gallery/Gallery';
 import { samples } from '../gallery/samples';
 import { currentLanguage, useText } from '../text/i18n';
-import { TopBar, theme } from './NavigationChrome';
+import { TopBar } from './NavigationChrome';
 import { HomeTabs } from './HomeTabs';
 import { RollRules } from '../roll/RollRules';
 import {
@@ -49,7 +44,6 @@ import {
 import { HelpScreen, LicenceNoticeScreen, LicencesScreen, noticeTitle } from '../help/HelpScreens';
 import { Connections } from '../help/PrivacyNotice';
 import { ProblemReport } from '../help/ProblemReport';
-import { recordStep } from '../help/steps';
 import { HandoverRefused } from '../settings/HandoverSheets';
 import type { RootStackParamList } from './routes';
 import { calendarRoutes } from './CalendarScreens';
@@ -57,6 +51,7 @@ import { planRoutes } from './PlanScreens';
 import { readerRoutes } from './ReaderScreens';
 import { marksRoutes } from './MarksScreens';
 import { noteRoutes } from './NoteScreens';
+import { StackApp } from '../shell/StackApp';
 
 /** Each tab's label in the catalogue. */
 export type { HomeTabParamList, RootStackParamList } from './routes';
@@ -98,136 +93,122 @@ export function AppNavigator({
 }) {
   const t = useText();
   const navigation = useNavigationContainerRef<RootStackParamList>();
-  useEffect(
-    () => (onAction === undefined ? undefined : navigation.addListener('__unsafe_action__', onAction)),
-    [navigation, onAction],
-  );
   useEffect(() => {
     if (!__DEV__) return;
     DevSettings.addMenuItem(GALLERY_MENU_ITEM, () => navigation.navigate('Gallery'));
     DevSettings.addMenuItem(STORAGE_CHECK_MENU_ITEM, () => navigation.navigate('StorageCheck'));
   }, [navigation]);
   return (
-    <NavigationContainer
-      ref={navigation}
+    <StackApp
+      Stack={Stack}
+      navigation={navigation}
+      bar={TopBar}
       direction={direction}
-      theme={theme}
+      initialRouteName={initialRouteName}
       initialState={initialState}
-      onReady={() => recordStep(navigation.getCurrentRoute()?.name)}
-      onStateChange={(state) => {
-        recordStep(navigation.getCurrentRoute()?.name);
-        onStateChange?.(state);
-      }}
+      onStateChange={onStateChange}
+      onAction={onAction}
+      after={<HandoverRefused onReceive={() => navigation.navigate('TakeBack')} />}
     >
-      <Stack.Navigator
-        initialRouteName={initialRouteName}
-        screenOptions={{ statusBarStyle: 'light', header: (props) => <TopBar {...props} /> }}
-      >
-        <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Restore" component={RestoreScreen} options={dark(t('settings.restore.title'))} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Restore" component={RestoreScreen} options={dark(t('settings.restore.title'))} />
+      <Stack.Screen
+        name="Privacy"
+        component={FirstNotice}
+        options={{ title: t('privacy.title'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="Teaching"
+        component={TeachingScreen}
+        options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen name="Card" component={CardScreen} options={{ title: t('setup.title'), statusBarStyle: 'dark' }} />
+      <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="Join"
+        component={JoinScreen}
+        options={({ route }) => dark(t(route.params?.update === true ? 'join.updateTitle' : 'join.title'))}
+      />
+      <Stack.Screen
+        name="Times"
+        component={TimesScreen}
+        options={{ title: t('times.title'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false, statusBarStyle: 'dark' }} />
+      {__DEV__ && (
         <Stack.Screen
-          name="Privacy"
-          component={FirstNotice}
-          options={{ title: t('privacy.title'), statusBarStyle: 'dark' }}
+          name="Gallery"
+          component={Gallery}
+          options={{ title: samples[currentLanguage()].title, statusBarStyle: 'dark' }}
         />
+      )}
+      {__DEV__ && (
         <Stack.Screen
-          name="Teaching"
-          component={TeachingScreen}
-          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
+          name="StorageCheck"
+          component={StorageCheck}
+          options={{ title: STORAGE_CHECK_MENU_ITEM, statusBarStyle: 'dark' }}
         />
-        <Stack.Screen
-          name="Card"
-          component={CardScreen}
-          options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="Join"
-          component={JoinScreen}
-          options={({ route }) => dark(t(route.params?.update === true ? 'join.updateTitle' : 'join.title'))}
-        />
-        <Stack.Screen
-          name="Times"
-          component={TimesScreen}
-          options={{ title: t('times.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false, statusBarStyle: 'dark' }} />
-        {__DEV__ && (
-          <Stack.Screen
-            name="Gallery"
-            component={Gallery}
-            options={{ title: samples[currentLanguage()].title, statusBarStyle: 'dark' }}
-          />
-        )}
-        {__DEV__ && (
-          <Stack.Screen
-            name="StorageCheck"
-            component={StorageCheck}
-            options={{ title: STORAGE_CHECK_MENU_ITEM, statusBarStyle: 'dark' }}
-          />
-        )}
-        <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
-        <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
-        <Stack.Screen name="Settings" component={SettingsScreen} options={dark(t('settings.title'))} />
-        {calendarRoutes(Stack, t)}
-        {settingsRoutes(Stack, t)}
-        <Stack.Screen name="LockPin" component={LockPinScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="DocOutput"
-          component={DocOutputScreen}
-          options={({ route }) => dark(documentKind(route.params.id)?.title(t) ?? '')}
-        />
-        <Stack.Screen name="PrintWeek" component={PrintWeekScreen} options={dark(t('documents.printWeek.name'))} />
-        <Stack.Screen name="Dist" component={DistScreen} options={dark(t('distributions.name'))} />
-        <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
-        <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
-        <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />
-        <Stack.Screen name="RollRules" component={RollRules} options={dark(t('rules.title'))} />
-        <Stack.Screen name="PupilMove" component={PupilMoveScreen} options={dark(t('move.title'))} />
-        <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
-        {classRoutes(Stack, t)}
-        <Stack.Screen name="RollMonth" component={RollMonthScreen} options={dark(t('classPage.roll'))} />
-        <Stack.Screen name="Pupil" component={PupilScreen} options={dark(t('classPage.roll'))} />
-        <Stack.Screen name="RollPrint" component={RollPrintScreen} options={dark(t('rollPrint.title'))} />
-        <Stack.Screen name="BookFixes" component={BookFixesScreen} options={dark(t('bookFixes.title'))} />
-        <Stack.Screen name="PilotTimings" component={PilotTimingsScreen} options={dark(t('pilotTimings.title'))} />
-        {planRoutes(Stack, t)}
-        {readerRoutes(Stack, t)}
-        <Stack.Screen name="TestSchedule" component={TestScheduleScreen} options={dark(t('tests.title'))} />
-        <Stack.Screen name="ExamWindow" component={ExamWindowScreen} options={dark(t('examWindow.title'))} />
-        <Stack.Screen name="Duty" component={DutyScreen} options={dark(t('duties.title'))} />
-        <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
-        <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />
-        {extraRoutes(Stack, t)}
-        {noteRoutes(Stack, t)}
-        {marksRoutes(Stack, t)}
-        <Stack.Screen
-          name="PrivacyNotice"
-          component={HelpNotice}
-          options={{ title: t('privacy.helpTitle'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="ProblemReport"
-          component={ProblemReportScreen}
-          options={{ title: t('report.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="Connections"
-          component={Connections}
-          options={{ title: t('connections.title'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="Licences"
-          component={LicencesScreen}
-          options={{ title: t('help.licences'), statusBarStyle: 'dark' }}
-        />
-        <Stack.Screen
-          name="LicenceNotice"
-          component={LicenceNoticeScreen}
-          options={({ route }) => ({ title: noticeTitle(route.params.name, t), statusBarStyle: 'dark' })}
-        />
-      </Stack.Navigator>
-      <HandoverRefused onReceive={() => navigation.navigate('TakeBack')} />
-    </NavigationContainer>
+      )}
+      <Stack.Screen name="Help" component={HelpScreen} options={{ title: t('help.title'), statusBarStyle: 'dark' }} />
+      <Stack.Screen name="Security" component={SecurityScreen} options={dark(t('security.title'))} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={dark(t('settings.title'))} />
+      {calendarRoutes(Stack, t)}
+      {settingsRoutes(Stack, t)}
+      <Stack.Screen name="LockPin" component={LockPinScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="DocOutput"
+        component={DocOutputScreen}
+        options={({ route }) => dark(documentKind(route.params.id)?.title(t) ?? '')}
+      />
+      <Stack.Screen name="PrintWeek" component={PrintWeekScreen} options={dark(t('documents.printWeek.name'))} />
+      <Stack.Screen name="Dist" component={DistScreen} options={dark(t('distributions.name'))} />
+      <Stack.Screen name="Entry" component={EntryScreen} options={dark(t('entry.title'))} />
+      <Stack.Screen name="Roll" component={RollScreen} options={{ title: t('roll.title'), statusBarStyle: 'dark' }} />
+      <Stack.Screen name="Correct" component={CorrectScreen} options={dark(t('correct.title'))} />
+      <Stack.Screen name="RollRules" component={RollRules} options={dark(t('rules.title'))} />
+      <Stack.Screen name="PupilMove" component={PupilMoveScreen} options={dark(t('move.title'))} />
+      <Stack.Screen name="SeatsSetup" component={SeatsSetupScreen} options={dark(t('seats.title'))} />
+      {classRoutes(Stack, t)}
+      <Stack.Screen name="RollMonth" component={RollMonthScreen} options={dark(t('classPage.roll'))} />
+      <Stack.Screen name="Pupil" component={PupilScreen} options={dark(t('classPage.roll'))} />
+      <Stack.Screen name="RollPrint" component={RollPrintScreen} options={dark(t('rollPrint.title'))} />
+      <Stack.Screen name="BookFixes" component={BookFixesScreen} options={dark(t('bookFixes.title'))} />
+      <Stack.Screen name="PilotTimings" component={PilotTimingsScreen} options={dark(t('pilotTimings.title'))} />
+      {planRoutes(Stack, t)}
+      {readerRoutes(Stack, t)}
+      <Stack.Screen name="TestSchedule" component={TestScheduleScreen} options={dark(t('tests.title'))} />
+      <Stack.Screen name="ExamWindow" component={ExamWindowScreen} options={dark(t('examWindow.title'))} />
+      <Stack.Screen name="Duty" component={DutyScreen} options={dark(t('duties.title'))} />
+      <Stack.Screen name="TextsBook" component={TextsBookScreen} options={dark(t('book.title'))} />
+      <Stack.Screen name="Homework" component={HomeworkScreen} options={dark(t('homework.title'))} />
+      {extraRoutes(Stack, t)}
+      {noteRoutes(Stack, t)}
+      {marksRoutes(Stack, t)}
+      <Stack.Screen
+        name="PrivacyNotice"
+        component={HelpNotice}
+        options={{ title: t('privacy.helpTitle'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="ProblemReport"
+        component={ProblemReportScreen}
+        options={{ title: t('report.title'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="Connections"
+        component={Connections}
+        options={{ title: t('connections.title'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="Licences"
+        component={LicencesScreen}
+        options={{ title: t('help.licences'), statusBarStyle: 'dark' }}
+      />
+      <Stack.Screen
+        name="LicenceNotice"
+        component={LicenceNoticeScreen}
+        options={({ route }) => ({ title: noticeTitle(route.params.name, t), statusBarStyle: 'dark' })}
+      />
+    </StackApp>
   );
 }

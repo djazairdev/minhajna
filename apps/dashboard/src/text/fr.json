@@ -21,7 +21,42 @@
   },
   "home": {
     "reference": "Données de référence",
-    "school": "Classes et élèves"
+    "school": "Classes et élèves",
+    "reader": "Lire le relevé d’un enseignant"
+  },
+  "reader": {
+    "leave": "Retour au tableau de bord",
+    "erasedTitle": "Les données du mode lecture ont été effacées de ce navigateur",
+    "erased": "Il ne reste dans ce navigateur rien des relevés reçus des enseignants, ni la clé de ce PC. Ce que garde le serveur reste tel quel.",
+    "privacy": {
+      "heading": "Ce que garde le tableau de bord, et où",
+      "intro": "Un court avis avant la première utilisation du mode lecture, toujours disponible dans ses paramètres.",
+      "phoneTitle": "Dans ce navigateur seulement",
+      "phoneText": "Le mode lecture garde les relevés que les enseignants vous remettent chiffrés dans ce navigateur, avec une clé scellée sous une phrase secrète qui lui est propre. Personne ne peut récupérer une phrase secrète oubliée : ce PC doit alors être effacé.",
+      "readerTitle": "Le mode lecture n’envoie rien",
+      "readerText": "Il ouvre les relevés que les enseignants vous remettent sous forme de fichiers, sur ce PC, vérifie leur signature ici et ne se connecte à rien.",
+      "siteTitle": "D’où vient le tableau de bord",
+      "siteText": "Le tableau de bord se charge depuis https://minhajna-admin.djazair.dev à chaque visite, sans copie hors ligne ni recherche de mise à jour. Cloudflare le sert et voit l’adresse IP et le navigateur de ce PC à chaque visite, selon sa propre politique. Le projet ne garde aucun journal des visites.",
+      "directoryTitle": "Les pages de l’annuaire se connectent, avec des données fictives uniquement",
+      "directoryText": "La liste du ministère et les pages d’un établissement envoient ce que vous y saisissez, avec le code de modification de chaque page, au serveur de démonstration du projet, https://minhajna-demo.djazair.dev. Le serveur garde ce que vous saisissez en clair, hors de tout monde de démonstration, et chaque code de modification seulement sous forme de hachage. Cloudflare, devant lui, voit votre adresse IP ; le serveur ne garde aucune adresse au-delà des compteurs de ses limites de requêtes. N’y saisissez que des données fictives, jusqu’à ce que le système national existe.",
+      "trackingTitle": "Aucun suivi",
+      "trackingText": "Ni publicité, ni outil d’analyse, ni relevé des heures ou de la position. Les rapports de plantage restent désactivés jusqu’à ce que vous les activiez dans les paramètres du mode lecture. Un rapport est alors gardé sur ce PC, non chiffré, jusqu’à ce que vous l’envoyiez ou le refusiez sur l’accueil du mode lecture, et ne quitte ce PC que si vous le partagez : par le menu de partage du navigateur, ou copié pour que vous le colliez vous-même.",
+      "eraseTitle": "Effacer ce PC",
+      "eraseText": "« Effacer ce PC », dans les paramètres du mode lecture ou depuis sa page de verrouillage quand la phrase secrète est oubliée, supprime tout ce que le mode lecture garde dans ce navigateur, et la langue du tableau de bord avec.",
+      "publisherTitle": "Qui publie le tableau de bord",
+      "publisherText": "Le projet open source Minhajna, qui sert les fichiers du tableau de bord et fait tourner le serveur de démonstration. Il ne reçoit rien de ce que garde le mode lecture.",
+      "rightsTitle": "Vos droits",
+      "rightsText": "Consulter ce que le projet détient sur vous, le faire corriger et supprimer sous 10 jours.",
+      "fileLine": "Ce PC n’utilise aucune caméra. Un relevé s’ouvre par la boîte de dialogue de fichiers du navigateur, qui ne donne au tableau de bord aucun accès à vos autres fichiers."
+    },
+    "connections": {
+      "title": "À quoi se connecte le tableau de bord, et pourquoi",
+      "site": "Le tableau de bord se connecte à sa propre adresse, https://minhajna-admin.djazair.dev, pour ses fichiers à chaque visite. Il ne garde aucune copie hors ligne et ne cherche aucune mise à jour. Cloudflare le sert et voit l’adresse IP et le navigateur de ce PC ; le projet ne garde aucun journal des visites.",
+      "directory": "Les pages de l’annuaire se connectent au serveur de démonstration, https://minhajna-demo.djazair.dev, pour lire et enregistrer la liste du ministère et le cahier d’un établissement, avec le code de modification de chaque page. Le serveur garde ce que vous saisissez en clair, fictif jusqu’à ce que le système national existe, et chaque code de modification seulement sous forme de hachage. Cloudflare, devant lui, voit l’adresse IP de ce PC ; le serveur ne garde aucune adresse au-delà des compteurs de ses limites de requêtes.",
+      "reader": "Le mode lecture ne se connecte à rien. Les relevés arrivent sous forme de fichiers que vous choisissez par la boîte de dialogue de fichiers du navigateur, qui ne donne au tableau de bord aucun accès à vos autres fichiers.",
+      "crashReport": "Le rapport de plantage, si vous avez activé les rapports, est montré en entier sur l’accueil du mode lecture et ne quitte ce PC que si vous choisissez de le partager : par le menu de partage du navigateur, ou copié pour que vous le colliez là où il n’y en a pas. Il contient le type de l’erreur, l’endroit du code où elle s’est produite, la version et le nom des derniers écrans ouverts, sans le message de l’erreur ni aucun contenu.",
+      "register": "Toute connexion que le projet ajoute est listée dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans le tableau de bord."
+    }
   },
   "who": {
     "ministry": "Ministère de l’Éducation nationale",

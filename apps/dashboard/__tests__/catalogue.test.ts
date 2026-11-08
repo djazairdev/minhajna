@@ -39,3 +39,14 @@ test('is read under the dashboard key, and leaves the teacher app’s words', ()
     expect(i18n.exists('welcome.start', { lng: language })).toBe(true);
   }
 });
+
+test('words reader mode’s notice and its connections in each language, a title and a text for each section', () => {
+  for (const language of ['ar', 'fr', 'en'] as const) {
+    const { privacy, connections } = dashboardCatalogues[language].reader;
+    const keys = Object.keys(privacy);
+    const sections = keys.filter((key) => key.endsWith('Title')).map((key) => key.slice(0, -'Title'.length));
+    expect(sections).toEqual(['phone', 'reader', 'site', 'directory', 'tracking', 'erase', 'publisher', 'rights']);
+    for (const section of sections) expect(keys).toContain(`${section}Text`);
+    expect(Object.keys(connections)).toEqual(['title', 'site', 'directory', 'reader', 'crashReport', 'register']);
+  }
+});
