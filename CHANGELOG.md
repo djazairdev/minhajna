@@ -28,8 +28,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### Privacy
 
-- The app now asks Android for the network permission, for one use alone: a demo world, which you enter only by choice, connects to the project’s demo server, with made-up data. Outside a world, the app still connects to nothing, and your own records never reach a world. The privacy notice says so in a new section.
-  - يطلب التطبيق الآن من Android إذن الشبكة لغرض واحد: العالم التجريبي، الذي لا تدخله إلا باختيارك، يتصل بخادم المشروع التجريبي ببيانات مختلقة. وخارج العالم التجريبي لا يتصل التطبيق بشيء، ولا تصل سجلاتك أبداً إلى عالم تجريبي. ويذكر إشعار الخصوصية ذلك في قسم جديد.
+- The app now asks Android for the network permission, for the project’s demo server alone, with made-up data: setup reads its list of schools and sends nothing of yours, joining your school sends only the code it gave you, and a demo world, which you enter only by choice, connects to it too. Your own records never reach the server. The privacy notice and «ما يتصل به التطبيق، ولماذا» say so, and on a PC say what the dashboard sends.
+  - يطلب التطبيق الآن من Android إذن الشبكة لخادم المشروع التجريبي وحده، ببيانات مختلقة: يقرأ الإعداد منه قائمة المؤسسات دون أن يرسل شيئاً عنك، والانضمام إلى مؤسستك لا يرسل إلا الرمز الذي أعطتك إياه، والعالم التجريبي، الذي لا تدخله إلا باختيارك، يتصل به كذلك. ولا تصل سجلاتك أبداً إلى الخادم. ويقول ذلك إشعار الخصوصية و«ما يتصل به التطبيق، ولماذا»، ويذكران على الحاسوب ما ترسله لوحة الإدارة.
 - The privacy notice before first use and in «المساعدة والخصوصية» now says that nothing leaves unless you send or save it, and that crash reports stay off unless you turn them on, as 0.5.0 made them. On a PC, it and «ما يتصل به التطبيق، ولماذا» now speak of this PC: what stays in the browser, and what Cloudflare sees when it serves the app.
   - يقول إشعار الخصوصية، قبل أول استعمال وفي «المساعدة والخصوصية»، إنه لا يغادر شيء إلا ما ترسله أو تحفظه، وإن تقارير الأعطال تبقى متوقفة حتى تشغّلها، كما صارت في 0.5.0. وعلى الحاسوب، يتحدث هو و«ما يتصل به التطبيق، ولماذا» الآن عن هذا الحاسوب: ما يبقى في المتصفح، وما يراه Cloudflare حين يقدّم التطبيق.
 

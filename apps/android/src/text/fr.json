@@ -123,15 +123,15 @@
     "phoneTitle": "Sur ce téléphone seulement",
     "phoneText": "Les listes, l’appel, les notes et les cahiers sont enregistrés chiffrés sur l’appareil. Ni compte ni internet ne sont nécessaires.",
     "leaveTitle": "Rien ne part, sauf ce que vous envoyez ou enregistrez",
-    "leaveText": "En dehors d’un monde de démonstration, cette version ne se connecte à rien. Les données des élèves n’entrent pas dans les sauvegardes du téléphone dans le cloud.",
-    "demoTitle": "Un monde de démonstration se connecte, avec des données inventées seulement",
-    "demoText": "Un monde de démonstration, où vous n’entrez que si vous le choisissez, se connecte au serveur de démonstration du projet, https://minhajna-demo.djazair.dev, et à rien d’autre. Il ne contient que des données inventées : vos propres registres restent fermés tant qu’il est ouvert, et ne l’atteignent jamais. Quiconque a le code d’un monde peut y agir : n’y saisissez donc jamais de vrais noms ni de vrais registres, y compris dans un signalement de problème envoyé depuis ce monde. Le serveur efface chaque monde le 7e jour, et ses sauvegardes environ deux jours plus tard ; il ne journalise aucune requête et ne lit votre adresse IP que pour les limiter. Cloudflare, placé devant lui, voit votre adresse IP.",
+    "leaveText": "En dehors d’un monde de démonstration, cette version ne se connecte qu’à l’annuaire du projet, pour choisir votre établissement et le rejoindre. Les données des élèves n’entrent pas dans les sauvegardes du téléphone dans le cloud.",
+    "demoTitle": "Le serveur de démonstration, avec des données inventées seulement",
+    "demoText": "La configuration lit la liste des établissements sur le serveur de démonstration du projet, https://minhajna-demo.djazair.dev, sans rien envoyer de vous ; rejoindre votre établissement n’envoie que le code qu’il vous a donné, et apporte vos classes et vos séances sur le téléphone. Rien de ce que vous enregistrez ne repart. Un monde de démonstration, où vous n’entrez que si vous le choisissez, se connecte au même serveur, et à rien d’autre. Il ne contient que des données inventées : vos propres registres restent fermés tant qu’il est ouvert, et ne l’atteignent jamais. Quiconque a le code d’un monde peut y agir : n’y saisissez donc jamais de vrais noms ni de vrais registres, y compris dans un signalement de problème envoyé depuis ce monde. Le serveur efface chaque monde le 7e jour, et ses sauvegardes environ deux jours plus tard ; il ne journalise aucune requête et ne lit votre adresse IP que pour les limiter. L’annuaire des établissements n’est pas effacé avec les mondes : il reste jusqu’à ce qu’il soit remplacé. Cloudflare, placé devant le serveur, voit votre adresse IP.",
     "neverTitle": "Ce qui n’est jamais collecté",
     "neverText": "Ni santé, ni handicap, ni religion, ni photos des élèves, ni informations sur les parents, ni adresses. Une absence est justifiée ou non, sans en indiquer le motif.",
     "trackingTitle": "Aucun suivi",
     "trackingText": "Ni publicité, ni outil d’analyse, ni enregistrement des horaires ou de la position. Les rapports de plantage restent désactivés sauf si vous les activez dans « Aide et confidentialité », et aucun ne part sans que vous l’envoyiez.",
     "publisherTitle": "Qui publie l’application",
-    "publisherText": "Le projet libre Minhajna. Seul un monde de démonstration atteint son serveur de démonstration, et rien de ce que vous enregistrez ne l’atteint.",
+    "publisherText": "Le projet libre Minhajna. Seuls son annuaire et un monde de démonstration atteignent son serveur de démonstration, et rien de ce que vous enregistrez ne l’atteint.",
     "rightsTitle": "Vos droits",
     "rightsText": "Consulter ce que le projet conserve sur vous, le faire corriger et supprimer sous 10 jours.",
     "contact": "Contact : le délégué à la protection des données du projet",
@@ -142,12 +142,13 @@
       "phoneTitle": "Sur ce PC seulement",
       "phoneText": "Les listes, l’appel, les notes et les cahiers sont enregistrés chiffrés dans ce navigateur, avec une clé scellée par votre phrase de passe. Aucun compte n’est nécessaire, et une fois installée, l’application s’ouvre sans internet.",
       "leaveText": "L’application vient de https://minhajna.djazair.dev, servie par Cloudflare, qui voit l’adresse IP et le navigateur de ce PC à chaque visite et à chaque recherche de mise à jour. Le projet ne garde aucun journal des visites, et rien de ce que vous enregistrez n’est envoyé. Effacer les données de ce site dans le navigateur les supprime : gardez une sauvegarde.",
-      "publisherText": "Le projet libre Minhajna, qui sert les fichiers de cette application. Il ne reçoit rien de ce que vous enregistrez."
+      "publisherText": "Le projet libre Minhajna, qui sert les fichiers de cette application. Il ne reçoit rien de ce que vous enregistrez, sauf ce que vous saisissez dans le tableau de bord."
     }
   },
   "connections": {
     "title": "Ce à quoi l’application se connecte, et pourquoi",
-    "none": "En dehors d’un monde de démonstration, cette version ne se connecte à rien. Dans un monde, elle ne se connecte qu’au serveur de démonstration, comme ci-dessous.",
+    "none": "En dehors d’un monde de démonstration, cette version ne se connecte qu’à l’annuaire du serveur de démonstration, comme ci-dessous. Dans un monde, elle ne se connecte qu’au serveur de démonstration.",
+    "directory": "L’annuaire est sur https://minhajna-demo.djazair.dev. La configuration, et le choix d’un établissement dans les réglages, lisent en entier sa liste publiée des établissements, sans rien envoyer de vous : votre choix reste sur le téléphone. « Rejoindre mon établissement », puis « Mettre à jour depuis l’établissement », n’envoient que le code de connexion que votre établissement vous a donné, et apportent vos classes, leurs élèves et vos séances sur le téléphone. Rien de ce que vous enregistrez ne repart. L’annuaire ne contient que des données inventées, que le serveur garde en clair jusqu’à ce qu’elles soient remplacées.",
     "demo": "Un monde de démonstration ne se connecte qu’à https://minhajna-demo.djazair.dev : pour le démarrer ou le rejoindre, pour échanger ses registres scellés et inventés, pour certifier une clé que l’appareil a créée pour ce monde et, seulement si vous le choisissez, pour envoyer un signalement de problème ou les indicateurs anonymes d’un monde d’enseignants. Chaque requête porte l’identifiant du monde et son mot de passe, jamais le secret de son code ni vos propres registres.",
     "source": "Le lien vers le code source, dans la page des licences, ne s’ouvre qu’après votre confirmation. Votre navigateur l’ouvre hors de l’application, sans aucun dossier ni identifiant.",
     "packSource": "L’adresse source d’un pack, dans ses détails, ne s’ouvre qu’après votre accord, et la question nomme le site. Votre navigateur l’ouvre hors de l’application, sans dossier ni identifiant.",
@@ -156,7 +157,8 @@
     "register": "Toute connexion ajoutée par le projet est décrite dans le fichier NETWORK.md du code source, avec ce qui est envoyé et pourquoi, avant d’arriver dans l’application.",
     "crashReport": "Le rapport de plantage, si vous avez activé les rapports de plantage, est affiché en entier au démarrage suivant et ne quitte le téléphone que si vous choisissez « Envoyer » et l’application qui l’envoie. Il contient le type d’erreur, sa place dans le code, la version, celle d’Android et le nom des derniers écrans ouverts, sans le message de l’erreur ni aucun contenu.",
     "pc": {
-      "none": "Cette application ne se connecte qu’à sa propre adresse, https://minhajna.djazair.dev : pour ses fichiers, tant qu’ils ne sont pas installés, et à chaque ouverture, en ligne, pour chercher une version plus récente, qui ne s’installe que si vous l’acceptez. Cloudflare la sert et voit l’adresse IP et le navigateur de ce PC ; le projet ne garde aucun journal des visites. Rien de ce que vous enregistrez n’est envoyé. Dans un monde de démonstration seulement, elle se connecte aussi au serveur de démonstration, comme ci-dessous.",
+      "none": "Cette application ne se connecte qu’à sa propre adresse, https://minhajna.djazair.dev : pour ses fichiers, tant qu’ils ne sont pas installés, et à chaque ouverture, en ligne, pour chercher une version plus récente, qui ne s’installe que si vous l’acceptez. Cloudflare la sert et voit l’adresse IP et le navigateur de ce PC ; le projet ne garde aucun journal des visites. Rien de ce que vous enregistrez n’est envoyé. Elle se connecte aussi au serveur de démonstration : pour l’annuaire et dans un monde de démonstration, comme ci-dessous.",
+      "directory": "Le tableau de bord envoie ce que vous saisissez à l’annuaire sur https://minhajna-demo.djazair.dev : la liste des établissements du ministère, ou les classes, élèves, enseignants et la semaine d’un établissement, chacun protégé par un code de modification que le serveur ne garde que sous forme d’empreinte. Le serveur garde en clair ce que vous saisissez jusqu’à ce qu’il soit remplacé, et donne les classes et les élèves de chaque enseignant à quiconque a son code de connexion. Qui fixe le premier le code d’une page la détient : ne saisissez donc que des données inventées.",
       "errorReport": "Un signalement d’erreur dans le plan est affiché en entier, et ne quitte ce PC que si vous choisissez de le partager : par le menu de partage du navigateur, ou copié pour que vous le colliez s’il n’en a pas. L’application n’y ajoute rien sur vos classes ou vos élèves, ni votre nom sauf si vous le saisissez.",
       "problemReport": "Le rapport de problème est affiché en entier, avec les noms des élèves remplacés tels que vos listes de classe les écrivent, et ne quitte ce PC que si vous choisissez de le partager : par le menu de partage du navigateur, ou copié pour que vous le colliez s’il n’en a pas. Il contient la version et le nom des derniers écrans ouverts, sans leur contenu. Dans un monde de démonstration, vous pouvez aussi l’envoyer aux opérateurs du monde : seuls ce qui s’est passé, l’endroit et la version partent, et seulement quand vous appuyez sur « Envoyer aux opérateurs de ce monde ».",
       "crashReport": "Le rapport de plantage, si vous avez activé les rapports de plantage, est affiché en entier au démarrage suivant et ne quitte ce PC que si vous choisissez « Envoyer ». Il contient le type d’erreur, sa place dans le code, la version et le nom des derniers écrans ouverts, sans le message de l’erreur ni aucun contenu."
@@ -6324,7 +6326,7 @@
       },
       "help": {
         "sub": "Dans ce monde d’enseignants",
-        "demo": "Dans un monde de démonstration, l’application ne se connecte qu’au serveur de démonstration du projet, {{address}}, et seulement tant que le monde est ouvert.",
+        "demo": "Dans un monde de démonstration, l’application ne se connecte qu’au serveur de démonstration du projet, {{address}}. Hors d’un monde, elle ne s’y connecte que pour l’annuaire des établissements.",
         "world": {
           "title": "Le monde de démonstration",
           "line": "Chaque requête porte l’identifiant du monde et son mot de passe, établis sur cet appareil à partir de son code. L’application envoie aussi les clés du monde, scellées sous son code, sa date, et ce qu’envoient ses propres pages. Tout cela est inventé, et le serveur efface le monde à son 7e jour."
@@ -6341,7 +6343,7 @@
           "line": "Le serveur lit l’adresse IP de cet appareil seulement pour appliquer ses limites de requêtes, en mémoire, et ne l’inscrit ni ne la garde jamais. En amont, Cloudflare voit l’adresse IP et le navigateur de chaque requête, selon sa propre politique. Ce sont les seules choses ici qui ne sont pas inventées."
         },
         "pc": {
-          "demo": "Dans un monde de démonstration, l’application se connecte au serveur de démonstration du projet, {{address}}, seulement tant que le monde est ouvert. Sur un PC, la page récupère aussi ses propres fichiers à sa propre adresse, comme hors d’un monde.",
+          "demo": "Dans un monde de démonstration, l’application se connecte au serveur de démonstration du projet, {{address}} ; hors d’un monde, seulement pour l’annuaire des établissements et le tableau de bord. Sur un PC, la page récupère aussi ses propres fichiers à sa propre adresse, comme hors d’un monde.",
           "nothingElse": "Rien d’autre : ni publicité ni outil d’analyse. Dans ce monde, la page ne joint que sa propre adresse, pour ses propres fichiers, et le serveur de démonstration. La liste complète est publiée avec le code source."
         }
       },
