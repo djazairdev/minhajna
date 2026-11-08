@@ -99,6 +99,12 @@ export function SettingsScreen({ navigation }: NativeStackScreenProps<RootStackP
       case 'received':
         navigation.navigate('ReaderList');
         break;
+      case 'schoolJoin':
+        navigation.navigate('Join', { schoolId: id });
+        break;
+      case 'schoolUpdate':
+        navigation.navigate('Join', { schoolId: id, update: true });
+        break;
     }
   };
   return <Settings onOpen={open} />;

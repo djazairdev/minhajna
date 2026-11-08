@@ -54,6 +54,7 @@ export function TodayTab({
           navigation.navigate('Roll', { key: session.key, day: session.day, courseId: session.courseId })
         }
         onExtra={() => navigation.navigate('Extra')}
+        onJoin={() => navigation.navigate('Join')}
         onJournal={(day) => navigation.navigate('DocOutput', { id: 'primary-journal', day })}
         onCalendarUpdate={(release) => navigation.navigate('CalendarUpdate', { release })}
         onBackupSheet={() => {

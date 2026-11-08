@@ -19,6 +19,7 @@
 // its cards (#224). Support sessions due show too (#228). A half-group's
 // session shows each half's turn at its item, and a TD session the TD queue's
 // next items (#231). The 30-day backup reminder follows the banners (#247).
+// With no class yet, it offers to join the school (answer 808).
 
 import {
   addDays,
@@ -30,10 +31,7 @@ import {
   todayView,
   weekday,
   type Choice,
-  type Day,
   type Details,
-  type HomeworkItem,
-  type Session,
   type TodaySession,
 } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -45,11 +43,13 @@ import { PageHeading } from '../components/PageHeading';
 import { TodayJoint } from './TodayJoint';
 import { SessionCard } from '../components/SessionCard';
 import { Snackbar } from '../components/Snackbar';
-import { TodayExams, type TodayExamsOpen } from '../exams/TodayExams';
+import { TodayExams } from '../exams/TodayExams';
 import { TodayUpdate } from './TodayUpdate';
 import { TodayDeviceCards } from './TodayBackup';
 import { SupportToday } from './SupportToday';
-import { RamadanNotice, RamadanRule, withRamadan, type RamadanOpen } from './RamadanCards';
+import { RamadanNotice, RamadanRule, withRamadan } from './RamadanCards';
+import { TodayJoin } from './TodayJoin';
+import type { TodayProps } from './today-props';
 import { controlIcon } from '../design/Icon';
 import { colors, spacing } from '../design/tokens';
 import { coreContext } from '../storage/core-context';
@@ -71,24 +71,8 @@ import { useTodayActions } from './today-actions';
 import { nextLine, sessionMeta } from './today-meta';
 import { useCardExtras } from './card-extras';
 
-/**
- * The Today tab; `onHelp` opens Help, `onExtra` a session outside the timetable, `onDetails` a session's details,
- * `onRoll` its roll call, `onHomework` the homework that comes back, `onCalendarUpdate` what an update changed,
- * `onBackupSheet` the recovery sheet for a first backup, and `onJournal` a primary day's journal.
- */
-export function Today(props: {
-  onHelp: () => void;
-  onSettings?: () => void;
-  onExtra?: () => void;
-  onDetails: (session: Session) => void;
-  onRoll: (session: Session) => void;
-  onHomework?: (item: HomeworkItem) => void;
-  onExams?: TodayExamsOpen;
-  onCalendarUpdate?: (release: string) => void;
-  onBackupSheet?: () => void;
-  onRamadan?: RamadanOpen;
-  onJournal?: (day: Day) => void;
-}) {
+/** The Today tab, with each place it opens (`TodayProps`). */
+export function Today(props: TodayProps) {
   const { onHelp, onDetails, onRoll, onExtra, onHomework = () => undefined } = props;
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
@@ -218,6 +202,7 @@ export function Today(props: {
           {props.onCalendarUpdate && <TodayUpdate day={day} open={props.onCalendarUpdate} />}
           {props.onBackupSheet && <TodayDeviceCards day={day} onSheet={props.onBackupSheet} />}
           <RamadanNotice view={view} />
+          {props.onJoin && <TodayJoin onJoin={props.onJoin} />}
           {props.onExams && <TodayExams context={context} day={day} open={props.onExams} />}
           {backlog.days.length > 0 && (
             <Backlog
