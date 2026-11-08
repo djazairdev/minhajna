@@ -119,13 +119,10 @@ describe.each(directions)('Button (%s)', (direction) => {
     expect(await order(true)).toEqual(['Text', 'View']);
   });
 
-  test('a line button takes a decorative icon, and goes wide only when asked', async () => {
+  test('a line button takes a decorative icon', async () => {
     const label = samples.ar.buttons.line;
-    await render(<Button variant="line" wide icon={icon} label={label} onPress={() => undefined} />, direction);
-    expect(box().width).toBe('100%');
+    await render(<Button variant="line" icon={icon} label={label} onPress={() => undefined} />, direction);
     expect(tree.root.findByProps({ testID: 'drawing' })).toBeTruthy();
-    await render(<Button variant="line" label={label} onPress={() => undefined} />, direction);
-    expect(box().width).toBeUndefined();
   });
 
   test.each(variants)('%s shows a focus ring, clears it on blur and hides it when disabled', async (variant) => {
@@ -213,16 +210,9 @@ function propContracts() {
   const unnamed: IconButtonProps = { icon, onPress: () => undefined };
   // @ts-expect-error Only primary and line buttons have a leading icon.
   const secondary: ButtonProps = { variant: 'soft', label: samples.ar.buttons.soft, icon, onPress: () => undefined };
-  // @ts-expect-error Only a line button goes wide; the primary already is.
-  const wideSoft: ButtonProps = {
-    variant: 'soft',
-    label: samples.ar.buttons.soft,
-    wide: true,
-    onPress: () => undefined,
-  };
-  return [unnamed, secondary, wideSoft];
+  return [unnamed, secondary];
 }
 
 test('keeps the accessibility and variant prop contracts checked by TypeScript', () => {
-  expect(propContracts()).toHaveLength(3);
+  expect(propContracts()).toHaveLength(2);
 });

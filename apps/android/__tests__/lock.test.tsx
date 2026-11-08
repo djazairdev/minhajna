@@ -120,22 +120,14 @@ test("Android's Back starts the PIN again, then returns to the welcome", async (
   expect(has('welcome-start')).toBe(true);
 });
 
-test('offers the fingerprint after the first PIN where the phone has one', async () => {
+test('first use sets the PIN only, even where the phone has a fingerprint (answer 854)', async () => {
   const storage = new FakeStorage();
   storage.biometricAvailable = true;
   await start(storage);
   await press('welcome-start');
   await type('1470');
   await type('1470');
-  expect(texts()).toContain(text.lock.biometricAsk.title);
-  expect(tree!.root.findAllByProps({ testID: 'icon-fingerprint' }).length).toBeGreaterThan(0);
-  expect(tree!.root.findAllByProps({ testID: 'icon-lock' }).length).toBeGreaterThan(0);
-  storage.prompt = 'cancel';
-  await press('biometric-yes');
-  expect(texts()).toContain(text.lock.biometricAsk.failed);
-  storage.prompt = 'match';
-  await press('biometric-yes');
-  expect(storage.biometric).toBe(true);
+  expect(storage.biometric).toBe(false);
   expect(navigator()).toHaveLength(1);
 });
 

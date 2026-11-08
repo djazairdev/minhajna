@@ -45,13 +45,13 @@ export function screenKind(route: string | undefined): ScreenKind {
 }
 
 /**
- * The kind of what shows before the navigator: a refusal, the welcome and
- * the fingerprint question are open; the PIN pads are PIN pads; and while
+ * The kind of what shows before the navigator: a refusal and the welcome are
+ * open; the PIN pads are PIN pads; and while
  * the app checks the lock or opens the history, which happens as it locks
  * and unlocks, records may still be on the screen or about to come.
  */
 export function gateKind(phase: LockPhase, refused: boolean): ScreenKind {
-  if (refused || phase.kind === 'welcome' || phase.kind === 'ask') return 'open';
+  if (refused || phase.kind === 'welcome') return 'open';
   if (phase.kind === 'create' || phase.kind === 'locked') return 'pin';
   return 'records';
 }

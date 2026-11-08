@@ -12,9 +12,8 @@ import { controlStyles, type ControlIcon, type ControlProps } from './control';
 export type ButtonVariant = 'primary' | 'line' | 'soft' | 'plain' | 'danger';
 
 /**
- * A visible label is also the spoken name. The primary action accepts an icon, leading or with `iconEnd` after the label
- * as an arrow onward, and so does a line button, which `wide` also takes across the page, for an answer stacked under
- * the primary as its equal.
+ * A visible label is also the spoken name. The primary and line actions accept an icon, leading or, with `iconEnd`,
+ * after the label as an arrow onward.
  */
 export type ButtonProps = ControlProps & {
   readonly ref?: Ref<ViewInstance>;
@@ -23,13 +22,11 @@ export type ButtonProps = ControlProps & {
   /** A spoken name for a button repeated in a list, starting with its label, as «Remove entry 3». */
   readonly name?: string;
 } & (
-    | { readonly variant?: 'primary'; readonly icon?: ControlIcon; readonly iconEnd?: boolean; readonly wide?: never }
-    | { readonly variant: 'line'; readonly icon?: ControlIcon; readonly iconEnd?: boolean; readonly wide?: boolean }
+    | { readonly variant?: 'primary' | 'line'; readonly icon?: ControlIcon; readonly iconEnd?: boolean }
     | {
         readonly variant: Exclude<ButtonVariant, 'primary' | 'line'>;
         readonly icon?: never;
         readonly iconEnd?: never;
-        readonly wide?: never;
       }
   );
 
@@ -41,7 +38,6 @@ export function Button({
   variant = 'primary',
   icon,
   iconEnd = false,
-  wide = false,
   disabled = false,
   onPress,
   accessibilityHint,
@@ -71,7 +67,6 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         styles[variant],
-        wide && styles.wide,
         { direction },
         pressed && { borderColor: color },
         disabled && controlStyles.disabled,
@@ -109,7 +104,6 @@ const styles = StyleSheet.create({
   },
   primary: { minHeight: sizes['button-primary'], width: '100%', backgroundColor: colors.board },
   line: { backgroundColor: colors.sheet, borderColor: colorRoles.controlBorder },
-  wide: { width: '100%' },
   soft: { backgroundColor: colors.soft },
   plain: { backgroundColor: 'transparent' },
   danger: { backgroundColor: colors.danger },

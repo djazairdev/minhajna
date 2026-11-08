@@ -2030,13 +2030,9 @@
       "failed": "The PIN was not saved. Check the phone has free space, then choose the PIN again."
     },
     "biometricAsk": {
-      "title": "Open with your fingerprint or face too?",
       "line": "The app asks the phone for them and keeps nothing of them. The PIN always works.",
-      "yes": "Yes, fingerprint or face",
-      "no": "The PIN alone",
       "promptTitle": "Turn on fingerprint",
-      "cancel": "Cancel",
-      "failed": "Fingerprint is not on. You can turn it on later in “Lock and security”."
+      "cancel": "Cancel"
     },
     "change": {
       "current": "Type your current PIN",

@@ -67,7 +67,7 @@ export function CreatePin({ storage, upgrade, lockMinutes, onCreated, onRefused,
     setBusy(true);
     storage.createLock(fresh).then(
       () => {
-        if (mounted.current) onCreated(fresh);
+        if (mounted.current) onCreated();
       },
       (error: unknown) => {
         if (!mounted.current) return;

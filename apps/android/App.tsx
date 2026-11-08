@@ -34,7 +34,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { I18nManager, StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { noteUse } from './src/lock/activity';
-import { BiometricAsk } from './src/lock/BiometricAsk';
 import { CreatePin } from './src/lock/CreatePin';
 import { guardScreen, useLockSettings } from './src/lock/lock-settings';
 import { LockStorage } from './src/lock/lock-storage';
@@ -229,8 +228,8 @@ export default function App({
 }
 
 /**
- * Everything before the record book opens: the welcome, the first PIN, the
- * fingerprint question and the lock, in the interface's direction, as the
+ * Everything before the record book opens: the welcome, the first PIN and
+ * the lock, in the interface's direction, as the
  * navigator gives it to the screens inside. Reference data that does not
  * verify leaves the app unusable, so that shows first, with no way forward.
  */
@@ -265,14 +264,12 @@ function Gate({
           storage={storage}
           upgrade={phase.upgrade}
           lockMinutes={lockMinutes}
-          onCreated={(pin) => lock.created(pin, phase.upgrade)}
+          onCreated={() => lock.created(phase.upgrade)}
           onRefused={lock.refused}
           onFailed={lock.recheck}
           onBack={phase.upgrade ? undefined : lock.back}
         />
       );
-    case 'ask':
-      return <BiometricAsk storage={storage} pin={phase.pin} onDone={() => lock.asked(phase.upgrade)} />;
     case 'locked':
       return (
         <Unlock
