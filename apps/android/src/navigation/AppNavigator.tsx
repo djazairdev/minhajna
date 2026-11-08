@@ -36,6 +36,7 @@ import { PupilScreen, RollMonthScreen, RollPrintScreen } from './RollBookScreens
 import { BookFixesScreen, DistScreen, DocOutputScreen, PilotTimingsScreen, PrintWeekScreen } from './DocumentScreens';
 import { documentKind } from '../documents/catalogue';
 import { SettingsScreen, TimesScreen, settingsRoutes } from './SettingsScreens';
+import { JoinScreen } from './JoinScreen';
 import {
   CardScreen,
   ReadyScreen,
@@ -140,6 +141,11 @@ export function AppNavigator({
           options={{ title: t('setup.title'), statusBarStyle: 'dark' }}
         />
         <Stack.Screen name="Ready" component={ReadyScreen} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="Join"
+          component={JoinScreen}
+          options={({ route }) => dark(t(route.params?.update === true ? 'join.updateTitle' : 'join.title'))}
+        />
         <Stack.Screen
           name="Times"
           component={TimesScreen}

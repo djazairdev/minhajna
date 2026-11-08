@@ -155,7 +155,8 @@ function refusalOf({ status, text }: Answer): Error {
   return failed(`The server answered ${status}`, 'E_DIRECTORY_NETWORK');
 }
 
-const JOIN_PATH = '/directory/join';
+/** The path that answers a teacher's delivery for a joining code, the only POST that changes nothing. */
+export const JOIN_PATH = '/directory/join';
 /** Waits, or less once the page has left. */
 function sleep(ms: number, signal: AbortSignal | undefined): Promise<void> {
   return new Promise<void>((done) => {

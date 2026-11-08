@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { courseSetup, deviceFacts } from '@minhajna/core';
+import { courseSetup, deviceFacts, joiningCodes } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -47,6 +47,8 @@ const AVAILABLE = [
   'erase',
   'help',
   'privacy',
+  'schoolJoin',
+  'schoolUpdate',
 ] as const;
 
 /** Only implemented destinations can receive an action; future rows stay disabled. */
@@ -117,6 +119,7 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
     received: t('settings.receivedLine'),
   };
   const schools = [...state.schools.values()];
+  const codes = joiningCodes(entries());
   return (
     <ScrollView
       style={styles.screen}
@@ -201,6 +204,21 @@ export function Settings({ onOpen }: { onOpen: (target: SettingTarget, id?: stri
                     title={t('settings.rows.times')}
                     onPress={() => onOpen('times', school.id)}
                   />
+                  {codes.has(school.id) ? (
+                    <RowLink
+                      testID={`settings-school-update-${school.id}`}
+                      icon={controlIcon('globe')}
+                      title={t('join.updateTitle')}
+                      onPress={() => onOpen('schoolUpdate', school.id)}
+                    />
+                  ) : (
+                    <RowLink
+                      testID={`settings-school-join-${school.id}`}
+                      icon={controlIcon('qr')}
+                      title={t('join.thisSchool')}
+                      onPress={() => onOpen('schoolJoin', school.id)}
+                    />
+                  )}
                   <RowLink
                     testID={`settings-school-plans-${school.id}`}
                     icon={controlIcon('tune')}

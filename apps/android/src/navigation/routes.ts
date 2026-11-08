@@ -24,6 +24,8 @@ export type RootStackParamList = {
   Card: undefined;
   Times: { schoolId?: string } | undefined;
   Ready: undefined;
+  /** Joining the school (answer 808), into the phone's school `schoolId` from Settings, or its `update`. */
+  Join: { schoolId?: string; update?: boolean } | undefined;
   Home: NavigatorScreenParams<HomeTabParamList> | undefined;
   Gallery: undefined;
   StorageCheck: undefined;
