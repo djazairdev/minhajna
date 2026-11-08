@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import process from 'node:process';
 import pg from 'pg';
 import { MemoryAdminStore, type AdminStore } from '../src/admin/admin-store.js';
+import { MemoryDirectoryStore, type DirectoryStore } from '../src/directory/directory-store.js';
 import { MemoryInsightStore, type InsightStore } from '../src/insights/insight-store.js';
 import { MemoryPackStore, type PackStore } from '../src/packs/pack-store.js';
 import { MemorySpaceStore, type SpaceStore } from '../src/spaces/space-store.js';
@@ -27,6 +28,7 @@ export interface Stores {
   readonly insights: InsightStore;
   readonly admin: AdminStore;
   readonly packs: PackStore;
+  readonly directory: DirectoryStore;
   close(): Promise<void>;
 }
 
@@ -70,6 +72,7 @@ export const KINDS = [
         insights: new MemoryInsightStore(async (id) => (await worlds.get(id)) !== undefined),
         admin: new MemoryAdminStore(async (id) => (await worlds.get(id)) !== undefined),
         packs: new MemoryPackStore(async (id) => (await worlds.get(id)) !== undefined),
+        directory: new MemoryDirectoryStore(),
         close: () => Promise.resolve(),
       };
     },
@@ -87,6 +90,7 @@ export const KINDS = [
         insights: stores.insights,
         admin: stores.admin,
         packs: stores.packs,
+        directory: stores.directory,
         close: () => stores.close(),
       };
     },

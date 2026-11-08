@@ -49,6 +49,7 @@ const worlds: WorldsOptions = {
         insights: stores.insights,
         admin: stores.admin,
         packs: stores.packs,
+        directory: stores.directory,
         close: () => stores.close(),
       }
     : {}),

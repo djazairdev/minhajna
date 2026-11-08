@@ -4,10 +4,11 @@
 // Checks the demo server once it is deployed (#517): `node
 // apps/server/host/check.ts <address> <version> [seconds]`, asking again for
 // that many seconds while a first address gets its certificate, a rollout ends
-// or the container wakes. /health must answer the version and nothing else; no
-// answer may carry a header outside HEADERS, which holds what the server and
-// Cloudflare send, so none says what the server is built with, sets a cookie
-// or has the browser report to anyone; plain HTTP must go to HTTPS, but on this
+// or the container wakes. /health must answer the version and nothing else; the
+// directory must be reachable, as the Worker hands on only the paths it names;
+// no answer may carry a header outside HEADERS, which holds what the server and
+// Cloudflare send, so none says what the server is built with, sets a cookie or
+// has the browser report to anyone; plain HTTP must go to HTTPS, but on this
 // computer; the web app's addresses must be allowed to call the server, without
 // credentials, and a page elsewhere refused. It uses Node's built-ins alone, so
 // a deploy job runs it with no install. Prints each problem; exits 1 if there
@@ -117,6 +118,11 @@ export async function checkServer(address: string, version: string, webApps = WE
   const missing = await ask(new URL('worlds/not/a/path/here', base));
   if (missing.answer.status !== 404) problems.push(`a path the server lacks: status ${missing.answer.status}, not 404`);
   problems.push(...leaks('a path the server lacks', missing.answer.headers));
+  const directory = await ask(new URL('directory/reference/claimed', base));
+  if (directory.answer.status !== 200) problems.push(`the directory: status ${directory.answer.status}, not 200`);
+  if (directory.answer.headers.get('cache-control') !== 'no-store')
+    problems.push('the directory: its answer may be kept');
+  problems.push(...leaks('the directory', directory.answer.headers));
   if (!local) {
     const plain = new URL('health', base);
     plain.protocol = 'http:';

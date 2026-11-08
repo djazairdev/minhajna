@@ -2,25 +2,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // The Worker in front of the demo server's container (#545, answers 544 and
-// 753). A request for the health check or a world goes, headers and all,
-// CF-Connecting-IP among them, to one Durable Object, which starts the one
-// container if it is asleep and hands the request on once the server answers;
-// any other path is 404, so a scanner's guesses wake nothing. Cloudflare stops
-// a container SLEEP_AFTER_MS after its Durable Object last had a request, by
-// SIGTERM, which the start script needs to archive the last WAL, and a new one
-// starts on an empty disk from the bucket. Waking takes as long as that
-// restore, so past PATIENCE_MS, under the world client's 20 seconds, a request
-// is answered 503 with Retry-After, and the start goes on. So is any request
-// while the bucket's settings are missing: the container never starts without
-// its sealed archive. While the server is not up, a browser's preflight starts
-// it and is answered at once, from the server's own lists (src/cors.ts), since
-// its wait would come out of the client's; a page elsewhere wakes nothing, and
-// the 503 names the web app's origin back, so its client can read it. The
-// daily cron wakes the container like a request: the server sweeps worlds past
-// their 7th day as it starts, and the container takes its base backup, due
-// after under a day so that a day's wake always finds it due, and tests its
-// restore. Plain HTTP goes to HTTPS. The Worker logs nothing. A Worker's entry
-// may export only handlers and classes, so nothing else here is.
+// 753). A request for the health check, a world or the directory goes, headers
+// and all, CF-Connecting-IP among them, to one Durable Object, which starts the
+// one container if it is asleep and hands the request on once the server
+// answers; any other path is 404, so a scanner's guesses wake nothing.
+// Cloudflare stops a container SLEEP_AFTER_MS after its Durable Object last had
+// a request, by SIGTERM, which the start script needs to archive the last WAL,
+// and a new one starts on an empty disk from the bucket. Waking takes as long
+// as that restore, so past PATIENCE_MS, under the world client's 20 seconds, a
+// request is answered 503 with Retry-After, and the start goes on. So is any
+// request while the bucket's settings are missing: the container never starts
+// without its sealed archive. While the server is not up, a browser's preflight
+// starts it and is answered at once, from the server's own lists (src/cors.ts),
+// since its wait would come out of the client's; a page elsewhere wakes
+// nothing, and the 503 names the web app's origin back, so its client can read
+// it. The daily cron wakes the container like a request: the server sweeps
+// worlds past their 7th day as it starts, and the container takes its base
+// backup, due after under a day so that a day's wake always finds it due, and
+// tests its restore. Plain HTTP goes to HTTPS. The Worker logs nothing. A
+// Worker's entry may export only handlers and classes, so nothing else here is.
 
 import { CORS_HEADERS, CORS_METHODS, PREFLIGHT_KEPT, WEB_ORIGINS } from '../src/cors.js';
 
@@ -40,7 +40,7 @@ const SETTINGS = {
 const PORT = 8080;
 const NAME = 'demo';
 const LOCAL = ['127.0.0.1', 'localhost', '[::1]'];
-const SERVED = /^\/(?:health$|worlds(?:\/|$))/u;
+const SERVED = /^\/(?:health$|(?:worlds|directory)(?:\/|$))/u;
 const SLEEP_AFTER_MS = 30 * 60_000;
 const PATIENCE_MS = 18_000;
 const POLL_MS = 500;

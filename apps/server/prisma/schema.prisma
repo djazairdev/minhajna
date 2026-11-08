@@ -6,14 +6,15 @@
 // erased with it. Nothing here is named: ids the devices drew, hashes, days,
 // ciphertext, each world's stand-in CA key (#554), which certifies nothing
 // outside its world, and the key and receipts of its stand-in receiving system
-// (#590), which name no pupil, each world's observatory (#621), whose
-// sendings keep no school-and-term code, the admin log, whose lines name
-// nobody, and each world's problem reports, whose notes the device rid of
-// pupils' names (#619). A space counts its batches, and each batch takes the
-// next of that count as its place in the space, so readers page through a space
-// in the order uploads committed, and learn nothing of other spaces. Each
-// migration is generated from this schema with `prisma migrate diff --script`
-// and committed as plain SQL.
+// (#590), which name no pupil, each world's observatory (#621), whose sendings
+// keep no school-and-term code, the admin log, whose lines name nobody, and
+// each world's problem reports, whose notes the device rid of pupils' names
+// (#619). The directory's tables stand apart from any world, and hold the
+// made-up names of its schools, teachers and pupils (answer 809). A space
+// counts its batches, and each batch takes the next of that count as its place
+// in the space, so readers page through a space in the order uploads committed,
+// and learn nothing of other spaces. Each migration is generated from this
+// schema with `prisma migrate diff --script` and committed as plain SQL.
 
 generator client {
   provider = "prisma-client"
@@ -213,4 +214,31 @@ model PackStep {
 
   @@id([worldId, packId, release, revision])
   @@map("pack_step")
+}
+
+model DirectoryDocument {
+  id       String  @id @db.VarChar(72)
+  codeHash String  @db.Char(64)
+  revision Int     @default(0)
+  body     String?
+
+  @@map("directory_document")
+}
+
+model DirectoryVersion {
+  seq       Int      @id @default(autoincrement())
+  version   String   @unique @db.VarChar(32)
+  published DateTime @db.Date
+  list      String
+
+  @@map("directory_version")
+}
+
+model DirectoryJoin {
+  codeHash  String @id @db.Char(64)
+  schoolId  String @db.VarChar(64)
+  teacherId String @db.VarChar(64)
+
+  @@unique([schoolId, teacherId])
+  @@map("directory_join")
 }
