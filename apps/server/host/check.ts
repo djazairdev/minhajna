@@ -9,18 +9,23 @@
 // no answer may carry a header outside HEADERS, which holds what the server and
 // Cloudflare send, so none says what the server is built with, sets a cookie or
 // has the browser report to anyone; plain HTTP must go to HTTPS, but on this
-// computer; the web app's addresses must be allowed to call the server, without
-// credentials, and a page elsewhere refused. It uses Node's built-ins alone, so
-// a deploy job runs it with no install. Prints each problem; exits 1 if there
-// are.
+// computer; the web app's and the dashboard's addresses must be allowed to call
+// the server, without credentials, and a page elsewhere refused. It uses Node's
+// built-ins alone, so a deploy job runs it with no install. Prints each
+// problem; exits 1 if there are.
 
 import { realpathSync } from 'node:fs';
 import process from 'node:process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
-/** The web app's public addresses, as src/cors.ts names them; a test keeps them equal. */
-export const WEB_APPS = ['https://minhajna.djazair.dev', 'https://minhajna-test.djazair.dev'];
+/** The web app's and the dashboard's public addresses, as src/cors.ts names them; a test keeps them equal. */
+export const WEB_APPS = [
+  'https://minhajna.djazair.dev',
+  'https://minhajna-test.djazair.dev',
+  'https://minhajna-admin.djazair.dev',
+  'https://minhajna-admin-test.djazair.dev',
+];
 
 const ELSEWHERE = 'https://not-the-web-app.example';
 const LOCAL = ['127.0.0.1', 'localhost', '[::1]'];

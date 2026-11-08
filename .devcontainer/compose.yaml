@@ -27,12 +27,14 @@ services:
       - root-modules:/workspaces/minhajna/node_modules
       - android-modules:/workspaces/minhajna/apps/android/node_modules
       - web-modules:/workspaces/minhajna/apps/web/node_modules
+      - dashboard-modules:/workspaces/minhajna/apps/dashboard/node_modules
       - server-modules:/workspaces/minhajna/apps/server/node_modules
       - prisma-modules:/workspaces/minhajna/apps/server/tools/prisma/node_modules
     environment:
       MODULES: >-
         /workspaces/minhajna/node_modules /workspaces/minhajna/apps/android/node_modules
-        /workspaces/minhajna/apps/web/node_modules /workspaces/minhajna/apps/server/node_modules
+        /workspaces/minhajna/apps/web/node_modules /workspaces/minhajna/apps/dashboard/node_modules
+        /workspaces/minhajna/apps/server/node_modules
         /workspaces/minhajna/apps/server/tools/prisma/node_modules
       MINHAJNA_DEMO_DATABASE: postgresql://minhajna@127.0.0.1:5432/minhajna_demo
       TEST_DATABASE_URL: postgresql://minhajna@127.0.0.1:5432/minhajna_test
@@ -47,5 +49,6 @@ volumes:
   root-modules: {}
   android-modules: {}
   web-modules: {}
+  dashboard-modules: {}
   server-modules: {}
   prisma-modules: {}

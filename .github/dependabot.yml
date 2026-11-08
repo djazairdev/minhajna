@@ -24,7 +24,7 @@ updates:
         patterns: ['*']
 
   - package-ecosystem: npm
-    directories: [/, /apps/android, /apps/web, /apps/web/host]
+    directories: [/, /apps/android, /apps/web, /apps/web/host, /apps/dashboard]
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

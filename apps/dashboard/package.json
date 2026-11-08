@@ -1,0 +1,36 @@
+{
+  "name": "@minhajna/dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Minhajna's dashboard for the Ministry and schools",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "serve": "node scripts/serve.ts",
+    "zip": "node scripts/pack.ts",
+    "check-host": "node scripts/check-host.ts",
+    "test": "node --test --test-force-exit \"test/*.test.ts\" && node ../android/node_modules/jest/bin/jest.js --config jest.config.cjs",
+    "typecheck": "node ../../node_modules/typescript/bin/tsc -p tsconfig.json && node ../../node_modules/typescript/bin/tsc -p scripts/tsconfig.json && node ../../node_modules/typescript/bin/tsc -p test/tsconfig.json && node ../../node_modules/typescript/bin/tsc -p __tests__/tsconfig.json && node ../../node_modules/typescript/bin/tsc -p jest/tsconfig.json"
+  },
+  "dependencies": {
+    "@react-navigation/native": "7.5.1",
+    "@zip.js/zip.js": "2.24.0",
+    "@zxing/library": "0.23.0",
+    "i18next": "26.6.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-i18next": "17.1.10",
+    "react-native-safe-area-context": "5.11.0",
+    "react-native-web": "0.21.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "engines": {
+    "node": ">=26.13.0"
+  },
+  "overrides": {
+    "standard-navigation": "0.0.9"
+  }
+}

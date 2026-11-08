@@ -6,13 +6,16 @@
   "workspaceFolder": "/workspaces/minhajna",
   "remoteUser": "node",
   "shutdownAction": "stopCompose",
-  "forwardPorts": [3000, 4180],
+  "forwardPorts": [3000, 4180, 4181],
   "portsAttributes": {
     "3000": {
       "label": "Demo server"
     },
     "4180": {
       "label": "PC web app"
+    },
+    "4181": {
+      "label": "Dashboard app"
     }
   },
   "postCreateCommand": "bash .devcontainer/install.sh",

@@ -4,6 +4,8 @@ The PC web app ([#250](https://github.com/djazairdev/minhajna/issues/250), and i
 
 **Status: a preview since 0.6.0** (answer 530), served at <https://minhajna.djazair.dev> (answer 531). The app starts, offers installing itself, asks for a passphrase of at least 12 characters (answer 502), and keeps the history encrypted in this browser, warning while the browser may clear it. It restores a backup or a transfer file from the phone, sends a transfer back, hands the work over and takes it back, and makes, opens and saves files. It offers updates and installs one only once the teacher accepts it, erases everything it keeps in this browser on request, prints through the browser's dialog, which also saves a PDF, and speaks of this PC on its screens, but for the privacy notice, which the founder words. A rail stands in for the phone's bottom tabs, and the week shows at once, with a session confirmed or corrected beside it. It stays a preview until it is checked by hand in Chrome, Edge and Firefox on Windows. Use made-up data only.
 
+The dashboard, where the Ministry and the schools keep the directory, is not part of this app: it is [an app of its own](../dashboard/README.md), at its own address (answer 855).
+
 ## Build and try it
 
 From the repository's root, install the three lockfiles, as CI does, then build and serve:
@@ -22,7 +24,7 @@ The build reads the Android app's code and its TypeScript settings, so it stops 
 
 ## How it is built
 
-- **One bundle, made by esbuild** from `src/index.tsx`, which starts the phone app's `App.tsx`. `scripts/resolve.ts` redirects the app's imports:
+- **One bundle, made by esbuild** from `src/index.tsx`, which starts the phone app's `App.tsx`. `scripts/build.ts` runs `scripts/bundle.ts`, which [the dashboard app](../dashboard/README.md) shares with its own esbuild, as it shares the serve, pack and host-check scripts and the native modules' web versions (answer 855). `scripts/resolve.ts` redirects the app's imports:
   - `react-native` goes to `src/react-native.js`, which is React Native Web plus what it leaves out: the layout's direction, view tags for focus, the Android drawables, and inert Android-only pieces.
   - each native module goes to its web version in `src/native/`. The build stops if one is missing.
   - every package comes from this folder's own lockfile, so only one React runs.
@@ -33,7 +35,7 @@ The build reads the Android app's code and its TypeScript settings, so it stops 
   cd dist
   find . -type f ! -name build.json | sed 's|^\./||' | LC_ALL=C sort | xargs sha256sum | sha256sum
   ```
-- **Nothing loaded from elsewhere:** the page's security policy allows only its own files, and no inline script (R-6.6-01). It may connect to one other address, the demo server `https://minhajna-demo.djazair.dev` (answer 554), for demo worlds only; the host check fails if it names any other.
+- **Nothing loaded from elsewhere:** the page's security policy allows only its own files, and no inline script (R-6.6-01). It may connect to one other address, the demo server `https://minhajna-demo.djazair.dev` (answer 554), for demo worlds and the directory's setup and joining paths only; the host check fails if it names any other.
 - **Licences:** `licences.json` holds a notice for every package in the bundle, with the reference data's and the fonts'. A package's notice carries its NOTICE file and the licences it ships in a `licenses/` folder, as Apache-2.0 asks.
 - **Stylesheets:** a package's stylesheet, imported by the code, is bundled as `app.css`, which the page links after its own.
 

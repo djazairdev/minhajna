@@ -3,15 +3,15 @@
 
 // The web app's fixed bundle (#250, R-6.6-01, R-6.6-07): built twice to the
 // same checksum, which build.json gives with each file's SHA-256 and which
-// sha256sum's lines reproduce; the version in the bundle; a page whose
-// security policy loads nothing from elsewhere and runs no inline script;
-// every font alias of the phone app, every drawable as an SVG, a licence
-// notice for every package in the bundle, the charts' and maps' libraries
-// and their stylesheet among them (#600), and among the files the checksum
-// covers, the version and the release's notes (answer 517), the notes only
-// when written for that version. A warning stops the build as an error
-// does. The browser's own install and offline start are checked by hand
-// (docs/checks/web-shell.md).
+// sha256sum's lines reproduce; the version in the bundle; a page whose security
+// policy loads nothing from elsewhere and runs no inline script; every font
+// alias of the phone app, every drawable as an SVG, a licence notice for every
+// package in the bundle, the charts' and maps' libraries and their stylesheet
+// among them (#600), and among the files the checksum covers, the version and
+// the release's notes (answer 517), the notes only when written for that
+// version. The dashboard and its communes stay out, as an app of their own
+// (answer 855). A warning stops the build as an error does. The browser's own
+// install and offline start are checked by hand (docs/checks/web-shell.md).
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -19,7 +19,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { androidVersion, releaseNotes, stopsBuild } from '../scripts/build.ts';
+import { androidVersion, releaseNotes, stopsBuild } from '../scripts/bundle.ts';
 import { checksum, fileHashes } from '../scripts/hashes.ts';
 import { addressProblems, typeOf } from '../scripts/host.ts';
 
@@ -146,6 +146,11 @@ describe('the web bundle', () => {
     assert.equal(stopsBuild({ errors: [], warnings: [] }), false);
     assert.equal(stopsBuild({ errors: [], warnings: [{ text: 'Cannot find base config file' }] }), true);
     assert.equal(stopsBuild({ errors: [{ text: 'Could not resolve' }], warnings: [] }), true);
+  });
+
+  it('leaves out the dashboard, which is an app of its own, and its communes (answer 855)', () => {
+    const code = files.filter((name) => name.endsWith('.js')).map(text);
+    assert.ok(code.every((one) => !one.includes('Reggane') && !one.includes('dashboard-reference')));
   });
 
   it('builds the version into the bundle for crash reports', () => {

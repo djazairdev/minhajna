@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2026 The Minhajna contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// What a host of the PC web app serves (answers 528, 531 and 537), shared by
-// the local server and the host check so that both hold to the same rules:
-// the files of one build and nothing else, each with its media type, never
-// cached by the browser or a proxy, with the page's own security policy as
-// a header too, where it can also refuse framing by another site. Over HTTPS
-// the browser is told to keep to HTTPS. The policy names one address beyond
-// the page's own: the demo server (answer 554), for demo worlds only, and the
-// host check fails if it names any other, lacks default-src 'none', or holds
-// a keyword but 'self', 'none' and hashes.
+// What a host of the PC web app serves (answers 528, 531 and 537), and of the
+// dashboard app (answer 855), shared by the local server and the host check so
+// that both hold to the same rules: the files of one build and nothing else,
+// each with its media type, never cached by the browser or a proxy, with the
+// page's own security policy as a header too, where it can also refuse framing
+// by another site. Over HTTPS the browser is told to keep to HTTPS. The policy
+// names one address beyond the page's own: the demo server (answer 554), for
+// demo worlds and the directory only, and the host check fails if it names any
+// other, lacks default-src 'none', or holds a keyword but 'self', 'none' and
+// hashes.
 
 /** The address teachers open (answer 531). */
 export const ADDRESS = 'https://minhajna.djazair.dev/';

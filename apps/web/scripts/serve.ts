@@ -4,8 +4,9 @@
 // Serves dist/ on this computer only, for checking the web app as its host
 // serves it (scripts/host.ts): files only, no application backend, nothing
 // outside dist/, and every answer with the host's headers, among them that
-// nothing is cached by the browser, so the offline worker's own cache is
-// what a second visit sees. The host check runs against it in the tests.
+// nothing is cached by the browser, so the offline worker's own cache is what a
+// second visit sees. The host check runs against it in the tests. The dashboard
+// app serves its own dist/ with it (answer 855).
 
 import { createServer, type Server } from 'node:http';
 import { readFileSync } from 'node:fs';
@@ -35,10 +36,14 @@ export function serveFolder(root: URL): Server {
   });
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const root = new URL('../dist/', import.meta.url);
-  const port = Number(process.env.PORT ?? 4180);
-  serveFolder(root).listen(port, '127.0.0.1', () => {
-    process.stdout.write(`Minhajna for the web: http://127.0.0.1:${port}/\nServing ${fileURLToPath(root)}\n`);
+/** Serves the app's dist/ in `root` on this computer at `port`, or PORT when set, and says where. */
+export function serveApp(root: URL, port: number, name: string): Server {
+  const dist = new URL('dist/', root);
+  const at = Number(process.env.PORT ?? port);
+  return serveFolder(dist).listen(at, '127.0.0.1', () => {
+    process.stdout.write(`${name}: http://127.0.0.1:${at}/\nServing ${fileURLToPath(dist)}\n`);
   });
 }
+
+if (process.argv[1] === fileURLToPath(import.meta.url))
+  serveApp(new URL('../', import.meta.url), 4180, 'Minhajna for the web');

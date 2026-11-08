@@ -68,7 +68,7 @@ The scope names the part of the product that changes, not the file. It is option
 | School features | `reader`, `timetable`, `school-mode` |
 | The shared core | `core`, `engine`, `calendar`, `history`, `layers`, `formats` |
 | Data leaving the device | `sync`, `backup`, `crypto`, `network`, `insights` |
-| Platforms | `android`, `web`, `server` |
+| Platforms | `android`, `web`, `dashboard`, `server` |
 | Across the product | `i18n`, `a11y`, `deps`, `release` |
 | Documents | `prd`, `decisions`, `design`, `contributing` |
 

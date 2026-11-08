@@ -25,7 +25,7 @@ describe('the dev container', () => {
   it('runs the server’s PostgreSQL and S3 stand-in, publishing no port, and forwards the demo’s', () => {
     assert.deepEqual(config.dockerComposeFile, ['../apps/server/compose.yaml', 'compose.yaml']);
     assert.deepEqual(config.runServices, ['workspace', 'database', 'objects']);
-    assert.deepEqual(config.forwardPorts, [3000, 4180]);
+    assert.deepEqual(config.forwardPorts, [3000, 4180, 4181]);
     assert.match(compose, /image: node:26\.\d+\.\d+-trixie@sha256:[0-9a-f]{64}\n/);
     assert.match(compose, /network_mode: service:database\n/);
     assert.equal(compose.match(/ports: !reset \[\]/g)?.length, 2);
@@ -44,11 +44,12 @@ describe('the dev container', () => {
       'npm ci --no-audit',
       'npm ci --no-audit --prefix apps/android',
       'npm ci --no-audit --prefix apps/web',
+      'npm ci --no-audit --prefix apps/dashboard',
       'npm ci --no-audit --prefix apps/server',
       'npm run tools --prefix apps/server',
       'npm run generate --prefix apps/server',
     ]);
-    const folders = ['', 'apps/android/', 'apps/web/', 'apps/server/', 'apps/server/tools/prisma/'];
+    const folders = ['', 'apps/android/', 'apps/web/', 'apps/dashboard/', 'apps/server/', 'apps/server/tools/prisma/'];
     for (const folder of folders) {
       assert.match(compose, new RegExp(`- [a-z]+-modules:/workspaces/minhajna/${folder}node_modules\n`), folder);
     }
@@ -63,6 +64,7 @@ describe('the dev container', () => {
     assert.deepEqual(words(preparation('/repo', { fresh: false, database: DEMO }, () => false)), [
       'apps/server npm run build',
       'apps/web npm run build',
+      'apps/dashboard npm run build',
     ]);
     const fresh = preparation('/repo', { fresh: true, database: DEMO }, (folder) => folder === 'apps/server');
     assert.deepEqual(words(fresh), [
@@ -70,6 +72,7 @@ describe('the dev container', () => {
       `. ${process.execPath} tools/demo/clear.js`,
       'apps/server npm run build',
       'apps/web npm run build',
+      'apps/dashboard npm run build',
     ]);
     assert.deepEqual(fresh[1].env, { DATABASE_URL: DEMO });
     assert.equal(services(DEMO)[0].env.DATABASE_URL, DEMO);
