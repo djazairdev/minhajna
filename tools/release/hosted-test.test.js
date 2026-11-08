@@ -281,12 +281,18 @@ describe('the hosted test’s workflow', () => {
 });
 
 describe('what a release does to the hosted test', () => {
-  it('takes down the test web app by a name and an environment that both name it, never the teachers’', () => {
+  it('takes down the test web app and dashboard by names and an environment, never the live ones', () => {
     const deploy = job(workflow('release'), 'deploy-server');
     assert.match(deploy, /wrangler delete minhajna-web-test --env test --force/u);
-    assert.equal(deploy.match(/wrangler delete/gu)?.length, 1);
+    assert.match(deploy, /wrangler delete minhajna-dashboard-test --env test --force/u);
+    assert.equal(deploy.match(/wrangler delete/gu)?.length, 2);
     const host = readFileSync(new URL('../../apps/web/host/wrangler.jsonc', import.meta.url), 'utf8');
     assert.match(host, /"test": \{\s+"name": "minhajna-web-test"/u);
     assert.match(host, /\n {2}"name": "minhajna-web",\n/u);
+    const dashboard = readFileSync(new URL('../../apps/dashboard/host/wrangler.jsonc', import.meta.url), 'utf8');
+    assert.match(dashboard, /"test": \{\s+"name": "minhajna-dashboard-test"/u);
+    assert.match(dashboard, /\n {2}"name": "minhajna-dashboard",\n/u);
+    assert.match(dashboard, /"pattern": "minhajna-admin\.djazair\.dev", "custom_domain": true/u);
+    assert.match(dashboard, /"pattern": "minhajna-admin-test\.djazair\.dev", "custom_domain": true/u);
   });
 });

@@ -3,10 +3,11 @@
 
 // The release tools on made-up versions and files: which commit is a release
 // and which is the latest, that a release's server carries its version and has
-// its logs off, the notes from a changelog section and the
-// refusal of an incomplete one, the checksums and the web build's checksum,
-// and a signed APK that is its build plus a signature, or more. The real
-// changelog's newest release must read as a section too.
+// its logs off, the notes from a changelog section and the refusal of an
+// incomplete one, the checksums and the web build's checksum, and a signed APK
+// that is its build plus a signature, or more. The real changelog's newest
+// release must read as a section too, and the dashboard's host settings must
+// be the web app's but for its names and addresses.
 
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
@@ -131,6 +132,7 @@ describe('the release notes', () => {
       sums,
       certificate: 'c'.repeat(64),
       webChecksum: 'w'.repeat(64),
+      dashboardChecksum: 'd'.repeat(64),
       commit: 'a'.repeat(40),
       run: 'https://example.test/run',
       issue: '7',
@@ -144,6 +146,8 @@ describe('the release notes', () => {
       ),
     );
     assert.ok(notes.includes(`\`${'w'.repeat(64)}\``));
+    assert.ok(notes.includes(`**The dashboard's build checksum:** \`${'d'.repeat(64)}\``));
+    assert.ok(notes.includes("| `minhajna-dashboard-9.1.0.zip` | The dashboard's files, for its host."));
     assert.ok(
       notes.includes('the tag `v9.1.0` (aaaaaaa), signed, by [the release workflow](https://example.test/run)'),
     );
@@ -166,6 +170,7 @@ describe('the release files', () => {
     for (const name of Object.values(releaseFiles('9.1.0'))) writeFileSync(join(folder, name), name);
     const sums = fileSums(folder, '9.1.0');
     assert.equal(Object.keys(sums)[0], 'minhajna-9.1.0.apk');
+    assert.equal(Object.keys(sums).at(-1), 'minhajna-dashboard-9.1.0.zip');
     assert.match(sumsFile(sums), /^[0-9a-f]{64} {2}minhajna-9\.1\.0\.apk\n/u);
     const built = (version) => () => Buffer.from(JSON.stringify({ version, sha256: 'b'.repeat(64) }));
     assert.equal(webChecksum('made-up.zip', '9.1.0', built('9.1.0')), 'b'.repeat(64));
@@ -194,5 +199,22 @@ describe('a signed APK', () => {
     assert.equal(signatureOnly(signedWith(entries), unsigned), undefined);
     assert.equal(signatureOnly(signedWith(Buffer.from('changed entries')), unsigned), 'the entries differ');
     assert.equal(signatureOnly(unsigned, unsigned), 'no APK Signing Block');
+  });
+});
+
+describe('the dashboard’s host', () => {
+  it('is the web app’s, with its own Worker names, addresses and path to the Worker', () => {
+    const settings = (path) =>
+      readFileSync(new URL(path, import.meta.url), 'utf8')
+        .split('\n')
+        .filter((line) => !line.startsWith('//'))
+        .join('\n');
+    const dashboard = settings('../../apps/dashboard/host/wrangler.jsonc')
+      .replace('"minhajna-dashboard"', '"minhajna-web"')
+      .replace('"minhajna-dashboard-test"', '"minhajna-web-test"')
+      .replace('"minhajna-admin.djazair.dev"', '"minhajna.djazair.dev"')
+      .replace('"minhajna-admin-test.djazair.dev"', '"minhajna-test.djazair.dev"')
+      .replace('"../../web/scripts/worker.ts"', '"../scripts/worker.ts"');
+    assert.equal(dashboard, settings('../../apps/web/host/wrangler.jsonc'));
   });
 });

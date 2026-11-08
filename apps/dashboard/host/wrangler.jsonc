@@ -1,0 +1,35 @@
+// SPDX-FileCopyrightText: 2026 The Minhajna contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// The dashboard app's host on Cloudflare (answer 855), as the PC web app's
+// (apps/web/host/wrangler.jsonc): one Worker at the custom domain
+// https://minhajna-admin.djazair.dev, whose first deploy creates the address's
+// DNS record and certificate, in front of the release's files that the release
+// workflow unzips into apps/dashboard/release/dist/. The Worker is the web
+// app's own (apps/web/scripts/worker.ts), so every request is answered with
+// the host's headers and no path is redirected or rewritten. It has no
+// workers.dev or preview address, and its logs stay off. It deploys with the
+// web app's Wrangler, from this folder. `--env test` deploys the same files to
+// the hosted test's own address, a Worker of its own.
+{
+  "name": "minhajna-dashboard",
+  "main": "../../web/scripts/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "minhajna-admin.djazair.dev", "custom_domain": true }],
+  "assets": {
+    "directory": "../release/dist",
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "run_worker_first": true,
+  },
+  "observability": { "enabled": false },
+  "env": {
+    "test": {
+      "name": "minhajna-dashboard-test",
+      "routes": [{ "pattern": "minhajna-admin-test.djazair.dev", "custom_domain": true }],
+    },
+  },
+}

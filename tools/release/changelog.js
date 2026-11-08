@@ -28,6 +28,7 @@ const WHATS_NEW = '\u0645\u0627 \u0627\u0644\u062c\u062f\u064a\u062f';
 const HELP =
   '\u00ab\u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629 \u0648\u0627\u0644\u062e\u0635\u0648\u0635\u064a\u0629\u00bb';
 const ADDRESS = 'https://minhajna.djazair.dev';
+const DASHBOARD = 'https://minhajna-admin.djazair.dev';
 const SOURCE = 'https://github.com/djazairdev/minhajna';
 
 /** A version's section of the changelog, or undefined while it has no dated heading. */
@@ -82,6 +83,7 @@ export function releaseFiles(version) {
     mapping: `minhajna-${version}-mapping.txt`,
     bundle: `minhajna-${version}-index.android.bundle.map`,
     web: `minhajna-web-${version}.zip`,
+    dashboard: `minhajna-dashboard-${version}.zip`,
   };
 }
 
@@ -89,7 +91,7 @@ export function releaseFiles(version) {
 export function releaseNotes(section, facts) {
   const { version } = section;
   const files = releaseFiles(version);
-  const { sums, certificate, webChecksum, commit, run, issue, rehearsal } = facts;
+  const { sums, certificate, webChecksum, dashboardChecksum, commit, run, issue, rehearsal } = facts;
   const row = (name, use) => `| \`${name}\` | ${use} | \`${sums[name]}\` |`;
   const english = section.sections.map(
     ({ name, entries }) => `### ${name}\n\n${entries.map((entry) => `- ${entry.english}`).join('\n')}\n`,
@@ -112,17 +114,21 @@ export function releaseNotes(section, facts) {
     row(files.universal, '**Any phone with Android 8 or later.** Use this one if unsure.'),
     row(files['arm64-v8a'], '64-bit ARM phones only (smaller)'),
     row(files['armeabi-v7a'], '32-bit ARM phones only (smaller)'),
-    `${row(files.web, `The PC web app's files, for its host. Teachers open ${ADDRESS} instead.`)}\n`,
+    row(files.web, `The PC web app's files, for its host. Teachers open ${ADDRESS} instead.`),
+    `${row(files.dashboard, `The dashboard's files, for its host. The Ministry and schools open ${DASHBOARD}.`)}\n`,
     '**Signing certificate SHA-256** (the same for all three APKs, and for every release since 0.1.0): ' +
       `\`${certificate}\`\n`,
     `**The PC web app's build checksum:** \`${webChecksum}\`. ${HELP} on the PC shows it, to compare with this one.\n`,
+    `**The dashboard's build checksum:** \`${dashboardChecksum}\`, which its host check compares with the deployed ` +
+      "build's.\n",
     `${HELP} in the phone app shows the installed APK's checksum and its certificate's, to compare with these. ` +
       `\`SHA256SUMS.txt\` lists every file's checksum. \`${files.mapping}\` and \`${files.bundle}\` read crash ` +
       `reports from all three APKs ([how](${SOURCE}/blob/v${version}/docs/contributing/crash-reports.md)).\n`,
     `**Built from the source:** the tag \`v${version}\` (${commit.slice(0, 7)}), signed, ` +
       `by [the release workflow](${run}). ` +
       'Two builds at different paths gave the same unsigned APKs and the same two maps, byte for byte, and each ' +
-      `signed APK differs from its build only by its signature. The web ZIP came out the same twice.${checklist}\n`,
+      'signed APK differs from its build only by its signature. ' +
+      `The web app's and the dashboard's ZIPs each came out the same twice.${checklist}\n`,
     "## What's in it\n",
     ...english,
     `## ${WHATS_NEW}\n`,
