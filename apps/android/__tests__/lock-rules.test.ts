@@ -92,7 +92,6 @@ test('the guard reads the screen in front, and guards any screen it does not kno
   expect(screenKind('SomeNewScreen')).toBe('records');
   expect(screenKind(undefined)).toBe('records');
   expect(gateKind({ kind: 'welcome' }, false)).toBe('open');
-  expect(gateKind({ kind: 'ask', pin: '1234', upgrade: false }, false)).toBe('open');
   expect(gateKind({ kind: 'create', upgrade: false }, false)).toBe('pin');
   expect(gateKind({ kind: 'locked', biometric: false, waitSeconds: 0 }, false)).toBe('pin');
   expect(gateKind({ kind: 'checking' }, false)).toBe('records');

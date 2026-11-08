@@ -12,8 +12,8 @@ export type CreatePinProps = {
   /** A history from before the lock is already on this phone. */
   readonly upgrade: boolean;
   readonly lockMinutes: number;
-  /** The history is open under the new PIN, which the fingerprint question may need once. */
-  readonly onCreated: (pin: string) => void;
+  /** The history is open under the new PIN. */
+  readonly onCreated: () => void;
   readonly onRefused: (error: unknown) => void;
   /** The PIN did not save, but the native module may have kept it: shows the lock if so. */
   readonly onFailed?: () => void;

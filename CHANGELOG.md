@@ -15,6 +15,8 @@ Not released yet. · لم تُنشر هذه التغييرات بعد.
 
 ### Changed
 
+- First use asks only for your PIN. Opening the app with your fingerprint or face is now turned on in «القفل والأمان», in Settings.
+  - لا يطلب الاستعمال الأول إلا رمزك السري. وصار فتح التطبيق بالبصمة أو الوجه يُشغَّل من «القفل والأمان» في الإعدادات.
 - Setup has two steps: choose your school from the list the Ministry publishes, by level, subject, wilaya and commune, with nothing to type, then fill in your card. Your classes, their pupil lists and your timetable come from your school, so the phone no longer adds classes, types or imports lists, draws the week, opens a timetable file or chooses plan packs. The week and the plans stay in Settings to read, and what an earlier version recorded stays as it is.
   - صار الإعداد خطوتين: اختر مؤسستك من القائمة التي تنشرها الوزارة، حسب المستوى والمادة والولاية والبلدية، دون كتابة شيء، ثم املأ بطاقتك. وتصل أقسامك وقوائم تلاميذها واستعمال زمنك من مؤسستك، فلم يعد الهاتف يضيف الأقسام أو يكتب القوائم أو يستوردها، ولا يرسم الأسبوع أو يفتح ملف استعمال الزمن أو يختار حزم المخططات. ويبقى الأسبوع والمخططات في الإعدادات للقراءة، ويبقى ما سجّله إصدار سابق كما هو.
 

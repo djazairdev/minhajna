@@ -2075,13 +2075,9 @@
       "failed": "Le code n’a pas été enregistré. Vérifiez qu’il reste de l’espace sur le téléphone, puis choisissez le code à nouveau."
     },
     "biometricAsk": {
-      "title": "Ouvrir aussi avec l’empreinte ou le visage ?",
       "line": "L’application les demande au téléphone et n’en garde rien. Le code fonctionne toujours.",
-      "yes": "Oui, avec l’empreinte ou le visage",
-      "no": "Le code seul",
       "promptTitle": "Activer l’empreinte",
-      "cancel": "Annuler",
-      "failed": "L’empreinte n’est pas activée. Vous pourrez l’activer plus tard dans « Verrou et sécurité »."
+      "cancel": "Annuler"
     },
     "change": {
       "current": "Tapez votre code actuel",

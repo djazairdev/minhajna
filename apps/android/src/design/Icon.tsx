@@ -11,7 +11,6 @@ export const ICONS = [
   'offline',
   'phone',
   'lock',
-  'fingerprint',
   'never',
   'no_tracking',
   'publisher',
