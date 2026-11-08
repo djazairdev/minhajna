@@ -6,9 +6,12 @@
 // school's picture, also as the home of a reader who started from the welcome,
 // with no back to it, where a crash report kept before the last stop is
 // offered as on Today, and a grade's merge for the teaching council.
-// `readerRoutes` gives the navigator their entries, as `planRoutes` does.
+// `readerRoutes` gives a navigator their entries, as `planRoutes` does, with
+// the home the app gives: the dashboard's reader mode has its own (answer
+// 856).
 
 import type { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { ComponentType } from 'react';
 import { CrashSheet } from '../help/CrashSheet';
 import { ReaderList } from '../reader/ReaderList';
 import { ReaderMerge } from '../reader/ReaderMerge';
@@ -89,8 +92,12 @@ export function ReaderOpenScreen({ navigation, route }: NativeStackScreenProps<R
 
 type Stack = ReturnType<typeof createNativeStackNavigator<RootStackParamList>>;
 
-/** Reader mode's routes, for the app's navigator. */
-export function readerRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
+/** Reader mode's routes, for an app's navigator, with the reader's home it gives, else the teacher app's. */
+export function readerRoutes(
+  Stack: Stack,
+  t: ReturnType<typeof useText>,
+  home: ComponentType<NativeStackScreenProps<RootStackParamList, 'ReaderHome'>> = ReaderHomeScreen,
+) {
   const dark = (title: string) => ({ title, statusBarStyle: 'dark' as const });
   return (
     <>
@@ -99,11 +106,7 @@ export function readerRoutes(Stack: Stack, t: ReturnType<typeof useText>) {
       <Stack.Screen name="ReaderPicture" component={ReaderPictureScreen} options={dark(t('reader.picture.title'))} />
       <Stack.Screen name="ReaderSpot" component={ReaderSpotScreen} options={dark(t('reader.spot.title'))} />
       <Stack.Screen name="ReaderMerge" component={ReaderMergeScreen} options={dark(t('reader.merge.title'))} />
-      <Stack.Screen
-        name="ReaderHome"
-        component={ReaderHomeScreen}
-        options={{ headerShown: false, statusBarStyle: 'dark' }}
-      />
+      <Stack.Screen name="ReaderHome" component={home} options={{ headerShown: false, statusBarStyle: 'dark' }} />
     </>
   );
 }

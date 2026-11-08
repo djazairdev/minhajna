@@ -12,7 +12,9 @@
 // wait for those features. The contact keeps the design's placeholders until
 // counsel names it (R-6.2-02). The build the Ministry runs states its ANPDP
 // declaration under the publisher (#211, answer 274); the project's own builds
-// have none to state.
+// have none to state. The dashboard's reader mode gives texts of its own for
+// both screens, with its own sections (answer 857); the contact and the
+// declaration stay under the sections keyed `rights` and `publisher`.
 
 import { useLocale } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -35,14 +37,52 @@ const SECTIONS = [
   ['rights', 'rights'],
 ] as const satisfies readonly (readonly [IconName, string])[];
 
-/** The notice; `onAccept` adds the first-use «فهمت، لنبدأ», which Help leaves out. */
-export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => void; onConnections: () => void }) {
+/** One section of the notice, by its key, with its icon and words. */
+export type NoticeSection = {
+  readonly key: string;
+  readonly icon: IconName;
+  readonly title: string;
+  readonly text: string;
+};
+
+/** The notice's words, which the teacher app reads from its catalogue unless an app gives its own. */
+export type NoticeTexts = {
+  readonly heading: string;
+  readonly intro: string;
+  readonly sections: readonly NoticeSection[];
+  /** The line over the link to what the app connects to. */
+  readonly fileLine: string;
+  /** The link's title, the teacher app's when not given. */
+  readonly connectionsTitle?: string;
+};
+
+/** The notice; `onAccept` adds the first-use accept button, which Help leaves out; `texts` replace the words. */
+export function PrivacyNotice({
+  onAccept,
+  onConnections,
+  texts,
+}: {
+  onAccept?: () => void;
+  onConnections: () => void;
+  texts?: NoticeTexts;
+}) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useDeviceText();
   const align = { writingDirection: direction, textAlign: 'start' } as const;
   const sides = { paddingLeft: insets.left + spacing['space-16'], paddingRight: insets.right + spacing['space-16'] };
   const declaration = buildDeclaration(REAL_NAMES);
+  const shown: NoticeTexts = texts ?? {
+    heading: t('privacy.heading'),
+    intro: t('privacy.intro'),
+    sections: SECTIONS.map(([icon, key]) => ({
+      key,
+      icon: icon === 'phone' && onPc() ? 'lock' : icon,
+      title: t(`privacy.${key}Title`),
+      text: t(`privacy.${key}Text`),
+    })),
+    fileLine: t('calendarView.receive.privacy'),
+  };
   return (
     <View style={[styles.screen, { direction }]}>
       <ScrollView
@@ -54,20 +94,20 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
       >
         <View style={styles.intro}>
           <Text accessibilityRole="header" style={[styles.heading, align]}>
-            {t('privacy.heading')}
+            {shown.heading}
           </Text>
-          <Text style={[styles.sub, align]}>{t('privacy.intro')}</Text>
+          <Text style={[styles.sub, align]}>{shown.intro}</Text>
         </View>
-        {SECTIONS.map(([icon, key]) => (
+        {shown.sections.map(({ key, icon, title, text }) => (
           <View key={key} testID={`privacy-${key}`} style={styles.section}>
             <View style={styles.icon}>
-              <Icon name={icon === 'phone' && onPc() ? 'lock' : icon} size={sizes.icon} color={colors.board} />
+              <Icon name={icon} size={sizes.icon} color={colors.board} />
             </View>
             <View style={styles.words}>
               <Text accessibilityRole="header" style={[styles.title, align]}>
-                {t(`privacy.${key}Title`)}
+                {title}
               </Text>
-              <Text style={[styles.text, align]}>{t(`privacy.${key}Text`)}</Text>
+              <Text style={[styles.text, align]}>{text}</Text>
               {key === 'publisher' && declaration !== null && (
                 <Text testID="privacy-declaration" style={[styles.text, align]}>
                   {t('realNames.privacy', { declaration: isolate(declaration) })}
@@ -84,11 +124,11 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
           </View>
         ))}
         <View style={styles.link}>
-          <Text style={[styles.text, align]}>{t('calendarView.receive.privacy')}</Text>
+          <Text style={[styles.text, align]}>{shown.fileLine}</Text>
           <RowLink
             testID="privacy-connections"
             icon={controlIcon('globe')}
-            title={t('connections.title')}
+            title={shown.connectionsTitle ?? t('connections.title')}
             onPress={onConnections}
           />
         </View>
@@ -102,8 +142,23 @@ export function PrivacyNotice({ onAccept, onConnections }: { onAccept?: () => vo
   );
 }
 
-/** What this build connects to, from NETWORK.md: the demo server inside a demo world, and on a PC its own address. */
-export function Connections() {
+/** The teacher app's paragraphs on what it connects to, in order. */
+const CONNECTIONS = [
+  'none',
+  'demo',
+  'source',
+  'packSource',
+  'errorReport',
+  'problemReport',
+  'crashReport',
+  'register',
+] as const;
+
+/**
+ * What this build connects to, from NETWORK.md: the demo server inside a demo world, and on a PC its own address; an
+ * app may give its own paragraphs, by key, in order.
+ */
+export function Connections({ paragraphs }: { paragraphs?: readonly (readonly [string, string])[] }) {
   const insets = useSafeAreaInsets();
   const { direction } = useLocale();
   const t = useDeviceText();
@@ -122,11 +177,9 @@ export function Connections() {
         },
       ]}
     >
-      {(
-        ['none', 'demo', 'source', 'packSource', 'errorReport', 'problemReport', 'crashReport', 'register'] as const
-      ).map((key) => (
+      {(paragraphs ?? CONNECTIONS.map((key) => [key, t(`connections.${key}`)] as const)).map(([key, text]) => (
         <Text key={key} style={[styles.paragraph, align]}>
-          {t(`connections.${key}`)}
+          {text}
         </Text>
       ))}
     </ScrollView>

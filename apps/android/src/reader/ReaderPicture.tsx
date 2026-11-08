@@ -8,8 +8,9 @@
 // opens a new statement, the list of those received, each cell's statement,
 // and the grade's merge for the teaching council (answer 492).
 // As a director's or an inspector's home, started from the welcome, it heads
-// the page itself, with Settings and Help, and offers setting the app up for
-// teaching.
+// the page itself, with Settings and, in the teacher app, Help and setting the
+// app up for teaching; the dashboard's reader mode offers neither (answer
+// 856).
 
 import { receivedStatements, statementPicture, teacherNames, type PictureGrade } from '@minhajna/core';
 import { useLocale } from '@react-navigation/native';
@@ -35,8 +36,8 @@ export type ReaderPictureProps = {
   readonly onList: () => void;
   /** Opens the merge of a grade's statements for the council; the button shows when given. */
   readonly onMerge?: (grade: string) => void;
-  /** Given for the reader's home: the page heads itself and offers these. */
-  readonly home?: { readonly onSettings: () => void; readonly onHelp: () => void; readonly onTeach: () => void };
+  /** Given for the reader's home: the page heads itself and offers these; Help and teaching only when given. */
+  readonly home?: { readonly onSettings: () => void; readonly onHelp?: () => void; readonly onTeach?: () => void };
 };
 
 export function ReaderPicture({ onOpen, onList, onMerge, home }: ReaderPictureProps) {
@@ -92,12 +93,14 @@ export function ReaderPicture({ onOpen, onList, onMerge, home }: ReaderPicturePr
                 accessibilityLabel={t('settings.title')}
                 onPress={home.onSettings}
               />
-              <IconButton
-                testID="reader-help"
-                icon={controlIcon('info')}
-                accessibilityLabel={t('today.help')}
-                onPress={home.onHelp}
-              />
+              {home.onHelp !== undefined && (
+                <IconButton
+                  testID="reader-help"
+                  icon={controlIcon('info')}
+                  accessibilityLabel={t('today.help')}
+                  onPress={home.onHelp}
+                />
+              )}
             </>
           }
         />
@@ -148,7 +151,7 @@ export function ReaderPicture({ onOpen, onList, onMerge, home }: ReaderPicturePr
           {t('reader.picture.leftOut', { count: picture.leftOut })}
         </Text>
       )}
-      {home !== undefined && (
+      {home?.onTeach !== undefined && (
         <Button testID="reader-teach" variant="plain" label={t('reader.picture.teach')} onPress={home.onTeach} />
       )}
     </ScrollView>
