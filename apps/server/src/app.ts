@@ -14,6 +14,7 @@ import { NodeAdapter, type NestNodeApplication } from '@nestjs/platform-node';
 import { AppModule } from './app.module.js';
 import { BATCH_BODY, bodyGuard } from './body-guard.js';
 import { cors } from './cors.js';
+import { directoryNoStore } from './directory/directory.module.js';
 import { PlainLogger } from './plain-logger.js';
 import type { WorldsOptions } from './worlds/worlds.module.js';
 
@@ -26,6 +27,7 @@ export async function createApp(
     bodyParser: false,
   });
   app.use(cors);
+  app.use(directoryNoStore);
   app.use(bodyGuard);
   app.useBodyParser('json', { limit: BATCH_BODY });
   app.enableShutdownHooks();

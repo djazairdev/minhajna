@@ -25,6 +25,9 @@ const standing: Handler = (request, response) => {
     if (request.url === '/health') {
       response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       response.end(JSON.stringify({ version: '9.1.0' }));
+    } else if (request.url === '/directory/reference/claimed') {
+      response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      response.end(JSON.stringify({ claimed: false }));
     } else {
       response.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
       response.end('{}');
@@ -48,6 +51,21 @@ function changed(change: (response: ServerResponse, request: IncomingMessage) =>
 }
 
 describe('the demo server’s host check', () => {
+  it('finds a host that does not hand on the directory', async () => {
+    const closed = await serve((request, response) => {
+      if (request.url === '/directory/reference/claimed') {
+        response.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
+        response.end('{}');
+      } else {
+        standing(request, response);
+      }
+    });
+    assert.deepEqual(await checkServer(closed, '9.1.0', []), [
+      'the directory: status 404, not 200',
+      'the directory: its answer may be kept',
+    ]);
+  });
+
   it('keeps to the server’s own list of the web app’s public addresses', () => {
     assert.deepEqual(
       WEB_APPS,

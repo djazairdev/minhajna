@@ -31,10 +31,25 @@ describe('the demo server’s Worker', () => {
 
   it('answers a path the server never serves itself, and wakes nothing', async () => {
     const { asked, env: bare } = reached();
-    for (const path of ['/', '/wp-login.php', '/healthz', '/worlds-of-made-up', '/health/more']) {
+    for (const path of [
+      '/',
+      '/wp-login.php',
+      '/healthz',
+      '/worlds-of-made-up',
+      '/health/more',
+      '/directory-of-made-up',
+    ]) {
       assert.equal((await worker.fetch(new Request(`https://minhajna-demo.example${path}`), bare)).status, 404);
     }
     assert.deepEqual(asked, []);
+  });
+
+  it('hands the directory to the server', async () => {
+    const { asked, env: bare } = reached();
+    for (const path of ['/directory/reference', '/directory/schools/made-up/book', '/directory/join']) {
+      await worker.fetch(new Request(`https://minhajna-demo.example${path}`), bare);
+    }
+    assert.equal(asked.length, 3);
   });
 
   it('sends plain HTTP to HTTPS, and nothing of it to the server', async () => {

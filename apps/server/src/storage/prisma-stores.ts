@@ -15,7 +15,8 @@
 // world may pass MAX_RECEIPTS by a few receipts sent at the same moment. The
 // schools' shares of the totals have their own store (prisma-shares.ts), and
 // so do the observatories (prisma-insights.ts) and the admin log and problem
-// reports (prisma-admin.ts), and the pack desk (prisma-packs.ts).
+// reports (prisma-admin.ts), and the pack desk (prisma-packs.ts), and the
+// directory, which stands outside any world (prisma-directory.ts).
 
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '../generated/prisma/client.js';
@@ -35,7 +36,9 @@ import { MAX_RECEIPTS, type Receipt, type World, type WorldStore } from '../worl
 import { toDate, toDay } from './days.js';
 import { inTurn, type StoreOptions, type Transaction } from './in-turn.js';
 import type { PackStore } from '../packs/pack-store.js';
+import type { DirectoryStore } from '../directory/directory-store.js';
 import { PrismaAdminStore } from './prisma-admin.js';
+import { PrismaDirectoryStore } from './prisma-directory.js';
 import { PrismaPackStore } from './prisma-packs.js';
 import { PrismaInsightStore } from './prisma-insights.js';
 import { PrismaShareStore } from './prisma-shares.js';
@@ -68,6 +71,7 @@ export class PrismaStores {
   readonly insights: InsightStore;
   readonly admin: AdminStore;
   readonly packs: PackStore;
+  readonly directory: DirectoryStore;
 
   constructor(url: string, options: StoreOptions = {}) {
     this.client = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }), errorFormat: 'minimal' });
@@ -77,6 +81,7 @@ export class PrismaStores {
     this.insights = new PrismaInsightStore(this.client, options);
     this.admin = new PrismaAdminStore(this.client, options);
     this.packs = new PrismaPackStore(this.client);
+    this.directory = new PrismaDirectoryStore(this.client, options);
   }
 
   close(): Promise<void> {

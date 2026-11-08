@@ -12,6 +12,7 @@
 
 import { Module, type DynamicModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import type { DirectoryStore } from '../directory/directory-store.js';
 import { AdminController } from '../admin/admin.controller.js';
 import { AdminJournal, ADMIN_START } from '../admin/admin-journal.js';
 import { ADMIN_STORE, MemoryAdminStore, type AdminStore } from '../admin/admin-store.js';
@@ -50,6 +51,8 @@ export interface WorldsOptions {
   /** The admin log and the problem reports. */
   readonly admin?: AdminStore;
   readonly packs?: PackStore;
+  /** The directory, which stands outside any world and only shares these options. */
+  readonly directory?: DirectoryStore;
   /** The migrations applied as the server started, for the admin log. */
   readonly migrations?: readonly string[];
   readonly starts?: Limit;
@@ -63,21 +66,26 @@ export interface WorldsOptions {
   readonly close?: () => Promise<void>;
 }
 
+/** The rate limits these options set. */
+export function worldLimiters(options: WorldsOptions = {}): WorldLimiters {
+  const now = options.now ?? Date.now;
+  return {
+    starts: new Limiter(options.starts ?? START_LIMIT, now),
+    joins: new Limiter(options.joins ?? JOIN_LIMIT, now),
+    relay: new Limiter(options.relay ?? RELAY_LIMIT, now),
+    uploads: new Limiter(options.uploads ?? UPLOAD_LIMIT, now),
+    sendings: new Limiter(options.sendings ?? SENDING_LIMIT, now),
+    trustCloudflare: options.trustCloudflare ?? false,
+    now,
+  };
+}
+
 @Module({})
 export class WorldsModule {
-  static register(options: WorldsOptions = {}): DynamicModule {
+  static register(options: WorldsOptions = {}, limiters = worldLimiters(options)): DynamicModule {
     const now = options.now ?? Date.now;
     const store = options.store ?? new MemoryWorldStore();
     const exists = async (id: string) => (await store.get(id)) !== undefined;
-    const limiters: WorldLimiters = {
-      starts: new Limiter(options.starts ?? START_LIMIT, now),
-      joins: new Limiter(options.joins ?? JOIN_LIMIT, now),
-      relay: new Limiter(options.relay ?? RELAY_LIMIT, now),
-      uploads: new Limiter(options.uploads ?? UPLOAD_LIMIT, now),
-      sendings: new Limiter(options.sendings ?? SENDING_LIMIT, now),
-      trustCloudflare: options.trustCloudflare ?? false,
-      now,
-    };
     const keeping: WorldKeeping = { now, ...(options.close ? { close: options.close } : {}) };
     const admin = options.admin ?? new MemoryAdminStore(exists);
     return {

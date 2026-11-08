@@ -5,8 +5,9 @@
 // takes: 1 MB for a relay upload of up to 128 sealed batches, a seeding's too
 // (#548), and an observatory's opening with its made-up sendings (#621), 512 KB
 // for a delivery to the state's stand-in (#590), whose largest export, escaped
-// and sealed, fits it, 256 KB for a school's share of the totals (#596), and 64
-// KB for everything else. A body must say its length, so none is read
+// and sealed, fits it, 256 KB for a school's share of the totals (#596), 1 MB
+// for the directory's draft and a school's book (answer 809), and 64 KB for
+// everything else. A body must say its length, so none is read
 // unbounded. A refused body is drained so the client reads the answer, unless
 // it claims more than DRAIN_AT, when the connection is closed instead.
 
@@ -21,6 +22,7 @@ export const DRAIN_AT = 4 * BATCH_BODY;
 const UPLOAD = /^\/worlds\/[^/?]+\/(?:(?:spaces\/[^/?]+|seed)\/batches|insights)(?:\?|$)/;
 const DELIVERY = /^\/worlds\/[^/?]+\/state\/deliveries(?:\?|$)/;
 const SHARE = /^\/worlds\/[^/?]+\/totals\/[^/?]+\/shares(?:\?|$)/;
+const DIRECTORY_SAVE = /^\/directory\/(?:reference\/draft|schools\/[^/?]+\/book)(?:\?|$)/;
 
 function refuse(response: ServerResponse, statusCode: number, message: string, close: boolean): void {
   response.writeHead(statusCode, {
@@ -39,9 +41,11 @@ export function bodyGuard(request: IncomingMessage, response: ServerResponse, ne
   }
   const url = request.url ?? '';
   const posted = request.method === 'POST' ? url : null;
-  const most =
-    request.method === 'PUT' && SHARE.test(url)
-      ? SHARE_BODY
+  const put = request.method === 'PUT' ? url : '';
+  const most = SHARE.test(put)
+    ? SHARE_BODY
+    : DIRECTORY_SAVE.test(put)
+      ? BATCH_BODY
       : posted === null
         ? SMALL_BODY
         : UPLOAD.test(posted)
